@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-gate-input-rereview",
+  "language": "ro",
+  "role": "independent_complementary_input_review_read_only_delta",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "status": "COMPLETED_SOURCE_ONLY_PG_NATIVE_INTEGRATION_NOT_RUN",
+  "workspace": "/home/kali/OmnisAI",
+  "summary": "Gate-ul recunoaște și receiptul orfan cu qualification_ref și operation deghizată. Regresia SOURCE refuză COMMAND_CONFLICT înainte de catalog.get/identity, fără write attempts; positive create/read/exact replay și no-execution rămân trecute. Nicio constatare blocantă pe delta exactă de două fișiere. Nu aprobă integrarea sau PG/native.",
+  "snapshot": {
+    "head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "parent_manifest": "/home/kali/.hermes/cache/scratch/p2-result-qualification-parent-gate-fix.json",
+    "previous_input_review": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-rereview.json",
+    "previous_normative_review": "/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-rereview.json",
+    "all_five_full_sha256_match_parent_before_and_after_tests": true,
+    "exact_delta_verified": true,
+    "delta_verification_method": "In-memory reversal only: restoring previous operation-only gate reconstructs previous managed_admission SHA256; removing the new parameter and disguised-orphan branch reconstructs previous test SHA256. Both compared against full hashes from previous JSON, without editing files.",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74",
+        "changed_since_previous_review": false
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "6afbff66f80ad4157c282e3583025e849db50c3b4fb440bc2e981ed6e63d7bbd",
+        "previous_sha256": "77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08",
+        "changed_since_previous_review": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/result_qualification.py",
+        "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427",
+        "changed_since_previous_review": false
+      },
+      {
+        "path": "api/tests/test_result_qualification.py",
+        "sha256": "378c9f21d7f96c76ab3e382685e6c37d825df8b36d387bda3bea2d7535b290ae",
+        "previous_sha256": "f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61",
+        "changed_since_previous_review": true
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e",
+        "changed_since_previous_review": false
+      }
+    ],
+    "index_diff_stat": "",
+    "repo_changes_by_reviewer": false,
+    "protected_html": "Numele preexistent observat numai în git status; fără citire/hash/edit."
+  },
+  "admission": {
+    "requirement": "RQ-NORM-RR-F01: disguised orphan receipt locally decidable trebuie refuzat înainte de catalog, păstrând validarea autentică ulterioară și pozitivi nemodificați.",
+    "consumer": "ContractInputs CLI create-qualification/read-qualification/exact replay și ManagedAdmission._verify_graph comun.",
+    "risk": "Operation deghizată ocolește selectorul și schimbă COMMAND_CONFLICT prelookup în REF_UNAVAILABLE după lookup; un remediu always-deny ar distruge pozitivi.",
+    "decision": "Închidere SOURCE-scoped a defectului concret; acceptarea integrării/QA reale aparține părintelui.",
+    "budget": "O singură invocare SOURCE focalizată, cinci cazuri. Fără full77/full48, canonical, M2/denominator rerun, PG/native, network/browser/provider ori secrete.",
+    "resource_boundary": "SQL/engine/catalog/retained-material/composition doubles declarate. Request files și temporary seed sunt în scratch prin TMPDIR și fixture. Plugin autoload/cacheprovider dezactivate; interpreter -I -B. Fără efecte DB/Host autorizate și fără procese native lansate; aceasta nu este probă OS sandbox."
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "RQ-NORM-RR-F01",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "original_red": "Raport parent: exit1, 1 failed/48 deselected; replay REF_UNAVAILABLE după lookup în loc de COMMAND_CONFLICT. RED citit, nu relansat aici.",
+      "fix": "managed_admission.py:918-934: selectorul recunoaște result_refs.qualification_ref independent de operation, apoi validate_local precede denominator și catalog. Mapping strict importat din managed_contract.py:1634-1637; fără truthiness/coercion fallback.",
+      "independent_green": "test_result_qualification.py:574,639-660,713-732: îndepărtează qualification/manifest, deghizează operation=create-denominator, reface digestul, păstrează qualification_ref. Read, replay, create nou și common reader refuză exact COMMAND_CONFLICT; zero catalog.get/identity și INSERT/UPDATE/DELETE attempts; graph/writes unchanged.",
+      "positive_control": "Același test trece create/read/replay înainte de mutație; observers delegă și observă catalog.get, catalog.identity și scrieri. Nu este observer always-reject.",
+      "remaining": "Doubles SOURCE, nu constrângeri/locks/atomicity PostgreSQL sau consumer instalat."
+    },
+    {
+      "id": "INPUT-RQ-F01",
+      "disposition": "PREVIOUS_SOURCE_SCOPED_CLOSURE_PRESERVED_NOT_RERUN",
+      "evidence": "result_qualification.py și contract_inputs.py identice byte-exact cu reviewul anterior. Delta managed_admission este exclusiv selectorul. validate_graph:443-449 încă cheamă validate_durable după validarea locală; callerul ulterior rămâne managed_admission.py:1147-1150.",
+      "remaining": "Nu există o nouă probă durable PG/native în acest re-review."
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "disposition": "PREVIOUS_SOURCE_SCOPED_CLOSURE_PRESERVED_WITH_TARGETED_ORPHAN_REGRESSIONS",
+      "evidence": "orphan-provenance, orphan-manifest, orphan-receipt și disguised-orphan-receipt trecute prin aceleași call-sites și census prelookup. Validatorul semantic neschimbat: result_qualification.py:393-440."
+    },
+    {
+      "id": "RQ-NORM-F01",
+      "disposition": "PREVIOUS_SOURCE_SCOPED_CLOSURE_PRESERVED_NOT_FULL_NORMATIVE_REAUDIT",
+      "evidence": "Bariera locală este încă înainte de denominator/catalog; schema/checker/outcomes și ancora durable ulterioare nu au fost eliminate. RQ-NORM-RR-F01 tratat separat, nu șters prin findings gol."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Negativ disguised-orphan prelookup",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": "managed_admission.py:918-934; result_qualification.py:434-440",
+      "evidence": "Regresia deghizată și cele trei controale orphan: motive exacte, patru call-sites, zero lookup/write attempts."
+    },
+    {
+      "requirement": "Positive receipt/create/read/exact replay și istoric",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": "test_result_qualification.py:340-389,604-610",
+      "evidence": "Positive CLI, created True apoi False, exact graph unchanged la replay; materialul istoric nequalification rămâne egal."
+    },
+    {
+      "requirement": "Noexec și unavailable-only, nu ELIGIBLE/freshness",
+      "status": "PASS_SOURCE_SCOPED_WITH_DECLARED_SEAMS",
+      "code": "test_result_qualification.py:345-355,363-389",
+      "evidence": "Attempts execution=[]; build/module handler/evaluator/compiler observate în intervalul qualification. REVALIDATION_REQUIRED, precondition_state_refs=[] și exact cele două unavailable reasons. Fixture-ul producer poate compila/evalua înainte de acest interval; retained/composition sunt doubled."
+    },
+    {
+      "requirement": "Retained schemas/checker/DB anchor nu sunt înlocuite de prelookup",
+      "status": "UNCHANGED_CODE_AND_PREVIOUS_PROOF_SCOPE_PRESERVED",
+      "code": "managed_admission.py:1144-1150; result_qualification.py:443-449",
+      "evidence": "Delta exactă verificată prin reconstrucția SHA precedent: numai selector, fără alte modificări de cod; nu se recreditează o probă nouă de DB sau no-rerun compus autentic."
+    }
+  ],
+  "verification": [
+    {
+      "kind": "independent_source_execution_after_final_edit",
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k 'disguised or orphan or keeps_history' -q --tb=line",
+      "exit_code": 0,
+      "passed": 5,
+      "deselected": 44,
+      "duration_reported_seconds": 11.77,
+      "output": ".....                                                                    [100%]\n5 passed, 44 deselected in 11.77s"
+    },
+    {
+      "kind": "snapshot_and_delta_integrity",
+      "exit_code": 0,
+      "result": "Full five SHA256 match parent before/after tests; exactly two changed since previous review. In-memory reverse reconstructs both previous full SHA256. HEAD unchanged."
+    },
+    {
+      "kind": "git_read_only_final",
+      "command": "git rev-parse HEAD; git status --short --branch; git diff --cached --stat; git diff --check",
+      "exit_code": 0,
+      "result": "HEAD unchanged; same preexisting tracked/untracked paths; index empty; diff-check clean."
+    }
+  ],
+  "limitations": [
+    "APPROVED_SOURCE_SCOPED numai pentru gate delta și afectatele call-sites; nu integrare, installed/live QA sau P2 closure.",
+    "Previous full77/48 și durable proofs păstrate la scope-ul anterior; nu rerulate sau fabricate aici.",
+    "Parent quality și GREEN citite ca evidence parent, nu declarate executate de reviewer.",
+    "Parent raportase broad48 timeout120s/exit124; acesta nu este PASS și nu a fost rerulat aici.",
+    "PG/native/Host/browser/network/provider și secret reads NOT_RUN; protejat HTML neatins.",
+    "Nu pretinde absența universală a defectelor; fără additional breadth M2/denominator ori sandbox-certification.",
+    "Reticle NOT_APPLICABLE pentru SOURCE CLI; Chisel BLOCKED_NO_GO, niciun tooling smoke."
+  ],
+  "files_created": ["/home/kali/.hermes/cache/scratch/p2-result-qualification-gate-input-rereview.json"],
+  "repo_files_modified": [],
+  "issues_encountered": [
+    "Prima căutare bounded a raportului normativ în scratch a eșuat; citirea căii exacte a reușit. Niciun blocker produs găsit pe delta."
+  ],
+  "handoff": {
+    "code": "SOURCE gate fix prezent pe snapshotul exact, necomis de reviewer",
+    "proof": "5 SOURCE PASS; PG/native/integration NOT_RUN",
+    "review": "APPROVED_SOURCE_SCOPED complementary input",
+    "next": "Părinte: adjudecă împreună cu re-reviewul normativ pe aceleași SHA, apoi proba reală bounded/integrarea autorizată; fără transfer de PASS global.",
+    "status_map_change": "Propunere read-only pentru felia AICI; fără editarea hărții sau commit."
+  }
+}

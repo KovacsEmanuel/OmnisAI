@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-gate-normative-rereview",
+  "language": "ro",
+  "role": "independent_read_only_focused_normative_gate_review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "status": "COMPLETED_FOCUSED_REVIEW_PG_NATIVE_NOT_RUN",
+  "summary": "RQ-NORM-RR-F01 este închis pe reproducerul exact SOURCE. Predicatele callerului și validate_local sunt aliniate; receiptul orfan cu operation mascată și qualification_ref este refuzat COMMAND_CONFLICT înainte de catalog pe replay/new-create/common reader, iar read păstrează refuzul precoce. Cele trei findings originale sunt închise în scope SOURCE prin probele și reviewurile neafectate, nu prin transferul unui PASS global. Nu este acceptare de integrare.",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "product_base": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "files": [
+      {"path": "api/src/omnis/modules/runs/contract_inputs.py", "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74"},
+      {"path": "api/src/omnis/modules/runs/managed_admission.py", "sha256": "6afbff66f80ad4157c282e3583025e849db50c3b4fb440bc2e981ed6e63d7bbd"},
+      {"path": "api/src/omnis/modules/tasks/result_qualification.py", "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427"},
+      {"path": "api/tests/test_result_qualification.py", "sha256": "378c9f21d7f96c76ab3e382685e6c37d825df8b36d387bda3bea2d7535b290ae"},
+      {"path": "api/tests/test_contract_method_pg.py", "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e"}
+    ],
+    "dependencies_unchanged_hash_verified": [
+      {"path": "api/src/omnis/modules/coverage/denominator.py", "sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e"},
+      {"path": "api/src/omnis/modules/tasks/mission_revisions.py", "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97"},
+      {"path": "api/src/omnis/modules/tasks/managed_contract.py", "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a"},
+      {"path": "api/src/omnis/modules/tasks/managed_store.py", "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c"}
+    ],
+    "requested_five_hashes_match_before_and_after": true,
+    "head_and_git_status_unchanged": true,
+    "index_empty_before_and_after": true,
+    "git_diff_check_exit": 0,
+    "existing_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html\n"
+  },
+  "evidence_handles": [
+    {"path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-rereview.json", "sha256": "902a6775423213477b4dbc70c79a71d1257b0f8ed1d47182533051c95c6fa81f", "verdict": "CHANGES_REQUESTED", "use": "Constatarea nouă și aprobările normative neafectate; nu verdict de aprobare a gate-ului vechi."},
+    {"path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-rereview.json", "sha256": "9e2b8986f6cdc3bc0ba4d2a413e25379c59eb09e1582043afe3ab5b712c339b8", "verdict": "APPROVED_SOURCE_SCOPED", "use": "Review complementar auth/durable/input/noexec pe scope neschimbat, nu aprobare implicită a bytes noi din gate."},
+    {"path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-parent-gate-fix.json", "sha256": "01ea67c39d0d670a153477326ce693301e831c6e6cfe54acf7d9b6f5f3097311", "use": "RED original și GREEN/quality finale raportate de părinte."},
+    {"path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json", "sha256": "0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a", "use": "Finding original RQ-NORM-F01."},
+    {"path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json", "sha256": "3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f", "use": "Findings originale INPUT-RQ-F01/F02."}
+  ],
+  "authority": [
+    "AGENTS.md; CONTRIBUTING.md:50-71: snapshot exact, review focalizat, reutilizarea scope-ului neafectat; părinte proprietar al integrării.",
+    "documents/Omnis_MVP_Architecture.md:405-418 §6.3: istorie autentică separată de calificare/admitere și revalidare conservatoare fără compatibility/current-state proof.",
+    "documents/verification/p2-result-qualification-schema-decision.md:33-41: cinci fișiere, remediere semantic-before-lookup păstrând retained/schema/DB, fără alt runner ori probe PG/native în review."
+  ],
+  "admission": {
+    "requirement": "RQ-NORM-RR-F01: receiptul orfan cu qualification_ref și operation mascată trebuie identificat de gate și refuzat local înainte de catalog.",
+    "consumer": "ContractInputs.read/create_qualification exact replay și comandă nouă; ManagedAdmission._verify_graph reader comun.",
+    "risk": "Gate incomplet produce REF_UNAVAILABLE dependent de lookup în loc de COMMAND_CONFLICT local, ori sare validarea qualification.",
+    "decision": "Aprobare exclusiv SOURCE a remediului exact; integrarea și QA reală rămân ale părintelui.",
+    "budget": "O singură execuție focalizată de cinci teste existente; fără full77/full48, harness nou, PG/native/network/browser/secrete.",
+    "resource_owner": "Reviewer: numai report JSON cerut și basetemp pytest privat /home/kali/.hermes/cache/scratch/p2-rq-gate-normative-rereview-pytest. Proces pytest foreground exit0; fără servicii ori cleanup de resurse străine. Artefactele scratch păstrate."
+  },
+  "delta_review": {
+    "exact_previous_snapshot_reconstructed_in_memory": true,
+    "method": "Înlocuirea exclusiv în memorie a blocului gate nou cu linia anterioară și eliminarea exclusiv în memorie a parametrului/ramurii disguised-orphan produc exact SHA-urile vechi. Nu s-au scris bytes vechi pe disk.",
+    "gate_delta": {"added_lines": 4, "removed_lines": 1, "prior_sha256": "77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08"},
+    "test_delta": {"added_lines": 23, "removed_lines": 0, "prior_sha256": "f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61"},
+    "other_three_files_byte_identical_to_prior_review": true,
+    "predicate": "managed_admission.py:918-933 recunoaște KIND/MANIFEST ori contract-input-command cu operation=create-qualification SAU presence qualification_ref în result_refs, exact alternativele result_qualification.py:434-440.",
+    "typing": "managed_contract.mapping:1634-1637 cere type(value) is dict și chei string exacte; altfel CatalogError(MANAGED_REJECTED). Gate-ul nu folosește coercion/truthiness ori acces nesigur pe liste/null. Mapping este pur și returnează copie.",
+    "order": "validate_local la933 precedă SET LOCAL934, denominator.validate_graph939 și catalog/ref loop. Create verifică graph înainte de command_replay; read refuză operation conflict la505-506 înainte de owned qualification și _verify_graph. Common reader folosește același gate.",
+    "late_anchor_preserved": "_verify_graph:1147-1150 păstrează validate_graph; result_qualification.py:443-449 păstrează validate_local apoi validate_durable după retained/schema/checker. Nicio eliminare de ancoră istorică, schema, owner lock sau tranzacție.",
+    "effects": "Delta de produs adaugă numai evaluare locală a mappingului și intră în validarea existentă; nu adaugă build/evaluator/dispatch/model/wake, scriere de graph sau authority curentă."
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "RQ-NORM-RR-F01",
+      "severity": "MEDIUM",
+      "disposition": "CLOSED_EXACT_REPRODUCER_SOURCE_SCOPED",
+      "red": "Părinte: 1 failed/48 deselected în2.95s, exit1; exact replay REF_UNAVAILABLE în loc de COMMAND_CONFLICT, înainte de editarea gate-ului.",
+      "green": "Reviewer independent pe bytes finali: disguised-orphan plus controale orphan/provenance/manifest și pozitiv keeps_history, 5PASS/44deselected11.85s/exit0.",
+      "case": "Regresia test_result_qualification.py:639-660 elimină numai qualification/manifest, păstrează receipt/result_refs, schimbă operation în create-denominator și recalculează digestul envelope-ului.",
+      "consumer_results_asserted_by_executed_test": [
+        {"consumer": "read", "reason": "COMMAND_CONFLICT", "catalog_get_and_identity_attempts": 0},
+        {"consumer": "exact-replay", "reason": "COMMAND_CONFLICT", "catalog_get_and_identity_attempts": 0},
+        {"consumer": "new-create", "reason": "COMMAND_CONFLICT", "catalog_get_and_identity_attempts": 0},
+        {"consumer": "common-reader", "reason": "COMMAND_CONFLICT", "catalog_get_and_identity_attempts": 0}
+      ],
+      "state": "Asserts la713-732: zero INSERT/UPDATE/DELETE attempts, graph și conn.writes neschimbate. SQL doubles, nu census PG.",
+      "observer": "records.get și conn.execute delegă pozitivul și înregistrează înaintea apelului; pozitivul create/read/replay demonstrează catalog.get/catalog.identity și writes. Nu always-deny sau helper-only proof."
+    },
+    {
+      "id": "RQ-NORM-F01",
+      "severity": "MEDIUM",
+      "disposition": "CLOSED_ORIGINAL_REPRODUCERS_SOURCE_SCOPED_APPROVAL_PRESERVED",
+      "basis": "Reviewul normativ anterior închide schema_ref fals fully resealed→QUALIFICATION_INVALID și receipt request_digest fals→COMMAND_CONFLICT pe cei patru consumeri cu zero lookup/write/durable attempts. validate_local și callsites contract_inputs sunt byte-identice; gate-ul numai extinde identificarea materialului orfan. Nu rerulare a probelor neafectate.",
+      "remaining": "PG/native NOT_RUN. Închiderea clasei gate nou se bazează separat pe RQ-NORM-RR-F01, nu pe findings=[] dintr-un raport nou."
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "severity": "MEDIUM",
+      "disposition": "CLOSED_ORIGINAL_REPRODUCERS_SOURCE_SCOPED_APPROVAL_PRESERVED",
+      "basis": "Reviewurile originale remediului probează provenance orfană/value_digest fals refuzate local; validate_local/inventare/receipt/schema/value rămân byte-identice. Execuția focalizată actuală revalidează orphan-provenance/orphan-manifest/orphan-receipt pe patru consumeri cu zero lookups/writes. Cazul nou mascat este acum închis separat.",
+      "remaining": "Nu completitudine universală a provenance guard și nu PG proof."
+    },
+    {
+      "id": "INPUT-RQ-F01",
+      "severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED_COMPLEMENTARY_APPROVAL_PRESERVED",
+      "basis": "Reviewul input anterior APPROVED_SOURCE_SCOPED închide toate cele șase foreign-row reproduceri, cu16mutații durable pe create/read/replay și negative de tip. result_qualification.py:115-119,241-321 și managed_contract.py:1700-1903 sunt hash-identice. Fixul gate nu substituie nici nu ocolește validate_durable; reviewul normativ anterior probează durabilitatea refuzului după lookup și prioritatea tamperului local.",
+      "remaining": "Corelarea pe PostgreSQL real/FK/locks/concurrency/public reachability NOT_RUN; fără current authority fabricată."
+    }
+  ],
+  "requirement_code_evidence": [
+    {"id": "RQ-C01", "status": "UNCHANGED_APPROVAL_PRESERVED_SOURCE", "detail": "CONTRACT/NO_MODEL; M2/denominator/schema0013 neafectate și nereauditate; dependențe hash-identice."},
+    {"id": "RQ-C02", "status": "UNCHANGED_APPROVAL_PRESERVED_SOURCE", "detail": "RecordEnvelope finit strict, refs/owner/run, manifest generat backend; fără migrare."},
+    {"id": "RQ-C03", "status": "UNCHANGED_SEMANTIC_APPROVAL_PRESERVED_SOURCE", "detail": "derive_local manifest semantic din final/header/binding/emitted inventories; retained/schema/checker și ancoră durable păstrate."},
+    {"id": "RQ-C04", "status": "PASS_FOCUSED_SOURCE", "detail": "Pozitiv keeps_history: M1 result/assignment, M2mission, denominator_revision1, precondition_state_refs[], REVALIDATION_REQUIRED cu COMPATIBILITY_PROOF_UNAVAILABLE și CURRENT_PRECONDITION_PROOF_UNAVAILABLE; fără ELIGIBLE/INELIGIBLE/current-state fabricată."},
+    {"id": "RQ-C05", "status": "UNCHANGED_APPROVAL_PRESERVED_SOURCE_PG_NOT_RUN", "detail": "Owner-lock, engine.begin, read scope/ref și exact replay păstrate; rollback double din aprobarea anterioară, nu atomicitate PG."},
+    {"id": "RQ-C06", "status": "PASS_AFFECTED_GATE_SOURCE", "detail": "Predicatele comune aliniate; disguised-orphan și controale refuzate înainte de catalog pe read/replay/new-create/common reader."},
+    {"id": "RQ-C07", "status": "PASS_FOCUSED_SOURCE_NOEXEC_LIMITED", "detail": "Pozitiv keeps_history executat cu BuildSource/compiler/evaluator/handler spies; zero execution attempts în intervalul qualification și istoria păstrată. SQL/catalog/material/composition seams doubles; fără certificat OS/native."},
+    {"id": "RQ-C08", "status": "UNCHANGED_PREPARED_STATIC_COLLECT_ONLY_PG_NOT_RUN", "detail": "Testul PG original hash-identic; selector result-qualification anterior collect1/29,28deselected. Nici controlul PG, nici cleanup n-au fost executate de reviewer; nu alt runner."}
+  ],
+  "verification": {
+    "independent_affected_execution": {
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k 'disguised or orphan or keeps_history' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-gate-normative-rereview-pytest",
+      "timeout_seconds": 120,
+      "exit_code": 0,
+      "output": ".....                                                                    [100%]\n5 passed, 44 deselected in 11.85s",
+      "status": "PASS_SOURCE_SCOPED",
+      "after_last_edit": true,
+      "positive_test_count": 1,
+      "mutation_test_count": 4,
+      "selected_test_count": 5,
+      "deselected_count": 44,
+      "mutation_consumers_per_test": 4,
+      "evidence_channel": "Asserțiuni în testele executate; nu raport de evenimente PG/native separat."
+    },
+    "parent_evidence_not_reexecuted": {
+      "red_exit": 1,
+      "green": "5 passed,44 deselected11.99s/exit0 pe snapshot final",
+      "quality": "Ruff check/format și mypy2 exit0",
+      "historical_failed_attempt": "Tentativa parent full48 a expirat120s după42dots/exit124; nu PASS și nu anulată de GREEN-ul focalizat."
+    },
+    "retained_unaffected_evidence": "Raport normativ anterior48SOURCE PASS121.15s/exit0; input anterior77SOURCE PASS123.86s/exit0 și probe complementare. Nu rerulate și nu promovate la PG/native sau la un PASS de întreaga suită pe bytes noi.",
+    "integrity": "SHA-urile finale5 și dependențe4 verificate înainte/după; gate/test bytes anteriori reconstruibili exact în memorie; HEAD/status/index neschimbate; git diff --check exit0."
+  },
+  "limits": [
+    "Aprobare strict pe snapshot și remediul/findingurile numite; nu afirmație de absență universală a defectelor.",
+    "SQL/storage/retained/catalog/schema/composition seams SOURCE doubles; fixture setup precedent spies poate executa producerul sintetic. Noexec se referă la intervalul qualification, nu la OS/native end-to-end.",
+    "PG/native/installed/public/history-restart/concurrency/crash cuts/canonical final NOT_RUN aici. Integrare, commit și acceptare P2 nu sunt acordate de subagent.",
+    "Precondițiile curente/compatibility proof rămân lipsă explicită, decizia conservatoare și istoria autentică nu sunt înlocuite.",
+    "Protecția HTML respectată: nume observat în git status, fără citire/hash/edit. Fără repo/docs/skills/index/stage/commit edits, rețea, browser, servicii sau secret reads.",
+    "Harta versionată încă spune ResultQualification NOT_IMPLEMENTED/CHANGES_REQUESTED istoric; raportul propune parentului numai actualizarea rândului afectat după adjudecare, nu o editează."
+  ],
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "artifacts_created": ["/home/kali/.hermes/cache/scratch/p2-result-qualification-gate-normative-rereview.json", "/home/kali/.hermes/cache/scratch/p2-rq-gate-normative-rereview-pytest"],
+  "repository_files_created_or_modified_by_reviewer": [],
+  "integration_accepted": false,
+  "next_action": "Părintele citește raportul complet, compară cele5SHA și adjudecă; QA PG/native fresh numai după preflightul existent admis. M2/numitor acceptate rămân neafectate; restB06b/B06c/m/P2-inert/P4a-minim și canonical final rămân deschise."
+}

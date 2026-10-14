@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "FIXED_SOURCE_PENDING_FOCUSED_REREVIEW",
+  "finding": "RQ-NORM-RR-F01",
+  "red": {
+    "command": "pytest test_result_qualification.py -k disguised-orphan-receipt -q --tb=line",
+    "exit_code": 1,
+    "output": "1 failed,48 deselected in2.95s; replay reason REF_UNAVAILABLE instead of COMMAND_CONFLICT"
+  },
+  "changes": "Gate recognizes result_refs.qualification_ref even if orphan receipt operation is disguised; strict mapping; retained/schema/DB checks unchanged. Existing real caller test covers read/replay/new-create/common reader with independent lookup/write census.",
+  "snapshot": [
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "6afbff66f80ad4157c282e3583025e849db50c3b4fb440bc2e981ed6e63d7bbd"
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/result_qualification.py",
+      "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427"
+    },
+    {
+      "path": "api/tests/test_result_qualification.py",
+      "sha256": "378c9f21d7f96c76ab3e382685e6c37d825df8b36d387bda3bea2d7535b290ae"
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e"
+    }
+  ],
+  "verification": [
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k 'disguised or orphan or keeps_history' -q --tb=line",
+      "output": ".....                                                                    [100%]\n5 passed, 44 deselected in 11.99s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/managed_admission.py api/tests/test_result_qualification.py && api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/managed_admission.py api/tests/test_result_qualification.py && env -u MYPYPATH -u PYTHONPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-rq-parent-gate-mypy api/src/omnis/modules/runs/managed_admission.py api/tests/test_result_qualification.py",
+      "output": "All checks passed!\n2 files already formatted\nSuccess: no issues found in 2 source files",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "git diff --check",
+      "output": "",
+      "exit_code": 0,
+      "error": null
+    }
+  ],
+  "limits": [
+    "SOURCE doubles, not PG/native proof",
+    "Original 77/48 SOURCE accepted evidence retained for unchanged scope",
+    "Parent broad48 test attempt timed out120s after42dots/exit124, no PASS inferred",
+    "No producer current-precondition proof; conservator REVALIDATION_REQUIRED unchanged"
+  ]
+}

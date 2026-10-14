@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-input-rereview",
+  "language": "ro",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "status": "COMPLETED_READ_ONLY_SOURCE_REVIEW_PG_NATIVE_NOT_RUN",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "product_base": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "index_diff": "",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74"
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/result_qualification.py",
+        "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427"
+      },
+      {
+        "path": "api/tests/test_result_qualification.py",
+        "sha256": "f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e"
+      }
+    ],
+    "original_reports": [
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-author.json",
+        "sha256": "24ef83f9369b4f746f7f61927633dd753c4dfd926ed05117a5826622e6c51635"
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json",
+        "sha256": "3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f"
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json",
+        "sha256": "0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a"
+      },
+      {
+        "path": "documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json",
+        "sha256": "f986f71e00f76449ab0c2e4a4b18726d16dfc64fdbb20c5dd251f67362205933"
+      }
+    ],
+    "scratch_inputs": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json",
+        "sha256": "a04c631af517130d4b39669260a91bf2cf7e90dfd1b7392f166022a538bf38ae"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-probe.py",
+        "sha256": "f65ba7ab1980d1bbca20bf5c4611bcae0d70f56f4764f0f43f35d0945b7e4555"
+      }
+    ],
+    "hashes_match_requested_snapshot5": true,
+    "head_delta": "DOCS_ONLY; produsul de cinci fișiere rămâne necomis; hashurile au fost comparate la început și final."
+  },
+  "scope": {
+    "requirement": "ResultQualification finit §6.3: manifest semantic backend și immutable create/read/exact replay pe result/assignment/denominator autentice, fără efecte/reexecuție; conservator REVALIDATION_REQUIRED.",
+    "consumer": "ContractInputs.create_qualification/read și ManagedAdmission._verify_graph; caller CLI main executat în proces SOURCE, SQL/retained/catalog/composition doubles declarate.",
+    "risk": "INPUT-RQ-F01: ancoră durable străină; INPUT-RQ-F02/RQ-NORM-F01: semantic/provenance invalid cunoscut local ajunge la catalog înainte de refuz; regressii owner/ref/typing/failure/no-rerun.",
+    "decision": "Aprobare independentă a remediului SOURCE pe snapshot5 exact, nu QA PG/native, integrare ori închidere P2.",
+    "excluded": [
+      "execuții PG/native/Host",
+      "browser/network/provider/secret reads",
+      "reaudit M2/denominator neschimbate",
+      "census universal sau framework de verificare nou",
+      "editări repo/docs/tests/status/skills/stage/commit",
+      "citire/hash/edit HTML protejat"
+    ]
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "INPUT-RQ-F01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED_PG_NOT_RUN",
+      "original_observation": "Raportul input și parent RED confirmă șase foreign rows acceptate: task_id, attempt_id, task runtime_boot, native_child_id, run runtime_boot și ticket; nu se inferă reachability publică din aceste mutații.",
+      "fix": "result_qualification.py:115-119,241-321 corelează owner/run, manifest/binding/final IDs, historical boot/ticket/root, task/attempt/run/batch/brief/result/check și child/session. validate_final→validate_binding leagă intrarea cu manifestul, nu doar cu un Ref cu digest valid.",
+      "independent_evidence": "Regresia executată test_result_qualification.py:392-447: 16 variații durable, pozitiv create/read/replay înainte de atac; first-create pe command nou, retained read și exact replay refuză METHOD_RECEIPT_MISMATCH, zero write attempts și graph/state/tasks/writes identice. Cele șase originale sunt incluse.",
+      "additional_evidence": "Probe independentă: UUID driver și string canonical exacte acceptate; missing task boot/run ticket, bool task_id, UUID obiect în child/root text refuzate pe trei calleri cu zero writes. Type coercion nu validează identitate.",
+      "historical_authority": "Validarea se leagă de bindingul istoric; nu citește lease/control curente și nu acordă lucru. Probe independentă zero current_authority_queries.",
+      "remaining": "Corelarea în PostgreSQL autentic rămâne NOT_RUN; FK/constraints/locking/reachability nu sunt certificate de doubles."
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED_PG_NOT_RUN",
+      "original_observation": "Orphan command provenance și manifest value_digest tampered erau refuzate abia după catalog.get.",
+      "fix": "ManagedAdmission._verify_graph:918-936 cheamă validate_local înainte de denominator.validate_graph și înainte de loop catalog/get/reservation; result_qualification.py:393-440 verifică reconstrucția final/emitted records, inventare, schema/value, pairing, command provenance și exact receipt, inclusiv orfani.",
+      "independent_evidence": "Regresia resealed_semantic executată: pozitivul delegat produce catalog.get și catalog.identity și scrieri reale în SQL double. Tamperurile complet resealed de provenance/value/inventare/orfani refuză exact local pe read/exact replay/create nou și reader comun, zero get/identity/write attempts și graph/writes unchanged.",
+      "late_proof": "Nu au fost eliminate retained schemas/catalog/checker/outcomes/DB: _verify_graph:1005-1147 păstrează aceste verificări, iar validate_graph:443-449 repetă semantic și cheamă validate_durable. Probe pozitivă atinge _method_schemas, iar indisponibilitatea injectată refuză retained read fără schimbări.",
+      "remaining": "SOURCE seams doubled; SQL-driver/catalog/readiness reale în PG încă NOT_RUN."
+    },
+    {
+      "id": "RQ-NORM-F01",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED_FOR_SHARED_ORDERING_FIX_PG_NOT_RUN",
+      "relationship": "Interacțiunea cu INPUT-RQ-F02 este aceeași barieră semantică locală, nu un audit normativ complet nou.",
+      "independent_evidence": "manifest-schema fals fully resealed→QUALIFICATION_INVALID și receipt-digest fals→COMMAND_CONFLICT înainte de orice catalog.get/identity/write; sunt executate read/replay/create nou și _verify_graph direct în regresia SOURCE.",
+      "read_order": "ContractInputs.read:522-530 resolve owned qualification, validate_scope și validate_receipt înainte de _verify_graph; motivul owner REF_UNAVAILABLE/REF_MISMATCH nu este înlocuit cu un receipt conflict.",
+      "remaining": "Aprobă doar remediul comun și call-sites afectate; nu înlocuiește verdictul reviewerului normativ complementar ori acceptarea parent."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "owner/ref/type/auth input strict și server-generated decision/manifest",
+      "code": "contract_inputs.validate_request/create_qualification; result_qualification.payload/validate_scope",
+      "evidence": "SOURCE CLI request_denials și foreign_owner tests trecute; motiv/exit/out/err exact, storage unchanged. ELIGIBLE/extra keys/schema/ref bool nu sunt acceptate."
+    },
+    {
+      "requirement": "durable lineage autentică, nu self-digest",
+      "code": "derive_local validate_final+header/emitted equality; validate_durable historical SQL public.*",
+      "evidence": "Pozitive și negative actual caller trecute; ancoră rows completă, tip UUID/string strict; nu actual authority."
+    },
+    {
+      "requirement": "ordine local semantic/provenance înainte de lookup",
+      "code": "_verify_graph:930 înainte de denominator:936 și catalog loop:1005+; read:526-529",
+      "evidence": "Resealed semantic controls delegating observers: pozitiv lookups, negativ zero. Nu este un observer always-deny."
+    },
+    {
+      "requirement": "failure atomic / immutable append / exact replay",
+      "code": "create_qualification într-un engine.begin, owner lock, graph validation înainte de command_replay, două records și command_complete în aceeași tranzacție",
+      "evidence": "receipt_failure_rolls_back test PASS; no-rerun positive create/read/replay PASS; SQL double rollback, nu PG atomicity."
+    },
+    {
+      "requirement": "fără effects/reexecuție și fără promovare ELIGIBLE",
+      "code": "create/read numai derive/validate/store, no build/dispatch; decision fix REVALIDATION_REQUIRED, precondition refs [], două reason_codes",
+      "evidence": "no_execution regression și probe independentă pe build/_build/compiler/evaluator aliases/module handler: zero execution attempts. Fixture compile/PURE/protocol producer se execută înaintea intervalului qualification; compoziția/retained schema sunt doubled în SOURCE."
+    }
+  ],
+  "prepared_pg_controls": {
+    "status": "INSPECTED_AND_COLLECTED_ONLY_NOT_RUN",
+    "file": "api/tests/test_contract_method_pg.py",
+    "node": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]",
+    "collection": {
+      "selected": 1,
+      "total": 29,
+      "deselected": 28,
+      "exit_code": 0
+    },
+    "opt_in": "OMNIS_CONTRACT_METHOD_NATIVE_PG=1; NU setat/executat în re-review.",
+    "scope": "Același fixture PG/native owner receipts; qualification numai după runtime.close, host joined și _owned_pids gol. Prerequisite M2 append+denominator create unice, fără un nou audit breadth M2/numitor.",
+    "positive": "CLI create/read/replay; result M1, evaluated mission M2, denominator revision1, REVALIDATION_REQUIRED/preconditions[]; exact manifest/schema/value inventory, retained history și native observation unchanged.",
+    "failure": "Injectarea command_complete failure după două records cere census cinci tabele identic: managed_record, managed_mission_revision, managed_run, managed_task, managed_inbox.",
+    "auth_denials": "Opt tuple CLI exacte pe owner/ref digest/ref bool/kind/replay conflict/extra decision/extra denominator revision/wrong read; five-table census unchanged.",
+    "durable_negatives": {
+      "count": 7,
+      "fields": [
+        "managed_task.attempt_id",
+        "managed_task.runtime_boot",
+        "managed_task.native_child_id",
+        "managed_task.native_session_id",
+        "managed_run.runtime_boot",
+        "managed_run.ticket",
+        "managed_run.native_root_id"
+      ],
+      "method": "UPDATE numai run propriu, lock owner, snapshot tampered, _verify_graph authentic retained graph→METHOD_RECEIPT_MISMATCH, snapshot după refuz egal cu tampered, finally transaction.rollback, census post-rollback egal cu pozitiv."
+    },
+    "local_order_negatives": {
+      "count": 2,
+      "attacks": [
+        "manifest-schema",
+        "receipt-digest"
+      ],
+      "method": "Pozitiv _verify_graph autentic atinge get și catalog identity; apoi fully resealed graph/schema propagation ori receipt digest→QUALIFICATION_INVALID/COMMAND_CONFLICT, zero observed lookup attempts. Event listener removed finally; census unchanged."
+    },
+    "no_rerun": "CLI subprocess guards BuildSource.build/ManagedAdmission._build/skill_catalog.compile_catalog+evaluate_pure/candidate_catalog.evaluate_pure/module_registry.run_handler; positive command exige exit0/empty stderr, denials exact. Native observation byte equality și execution_attempts verificabile la parent când se execută.",
+    "limits": [
+      "Niciun control PG nu a fost executat; collect-only nu certifică fixtures/locks/constraints/rollback/cleanup/Host/noexec.",
+      "Durable mutations pregătite trec readerul comun, nu fiecare consumer installed separat; SOURCE include actual CLI create/read/replay.",
+      "task_id/FK și toate combinațiile multi-task neincluse în cele șapte PG controls; nu sunt solicitate ca un census universal nou."
+    ]
+  },
+  "verification": {
+    "source": {
+      "status": "PASS_SOURCE_SCOPED",
+      "count": 77,
+      "exit_code": 0,
+      "duration_reported_seconds": 123.86,
+      "after_last_product_edit": true
+    },
+    "independent_probe": {
+      "status": "PASS_SOURCE_SCOPED",
+      "case_count": 9,
+      "cases": [
+        {
+          "scenario": "driver-UUID-positive",
+          "result": "PASS"
+        },
+        {
+          "scenario": "exact-canonical-string-positive",
+          "result": "PASS"
+        },
+        {
+          "scenario": "missing-task-boot",
+          "result": "PASS",
+          "outcomes": [
+            {
+              "consumer": "first-create",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "read",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "replay",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            }
+          ]
+        },
+        {
+          "scenario": "missing-run-ticket",
+          "result": "PASS",
+          "outcomes": [
+            {
+              "consumer": "first-create",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "read",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "replay",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            }
+          ]
+        },
+        {
+          "scenario": "bool-task-id",
+          "result": "PASS",
+          "outcomes": [
+            {
+              "consumer": "first-create",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "read",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "replay",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            }
+          ]
+        },
+        {
+          "scenario": "uuid-object-for-native-text",
+          "result": "PASS",
+          "outcomes": [
+            {
+              "consumer": "first-create",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "read",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "replay",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            }
+          ]
+        },
+        {
+          "scenario": "uuid-object-for-root-text",
+          "result": "PASS",
+          "outcomes": [
+            {
+              "consumer": "first-create",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "read",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            },
+            {
+              "consumer": "replay",
+              "reason": "METHOD_RECEIPT_MISMATCH"
+            }
+          ]
+        },
+        {
+          "scenario": "late-retained-schema-positive",
+          "result": "PASS"
+        },
+        {
+          "scenario": "late-retained-schema-unavailable-refused",
+          "result": "PASS"
+        }
+      ],
+      "execution_attempts": [],
+      "current_authority_queries": 0,
+      "limit": "SOURCE SQL/catalog/retained material/composition doubles; in-process protocol producer setup precedes execution guards; no PG/native/installed integration."
+    },
+    "executions": [
+      {
+        "label": "source-regression",
+        "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin LANG=C.UTF-8 TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py api/tests/test_c03_managed_capture.py -q --tb=short --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-pytest",
+        "output": "........................................................................ [ 93%]\n.....                                                                    [100%]\n77 passed in 123.86s (0:02:03)",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "pg-collect-only",
+        "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin LANG=C.UTF-8 TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification --collect-only -q --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-collect",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n\n1/29 tests collected (28 deselected) in 0.94s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "final-snapshot-integrity",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import hashlib,json,pathlib,subprocess; r=pathlib.Path(\"/home/kali/OmnisAI\"); files=[\"api/src/omnis/modules/runs/contract_inputs.py\",\"api/src/omnis/modules/runs/managed_admission.py\",\"api/src/omnis/modules/tasks/result_qualification.py\",\"api/tests/test_result_qualification.py\",\"api/tests/test_contract_method_pg.py\"]; originals=[\"result-qualification-author.json\",\"result-qualification-input-review.json\",\"result-qualification-normative-review.json\",\"result-qualification-parent-input-red.json\"]; out={\"head\":subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=r,text=True).strip(),\"status\":subprocess.check_output([\"git\",\"status\",\"--short\",\"--branch\"],cwd=r,text=True),\"index_diff\":subprocess.check_output([\"git\",\"diff\",\"--cached\",\"--stat\"],cwd=r,text=True),\"files\":[{\"path\":f,\"sha256\":hashlib.sha256((r/f).read_bytes()).hexdigest()} for f in files],\"original_reports\":[{\"path\":\"documents/verification/p2-bound-predicates-evidence/\"+n,\"sha256\":hashlib.sha256((r/\"documents/verification/p2-bound-predicates-evidence\"/n).read_bytes()).hexdigest()} for n in originals],\"scratch_inputs\":[{\"path\":str(p),\"sha256\":hashlib.sha256(p.read_bytes()).hexdigest()} for p in [pathlib.Path(\"/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json\"),pathlib.Path(\"/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-probe.py\")]]}; print(json.dumps(out))'",
+        "output": "{\"head\": \"6eeb64410cee6877e3287a60ca0125ab561aa86b\", \"status\": \"## checkpoint/p2-vm-restart-20261011\\n M api/src/omnis/modules/runs/contract_inputs.py\\n M api/src/omnis/modules/runs/managed_admission.py\\n M api/tests/test_contract_method_pg.py\\n?? api/src/omnis/modules/tasks/result_qualification.py\\n?? api/tests/test_result_qualification.py\\n?? documents/Omnis_Notite_Originale.html\\n\", \"index_diff\": \"\", \"files\": [{\"path\": \"api/src/omnis/modules/runs/contract_inputs.py\", \"sha256\": \"012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74\"}, {\"path\": \"api/src/omnis/modules/runs/managed_admission.py\", \"sha256\": \"77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08\"}, {\"path\": \"api/src/omnis/modules/tasks/result_qualification.py\", \"sha256\": \"31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427\"}, {\"path\": \"api/tests/test_result_qualification.py\", \"sha256\": \"f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61\"}, {\"path\": \"api/tests/test_contract_method_pg.py\", \"sha256\": \"091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e\"}], \"original_reports\": [{\"path\": \"documents/verification/p2-bound-predicates-evidence/result-qualification-author.json\", \"sha256\": \"24ef83f9369b4f746f7f61927633dd753c4dfd926ed05117a5826622e6c51635\"}, {\"path\": \"documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json\", \"sha256\": \"3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f\"}, {\"path\": \"documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json\", \"sha256\": \"0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a\"}, {\"path\": \"documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json\", \"sha256\": \"f986f71e00f76449ab0c2e4a4b18726d16dfc64fdbb20c5dd251f67362205933\"}], \"scratch_inputs\": [{\"path\": \"/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json\", \"sha256\": \"a04c631af517130d4b39669260a91bf2cf7e90dfd1b7392f166022a538bf38ae\"}, {\"path\": \"/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-probe.py\", \"sha256\": \"f65ba7ab1980d1bbca20bf5c4611bcae0d70f56f4764f0f43f35d0945b7e4555\"}]}",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "independent-caller-controls",
+        "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin LANG=C.UTF-8 TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-rq-input-rereview-probe.py",
+        "output": "{\"status\": \"PASS_SOURCE_SCOPED\", \"case_count\": 9, \"cases\": [{\"scenario\": \"driver-UUID-positive\", \"result\": \"PASS\"}, {\"scenario\": \"exact-canonical-string-positive\", \"result\": \"PASS\"}, {\"scenario\": \"missing-task-boot\", \"result\": \"PASS\", \"outcomes\": [{\"consumer\": \"first-create\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"read\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"replay\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}]}, {\"scenario\": \"missing-run-ticket\", \"result\": \"PASS\", \"outcomes\": [{\"consumer\": \"first-create\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"read\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"replay\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}]}, {\"scenario\": \"bool-task-id\", \"result\": \"PASS\", \"outcomes\": [{\"consumer\": \"first-create\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"read\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"replay\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}]}, {\"scenario\": \"uuid-object-for-native-text\", \"result\": \"PASS\", \"outcomes\": [{\"consumer\": \"first-create\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"read\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"replay\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}]}, {\"scenario\": \"uuid-object-for-root-text\", \"result\": \"PASS\", \"outcomes\": [{\"consumer\": \"first-create\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"read\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}, {\"consumer\": \"replay\", \"reason\": \"METHOD_RECEIPT_MISMATCH\"}]}, {\"scenario\": \"late-retained-schema-positive\", \"result\": \"PASS\"}, {\"scenario\": \"late-retained-schema-unavailable-refused\", \"result\": \"PASS\"}], \"execution_attempts\": [], \"current_authority_queries\": 0, \"limit\": \"SOURCE SQL/catalog/retained material/composition doubles; in-process protocol producer setup precedes execution guards; no PG/native/installed integration.\"}",
+        "exit_code": 0,
+        "error": null
+      }
+    ],
+    "diff_check": {
+      "command": "git diff --check && git diff --cached --stat && git status --short --branch",
+      "exit_code": 0,
+      "status": "PASS; index gol, status identic cu începutul"
+    },
+    "quality": "Autorul raportează Ruff/mypy/format exit0; citit, nu rerulat/creditat drept execuție independentă în acest review."
+  },
+  "limits": [
+    "Aprobarea SOURCE este legată strict de snapshot5 și findings/call-sites nominale; nu afirmă absența universală a defectelor.",
+    "SQL/transaction/catalog/material/schema/composition seams sunt doubles. In-process run_contract pe stateholders sintetici nu este lansare Host/native autentică.",
+    "No-rerun SOURCE verifică intervalul qualification; setupul fixture compile/PURE rulează înainte. Retained dependency/compiler path real nu este certificate prin composition double.",
+    "PG/native/public/installed/history/restart/concurrency/crash-cut și canonical final NOT_RUN; nu live/integration/P2 PASS.",
+    "M2/denominator acceptate anterior nu au fost reauditated; positive prerequisite SOURCE nu le promovează din nou.",
+    "Repository, docs/status/skills/index/commits nemodificate; protected HTML nu a fost citit/hashuit/editat."
+  ],
+  "issues_encountered": [
+    "Niciun blocker SOURCE reprodus pe bytes finale.",
+    "Editorul Pyright pentru scratch semnala imports nerezolvate în mediul său; runtime api/.venv cu sys.path explicit a executat probele cu exit0, fără schimbări de dependențe."
+  ],
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-rereview.json",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-rereview-executions.json",
+    "/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-rereview-probe-output.json",
+    "/home/kali/.hermes/cache/scratch/p2-rq-input-rereview-pytest/ (fixture files pytest numai scratch)"
+  ],
+  "tools_applicability": {
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "handoff": {
+    "source_review": "APPROVED_SOURCE_SCOPED",
+    "implementation": "UNCOMMITTED_SNAPSHOT5",
+    "integration": "NOT_APPROVED_BY_THIS_REPORT",
+    "pg_native": "NOT_RUN",
+    "global": "B06b/G02/P2 PARTIAL/NOT_CLOSED; P4a-minim nelivrat/canonical final NOT_RUN conform CURRENT citit.",
+    "next": "Parent compară snapshotul și adjudecă reviewurile complementare, apoi QA PG/native bounded admisă pe consumerul pregătit; păstrează RED-urile originale și limitele."
+  }
+}

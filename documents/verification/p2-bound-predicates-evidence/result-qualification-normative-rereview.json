@@ -1,0 +1,755 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-normative-rereview",
+  "language": "ro",
+  "role": "independent_read_only_focused_normative_order_provenance_semantic_before_lookup",
+  "verdict": "CHANGES_REQUESTED",
+  "summary": "Reproducerii originali RQ-NORM-F01 și INPUT-RQ-F02 sunt remediați pe snapshotul final. Guardurile durable lineage rămân active și nu substituie validarea locală. Un defect nou concret la selectorul qualification_material omite receipturile orfane cu qualification_ref când operation este schimbată: create/replay/reader comun fac lookup înainte de refuz, deși validate_local refuză același graph fără IO. Nu este aprobare SOURCE a feliei și nu este acceptare PG/native/integration.",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "product_base": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74",
+        "matches_dispatch": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08",
+        "matches_dispatch": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/result_qualification.py",
+        "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427",
+        "matches_dispatch": true
+      },
+      {
+        "path": "api/tests/test_result_qualification.py",
+        "sha256": "f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61",
+        "matches_dispatch": true
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e",
+        "matches_dispatch": true
+      }
+    ],
+    "dependencies": [
+      {
+        "path": "api/src/omnis/modules/coverage/denominator.py",
+        "sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged_from_product_base": true
+      }
+    ],
+    "original_reports": [
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json",
+        "sha256": "0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a"
+      },
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json",
+        "sha256": "3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f"
+      },
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json",
+        "sha256": "f986f71e00f76449ab0c2e4a4b18726d16dfc64fdbb20c5dd251f67362205933"
+      }
+    ],
+    "git_status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "index_diff": "",
+    "diff_check_exit": 0,
+    "probe_sha256": "538a2c8415eb359c267171b87d361972bc2466cdd5a115714fd6b2a427288f2b",
+    "probe_output_sha256": "cbc8bc839828b1b8faac86716dc9bfb9bd879cb522ea5d9ff2059f59c2e72cdb"
+  },
+  "snapshot_scope": {
+    "requested_five_hashes_match_before_and_after": true,
+    "head_delta": "DOCS_ONLY peste product_base; source schimbat/necomis preexistent",
+    "product_files_modified_by_reviewer": false,
+    "protected_html": "documents/Omnis_Notite_Originale.html: numele observat numai în git status; necitit/needitat/fără hash.",
+    "original_author_report": "/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json"
+  },
+  "authority": [
+    "AGENTS.md și CONTRIBUTING.md §Execuție orientată spre produs: read-only, exact snapshot, finding concret, fără reauditurile neafectate.",
+    "documents/Omnis_MVP_Architecture.md:405-418 §6.3: ingesta istorică/calificarea/admiterea separate, assignment exact, RecordEnvelope complet, revalidare când lipsesc compatibility/current-state proofs.",
+    "documents/Omnis_Implementation_Plan.md:268-285 §7.1 și documents/verification/p2-result-qualification-schema-decision.md:33-41: CONTRACT/NO_MODEL finit; findings originale, remediere în cinci fișiere, prelookup local fără a înlocui retained/schema/checker/DB."
+  ],
+  "admission": {
+    "requirement": "RQ-NORM-F01 și INPUT-RQ-F02: materialul semantic/proveniența/receiptul locally decidable se refuză înaintea denominator/catalog lookup; păstrarea ancorei autentice istorice ulterior.",
+    "consumer": "ContractInputs.create_qualification/read-qualification/replay și ManagedAdmission._verify_graph comun.",
+    "risk": "Lookups pe graph corupt care se poate respinge local, diagnostic dependent de catalog sau ocolirea validării prin selector; falsă autentificare dacă refactorul pierde ancora durable.",
+    "decision": "CHANGES_REQUESTED pentru RQ-NORM-RR-F01 concret; findings originale închise numai pe reproducerii lor SOURCE; PG/native NOT_RUN.",
+    "budget_and_execution": "O singură suită SOURCE pe qualification; un probe bounded cu o fixture și 8 mutații x4 consumeri. Proba inițială exploratory a fost întărită cu assertions pentru defectul nou și executată încă o dată, fără rerularea suitei. Nu probe PG/native/browser/network."
+  },
+  "finding_dispositions": [
+    {
+      "id": "RQ-NORM-F01",
+      "original_status": "OPEN_CONFIRMED_SOURCE",
+      "disposition": "CLOSED_ORIGINAL_REPRODUCERS_SOURCE_SCOPED",
+      "current_evidence": "manifest-schema fully resealed: QUALIFICATION_INVALID; receipt request_digest zero/resealed: COMMAND_CONFLICT. În probe, read/replay/new-create/common-reader au zero catalog.get/identity, zero write/durable attempts și state unchanged.",
+      "code": [
+        "managed_admission.py:918-936",
+        "contract_inputs.py:522-529",
+        "result_qualification.py:122-238,345-365,393-440"
+      ],
+      "remaining": "Clasa generală prelookup nu este aprobată: defect separat RQ-NORM-RR-F01. PG/native pentru reproducerii originali NOT_RUN."
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "original_status": "OPEN_CONFIRMED_SOURCE",
+      "disposition": "CLOSED_ORIGINAL_REPRODUCERS_SOURCE_SCOPED",
+      "current_evidence": "orphan-provenance și manifest-value fully resealed: QUALIFICATION_INVALID cu zero lookup/write/durable pe cei4consumeri; suite48 include inventare receipts/artifacts, provenance lexicală, schema și receipt exact, orfani manifest/receipt.",
+      "code": [
+        "result_qualification.py:393-440",
+        "managed_admission.py:918-936"
+      ],
+      "remaining": "Gap nou al gate-ului orphan-receipt rămâne explicit în finding separat; nu declar completitudine universală a provenance guard."
+    },
+    {
+      "id": "INPUT-RQ-F01",
+      "original_status": "OPEN_CONFIRMED_SOURCE",
+      "disposition": "INTERACTION_REVIEWED_SOURCE_CONTROLS_PASS_FULL_COMPLEMENTARY_ADJUDICATION_BY_PARENT",
+      "current_evidence": "validate_durable corelează owner/run/manifest/binding/final, boot/ticket/root, task/attempt/run/batch/brief/result/check/child/session strict. Suite48 executată include16mutații durable pe create/read/replay. Probe separat: attempt străin refuzat METHOD_RECEIPT_MISMATCH pe4consumeri după lookupuri și SELECT-uri durable, fără scrieri. Tamper local value_digest + attempt străin refuzat QUALIFICATION_INVALID fără lookup/DB anchor: prioritatea locală nu este pierdută.",
+      "code": [
+        "result_qualification.py:115-119,241-321,443-449",
+        "managed_contract.py:1700-1903"
+      ],
+      "limit": "Review complementar al auth/lineage aparține celuilalt reviewer/părintelui. Nu certificatez durabilitate/constraints/overlap PG; late DB proof nu este defect prelookup al materialului local și nu cere authority curentă."
+    }
+  ],
+  "reviewed_criteria": [
+    {
+      "id": "RQ-C01",
+      "status": "UNCHANGED_SCOPE_PRESERVED_SOURCE",
+      "detail": "CONTRACT/NO_MODEL și acceptările M2/denominator rămân în scope; dependențele4 hash-match product_base. Nu audit/rerun separat M2 ori denominator."
+    },
+    {
+      "id": "RQ-C02",
+      "status": "CONFORM_SOURCE_SCOPED",
+      "detail": "Payload exact/record canonice, refs owner/run și câmpurile obligatorii sunt păstrate; fixture și teste finale validează tipuri/ref/input/read denials. Nu migrare nouă."
+    },
+    {
+      "id": "RQ-C03",
+      "status": "CONFORM_ORIGINAL_SEMANTIC_CASES_SOURCE_SCOPED",
+      "detail": "derive_local reconstruiește manifest distinct din final validat/binding/emitted inventory/schema_ref/value_digest. material(q/m), command provenance și receipt exact sunt comparate devreme. Retained/schema/checker și durable anchors rămân ulterior; findings originale închise pe cazurile probate."
+    },
+    {
+      "id": "RQ-C04",
+      "status": "CONFORM_SOURCE_SCOPED",
+      "detail": "Numitor1 sub M2revision2, precondition_state_refs=[] și exact REVALIDATION_REQUIRED/reason_codes din testul pozitiv. Nu ELIGIBLE/wake/replan/freshness inventată."
+    },
+    {
+      "id": "RQ-C05",
+      "status": "CONFORM_SOURCE_SCOPED_PG_NOT_RUN",
+      "detail": "Owner-lock/engine.begin/refs locale/replay/writes rămân. Early read scope păstrează REF_UNAVAILABLE/REF_MISMATCH înainte receipt. Suite include rollback receipt SOURCE și storage-preserving denials. Nu atomicitate PG sau crash proof."
+    },
+    {
+      "id": "RQ-C06",
+      "status": "FAIL_NEW_CONFIRMED_GATE_CASE",
+      "finding": "RQ-NORM-RR-F01",
+      "detail": "Original schema/value/provenance/request_digest denials au zero lookup. Receipt orfan cu qualification_ref dar operation diferită nu activează preflightul comun."
+    },
+    {
+      "id": "RQ-C07",
+      "status": "CONFORM_AFFECTED_SOURCE_TESTS_WITH_NATIVE_LIMITS",
+      "detail": "Pozitiv create/read/replay păstrează istoria și zero execuție la spies BuildSource/compiler/evaluator/handler în intervalul qualification. derive_local nu adaugă efecte/execuție. SQL/catalog/retained seams sunt doubles; nu OS/native zero-execution proof."
+    },
+    {
+      "id": "RQ-C08",
+      "status": "PREPARED_STATIC_INSPECTED_NOT_RUN",
+      "detail": "test_contract_method_pg.py:2164-2319 păstrează cazul original,7mutații row transaction-local/rollback și2mutații locale fully resealed cu observers delegând pozitivul. Nici assertions PG, nici cleanup nu au fost executate aici. Parent raportează collect1/29 și selector nou, nu probă proprie PG."
+    }
+  ],
+  "findings": [
+    {
+      "id": "RQ-NORM-RR-F01",
+      "severity": "MEDIUM",
+      "blocking_for_source_approval": true,
+      "status": "CONFIRMED_SOURCE_REPRODUCED",
+      "title": "Selectorul qualification_material omite receiptul orfan care păstrează qualification_ref dar declară altă operation",
+      "primary_location": {
+        "file": "api/src/omnis/modules/runs/managed_admission.py",
+        "line": 918,
+        "line_range": "918-925"
+      },
+      "related_locations": [
+        {
+          "file": "api/src/omnis/modules/tasks/result_qualification.py",
+          "line_range": "434-440",
+          "detail": "Guardul local însuși respinge un receipt pe operation=create-qualification SAU presence qualification_ref; selectorul callerului recunoaște numai prima alternativă."
+        },
+        {
+          "file": "api/src/omnis/modules/runs/managed_admission.py",
+          "line_range": "933-936,1047-1058,1144-1147",
+          "detail": "Gate false permite denominator/catalog lookups și sare validarea qualification finală; ulterior ref local absent refuză REF_UNAVAILABLE."
+        }
+      ],
+      "violated_requirement": "Ordinea local provenance/receipt semantic before lookup cerută de mandat și remediul findings originale. Receiptul local inconsecvent are deja un refuz determinist fără IO, dar callerul nu ajunge la el.",
+      "mechanism": "În graph fără result-qualification/result-evidence-manifest, receiptul orfan păstrează result_refs.qualification_ref/evidence_manifest_ref, însă operation=create-denominator. any(...) returnează false. validate_local ar ridica COMMAND_CONFLICT la434-440; _verify_graph nu îl cheamă și intră în denominator.validate_graph/refs/catalog.",
+      "reproducer": {
+        "source": "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.py",
+        "source_sha256": "538a2c8415eb359c267171b87d361972bc2466cdd5a115714fd6b2a427288f2b",
+        "output": "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.json",
+        "output_sha256": "cbc8bc839828b1b8faac86716dc9bfb9bd879cb522ea5d9ff2059f59c2e72cdb",
+        "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.py",
+        "exit_code": 0,
+        "steps": [
+          "Creează qualification validă pe source_fixture; read și replay valid ating catalog și durable anchor, fără execuție nouă.",
+          "Din deepcopy graph valid elimină numai records result-qualification și result-evidence-manifest, păstrând receiptul și Ref-urile lui. Control: receipt operation originală refuză COMMAND_CONFLICT înainte lookup pe create/replay/common-reader.",
+          "Pe același graph orfan schimbă receipt.payload.operation în create-denominator, păstrează exact result_refs cu qualification_ref și recalculează digestul envelope-ului.",
+          "read-qualification refuză devreme COMMAND_CONFLICT cu0lookup. Exact replay, new-create și common-reader refuză REF_UNAVAILABLE numai după3catalog.get+7catalog.identity fiecare; zero write, graph/state/tasks/writes unchanged.",
+          "Invocă validate_local direct pe exact aceeași variantă: COMMAND_CONFLICT și0events. Restaurează pozitivul; replay funcționează fără write."
+        ],
+        "exact_observations": {
+          "attack": "disguised-orphan-receipt",
+          "results": [
+            {
+              "consumer": "read",
+              "reason": "COMMAND_CONFLICT",
+              "events": [],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "replay",
+              "reason": "REF_UNAVAILABLE",
+              "events": [
+                "catalog.get",
+                "catalog.get",
+                "catalog.get",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity"
+              ],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "new-create",
+              "reason": "REF_UNAVAILABLE",
+              "events": [
+                "catalog.get",
+                "catalog.get",
+                "catalog.get",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity"
+              ],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "common-reader",
+              "reason": "REF_UNAVAILABLE",
+              "events": [
+                "catalog.get",
+                "catalog.get",
+                "catalog.get",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity",
+                "catalog.identity"
+              ],
+              "state_unchanged": true
+            }
+          ],
+          "direct_validate_local": {
+            "reason": "COMMAND_CONFLICT",
+            "events": []
+          }
+        },
+        "control": {
+          "attack": "orphan-receipt",
+          "results": [
+            {
+              "consumer": "read",
+              "reason": "REF_UNAVAILABLE",
+              "events": [],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "replay",
+              "reason": "COMMAND_CONFLICT",
+              "events": [],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "new-create",
+              "reason": "COMMAND_CONFLICT",
+              "events": [],
+              "state_unchanged": true
+            },
+            {
+              "consumer": "common-reader",
+              "reason": "COMMAND_CONFLICT",
+              "events": [],
+              "state_unchanged": true
+            }
+          ]
+        }
+      },
+      "impact": "Nu acceptare falsă demonstrată, nu write/grant/wake/ELIGIBLE, acces cross-owner ori disclosure. Defect concret de ordine:10lookup attempts pe fiecare dintre3caller paths înainte de refuzul unui receipt local invalid. Diagnosticul și reachability depind de catalog. Scenario este corruption/readback SOURCE, nu reachability publică/PG probată.",
+      "remedy": "Aliniază minimal gate-ul din _verify_graph cu predicatele receiptului din validate_local: recunoaște și presence qualification_ref în result_refs pentru contract-input-command, cu mapping/type validation sigură. Alternativ invocă preflightul local comun fără gate incomplet dacă poate păstra contractul celorlalte records. Nu muta/elimina retained/schema/checker/DB proof.",
+      "required_regression": "Pozitiv normal și orphan receipt original rămân; varianta exactă disguised-orphan trebuie COMMAND_CONFLICT cu zero catalog.get/reservation/write pe replay/new-create/common-reader. Read-ul deja refuzat devreme rămâne control distinct. RED→GREEN pe același reproducer și re-review numai delta gate/call-sites; fără alt harness sau reauditurile neafectate."
+    }
+  ],
+  "verification": [
+    {
+      "label": "independent-final-qualification-source",
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-pytest",
+      "timeout_seconds": 240,
+      "exit_code": 0,
+      "output": "48 passed in 121.15s (0:02:01)",
+      "passed_count": 48,
+      "status": "PASS_SOURCE_SCOPED",
+      "after_last_product_edit": true,
+      "limits": "Numai test_result_qualification.py, fixtures SQL/material/catalog/retained doubles, nu test_c03_managed_capture/PG/native/full canonical. Nu rerulare suplimentară după steeringul părintelui."
+    },
+    {
+      "label": "focused-current-original-and-new-cases",
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.py",
+      "timeout_seconds": 300,
+      "exit_code": 0,
+      "status": "ORIGINAL_CASES_GREEN_NEW_GATE_DEFECT_CONFIRMED",
+      "mutation_count": 8,
+      "consumer_observation_count": 32,
+      "output_path": "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.json",
+      "output_sha256": "cbc8bc839828b1b8faac86716dc9bfb9bd879cb522ea5d9ff2059f59c2e72cdb",
+      "actual_result": {
+        "boundary": "SOURCE_SQL_CATALOG_RETAINED_DOUBLES_NO_PG_NATIVE",
+        "cases": [
+          {
+            "attack": "manifest-schema",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "receipt-digest",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "manifest-value",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "orphan-provenance",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "durable-attempt",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "METHOD_RECEIPT_MISMATCH",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "durable.run",
+                  "durable.tasks"
+                ],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "METHOD_RECEIPT_MISMATCH",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "durable.run",
+                  "durable.tasks"
+                ],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "METHOD_RECEIPT_MISMATCH",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "durable.run",
+                  "durable.tasks"
+                ],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "METHOD_RECEIPT_MISMATCH",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "durable.run",
+                  "durable.tasks"
+                ],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "local-plus-durable",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "QUALIFICATION_INVALID",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "orphan-receipt",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "REF_UNAVAILABLE",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              }
+            ]
+          },
+          {
+            "attack": "disguised-orphan-receipt",
+            "results": [
+              {
+                "consumer": "read",
+                "reason": "COMMAND_CONFLICT",
+                "events": [],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "replay",
+                "reason": "REF_UNAVAILABLE",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity"
+                ],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "new-create",
+                "reason": "REF_UNAVAILABLE",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity"
+                ],
+                "state_unchanged": true
+              },
+              {
+                "consumer": "common-reader",
+                "reason": "REF_UNAVAILABLE",
+                "events": [
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.get",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity",
+                  "catalog.identity"
+                ],
+                "state_unchanged": true
+              }
+            ],
+            "direct_validate_local": {
+              "reason": "COMMAND_CONFLICT",
+              "events": []
+            }
+          }
+        ],
+        "positive": {
+          "created": true,
+          "replay_created": false,
+          "decision": "REVALIDATION_REQUIRED",
+          "events": [
+            "catalog.get",
+            "catalog.get",
+            "catalog.get",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "durable.run",
+            "durable.tasks",
+            "write",
+            "write",
+            "write",
+            "catalog.get",
+            "catalog.get",
+            "catalog.get",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "durable.run",
+            "durable.tasks",
+            "catalog.get",
+            "catalog.get",
+            "catalog.get",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "catalog.identity",
+            "durable.run",
+            "durable.tasks"
+          ]
+        },
+        "restored_positive_replay": true
+      },
+      "limits": "8variante x4caller observations nu înseamnă32pytest tests; observerii delegă și înregistrează events înainte de verdict. Zero network/PG/native authority. Setupul compile/run_contract in-process produce bytes sintetice înainte de qualification."
+    },
+    {
+      "label": "snapshot-integrity",
+      "command": "python3 -B -c 'import hashlib,json,subprocess; from pathlib import Path; root=Path(\"/home/kali/OmnisAI\"); author=json.loads(Path(\"/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json\").read_text()); git=lambda *args:subprocess.check_output([\"git\",*args],cwd=root).decode(); sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest(); rows=[{\"path\":r[\"path\"],\"sha256\":sha(root/r[\"path\"]),\"matches_dispatch\":sha(root/r[\"path\"])==r[\"sha256\"]} for r in author[\"snapshot\"][\"files\"]]; dep=[{\"path\":r[\"path\"],\"sha256\":sha(root/r[\"path\"]),\"unchanged_from_product_base\":(root/r[\"path\"]).read_bytes()==subprocess.check_output([\"git\",\"show\",author[\"snapshot\"][\"product_base\"]+\":\"+r[\"path\"]],cwd=root)} for r in author[\"snapshot\"][\"unchanged\"]]; originals=[{\"path\":str(root/\"documents/verification/p2-bound-predicates-evidence\"/n),\"sha256\":sha(root/\"documents/verification/p2-bound-predicates-evidence\"/n)} for n in [\"result-qualification-normative-review.json\",\"result-qualification-input-review.json\",\"result-qualification-parent-input-red.json\"]]; probe=\"/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.py\"; print(json.dumps({\"head\":git(\"rev-parse\",\"HEAD\").strip(),\"branch\":git(\"branch\",\"--show-current\").strip(),\"product_base\":author[\"snapshot\"][\"product_base\"],\"files\":rows,\"dependencies\":dep,\"original_reports\":originals,\"git_status\":git(\"status\",\"--short\",\"--branch\"),\"index_diff\":git(\"diff\",\"--cached\",\"--stat\"),\"diff_check_exit\":subprocess.run([\"git\",\"diff\",\"--check\"],cwd=root,capture_output=True).returncode,\"probe_sha256\":sha(probe),\"probe_output_sha256\":sha(\"/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.json\")})); assert all(r[\"matches_dispatch\"] for r in rows); assert all(r[\"unchanged_from_product_base\"] for r in dep)' ",
+      "exit_code": 0,
+      "status": "EXACT_FIVE_SHA_AND_FOUR_DEPENDENCIES_UNCHANGED",
+      "index_diff_empty": true,
+      "diff_check_exit": 0
+    }
+  ],
+  "parent_steering": {
+    "parent_timeout": "Parent relatează timeout120s/exit124 după42dots; NOT_PASS/NOT_COMPLETE, nu eșec semantic demonstrat. Nu am schimbat deadline/test/produse și nu repet suita. Execuția mea independentă a început înainte de steering și a trecut cu timeout240s.",
+    "author_evidence": "Autor77SOURCE PASS106.92s pe bytes finale este context, nu execuție proprie.",
+    "pg_selector": "Parent relatează /home/kali/.hermes/cache/scratch/p2-result-qualification-pg-selection.py SHAdef5c93d3577efec921517b37101fe3a787b5db6a3ba804dc087692067dd9fd7 și collect1/29exit0, original wrapper modificat numai -k. Nu l-am executat/certificat și nu l-am citit; PG/native NOT_RUN."
+  },
+  "limits": [
+    "Aprobarea normativă veche pentru neafectate rămâne în scope original, nu transfer automat al tuturor claims pe changed bytes. Doar findings originale și interacțiunea relevantă plus gapul nou concret au fost adjudecate aici.",
+    "SOURCE nu dovedește PG durability/locking/constraints/rollback, crash/cancellation/overlap, native authenticated ingestion/transport, installed historical-reader/runtime restart ori provider/live.",
+    "Retained/schema/composition seams sunt substitute în fixture; static code păstrează faza autentică ulterior, dar nu este dovadă de integrare a ei.",
+    "Nu blanket exhaustiveness, universal absence de defecte/sinks, no-execution OS-wide sau semantic coverage complet. Conservative unavailable nu este invalidation event ori freshness autentică.",
+    "Nicio editare repo/docs/tests/status/skills, stage/commit/push, PG/native/services/browser/network/provider/secret reads. Originalul HTML protejat neatins.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Nu tooling smoke ceremonial. Ruff/mypy din raportul autorului nu au fost rerulate sau promovate ca QA independentă.",
+    "Diagnostics editor Pyright import-resolution pe scriptul scratch sunt din interpreterul editorului; execuția reală cu API venv/sys.path explicit a trecut. Nu s-au modificat dependențe/gates."
+  ],
+  "files_created_by_reviewer": [
+    "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.py",
+    "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-probe.json",
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-rereview.json"
+  ],
+  "scratch_test_artifacts": "/home/kali/.hermes/cache/scratch/p2-rq-normative-rereview-pytest/",
+  "repository_files_modified_by_reviewer": [],
+  "handoff": {
+    "current_slice": "AICI ResultQualification: SOURCE implementat necomis,48SOURCE PASS; normative re-review CHANGES_REQUESTED pentru RQ-NORM-RR-F01; originales închise doar pe reproducerii finali SOURCE.",
+    "next_action": "Parent reproduce gapul gate-ului, remediere minimală RED→GREEN, affected checks/re-review pe hash nou. Apoi QA reală bounded originală numai după adjudecare și preflight autorizat.",
+    "unaffected": "M2/numitor/0013 și celelalte acceptări scoped nu sunt redeschise.",
+    "global_gates": "B06b/G02/P2 PARTIAL/NOT_CLOSED, canonical final/P4a-minim/installed history/runtime restart/live NOT_RUN ori nedeliverat după contractul lor.",
+    "integration_owner": "Părintele adjudecă, persistă raportul înainte scratch expiry și comite. Acest raport nu aprobă integrarea și nu modifică harta globală."
+  }
+}

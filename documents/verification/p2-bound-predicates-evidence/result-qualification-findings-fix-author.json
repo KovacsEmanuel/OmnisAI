@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-result-qualification-findings-fix-author",
+  "language": "ro",
+  "status": "FIXED_SOURCE_SCOPED_UNCOMMITTED_PENDING_FOCUSED_INDEPENDENT_REVIEW_PG_NOT_RUN",
+  "evidence_boundary": "SOURCE pe bytes exacte; nu acceptare independentă, PG/native/public/installed, integrare ori închidere P2.",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "product_base": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "files": [
+      {
+        "path": "api/src/omnis/modules/runs/contract_inputs.py",
+        "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74",
+        "size_bytes": 28582,
+        "dispatch_sha256": "2522f0226d9a5561a93d006003df24d886df7bbed8263939468e50aa74fe1c27",
+        "functions": {
+          "create_qualification": 281,
+          "read": 491
+        }
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08",
+        "size_bytes": 62266,
+        "dispatch_sha256": "2060fc1b836b6dfab68e50ca6b67422670c48a5a55bde98e28aec62e8ab1547a",
+        "functions": {
+          "_verify_graph": 907
+        }
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/result_qualification.py",
+        "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427",
+        "size_bytes": 19662,
+        "dispatch_sha256": "0e02e1056e1fda7dc043ca2509aaaa887c7d35a9ced9d7f722f8da816bc3cb57",
+        "functions": {
+          "derive_local": 122,
+          "validate_durable": 241,
+          "derive": 324,
+          "validate_scope": 368,
+          "validate_local": 393,
+          "validate_graph": 443
+        }
+      },
+      {
+        "path": "api/tests/test_result_qualification.py",
+        "sha256": "f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61",
+        "size_bytes": 31155,
+        "dispatch_sha256": "648d4674886233b4692e63d03015acfd9e4160de9d87f5ac9b0bb794dbe16cc5",
+        "functions": {
+          "test_qualification_durable_lineage_denies_create_read_replay": 413,
+          "test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay": 576
+        }
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e",
+        "size_bytes": 153546,
+        "dispatch_sha256": "21353a5c6dc8f85b9cd88b3c2746a4e290dffa395eaa58eea94a289d615cfed7",
+        "functions": {}
+      }
+    ],
+    "snapshot_sha256": "a675126c003d541031c679893917cab95a300538f62baf6d55521e7625d7baae",
+    "unchanged": [
+      {
+        "path": "api/src/omnis/modules/coverage/denominator.py",
+        "sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+        "unchanged_from_product_base": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged_from_product_base": true
+      }
+    ],
+    "original_reports": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json",
+        "sha256": "24ef83f9369b4f746f7f61927633dd753c4dfd926ed05117a5826622e6c51635"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-review.json",
+        "sha256": "0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-input-review.json",
+        "sha256": "3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-parent-input-red.json",
+        "sha256": "f986f71e00f76449ab0c2e4a4b18726d16dfc64fdbb20c5dd251f67362205933"
+      }
+    ],
+    "status": "## checkpoint/p2-vm-restart-20261011\n M api/src/omnis/modules/runs/contract_inputs.py\n M api/src/omnis/modules/runs/managed_admission.py\n M api/tests/test_contract_method_pg.py\n?? api/src/omnis/modules/tasks/result_qualification.py\n?? api/tests/test_result_qualification.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "index_diff": "",
+    "head_delta_paths": [
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-author.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-input-reproducer.py",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-normative-order-reproducer.py",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json",
+      "documents/verification/p2-result-qualification-schema-decision.md"
+    ],
+    "tracked_diff_sha256": "258fe5dd39ea2ecc8d600ebe2995f8e294e1793a3139497ec6aeae1d06a167aa",
+    "report_exists": false
+  },
+  "head_delta": {
+    "product_base": "a86d41ad1c7a91c4c7f023356d27b95d2ea93064",
+    "current_head": "6eeb64410cee6877e3287a60ca0125ab561aa86b",
+    "author_of_delta": "parent",
+    "kind": "DOCS_ONLY",
+    "paths": [
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-author.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-input-reproducer.py",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-normative-order-reproducer.py",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json",
+      "documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json",
+      "documents/verification/p2-result-qualification-schema-decision.md"
+    ],
+    "source_dispatch_unchanged_by_parent": true,
+    "interpretation": "6eeb644 versionază dovezile originale și registrul, nu produsul. Produsul rămâne necomis; baza comportamentală/source este a86d41a plus feature-ul original de cinci fișiere, identificat de dispatch_sha256."
+  },
+  "contract": {
+    "requirement": "INPUT-RQ-F01, INPUT-RQ-F02, RQ-NORM-F01 confirmate de parent: lineage durable exact și semantic/provenance local înaintea catalog lookup, păstrând retained/schema/checker/DB proof.",
+    "consumer": "ContractInputs create-qualification/read-qualification/replay și readerul comun ManagedAdmission._verify_graph.",
+    "risk": "Calificare acceptată cu rânduri durable de alt task/attempt/boot/native identity ori lookup derivat din manifest/provenance tampered.",
+    "decision": "Remediere SOURCE testată oferită pentru re-review exact-snapshot; PG/native rămâne pregătit, NOT_RUN.",
+    "allowed_files": [
+      "api/src/omnis/modules/runs/contract_inputs.py",
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/src/omnis/modules/tasks/result_qualification.py",
+      "api/tests/test_result_qualification.py",
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "non_goals": [
+      "Fără stage/commit/docs/skills/protected HTML",
+      "Fără executare PG/Host/native processes/browser/provider/network",
+      "Fără alt owner/driver/harness ori tabel/migrare",
+      "Fără schimbări denominator/mission accepted, grants, deadlines, compiler/composer pins",
+      "Fără ELIGIBLE ori producer de precondiții externe curente"
+    ],
+    "rollback": "Părintele păstrează/integrează sau inversează numai delta SOURCE față de dispatch; această sarcină nu a produs modificări DB/runtime."
+  },
+  "producer_trace": [
+    {
+      "source": "api/src/omnis/migrations/versions/0011_managed_tasks.py:26-49",
+      "facts": "managed_run UUID run/owner/manifest/binding/final/boot/ticket; native_root_id text. managed_task UUID task/attempt/run/brief/result/check/boot; batch_index integer; native child/session text. Nu sunt presupuse UUID pentru native text."
+    },
+    {
+      "source": "api/src/omnis/modules/runs/managed_admission.py:373-399,485-539,541-710",
+      "facts": "prepare produce task/attempt/run/batch/brief; commit_binding (= consumerul real de accept_binding) stochează boot/ticket/root și child/session pe aceleași task/run; ingest/check păstrează result/check. Ancora este istorică, nu fence/boot curent."
+    },
+    {
+      "source": "api/src/omnis/modules/tasks/managed_contract.py:1566-1584,1700-1903",
+      "facts": "Header result/brief strict, manifest și binding entries, final executions/ref/records disponibile local. Refolosite validatoare existente, fără autenticitate dedusă numai din digest."
+    }
+  ],
+  "changes": [
+    {
+      "file": "api/src/omnis/modules/tasks/result_qualification.py",
+      "detail": "derive_local reutilizează reconstrucția semantică fără IO. validate_local verifică scope/refs, equality qualification+manifest, schema_ref/value_digest și inventare emise, proveniență pereche, receipt exact și orfani. validate_graph menține recheck semantic final și validate_durable după retained/schema/checker/catalog."
+    },
+    {
+      "file": "api/src/omnis/modules/tasks/result_qualification.py",
+      "detail": "validate_durable corelează run/owner, manifest/binding/final IDs, boot/ticket/root, task/attempt/run/batch/brief/result/check, task boot/child/session cu header și entry. UUID driver ori string canonical identic, fără str-coercion arbitrară; batch int exact și native text str exact. Lipsă/null/scalar tamper refuză METHOD_RECEIPT_MISMATCH."
+    },
+    {
+      "file": "api/src/omnis/modules/runs/managed_admission.py",
+      "detail": "Readerul comun cheamă validate_local înainte de denominator.validate_graph și toate catalog.get/reservation reads. Calea include records qualification/manifest și receipts create-qualification orfane; proof extern/DB rămâne ulterior."
+    },
+    {
+      "file": "api/src/omnis/modules/runs/contract_inputs.py",
+      "detail": "Read verifică receiptul exact înainte de _verify_graph, după scope local pentru păstrarea REF_UNAVAILABLE/REF_MISMATCH existente."
+    },
+    {
+      "file": "api/tests/test_result_qualification.py",
+      "detail": "Fixture-ul SOURCE are acum proiecția autentică completă a coloanelor producerului, inclusiv UUID driver pentru coloanele UUID; fără tolerare missing fields. Findings promovate în testele existente, pozitive pe același canal, observers care deleagă și înregistrează independent attempts înainte de orice raise."
+    },
+    {
+      "file": "api/tests/test_contract_method_pg.py",
+      "detail": "Același node original result-qualification pregătește 7 durable-row mutations rollback și 2 fully-resealed local semantic denials zero catalog/get, cu control pozitiv autentic, fără launch în această sarcină."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "id": "INPUT-RQ-F01",
+      "disposition": "FIXED_SOURCE_SCOPED_PENDING_REVIEW_AND_PG",
+      "red": "red-F01: 14 failed / 3 passed (pozitiv driver UUID, release_started=1 și result_id greșit deja refuzate). Mutațiile acceptate au returnat exit0 în loc de exact denial.",
+      "green": "green-F01 17 passed; source-final 77 passed include toate create-first/read/exact replay negative și pozitiv.",
+      "controls": "Task/attempt/run/batch True și 0.0/boot/child/session; missing/null boot; run owner/run/boot/ticket/root; original release/result controls. Refuz exact METHOD_RECEIPT_MISMATCH și zero write attempts în observer independent, fără modificări graph/state/tasks.",
+      "code": "result_qualification.py:115-119,241-321; test_result_qualification.py:413+"
+    },
+    {
+      "id": "INPUT-RQ-F02",
+      "disposition": "FIXED_SOURCE_SCOPED_PENDING_REVIEW_AND_PG",
+      "red": "red-F02-NORM-F01 și red-F02-NORM-focused: orfan provenance, manifest value/inventory/schema și receipt digest aveau 10/11 lookup attempts înaintea refuzului. red-F02-orphan-receipt accepta receipt orfan.",
+      "green": "green-F02-NORM-F01 15 passed; source-final include orfan receipt și toate guards create-first/read/replay/common reader.",
+      "controls": "Pozitivul delegat atinge atât catalog.get cât și catalog.identity și produce write attempts autentice; după tamper zero get/identity/write attempts, refuzurile originale exacte și graph/writes unchanged. Orfani manifests și receipts refuzați.",
+      "code": "result_qualification.py:122-238,393-449; managed_admission.py:918-936,1144+"
+    },
+    {
+      "id": "RQ-NORM-F01",
+      "disposition": "FIXED_SOURCE_SCOPED_PENDING_REVIEW_AND_PG",
+      "relationship": "Aceeași clasă de ordonare ca INPUT-RQ-F02, nu un framework separat.",
+      "red": "red-F02-NORM-focused: schema_ref fals în artifact manifest avea 11 lookup attempts; receipt request_digest fals avea 10, după fully resealed record/ref propagation.",
+      "green": "SOURCE final: ambele refuză exact QUALIFICATION_INVALID respectiv COMMAND_CONFLICT, înaintea oricărui catalog get/reservation, pe read/replay/create nou și _verify_graph direct.",
+      "retained_proof_preserved": "Schema/material/catalog ownership checks și MethodCheck/outcome deterministic proof neeliminate; validate_graph semantic și ancora DB sunt executate ulterior pe pozitiv.",
+      "code": "managed_admission.py:918-936; contract_inputs.py:522-532; result_qualification.py:393-449"
+    }
+  ],
+  "tdd": {
+    "method": "Regresii promovate înainte de fix; RED→GREEN separat F01, apoi aceeași clasă local-order F02/NORM; orfan receipt întărit prin propriul RED.",
+    "red_labels": [
+      "red-F01",
+      "red-F02-NORM-F01",
+      "red-F02-NORM-focused",
+      "red-F02-orphan-receipt"
+    ],
+    "green_labels": [
+      "green-F01",
+      "green-F02-NORM-F01",
+      "source-final"
+    ],
+    "preserved_attempts": [
+      "mypy-preflight exit1: orphan manifest envelope primea object; corectat cu contract.mapping, fără cast/ignore.",
+      "source-first-regression exit1 / 76PASS: early receipt transforma owner REF_UNAVAILABLE în COMMAND_CONFLICT. Am păstrat oracle-ul original și am introdus validate_scope înainte de exact receipt; final77PASS.",
+      "Primele două variante auxiliare receipt-command/receipt-refs au atins REF_UNAVAILABLE/INVALID_REQUEST la early read, nu findingul de lookup. Varianta command-only deja-refuzată a fost eliminată; result_refs a fost mutat cu shape valid și a reprodus RED lookup în red-F02-NORM-focused înainte de fix.",
+      "red-local-binding-order a fost o extensie exploratory restrânsă: tamperul propagat producea COMMAND_CONFLICT, nu METHOD_RECEIPT_MISMATCH așteptat. Cazul suplimentar a fost retras fără schimbarea produsului/originalelor; nu este creditat RED pentru findings și nu motivează breadth nouă."
+    ]
+  },
+  "verification": {
+    "source": {
+      "status": "PASS_SOURCE_SCOPED",
+      "count": 77,
+      "exit_code": 0,
+      "output": "........................................................................ [ 93%]\n.....                                                                    [100%]\n77 passed in 106.92s (0:01:46)",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py api/tests/test_c03_managed_capture.py -q --tb=short",
+      "after_last_edit": true
+    },
+    "quality": {
+      "ruff-final": {
+        "status": "PASS",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "exit_code": 0,
+        "output": "All checks passed!"
+      },
+      "format-final-check": {
+        "status": "PASS",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "exit_code": 0,
+        "output": "5 files already formatted"
+      },
+      "mypy-final": {
+        "status": "PASS",
+        "command": "env -u MYPYPATH -u PYTHONPATH -u PYTHONHOME /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-rq-findings-mypy api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "exit_code": 0,
+        "output": "Success: no issues found in 5 source files"
+      }
+    },
+    "diff_check": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "source_limits": [
+      "SQL storage/rollback, retained material, schema lookup și external catalog sunt SOURCE doubles.",
+      "Fixture compile/PURE și in-process run_contract pe stateholders sintetici produc bytes autentice de protocol; nu Host/native authority/PG.",
+      "No-execution pozitiv existent blochează build/compiler/evaluator/module handler numai în intervalul calificării și arată zero attempts; nu prova installed/native process.",
+      "Nu am relansat M2/denominator exhaustive ori alte acceptări neschimbate."
+    ],
+    "commands": [
+      {
+        "label": "red-F01",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k \"durable_lineage or keeps_history\" -q --tb=short",
+        "output": ".FFFFFFFF.FFFFFF.                                                        [100%]\n=================================== FAILURES ===================================\n_ test_qualification_durable_lineage_denies_create_read_replay[task-task_id-b267b549-4289-4ff2-ae24-9b483782057e] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-b0da08f6-07d8-4e69-9aa7-0ff956dadceb] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-run_id-15aa2227-ec3d-4075-ada8-0359092655fc] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-9a5c9ba3-63ca-4666-8917-b8627e8e878a] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-25dfe984-22c6-4c6e-9ac6-d7c9923b23dd] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-31f76bd9-65ea-4951-91fa-8cfc86873257] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-8d1d6f11-8905-447e-9cef-5ee3ea942e69] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[run-run_id-a2b3dbc7-7bf3-4c51-a958-1e7b6f926f30] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-0ac07634-96c1-445c-bad3-a0416d6b3a5b] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[run-ticket-ce22a3c3-fbb9-4f2b-bb71-558c9e5eed21] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n_ test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-c87666e0-ff68-4c00-9dd2-42138260aca4] _\napi/tests/test_result_qualification.py:434: in test_qualification_durable_lineage_denies_create_read_replay\n    cli(operation, bad, path, capsys, \"METHOD_RECEIPT_MISMATCH\")\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-task_id-b267b549-4289-4ff2-ae24-9b483782057e]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-b0da08f6-07d8-4e69-9aa7-0ff956dadceb]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-run_id-15aa2227-ec3d-4075-ada8-0359092655fc]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-9a5c9ba3-63ca-4666-8917-b8627e8e878a]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-25dfe984-22c6-4c6e-9ac6-d7c9923b23dd]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-31f76bd9-65ea-4951-91fa-8cfc86873257]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-8d1d6f11-8905-447e-9cef-5ee3ea942e69]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-run_id-a2b3dbc7-7bf3-4c51-a958-1e7b6f926f30]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-0ac07634-96c1-445c-bad3-a0416d6b3a5b]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-ticket-ce22a3c3-fbb9-4f2b-bb71-558c9e5eed21]\nFAILED api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-c87666e0-ff68-4c00-9dd2-42138260aca4]\n14 failed, 3 passed, 24 deselected in 34.16s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "green-F01",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k \"durable_lineage or keeps_history\" -q --tb=short",
+        "output": ".................                                                        [100%]\n17 passed, 24 deselected in 39.68s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "red-F02-NORM-F01",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k resealed_semantic -q --tb=short",
+        "output": "....FFF.FFFFFFFF                                                         [100%]\n=================================== FAILURES ===================================\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-command-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:662: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    cli(operation, value, path, capsys, reason)\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (2, '', '{\"re...\"BLOCKED\"}\\n') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 2 diff: '{\"reason\":\"REF_UNAVAILABLE\",\"status\":\"BLOCKED\"}\\n' != '{\"reason\":\"COMMAND_CONFLICT\",\"status\":\"BLOCKED\"}\\n'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:662: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    cli(operation, value, path, capsys, reason)\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (2, '', '{\"re...\"BLOCKED\"}\\n') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 2 diff: '{\"reason\":\"INVALID_REQUEST\",\"status\":\"BLOCKED\"}\\n' != '{\"reason\":\"COMMAND_CONFLICT\",\"status\":\"BLOCKED\"}\\n'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 11 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:663: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-command-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID]\n11 failed, 5 passed, 32 deselected in 28.50s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "red-F02-NORM-focused",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k \"resealed_semantic and (manifest-schema or receipt-digest or receipt-refs or orphan-provenance)\" -q --tb=short",
+        "output": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:660: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:660: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:660: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 11 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID] _\napi/tests/test_result_qualification.py:660: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    assert lookups == []\nE   AssertionError: assert ['catalog.get...dentity', ...] == []\nE     \nE     Left contains 10 more items, first extra item: 'catalog.get'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]\n4 failed, 43 deselected in 8.48s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "green-F02-NORM-F01",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k resealed_semantic -q --tb=short",
+        "output": "...............                                                          [100%]\n15 passed, 32 deselected in 33.27s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "red-F02-orphan-receipt",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k \"resealed_semantic and orphan-receipt\" -q --tb=short",
+        "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT] _\napi/tests/test_result_qualification.py:665: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    cli(operation, value, path, capsys, reason)\napi/tests/test_result_qualification.py:327: in cli\n    assert (code, output.out, output.err) == (\nE   assert (0, '{\"assign...n\":1}}\\n', '') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 0 diff: 0 != 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT]\n1 failed, 47 deselected in 3.60s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "format-apply",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "3 files reformatted, 2 files left unchanged",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "ruff-preflight",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "All checks passed!",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "mypy-preflight",
+        "command": "env -u MYPYPATH -u PYTHONPATH -u PYTHONHOME /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-rq-findings-mypy api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "api/tests/test_result_qualification.py:668: error: Argument 2 to \"envelope\" has incompatible type \"object\"; expected \"dict[str, object]\"  [arg-type]\nFound 1 error in 1 file (checked 5 source files)",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "source-first-regression",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py api/tests/test_c03_managed_capture.py -q --tb=short",
+        "output": "............................................F........................... [ 93%]\n.....                                                                    [100%]\n=================================== FAILURES ===================================\n_ test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE] _\napi/tests/test_result_qualification.py:740: in test_qualification_foreign_owner_refuses_before_external_lookup\n    cli(\napi/tests/test_result_qualification.py:329: in cli\n    assert (code, output.out, output.err) == (\nE   assert (2, '', '{\"re...\"BLOCKED\"}\\n') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 2 diff: '{\"reason\":\"COMMAND_CONFLICT\",\"status\":\"BLOCKED\"}\\n' != '{\"reason\":\"REF_UNAVAILABLE\",\"status\":\"BLOCKED\"}\\n'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE]\n1 failed, 76 passed in 110.31s (0:01:50)",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "red-local-binding-order",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py -k \"resealed_semantic and local-task-binding\" -q --tb=short",
+        "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[local-task-binding-METHOD_RECEIPT_MISMATCH] _\napi/tests/test_result_qualification.py:702: in test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\n    cli(operation, value, path, capsys, reason)\napi/tests/test_result_qualification.py:329: in cli\n    assert (code, output.out, output.err) == (\nE   assert (2, '', '{\"re...\"BLOCKED\"}\\n') == (2, '', '{\"re...\"BLOCKED\"}\\n')\nE     \nE     At index 2 diff: '{\"reason\":\"COMMAND_CONFLICT\",\"status\":\"BLOCKED\"}\\n' != '{\"reason\":\"METHOD_RECEIPT_MISMATCH\",\"status\":\"BLOCKED\"}\\n'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[local-task-binding-METHOD_RECEIPT_MISMATCH]\n1 failed, 48 deselected in 3.11s",
+        "exit_code": 1,
+        "error": null
+      },
+      {
+        "label": "format-final-apply",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "2 files reformatted, 3 files left unchanged",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "source-final",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_result_qualification.py api/tests/test_c03_managed_capture.py -q --tb=short",
+        "output": "........................................................................ [ 93%]\n.....                                                                    [100%]\n77 passed in 106.92s (0:01:46)",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "ruff-final",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "All checks passed!",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "format-final-check",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "5 files already formatted",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "mypy-final",
+        "command": "env -u MYPYPATH -u PYTHONPATH -u PYTHONHOME /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-rq-findings-mypy api/src/omnis/modules/runs/contract_inputs.py api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/result_qualification.py api/tests/test_result_qualification.py api/tests/test_contract_method_pg.py",
+        "output": "Success: no issues found in 5 source files",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "pg-collect-only",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification --collect-only -q",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n\n1/29 tests collected (28 deselected) in 0.98s",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "snapshot-final",
+        "command": "python3 -B -c 'import ast,hashlib,json,subprocess; from pathlib import Path; root=Path(\"/home/kali/OmnisAI\"); base=\"a86d41ad1c7a91c4c7f023356d27b95d2ea93064\"; paths=[\"api/src/omnis/modules/runs/contract_inputs.py\",\"api/src/omnis/modules/runs/managed_admission.py\",\"api/src/omnis/modules/tasks/result_qualification.py\",\"api/tests/test_result_qualification.py\",\"api/tests/test_contract_method_pg.py\"]; sha=lambda raw: hashlib.sha256(raw).hexdigest(); git=lambda *args: subprocess.check_output([\"git\",*args],cwd=root).decode(); initial=json.loads(Path(\"/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json\").read_text()); old={r[\"path\"]:r[\"sha256\"] for r in initial[\"snapshot\"][\"files\"]}; rows=[{\"path\":p,\"sha256\":sha((root/p).read_bytes()),\"size_bytes\":(root/p).stat().st_size,\"dispatch_sha256\":old[p],\"functions\":{n.name:n.lineno for n in ast.walk(ast.parse((root/p).read_bytes())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in {\"derive_local\",\"derive\",\"validate_durable\",\"validate_scope\",\"validate_local\",\"validate_graph\",\"_verify_graph\",\"read\",\"create_qualification\",\"test_qualification_durable_lineage_denies_create_read_replay\",\"test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\"}}} for p in paths]; unchanged=[\"api/src/omnis/modules/coverage/denominator.py\",\"api/src/omnis/modules/tasks/mission_revisions.py\",\"api/src/omnis/modules/tasks/managed_contract.py\",\"api/src/omnis/modules/tasks/managed_store.py\"]; invariants=[{\"path\":p,\"sha256\":sha((root/p).read_bytes()),\"unchanged_from_product_base\":(root/p).read_bytes()==subprocess.check_output([\"git\",\"show\",base+\":\"+p],cwd=root)} for p in unchanged]; originals=[\"p2-result-qualification-author.json\",\"p2-result-qualification-normative-review.json\",\"p2-result-qualification-input-review.json\",\"p2-result-qualification-parent-input-red.json\"]; reports=[{\"path\":\"/home/kali/.hermes/cache/scratch/\"+p,\"sha256\":sha(Path(\"/home/kali/.hermes/cache/scratch\",p).read_bytes())} for p in originals]; print(json.dumps({\"product_base\":base,\"head\":git(\"rev-parse\",\"HEAD\").strip(),\"branch\":git(\"branch\",\"--show-current\").strip(),\"files\":rows,\"snapshot_sha256\":sha(json.dumps({r[\"path\"]:r[\"sha256\"] for r in rows},sort_keys=True,separators=(\",\",\":\")).encode()),\"unchanged\":invariants,\"original_reports\":reports,\"status\":git(\"status\",\"--short\",\"--branch\"),\"index_diff\":git(\"diff\",\"--cached\",\"--stat\"),\"head_delta_paths\":git(\"diff\",\"--name-only\",base+\"..HEAD\").splitlines(),\"tracked_diff_sha256\":sha(subprocess.check_output([\"git\",\"diff\",\"--\",*paths],cwd=root)),\"report_exists\":Path(\"/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json\").exists()}))'",
+        "exit_code": 0,
+        "output": "{\"product_base\": \"a86d41ad1c7a91c4c7f023356d27b95d2ea93064\", \"head\": \"6eeb64410cee6877e3287a60ca0125ab561aa86b\", \"branch\": \"checkpoint/p2-vm-restart-20261011\", \"files\": [{\"path\": \"api/src/omnis/modules/runs/contract_inputs.py\", \"sha256\": \"012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74\", \"size_bytes\": 28582, \"dispatch_sha256\": \"2522f0226d9a5561a93d006003df24d886df7bbed8263939468e50aa74fe1c27\", \"functions\": {\"create_qualification\": 281, \"read\": 491}}, {\"path\": \"api/src/omnis/modules/runs/managed_admission.py\", \"sha256\": \"77a922b791cd3fd4c6d0c686f5a1d7c6c19d5553d7baa2f2d50ce96c00a2bd08\", \"size_bytes\": 62266, \"dispatch_sha256\": \"2060fc1b836b6dfab68e50ca6b67422670c48a5a55bde98e28aec62e8ab1547a\", \"functions\": {\"_verify_graph\": 907}}, {\"path\": \"api/src/omnis/modules/tasks/result_qualification.py\", \"sha256\": \"31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427\", \"size_bytes\": 19662, \"dispatch_sha256\": \"0e02e1056e1fda7dc043ca2509aaaa887c7d35a9ced9d7f722f8da816bc3cb57\", \"functions\": {\"derive_local\": 122, \"validate_durable\": 241, \"derive\": 324, \"validate_scope\": 368, \"validate_local\": 393, \"validate_graph\": 443}}, {\"path\": \"api/tests/test_result_qualification.py\", \"sha256\": \"f3580903b7eed13ee93ce949c0a29803f53a676a3f282314deecafe000261f61\", \"size_bytes\": 31155, \"dispatch_sha256\": \"648d4674886233b4692e63d03015acfd9e4160de9d87f5ac9b0bb794dbe16cc5\", \"functions\": {\"test_qualification_durable_lineage_denies_create_read_replay\": 413, \"test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay\": 576}}, {\"path\": \"api/tests/test_contract_method_pg.py\", \"sha256\": \"091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e\", \"size_bytes\": 153546, \"dispatch_sha256\": \"21353a5c6dc8f85b9cd88b3c2746a4e290dffa395eaa58eea94a289d615cfed7\", \"functions\": {}}], \"snapshot_sha256\": \"a675126c003d541031c679893917cab95a300538f62baf6d55521e7625d7baae\", \"unchanged\": [{\"path\": \"api/src/omnis/modules/coverage/denominator.py\", \"sha256\": \"7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e\", \"unchanged_from_product_base\": true}, {\"path\": \"api/src/omnis/modules/tasks/mission_revisions.py\", \"sha256\": \"5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97\", \"unchanged_from_product_base\": true}, {\"path\": \"api/src/omnis/modules/tasks/managed_contract.py\", \"sha256\": \"10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a\", \"unchanged_from_product_base\": true}, {\"path\": \"api/src/omnis/modules/tasks/managed_store.py\", \"sha256\": \"45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c\", \"unchanged_from_product_base\": true}], \"original_reports\": [{\"path\": \"/home/kali/.hermes/cache/scratch/p2-result-qualification-author.json\", \"sha256\": \"24ef83f9369b4f746f7f61927633dd753c4dfd926ed05117a5826622e6c51635\"}, {\"path\": \"/home/kali/.hermes/cache/scratch/p2-result-qualification-normative-review.json\", \"sha256\": \"0b080d2bb12618b7d22208ead351d03df5081b7776835829c4597d8a9976199a\"}, {\"path\": \"/home/kali/.hermes/cache/scratch/p2-result-qualification-input-review.json\", \"sha256\": \"3425ab1f2f0fb69f088eabf437e2bc9270d91bb8c7182148ae1297344baad71f\"}, {\"path\": \"/home/kali/.hermes/cache/scratch/p2-result-qualification-parent-input-red.json\", \"sha256\": \"f986f71e00f76449ab0c2e4a4b18726d16dfc64fdbb20c5dd251f67362205933\"}], \"status\": \"## checkpoint/p2-vm-restart-20261011\\n M api/src/omnis/modules/runs/contract_inputs.py\\n M api/src/omnis/modules/runs/managed_admission.py\\n M api/tests/test_contract_method_pg.py\\n?? api/src/omnis/modules/tasks/result_qualification.py\\n?? api/tests/test_result_qualification.py\\n?? documents/Omnis_Notite_Originale.html\\n\", \"index_diff\": \"\", \"head_delta_paths\": [\"documents/verification/p2-bound-predicates-evidence/result-qualification-author.json\", \"documents/verification/p2-bound-predicates-evidence/result-qualification-input-reproducer.py\", \"documents/verification/p2-bound-predicates-evidence/result-qualification-input-review.json\", \"documents/verification/p2-bound-predicates-evidence/result-qualification-normative-order-reproducer.py\", \"documents/verification/p2-bound-predicates-evidence/result-qualification-normative-review.json\", \"documents/verification/p2-bound-predicates-evidence/result-qualification-parent-input-red.json\", \"documents/verification/p2-result-qualification-schema-decision.md\"], \"tracked_diff_sha256\": \"258fe5dd39ea2ecc8d600ebe2995f8e294e1793a3139497ec6aeae1d06a167aa\", \"report_exists\": false}"
+      },
+      {
+        "label": "diff-final-inspection",
+        "command": "git diff --check && git diff --stat && git diff a86d41ad1c7a91c4c7f023356d27b95d2ea93064..HEAD --name-only && git diff -- api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/runs/contract_inputs.py",
+        "exit_code": 0,
+        "output_summary": "Diff whitespace clean; HEAD delta contains only seven documents/verification paths. Product caller diff inspected; original accepted denominator/mission/store/contract unchanged."
+      }
+    ]
+  },
+  "pg_native_prepared": {
+    "status": "COLLECTED_NOT_RUN",
+    "node": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]",
+    "collect_command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k result-qualification --collect-only -q",
+    "collect_exit_code": 0,
+    "collect_output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[result-qualification]\n\n1/29 tests collected (28 deselected) in 0.98s",
+    "original_case_preserved": "M1 final autentic → M2 append și denominator prerequisite → qualification CLI create/read/replay, 8 denial tuples, receipt rollback/census, history/no-execution. Nu alt harness/owner/driver și nu extindere grant/deadline.",
+    "added_durable_mutations": [
+      "managed_task.attempt_id",
+      "managed_task.runtime_boot",
+      "managed_task.native_child_id",
+      "managed_task.native_session_id",
+      "managed_run.runtime_boot",
+      "managed_run.ticket",
+      "managed_run.native_root_id"
+    ],
+    "durable_oracle": "UPDATE în transaction owner-locked pe fixture original; reader comun trebuie METHOD_RECEIPT_MISMATCH; census în tranzacția alterată unchanged după denial; finally rollback; census original recuperat. task_id FK/inbox nu este ocolit/slăbit.",
+    "added_local_mutations": [
+      "Fully resealed artifact schema_ref și refs dependente, semantic QUALIFICATION_INVALID zero catalog/get",
+      "Fully resealed request_digest, COMMAND_CONFLICT zero catalog/get"
+    ],
+    "local_oracle": "Positive common reader autentic delegat trebuie să atingă catalog.get și reservation SQL; apoi aceiași observers trebuie zero attempts pe local tamper. Graph material este local, immutable DB records nu sunt rescrise pentru a ocoli triggerul.",
+    "limits": "Numai collect și static quality pe aceste bytes. Niciun row mutation/rollback/PG assertion nu a fost executat; trebuie QA admis ulterior de parent, nu PASS PG din SOURCE."
+  },
+  "safety": {
+    "commits": "NONE_BY_AUTHOR",
+    "staging": "NONE; index diff empty",
+    "docs_skills": "NO_EDITS_BY_AUTHOR",
+    "protected_html": "documents/Omnis_Notite_Originale.html preexistent/protejat: necitit/needitat/neșters; numai inventar Git, fără hash revendicat.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "services_network_provider_native": "NOT_RUN"
+  },
+  "remaining": [
+    "Parent reproduction și două re-reviewuri focalizate pe cele cinci SHA finale; acceptarea nu este autoacordată.",
+    "QA PG/native original prepared node NOT_RUN per mandat.",
+    "Canonical/integration/installed history/runtime restart/current-state external/ELIGIBLE NOT_RUN/NOT_DELIVERED; B06b/G02/P2 rămân neînchise."
+  ],
+  "files_modified": [
+    "api/src/omnis/modules/runs/contract_inputs.py",
+    "api/src/omnis/modules/runs/managed_admission.py",
+    "api/src/omnis/modules/tasks/result_qualification.py",
+    "api/tests/test_result_qualification.py",
+    "api/tests/test_contract_method_pg.py"
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-result-qualification-findings-fix-author.json"
+  ],
+  "original_reports_preserved": true
+}

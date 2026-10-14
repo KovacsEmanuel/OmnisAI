@@ -1,0 +1,53 @@
+{
+  "scope": "D01-D03 only; existing BOOTSTRAP and launch failure evidence decoder",
+  "status": "IMPLEMENTED_SOURCE_VERIFIED_PENDING_PARENT_REVIEWS_AND_CONSUMER_QA",
+  "base_head": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+  "source_path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+  "source_sha256": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+  "bootstrap_literal_sha256": "16f54dab2f4e19ad773f6966bf1c04af8b9e32566fa9b27cf6d79d6a2b8903ef",
+  "allowed_repo_write": "api/tests/test_contract_method_pg.py",
+  "diff": {"files": 1, "insertions": 630, "deletions": 12},
+  "acceptance_row": "Cold pre-READY diagnostic availability, not root-cause resolution or product acceptance",
+  "consumer": "Existing native observation JSONL -> observed_handshake failure checkpoint, launch client failure and post-cleanup checkpoint",
+  "changes": [
+    "Exactly ten public phase labels with ENTER/END and cumulative elapsed_ms/audit_ms/audit_calls; runpy ENTER precedes entry.main",
+    "Exact CodeType, fixed filename/name/first-line filtering before new phase observation, then code-object identity binding for local LINE callbacks; no phase frame access",
+    "Existing observed/forbidden filtering excludes foreign and root-sibling paths before frame access; audit/timed_audit/observe guards remain AST-identical",
+    "Bounded original-channel decoder checks fields/types/counters/order/duplicate keys before projection; valid prefix and last ENTER retained, unknown/missing/invalid evidence remains INCOMPLETE with public issue tags",
+    "Failure checkpoint reads at most 65537 bytes; no exception/frame/args/payload/capability/DSN/raw stderr is copied into the new diagnostic",
+    "SOURCE compiled-module/function/foreign/sibling/wrong-type controls plus pre-main cutoff, private sentinel, emitter limits/unavailability, repeated caught denials and zero forbidden body entry"
+  ],
+  "bounds": {"total_events": 256, "total_bytes": 65536, "record_bytes": 4096, "phase_events": 20, "counter_min": 0, "counter_max": 1000000000000},
+  "interpreter": "API pinned Python 3.13.15",
+  "monitoring_signatures_verified": {"register_callback": "(tool_id, event, func, /)", "set_local_events": "(tool_id, code, event_set, /)", "callbacks_exercised": ["PY_START(code, offset)", "PY_RETURN(code, offset, value)", "LINE(code, line)"]},
+  "root_cause": "UNKNOWN",
+  "checks": [
+    {"phase": "RED D01", "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer_pre_main' -q --tb=line", "exit": 1, "failed": 5, "deselected": 29, "reason": "PRE_MAIN_PHASE_OBSERVATION_MISSING", "log": "/home/kali/.hermes/cache/scratch/d01-d03-red.log"},
+    {"phase": "RED D03", "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' -q --tb=line", "exit": 1, "failed": 13, "passed": 18, "deselected": 20, "reason": "PRE_MAIN_FAILURE_DECODER_MISSING", "log": "/home/kali/.hermes/cache/scratch/d01-d03-decoder-red.log"},
+    {"phase": "FINAL SOURCE", "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' -q --tb=line", "exit": 0, "passed": 46, "deselected": 20, "elapsed_seconds": 1.25, "log": "/home/kali/.hermes/cache/scratch/d01-d03-final-gate.log"},
+    {"phase": "FINAL RUFF", "command": "api/.venv/bin/ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py", "exit": 0, "result": "All checks passed"},
+    {"phase": "FINAL FORMAT", "command": "api/.venv/bin/ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py", "exit": 0, "files": 1, "result": "already formatted"},
+    {"phase": "FINAL STRICT MYPY", "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/d01-d03-mypy-cache api/tests/test_contract_method_pg.py", "exit": 0, "files": 1, "result": "no issues found; strict=true in api/pyproject.toml"},
+    {"phase": "FINAL DIFF CHECK", "command": "git diff --check", "exit": 0},
+    {"phase": "PRESERVATION AND COMPILE-ONLY ANCHORS", "exit": 0, "preserved_ast": ["audit", "timed_audit", "observe", "no_rerun", "test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report"], "preserved_literal": "RESTART_READER", "compiled_code_objects": 5, "fixed_line_presence": "ALL_TRUE", "native_imports": 0}
+  ],
+  "quality_log": "/home/kali/.hermes/cache/scratch/d01-d03-final-quality.log",
+  "issues_encountered": [
+    "Expected SOURCE REDs demonstrated missing pre-main markers and missing failure decoder",
+    "Initial function negative executed its enclosing exact-path module, correctly producing ENTRY_MODULE_BEGIN; corrected fixture uses real inner FunctionType without executing enclosing module",
+    "Intermediate format and strict mypy object-index comparison failures corrected; final quality checks exit zero"
+  ],
+  "limitations": [
+    "Synthetic SOURCE CodeType execution and compile-only native anchors are not native cold launch/PG/installed consumer timing or acceptance",
+    "Elapsed and audit counters are cumulative snapshots including observer overhead, not CPU cost; nested audit times can overlap and observations are not additive causal attribution",
+    "A missing END can be normal for runpy/entry-module/main while the RPC reader remains alive; neither ENTER nor END proves gateway.ready receipt",
+    "A stalled boundary only exposes the last emitted snapshot; no metrics are invented after process cutoff",
+    "Actual cold-launch timeout cause remains UNKNOWN; no native retry, prewarm, product grant/TTL/deadline or overlay change",
+    "Two exact complementary independent reviews and the parent's single admitted real consumer trial remain NOT_RUN here",
+    "No commits/staging/push; parent owns integration. Workflow skill recording not performed because skill paths are outside permitted write scope"
+  ],
+  "not_run": ["native/PG launch", "Docker/network", "product/canonical gates", "independent reviews", "integration acceptance"],
+  "protected_preexisting_file": "Not read, hashed, edited, staged or removed",
+  "other_repo_writes": [],
+  "commits": []
+}

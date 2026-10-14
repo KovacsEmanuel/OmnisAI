@@ -1,0 +1,98 @@
+{
+  "report_id": "D01-D03-SAFETY-4ea079c6",
+  "verdict": "CHANGES_REQUESTED",
+  "review_kind": "Independent read-only safety/input/failure SOURCE review",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_commit": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+    "head_commit_at_entry": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+    "reviewed_file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "sha256": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+    "diff_base": "9518755",
+    "diff_stat": "1 file changed, 630 insertions(+), 12 deletions(-)",
+    "working_tree": "Only tracked modification is api/tests/test_contract_method_pg.py; protected preexisting untracked HTML left unread and unhashed"
+  },
+  "mandate": {
+    "criteria": "documents/verification/p2-next-session-implementation.md section 4 D01-D03",
+    "scope": ["evidence preservation", "cumulative bounds", "exact types and foreign-root filtering", "repeated and new-thread caught denials", "private-data prevention", "failure diagnostic call sites"],
+    "non_goals": ["repository edits", "native launches", "PostgreSQL effects", "provider or target effects", "new general-purpose harness", "global product acceptance"]
+  },
+  "findings": [
+    {
+      "id": "D01-SAFETY-BOUND-RACE-01",
+      "severity": "MEDIUM",
+      "blocking_in_declared_scope": true,
+      "file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "lines": "65-73 (BOOTSTRAP.emit), 239-245 (new-thread observation is explicitly supported)",
+      "title": "Concurrent observer writers bypass the advertised cumulative event and byte limits",
+      "requirement": "Section 4 requires an explicit cumulative event/byte bound in the same observer; monitoring explicitly covers new native threads.",
+      "mechanism": "emit checks shared counters, performs os.write, then updates the counters without serialization. os.write can release the GIL. Two threads can both pass the same last-slot check and both successfully write; the decoder's later truncation is fail/incomplete but does not enforce the producer's resource bounds.",
+      "source_reproducer": {
+        "artifact": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe.py",
+        "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe.py",
+        "workdir": "/home/kali/OmnisAI",
+        "boundary": "Exact BOOTSTRAP emitter extracted with ast/literal parsing; counters seeded to an admissible near-limit state; two threads paused after the check at a Barrier write seam, then the original bytes are actually written to an owned os.pipe. No Hermes or PostgreSQL import/launch.",
+        "control": "At identical counters and with identical 442-byte record, serial first write accepted and second write refused: events=256, bytes=65442.",
+        "observed": {"initial_events": 255, "initial_bytes": 65000, "per_record_bytes": 442, "concurrent_writes_succeeded": 2, "exceptions": [], "final_events": 257, "event_limit": 256, "final_bytes": 65884, "byte_limit": 65536, "actual_pipe_bytes_written": 884},
+        "exit_code": 0,
+        "results_json": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe-results.json"
+      },
+      "impact": "The required producer bounds are not true on the supported threaded channel. This is not a demonstrated forbidden-body entry, private-data leak, native cause, or product effect.",
+      "minimal_remedy": "Serialize the emitter's limit check, complete write, and counter update with a suitable reentrancy-safe mechanism; retain record-before-denial and failure-on-unavailable behavior. Add one bounded concurrent last-slot regression on this same emitter, retaining the serial control and zero forbidden-body assertions. No broad harness or native retry is needed to close this SOURCE finding."
+    }
+  ],
+  "evidence": [
+    {
+      "name": "Pinned interpreter",
+      "command": "api/.venv/bin/python -I -B -c 'import sys; print(sys.version)'",
+      "exit_code": 0,
+      "result": "3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]"
+    },
+    {
+      "name": "Exact required affected SOURCE group",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' -q --tb=line",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "46 passed, 20 deselected in 1.26s",
+      "limit": "SOURCE controls only; not native/PG/installed acceptance and existing tests do not cover concurrent cumulative-cap reservation"
+    },
+    {
+      "name": "Independent focused SOURCE probes",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe.py",
+      "exit_code": 0,
+      "result": "Complete decoder positive; eight nested marker/type negatives all INCOMPLETE with no marker in public projection; three caught denials on main and three in a new thread retain six attempted rows with zero forbidden-body entries; serial/concurrent emitter bound discrepancy reproduced.",
+      "limit": "Exact extracted observer/decoder source with synthetic fixed paths; emitter race uses a deterministic write scheduling seam plus actual owned pipe writes. It does not reproduce native timing or attribute the historical launch failure."
+    },
+    {"name": "Whitespace check", "command": "git diff --check", "exit_code": 0, "result": "No whitespace errors"}
+  ],
+  "acceptance_matrix": [
+    {"criterion": "Evidence preservation before projection", "assessment": "APPROVED_SCOPED", "basis": "Original bounded JSON row is parsed with duplicate-field rejection; exact field set and exact scalar types are checked before public projection. Nested markers placed in every known row field and an unknown field produce INCOMPLETE without copying the marker."},
+    {"criterion": "Missing evidence cannot become clean zero", "assessment": "APPROVED_SCOPED", "basis": "No data/unavailable evidence returns INCOMPLETE and null phase/timing counters; cutoff preserves the last ENTER and missing completion. Unknown/malformed/over-limit events retain issue tags."},
+    {"criterion": "Exact type and foreign/root-sibling filtering before frame access", "assessment": "APPROVED_SCOPED", "basis": "phase_key requires exact CodeType, exact path/name/first line, matching qualname and module flags. monitored checks CodeType and root prefix with delimiter. Existing foreign/sibling/function/spoofed-function/wrong-type controls passed."},
+    {"criterion": "Repeated caught main/new-thread sink refusal", "assessment": "APPROVED_SCOPED", "basis": "Existing SOURCE group plus independent actual monitoring callback control: 6 retained forbidden-sink rows, zero forbidden-body entries across 3 main and 3 new-thread attempts. Recording remains before raise."},
+    {"criterion": "Cumulative producer bounds", "assessment": "CHANGES_REQUESTED", "basis": "D01-SAFETY-BOUND-RACE-01: concurrent supported writers exceed both cumulative limits; sequential cap/unavailability controls passed but do not cover atomic reservation."},
+    {"criterion": "Private-data and raw-stderr prevention in new diagnostics", "assessment": "APPROVED_SCOPED", "basis": "New projection contains finite phase/issue labels, exact bounded counters, completion lists and UNKNOWN root cause only. NativePeer._stderr still discards raw bytes. No new boot/capability/DSN/args/frame-local values are copied. Existing legacy private channel is not claimed universally sanitized."},
+    {"criterion": "Failure call-site coverage", "assessment": "APPROVED_SOURCE_SCOPED", "basis": "Read observed_handshake except checkpoint at lines 1687-1699, launch-client except at 1867-1871, and cleanup checkpoint at 3573-3578. These call the bounded decoder; final assertions at 3580-3588 refuse unknown/incomplete issues and require READY_WRITE completion before raw legacy assertions. No live failure was executed."},
+    {"criterion": "Metrics meaning", "assessment": "APPROVED_SCOPED", "basis": "Decoder explicitly calls elapsed/audit values cumulative snapshots, includes observer overhead and nested overlap, and always reports root_cause UNKNOWN. No causal proof inferred from counters."}
+  ],
+  "limits": {
+    "native": "NOT_RUN",
+    "postgresql": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "quality0_claim": "Not independently rerun; no quality0 endorsement from this safety review",
+    "historical_launch_failure_cause": "UNKNOWN",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "global_acceptance": "ResultQualification remains BLOCKED_NATIVE_READY; B06b/G02/P2 remain NOT_CLOSED",
+    "parent": "Parent must reproduce/adjudicate the concrete finding and commit any accepted fix; this reviewer made no repository edits."
+  },
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe.py",
+    "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe-results.json",
+    "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/review-safety-full.json"
+  ],
+  "repository_files_modified": [],
+  "issues_encountered": ["One confirmed threaded cumulative-bound race; no tool/installation/network blocker"],
+  "report_handle": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/review-safety-full.json"
+}

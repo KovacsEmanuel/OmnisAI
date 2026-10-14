@@ -1,0 +1,175 @@
+{
+  "report_id": "D01-SAFETY-BOUND-RACE-01-REREVIEW-562994c8",
+  "verdict": "APPROVED_SCOPED",
+  "review_kind": "Independent focused read-only SOURCE safety/concurrency re-review",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_commit_at_entry_and_exit": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "reviewed_file": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "sha256_at_entry_and_exit": "562994c8d6e55fcab1d498b5089e9ec600965add30dbea1c5d78a59d3e444b96",
+    "base_diff_stat": "1 file changed, 813 insertions(+), 19 deletions(-)",
+    "tracked_modifications_at_entry_and_exit": ["api/tests/test_contract_method_pg.py"],
+    "staged_changes": [],
+    "protected_preexisting_html": "documents/Omnis_Notite_Originale.html was not opened, read, hashed, edited, deleted or staged"
+  },
+  "mandate": {
+    "finding": "D01-SAFETY-BOUND-RACE-01",
+    "criteria": "documents/verification/p2-next-session-implementation.md section 4: explicit cumulative bounds in the same observer; fail-closed observer unavailability; monitoring supports new threads",
+    "scope": [
+      "Serialize exact BOOTSTRAP.emit cumulative limit check, real write and counter updates",
+      "Fail closed on same-thread reentrant emission before non-reentrant lock acquisition",
+      "Review and exercise deterministic concurrent last-slot regression using actual owned pipe writes",
+      "Retain earlier unchanged guard and nested-input scoped review; do not reopen unrelated requirements"
+    ],
+    "non_goals": [
+      "Shared repository edits or skill changes",
+      "Staging or commits",
+      "Native Hermes launch or imports of its pinned source",
+      "PostgreSQL provisioning, queries or effects",
+      "Network/provider/target effects",
+      "Protected HTML access",
+      "Global product acceptance or historical failure-cause attribution"
+    ],
+    "resource_ownership": "Only own private scratch directory, test-generated scratch files, isolated SOURCE Python interpreters and bounded owned OS pipes/threads. No foreign fixture or process adopted.",
+    "decision": "A passing focused review closes the SOURCE race blocker only; parent adjudicates integration and owns real native/PG consumer acceptance."
+  },
+  "original_report": {
+    "handle": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/review-safety-full.json",
+    "sha256": "ace4e3c49c6a61e654a914a0fea57fe5966dc11e350b17ec97ae43dc9b447477",
+    "verdict": "CHANGES_REQUESTED",
+    "reviewed_source_sha256": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+    "original_probe_handle": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/source-probe.py",
+    "original_probe_sha256": "3e15d793a382e079b025a551d0e3a16947db06ead0152da61fa3f58de40d9a58",
+    "preservation": "Original report and probe were read only; neither was executed, rewritten or edited. The original barrier probe was not blindly rerun against a serialized writer."
+  },
+  "finding_dispositions": [
+    {
+      "id": "D01-SAFETY-BOUND-RACE-01",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "current_file_lines": "api/tests/test_contract_method_pg.py:65-84, 1011-1080, 1122-1184",
+      "source_reasoning": [
+        "The single threading.Lock is initialized once for the extracted bootstrap emitter. Its critical section encloses the event limit, record limit and cumulative byte limit checks, the complete os.write, and both shared counter updates. A second writer cannot reserve the same last slot while the first writer releases the GIL in os.write.",
+        "The thread-local active check precedes lock acquisition. The active flag is set before entering the lock and cleared in finally on success or error. Reentrant emission raises the finite Observer unavailable reason rather than attempting to reacquire a same-thread non-reentrant lock.",
+        "Forbidden-sink emission remains before the denial exception; no unrelated guard was removed by the fix. Earlier unchanged input/filter/guard scopes are carried from the original full report, not newly claimed as global review.",
+        "The regression saves the original OS write and writes original serialized records to a test-owned pipe. The first writer is held after its check, while retaining the actual lock. The second thread is observed at lock entry in the fixed implementation or at the write seam in a nonserialized mutant; release occurs only after that observation. Finite wait/join/subprocess fuses avoid an unbounded test deadlock. Exact refusal/counter/pipe-byte assertions do not merely inspect a mocked return value."
+      ],
+      "green_observation": {
+        "initial_events": 255,
+        "initial_bytes": 65000,
+        "per_record_bytes": 442,
+        "successful_writes": 1,
+        "refusals": 1,
+        "final_events": 256,
+        "event_limit": 256,
+        "final_bytes": 65442,
+        "byte_limit": 65536,
+        "real_pipe_bytes": 442,
+        "exact_regression_repetitions": 10
+      },
+      "negative_control": {
+        "mutation": "Remove only the emit lock With block via AST, preserving limit checks, writes, updates and thread-local reentrancy guard. Run the exact extracted regression program unchanged.",
+        "regression_exit_code": 1,
+        "exact_failure": "CONCURRENT_OBSERVER_LIMIT_BYPASS",
+        "observed_mutant_events": 257,
+        "observed_mutant_bytes": 65884,
+        "observed_mutant_pipe_bytes": 884,
+        "observed_mutant_refusals": 0,
+        "boundary": "Synthetic scheduling seam plus real owned pipe writes; no native execution. The separate mutant measurement preserves its observed overflow and is not a claimed product PASS."
+      },
+      "reentrancy_control": {
+        "observed_reason": "Observer unavailable",
+        "outer_write_seam_entries": 1,
+        "recursive_emit_real_bytes": 0,
+        "events_before_recovery": 0,
+        "bytes_before_recovery": 0,
+        "active_flag_reset": true,
+        "lock_reacquirable_after_refusal": true,
+        "ordinary_recovery_events": 1,
+        "ordinary_recovery_real_pipe_bytes": 47
+      },
+      "serial_controls": [
+        {"bound": "events-only", "initial_events": 255, "initial_bytes": 0, "final_events": 256, "final_bytes": 442, "pipe_bytes": 442, "second_write_reason": "Observer limit exceeded"},
+        {"bound": "bytes-only", "initial_events": 0, "initial_bytes": 65000, "final_events": 1, "final_bytes": 65442, "pipe_bytes": 442, "second_write_reason": "Observer limit exceeded"},
+        {"bound": "combined", "initial_events": 255, "initial_bytes": 65000, "final_events": 256, "final_bytes": 65442, "pipe_bytes": 442, "second_write_reason": "Observer limit exceeded"}
+      ]
+    }
+  ],
+  "findings": [],
+  "surviving_blockers_in_declared_scope": [],
+  "evidence": [
+    {
+      "name": "SOURCE collection preflight",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_TEST_DATABASE_URL -u OMNIS_DATABASE_URL PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' --collect-only -q",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "57/77 tests collected (20 deselected) in 0.40s",
+      "safety": "Selected SOURCE functions have no PG fixture. Conftest/pytest config and selected test bodies inspected before execution. No native test selected. Python -I -B, explicit plugin and no cacheprovider."
+    },
+    {
+      "name": "Exact affected SOURCE group on final bytes",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_TEST_DATABASE_URL -u OMNIS_DATABASE_URL PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' --basetemp=/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/pytest -q --tb=line",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "57 passed, 20 deselected in 1.52s",
+      "limit": "SOURCE controls only. Includes exact concurrent regression, reentrancy/unavailability, unchanged caught-denial/filter controls, normal SystemExit projection and pre-main completeness controls; no native/PG/installed/canonical proof."
+    },
+    {
+      "name": "Independent exact-source concurrency, mutation, serial and reentrancy probe",
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/focused-probe.py",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "python": "3.13.15",
+      "result": "10 exact concurrent regression runs retained one 442-byte pipe write and one refusal, at events256/bytes65442. Removing only the lock reproduced events257/bytes65884/884 actual bytes and the regression failed exit1 with the exact bypass reason. Three serial controls independently isolate event/byte bounds. Reentrant emission refused before real write, reset the thread-local flag, released the lock, and permitted one ordinary 47-byte recovery write.",
+      "results_json": "/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/focused-probe-results.json",
+      "limit": "AST/literal extraction of reviewed bytes, never import of the target test module for this independent probe; deterministic scheduling seams and actual OS writes. Seeded counters test last-slot arithmetic, not a native lifecycle."
+    },
+    {
+      "name": "Snapshot and whitespace readback",
+      "commands": ["sha256sum api/tests/test_contract_method_pg.py", "git diff --check", "git status --short --branch", "git rev-parse HEAD"],
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Exact source SHA and HEAD unchanged; preexisting dirty target and protected untracked HTML remain. No staged changes or whitespace errors."
+    }
+  ],
+  "carried_review": {
+    "source": "/home/kali/.hermes/cache/scratch/d01-d03-safety-4ea079c6/review-safety-full.json acceptance_matrix",
+    "unchanged_scopes": [
+      "Evidence preservation before projection and nested marker/type rejection",
+      "Missing evidence stays INCOMPLETE/null rather than clean zero",
+      "Exact CodeType, foreign/root-sibling filtering before frame access",
+      "Repeated caught main/new-thread sink refusal with zero forbidden-body entries",
+      "Finite private-data prevention in new diagnostics; raw stderr is not promoted",
+      "Failure diagnostic call sites",
+      "Cumulative metric semantics and UNKNOWN root cause"
+    ],
+    "boundary": "Earlier approval is reused only for unchanged scope. This focused re-review resolves the original named race, not a new exhaustive D01-D03/native audit. The current SOURCE suite also passes added normal-exit and all-required-phase controls; normative adjudication remains the parent's complementary review responsibility."
+  },
+  "limits": {
+    "native": "NOT_RUN",
+    "postgresql": "NOT_RUN",
+    "network": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "ruff_format_strict_mypy": "Not independently rerun by this focused safety reviewer; parent evidence not converted into an independent claim",
+    "historical_launch_failure_cause": "UNKNOWN",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "global_acceptance": "ResultQualification remains BLOCKED_NATIVE_READY until parent-owned real-consumer evidence; B06b/G02/P2 remain NOT_CLOSED. No product, distribution, live or aesthetic PASS.",
+    "parent_action": "Read the complete exact report and probe results, verify reviewed SHA, adjudicate with complementary normative review, then use the admitted original real consumer. Reviewer did not stage, commit or mutate shared files."
+  },
+  "status_delta": {
+    "current_source_row": {"location": "AICI D01-SAFETY-BOUND-RACE-01", "implementation": "FIX_PRESENT_ON_REVIEWED_UNCOMMITTED_BYTES", "proof": "PASS_SOURCE_SCOPED", "review": "APPROVED_SCOPED", "next": "Parent adjudication"},
+    "product_row": {"location": "ResultQualification", "implementation": "IMPLEMENTED_SOURCE", "proof": "BLOCKED_NATIVE_READY", "review": "Existing APPROVED_SOURCE_SCOPED only", "next": "Parent-owned real consumer after adjudication"},
+    "unchanged_global_rows": "P0/P1/B05/B06a historical scoped acceptances retained; B06b/B06c/B06m/P2-inert PARTIAL/NOT_CLOSED; P4a-minim and remaining MVP/post-MVP not promoted."
+  },
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/focused-probe.py",
+    "/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/focused-probe-results.json",
+    "/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/review-safety-rereview-full.json"
+  ],
+  "repository_files_modified": [],
+  "issues_encountered": [],
+  "report_handle": "/home/kali/.hermes/cache/scratch/d01-race-rereview-562994c8/review-safety-rereview-full.json"
+}

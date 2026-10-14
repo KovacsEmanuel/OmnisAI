@@ -62,11 +62,26 @@ source, managed, inert, adapter, libraries, home, evidence = map(Path, sys.argv[
 if not home.is_dir() or any(home.iterdir()):
     raise ValueError("Fresh home required")
 evidence_fd = os.open(evidence, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
-def emit(test, status, count=1):
-    raw = json.dumps({"test": test, "status": status, "count": count},
+def emit(test, status, count=1, **fields):
+    raw = json.dumps({"test": test, "status": status, "count": count, **fields},
                      separators=(",", ":")).encode() + b"\n"
-    if os.write(evidence_fd, raw) != len(raw):
+    if getattr(emit_thread, "active", False):
         raise RuntimeError("Observer unavailable")
+    emit_thread.active = True
+    try:
+        with emit_lock:
+            if emit.events >= 256 or len(raw) > 4096 or emit.bytes + len(raw) > 65536:
+                raise RuntimeError("Observer limit exceeded")
+            if os.write(evidence_fd, raw) != len(raw):
+                raise RuntimeError("Observer unavailable")
+            emit.events += 1
+            emit.bytes += len(raw)
+    finally:
+        emit_thread.active = False
+emit.events = 0
+emit.bytes = 0
+emit_lock = threading.Lock()
+emit_thread = threading.local()
 os.environ.clear()
 os.environ.update(HOME=str(home), HERMES_HOME=str(home / "hermes"),
     TMPDIR=str(home), HERMES_OMNIS_INERT="1", HERMES_DISABLE_LAZY_INSTALLS="1",
@@ -131,6 +146,59 @@ forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "handle_function_call", "_init_client", "_resolve_runtime",
     "load_credential_pool", "get_api_key", "discover_builtin_tools", "discover_plugins"}
 observed = forbidden | {"main", "run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
+from types import CodeType
+# Ten fixed boundaries. LINE is local to these exact code objects, never global.
+# END means the next fixed source boundary or PY_RETURN was reached, not READY.
+phase_inventory = {
+    (str(inert / "tui_gateway/entry.py"), "<module>", 1): (
+        "ENTRY_MODULE_BEGIN", {23: ("ENTRY_SERVER_IMPORT_BEGIN", "ENTER"),
+                                24: ("ENTRY_SERVER_IMPORT_BEGIN", "END")}),
+    (str(inert / "tui_gateway/server.py"), "<module>", 1): (
+        None, {36: ("SERVER_CONVERSATION_IMPORT_BEGIN", "ENTER"),
+               37: ("SERVER_CONVERSATION_IMPORT_BEGIN", "END"),
+               3363: ("SERVER_SPLIT_HANDLERS_IMPORT_BEGIN", "ENTER"),
+               3386: ("SERVER_SPLIT_HANDLERS_IMPORT_BEGIN", "END")}),
+    (str(managed / "agent/conversation_loop.py"), "<module>", 1): (
+        "CONVERSATION_MODULE_BEGIN", {40: ("CONVERSATION_TURN_API_IMPORT_BEGIN", "ENTER"),
+                                      41: ("CONVERSATION_TURN_API_IMPORT_BEGIN", "END")}),
+    (str(managed / "tui_gateway/rpc_dispatch.py"), "<module>", 1): (
+        "MANAGED_RPC_DISPATCH_MODULE_BEGIN", {}),
+    (str(inert / "tui_gateway/entry.py"), "main", 439): (
+        "ENTRY_MAIN_BEGIN", {464: ("ENTRY_READY_WRITE_BEGIN", "ENTER"),
+                             469: ("ENTRY_READY_WRITE_BEGIN", "END")}),
+}
+phase_codes = {}
+phase_entered = set()
+phase_completed = set()
+phase_labels = {"BOOTSTRAP_RUNPY_ENTRY_BEGIN"} | {
+    label for label, lines in phase_inventory.values() if label is not None
+} | {label for _, lines in phase_inventory.values() for label, edge in lines.values()}
+def phase_transition(label, edge):
+    if type(label) is not str or label not in phase_labels or type(edge) is not str or edge not in {"ENTER", "END"}:
+        raise RuntimeError("Observer invalid phase")
+    if edge == "ENTER":
+        if label in phase_entered:
+            return
+        phase_entered.add(label)
+    elif label not in phase_entered or label in phase_completed:
+        return
+    else:
+        phase_completed.add(label)
+    elapsed = (time.monotonic_ns() - bootstrap_started_ns) // 1_000_000
+    metrics = (elapsed, audit_ns // 1_000_000, audit_calls)
+    if any(type(value) is not int or not 0 <= value <= 10**12 for value in metrics):
+        raise RuntimeError("Observer limit exceeded")
+    emit("bootstrap-phase", label, edge=edge, elapsed_ms=metrics[0],
+         audit_ms=metrics[1], audit_calls=metrics[2])
+def phase_key(code):
+    if type(code) is not CodeType:
+        return None
+    key = (code.co_filename, code.co_name, code.co_firstlineno)
+    if key not in phase_inventory or code.co_qualname != code.co_name:
+        return None
+    if code.co_name == "<module>" and code.co_flags & 3:
+        return None
+    return key
 entered = {}
 def observe(frame, event, arg):
     if event not in {"call", "return"}:
@@ -180,32 +248,66 @@ def observe(frame, event, arg):
 # Filtering code objects before requesting a frame avoids millions of
 # object.__getattr__(frame, "f_code") audit events during native imports.
 # Monitoring is interpreter-local and covers new native threads as well.
-observer_roots = tuple(str(root) for root in (source, managed, inert, adapter))
+observer_roots = tuple(str(root) + "/" for root in (source, managed, inert, adapter))
 def monitored(code):
-    return code.co_name in observed and any(root in code.co_filename for root in observer_roots)
+    return (type(code) is CodeType and code.co_name in observed
+            and code.co_filename.startswith(observer_roots))
 def monitor_call(code, offset):
+    key = phase_key(code)
+    if key is not None:
+        bound = phase_codes.get(key)
+        if bound is None:
+            phase_codes[key] = code
+            label, lines = phase_inventory[key]
+            if lines:
+                sys.monitoring.set_local_events(observer_id, code, sys.monitoring.events.LINE)
+            if label is not None:
+                phase_transition(label, "ENTER")
+        elif bound is not code:
+            return sys.monitoring.DISABLE
     if not monitored(code):
-        return sys.monitoring.DISABLE
+        return None if key is not None else sys.monitoring.DISABLE
     observe(sys._getframe(1), "call", None)
 def monitor_return(code, offset, value):
+    key = phase_key(code)
+    if key is not None and phase_codes.get(key) is code:
+        label, lines = phase_inventory[key]
+        if label is not None:
+            phase_transition(label, "END")
     if not monitored(code):
-        return sys.monitoring.DISABLE
+        return None if key is not None else sys.monitoring.DISABLE
     observe(sys._getframe(1), "return", value)
+def monitor_line(code, line):
+    key = phase_key(code)
+    if key is None or phase_codes.get(key) is not code:
+        return sys.monitoring.DISABLE
+    boundary = phase_inventory[key][1].get(line)
+    if boundary is not None:
+        phase_transition(*boundary)
+    # DISABLE only this non-boundary line; other fixed boundaries remain active.
+    else:
+        return sys.monitoring.DISABLE
 observer_id = sys.monitoring.PROFILER_ID
 sys.monitoring.use_tool_id(observer_id, "omnis-contract-observer")
 sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_START, monitor_call)
 sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_RETURN, monitor_return)
+sys.monitoring.register_callback(observer_id, sys.monitoring.events.LINE, monitor_line)
 sys.monitoring.set_events(observer_id, sys.monitoring.events.PY_START | sys.monitoring.events.PY_RETURN)
 emit("observer", "READY")
+phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTER")
 try:
     runpy.run_module("tui_gateway.entry", run_name="__main__")
+    phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "END")
 except BaseException as error:
-    emit("bootstrap-exception", type(error).__name__)
-    cursor = error.__traceback__
-    while cursor is not None:
-        emit("bootstrap-frame", cursor.tb_frame.f_code.co_name)
-        emit("bootstrap-source", Path(cursor.tb_frame.f_code.co_filename).name, cursor.tb_lineno)
-        cursor = cursor.tb_next
+    if type(error) is SystemExit and (error.code is None or type(error.code) is int and error.code == 0):
+        emit("bootstrap-exit", "NORMAL_SYSTEM_EXIT")
+    else:
+        emit("bootstrap-exception", type(error).__name__)
+        cursor = error.__traceback__
+        while cursor is not None:
+            emit("bootstrap-frame", cursor.tb_frame.f_code.co_name)
+            emit("bootstrap-source", Path(cursor.tb_frame.f_code.co_filename).name, cursor.tb_lineno)
+            cursor = cursor.tb_next
     raise
 finally:
     emit("observer", "EXIT")
@@ -259,6 +361,177 @@ def require_empty_stderr(stderr: bytes) -> None:
     """Refuse contradictory diagnostics without pytest rendering private bytes."""
     if stderr:
         raise AssertionError("RESTART_CLI_CONTRADICTORY_DIAGNOSTIC") from None
+
+
+BOOTSTRAP_PHASES = (
+    "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+    "ENTRY_MODULE_BEGIN",
+    "ENTRY_SERVER_IMPORT_BEGIN",
+    "SERVER_CONVERSATION_IMPORT_BEGIN",
+    "CONVERSATION_MODULE_BEGIN",
+    "CONVERSATION_TURN_API_IMPORT_BEGIN",
+    "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+    "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+    "ENTRY_MAIN_BEGIN",
+    "ENTRY_READY_WRITE_BEGIN",
+)
+OBSERVATION_BYTES = 65536
+OBSERVATION_EVENTS = 256
+
+
+def launch_observation_counter(value: object) -> int | None:
+    return value if type(value) is int and 0 <= value <= 10**12 else None
+
+
+def launch_observation_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result = dict(pairs)
+    if len(result) != len(pairs):
+        raise ValueError("Duplicate observation field")
+    return result
+
+
+def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
+    """Inspect the original bounded channel before projecting public fields.
+
+    Missing/invalid rows are not zero attempts or proof of a root cause. Keep
+    valid prefixes and their last ENTER; unknown fields are flagged, not copied.
+    Cumulative clocks include observer overhead and nested audit calls may overlap.
+    """
+    issues: set[str] = set()
+    entered: list[str] = []
+    completed: list[str] = []
+    phase_events = 0
+    last_enter: str | None = None
+    elapsed_ms: int | None = None
+    audit_ms: int | None = None
+    audit_calls: int | None = None
+    observer_ready: bool | None = None
+    if len(raw) > OBSERVATION_BYTES:
+        issues.add("BYTE_LIMIT")
+    lines = raw[:OBSERVATION_BYTES].splitlines()
+    if len(lines) > OBSERVATION_EVENTS:
+        issues.add("EVENT_LIMIT")
+        lines = lines[:OBSERVATION_EVENTS]
+    if not raw:
+        issues.add("NO_DATA")
+    elif not raw.endswith(b"\n"):
+        issues.add("INCOMPLETE_RECORD")
+    base_fields = {"test", "status", "count"}
+    phase_fields = base_fields | {"edge", "elapsed_ms", "audit_ms", "audit_calls"}
+    # Legacy records stay on the same channel. Only finite public categories are
+    # recognized; arbitrary exception/frame/caller names never enter this report.
+    public_statuses = {
+        "observer": {"READY", "EXIT"},
+        "bootstrap-exit": {"NORMAL_SYSTEM_EXIT"},
+        "bootstrap-import": {"ELAPSED_MS"},
+        "bootstrap-audit": {"ELAPSED_MS", "CALLS"},
+        "validate_stage": {"ENTERED", "RETURNED_MS"},
+        "stage": {"ENTERED", "RETURNED_MS"},
+        "initialize_contract": {"ENTERED", "RETURNED_MS"},
+        "run_contract": {"REAL_AIAgent", "WRONG_TYPE"},
+        "bound-predicates": {"SATISFIED", "GAP"},
+        "_read_bound_input": {"ENTERED"},
+        "run_handler": {"ENTERED"},
+        "contract-guard": {"APPROVED", "REFUSED"},
+        "native-release": {"SUCCEEDED", "INCONCLUSIVE"},
+        "task-result": {"NATIVE"},
+        "contract-tool-receipt": {"NATIVE"},
+        "contract-artifact": {"NATIVE"},
+    }
+    for line in lines:
+        if len(line) + 1 > 4096:
+            issues.add("RECORD_LIMIT")
+            continue
+        try:
+            value: object = json.loads(line, object_pairs_hook=launch_observation_object)
+        except (ValueError, UnicodeError, RecursionError):
+            issues.add("INVALID_RECORD")
+            continue
+        if type(value) is not dict:
+            issues.add("INVALID_RECORD")
+            continue
+        row = mapping(value)
+        test, status = row.get("test"), row.get("status")
+        expected = phase_fields if test == "bootstrap-phase" else base_fields
+        if set(row) != expected:
+            issues.add("UNKNOWN_OR_MISSING_FIELDS")
+            continue
+        count = launch_observation_counter(row["count"])
+        if type(test) is not str or type(status) is not str or count is None:
+            issues.add("INVALID_RECORD")
+            continue
+        if test != "bootstrap-phase":
+            if status not in public_statuses.get(test, set()):
+                issues.add("UNKNOWN_EVENT")
+            elif test == "observer" and status == "READY" and count == 1:
+                observer_ready = True
+            continue
+        edge = row["edge"]
+        if (
+            status not in BOOTSTRAP_PHASES
+            or type(edge) is not str
+            or edge not in {"ENTER", "END"}
+            or count != 1
+        ):
+            issues.add("UNKNOWN_OR_INVALID_PHASE")
+            continue
+        elapsed = launch_observation_counter(row["elapsed_ms"])
+        audit_time = launch_observation_counter(row["audit_ms"])
+        calls = launch_observation_counter(row["audit_calls"])
+        if elapsed is None or audit_time is None or calls is None:
+            issues.add("INVALID_COUNTER")
+            continue
+        if (
+            (elapsed_ms is not None and elapsed < elapsed_ms)
+            or (audit_ms is not None and audit_time < audit_ms)
+            or (audit_calls is not None and calls < audit_calls)
+        ):
+            issues.add("COUNTER_REGRESSION")
+            continue
+        if (edge == "ENTER" and status in entered) or (
+            edge == "END" and (status not in entered or status in completed)
+        ):
+            issues.add("INVALID_PHASE_ORDER")
+            continue
+        phase_events += 1
+        elapsed_ms, audit_ms, audit_calls = elapsed, audit_time, calls
+        if edge == "ENTER":
+            entered.append(status)
+            last_enter = status
+        else:
+            completed.append(status)
+    if observer_ready is not True:
+        issues.add("OBSERVER_UNCONFIRMED")
+    if set(completed) != set(BOOTSTRAP_PHASES):
+        issues.add("MISSING_PHASE_COMPLETION")
+    # These three frames span the RPC reader loop and may unwind under Stop.
+    # Their missing END remains INCOMPLETE; every import and READY write must end.
+    long_lived = {"BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTRY_MODULE_BEGIN", "ENTRY_MAIN_BEGIN"}
+    return {
+        "status": "INCOMPLETE" if issues else "OBSERVED",
+        "pre_ready_complete": set(entered) == set(BOOTSTRAP_PHASES)
+        and set(BOOTSTRAP_PHASES) - long_lived <= set(completed),
+        "root_cause": "UNKNOWN",
+        "observer_ready": observer_ready,
+        "last_enter": last_enter,
+        "completed": completed,
+        "pending": [label for label in entered if label not in completed],
+        "elapsed_ms": elapsed_ms,
+        "audit_ms": audit_ms,
+        "audit_calls": audit_calls,
+        "phase_events": phase_events if entered else None,
+        "issues": sorted(issues),
+    }
+
+
+def launch_bootstrap_checkpoint(path: Path) -> dict[str, object]:
+    try:
+        with path.open("rb") as stream:
+            return launch_bootstrap_diagnostic(stream.read(OBSERVATION_BYTES + 1))
+    except OSError:
+        result = launch_bootstrap_diagnostic(b"")
+        result["issues"] = ["OBSERVER_UNAVAILABLE"]
+        return result
 
 
 def launch_rpc_phase(value: object) -> str:
@@ -360,6 +633,125 @@ def test_launch_rpc_phase_projects_exact_public_strings_only() -> None:
         assert launch_rpc_phase(value) == "gateway.ready"
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "none",
+        "missing-end",
+        "unknown-field",
+        "unknown-label",
+        "unknown-event",
+        "boolean",
+        "count-boolean",
+        "float",
+        "missing-counter",
+        "missing-ready",
+        "regression",
+        "negative",
+        "overbound",
+        "wrong-edge",
+        "duplicate",
+        "duplicate-field",
+        "truncated",
+        "no-data",
+        "event-limit",
+        "record-limit",
+        "byte-limit",
+    ],
+)
+def test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete(
+    tmp_path: Path, mutation: str
+) -> None:
+    decoder = globals().get("launch_bootstrap_diagnostic")
+    assert callable(decoder), "PRE_MAIN_FAILURE_DECODER_MISSING"
+    labels = (
+        "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+        "ENTRY_MODULE_BEGIN",
+        "ENTRY_SERVER_IMPORT_BEGIN",
+        "SERVER_CONVERSATION_IMPORT_BEGIN",
+        "CONVERSATION_MODULE_BEGIN",
+        "CONVERSATION_TURN_API_IMPORT_BEGIN",
+        "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+        "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+        "ENTRY_MAIN_BEGIN",
+        "ENTRY_READY_WRITE_BEGIN",
+    )
+    rows: list[dict[str, object]] = [{"test": "observer", "status": "READY", "count": 1}]
+    for label in labels:
+        for edge in ("ENTER", "END"):
+            rows.append(
+                {
+                    "test": "bootstrap-phase",
+                    "status": label,
+                    "count": 1,
+                    "edge": edge,
+                    "elapsed_ms": 7,
+                    "audit_ms": 2,
+                    "audit_calls": 11,
+                }
+            )
+    if mutation == "missing-end":
+        rows.pop()
+    elif mutation == "unknown-field":
+        rows[-1]["private"] = "PRIVATE_SOURCE_SENTINEL"
+    elif mutation == "unknown-label":
+        rows[-1]["status"] = "PRIVATE_SOURCE_SENTINEL"
+    elif mutation == "unknown-event":
+        rows.append({"test": "PRIVATE_SOURCE_SENTINEL", "status": "READY", "count": 1})
+    elif mutation == "count-boolean":
+        rows[-1]["count"] = True
+    elif mutation == "float":
+        rows[-1]["elapsed_ms"] = 7.0
+    elif mutation == "missing-counter":
+        del rows[-1]["elapsed_ms"]
+    elif mutation == "missing-ready":
+        rows.pop(0)
+    elif mutation == "regression":
+        rows[-1]["elapsed_ms"] = 6
+    elif mutation in {"boolean", "negative", "overbound"}:
+        rows[-1]["audit_calls"] = {"boolean": True, "negative": -1, "overbound": 10**12 + 1}[
+            mutation
+        ]
+    elif mutation == "wrong-edge":
+        rows[-1]["edge"] = "RETURNED_PRIVATE_SOURCE_SENTINEL"
+    elif mutation == "duplicate":
+        rows.append(rows[-1])
+    elif mutation == "event-limit":
+        rows.extend([rows[0]] * 256)
+    raw = b"".join(canonical(r) + b"\n" for r in rows)
+    if mutation == "truncated":
+        raw += b'{"private":"PRIVATE_SOURCE_SENTINEL"'
+    elif mutation == "no-data":
+        raw = b""
+    elif mutation == "duplicate-field":
+        raw += b'{"test":"PRIVATE_SOURCE_SENTINEL","test":"observer","status":"READY","count":1}\n'
+    elif mutation == "record-limit":
+        raw += (
+            canonical({"test": "PRIVATE_SOURCE_SENTINEL" * 256, "status": "READY", "count": 1})
+            + b"\n"
+        )
+    elif mutation == "byte-limit":
+        raw += b" " * 65537
+    evidence = tmp_path / "decoder-evidence.jsonl"
+    evidence.write_bytes(raw)
+    evidence.chmod(0o600)
+    decoded = mapping(decoder(evidence.read_bytes()))
+    assert launch_bootstrap_checkpoint(evidence) == decoded
+    assert b"PRIVATE_SOURCE_SENTINEL" not in canonical(decoded), "PRIVATE_FAILURE_DATA_LEAK"
+    assert decoded["root_cause"] == "UNKNOWN"
+    assert decoded["status"] == ("OBSERVED" if mutation == "none" else "INCOMPLETE")
+    if mutation == "none":
+        assert decoded["completed"] == list(labels)
+        assert decoded["last_enter"] == labels[-1]
+        assert decoded["pending"] == []
+        assert decoded["elapsed_ms"] == 7 and decoded["audit_ms"] == 2
+        assert decoded["audit_calls"] == 11 and decoded["phase_events"] == 20
+    elif mutation != "no-data":
+        assert decoded["last_enter"] == labels[-1]
+    if mutation != "none":
+        assert decoded["issues"]
+
+
 def test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report() -> None:
     require_empty_stderr(b"")
     marker = b"PUBLIC_SYNTHETIC_PRIVATE_DIAGNOSTIC"
@@ -372,7 +764,17 @@ def test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report() -> No
 
 @pytest.mark.parametrize(
     "scenario",
-    ["unrelated", "observed", "forbidden", "foreign", "threaded", "threaded-denied", "returned"],
+    [
+        "unrelated",
+        "observed",
+        "forbidden",
+        "foreign",
+        "sibling",
+        "threaded",
+        "threaded-denied",
+        "repeated-denied",
+        "returned",
+    ],
 )
 def test_bootstrap_observer_filters_before_frame_audit(scenario: str) -> None:
     """Exercise the actual bootstrap observer in a disposable interpreter only."""
@@ -397,9 +799,12 @@ scenario = sys.argv[1]
 body_entered = []
 name = {"unrelated": "ordinary", "observed": "run_handler",
         "forbidden": "init_agent", "foreign": "init_agent",
+        "sibling": "init_agent", "repeated-denied": "init_agent",
         "threaded": "run_handler", "threaded-denied": "init_agent",
         "returned": "_contract_guard"}[scenario]
 filename = "/foreign/control.py" if scenario == "foreign" else str(source / "control.py")
+if scenario == "sibling":
+    filename = str(source) + "-sibling/control.py"
 exec(compile("def " + name + "():\n    body_entered.append(True)\n    return True\n", filename, "exec"))
 function = globals()[name]
 def invoke():
@@ -416,7 +821,7 @@ if scenario.startswith("threaded"):
     child.join(timeout=2)
     assert not child.is_alive()
 else:
-    for _ in range(200 if scenario == "unrelated" else 1):
+    for _ in range(200 if scenario == "unrelated" else 3 if scenario == "repeated-denied" else 1):
         invoke()
 measured_audits = frame_audits
 sys.setprofile(None)
@@ -441,14 +846,389 @@ print(json.dumps({"rows": rows, "frame_audits": measured_audits,
     elif scenario in {"observed", "threaded"}:
         assert actual["rows"] == [{"test": "run_handler", "status": "ENTERED", "count": 1}]
         assert actual["body_count"] == 1
-    elif scenario in {"forbidden", "threaded-denied"}:
-        assert actual["rows"] == [{"test": "forbidden-sink", "status": "init_agent", "count": 1}]
+    elif scenario in {"forbidden", "threaded-denied", "repeated-denied"}:
+        assert actual["rows"] == [
+            {"test": "forbidden-sink", "status": "init_agent", "count": 1}
+        ] * (3 if scenario == "repeated-denied" else 1)
         assert actual["body_count"] == 0
     elif scenario == "returned":
         assert actual["rows"] == [{"test": "contract-guard", "status": "APPROVED", "count": 1}]
         assert actual["body_count"] == 1
     else:
         assert actual == {"rows": [], "frame_audits": 0, "body_count": 1}
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ["complete", "cutoff", "foreign", "sibling", "function", "spoofed-function", "wrong-type"],
+)
+def test_bootstrap_observer_pre_main_source_boundaries(tmp_path: Path, scenario: str) -> None:
+    """SOURCE: compiled code at fixed paths, never imports or launches Hermes."""
+    evidence = tmp_path / "source-observation.jsonl"
+    evidence.touch(mode=0o600)
+    emitter = BOOTSTRAP.split("def emit(", 1)[1].split("os.environ.clear()", 1)[0]
+    observer = BOOTSTRAP.split("forbidden =", 1)[1].split("try:\n    runpy.run_module", 1)[0]
+    setup = r"""
+import json, os, sys, threading, time
+from pathlib import Path
+from types import CodeType, FunctionType
+source, managed, inert, adapter = (Path("/synthetic/" + p) for p in
+                                    ("source", "managed", "inert", "adapter"))
+bootstrap_started_ns = time.monotonic_ns()
+audit_ns, audit_calls = 0, 0
+evidence_fd = os.open(sys.argv[1], os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+frame_audits = 0
+def audit(event, args):
+    global frame_audits
+    if event == "object.__getattr__" and args[1] == "f_code":
+        frame_audits += 1
+sys.addaudithook(audit)
+"""
+    exercise = r"""
+scenario = sys.argv[2]
+def code_at(filename, statements):
+    lines = ["\n"] * max(statements)
+    for number, statement in statements.items():
+        lines[number - 1] = statement + "\n"
+    return compile("".join(lines), filename, "exec")
+rpc_code = code_at(str(managed / "tui_gateway/rpc_dispatch.py"), {1: "'module'", 5: "pass"})
+conversation_code = code_at(str(managed / "agent/conversation_loop.py"),
+    {1: "'module'", 18: "pass", 40: "raise RuntimeError('PRIVATE_SOURCE_SENTINEL')" if scenario == "cutoff" else "pass", 41: "pass"})
+server_code = code_at(str(inert / "tui_gateway/server.py"),
+    {1: "pass", 36: "exec(conversation_code)", 37: "pass", 3363: "exec(rpc_code)", 3386: "pass"})
+filename = str(inert / "tui_gateway/entry.py")
+if scenario == "foreign":
+    filename = "/foreign/tui_gateway/entry.py"
+elif scenario == "sibling":
+    filename = str(inert) + "-sibling/tui_gateway/entry.py"
+if scenario in {"function", "spoofed-function", "wrong-type"}:
+    module_code = code_at(filename, {1: "def ordinary():", 23: "    pass"})
+    function_code = next(c for c in module_code.co_consts if type(c) is CodeType)
+    if scenario == "spoofed-function":
+        function_code = function_code.replace(co_name="<module>", co_qualname="<module>")
+    code = function_code
+else:
+    statements = {1: "pass", 23: "exec(server_code)", 24: "pass"}
+    if scenario == "complete":
+        statements.update({439: "def main():", 441: "    pass", 464: "    pass", 469: "    return", 518: "main()"})
+    code = code_at(filename, statements)
+if scenario in {"foreign", "sibling"}:
+    server_code = compile("pass", "/foreign/control.py", "exec")
+cutoff_observed = False
+try:
+    if scenario in {"function", "spoofed-function"}:
+        FunctionType(code, globals())()
+    elif scenario == "wrong-type":
+        monitor_call(object(), 0)
+        monitor_return(object(), 0, 'PRIVATE_SOURCE_SENTINEL')
+        monitor_line(object(), 23)
+    else:
+        exec(code)
+except RuntimeError:
+    cutoff_observed = True
+if scenario != "cutoff":
+    phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "END")
+sys.monitoring.set_events(sys.monitoring.PROFILER_ID, 0)
+sys.monitoring.free_tool_id(sys.monitoring.PROFILER_ID)
+os.close(evidence_fd)
+print(json.dumps({"frame_audits": frame_audits, "cutoff_observed": cutoff_observed}))
+"""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-B",
+            "-c",
+            setup + "def emit(" + emitter + "forbidden =" + observer + exercise,
+            str(evidence),
+            scenario,
+        ],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    require_empty_stderr(result.stderr)
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["cutoff_observed"] is (scenario == "cutoff")
+    raw = evidence.read_bytes()
+    assert b"PRIVATE_SOURCE_SENTINEL" not in raw, "PRIVATE_SOURCE_DATA_LEAK"
+    rows = [mapping(json.loads(line)) for line in raw.splitlines()]
+    phases = [r for r in rows if r["test"] == "bootstrap-phase"]
+    assert phases, "PRE_MAIN_PHASE_OBSERVATION_MISSING"
+    assert phases[0]["status"] == "BOOTSTRAP_RUNPY_ENTRY_BEGIN"
+    labels = {str(r["status"]) for r in phases}
+    if scenario == "complete":
+        assert labels == set(BOOTSTRAP_PHASES)
+        assert all(
+            {r["edge"] for r in phases if r["status"] == label} == {"ENTER", "END"}
+            for label in labels
+        )
+    elif scenario == "cutoff":
+        assert phases[-1]["status"] == "CONVERSATION_TURN_API_IMPORT_BEGIN"
+        assert phases[-1]["edge"] == "ENTER"
+        assert "ENTRY_MAIN_BEGIN" not in labels
+    else:
+        assert labels == {"BOOTSTRAP_RUNPY_ENTRY_BEGIN"}
+        assert json.loads(result.stdout)["frame_audits"] == 0
+    for row in phases:
+        assert set(row) == {
+            "test",
+            "status",
+            "count",
+            "edge",
+            "elapsed_ms",
+            "audit_ms",
+            "audit_calls",
+        }
+        assert row["count"] == 1
+        for key in ("elapsed_ms", "audit_ms", "audit_calls"):
+            value = row[key]
+            assert type(value) is int and 0 <= value <= 10**12
+    diagnostic = launch_bootstrap_checkpoint(evidence)
+    assert diagnostic["root_cause"] == "UNKNOWN"
+    assert diagnostic["status"] == ("OBSERVED" if scenario == "complete" else "INCOMPLETE")
+    assert diagnostic["pre_ready_complete"] is (scenario == "complete")
+    if scenario == "cutoff":
+        assert diagnostic["last_enter"] == "CONVERSATION_TURN_API_IMPORT_BEGIN"
+        assert "CONVERSATION_TURN_API_IMPORT_BEGIN" in sequence(diagnostic["pending"])
+        assert diagnostic["completed"] == []
+        assert diagnostic["phase_events"] == 6
+    assert b"PRIVATE_SOURCE_SENTINEL" not in canonical(diagnostic), "PRIVATE_CHECKPOINT_DATA_LEAK"
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        "available",
+        "event-limit",
+        "byte-limit",
+        "record-limit",
+        "closed-fd",
+        "busy-tool",
+        "reentrant",
+    ],
+)
+def test_bootstrap_observer_emitter_limits_and_unavailability_fail_closed(
+    tmp_path: Path, scenario: str
+) -> None:
+    evidence = tmp_path / "bounded-observation.jsonl"
+    evidence.touch(mode=0o600)
+    emitter = "def emit(" + BOOTSTRAP.split("def emit(", 1)[1].split("os.environ.clear()", 1)[0]
+    observer = (
+        "forbidden ="
+        + BOOTSTRAP.split("forbidden =", 1)[1].split("try:\n    runpy.run_module", 1)[0]
+    )
+    program = r"""
+import json, os, sys, threading, time
+from pathlib import Path
+source, managed, inert, adapter = (Path("/synthetic/" + p) for p in
+                                    ("source", "managed", "inert", "adapter"))
+bootstrap_started_ns = time.monotonic_ns()
+audit_ns, audit_calls = 0, 0
+path, scenario, emitter, observer = sys.argv[1:]
+evidence_fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+exec(emitter)
+body_entered, refused = False, False
+try:
+    if scenario == "closed-fd":
+        os.close(evidence_fd)
+    if scenario == "busy-tool":
+        sys.monitoring.use_tool_id(sys.monitoring.PROFILER_ID, "foreign-control")
+    if scenario == "reentrant":
+        def recursive_write(fd, raw):
+            emit("observer", "READY")
+            raise AssertionError("REENTRANT_WRITE_NOT_REFUSED")
+        os.write = recursive_write
+    exec(observer)
+    if scenario == "event-limit":
+        for _ in range(256):
+            emit("observer", "READY")
+    elif scenario == "byte-limit":
+        for _ in range(30):
+            emit("observer", "x" * 3000)
+    elif scenario == "record-limit":
+        emit("observer", "x" * 4096)
+    body_entered = True
+except (RuntimeError, OSError, ValueError):
+    refused = True
+finally:
+    sys.monitoring.set_events(sys.monitoring.PROFILER_ID, 0)
+    sys.monitoring.free_tool_id(sys.monitoring.PROFILER_ID)
+    if scenario != "closed-fd":
+        os.close(evidence_fd)
+print(json.dumps({"body_entered": body_entered, "refused": refused,
+                  "events": emit.events, "bytes": emit.bytes}))
+"""
+    result = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", program, str(evidence), scenario, emitter, observer],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    require_empty_stderr(result.stderr)
+    assert result.returncode == 0
+    actual = mapping(json.loads(result.stdout))
+    assert actual["body_entered"] is (scenario == "available")
+    assert actual["refused"] is (scenario != "available")
+    assert 0 <= integer(actual["events"], 0) <= OBSERVATION_EVENTS
+    raw = evidence.read_bytes()
+    assert len(raw) == actual["bytes"] and len(raw) <= OBSERVATION_BYTES
+    assert len(raw.splitlines()) == actual["events"]
+    assert all(len(line) + 1 <= 4096 for line in raw.splitlines())
+    if scenario in {"closed-fd", "busy-tool", "reentrant"}:
+        assert raw == b""
+        assert launch_bootstrap_checkpoint(evidence)["phase_events"] is None
+
+
+def test_launch_failure_diagnostic_unavailable_observation_is_not_zero(tmp_path: Path) -> None:
+    result = launch_bootstrap_checkpoint(tmp_path / "absent.jsonl")
+    assert result["status"] == "INCOMPLETE"
+    assert result["phase_events"] is None and result["elapsed_ms"] is None
+    assert result["issues"] == ["OBSERVER_UNAVAILABLE"]
+
+
+@pytest.mark.parametrize("missing", [None, "end", "label", "all-but-ready"])
+def test_launch_failure_diagnostic_requires_pre_main_phase_evidence(missing: str | None) -> None:
+    rows: list[dict[str, object]] = [{"test": "observer", "status": "READY", "count": 1}]
+    for label in BOOTSTRAP_PHASES:
+        for edge in ("ENTER", "END"):
+            if (
+                (
+                    missing == "end"
+                    and label == "CONVERSATION_TURN_API_IMPORT_BEGIN"
+                    and edge == "END"
+                )
+                or (missing == "label" and label == "CONVERSATION_MODULE_BEGIN")
+                or (missing == "all-but-ready" and label != "ENTRY_READY_WRITE_BEGIN")
+            ):
+                continue
+            rows.append(
+                dict(
+                    test="bootstrap-phase",
+                    status=label,
+                    count=1,
+                    edge=edge,
+                    elapsed_ms=7,
+                    audit_ms=2,
+                    audit_calls=11,
+                )
+            )
+    result = launch_bootstrap_diagnostic(b"".join(canonical(r) + b"\n" for r in rows))
+    assert result["pre_ready_complete"] is (missing is None)
+    if missing is not None:
+        assert result["status"] == "INCOMPLETE"
+
+
+def test_bootstrap_observer_concurrent_emitter_caps(tmp_path: Path) -> None:
+    emitter = "def emit(" + BOOTSTRAP.split("def emit(", 1)[1].split("os.environ.clear()", 1)[0]
+    program = r"""
+import json, os, sys, threading
+from types import SimpleNamespace
+read_fd, evidence_fd = os.pipe()
+actual_write = os.write
+first_write, second_attempt, release = (threading.Event() for _ in range(3))
+lock = threading.Lock()
+class ObservedLock:
+    def __enter__(self):
+        if threading.current_thread().name == "second":
+            second_attempt.set()
+        lock.acquire()
+    def __exit__(self, *args):
+        lock.release()
+def write(fd, raw):
+    if threading.current_thread().name == "second":
+        second_attempt.set()
+    else:
+        first_write.set()
+    if not release.wait(2):
+        raise RuntimeError("TEST_FUSE")
+    return actual_write(fd, raw)
+os = SimpleNamespace(write=write)
+exec(sys.argv[1])
+emit_lock = ObservedLock()
+emit.events, emit.bytes = 255, 65000
+failures = []
+def invoke():
+    try:
+        emit("observer", "x" * 400)
+    except RuntimeError:
+        failures.append(True)
+first = threading.Thread(target=invoke, name="first")
+second = threading.Thread(target=invoke, name="second")
+try:
+    first.start()
+    assert first_write.wait(2)
+    second.start()
+    assert second_attempt.wait(2)
+finally:
+    release.set()
+    first.join(3)
+    if second.ident is not None:
+        second.join(3)
+assert not first.is_alive() and not second.is_alive()
+import os as real_os
+real_os.close(evidence_fd)
+raw = real_os.read(read_fd, 10000)
+real_os.close(read_fd)
+assert len(failures) == 1, "CONCURRENT_OBSERVER_LIMIT_BYPASS"
+assert emit.events == 256 and emit.bytes == 65442 and len(raw) == 442
+print("PASS")
+"""
+    result = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", program, emitter],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    require_empty_stderr(result.stderr)
+    assert result.returncode == 0
+
+
+@pytest.mark.parametrize("exit_code", [0, None, True, 1, "PRIVATE_EXIT_SENTINEL"])
+def test_bootstrap_observer_tail_normal_exit_is_finite(tmp_path: Path, exit_code: object) -> None:
+    evidence = tmp_path / "exit-observation.jsonl"
+    evidence.touch(mode=0o600)
+    emitter = "def emit(" + BOOTSTRAP.split("def emit(", 1)[1].split("os.environ.clear()", 1)[0]
+    tail = "try:\n    runpy.run_module" + BOOTSTRAP.split("try:\n    runpy.run_module", 1)[1]
+    setup = r"""
+import json, os, sys, threading
+from pathlib import Path
+from types import SimpleNamespace
+evidence_fd = os.open(sys.argv[1], os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+code = json.loads(sys.argv[2])
+def phase_transition(*args):
+    pass
+def invoke(*args, **kwargs):
+    raise SystemExit(code)
+runpy = SimpleNamespace(run_module=invoke)
+"""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-B",
+            "-c",
+            setup + emitter + tail,
+            str(evidence),
+            json.dumps(exit_code),
+        ],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    rows = [mapping(json.loads(line)) for line in evidence.read_bytes().splitlines()]
+    normal = exit_code is None or (type(exit_code) is int and exit_code == 0)
+    if normal:
+        assert result.returncode == 0
+        require_empty_stderr(result.stderr)
+        assert rows == [
+            {"test": "bootstrap-exit", "status": "NORMAL_SYSTEM_EXIT", "count": 1},
+            {"test": "observer", "status": "EXIT", "count": 1},
+        ]
+        assert "UNKNOWN_EVENT" not in sequence(launch_bootstrap_checkpoint(evidence)["issues"])
+    else:
+        assert result.returncode != 0
+        assert "UNKNOWN_EVENT" in sequence(launch_bootstrap_checkpoint(evidence)["issues"])
 
 
 class PreparationPrerequisite(RuntimeClient):
@@ -1091,6 +1871,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             "ready_cancelled": peer.ready.cancelled(),
                             "transport_failed": peer.failure is not None,
                             "exceptions": launch_exception_chain(error),
+                            "bootstrap": launch_bootstrap_checkpoint(observation),
                         }
                     )
                     raise
@@ -1260,7 +2041,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 try:
                     ready = await runtime.launch_inert(service, supervisor)
                 except BaseException as error:
-                    checkpoint(launch_client_exceptions=launch_exception_chain(error))
+                    checkpoint(
+                        launch_client_exceptions=launch_exception_chain(error),
+                        bootstrap_observation=launch_bootstrap_checkpoint(observation),
+                    )
                     raise
                 assert ready["state"] == "READY"
                 await runtime.renew(service, supervisor)
@@ -2967,8 +3751,18 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     native_directory=str(host.directory),
                     native_exit=None if host.process is None else host.process.returncode,
                     native_owned_pids=sorted(host._owned_pids()),
+                    bootstrap_observation=launch_bootstrap_checkpoint(observation),
                 )
-        rows = [json.loads(line) for line in observation.read_text().splitlines()]
+        with observation.open("rb") as stream:
+            observation_raw = stream.read(OBSERVATION_BYTES + 1)
+        bootstrap_diagnostic = launch_bootstrap_diagnostic(observation_raw)
+        assert set(sequence(bootstrap_diagnostic["issues"])) <= {"MISSING_PHASE_COMPLETION"}, (
+            "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+        )
+        assert bootstrap_diagnostic["pre_ready_complete"] is True, (
+            "NATIVE_PRE_READY_EVIDENCE_MISSING"
+        )
+        rows = [json.loads(line) for line in observation_raw.splitlines()]
         assert {"test": "observer", "status": "READY", "count": 1} in rows
         assert not any(r["test"].startswith("forbidden-") for r in rows)
         assert [r for r in rows if r["test"] == "run_contract"] == [

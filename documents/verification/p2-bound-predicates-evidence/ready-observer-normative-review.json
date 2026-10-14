@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "review_kind": "INDEPENDENT_READ_ONLY_NORMATIVE_SOURCE",
+  "verdict": "CHANGES_REQUESTED",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_commit": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+    "diff_base": "9518755",
+    "diff_added": 630,
+    "diff_deleted": 12,
+    "frozen_before_and_after": true,
+    "final_git_and_hash_output": "## checkpoint/p2-vm-restart-20261011\n M api/tests/test_contract_method_pg.py\n?? documents/Omnis_Notite_Originale.html\n95187552513f770b0aa0c18bf6ab6755cafc93cd\n4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553  api/tests/test_contract_method_pg.py\n56d31368d2f650325115791de43da482aa31577dc33a1d08c6e683b0aac2c140  -\n4766978459c4a6b636c2c034286ea62e6a4a3d64bfd12f0253fbbc28dddc0a78  /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py"
+  },
+  "scope": {
+    "requirements": "documents/verification/p2-next-session-implementation.md §§3,4,7; D01-D03 and existing real consumer",
+    "allowed_writes": "own scratch SOURCE probe/test artifacts and this report only",
+    "not_performed": [
+      "repository edits",
+      "stage",
+      "commit",
+      "native launch",
+      "PG launch or access",
+      "network",
+      "protected HTML read/hash",
+      "provider/model",
+      "prewarm",
+      "TTL or readiness change",
+      "polling"
+    ],
+    "integration_owner": "parent"
+  },
+  "findings": [
+    {
+      "id": "NORM-D03-01",
+      "severity": "HIGH",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [
+        3583,
+        3584,
+        3585,
+        3586,
+        3587,
+        3612,
+        3617
+      ],
+      "title": "The real consumer admits missing pre-main evidence as a clean test verdict",
+      "requirement": "§4 D03 / finite inventory: missing/unknown/incomplete evidence must not become a clean verdict; missing END remains incompleteness.",
+      "mechanism": "The new native assertions permit any MISSING_PHASE_COMPLETION and require only ENTRY_READY_WRITE_BEGIN in completed. The decoder correctly marks missing evidence INCOMPLETE, but the real consumer does not inspect status or which phases are missing, then can publish status PASS_SOURCE_NOT_INSTALLED.",
+      "source_reproducer": {
+        "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py",
+        "probe_cases": [
+          "missing_pre_main_end",
+          "missing_pre_main_label",
+          "only_ready_write"
+        ],
+        "actual": "All three decode INCOMPLETE with MISSING_PHASE_COMPLETION, yet the exact AST-extracted new consumer assertions at lines3583/3586 pass. Removing CONVERSATION_TURN_API_IMPORT_BEGIN END or all CONVERSATION_MODULE_BEGIN rows from an otherwise complete trace also leaves all legacy nonphase assertions unaffected.",
+        "positive": "Complete evidence decodes OBSERVED and passes the same assertions."
+      },
+      "impact": "Observer drift/lost required ENTER or END is not an admission blocker for the existing native acceptance test. This does not claim an actual native false PASS was executed.",
+      "minimal_remedy": "Require every known pre-READY phase to have entered/completed. If teardown legitimately interrupts runpy/module/main, allow only those exact pending long-lived boundaries, explicitly preserve INCOMPLETE, and do not blanket-exempt all missing completions. Add same-consumer SOURCE negative controls for a missing import END and missing entire pre-main label."
+    },
+    {
+      "id": "NORM-D03-02",
+      "severity": "HIGH",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        411,
+        427,
+        450,
+        451,
+        452,
+        3583
+      ],
+      "title": "The decoder rejects the existing normal SystemExit teardown records as unknown events",
+      "requirement": "D03 must integrate with the existing real consumer and producer without treating supported ordinary cleanup as unknown input; keep private traceback details out of the report.",
+      "mechanism": "The unchanged BOOTSTRAP except BaseException tail emits bootstrap-exception/bootstrap-frame/bootstrap-source for SystemExit(0). None of those event types is in public_statuses, so UNKNOWN_EVENT is added and line3583 fails. Actual inert entry installs SIGTERM handler at163, _log_signal ends sys.exit(0) at145, and RuntimeHost.stop sends SIGTERM at670/673 before kill/reap. Thus this is a supported producer/consumer path, not merely an arbitrary unknown event fixture.",
+      "source_reproducer": {
+        "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py",
+        "case": "ordinary_system_exit",
+        "actual": "The exact BOOTSTRAP emitter, observer and exception/finally tail on synthetic fixed source paths run through READY_WRITE END then SystemExit(0), child exit0/no stdout/no stderr, 17 phase events and the seven expected pre-READY completions. Decoder returns INCOMPLETE with MISSING_PHASE_COMPLETION and UNKNOWN_EVENT; exact line3583 consumer assertion rejects it.",
+        "live_limit": "No native or signal launch. Ordinary signal path is traced in real source; reachability/output is SOURCE-reproduced at its SystemExit boundary, not an observed fresh native result."
+      },
+      "related_source": [
+        "integrations/hermes/upstream/inert-source/tui_gateway/entry.py:115-145,162-163",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:651-685"
+      ],
+      "minimal_remedy": "Handle the known ordinary teardown in the existing producer before emitting arbitrary exception/frame/source rows, or classify those known legacy categories safely without projecting their private statuses. Preserve exception failure/incomplete distinction and do not broadly suppress truly unknown or denial events. Add an exact observer-tail SystemExit control to the same SOURCE selection."
+    }
+  ],
+  "acceptance_matrix": [
+    {
+      "criterion": "10 exact finite phase labels",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "BOOTSTRAP inventory and external constant match required labels; exact fixed paths/co_names/firstlinenos confirmed by compiling actual sources, never importing them."
+    },
+    {
+      "criterion": "BEGIN/END only true boundaries",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Actual source boundaries read: entry23→24, conversation import server36→37, turn API40→41, split handler import3363→3386, READY write464→469; module/main END only PY_RETURN, outer END only successful runpy return."
+    },
+    {
+      "criterion": "CodeType/exact phase path before frame and finite local LINE",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "phase_key lines184-192, finite identity binding246-258, local LINE only at254; callbacks filter before sys._getframe at261/270. Legacy sink matching retains rooted prefix with separator; unrelated/sibling/threaded controls passed."
+    },
+    {
+      "criterion": "observer unavailable and bounded events/bytes",
+      "result": "PASS_EXISTING_SOURCE_CONTROLS",
+      "evidence": "emitter limits256/65536/per-record4096 and busy-tool/closed-fd/event-byte-record limit controls passed. Concurrent emitter race stress was not in this normative scope."
+    },
+    {
+      "criterion": "last ENTER versus completed; counters preserved",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Cutoff regression and decoder tests pass; root_cause remains UNKNOWN; partial counters are not zeroed."
+    },
+    {
+      "criterion": "unknown/private fields inspected before projection; no private report copy",
+      "result": "PASS_EXISTING_SOURCE_CONTROLS",
+      "evidence": "Exact field sets, duplicate keys, unknown labels/events, strict scalar types and sentinel tests pass. Raw legacy traceback categories are never copied into public decoder report."
+    },
+    {
+      "criterion": "missing evidence cannot become consumer clean verdict",
+      "result": "FAIL",
+      "finding": "NORM-D03-01"
+    },
+    {
+      "criterion": "decoder matches ordinary real producer/consumer teardown",
+      "result": "FAIL_SOURCE_REPRODUCED",
+      "finding": "NORM-D03-02"
+    },
+    {
+      "criterion": "guards and no-rerun preserved; no fake readiness/prewarm/TTL",
+      "result": "PASS_DIFF_SCOPED",
+      "evidence": "Audit denials record before raise; unrelated/forbidden/threaded/repeated-caught-denial controls pass. RESTART_READER and post-Stop no_rerun aliases unchanged. Diff only existing test file; no native/product changes."
+    }
+  ],
+  "evidence": {
+    "affected_source_tests": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'bootstrap_observer or launch_failure_diagnostic or launch_rpc_phase' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-source",
+      "exit_code": 0,
+      "output": "46 passed, 20 deselected in 1.25s",
+      "interpreter": "3.13.15",
+      "classification": "SOURCE_ONLY"
+    },
+    "independent_source_probe": {
+      "path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py",
+      "exit_code": 0,
+      "results": {
+        "snapshot_sha256": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+        "decoder_consumer_controls": {
+          "complete": {
+            "decoder": {
+              "status": "OBSERVED",
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 20,
+              "issues": []
+            },
+            "new_native_assertions_pass": true
+          },
+          "missing_pre_main_end": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN"
+              ],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 19,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "new_native_assertions_pass": true
+          },
+          "missing_pre_main_label": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 18,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "new_native_assertions_pass": true
+          },
+          "only_ready_write": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 2,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "new_native_assertions_pass": true
+          }
+        },
+        "ordinary_system_exit": {
+          "exit_code": 0,
+          "decoder": {
+            "status": "INCOMPLETE",
+            "root_cause": "UNKNOWN",
+            "observer_ready": true,
+            "last_enter": "ENTRY_READY_WRITE_BEGIN",
+            "completed": [
+              "CONVERSATION_TURN_API_IMPORT_BEGIN",
+              "CONVERSATION_MODULE_BEGIN",
+              "SERVER_CONVERSATION_IMPORT_BEGIN",
+              "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+              "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+              "ENTRY_SERVER_IMPORT_BEGIN",
+              "ENTRY_READY_WRITE_BEGIN"
+            ],
+            "pending": [
+              "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+              "ENTRY_MODULE_BEGIN",
+              "ENTRY_MAIN_BEGIN"
+            ],
+            "elapsed_ms": 7,
+            "audit_ms": 0,
+            "audit_calls": 0,
+            "phase_events": 17,
+            "issues": [
+              "MISSING_PHASE_COMPLETION",
+              "UNKNOWN_EVENT"
+            ]
+          },
+          "new_native_assertions_pass": false,
+          "event_categories": [
+            "bootstrap-audit",
+            "bootstrap-exception",
+            "bootstrap-frame",
+            "bootstrap-import",
+            "bootstrap-phase",
+            "bootstrap-source",
+            "observer"
+          ],
+          "system_exit_recorded": true
+        },
+        "actual_compiled_inventory": [
+          {
+            "file": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+            "co_name": "<module>",
+            "co_qualname": "<module>",
+            "co_firstlineno": 1,
+            "co_flags": 0,
+            "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c"
+          },
+          {
+            "file": "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+            "co_name": "main",
+            "co_qualname": "main",
+            "co_firstlineno": 439
+          },
+          {
+            "file": "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+            "co_name": "<module>",
+            "co_qualname": "<module>",
+            "co_firstlineno": 1,
+            "co_flags": 0,
+            "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e"
+          },
+          {
+            "file": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py",
+            "co_name": "<module>",
+            "co_qualname": "<module>",
+            "co_firstlineno": 1,
+            "co_flags": 16777216,
+            "sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+          },
+          {
+            "file": "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py",
+            "co_name": "<module>",
+            "co_qualname": "<module>",
+            "co_firstlineno": 1,
+            "co_flags": 16777216,
+            "sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+          }
+        ]
+      },
+      "retained_initial_attempt": {
+        "exit_code": 1,
+        "reason": "Probe incorrectly searched AsyncFunctionDef; actual wrapper is FunctionDef. Only scratch probe corrected; repository unchanged."
+      }
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    "read_source_files": [
+      "README.md",
+      "CONTRIBUTING.md product execution section",
+      "documents/verification/implementation-status.md current rows",
+      "documents/verification/p2-next-session-implementation.md",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/conftest.py source fixture prerequisite",
+      "api/pyproject.toml",
+      "integrations/hermes/upstream/inert-source/tui_gateway/entry.py",
+      "integrations/hermes/upstream/inert-source/tui_gateway/server.py",
+      "integrations/hermes/upstream/managed-source/agent/conversation_loop.py",
+      "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py stop path"
+    ]
+  },
+  "handoff": {
+    "root_cause": "UNKNOWN",
+    "result_qualification": "BLOCKED_NATIVE_READY / fresh consumer NOT_RUN",
+    "D01_D03": "CHANGES_REQUESTED on exact snapshot; parent reproduces/adjudicates before integration",
+    "B06b_G02_P2": "PARTIAL / NOT_CLOSED unchanged",
+    "P4a_minim": "NOT_IMPLEMENTED unchanged",
+    "P2_live": "NOT_AUTHORIZED / NOT_RUN",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "repository_files_modified": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-source/",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-shutdown.jsonl",
+      "additional uniquely named synthetic shutdown JSONL files",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-report.json"
+    ],
+    "notes": "Scope is normative review of observer/decoder/consumer assertions, not whole-platform QA, security confinement certification or native readiness proof. No skill edits made under read-only delegation."
+  }
+}

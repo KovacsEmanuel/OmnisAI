@@ -1,0 +1,693 @@
+{
+  "schema_version": 1,
+  "review_kind": "INDEPENDENT_READ_ONLY_FOCUSED_NORMATIVE_REREVIEW_SOURCE",
+  "verdict": "APPROVED_SCOPED",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_commit": "95187552513f770b0aa0c18bf6ab6755cafc93cd",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "562994c8d6e55fcab1d498b5089e9ec600965add30dbea1c5d78a59d3e444b96",
+    "frozen_before_and_after": true,
+    "uncommitted_parent_owned_change": true,
+    "final_snapshot_command": "git status --short --branch && git rev-parse HEAD && git diff --check && sha256sum api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-report.json /home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-probe.py && api/.venv/bin/python -I -B --version",
+    "final_snapshot_result": {
+      "output": "## checkpoint/p2-vm-restart-20261011\n M api/tests/test_contract_method_pg.py\n?? documents/Omnis_Notite_Originale.html\n95187552513f770b0aa0c18bf6ab6755cafc93cd\n562994c8d6e55fcab1d498b5089e9ec600965add30dbea1c5d78a59d3e444b96  api/tests/test_contract_method_pg.py\n4766978459c4a6b636c2c034286ea62e6a4a3d64bfd12f0253fbbc28dddc0a78  /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py\nda55debb8d18192e7b804ddf276676f190036f0a932e299825acf829677f25ed  /home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-report.json\nf285d26385a83cfabefbd44e52ed72ffe9fc8b4aba7bb4d92c9584a9e1c1a13c  /home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-probe.py\nPython 3.13.15",
+      "exit_code": 0,
+      "error": null
+    }
+  },
+  "scope": {
+    "findings": [
+      "NORM-D03-01",
+      "NORM-D03-02"
+    ],
+    "requirements": "documents/verification/p2-next-session-implementation.md sections3/4/7; focused D03 consumer and ordinary exit producer delta",
+    "requirement_consumer_risk_decision": "Missing pre-READY evidence and normal cleanup must be classified correctly by the existing real acceptance assertions; SOURCE refusal/acceptance on identical assertion statements decides closure of the two original findings, not native acceptance.",
+    "allowed_writes": "own scratch SOURCE probe/evidence/report only",
+    "not_performed": [
+      "repository edits",
+      "stage",
+      "commit",
+      "native launch/import",
+      "PG launch/access",
+      "network",
+      "protected HTML read/hash",
+      "provider/model",
+      "prewarm",
+      "TTL/readiness changes",
+      "polling"
+    ],
+    "integration_owner": "parent",
+    "reused_unchanged_approval": {
+      "report": "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-report.json",
+      "report_sha256": "da55debb8d18192e7b804ddf276676f190036f0a932e299825acf829677f25ed",
+      "original_probe": "/home/kali/.hermes/cache/scratch/d01-d03-normative-4ea079-probe.py",
+      "original_probe_sha256": "4766978459c4a6b636c2c034286ea62e6a4a3d64bfd12f0253fbbc28dddc0a78",
+      "source_snapshot": "4ea079c6298228686cd2247191b9c83629876fff56f4eb7cb5bf1ec1e5b69553",
+      "scope": "unchanged finite inventory, boundary placement, CodeType/path filtering, guards and no-rerun assertions only; not a renewed full review",
+      "originals_preserved": true
+    },
+    "excluded_delta": "emitter lock/threadlocal concurrency repair; no independent concurrency approval claimed here"
+  },
+  "findings": [],
+  "dispositions": [
+    {
+      "id": "NORM-D03-01",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "reviewed_lines": [
+        505,
+        506,
+        507,
+        508,
+        509,
+        512,
+        513,
+        3759,
+        3762
+      ],
+      "mechanism": "pre_ready_complete requires all ten phase ENTERs and all seven short-phase ENDs. Missing END for the three explicitly loop-spanning frames still projects INCOMPLETE/MISSING_PHASE_COMPLETION. The real consumer retains its issue allowlist and additionally asserts pre_ready_complete is True before final PASS_SOURCE_NOT_INSTALLED publication.",
+      "original_reproducer_cases": [
+        "missing_pre_main_end",
+        "missing_pre_main_label",
+        "only_ready_write"
+      ],
+      "current_result": "All three original traces produce INCOMPLETE/pre_ready_complete=false and fail the actual AST-extracted assertion at3762 with NATIVE_PRE_READY_EVIDENCE_MISSING. Complete positive passes. Exactly three long-lived pending also pass the consumer while retaining INCOMPLETE. Top-level/nested invalid private fields fail assertion3759 even with complete pre-READY evidence.",
+      "legacy_rows": "Original mutations touch phase rows only, not legacy nonphase native assertions. Refusal now occurs before those assertions and PASS checkpoint."
+    },
+    {
+      "id": "NORM-D03-02",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "reviewed_lines": [
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        425,
+        3759,
+        3762
+      ],
+      "mechanism": "Exact SystemExit with code None or exact int0 emits only finite bootstrap-exit/NORMAL_SYSTEM_EXIT, then observer EXIT; no exception/frame/source traversal on that normal branch. Decoder recognizes only that finite public category. Non-normal exit remains legacy failure.",
+      "original_reproducer_case": "ordinary_system_exit",
+      "current_result": "The original full emitter/observer/tail SOURCE fixture through READY_WRITE END then SystemExit(0) exits0 with empty stdout/stderr, ten ENTERs/seven short ENDs/17phase events. Only the three loop-spanning frames are pending; INCOMPLETE and root_cause UNKNOWN preserved, issues=[MISSING_PHASE_COMPLETION], actual consumer assertions accept. SystemExit(None) likewise accepts. True,1,private-string controls exit1, retain UNKNOWN_EVENT and are refused by assertion3759; no private traceback status or sentinel copied into the diagnostic.",
+      "live_limit": "No native or signal launch. This confirms exact producer exception boundary plus actual acceptance assertions under SOURCE fixtures, not fresh native behavior."
+    }
+  ],
+  "evidence": {
+    "independent_original_cases_and_controls": {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-probe.py",
+      "exit_code": 0,
+      "probe_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-probe.py",
+      "probe_sha256": "f285d26385a83cfabefbd44e52ed72ffe9fc8b4aba7bb4d92c9584a9e1c1a13c",
+      "results": {
+        "snapshot_sha256": "562994c8d6e55fcab1d498b5089e9ec600965add30dbea1c5d78a59d3e444b96",
+        "classification": "SOURCE_ONLY",
+        "consumer_assertions": [
+          {
+            "line": 3759,
+            "source": "assert set(sequence(bootstrap_diagnostic[\"issues\"])) <= {\"MISSING_PHASE_COMPLETION\"}, (\n            \"NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN\"\n        )"
+          },
+          {
+            "line": 3762,
+            "source": "assert bootstrap_diagnostic[\"pre_ready_complete\"] is True, (\n            \"NATIVE_PRE_READY_EVIDENCE_MISSING\"\n        )"
+          }
+        ],
+        "decoder_consumer_controls": {
+          "complete": {
+            "decoder": {
+              "status": "OBSERVED",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 20,
+              "issues": []
+            },
+            "actual_consumer_assertions": {
+              "accepted": true,
+              "reason": null
+            }
+          },
+          "missing_pre_main_end": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": false,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN"
+              ],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 19,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_PRE_READY_EVIDENCE_MISSING"
+            }
+          },
+          "missing_pre_main_label": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": false,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 18,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_PRE_READY_EVIDENCE_MISSING"
+            }
+          },
+          "only_ready_write": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": false,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 2,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_PRE_READY_EVIDENCE_MISSING"
+            }
+          },
+          "only_long_lived_pending": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": true,
+              "reason": null
+            }
+          },
+          "unknown_top_level_field": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 20,
+              "issues": [
+                "UNKNOWN_OR_MISSING_FIELDS"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+            }
+          },
+          "unknown_nested_field": {
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [],
+              "elapsed_ms": 7,
+              "audit_ms": 2,
+              "audit_calls": 11,
+              "phase_events": 20,
+              "issues": [
+                "INVALID_RECORD"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+            }
+          }
+        },
+        "observer_tail_controls": {
+          "ordinary_system_exit_zero": {
+            "exit_code": 0,
+            "stdout_empty": true,
+            "stderr_empty": true,
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 1,
+              "audit_ms": 0,
+              "audit_calls": 0,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": true,
+              "reason": null
+            },
+            "event_categories": [
+              "bootstrap-audit",
+              "bootstrap-exit",
+              "bootstrap-import",
+              "bootstrap-phase",
+              "observer"
+            ],
+            "normal_exit_rows": [
+              {
+                "test": "bootstrap-exit",
+                "status": "NORMAL_SYSTEM_EXIT",
+                "count": 1
+              }
+            ],
+            "private_traceback_categories_present": false,
+            "private_marker_in_public_projection": false,
+            "evidence_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-ordinary_system_exit_zero-dptxtjo_.jsonl"
+          },
+          "ordinary_system_exit_none": {
+            "exit_code": 0,
+            "stdout_empty": true,
+            "stderr_empty": true,
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 1,
+              "audit_ms": 0,
+              "audit_calls": 0,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": true,
+              "reason": null
+            },
+            "event_categories": [
+              "bootstrap-audit",
+              "bootstrap-exit",
+              "bootstrap-import",
+              "bootstrap-phase",
+              "observer"
+            ],
+            "normal_exit_rows": [
+              {
+                "test": "bootstrap-exit",
+                "status": "NORMAL_SYSTEM_EXIT",
+                "count": 1
+              }
+            ],
+            "private_traceback_categories_present": false,
+            "private_marker_in_public_projection": false,
+            "evidence_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-ordinary_system_exit_none-c0a7g0g4.jsonl"
+          },
+          "boolean_exit": {
+            "exit_code": 1,
+            "stdout_empty": true,
+            "stderr_empty": true,
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 1,
+              "audit_ms": 0,
+              "audit_calls": 0,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION",
+                "UNKNOWN_EVENT"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+            },
+            "event_categories": [
+              "bootstrap-audit",
+              "bootstrap-exception",
+              "bootstrap-frame",
+              "bootstrap-import",
+              "bootstrap-phase",
+              "bootstrap-source",
+              "observer"
+            ],
+            "normal_exit_rows": [],
+            "private_traceback_categories_present": true,
+            "private_marker_in_public_projection": false,
+            "evidence_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-boolean_exit-uthv2wrt.jsonl"
+          },
+          "nonzero_exit": {
+            "exit_code": 1,
+            "stdout_empty": true,
+            "stderr_empty": true,
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 1,
+              "audit_ms": 0,
+              "audit_calls": 0,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION",
+                "UNKNOWN_EVENT"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+            },
+            "event_categories": [
+              "bootstrap-audit",
+              "bootstrap-exception",
+              "bootstrap-frame",
+              "bootstrap-import",
+              "bootstrap-phase",
+              "bootstrap-source",
+              "observer"
+            ],
+            "normal_exit_rows": [],
+            "private_traceback_categories_present": true,
+            "private_marker_in_public_projection": false,
+            "evidence_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-nonzero_exit-vl2a71i2.jsonl"
+          },
+          "private_exit": {
+            "exit_code": 1,
+            "stdout_empty": true,
+            "stderr_empty": false,
+            "decoder": {
+              "status": "INCOMPLETE",
+              "pre_ready_complete": true,
+              "root_cause": "UNKNOWN",
+              "observer_ready": true,
+              "last_enter": "ENTRY_READY_WRITE_BEGIN",
+              "completed": [
+                "CONVERSATION_TURN_API_IMPORT_BEGIN",
+                "CONVERSATION_MODULE_BEGIN",
+                "SERVER_CONVERSATION_IMPORT_BEGIN",
+                "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+                "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+                "ENTRY_SERVER_IMPORT_BEGIN",
+                "ENTRY_READY_WRITE_BEGIN"
+              ],
+              "pending": [
+                "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+                "ENTRY_MODULE_BEGIN",
+                "ENTRY_MAIN_BEGIN"
+              ],
+              "elapsed_ms": 1,
+              "audit_ms": 0,
+              "audit_calls": 0,
+              "phase_events": 17,
+              "issues": [
+                "MISSING_PHASE_COMPLETION",
+                "UNKNOWN_EVENT"
+              ]
+            },
+            "actual_consumer_assertions": {
+              "accepted": false,
+              "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+            },
+            "event_categories": [
+              "bootstrap-audit",
+              "bootstrap-exception",
+              "bootstrap-frame",
+              "bootstrap-import",
+              "bootstrap-phase",
+              "bootstrap-source",
+              "observer"
+            ],
+            "normal_exit_rows": [],
+            "private_traceback_categories_present": true,
+            "private_marker_in_public_projection": false,
+            "evidence_path": "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-private_exit-vyykpwkd.jsonl"
+          }
+        },
+        "control_count": 12,
+        "result": "PASS"
+      }
+    },
+    "affected_source_tests": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'launch_failure_diagnostic_requires_pre_main_phase_evidence or bootstrap_observer_tail_normal_exit_is_finite' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-source",
+      "output": ".........                                                                [100%]\n9 passed, 68 deselected in 0.57s",
+      "exit_code": 0,
+      "error": null,
+      "passed": 9,
+      "deselected": 68,
+      "seconds": 0.57,
+      "classification": "SOURCE_ONLY",
+      "interpreter": "3.13.15"
+    },
+    "preflight": "Reviewed api/tests/conftest.py and api/pyproject.toml. Selected tests require no database fixture; plugin autoload/cache disabled; -I -B used in parent and synthetic child interpreters.",
+    "diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    "execution_limit": "No test module import in independent probe: AST executes only BOOTSTRAP literals/decoder functions and the two exact consumer assertions. mapping/sequence are identity seams for already-known dict/list values as in retained original probe. Synthetic compiled source paths preserve the original scenario; runpy.run_module is a SOURCE seam, not a native substitute proof.",
+    "failed_attempts": [],
+    "probe_static_advisories": "write_file reported AST list invariance/optional msg type advisories for the scratch script; Python syntax check and real isolated execution succeeded. No production edit or type-gate claim."
+  },
+  "acceptance_matrix": [
+    {
+      "criterion": "Original missing import END refused by actual consumer assertions",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Original missing entire label refused by actual consumer assertions",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Original only READY_WRITE refused by actual consumer assertions",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Complete pre-READY evidence with ordinary SystemExit0/None tail accepted",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Normal exit avoids arbitrary traceback categories/projection",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Unknown/private fields and abnormal exits still refused",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Pending long-lived ENDs remain INCOMPLETE, not fabricated completion",
+      "result": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "criterion": "Fresh native/PG acceptance",
+      "result": "NOT_RUN_PARENT_OWNED"
+    }
+  ],
+  "handoff": {
+    "D03_original_findings": "APPROVED_SCOPED / CLOSED_SOURCE_SCOPED only on the exact reviewed file SHA",
+    "ResultQualification": "BLOCKED_NATIVE_READY / actual consumer trial NOT_RUN unchanged",
+    "B06b_G02_P2": "PARTIAL / NOT_CLOSED unchanged",
+    "P4a_minim": "NOT_IMPLEMENTED unchanged",
+    "P2_live": "NOT_AUTHORIZED / NOT_RUN",
+    "root_cause": "UNKNOWN",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "repository_files_modified": [],
+    "new_commits": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-probe.py",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-source/",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-focused-report.json",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-ordinary_system_exit_zero-dptxtjo_.jsonl",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-ordinary_system_exit_none-c0a7g0g4.jsonl",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-boolean_exit-uthv2wrt.jsonl",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-nonzero_exit-vl2a71i2.jsonl",
+      "/home/kali/.hermes/cache/scratch/d01-d03-normative-562994-private_exit-vyykpwkd.jsonl"
+    ],
+    "next": "Parent adjudicates this focused closure and complementary concurrency review, commits/integrates as authorized, and owns any bounded real native/PG attempt. No product acceptance or original cold-failure explanation inferred."
+  }
+}

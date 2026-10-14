@@ -34,12 +34,15 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         fields |= {"context_ref", "mission_ref", "criterion_id"}
     elif operation == "create-denominator":
         fields |= {"context_ref", "mission_ref", "input_ref"}
+    elif operation == "create-qualification":
+        fields |= {"context_ref", "mission_ref", "result_ref", "assignment_ref", "denominator_ref"}
     elif operation not in {
         "read-context",
         "read-method-context",
         "read-input",
         "read-mission",
         "read-denominator",
+        "read-qualification",
     }:
         raise CatalogError("INVALID_REQUEST")
     if operation == "create-method-context" and "criterion_ids" in mapping(value):
@@ -68,6 +71,12 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
         ref(result["context_ref"], "contract-input-context")
         ref(result["mission_ref"], "mission")
         ref(result["input_ref"], "contract-case-records")
+    elif operation == "create-qualification":
+        from omnis.modules.tasks.result_qualification import REQUEST_REFS
+
+        contract.integer(result["schema_version"], 1, 1)
+        for field, kind in REQUEST_REFS.items():
+            ref(result[field], kind)
     return result
 
 
@@ -269,6 +278,47 @@ class ContractInputs:
             )
             return {**result, "created": created}
 
+    async def create_qualification(self, request: object) -> dict[str, object]:
+        from omnis.modules.runs.managed_admission import ManagedAdmission
+        from omnis.modules.tasks import result_qualification as qualification
+
+        value = validate_request("create-qualification", request)
+        owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
+        async with asyncio.timeout(15), self.engine.begin() as conn:
+            await conn.execute(sql("SET LOCAL search_path = pg_catalog, public, pg_temp"))
+            await store.lock(conn, owner)
+            run, _ = await store.owned(conn, owner, value["context_ref"])
+            for field in qualification.REQUEST_REFS:
+                await store.get(conn, owner, run, value[field])
+            graph = await store.graph(conn, owner, run)
+            await ManagedAdmission(self.engine, self.root)._verify_graph(conn, owner, run, graph)
+            prior = await store.command_replay(conn, owner, command, "create-qualification", value)
+            if prior is not None:
+                item = await store.get(
+                    conn, owner, run, ref(prior.get("qualification_ref"), qualification.KIND)
+                )
+                qualification.validate_receipt(
+                    await store.command_receipt(conn, owner, command), item, command
+                )
+                return {**prior, "created": False}
+            evidence, body = await qualification.derive(conn, owner, run, graph, value)
+            evidence["provenance"] = qualification.provenance(qualification.MANIFEST, command)
+            qualification.payload(evidence, qualification.MANIFEST)
+            manifest = records.envelope(qualification.MANIFEST, evidence)
+            body.update(
+                evidence_manifest_ref=records.reference(manifest),
+                provenance=qualification.provenance(qualification.KIND, command),
+            )
+            qualification.payload(body, qualification.KIND)
+            item = records.envelope(qualification.KIND, body)
+            await store.put(conn, owner, run, manifest)
+            await store.put(conn, owner, run, item)
+            result = qualification.result_refs(body, item)
+            await store.command_complete(
+                conn, owner, run, command, "create-qualification", value, result
+            )
+            return {**result, "created": True}
+
     async def _require_settled(
         self, conn: AsyncConnection, owner: str, run: str, graph: list[dict[str, object]]
     ) -> None:
@@ -442,7 +492,7 @@ class ContractInputs:
         value = validate_request(operation, request)
         owner, command = uuid_string(value["owner_id"]), uuid_string(value["command_id"])
         async with asyncio.timeout(4), self.engine.begin() as conn:
-            if operation == "read-denominator":
+            if operation in {"read-denominator", "read-qualification"}:
                 await conn.execute(sql("SET LOCAL search_path = pg_catalog, public, pg_temp"))
             await store.lock(conn, owner)
             receipt = await store.command_receipt(conn, owner, command)
@@ -465,6 +515,19 @@ class ContractInputs:
                     conn, owner, run, await store.graph(conn, owner, run)
                 )
                 denominator.validate_receipt(receipt, item, command=command)
+            if operation == "read-qualification":
+                from omnis.modules.runs.managed_admission import ManagedAdmission
+                from omnis.modules.tasks import result_qualification as qualification
+
+                run, item = await store.owned(
+                    conn, owner, ref(result.get("qualification_ref"), qualification.KIND)
+                )
+                graph = await store.graph(conn, owner, run)
+                qualification.validate_scope(owner, run, graph)
+                qualification.validate_receipt(receipt, item, command)
+                await ManagedAdmission(self.engine, self.root)._verify_graph(
+                    conn, owner, run, graph
+                )
             values = {
                 key.replace("_ref", ""): (await store.owned(conn, owner, ref(value)))[1]
                 for key, value in result.items()
@@ -486,11 +549,13 @@ def main(argv: list[str] | None = None) -> int:
             "create-input",
             "append-mission",
             "create-denominator",
+            "create-qualification",
             "read-context",
             "read-method-context",
             "read-input",
             "read-mission",
             "read-denominator",
+            "read-qualification",
         ),
     )
     parser.add_argument("--request", required=True)
@@ -523,6 +588,8 @@ def main(argv: list[str] | None = None) -> int:
                     return await service.append_mission(value)
                 if args.operation == "create-denominator":
                     return await service.create_denominator(value)
+                if args.operation == "create-qualification":
+                    return await service.create_qualification(value)
                 return await service.read(args.operation, value)
             finally:
                 await engine.dispose()

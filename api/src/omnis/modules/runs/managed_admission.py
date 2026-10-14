@@ -915,6 +915,23 @@ class ManagedAdmission:
     ) -> None:
         from omnis.modules.tasks import mission_revisions
 
+        qualification_material = any(
+            r["kind"] in {"result-qualification", "result-evidence-manifest"}
+            or (
+                r["kind"] == "contract-input-command"
+                and (
+                    mapping(r["payload"]).get("operation") == "create-qualification"
+                    or "qualification_ref" in mapping(mapping(r["payload"]).get("result_refs"))
+                )
+            )
+            for r in graph
+        )
+        if qualification_material:
+            from omnis.modules.tasks import result_qualification
+
+            # The retained reader also reaches catalog/state lookups without CLI setup.
+            result_qualification.validate_local(owner, run, graph)
+            await conn.execute(sql("SET LOCAL search_path = pg_catalog, public, pg_temp"))
         mission_revisions.validate_graph(graph)
         if any(r["kind"] == "coverage-denominator" for r in graph):
             from omnis.modules.coverage import denominator
@@ -998,6 +1015,8 @@ class ManagedAdmission:
                 "contract-case-records",
                 "contract-input-context",
                 "coverage-denominator",
+                "result-qualification",
+                "result-evidence-manifest",
                 "managed-run",
                 "mission",
                 "focus",
@@ -1125,6 +1144,10 @@ class ManagedAdmission:
         criterion_checks.validate_outcomes(
             [r for r in graph if r["kind"] == "criterion-outcome"], expected_outcomes
         )
+        if qualification_material:
+            from omnis.modules.tasks import result_qualification
+
+            await result_qualification.validate_graph(conn, owner, run, graph)
 
     async def _verify_compositions(
         self,

@@ -489,6 +489,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "partial-requirement-full"),
         (False, True, False, False, True, "partial-requirement-prefix"),
         (False, True, False, False, False, "mission-consumer"),
+        (False, True, False, False, False, "result-qualification"),
     ],
     ids=[
         "support-zero",
@@ -509,6 +510,7 @@ class PreparationPrerequisite(RuntimeClient):
         "partial-requirement-full",
         "partial-requirement-prefix",
         "mission-consumer",
+        "result-qualification",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -535,7 +537,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert python.is_file(), "PINNED_PYTHON_REQUIRED"
     url = request.getfixturevalue("migrated_database_url")
     dsn = url.render_as_string(hide_password=False)
-    if applicability is not None and applicability != "mission-consumer":
+    if applicability is not None and applicability not in {
+        "mission-consumer",
+        "result-qualification",
+    }:
         import yaml
 
         from fixtures import c03_records
@@ -1132,7 +1137,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                     raise
 
-            if applicability == "mission-consumer" or (
+            if applicability in {"mission-consumer", "result-qualification"} or (
                 applicability is not None
                 and applicability.startswith(("evidence-", "partial-requirement-"))
             ):
@@ -1964,6 +1969,379 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             assert host.process is not None and host.process.returncode is not None
             assert not host._owned_pids()
             native_before = observation.read_bytes()
+            if applicability == "result-qualification":
+                from omnis.modules.settings import candidate_store as stored
+                from omnis.modules.tasks import managed_store
+
+                qualification_history = deepcopy(back)
+                mission = next(
+                    mapping(r) for r in sequence(back["records"]) if mapping(r)["kind"] == "mission"
+                )
+                # Only prerequisites: one M2 append and denominator create, no
+                # replay/denial/overlap relaunch of their accepted consumers.
+                appended = await inputs.append_mission(
+                    seed.write(
+                        schema_version=1,
+                        context_ref=context["context_ref"],
+                        mission_ref=stored.reference(mission),
+                        criterion_id=str(uuid4()),
+                    )
+                )
+                denominator_created = await inputs.create_denominator(
+                    seed.write(
+                        schema_version=1,
+                        context_ref=context["context_ref"],
+                        mission_ref=appended["mission_ref"],
+                        input_ref=original["input_ref"],
+                    )
+                )
+                qualification_request = seed.write(
+                    schema_version=1,
+                    context_ref=context["context_ref"],
+                    result_ref=stored.reference(mapping(sequence(back["results"])[0])),
+                    assignment_ref=stored.reference(mapping(sequence(back["briefs"])[0])),
+                    mission_ref=appended["mission_ref"],
+                    denominator_ref=denominator_created["denominator_ref"],
+                )
+
+                async def qualification_cli(
+                    operation: str, value: dict[str, object], reason: str | None = None
+                ) -> dict[str, object]:
+                    path = tmp_path / ("qualification-command-" + uuid4().hex + ".json")
+                    path.write_bytes(canonical(value))
+                    path.chmod(0o600)
+                    child = await asyncio.create_subprocess_exec(
+                        str(python),
+                        "-I",
+                        "-B",
+                        "-c",
+                        "import sys;sys.path.insert(0,sys.argv[1]);"
+                        "from omnis.modules.runs.contract_inputs import main;"
+                        "from omnis.modules.runs.managed_admission import BuildSource,ManagedAdmission;"
+                        "from omnis.modules.settings import skill_catalog,candidate_catalog;"
+                        "from omnis.modules.tasks import module_registry;"
+                        "from omnis.modules.settings.catalog_models import CatalogError;"
+                        "blocked=lambda *a,**k:(_ for _ in ()).throw(CatalogError('QUALIFICATION_EXECUTED'));"
+                        "BuildSource.build=blocked;ManagedAdmission._build=blocked;"
+                        "skill_catalog.compile_catalog=blocked;skill_catalog.evaluate_pure=blocked;"
+                        "candidate_catalog.evaluate_pure=blocked;module_registry.run_handler=blocked;"
+                        "raise SystemExit(main(sys.argv[2:]))",
+                        str(ROOT / "api/src"),
+                        operation,
+                        "--request",
+                        str(path),
+                        "--catalog-root",
+                        str(seed.root),
+                        cwd=tmp_path,
+                        env=seed.environment(dsn),
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    try:
+                        stdout, stderr = await asyncio.wait_for(child.communicate(), 20)
+                    finally:
+                        if child.returncode is None:
+                            child.kill()
+                            await child.wait()
+                    for suffix, raw in (("stdout", stdout), ("stderr", stderr)):
+                        output = path.with_suffix("." + suffix)
+                        output.write_bytes(raw)
+                        output.chmod(0o600)
+                    if reason is not None:
+                        if (child.returncode, stdout, stderr) != (
+                            2,
+                            b"",
+                            canonical({"status": "BLOCKED", "reason": reason}) + b"\n",
+                        ):
+                            raise AssertionError("QUALIFICATION_DENIAL_TUPLE_MISMATCH")
+                        return {}
+                    if child.returncode != 0:
+                        raise AssertionError("QUALIFICATION_COMMAND_FAILED")
+                    require_empty_stderr(stderr)
+                    return mapping(json.loads(stdout))
+
+                qualification_before_census = await mission_census()
+
+                async def fail_qualification_receipt(*args: object, **kwargs: object) -> None:
+                    raise CatalogError("TEST_RECEIPT_ROLLBACK")
+
+                with monkeypatch.context() as rollback:
+                    rollback.setattr(managed_store, "command_complete", fail_qualification_receipt)
+                    with pytest.raises(CatalogError, match="^TEST_RECEIPT_ROLLBACK$"):
+                        await inputs.create_qualification(qualification_request)
+                if await mission_census() != qualification_before_census:
+                    raise AssertionError("QUALIFICATION_ROLLBACK_CENSUS_CHANGED")
+                with monkeypatch.context() as no_effects:
+                    no_effects.setattr(BuildSource, "build", no_rerun)
+                    no_effects.setattr("omnis.modules.tasks.module_registry.run_handler", no_rerun)
+                    no_effects.setattr(
+                        "omnis.modules.settings.skill_catalog.evaluate_pure", no_rerun
+                    )
+                    created = await qualification_cli("create-qualification", qualification_request)
+                    assert created["created"] is True
+                    read_request = {
+                        k: qualification_request[k]
+                        for k in ("schema_version", "owner_id", "command_id")
+                    }
+                    read = await qualification_cli("read-qualification", read_request)
+                    qualification = mapping(read["qualification"])
+                    q = mapping(qualification["payload"])
+                    assert (
+                        q["denominator_revision"] == 1
+                        and mapping(q["evaluated_against_mission_ref"])["revision"] == 2
+                    )
+                    assert (
+                        q["precondition_state_refs"] == []
+                        and q["decision"] == "REVALIDATION_REQUIRED"
+                    )
+                    assert q["reason_codes"] == [
+                        "COMPATIBILITY_PROOF_UNAVAILABLE",
+                        "CURRENT_PRECONDITION_PROOF_UNAVAILABLE",
+                    ]
+                    evidence = mapping(read["evidence_manifest"])
+                    assert q["evidence_manifest_ref"] == stored.reference(evidence)
+                    assert len(sequence(mapping(evidence["payload"])["receipt_refs"])) == 3
+                    assert len(sequence(mapping(evidence["payload"])["artifacts"])) == 2
+                    after = await mission_census()
+                    assert await qualification_cli(
+                        "create-qualification", qualification_request
+                    ) == {**created, "created": False}
+                    if await mission_census() != after:
+                        raise AssertionError("QUALIFICATION_REPLAY_CENSUS_CHANGED")
+                    for operation, qualification_bad, reason in (
+                        (
+                            "create-qualification",
+                            {**qualification_request, "owner_id": str(uuid4())},
+                            "REF_UNAVAILABLE",
+                        ),
+                        (
+                            "create-qualification",
+                            {
+                                **qualification_request,
+                                "result_ref": {
+                                    **mapping(qualification_request["result_ref"]),
+                                    "digest": "0" * 64,
+                                },
+                            },
+                            "REF_MISMATCH",
+                        ),
+                        (
+                            "create-qualification",
+                            {
+                                **qualification_request,
+                                "result_ref": {
+                                    **mapping(qualification_request["result_ref"]),
+                                    "revision": True,
+                                },
+                            },
+                            "INVALID_REQUEST",
+                        ),
+                        (
+                            "create-qualification",
+                            {**qualification_request, "result_ref": appended["mission_ref"]},
+                            "MANAGED_REJECTED",
+                        ),
+                        (
+                            "create-qualification",
+                            {**qualification_request, "mission_ref": stored.reference(mission)},
+                            "COMMAND_CONFLICT",
+                        ),
+                        (
+                            "create-qualification",
+                            {**qualification_request, "decision": "ELIGIBLE"},
+                            "MANAGED_REJECTED",
+                        ),
+                        (
+                            "create-qualification",
+                            {**qualification_request, "denominator_revision": 2},
+                            "MANAGED_REJECTED",
+                        ),
+                        ("read-denominator", read_request, "COMMAND_CONFLICT"),
+                    ):
+                        await qualification_cli(operation, qualification_bad, reason)
+                        if await mission_census() != after:
+                            raise AssertionError("QUALIFICATION_DENIAL_CENSUS_CHANGED")
+                    # Prepared only: same settled native fixture/common reader,
+                    # transaction-local durable mutations, always rolled back.
+                    qualification_run = str(prepared["run_id"])
+                    authentic_graph = [
+                        mapping(r)
+                        for r in sequence((await domain.readback(back_request))["records"])
+                    ]
+                    for table, field in (
+                        ("managed_task", "attempt_id"),
+                        ("managed_task", "runtime_boot"),
+                        ("managed_task", "native_child_id"),
+                        ("managed_task", "native_session_id"),
+                        ("managed_run", "runtime_boot"),
+                        ("managed_run", "ticket"),
+                        ("managed_run", "native_root_id"),
+                    ):
+                        async with engine.connect() as conn:
+                            transaction = await conn.begin()
+                            try:
+                                await managed_store.lock(conn, seed.owner)
+                                await conn.execute(
+                                    sql(
+                                        f"UPDATE public.{table} SET {field}=:value WHERE run_id=:run"
+                                    ),
+                                    {"value": str(uuid4()), "run": qualification_run},
+                                )
+                                tampered = await mission_snapshot(conn)
+                                with pytest.raises(CatalogError, match="^METHOD_RECEIPT_MISMATCH$"):
+                                    await domain._verify_graph(
+                                        conn, seed.owner, qualification_run, authentic_graph
+                                    )
+                                if await mission_snapshot(conn) != tampered:
+                                    raise AssertionError("QUALIFICATION_LINEAGE_DENIAL_WROTE")
+                            finally:
+                                await transaction.rollback()
+                        if await mission_census() != after:
+                            raise AssertionError("QUALIFICATION_LINEAGE_ROLLBACK_CHANGED")
+                    # Available semantic material must refuse before any catalog
+                    # access. Observers delegate the positive, not always-deny.
+                    from sqlalchemy import event
+
+                    lookup_attempts: list[str] = []
+                    original_get = stored.get
+
+                    async def observed_get(
+                        connection: AsyncConnection, owner: str, reference: dict[str, object]
+                    ) -> tuple[str, dict[str, object]]:
+                        lookup_attempts.append("catalog.get")
+                        return await original_get(connection, owner, reference)
+
+                    def observed_sql(
+                        connection: object,
+                        cursor: object,
+                        statement: str,
+                        parameters: object,
+                        context: object,
+                        executemany: bool,
+                    ) -> None:
+                        if "catalog_reservation" in statement:
+                            lookup_attempts.append("catalog.identity")
+
+                    def sealed(
+                        item: dict[str, object], body: dict[str, object]
+                    ) -> dict[str, object]:
+                        updated = {**item, "payload": body}
+                        updated["digest"] = sha(
+                            canonical({k: v for k, v in updated.items() if k != "digest"})
+                        )
+                        return updated
+
+                    with monkeypatch.context() as local_guard:
+                        async with engine.begin() as conn:
+                            await managed_store.lock(conn, seed.owner)
+                            local_guard.setattr(stored, "get", observed_get)
+                            event.listen(
+                                conn.sync_connection, "before_cursor_execute", observed_sql
+                            )
+                            try:
+                                await domain._verify_graph(
+                                    conn, seed.owner, qualification_run, authentic_graph
+                                )
+                                assert (
+                                    "catalog.get" in lookup_attempts
+                                    and "catalog.identity" in lookup_attempts
+                                )
+                                for attack, reason in (
+                                    ("manifest-schema", "QUALIFICATION_INVALID"),
+                                    ("receipt-digest", "COMMAND_CONFLICT"),
+                                ):
+                                    graph = deepcopy(authentic_graph)
+                                    replacements: dict[bytes, dict[str, object]] = {}
+                                    for kind in (
+                                        "result-evidence-manifest",
+                                        "result-qualification",
+                                        "contract-input-command",
+                                    ):
+                                        for index, item in enumerate(graph):
+                                            if item["kind"] != kind:
+                                                continue
+                                            body = mapping(item["payload"])
+                                            if (
+                                                attack == "manifest-schema"
+                                                and item["kind"] == "result-evidence-manifest"
+                                            ):
+                                                artifacts = [
+                                                    mapping(a) for a in sequence(body["artifacts"])
+                                                ]
+                                                artifacts[0]["schema_ref"] = {
+                                                    **mapping(artifacts[0]["schema_ref"]),
+                                                    "id": str(uuid4()),
+                                                }
+                                                body["artifacts"] = artifacts
+                                                updated = sealed(item, body)
+                                                replacements[canonical(stored.reference(item))] = (
+                                                    stored.reference(updated)
+                                                )
+                                                graph[index] = updated
+                                            elif (
+                                                item["kind"] == "result-qualification"
+                                                and attack == "manifest-schema"
+                                            ):
+                                                body["evidence_manifest_ref"] = replacements[
+                                                    canonical(body["evidence_manifest_ref"])
+                                                ]
+                                                updated = sealed(item, body)
+                                                replacements[canonical(stored.reference(item))] = (
+                                                    stored.reference(updated)
+                                                )
+                                                graph[index] = updated
+                                            elif (
+                                                item["kind"] == "contract-input-command"
+                                                and body.get("command_id")
+                                                == qualification_request["command_id"]
+                                            ):
+                                                if attack == "receipt-digest":
+                                                    body["request_digest"] = "0" * 64
+                                                else:
+                                                    body["result_refs"] = {
+                                                        k: replacements.get(canonical(v), v)
+                                                        for k, v in mapping(
+                                                            body["result_refs"]
+                                                        ).items()
+                                                    }
+                                                graph[index] = sealed(item, body)
+                                    lookup_attempts.clear()
+                                    with pytest.raises(CatalogError, match="^" + reason + "$"):
+                                        await domain._verify_graph(
+                                            conn, seed.owner, qualification_run, graph
+                                        )
+                                    assert lookup_attempts == []
+                            finally:
+                                event.remove(
+                                    conn.sync_connection, "before_cursor_execute", observed_sql
+                                )
+                    if await mission_census() != after:
+                        raise AssertionError("QUALIFICATION_LOCAL_DENIAL_CENSUS_CHANGED")
+                    await qualification_cli("read-qualification", read_request)
+                    back = await domain.readback(back_request)
+                    for field in (
+                        "briefs",
+                        "results",
+                        "checks",
+                        "criterion_outcomes",
+                        "tasks",
+                        "inbox",
+                        "binding",
+                        "manifest",
+                    ):
+                        assert canonical(back[field]) == canonical(qualification_history[field])
+                    assert observation.read_bytes() == native_before and execution_attempts == []
+                durable_markers = await markers()
+                durable_census = await mission_census()
+                checkpoint(
+                    result_qualification="CREATE_READ_REPLAY_EIGHT_DENIALS",
+                    qualification_ref=stored.reference(qualification),
+                    evidence_manifest_ref=stored.reference(evidence),
+                    qualification_decision="REVALIDATION_REQUIRED",
+                    qualification_denominator_revision=1,
+                    qualification_mission_revision=2,
+                    qualification_census="FIVE_TABLE_ROLLBACK_REPLAY_DENIALS_EXACT",
+                )
             if applicability == "mission-consumer":
                 from omnis.modules.settings import candidate_store as stored
                 from omnis.modules.tasks import managed_store

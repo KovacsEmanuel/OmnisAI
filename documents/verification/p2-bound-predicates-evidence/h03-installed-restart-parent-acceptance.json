@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "status": "ACCEPTED_SOURCE_OWNER_INSTALLED_HOST_NATIVE_RESTART_SCOPED",
+  "tested_commit": "e037cf1",
+  "consumer_sha256": "05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77",
+  "image_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+  "sessions": [
+    "proc_c2b31dc82519",
+    "proc_4508b33f1e6a"
+  ],
+  "cases": [
+    {
+      "case": "runtime-restart",
+      "fixture": "/home/kali/.hermes/cache/scratch/db-e0d21ae501cb46ca",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "summary": "1 passed in 40.69s",
+      "proof_sha256": "d18a384be2b5ee798a3058ce2d69f1fcbd66c43e6063a04420a8991fd74e47aa",
+      "observed": {
+        "status": "PASS_SOURCE_OWNER_INSTALLED_HOST_NATIVE_SCOPED",
+        "h03_process_restart": "PASS_SCOPED_NOT_STOCK_SUPERVISOR_RECOVERY",
+        "h03_resource_cleanup": "EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED",
+        "h03_last_retirement": "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE",
+        "h03_native_census": "AUTHENTIC_RECEIPTS_NOT_IN_PROCESS_OBSERVER",
+        "h03_single_consumption": "EXACT_ONE_BIT_FIVE_TABLE_CENSUS",
+        "h03_execution_attempts": [],
+        "public_control_actions": [
+          {
+            "action": "stage",
+            "phase": "ACTIVE",
+            "task_status": "BOUND"
+          },
+          {
+            "action": "release",
+            "phase": "ACTIVE",
+            "task_status": "SUCCEEDED"
+          },
+          {
+            "action": "receive",
+            "phase": "AFTER_PROCESS_RESTART",
+            "task_status": "SUCCEEDED"
+          },
+          {
+            "action": "receive",
+            "phase": "AFTER_CONSUMPTION",
+            "task_status": "SUCCEEDED"
+          }
+        ],
+        "h03_release_exchange": {
+          "events": [
+            {
+              "elapsed_ms": 0,
+              "grant_remaining_ms": 4490,
+              "phase": "ENTER"
+            },
+            {
+              "correlation_valid": true,
+              "elapsed_ms": 114,
+              "grant_remaining_ms": 4375,
+              "ok": true,
+              "phase": "END",
+              "read_complete": true,
+              "returned": true,
+              "writer_drained": true
+            }
+          ],
+          "host_internal_cause": "UNKNOWN",
+          "status": "COMPLETE"
+        },
+        "h03_processes": [
+          {
+            "boot": "a7d2eff0-f8f8-4064-a7c6-249ad9f4006e",
+            "host": [
+              115913,
+              3575673,
+              4026533127
+            ],
+            "native": [
+              116071,
+              3575902,
+              4026533127
+            ]
+          },
+          {
+            "boot": "8fdbd91d-2a67-4c49-b22d-d5f4325de0cc",
+            "host": [
+              116661,
+              3576659,
+              4026533127
+            ],
+            "native": [
+              116798,
+              3576705,
+              4026533127
+            ]
+          }
+        ],
+        "h03_retained_refs": "BYTE_EXACT_GRAPH_FINAL_CHECK_OUTCOMES_USAGE"
+      },
+      "parent_cleanup": {
+        "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "exact_cids_absent": [
+          "10ece42c9fc95de43b99fa391191f15151622e355c3d98b2f54115fe54b788cf",
+          "71b55f957a2b11b985d0bc7258e411f4159a9dd752508ce8724fa0f29abee27f"
+        ],
+        "project_container_network_absent": true,
+        "endpoints_absent": true,
+        "original_process_identities_absent": 4,
+        "lock_free": true,
+        "data_logs_retained": true
+      }
+    },
+    {
+      "case": "runtime-restart-no-final",
+      "fixture": "/home/kali/.hermes/cache/scratch/db-fad4483ab921482f",
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "summary": "1 passed in 32.63s",
+      "proof_sha256": "f4676d3467a85cedb44ba1dd86a088f3c8fe38d730fb75c9c058bb3df9dfcf8a",
+      "observed": {
+        "status": "PASS_SOURCE_OWNER_INSTALLED_HOST_NATIVE_SCOPED",
+        "h03_process_restart": "PASS_SCOPED_NOT_STOCK_SUPERVISOR_RECOVERY",
+        "h03_resource_cleanup": "EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED",
+        "h03_last_retirement": "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE",
+        "h03_native_census": "AUTHENTIC_RECEIPTS_NOT_IN_PROCESS_OBSERVER",
+        "h03_execution_attempts": [],
+        "public_control_actions": [
+          {
+            "action": "stage",
+            "phase": "ACTIVE",
+            "task_status": "BOUND"
+          }
+        ],
+        "h03_release_exchange": {
+          "events": [
+            {
+              "elapsed_ms": 0,
+              "grant_remaining_ms": 4494,
+              "phase": "ENTER"
+            },
+            {
+              "correlation_valid": true,
+              "elapsed_ms": 84,
+              "grant_remaining_ms": 4410,
+              "ok": true,
+              "phase": "END",
+              "read_complete": true,
+              "returned": true,
+              "writer_drained": true
+            }
+          ],
+          "host_internal_cause": "UNKNOWN",
+          "status": "COMPLETE"
+        },
+        "h03_processes": [
+          {
+            "boot": "84774c50-9d35-4711-9cc9-3f2801d98dee",
+            "host": [
+              119834,
+              3581367,
+              4026533127
+            ],
+            "native": [
+              119994,
+              3581594,
+              4026533127
+            ]
+          },
+          {
+            "boot": "67ddc31e-cc5a-410b-9e2b-623016273750",
+            "host": [
+              120582,
+              3582210,
+              4026533127
+            ],
+            "native": [
+              120743,
+              3582273,
+              4026533127
+            ]
+          }
+        ],
+        "h03_public_denial": "TASK_INDETERMINATE",
+        "h03_installed_denial": "NEEDS_RECONCILIATION",
+        "h03_pending_census": "UNCHANGED"
+      },
+      "parent_cleanup": {
+        "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "exact_cids_absent": [
+          "dc9cb9976e012ab6dd0436cbc84a99bb631baa70b860788313a64199cd39406e",
+          "f9fae7335866961ac5461f69ff9b8c6541c0e5c0babcdf25775543c59f9955fa"
+        ],
+        "project_container_network_absent": true,
+        "endpoints_absent": true,
+        "original_process_identities_absent": 4,
+        "lock_free": true,
+        "data_logs_retained": true
+      }
+    }
+  ],
+  "reviews": [
+    "h03-idle-caller-normative-review.json",
+    "h03-idle-caller-safety-review.json",
+    "h03-process-identity-normative-review.json",
+    "h03-process-identity-safety-review.json"
+  ],
+  "limits": [
+    "SOURCE API owner, installed stock OCI Host/native, fresh installed historical readers; not stock supervisor restart/recovery or provider inference.",
+    "No attribution of historical generic refusal or cold-start cause; packaging absence and current corrections separately proved.",
+    "Historical FAIL/UNKNOWN/fences retained, not cleared by these new fixtures.",
+    "Not global B06b/G02/P2 closure; next finite2 batch, DATA/admission and canonical remain."
+  ]
+}

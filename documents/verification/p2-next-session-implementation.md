@@ -2,7 +2,7 @@
 
 Acesta este promptul de execuție cerut de operator, nu un plan paralel sau o acceptare de produs. Arhitectura decide comportamentul; planul §7.1/§8 decide ordinea și porțile. Handofful `p2-c10-session-handoff-20261012.md` rămâne intrarea CURRENT și trimite aici. Nu executa instrucțiunile istorice ale handoffului ca sarcini curente.
 
-**CURRENT executat:** D01–D03 `191b901` sunt livrate/reviewuite și [consumerul qualification](p2-bound-predicates-evidence/ready-observer-qualification-parent-acceptance.json) a trecut1PASS63.82s/exit0/drained. Nu relua §4/§5 neafectate; continuarea este §6 H01/H02→H03, apoi batch/inventar→B06c/m→P2-inert→Settings. Ramurile H1/H2 nu au fost justificate de tentativa observată. Cauza FAIL-ului istoric rămâne UNKNOWN; acceptarea qualification este scoped, nu închiderea P2.
+**CURRENT executat:** D01–D03/qualification `191b901` au proba reală1PASS63.82s și H01/H02 installed history `c2fdf7d` au [proba reală](p2-bound-predicates-evidence/historical-installed-parent-acceptance.json)1PASS83.81s/exit0/drained, producer old instalat autentic și upgrade0012→0013 pe aceeași DB. Nu relua §4/§5/H01/H02 neafectate. Continuarea este §6 H03 restart real Host/runtime cu boot/PID nou, apoi batch/inventar→B06c/m→P2-inert→Settings. Noul obiect RuntimeHost nu certifică restartul procesului. Ramurile H1/H2 nu au fost justificate; cauza FAIL-ului istoric rămâne UNKNOWN. Acceptările sunt scoped, nu închiderea P2.
 
 ## 1. Mandat și rezultat cerut
 

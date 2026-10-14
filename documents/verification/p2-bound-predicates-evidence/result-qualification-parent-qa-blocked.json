@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "verdict": "BLOCKED_NATIVE_READY_RESULT_QUALIFICATION_NOT_RUN",
+  "product_commit": "8cec478",
+  "head_observed": "2cdd11d985c5e28ccf065803fd093b2e68655e47",
+  "qa_report_sha256": "bbc16c04eaf57e452e8ac01a6de3f92ea6d09d0c049b10d60f7526d5c93e60f7",
+  "exact_session": "proc_4315828ebf25",
+  "exact_session_parent_readback": "exited1/completion_reason=exited",
+  "source_snapshot": [
+    {
+      "path": "api/src/omnis/modules/runs/contract_inputs.py",
+      "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74",
+      "matches": true
+    },
+    {
+      "path": "api/src/omnis/modules/runs/managed_admission.py",
+      "sha256": "6afbff66f80ad4157c282e3583025e849db50c3b4fb440bc2e981ed6e63d7bbd",
+      "matches": true
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/result_qualification.py",
+      "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427",
+      "matches": true
+    },
+    {
+      "path": "api/tests/test_result_qualification.py",
+      "sha256": "378c9f21d7f96c76ab3e382685e6c37d825df8b36d387bda3bea2d7535b290ae",
+      "matches": true
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "091597e42621cb6396192e9be6427d061f23787f3dfcc9256ea4f38e612d075e",
+      "matches": true
+    }
+  ],
+  "acceptance": {
+    "source": "APPROVED_SCOPED final two exact snapshot reviews; four findings closed SOURCE",
+    "native_qa": "FAIL1/28deselected56.77s/exit1; qualification consumer NOT_RUN before gateway.ready",
+    "bounded_diagnosis": {
+      "performed_once": true,
+      "boundary": "existing launch handshake / gateway.ready",
+      "public_failure": "RuntimeUnavailable",
+      "observed_elapsed_ms": 4476,
+      "remaining_ms": -4,
+      "ready_done": false,
+      "ready_cancelled": false,
+      "host_state": "STARTING",
+      "transport_failed": false,
+      "native_observation": "observer READY only",
+      "native_exit": -15,
+      "native_exit_scope": "owned normal cleanup terminated unresolved native launch; no execution claimed",
+      "exception_chain_native": [
+        {
+          "type": "CancelledError",
+          "reason": "UNCLASSIFIED"
+        }
+      ],
+      "internal_root_cause": "UNKNOWN_NOT_OBSERVED",
+      "no_speculative_cause": true,
+      "no_deadline_or_grant_changes": true,
+      "retry_attempts": 0,
+      "decision": "Preserve failed attempt; parent adjudicates existing launch/handshake prerequisite separately. This is not an observed ResultQualification functional defect."
+    },
+    "retry_count": 0,
+    "next_product_work": "BLOCKED until native READY cause reproduced and minimal tested remedy; do not rerun unchanged M2/denom or proceed dependent installed-history/B06c/m"
+  },
+  "parent_resource_readback": {
+    "endpoint": "unix:///run/docker.sock",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "cid": "43f676fb9385702acdf4c2b4f9c0f92361af877e03e6c3a819e099e8079034ea",
+    "cid_absent": true,
+    "project": "omnis-p01-f08aa828fe834241ac917a168dd14157",
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "endpoints": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58/socket/.s.PGSQL.5432",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58/socket/.s.PGSQL.5432.lock",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/runtime.sock",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/runtime.boot",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/control.sock",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/control.cap",
+        "absent": true
+      }
+    ],
+    "pids": [
+      {
+        "pid": 2332975,
+        "absent": true
+      }
+    ],
+    "owned_locator_processes_remaining": [],
+    "family_receipt": {
+      "schema_version": 1,
+      "code": 1,
+      "family_drained": true
+    },
+    "data_retained": true,
+    "pgdata_path": "/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58/data",
+    "log_modes": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p2-result-qualification-independent-qa-private.log",
+        "mode": "0o600",
+        "present": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58/gate.log",
+        "mode": "0o600",
+        "present": true
+      }
+    ],
+    "no_foreign_actions": true
+  },
+  "artifacts": {
+    "unique_physical_count": 54,
+    "nonsecret_hashes_all_match": true,
+    "inventory": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/native_bootstrap.py",
+        "sha256": "639a3cead72e990476ee4580bfa19cc1aaedd476b266a94cea75f9dd1ed26e5d",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/method-history-proof.json",
+        "sha256": "aafcaebede65141ab031d4d156a72fb22cedcbcee197b382d513e4c335047658",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/native-observation.jsonl",
+        "sha256": "231004f88afad152b7b7304ba4b9c7345964e6a79b017cb12223d7d4e44a4409",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/method-build-sizes.json",
+        "sha256": "ef3bf93610b70bb4f20881562d46d3e7548048c74655960c528a71dc1651fa55",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-8fcb90c9d2a34cfb9b71dcb661a51f65.json",
+        "sha256": "86e3196614541f84eddc2bf08597d7017c137f6656bd84f6a4040bd9123c98b3",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-09fa1c4515c74130b89a2e79b3cf3152.json",
+        "sha256": "79ec91af21e549083fae93a431734380eed25506b93b354de9a37dc6baa1f112",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-c3270ba4d7644ae9a45edd32736ac261.json",
+        "sha256": "50b31239c0b5bd973ed2b45ce5a45a1db652223d922688a0882fc892132850e7",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-0fd4ee484bae408abfd585955e107c53.json",
+        "sha256": "bf3c7d80bebd17644cd31825526bbbfc6924a0916c93a5f5f311e733fb7421bc",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/profile.yaml",
+        "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/probe-request-a5ef95c305a847cdadffc88ea53ecda3.json",
+        "sha256": "5bb2a8c761ddd8c243db533debe4697054f5a6ae62c0b33c0f9b1bcd38738cbc",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-a32f03f064c74c89b8c9948a5c7822bf.json",
+        "sha256": "9bde0e541367592d961b45e4b3a64bdd0b2d7fa6c32ba969e42e849cd4a67879",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-b89fe250c4684909874af6c9943fe186.json",
+        "sha256": "a8a510c1d2df8e954ce3bdc77def3e6868b57c699831ec039da5109115eb8cbc",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-ef3a554bdabf41868f84e6066d37379c.json",
+        "sha256": "eee877f97d07fd4418f86b5aeece0d017518255078a9d8b462539e5ca042db9b",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-4093d041d6394c5498351855d8dd9715.json",
+        "sha256": "f93f9fa12afe355d9947ca3320ae6e9ccfbc9cf017c5bc4bcdc9981ae69ba2ba",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-d3e4ee1d71ef48e181121ed6a49a7521.json",
+        "sha256": "b910b7d4fea3b13705c9e7ce8aa524743a215a9788a9f241ebc8aab8373dcf4b",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/request-4d29de966d884994bc260f0e2c37313a.json",
+        "sha256": "59f1b3651962a5392d9ffe7cdf10b12e32c14d9d067dee1ba5fb11b1c8e9068b",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/NOTICE.md",
+        "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/omnis.yaml",
+        "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/SKILL.md",
+        "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/references/methodology.md",
+        "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/templates/procedures/map-records.yaml",
+        "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/templates/schemas/surface_map.schema.json",
+        "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/templates/schemas/records.schema.json",
+        "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/templates/schemas/empty.schema.json",
+        "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/records-mapping-contract/templates/schemas/operations.schema.json",
+        "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/receipts/18893e27-643e-4f5e-bda3-f589383245b2/receipt.json",
+        "sha256": "4cf06cc89cf687898ddf8301ef1e2d1943dbdde4f44b74c1c71289812a5473d4",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/receipts/18893e27-643e-4f5e-bda3-f589383245b2/outputs.json",
+        "sha256": "52d3a167d373dfa5fb9bf2ccd090854dfdf5cb8f3f5a7ac6492e936b6543d6fa",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/receipts/18893e27-643e-4f5e-bda3-f589383245b2/input.json",
+        "sha256": "29988cde4e682fb73b5fe90ac54f28a6c2bfebbe2ab2355c39b896a39c130c85",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/receipts/303a2110-e560-467e-8f16-7aee89582112/receipt.json",
+        "sha256": "154393dd9bcdd97b2dba6290084678ce4020bc2c8d90f24f2ed0b4a3b1191ce5",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/receipts/303a2110-e560-467e-8f16-7aee89582112/input.json",
+        "sha256": "29988cde4e682fb73b5fe90ac54f28a6c2bfebbe2ab2355c39b896a39c130c85",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/profile.yaml",
+        "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/NOTICE.md",
+        "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/omnis.yaml",
+        "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/SKILL.md",
+        "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/references/methodology.md",
+        "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/templates/procedures/map-records.yaml",
+        "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/templates/schemas/surface_map.schema.json",
+        "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/templates/schemas/records.schema.json",
+        "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/templates/schemas/empty.schema.json",
+        "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/drafts/17f30d96-f92b-487f-92c9-ea1b6ca90ba0/packages/0/templates/schemas/operations.schema.json",
+        "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/profile.yaml",
+        "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/resolved-index.json",
+        "sha256": "5a6a1d78916800a57ae2dd5eedb56e9531301f7164bdefaa7b975a33f6f2c182",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/NOTICE.md",
+        "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/omnis.yaml",
+        "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/SKILL.md",
+        "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/references/methodology.md",
+        "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/templates/procedures/map-records.yaml",
+        "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/templates/schemas/surface_map.schema.json",
+        "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/templates/schemas/records.schema.json",
+        "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/templates/schemas/empty.schema.json",
+        "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-421/test_contract_method_real_nati0/qualified/catalog/candidates/714b12d3-18af-4f57-aa53-dcf8787125c8/packages/0/templates/schemas/operations.schema.json",
+        "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-e4ac77803e3b4c58/gate.log.result.json",
+        "sha256": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/runtime.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "matches": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-160968b430434205b077ac8d423504f0/control.lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "matches": true
+      }
+    ],
+    "private_logs_pgdata_password_fixture_contents_not_read_or_hashed": true
+  },
+  "limits": [
+    "SOURCE_HOST_NOT_INSTALLED; preparation prerequisite double",
+    "SIGTERM -15 is cleanup only, not failure cause",
+    "Canonical final/P2-inert/P4a-minim NOT_RUN/NOT_CLOSED",
+    "No model/target/foreign/r1/global changes/push"
+  ]
+}

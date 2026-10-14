@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.34
+version: 0.1.35
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -123,6 +123,11 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - When deliberately adding a supported wire version, inspect existing unknown-version controls. Add the new version to current-grant/transport positives and move only the obsolete unknown fixture to a genuinely unsupported version, preserving malformed-type, no-authority, no-resend and expiry assertions. Retain the original canonical FAIL; a synthetic peer proves transport only, not native admission.
 
 - When a fix moves denial ahead of setup, keep the original regression but add a bounded late-sink control that actually reaches cleanup. Likewise, a worker joined only by the test finalizer does not prove it was drained before the product returned: observe the latched outcome and join boundary, challenge the after-poll interrupt window, and report timed-out cleanup separately from terminal denial. Do not replace these controls with a growing verifier framework.
+
+## Settled IPC and process identity
+
+- Before a long offline-reader interval in an owned restart probe, close the IPC channel only after confirmed native drain; reconnect through the same original owner for fresh final Stop/status. A real Host can emit an uncorrelated idle-denial frame on a retained channel even when drained. Keep a real UDS positive and bad-drain refusal; closing the channel must not forgive uncertainty or replace resource retirement.
+- Identify each replacement process by boot and host-visible PID/starttime, and verify old identities are absent before restart. A namespace inode may be recycled after its lifetime ends; do not require cross-lifetime inequality or accept an unchanged PID/starttime merely because its namespace differs. Preserve independent private-namespace attestation and Host/native namespace equality within each boot.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

@@ -2,6 +2,8 @@
 
 Acesta este promptul de execuție cerut de operator, nu un plan paralel sau o acceptare de produs. Arhitectura decide comportamentul; planul §7.1/§8 decide ordinea și porțile. Handofful `p2-c10-session-handoff-20261012.md` rămâne intrarea CURRENT și trimite aici. Nu executa instrucțiunile istorice ale handoffului ca sarcini curente.
 
+**CURRENT executat:** D01–D03 `191b901` sunt livrate/reviewuite și [consumerul qualification](p2-bound-predicates-evidence/ready-observer-qualification-parent-acceptance.json) a trecut1PASS63.82s/exit0/drained. Nu relua §4/§5 neafectate; continuarea este §6 H01/H02→H03, apoi batch/inventar→B06c/m→P2-inert→Settings. Ramurile H1/H2 nu au fost justificate de tentativa observată. Cauza FAIL-ului istoric rămâne UNKNOWN; acceptarea qualification este scoped, nu închiderea P2.
+
 ## 1. Mandat și rezultat cerut
 
 Continuă implementarea în `/home/kali/OmnisAI` din HEAD-ul local real. Închide blocajul rece pre-READY, acceptă ResultQualification prin consumerul real, apoi restul B06b → B06c/B06m → P2-inert → Settings P4a-minim. Nu încheia mandatul după un fix/commit/review dacă următoarea felie este admisă. Oprește numai la un blocker real demonstrat, limita de autorizație, buget/context nesigur sau cererea operatorului. După Settings, STOP pentru acord separat cont/provider/model/date/buget și run nou P2-live.

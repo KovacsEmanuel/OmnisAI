@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.31
+version: 0.1.32
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -105,6 +105,8 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - Check the existing consumer's exact source/library prerequisites before spending a fresh PG/native attempt. A scratch source export can disappear between accepted slices; missing PIN/run_agent.py is a prerequisite FAIL, not a launch or product defect. Restore only the declared commit from a hash-matching archive, verify the original file inventory and overlay inputs without launch, preserve the failed attempt, and use a separately recorded fresh fixture. Do not substitute an unpinned installed/personal tree, prewarm imports or change product deadlines.
 - Budget cold CLI startup and intermediate readbacks against immutable brief/stage deadlines. Run the positive admission promptly; put optional identity/input denials on a separate never-launched assignment rather than lengthening product grants or letting QA bookkeeping expire the positive.
 - For a cold launch/READY failure, emit bounded phase-entry markers and elapsed/audit counters in the existing observer before the suspected import/main boundary. Metrics emitted only after entry.main leave pre-main failures unobserved; reproduce that gap with code-object controls before another native attempt. Preserve last-entered versus completed phases, exact code/root filtering and incomplete evidence; keep fields sanitized without raw stderr, prewarm or wider grants. A marker localizes a boundary, not its cause.
+- Serialize a threaded observer's cumulative limit check, real write and counter update together; a bounded record does not enforce the cumulative bound when `os.write` releases the GIL. Refuse same-thread reentrancy before acquiring a non-reentrant lock, and challenge the last slot with observed overlap and actual owned pipe writes.
+- Require all finite pre-READY ENTERs and short-operation ENDs at the real consumer. Permit missing END only for explicitly named frames that span the RPC loop, retaining `INCOMPLETE`; a blanket missing-completion exemption can accept lost import evidence. Classify exact normal `SystemExit(0)`/`None` at the producer without copying arbitrary traceback categories, while preserving failure exits and unknown-input refusal.
 - Compare exact named artifact inventories before asserting counts; resolve and deduplicate symlink aliases before counting physical artifacts. Native patched files and adapter modules are different sets. Stop a live proof after a failed preflight, preserve that failure and correct the observer before a bounded new attempt.
 - Read the actual domain schema before asserting a native receipt field on a TaskResult or a flat steps field on a procedure; inspect its declared probe/baseline/control/cleanup groups. Validate the native cause and the domain gaps/method results at their respective records; an invented field must not motivate a product change, weaker oracle or replay of a successful consumer for report-only discovery.
 - Transfer snapshot-bound reports from their exact original bytes, not reconstructed rendered read_file lines; long-string truncation/redaction can corrupt otherwise valid JSON. Use write_file on the exact source text and compare source/destination SHA, retaining the failed transfer without changing product bytes or rerunning its QA.

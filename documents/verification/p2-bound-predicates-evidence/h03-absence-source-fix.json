@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_FIXED_FOCUSED_REVIEW_PENDING_NO_RUNTIME_PASS",
+  "consumer_sha256": "24558f822ea0e900da4f2dc5f9890f28321dbea7dd1cde2a7510f995ff91e9d0",
+  "finding": "H03_CLEANUP_ABSENCE_FORMATTER_LF",
+  "cause": "Exact owned Docker absence has exit1, exactNoSuchObjectstderr, stdout bLF; truthy bytes check misclassified absence. Not primary release cause.",
+  "red": "Existing actual-finalizer AST with actualLF fixture:1FAIL3PASS158deselected0.98s; normalLF unsafe fence assertion failed. Extra whitespace/unexpectedoutput controls already refused.",
+  "green": "After finalformat edit18actual lifecycle SOURCE PASS144deselected1.68s; Ruff/format/mypy/diff exit0. Earlier largerselection49PASS113deselected3.13s before format-only edit; format refusal corrected, not hidden.",
+  "correction": "Only exact empty or singleLF accepted at actualabsencecaller. Preserve exit1/exactstderr and all existing unknown/body/public/engine latches; no strip(), retry or product change.",
+  "primary_release": "UNKNOWN; readonlyreportpreserved; no identical retryauthorized",
+  "next_proof_boundary": "One finite exact-code pre-normalization APIexchange observation through existingowner/consumer; no newowner/framework, no image/product/deadline patch and no expanding harness after this secondcycle."
+}

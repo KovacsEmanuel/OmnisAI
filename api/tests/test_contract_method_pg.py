@@ -2902,6 +2902,9 @@ def test_h03_static_installed_origin_preflight(
     "mode",
     [
         "normal",
+        "normal-absence-lf",
+        "absence-extra-whitespace",
+        "absence-unexpected-output",
         "create-warning",
         "create-cancelled",
         "never-started",
@@ -3099,7 +3102,12 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
             if op == "inspect":
                 if daemon["removed"]:
                     self.returncode = 1
-                    return b"", ("Error: No such object: " + cid_value + "\n").encode()
+                    output = {
+                        "normal-absence-lf": b"\n",
+                        "absence-extra-whitespace": b" \n",
+                        "absence-unexpected-output": b"UNEXPECTED_CONTAINER\n",
+                    }.get(mode, b"")
+                    return output, ("Error: No such object: " + cid_value + "\n").encode()
                 return json.dumps([info]).encode(), b""
             return (cid_value + "\n").encode(), b""
 
@@ -3189,7 +3197,7 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
     assert "engine-dispose" in calls, "H03_LATE_CLEANUP_SKIPPED"
     assert proof.get("h03_name") == "omnis-h03-" + nonce
     assert proof.get("h03_cidfile") == str(tmp_path / ("h03-" + nonce + ".cid"))
-    negative = mode != "normal"
+    negative = mode not in {"normal", "normal-absence-lf"}
     assert fence["unsettled"] is negative, "H03_UNSAFE_FENCE_TRANSITION"
     if mode not in {"daemon-changed"}:
         assert daemon["removed"], "H03_EXACT_RESOURCE_CLEANUP_SKIPPED"
@@ -6618,7 +6626,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         if mapping(owned["State"])["Running"] is not False:
                             raise AssertionError("H03_HOST_EXIT_UNCERTAIN")
                         await docker("rm", cid)
-                        if await docker("inspect", "--format={{.Id}}", cid, expected_exit=1):
+                        if await docker(
+                            "inspect", "--format={{.Id}}", cid, expected_exit=1
+                        ) not in (
+                            b"",
+                            b"\n",
+                        ):
                             raise AssertionError("H03_CONTAINER_ABSENCE_UNCERTAIN")
                         resource_absent = True
                     except BaseException:

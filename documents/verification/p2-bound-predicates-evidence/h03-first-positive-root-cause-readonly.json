@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "decision": "UNKNOWN_PRIMARY_RELEASE_CAUSE",
+  "product_acceptance": "BLOCKED_NOT_PASS",
+  "scope": "FIRST_REAL_H03_STOCK_OCI_POSITIVE_READ_ONLY",
+  "base_head": "e4577901c485b6e4fc736d4dbb0faef28742ddb6",
+  "consumer_sha256": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+  "primary_failure": {
+    "public_operation": "release",
+    "observed_domain_class": "CatalogError",
+    "observed_domain_reason": "TASK_INDETERMINATE",
+    "exact_origin_proved": false,
+    "exact_runtime_unavailable_reason": "NOT_RETAINED",
+    "native_error_code": "NOT_RETAINED",
+    "native_denial_reason": "NOT_RETAINED",
+    "durable_final": "NOT_OBSERVED",
+    "replacement_host": "NOT_OBSERVED",
+    "interpretation": "The retained failure proves the public release was indeterminate. It does not identify which guarded branch or normalized IPC/native failure produced it. The cleanup assertion is secondary, not the explanation for release."
+  },
+  "retained_attempt": {
+    "proof": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-453/test_contract_method_real_nati0/method-history-proof.json",
+    "private_gate": "/home/kali/.hermes/cache/scratch/db-b4d87038716443b8/gate.log",
+    "private_outer_log": "/home/kali/.hermes/cache/scratch/p2-h03-positive-attempt1.log",
+    "pytest_failed": 1,
+    "pytest_errors": 1,
+    "pytest_seconds": 22.48,
+    "proof_status": "UNCERTAIN",
+    "proof_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+    "public_control_cleanup": "PASS",
+    "public_control_actions": [{"action": "stage", "phase": "ACTIVE", "task_status": "BOUND"}],
+    "launch_diagnostic": {},
+    "bound_predicate_producer": "QUALIFIED_NONEMPTY",
+    "done_predicates": 2,
+    "return_predicates": 1,
+    "process_receipt": {
+      "boot": "ae67df04-f0e4-4d29-a8b8-e3f4c28f7b8d",
+      "host": [65213, 1436688, 4026533201],
+      "native": [65395, 1436946, 4026533201]
+    },
+    "strict_gate_exit_and_family_drain": {
+      "code": 1,
+      "family_drained": true,
+      "provenance": "Parent-provided context; not independently re-executed."
+    }
+  },
+  "inspected_owned_state": {
+    "root": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-453/test_contract_method_real_nati0/h03-state",
+    "runtime_root": "/home/kali/.hermes/cache/scratch/cm-84db1105893a4291b0de3e34dcf5fe44",
+    "remaining_runtime_files": ["runtime.lock", "control.lock"],
+    "runtime_boot_present": false,
+    "runtime_socket_present": false,
+    "native_observation_bytes": 0,
+    "retained_state_regular_files": [
+      {"path": "active/SOUL.md", "bytes": 667, "contents_inspected": false},
+      {"path": "active/logs/tui_gateway_crash.log", "bytes": 1112, "inspection": "Private parse; allowlisted fields only"}
+    ],
+    "crash_log": {
+      "line_count": 23,
+      "signal_names": ["SIGTERM"],
+      "timestamp": "2026-10-14 14:56:39",
+      "unhandled_exception_markers": 0,
+      "thread_exception_markers": 0,
+      "ordinary_exception_classes": [],
+      "native_main_location": "tui_gateway/entry.py:481 main, sys.stdin.readline()",
+      "interpretation": "Signal-time main-thread dump, not a retained release exception or deadline measurement. SIGTERM may be normal Host drain/failure retirement; its trigger is not established by this artifact."
+    },
+    "existing_container_inspections": {
+      "container_id": "00a981acce80468d421ea3a290430c0a2bca07cd775dc3bc8d879593e5accd9b",
+      "configured_user": "1000:1000",
+      "stock_command_match": true,
+      "running_pid": 65213,
+      "started_at": "2026-10-14T14:56:31.971217903Z",
+      "last_retained_exited_state": {
+        "running": false,
+        "exit_code": 0,
+        "oom_killed": false,
+        "finished_at": "2026-10-14T14:56:40.207252809Z"
+      },
+      "mounts": [
+        {"type": "bind", "destination": "/runtime", "writable": true},
+        {"type": "bind", "destination": "/state", "writable": true}
+      ],
+      "interpretation": "Historical source bytes privately parsed, not fresh Docker calls. Exit 0/no OOM for the retired Host do not prove a successful native release."
+    }
+  },
+  "proved_source_behavior": [
+    {
+      "location": "api/src/omnis/supervisor/native_tasks.py:99-105",
+      "finding": "handle converts RuntimeUnavailable into CatalogError TASK_INDETERMINATE with from None, discarding the client reason."
+    },
+    {
+      "location": "api/src/omnis/supervisor/native_tasks.py:278-315",
+      "finding": "Before release, boot mismatch and an already-reserved release also raise TASK_INDETERMINATE. The v4 release commits intent, obtains the original grant, holds native_preparation_commit and calls the existing RuntimeClient._exchange. Retained artifacts do not independently select among these branches."
+    },
+    {
+      "location": "api/src/omnis/supervisor/runtime_client.py:266-425",
+      "finding": "Client checks authority/connection/frame budget, writes/drains, reads one reply and validates identity/state/fence/inventory. Refusal, timeout, transport/decoding and reply/fence validation errors inside the exchange are collapsed to Runtime exchange unavailable. No retained release exchange observation preserves the original reason."
+    },
+    {
+      "location": "integrations/hermes/src/omnis_hermes/runtime_host.py:244-344,748-805",
+      "finding": "Host validates managed input/authority/deadline, invokes its existing NativePeer and validates the final before memory retention. ValueError/OSError/TimeoutError/protocol failures are collapsed to RUNTIME_DENIED. Managed finals are Host-process memory only; after retirement they cannot be recovered from the two retained lock files."
+    },
+    {
+      "location": "integrations/hermes/src/omnis_hermes/runtime_protocol.py:313-337,387-439",
+      "finding": "Native stderr is discarded. Native error replies preserve only numeric RPCError.code for the Host; detailed native error text is not retained by NativePeer. RPC timeouts become Native RPC deadline."
+    },
+    {
+      "location": "api/tests/test_contract_method_pg.py:4540-4592,4868-4889",
+      "finding": "The existing handshake observer monkeypatches source-process NativePeer, but H03 runs Host/NativePeer in a separate stock installed process. Its empty launch_diagnostic is therefore not an absence-of-errors proof. Public stage BOUND and the recorded stock native child prove progress beyond initial readiness."
+    }
+  ],
+  "bounded_frontier_checks": [
+    {
+      "frontier": "Installed origin and actual UID",
+      "evidence": "Historical Docker configuration is user 1000:1000/stock CMD. Source start_host attests public installed bytes via the exact Host mount namespace; reaching BOUND follows those guards.",
+      "conclusion": "No concrete pre-import UID/COPY failure is evidenced. Release-time native failure remains unclassified."
+    },
+    {
+      "frontier": "CASE_SLOT/root/input ownership",
+      "evidence": "SubagentLifecycleService.stage creates constructor-owned ContractState and freezes assignment before BOUND. agent/contract_execution.py:179-180 reads the staged immutable input bytes, not an external CASE_SLOT filesystem path. Live root, child, binding and deadline guards are rechecked at release/read/PURE.",
+      "conclusion": "No evidence supports a filesystem case-root accessibility explanation for this release. No retained observation proves the live release guards passed."
+    },
+    {
+      "frontier": "Backend monotonic/grant and native deadline",
+      "evidence": "InstanceService.runtime_authority uses DB lease remaining capped at 4.5s mapped onto producer monotonic time. Client managed budget is min(3.2s, remaining). Host checks its current grant before accepting the new one; native batch is 4.5s and execution guard 3.0s.",
+      "locations": ["api/src/omnis/modules/instance/service.py:153-187", "api/src/omnis/supervisor/runtime_client.py:305-313", "integrations/hermes/src/omnis_hermes/runtime_host.py:233-299", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:300-304,425-468"],
+      "conclusion": "Grant/batch/execution deadline expiry is possible, not measured. No release entry/exit/grant-remainder counters survive; do not extend deadlines based on this investigation."
+    },
+    {
+      "frontier": "SOURCE TestLaunch versus stock installed",
+      "evidence": "SOURCE runs Host in the pytest process and launches the native entry through the bootstrap/import overlays/observer; H03 runs the fixed installed Host/native command in the owned OCI namespace with fixed native environment. Both use the same domain release owner and private protocol, but observation, interpreter/library routing and process boundary differ.",
+      "locations": ["api/tests/test_contract_method_pg.py:4202-4222", "integrations/hermes/src/omnis_hermes/runtime_host.py:34-53,201-231"],
+      "conclusion": "SOURCE success does not establish why the first installed release failed. No measured failure supports a product/distribution/source patch."
+    }
+  ],
+  "secondary_cleanup_finding": {
+    "status": "PROVED_FROM_EXISTING_OWNED_BYTES_AND_SOURCE",
+    "location": "api/tests/test_contract_method_pg.py:6621-6622",
+    "mechanism": "The absence check treats any nonempty stdout as uncertainty. Docker inspect formatter emits a newline even when the exact CID is absent, so the byte string is truthy.",
+    "private_stdout_file": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-453/test_contract_method_real_nati0/h03-docker-9ac1ac90fc7049e7a920a14ebcef45d9.stdout",
+    "private_stderr_file": "/home/kali/.hermes/cache/scratch/pytest-of-kali/pytest-453/test_contract_method_real_nati0/h03-docker-9ac1ac90fc7049e7a920a14ebcef45d9.stderr",
+    "observed_stdout_length": 1,
+    "observed_stdout_exact_newline": true,
+    "observed_stderr_exact_owned_absence_message": true,
+    "receipt_last_docker": {"operation": "inspect", "pid": 66027, "exit": 1},
+    "effect": "Independent false uncertainty at cleanup/absence. Can contribute to H03_CLEANUP_NOT_SETTLED masking the primary error and DB retention; not a cause of TASK_INDETERMINATE.",
+    "limit": "Parent separately measured current daemon absence and owns any correction. Body-failure/other uncertainty latches must still retain DB; fixing this predicate does not reconcile the failed release.",
+    "fix_applied": false
+  },
+  "missing_finite_measurement": {
+    "requested": true,
+    "executed": false,
+    "first_question": "Did the original release refuse before IPC, receive a correlated Host denial, fail while writing/reading, or reject an otherwise received reply?",
+    "minimal_original_observer_correction": "In the existing source-owned exchange observer, checkpoint release attempt and exact-code pre-normalization failure before RuntimeClient._exchange collapses it and before NativeTaskOwner.handle masks it. Keep the same original RuntimeClient, connection, owner, grant and one send. An outer wrapper observing only Runtime exchange unavailable is insufficient.",
+    "sanitized_fields": [
+      "operation/action and phase enter/end",
+      "boot-match/release-already-started booleans",
+      "elapsed_ms and grant_remaining_ms",
+      "writer-drain/read-complete/correlation-valid booleans",
+      "original exception class, trusted module/line and finite allowlisted reason code",
+      "reply ok/state and typed epoch/generation match booleans, never reply bytes"
+    ],
+    "if_host_denial_is_localized": "Before any separately authorized exact-owned retirement, retain bounded private existing Host/Docker diagnostics and, only if needed, one finite exact-code observation of the existing Host managed/native call's original exception/RPC code and trusted allowlisted denial reason. Host RUNTIME_DENIED alone cannot distinguish native rejection from grant/state/response checks.",
+    "do_not_capture": ["environment", "runtime.boot capability", "full grant/request/reply", "raw PostgreSQL traceback", "fixture credentials", "raw native stdout/stderr in tool output"],
+    "constraints": "No third framework/owner, no second RuntimeClient, no retries/resends, no prewarming, no deadline/lease/image/product changes, no identical uninstrumented rerun. A future observation is a distinct authorized attempt, never retrospective proof of this one."
+  },
+  "source_sha256": {
+    "api/tests/test_contract_method_pg.py": "8a0d39d34b6263f38ca9cf4700a7ae63965a0f0ac5b383c532eb3b8371891aca",
+    "api/src/omnis/supervisor/native_tasks.py": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+    "api/src/omnis/supervisor/runtime_client.py": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+    "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "682d96bbeb89bf3aab5110f2b20a860b36d788d97c8f66b103302323395110d2",
+    "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "fa98fc07c83d82029c7a2ca9a014217c12facaa4ec1dbcb4b4104fc1f12c5d7f"
+  },
+  "verification_and_effects": {
+    "evidence_read_private_and_allowlisted": true,
+    "read_only_commands_exit": 0,
+    "source_execution_or_imports": false,
+    "postgres_queries_or_connection": false,
+    "docker_commands_executed": false,
+    "network_native_model_target_effects": false,
+    "source_product_image_install_deadline_changes": false,
+    "protected_html_or_foreign_profile_read_or_hash": false,
+    "repo_edits": [],
+    "commits": [],
+    "repo_status_start_and_end": "Only preexisting untracked documents/Omnis_Notite_Originale.html; not read, hashed or edited.",
+    "lookup_limits": ["One search for the optional inert-source/tui_gateway/handlers directory failed because that path does not exist; no claim is based on it.", "No real execution/reproduction was authorized. Existing failed execution is retained as the red observation."],
+    "files_created": ["/home/kali/.hermes/cache/scratch/p2-h03-first-positive-root-cause-readonly.json"]
+  }
+}

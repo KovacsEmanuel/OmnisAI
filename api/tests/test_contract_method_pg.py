@@ -2795,7 +2795,17 @@ def test_h03_review_gate_precedes_database_and_container(
 
 
 @pytest.mark.parametrize(
-    "mutation", [None, "same-host", "same-native", "same-boot", "bool", "extra"]
+    "mutation",
+    [
+        None,
+        "reused-pidns",
+        "same-incarnation",
+        "same-host",
+        "same-native",
+        "same-boot",
+        "bool",
+        "extra",
+    ],
 )
 def test_h03_process_receipt_requires_actual_replacement(mutation: str | None) -> None:
     compare = globals().get("h03_replaced_processes")
@@ -2810,7 +2820,13 @@ def test_h03_process_receipt_requires_actual_replacement(mutation: str | None) -
         "host": [601, 3000, 801],
         "native": [602, 3001, 801],
     }
-    if mutation == "same-host":
+    if mutation == "reused-pidns":
+        new["host"] = [601, 3000, 701]
+        new["native"] = [602, 3001, 701]
+    elif mutation == "same-incarnation":
+        new["host"] = [501, 2000, 801]
+        new["native"] = [502, 2001, 801]
+    elif mutation == "same-host":
         new["host"] = old["host"]
     elif mutation == "same-native":
         new["native"] = old["native"]
@@ -2820,7 +2836,7 @@ def test_h03_process_receipt_requires_actual_replacement(mutation: str | None) -
         new["host"] = [True, 3000, 801]
     elif mutation == "extra":
         new["capability"] = "PRIVATE_SENTINEL"
-    if mutation is None:
+    if mutation in (None, "reused-pidns"):
         compare(old, new)
     else:
         with pytest.raises(AssertionError, match="^H03_PROCESS_REPLACEMENT_REFUSED$"):
@@ -3518,9 +3534,11 @@ def h03_replaced_processes(old: dict[str, object], new: dict[str, object]) -> No
         host, native = sequence(row["host"]), sequence(row["native"])
         if host[0] == native[0] or host[2] != native[2]:
             raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
-    if any(old[k] == new[k] for k in ("boot", "host", "native")):
-        raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
-    if sequence(old["host"])[2] == sequence(new["host"])[2]:
+    # Namespace inodes can be reused after retirement; PID/starttime identifies
+    # each process incarnation independently of that recyclable namespace ID.
+    if old["boot"] == new["boot"] or any(
+        sequence(old[k])[:2] == sequence(new[k])[:2] for k in ("host", "native")
+    ):
         raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
 
 

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "REAL_RESTART_ORACLE_FALSE_NEGATIVE_REPRODUCED_SOURCE_FIXED_PENDING_REVIEW",
+  "base_commit": "0448cd9",
+  "prior_consumer_sha256": "bba7da4c626f185ac8a750ca8d32930a12ccce44a7f940d8c5bc5f74e2866439",
+  "current_consumer_sha256": "05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77",
+  "attempt": "proc_0b8d08d60001",
+  "actual_summary": "1 failed/1error28.40s/exit1; strictfamilycode1/drainedtrue",
+  "receipt": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "actual_processes": [
+    {
+      "boot": "f39fc141-6ba6-43e8-90fb-3ce7aac187fc",
+      "host": [
+        110363,
+        3511864,
+        4026533127
+      ],
+      "native": [
+        110526,
+        3512105,
+        4026533127
+      ]
+    },
+    {
+      "boot": "e5f40199-74b4-4194-bc47-3064da991e37",
+      "host": [
+        111118,
+        3512757,
+        4026533127
+      ],
+      "native": [
+        111279,
+        3512803,
+        4026533127
+      ]
+    }
+  ],
+  "actual_release": {
+    "events": [
+      {
+        "elapsed_ms": 0,
+        "grant_remaining_ms": 4495,
+        "phase": "ENTER"
+      },
+      {
+        "correlation_valid": true,
+        "elapsed_ms": 77,
+        "grant_remaining_ms": 4418,
+        "ok": true,
+        "phase": "END",
+        "read_complete": true,
+        "returned": true,
+        "writer_drained": true
+      }
+    ],
+    "host_internal_cause": "UNKNOWN",
+    "status": "COMPLETE"
+  },
+  "public_actions": [
+    {
+      "action": "stage",
+      "phase": "ACTIVE",
+      "task_status": "BOUND"
+    },
+    {
+      "action": "release",
+      "phase": "ACTIVE",
+      "task_status": "SUCCEEDED"
+    }
+  ],
+  "primary_refusal": "H03_PROCESS_REPLACEMENT_REFUSED",
+  "mechanism": "OldHost+nativeidentitiesretired, newboot+differentHost/nativePID/starttime, butkernelreusedpidnamespaceinode4026533127. Cross-lifetimeinodeuniquenessassertionwronglydeniednewprocesses. Nochange toactualprivatePIDnamespaceprestartattestation/NSpid1/same-namespaceHost/native rowchecks.",
+  "red": "Existingoracle2FAIL6PASS167deselected0.66s: reusednamespacecorrectnewincarnationsrefused; oldPID/starttimewithchangednsincorrectlyaccepted.",
+  "fix": "Requirechangedboot andchanged(pid,starttime) foreachHost/native; retainstrictrowtypes/Host!=NativePID andHost/nativeNssamewithinboot. Dropcross-lifetimeinodeinequalityonly; not weakening actualnamespace confinement.",
+  "green": "10PASS165deselected3.44s processreceipt+settledUDScases; Ruff/format/mypy/diff0.",
+  "image": "Unchangedreviewed151e55e",
+  "scope": "Onlytestoracle+2boundedcontrols; no product/policy/deadline/grant/imagechanges. Actualnewconnectedclosecleanupfixnotreachedbeforeearlyoraclefailure; preserveallfailure/fencelatches.",
+  "actual_product_acceptance": "NOT_PASS; historicaloldfunctionalprogress215d8d2unchanged; no blindretry beforefocusedreviews."
+}

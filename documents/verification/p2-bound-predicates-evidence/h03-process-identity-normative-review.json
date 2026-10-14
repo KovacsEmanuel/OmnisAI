@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "review_kind": "FOCUSED_NORMATIVE_READ_ONLY",
+  "base_commit": "0448cd99fb067bdd87e8775ba6a481bc4ea5b75b",
+  "reviewed_file": "api/tests/test_contract_method_pg.py",
+  "reviewed_sha256": "05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77",
+  "delta": {"insertions": 24, "deletions": 6, "files": 1},
+  "source_attempt_handle": "/home/kali/.hermes/cache/scratch/h03-namespace-reuse-source-fix.json",
+  "findings": [],
+  "normative_conclusion": "Actual OS process replacement requires a changed runtime boot and a changed host-visible (PID, proc-stat starttime) identity for each Host and native process. Cross-lifetime PID-namespace inode inequality is not required: the namespace identifier can be recycled after retirement. The changed predicate implements that distinction without weakening the separate private-namespace or old-process-retirement checks.",
+  "reviewed_guards": [
+    {
+      "location": "api/tests/test_contract_method_pg.py:3514-3542",
+      "result": "PASS_SOURCE_REVIEW",
+      "detail": "Exact receipt keys, canonical UUID string, exact list shape, positive exact integers with bool denied, distinct Host/native PIDs, and equal Host/native pidns within each row remain. Each role's PID/starttime pair must change and boot must change. A changed namespace cannot conceal the same PID/starttime incarnation. Recycled namespace with new incarnations is accepted."
+    },
+    {
+      "location": "api/tests/test_contract_method_pg.py:5314-5333",
+      "result": "UNCHANGED_SOURCE_ORDER_CONFIRMED",
+      "detail": "Await old retirement before start_host, launch READY and renew, collect actual replacement process receipt, compare identity and boot, drain replacement, close IPC, then census and offline historical readers. The 30-line delta does not change these call sites."
+    },
+    {
+      "location": "api/tests/test_contract_method_pg.py:4621-4664",
+      "result": "UNCHANGED_SOURCE_RETIREMENT_CONFIRMED",
+      "detail": "Exact-owned inspection; native drain; IPC close; Docker Stop and readback; Running false and exact-int ExitCode zero; endpoint absence; absence of every recorded old PID/starttime identity; lock reacquisition; uncertainty and cleanup-failure latches must be clear. No changed predicate bypasses retirement."
+    },
+    {
+      "location": "api/tests/test_contract_method_pg.py:4463-4519,4553-4619",
+      "result": "UNCHANGED_SOURCE_CONTAINMENT_CONFIRMED",
+      "detail": "Full exact-owned containment inspection precedes docker start. HostConfig.PidMode must remain empty/private, the stock command and UID/config guards remain, Host NSpid must end in 1, exact module command and stable proc-stat starttime are measured, native is the sole observed Host child, live installed-byte inventory is verified, and same pidns within each receipt is retained. No new requirement for cross-lifetime inode uniqueness is justified."
+    }
+  ],
+  "verification": [
+    {
+      "command": ".venv/bin/python -B -m pytest -p no:cacheprovider tests/test_contract_method_pg.py -k process_receipt_requires_actual_replacement -q --tb=line",
+      "workdir": "/home/kali/OmnisAI/api",
+      "exit_code": 0,
+      "passed": 8,
+      "deselected": 167,
+      "elapsed_seconds": 0.71,
+      "boundary": "Only the existing eight SOURCE receipt cases; no PG/native/Docker/network execution."
+    },
+    {
+      "command": "git diff --check",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0
+    },
+    {
+      "command": "sha256sum api/tests/test_contract_method_pg.py",
+      "result": "05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77",
+      "detail": "Matched requested frozen snapshot before and after verification."
+    },
+    {
+      "command": "git status --short --branch; git diff --numstat",
+      "detail": "Preexisting modified api/tests/test_contract_method_pg.py remains the sole tracked delta (+24/-6). Preexisting untracked documents/Omnis_Notite_Originale.html was not opened or hashed. No shared repository edits, staging or commits."
+    }
+  ],
+  "limits": [
+    "This approves only the receipt-oracle correction and two added bounded controls on the named current SHA.",
+    "Retirement/prestart/caller guarantees were inspected in unchanged source, not re-executed against Docker/native/PG.",
+    "The earlier actual-attempt facts are from the supplied sanitized source-fix report; they were not independently rerun.",
+    "The eight SOURCE cases do not establish H03 live product acceptance, offline-reader completion, full integration or canonical PASS.",
+    "Existing H03 product NOT_PASS and broader open gates remain unchanged.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Neither was invoked."
+  ],
+  "files_created": ["/home/kali/.hermes/cache/scratch/h03-namespace-reuse-normative-review-05ee180c.json"],
+  "repository_files_modified_by_reviewer": [],
+  "issues_encountered": []
+}

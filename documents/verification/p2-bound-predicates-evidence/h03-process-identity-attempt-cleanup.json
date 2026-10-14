@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "exact_cids_absent": [
+    "d15d284e4be2f6d6e46a8667e73b2b998b02b7d934f6b2e4cac93b74ae6d8562",
+    "fd461b370bf1acf5e54e411400a297d82600a7cbb5d743cb9a5e66308d632a94"
+  ],
+  "exact_project_containers_networks_absent": true,
+  "endpoints_absent": true,
+  "process_identity_absence": [
+    {
+      "pid": 110363,
+      "original_starttime": 3511864,
+      "absent": true
+    },
+    {
+      "pid": 110526,
+      "original_starttime": 3512105,
+      "absent": true
+    },
+    {
+      "pid": 111118,
+      "original_starttime": 3512757,
+      "absent": true
+    },
+    {
+      "pid": 111279,
+      "original_starttime": 3512803,
+      "absent": true
+    }
+  ],
+  "runtime_lock_free": true,
+  "data_logs_retained": true,
+  "acceptance": "NOT_PASS; currentphysicalabsenceonly, nofailedfenceoverride"
+}

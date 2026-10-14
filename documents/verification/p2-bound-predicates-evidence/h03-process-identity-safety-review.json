@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "review_kind": "FOCUSED_READ_ONLY_SAFETY_SOURCE_REVIEW",
+  "base_commit": "0448cd99fb067bdd87e8775ba6a481bc4ea5b75b",
+  "file": "api/tests/test_contract_method_pg.py",
+  "sha256": "05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77",
+  "findings": [],
+  "requirement_consumer_risk_decision": "H03 restart oracle at h03_restart_readers must distinguish process incarnation from recyclable namespace inode; reject old PID/starttime even if namespace differs, accept new incarnations after verified retirement despite inode reuse. Approval concerns this source delta, not product restart acceptance.",
+  "verified": [
+    {
+      "property": "Boot must change and both Host/native PID-starttime pairs must differ. Namespace change alone cannot prove replacement.",
+      "location": "api/tests/test_contract_method_pg.py:3537-3542",
+      "result": "PASS"
+    },
+    {
+      "property": "Exact receipt field set, canonical UUID string, exact list/int types with bool rejection, positive identities, distinct Host/native PID and same within-boot namespace retained.",
+      "location": "api/tests/test_contract_method_pg.py:3518-3536",
+      "result": "PASS_SOURCE"
+    },
+    {
+      "property": "Actual confinement unchanged: private HostConfig.PidMode, stock Cmd, NSpid=1, live installed inventory checks; full attestation precedes Docker start.",
+      "location": "api/tests/test_contract_method_pg.py:4463-4597",
+      "result": "UNCHANGED_SOURCE"
+    },
+    {
+      "property": "Old retirement remains awaited before replacement start: native drain, close, Host exit0, endpoints absent, all recorded old PID/starttime absent, lock free, no uncertainty latches.",
+      "location": "api/tests/test_contract_method_pg.py:4621-4664;5316-5323",
+      "result": "UNCHANGED_SOURCE"
+    }
+  ],
+  "execution": {
+    "command": "python3 -I -B -c <stdlib-only AST extraction/evaluation of exact h03_replaced_processes and existing sequence helper; eight receipt controls; comparison of seven caller/confinement function ASTs with git show HEAD; preserved actual public rows>",
+    "exit_code": 0,
+    "controls_passed": 8,
+    "controls": {
+      "valid-replacement": "ACCEPT",
+      "reused-pidns": "ACCEPT",
+      "same-incarnation-changed-pidns": "H03_PROCESS_REPLACEMENT_REFUSED",
+      "same-host": "H03_PROCESS_REPLACEMENT_REFUSED",
+      "same-native": "H03_PROCESS_REPLACEMENT_REFUSED",
+      "same-boot": "H03_PROCESS_REPLACEMENT_REFUSED",
+      "bool": "H03_PROCESS_REPLACEMENT_REFUSED",
+      "extra": "H03_PROCESS_REPLACEMENT_REFUSED"
+    },
+    "preserved_actual_public_rows": "ACCEPTED_SOURCE_ONLY",
+    "unchanged_ast": ["h03_container_argv", "inspect_owned", "process_identity", "start_host", "native_process_receipt", "retire_host", "h03_restart_readers"],
+    "diff_check_exit_code": 0
+  },
+  "scope": "Only minimal replacement oracle and two added SOURCE controls; old UDS fix in HEAD not reopened. No product behavior, deadlines, grants, owners, producer, image or release changes reviewed or made.",
+  "limitations": [
+    "No pytest module import/full suite; checks execute only extracted exact predicate and existing sequence helper.",
+    "No PG, native runtime, containers, network, installs, image changes, foreign profiles, private receipts or raw logs accessed.",
+    "Actual confinement and retirement verified unchanged by code/AST comparison, not newly exercised live.",
+    "Parent still must adjudicate complementary reviews and execute real positive/negative QA on final bytes; product H03 acceptance remains NOT_RUN here, historical failure preserved."
+  ],
+  "files_created": ["/home/kali/.hermes/cache/scratch/h03-namespace-reuse-safety-review-05ee180c.json"],
+  "repository_files_modified": [],
+  "issues_encountered": []
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_CORRELATED_HOST_DENIAL_INTERNAL_CAUSE_UNKNOWN",
+  "consumer_commit": "96fa34f",
+  "consumer_sha256": "04ed5150256b0485b5dc3cbccdadaa1a6fb486f17104e2f629cfe0a3c9532b1e",
+  "process_session": "proc_28300ae5b7d5",
+  "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-h03-diagnostic-pg-selection.py --case runtime-restart --review-adjudicated",
+  "summary": "1 failed / 1 error / 21.63s / exit1",
+  "outer_family_receipt": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "proof_path": "/home/kali/.hermes/cache/scratch/h03-diagnostic-04ed-attempt2-fixtures/test_contract_method_real_nati0/method-history-proof.json",
+  "proof_sha256": "2ad1eec662b847ad0689dcf0c85bf98e5ec3495710c0041f9cad97756f4151bd",
+  "exchange": {
+    "events": [
+      {
+        "elapsed_ms": 0,
+        "grant_remaining_ms": 4496,
+        "phase": "ENTER"
+      },
+      {
+        "code": "RuntimeClient._exchange",
+        "exception": "RuntimeUnavailable",
+        "line": 347,
+        "offset": 2182,
+        "phase": "RAISE",
+        "reason": "HOST_DENIED_CAUSE_UNKNOWN"
+      },
+      {
+        "code": "RuntimeClient._exchange",
+        "exception": "RuntimeUnavailable",
+        "line": 425,
+        "offset": 3750,
+        "phase": "RAISE",
+        "reason": "EXCHANGE_NORMALIZED"
+      },
+      {
+        "correlation_valid": true,
+        "elapsed_ms": 32,
+        "grant_remaining_ms": 4464,
+        "ok": null,
+        "phase": "END",
+        "read_complete": true,
+        "returned": false,
+        "writer_drained": true
+      }
+    ],
+    "host_internal_cause": "UNKNOWN",
+    "status": "COMPLETE"
+  },
+  "processes": [
+    {
+      "boot": "ae853827-2a3c-4a15-bc60-ae612082d2fa",
+      "host": [
+        79471,
+        1718519,
+        4026533127
+      ],
+      "native": [
+        79629,
+        1718753,
+        4026533127
+      ]
+    }
+  ],
+  "public_actions": [
+    {
+      "action": "stage",
+      "phase": "ACTIVE",
+      "task_status": "BOUND"
+    }
+  ],
+  "public_control_cleanup": "PASS",
+  "db_fence": "RETAINED_NOT_OVERRIDDEN",
+  "interpretation": "Actualoriginalexchange receivedcorrelatedHostrefusal atRuntimeClient347 thennormalization425;32ms elapsed and grant4496\u21924464ms. Clientgranttimeoutnotobserved. Does not proveHostpriorgrant/nativeguard orinternalcause.",
+  "stop_decision": "Oneadmittednewdiagnosticpositiveconsumed; do not thirdharnesscycle/retry/API-onlytrace. Next prerequisite is a finite originalHost/nativepre-normalizationreason/RPCcode measurement, requiring explicit safe boundary and exact artifact review, not a speculativeproduct/image/deadlinefix.",
+  "limits": [
+    "COMPLETEfiniteobservernotproductPASS",
+    "No durablefinal/replacementboot/restartedreaderobserved",
+    "H03no-finalnegativeNOT_RUN",
+    "B01\u2013B03/B06b/G02/P2-inert/canonical/P4a remainnotclosed",
+    "Qualification/H01H02unchangedacceptancesreused",
+    "No provider/target/live/global/r1/push"
+  ],
+  "private_state": "Owned PGDATA/logs and explicitfresh diagnosticfixture retained; rawDSN/cap/env/tracebacks never copied intoGit. Earlier pytest-managed temp proof can age out; originalsanitizedversionedfail/cause preserved."
+}

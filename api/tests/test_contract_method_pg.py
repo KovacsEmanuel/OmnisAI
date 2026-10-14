@@ -3217,6 +3217,117 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
         assert error is None, "H03_NORMAL_SOURCE_CLEANUP_FAILED"
 
 
+@pytest.mark.parametrize("valid_drain", [True, False])
+def test_h03_settled_connection_retires_after_offline_readers(
+    monkeypatch: pytest.MonkeyPatch, valid_drain: bool
+) -> None:
+    """Actual caller AST + SOURCE Host/client UDS; no native, DB or Docker launch."""
+    import ast
+    import tempfile
+
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    retire = next(
+        n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "retire_host"
+    )
+    readers = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "h03_restart_readers"
+    )
+    start = next(
+        i
+        for i, n in enumerate(readers.body)
+        if isinstance(n, ast.If) and "H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN" in ast.unparse(n)
+    )
+    end = next(
+        i
+        for i, n in enumerate(readers.body)
+        if isinstance(n, ast.If) and "H03_RESTART_CHANGED_DOMAIN_CENSUS" in ast.unparse(n)
+    )
+    settle = ast.AsyncFunctionDef(
+        name="settle",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        body=readers.body[start:end],
+        decorator_list=[],
+    )
+
+    async def run() -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="h03-") as name:
+            directory = Path(name)
+            assert stat.S_IMODE(directory.stat().st_mode) == 0o700
+            assert len(os.fsencode(directory / "runtime.sock")) < 108
+            async with RuntimeHost(directory) as host:
+                runtime = RuntimeClient(directory, generation=0, epoch=1)
+                state: dict[str, object] = {"Running": True, "ExitCode": 0}
+                flags = {"docker_unknown": False, "cleanup_failed": False}
+                proof: dict[str, object] = {}
+
+                async def inspect_owned() -> dict[str, object]:
+                    return {"State": state}
+
+                async def docker(*args: str) -> None:
+                    assert args == ("stop", "--time=5", "source-only")
+                    await host.__aexit__(None, None, None)
+                    state["Running"] = False
+
+                namespace: dict[str, object] = dict(globals())
+                namespace.update(
+                    runtime=runtime,
+                    cid="source-only",
+                    directory=directory,
+                    inspect_owned=inspect_owned,
+                    docker=docker,
+                    h03_state=flags,
+                    process_receipts=[],
+                    checkpoint=lambda **fields: proof.update(fields),
+                )
+                exec(
+                    compile(
+                        ast.fix_missing_locations(
+                            ast.Module(body=[settle, retire], type_ignores=[])
+                        ),
+                        "<actual-h03-settlement>",
+                        "exec",
+                    ),
+                    namespace,
+                )
+                settle_call = cast(
+                    Callable[[], Coroutine[object, object, None]], namespace["settle"]
+                )
+                retire_call = cast(
+                    Callable[[], Coroutine[object, object, None]], namespace["retire_host"]
+                )
+                try:
+                    await runtime.connect()
+                    assert (await runtime.status())["drained"] is True
+                    if not valid_drain:
+                        runtime.capability = "invalid-synthetic-capability"
+                        with pytest.raises(
+                            AssertionError, match="^H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN$"
+                        ):
+                            await settle_call()
+                        assert "h03_last_retirement" not in proof
+                        return
+                    await settle_call()
+                    # Same offline interval that lets the unchanged Host idle timer fire.
+                    await asyncio.sleep(2.7)
+                    await retire_call()
+                    assert runtime.writer is None and not any(flags.values())
+                    assert proof["h03_last_retirement"] == (
+                        "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE"
+                    )
+                    assert host.process is None and not host.clients
+                finally:
+                    await runtime.close()
+
+    asyncio.run(run())
+
+
 def test_h03_mount_roots_refuse_physical_alias(tmp_path: Path) -> None:
     runtime, state = tmp_path / "runtime", tmp_path / "state"
     runtime.mkdir(mode=0o700)
@@ -5197,6 +5308,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise AssertionError("H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN")
                 # No staged task exists in the replacement boot. Join it before
                 # historical readers; original binding/manifest are untouched.
+                # Retire the settled IPC stream before cold offline readers;
+                # final retirement reconnects for its own Stop/status readback.
+                await runtime.close()
                 if await mission_census() != before_census:
                     raise AssertionError("H03_RESTART_CHANGED_DOMAIN_CENSUS")
                 attempts: list[str] = []

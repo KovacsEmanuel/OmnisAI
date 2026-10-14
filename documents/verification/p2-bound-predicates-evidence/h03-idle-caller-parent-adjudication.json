@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "APPROVED_SCOPED_ADMIT_REAL_POSITIVE_NEGATIVE",
+  "consumer_sha256": "bba7da4c626f185ac8a750ca8d32930a12ccce44a7f940d8c5bc5f74e2866439",
+  "finding": "SettledreplacementIPCretainedduringofflinecoldreaders canqueueuncorrelatedHostidleRUNTIME_DENIEDframe.",
+  "parent_reproducer": "OriginalSOURCEHostUDSprobe exit0 observesinitialdraintrue/IDLEdrainedtrue/native_launchedfalse/unsolicitedidnullRUNTIME_DENIED; actualcaller2SOURCEUDScasesPASS171deselected3.55s.",
+  "fix": "OnlyawaitcloseAFTERreplacementdrainconfirmedbeforeofflinereaders; sameclient/owner reconnectexistingretireforfreshStop/status. No clearedUNKNOWN/fenceornewauthority.",
+  "review": "ExactnormativeAPPROVED_SCOPED2PASS andsafetyAPPROVED_SCOPED7PASS; allchecksstrictcurrentbytes. AuthorAPIlint/typecheck0,145SOURCE28explicitSKIP; no runtimecreditfromskips.",
+  "image": "Unchangedreviewed151e55e dependencyfix; current67audit/public34proofreused",
+  "preflight": "Onepositiveandone-no-finalnodecollect1each; unchangedoriginalprivatefamilyDBrunner240; freshbasetempsdistinctbycase.",
+  "historical": "Functionalprogress215d8d2keptoverallFAIL_CLEANUP, no retrospectiveresolution; physicalresourcesalreadyverifiedabsentdataretained.",
+  "next": "Parentrealpositiveandno-finalnegativefresh; no native/PGnewattemptperformedatcommit.",
+  "phase": "P2/B06b/G02/P4a notclosed"
+}

@@ -1,0 +1,89 @@
+{
+  "status": "SOURCE_CALLER_DEFECT_REPRODUCED_MINIMAL_FIX_GREEN",
+  "repository": "/home/kali/OmnisAI",
+  "baseline_head": "9937bc559a5bae7bb35e9d720de82749675ea570",
+  "modified_files": ["api/tests/test_contract_method_pg.py"],
+  "hashes": {
+    "caller_before_sha256": "66a6e037062306c8b9def41461d023c87ec307e33b493ef8ebf0cb94169d885d",
+    "caller_after_sha256": "bba7da4c626f185ac8a750ca8d32930a12ccce44a7f940d8c5bc5f74e2866439",
+    "runtime_client_unchanged_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+    "runtime_host_unchanged_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8"
+  },
+  "original_private_proof_safe_fields": {
+    "path": "/home/kali/.hermes/cache/scratch/jsonschema-h03-66a-attempt1-runtime-restart/test_contract_method_real_nati0/method-history-proof.json",
+    "status": "UNCERTAIN",
+    "h03_process_restart": "READERS_COMPLETE_CLEANUP_PENDING",
+    "h03_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+    "h03_last_retirement": "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE",
+    "public_control_cleanup": "PASS",
+    "h03_single_consumption": "EXACT_ONE_BIT_FIVE_TABLE_CENSUS",
+    "h03_retained_refs": "BYTE_EXACT_GRAPH_FINAL_CHECK_OUTCOMES_USAGE"
+  },
+  "demonstrated_mechanism": {
+    "producer": "RuntimeHost._handle waits 2.5 seconds for each next request; inner TimeoutError handler emits RUNTIME_DENIED with id null without disconnecting the settled owner stream.",
+    "consumer": "After replacement drain succeeds, original caller leaves the same RuntimeClient connected throughout offline readers. Final retire_host reuses non-null writer; drain sees queued unsolicited frame, fails correlation and returns false. retire_host latches cleanup_failed and raises H03_RETIREMENT_NOT_SETTLED; outer finalizer therefore retains DB uncertainty.",
+    "source_probe": {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h03-idle-caller-3ha_l1za/idle_source_probe.py",
+      "exit_code": 0,
+      "result_path": "/home/kali/.hermes/cache/scratch/h03-idle-caller-3ha_l1za/idle-source-result.json",
+      "initial_drain": true,
+      "native_launched": false,
+      "state": "IDLE",
+      "drained": true,
+      "unsolicited_id_is_null": true,
+      "error": "RUNTIME_DENIED"
+    },
+    "retrospective_limit": "Historical original final-retirement exception and cleanup flags were not serialized. This directly demonstrates the current caller defect and matching retirement latch, not an independently captured historical idle frame or a new product/native PASS."
+  },
+  "fix": "Only caller: await runtime.close() immediately after successful replacement drain and before mission census/offline installed readers. Existing final retire_host reconnects the same RuntimeClient owner for fresh Stop/status readback. False initial drain still raises before this close and before readers.",
+  "regression": {
+    "test": "test_h03_settled_connection_retires_after_offline_readers",
+    "boundary": "Compiles actual caller settlement slice and actual retire_host AST. Runs real SOURCE RuntimeHost/RuntimeClient on an owned mode-0700 short UDS directory. Only container inspect/stop is substituted by local Host context shutdown; no NativePeer/AIAgent/native/PG/Docker/model/network launch.",
+    "positive": "Actual valid IDLE status and successful drain, unchanged 2.7-second offline interval, actual final retirement/readback, endpoint/lock/client cleanup.",
+    "negative": "Real malformed synthetic authentication makes replacement drain fail and requires H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN, with no retirement-success checkpoint.",
+    "red": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q -k settled_connection --tb=short",
+      "exit_code": 1,
+      "summary": "1 failed, 1 passed, 171 deselected in 3.55s",
+      "failure": "Actual retire_host raises H03_RETIREMENT_NOT_SETTLED after initial valid drain succeeds and idle interval elapses.",
+      "log": "/home/kali/.hermes/cache/scratch/h03-idle-source-red.log"
+    },
+    "green_focused": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q -k h03 --tb=short",
+      "exit_code": 0,
+      "summary": "54 passed, 4 skipped, 115 deselected in 5.08s",
+      "log": "/home/kali/.hermes/cache/scratch/h03-idle-source-green.log"
+    },
+    "green_final_caller_file": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=short",
+      "exit_code": 0,
+      "summary": "145 passed, 28 skipped in 14.66s",
+      "log": "/home/kali/.hermes/cache/scratch/h03-idle-source-all.log"
+    },
+    "affected_runtime_checks": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest;sys.path.insert(0,\"integrations/hermes/src\");raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_client.py\",\"integrations/hermes/tests/test_host.py\",\"-q\",\"--tb=short\"]))'",
+      "exit_code": 0,
+      "summary": "16 passed in 2.45s",
+      "log": "/home/kali/.hermes/cache/scratch/h03-idle-runtime-affected.log"
+    },
+    "quality": {
+      "command": "make --no-print-directory lint-api typecheck-api",
+      "exit_code": 0,
+      "output": "[][]",
+      "log": "/home/kali/.hermes/cache/scratch/h03-idle-quality.log",
+      "git_diff_check_exit_code": 0
+    }
+  },
+  "scope": {
+    "diff": "114 insertions in one file: 111-line parametrized SOURCE regression and 3-line caller comment/close fix.",
+    "product_runtime_policy_ttl_grants_wire_pin_changed": false,
+    "committed_or_staged": false,
+    "protected_html_read_or_hashed": false,
+    "new_native_pg_docker_model_target_execution": false,
+    "secret_values_printed": false,
+    "pending_parent": "Exact-snapshot independent review and separately authorized fresh real positive/negative H03 runs remain with parent; no product PASS claimed."
+  },
+  "issues": [
+    "First formatter check failed on three new-regression formatting locations; corrected only those locations and reran final source tests plus full API lint/typecheck successfully."
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "review_scope": "H03 minimal settled-channel retirement: failure/noninterference, connection ownership, UNKNOWN/fence preservation, SOURCE UDS regression cleanup",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "215d8d22a0612057c7faa06d2a53e5fc88081155",
+    "reviewed_file": "api/tests/test_contract_method_pg.py",
+    "reviewed_file_sha256": "bba7da4c626f185ac8a750ca8d32930a12ccce44a7f940d8c5bc5f74e2866439",
+    "reviewed_file_sha256_verified_before_and_after_execution": true,
+    "runtime_client_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+    "runtime_host_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "diff": "114 insertions, zero deletions, one tracked file: 111-line parametrized SOURCE test plus two caller comments and one awaited close",
+    "preexisting_untracked_protected_html": "PRESERVED_NOT_READ_OR_HASHED",
+    "staged_changes": false
+  },
+  "findings": [],
+  "acceptance": [
+    {
+      "criterion": "Bad initial replacement drain is not forgiven",
+      "result": "PASS_SCOPED",
+      "code": "api/tests/test_contract_method_pg.py:5307-5315",
+      "basis": "False drain raises H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN before the added close, census or readers. The SOURCE negative uses the actual caller AST and real UDS authentication refusal, requires that exact exception and forbids a retirement-success checkpoint."
+    },
+    {
+      "criterion": "No session-owner or grant bypass",
+      "result": "PASS_SOURCE_REVIEW_SCOPED",
+      "code": [
+        "api/tests/test_contract_method_pg.py:5300-5313",
+        "api/tests/test_contract_method_pg.py:4603-4621",
+        "api/src/omnis/supervisor/runtime_client.py:224-264",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:705-817"
+      ],
+      "basis": "Only a successfully drained stream closes. The same RuntimeClient object, directory, generation and epoch remain; no launch, renewal, new authority or policy change is added. Host disconnect cleanup stops the authenticated connection and releases owner_writer. Final retirement reconnects only when writer is None through existing private-file/socket/peer validation; unchanged Host authentication, owner-writer and generation/epoch checks still apply."
+    },
+    {
+      "criterion": "Original UNKNOWN and unsettled DB fence survive failure",
+      "result": "PASS_SCOPED",
+      "code": "api/tests/test_contract_method_pg.py:7105-7195",
+      "basis": "Added close has no local catch. An escaping BaseException still latches cleanup_failed and unsettled, then re-raises into the unchanged finalizer. Cleanup uses |= rather than clearing the old latch, and DB clearance still requires exact resource absence and no h03_state flags. Existing actual-finalizer SOURCE controls pass for false drain, cancelled Stop and reader uncertainty; cancelled Stop explicitly requires the original docker_unknown latch."
+    },
+    {
+      "criterion": "Fresh final Stop/status and endpoint/process/lock fence remain intact",
+      "result": "PASS_SCOPED",
+      "code": [
+        "api/tests/test_contract_method_pg.py:4603-4646",
+        "api/src/omnis/supervisor/runtime_client.py:528-542"
+      ],
+      "basis": "Actual retire_host still reconnects the same disconnected client, drains via a correlated Stop followed by status readback, closes, verifies owned resource exit zero, endpoint absence, recorded process-start identities absent and runtime lock free, then refuses any cleanup/daemon uncertainty before success. No check was removed or weakened. The actual SOURCE UDS positive crosses the unchanged 2.7-second offline interval and completes this retirement path."
+    },
+    {
+      "criterion": "Both SOURCE UDS regression cases own and clean their resources",
+      "result": "PASS_SCOPED",
+      "code": "api/tests/test_contract_method_pg.py:3220-3330",
+      "basis": "Owned short mode-0700 TemporaryDirectory under TMPDIR; actual RuntimeHost async context encloses both branches and actual RuntimeClient.close runs in finally. The positive checks writer None, no cleanup flags, exact retirement checkpoint, no Host process and no client tasks. The negative returns only through client finally and Host context teardown. Manual positive Host shutdown is context-exit-idempotent in this exercised SOURCE fixture. NativePeer/AIAgent, PG and Docker were not launched."
+    }
+  ],
+  "independent_execution": {
+    "exit_code": 0,
+    "summary": "7 passed, 166 deselected in 3.91s",
+    "command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest",
+      "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider",
+      "-c", "api/pyproject.toml", "api/tests/test_contract_method_pg.py",
+      "-q", "-k",
+      "settled_connection or (actual_lifecycle_source_seams and (drain-failed or stop-cancelled or reader-unknown or normal))",
+      "--tb=line"
+    ],
+    "selected_controls": [
+      "settled_connection valid_drain=True",
+      "settled_connection valid_drain=False",
+      "actual_lifecycle_source_seams normal",
+      "actual_lifecycle_source_seams normal-absence-lf",
+      "actual_lifecycle_source_seams drain-failed",
+      "actual_lifecycle_source_seams stop-cancelled",
+      "actual_lifecycle_source_seams reader-unknown"
+    ],
+    "environment": "Removed OMNIS_*, PG*, DOCKER_*, COMPOSE_*, PYTHONPATH, MYPYPATH, PYTEST_ADDOPTS and PYTEST_PLUGINS; disabled plugin autoload; -I -B and no pytest cache provider",
+    "execution_record": "/home/kali/.hermes/cache/scratch/h03-safety-review-4oa7_mfx/execution.json",
+    "private_log": "/home/kali/.hermes/cache/scratch/h03-safety-review-4oa7_mfx/pytest-private.log",
+    "git_diff_check_exit_code": 0
+  },
+  "limits": [
+    "Approval binds only the named source bytes and narrow cleanup/noninterference delta, not H03 product acceptance or a live installed restart.",
+    "SOURCE Host fixture remains IDLE and never launches NativePeer/AIAgent; daemon inspection and stop are substituted. Existing finalizer controls are explicit SOURCE seams, not OCI/PG evidence.",
+    "Process-start identity, real native STOPPED and exact OCI retirement are retained unchanged and reviewed, not re-executed by this child.",
+    "Historical FAIL/ERROR, original cause UNKNOWN and unsettled DB evidence are not reclassified or cleared.",
+    "Parent owns complementary review, integration and any separately authorized fresh real positive/no-final execution."
+  ],
+  "state": {
+    "current_slice": "AICI: caller cleanup IMPLEMENTED_UNCOMMITTED / SOURCE_PASS_SCOPED / APPROVED_SCOPED",
+    "h03_product": "BLOCKED_PENDING_PARENT_REAL_QA; prior functional progress is not full acceptance",
+    "b06b_g02_p2": "NOT_CLOSED",
+    "canonical_final": "NOT_RUN",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "side_effects": {
+    "repository_files_created_or_modified": [],
+    "scratch_files_created": [
+      "execution.json", "pytest-private.log", "report.json"
+    ],
+    "shared_repo_edits_staging_commits": false,
+    "native_pg_docker_network_model_execution": false,
+    "protected_html_profiles_capabilities_raw_pg_read_hashed_or_emitted": false,
+    "runtime_core_diagnostics_added": false
+  },
+  "issues_encountered": [
+    "Initial guessed client/host source paths were absent; import discovery resolved the real runtime_client/runtime_host paths before review. No product defect or blocker resulted."
+  ]
+}

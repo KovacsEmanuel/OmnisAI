@@ -1,0 +1,118 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review_type": "FOCUSED_NORMATIVE_LIFECYCLE_SOURCE_REVIEW",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "215d8d22a0612057c7faa06d2a53e5fc88081155",
+    "branch": "checkpoint/p2-vm-restart-20261011",
+    "file": "api/tests/test_contract_method_pg.py",
+    "sha256": "bba7da4c626f185ac8a750ca8d32930a12ccce44a7f940d8c5bc5f74e2866439",
+    "sha256_matched_before_and_after_tests": true,
+    "diff": "114 inserted lines: 111-line parametrized SOURCE regression plus 3-line caller comment/await close insertion",
+    "runtime_client_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+    "runtime_host_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "preexisting_changes": [
+      "Modified api/tests/test_contract_method_pg.py",
+      "Untracked protected HTML, neither read nor hashed"
+    ],
+    "staged_changes": false
+  },
+  "admission": {
+    "requirement": "After proven replacement drain, retire only the settled IPC stream before offline historical readers; preserve fail-closed drain refusal and existing fresh retirement readback.",
+    "consumer": "h03_restart_readers -> RuntimeClient.close; existing final retire_host -> same RuntimeClient.connect -> drain Stop/status",
+    "risk": "Leaving the settled stream idle allows the unchanged Host idle denial frame to break later request correlation and latch retirement uncertainty. Closing before a proven drain or reconnecting with execution authority would instead violate the lifecycle boundary.",
+    "decision": "Approve only the exact caller delta and its two SOURCE UDS controls, leaving real installed positive/negative acceptance to the parent."
+  },
+  "findings": [],
+  "criteria": [
+    {
+      "id": "CLOSE_AFTER_PROVEN_DRAIN_BEFORE_OFFLINE_READERS",
+      "result": "PASS_SCOPED",
+      "evidence": "api/tests/test_contract_method_pg.py:5307-5315: drain false raises H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN; the single new awaited close follows that guard and precedes mission census and all historical readers."
+    },
+    {
+      "id": "STRICT_BAD_DRAIN_CONTROL",
+      "result": "PASS_SOURCE_UDS",
+      "evidence": "api/tests/test_contract_method_pg.py:3307-3315: an invalid synthetic capability reaches the actual RuntimeClient/Host transport, requires the exact replacement-drain denial and cannot publish a retirement-success checkpoint. The caller guard prevents entry into close/offline readers on this branch."
+    },
+    {
+      "id": "FRESH_FINAL_RETIREMENT_SAME_CLIENT",
+      "result": "PASS_SCOPED",
+      "evidence": "Existing retire_host at api/tests/test_contract_method_pg.py:4603-4646 reconnects only when writer is None, then requires drain and exact target readback before final success. RuntimeClient.close at api/src/omnis/supervisor/runtime_client.py:536-542 clears reader/writer, not generation/epoch or owner object. RuntimeClient.connect:224-264 validates the existing private boot/socket identity."
+    },
+    {
+      "id": "NO_RESEND_NEW_AUTHORITY_OR_DOMAIN_WRITE",
+      "result": "PASS_SCOPED",
+      "evidence": "The only non-regression added executable statement is await runtime.close(). It sends no command and obtains no grant. Existing final retirement invokes drain:528-534, which uses only stop followed by status, not launch/renew/stage/release. Historical reader no-execution guards and census checks at caller:5314-5388 remain unchanged. Host disconnect invokes its existing idempotent stop at runtime_host.py:810-817; stop:651-654 returns for an already stopped/no-process host."
+    },
+    {
+      "id": "NO_SAFETY_LATCH_WEAKENING",
+      "result": "PASS_SCOPED",
+      "evidence": "Existing retire_host retains cleanup_failed on drain/close errors, verifies owned host exit, endpoint absence, prior process absence and lock reacquisition, and rejects any docker_unknown/cleanup_failed latch. Outer finalizer:7105-7167 preserves the H03 failure/DB uncertainty paths. None of these checks changed."
+    },
+    {
+      "id": "IDLE_INTERVAL_REGRESSION_AND_OWNED_CLEANUP",
+      "result": "PASS_SOURCE_UDS",
+      "evidence": "The valid-drain control compiles the actual caller settlement slice and existing retire_host AST, runs real SOURCE RuntimeHost/RuntimeClient UDS, waits the unchanged 2.7-second offline interval, then requires final retirement success, cleared writer/flags and no host clients/process. Actual retire_host checks endpoint absence and private lock reacquisition. Only inspect/stop container seams are replaced by local Host context shutdown."
+    }
+  ],
+  "normative_basis": [
+    "documents/Omnis_MVP_Architecture.md:152: correlated bounded IPC; lost reply does not authorize blind retry",
+    "documents/Omnis_MVP_Architecture.md:158: drain followed by readback; uncertain work is not credited as stopped",
+    "documents/Omnis_MVP_Architecture.md:414: receive-only historical results confer no new tools, wake or dispatch",
+    "CONTRIBUTING.md:54-71: exact consumer, affected checks, focused review and no recursive verifier expansion"
+  ],
+  "executed_tests": {
+    "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q -k settled_connection --tb=short",
+    "exit_code": 0,
+    "summary": "2 passed, 171 deselected in 3.50s",
+    "cases": [
+      "test_h03_settled_connection_retires_after_offline_readers[True]",
+      "test_h03_settled_connection_retires_after_offline_readers[False]"
+    ],
+    "boundary": "SOURCE RuntimeHost/RuntimeClient UDS on a private mode-0700 scratch directory. No native process, NativePeer, AIAgent, PostgreSQL, Docker, model, target or network execution. Container stop/inspect seams are synthetic local Host shutdown/readback only."
+  },
+  "other_verification": {
+    "git_diff_check_exit_code": 0,
+    "repo_status_unchanged_by_reviewer": true,
+    "only_two_source_regression_cases_executed": true,
+    "initial_hash_lookup_issue": "Two nonexistent guessed integration alias paths were rejected by sha256sum; corrected using the actual imported RuntimeClient and RuntimeHost paths. Exact requested caller hash matched in both checks."
+  },
+  "limits": [
+    "This is approval of the exact caller/test snapshot, not an installed/native/PG H03 acceptance or product PASS.",
+    "The private source test begins with an IDLE drained Host; it does not reproduce native launch or prove installed-family retirement.",
+    "No original harness-wide audit, new verifier tests, historical proof replay, installation, image/container/network effects or shared repository edits were performed.",
+    "The historical final-retirement exception/idle frame was not retrospectively observed. This review does not establish its exact historical cause.",
+    "The original release-failure cause remains UNKNOWN and outside this review.",
+    "Fresh real positive and negative H03 QA and acceptance adjudication remain with the parent under their separate authorization."
+  ],
+  "status_delta": [
+    {
+      "slice": "AICI: H03 settled caller IPC lifecycle",
+      "implementation": "Exact uncommitted caller fix reviewed",
+      "proof": "2 SOURCE UDS cases PASS",
+      "review": "APPROVED_SCOPED",
+      "next": "Parent adjudication and separately authorized real positive/negative QA"
+    },
+    {
+      "slice": "H03 installed/runtime restart acceptance",
+      "implementation": "Not changed by reviewer",
+      "proof": "NOT_RUN_BY_THIS_REVIEWER",
+      "review": "Not granted by this report",
+      "next": "Keep historical failure/uncertainty and current cleanup evidence separate"
+    },
+    {
+      "slice": "B06b/G02/P2 and later MVP/live scope",
+      "implementation": "Outside this delta",
+      "proof": "No global gate rerun or promotion",
+      "review": "Unchanged",
+      "next": "Parent retains existing scope and authorization gates"
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/h03-bba7-normative-lifecycle-review.json"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "commits_or_staging_by_reviewer": false,
+  "blocking_issues": []
+}

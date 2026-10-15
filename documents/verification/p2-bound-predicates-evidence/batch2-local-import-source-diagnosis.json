@@ -1,0 +1,229 @@
+{
+  "scope": "SOURCE_MODULE_IMPORT_ONLY_NOT_PRODUCT_ACCEPTANCE",
+  "causal_status": "UNKNOWN",
+  "decision": "NO_MONITORING_ONLY_SLOW_IMPORT_REPRODUCED_IN_THIS_SOURCE_PAIR",
+  "finding": "The exact tools.environments.local import completed with existing observer delivery both off and on, before the one-second faulthandler timer. No missing prerequisite, audit refusal, process attempt or socket attempt was observed. This pair does not identify an observer/helper bug or explain the installed runtime failure.",
+  "stack_localization": "UNKNOWN_NO_DUMP_IMPORT_FINISHED_BEFORE_TIMER",
+  "next_decision": "Stop this diagnostic boundary: no third experiment and no patch. Retain UNKNOWN for the installed failure; SOURCE API-venv imports are not equivalent to the image libraries or gateway import history.",
+  "static_boundary_references": [
+    {"file": "tools/environments/local.py", "line": 20, "function": "<module>", "meaning": "Imports BaseEnvironment; a dependency boundary, not a demonstrated cause"},
+    {"file": "tools/environments/base.py", "line": 32, "function": "<module>", "meaning": "Imports utils.env_var_enabled"},
+    {"file": "utils.py", "line": 17, "function": "<module>", "meaning": "Imports yaml; actual API-venv origin recorded in both outcomes"}
+  ],
+  "no_third_experiment": true,
+  "product_or_repository_edits": false,
+  "repository_observation": {"head_before": "855a7106475157f8ab21c52997c01ea243d42358", "head_after": "8253c0fee44e37c3bcdf63d42efdea6096472e95", "head_changed_outside_this_subagent": true, "diagnostic_uses_unchanged_retained_source_and_bootstrap": true, "protected_html_not_read_hashed_edited_or_staged": true},
+  "global_or_profile_edits": false,
+  "faulthandler": {"timer_seconds": 1.0, "repeat": false, "cancelled_after_import": true, "destination": "owned inherited fixed 0600 file descriptor; no port, args or locals"},
+  "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-source-probe.py",
+  "script_sha256": "90d7a893f40b856dd289460352661fbc2d2d1d118fcd586febd02fea425feea8",
+  "bootstrap": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/native_bootstrap.py",
+  "bootstrap_sha256": "a3814ffe2d62f6676b2255cf8f26c468739eb559e7b5021dd705be3e2058f73a",
+  "source_managed_inert": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source",
+  "libraries": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages",
+  "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+  "resolved_interpreter": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+  "input_hashes": {
+    "tools/environments/local.py": "1b9315932b1393a4b2b99317df1ee29f50505cf0a1da365a85da34b662bc6278",
+    "tools/environments/base.py": "06b9fdd81aeeacc081f85e3acfc7834a33912d46eae0303636f42d3b2efb247f",
+    "tools/environments/base_output.py": "2c7fb156a42df8593eb524268faf2004cc87c39bf9b8774995f87744e5abb1fa",
+    "tools/environments/base_session_env.py": "d235d3162fa5d0267a39c262f3a98c9c222a5770472b8a5177ee2db2f413e430",
+    "tools/environments/base_wait.py": "8bfb5a97f1fd92a1c9a6f8e1c801473ef23caa6b767c9da7e3553ea86fc827c9",
+    "tools/environments/local_env_policy.py": "5b199345cc539b39977225147fe5a6a93b1212d3a1f9def9183e60d0d0038640",
+    "tools/environments/local_gitbash_probe.py": "4519ff8b9d23df0f1e36f676f5427dd1206707eba309a2efee5e417bd113f031",
+    "tools/environments/local_pythonpath.py": "5e63afb429e6d505bc824fd097183b269a9afc382bae74bdbf5db0b698ee15a9",
+    "hermes_constants.py": "3dd95a77b1a4956280f146e3b065789ca5d82921f69e6e2cae06d49a13f82405",
+    "utils.py": "15c10bc1a0499368f76f3092c15c2e4960bc2faa7f23b54bd1d8502190d8ed41"
+  },
+  "runs": [
+    {
+      "mode": "off",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-S",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-source-probe.py",
+        "off",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/home",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/events.private",
+        "4"
+      ],
+      "command_shell": "/home/kali/OmnisAI/api/.venv/bin/python -I -S -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-source-probe.py off /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/home /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/events.private 4",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/home",
+        "HERMES_HOME": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/home/hermes",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo/home",
+        "HERMES_OMNIS_INERT": "1",
+        "HERMES_DISABLE_LAZY_INSTALLS": "1",
+        "HERMES_SKIP_NODE_BOOTSTRAP": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "LANG": "C.UTF-8"
+      },
+      "private_directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-off-ikuk_foo",
+      "pid_owned_from_popen": 237032,
+      "timeout_s": 4,
+      "timed_out": false,
+      "exit_code": 0,
+      "elapsed_process_ms": 566.5072180127027,
+      "outcome": {
+        "target": "tools.environments.local",
+        "mode": "off",
+        "status": "IMPORTED",
+        "target_origin": "tools/environments/local.py",
+        "elapsed_ms": 439.254812,
+        "audit_calls": 1023,
+        "audit_ms": 28.166885,
+        "extra_audit": {
+          "calls": 1022,
+          "denied": 0,
+          "sink_attempts": 0,
+          "open": 245,
+          "process": 0,
+          "socket": 0
+        },
+        "module_origins": {
+          "tools.environments.local": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tools/environments/local.py",
+          "utils": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/utils.py",
+          "yaml": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/yaml/__init__.py"
+        }
+      },
+      "faulthandler_frames": [],
+      "stack_status": "NO_DUMP",
+      "suppressed_frame_count": 0,
+      "exception_frames": [],
+      "exception_suppressed_count": 0,
+      "children_before_termination_count": 0,
+      "remaining_process_group_members": [],
+      "process_reaped": true,
+      "pid_absent_after_reap": true,
+      "private_modes": {
+        "stack.private": "0o600",
+        "stderr.private": "0o600",
+        "stdout.private": "0o600",
+        "events.private": "0o600"
+      },
+      "captured_sizes": {
+        "stack.private": 0,
+        "stderr.private": 0,
+        "stdout.private": 0,
+        "events.private": 700
+      },
+      "original_guard_denial_rows": 0
+    },
+    {
+      "mode": "on",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-S",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-source-probe.py",
+        "on",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/home",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/events.private",
+        "4"
+      ],
+      "command_shell": "/home/kali/OmnisAI/api/.venv/bin/python -I -S -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-source-probe.py on /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/home /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/events.private 4",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/home",
+        "HERMES_HOME": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/home/hermes",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f/home",
+        "HERMES_OMNIS_INERT": "1",
+        "HERMES_DISABLE_LAZY_INSTALLS": "1",
+        "HERMES_SKIP_NODE_BOOTSTRAP": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "LANG": "C.UTF-8"
+      },
+      "private_directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/local-import-on-mzi0363f",
+      "pid_owned_from_popen": 237034,
+      "timeout_s": 4,
+      "timed_out": false,
+      "exit_code": 0,
+      "elapsed_process_ms": 416.0874969966244,
+      "outcome": {
+        "target": "tools.environments.local",
+        "mode": "on",
+        "status": "IMPORTED",
+        "target_origin": "tools/environments/local.py",
+        "elapsed_ms": 301.375262,
+        "audit_calls": 1025,
+        "audit_ms": 26.050188,
+        "extra_audit": {
+          "calls": 1024,
+          "denied": 0,
+          "sink_attempts": 0,
+          "open": 245,
+          "process": 0,
+          "socket": 0
+        },
+        "module_origins": {
+          "tools.environments.local": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tools/environments/local.py",
+          "utils": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/utils.py",
+          "yaml": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/yaml/__init__.py"
+        }
+      },
+      "faulthandler_frames": [],
+      "stack_status": "NO_DUMP",
+      "suppressed_frame_count": 0,
+      "exception_frames": [],
+      "exception_suppressed_count": 0,
+      "children_before_termination_count": 0,
+      "remaining_process_group_members": [],
+      "process_reaped": true,
+      "pid_absent_after_reap": true,
+      "private_modes": {
+        "stack.private": "0o600",
+        "stderr.private": "0o600",
+        "stdout.private": "0o600",
+        "events.private": "0o600"
+      },
+      "captured_sizes": {
+        "stack.private": 0,
+        "stderr.private": 0,
+        "stdout.private": 0,
+        "events.private": 699
+      },
+      "original_guard_denial_rows": 0
+    }
+  ],
+  "sanitizer": {
+    "max_private_read_bytes": 131072,
+    "max_frames": 100,
+    "allowed_frame_origins": [
+      "immutable source",
+      "trusted stdlib",
+      "exact native observer",
+      "owned probe"
+    ],
+    "emitted_fields": [
+      "relative code path",
+      "line",
+      "function",
+      "elapsed",
+      "exit",
+      "timeout",
+      "audit counts",
+      "exception type",
+      "missing module identifier"
+    ],
+    "no_arguments_locals_environment_or_raw_traceback": true
+  },
+  "guards": {
+    "exact_original_audit_reused": true,
+    "additional_read_allowlist_write_network_process_denial": true,
+    "common_sink_guard_active_both": true,
+    "existing_observer_delivery_only_varies": true,
+    "guard_not_os_sandbox": true
+  },
+  "limits": [
+    "SOURCE dependencies differ from image",
+    "No original failure attribution",
+    "No gateway, RuntimeHost, AIAgent or prepare",
+    "One sample per mode cannot prove deterministic repeatability"
+  ],
+  "collected_run_count": 2,
+  "input_hashes_unchanged": true,
+  "script_hash_unchanged": true,
+  "bootstrap_hash_unchanged": true
+}

@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.8
+version: 0.1.9
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -39,6 +39,8 @@ Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundar
 - Guard the public request entry before route selection, stale breakers and recovery, not only its worker constructor or shared sink: a stock pre-setup exception can otherwise escape NO_MODEL into credential/fallback handling. Keep a real open-breaker negative and the identical nonmanaged stock control; untrusted DTO refs and absence of an inert environment flag are not turn/config authority.
 - Check exact inventory type before emptiness in a constructor-owned configuration observation: a nonempty tuple subclass can spoof equality with `()`. Require native tuple type before length, retain adversarial controls for both tools/toolsets, and never promote a genuine cold/null observation into READY provider-config or native-turn authority.
 - Preflight effective non-root UID readability and directory searchability for every COPY artifact, including source, adapter, probe and manifest. Hash equality does not prove that imports can execute: preserve private modes with explicit owned COPY ownership rather than switching to root or loosening containment. Classify a pre-import permission exit as QA-driver BLOCKED/constructor NOT_RUN, retain that attempt and correct only owned distribution metadata before one bounded new consumer attempt; do not build another verifier.
+- Trace a diagnostic launch seam through constructor-owned authority and final Stop predicates before using it in installed QA. `TestLaunch`/`TestPreparation` intentionally disable `namespace_owned` even at PID1; requiring certified STOPPED from that mode is unsatisfiable. Verify the actual caller and matching installed source; use the legitimate fixed-entry path rather than forcing the flag or weakening cleanup.
+- Keep new diagnostic timer cancellation and each owned diagnostic FD close independently best-effort so observation cleanup cannot replace a primary exception or skip remaining cleanup. Separate pre-Stop process evidence from post-Stop signals; a signal first observed after Stop does not explain an earlier launch failure.
 - Preserve the existing unified-patch framing, section order and unchanged sections when resealing a minimal native overlay; do not assume `diff --git` headers or regenerate unrelated context. Reconstruct only from attested post-inert originals, run `git apply --check` and apply in an owned copy, then compare the complete patched-file inventory and SHA values before publishing pin/manifest hashes. This keeps a distribution-only correction distinguishable from changed executable source.
 
 ## Document preparation through the existing owner

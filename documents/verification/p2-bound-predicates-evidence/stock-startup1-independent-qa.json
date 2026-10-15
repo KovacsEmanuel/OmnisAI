@@ -1,0 +1,567 @@
+{
+  "schema": "omnis-stock-startup1-independent-qa-v1",
+  "report_complete": true,
+  "verdict": "PASS_STARTUP_PREREQUISITE_SCOPED_NOT_BATCH2_PASS",
+  "label": "STOCK_HOST_NATIVE_ARGV_EXPLICIT_QA_SITECUSTOMIZE_RO",
+  "snapshot": {
+    "head": "1b85efba46517021ae81bf7fb9aef8fcf97a0dc0",
+    "hashes_before": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "ff88d334e0427f73df9a4b392369f80ea60bb6b6d90343b353a3d4adb4f6a2fa",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    },
+    "hashes_after": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "ff88d334e0427f73df9a4b392369f80ea60bb6b6d90343b353a3d4adb4f6a2fa",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    },
+    "source_and_image_stable": true,
+    "tracked_diff_empty": true,
+    "historical_reports_unchanged": "Tracked historical evidence unchanged; no old roots adopted or retired; protected HTML never opened or hashed"
+  },
+  "execution": {
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --review-adjudicated",
+    "cleared_environment": [
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "MYPYPATH",
+      "PYTEST_ADDOPTS",
+      "PYTEST_PLUGINS"
+    ],
+    "session": "proc_58a46c426cbc",
+    "session_status": "exited",
+    "session_exit": 0,
+    "selector_exit": 0,
+    "gate_exit": 0,
+    "passed": 1,
+    "seconds": 9.11,
+    "attempts": 1,
+    "maximum_attempts": 1,
+    "retry": false,
+    "successor_run": false,
+    "case_root_absent_immediately_before_call": true,
+    "intent": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-startup1-qa-0051e743d7d74f2eb6dfed0e849515ed.intent.json",
+    "tools": {
+      "/home/kali/OmnisAI/api/.venv/bin/python -I -B --version": "Python 3.13.15",
+      "/home/kali/OmnisAI/cli/.venv/bin/python -I -B --version": "Python 3.13.15",
+      "uv --version": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "node --version": "v24.21.0",
+      "npm --version": "11.19.0"
+    },
+    "system_python_alias_note": "3.13.12; not consumed; exact API/CLI drivers 3.13.15 verified as existing owner requires"
+  },
+  "observed": {
+    "roles": [
+      {
+        "role": "host",
+        "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+        "status": "READY"
+      },
+      {
+        "role": "native",
+        "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+        "status": "READY"
+      }
+    ],
+    "hook": {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/qa-sitecustomize.py",
+      "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+      "bytes": 31497,
+      "mode": "0o400",
+      "uid": 1000,
+      "nlink": 1
+    },
+    "role_and_native_gate": "PASS_UNCHANGED_EXISTING_REQUIRE_STOCK_OBSERVATION_AND_REQUIRE_NATIVE_OBSERVATION",
+    "decoder_loading": "AST exact selected committed pure decoder definitions; no test-module/native/SDK import",
+    "host_argv": [
+      "/opt/hermes/venv/bin/python",
+      "-I",
+      "-m",
+      "omnis_hermes.runtime_host"
+    ],
+    "native_argv": [
+      "/opt/hermes/venv/bin/python",
+      "-I",
+      "-m",
+      "tui_gateway.entry"
+    ],
+    "stock_identity": "Owner verified live /proc ordered argv, mounted hook hash, installed code bytes, PID1/private namespace and native direct child before acceptance",
+    "processes": [
+      {
+        "boot": "f9ea8326-b255-4b4c-89a0-c590f2634503",
+        "host": [
+          259523,
+          9606860,
+          4026533751
+        ],
+        "native": [
+          259661,
+          9606923,
+          4026533751
+        ]
+      }
+    ],
+    "native_ready": true,
+    "bootstrap": {
+      "status": "INCOMPLETE",
+      "pre_ready_complete": true,
+      "root_cause": "UNKNOWN",
+      "observer_ready": true,
+      "last_enter": "ENTRY_READY_WRITE_BEGIN",
+      "completed": [
+        "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+        "SERVER_ENV_LOADER_IMPORT_BEGIN",
+        "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+        "CONVERSATION_TURN_API_IMPORT_BEGIN",
+        "CONVERSATION_MODULE_BEGIN",
+        "SERVER_CONVERSATION_IMPORT_BEGIN",
+        "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+        "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+        "SERVER_MODULE_BEGIN",
+        "ENTRY_SERVER_IMPORT_BEGIN",
+        "ENTRY_READY_WRITE_BEGIN"
+      ],
+      "pending": [
+        "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+        "ENTRY_MODULE_BEGIN",
+        "ENTRY_MAIN_BEGIN"
+      ],
+      "elapsed_ms": 2646,
+      "audit_ms": 14,
+      "audit_calls": 36568,
+      "phase_events": 25,
+      "issues": [
+        "MISSING_PHASE_COMPLETION"
+      ]
+    },
+    "forbidden_attempt_rows": 0,
+    "host_diagnostic": {
+      "status": "OBSERVED",
+      "root_cause": "UNKNOWN",
+      "events": [
+        {
+          "method": "NativePeer.handshake",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 578,
+          "line": 461,
+          "elapsed_ms": 2983
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 674,
+          "line": 461,
+          "elapsed_ms": 2983
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 678,
+          "line": 0,
+          "elapsed_ms": 2983
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 920,
+          "line": 225,
+          "elapsed_ms": 2983
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1120,
+          "line": 225,
+          "elapsed_ms": 2983
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "RAISE",
+          "exception": "CancelledError",
+          "offset": 150,
+          "line": 322,
+          "elapsed_ms": 3263
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "offset": 2062,
+          "line": 322,
+          "elapsed_ms": 3263
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "offset": 2068,
+          "line": 0,
+          "elapsed_ms": 3263
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "offset": 2198,
+          "line": 0,
+          "elapsed_ms": 3263
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "offset": 2204,
+          "line": 0,
+          "elapsed_ms": 3263
+        }
+      ]
+    }
+  },
+  "drain_cleanup": {
+    "retirement": "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE",
+    "resource_cleanup": "EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED",
+    "host_exit": 0,
+    "stop_primary_rows": [
+      {
+        "edge": "ENTER",
+        "caller": "OTHER",
+        "state": "READY",
+        "pid": 7,
+        "returncode": null,
+        "deadline_expired": false,
+        "clock_ns": 96072176723708
+      },
+      {
+        "edge": "END",
+        "caller": "OTHER",
+        "state": "STOPPED",
+        "pid": 7,
+        "returncode": -9,
+        "deadline_expired": false,
+        "clock_ns": 96072333849495
+      },
+      {
+        "edge": "ENTER",
+        "caller": "OWNER_DISCONNECT",
+        "state": "STOPPED",
+        "pid": 7,
+        "returncode": -9,
+        "deadline_expired": false,
+        "clock_ns": 96072335203510
+      },
+      {
+        "edge": "END",
+        "caller": "OWNER_DISCONNECT",
+        "state": "STOPPED",
+        "pid": 7,
+        "returncode": -9,
+        "deadline_expired": false,
+        "clock_ns": 96072335233627
+      },
+      {
+        "edge": "ENTER",
+        "caller": "OTHER",
+        "state": "STOPPED",
+        "pid": 7,
+        "returncode": -9,
+        "deadline_expired": false,
+        "clock_ns": 96072551844995
+      },
+      {
+        "edge": "END",
+        "caller": "OTHER",
+        "state": "STOPPED",
+        "pid": 7,
+        "returncode": -9,
+        "deadline_expired": false,
+        "clock_ns": 96072551895993
+      }
+    ],
+    "family_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "exact_readback": {
+      "host_cid_absent": true,
+      "host_name_absent": true,
+      "pg_cid_absent": true,
+      "pg_project_containers_absent": true,
+      "pg_project_networks_absent": true,
+      "runtime.boot_absent": true,
+      "runtime.sock_absent": true
+    },
+    "pid_starttime_readback": [
+      {
+        "role": "host",
+        "pid": 259523,
+        "starttime": 9606860,
+        "pid_namespace": 4026533751,
+        "same_identity_absent": true
+      },
+      {
+        "role": "native",
+        "pid": 259661,
+        "starttime": 9606923,
+        "pid_namespace": 4026533751,
+        "same_identity_absent": true
+      }
+    ],
+    "runtime_lock_free": true,
+    "db_fence": "Existing finalizer cleared only after strict runtime/resource/observation cleanup; final clean proof and family receipt verified",
+    "pg_socket_absent": true,
+    "physical_pgdata_retained": {
+      "path": "/home/kali/.hermes/cache/scratch/db-03264ed6364f4bea/data/18/docker",
+      "version": "18",
+      "device": 2049,
+      "inode": 8921040,
+      "mode": "0o700",
+      "uid": 1000
+    },
+    "logical_db_rows_retained_claim": false,
+    "logical_db_note": "Existing clean fixture contract may DROP per-test database; no assertion that every logical row remains"
+  },
+  "resources": {
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "image_tag": "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current",
+    "host_cid": "50f35d7301439fd4ab610f66909e9ee3f18c0524452e1979f202ddbc8de66d7b",
+    "host_name": "omnis-h03-de759a924deb40be8686ac44b171f9b6",
+    "host_nonce": "de759a924deb40be8686ac44b171f9b6",
+    "host_limits": {
+      "NetworkMode": "none",
+      "ReadonlyRootfs": true,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CapAdd": null,
+      "Privileged": false,
+      "PidsLimit": 64,
+      "Memory": 805306368,
+      "MemorySwap": 1610612736,
+      "NanoCpus": 1000000000,
+      "SecurityOpt": [
+        "no-new-privileges"
+      ],
+      "PidMode": "",
+      "IpcMode": "private",
+      "CgroupnsMode": "private",
+      "AutoRemove": false,
+      "PortBindings": {},
+      "Devices": [],
+      "Tmpfs": {
+        "/tmp": "rw,noexec,nosuid,nodev,size=32m,mode=1777"
+      }
+    },
+    "host_mounts": [
+      {
+        "Type": "bind",
+        "Source": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/qa-sitecustomize.py",
+        "Destination": "/opt/hermes/venv/lib/python3.13/site-packages/sitecustomize.py",
+        "Mode": "",
+        "RW": false,
+        "Propagation": "rprivate"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/kali/.hermes/cache/scratch/cm-e01a3000b55b45e09d5fb596a742db46",
+        "Destination": "/runtime",
+        "Mode": "",
+        "RW": true,
+        "Propagation": "rprivate"
+      },
+      {
+        "Type": "bind",
+        "Source": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state",
+        "Destination": "/state",
+        "Mode": "",
+        "RW": true,
+        "Propagation": "rprivate"
+      }
+    ],
+    "pg": {
+      "container_id": "9c8b8526606df4ac2cf469b3a88c6146f3084cc873f8002b316b24a4de73b6df",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-d7934a39ee1344a6933b29b8bbac4995",
+      "root": "/home/kali/.hermes/cache/scratch/db-03264ed6364f4bea",
+      "system_identifier": "7696938636341674014"
+    }
+  },
+  "diagnostics": {
+    "failure_class": null,
+    "root_cause": "NOT_APPLICABLE_TO_PASS; historical UNKNOWN unchanged",
+    "native_primary": {
+      "bytes": 0,
+      "status": "NO_DATA"
+    },
+    "native_fault_private": {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/native-fault.private",
+      "bytes": 3014,
+      "bounded": true,
+      "frames": [
+        {
+          "path": "/opt/hermes/source/agent/auxiliary_client.py",
+          "line": 123,
+          "function": "<module>"
+        },
+        {
+          "path": "/opt/hermes/source/agent/conversation_compression.py",
+          "line": 31,
+          "function": "<module>"
+        },
+        {
+          "path": "/opt/hermes/source/agent/turn_context.py",
+          "line": 20,
+          "function": "<module>"
+        },
+        {
+          "path": "/opt/hermes/source/agent/replay_cleanup.py",
+          "line": 18,
+          "function": "<module>"
+        },
+        {
+          "path": "/opt/hermes/source/tui_gateway/server.py",
+          "line": 32,
+          "function": "<module>"
+        },
+        {
+          "path": "/opt/hermes/source/tui_gateway/entry.py",
+          "line": 23,
+          "function": "<module>"
+        }
+      ],
+      "candidate_frames": 41,
+      "emitted_frames": 6,
+      "interpretation": "Private timed diagnostic stack is not a startup failure or causal attribution; unmatched headers/values not emitted"
+    },
+    "stop_ordering": "See strict clock_ns rows; null returncode alone is not liveness proof; post-Stop signals are not initial-cause evidence"
+  },
+  "evidence_metadata": {
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-startup1-qa-0051e743d7d74f2eb6dfed0e849515ed.intent.json": {
+      "bytes": 2796,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "2a6746942826710b5036d765dd99a28186d5bbd3a843b65bdaf6d90302d29f76"
+    },
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-startup1-qa-0051e743d7d74f2eb6dfed0e849515ed.stdout.private": {
+      "bytes": 836,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "3262e93745b697c1bbb1c4e37c6816b9c95fa575aa04bfb6aca19b60249a9e35"
+    },
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-startup1-qa-0051e743d7d74f2eb6dfed0e849515ed.stderr.private": {
+      "bytes": 0,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-startup1-qa-0051e743d7d74f2eb6dfed0e849515ed.exit.json": {
+      "bytes": 52,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "0368f63fe0ccf3c8e3b51baa14896c34a8a3d2d4fd09cc0591042bbb5682b5ec"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/method-history-proof.json": {
+      "bytes": 3839,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "139aaf5f100987c41ed65656ef4b79a0321da52ea80623e401f4f81afd0faebe"
+    },
+    "/home/kali/.hermes/cache/scratch/db-03264ed6364f4bea/gate.log": {
+      "bytes": 98,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "71b73605b3380620e3dbb1f3942de92a32e3aa4c93f99d7cb164aa62ec77814e"
+    },
+    "/home/kali/.hermes/cache/scratch/db-03264ed6364f4bea/gate.log.result.json": {
+      "bytes": 56,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/qa-sitecustomize.py": {
+      "bytes": 31497,
+      "mode": "0o400",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/qa-host.json": {
+      "bytes": 109,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "0837d16528f5b690c6894cc792d0cb3cf1619dc906c5e6b801b5ed40673cd07e"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/qa-native.json": {
+      "bytes": 111,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "9dd4d192c1bd1591379ac7ef97c7385c1e7fd47a89bff3930f4e6ca438c44949"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/native-observation.jsonl": {
+      "bytes": 3852,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "25fcc505759d86687a3ebc3dcb53ac9a6d7f01bacb32b1d20da53251c9068280"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/host-launch-diagnostic.json": {
+      "bytes": 1185,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "955fdd08759a01a4be0bd54e550d5fc7cc8781b22087352e88421c851478970e"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/host-stop-primary.jsonl": {
+      "bytes": 778,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "e3053e095285f53801b561ea094851d892e160da4147924043bbd51ed262ad6a"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/native-primary.jsonl": {
+      "bytes": 0,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only/test_contract_method_real_nati0/h03-state/native-fault.private": {
+      "bytes": 3014,
+      "mode": "0o600",
+      "uid": 1000,
+      "nlink": 1
+    }
+  },
+  "limits": [
+    "Startup/READY/authentic drain and original-owner cleanup only; no qualification/publication/select/prepare-method/stage/release/task/batch2/Stop-first execution.",
+    "Not pristine uninstrumented production; one explicit immutable read-only QA sitecustomize mount.",
+    "Allowed missing completions only three named RPC-loop-spanning phases; observation remains INCOMPLETE with pre_ready_complete true, not silently relabeled complete.",
+    "Native primary file empty is NO_DATA, not proof of no exception; no historical causal attribution.",
+    "No repository edit/stage/commit/push/install/build/prewarm/provider/model/target/r1/personal profile/credential/global changes.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Parent owns adjudication, status/procedure edits and any future separately authorized cases; no successor launched."
+  ],
+  "issues_encountered": [
+    "Post-settlement read-only report script initially lacked imported decoder helpers (NameError); separate source-name discovery also exited1 after identifying the imports. Neither invoked startup, cleanup or other effects. Exact helper definitions then included for unchanged decoder readback; initial report Stop enum assumption also refused, corrected by extracting exact existing producer enums, not by changing evidence or oracle.",
+    "Background shell emitted nonfatal zle option warnings before the Python wrapper; exact selector, gate and tracked session all exited 0.",
+    "PATH system python aliases report 3.13.12, but are not the selected API/CLI consumers. The exact command and existing owner use verified API/CLI Python3.13.15; no PATH or tool replacement was made."
+  ]
+}

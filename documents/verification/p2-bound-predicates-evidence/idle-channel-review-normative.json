@@ -1,0 +1,137 @@
+{
+  "verdict": "APPROVED_SCOPED_SOURCE",
+  "review_role": "Independent focused normative review; parent adjudication and complementary review still required",
+  "base_head": "6e5bf117267ae7e640a15078a483afe560ec02cd",
+  "snapshot": {
+    "hashes": {
+      "api/tests/test_contract_method_pg.py": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "6f3aac40e361c02ebb88d346917580fdca2b6db427e983e5d72b640dae9a0d8d"
+    },
+    "diff_sha256": "990d9234a6c46a994fae461099aeaee2efa8f772701d6c49da9fb4f491cb2e08",
+    "stable_after_tests": true,
+    "staged_changes": false,
+    "protected_html": "Only preexisting filename appeared in git status; never opened, hashed, edited or staged"
+  },
+  "findings": [],
+  "existing_finding_disposition": {
+    "id": "STOCK-QA-IDLE-CONNECTION-01",
+    "disposition": "CLOSED_SOURCE_SCOPED recommended for parent adjudication; installed acceptance remains pending",
+    "reproducer": "Real SOURCE RuntimeHost/RuntimeClient: connect and hold until actual idle denial is buffered, then status -> RuntimeUnavailable(Runtime exchange unavailable) with exact Runtime correlation mismatch context. No native process. Same real channel control closes, idles 2.7s, reconnects with identical boot and capability, then status returns IDLE.",
+    "fix": "Close only the initial installed non-startup client after retaining boot/capability; offline preparation keeps the original boot identity; reconnect immediately before launch and refuse either changed identity.",
+    "historical_failure": "Retained installed release failure remains FAIL/UNCERTAIN; this reproduced mechanism is not exclusive retrospective cause attribution."
+  },
+  "requirement_evidence": [
+    {
+      "requirement": "No stale wire response across offline preparation",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7362-7367",
+        "api/tests/test_contract_method_pg.py:8160-8170",
+        "api/src/omnis/supervisor/runtime_client.py:536-542"
+      ],
+      "result": "PASS_SOURCE: close clears reader/writer without clearing boot/capability. Actual acquisition and prelaunch source cuts assert disconnected offline preparation; real UDS positive and negative both passed."
+    },
+    {
+      "requirement": "Preserve preparation identity; refuse replacement before native launch",
+      "code": [
+        "api/src/omnis/modules/runs/native_preparation.py:366,392",
+        "api/tests/test_contract_method_pg.py:6605-6615",
+        "api/tests/test_contract_method_pg.py:8164-8170"
+      ],
+      "result": "PASS_SOURCE: NativePreparation binds runtime.boot; prerequisite prepare is only worker_fixture, not live prepare RPC. The guard compares original boot AND capability before launch_inert. Same identity succeeds; changed boot, changed capability and reconnect failure refuse before launch/process receipt in initial batch2 and H03 cuts. No new launch authority or effectful RPC precedes this guard; existing lease heartbeat/offline DB preparation are not claimed to be effect-free."
+    },
+    {
+      "requirement": "Startup immediate consumer and legitimate H03 recovery preserved",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7389-7413",
+        "api/tests/test_contract_method_pg.py:8033-8073",
+        "api/tests/test_contract_method_pg.py:7169-7191"
+      ],
+      "result": "PASS_SOURCE: startup bypasses close/offline path and returns before initial non-startup guard. start_host remains byte-identical so intentional later H03 boot replacement is not rejected. Source Host context still starts after preparation. Existing real stock startup acceptance is retained only at its original scope; no rerun or new startup acceptance."
+    },
+    {
+      "requirement": "Failure/cancellation cleanup and fence not weakened",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7220-7263",
+        "api/tests/test_contract_method_pg.py:10150-10285"
+      ],
+      "result": "PASS_STATIC_SCOPED: inserted close/reconnect/guard remain inside existing acquisition try/finally. Exact finalbody and retire_host bytes match HEAD; no new catch masks failure/cancellation, no early success or fence clearance added. On identity rejection no launch occurs; existing finalizer remains sole owned cleanup authority. This reviewer did not execute OCI/PG cleanup or new physical cancellation cuts."
+    },
+    {
+      "requirement": "Sanitized exact diagnostic enum",
+      "code": [
+        "api/tests/test_contract_method_pg.py:2627-2665"
+      ],
+      "result": "PASS_SOURCE: only exact Runtime correlation mismatch added to finite public reasons. Four-row bound, exact str guard, type allowlist and UNCLASSIFIED fallback remain. Real UDS regression observes and verifies the new context; no raw messages, args or capabilities emitted by reviewer."
+    },
+    {
+      "requirement": "Closed selector and conditional batch2-only admission",
+      "code": [
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:31-40,53-59,165-195"
+      ],
+      "result": "PASS_STATIC_SCOPED: both reviewed markers remain None, both source pins match actual caller; approval check precedes importing effectful DB runner. New batch2-stock2 roots are distinct and absent at review; consumed startup stock1 path is unchanged/closed. Existing owner, cases, runner budget and fence unchanged."
+    }
+  ],
+  "unchanged_against_HEAD": {
+    "method": "Compare exact ast.get_source_segment text for named definitions/constants/startup branch and each outer-finally statement against git show HEAD:caller; all comparisons true",
+    "names": [
+      "start_host",
+      "h03_restart_readers",
+      "retire_host",
+      "batch2_native_observer",
+      "batch2_installed_entry",
+      "require_stock_observation",
+      "BOOTSTRAP",
+      "STARTUP_NATIVE_PRIMARY",
+      "startup_immediate_consumer",
+      "outer_finally"
+    ],
+    "product_delta": "Git has only the two named tracked QA files modified. RuntimeHost/RuntimeClient/authority/idle2.5/grants/image are not changed by this diff."
+  },
+  "independent_execution": {
+    "command": "api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"qa_offline_idle_channel_real_uds or stock_site_actual_admission_cut\" -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/idle-norm-d5b0916c",
+    "environment": "Removed PYTHONPATH/PYTHONHOME/MYPYPATH/PYTEST_ADDOPTS/PYTEST_PLUGINS/OMNIS_CONTRACT_METHOD_NATIVE_PG and all OMNIS_H03_/OMNIS_BATCH2_ vars; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; TMPDIR=/home/kali/.hermes/cache/scratch; -I -B prevents repo bytecode writes.",
+    "exit_code": 0,
+    "summary": "34 passed, 286 deselected in 7.79s",
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-review-normative-tests-cbfaeb65.log",
+    "private_log_mode": "0600 created with O_EXCL; combined stdout/stderr never dumped",
+    "real_uds_cleanup": "Test assertions verify host.process is None, clients empty, runtime.boot/runtime.sock absent after context exit; no native launch/grant/prepare, PG or OCI.",
+    "git_diff_check_exit": 0,
+    "author_evidence": "Read idle-channel-fix-author.json; author 147 SOURCE, quality gates and collect-only remain author evidence, not independently rerun or relabeled."
+  },
+  "conditional_admission": {
+    "status": "APPROVED_CONDITIONAL_FORM_ONLY_NOT_ACTIVATED",
+    "only_permitted_edit": "Replace exactly BATCH2_REVIEWED: str | None = None with BATCH2_REVIEWED: str | None = \"fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d\"",
+    "postimage_sha256_computed_in_memory": "7fb79e9fa7d618419715745fbb8e6b1cd5c81271af1ca485fa4fa669969aaf62",
+    "STARTUP_REVIEWED": null,
+    "caller_unchanged_required": true,
+    "preconditions": [
+      "Both complementary exact-snapshot reviews approved and adjudicated by parent",
+      "Commit the reviewed coherent fix; verify exact hashes",
+      "Apply only the specified BATCH2_REVIEWED substitution and verify exact postimage",
+      "Recheck selected fresh root absent immediately before effect; retain owner/attempt counters/fences and all old failures"
+    ],
+    "release_first_root": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-release-first",
+    "stop_first_root": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-stop-first",
+    "both_batch2_roots_absent_at_review": true,
+    "startup_consumed_path_unchanged": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+    "sequence": "ONE release-first after admission. Stop-first only after a positive release-first result is independently adjudicated; distinct fresh root. Any failure stops sequence; no retries, no startup rerun.",
+    "additional_flag_review": "Not required for exactly this pre-reviewed conditional postimage if all preconditions hold; any other delta requires new scoped review."
+  },
+  "limits": [
+    "No PG/OCI/native/resource lifecycle/build/install/profile/credentials/model/provider/target effects",
+    "No installed release or Stop-first acceptance; no full canonical rerun",
+    "Physical cleanup/cancellation not executed; static preservation is not runtime proof",
+    "Stock startup 1PASS9.11s/READY-STOPPED/Host exit0 remains prior accepted evidence, not a new measurement",
+    "Retained stock release 1FAIL17.11s and nativeUNCERTAIN/fence remain; cause not reassigned",
+    "B06b/G02/P2/P4a-minim remain NOT_CLOSED",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-review-normative.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-review-normative-tests-cbfaeb65.log",
+    "Private pytest basetemp /home/kali/.hermes/cache/scratch/idle-norm-d5b0916c"
+  ],
+  "repo_changes_by_reviewer": [],
+  "issues_encountered": [],
+  "reusable_lesson_for_parent": "Retain receipt identity, not an idle UDS stream, across offline work; constrain fix to initial caller so legitimate replacement recovery is unchanged. No skill edit under read-only delegation."
+}

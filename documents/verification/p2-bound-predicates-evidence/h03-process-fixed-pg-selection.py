@@ -28,10 +28,10 @@ API_PREREQUISITES = (
 BATCH2_ROOT = Path(
     "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0"
 )
-BATCH2_SOURCE_SHA = "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d"
+BATCH2_SOURCE_SHA = "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
 BATCH2_REVIEWED: str | None = None
 STARTUP_REVIEWED: str | None = None
-STARTUP_SOURCE_SHA = "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d"
+STARTUP_SOURCE_SHA = "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
 STARTUP_CASE = "batch2-startup-only"
 BATCH2_ARTIFACT = BATCH2_ROOT / "native-artifact.json"
 BATCH2_ARTIFACT_SHA = "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318"
@@ -52,7 +52,9 @@ def selected_argv(case: str, collect_only: bool = False) -> list[str]:
     )
     leaf = (
         "batch2-stock1-"
-        if case == STARTUP_CASE or case in BATCH2_CASES
+        if case == STARTUP_CASE
+        else "batch2-stock2-"
+        if case in BATCH2_CASES
         else "jsonschema-h03-05ee-attempt1-"
     ) + case
     return [

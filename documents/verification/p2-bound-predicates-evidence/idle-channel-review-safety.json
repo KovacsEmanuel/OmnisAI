@@ -1,0 +1,105 @@
+{
+  "review_id": "idle-channel-review-safety",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Read-only safety review of the initial installed QA connection lifecycle, exact boot/capability preservation, pre-launch refusal, exception/finalizer/fence conservation and closed selector. SOURCE approval only; not installed/native or P2 acceptance.",
+  "base_head": "6e5bf117267ae7e640a15078a483afe560ec02cd",
+  "snapshot": {
+    "hashes": {
+      "api/tests/test_contract_method_pg.py": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "6f3aac40e361c02ebb88d346917580fdca2b6db427e983e5d72b640dae9a0d8d"
+    },
+    "diff_sha256": "990d9234a6c46a994fae461099aeaee2efa8f772701d6c49da9fb4f491cb2e08",
+    "supporting_readonly_sources": {
+      "api/src/omnis/supervisor/runtime_client.py": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+      "api/src/omnis/modules/runs/native_preparation.py": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2"
+    },
+    "rechecked_unchanged_at_handoff": true
+  },
+  "findings": [],
+  "finding_policy": "No concrete new blocker found in the reviewed delta. Findings, if present, require severity, location, reproducer and remedy; no hypothetical universal-hardening findings added.",
+  "assessment": [
+    {
+      "requirement": "Preserve original boot and capability across offline preparation",
+      "locations": ["api/tests/test_contract_method_pg.py:7362-7367", "api/src/omnis/supervisor/runtime_client.py:536", "api/src/omnis/modules/runs/native_preparation.py:366"],
+      "result": "PASS_SCOPED",
+      "evidence": "The initial installed non-startup caller stores both identities before closing. RuntimeClient.close clears only reader/writer; preparation still retains the original boot needed by its receipt. No replacement Host, acquisition, grant or owner is introduced."
+    },
+    {
+      "requirement": "Refuse changed identity or failed late connect before native launch",
+      "locations": ["api/tests/test_contract_method_pg.py:8160-8170", "api/tests/test_contract_method_pg.py:2157-2300", "api/src/omnis/supervisor/runtime_client.py:224", "api/src/omnis/supervisor/runtime_client.py:512"],
+      "result": "PASS_SCOPED",
+      "evidence": "Reconnect precedes the explicit tuple comparison; either boot or capability mismatch raises only QA_PREPARATION_BOOT_CHANGED. Connect failure propagates before launch_inert, which is the runtime-authority consumer. Existing owner heartbeat is not a fresh acquisition/grant. The actual acquisition/admission AST cuts cover batch2 and initial H03, positive same identity, boot replacement, capability replacement, failed reconnect and startup immediate-consumer behavior. No launch retry or state promotion was added."
+    },
+    {
+      "requirement": "Conserve exception, cleanup and DB fence behavior",
+      "locations": ["api/tests/test_contract_method_pg.py:7265", "api/tests/test_contract_method_pg.py:7220-7263", "api/tests/test_contract_method_pg.py:10151-10285"],
+      "result": "PASS_SCOPED",
+      "evidence": "Initial close and late connect/identity refusal remain inside the original outer try/finally. The finalizer and retire_host are byte-identical to HEAD. Cleanup errors remain latched; original propagating failures suppress success-only observation/state transitions. Exact resource absence and settled cleanup remain prerequisites for clearing the DB fence. Cleanup reconnect is retained retirement behavior, not a retry of launch. Existing lifecycle/finalizer source tests passed; OCI cleanup was not executed."
+    },
+    {
+      "requirement": "Do not disclose the retained private capability",
+      "locations": ["api/tests/test_contract_method_pg.py:7366", "api/tests/test_contract_method_pg.py:8166", "api/tests/test_contract_method_pg.py:2639-2665", "api/tests/test_contract_method_pg.py:4012-4067"],
+      "result": "PASS_SCOPED",
+      "evidence": "The added preparation_capability name has exactly the local assignment and guard use; it is not included in checkpoints, serialization or exception text. The public diagnostic reason set adds only the exact literal Runtime correlation mismatch. Real SOURCE bootstrap capabilities were kept private; reviewer execution used --tb=no and a 0600 log, emitting only numeric summaries. Private test assertions are assessed in this context, not claimed safe under deliberate showlocals/showargs/raw traceback publication."
+    },
+    {
+      "requirement": "Retain unchanged hook, startup and replacement-owner scope",
+      "result": "PASS_SCOPED",
+      "evidence": "Byte comparisons within the exact enclosing owner confirm start_host, retire_host, h03_restart_readers, batch2_native_observer, batch2_installed_entry, require_stock_observation, BOOTSTRAP, STARTUP_NATIVE_PRIMARY, outer finalizer and startup immediate consumer unchanged. Prior hook reviews and accepted actual startup evidence are reused only within their original scope; no full hook campaign or actual startup rerun."
+    },
+    {
+      "requirement": "Keep execution closed and retain case identity",
+      "locations": ["documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:31-40", "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:53-59", "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:186-195"],
+      "result": "PASS_SCOPED",
+      "evidence": "Both review selectors remain None. With the receipt-hash seam substituted solely to reach the approval guard, all three batch2/startup cases reject --review-adjudicated with exit 2 before importing the DB runner. Release and Stop use stock2 paths; startup retains its consumed stock1 path and remains closed. No selector activation was written."
+    }
+  ],
+  "existing_finding_disposition": {
+    "id": "STOCK-QA-IDLE-CONNECTION-01",
+    "status": "SOURCE_MECHANISM_REPRODUCED_AND_FIX_APPROVED_SCOPED",
+    "reproducer": "Real SOURCE RuntimeHost/RuntimeClient UDS: hold the initial stream beyond idle denial, then status refuses with Runtime exchange unavailable and Runtime correlation mismatch context. Same boot/capability with close, offline wait and reconnect returns IDLE with no native process.",
+    "remedy": "Close only the initial installed non-startup QA stream before offline preparation; reconnect and compare both retained identities immediately before launch.",
+    "historical_installed_failure": "Retained FAIL; cause remains UNKNOWN. This mechanism is not exclusive retrospective attribution and does not erase native settlement uncertainty or reset attempt/boundary counters."
+  },
+  "independent_verification": {
+    "command": "env with PYTHONPATH/PYTHONHOME/MYPYPATH/PYTEST_ADDOPTS/PYTEST_PLUGINS and OMNIS_*/PG* variables removed; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'qa_offline_idle_channel_real_uds or stock_site_actual_admission_cut or h03_actual_lifecycle_source_seams or host_diagnostic_actual_finalizer or launch_failure_diagnostic' -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/idle-channel-safety-review-tests",
+    "exit_code": 0,
+    "passed": 118,
+    "deselected": 202,
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-review-safety-tests.log",
+    "log_mode": "0600",
+    "structured_execution_receipt": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-review-safety-tests.json",
+    "actual_uds": "Both new real UDS cases passed; native process remains None, clients settle and owned runtime.boot/runtime.sock are absent on exit.",
+    "admission_cuts": "All 64 existing extended acquisition/admission combinations passed.",
+    "selector_closed_cases_exit_2": ["batch2-release-first", "batch2-stop-first", "batch2-startup-only"],
+    "selector_test_limit": "Pinned receipt hash function substituted in memory to reach exact-source approval guard; no artifact receipt secrets read, no DB runner imported or invoked.",
+    "git_diff_check_exit_code": 0,
+    "author_evidence_crosscheck": "Read author report and privately parsed its final SOURCE log: 147 passed, 173 deselected, mode 0600. Author-reported exit 0 is distinct from this independent 118-test execution."
+  },
+  "conditional_selector_review": {
+    "activation_performed": false,
+    "single_allowed_in_memory_change": "BATCH2_REVIEWED: str | None = \"fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d\"",
+    "STARTUP_REVIEWED": null,
+    "conditional_selector_sha256": "7fb79e9fa7d618419715745fbb8e6b1cd5c81271af1ca485fa4fa669969aaf62",
+    "conditions": [
+      "Parent obtains and adjudicates both complete complementary exact-snapshot review reports and commits the reviewed fix before fresh installed execution.",
+      "Only the first fresh batch2-release-first case is admitted by the supplied contract; no automatic retry or extra SOURCE/native startup campaign.",
+      "batch2-stop-first requires positive adjudication of release-first. The shared BATCH2 selector is not claimed to encode this procedural ordering automatically.",
+      "Retain old failure, original UNKNOWN cause/uncertainty, consumed startup root and existing attempt/boundary counters."
+    ],
+    "release_basetemp": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-release-first",
+    "stop_basetemp": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-stop-first",
+    "startup_basetemp": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only"
+  },
+  "limits": [
+    "No PG, OCI, actual native launch, install, build, profile, credential, provider or target operations.",
+    "No product deadlines, authority, namespace, image, hook or owner changes; no full canonical run or product acceptance claim.",
+    "Cleanup/fence fault coverage uses existing actual-source AST seams with substituted daemon/Host resources; not physical crash or live OCI settlement evidence.",
+    "The real UDS tests exercise source Host/client only, not an installed OCI native startup or release.",
+    "Repository remained unedited by this reviewer; no staging, commit, push or selector activation. Protected HTML was never read or hashed.",
+    "A parent-owned untracked documents/verification/p2-bound-predicates-evidence/idle-channel-fix-author.json appeared at final status; it was not read or modified and is outside this exact two-file review.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Batch2/B06b/G02/P2/P4a-minim remain unclosed. Parent owns integration and subsequent bounded installed acceptance."
+  ],
+  "reusable_note_for_parent": "Retain the original boot/capability needed by offline preparation, not an idle UDS stream. Close at the initial caller and compare both identities before launch; leave the reusable start_host/replacement path unchanged. No skill edit was made under the read-only review contract."
+}

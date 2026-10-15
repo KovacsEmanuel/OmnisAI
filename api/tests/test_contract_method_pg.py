@@ -2156,7 +2156,11 @@ def test_stock_role_evidence_required_even_when_ready(tmp_path: Path, fault: str
 
 @pytest.mark.parametrize("startup", [True, False])
 @pytest.mark.parametrize("missing", [False, True])
-def test_stock_site_actual_admission_cut(tmp_path: Path, startup: bool, missing: bool) -> None:
+@pytest.mark.parametrize("reconnect", ["same", "replaced", "capability", "failed"])
+@pytest.mark.parametrize("batch2", [True, False], ids=["batch2", "h03"])
+def test_stock_site_actual_admission_cut(
+    tmp_path: Path, startup: bool, missing: bool, reconnect: str, batch2: bool
+) -> None:
     import ast
     from types import SimpleNamespace
 
@@ -2189,22 +2193,52 @@ def test_stock_site_actual_admission_cut(tmp_path: Path, startup: bool, missing:
             if isinstance(n, ast.Assign) and "original_stage_exchange" in ast.unparse(n)
         )
         body = deepcopy(owner.body[:end])
+    acquisition = next(n for n in run.body if isinstance(n, ast.Try))
+    installed = next(
+        n
+        for n in acquisition.body
+        if isinstance(n, ast.If) and ast.unparse(n.test) == "installed_native"
+    )
+    initial = next(
+        i for i, n in enumerate(installed.body) if ast.unparse(n) == "await start_host()"
+    )
     calls: list[str] = []
+    runtime = SimpleNamespace(writer=None, boot="original", capability="original-capability")
+
+    async def connect() -> None:
+        calls.append("connect")
+        if calls.count("connect") > 1:
+            if reconnect == "failed":
+                raise OSError("SYNTHETIC_LATE_CONNECT_FAILURE")
+            if reconnect == "replaced":
+                runtime.boot = "replacement"
+            if reconnect == "capability":
+                runtime.capability = "replacement-capability"
+        runtime.writer = object()
+
+    async def close() -> None:
+        calls.append("close")
+        runtime.writer = None
 
     async def ready(*args: object) -> dict[str, object]:
         calls.append("runtime")
         return {"state": "READY"}
+
+    async def heartbeat(*args: object) -> None:
+        calls.append("heartbeat")
 
     namespace = {
         **globals(),
         "state_dir": tmp_path,
         "observation": tmp_path / "native-observation.jsonl",
         "qa_hashes": {"qa-sitecustomize.py": "a" * 64},
-        "batch2": True,
+        "batch2": batch2,
         "installed_native": True,
         "host": None,
-        "runtime": SimpleNamespace(writer=object(), launch_inert=ready, renew=ready),
-        "service": SimpleNamespace(heartbeat=ready),
+        "runtime": runtime,
+        "startup": startup,
+        "start_host": connect,
+        "service": SimpleNamespace(heartbeat=heartbeat),
         "supervisor": None,
         "epoch": 1,
         "native_process_receipt": lambda: calls.append("identity"),
@@ -2212,10 +2246,23 @@ def test_stock_site_actual_admission_cut(tmp_path: Path, startup: bool, missing:
         "diagnostic": {},
         "nullcontext": nullcontext,
     }
+    runtime.connect, runtime.close = connect, close
+    runtime.launch_inert, runtime.renew = ready, ready
+
+    async def offline() -> None:
+        assert runtime.writer is None, "QA_CONNECTION_HELD_DURING_OFFLINE_PREPARATION"
+        assert runtime.boot == "original" and runtime.capability == "original-capability"
+        calls.append("offline")
+
+    namespace["offline"] = offline
     cut = ast.AsyncFunctionDef(
         name="cut",
         args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
-        body=body,
+        body=[
+            *deepcopy(installed.body[initial:]),
+            *([] if startup else ast.parse("await offline()").body),
+            *body,
+        ],
         decorator_list=[],
     )
     exec(
@@ -2228,12 +2275,28 @@ def test_stock_site_actual_admission_cut(tmp_path: Path, startup: bool, missing:
     )
     invoke = namespace["cut"]
     assert callable(invoke)
-    if missing:
-        with pytest.raises(OSError):
+    if not startup and reconnect != "same":
+        expected = OSError if reconnect == "failed" else AssertionError
+        reason = (
+            "QA_PREPARATION_BOOT_CHANGED"
+            if reconnect != "failed"
+            else "SYNTHETIC_LATE_CONNECT_FAILURE"
+        )
+        with pytest.raises(expected, match="^" + reason + "$"):
             asyncio.run(invoke())
+        assert "runtime" not in calls and "identity" not in calls
     else:
-        asyncio.run(invoke())
-    assert "identity" in calls
+        if missing and (batch2 or startup):
+            with pytest.raises(OSError):
+                asyncio.run(invoke())
+        else:
+            asyncio.run(invoke())
+        assert "identity" in calls
+    assert (
+        calls[:1] == ["connect"]
+        if startup
+        else calls[:5] == ["connect", "close", "offline", "heartbeat", "connect"]
+    )
 
 
 def test_stock_site_roles_no_setup_for_unknown(
@@ -2575,6 +2638,7 @@ def launch_exception_chain(error: BaseException) -> list[dict[str, str]]:
     }
     public_reasons = {
         "Runtime exchange unavailable",
+        "Runtime correlation mismatch",
         "Runtime refused",
         "Native RPC deadline",
         "Native ready deadline",
@@ -3626,6 +3690,8 @@ def test_h03_actual_lifecycle_source_seams(
 
     class Runtime:
         writer: object = None
+        boot = "original"
+        capability = "original-capability"
 
         async def connect(self) -> None:
             calls.append("connect")
@@ -3940,6 +4006,64 @@ def test_h03_actual_lifecycle_source_seams(
 def test_host_diagnostic_actual_finalizer(tmp_path: Path, mode: str, exit_path: str) -> None:
     # Same real acquisition/finalizer cut; daemon/Host/native-positive seams, no runtime.
     test_h03_actual_lifecycle_source_seams(tmp_path, mode, True, exit_path)
+
+
+@pytest.mark.parametrize("released", [False, True], ids=["held-idle", "released-same-boot"])
+def test_qa_offline_idle_channel_real_uds(monkeypatch: pytest.MonkeyPatch, released: bool) -> None:
+    """Real SOURCE protocol, no native launch/grant, DB, OCI or altered idle timeout."""
+    import tempfile
+
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    async def run() -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="idle-") as name:
+            directory = Path(name)
+            assert len(os.fsencode(directory / "runtime.sock")) < 108
+            async with RuntimeHost(directory) as host:
+                runtime = RuntimeClient(directory, generation=0, epoch=1)
+                try:
+                    await runtime.connect()
+                    boot, capability = runtime.boot, runtime.capability
+                    if released:
+                        await runtime.close()
+                        assert runtime.reader is None and runtime.writer is None
+                        await asyncio.sleep(2.7)
+                        await runtime.connect()
+                        assert (runtime.boot, runtime.capability) == (boot, capability)
+                        assert (await runtime.status())["state"] == "IDLE"
+                    else:
+                        assert runtime.reader is not None
+                        buffered = vars(runtime.reader)["_buffer"]
+                        assert isinstance(buffered, bytearray)
+                        async with asyncio.timeout(3.5):
+                            while b"\n" not in buffered:
+                                await asyncio.sleep(0.01)
+                        with pytest.raises(RuntimeUnavailable) as caught:
+                            await runtime.status()
+                        assert caught.value.args == ("Runtime exchange unavailable",)
+                        inner = caught.value.__context__
+                        assert isinstance(inner, RuntimeUnavailable)
+                        assert inner.args == ("Runtime correlation mismatch",)
+                        assert launch_exception_chain(caught.value) == [
+                            {
+                                "type": "RuntimeUnavailable",
+                                "reason": "Runtime exchange unavailable",
+                            },
+                            {
+                                "type": "RuntimeUnavailable",
+                                "reason": "Runtime correlation mismatch",
+                            },
+                        ]
+                    assert runtime.boot == host.boot == boot and host.process is None
+                finally:
+                    await runtime.close()
+            assert host.process is None and not host.clients
+            assert not any((directory / n).exists() for n in ("runtime.boot", "runtime.sock"))
+
+    asyncio.run(run())
 
 
 @pytest.mark.parametrize("valid_drain", [True, False])
@@ -7236,6 +7360,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise AssertionError("H03_CREATED_CID_UNCERTAIN")
                 await inspect_owned(full=True)
                 await start_host()
+                if not startup:
+                    # Preparation uses the retained boot, never an idle IPC stream.
+                    preparation_boot = runtime.boot
+                    preparation_capability = runtime.capability
+                    await runtime.close()
             else:
                 host = host_module.RuntimeHost(
                     directory,
@@ -8032,6 +8161,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 await service.heartbeat(supervisor, epoch)
                 if runtime.writer is None:
                     await runtime.connect()
+                if installed_native and (runtime.boot, runtime.capability) != (
+                    preparation_boot,
+                    preparation_capability,
+                ):
+                    raise AssertionError("QA_PREPARATION_BOOT_CHANGED")
                 try:
                     ready = await runtime.launch_inert(service, supervisor)
                 except BaseException as error:

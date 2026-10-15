@@ -1,0 +1,137 @@
+{
+  "status": "SOURCE_SCOPED_GREEN_PENDING_PARENT_REVIEWS_AND_COMMIT",
+  "base_head": "6e5bf117267ae7e640a15078a483afe560ec02cd",
+  "finding": "STOCK-QA-IDLE-CONNECTION-01",
+  "contract": {
+    "change": "Close the initial installed QA client before offline preparation, retain actual boot/capability, reconnect immediately before launch and refuse either identity changing. No new authority/owner/Host/timer/keepalive.",
+    "allowed_repo_files": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ],
+    "scope": "QA sequencing and inseparable SOURCE regressions only; not runtime implementation or P2 acceptance"
+  },
+  "snapshot": {
+    "hashes": {
+      "api/tests/test_contract_method_pg.py": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "6f3aac40e361c02ebb88d346917580fdca2b6db427e983e5d72b640dae9a0d8d"
+    },
+    "diff_sha256": "990d9234a6c46a994fae461099aeaee2efa8f772701d6c49da9fb4f491cb2e08",
+    "preserved": {
+      "start_host": true,
+      "h03_restart_readers": true,
+      "retire_host": true,
+      "batch2_native_observer": true,
+      "batch2_installed_entry": true,
+      "require_stock_observation": true,
+      "BOOTSTRAP": true,
+      "STARTUP_NATIVE_PRIMARY": true,
+      "startup_immediate_consumer": true
+    },
+    "tracked_changes": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ]
+  },
+  "diff_path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-channel-fix.diff",
+  "red": {
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"qa_offline_idle_channel_real_uds or stock_site_actual_admission_cut\" -q --tb=short --basetemp=/home/kali/.hermes/cache/scratch/idle-fix-red",
+    "exit_code": 1,
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-red.log",
+    "summary": "7 failed, 7 passed: six actual acquisition/launch source cuts detect held offline stream; actual held UDS observes exact correlation mismatch but diagnostic was UNCLASSIFIED. Released same-boot positive already succeeds."
+  },
+  "intermediate": {
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-green.log",
+    "exit_code": 1,
+    "summary": "6 failed, 99 passed: existing ready stub was shared by heartbeat and launch; separated heartbeat recording. mypy rejected private StreamReader attribute access; bounded buffer observation now narrows the actual bytearray from vars(). No product changes were needed."
+  },
+  "green2": {
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-green2.log",
+    "exit_code": 0,
+    "summary": "147 passed, 173 deselected in 14.46s"
+  },
+  "final_checks": [
+    {
+      "name": "final-source",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k '(qa_offline_idle_channel_real_uds or stock or startup or h03_actual_lifecycle_source_seams or host_diagnostic_actual_finalizer or h03_settled_connection or launch_failure_diagnostic) and not real_native_pg_owner' -q --tb=short --basetemp=/home/kali/.hermes/cache/scratch/idle-fix-final",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-final-source.log",
+      "output": "1|........................................................................ [ 48%]\n2|........................................................................ [ 97%]\n3|...                                                                      [100%]\n4|147 passed, 173 deselected in 14.64s"
+    },
+    {
+      "name": "collect-release",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-collect-release.log",
+      "output": "1|tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-release-first]\n2|\n3|1 test collected in 0.78s"
+    },
+    {
+      "name": "collect-stop",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-stop-first --collect-only",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-collect-stop.log",
+      "output": "1|tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-stop-first]\n2|\n3|1 test collected in 0.77s"
+    },
+    {
+      "name": "ruff",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-ruff.log",
+      "output": "1|All checks passed!"
+    },
+    {
+      "name": "format",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-format.log",
+      "output": "1|2 files already formatted"
+    },
+    {
+      "name": "mypy",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-mypy.log",
+      "output": "1|Success: no issues found in 2 source files"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/idle-fix-diff-check.log",
+      "output": ""
+    }
+  ],
+  "proof": {
+    "real_uds": "Actual SOURCE RuntimeHost and RuntimeClient on fresh private short scratch roots, generation=0 epoch=1; held stream waits boundedly for queued newline without consuming/printing payload, then status yields RuntimeUnavailable with exact Runtime correlation mismatch context. Released stream closes, waits 2.7s, reconnects same boot AND capability and returns IDLE.",
+    "no_native": "Neither UDS control calls launch/grants/prepare/native; host.process is None, all clients gone and exact runtime.boot/runtime.sock absent at exit. Existing SOURCE tests substitute native/OCI effect seams.",
+    "actual_caller": "Extended existing stock admission AST cut, not a generic harness: initial acquisition suffix -> disconnected offline seam -> real prelaunch prefix. Same-boot positive; changed boot/capability or failed connect refuse before launch; initial H03 and batch2 covered; startup consumes original stream immediately.",
+    "preparation_boot_dependency": "NativePreparation.prepare reads self.runtime.boot into retained receipt (native_preparation.py:366); PreparationPrerequisite.prepare only returns worker_fixture(bundle). RuntimeClient.close clears transport, retains boot/capability.",
+    "siblings": "SOURCE-host context begins after preparation and is unchanged. start_host itself is byte-unchanged, preserving legitimate later H03 replacement boot launch; h03_restart_readers/retire_host/startup immediate consumer and hooks byte-unchanged against HEAD.",
+    "cleanup": "Existing outer finally/fence unchanged; lifecycle/finalizer and real UDS settled-connection controls passed. No cleanup authority broadened."
+  },
+  "execution_gates": {
+    "BATCH2_REVIEWED": null,
+    "STARTUP_REVIEWED": null,
+    "source_pins": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+    "release_basetemp": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-release-first",
+    "stop_basetemp": "/home/kali/.hermes/cache/scratch/batch2-stock2-batch2-stop-first",
+    "startup_basetemp_unchanged": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+    "startup_rerun": false,
+    "attempt_counter_reset": false,
+    "check": "HAS_DB_EFFECTS_NOT_RUN: ops/run_test_db_gate.py --check runs full component gate/private PG; deliberately not invoked"
+  },
+  "not_run": [
+    "PG",
+    "OCI",
+    "native actual startup/release",
+    "full canonical",
+    "install/build",
+    "provider/target/profile/credential effects",
+    "stage/commit/push"
+  ],
+  "limitations": [
+    "Exact cause of the retained historical launch failure remains UNKNOWN; reproduced mechanism is not exclusive retrospective attribution.",
+    "147 SOURCE tests and collect-only are not installed/native acceptance; parent owns reviews, exact diff commit, later one release-first adjudication and eventual Stop-first after positive.",
+    "No P2/B06b/G02/P4a closure. Protected HTML was never opened, hashed, edited or staged."
+  ],
+  "reusable_pitfall_for_parent": "Keep boot identity needed by offline receipts, not idle UDS streams. Close only at the initial installed acquisition caller; reconnect/check identity before effect, never change global start_host because H03 recovery intentionally changes boots. No skill file edited under two-file ownership."
+}

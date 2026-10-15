@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.26
+version: 0.1.27
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -80,6 +80,8 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 - Run long private-DB targets as tracked background jobs with pinned tool paths and exact-session readback. A foreground executor deadline can terminate the gate owner before its cleanup receipt, leaving an active synthetic fixture; never relabel this as cleanup or adopt/delete that historical fixture to force a green test.
 
 ## Optional consumers and cross-runtime admission
+
+For a specialized settlement reader over the shared ledger, correlate the exact retained usage and configuration receipts with the specialized producer contract before projecting constants. A general ledger KNOWN state and independently valid cold receipt do not prove cross-record agreement. Challenge resealed token/receipt-identity/configuration contradictions through the same receive-only reader, retain valid and restored positives, and require no writes, grant or redispatch on refusal.
 
 When authoring a fixture, account for defensive container copies: `managed_contract.mapping` returns a new dict, so reassign changed requirement rows into the authored payload before serializing. When sharing resolved schema refs across YAML sections, deepcopy the new section rather than retaining aliases to the old section; the real parser rejects YAML anchors/aliases. Confirm the intended serialized declaration reaches the targeted RED guard before changing product code.
 

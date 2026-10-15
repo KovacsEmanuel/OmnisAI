@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.37
+version: 0.1.38
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -127,6 +127,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 
 ## Settled IPC and process identity
 
+- For frozen output retirement, inspect every enclosing error handler: an inner graceful close can detach the writer before an outer abort sees it. Exercise real UDS backpressure with pending bytes and release the peer only after the failed call; require zero pending output at the actual owner fence exit and no complete frame afterward. Detached reader/writer and `is_closing()` alone do not prove discard. Preserve ordinary non-frozen close behavior and the original deadlines.
 - Capture a no-rerun observation baseline only after authentic native drain, then validate counts/overlap against the entire settled log before offline replay. Preserve strict byte equality afterward; do not filter normal EXIT events or tolerate extra work during drain. Close IPC across offline readers and use the original owner's retirement path. If historical baseline bytes were not retained, do not attribute the old difference exclusively to a normal exit append.
 - Before a long offline-reader interval in an owned restart probe, close the IPC channel only after confirmed native drain; reconnect through the same original owner for fresh final Stop/status. A real Host can emit an uncorrelated idle-denial frame on a retained channel even when drained. Keep a real UDS positive and bad-drain refusal; closing the channel must not forgive uncertainty or replace resource retirement.
 - Before initial offline preparation, retain the original boot/capability needed by its receipt, not an idle transport. Close at that initial caller, reconnect and compare both identities before launch; leave later intentional replacement/recovery paths unchanged. Prove the held-idle refusal and same-identity positive through real UDS without starting native work.

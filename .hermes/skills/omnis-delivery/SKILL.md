@@ -1,7 +1,7 @@
 ---
 name: omnis-delivery
 description: "Use when delivering an Omnis implementation slice."
-version: 0.1.5
+version: 0.1.6
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]

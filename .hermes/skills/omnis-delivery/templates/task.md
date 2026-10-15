@@ -1,5 +1,7 @@
 # Bounded task contract
 
+Latest user deliverable and current phase ceiling (analysis / handoff-only / implementation / QA):
+Assigned role and permitted actions in THIS session; approval of an option is not successor-launch authority:
 Goal / observable behavior:
 Plan ticket and acceptance gate:
 Work admission: requirement → actual product consumer → concrete risk → decision changed by PASS/FAIL (or mandatory integrity/cleanup):
@@ -17,12 +19,12 @@ Time/tool-call budget and escalation threshold:
 Expected output: changed paths, commands/exit codes, evidence paths, limitations.
 Commit owner: parent for shared checkout; otherwise explicit branch owner.
 Rollback and external state limitations:
-Continuity: a commit is not a handoff; continue admitted work until requested deliverable, real blocker/authorization boundary, user stop or unsafe budget/context exhaustion. Apply CONTRIBUTING.md §„Execuție orientată spre produs”; no report/verifier work without an acceptance decision.
+Continuity: continue admitted implementation only while it is the current deliverable. A later stop/fresh-session handoff overrides the earlier mandate: stop owned writers, verify state, preserve WIP and deliver the prompt without starting its successor. Otherwise a commit is not a handoff. Apply CONTRIBUTING.md §„Execuție orientată spre produs”; no report/verifier work without an acceptance decision.
 Handoff: use omnis-project-status; update CURRENT/map delta in place, cite original evidence once, scoped review state and next canonical slice. Read-only work makes no map edit or empty commit.
 
 ## Reviewer assignment (read-only)
 
-Assess requirements first, then security/correctness/maintainability.
+Assess fidelity to the latest user deliverable/phase ceiling first, then requirements and security/correctness/maintainability. Passing code outside the requested scope is not acceptance.
 For each finding return severity, file:line, reproducible scenario, violated criterion and minimal remedy.
 List commands actually run separately from suggested checks. Give a verdict with residual risks;
 bind the verdict to the exact reviewed commit/blob/diff and files, and return findings to the parent for adjudication;

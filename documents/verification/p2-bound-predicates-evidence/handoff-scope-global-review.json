@@ -1,0 +1,145 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review": {
+    "verdict": "APPROVED_SCOPED",
+    "findings": [],
+    "criteria": {
+      "latest_stop_handoff_before_dispatch": "PASS",
+      "technical_option_not_launch_permission": "PASS",
+      "delayed_results_no_restart": "PASS",
+      "orchestrator_developer_reviewer_qa_ownership": "PASS",
+      "proportionate_roles_and_focused_loops": "PASS",
+      "safety_tests_commits_canonical_cleanup_preserved": "PASS",
+      "fresh_current_history_and_source_limits_distinguished": "PASS",
+      "batch2_data_admission_settings_affected_browser_live_order": "PASS"
+    },
+    "limits": [
+      "Approval is instruction/workflow/document scope only, not product acceptance or future behavioral enforcement.",
+      "Global before/after deltas inspected only against the explicitly provided backup files; no broad profile audit.",
+      "Product files and shared files not edited. No product tests, agents, services, provider, PG or Docker runs.",
+      "Documentation tests75PASS and render check are parent-supplied evidence, not independently rerun.",
+      "Existing process/delegate-zero claim is handoff evidence, not freshly verified by this read-only leaf.",
+      "Historical evidence not reaudited; batch2 proposed representation is SOURCE, not native ACK, qualified publication or PG.",
+      "Global/settings verification metadata is still PENDING in the frozen source snapshot; parent must record this scoped review and native NOT_RUN outcome without claiming fresh native loader PASS."
+    ]
+  },
+  "qa": {
+    "result": "NOT_RUN",
+    "guard_installed_before_native_imports": true,
+    "flags": {
+      "isolated": 1,
+      "dont_write_bytecode": true
+    },
+    "home_override": "/home/kali/.hermes",
+    "exception_type": "ModuleNotFoundError",
+    "missing_module": "ruamel",
+    "guard_attempts": [],
+    "exit_code": 3,
+    "guard_channel_tags": [],
+    "stderr_not_disclosed": true,
+    "command": [
+      "/home/kali/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,os,json,pathlib,hashlib,stat\nhome=pathlib.Path('/home/kali/.hermes')\nsource=home/'hermes-agent'\nviolations=[]\nallowed_dirs={str(home/x) for x in ('','cron','sessions','logs','logs/curator','memories','pairing','hooks','image_cache','audio_cache','skills')}\ndef refuse(reason):\n    violations.append(reason)\n    os.write(2, ('GUARD:'+reason+'\\n').encode())\n    raise PermissionError('SCOPED_READ_ONLY_GUARD')\ndef audit(event,args):\n    if event=='open':\n        path=args[0]\n        if isinstance(path,(str,bytes,os.PathLike)):\n            text=os.fsdecode(path); parts=pathlib.Path(text).parts; base=pathlib.Path(text).name.lower()\n            if base.startswith('.env') or base=='auth.json' or base.startswith('credentials') or 'tokenstore' in base or base in ('tokens.json','token.json'):\n                refuse('credential_file_open')\n            if '/home/kali/.hermes/profiles/' in text:\n                refuse('other_profile_open')\n        mode=args[1]; flags=args[2]\n        if (isinstance(mode,str) and any(x in mode for x in 'wax+')) or (isinstance(flags,int) and flags & (os.O_WRONLY|os.O_RDWR|os.O_CREAT|os.O_TRUNC|os.O_APPEND)):\n            refuse('file_write')\n    elif event.startswith('socket.') or event in ('subprocess.Popen','os.system','os.fork','os.forkpty','os.posix_spawn','os.posix_spawnp','pty.spawn') or event.startswith('os.exec') or event.startswith('os.spawn'):\n        refuse('network_or_subprocess')\n    elif event=='os.mkdir':\n        p=os.fsdecode(args[0])\n        if p not in allowed_dirs or not pathlib.Path(p).is_dir(): refuse('directory_create')\n    elif event in ('os.chmod','os.chown','os.remove','os.unlink','os.rmdir','os.rename','os.link','os.symlink','os.truncate','os.utime'):\n        refuse('filesystem_mutation')\nsys.addaudithook(audit)\nsys.path.insert(0,str(source))\nr={'result':'NOT_RUN','guard_installed_before_native_imports':True,'flags':{'isolated':sys.flags.isolated,'dont_write_bytecode':sys.dont_write_bytecode},'home_override':str(home)}\ntry:\n    import agent.prompt_builder as pb\n    origin=pathlib.Path(pb.__file__).resolve()\n    expected=(source/'agent/prompt_builder.py').resolve()\n    assert origin==expected\n    r['native_loader_origin']=str(origin)\n    r['native_loader_sha256']=hashlib.sha256(origin.read_bytes()).hexdigest()\n    r['native_callable']='agent.prompt_builder.load_soul_md'\n    content=pb.load_soul_md(context_length=None,home_override=home)\n    expected_text=(home/'SOUL.md').read_text().strip()\n    r['returned_exact_soul_strip']=content==expected_text\n    markers=('Honor the latest requested deliverable before acting or delegating.','Delayed child results do not revive stopped work.','developers write and fix product code','independent reviewers assess frozen bytes','QA exercises the affected real artifact after blocking findings clear','these working-style instructions do not guarantee automatic future compliance')\n    r['new_ceiling_and_role_marker_checks']=[bool(content and s in content) for s in markers]\n    r['loaded_soul_sha256']=hashlib.sha256(content.encode()).hexdigest() if content else None\n    r['result']='PASS' if r['returned_exact_soul_strip'] and all(r['new_ceiling_and_role_marker_checks']) and not violations else ('BLOCKED' if violations else 'FAIL')\nexcept BaseException as exc:\n    r['result']='BLOCKED' if violations else 'NOT_RUN'\n    r['exception_type']=type(exc).__name__\n    if isinstance(exc,ModuleNotFoundError): r['missing_module']=exc.name\nr['guard_attempts']=violations\nprint(json.dumps(r))\nsys.exit(0 if r['result']=='PASS' else 3)\n"
+    ],
+    "limits": [
+      "Fresh Python process calls installed native file loader only; no AIAgent/chat/provider/model request or full Hermes CLI startup.",
+      "Proves fresh native SOUL file consumption, not future compliance or live-session prompt reload.",
+      "Python audit hooks are not OS syscall confinement.",
+      "Any guarded attempt remains BLOCKED even if native helper catches PermissionError; parent also retains GUARD event tags."
+    ],
+    "prior_attempts": [
+      {
+        "result": "NOT_RUN",
+        "guard_installed_before_native_imports": true,
+        "flags": {
+          "isolated": 1,
+          "dont_write_bytecode": true
+        },
+        "home_override": "/home/kali/.hermes",
+        "exception_type": "ModuleNotFoundError",
+        "guard_attempts": [],
+        "exit_code": 3,
+        "guard_channel_tags": [],
+        "stderr_not_disclosed": true,
+        "command": [
+          "/home/kali/.hermes/tools/python-3.14.7+20260901-linux-x64/bin/python3",
+          "-I",
+          "-B",
+          "-c",
+          "<guarded native loader code recorded below>"
+        ],
+        "limits": [
+          "Fresh Python process calls installed native file loader only; no AIAgent/chat/provider/model request or full Hermes CLI startup.",
+          "Proves fresh native SOUL file consumption, not future compliance or live-session prompt reload.",
+          "Python audit hooks are not OS syscall confinement.",
+          "Any guarded attempt remains BLOCKED even if native helper catches PermissionError; parent also retains GUARD event tags."
+        ]
+      }
+    ],
+    "inspected_native_loader_origin": "/home/kali/.hermes/hermes-agent/agent/prompt_builder.py",
+    "inspected_native_loader_sha256": "d109f9c08441dcc03cc3d7eb52e489cc0de7a68b25007ec2bcb460b0506f95dd",
+    "inspected_native_function_lines": "1605-1649"
+  },
+  "base_head": "c3bde18efa735d93ab412f846747ad087d62797f",
+  "scope_snapshot_sha256": {
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/SKILL.md": "23a714febdc066dc120625d0f7c0246e84f82fd49b9be68369e87a12fe3eabef",
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/task.md": "54f937e13919604445aef9ced914f82c0f0ffb4abe5ae7f2775e3ef6a6fc5786",
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/team-slice.md": "43b5b4e347084e45780d18b886d173a1c71242db09f3abf19bf3b5735103e92b",
+    "/home/kali/OmnisAI/tests/documentation/test_project_status.py": "368d523eb9561e5dcfe9831cb2c35a438e8cb788abb66eb89b3240dcdbd0c2ae",
+    "/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md": "4188f0c7f819392d109ecd29d5fa5282242f40f9b7758efda42ebf89b9dd6aab",
+    "/home/kali/OmnisAI/documents/verification/p2-c10-session-handoff-20261012.md": "cd93c0dc1b4725d1caf5efb608acce3f2a4874fb3074ad746ad833442675645a",
+    "/home/kali/OmnisAI/documents/verification/implementation-status.md": "74484527dbdc7d4297d8e3af2d1609f31db6608a5d3d15b1bc93bc32ff68c066",
+    "/home/kali/OmnisAI/tools/development/hermes-settings.json": "08b83b76d0f88f1f85f8102bd1c380a585d3039b623b970cf5a7c584468e2292",
+    "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/finite2-coherent-factory-feasibility.json": "eed8ba3f6346f0bdff58f417ea2f60ec89e318daff42bfc4bf6137e64acdbe3c",
+    "/home/kali/.hermes/SOUL.md": "91b0d9f26ec383d5e8054585352accc2731b08947f3f8fe45079dd5b521bb9ce",
+    "/home/kali/.hermes/skills/software-development/development-toolchain-integration/SKILL.md": "28809c46349f86ff595747ce018743ddd2c4bbd6b6794bf21c516b525853cece"
+  },
+  "commands": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat",
+      "exit": 0
+    },
+    {
+      "command": "git diff -- .hermes/skills/omnis-delivery/SKILL.md .hermes/skills/omnis-delivery/templates/task.md .hermes/skills/omnis-delivery/templates/team-slice.md tests/documentation/test_project_status.py documents/verification/p2-c10-session-handoff-20261012.md documents/verification/implementation-status.md tools/development/hermes-settings.json",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I -B -c <targeted global backup deltas, exact manifest, feasibility JSON and material path checks>",
+      "exit": 0
+    }
+  ],
+  "arithmetic_checked": {
+    "graph_plus_complete_preparation": 61346,
+    "aggregate_cap": 65536,
+    "stage": 31432,
+    "stage_cap": 32768
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/handoff-scope-review-bhtxy4fj/report.json"
+  ],
+  "shared_files_modified": [],
+  "unchanged_at_end": {
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/SKILL.md": true,
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/task.md": true,
+    "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/team-slice.md": true,
+    "/home/kali/OmnisAI/tests/documentation/test_project_status.py": true,
+    "/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md": true,
+    "/home/kali/OmnisAI/documents/verification/p2-c10-session-handoff-20261012.md": true,
+    "/home/kali/OmnisAI/documents/verification/implementation-status.md": true,
+    "/home/kali/OmnisAI/tools/development/hermes-settings.json": true,
+    "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/finite2-coherent-factory-feasibility.json": true,
+    "/home/kali/.hermes/SOUL.md": true,
+    "/home/kali/.hermes/skills/software-development/development-toolchain-integration/SKILL.md": true
+  },
+  "backup_sha256": {
+    "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235/SOUL.before.txt": "ff717e38fdf8b724c59458bd9b21487772ef4fbdebf6a7d6cb7ea535dab79f6a",
+    "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235/development-toolchain.before.txt": "d6f3e29531e353f22de4804aca2bd5e032bec50ff526ef51a02b89f20520f570",
+    "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235/transition.json": "3b9bf6b667cc281610c38fa4f7f92c48d23ff9367854d70dbdf0dc38f31243ea"
+  },
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "report_write_note": "Initial write_file update was refused because the read display was treated as partial; original report preserved, then updated with exact-content patch. No shared files changed."
+}

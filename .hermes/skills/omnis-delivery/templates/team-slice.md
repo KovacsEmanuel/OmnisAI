@@ -1,6 +1,8 @@
 # Omnis implementation team — bounded slice contract
 
-Parent/coordinator: owns Git integration, exact shared checkout, resource cleanup and final status. Children never close a gate or commit in the shared checkout.
+Parent/orchestrator: owns current scope, dependency admission, Git integration, resource cleanup and final acceptance; developers own product edits/fixes, reviewers assess frozen bytes, QA runs the affected real artifact. The parent does not become an unannounced parallel developer. Children never close a gate or commit in the shared checkout.
+
+Before dispatch, bind the latest requested deliverable and this session's phase ceiling in the existing task contract. Handoff/prompt-only means no implementation writer or successor launch, even after an option is approved. On a later stop, cancel owned writers and verify actual state before handing off; a delayed completion cannot reopen that phase. QA may preflight existing real inputs/aggregate bounds without effects early, but real-consumer effects wait for the required reviews and authority.
 
 Default: one author plus at least one independent exact-snapshot reviewer. Add roles only for a real decision, independent workstream or affected consumer; agent count is not acceptance evidence.
 

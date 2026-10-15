@@ -31,12 +31,45 @@
       "verification": "CLI readback true; installed native verify_on_stop_enabled returned true; guard actually requested missing-evidence verification in this session."
     }
   ],
-  "unchanged_at_original_setup": ["model/provider/credentials", "approval policy", "delegation limits", "global SOUL.md", "checkpoints configuration", "other profiles"],
+  "unchanged_at_original_setup": [
+    "model/provider/credentials",
+    "approval policy",
+    "delegation limits",
+    "global SOUL.md",
+    "checkpoints configuration",
+    "other profiles"
+  ],
   "limits": [
     "verify_on_stop is a bounded follow-up, not a test runner, hard commit enforcement or guarantee of correctness.",
     "The guard did not recognize unittest discovery as a canonical project command; focused ad-hoc verification was run separately.",
     "An initially refused temporary script write was followed by an empty script run. Its exit 0 is discarded, not evidence. The script was rewritten after readback and rerun with asserted behavior and explicit PASS output.",
     "New project skill discovery needs a session bound to the checkout. Shell cwd alone is insufficient if TERMINAL_CWD still points to the home directory.",
     "Git revert cannot undo profile settings. Execute the listed inverse commands only if the current values still belong to this setup."
-  ]
+  ],
+  "current_deliverable_and_role_boundaries": {
+    "scope": "Active default SOUL and global development-toolchain-integration skill only; project role templates/handoff aligned.",
+    "files": [
+      {
+        "path": "/home/kali/.hermes/SOUL.md",
+        "before_sha256": "ff717e38fdf8b724c59458bd9b21487772ef4fbdebf6a7d6cb7ea535dab79f6a",
+        "backup": "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235/SOUL.before.txt",
+        "rollback": "Restore the exact backup only after matching the recorded post-change hash; do not overwrite later user changes.",
+        "after_sha256": "91b0d9f26ec383d5e8054585352accc2731b08947f3f8fe45079dd5b521bb9ce"
+      },
+      {
+        "path": "/home/kali/.hermes/skills/software-development/development-toolchain-integration/SKILL.md",
+        "before_sha256": "d6f3e29531e353f22de4804aca2bd5e032bec50ff526ef51a02b89f20520f570",
+        "backup": "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235/development-toolchain.before.txt",
+        "rollback": "Restore the exact backup only after matching the recorded post-change hash; do not overwrite later user changes.",
+        "after_sha256": "28809c46349f86ff595747ce018743ddd2c4bbd6b6794bf21c516b525853cece"
+      }
+    ],
+    "apply": "SOUL.md targeted patch; global skill_manage patch to version0.1.24. Existing continuity clauses now subordinate to latest deliverable/stop.",
+    "backup_root": "/home/kali/.hermes/backups/deliverable-scope-8213a8c2b9194751a702bdd8de9a4235",
+    "rollback": "For each listed file: compare current SHA256 to after_sha256, then restore its exact backup; otherwise stop for later user changes. Git revert alone does not restore global files.",
+    "verification": "APPROVED_SCOPED independent review on exact policy/template/current-prompt hashes; no findings. Documentation75PASS4.140s, render check and product-scope diff exit0. Fresh native SOUL loader probe NOT_RUN: isolated process missing ruamel, exit3 before loader; no guarded credential/network/write attempts. No install or extra harness repair; no native-consumption/future-compliance claim.",
+    "limits": "Instruction/configuration correction, not runtime enforcement or a guarantee of future model compliance. No Omnis product implementation or provider/native/PG attempt. Security/approval/hooks/verify-on-stop/model/provider/credentials/other profiles not modified by these operations.",
+    "review_report": "../../documents/verification/p2-bound-predicates-evidence/handoff-scope-global-review.json",
+    "product_stop": "Implementation delegation deleg_ca828368 interrupted; delegate list zero before read-only review, product paths byte-unchanged versus c3bde18. Only a read-only instruction/prompt reviewer was admitted afterward."
+  }
 }

@@ -1,0 +1,72 @@
+{
+  "status": "SOURCE_GREEN_PENDING_PARENT_REVIEW_AND_ONE_INSTALLED_RELEASE",
+  "base": "9f530b4b0a69e0f02eaaf8964aa6079cf694972b",
+  "finding": "STOCK-QA-POST-DRAIN-BASELINE-01",
+  "sha256": {
+    "api/tests/test_contract_method_pg.py": "504e2ff667e2938e470cc67b14b33df86625df60b3dea5cce84de7b642eec05e",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "42a748fc1962eddc35cbf00a6b4ec64dce293d36a43227d4bacb54c587e644ec"
+  },
+  "delta": {
+    "consumer": "Only authentic drain assertion relocated before baseline, immediate runtime.close added, comment added; AST verified all other original consumer statements unchanged.",
+    "tests": "8 parameterized actual caller SOURCE controls + 2 additional existing real SOURCE UDS retirement controls. Original H03 real UDS positive/negative retained. Real generated emit/native_finish/SystemExit(0) writes use owned append FD. Synthetic access rows, substituted drain/offline effects explicitly not native/PG proof.",
+    "selector": "Both source pins final; both reviewed markers None; batch roots stock4 only, consumed startup stock1 unchanged."
+  },
+  "red": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k test_batch2_post_drain_baseline -q --tb=short",
+      "exit": 1,
+      "result": "8 failed, 324 deselected in 2.50s",
+      "log": "post-drain-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"settled_connection_retires_after_offline_readers and batch2\" -q --tb=line",
+      "exit": 1,
+      "result": "1 failed, 1 passed, 332 deselected in 3.69s; real UDS positive H03_RETIREMENT_NOT_SETTLED",
+      "log": "post-drain-uds-red.log"
+    }
+  ],
+  "green": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"post_drain_baseline or settled_connection_retires_after_offline_readers or stock_site_actual_admission_cut or host_diagnostic_actual_finalizer or batch2_observation or bootstrap_phase\" -q --tb=line",
+      "exit": 0,
+      "result": "60 passed, 274 deselected in 9.73s",
+      "log": "post-drain-green.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"test_bootstrap_observer_pre_main_source_boundaries\" -q --tb=line",
+      "exit": 0,
+      "log": "post-drain-observation.log",
+      "result": ".......                                                                  [100%]\n7 passed, 327 deselected in 2.32s"
+    }
+  ],
+  "quality": {
+    "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/mypy-post-drain /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git diff --check",
+    "exit": 0,
+    "result": "All checks passed; 2 files already formatted; Success: no issues found in 2 source files; git diff --check exit0"
+  },
+  "controls": [
+    "normal generated exit included before full baseline",
+    "bad drain refuses before baseline/close/replay",
+    "extra read/PURE/AIAgent during drain refuses before replay through original counters",
+    "extra byte/read/PURE during replay fails unchanged exact equality",
+    "real SOURCE UDS drain/close/offline idle/fresh same-owner Stop/status retirement; original boot/capability unchanged via sanitized guards"
+  ],
+  "unchanged_oracles": [
+    "read2/PURE4/AIAgent2, two threads/overlap, access strictly after commit, all original replay/persistence/census/denials/final observation and teardown checks",
+    "No EXIT filtering, prefix acceptance, baseline replacement after pre-drain validation, new retirement owner, renewed grant or TTL",
+    "Product/image/grants/waiter0.75/lock code unchanged"
+  ],
+  "generated_full_hook_sha256": {
+    "batch": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+    "startup": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e"
+  },
+  "siblings": "H03 already drains/closes before offline readers; startup/Stop-first do not have this offline replay interval; nonbatch historical restart baseline occurs after producer context joined. Those paths unchanged; no unproved fixes.",
+  "first_consumer_proposal": "Parent complementary exact-snapshot reviews/adjudication, then ONE fresh batch2-stock4-batch2-release-first via existing owner/selector. Stop-first only after positive. Review markers remain None; no release authorized or run by this author.",
+  "limits": [
+    "No PG/OCI/native/build/install/provider/target/global/profile effects; SOURCE UDS only",
+    "No stage/commit/push; parent owns integration/docs and complementary review",
+    "Stock3 historical FAIL/teardown UNCERTAIN/fence retained: no exclusive attribution of historical byte difference; original before-bytes absent",
+    "No runtime PASS, P2 closure or product acceptance claimed; canonical not run",
+    "Skill update deferred to parent because author may modify only two specified repository files; suggested lesson: drain then close IPC, then capture and validate full unchanged log before read-only replay."
+  ]
+}

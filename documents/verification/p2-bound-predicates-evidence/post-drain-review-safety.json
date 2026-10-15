@@ -1,0 +1,116 @@
+{
+  "review": "post-drain-focused-safety",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "READ_ONLY_SOURCE_SAFETY_REVIEW; not installed/native acceptance or activation",
+  "base": "9f530b4b0a69e0f02eaaf8964aa6079cf694972b",
+  "sha256": {
+    "api/tests/test_contract_method_pg.py": "504e2ff667e2938e470cc67b14b33df86625df60b3dea5cce84de7b642eec05e",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "42a748fc1962eddc35cbf00a6b4ec64dce293d36a43227d4bacb54c587e644ec"
+  },
+  "findings": [],
+  "decision": "No blocking safety regression identified in this exact drain/close/baseline handoff delta. Preserve all existing fences and require parent adjudication plus actual installed proof separately.",
+  "requirements": [
+    {
+      "requirement": "Authentic drain before normal IPC close, baseline and offline replay",
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "api/tests/test_contract_method_pg.py:8653-8659",
+      "reason": "Strict await runtime.drain() is True precedes close and full byte capture. A False result or exception cannot enter the normal close/baseline/replay path. Exception cleanup remains a distinct finally path, not a successful drain certificate. SOURCE bad-drain trace asserts only drain."
+    },
+    {
+      "requirement": "No hidden late drain accesses",
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "api/tests/test_contract_method_pg.py:8658-8686;2042-2216",
+      "reason": "All post-drain bytes are decoded before the unchanged exact read2/PURE4 enter/end, two-thread/overlap, commit ordering and AIAgent2 counts. Additional read/PURE/agent during drain is rejected before replay. Generated normal-exit records are retained, not filtered."
+    },
+    {
+      "requirement": "No rerun or hidden replay event",
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "api/tests/test_contract_method_pg.py:8689-8722",
+      "reason": "Existing no-exchange/no-build/no-handler guards, persisted correspondence/readback/reconcile/consumption assertions and exact full-byte equality remain unchanged. Appended byte/read/PURE negatives challenge equality; no prefix, EXIT filter or replacement baseline."
+    },
+    {
+      "requirement": "Same-owner fresh retirement after closed offline interval",
+      "status": "PASS_STATIC_SCOPED_WITH_AUTHOR_SOURCE_UDS_EVIDENCE",
+      "evidence": "api/tests/test_contract_method_pg.py:7487-7530;4313-4444",
+      "reason": "Existing retirement helper reconnects the original runtime object when writer is None, requires a fresh drain, closes, stops only its owned CID, verifies exit0/endpoints/process identities/lock, and rejects cleanup_failed/docker_unknown. Extended real SOURCE Host/client UDS control uses 2.7s offline interval and sanitized original boot/capability equality guards; original H03 positive and negative remain. Docker/process effects are substituted in this SOURCE control; no installed retirement certificate is inferred."
+    },
+    {
+      "requirement": "Minimal delta; cleanup and authorization fences retained",
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "git diff plus independent AST comparison",
+      "reason": "Undoing only relocated drain and newly added close makes the entire consumer AST identical to HEAD. No product, image, grants, deadlines, lock behavior, failure cleanup or final observation gate changed."
+    },
+    {
+      "requirement": "Selector remains closed",
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:31-35,53-59,171-189",
+      "reason": "Exact source pins match, BATCH2_REVIEWED and STARTUP_REVIEWED remain None. Batch output leaf is stock4; consumed startup stock1 is unchanged. Existing source/artifact/current-reader hash guards and complementary-review flag guard remain."
+    }
+  ],
+  "independent_verification": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff -- <two scoped files>",
+      "exit": 0,
+      "result": "Expected HEAD; only two tracked modified files; protected preexisting HTML observed by filename only, not read or hashed."
+    },
+    {
+      "command": "git diff --check; git diff --cached --stat; Python hashlib exact two files",
+      "exit": 0,
+      "result": "Diff whitespace clean; no staged changes; both supplied pins match."
+    },
+    {
+      "command": "Python AST compare current consumer against HEAD after reversing exactly drain relocation and added close",
+      "exit": 0,
+      "result": "CONSUMER_REMAINDER_AST_EQUAL True"
+    },
+    {
+      "command": "In-memory selector single-assignment replacement, ast.parse/literal_eval and SHA256; no execution or write",
+      "exit": 0,
+      "result": {
+        "hypothetical_selector_sha256": "77be781fc0a15c0774393a139b3c0b63cccec130071c1f1079e1c064c2621ed0",
+        "startup_reviewed": null
+      }
+    }
+  ],
+  "author_evidence_not_independently_rerun": {
+    "report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/post-drain-baseline-fix-author.json",
+    "source_red": "8 failures plus real SOURCE UDS positive failure; preserved in author report",
+    "source_green": "60 passed plus 7 passed; quality exit0 as reported by author",
+    "parent_focused_12": "Not inspected or credited as completed in this review",
+    "reason_no_rerun": "Parent affected checks already running per delegation; bounded source review does not duplicate them or launch PG/native."
+  },
+  "conditional_flag_shape": {
+    "activated": false,
+    "assignment": "BATCH2_REVIEWED: str | None = \"504e2ff667e2938e470cc67b14b33df86625df60b3dea5cce84de7b642eec05e\"",
+    "post_selector_sha256": "77be781fc0a15c0774393a139b3c0b63cccec130071c1f1079e1c064c2621ed0",
+    "startup_assignment": "STARTUP_REVIEWED: str | None = None",
+    "requirements_before_parent_activation": [
+      "Both independent complementary reviews approve exact current pins",
+      "Parent affected gates PASS after last edit, findings adjudicated and coherent change committed",
+      "Read back exact selector/source and existing artifact/reader pins; ensure ONE fresh stock4 release-first root"
+    ],
+    "conditional_command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --review-adjudicated",
+    "execution_limit": "ONE release-first only through existing owner/selector. Stop-first requires separate admission after positive. This report grants neither activation nor execution.",
+    "correction": "The in-memory replacement was parsed and both review-marker values verified; its SHA agrees with the initial calculation. No selector bytes were written."
+  },
+  "limits": [
+    "Static focused safety approval only; no independent SOURCE tests or full PG/OCI/native run by reviewer.",
+    "Prior stock3 full case remains FAIL and final retirement UNCERTAIN; observed physical absence cannot certify it. Original before-bytes missing, so exact historical byte difference and exclusive cause remain UNKNOWN.",
+    "SOURCE generated emit/native_finish(SystemExit(0)) establishes a legitimate append mechanism, not a retrospective installed diagnosis or new native PASS.",
+    "No edit/stage/commit/push to repository; no protected HTML read/hash; no credentials/profile/provider/target/build/install/PG/OCI/native effects.",
+    "No global review restart or reopening unchanged acceptance; B06b/G02/P2/P4a-minim remain unclosed.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "One discovery search used nonexistent runtime/ path; corrected to api/src/omnis/supervisor/runtime_client.py, no execution effects.",
+    "No skill change in read-only scope; existing settled-IPC lesson already covers same-owner reconnect, parent may add post-drain full-log baseline nuance."
+  ],
+  "proposed_status_delta": {
+    "code": "HANDOFF_FIX_PRESENT_UNCOMMITTED",
+    "proof": "AUTHOR_SOURCE_GREEN; INSTALLED_NEW_CASE_NOT_RUN",
+    "review": "APPROVED_SCOPED_SAFETY; complementary adjudication parent-owned",
+    "next": "Parent gates/adjudication/commit; only then separately bounded fresh release-first admission"
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/post-drain-review-safety.json"
+  ],
+  "repository_files_modified": []
+}

@@ -2039,6 +2039,183 @@ def batch2_observation_exit(observation: Path, stop_first: bool) -> None:
     invoke()
 
 
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "none",
+        "bad-drain",
+        "drain-read",
+        "drain-pure",
+        "drain-agent",
+        "replay-append",
+        "replay-read",
+        "replay-pure",
+    ],
+)
+def test_batch2_post_drain_baseline(tmp_path: Path, fault: str) -> None:
+    """Actual caller order/counts/equality and generated finish; no PG/native.
+
+    Only drain/IPC and offline reader effects are substituted. Normal exit writes
+    use the real generated emitter/finish on an owned append FD, not invented EXITs.
+    """
+    import ast
+    import threading
+    from types import SimpleNamespace
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    branch = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.If)
+        and any(isinstance(s, ast.FunctionDef) and s.name == "no_batch_rerun" for s in n.body)
+    )
+    start = (
+        next(
+            i
+            for i, n in enumerate(branch.body)
+            if isinstance(n, ast.Assert)
+            and ast.unparse(n.test) == "await mission_census() == batch2_census"
+        )
+        + 1
+    )
+    end = (
+        next(
+            i
+            for i, n in enumerate(branch.body[start:], start)
+            if isinstance(n, ast.Assert)
+            and ast.unparse(n.test) == "observation.read_bytes() == native_before"
+        )
+        + 1
+    )
+    body = deepcopy(branch.body[start:end])
+    replay_index = next(i for i, n in enumerate(body) if isinstance(n, ast.With))
+    body[replay_index] = ast.Expr(
+        value=ast.Await(
+            value=ast.Call(func=ast.Name(id="offline_replay", ctx=ast.Load()), args=[], keywords=[])
+        )
+    )
+    cut = ast.AsyncFunctionDef(
+        name="cut",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        body=body,
+        decorator_list=[],
+    )
+    path = tmp_path / "observation.jsonl"
+    rows: list[dict[str, object]] = [
+        {"test": "run_contract", "status": "REAL_AIAgent", "count": 1} for _ in range(2)
+    ]
+    for operation, rounds in (("_read_bound_input", 1), ("run_handler", 2)):
+        for iteration in range(rounds):
+            for edge, clock in (("ENTER", 10), ("END", 20)):
+                for thread in (1, 2):
+                    rows.append(
+                        {
+                            "test": "batch2-access",
+                            "status": edge,
+                            "count": 1,
+                            "operation": operation,
+                            "thread": thread,
+                            "clock_ns": clock + thread + iteration * 20,
+                        }
+                    )
+    path.write_bytes(b"".join(canonical(row) + b"\n" for row in rows))
+    path.chmod(0o600)
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+    generated = ast.parse(batch2_native_observer(startup=False))
+    hooks: list[ast.stmt] = [
+        n
+        for n in generated.body
+        if isinstance(n, ast.FunctionDef) and n.name in {"emit", "native_finish"}
+    ]
+    assert len(hooks) == 2
+    namespace: dict[str, object] = {
+        "os": os,
+        "json": json,
+        "startup": False,
+        "evidence_fd": fd,
+        "emit_lock": threading.Lock(),
+        "emit_thread": threading.local(),
+    }
+    exec(compile(ast.Module(body=hooks, type_ignores=[]), "<generated-finish>", "exec"), namespace)
+    exec("emit.events = 0\nemit.bytes = 0", namespace)
+    finish = cast(Callable[[BaseException], None], namespace["native_finish"])
+    trace: list[str] = []
+
+    def read_bytes() -> bytes:
+        trace.append("baseline" if "baseline" not in trace else "compare")
+        return path.read_bytes()
+
+    def append_access(kind: str) -> None:
+        row = (
+            rows[0]
+            if kind == "agent"
+            else next(
+                r
+                for r in rows
+                if r.get("operation") == ("_read_bound_input" if kind == "read" else "run_handler")
+            )
+        )
+        with path.open("ab") as stream:
+            stream.write(canonical(row) + b"\n")
+
+    async def drain() -> bool:
+        trace.append("drain")
+        if fault == "bad-drain":
+            return False
+        if fault.startswith("drain-"):
+            append_access(fault.removeprefix("drain-"))
+        finish(SystemExit(0))
+        return True
+
+    async def close() -> None:
+        trace.append("close")
+
+    async def offline_replay() -> None:
+        trace.append("replay")
+        if fault == "replay-append":
+            with path.open("ab") as stream:
+                stream.write(b"\n")
+        elif fault.startswith("replay-"):
+            append_access(fault.removeprefix("replay-"))
+
+    namespace.update(
+        runtime=SimpleNamespace(drain=drain, close=close),
+        observation=SimpleNamespace(read_bytes=read_bytes),
+        committed_ns=1,
+        offline_replay=offline_replay,
+    )
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[cut], type_ignores=[])),
+            "<actual-batch2-post-drain>",
+            "exec",
+        ),
+        namespace,
+    )
+    invoke = cast(Callable[[], Coroutine[object, object, None]], namespace["cut"])
+    try:
+        if fault == "none":
+            asyncio.run(invoke())
+        else:
+            with pytest.raises(AssertionError):
+                asyncio.run(invoke())
+        if fault == "bad-drain":
+            assert trace == ["drain"]
+        elif fault.startswith("drain-"):
+            assert trace == ["drain", "close", "baseline"]
+        else:
+            assert trace == ["drain", "close", "baseline", "replay", "compare"]
+        if fault != "bad-drain":
+            actual = [json.loads(line) for line in path.read_bytes().splitlines() if line]
+            assert {"test": "bootstrap-exit", "status": "NORMAL_SYSTEM_EXIT", "count": 1} in actual
+            assert {"test": "observer", "status": "EXIT", "count": 1} in actual
+    finally:
+        if namespace["evidence_fd"] != -1:
+            os.close(fd)
+
+
 @pytest.mark.parametrize("live_counts", [(1,), (0, 1), (0,), (2,)])
 def test_batch2_waiter_refreshes_local_snapshot(live_counts: tuple[int, ...]) -> None:
     """SOURCE only: real helper, PG-measured transaction-local activity cache double."""
@@ -4133,9 +4310,10 @@ def test_qa_offline_idle_channel_real_uds(monkeypatch: pytest.MonkeyPatch, relea
     asyncio.run(run())
 
 
+@pytest.mark.parametrize("batch2", [False, True], ids=["h03", "batch2"])
 @pytest.mark.parametrize("valid_drain", [True, False])
 def test_h03_settled_connection_retires_after_offline_readers(
-    monkeypatch: pytest.MonkeyPatch, valid_drain: bool
+    monkeypatch: pytest.MonkeyPatch, valid_drain: bool, batch2: bool
 ) -> None:
     """Actual caller AST + SOURCE Host/client UDS; no native, DB or Docker launch."""
     import ast
@@ -4171,6 +4349,22 @@ def test_h03_settled_connection_retires_after_offline_readers(
         body=readers.body[start:end],
         decorator_list=[],
     )
+    if batch2:
+        branch = next(
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.If)
+            and any(isinstance(s, ast.FunctionDef) and s.name == "no_batch_rerun" for s in n.body)
+        )
+        settle.body = [
+            n
+            for n in branch.body
+            if isinstance(n, (ast.Assert, ast.Expr))
+            and (
+                "await runtime.drain()" in ast.unparse(n)
+                or "await runtime.close()" in ast.unparse(n)
+            )
+        ]
 
     async def run() -> None:
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="h03-") as name:
@@ -4220,19 +4414,25 @@ def test_h03_settled_connection_retires_after_offline_readers(
                 )
                 try:
                     await runtime.connect()
+                    original_identity = (runtime.boot, runtime.capability)
                     assert (await runtime.status())["drained"] is True
                     if not valid_drain:
                         runtime.capability = "invalid-synthetic-capability"
                         with pytest.raises(
-                            AssertionError, match="^H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN$"
+                            AssertionError,
+                            match=None if batch2 else "^H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN$",
                         ):
                             await settle_call()
                         assert "h03_last_retirement" not in proof
                         return
                     await settle_call()
+                    if (runtime.boot, runtime.capability) != original_identity:
+                        raise AssertionError("SETTLED_OWNER_IDENTITY_CHANGED")
                     # Same offline interval that lets the unchanged Host idle timer fire.
                     await asyncio.sleep(2.7)
                     await retire_call()
+                    if (runtime.boot, runtime.capability) != original_identity:
+                        raise AssertionError("RETIRED_OWNER_IDENTITY_CHANGED")
                     assert runtime.writer is None and not any(flags.values())
                     assert proof["h03_last_retirement"] == (
                         "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE"
@@ -8451,6 +8651,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             held=True,
                         )
                     assert await mission_census() == batch2_census
+                    assert await runtime.drain() is True
+                    # Settle the whole observation channel before validating it;
+                    # offline readers must not retain an idle IPC connection.
+                    await runtime.close()
                     native_before = observation.read_bytes()
                     events = [json.loads(line) for line in native_before.splitlines()]
                     access = [e for e in events if e["test"] == "batch2-access"]
@@ -8481,7 +8685,6 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         )
                         == 2
                     )
-                    assert await runtime.drain() is True
 
                     def no_batch_rerun(*args: object, **kwargs: object) -> object:
                         raise AssertionError("BATCH2_REEXECUTION_FORBIDDEN")

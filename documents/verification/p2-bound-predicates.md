@@ -8,7 +8,13 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
-## CURRENT — batch2 executat/persistat; FAIL la baseline-ul logului pre-drain, remediu de ordine
+## CURRENT — post-drain baseline aprobat SOURCE; o release-first stock4 după commit/binding
+
+[Autor](p2-bound-predicates-evidence/post-drain-baseline-fix-author.json), [review normativ](p2-bound-predicates-evidence/post-drain-review-normative.json) și [safety](p2-bound-predicates-evidence/post-drain-review-safety.json) adjudecate pe caller`504e2ff667e2938e470cc67b14b33df86625df60b3dea5cce84de7b642eec05e`, selector închis`42a748fc1962eddc35cbf00a6b4ec64dce293d36a43227d4bacb54c587e644ec`: **APPROVED_SCOPED**, fără findings noi. Drain strict→close→capture integrală→toate contoarele/overlap→replay→egalitate byte-exact; fără evenimente ascunse sau extra acces permis. Restul consumerului/finalizerului identic AST. RED8FAIL și UDS1FAIL→autor60+7PASS/quality0; **parent12PASS7.19s**, inclusiv UDS real fără native. Reviewerii au verificat static, fără pytest revendicat. STOCK-QA-POST-DRAIN-BASELINE-01 CLOSED_SOURCE_SCOPED; noua probă instalată NOT_RUN.
+
+Admitere după commit: numai BATCH2_REVIEWED=504e2ff6…2eec05e, selector activ reviewuit`77be781fc0a15c0774393a139b3c0b63cccec130071c1f1079e1c064c2621ed0`, **ONE release-first** pe `batch2-stock4-batch2-release-first` fresh; STARTUP None. Stop-first numai după pozitiv adjudecat. Se păstrează dovezile parțiale reale stock3 și FAIL/UNCERTAIN/fence, fără rescriere retroactivă sau reset de contor.
+
+### Stock3 și mecanismul baseline-ului păstrate
 
 [Stock3 release](p2-bound-predicates-evidence/stock-release3-independent-qa.json) pe `09a060c`: **1failed+1teardown36.66s/exit1/drained**, o singură tentativă. Waiter RELEASE_FIRST observat, binding integral verificat pe altă conexiune înainte de dispatch, **2AIAgent/read2/PURE4 cu overlap real** și acces după commit. Readerii instalați au produs2results/2checks COMPLETE/2inbox, consum0→2→2 și reconcile identic; parent a recitit separat cele trei ieșiri reale. Final27739/stage32434/graph+prep63973 în capuri. Nu PASS funcțional fără oracle. Cazul rămâne FAIL la `observation.read_bytes()==native_before` după replay (:8519), final retirement UNCERTAIN și fence păstrat. Parent exactCID/PID/endpoints absente, receipt typed1/drained și PGDATA păstrat. BATCH2 revocat, stock3release consumat, Stop-first NOT_RUN.
 

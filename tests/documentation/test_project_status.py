@@ -153,12 +153,13 @@ class ProductDeliveryFocusTests(unittest.TestCase):
                 self.assertTrue("CONTRIBUTING.md" in text, "Missing execution contract link: " + name)
                 self.assertTrue("Execuție orientată spre produs" in text, "Missing execution contract: " + name)
 
-    def test_active_p2_prompt_starts_at_the_blocker_and_has_finite_exit(self):
-        path = ROOT / "documents/verification/p2-c10-session-handoff-20261012.md"
-        text = path.read_text(encoding="utf-8")
-        prompt = text.split("### Prompt scurt actual pentru sesiunea nouă", 1)[1]
-        prompt = prompt.split("```text\n", 1)[1].split("```", 1)[0]
-        for marker in ("INPUT-M2-F01", "cerință → consumer → risc → decizie",
+    def test_active_p2_prompt_has_fresh_session_ceiling_and_finite_exit(self):
+        path = ROOT / "documents/verification/p2-next-session-implementation.md"
+        prompt = path.read_text(encoding="utf-8")
+        for marker in ("DOAR ÎN SESIUNEA FRESH", "HANDOFF_ONLY",
+                       "orchestrator", "dezvoltator", "reviewer", "QA",
+                       "finite2-coherent-factory-feasibility.json",
+                       "cerință → consumer → risc → decizie",
                        "preflight fără efecte", "Nu porni un verifier pentru verifier",
                        "Nu preda după fiecare fix", "BLOCKED/NOT_RUN",
                        "P2-inert", "P4a-minim", "P2-live"):

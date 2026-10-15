@@ -794,7 +794,9 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     record(usage, "model-usage-receipt")
                     retained = canonical(graph)
                     try:
-                        ledger = await budgets.readback(connection, owner, usage_refs["dispatch_ref"])
+                        ledger = await budgets.readback(
+                            connection, owner, usage_refs["dispatch_ref"]
+                        )
                         assert ledger["state"] == "SETTLED"
                         assert ledger["charged_output_tokens"] == (
                             1 if protocol_case == "usage_tokens" else 0
@@ -824,6 +826,68 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     finally:
                         usage.clear()
                         usage.update(original_usage)
+                if protocol_case == "configuration_payload":
+                    from omnis.modules.runs import model_protocol
+                    from omnis.modules.tasks.managed_contract import record
+
+                    command_dto = NativeTaskCommand.model_validate(protocol_command)
+                    configuration_refs = await model_protocol.replay(connection, command_dto)
+                    assert configuration_refs is not None
+                    configuration_receipt = next(
+                        r for r in graph if r["kind"] == "model-configuration-receipt"
+                    )
+                    protocol_receipt = next(
+                        r for r in graph if r["kind"] == "model-protocol-receipt"
+                    )
+                    originals = [(r, dict(r)) for r in (configuration_receipt, protocol_receipt)]
+                    configuration_receipt["payload"] = {
+                        **mapping(configuration_receipt["payload"]),
+                        "inference_authorized": True,
+                    }
+                    configuration_receipt["digest"] = sha256(
+                        canonical({k: v for k, v in configuration_receipt.items() if k != "digest"})
+                    ).hexdigest()
+                    protocol_body = mapping(protocol_receipt["payload"])
+                    protocol_receipt["payload"] = {
+                        **protocol_body,
+                        "model_admission": {
+                            **mapping(protocol_body["model_admission"]),
+                            "configuration_receipt_ref": records.reference(configuration_receipt),
+                        },
+                    }
+                    protocol_receipt["digest"] = sha256(
+                        canonical({k: v for k, v in protocol_receipt.items() if k != "digest"})
+                    ).hexdigest()
+                    record(configuration_receipt, "model-configuration-receipt")
+                    record(protocol_receipt, "model-protocol-receipt")
+                    retained = canonical(graph)
+                    try:
+                        with monkeypatch.context() as mutation:
+                            mutation.setattr(
+                                managed_store, "put", AsyncMock(side_effect=AssertionError("write"))
+                            )
+                            mutation.setattr(
+                                service,
+                                "native_preparation_commit",
+                                Mock(side_effect=AssertionError("replay fence")),
+                            )
+                            mutation.setattr(
+                                service,
+                                "runtime_authority",
+                                AsyncMock(side_effect=AssertionError("replay grant")),
+                            )
+                            with pytest.raises(CatalogError, match="MODEL_RECEIPT_CONFLICT"):
+                                await model_protocol.readback(
+                                    connection, consumer, command_dto, configuration_refs
+                                )
+                            with pytest.raises(CatalogError, match="TASK_REJECTED"):
+                                await control_task(root, protocol_command)
+                        if canonical(graph) != retained:
+                            raise AssertionError("readback mutated retained records")
+                    finally:
+                        for changed, original_record in originals:
+                            changed.clear()
+                            changed.update(original_record)
                 if protocol_case == "receipt_extra":
                     receipt = next(r for r in graph if r["kind"] == "model-protocol-receipt")
                     original_receipt = dict(receipt)
@@ -912,6 +976,15 @@ async def test_protocol_replay_rejects_resealed_usage_contradiction(
 ) -> None:
     await test_qualified_projection_reaches_cold_admission_without_model_reservation(
         tmp_path, monkeypatch, protocol_mode=True, protocol_case=case
+    )
+
+
+@pytest.mark.asyncio
+async def test_protocol_replay_rejects_resealed_configuration_contradiction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case="configuration_payload"
     )
 
 

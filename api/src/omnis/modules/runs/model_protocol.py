@@ -451,9 +451,18 @@ async def readback(
             for k in ("provenance", "request_id", "body_digest", "frame_digest", "admitted_caps")
         ):
             raise CatalogError("MODEL_RECEIPT_CONFLICT")
-        await store.get(
+        from omnis.policy.model_configuration import configuration_payload
+
+        configuration = await store.get(
             conn, command.owner_id, text(body["run_id"]), admission["configuration_receipt_ref"]
         )
+        expected_configuration = configuration_payload(
+            mapping(mapping(body["prepared"])["payload"]), accepted["source_configuration"]
+        )
+        if canonical(record(configuration, "model-configuration-receipt")["payload"]) != canonical(
+            expected_configuration
+        ):
+            raise CatalogError("MODEL_RECEIPT_CONFLICT")
     elif receipts:
         raise CatalogError("MODEL_RECEIPT_CONFLICT")
     return {

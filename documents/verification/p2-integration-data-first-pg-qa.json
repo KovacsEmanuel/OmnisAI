@@ -1,0 +1,718 @@
+{
+  "schema_version": 1,
+  "report_id": "DATA_ADMISSION_INDEPENDENT_PG_UDS_QA_SINGLE_ATTEMPT",
+  "status": "PASS_SCOPED_QA_NOT_INTEGRATION_ACCEPTANCE",
+  "created_at_utc": "2026-10-15T20:51:00.871138+00:00",
+  "scope": {
+    "authorized": "Independent single-attempt QA of existing test-model-admission-pg target after fixes and complementary focused reviews; nominal/Stop-first/send-first plus unchanged target regressions, exact owned-resource readback, then STOP.",
+    "effectful_gate_attempts": 1,
+    "second_attempt": false,
+    "implementation": false,
+    "integration_closed": false,
+    "successor_scope_started": false,
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Qualified-publication/configuration -> reserve COMMIT -> independent SENT COMMIT before exact frozen writer.write -> real UDS NO_MODEL -> correlated accounting/readback; Stop-first no send and send-first real PG blocking until finite transport completion.",
+    "consumer": "Existing NativeTaskCommand/control_task/LocalControl -> NativeTaskOwner -> ModelDispatch/model_protocol/budgets -> RuntimeClient.exchange_frozen; existing private PG runner.",
+    "risk": "False-green from mocked storage, event-only ordering, uncommitted SENT, reserialized/foreign frame, send beyond Stop barrier, fabricated accounting or unresolved cleanup.",
+    "decision": "Run existing complete target once on final reviewed source; PASS is scoped evidence for parent adjudication only, failure would preserve/locate and stop without retry."
+  },
+  "repository": {
+    "path": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "entry_product_head": "75c6fabdd1d692d49e4e5e2cd8c001907e638085",
+    "final_observed_head": "306db19097bbac400c688038265a18f04c857d47",
+    "parent_only_change_during_qa": {
+      "commit": "306db19097bbac400c688038265a18f04c857d47",
+      "paths": [
+        "documents/verification/p2-integration-b06cm.md",
+        "documents/verification/p2-integration-data-fixes-author.json",
+        "documents/verification/p2-integration-data-rereview-norm.json",
+        "documents/verification/p2-integration-data-rereview-safety.json"
+      ],
+      "source_changed": false
+    },
+    "agent_repo_writes": [],
+    "agent_staging_or_commits": false,
+    "tracked_worktree_diff_after": "EMPTY",
+    "git_diff_check_exit": 0,
+    "preexisting_untracked_protected_html": "documents/Omnis_Notite_Originale.html; NOT_READ_HASHED_EDITED_STAGED_DELETED",
+    "source9_before": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "source9_after": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "source9_match": true,
+    "oracle_source_hashes": {
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+      "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+      "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+      "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799"
+    }
+  },
+  "prerequisites": {
+    "status": "PASS",
+    "reused_unchanged_parent_preflight": {
+      "path": "/home/kali/.hermes/cache/scratch/da-qa-z2mmr9pj/preflight.json",
+      "toolchain": "PASS",
+      "runner_help_exit": 0,
+      "python_api_cli": "3.13.15",
+      "uv": "0.12.19",
+      "node": "24.21.0",
+      "npm": "11.19.0",
+      "postgres_image_pin": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
+    },
+    "own_preflight": {
+      "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/preflight.json",
+      "sha256": "61c872e49e4d8bef7efed2a1370e94c49b58ee7d12f18008409c4a6c6dbbfcb6"
+    },
+    "source_imports": {
+      "fixtures.c03_records": "/home/kali/OmnisAI/api/tests/fixtures/c03_records.py",
+      "fixtures.c03_journey": "/home/kali/OmnisAI/api/tests/fixtures/c03_journey.py",
+      "fixtures.b06b_publication.consumer": "/home/kali/OmnisAI/api/tests/fixtures/b06b_publication/consumer.py",
+      "fixtures.b06b_pure_probe.consumer": "/home/kali/OmnisAI/api/tests/fixtures/b06b_pure_probe/consumer.py",
+      "omnis_hermes.model_admission": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/model_admission.py",
+      "test_model_admission_pg": "/home/kali/OmnisAI/api/tests/test_model_admission_pg.py",
+      "test_native_task_client": "/home/kali/OmnisAI/api/tests/test_native_task_client.py",
+      "psycopg": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/psycopg/__init__.py",
+      "sqlalchemy": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/sqlalchemy/__init__.py"
+    },
+    "fixture_input_access": [
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/SKILL.md",
+        "readable": true,
+        "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/omnis.yaml",
+        "readable": true,
+        "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/NOTICE.md",
+        "readable": true,
+        "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/references/methodology.md",
+        "readable": true,
+        "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/procedures/map-records.yaml",
+        "readable": true,
+        "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/records.schema.json",
+        "readable": true,
+        "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/operations.schema.json",
+        "readable": true,
+        "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/surface_map.schema.json",
+        "readable": true,
+        "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f"
+      },
+      {
+        "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/empty.schema.json",
+        "readable": true,
+        "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590"
+      },
+      {
+        "path": "/home/kali/OmnisAI/profiles/records-mapping-contract.yaml",
+        "readable": true,
+        "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd"
+      }
+    ],
+    "publication_cli_help_exit": 0,
+    "native_export_or_PIN_required": false,
+    "native_launch": false,
+    "tmpdir_mode": "0o700",
+    "pg_uds_path_bytes": 85,
+    "reviews": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/dn-ghqx13e4/review.json",
+        "sha256": "d00689cb30d8f1861135af67c57ba98781cf3ef82e5a1e2b5f2bfc3bbe2492f3",
+        "verdict": "APPROVED_SCOPED",
+        "new_findings": []
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/dsr-23l9lkgk/review.json",
+        "sha256": "f4103fdf2319b1a67fb481970f2dc81f27d1bd222f3b1b0c611c35ae5a2ffd49",
+        "verdict": "APPROVED_SCOPED",
+        "new_findings": []
+      }
+    ],
+    "source_author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/report.json",
+      "sha256": "890d120a4c45b3840f5b665b9cfd8e145519188d8c51d1036b37e2ec3a0b319c",
+      "role": "9 final SOURCE hash authority; prior SOURCE/quality evidence reused, not a new QA result."
+    }
+  },
+  "execution": {
+    "original_command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "cwd": "/home/kali/OmnisAI",
+    "effectful_check": true,
+    "environment_policy": "env -i, umask 077; runner sanitizes child environment through existing _gate_environment",
+    "environment": {
+      "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+      "HOME": "/home/kali",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr"
+    },
+    "outer_stdout_stderr": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/outer.log",
+    "terminal_mode": "tracked background; notify=true requested; no foreground timeout kill",
+    "process_session_id": "proc_80484b44e9f5",
+    "runner_pid": 327839,
+    "process_manage_readback": {
+      "action": "wait",
+      "session_id": "proc_80484b44e9f5",
+      "status": "exited",
+      "exit_code": 0,
+      "completion_reason": "exited",
+      "termination_source": ""
+    },
+    "gate_budget_seconds": 600,
+    "outer_exit_code": 0,
+    "gate_receipt": {
+      "artifact": {
+        "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/gate.log.result.json",
+        "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+        "size": 56,
+        "mode": "0o600",
+        "uid": 1000
+      },
+      "value": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "strict_schema_valid": true
+    },
+    "exact_executed_pytest_command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py -q --tb=line",
+    "selection_unchanged": true,
+    "collection": {
+      "exit": 0,
+      "count": 72,
+      "per_file": {
+        "tests/test_model_admission.py": 35,
+        "tests/test_model_admission_pg.py": 4,
+        "tests/test_model_budget.py": 23,
+        "tests/test_model_budget_pg.py": 10
+      },
+      "nodes": [
+        "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+        "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+        "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+        "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+        "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+        "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+        "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+        "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+        "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+        "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+        "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+        "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+        "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+        "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+        "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+        "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+        "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+        "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+        "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+        "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+        "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+        "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+        "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+        "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+        "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+        "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+        "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+        "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+        "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+        "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+        "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+        "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+        "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+        "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+        "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+        "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+        "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+        "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+        "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+        "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+        "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+        "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+        "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+        "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+        "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+        "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+      ],
+      "duration_seconds": 0.5,
+      "log": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/collect.log",
+      "sha256": "8105fea9ab94183844fe52252d98a78d3cf327cd842d5b60652181f7eebf4831"
+    },
+    "results": {
+      "passed": 72,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0,
+      "elapsed_pytest_seconds": 143.4,
+      "pg_tests": 14,
+      "source_tests": 58,
+      "per_file": {
+        "tests/test_model_admission.py": 35,
+        "tests/test_model_admission_pg.py": 4,
+        "tests/test_model_budget.py": 23,
+        "tests/test_model_budget_pg.py": 10
+      },
+      "summary": [
+        "72 passed in 143.40s (0:02:23)"
+      ],
+      "progress_dots": 72,
+      "all_collected_nodes_accounted": true,
+      "node_status_evidence": "Exact Makefile pytest invocation matched; all 72 collected nodes are accounted by 72 pass dots/72 passed, no deselection or skip. No per-node timing/JUnit or raw PG PID trace was added."
+    }
+  },
+  "scenarios": [
+    {
+      "name": "nominal",
+      "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "status": "PASS",
+      "evidence": [
+        "Real capture/review/freeze/STATIC+PURE qualification/confirmation/publication and source execution selection precede persistent explicit DATA/configuration.",
+        "NativeTaskCommand -> control_task -> real LocalControl UDS -> NativeTaskOwner -> ModelDispatch/model_protocol -> ledger reserve COMMIT.",
+        "Observer C is a distinct autocommit psycopg connection: mandatory SENT row and correlated descriptor read occurs inside writer.write wrapper before delegating the actual bytes.",
+        "Exactly one SENT observation; whole frozen frame SHA, actual serialized body SHA and exact body, request ID and admitted caps agree with the persisted descriptor.",
+        "Real RuntimeClient frozen exchange over UDS to explicitly synthetic cold-preflight peer; SETTLED/KNOWN, protocol_calls=1, output_tokens=0, model_calls=0.",
+        "Stop then repeated receive-only control reply and fresh-engine model_protocol.readback equal original accounting; wire count remains one."
+      ],
+      "oracle": "api/tests/test_model_admission_pg.py:507-765, branch 674-675; shared assertions 628-651,716-765"
+    },
+    {
+      "name": "Stop-first",
+      "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "status": "PASS",
+      "evidence": [
+        "Actual reserve transaction context has exited/committed before reserved event.",
+        "Stop acquires actual Instance/lease rows; observed blocker backend PID is captured from that connection.",
+        "Independent observer clears local statistics snapshot then requires exactly one other PostgreSQL backend blocked by that PID via pg_blocking_pids and instance_control FOR UPDATE; both sender and Stop tasks remain unfinished.",
+        "No frame and no SENT observation while Stop holds the lock. Releasing Stop commits revocation; sender refuses.",
+        "Post-Stop replay is RELEASED/UNKNOWN, protocol_calls=0, output_tokens=null, model_calls=0. Ledger history contains no SENT; exact wire count remains zero.",
+        "Repeated control replay and fresh-engine reader preserve accounting without send."
+      ],
+      "oracle": "api/tests/test_model_admission_pg.py:558-583,658-736,746-765"
+    },
+    {
+      "name": "send-first",
+      "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "status": "PASS",
+      "evidence": [
+        "A barrier captures its actual backend PID; independent SENT COMMIT observation precedes exact actual writer.write.",
+        "Synthetic peer receives the actual frame and holds finite ACK; Stop is launched during this genuine transport interval.",
+        "Same pg_stat_clear_snapshot/pg_blocking_pids/instance_control FOR UPDATE oracle requires exactly one other blocked backend, with sender and Stop both unfinished.",
+        "Only after the genuine PostgreSQL waiter is observed is ACK released; sender finishes and Stop subsequently finishes within existing bounds.",
+        "Post-Stop receive-only reply is SETTLED/KNOWN, protocol_calls=1, output_tokens=0, model_calls=0, exactly one wire frame; repeated control/fresh-engine readback equal accounting."
+      ],
+      "oracle": "api/tests/test_model_admission_pg.py:558-566,614-651,658-715,737-765"
+    }
+  ],
+  "regressions": {
+    "nodes": [
+      "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+      "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+      "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+      "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+      "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+      "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+      "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+      "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+      "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+      "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+      "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+      "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+      "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+      "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "status": "ALL_PASS_IN_SAME_TARGET",
+    "source_not_pg_limits": "EOF/invalid ACK/timeout/cancel/before-SENT, frozen abort at A-exit, resealed usage/configuration refusals, command expansion/caps and SOURCE budget contracts remain SOURCE-scoped. Real budget PG regression nodes test persistent ledger ownership/history/restart reader, overlapping capacity/duplicate/conflict/release-send, isolation and receipt reuse. They do not establish all deferred cases at the new protocol consumer.",
+    "standalone_test_native_task_client_suite": "Not selected by this target; imported peer helper used. Existing author/reviewer client-suite evidence not relabeled as this QA."
+  },
+  "evidence_semantics": {
+    "real": [
+      "PostgreSQL 18.6 private no-network cluster with authenticated UDS and attested system identifier",
+      "Per-test migration and real SQL transactions/row locking",
+      "First-party qualification/publication and source library access",
+      "Explicit source configuration and durable DATA selection/projection/approval",
+      "Real private LocalControl and RuntimeClient UDS transports",
+      "Pre-write independent PostgreSQL connection C reads and exact frozen-frame/body checks",
+      "Mandatory real pg_blocking_pids waiter assertions in both Stop orderings",
+      "Post-Stop receive-only replay and separate-engine readback"
+    ],
+    "synthetic": [
+      "Native identities/binding/preparation seed",
+      "Explicit synthetic operator DATA classification",
+      "Cold-preflight peer and source configuration adapter; no actual native agent or model"
+    ],
+    "pg_waiter_evidence": {
+      "both_orderings": "PASS via required observed PostgreSQL blockers, not asyncio event ordering alone",
+      "source_location": "api/tests/test_model_admission_pg.py:658-707",
+      "raw_waiter_pids_persisted": false,
+      "limitation": "PIDs and full frames were in memory; recorded evidence binds passed assertions to source hash and complete target execution rather than an additional observer or raw trace."
+    },
+    "frame_handling": "Private complete RPC frame stays in memory; not logged or persisted by QA; no capability/DSN/private receipt contents exported."
+  },
+  "resources": {
+    "exclusive_owner": "Existing fresh ops/run_test_db_gate.py owner and its dedicated subprocess subreaper; no adopted historical fixture",
+    "tmpdir": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr",
+    "fixture": {
+      "artifact": {
+        "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/fixture.json",
+        "sha256": "3de7111731812222b9d17b73c34422f7198d92c28cb0dfb973056e92d7eeb62b",
+        "size": 469,
+        "mode": "0o600",
+        "uid": 1000
+      },
+      "public_fields": {
+        "container_id": "05da4eafd10d2ec6197d3692147303e2a96f1cfc8ec6c656a73c1ab8a71fb5e0",
+        "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "docker_endpoint": "unix:///run/docker.sock",
+        "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "project": "omnis-p01-4a2f36cc1ead4f86a991e8623030e7cd",
+        "root": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24",
+        "schema_version": 1,
+        "system_identifier": "7696998603650695198"
+      },
+      "strict_schema_valid": true
+    },
+    "pgdata": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker",
+    "socket_directory": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/socket",
+    "logs": {
+      "outer": {
+        "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/outer.log",
+        "sha256": "a03d708b31298311a7a391987074411a5fa18f3be70a8a6c35585615e198fd8c",
+        "size": 877,
+        "mode": "0o600",
+        "uid": 1000
+      },
+      "gate": {
+        "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/gate.log",
+        "sha256": "b1181f301304829ad7e6233b7e5a2de24f63e9f561ddef78b914d945fb460d75",
+        "size": 463,
+        "mode": "0o600",
+        "uid": 1000
+      },
+      "collection": {
+        "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/collect.log",
+        "sha256": "8105fea9ab94183844fe52252d98a78d3cf327cd842d5b60652181f7eebf4831",
+        "size": 6998,
+        "mode": "0o600",
+        "uid": 1000
+      }
+    },
+    "runner_public_outcome": [
+      "DISPOSABLE_INTENT project=omnis-p01-4a2f36cc1ead4f86a991e8623030e7cd root=/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24",
+      "PINNED_DB_IMAGE image_id=sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "MISSING_BIND_DENIED create_host_path=false",
+      "DISPOSABLE_CREATED cid=05da4eafd10d2ec6197d3692147303e2a96f1cfc8ec6c656a73c1ab8a71fb5e0",
+      "PRIVATE_DB_PROBE_OK version=18.6 network_none=true socket_private=true system_id=7696998603650695198",
+      "TARGETED_GATE_BEGIN target=test-model-admission-pg log=/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/gate.log",
+      "TARGETED_GATE_EXIT code=0 log=/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/gate.log",
+      "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False",
+      "DISPOSABLE_DATA_RETAINED /home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24"
+    ],
+    "private_family_receipt_handle": {
+      "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "size": 56,
+      "mode": "0o600",
+      "uid": 1000
+    },
+    "runtime_scenario_receipts": "Validated in test memory and transient test DBs; no new exported raw receipt or fabricated retained row handle. Only safe lifecycle receipt fields exposed."
+  },
+  "cleanup": {
+    "status": "VERIFIED_OWNED_RESOURCES_ABSENT_DATA_RETAINED",
+    "owner_policy": "Existing runner requires strict family_drained receipt after group/adoptee join and before cleanup_owned; cleanup attests daemon/CID/image/project/mounts then exact-CID stop/remove. No independent cleanup/rescue command was issued by QA.",
+    "readback": {
+      "daemon": {
+        "exit": 0,
+        "matches_manifest": true
+      },
+      "image": {
+        "exit": 0,
+        "id_arch_matches": true
+      },
+      "exact_cid_inspect": {
+        "exit": 1,
+        "confirmed_absent": true
+      },
+      "exact_cid_listing": {
+        "exit": 0,
+        "empty": true
+      },
+      "project_listing": {
+        "exit": 0,
+        "empty": true
+      },
+      "project_networks": {
+        "exit": 0,
+        "empty": true
+      },
+      "filesystem_sockets": [],
+      "kernel_uds": [],
+      "postmaster_and_pg_socket_locks": [],
+      "owned_process_matches": [
+        {
+          "pid": 337904,
+          "start_ticks": 11022059
+        }
+      ],
+      "process_scan_permission_denied_pids": [
+        2753,
+        2755,
+        2899,
+        2908,
+        3204
+      ],
+      "original_runner_proc_absent": true,
+      "data_directory_exists": true,
+      "pg_versions": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/PG_VERSION",
+          "version": "18"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/base/4/PG_VERSION",
+          "version": "18"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/base/1/PG_VERSION",
+          "version": "18"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/base/16384/PG_VERSION",
+          "version": "18"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/base/5/PG_VERSION",
+          "version": "18"
+        }
+      ],
+      "pg_controls": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/db-b85a9d6fc3884a24/data/18/docker/global/pg_control",
+          "sha256": "5d37eb64cfef477e95b9998226581fd61e8c40292dddd17fadbfc0df42ab8bf2",
+          "size": 8192,
+          "mode": "0o600",
+          "uid": 1000
+        }
+      ]
+    },
+    "supplemental_process_readback": {
+      "ancestor_observer_pids_excluded": [
+        1,
+        4221,
+        4262,
+        5531,
+        7817,
+        7825,
+        338184,
+        338186
+      ],
+      "matches": [],
+      "permission_denied": [
+        {
+          "pid": 2753,
+          "start_ticks": 7316
+        },
+        {
+          "pid": 2755,
+          "start_ticks": 7321
+        },
+        {
+          "pid": 2899,
+          "start_ticks": 7416
+        },
+        {
+          "pid": 2908,
+          "start_ticks": 7426
+        },
+        {
+          "pid": 3204,
+          "start_ticks": 7601
+        }
+      ],
+      "prior_match_pid": 337904,
+      "prior_match_now_absent": true
+    },
+    "prior_process_match_disposition": "Initial substring scan returned one transient match; exact PID 337904 was absent on subsequent readback. Final root-bound scan excluding current observer ancestry found no matches. Do not infer a general system-wide process census from this.",
+    "permission_limit": "Five same-UID preexisting processes did not permit environ reads; their observed start_ticks are recorded. Exact gate settlement authority is the strict existing owner family receipt, not a claim of universal /proc visibility.",
+    "retained": {
+      "PGDATA": true,
+      "logs": true,
+      "image": true,
+      "private_runner_recovery_material": true
+    },
+    "per_test_rows": "Committed conftest creates and drops each UUID test database after ownership re-attestation. Cluster PGDATA is preserved; individual per-test rows/receipts are NOT claimed retained.",
+    "historical_or_foreign_resources_mutated": false,
+    "runner_proc_absent": true,
+    "cleanup_retry_or_fixture_reuse": false
+  },
+  "artifacts": {
+    "readback": {
+      "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/readback.json",
+      "sha256": "448daee2f48081390ba02e5458068c1212bd8bdda5bb05298f3d81ae931d1c51"
+    },
+    "readback_supplement": {
+      "path": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/readback-supplement.json",
+      "sha256": "4e93f18ae817b38836971e8504d93b441ad79070f83597c15c842bd43c16559a"
+    },
+    "report_original": "/home/kali/.hermes/cache/scratch/dq-XHiQG2jr/report.json",
+    "all_new_report_files": "Owned private scratch only; no repo edits. Raw logs remain 0600 and must not be copied into Git/chat."
+  },
+  "issues_encountered": [
+    {
+      "status": "RESOLVED_READONLY",
+      "exception": "AssertionError",
+      "cause": "Incorrect node/summary regex escaping in QA collection aggregation; collection itself exit0. Corrected reader against unchanged original collection log; no collection or PG retry.",
+      "first_aggregation_exit": 1,
+      "effectful_attempts_before_correction": 0
+    },
+    {
+      "exception": "UnicodeDecodeError",
+      "first_readback_exit": 1,
+      "cause": "Unrelated non-UTF-8 UDS name in /proc/net/unix; corrected to byte-exact owned-root filtering. No extra gate or resource mutation.",
+      "status": "RESOLVED_READONLY"
+    },
+    {
+      "kind": "TERMINAL_WRAPPER_WARNING",
+      "message": "Two non-blocking zle option warnings in tracked process tool output; actual runner/gate exit0, strict receipt drained, private outer log contains only nine recognized lifecycle lines."
+    }
+  ],
+  "limitations_and_stop": [
+    "QA is SOURCE consumer plus real PG/UDS, not installed/native runtime acceptance.",
+    "No inference, provider response, live token/cost enforcement, target traffic, model authority, real native turn or warm configuration is claimed.",
+    "Current nominal/Stop-first/send-first acceptance evidence does not close all DATA/B06c/B06m/H08/P2-inert requirements or G02.",
+    "Physical crash/power-loss/transport ACK-loss at this new consumer, remaining concurrent duplicate/caps/VALIDATION/deadline and dedicated DATA/log/result negative breadth stay at their explicitly deferred scope. Existing SOURCE/ledger regressions are not silently promoted.",
+    "Canonical whole-project, Settings/P4a-minim, live, batch2, r1, operator profiles, global configuration, push and successor implementation NOT_RUN/NOT_TOUCHED.",
+    "Review approval and this scoped QA are inputs for parent adjudication; child does not integrate or close the slice.",
+    "One effectful gate only, no retry. STOP after original report and exact owned-resource readback."
+  ],
+  "proposed_parent_status_delta": {
+    "code": "Existing reviewed implementation unchanged by QA",
+    "proof": "72 PASS / 143.40s / exit0 / strict family_drained=true; nominal/Stop-first/send-first mandatory PG-overlap assertions pass; exact CID/project/network/UDS/locks/postmaster absent; PGDATA/logs/image preserved",
+    "review": "Two existing APPROVED_SCOPED reports reused on matched 9 hashes; no new general review",
+    "integration": "PARENT_ADJUDICATION_PENDING; DATA total/P2/canonical/Settings/live remain open",
+    "next_action": "Parent independently reads exact locators and persists original sanitized report byte-exact; no successor scope authorized by this report."
+  },
+  "procedure_note_for_parent": "No new runner/workflow was introduced. If updating a scoped QA procedure later, filter /proc/net/unix as bytes before decoding only owned paths; foreign abstract socket names need not be UTF-8. No skill or repository edit was made under this QA-only contract."
+}

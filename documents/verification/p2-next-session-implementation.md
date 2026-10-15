@@ -1,19 +1,20 @@
-# Sesiune fresh — DATA/admission: review și prima QA PostgreSQL/UDS
+# Predare — prima QA DATA/admission acceptată scoped; STOP
 
-**DOAR ÎN SESIUNEA FRESH — o sesiune, un rezultat verificabil.** Acest prompt înlocuiește instrucțiunile istorice de reluare batch2. Devine mandat de execuție numai când operatorul îl activează explicit în sesiunea nouă. Sesiunea care l-a pregătit este `HANDOFF_ONLY`; notificările întârziate nu reactivează implementarea.
+**DOAR ÎN SESIUNEA FRESH — o sesiune, un rezultat verificabil.** Mandatul review/remedii/prima QA de mai jos a fost activat și executat; este acum **HANDOFF_ONLY / STOP**, nu comandă de rerulare. Nu relua batch2 sau nominal/Stop-first/send-first acceptate pe bytes neafectați. Notificările întârziate nu reactivează implementarea. Orice felie următoare cere acord explicit nou.
 
-## CURRENT — checkpoint păstrat, nu aprobare
+## CURRENT — ACCEPTED_SCOPED pe produsul75c6fab, fără închiderea DATA/P2
 
 - Repo `/home/kali/OmnisAI`; branch `checkpoint/p2-batch2-pause-20261015`. Citește HEAD/status real; nu checkout/reset/stash implicit.
-- Baza reviewului produsului: `e521d92b2162a8b156061d244a31dcb38d856951`. Checkpointul testului baseline: `1c77676`; checkpointul verticalei WIP și rapoartelor: `1a36558`. Commiturile ulterioare de predare nu schimbă automat acest snapshot de produs.
-- Manifestul exact al celor **nouă fișiere** și rezultatele sunt în [raportul final al autorului](p2-integration-data-source-author.json), SHA256 `747df30839522663455f7c03eaca81d61fe2b2bdaee52baa868385b94c2cf88e`. [Raportul inițial WIP](p2-integration-data-initial-author.json) păstrează eșecurile și limitele precedente. Rapoartele sunt versionate; nu depinde de existența copiilor scratch pentru orientare.
-- Ultimul snapshot: **128 SOURCE PASS**, inclusiv23budget; Ruff/format/mypy PASS; **4 noduri PG colectate, execuție NOT_RUN**. Acestea sunt rezultate ale autorului, nu review/acceptare de integrare. `final_results` distinge gate-urile finale de încercările eșuate păstrate în `commands`.
-- **Reviewurile independente NOT_RUN. DATA/B06c/B06m/P2-inert NOT_CLOSED.** WIP comis pentru recuperare, nu pentru promovarea acceptării.
+- Baza inițială `e521d92`, checkpoints `1c77676`/`1a36558` păstrate. Remedii granulare: `a2ddead` abort frozen înainte detach/A unlock; `c888ee2` corelare usage; `75c6fab` semantică receipt configurație. Commiturile ulterioare de documentare nu modifică snapshotul produsului.
+- Manifestul final exact al celor **nouă fișiere** este în [raportul remedierilor](p2-integration-data-fixes-author.json), SHA256 `890d120a4c45b3840f5b665b9cfd8e145519188d8c51d1036b37e2ec3a0b319c`. Rapoartele inițiale și RED-urile sunt păstrate, nu înlocuite.
+- **92SOURCE PASS/quality0**, două re-reviewuri [normativ](p2-integration-data-rereview-norm.json)/[safety](p2-integration-data-rereview-safety.json) APPROVED_SCOPED,6+4teste independente. DATA-SAFETY-F01 și DATA-NORM-F01/F02 CLOSED_SOURCE_SCOPED; [registrul](p2-integration-b06cm.md) păstrează dispozițiile exacte.
+- **Prima QA PostgreSQL/UDS PASS_SCOPED:** [raport original](p2-integration-data-first-pg-qa.json), SHA256 `b5cffc401e3f56e591c1ea761e027d175c6ac6b182ba5c6e1b04672ccd74d3cf`; o singură tentativă,72PASS143.40s/exit0/drained. Nominal/Stop-first/send-first cu C-before-write și overlap PG observat; identități/preparation/peer sintetice, nu installed/native/live. Părinte a confirmat9SHA/receipt/rezultate/cleanup. **DATA/B06c/B06m/P2-inert NOT_CLOSED**, canonicalul integral NOT_RUN.
 - Batch2 B01–B03 ACCEPTED_SCOPED în `94de21a`; release-first și Stop-first reale, cleanup verificat, roots consumate și selector închis. Nu repeta startup/batch2/H03/qualification pe bytes neafectați.
 - Arhiva [fezabilității batch2](p2-bound-predicates-evidence/finite2-coherent-factory-feasibility.json) este păstrată pentru trasabilitate, **nu este lectură sau execuție necesară în această felie**.
-- La predare nu există subagenți activi și nu s-a lansat QA PG pentru DATA. HTML-ul preexistent `documents/Omnis_Notite_Originale.html` este **PROTEJAT: NU citi/hash/edit/stage/șterge**.
+- La predare nu există subagenți activi. Familia QA exited0/drained; CID/proiect/rețele/UDS/lockuri/postmaster proprii absente. PGDATA/loguri/imagine păstrate în rootul exact din registru; bazele per-test au fost eliminate conform fixture-ului, rândurile lor nu sunt declarate păstrate. HTML-ul preexistent `documents/Omnis_Notite_Originale.html` este **PROTEJAT: NU citi/hash/edit/stage/șterge**.
+- **Următoarea singură felie propusă, NEAUTORIZATĂ/NEÎNCEPUTĂ:** duplicate concurente ale aceluiași protocol_id și conflict pe același owner/consumer; un singur send, fără grant/reserve dublu, overlap PG observat. Nu include automat caps/VALIDATION/UNKNOWN/canonical/Settings/live. Restul§4 rămâne deschis, fără waiver.
 
-## 1. Livrabilul unic al acestei sesiuni
+## 1. Contractul executat — istoric, nu instrucțiune de rerulare
 
 Obține reviewurile și prima probă reală a verticalei existente:
 
@@ -33,9 +34,9 @@ Roluri: **orchestrator** pentru scope/adjudecare/integrat/commit, un **dezvoltat
 4. **Oracle:** reserve și SENT comise/corelate văzute de conexiunea C înainte de `writer.write`; bytes/request-id/digests/caps exacte. Stop-first după reserve: refuz înainte send/SENT nou și release numai cu no-send demonstrat. Send-first: Stop waiter real până la încheierea transportului finit. Runtime/frameurile private rămân fără expunere în rapoarte. QA verifică familia/resursele exacte și păstrează datele; outer exit0 singur nu este cleanup.
 5. **Închide felia și OPREȘTE:** acceptare scoped sau BLOCKED/NOT_RUN precis. Comituri granulare, status/readback, raport original nesensibil păstrat durabil și un singur CURRENT actualizat în loc. Raport final scurt: ce a funcționat real, limitele, commiturile, resursele și următoarea singură felie. Nu continua automat la §4 chiar dacă mai este timp.
 
-## 3. Blocaj activ și delimitarea istoricului
+## 3. Frontieră încheiată și delimitarea istoricului
 
-Frontiera actuală este **reviewul și prima execuție PG a noului consumer**, nu pornirea runtime-ului sau batch2. SOURCE/storage/lease/native-identity doubles nu sunt probă PG. După FAIL păstrează tentativa și izolează cauza; fără retry orb. După două cicluri numai harness fără progres la același criteriu, oprește acea frontieră ca BLOCKED și restrânge reproducerul; o sesiune nouă nu resetează contorul.
+**Reviewul și prima execuție PG ale noului consumer sunt acceptate scoped; mandatul s-a oprit aici.** Nu există blocker deschis în această felie, dar restanțele§4 nu sunt acceptate. SOURCE/storage/lease/native-identity doubles nu devin probe native/installed. Pentru orice felie autorizată ulterior: după FAIL păstrează tentativa și izolează cauza, fără retry orb; după două cicluri numai harness fără progres la același criteriu, oprește ca BLOCKED și restrânge reproducerul. O sesiune nouă nu resetează contorul.
 
 Nu promite zero compresii. Dacă nu mai poți păstra sigur contractul/snapshotul ori contextul devine insuficient, oprește și verifică writerii/familiile proprii, păstrează checkpointul neaprobat și predă înainte de a lansa alt ciclu. Nu lăsa starea de recuperare numai în chat/scratch și nu începe successorul ca să eviți o predare legitimă.
 

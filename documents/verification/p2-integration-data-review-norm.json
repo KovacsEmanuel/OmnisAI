@@ -1,0 +1,201 @@
+{
+  "report_id": "DATA-NORM-40c0224-READBACK",
+  "role": "Independent read-only reviewer: normative compliance, transaction order, persistence/readback and existing first-PG oracle",
+  "verdict": "CHANGES_REQUESTED",
+  "first_pg_admission": "BLOCKED_PENDING_CONCRETE_READBACK_FIXES_AND_FOCUSED_REREVIEW",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "40c0224ba02deb5a618ea38469a575e8b9420ff6",
+    "product_commit": "1a36558",
+    "review_base": "e521d92b2162a8b156061d244a31dcb38d856951",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "manifest": "documents/verification/p2-integration-data-source-author.json",
+    "manifest_sha256": "747df30839522663455f7c03eaca81d61fe2b2bdaee52baa868385b94c2cf88e",
+    "files_count": 9,
+    "all_nine_match_manifest": true,
+    "all_nine_match_product_commit": true,
+    "all_nine_unchanged_at_handoff": true,
+    "sha256": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "3a6b5657d6df483784d495a89a63614dad209fa96d02cbcdae1825ebf4e3113f",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "d38d3c38a504fe670283bc7ccf9117d9203a388ec2d81840c2dd9962f0cdbabd",
+      "api/tests/test_model_admission.py": "a87a2e64551b3934ade843d177d533788c1ac98df0e199a393ee0fe2bfc371ad",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "dd5ced9d419994feebdb60ad82bd1b94d7c15121d3b0f5643a4a594a78819e59",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "supporting_readonly_hashes": {
+      "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+      "api/src/omnis/policy/model_configuration.py": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "api/src/omnis/modules/runs/model_projection.py": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48"
+    }
+  },
+  "admission_rationale": {
+    "requirement": "Qualified DATA/config -> committed reserve -> separately committed SENT visible before exact UDS write -> authentic cold NO_MODEL receipt -> durable, semantically coherent accounting/readback; Stop-first/send-first with real PG overlap in the subsequent authorized QA.",
+    "consumer": "NativeTaskCommand -> LocalControl -> NativeTaskOwner._model_protocol -> ModelDispatch/ModelProjections/model_protocol/budgets -> RuntimeClient -> cold validator -> model_protocol.readback",
+    "risk": "Incorrect commit/send order or a reader that independently validates records but launders contradictions between the cold receipt and durable accounting/configuration into successful readback.",
+    "decision": "Order is consistent with D1-D3 on inspected source. Two demonstrated readback defects require minimal fixes before first-PG acceptance; no design change or expanded harness is requested."
+  },
+  "findings": [
+    {
+      "id": "DATA-NORM-F01",
+      "severity": "MEDIUM",
+      "status": "CONFIRMED_SOURCE",
+      "file": "api/src/omnis/modules/runs/model_protocol.py",
+      "lines": "392-430,436-452",
+      "title": "SETTLED readback does not correlate the ledger usage receipt with the protocol receipt and reports invented zero usage",
+      "mechanism": "qualified() obtains a valid budgets.readback state, but readback() checks only state/usage_state and the separate model-protocol-receipt. It never compares the retained model-usage-receipt receipt_id to descriptor.request_id or its exact usage payload to the NO_MODEL settlement. Line449 emits zero whenever usage_state is KNOWN, irrespective of charged_output_tokens/history. The independent general ledger permits valid nonzero usage, so its validation does not enforce this consumer's special NO_MODEL invariant.",
+      "reproducer": {
+        "artifact": "/home/kali/.hermes/cache/scratch/data-norm-review-3sz80ag5/readback_reproducer.py",
+        "cases": ["usage_tokens", "usage_identity"],
+        "steps": [
+          "Reuse test_qualified_projection_reaches_cold_admission_without_model_reservation(protocol_mode=True) to create a valid SOURCE owner/UDS/cold receipt and normal SETTLED readback.",
+          "At the existing readback consumer, independently reseal the in-memory retained model-usage-receipt with output_tokens=1, leaving the cold protocol receipt at zero. The actual ledger reducer accepts it and reports charged_output_tokens=1.",
+          "Call the unmodified model_protocol.readback and validate_readback: both accept SETTLED/KNOWN/output_tokens=0 identical to the positive.",
+          "Restore the valid row, then independently change only usage.receipt_id to a fresh UUID and reseal. Readback again accepts the same success despite the identity mismatch.",
+          "Restore all original rows and verify the positive again. No PostgreSQL records were changed."
+        ],
+        "observed": "Both negatives ACCEPTED; output_tokens=0 and same_as_positive=true. The tokens mutation had ledger_charged_output_tokens=1."
+      },
+      "violated_requirement": "Architecture5.2 durable receipt/accounting truth and D2 exact request-id/dispatch-correlated receipt; KNOWN zero is justified only by the matching cold acknowledgement, not by an arbitrary independent KNOWN ledger event.",
+      "impact": "The affected reader can certify a contradictory persisted settlement as exact NO_MODEL accounting, including after Stop/fresh-reader replay. The underlying ledger remains charged according to its own history; this reproduction does not demonstrate a refund, extra send, live inference, provider cost bypass, or an external ability to modify immutable DB rows.",
+      "minimal_remedy": "Before returning SETTLED, validate the existing usage history's exact protocol-specific terminal receipt against descriptor.request_id and the expected KNOWN/output_tokens=0/provider_receipt_ref=null/cost fields=null settlement. Reject mismatch, do not rewrite history or simply project it to zero. Preserve the valid receipt and UNKNOWN no-refund paths; add focused SOURCE negative controls at this real reader. No ledger rewrite or new schema/owner is needed."
+    },
+    {
+      "id": "DATA-NORM-F02",
+      "severity": "MEDIUM",
+      "status": "CONFIRMED_SOURCE",
+      "file": "api/src/omnis/modules/runs/model_protocol.py",
+      "lines": "415-433",
+      "title": "The referenced model-configuration-receipt is resolved but its semantic payload is not checked",
+      "mechanism": "readback() validates the duplicated model_admission object with accept_preflight and only verifies that configuration_receipt_ref resolves to an owned record. It discards the return value from store.get at431-433 and never compares the durable configuration receipt to configuration_payload(prepared.payload, accepted.source_configuration), unlike the existing producer's persist_configuration checks at model_dispatch.py483-503.",
+      "reproducer": {
+        "artifact": "/home/kali/.hermes/cache/scratch/data-norm-review-3sz80ag5/readback_reproducer.py",
+        "case": "configuration_payload",
+        "steps": [
+          "Start from the same valid produced SOURCE SETTLED graph and positive readback.",
+          "Change only the retained configuration receipt's inference_authorized field from false to true and reseal its envelope.",
+          "Update the protocol receipt's configuration_receipt_ref to that exact newly resealed envelope and reseal the protocol receipt. All identity/ref/digest forms remain valid; the copied cold model_admission remains unchanged.",
+          "Call the unmodified readback and validate_readback: the contradictory receipt is accepted and returned accounting equals the original positive.",
+          "Restore both rows and verify the valid positive again."
+        ],
+        "observed": "ACCEPTED, SETTLED/KNOWN/output_tokens=0, same_as_positive=true."
+      },
+      "violated_requirement": "Qualified immutable configuration/receipt readback in D1-D2: a ref and selfdigest are not semantic agreement with the producer or the accepted cold observation.",
+      "impact": "Receive-only replay reports a coherent successful protocol settlement despite a contradicted durable configuration record. It does not itself authorize inference and does not establish a remote write primitive; the demonstrated defect is missing semantic/provenance validation at the persistent-reader boundary.",
+      "minimal_remedy": "Capture the exact owned configuration receipt returned by store.get; validate its kind and compare its payload canonically to the existing configuration_payload derivation from the qualified prepared payload and accepted source_configuration. Keep the reader non-writing/receive-only and preserve historical records. Add a valid positive and this resealed contradiction at the same reader."
+    }
+  ],
+  "transaction_and_contract_review": [
+    {
+      "requirement": "D1 qualified declarative source; cold observation is not provider configuration or native turn",
+      "code": "model_dispatch.py149-210; model_protocol.py73-127; native_tasks.py148-169",
+      "result": "CONSISTENT_SOURCE_SCOPED",
+      "notes": "Configuration is qualified against original manifest/authority and model_configuration command receipt. Descriptor uses SYNTHETIC_PROTOCOL_NO_MODEL, native_turn_ref=null, hermes=false; method context SUPPORT/CONTRACT_PROBE/NO_MODEL remains separate. No D1 redesign proposed."
+    },
+    {
+      "requirement": "D2 fixed protocol purposes/caps and shared immutable budget",
+      "code": "schemas.py119-137; model_protocol.py21-41,102-127; budgets.py245-340",
+      "result": "CONSISTENT_PRODUCER_SOURCE_SCOPED_READBACK_CHANGES_REQUESTED",
+      "notes": "PREPARE/VALIDATION come from action, caps reject values above configured source/max_tokens and fixed protocol ceiling. Sole budget conflict refuses rather than replaces. Settlement producer writes zero tokens and null cost/provider receipt; the readback must verify that same contract (F01/F02). Caps/concurrency breadth remains deferred proof, not silently approved."
+    },
+    {
+      "requirement": "D3 T0 commit -> A Instance/lease fence -> B managed/budget SENT commit -> exact write",
+      "code": "native_tasks.py132-184; model_protocol.py261-278; runtime_client.py290-361,395-467; instance/service.py130-151; budgets.py177-195",
+      "result": "CONSISTENT_STATIC_ORDER_NOT_PG_PROOF",
+      "notes": "T0 native_preparation_commit exits before A begins. B uses a separate engine.begin and completes before exchange_frozen. A does not directly acquire managed/budget or call RuntimeClient.managed. B qualified read uses the existing graph/source readers and ledger. Deadline is checked before/after B; the frozen memory-only frame is written directly, without regenerating it. Stop shares Instance row locks. No claim of atomic DB/network or lease valid at the physical commit instant."
+    },
+    {
+      "requirement": "Failure and replay preserve uncertainty/no resend",
+      "code": "native_tasks.py118-125,189-211; budgets.py397-423; model_protocol.py44-55",
+      "result": "INSPECTED_SOURCE_ONLY_COMPLEMENTARY_SAFETY_REVIEW_REQUIRED",
+      "notes": "Existing receipt replay bypasses new grants; cleanup refunds only an actual RESERVED state under ledger lock, while SENT remains retained. Full cancellation/cleanup and concurrent authority analysis belong to the complementary reviewer, not a claimed PASS from this review."
+    },
+    {
+      "requirement": "Receive-only persistent readback validates exact records, not just their independent shapes",
+      "code": "model_protocol.py386-453",
+      "result": "CHANGES_REQUESTED",
+      "notes": "F01 and F02 were demonstrated with valid-positive / resealed-negative / restored-positive on the same existing SOURCE reader. No history rewrite is proposed."
+    }
+  ],
+  "pg_oracle_review": {
+    "file": "api/tests/test_model_admission_pg.py",
+    "execution": "NOT_RUN",
+    "nodes": "Existing baseline plus nominal/stop_first/send_first; author reports four collected nodes, not execution",
+    "source_assessment": "The authored oracle can exercise the stated first-PG boundary after concrete fixes; no new harness is needed.",
+    "positive_boundary": "Lines628-651 use independent synchronous observer C to see correlated descriptor/dispatch/SENT before delegating actual writer.write; exact body/frame digests, bytes and admitted caps are compared. Actual producer code commits reserve separately; the C query itself selects descriptor and SENT, not a separately returned reservation envelope.",
+    "stop_first": "Actual T0 exits before reserved Event. Existing service._locked is held by Stop; sender waits on Instance. pg_blocking_pids plus the current query identify overlap. After Stop commit sender refuses; readback must be RELEASED/UNKNOWN with zero writes and history without SENT (lines680-735).",
+    "send_first": "A's actual backend PID is captured. Synthetic peer holds ACK after real write; Stop is observed waiting on A before ACK release, then both tasks join (lines683-707). This is actual lock overlap if executed, not just asyncio ordering.",
+    "poststop_readback": "Lines751-762 compare replay after Stop and a fresh engine/consumer. This is a new connection/consumer, not a process restart or installed-native proof.",
+    "limits": [
+      "No PG, DB provisioning, OCI or runner invocation was performed by this reviewer.",
+      "Native identity/preparation and protocol peer remain synthetic; cold validator is real, no live provider/model/token-enforcement claim.",
+      "The oracle does not test the F01/F02 contradictory retained-record cases; focused SOURCE regressions should precede the PG run.",
+      "No proposed widening of deadlines, caps, TTL, grants or removal of target regressions.",
+      "Preflight/resource ownership and exact cleanup for a future PG attempt remain the parent's QA responsibility."
+    ]
+  },
+  "execution_evidence": {
+    "reused_author_evidence": {
+      "source": "128 passed in 30.15s",
+      "source_exit": 0,
+      "quality": "Ruff/format/mypy exit0; mypy nine source files",
+      "pg_collect": "4 tests collected in 0.39s; exit0",
+      "note": "Reused as author-scoped evidence only, bound to unchanged nine hashes; not rerun or promoted to independent QA."
+    },
+    "reviewer_reproducer": {
+      "path": "/home/kali/.hermes/cache/scratch/data-norm-review-3sz80ag5/readback_reproducer.py",
+      "sha256": "6f4e1baf512920528961c15bc3dc6527711852d15e1f253e4619819704f81c6c",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/data-norm-review-3sz80ag5/readback_reproducer.py",
+      "workdir": "/home/kali/OmnisAI",
+      "python": "3.13.15",
+      "exit_code": 2,
+      "exit_meaning": "Intentional RED: at least one contradictory retained record was accepted. Not a timeout or infrastructure failure.",
+      "invocations": 1,
+      "finite_timeout_seconds": 30,
+      "boundary": "Existing SOURCE fixture with storage/lease/native-identity/preparation doubles and real owner/cold-validator/UDS path. Mutations are in-memory synthetic retained records at unmodified model_protocol.readback; normal and restored positives use the same consumer. No real PG corruption, no process restart, no exploitability claim against an authenticated immutable store.",
+      "outcomes": [
+        {"case": "positive", "state": "SETTLED", "output_tokens": 0},
+        {"case": "usage_tokens", "outcome": "ACCEPTED", "state": "SETTLED", "output_tokens": 0, "ledger_charged_output_tokens": 1, "same_as_positive": true},
+        {"case": "usage_identity", "outcome": "ACCEPTED", "state": "SETTLED", "output_tokens": 0, "ledger_charged_output_tokens": 0, "same_as_positive": true},
+        {"case": "configuration_payload", "outcome": "ACCEPTED", "state": "SETTLED", "output_tokens": 0, "ledger_charged_output_tokens": 0, "same_as_positive": true},
+        {"case": "restored_positive", "state": "SETTLED", "same_as_positive": true}
+      ]
+    },
+    "git_readback": {
+      "exit_code": 0,
+      "head_unchanged": true,
+      "tracked_worktree_diff": "EMPTY",
+      "staged_diff": "EMPTY",
+      "preexisting_untracked": "Protected original HTML remains listed; not opened, hashed, edited, staged or deleted."
+    }
+  },
+  "scope_and_limits": {
+    "normative_input": "AGENTS/CONTRIBUTING, active session contract, integration register lines1-34 only, plan7.1 and architecture5.2. Current map/readme used for orientation; no full historical integration-register read.",
+    "unchanged_decisions": "D1-D3 remain intact; fixes are local semantic readback checks, not a redesign.",
+    "not_run": ["PostgreSQL", "installed native/Host QA", "physical crash/power loss", "provider/model/target traffic", "full canonical", "Settings", "P2-live"],
+    "deferred_proof_not_waived": ["concurrent duplicate/conflict", "new-consumer caps and VALIDATION carveout", "deadline while waiting for B", "PG EOF/timeout/cancel and SENT/UNKNOWN", "late receive-only settlement", "remaining DATA/input/error/log negatives"],
+    "complementary_review": "Auth/concurrency/input/failure/cleanup is separately delegated; this report does not substitute for it.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "repository_files_created_or_modified": [],
+    "scratch_created": ["readback_reproducer.py", "review.json", "synthetic fixture material under the same private scratch root"],
+    "commits": [],
+    "external_effects": "No DB/OCI/install/global/profile/push effects. Existing SOURCE fixture opens and closes owned local test UDS only. No frame, capability, credential or raw private log is included in this report."
+  },
+  "proposed_parent_status_delta": {
+    "DATA_admission_implementation": "WIP product1a36558 unchanged",
+    "proof": "Author128SOURCE reused; independent finite readback reproducer RED; PG NOT_RUN",
+    "normative_review": "CHANGES_REQUESTED (F01,F02)",
+    "next_action": "Parent reproduces/adjudicates these concrete reader defects, implements minimal RED->GREEN fixes with focused re-review; then consider the existing first PG nominal/Stop-first/send-first QA. Stop/checkpoint after that slice; no deferred breadth expansion.",
+    "global": "DATA/B06c/B06m/P2-inert NOT_CLOSED; P4a-minim/Settings and live remain separate."
+  },
+  "suggested_skill_delta_for_parent_only": "For a specialized settlement reader layered over the shared ledger, compare the exact retained usage receipt and configuration receipt against the specialized producer contract before projecting constants. A general ledger KNOWN state and independently well-formed cold receipt do not establish cross-record coherence. Reviewer left repository skills unchanged under read-only mandate."
+}

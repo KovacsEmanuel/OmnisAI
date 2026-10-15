@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "review_role": "INDEPENDENT_COMPLEMENTARY_SAFETY_AUTHORITY_CONCURRENCY_INPUT_FAILURE_CLEANUP",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Read-only review of the frozen DATA/admission vertical before the first nominal/Stop-first/send-first PostgreSQL/UDS QA. No implementation, commit, PostgreSQL, OCI or additional agent.",
+  "repository": "/home/kali/OmnisAI",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "base": "e521d92b2162a8b156061d244a31dcb38d856951",
+  "product_commit": "1a36558",
+  "review_head": "40c0224ba02deb5a618ea38469a575e8b9420ff6",
+  "final_head": "40c0224ba02deb5a618ea38469a575e8b9420ff6",
+  "manifest": "documents/verification/p2-integration-data-source-author.json",
+  "manifest_sha256": "747df30839522663455f7c03eaca81d61fe2b2bdaee52baa868385b94c2cf88e",
+  "snapshot_count": 9,
+  "snapshot_matched_manifest_at_entry_and_exit": true,
+  "snapshot_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+    "api/src/omnis/modules/runs/model_protocol.py": "3a6b5657d6df483784d495a89a63614dad209fa96d02cbcdae1825ebf4e3113f",
+    "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+    "api/src/omnis/supervisor/runtime_client.py": "d38d3c38a504fe670283bc7ccf9117d9203a388ec2d81840c2dd9962f0cdbabd",
+    "api/tests/test_model_admission.py": "a87a2e64551b3934ade843d177d533788c1ac98df0e199a393ee0fe2bfc371ad",
+    "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+    "api/tests/test_native_task_client.py": "dd5ced9d419994feebdb60ad82bd1b94d7c15121d3b0f5643a4a594a78819e59",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+  },
+  "authority_read": [
+    "AGENTS.md (provided project context)",
+    "CONTRIBUTING.md, especially product-oriented execution and complementary reviews",
+    "documents/verification/p2-next-session-implementation.md",
+    "documents/verification/p2-integration-b06cm.md lines 1-34, D1-D3",
+    "documents/Omnis_Implementation_Plan.md section 7.1",
+    "documents/Omnis_MVP_Architecture.md section 5.2 and affected Stop/lease contract",
+    "README.md and implementation-status.md current status",
+    "Skills omnis-review-qa, omnis-api-data, omnis-project-status, systematic-debugging"
+  ],
+  "findings": [
+    {
+      "id": "DATA-SAFETY-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Frozen timeout takes graceful close before abort and loses ownership of buffered bytes",
+      "locations": [
+        {
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "lines": "539-547, 658-664",
+          "role": "The inner exchange catches TimeoutError/OSError/ValueError/EOF/limit failures and awaits close(); close detaches reader/writer before graceful close and a new 0.5-second wait. A timed-out graceful close need not discard the buffer."
+        },
+        {
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "lines": "350-373",
+          "role": "exchange_frozen reaches retire_frozen only after the inner close path; retire_frozen sees writer=None, so it cannot abort the original transport."
+        },
+        {
+          "path": "api/src/omnis/supervisor/native_tasks.py",
+          "lines": "173-206",
+          "role": "The A exception handler also calls retire_frozen, but the writer is already detached. A then exits and releases the Stop barrier; receive-only cleanup cannot restore ownership of the abandoned buffered transport."
+        }
+      ],
+      "requirement": "D3 requires uncertain stream retirement before A unlock, bounded by existing deadlines; architecture 5.2 requires the Stop barrier between reserve and physical send. A detached client or transport.is_closing() is not proof that pending bytes were discarded.",
+      "requirement_consumer_risk_decision": {
+        "requirement": "Discard uncertain frozen output before releasing A; do not add a fresh cleanup budget after the transport deadline.",
+        "consumer": "NativeTaskOwner._model_protocol -> RuntimeClient.exchange_frozen -> RuntimeClient._exchange, real asyncio AF_UNIX transport",
+        "risk": "Buffered request bytes may finish leaving the local transport after the failed exchange and subsequent A unlock; Stop can commit while this output is still live. SENT/UNKNOWN remains conservative but does not repair the physical send-barrier violation.",
+        "decision": "Block first PG QA pending minimal product fix, focused regression and exact-snapshot re-review. Do not redesign D1-D3."
+      },
+      "reproduction": {
+        "path": "/home/kali/.hermes/cache/scratch/data-safety-review-p_0ednd_/repro_retirement.py",
+        "sha256": "eb1bb22487fcf8942c752fbe683fade206b6e7e3493dac72ff9209ff3cbff931",
+        "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/data-safety-review-p_0ednd_/repro_retirement.py",
+        "cwd": "/home/kali/OmnisAI",
+        "python": "3.13.15",
+        "exit_code": 1,
+        "exit_meaning": "Intentional RED: finding_reproduced=true; exit 2 means expected symptom/control did not match, exit 3 means a probe error.",
+        "setup": "Owned socketpair(AF_UNIX, SOCK_STREAM), no listener path or subprocess family. Real RuntimeClient.freeze_preflight/exchange_frozen, synthetic non-authorizing capability only in memory, v3 body 32061 bytes/frame 32339 below existing caps. Test-only SO_SNDBUF=4096 and asyncio write high/low=1024/512 produce backpressure. Actual wall cap=1 and grant<=4.5; no product cap/deadline enlarged. Peer does not read until exchange finishes.",
+        "same_channel_control": {
+          "mode": "cancel",
+          "outcome": "CancelledError",
+          "buffered_before_failure": 24275,
+          "buffered_at_exchange_return": 0,
+          "client_detached_at_exchange_return": true,
+          "peer_read_only_after_return_bytes": 8064,
+          "complete_frame_after_return": false,
+          "elapsed_seconds": 0.0,
+          "transport_fd_closed_after_peer_read": true
+        },
+        "failure": {
+          "mode": "timeout",
+          "outcome": "RuntimeUnavailable",
+          "buffered_before_failure": 24275,
+          "buffered_at_exchange_return": 24275,
+          "client_detached_at_exchange_return": true,
+          "peer_read_only_after_return_bytes": 32339,
+          "complete_frame_after_return": true,
+          "elapsed_seconds": 1.502,
+          "transport_fd_closed_after_peer_read": true
+        },
+        "evidence_boundary": "Real SOURCE asyncio transport/backpressure failure. The owner A-unlock consequence is established by the inspected call chain, not by a real PostgreSQL Stop execution. No claim of provider inference, authenticated Host acceptance or remote cancellation."
+      },
+      "minimal_remedy": "On _exchange's caught-error branch, if _frozen is present, synchronously retire/abort the original writer before any graceful close can detach it. Preserve existing ordinary non-frozen close behavior and sanitized exception semantics. Keep the outer cancellation/bad-ACK retirement. Do not extend owner/grant/cap deadlines or refund SENT allocations.",
+      "required_regression": "Use actual bounded UDS backpressure with pending bytes and a peer released only after the failed call/fence exit. Require the buffer to be discarded and no complete frame to arrive after release; retain the matching cancellation control. Observe retirement at the actual A exit as well as transport entry. Existing is_closing()/reader=None/writer=None assertions alone are insufficient because graceful-close timeout satisfies them.",
+      "status": "OPEN; no product fix made by this reviewer"
+    }
+  ],
+  "static_review_matrix": [
+    {
+      "topic": "Lock graph and authority",
+      "decision": "No additional concrete inversion found in the reviewed path. T0 acquires Instance/lease before managed/budget; A holds Instance/lease and calls B on a separate connection; B's qualified/read/config/ledger chain uses managed/budget without runtime_authority or an Instance acquisition. Current owner/instance/epoch/generation and original boot are checked before first send; retained replay is receive-only. Real PG scheduling remains NOT_RUN."
+    },
+    {
+      "topic": "Exact bytes and deterministic input boundaries",
+      "decision": "Private DTO rejects extra fields, malformed refs/UUIDs, bool/inexact caps and over-limit commands; purpose is selected from the trusted action, not a caller purpose. Qualified DATA/config is checked before freeze/reserve. Frozen immutable bytes carry request-id/body/frame digests; B checks them before SENT, then original bytes are written without rebuilding the frame. v2/v3 only; v4/live not promoted. No additional concrete blocker found here."
+    },
+    {
+      "topic": "No resend/refund and settlement",
+      "decision": "Command replay occurs before grant acquisition; duplicate first-use is serialized by managed owner in T0. mark_sent denies non-RESERVED transitions. Exception cleanup releases only positively read-back RESERVED under the existing ledger lock. Ambiguous/SENT state remains charged UNKNOWN. T2 does receive-only settlement after A without a fresh send grant. Dedicated PG duplicates/late settlement remain deferred, not silently passed."
+    },
+    {
+      "topic": "Secrets",
+      "decision": "Full runtime frame is only in frozen memory; repr excludes frame/body, durable descriptor stores qualified body and opaque frame digest, not capability. No raw frame, capability, DSN, private log or environment was returned by reviewer. A concrete suspicion that PG's hash assertion would expose its synthetic frame marker on the target --tb=line channel was tested and not reproduced; no secret-leak finding is asserted from it."
+    },
+    {
+      "topic": "Cancellation/deadline/retirement",
+      "decision": "Direct CancelledError path aborts buffered output in the real transport control. The common caught-error/graceful-close branch breaks retirement under backpressure: DATA-SAFETY-F01. Existing SOURCE cancellation tests do not cover this branch with live buffered bytes."
+    }
+  ],
+  "pg_oracle_review": {
+    "status": "STATIC_ORACLE_REVIEW_ONLY; PG_NOT_RUN",
+    "consumer": "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback",
+    "scenarios": ["nominal", "stop_first", "send_first"],
+    "sent_before_write": "Lines 628-651 execute the independent synchronous observer C query inside the writer.write wrapper BEFORE delegating bytes. It joins committed descriptor/dispatch/SENT by owner and request id; checks frame digest, body digest/exact body and caps. This is a real planned PG visibility oracle, not an event recorded after write.",
+    "stop_first": "Lines 558-586 pause only after the actual T0 transaction commits and after actual Stop _locked acquisition. Sender must wait on Instance; lines 658-701 require pg_blocking_pids waiter observation, then release Stop and require sender refusal. Final state RELEASED, no wire observations and no SENT history are asserted.",
+    "send_first": "Actual A backend pid is taken after its real row-lock acquisition. Peer holds ACK after receiving the actual frame; Stop is started while send is incomplete. pg_blocking_pids plus instance_control FOR UPDATE query and fresh local statistics snapshots establish planned real overlap. ACK is released only after the blocked waiter is observed.",
+    "bounds_and_cleanup": "Observer polls are finite (0.75s); DB statement/connect timeouts and product grants are not enlarged. Sender/stopper tasks are released/cancelled/joined in finally; owned peer/LocalControl and reader-engine cleanup are present. Author's collected tests are not execution evidence and this review does not certify real fixture/family cleanup.",
+    "risk_disposition": "The nominal/ordering oracle is appropriate for the admitted first QA, but execution must wait for DATA-SAFETY-F01 remediation and both complementary review dispositions. Failure/backpressure breadth cannot be dismissed as deferred once this actual safety defect is known."
+  },
+  "reused_author_evidence": {
+    "source": "128 PASS (including 23 budget) as recorded by author on matching hashes; not rerun by reviewer",
+    "ruff_format_mypy": "Author PASS/exit0 on matching hashes; not rerun",
+    "pg_collection": "4 tests collected by author; execution NOT_RUN",
+    "batch2": "Existing accepted B01-B03 not rerun or re-audited"
+  },
+  "additional_bounded_source_probe": {
+    "purpose": "Check suspected assertion-rewriting exposure at the actual Makefile --tb=line report channel before making a finding.",
+    "path": "/home/kali/.hermes/cache/scratch/data-safety-review-p_0ednd_/test_assertion_channel.py",
+    "sha256": "acdb55bd027b3d06f0528a80abb1519a212b1ec89ce4682790a04a78235dcaec",
+    "argv": ["api/.venv/bin/python", "-I", "-B", "-m", "pytest", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "/home/kali/.hermes/cache/scratch/data-safety-review-p_0ednd_/test_assertion_channel.py", "-q", "--tb=line"],
+    "environment": "Inherited PYTHON*/PYTEST* removed, PYTEST_DISABLE_PLUGIN_AUTOLOAD=1. Child stdout/stderr captured only in memory; only allowlisted booleans/count/exit returned.",
+    "pytest_exit": 1,
+    "result": "1 failed, 1 passed: intentional digest mismatch and matching positive",
+    "output_bytes": 1232,
+    "synthetic_marker_in_report": false,
+    "conclusion": "Suspicion not reproduced on this channel; not a finding. No raw child report persisted or printed."
+  },
+  "probe_attempts_preserved": [
+    {
+      "probe": "repro_retirement.py initial invocation",
+      "exit": 3,
+      "result": "Sanitized AttributeError; no finding credited."
+    },
+    {
+      "probe": "same invocation with filename/line/function-only diagnostic",
+      "exit": 3,
+      "result": "Located probe-finally abort after already completed graceful close; asyncio _force_close had a cleared loop. No raw message/frame emitted."
+    },
+    {
+      "probe": "same reproducer after owned-teardown correction",
+      "exit": 1,
+      "result": "Guard only the probe's final abort by the owned socket fileno; product untouched. Actual SOURCE cancellation control and timeout RED completed, finding_reproduced=true."
+    }
+  ],
+  "files_and_effects": {
+    "repository_files_written": [],
+    "commits_created": [],
+    "scratch_root": "/home/kali/.hermes/cache/scratch/data-safety-review-p_0ednd_",
+    "scratch_files_created": ["repro_retirement.py", "test_assertion_channel.py", "review.json"],
+    "scratch_scope": "Private root created with umask 077; no runtime frame persisted. Only own finite AF_UNIX socketpair resources; final successful reproducer verified both transport FDs closed and closed both raw sockets. No remaining service/listener/process family started.",
+    "preexisting_untracked": "Protected original HTML remained preexisting and untracked; never read, hashed, edited, staged or deleted.",
+    "git_final": "Same HEAD; empty tracked and staged diff; nine manifest hashes unchanged.",
+    "forbidden_effects": "No PostgreSQL provisioning/connection, OCI, canonical, Settings, installed/native/Host, provider/model/target, r1/profile/global, push, grant/cap/deadline increase or other agent."
+  },
+  "limits": [
+    "One confirmed safety finding; no claim that all future DATA closure obligations are reviewed or proved.",
+    "Complementary normative/order/persistence reviewer adjudicates its own findings separately.",
+    "Real PG nominal/Stop-first/send-first, cancellation/rollback timing and fixture/family cleanup remain NOT_RUN.",
+    "SOURCE doubles and synthetic protocol identities do not prove installed Host/native or live inference behavior.",
+    "Duplicate/conflict, calls/output/VALIDATION breadth, B-wait expiry, PG lost reply/cancel, late settlement and remaining adversarial DATA channels stay deferred according to the mandate; absence alone is not the reason for CHANGES_REQUESTED.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "D1-D3 need no redesign: fix the transport error branch and its affected regression only."
+  ],
+  "proposed_parent_status_delta": "DATA/admission remains WIP; safety review CHANGES_REQUESTED on exact nine-hash snapshot. First PG QA BLOCKED pending DATA-SAFETY-F01 RED->GREEN and focused re-review; no global gate promotion.",
+  "lesson_for_parent_skill_delta": "For frozen transport retirement, trace every enclosing error normalizer. An inner graceful close can detach the writer before the outer abort handler runs, leaving pending bytes live. Use real backpressure and assert zero pending output before fence exit; is_closing and detached reader/writer are not sufficient. This read-only reviewer does not edit repository/global skills."
+}

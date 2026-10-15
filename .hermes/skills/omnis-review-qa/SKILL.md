@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.36
+version: 0.1.37
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -127,6 +127,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 
 ## Settled IPC and process identity
 
+- Capture a no-rerun observation baseline only after authentic native drain, then validate counts/overlap against the entire settled log before offline replay. Preserve strict byte equality afterward; do not filter normal EXIT events or tolerate extra work during drain. Close IPC across offline readers and use the original owner's retirement path. If historical baseline bytes were not retained, do not attribute the old difference exclusively to a normal exit append.
 - Before a long offline-reader interval in an owned restart probe, close the IPC channel only after confirmed native drain; reconnect through the same original owner for fresh final Stop/status. A real Host can emit an uncorrelated idle-denial frame on a retained channel even when drained. Keep a real UDS positive and bad-drain refusal; closing the channel must not forgive uncertainty or replace resource retirement.
 - Before initial offline preparation, retain the original boot/capability needed by its receipt, not an idle transport. Close at that initial caller, reconnect and compare both identities before launch; leave later intentional replacement/recovery paths unchanged. Prove the held-idle refusal and same-identity positive through real UDS without starting native work.
 - Identify each replacement process by boot and host-visible PID/starttime, and verify old identities are absent before restart. A namespace inode may be recycled after its lifetime ends; do not require cross-lifetime inequality or accept an unchanged PID/starttime merely because its namespace differs. Preserve independent private-namespace attestation and Host/native namespace equality within each boot.

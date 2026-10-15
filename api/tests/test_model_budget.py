@@ -413,7 +413,7 @@ async def test_catalog_resolution_validates_persisted_envelope(
             return self.value
 
     async def execute(query: object, parameters: dict[str, object]) -> Row:
-        if "FROM managed_record" in str(query):
+        if "FROM public.managed_record" in str(query):
             return Row(None)
         assert "FROM catalog_record" in str(query)
         assert parameters["id"] == wanted["id"]

@@ -8,7 +8,13 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
-## CURRENT — snapshot stale confirmat pe PG; remediu local al pollingului în lucru
+## CURRENT — refresh waiter aprobat SOURCE; o release-first stock3 după commit/binding
+
+[Autor](p2-bound-predicates-evidence/waiter-snapshot-fix-author.json) și reviewurile [normativ](p2-bound-predicates-evidence/waiter-snapshot-review-normative.json)/[safety](p2-bound-predicates-evidence/waiter-snapshot-review-safety.json) adjudecate pe caller`aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743`, selector închis`0f304c61bf1517af75d94f867febfbec8a9e4ac4665faa107d116251d34b28ff`: **APPROVED_SCOPED**, fără findings noi. O singură instrucțiune QA clear local per poll; reversarea regresiei și instrucțiunii reproduce baza, SQL și ambele consumers neschimbate. RED4FAIL→autor63PASS/quality0, **parent4PASS2.74s**; reviewerii au verificat static/evidence, nu pretindem pytest independent nerulat. Hookurile generate sunt identice cu cele deja acceptate. STOCK-QA-WAITER-SNAPSHOT-01 CLOSED_SOURCE_SCOPED; post-fix batch real NOT_RUN.
+
+Admitere a părintelui după commit: **ONE release-first** pe `batch2-stock3-batch2-release-first`, numai BATCH2_REVIEWED=aa452ae3…33c9743; selector activ reviewuit`73469fc7adfbed488955b72739a93852f3a993617c07ef7e72a8dadbcfc72a84`, STARTUP None. Stop-first pe root distinct numai după pozitiv adjudecat. Nu nou owner/observer, cap sau timeout; toate eșecurile/uncertitudinile și contorul păstrate. Prima probă reală după această remediere verifică efectul în consumerul existent, nu altă diagnosticare PG.
+
+### Mecanism PG confirmat și atribuire inițială
 
 [Proba PG-only](p2-bound-predicates-evidence/waiter-snapshot-pg-diagnosis.json), o fixture fresh/exit0/drained, confirmă **STOCK-QA-WAITER-SNAPSHOT-01**. Query-ul original SHA`4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea`, extras AST fără import native, vede pe C78 **prime0→old0→fresh1** după `pg_stat_clear_snapshot`, aceeași conexiune și tranzacție READ COMMITTED/autocommit=false. A76 deținea rândul, B77 era blocat, confirmat separat prin D79/pg_blocking_pids înainte și după. Patru conexiuni atestate, tabela proprie sintetică, fără migrare/schema produs/Stop/nativ. Statement3s provine din helperul de conexiune test, lock2s local; nu măsurare a bugetului produsului. Parent a verificat scriptul, raportul hash-bound, CID/socket absente, receipt typed0/drained și PGDATA păstrat. **Nu se atribuie exclusiv CONTROL_TIMEOUT-ul vechi acestei probe.**
 

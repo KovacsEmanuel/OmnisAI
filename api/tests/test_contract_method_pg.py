@@ -2039,6 +2039,73 @@ def batch2_observation_exit(observation: Path, stop_first: bool) -> None:
     invoke()
 
 
+@pytest.mark.parametrize("live_counts", [(1,), (0, 1), (0,), (2,)])
+def test_batch2_waiter_refreshes_local_snapshot(live_counts: tuple[int, ...]) -> None:
+    """SOURCE only: real helper, PG-measured transaction-local activity cache double."""
+    import ast
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+    from types import SimpleNamespace
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    helpers = [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "waiter_observed"
+    ]
+    assert len(helpers) == 1
+    helper = helpers[0]
+    assert "asyncio.timeout(0.75)" in ast.unparse(helper)
+    assert "asyncio.sleep(0.01)" in ast.unparse(helper)
+    query = (
+        "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() "
+        "AND :blocker=ANY(pg_blocking_pids(pid)) "
+        "AND query LIKE '%instance_control%FOR UPDATE%'"
+    )
+    clear = "SELECT pg_stat_clear_snapshot()"
+    calls: list[str] = []
+    observed: list[int] = []
+    cached: int | None = 0  # A primed snapshot stays stale until this connection clears it.
+    contexts: list[str] = []
+
+    async def execute(statement: object, params: object = None) -> SimpleNamespace:
+        nonlocal cached
+        text = str(statement)
+        calls.append(text)
+        if text == clear:
+            assert params is None
+            cached = None
+        else:
+            assert text == query and params == {"blocker": 76}
+            if cached is None:
+                cached = live_counts[min(len(observed), len(live_counts) - 1)]
+            observed.append(cached)
+        return SimpleNamespace(scalar_one=lambda: cached)
+
+    @asynccontextmanager
+    async def connect() -> AsyncIterator[SimpleNamespace]:
+        contexts.append("enter")
+        try:
+            yield SimpleNamespace(execute=execute)
+        finally:
+            contexts.append("exit")
+
+    namespace = {"asyncio": asyncio, "sql": sql, "engine": SimpleNamespace(connect=connect)}
+    exec(compile(ast.Module(body=[helper], type_ignores=[]), "<actual-waiter>", "exec"), namespace)
+    invoke = cast(Callable[[int], Coroutine[object, object, None]], namespace["waiter_observed"])
+    if live_counts[-1] == 1:
+        asyncio.run(invoke(76))
+        assert observed == list(live_counts)
+    else:
+        with pytest.raises(TimeoutError):
+            asyncio.run(invoke(76))
+        assert len(observed) >= 2 and set(observed) == {live_counts[-1]}
+    assert calls == [item for _ in observed for item in (clear, query)]
+    assert contexts == ["enter", "exit"]
+
+
 def test_singleton_post_stop_exception_loads() -> None:
     """Reach both actual pytest.raises expressions with batch2=False, no PG."""
     import ast
@@ -8232,6 +8299,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     async def waiter_observed(blocker: int) -> None:
                         async with asyncio.timeout(0.75), engine.connect() as observer:
                             while True:
+                                await observer.execute(sql("SELECT pg_stat_clear_snapshot()"))
                                 count = (
                                     await observer.execute(
                                         sql(

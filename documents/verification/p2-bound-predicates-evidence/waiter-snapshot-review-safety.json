@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "review_role": "independent focused safety reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "SOURCE/static safety of observer-local waiter snapshot refresh and exact closed selector delta; not product, PostgreSQL, native, Stop or activation acceptance",
+  "base_head": "8cb1250ed6834ae4381e24a7f6117c47a4b7b8b5",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "snapshot": {
+    "api/tests/test_contract_method_pg.py": "aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "0f304c61bf1517af75d94f867febfbec8a9e4ac4665faa107d116251d34b28ff"
+  },
+  "findings": [],
+  "checks": [
+    {
+      "requirement": "Refresh only the observer connection before every original activity-count poll",
+      "location": "api/tests/test_contract_method_pg.py:8299-8315",
+      "result": "PASS_STATIC",
+      "evidence": "AST verified exactly one waiter_observed helper and one while loop. Its first statement awaits observer.execute(sql('SELECT pg_stat_clear_snapshot()')); the immediately following count uses the same observer in the original connection and timeout context. No commit, unlock, pg_stat_reset, SET, autocommit or second-connection change was introduced."
+    },
+    {
+      "requirement": "Preserve actual blocked-query predicate, uniqueness oracle and finite deadlines",
+      "location": "api/tests/test_contract_method_pg.py:8300-8315",
+      "result": "PASS_STATIC",
+      "sql_sha256": "4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea",
+      "evidence": "Original database, pg_blocking_pids(blocker) and instance_control FOR UPDATE query predicate is byte-identical. Success still requires count == 1; zero and multiple waiters continue polling until the unchanged 0.75-second timeout, with unchanged 0.01-second sleep. Refresh adds observation work inside that existing deadline, not additional time or authority."
+    },
+    {
+      "requirement": "Both concurrency orderings retain real owners/locks and shared helper",
+      "location": "api/tests/test_contract_method_pg.py:8317-8416",
+      "result": "PASS_STATIC",
+      "evidence": "Exactly two unchanged helper calls: waiter_observed(fence_pid) at line 8355 and waiter_observed(blocker) at line 8377. observe_fence retains actual_fence; hold_stop retains actual_locked while observing the opposite transaction. Stop-first still requires CatalogError/ControlConflict, empty results/checks/inbox, no access events and successful drain. No owner authority or lock-release path changed."
+    },
+    {
+      "requirement": "Cancellation, finalizers, refusal and all unrelated source remain unchanged",
+      "result": "PASS_AST_EQUIVALENCE",
+      "evidence": "Removing only the new test_batch2_waiter_refreshes_local_snapshot function and the single local-clear statement produces a full module AST exactly equal to git show HEAD:api/tests/test_contract_method_pg.py. This independently binds all existing cleanup, cancellation, authority and generated-hook source to the current HEAD baseline. It is an unchanged-code check, not new dynamic cleanup proof."
+    },
+    {
+      "requirement": "Regression uses actual helper and declares its synthetic boundary",
+      "location": "api/tests/test_contract_method_pg.py:2042-2106",
+      "result": "PASS_REVIEW_NOT_RERUN",
+      "evidence": "Four parameter cases compile the actual nested helper AST against a local cache double: immediate live 1 behind cached 0, 0 then 1 requiring another refresh, persistent 0, persistent 2. Tests assert exact clear/query alternation, original blocker parameter, one context enter/exit, timeout and sleep constants. Negative cases require TimeoutError. These are SOURCE controls, not live waiter, lock, native or Stop proof. Parent owns the four focused executions."
+    },
+    {
+      "requirement": "Selector remains closed and pinned to exact source and owned roots",
+      "location": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "result": "PASS_STATIC",
+      "evidence": "Both source pins equal the caller SHA; BATCH2_REVIEWED and STARTUP_REVIEWED are None. Relative to HEAD, the entire selector equals only replacement of the two source digests and stock2 to stock3 for batch cases. Fixed source/artifact/reader hashes, physical no-symlink path walk, UID/single-link/regular-file/size/stability checks, case allowlist, adjudication check and owner remain unchanged. No CLI-selected path authority added. Fresh stock3 release-first and stop-first roots were absent at observation; startup stock1 is unchanged."
+    }
+  ],
+  "conditional_selector_postimage": {
+    "status": "APPROVED_SCOPED_CONDITIONAL_NOT_APPLIED",
+    "preimage_sha256": "0f304c61bf1517af75d94f867febfbec8a9e4ac4665faa107d116251d34b28ff",
+    "exact_old": "BATCH2_REVIEWED: str | None = None",
+    "exact_new": "BATCH2_REVIEWED: str | None = \"aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743\"",
+    "postimage_sha256": "73469fc7adfbed488955b72739a93852f3a993617c07ef7e72a8dadbcfc72a84",
+    "calculation": "Single unique exact text replacement in memory only; STARTUP_REVIEWED remains None; no file activation or selector execution",
+    "conditions": [
+      "Parent adjudicates both complementary complete reports against the exact caller/selector snapshot and focused test results, then commits the accepted delta.",
+      "Parent verifies the exact conditional postimage if applied; any additional edit requires separate comparison/review.",
+      "ONE release-first only on fresh /home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first; no activation authorized by this reviewer.",
+      "Stop-first is a separate later admission only after a positive release-first and its required settlement/readback, never an automatic second run.",
+      "Retain old roots, failures, uncertainty/fences and counters. Startup stays closed."
+    ]
+  },
+  "reused_evidence": {
+    "author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-fix-author.json",
+      "sha256": "e778430903de963ec01049b051283e6925669aa730564c74e9a595c68bb482c7",
+      "reported_red": "4 failed, exit 1",
+      "reported_final_source": "63 passed, 261 deselected, exit 0",
+      "reported_quality": "ruff check, ruff format check, mypy, diff check exit 0",
+      "reported_generated_hooks": {
+        "batch": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+        "startup": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e"
+      },
+      "limit": "Read author evidence; did not rerun tests, quality tools or hook generation. Author report names older base 98a03f863acc046e4d642e91e833432b868e69fd; this review independently verified the exact delta against current HEAD 8cb1250ed6834ae4381e24a7f6117c47a4b7b8b5."
+    },
+    "pg_diagnosis": {
+      "path": "documents/verification/p2-bound-predicates-evidence/waiter-snapshot-pg-diagnosis.json",
+      "sha256": "0debfef5c7ff72660f7820eb2c7736fe9d61903b027699735e1187d5b3e20c8a",
+      "scope": "Existing synthetic-table PG18 mechanism evidence: C old_count 0 then fresh_count 1 in one transaction, with independent D confirming A blocks B before/after; owner exit 0, family drained and exact resource retirement recorded.",
+      "limit": "Not rerun or independently re-attested live. Does not establish the exclusive cause of historical CONTROL_TIMEOUT or prove the product Stop ordering."
+    }
+  },
+  "independent_execution": [
+    {
+      "command": "python3 -I -B - [read-only Git status/head/diffs, scoped source and versioned evidence inspection]",
+      "exit_code": 0,
+      "scope": "No imports of application/selector; no SQL, native, subprocess product or fixture execution"
+    },
+    {
+      "command": "python3 -I -B - [AST equivalence, exact source/predicate/selector hashes, conditional in-memory postimage, fresh-root existence, final Git status]; git diff --check",
+      "exit_code": 0,
+      "scope": "Assertions passed; full-source delta exact; two helper call sites; selector exact delta and both gates closed; diff check exit 0"
+    }
+  ],
+  "repository_accounting": {
+    "tracked_changes": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ],
+    "staged_changes": [],
+    "protected_untracked": "documents/Omnis_Notite_Originale.html: filename/status only; never opened, hashed or edited",
+    "concurrent_change": "An untracked documents/verification/p2-bound-predicates-evidence/waiter-snapshot-fix-author.json appeared between the two status checks. It was not created, opened, hashed or modified by this reviewer and is not approved by this report; parent owns its reconciliation.",
+    "reviewer_repo_writes": false,
+    "head_unchanged": true
+  },
+  "command_limits": {
+    "budget": "5 tool calls including this scratch report write; no expanded full audit or fault matrix",
+    "allowed_and_used": "Local read-only Git, scoped source/evidence reads, AST/hash computations and one requested scratch JSON report",
+    "not_run": [
+      "PostgreSQL/OCI/native/Host or installed selector activation",
+      "build/install/provider/target/network traffic",
+      "profile or credential access/modification",
+      "repository writes, staging, commit or push",
+      "private PG/native log inspection",
+      "independent pytest execution; parent owns four focused cases",
+      "full canonical suite or unrelated prior acceptance replay"
+    ],
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "status_handoff": {
+    "current_slice": "AICI: observer snapshot fix SOURCE safety APPROVED_SCOPED; integration/admission remains with parent",
+    "proof": "Static checks independently PASS; author SOURCE tests reported PASS; live batch2 acceptance NOT_RUN by reviewer",
+    "global_gates": "Batch2/B06b/G02/P2/P4a-minim remain open; no runtime success inferred",
+    "next": "Parent runs/adjudicates four focused source cases and both reviews, commits accepted delta, then separately considers ONE fresh release-first within existing authority"
+  }
+}

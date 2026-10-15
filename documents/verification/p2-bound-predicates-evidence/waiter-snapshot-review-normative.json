@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "review": "waiter-snapshot-review-normative",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused normative review of transaction-local per-poll statistics refresh, unchanged strict waiter oracle, four actual-helper SOURCE regressions and conditional batch2 selector admission. No runtime acceptance.",
+  "head": "8cb1250ed6834ae4381e24a7f6117c47a4b7b8b5",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "snapshot": {
+    "api/tests/test_contract_method_pg.py": {
+      "sha256": "aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743",
+      "head_sha256": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
+    },
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+      "sha256": "0f304c61bf1517af75d94f867febfbec8a9e4ac4665faa107d116251d34b28ff",
+      "head_sha256": "6f3aac40e361c02ebb88d346917580fdca2b6db427e983e5d72b640dae9a0d8d"
+    }
+  },
+  "findings": [],
+  "dispositions": [
+    {
+      "requirement": "Exactly one local refresh statement before every existing activity lookup",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "location": "api/tests/test_contract_method_pg.py:8299-8315",
+      "evidence": "The first statement of the existing while loop is await observer.execute(sql(\"SELECT pg_stat_clear_snapshot()\")); the immediately following statement performs the existing activity count. One observer connection remains inside the original 0.75-second timeout. Refresh is inside, not before, the loop. No global statistics reset, settings, transaction replacement, extra connection, lock mutation or broader query authority."
+    },
+    {
+      "requirement": "Preserve strict oracle and both actual consumers",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "sql_sha256": "4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea",
+      "evidence": "Single activity SQL literal in waiter_observed is unchanged. count == 1, blocker parameter, current_database predicate, pg_blocking_pids predicate, instance_control/FOR UPDATE query filter, 0.75 timeout and 0.01 sleep are unchanged. The release-first waiter_observed(fence_pid) at line 8355 and Stop-first waiter_observed(blocker) at line 8377 remain unchanged."
+    },
+    {
+      "requirement": "Preserve existing batch binding, overlap, result/check/inbox, no-rerun and finalizer checks",
+      "disposition": "PASS_UNCHANGED_SOURCE_SCOPED",
+      "evidence": "Independent byte-for-byte reversal of only the added regression function and single refresh line reproduces the HEAD source exactly. This is stronger than AST equivalence for all unaffected source. Existing consumer checks and prior scoped approval are retained, not rerun or newly promoted to product PASS."
+    },
+    {
+      "requirement": "Four actual-helper cache-model regressions",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "location": "api/tests/test_contract_method_pg.py:2042-2108",
+      "evidence": "The regression extracts and compiles the actual nested waiter AST. Cached 0 versus live 1 requires the initial refresh; live 0 then 1 requires a second refresh; persistent 0 and persistent 2 require TimeoutError, with at least two observations and the expected count. Exact clear/query alternation rejects extra queries or missing refresh, blocker binding is checked and exactly one observer context must enter/exit. These doubles test source semantics, not real PG overlap or Stop."
+    },
+    {
+      "requirement": "Closed, exactly pinned selector and fresh batch-only roots",
+      "disposition": "PASS_SOURCE_SCOPED_CONDITIONAL_ADMISSION",
+      "evidence": "Both SOURCE pins equal the reviewed source SHA. BATCH2_REVIEWED and STARTUP_REVIEWED are None. Only BATCH2_CASES move stock2 to stock3; startup remains stock1. Reversing only those pin/root substitutions reproduces HEAD selector bytes exactly. main requires both the explicit flag and approved == source; the flag alone cannot activate the closed markers. Root absence was reported by the author and must remain a parent launch prerequisite, not a resource check performed by this reviewer."
+    },
+    {
+      "requirement": "PG mechanism evidence and historical uncertainty",
+      "disposition": "ACCEPT_EXISTING_MECHANISM_EVIDENCE_ONLY",
+      "evidence": "Read the versioned diagnosis: synthetic one-row table, A76 blocks B77 independently observed by D79 before/after; C78 autocommit false, READ COMMITTED, same transaction, prime0/old0/local clear/fresh1. The recorded fixture exited0/drained, exact CID absent and PGDATA retained. No probe or cleanup was rerun. This supports local stale-query snapshot mechanics, not exclusive retrospective attribution of stock-release2 CONTROL_TIMEOUT, installed batch success or Stop ordering."
+    }
+  ],
+  "conditional_admission": {
+    "decision": "RECOMMEND_ADMIT_ONE_RELEASE_FIRST_AFTER_PARENT_GATES",
+    "active_now": false,
+    "requirements_before_activation": [
+      "Complementary independent review must approve the same frozen source/selector snapshot; parent adjudicates both reviews and any findings.",
+      "Parent reruns the four focused SOURCE controls on final bytes, with private output and --tb=no; required source checks must remain green.",
+      "Parent commits the accepted coherent fix and verifies exact source identity before activation. Existing 147-control and generated-hook approval stays at its unchanged scope; no general review restart.",
+      "Only BATCH2_REVIEWED may be assigned the exact reviewed SOURCE SHA. STARTUP_REVIEWED remains None and consumed startup stock1 remains closed.",
+      "Parent rechecks fresh stock3 roots and existing artifact/reader/binding preconditions through the already approved bounded workflow; no flag-only loop."
+    ],
+    "exact_marker_line": "BATCH2_REVIEWED: str | None = \"aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743\"",
+    "hypothetical_selector_sha256_after_only_exact_marker_replacement": "73469fc7adfbed488955b72739a93852f3a993617c07ef7e72a8dadbcfc72a84",
+    "hypothetical_hash_computed_in_memory_only": true,
+    "release_first_root": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first",
+    "stop_first_root": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-stop-first",
+    "startup_root_unchanged_closed": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+    "execution_policy": "At most ONE release-first after the fix and parent activation. Stop-first only after positive parent adjudication of release-first and its exact evidence/settlement. No retry, counter reset, prewarm, deadline expansion or historical FAIL erasure. A new failure stops at the existing bounded failure policy; this review authorizes no actual effect."
+  },
+  "tests": {
+    "executed_by_reviewer": [
+      {
+        "command": "python3 -I -B -c <inline static SHA/AST/byte-reversal and sanitized existing-log checks>",
+        "exit_code": 0,
+        "result": "Exact frozen hashes matched; source and selector byte reversals equal HEAD; one helper and both call sites inspected; SQL digest matched; markers remain None; hypothetical batch-only activation SHA computed without writing selector. Existing named log summaries and digests read privately, with no traceback emitted."
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "result": "PASS"
+      }
+    ],
+    "author_evidence_inspected_not_rerun": {
+      "red": {
+        "exit_code_reported": 1,
+        "sanitized_log_summary_verified": "4 failed, 320 deselected in 4.08s",
+        "log_sha256": "fe06f11b200fd55c6f73429eac663d644b5b1088f3008f7c849aedea0f301487"
+      },
+      "green": {
+        "exit_code_reported": 0,
+        "sanitized_log_summary_verified": "63 passed, 261 deselected in 7.03s",
+        "log_sha256": "fb9cc97d1efd2353fd5f96d0af0f00e237f6ff20f13a3c56d3b494a23f77d9f1"
+      },
+      "ruff": {
+        "exit_code_reported": 0,
+        "sanitized_log_summary_verified": "All checks passed!",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "format": {
+        "exit_code_reported": 0,
+        "sanitized_log_summary_verified": "2 files already formatted",
+        "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "mypy": {
+        "exit_code_reported": 0,
+        "sanitized_log_summary_verified": "Success: no issues found in 2 source files",
+        "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+      }
+    },
+    "parent_four_focused_controls": "PENDING_PARENT; not claimed as independently rerun",
+    "real_batch_after_fix": "NOT_RUN",
+    "stop_first": "NOT_RUN"
+  },
+  "evidence_sha256": {
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-fix-author.json": "e778430903de963ec01049b051283e6925669aa730564c74e9a595c68bb482c7",
+    "documents/verification/p2-bound-predicates-evidence/waiter-snapshot-pg-diagnosis.json": "0debfef5c7ff72660f7820eb2c7736fe9d61903b027699735e1187d5b3e20c8a",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-generated-batch/qa-sitecustomize.py": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-generated-startup/qa-sitecustomize.py": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e"
+  },
+  "limits": [
+    "Read-only repository review; only this requested scratch report was authored. No repository edit, stage, commit or push.",
+    "No PG/OCI/native/resource operation, build, install, profile, credential, provider or target action; no production runtime/image/authority change.",
+    "Protected documents/Omnis_Notite_Originale.html was listed by Git only, never read, hashed or modified.",
+    "Actual unchanged hook digests were read back; hooks were not regenerated or executed by this reviewer.",
+    "No pytest execution by this reviewer; parent owns the planned four-control rerun. Author exit codes are attributed to the author report, while summaries/digests were independently checked.",
+    "No exclusive historical timeout attribution, no fake-to-PG proof conversion and no global gate closure.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Bundled required reads/static verification used more individual helper invocations than a literal five-invocation reading of the budget, without expanding review scope or effects."
+  ],
+  "status_delta_proposed_to_parent": {
+    "current_slice": "QA refresh IMPLEMENTED_UNCOMMITTED / SOURCE evidence inspected / APPROVED_SCOPED normative",
+    "batch2": "CONDITIONALLY_ADMISSIBLE; current selector remains CLOSED; runtime after-fix NOT_RUN",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "P4a_minim": "NOT_DELIVERED; no status promotion",
+    "next": "Parent complementary adjudication, focused controls, coherent commit, batch-only exact pin activation, then one bounded release-first. Stop-first remains conditional."
+  }
+}

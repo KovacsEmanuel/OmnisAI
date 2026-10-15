@@ -1,0 +1,180 @@
+{
+  "status": "PASS_SOURCE_SCOPED_PENDING_PARENT_REVIEW",
+  "base_head": "98a03f863acc046e4d642e91e833432b868e69fd",
+  "owned_files": [
+    "api/tests/test_contract_method_pg.py",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  ],
+  "delta": {
+    "qa_statement": "await observer.execute(sql(\"SELECT pg_stat_clear_snapshot()\")) immediately before each activity count poll in the single shared nested waiter_observed helper",
+    "tests": "4 SOURCE cases extracted from the actual nested helper: live 1 behind cached 0; first poll 0 then live 1; persistent 0; persistent 2. Exact clear/query alternation, blocker binding, one observer context, 0.75 timeout and 0.01 sleep retained.",
+    "selector": "Both source pins rebound; BATCH2_REVIEWED and STARTUP_REVIEWED remain None; only BATCH2_CASES move stock2 to stock3; startup stock1 unchanged.",
+    "ast_equivalence": "After removing only the added regression and local-clear statement, full source AST equals base. Two existing waiter call sites unchanged."
+  },
+  "red": {
+    "command": "env -u OMNIS_CONTRACT_METHOD_NATIVE_PG -u PYTHONPATH -u PYTEST_ADDOPTS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k batch2_waiter_refreshes_local_snapshot -q --tb=line",
+    "exit_code": 1,
+    "summary": "4 failed, 320 deselected in 4.08s",
+    "scope": "Unmodified waiter baseline with new cache-model regression; positive cases hit TimeoutError; negative cases also reject missing refresh/cached result."
+  },
+  "initial_green": {
+    "command": "env -u OMNIS_CONTRACT_METHOD_NATIVE_PG -u PYTHONPATH -u PYTEST_ADDOPTS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"batch2_waiter_refreshes_local_snapshot or stock_site_actual_admission_cut or batch2_observation or host_diagnostic_actual_finalizer or singleton_post_stop_exception_loads\" -q --tb=line",
+    "exit_code": 0,
+    "summary": "53 passed, 271 deselected in 5.48s"
+  },
+  "final_verification": {
+    "command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "-k",
+      "batch2_waiter_refreshes_local_snapshot or stock_site_actual_admission_cut or batch2_observation or host_diagnostic_actual_finalizer or singleton_post_stop_exception_loads or batch2_installed_route_before_fixture or test_bootstrap_observer_pre_main_source_boundaries",
+      "-q",
+      "--tb=line"
+    ],
+    "exit_code": 0,
+    "summary": [
+      "63 passed, 261 deselected in 7.03s"
+    ],
+    "finalizer_test": "test_bootstrap_observer_pre_main_source_boundaries",
+    "files": {
+      "api/tests/test_contract_method_pg.py": {
+        "sha256": "aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743",
+        "bytes": 469712
+      },
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+        "sha256": "0f304c61bf1517af75d94f867febfbec8a9e4ac4665faa107d116251d34b28ff",
+        "bytes": 8239
+      }
+    },
+    "generated_hooks": {
+      "batch": {
+        "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+        "bytes": 29222,
+        "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-generated-batch/qa-sitecustomize.py",
+        "host_argv": [
+          "/opt/hermes/venv/bin/python",
+          "-I",
+          "-m",
+          "omnis_hermes.runtime_host"
+        ],
+        "native_argv": [
+          "/opt/hermes/venv/bin/python",
+          "-I",
+          "-m",
+          "tui_gateway.entry"
+        ],
+        "unchanged": true
+      },
+      "startup": {
+        "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+        "bytes": 31497,
+        "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-generated-startup/qa-sitecustomize.py",
+        "host_argv": [
+          "/opt/hermes/venv/bin/python",
+          "-I",
+          "-m",
+          "omnis_hermes.runtime_host"
+        ],
+        "native_argv": [
+          "/opt/hermes/venv/bin/python",
+          "-I",
+          "-m",
+          "tui_gateway.entry"
+        ],
+        "unchanged": true
+      }
+    },
+    "roots": {
+      "batch2-release-first": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first",
+      "batch2-stop-first": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-stop-first",
+      "batch2-startup-only": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only"
+    },
+    "review_markers": [
+      null,
+      null
+    ],
+    "ast_delta_exact": true,
+    "logs": {
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-mypy.log": {
+        "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+        "mode": "0o600"
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-format.log": {
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "mode": "0o600"
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-red.log": {
+        "sha256": "fe06f11b200fd55c6f73429eac663d644b5b1088f3008f7c849aedea0f301487",
+        "mode": "0o600"
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-final-green.log": {
+        "sha256": "fb9cc97d1efd2353fd5f96d0af0f00e237f6ff20f13a3c56d3b494a23f77d9f1",
+        "mode": "0o600"
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-green.log": {
+        "sha256": "55913cc5b9d3cea7b3556e195d0020bbf380310b5c01035317ed71f2e0c48983",
+        "mode": "0o600"
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-ruff.log": {
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "mode": "0o600"
+      }
+    }
+  },
+  "quality": [
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-mypy-cache api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "sql": {
+    "unchanged": true,
+    "sha256": "4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea",
+    "count_equals": 1,
+    "blocker_parameter_unchanged": true,
+    "query_filter_unchanged": true
+  },
+  "physical_pg_proof_reference": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-pg-diagnosis.json",
+    "verified_sha256": "0debfef5c7ff72660f7820eb2c7736fe9d61903b027699735e1187d5b3e20c8a",
+    "not_rerun": true,
+    "scope": "Parent-confirmed measured transaction activity cache mechanism only; original release2 exclusive cause UNKNOWN and Stop ordering not proven."
+  },
+  "source_counter_scope": "SOURCE double of measured PG cache semantics; not a PG waiter, lock, owner, release, Stop or native execution proof. Existing unchanged 147-control evidence not rerun wholesale; affected controls plus actual admission/finalizer run on final source.",
+  "limits": [
+    "No PG, OCI, native, qualification, batch run, build, install, provider, target, profile or credential effects.",
+    "No deadline, lock, owner, count oracle, grants, schema, frame caps, image or runtime edits. Generated full batch/startup hooks match required stock bytes.",
+    "Startup consumed stock1 stays closed; fresh stock3 roots are absent and not launched. Historical failures/contexts remain untouched.",
+    "Protected documents/Omnis_Notite_Originale.html never read, hashed or edited.",
+    "No stage, commit or push. Parent owns exact-snapshot complementary review and admission.",
+    "Parent documentation edits appeared concurrently; none modified by this author.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "proposed_parent_skill_lesson": "In same-transaction pg_stat_activity waiter polling, refresh only the observer local pg_stat_clear_snapshot before every poll; retain exact query, uniqueness oracle and deadline. Pair actual PG cache evidence with a SOURCE regression that needs the second refresh.",
+  "issues": [
+    "No functional blocker in SOURCE controls. Initial helper-only hook digest was a partial component, not full sitecustomize; actual generated full hooks subsequently verified against required hashes.",
+    "Tool-call discovery exceeded the nominal 10-call budget; no additional product change, harness or effectful rerun."
+  ]
+}

@@ -168,14 +168,20 @@ forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "load_credential_pool", "get_api_key", "discover_builtin_tools", "discover_plugins"}
 observed = forbidden | {"main", "run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
 from types import CodeType
-# Ten fixed boundaries. LINE is local to these exact code objects, never global.
+# Fourteen fixed boundaries. LINE is local to these exact code objects, never global.
 # END means the next fixed source boundary or PY_RETURN was reached, not READY.
 phase_inventory = {
     (str(inert / "tui_gateway/entry.py"), "<module>", 1): (
         "ENTRY_MODULE_BEGIN", {23: ("ENTRY_SERVER_IMPORT_BEGIN", "ENTER"),
                                 24: ("ENTRY_SERVER_IMPORT_BEGIN", "END")}),
     (str(inert / "tui_gateway/server.py"), "<module>", 1): (
-        None, {36: ("SERVER_CONVERSATION_IMPORT_BEGIN", "ENTER"),
+        "SERVER_MODULE_BEGIN", {24: ("SERVER_SECRET_SCOPE_IMPORT_BEGIN", "ENTER"),
+               25: ("SERVER_SECRET_SCOPE_IMPORT_BEGIN", "END"),
+               28: ("SERVER_ENV_LOADER_IMPORT_BEGIN", "ENTER"),
+               29: ("SERVER_ENV_LOADER_IMPORT_BEGIN", "END"),
+               31: ("SERVER_LOCAL_ENV_IMPORT_BEGIN", "ENTER"),
+               32: ("SERVER_LOCAL_ENV_IMPORT_BEGIN", "END"),
+               36: ("SERVER_CONVERSATION_IMPORT_BEGIN", "ENTER"),
                37: ("SERVER_CONVERSATION_IMPORT_BEGIN", "END"),
                3363: ("SERVER_SPLIT_HANDLERS_IMPORT_BEGIN", "ENTER"),
                3386: ("SERVER_SPLIT_HANDLERS_IMPORT_BEGIN", "END")}),
@@ -1932,6 +1938,10 @@ BOOTSTRAP_PHASES = (
     "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
     "ENTRY_MODULE_BEGIN",
     "ENTRY_SERVER_IMPORT_BEGIN",
+    "SERVER_MODULE_BEGIN",
+    "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+    "SERVER_ENV_LOADER_IMPORT_BEGIN",
+    "SERVER_LOCAL_ENV_IMPORT_BEGIN",
     "SERVER_CONVERSATION_IMPORT_BEGIN",
     "CONVERSATION_MODULE_BEGIN",
     "CONVERSATION_TURN_API_IMPORT_BEGIN",
@@ -2425,6 +2435,10 @@ def test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete(
         "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
         "ENTRY_MODULE_BEGIN",
         "ENTRY_SERVER_IMPORT_BEGIN",
+        "SERVER_MODULE_BEGIN",
+        "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+        "SERVER_ENV_LOADER_IMPORT_BEGIN",
+        "SERVER_LOCAL_ENV_IMPORT_BEGIN",
         "SERVER_CONVERSATION_IMPORT_BEGIN",
         "CONVERSATION_MODULE_BEGIN",
         "CONVERSATION_TURN_API_IMPORT_BEGIN",
@@ -2502,7 +2516,7 @@ def test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete(
         assert decoded["last_enter"] == labels[-1]
         assert decoded["pending"] == []
         assert decoded["elapsed_ms"] == 7 and decoded["audit_ms"] == 2
-        assert decoded["audit_calls"] == 11 and decoded["phase_events"] == 20
+        assert decoded["audit_calls"] == 11 and decoded["phase_events"] == 28
     elif mutation != "no-data":
         assert decoded["last_enter"] == labels[-1]
     if mutation != "none":
@@ -2652,7 +2666,7 @@ rpc_code = code_at(str(managed / "tui_gateway/rpc_dispatch.py"), {1: "'module'",
 conversation_code = code_at(str(managed / "agent/conversation_loop.py"),
     {1: "'module'", 18: "pass", 40: "raise RuntimeError('PRIVATE_SOURCE_SENTINEL')" if scenario == "cutoff" else "pass", 41: "pass"})
 server_code = code_at(str(inert / "tui_gateway/server.py"),
-    {1: "pass", 36: "exec(conversation_code)", 37: "pass", 3363: "exec(rpc_code)", 3386: "pass"})
+    {1: "pass", 24: "pass", 25: "pass", 28: "pass", 29: "pass", 31: "pass", 32: "pass", 36: "exec(conversation_code)", 37: "pass", 3363: "exec(rpc_code)", 3386: "pass"})
 filename = str(inert / "tui_gateway/entry.py")
 if scenario == "foreign":
     filename = "/foreign/tui_gateway/entry.py"
@@ -2748,8 +2762,12 @@ print(json.dumps({"frame_audits": frame_audits, "cutoff_observed": cutoff_observ
     if scenario == "cutoff":
         assert diagnostic["last_enter"] == "CONVERSATION_TURN_API_IMPORT_BEGIN"
         assert "CONVERSATION_TURN_API_IMPORT_BEGIN" in sequence(diagnostic["pending"])
-        assert diagnostic["completed"] == []
-        assert diagnostic["phase_events"] == 6
+        assert diagnostic["completed"] == [
+            "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+            "SERVER_ENV_LOADER_IMPORT_BEGIN",
+            "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+        ]
+        assert diagnostic["phase_events"] == 13
     assert b"PRIVATE_SOURCE_SENTINEL" not in canonical(diagnostic), "PRIVATE_CHECKPOINT_DATA_LEAK"
     if scenario == "complete":
         for stop_first in (False, True):
@@ -3967,7 +3985,9 @@ def test_batch2_installed_entry_uses_existing_constructor(
     for name, digest in hashes.items():
         assert sha((tmp_path / name).read_bytes()) == digest
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    from omnis_hermes.runtime_host import RuntimeHost
     from omnis_hermes.runtime_host import TestLaunch as NativeHostTestLaunch
+    from omnis_hermes.runtime_protocol import NativePeer
 
     reached: list[tuple[Path, NativeHostTestLaunch]] = []
 
@@ -3976,6 +3996,8 @@ def test_batch2_installed_entry_uses_existing_constructor(
 
     module = ModuleType("omnis_hermes.runtime_host")
     module.__file__ = "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py"
+    constructor.__dict__["_launch"] = RuntimeHost._launch
+    module.__dict__["NativePeer"] = NativePeer
     module.__dict__["RuntimeHost"] = constructor
     module.__dict__["TestLaunch"] = NativeHostTestLaunch
 
@@ -3990,13 +4012,382 @@ def test_batch2_installed_entry_uses_existing_constructor(
     monkeypatch.setitem(sys.modules, "omnis_hermes", parent)
     monkeypatch.setitem(sys.modules, "omnis_hermes.runtime_host", module)
     with pytest.raises(SystemExit) as exit_value:
-        exec(compile((tmp_path / "host-qa.py").read_text(), "<qa-entry>", "exec"), {})
+        exec(
+            compile(
+                (tmp_path / "host-qa.py")
+                .read_text()
+                .replace(
+                    "/state/host-launch-diagnostic.json",
+                    str(tmp_path / "host-launch-diagnostic.json"),
+                ),
+                "<qa-entry>",
+                "exec",
+            ),
+            {},
+        )
     assert exit_value.value.code == 0 and len(reached) == 1
     directory, launch = reached[0]
     assert directory == Path("/runtime")
     assert isinstance(launch, NativeHostTestLaunch)
     assert list(launch.command) == native_argv
     assert launch.cwd == Path("/state/work")
+
+
+@pytest.mark.parametrize("fault", ["none", "closed-fd", "event-limit", "byte-limit", "busy-tool"])
+def test_host_launch_filtered_source(tmp_path: Path, fault: str) -> None:
+    source = globals().get("HOST_LAUNCH_DIAGNOSTIC")
+    assert isinstance(source, str), "HOST_DIAGNOSTIC_PRODUCER_MISSING"
+    evidence = tmp_path / "host-launch-diagnostic.json"
+    script = (
+        r"""
+import asyncio, json, os, sys
+from types import SimpleNamespace
+sys.path.insert(0, sys.argv[1])
+import omnis_hermes.runtime_host as host
+"""
+        + source.replace("/state/host-launch-diagnostic.json", str(evidence))
+        + r"""
+frame_audits = 0
+def audit(event, args):
+    global frame_audits
+    if event == 'sys._getframe' or event == 'object.__getattr__' and args[1] == 'f_code':
+        frame_audits += 1
+sys.addaudithook(audit)
+async def foreign():
+    try:
+        raise TimeoutError('PRIVATE_HOST_SENTINEL')
+    except TimeoutError:
+        pass
+async def readuntil(separator):
+    raise BrokenPipeError('PRIVATE_HOST_SENTINEL')
+async def exercise():
+    await foreign()
+    peer = SimpleNamespace(timeout=0.001, ready=asyncio.get_running_loop().create_future())
+    try:
+        await host.NativePeer.handshake(peer)
+    except ValueError:
+        pass
+    await host.NativePeer._read(SimpleNamespace(
+        process=SimpleNamespace(stdout=SimpleNamespace(readuntil=readuntil)), _fail=lambda: None))
+    try:
+        await host.RuntimeHost._launch(SimpleNamespace(state='USED'), {})
+    except ValueError:
+        pass
+before = [sys.monitoring.get_tool(i) for i in range(6)]
+if sys.argv[2] == 'busy-tool':
+    for i in range(6):
+        if sys.monitoring.get_tool(i) is None:
+            sys.monitoring.use_tool_id(i, 'source-busy')
+    try:
+        with HostLaunchDiagnostic():
+            raise AssertionError('busy registration accepted')
+    except RuntimeError:
+        pass
+    for i in range(6):
+        if before[i] is None:
+            sys.monitoring.free_tool_id(i)
+else:
+    with HostLaunchDiagnostic() as observer:
+        asyncio.run(foreign())
+        from types import FunctionType
+        clone = FunctionType(host.RuntimeHost._launch.__code__.replace(), host.RuntimeHost._launch.__globals__)
+        try:
+            asyncio.run(clone(SimpleNamespace(state='USED'), {}))
+        except ValueError:
+            pass
+        assert observer.events == []
+        if sys.argv[2] == 'closed-fd':
+            os.close(observer.fd)
+            observer.fd = -1
+        elif sys.argv[2] == 'byte-limit':
+            observer.byte_limit = 1
+        asyncio.run(exercise())
+        if sys.argv[2] == 'event-limit':
+            for _ in range(40):
+                try:
+                    asyncio.run(host.RuntimeHost._launch(SimpleNamespace(state='USED'), {}))
+                except ValueError:
+                    pass
+            assert len(observer.events) == 32 and observer.failed
+assert [sys.monitoring.get_tool(i) for i in range(6)] == before
+print(json.dumps({'frame_audits': frame_audits}))
+"""
+    )
+    result = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", script, str(ROOT / "integrations/hermes/src"), fault],
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    require_empty_stderr(result.stderr)
+    assert result.returncode == 0
+    assert json.loads(result.stdout) == {"frame_audits": 0}
+    decoded = host_launch_checkpoint(evidence)
+    assert decoded["root_cause"] == "UNKNOWN"
+    assert decoded["status"] == ("OBSERVED" if fault == "none" else "INCOMPLETE")
+    assert b"PRIVATE_HOST_SENTINEL" not in canonical(decoded)
+    if evidence.exists():
+        assert b"PRIVATE_HOST_SENTINEL" not in evidence.read_bytes()
+        assert stat.S_IMODE(evidence.stat().st_mode) == 0o600
+    if fault == "none":
+        rows = [mapping(r) for r in sequence(decoded["events"])]
+        assert {r["method"] for r in rows} == {
+            "RuntimeHost._launch",
+            "NativePeer._read",
+            "NativePeer.handshake",
+        }
+        assert {r["event"] for r in rows} == {"RAISE", "HANDLED"}
+        assert {r["exception"] for r in rows} >= {"TimeoutError", "BrokenPipeError", "OTHER"}
+        for row in rows:
+            assert set(row) == {"method", "event", "exception", "offset", "line", "elapsed_ms"}
+        raw = evidence.read_bytes()
+        for mutation in (
+            b"{}",
+            raw[:-1],
+            b" " * 8193,
+            raw.replace(b'"RAISE"', b'"PRIVATE_HOST_SENTINEL"'),
+            raw.replace(b'"offset":', b'"extra":0,"offset":'),
+        ):
+            evidence.write_bytes(mutation)
+            invalid = host_launch_checkpoint(evidence)
+            assert invalid["status"] == "INCOMPLETE" and invalid["events"] == []
+            assert b"PRIVATE_HOST_SENTINEL" not in canonical(invalid)
+
+
+# Installed QA only: global exception delivery, exact identity rejection first.
+# This does not register local RAISE or claim native-filter cost equivalence.
+HOST_LAUNCH_DIAGNOSTIC = r"""
+import dis, json, os, stat, sys, threading, time
+class HostLaunchDiagnostic:
+    def __init__(self):
+        self.targets = (
+            (host.RuntimeHost._launch.__code__, "RuntimeHost._launch"),
+            (host.NativePeer._read.__code__, "NativePeer._read"),
+            (host.NativePeer.handshake.__code__, "NativePeer.handshake"),
+        )
+        self.lines = {id(code): {i.offset: i.positions.lineno or 0 for i in dis.get_instructions(code)}
+                      for code, name in self.targets}
+        self.classes = ((TimeoutError, "TimeoutError"), (BrokenPipeError, "BrokenPipeError"),
+                        (ConnectionResetError, "ConnectionResetError"), (OSError, "OSError"),
+                        (ValueError, "ValueError"), (PermissionError, "PermissionError"))
+        self.events, self.tool, self.fd = [], None, -1
+        self.event_limit, self.byte_limit = 32, 8192
+        self.failed = False
+        self.lock = threading.Lock()
+        self.started = time.monotonic_ns()
+    def save(self, state):
+        raw = (json.dumps({"state": state, "events": self.events},
+                          separators=(",", ":")) + "\n").encode()
+        if len(raw) > self.byte_limit:
+            raise RuntimeError("Host diagnostic limit")
+        os.lseek(self.fd, 0, os.SEEK_SET)
+        os.ftruncate(self.fd, 0)
+        if os.write(self.fd, raw) != len(raw):
+            raise RuntimeError("Host diagnostic unavailable")
+    def record(self, code, offset, error, event):
+        # No class, attributes, frames or source metadata before this identity gate.
+        method = next((name for target, name in self.targets if code is target), None)
+        if method is None:
+            return None  # RAISE does not support DISABLE.
+        try:
+            with self.lock:
+                if self.failed:
+                    return None
+                line = self.lines[id(code)].get(offset)
+                elapsed = (time.monotonic_ns() - self.started) // 1_000_000
+                if (len(self.events) >= self.event_limit or
+                    any(type(v) is not int or not 0 <= v <= 10**12 for v in (offset, line, elapsed))):
+                    raise RuntimeError("Host diagnostic limit")
+                self.events.append({"method": method, "event": event,
+                    "exception": next((name for cls, name in self.classes if type(error) is cls), "OTHER"),
+                    "offset": offset, "line": line, "elapsed_ms": elapsed})
+                self.save("ACTIVE")
+        except BaseException:
+            self.failed = True  # Never replace the product exception or cancellation.
+        return None
+    def raised(self, code, offset, error):
+        return self.record(code, offset, error, "RAISE")
+    def handled(self, code, offset, error):
+        return self.record(code, offset, error, "HANDLED")
+    def __enter__(self):
+        try:
+            self.fd = os.open('/state/host-launch-diagnostic.json',
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+            os.fchmod(self.fd, 0o600)
+            self.tool = next((i for i in range(6) if sys.monitoring.get_tool(i) is None), None)
+            if self.tool is None:
+                raise RuntimeError("Host diagnostic unavailable")
+            sys.monitoring.use_tool_id(self.tool, "batch2-host-launch")
+            sys.monitoring.register_callback(self.tool, sys.monitoring.events.RAISE, self.raised)
+            sys.monitoring.register_callback(self.tool, sys.monitoring.events.EXCEPTION_HANDLED, self.handled)
+            self.save("ACTIVE")
+            sys.monitoring.set_events(self.tool,
+                sys.monitoring.events.RAISE | sys.monitoring.events.EXCEPTION_HANDLED)
+            return self
+        except BaseException:
+            self.failed = True
+            self.__exit__(None, None, None)
+            raise
+    def __exit__(self, kind, value, tb):
+        if self.tool is not None:
+            sys.monitoring.set_events(self.tool, 0)
+            sys.monitoring.register_callback(self.tool, sys.monitoring.events.RAISE, None)
+            sys.monitoring.register_callback(self.tool, sys.monitoring.events.EXCEPTION_HANDLED, None)
+            sys.monitoring.free_tool_id(self.tool)
+            self.tool = None
+        if self.fd >= 0:
+            try:
+                self.save("INCOMPLETE" if self.failed else "STOPPED")
+            except BaseException:
+                self.failed = True
+            finally:
+                try:
+                    os.close(self.fd)
+                except OSError:
+                    self.failed = True
+                self.fd = -1
+        return False
+"""
+
+
+def host_launch_checkpoint(path: Path) -> dict[str, object]:
+    """Bounded private snapshot; event observation is never fatal-cause attribution."""
+    invalid: dict[str, object] = {"status": "INCOMPLETE", "root_cause": "UNKNOWN", "events": []}
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        try:
+            info = os.fstat(fd)
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_uid != os.getuid()
+                or info.st_nlink != 1
+                or info.st_size > 8192
+            ):
+                return invalid
+            raw = os.read(fd, 8193)
+            after = os.fstat(fd)
+            if len(raw) != info.st_size or any(
+                getattr(info, k) != getattr(after, k)
+                for k in (
+                    "st_dev",
+                    "st_ino",
+                    "st_mode",
+                    "st_uid",
+                    "st_nlink",
+                    "st_size",
+                    "st_mtime_ns",
+                    "st_ctime_ns",
+                )
+            ):
+                return invalid
+        finally:
+            os.close(fd)
+        if not raw.endswith(b"\n") or len(raw) > 8192:
+            return invalid
+        value = json.loads(raw, object_pairs_hook=launch_observation_object)
+        if (
+            type(value) is not dict
+            or set(value) != {"state", "events"}
+            or type(value["state"]) is not str
+            or value["state"] not in {"ACTIVE", "STOPPED", "INCOMPLETE"}
+            or type(value["events"]) is not list
+            or len(value["events"]) > 32
+        ):
+            return invalid
+        previous = 0
+        for row in value["events"]:
+            if (
+                type(row) is not dict
+                or set(row) != {"method", "event", "exception", "offset", "line", "elapsed_ms"}
+                or type(row["method"]) is not str
+                or row["method"]
+                not in {"RuntimeHost._launch", "NativePeer._read", "NativePeer.handshake"}
+                or type(row["event"]) is not str
+                or row["event"] not in {"RAISE", "HANDLED"}
+                or type(row["exception"]) is not str
+                or row["exception"]
+                not in {
+                    "TimeoutError",
+                    "BrokenPipeError",
+                    "ConnectionResetError",
+                    "OSError",
+                    "ValueError",
+                    "PermissionError",
+                    "OTHER",
+                }
+                or any(
+                    launch_observation_counter(row[k]) is None
+                    for k in ("offset", "line", "elapsed_ms")
+                )
+                or row["elapsed_ms"] < previous
+            ):
+                return invalid
+            previous = row["elapsed_ms"]
+        return {
+            "status": "OBSERVED" if value["state"] == "STOPPED" else "INCOMPLETE",
+            "root_cause": "UNKNOWN",
+            "events": value["events"],
+        }
+    except (OSError, ValueError, UnicodeError, RecursionError):
+        return invalid
+
+
+def test_launch_early_import_markers_and_mounted_failure(tmp_path: Path) -> None:
+    import ast
+
+    labels = {
+        "SERVER_MODULE_BEGIN",
+        "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+        "SERVER_ENV_LOADER_IMPORT_BEGIN",
+        "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+    }
+    assert labels <= set(BOOTSTRAP_PHASES), "EARLY_IMPORT_MARKERS_MISSING"
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    run = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    assert any(isinstance(n, ast.Nonlocal) and "observation" in n.names for n in run.body)
+    binding = next(
+        n
+        for n in ast.walk(run)
+        if isinstance(n, ast.Assign)
+        and ast.unparse(n) == "observation = state_dir / 'native-observation.jsonl'"
+    )
+    handler = next(
+        n
+        for n in ast.walk(run)
+        if isinstance(n, ast.ExceptHandler) and "launch_client_exceptions=" in ast.unparse(n)
+    )
+    outer = tmp_path / "native-observation.jsonl"
+    outer.touch(mode=0o600)
+    state = tmp_path / "h03-state"
+    state.mkdir(mode=0o700)
+    mounted = state / outer.name
+    mounted.write_bytes(canonical({"test": "observer", "status": "READY", "count": 1}) + b"\n")
+    mounted.chmod(0o600)
+    host_path = state / "host-launch-diagnostic.json"
+    host_path.write_bytes(b'{"state":"STOPPED","events":[]}\n')
+    host_path.chmod(0o600)
+    proof: dict[str, object] = {}
+    namespace = {
+        **globals(),
+        "observation": outer,
+        "state_dir": state,
+        "batch2": True,
+        "checkpoint": lambda **fields: proof.update(fields),
+        "error": TimeoutError(),
+    }
+    assert isinstance(binding, ast.Assign)
+    # Keep observation at the empty outer placeholder: failure must select the mount itself.
+    cut = ast.Module(body=deepcopy(handler.body[:-1]), type_ignores=[])
+    exec(compile(ast.fix_missing_locations(cut), "<mounted-failure>", "exec"), namespace)
+    assert mapping(proof["bootstrap_observation"])["observer_ready"] is True
+    assert mapping(proof["host_launch_observation"])["status"] == "OBSERVED"
+    host_path.write_bytes(b'{"state":"STOPPED","events":[],"private":"SENTINEL"}\n')
+    exec(compile(ast.fix_missing_locations(cut), "<mounted-failure>", "exec"), namespace)
+    assert mapping(proof["host_launch_observation"])["status"] == "INCOMPLETE"
+    assert b"SENTINEL" not in canonical(proof)
 
 
 def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str, str]]:
@@ -4016,10 +4407,12 @@ def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str,
         "import omnis_hermes.runtime_host as host\n"
         "if not Path(host.__file__).is_relative_to('/opt/hermes/venv'):\n"
         "    raise AssertionError('BATCH2_HOST_ORIGIN_REFUSED')\n"
-        "host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
+        + HOST_LAUNCH_DIAGNOSTIC
+        + "\nwith HostLaunchDiagnostic():\n"
+        "    host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
         + repr(tuple(native))
         + ", Path('/state/work')))\n"
-        "raise SystemExit(host.main())\n"
+        "    raise SystemExit(host.main())\n"
     )
     hashes = {}
     for name, value in (
@@ -6546,9 +6939,22 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 try:
                     ready = await runtime.launch_inert(service, supervisor)
                 except BaseException as error:
+                    # Bind failure readback to the actual installed mount, not the outer placeholder.
+                    failure_observation = (
+                        state_dir / "native-observation.jsonl" if batch2 else observation
+                    )
                     checkpoint(
                         launch_client_exceptions=launch_exception_chain(error),
-                        bootstrap_observation=launch_bootstrap_checkpoint(observation),
+                        bootstrap_observation=launch_bootstrap_checkpoint(failure_observation),
+                        **(
+                            {
+                                "host_launch_observation": host_launch_checkpoint(
+                                    failure_observation.with_name("host-launch-diagnostic.json")
+                                )
+                            }
+                            if batch2
+                            else {}
+                        ),
                     )
                     raise
                 assert ready["state"] == "READY"

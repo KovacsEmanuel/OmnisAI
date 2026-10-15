@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-BATCH2-SAFETY-REVIEW-2",
+  "verdict": "CHANGES_REQUESTED",
+  "review_mode": "INDEPENDENT_READ_ONLY_SOURCE_SCOPED",
+  "complete_report": true,
+  "summary_ro": "Două defecte lifecycle reproduse și un oracle batch2 PG care omite refuzul safety. Probe SOURCE pozitive trecute; PG/OCI nu au fost rulate. Nu aprob integrarea sau închiderea H04/P2.",
+  "repository": "/home/kali/OmnisAI",
+  "base": "cdbfa745832ba678b043519b6e4b41e8871be396",
+  "snapshot": {
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "2e76ee4132280ea6302bee9ff5dd12f0ca1a24048f4f8858bc1e095b444e0705",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "6a9b2cfe6f7a0ccf9aeec01f6c3f89f1a079523b87dad15384125a1330bb8a44",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "37add20d0cfd9e803555abaa6dd8d9da08dab6039d7a5fceb96f2f9ef5d4fd41",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "0e9294ca3147894f9c7fc089a1db4f026c037d04467861d81ad6153c350863bd",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "e0ed9af9d6880e4d74912896fbc99c392dce24cba3ff8ab0d844d5bcfb592532",
+      "integrations/hermes/upstream/omnis-managed.patch": "af190ea2cad0f71f1ec739205b6978286c53900e501924f6b33e364bfc4d6307"
+    },
+    "count": 17,
+    "sha256": "20a3c5bcbc90eda4439b899d647b076a213026c1fa2575767836b6db239048b3",
+    "diff_sha256": "d89287b9494f38e6295e61eea14fff3208ceaac791a3ccac19a294ed64d2ddfa",
+    "diff": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/frozen.diff"
+  },
+  "snapshot_verification": {
+    "files_checked": 17,
+    "mismatches_start": [],
+    "mismatches_end": [],
+    "frozen_diff_sha256_verified": "d89287b9494f38e6295e61eea14fff3208ceaac791a3ccac19a294ed64d2ddfa",
+    "head_start": "cdbfa745832ba678b043519b6e4b41e8871be396",
+    "head_end": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+    "head_change_note": "Parent committed during read-only review; all 17 reviewed bytes still exactly match frozen hashes. Verdict is on snapshot, not moving HEAD.",
+    "reviewer_product_edits": false,
+    "reviewer_commits": false,
+    "protected_original": "Not read, hashed, edited, deleted, or staged."
+  },
+  "scope": {
+    "primary_files": [
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py"
+    ],
+    "tests_reviewed": [
+      "api/tests/test_contract_method_producer.py batch2 source/build/native/checker pipeline and swap controls",
+      "integrations/hermes/tests/contract_method_native_probe.py singleton and all four new Batch2Native tests",
+      "api/tests/test_contract_method_pg.py batch2 observer and both variant branches, shared finalizer/post-finally oracle"
+    ],
+    "supporting_paths": [
+      "integrations/hermes/upstream/managed-source/run_agent.py contract entry/readable/close",
+      "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py dispatch",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py _managed/_receive_managed",
+      "api/src/omnis/supervisor/native_tasks.py authority/owner entry",
+      "pinned tools/daemon_pool.py"
+    ],
+    "normative": [
+      "AGENTS.md supplied project context",
+      "CONTRIBUTING.md product-first/review contract",
+      "README.md CURRENT",
+      "documents/verification/implementation-status.md CURRENT",
+      "documents/Omnis_Implementation_Plan.md §7.1/H04",
+      "documents/Omnis_MVP_Architecture.md §5"
+    ],
+    "exclusions": [
+      "Independent review1 owns producer/persistence/history completeness.",
+      "No live DB COMMIT, PG lock waiter, OCI, installed runtime, service, provider/model/target, personal profile/r1, or push.",
+      "No universal audit or cleanup framework; distribution reapply/build not rerun."
+    ]
+  },
+  "findings": [
+    {
+      "id": "SAFETY-BATCH2-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "NATIVE_PARTIAL_SUBMIT_RACE",
+      "file": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "lines": [
+        493,
+        498,
+        515,
+        523
+      ],
+      "title": "Failed partial submit releases registry lock before revoking already-submitted worker",
+      "mechanism": "The second _EXECUTOR.submit can raise inside with _REGISTRY.lock. Unwinding first releases the lock, and only the outer except reacquires it to set batch.failed and close children. A waiting first worker can win that interval; its guard sees the whole binding and both RUNNING records, failed=false, while record2.future is still None. The comment promising no guard passage until complete submission or revocation is false.",
+      "reproducer": {
+        "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+        "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+        "case": "partial_submit_unwind_interleaving",
+        "method": "Real service/AIAgent/executor/handler. Fault-inject second submit RuntimeError; main-thread line trace yields at _release_contract line515, after unlock and before exception cleanup. This forces a legal scheduler interleaving without replacing worker/guard/handler results.",
+        "positive": "Same script first executes the exact same stage through real release: SUCCEEDED, two executions, both futures done.",
+        "observed": {
+          "actual_handler": "contract.normalize-operations",
+          "failed_latch": false,
+          "second_future_absent": true,
+          "final_record_states": [
+            "UNKNOWN",
+            "UNKNOWN"
+          ],
+          "public_results_ready": [
+            false,
+            false
+          ],
+          "indeterminate": true,
+          "owned_futures_joined": true
+        },
+        "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races-output.json"
+      },
+      "violated_requirement": "H04/§5 fail-closed pre-access batch barrier; task explicitly requests partial-submit races and handling of both records. No work may escape the incomplete submission barrier advertised by _release_contract.",
+      "minimal_remedy": "Catch submission failure and latch batch.failed/UNKNOWN/revoke both children inside the SAME registry-lock critical section before unlocking. Preserve running futures; do not wait/join under the lock. Keep an interleaving regression that asserts zero reader/handler entries after second-submit failure.",
+      "limits": "No cross-task data was returned and no final was fabricated here; UNKNOWN/no retry remain intact. Only finite PURE local work escaped the partial-submit barrier, not target IO. Scheduler cut is deterministic fault injection, not a frequency estimate."
+    },
+    {
+      "id": "SAFETY-BATCH2-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "NATIVE_PARTIAL_RESULT_PUBLICATION",
+      "file": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "lines": [
+        504,
+        523,
+        605,
+        610
+      ],
+      "title": "Failure publishing the second record leaves the first publicly ready/SUCCEEDED in an UNKNOWN batch",
+      "mechanism": "The success loop publishes record.result one record at a time. If result construction/hashing/dataclasses.replace fails on record2, the except handler changes record.state to UNKNOWN but never clears already-published record.result. Public service.result(handle) prefers record.result, so record1 remains ready=True/terminal_state=SUCCEEDED while both registry states and the whole batch are indeterminate.",
+      "reproducer": {
+        "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+        "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+        "case": "partial_publication",
+        "method": "Both real child futures settle successfully; inject a failure in dataclasses.replace on the second SubagentResult publication. Read exact service.result handles and batch readback after the outer failure handler.",
+        "positive": "Same service release channel succeeds with two complete results without the fault.",
+        "observed": {
+          "registry_states": [
+            "UNKNOWN",
+            "UNKNOWN"
+          ],
+          "public_results": [
+            {
+              "ready": true,
+              "terminal": "SUCCEEDED"
+            },
+            {
+              "ready": false,
+              "terminal": "UNKNOWN"
+            }
+          ],
+          "indeterminate": true,
+          "batch_readback_denied": true,
+          "futures_done": true
+        },
+        "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races-output.json"
+      },
+      "violated_requirement": "Homogeneous whole-batch publication only after settlement; on failure/UNKNOWN do not retain or publish partial success, and treat both records consistently.",
+      "minimal_remedy": "Construct/hash the full set of SubagentResult objects before publishing any. Ensure failure rollback of result/completed state is performed within the same publication lock before any reader can observe partial publication; keep batch indeterminate and preserve futures. Regression must inspect public result(handle), not only record.state and batch readback.",
+      "limits": "The main managed RPC batch readback correctly refuses; this reproduces a leak through the existing native lifecycle result surface, not persisted API acceptance. Fault seam models a publication exception/BaseException cut; no claim of normal dataclasses.replace randomly failing."
+    },
+    {
+      "id": "SAFETY-BATCH2-F03",
+      "severity": "HIGH",
+      "blocking": true,
+      "category": "QA_FALSE_GREEN_SAFETY_ORACLE",
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [
+        5648,
+        5658,
+        5699,
+        5728,
+        5770,
+        7563,
+        7574
+      ],
+      "title": "Both batch2 variants return before the shared strict observation/forbidden-effect oracle",
+      "mechanism": "The batch2-stop-first and batch2-release-first branches return at5658/5770. finally runs cleanup, but the strict observation/readiness/forbidden-* checks at7563–7574 are ordinary code after finally and are skipped. release-first only checks access counts/times and real AIAgent rows; stop-first only checks absence of read/handler/run_contract. Unknown/malformed observer rows or a caught forbidden attempt can therefore coexist with branch success. launch_bootstrap_checkpoint in finally records diagnostics but does not enforce them.",
+      "reproducer": {
+        "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle.py",
+        "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle.py",
+        "method": "Compile/execute the unchanged source assertion window5700–5728 only, with explicitly synthetic same-channel events. AST confirms both early-return sites. No PG test import/execution or DB/OCI effects.",
+        "positive": "A valid two-read/four-handler overlap plus two REAL_AIAgent observations is accepted.",
+        "negative_controls": [
+          {
+            "extra_event": "forbidden-sink/init_agent",
+            "outcome": "ACCEPTED"
+          },
+          {
+            "extra_event": "forbidden-effect/socket.connect",
+            "outcome": "ACCEPTED"
+          },
+          {
+            "extra_event": "malformed batch2-access/foreign operation/bool thread/unknown field",
+            "outcome": "ACCEPTED"
+          }
+        ],
+        "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle-output.json"
+      },
+      "violated_requirement": "H04/H08 and QA contract require same-channel fail-closed observer evidence, zero forbidden attempts, and unknown evidence not silently accepted. User specifically requested reporting safety-relevant signals hidden by the new PG oracle.",
+      "minimal_remedy": "Apply the existing common bounded/strict observer-readiness and forbidden-event refusal checks on both batch2 exits, preferably once in shared post-cleanup logic, while keeping task-count-specific assertions separate. Do not weaken the singleton oracle. Add same-channel caught-forbidden and unknown-row negatives, then run the two separately authorized PG/native variants.",
+      "limits": "PG/native variants were not executed. This is a verified source-oracle defect with synthetic events, not proof that a forbidden native effect occurred in a live PG run."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "Strict trusted batch_index / no goal or FIFO association",
+      "status": "REVIEWED_SOURCE_SCOPED",
+      "evidence": "entries rejects type!=int and requires exact enumerate index; initialize_contract requires exact int0..1; assignment rejects absent for batch2 and bool/float/out-of-range; run_contract/_start_contract/_contract_guard recheck range, index and record identity. Production ContractAdmission callsite passes entry[batch_index]; both method.assignment callsites pass retained constructor-owned index. Singleton assignment default remains explicit backward compatibility.",
+      "limit": "validate_composition is an internal material validator; production stage entry path supplies strict entries first. Not every internal helper misuse has an independent test."
+    },
+    {
+      "requirement": "Whole-stage schemas/refs/digests/caps before first child constructor",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "validate_stage validates exact closed union/common refs and both compositions/assignment_material before lifecycle constructor loop; new bad pool/second brief/index controls execute in nested native tests."
+    },
+    {
+      "requirement": "Exact root/parent/session/record ownership and deadlines",
+      "status": "PASS_SOURCE_SCOPED_WITH_LIMITS",
+      "evidence": "Original root object and root/session IDs rechecked; index points at identical batch record and global registry object; child parent and native IDs checked before start and each guard. Singleton same-channel wrong-root/session/binding/deadline denials passed; no grant widened.",
+      "limit": "SOURCE verifies local guard, not durable DB authority or physical Stop."
+    },
+    {
+      "requirement": "One RUN/two same goals/two separate tasks, attempts, Briefs and schemas",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Producer stage controls and real native/checker pipeline passed. Common BoundProcedure/material retained immutable, per-task headers/results/schemas differ. Sibling execution/receipt/artifact/header/binding mutations rejected by checker/schema controls."
+    },
+    {
+      "requirement": "Whole binding and both RUNNING before first access, real PURE overlap",
+      "status": "PASS_NOMINAL_SOURCE_WITH_F01_FAILURE_GAP",
+      "evidence": "Native test hooks actual reader and handler, observes committed bytes/all RUNNING under lock; barriers and independent thread/time intervals show real overlap. Both futures settled before nominal final.",
+      "limit": "Binding is an in-memory SOURCE assertion, not PG COMMIT proof. Partial-submit safety gap is F01."
+    },
+    {
+      "requirement": "No join/wait/handler under _REGISTRY.lock including outer release",
+      "status": "REVIEWED_SOURCE_SCOPED",
+      "evidence": "release exits registry lock before _release_contract; submit only is locked; future.result waits outside; guard briefly locks then handler executes outside. Existing _EXECUTOR reused. managed_admission_rpc holds a distinct RPC serialization lock, not registry lock."
+    },
+    {
+      "requirement": "Per-task output/receipt/read isolation and observer raise/False",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "read_input strict reference then exact owned original; PURE validates next step/input refs and actual previous local artifact; sibling artifact/receipt refs refused on same action channel with real positive. Singleton observer raise/false and late veto tests observed no unauthorized reader/handler body. Batch raise/false produces UNKNOWN/no retry.",
+      "limit": "Shared original immutable input is intentionally common, so it is not a forbidden sibling input. Main-thread profiler material-unpack assertion alone does not observe worker frames; code guard order and reader/handler probes are stronger evidence."
+    },
+    {
+      "requirement": "Timeout/one-use/uncertainty/settlement",
+      "status": "PARTIAL_CHANGES_REQUESTED",
+      "evidence": "Batch timeout test observes futures still active after timeout, both records UNKNOWN and no retry, then test-owned settlement; no claimed drain from child.close. One-use binding/started/indeterminate latches reviewed. Partial-submit and publication failure defects F01/F02 remain.",
+      "limit": "Scratch cancel/replay extension failed twice as harness; cancellation race acceptance is INCONCLUSIVE, not PASS. Static cancel path reviewed but not certified dynamically in batch2."
+    },
+    {
+      "requirement": "PG binding commit / release-first vs Stop-first / cleanup ownership",
+      "status": "NOT_RUN",
+      "evidence": "Read new variants and shared finally, found F03. No DB/OCI/service started. Source review is not persistence or process-family drain proof."
+    }
+  ],
+  "verification": [
+    {
+      "label": "Independent exact-source producer and batch2 native/checker journey",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_complete_producer_stage api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-source -q --tb=line",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.55,
+      "nested_native_tests": 4,
+      "artifacts": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-source/test_batch2_native_source_to_t0",
+      "limits": "Real compiler/capture/preparation/build/native child/PURE/checker; storage/publication doubles; no PG/installed ACK."
+    },
+    {
+      "label": "Independent singleton native regression",
+      "command": "/usr/bin/python3 -I -B integrations/hermes/tests/contract_method_native_probe.py /home/kali/.hermes/cache/scratch/contract-method-evidence/pinned /home/kali/OmnisAI/integrations/hermes/upstream/managed-source /home/kali/OmnisAI/integrations/hermes/src /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-singleton-home",
+      "exit_code": 0,
+      "tests": 17,
+      "forbidden_effects": 0,
+      "seconds": 4.924
+    },
+    {
+      "label": "Partial-submit and partial-publication reproducers plus same-channel positive",
+      "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+      "exit_code": 0,
+      "cases": 3,
+      "result": "F01 and F02 reproduced; positive SUCCEEDED/two results; all owned futures joined; forbidden effects=[]",
+      "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races-output.json"
+    },
+    {
+      "label": "PG branch observation oracle SOURCE challenge",
+      "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle.py",
+      "exit_code": 0,
+      "controls": 4,
+      "result": "Positive and all three safety negatives accepted by unchanged batch2 assertion window; F03 reproduced",
+      "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle-output.json"
+    },
+    {
+      "label": "Scratch cancellation/replay extension attempt1",
+      "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel.py",
+      "exit_code": 1,
+      "result": "HARNESS_FAIL: reused three-party barrier at the sibling second handler; BrokenBarrierError during future join. Not credited as product PASS.",
+      "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-output.json"
+    },
+    {
+      "label": "Scratch cancellation/replay extension attempt2",
+      "command": "/usr/bin/python3 -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel.py",
+      "exit_code": 1,
+      "result": "HARNESS_INCONCLUSIVE: first-handler barrier not reached. Existing frozen SOURCE Brief deadline was 2026-10-15T06:13:16.922675Z; later readback at06:13:42.617231+00:00 confirmed expired fixture. Inner pending exception not collected, so precise cause NOT_OBSERVED. Stopped after two harness attempts; no deadline widening/third retry.",
+      "output": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-v2-output.json"
+    }
+  ],
+  "reproduction_prerequisites": "Scratch scripts intentionally refuse reused native homes and consume the original immutable Brief deadline. For a fresh parent reproduction, run the two producer tests with a NEW --basetemp, copy the scratch reproducer into a new scratch review directory, and substitute only its SCRATCH/fixture/home paths for that new producer output. Keep the exact product bytes, -I -B, original deadlines, fault location, and actual reader/handler delegation. Do not rerun into the retained evidence directories or extend/reseal a Brief deadline. The oracle-only script is repeatable without native setup.",
+  "deadlines": {
+    "grant_seconds": 4.5,
+    "stage_seconds": 4.5,
+    "execution_seconds": 3.0,
+    "host_seconds": 3.2,
+    "control_seconds": 4.0,
+    "modified": false
+  },
+  "source_prerequisites": {
+    "source_tree": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "run_agent_exists": true,
+    "daemon_pool_exists": true,
+    "pin_metadata_checks": {
+      "uv.lock": true,
+      "pyproject.toml": true,
+      "LICENSE": true
+    },
+    "missing_PIN_and_git_note": "Existing nominated export has no PIN file or .git. Matching three pinned file hashes were independently verified; full archive/tree provenance was not re-certified. Overlay snapshot bytes checked exactly; no source download/restore performed."
+  },
+  "artifacts_created_only_in_scratch": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-source/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-singleton-home/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races.py",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races-output.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-races-home/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle.py",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-oracle-output.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel.py",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-output.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-v2-output.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-home/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-safety-cancel-v2-home/"
+  ],
+  "limits": [
+    "Report approves no global gate. H04/B06b/G02/P2 remain open.",
+    "No original protected HTML reads/hashes; no product/skill/config changes, no commit, no stage, no push.",
+    "All executed Python used -I -B. Tests use fresh scratch homes with existing audit denial for socket.connect/subprocess/os.system and credential-file opens in the native process. This is Python observer evidence, not new OS confinement.",
+    "No provider/warm initialization/model/target traffic intended or observed by executed native effect audit.",
+    "No full canonical, installation, OCI, PG or live persistence/cleanup QA; both batch2 PG variants remain NOT_RUN.",
+    "Finite inspection does not establish exhaustive arbitrary thread scheduling or all BaseException cuts. Scratch cancellation extension is explicitly incomplete.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "proposed_parent_status": {
+    "current_slice": "AICI finite2 B01–B03/H04 batch2",
+    "implementation": "IMPLEMENTED_SOURCE_WITH_CONFIRMED_FAILURE_GAPS",
+    "proof": "NOMINAL_SOURCE_PASS; FAILURE_REPRODUCERS; PG/OCI_NOT_RUN",
+    "review": "CHANGES_REQUESTED",
+    "next": "Parent reproduces/adjudicates F01/F02/F03, minimal fixes and focused re-review on new hashes; only then separately authorized PG fixture/effect QA. No request to reopen unrelated accepted history."
+  },
+  "lesson_for_parent_skill_update": "On a locked multi-submit barrier, catch and latch revocation before exiting the submission lock, not in an outer except. Failure tests must inspect the public per-record result as well as state/batch readback. Early returns inside try/finally skip any safety oracle after finally; challenge new branches with a caught forbidden event on the same channel. No skill file modified by this read-only reviewer."
+}

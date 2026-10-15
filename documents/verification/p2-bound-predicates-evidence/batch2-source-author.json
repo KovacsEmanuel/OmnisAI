@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_FROZEN_NOT_REVIEWED",
+  "base": "cdbfa745832ba678b043519b6e4b41e8871be396",
+  "branch": "checkpoint/p2-vm-restart-20261011",
+  "committed": false,
+  "staged": false,
+  "phase_closed": false,
+  "snapshot": {
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "2e76ee4132280ea6302bee9ff5dd12f0ca1a24048f4f8858bc1e095b444e0705",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "6a9b2cfe6f7a0ccf9aeec01f6c3f89f1a079523b87dad15384125a1330bb8a44",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "37add20d0cfd9e803555abaa6dd8d9da08dab6039d7a5fceb96f2f9ef5d4fd41",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "0e9294ca3147894f9c7fc089a1db4f026c037d04467861d81ad6153c350863bd",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "e0ed9af9d6880e4d74912896fbc99c392dce24cba3ff8ab0d844d5bcfb592532",
+      "integrations/hermes/upstream/omnis-managed.patch": "af190ea2cad0f71f1ec739205b6978286c53900e501924f6b33e364bfc4d6307"
+    },
+    "count": 17,
+    "sha256": "20a3c5bcbc90eda4439b899d647b076a213026c1fa2575767836b6db239048b3",
+    "diff_sha256": "d89287b9494f38e6295e61eea14fff3208ceaac791a3ccac19a294ed64d2ddfa",
+    "diff": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/frozen.diff"
+  },
+  "implementation": [
+    "prepare-method v4 task_count=2; cold v2/v3 singleton retained",
+    "record-refs-v2 plus typed version1 prompt-material, exact local closed union; shared bound procedure, distinct task/attempt/Brief/header-specific result schemas",
+    "whole-stage validation before first native constructor; strict constructor-owned batch_index",
+    "existing executor/futures; whole binding/RUNNING latch, locked identity guard, handler and waits outside registry lock; homogeneous ordered final only after both settle",
+    "timeout/partial submit/guard failure remains UNKNOWN and indeterminate; running futures remain observable; no retry/partial final",
+    "whole binding MethodCheck child selection and per-task receipts; retained checker/composer explicit receive-only compatibility",
+    "existing PG/native consumer has two batch2 variants and public CLI preparation; collection only"
+  ],
+  "metrics": {
+    "graph_bytes": 47621,
+    "preparation_bytes": 14828,
+    "stage_bytes": 32503,
+    "total_bytes": 62449,
+    "final_bytes": 27775
+  },
+  "predecessor": {
+    "base": "cdbfa745832ba678b043519b6e4b41e8871be396",
+    "composer": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+    "compiler": "sha256:39942bcba883b0c0f9a964b0e9e72a96486597bace9dcbf5b886f538e11e7d89",
+    "evaluator": "sha256:8b90b5e90515dc78561f085414e84eeaed260238934ea199fd08d899f95448b0",
+    "checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    },
+    "compiler_closure": {
+      "settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+      "settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+      "settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+      "settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2",
+      "tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "tasks/managed_contract.py": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a"
+    },
+    "checker_closure": {
+      "tasks/method_checker_identity.py": "327d9de2ca1e89f01b04e312dfee2b592866a9e79151137d76169952500e8e06",
+      "tasks/method_checks.py": "7243887e37904e1ed80df80c2ba8a77fb512c0c08cf90e417ef99186a508f1e1",
+      "tasks/managed_contract.py": "10dbf403c60e867a0376cadf8fbea6928cc0016aac3ebfa0fba5e5252fa6622a",
+      "tasks/managed_composition.py": "3646e6368b95c64c5017b9bdfd16a7f3390ea225f8144ea5f064bc71ea1649f8",
+      "tasks/criterion_checks.py": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a",
+      "tasks/mission_revisions.py": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97",
+      "tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+    }
+  },
+  "current_identities": {
+    "composer": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+    "compiler": "sha256:7958c3676989ca829d80ceac99284118ad6b08af7994f0e43211a8b06ad8733b",
+    "evaluator": "sha256:47fddea827616d5fe1779e653c71e487d072b9c11ccde3d4598bc2ec8715b6d9",
+    "checker": {
+      "key": "managed.contract-pure.v2",
+      "code_digest": "0b488965a33800ce75559be6ee6129cd25a2320597481d075d06a05f62f497c3",
+      "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+    }
+  },
+  "fingerprint_history_files_changed": [
+    "api/src/omnis/modules/tasks/method_checker_identity.py"
+  ],
+  "fingerprint_closure": "candidate_catalog.BEHAVIOR_FILES and method_checker_identity.SOURCES unchanged; source-byte compiler/evaluator/checker revisions recomputed, no forced digest or removed closure member",
+  "verification": [
+    {
+      "label": "RED producer",
+      "log": "red-producer-2.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_complete_producer_stage -q --tb=line",
+      "exit": 1,
+      "failed": 1,
+      "reason": "prepare-method task_count=2 refused"
+    },
+    {
+      "label": "RED indexed constructor",
+      "log": "red-native.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks -q --tb=short",
+      "exit": 1,
+      "failed": 1,
+      "reason": "Trusted batch index required; existing constructor omitted index"
+    },
+    {
+      "label": "RED strict Ref at reader",
+      "log": "red-ref-alias-bounded.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks -q --tb=short",
+      "exit": 1,
+      "failed": 1,
+      "reason": "revision=True reached real read boundary; now strict before equality"
+    },
+    {
+      "label": "RED retained checker",
+      "log": "red-predecessor.log",
+      "exit": 1,
+      "failed": 1,
+      "passed": 1,
+      "reason": "authentic predecessor with zero predicates unavailable; explicit receive-only mapping now preserves it"
+    },
+    {
+      "label": "API SOURCE final product regression",
+      "log": "source-scope-frozen.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_managed_requests.py api/tests/test_managed_contract.py api/tests/test_managed_composition.py api/tests/test_managed_wire_parity.py api/tests/test_composition_native_parity.py api/tests/test_native_task_owner.py api/tests/test_contract_method_checks.py -k \"not test_pg_qualified_goal_prepare_before_reservation\" -q --tb=short",
+      "exit": 0,
+      "passed": 310,
+      "deselected": 5
+    },
+    {
+      "label": "Native adapter/distribution SOURCE",
+      "log": "native-scope-frozen.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_admission.py'\"'\"', '\"'\"'integrations/hermes/tests/test_prompt_bundle.py'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_composition.py'\"'\"', '\"'\"'integrations/hermes/tests/test_contract_method.py'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_native_source.py'\"'\"', '\"'\"'integrations/hermes/tests/test_c03_records.py'\"'\"', '\"'\"'integrations/hermes/tests/test_c03_case_input.py'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_build.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=line'\"'\"']))'",
+      "exit": 0,
+      "passed": 215
+    },
+    {
+      "label": "Task scoping / qualification / criteria / fingerprints SOURCE",
+      "log": "task-scoping-final.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks api/tests/test_result_qualification.py api/tests/test_c04_criteria.py api/tests/test_candidate_tracer_fingerprints.py -q --tb=short",
+      "exit": 0,
+      "passed": 96
+    },
+    {
+      "label": "Final batch2 end-to-end SOURCE measurement",
+      "log": "source-frozen-measurement.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/source-frozen-measurement -q --tb=short",
+      "exit": 0,
+      "passed": 1,
+      "nested_real_native_tests": 4
+    },
+    {
+      "label": "Singleton full native SOURCE",
+      "log": "native-frozen-singleton.log",
+      "command": "/usr/bin/python3 -I -B integrations/hermes/tests/contract_method_native_probe.py /home/kali/.hermes/cache/scratch/contract-method-evidence/pinned /home/kali/OmnisAI/integrations/hermes/upstream/managed-source /home/kali/OmnisAI/integrations/hermes/src /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/native-frozen-singleton-home",
+      "exit": 0,
+      "passed": 17,
+      "forbidden_effects": 0
+    },
+    {
+      "label": "PG observer SOURCE only",
+      "log": "pg-observer-source.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_batch2_observation_exact_fields api/tests/test_contract_method_pg.py::test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete -q --tb=short",
+      "exit": 0,
+      "passed": 22
+    },
+    {
+      "label": "PG/native batch2 COLLECTION ONLY",
+      "log": "pg-batch2-final-collection.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py --collect-only -k \"batch2-release-first or batch2-stop-first\" -q --tb=short",
+      "exit": 0,
+      "collected": 2,
+      "executed": 0
+    },
+    {
+      "label": "RED new transport strictly batch2",
+      "log": "red-format-scope.log",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_complete_producer_stage -q --tb=short",
+      "exit": 1,
+      "failed": 1,
+      "reason": "record-refs-v2 singleton admitted; now rejected API/native without changing old singleton formats"
+    }
+  ],
+  "quality": {
+    "paths": [
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/src/omnis/modules/tasks/managed_composition.py",
+      "api/src/omnis/modules/tasks/managed_contract.py",
+      "api/src/omnis/modules/tasks/method_checker_identity.py",
+      "api/src/omnis/modules/tasks/method_checks.py",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_contract_method_producer.py",
+      "integrations/hermes/src/omnis_hermes/contract_method.py",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py",
+      "integrations/hermes/tests/contract_method_native_probe.py",
+      "integrations/hermes/tests/test_contract_method.py"
+    ],
+    "ruff_check": {
+      "command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/method_checks.py api/tests/test_contract_method_pg.py api/tests/test_contract_method_producer.py integrations/hermes/src/omnis_hermes/contract_method.py integrations/hermes/src/omnis_hermes/managed_admission_contract.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/tests/contract_method_native_probe.py integrations/hermes/tests/test_contract_method.py",
+      "exit": 0
+    },
+    "ruff_format": {
+      "command": "api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/method_checks.py api/tests/test_contract_method_pg.py api/tests/test_contract_method_producer.py integrations/hermes/src/omnis_hermes/contract_method.py integrations/hermes/src/omnis_hermes/managed_admission_contract.py integrations/hermes/src/omnis_hermes/prompt_bundle.py integrations/hermes/tests/contract_method_native_probe.py integrations/hermes/tests/test_contract_method.py",
+      "exit": 0
+    },
+    "mypy_api": {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/managed_admission.py api/src/omnis/modules/tasks/managed_composition.py api/src/omnis/modules/tasks/managed_contract.py api/src/omnis/modules/tasks/method_checker_identity.py api/src/omnis/modules/tasks/method_checks.py api/tests/test_contract_method_pg.py api/tests/test_contract_method_producer.py",
+      "exit": 0,
+      "files": 7,
+      "log": "mypy-api-scope-frozen.log"
+    },
+    "mypy_adapter": {
+      "command": "env -u PYTHONPATH MYPYPATH=api/src api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src",
+      "exit": 0,
+      "files": 15,
+      "log": "mypy-native-scope-frozen.log"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    "reapply": {
+      "base": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "originals": 15,
+      "output_files": 15,
+      "changed_sections": [
+        "agent/contract_execution.py",
+        "agent/subagent_lifecycle.py"
+      ],
+      "unchanged_sections": 13,
+      "check_exit": 0,
+      "apply_exit": 0,
+      "all_hashes_exact": true,
+      "directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/reapply-final",
+      "blank_context": "Only regenerated changed sections use Git-accepted empty blank context lines; full forward reapply/hash inventory and git diff --check pass; untouched sections preserved byte-for-byte."
+    }
+  },
+  "failure_history": [
+    {
+      "logs": [
+        "red-producer.log",
+        "producer-detail.log"
+      ],
+      "reason": "SOURCE fixture corrections: real bind_catalog required to reseal compiled index; slot_name key corrected. No compiler/producer guard weakened."
+    },
+    {
+      "logs": [
+        "producer-progress.log",
+        "producer-progress2.log"
+      ],
+      "reason": "implementation syntax correction and remaining producer count guard located; retained failures"
+    },
+    {
+      "logs": [
+        "red-ref-alias.log",
+        "red-ref-alias-bounded.log"
+      ],
+      "reason": "initial recursive observer replaced with per-instance denied reader to bound the real bool-alias RED"
+    },
+    {
+      "logs": [
+        "native-singleton.log",
+        "native-singleton-final.log"
+      ],
+      "reason": "main-thread-only observer did not see executor workers; now delegates actual read/handler. Historical preserve fixture already violated baseline optional/step contract; aligned required=False and normalize-operations with exact receipt assertion. Baseline native guard verified from Git."
+    },
+    {
+      "logs": [
+        "mypy-api1.log",
+        "mypy-api2.log"
+      ],
+      "reason": "strict annotations/imports/local collisions corrected; no ignore/any/global waiver"
+    }
+  ],
+  "limits": [
+    "SOURCE storage/publication/material/receipt-read doubles explicitly declared; real compiler/capture/NativePreparation.build/ManagedAdmission._source/_build, native AIAgent/lifecycle/read/PURE/checker used",
+    "System SOURCE native probe interpreter /usr/bin/python3 3.13.12; API test interpreter 3.13.15. This is not installed native ACK or live runtime QA.",
+    "PG/native batch2 variants are authored and collect-only; binding COMMIT, PG waiter orderings and persistence/replay assertions NOT_EXECUTED. They require independent exact-snapshot review and later authorized QA.",
+    "OCI/build, Docker/PG execution, installed QA, full canonical gate and independent reviews NOT_RUN",
+    "No provider/model/target IO, r1/profiles/accounts, P3, service/scheduler/migration, commit or push",
+    "Protected pre-existing documents/Omnis_Notite_Originale.html not read, hashed, edited, staged or removed",
+    "Test groups overlap; passed counts are not a unique aggregate",
+    "Qualification/criteria/fingerprint SOURCE group ran before the last additive format-v2 singleton refusal; its consumer files are unchanged. Final method checks/native adapters and all batch2 pipeline controls were rerun after that refusal change."
+  ],
+  "next": "Parent: two complementary exact-snapshot reviews, adjudicate findings; only then separately authorized PG/native QA and final integration commit.",
+  "lesson_for_parent_skill_update": "When moving native method execution onto existing futures, main-thread profiling no longer observes read/PURE; wrap/delegate the actual handlers or use a verified thread-aware observer. Do not confuse child close/timeout with future drain."
+}

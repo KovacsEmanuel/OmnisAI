@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "review_id": "BATCH2-NORMATIVE-1",
+  "role": "Independent read-only review 1/2: producer/caps, persistence/readback, compatibility",
+  "verdict": "CHANGES_REQUESTED",
+  "decision": "Un blocker confirmat de regresie în consumerul QA existent. Nu am identificat un defect confirmat în producerul/validatorii/persistența batch2 din scope-ul examinat; aceasta NU este aprobarea globală a sursei, distribuției sau QA reale.",
+  "phase_closed": false,
+  "snapshot": {
+    "base": "cdbfa745832ba678b043519b6e4b41e8871be396",
+    "head_at_entry": "cdbfa745832ba678b043519b6e4b41e8871be396",
+    "head_at_final_verification": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+    "approval_unit": "Exact file hashes and base-to-worktree diff, not moving HEAD",
+    "count": 17,
+    "manifest_sha256": "20a3c5bcbc90eda4439b899d647b076a213026c1fa2575767836b6db239048b3",
+    "manifest_encoding": "SHA256 of sorted compact JSON path-to-SHA256 map",
+    "diff_sha256": "d89287b9494f38e6295e61eea14fff3208ceaac791a3ccac19a294ed64d2ddfa",
+    "frozen_diff": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/frozen.diff",
+    "all_file_hashes_verified_at_entry": true,
+    "all_file_hashes_verified_at_end": true,
+    "base_to_worktree_diff_exact_at_entry_and_end": true,
+    "parent_commit_during_review": "HEAD advanced; all 17 bytes and base diff remained exact. Reviewer performed no Git write.",
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "2e76ee4132280ea6302bee9ff5dd12f0ca1a24048f4f8858bc1e095b444e0705",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "6a9b2cfe6f7a0ccf9aeec01f6c3f89f1a079523b87dad15384125a1330bb8a44",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "37add20d0cfd9e803555abaa6dd8d9da08dab6039d7a5fceb96f2f9ef5d4fd41",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "0e9294ca3147894f9c7fc089a1db4f026c037d04467861d81ad6153c350863bd",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "e0ed9af9d6880e4d74912896fbc99c392dce24cba3ff8ab0d844d5bcfb592532",
+      "integrations/hermes/upstream/omnis-managed.patch": "af190ea2cad0f71f1ec739205b6978286c53900e501924f6b33e364bfc4d6307"
+    }
+  },
+  "authority_and_scope": {
+    "requirement": "Plan §7.1/H04 și prompt p2-next-session-implementation.md §3: același RUN/manifest, goaluri identice, task/attempt/Brief/scheme distincte, întreg bindingul COMMIT preaccess, evidence task-scoped, material comun finit și capuri/istoric neschimbate.",
+    "consumer": "NativePreparation.build -> ManagedAdmission._source/_build -> API/native stage -> indexed assignment -> complete binding -> ingest/check/readback/qualification/criteria; noile variante ale consumerului real-native-PG au fost inspectate SOURCE.",
+    "risk": "Fezabilitate falsă cu wire-only sau fixture redus; autoritate asupra rezultatului fratelui; reducerea capurilor/obligațiilor; invalidarea istoriei; QA inutilizabilă.",
+    "decision": "Blochează acceptarea până la remedierea NORM-BATCH2-F01 și re-review focalizat. QA reală autorizată și reviewul complementar rămân necesare.",
+    "documents_read": ["AGENTS.md", "CONTRIBUTING.md", "README.md CURRENT", "documents/verification/p2-next-session-implementation.md §3", "documents/Omnis_Implementation_Plan.md §7.1/H04", "documents/verification/implementation-status.md rândurile afectate SL09-SL13"],
+    "skills_loaded": ["omnis-review-qa", "omnis-project-status"],
+    "protected_path": "documents/Omnis_Notite_Originale.html nu a fost citit, hash-uit, editat, staged sau eliminat",
+    "forbidden_effects_executed": [],
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "findings": [
+    {
+      "id": "NORM-BATCH2-F01",
+      "severity": "MEDIUM",
+      "category": "QA regression / compatibility",
+      "status": "OPEN",
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [5537, 6438, 6466],
+      "title": "Importul condițional ControlConflict rupe scenariile singleton post-Stop existente",
+      "description": "Diff-ul elimină importul ControlConflict de la nivel de modul și îl introduce în async run(), numai sub if batch2. Python clasifică astfel ControlConflict drept local în întregul run(). Scenariile first_final_after_stop cu batch2=False ajung la pytest.raises(ControlConflict) la 6438 și 6466 fără inițializarea localului; prima expresie ridică UnboundLocalError înainte de apelul ownerului. Ramura batch2 face return anterior, deci importul ei nu poate salva acele scenarii. Este regresie deterministă a probei post-Stop păstrate, nu eroare PG sau defect demonstrat al produsului.",
+      "requirement": "Prompt §3: old singleton/cold/history și post-Stop receive-only rămân funcționale; CONTRIBUTING impune păstrarea regresiilor consumerului afectat.",
+      "reproducer": {
+        "method": "SOURCE bounded AST cut din fișierul exact; fără DB, Host sau proces nativ",
+        "steps": ["Parsează AST-ul testului și localizează async run la linia4435.", "Păstrează ImportFrom ControlConflict de la5537 sub if batch2 și load-ul ulterior al aceluiași nume, ca în expresiile pytest.raises de la6438/6466, în același scope de funcție.", "Compilează și apelează secțiunea minimă cu batch2=False."],
+        "result": "UnboundLocalError: cannot access local variable 'ControlConflict' where it is not associated with a value",
+        "exit_code": 0,
+        "limit": "Eroarea de name resolution a fost reprodusă. Scenariile PG/native istorice complete sunt NOT_RUN în acest contract."
+      },
+      "minimal_remedy": "Restaurează ControlConflict în importul existent de modul și elimină importul condițional intern, sau importă-l necondiționat la începutul async run. Păstrează ambele assertions de refuz exact existente.",
+      "verification_required": "Regresie SOURCE bounded pentru batch2=False care ajunge la ambele expresii ale clasei de excepție, apoi re-review focalizat. Scenariul PG/native post-Stop afectat rămâne regresie runtime autorizată separat, nu PASS aici."
+    }
+  ],
+  "criteria_examined": [
+    {
+      "id": "N1_PRODUCER_FULL_BUNDLE",
+      "status": "REVIEWED_SOURCE_PASS",
+      "code": ["api/src/omnis/modules/runs/native_preparation.py:245-314", "api/src/omnis/modules/runs/managed_admission.py:155-322", "api/tests/test_contract_method_producer.py:18-179"],
+      "evidence": "Preparation builder construiește bundle complet corelat selection/snapshot/packages; _source contabilizează bundleul canonic complet cu envelope, iar _build verifică graph+preparation<=65536. Fixture-ul SOURCE substituie explicit storage/publication/material/receipt reads, nu compiler/capture/preparation/build. Execuția independentă a trecut."
+    },
+    {
+      "id": "N2_IDENTITIES_AND_OBLIGATIONS",
+      "status": "REVIEWED_SOURCE_PASS",
+      "code": ["api/src/omnis/modules/tasks/managed_contract.py:918-1170", "api/src/omnis/modules/tasks/managed_contract.py:1180-1342"],
+      "evidence": "Numai method_execution/count2 partajează BoundProcedure și materialul input-schema/skills imuabil. Fiecare iterație alocă task, attempt, schemă task-specific, Brief și composition distincte; goalurile derivă din aceeași procedură. Nu am găsit eliminări de obligații, text/file hashes, limits, evidence, cleanup sau provenance. Controalele SOURCE resping rezultatul fratelui prin schema celuilalt task."
+    },
+    {
+      "id": "N3_CLOSED_UNION_AND_CAPS",
+      "status": "REVIEWED_SOURCE_PASS",
+      "code": ["api/src/omnis/modules/tasks/managed_composition.py:343-440", "api/src/omnis/modules/tasks/managed_composition.py:777-842", "integrations/hermes/src/omnis_hermes/prompt_bundle.py:1298-1469", "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:103-204"],
+      "evidence": "Union închis derivat din refs exacte; duplicate/conflicting pins/missing/extra/kind/revision/digest refuzate; lookup numai local, fără fallback global. record-refs-v2 cere batch2/current composer/v4; singleton v1/inline rămân. Whole-stage<=32768, expanded<=32768 și final<=32768 rămân. Proba SOURCE respinge al doilea assignment invalid înainte de primul constructor nativ."
+    },
+    {
+      "id": "N4_BINDING_PERSISTENCE_CHECKER",
+      "status": "REVIEWED_STATIC_SOURCE_TESTED_CHECKER",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:233-335", "api/src/omnis/modules/runs/managed_admission.py:487-829", "api/src/omnis/modules/tasks/method_checks.py:47-124", "api/src/omnis/modules/tasks/method_checks.py:228-298"],
+      "evidence": "Ownerul iese din tranzacția binding înainte de BOUND/release; commit_binding actualizează ambii copii pe aceeași conexiune. Ingest validează whole final/binding și inserează rezultate/inbox distincte atomic; checkerul iterează per task. _binding validează întregul binding și selectează exact Brief-ul; receipts verifică binding/native/session/header/predecessor output. Nu fabrică binding singleton. Bound ID comun nu este singura autoritate.",
+      "limit": "Vizibilitate COMMIT și tranzacții/waiters PG reale NOT_RUN."
+    },
+    {
+      "id": "N5_READBACK_QUALIFICATION_CRITERIA",
+      "status": "REVIEWED_SOURCE_PASS",
+      "code": ["api/src/omnis/modules/runs/managed_admission.py:909-1227", "api/src/omnis/modules/runs/managed_admission.py:1238-1323", "api/src/omnis/modules/tasks/result_qualification.py:122-329", "api/src/omnis/modules/tasks/criterion_checks.py:208-329"],
+      "evidence": "Matching folosește header/Brief/result ref exacte și execution din final complet. Qualification durable rezolvă task prin brief_id și verifică task/attempt/result/check/batch/native. Criteria leagă check/outcomes de Brief/result, nu numai bound. _verify_graph tratează prompt-material local-only și reconstruiește compozițiile verificând skills din preparation. Regresiile SOURCE qualification/criteria au trecut.",
+      "limit": "Qualification folosește storage fixtures SOURCE; persistență qualification pentru batch2 în PG real nu a fost executată."
+    },
+    {
+      "id": "N6_REPLAY_AND_HISTORICAL_PINS",
+      "status": "REVIEWED_SOURCE_PASS_WITH_RUNTIME_LIMIT",
+      "code": ["api/src/omnis/modules/tasks/method_checker_identity.py:14-153", "api/src/omnis/modules/runs/managed_admission.py:336-404", "api/src/omnis/modules/runs/managed_admission.py:767-828", "api/tests/test_contract_method_pg.py:338-414"],
+      "evidence": "Replay verifică request digest înainte de _build. Predecessorul nou este acceptat numai receive_only cu pin exact; closure members nu au fost eliminați. Am recalculat independent closure checker din Git base: 5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5; composer anterior SHA1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338. Regresiile inline/compact/cold/native parity trec.",
+      "limit": "Installed historical readers/restart NOT_RUN. Nu transfer acceptări instalate vechi. Regresia consumerului QA F01 rămâne deschisă."
+    },
+    {
+      "id": "N7_BATCH2_REAL_CONSUMER_PREFLIGHT",
+      "status": "REVIEWED_SOURCE_PARTIAL_NOT_EXECUTED",
+      "code": ["api/tests/test_contract_method_pg.py:4176-4211", "api/tests/test_contract_method_pg.py:4931-5057", "api/tests/test_contract_method_pg.py:5532-5770"],
+      "evidence": "Ambele variante se colectează. Prepare folosește CLI real prepare-method2 și seed qualified records. Local control public conduce ownerul original. Release-first citește două BOUND din altă conexiune înainte task_release, observă waiter PG, înregistrează intervale native read/PURE suprapuse și două threaduri, cere două results/checks/inbox, refuză final swapped cu census neschimbat, apoi public cached receive/release și reader/reconcile fresh după Stop. Stop-first păstrează lockurile shutdown real, observă waiter release și cere refuz fără method access.",
+      "limits": ["PG/native NOT_RUN; collect-only nu este runtime PASS.", "Ramura batch2 ocolește measured_build al singletonului: method-build-sizes.json nu este emis pentru noile variante. Capurile produsului rămân active, dar măsurătorile fixture-ului calificat real trebuie păstrate la QA autorizată.", "Noile variante folosesc SOURCE RuntimeHost/TestLaunch și preparation receipt double declarat, nu Host/native OCI instalate. Nu certifică distribuția.", "Failure cleanup, resource/family/DB fence și concurența nativă aparțin reviewului complementar2; nu sunt aprobate implicit aici."]
+    },
+    {
+      "id": "N8_DISTRIBUTION_IDENTITY",
+      "status": "REVIEWED_SOURCE_PIN_PASS_BUILD_NOT_RUN",
+      "code": ["integrations/hermes/pin.json", "integrations/hermes/upstream/managed-patch-manifest.json", "integrations/hermes/tests/test_managed_build.py"],
+      "evidence": "Grupul independent adapter include verificarea exactă pin/patch/manifest/source inventory și controlul original mismatch înainte de write. Hashurile artefactelor schimbate sunt legate în snapshot.",
+      "limit": "Nu am reexecutat reapply complet pe upstream sau build/install OCI/wheel. Nu transform declarația autorului despre reapply în execuție proprie."
+    }
+  ],
+  "verification": [
+    {
+      "label": "Independent normative SOURCE regression",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py api/tests/test_managed_composition.py api/tests/test_composition_native_parity.py api/tests/test_contract_method_checks.py api/tests/test_result_qualification.py api/tests/test_c04_criteria.py --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-source -q --tb=line",
+      "exit": 0,
+      "passed": 273,
+      "duration_seconds": 130.16,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-source.log",
+      "boundary": "SOURCE; producer test invocă pinned native-source probe, nu installed Host/PG"
+    },
+    {
+      "label": "Independent adapter/source pin regressions",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_managed_admission.py\",\"integrations/hermes/tests/test_prompt_bundle.py\",\"integrations/hermes/tests/test_managed_composition.py\",\"integrations/hermes/tests/test_contract_method.py\",\"integrations/hermes/tests/test_managed_build.py\",\"--basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-adapter\",\"-q\",\"--tb=line\"]))'",
+      "exit": 0,
+      "passed": 72,
+      "duration_seconds": 1.54,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-adapter.log"
+    },
+    {
+      "label": "Observer exact fields SOURCE",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_batch2_observation_exact_fields api/tests/test_contract_method_pg.py::test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-observer -q --tb=line",
+      "exit": 0,
+      "passed": 22,
+      "duration_seconds": 1.73,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-observer.log"
+    },
+    {
+      "label": "PG batch2 collect-only",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py --collect-only -k 'batch2-release-first or batch2-stop-first' -q --tb=line",
+      "exit": 0,
+      "selected": 2,
+      "deselected": 176,
+      "executed": 0
+    },
+    {
+      "label": "F01 deterministic Python scope reproducer",
+      "command_description": "python3 -I -B; AST cut din actual ImportFrom5537 sub if batch2 și load ControlConflict ulterior în același scope; call cu False",
+      "exit": 0,
+      "result": "UnboundLocalError reproduced; no external effects"
+    },
+    {
+      "label": "Snapshot, predecessor identity and diff check",
+      "command_description": "SHA256 pe toate cele17paths explicite și manifestul sorted compact; git diff BASE -- cele17paths; git diff --check BASE -- cele17paths; checker closure și composer recalculați din git show BASE:path",
+      "exit": 0,
+      "result": "Toate hashurile și frozen diff identice la intrare/final; predecessor pins autentice; diff check clean"
+    }
+  ],
+  "independent_metrics": {
+    "source_artifact": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-source/test_batch2_native_source_to_t0/batch2.json",
+    "final_artifact": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative-source/test_batch2_native_source_to_t0/batch2-native-result.json",
+    "graph_bytes": 47621,
+    "preparation_bytes": 14828,
+    "total_bytes": 62449,
+    "stage_bytes": 32503,
+    "final_bytes": 27775,
+    "final_execution_count": 2,
+    "limit": "Fixture SOURCE complet corelat; nu publication/PG/native-installed. Numerele autorului nu au fost promovate ca execuție independentă."
+  },
+  "not_reviewed_or_not_run": [
+    {"item": "Native concurrent authority/timeout/partial-submit/cleanup și resource/family/DB fence safety", "status": "NOT_REVIEWED_IN_THIS_REPORT", "owner": "Complementary review2; fără approval implicit"},
+    {"item": "PG whole binding visibility, persistence, waiters în ambele ordini și post-Stop reader real", "status": "NOT_RUN", "reason": "Interdicție explicită PG/services/OCI în acest contract"},
+    {"item": "Installed distribution build, OCI, historical installed readers/restart, canonical complet", "status": "NOT_RUN", "reason": "Gates separate autorizate; SOURCE nu le certifică"},
+    {"item": "Audit general, închidere P2, DATA/admission, Settings UI, P3/live/r1/profiluri personale", "status": "OUT_OF_SCOPE"}
+  ],
+  "files_created_or_modified": {
+    "repository_files_modified": [],
+    "report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/review-normative.json",
+    "private_test_logs": ["review-normative-source.log", "review-normative-adapter.log", "review-normative-observer.log"],
+    "private_test_directories": ["review-normative-source", "review-normative-adapter", "review-normative-observer"],
+    "commits_by_reviewer": [],
+    "report_policy": "Original report written once and frozen; later adjudication/fix must be separate."
+  },
+  "execution_issues": [
+    "Prima tentativă de construire a raportului prin execute_code a eșuat cu KeyError content la citirea rezultatului read_file, înaintea oricărei scrieri. Raportul final a fost creat separat prin write_file direct; nu există un raport anterior suprascris."
+  ],
+  "handoff": {
+    "current": "AICI SL09/B06b batch2: implementation SOURCE prezent, probe independente trecute, review normativ CHANGES_REQUESTED pentru F01; QA reală NOT_RUN.",
+    "next": "Părinte: reproduce/adjudecă F01, remediu minim import plus probă SOURCE/re-review; obține review2 înainte de QA consumer/distribuție autorizată.",
+    "global_gates": "B06b/G02/P2 PARTIAL/NOT_CLOSED; Settings P4a-minim și live nu sunt promovate.",
+    "skill_lesson_for_parent_only": "Când muți un import de excepție de la modul într-o ramură condițională a unui consumer async mare, inspectează toate utilizările în aceeași funcție: Python îl face local în toate ramurile; collection/typecheck pot rata UnboundLocalError. Reviewerul read-only nu a editat skilluri."
+  }
+}

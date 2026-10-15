@@ -8,7 +8,26 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
-## CURRENT — MethodResult PARTIAL finit acceptat scoped pe e6ffcf8
+## CURRENT — batch2 SOURCE pe a7e4df5; CHANGES_REQUESTED înainte de QA
+
+Continuarea inertă a fost autorizată în sesiunea fresh. `a7e4df5` implementează un RUN/manifest cu două taskuri distincte, material comun imuabil finit, index constructor-owned, read/PURE concurente și două checks. [Raportul original al autorului](p2-bound-predicates-evidence/batch2-source-author.json) păstrează RED/GREEN, closure-urile și limitele; snapshotul celor17fișiere a fost verificat exact de părinte. Proba SOURCE repetată de părinte: `test_contract_method_producer.py -k 'batch2 and not pg'`, **2PASS/24deselected7.71s/exit0**. Stage32503, graph47621+bundle complet14828=62449 și final27775 bytes respectă capurile neschimbate; storage/publication/receipt-read sunt doubles declarate, nu COMMIT PostgreSQL sau runtime instalat.
+
+[Review normativ](p2-bound-predicates-evidence/batch2-review-normative.json) și [review safety](p2-bound-predicates-evidence/batch2-review-safety.json), originale transferate byte-exact, au **CHANGES_REQUESTED** pe aceiași bytes. Părintele a reprodus toate constatările înainte de atribuirea remediilor:
+
+| Finding | Reproducer și dispoziție curentă |
+|---|---|
+| NORM-BATCH2-F01 | Importul condițional `ControlConflict` produce `UnboundLocalError` în ramura singleton. Reprodus prin secțiune AST actuală; pozitivul batch2 rezolvă clasa. **OPEN**, import necondițional și regresie fără slăbirea refuzurilor. |
+| SAFETY-BATCH2-F01 | Al doilea submit eșuează, lockul este eliberat înainte de revocare, primul handler real execută cu failed=false și future2 absent. **OPEN**, revocare în aceeași secțiune critică, fără join sub lock. |
+| SAFETY-BATCH2-F02 | Failure la publicarea celui de-al doilea rezultat lasă `service.result()` pentru primul ready/SUCCEEDED deși ambele records sunt UNKNOWN. **OPEN**, pregătire/publicare atomică și refuzul succesului parțial. |
+| SAFETY-BATCH2-F03 | Returnurile batch2 sar peste oracle-ul safety comun; fereastra SOURCE acceptă forbidden-sink, forbidden-effect și eveniment malformat. **OPEN**, verificare strictă comună după cleanup pe ambele ramuri. |
+
+Reproducerea părintelui folosește aceleași scripturi read-only cu numai locatoare fresh în `$TMPDIR/p2-batch2-cdbfa74/parent-repro-111fa66b58`: producerul1PASS7.63s, pozitiv nativ2rezultate/futures settled, cele două failure cuts și oracle-ul SOURCE confirmate, exit0 și zero forbidden effects observate. Aceasta nu este QA PG. Extensia separată de reviewer pentru cancel/replay rămâne **INCONCLUSIVE după două eșecuri de harness**, fără al treilea verifier sau deadline lărgit. Autorul unic remediază findings; re-review focalizat pe delta, apoi prima probă reală bounded.
+
+Prerechizita de distribuție: arhiva exactă upstream a fost regenerată local din `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`, SHA`f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80`;15208fișiere PIN identice, zero extra, fără modificarea exportului. Arhiva fresh0600 este `$TMPDIR/p2-batch2-cdbfa74/source-original.tar`, eliminabilă numai după probele dependente. **`ops/run_test_db_gate.py --check` are efecte DB; nu este dry-run.** Preflightul fără efecte folosește inspectarea argv/`--help`/collect și verificarea prerechizitelor, nu acel flag. Nicio resursă PG/OCI/runtime nu a fost lansată aici.
+
+**B06b/G02/P2-inert NOT_CLOSED; distribuția nouă, QA PG/native și canonical final NOT_RUN.** Variantele PG pregătite folosesc încă Host SOURCE/preparation double și nu aprobă installed origin. Qualification/history/H03 acceptate își păstrează scope-ul; nu se reauditează. Urmează închiderea batch2, apoi DATA/admission și Settings conform promptului curent; fără model/provider/target/r1/global/push. Originalul HTML protejat rămâne neatins.
+
+## Istoric — MethodResult PARTIAL finit acceptat scoped pe e6ffcf8
 
 Produsul `3a2ffb7` adaugă numai forma plain `normalize-records` cu cele două stepuri ordonate și schemele exacte ale outputurilor metodei records existente. Prefixul la `preserve-input-context` are probe autentice numai pentru primul pas: PARTIAL/NOT_RUN/DONE cu două motive/gaps, nu DONE sau lipsă de rând. [Autorul](p2-bound-predicates-evidence/partial-requirement-author.json), [reviewul normativ](p2-bound-predicates-evidence/partial-requirement-normative-review.json)/[input](p2-bound-predicates-evidence/partial-requirement-input-review.json) păstrează SOURCE/RED și limitele. Nu extinde multi-step evidence, catalogul sau evaluatorul general.
 

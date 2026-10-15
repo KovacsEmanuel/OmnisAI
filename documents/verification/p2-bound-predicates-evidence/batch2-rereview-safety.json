@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-BATCH2-SAFETY-FOCUSED-REREVIEW-2",
+  "verdict": "APPROVED_SCOPED",
+  "review_mode": "INDEPENDENT_READ_ONLY_SOURCE_ONLY",
+  "complete_report": true,
+  "phase_closed": false,
+  "summary_ro": "SAFETY-BATCH2-F01/F02/F03 sunt închise în scope SOURCE pe bytes exacți. Revocarea la submit și rollbackul publicării au loc înaintea primului unlock; public result/status nu expun succes parțial în cele două cut-uri testate. Ambele ieșiri batch2 trec prin oracle-ul strict după cleanup. Regresia NORM-BATCH2-F01 a trecut și în proba SOURCE complementară. Nu aprob PG/OCI, distribuția instalată, cancellation/replay neprobat sau întregul H04/P2.",
+  "repository": "/home/kali/OmnisAI",
+  "authority": {
+    "requirement": "H04 fail-closed pre-access; whole-batch result publication; same-channel bounded fail-closed safety evidence on both batch2 returns; retained singleton exception compatibility.",
+    "consumer": "SubagentLifecycleService.release/_release_contract, _contract_guard, result/status/readback; existing PG test async run return/finally ordering.",
+    "risk": "Incomplete second submit admits PURE work; failed publication exposes public ready/SUCCEEDED; early return accepts forbidden or malformed observation; conditional exception import breaks singleton assertions.",
+    "decision": "Approve only these exact SOURCE fixes and focused checks; parent retains adjudication/integration and separately authorized real-consumer QA.",
+    "skills_loaded": ["omnis-review-qa", "omnis-project-status"],
+    "context_read": ["Supplied AGENTS.md", "README.md CURRENT", "CONTRIBUTING.md product-first contract", "implementation-status.md CURRENT", "Implementation Plan H04", "Original versioned safety and normative batch2 reports"]
+  },
+  "snapshot": {
+    "product_base": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+    "head_start": "a8244b1062950c732b7a9a866e00a1725a75076a",
+    "head_end": "ef6dae78cbc93d76ba4d985630f0e6e0e1a41de3",
+    "parent_commits_observed": ["edc19e5 fix(native): make batch submission and result failure atomic", "ef6dae7 test(p2): enforce safety checks on both batch exits"],
+    "head_change_disposition": "Parent committed during review as permitted. All 17 file hashes and product-base-to-current diff remain byte-exact. Approval is bound to those bytes, not a moving branch.",
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-developer.json",
+    "manifest_file_sha256": "6b4c5bb421aefd87475d5f9e3e955f6290beb7db66e514cbfc3aa5d405326fce",
+    "declared_snapshot_sha256": "1ccbc78b67badd180f5b6e78fbde3cdc15d99def729233bf0e45caaf86ce9e0c",
+    "declared_snapshot_encoding_verified": "SHA256 of sorted compact JSON changed_files map: six paths, not the full 17-path map.",
+    "all17_sorted_compact_json_sha256": "51e88317fb1317d03867205133542c617536264e79cb74812ed39a9478dacf97",
+    "diff": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-frozen.diff",
+    "diff_sha256": "1fcac24814726969ed34c1af7624ba3c040c4c5b65827a9bfcab65daed1c13e9",
+    "exact_base_to_current_diff": true,
+    "files_checked": 17,
+    "changed_count": 6,
+    "unchanged_count": 11,
+    "mismatches_start": [],
+    "mismatches_end": [],
+    "files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "4909d4419195e72acfab5edb10c9a57a1020f749862b84fba33feccbb89b09b3",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "837db017717eb45cd562d67625b394d7aa9fdd637878b53438ebf81877544644",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "993a1c1ee6e3967a12743fc771ebcc15369931ca46b2a12cb0872918febe2918",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "integrations/hermes/upstream/omnis-managed.patch": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376"
+    }
+  },
+  "original_reports": [
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/batch2-review-safety.json",
+      "sha256": "3be00d9180072a065e5694a4f0102612b70103664fe9b3dc1b5ad8b1c2856282",
+      "original_verdict": "CHANGES_REQUESTED",
+      "findings_accounted_for": ["SAFETY-BATCH2-F01", "SAFETY-BATCH2-F02", "SAFETY-BATCH2-F03"]
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/batch2-review-normative.json",
+      "sha256": "2f88c88d2d7e93ac27b7fca9d6e3b231aa47221c052284243028221505ce52e6",
+      "original_verdict": "CHANGES_REQUESTED",
+      "findings_accounted_for": ["NORM-BATCH2-F01"]
+    }
+  ],
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "SAFETY-BATCH2-F01",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": ["integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:489-503", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:537-549", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:428-449"],
+      "reason": "BaseException from the submit loop is caught inside the original registry critical section. _fail_contract_locked latches failed and indeterminate, clears result/completed_at, marks both UNKNOWN and revokes contract agents before unlocking. _contract_guard uses that same lock and checks failed/state/closed. No wait or join was introduced under the lock; retained futures remain available to observe settlement.",
+      "independent_test": "Batch2Native.test_second_submit_failure_revokes_before_unlock passed in the fresh producer invocation. Same-channel no-fault positive executes two real reads/four handlers. Failure starts a real first worker, injects second-submit failure, forces the first unlocked scheduling cut and settles that worker before outer repair; zero reader/handler entries, public UNKNOWN/not-ready, replay/readback denied.",
+      "red_provenance": "Original safety report reproducer and fixes-developer.json fix-red-f01 exit1 are retained. Parent reproduction supplied in delegation; this reviewer reran GREEN, not a new mutation of product bytes.",
+      "limit": "Finite deterministic legal scheduler cut; not exhaustive thread scheduling or OS effect confinement. Closing an agent is revocation, not proof of drain."
+    },
+    {
+      "id": "SAFETY-BATCH2-F02",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": ["integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:504-549", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:326-333", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:590-609", "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:629-653"],
+      "reason": "All SubagentResult objects, hashes and the JSON return copy are prepared before first publication. Any exception inside publication restores the previous response and clears result/completed_at for both records under the same lock before an observer can acquire it. failed/indeterminate stay true and futures are retained. result/status/readback use that lock; result no longer prefers stale success after failure. Existing wait does not join under the registry lock.",
+      "independent_test": "Batch2Native.test_result_failure_never_exposes_partial_success passed. Both second-result construction and immediately-after-first-result-assignment raise a BaseException. The first public result/status read on actual publication-lock unwind, before the outer handler, observes both not-ready/UNKNOWN; completed_at cleared, batch readback/replay denied, futures done. Same service positive is exercised by the nominal and submit-no-fault tests.",
+      "red_provenance": "Original safety report exact public-ready reproducer and fix-red-f02 exit1 remain. No retroactive promotion of those failures.",
+      "limit": "Tests certify these two cuts, not an arbitrary repeated interruption inside the rollback helper, lock failure, MemoryError at every instruction, or installed persisted acceptance."
+    },
+    {
+      "id": "SAFETY-BATCH2-F03",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_ORACLE_SCOPED_RUNTIME_QA_NOT_RUN",
+      "code": ["api/tests/test_contract_method_pg.py:1947-2020", "api/tests/test_contract_method_pg.py:2118-2265", "api/tests/test_contract_method_pg.py:2738-2822", "api/tests/test_contract_method_pg.py:7691-7799"],
+      "reason": "Both successful batch2 early returns execute the finally block and invoke require_native_observation after resource cleanup. Cleanup errors already fail; an active primary exception is preserved rather than replaced by an oracle exception. The singleton path calls the same extracted bounded gate at its old post-finally position. Strict byte/event/record/field checks, READY/pre-ready completeness, forbidden-event refusal and original per-task assertions remain; no deadline or cleanup uncertainty was relaxed.",
+      "independent_test": "test_bootstrap_observer_pre_main_source_boundaries[complete] passed. Its SOURCE AST cut retains actual branch Return nodes, the actual finalbody batch2 guard and post-finally oracle. Both branches accept real observer phase/READY evidence; both refuse actual caught forbidden-sink and audit forbidden-effect emitted rows, malformed batch2 event, unknown event, extra/duplicate fields, invalid JSON, byte/event overflow and missing READY/pre-ready evidence.",
+      "red_provenance": "Original safety oracle accepted all three original negatives. Author fix-red-qa3 exit1 confirms the added source-cut negative before consumer fix; independent GREEN now passes on exact new bytes.",
+      "limit": "The source cut intentionally omits actual resource/DB cleanup effects. It verifies control ordering and observation refusal, not either full PG/native branch, live Stop order, process-family drain or OS syscall confinement. Both authorized real-consumer variants remain for parent QA."
+    },
+    {
+      "id": "NORM-BATCH2-F01",
+      "original_severity": "MEDIUM",
+      "disposition": "SOURCE_FIX_CONFIRMED_COMPLEMENTARY_NORMATIVE_ADJUDICATION_RETAINED",
+      "code": ["api/tests/test_contract_method_pg.py:36", "api/tests/test_contract_method_pg.py:2023-2082", "api/tests/test_contract_method_pg.py removed conditional ControlConflict import"],
+      "reason": "ControlConflict is restored in the unconditional module import; the conditional function import is removed. Both original singleton pytest.raises expressions are retained. No scope-local binding can shadow the module name on the batch2=False path.",
+      "independent_test": "test_singleton_post_stop_exception_loads passed: bounded actual AST expressions are evaluated in the same function scope with batch2=False, without PG.",
+      "red_provenance": "Original normative report UnboundLocalError and author fix-red-qa3 remain retained.",
+      "limit": "This reviewer does not substitute for Review1's normative scope or the real singleton post-Stop runtime regression. Parent adjudicates the complementary report."
+    }
+  ],
+  "scope_and_inherited_limits": [
+    {"requirement": "Trusted batch_index, task/attempt/Brief isolation, strict union/caps", "disposition": "Unchanged source bytes retain only the original review's scope. No whole-producer/persistence/history re-review or completeness inference."},
+    {"requirement": "Whole binding/all RUNNING before access", "disposition": "Nominal SOURCE regression rerun; partial-submit defect closed at the locked failure barrier. In-memory source binding is not a PG COMMIT proof."},
+    {"requirement": "No wait under registry lock", "disposition": "Relevant caller, submit, publication, failure helper, guard, public readers and contract close reviewed. Contract close is the bounded state.closed=True branch; futures are waited outside the lock."},
+    {"requirement": "Timeout/one-use/uncertainty", "disposition": "Existing nested timeout and guard/partial-submit tests passed. UNKNOWN/indeterminate and retained futures remain. No drain inferred from revocation."},
+    {"requirement": "Cancellation/replay extension", "disposition": "Original two failed scratch harness attempts remain INCONCLUSIVE. Not rerun, not approved or superseded by this report."},
+    {"requirement": "PG whole binding visibility, actual Stop-first/release-first overlap, cleanup fence", "disposition": "NOT_RUN in this SOURCE-only review; retained for separately authorized parent QA."},
+    {"requirement": "Singleton/cold/history broad regressions", "disposition": "Unchanged groups not rerun. Author's 17-singleton result remains attributed to author; this review independently ran only the changed singleton import control."},
+    {"requirement": "H04/B06b/G02/P2 closure", "disposition": "NOT_CLOSED. Closing named findings is not approval of unreviewed requirements."}
+  ],
+  "distribution_identity": {
+    "status": "STATIC_IDENTITY_VERIFIED_NOT_BUILD_OR_INSTALL_APPROVAL",
+    "managed_patch_sections": 15,
+    "changed_sections": ["agent/subagent_lifecycle.py"],
+    "unchanged_sections": 14,
+    "same_section_keys": true,
+    "managed_source_files_checked": 15,
+    "source_manifest_mismatches": [],
+    "pin_patch_manifest_correlated": true,
+    "inert_patch_unchanged": true,
+    "inert_manifest_unchanged": true,
+    "limit": "Compared exact patch sections including additions from /dev/null, pin/manifest hashes and all managed source hashes. Author's reapply retained as attributed evidence; reviewer did not rerun reapply/build/OCI/install."
+  },
+  "verification": [
+    {
+      "label": "Independent focused SOURCE regression on final bytes",
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks 'api/tests/test_contract_method_pg.py::test_bootstrap_observer_pre_main_source_boundaries[complete]' api/tests/test_contract_method_pg.py::test_singleton_post_stop_exception_loads --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source -q --tb=line > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source.log 2>&1",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 8.41,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source.log",
+      "log_sha256": "d4cd2342b921e0f35bad91a1aed050eb4df5bfa7f1890b2dea95aa2e6cffb017",
+      "nested_native": {
+        "command_shape": "/usr/bin/python3 -I -B integrations/hermes/tests/contract_method_native_probe.py /home/kali/.hermes/cache/scratch/contract-method-evidence/pinned /home/kali/OmnisAI/integrations/hermes/upstream/managed-source /home/kali/OmnisAI/integrations/hermes/src <fresh producer tmp_path/native-home> <fresh producer tmp_path/batch2.json>",
+        "exit_code": 0,
+        "tests": 6,
+        "seconds": 5.752,
+        "pass": true,
+        "effects": [],
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source/test_batch2_native_source_to_t0/native-source.log",
+        "log_sha256": "9355d607b808d79b1ee019ae6c6e81fa86501d1b6640747c1a3804644aa1963f",
+        "cases": ["test_complete_batch", "test_guard_failure_and_partial_submit_are_indeterminate", "test_result_failure_never_exposes_partial_success", "test_second_submit_failure_revokes_before_unlock", "test_stage_and_index_denials_before_constructor", "test_timeout_does_not_claim_worker_drain"]
+      },
+      "boundary": "Fresh producer-generated stage/deadline immediately consumed by native probe; real compiler/preparation/build/AIAgent/executor/read/PURE/checker, with existing SOURCE storage/publication substitutions. Native environment cleared, private fresh HOME, Python sink audit active. No PG/OCI/services/provider/model/target effects."
+    },
+    {
+      "label": "Exact snapshot, pin/manifest/source and section identity",
+      "command_description": "/usr/bin/python3 -I -B: hashlib.sha256 on the 17 explicit manifest paths and original reports; compare old/new path maps; git diff a7e4df5 -- <all17 explicit paths> against fixes-frozen.diff; parse every ---/+++ patch section including /dev/null; hash each of the 15 managed source files against patched_sha256; compare pin and manifest patch hashes and inert artifacts against git show a7e4df5:<path>.",
+      "exit_code": 0,
+      "result": "17/17 exact at entry/end; six changed/eleven unchanged; frozen diff exact; one of fifteen patch sections changed; fifteen source manifest hashes exact; inert unchanged. Declared aggregate identified as changed-six compact sorted JSON digest, full17 digest separately recorded."
+    },
+    {
+      "label": "Scoped diff whitespace",
+      "command": "git diff --check -- api/tests/test_contract_method_pg.py integrations/hermes/pin.json integrations/hermes/tests/contract_method_native_probe.py integrations/hermes/upstream/managed-patch-manifest.json integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py integrations/hermes/upstream/omnis-managed.patch",
+      "exit_code": 0,
+      "limit": "Read-only whitespace check, not a correctness proof; parent had committed by final readback."
+    }
+  ],
+  "execution_notes": [
+    "No new test failure in this re-review. Original REDs and the two failed cancellation harness attempts are preserved; not rerun.",
+    "An initial metadata probe used full17 compact JSON and did not match the supplied aggregate. Exact changed-six compact encoding was then verified and matches; no source hash mismatch occurred.",
+    "An initial patch-section counter selected only --- a/ and counted twelve existing-file sections; corrected to include --- /dev/null additions, yielding exact fifteen sections/one changed/fourteen unchanged. No artifact edited.",
+    "Source prerequisite files run_agent.py, tools/daemon_pool.py, uv.lock, pyproject.toml and LICENSE were present in the nominated export. Full upstream archive provenance was not re-certified. No downloads/prewarm or grant extensions.",
+    "Parent advanced HEAD through two authorized commits while reviewed bytes stayed identical. Reviewer did not stage, commit, edit product, or adopt parent ownership."
+  ],
+  "files_created_or_modified": {
+    "repository_files_modified": [],
+    "report_created_once": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety.json",
+    "test_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source.log",
+    "fresh_test_artifacts": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-safety-source/",
+    "reviewer_commits": [],
+    "protected_original": "documents/Omnis_Notite_Originale.html never read, hashed, edited, deleted or staged. Its preexisting untracked name appeared only in git status.",
+    "final_repo_status": "No tracked modifications remained after parent's commits; only preexisting protected untracked original reported by git status."
+  },
+  "limits": [
+    "SOURCE_ONLY. No PG, OCI, services, Docker, installed runtime, real persistence or resource cleanup QA.",
+    "No provider, model, target, r1/personal profile, global config, push or broad audit. No deadline, grant, cap or cleanup fence changes by reviewer.",
+    "Finite failure cuts do not establish exhaustive concurrency, arbitrary BaseException atomicity or OS-level confinement.",
+    "No absence inference from empty findings: original named findings have explicit dispositions; unchanged coverage retains its historical scoped limits; untested cancellation remains INCONCLUSIVE.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Canonical P2 and phase closure NOT_RUN/NOT_CLOSED.",
+    "This safety report is paired with the independent normative focused review; it does not impersonate or pre-adjudicate that review."
+  ],
+  "proposed_parent_status": {
+    "current_slice": "AICI finite2 B01-B03/H04 batch2",
+    "implementation": "SOURCE_FIXES_IMPLEMENTED_COMMITTED_BY_PARENT",
+    "proof": "FOCUSED_SOURCE_PASS_3_WITH_6_NESTED_NATIVE; PG_OCI_NOT_RUN_HERE",
+    "review": "APPROVED_SCOPED_SAFETY_DELTA",
+    "global_gates": "B06b/G02/P2/P4a-minim NOT_CLOSED",
+    "next": "Parent compares both exact-snapshot reviews and adjudicates; continue separately authorized bounded real-consumer QA without reopening unchanged historical groups."
+  },
+  "lesson_for_parent_skill_update_only": "For a locked multi-submit barrier and multi-result publication, perform revocation/rollback before releasing the original lock and observe public result/status at the first unlock. For successful early returns in try/finally, challenge the actual return/finally branch with caught forbidden evidence after cleanup. No skill edits made under this read-only contract."
+}

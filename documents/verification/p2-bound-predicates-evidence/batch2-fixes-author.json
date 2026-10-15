@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "status": "FIXED_SOURCE_FROZEN_AWAITING_FOCUSED_REREVIEW",
+  "complete_report": true,
+  "base": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+  "head_at_freeze": "a8244b1062950c732b7a9a866e00a1725a75076a",
+  "parent_head_change": "Parent docs-only commit a8244b1; owned product base remains a7e4df5. No child commit/stage/push.",
+  "phase_closed": false,
+  "staged": false,
+  "committed": false,
+  "snapshot": {
+    "base": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+    "head": "a8244b1062950c732b7a9a866e00a1725a75076a",
+    "changed_files": {
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "integrations/hermes/tests/contract_method_native_probe.py": "993a1c1ee6e3967a12743fc771ebcc15369931ca46b2a12cb0872918febe2918",
+      "integrations/hermes/upstream/omnis-managed.patch": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0",
+      "integrations/hermes/pin.json": "837db017717eb45cd562d67625b394d7aa9fdd637878b53438ebf81877544644",
+      "api/tests/test_contract_method_pg.py": "4909d4419195e72acfab5edb10c9a57a1020f749862b84fba33feccbb89b09b3"
+    },
+    "all17_files": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "4909d4419195e72acfab5edb10c9a57a1020f749862b84fba33feccbb89b09b3",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "837db017717eb45cd562d67625b394d7aa9fdd637878b53438ebf81877544644",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "993a1c1ee6e3967a12743fc771ebcc15369931ca46b2a12cb0872918febe2918",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "integrations/hermes/upstream/omnis-managed.patch": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376"
+    },
+    "unchanged_count": 11,
+    "sha256": "1ccbc78b67badd180f5b6e78fbde3cdc15d99def729233bf0e45caaf86ce9e0c",
+    "diff_sha256": "1fcac24814726969ed34c1af7624ba3c040c4c5b65827a9bfcab65daed1c13e9",
+    "diff_path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-frozen.diff",
+    "changed_sections": [
+      "--- a/agent/subagent_lifecycle.py"
+    ],
+    "unchanged_sections": 14,
+    "inert_unchanged": true,
+    "pin_manifest_correlated": true,
+    "added_line_secret_scan": "PASS_FINITE_PATTERNS_AND_MANUAL_DIFF",
+    "bytecode_compile": "PASS_NO_CACHE"
+  },
+  "scope": {
+    "requirement": "Confirmed four batch2 review blockers only; no new product breadth.",
+    "consumer": "Existing native SubagentLifecycleService release/result/status/readback and existing PG QA run observation exit plus singleton postStop loads.",
+    "risk": "Pre-access escape after failed second submit, partial public success after publication failure, falsely clean QA exits, unbound exception class.",
+    "decision": "Frozen SOURCE fixes for two complementary focused re-reviews, not acceptance or P2 closure."
+  },
+  "findings": [
+    {
+      "id": "SAFETY-BATCH2-F01",
+      "disposition": "IMPLEMENTED_RED_GREEN_PENDING_REREVIEW",
+      "change": "Catch second-submit failure inside original registry lock and revoke/latch both UNKNOWN/failed/indeterminate before unlock using contract-local helper. Never join/wait under registry lock. Preserve submitted futures.",
+      "test": "Batch2Native.test_second_submit_failure_revokes_before_unlock",
+      "positive": "Real service + both reads and four handlers succeed on same patched submit channel without fault.",
+      "negative": "First real worker starts; forced first legal unlocked cut after second submit exception lets it settle before outer handler. Zero real reads/handlers after fix; both public statuses/results UNKNOWN/not-ready, replay/readback denied; future retained and settled."
+    },
+    {
+      "id": "SAFETY-BATCH2-F02",
+      "disposition": "IMPLEMENTED_RED_GREEN_PENDING_REREVIEW",
+      "change": "Build/hash whole result set and JSON return copy before any publication. Inner exception handler restores previous response, clears results/completed_at and latches UNKNOWN under same publication lock. Keep owned futures/indeterminate.",
+      "test": "Batch2Native.test_result_failure_never_exposes_partial_success",
+      "negative": "Second dataclasses.replace and trace cut immediately after first result assignment raise BaseException. First public read on actual lock unwind already sees both not-ready/UNKNOWN, before outer handler; batch readback and replay deny, futures done.",
+      "limit": "Finite injected cuts, not a universal arbitrary-exception or OS memory failure guarantee."
+    },
+    {
+      "id": "SAFETY-BATCH2-F03",
+      "disposition": "IMPLEMENTED_RED_GREEN_PENDING_REREVIEW",
+      "change": "Extract unchanged bounded strict/readiness/forbidden checks into require_native_observation. Both batch2 early returns call it after cleanup in finally on successful exit; singleton uses same helper at its prior location. Preserve count-specific assertions, deadlines, overlap, cleanup UNKNOWN/fence behavior and primary failure.",
+      "test": "test_bootstrap_observer_pre_main_source_boundaries[complete] uses existing real observer/emitter source and actual consumer branch return/finally AST nodes.",
+      "controls": [
+        "positive SOURCE observer phases/READY accepted for both branch exits",
+        "actual caught forbidden-sink and direct audit guard forbidden-effect rows retained and rejected",
+        "malformed batch2 row/unknown event/extra field/duplicate field/invalid JSON rejected",
+        "byte/event bounds and missing READY/pre-ready phases rejected"
+      ],
+      "limit": "Observer uses compiled synthetic source paths and fixed existing producer code. Branch source cut omits DB/resource work. No PG/native end-to-end or OS effect confinement proof."
+    },
+    {
+      "id": "NORM-BATCH2-F01",
+      "disposition": "IMPLEMENTED_RED_GREEN_PENDING_REREVIEW",
+      "change": "Restore ControlConflict unconditional module import, remove conditional local import. Both original pytest.raises postStop assertions unchanged.",
+      "test": "test_singleton_post_stop_exception_loads",
+      "control": "Bounded AST cut reaches both actual pytest.raises expressions in same scope with batch2=False; RED UnboundLocalError, GREEN resolves both.",
+      "limit": "Real postStop PG/runtime scenario not executed."
+    }
+  ],
+  "red": [
+    {
+      "finding": "SAFETY-BATCH2-F01",
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f01 -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f01.log 2>&1",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f01.log",
+      "reason": "Real first reader escaped incomplete second submission: reads=[True]; legal post-unlock cut; positive same channel SUCCEEDED."
+    },
+    {
+      "finding": "SAFETY-BATCH2-F02",
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f02 -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f02.log 2>&1",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-f02.log",
+      "reason": "Both second-result construction and after-first-publication BaseException cuts left public ready=True."
+    },
+    {
+      "finding": [
+        "SAFETY-BATCH2-F03",
+        "NORM-BATCH2-F01"
+      ],
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_singleton_post_stop_exception_loads api/tests/test_contract_method_pg.py::test_bootstrap_observer_pre_main_source_boundaries[complete] --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-qa3 -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-qa3.log 2>&1",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-red-qa3.log",
+      "reason": "Caught forbidden observer event accepted by real branch return/finally source cut; singleton ControlConflict load raises UnboundLocalError."
+    }
+  ],
+  "green_and_regressions": {
+    "source-final": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_complete_producer_stage api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final.log",
+      "passed": 2,
+      "nested_native_tests": 6,
+      "forbidden_effects": []
+    },
+    "qa-final": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_singleton_post_stop_exception_loads api/tests/test_contract_method_pg.py::test_batch2_observation_exact_fields api/tests/test_contract_method_pg.py::test_bootstrap_observer_pre_main_source_boundaries api/tests/test_contract_method_pg.py::test_bootstrap_observer_filters_before_frame_audit api/tests/test_contract_method_pg.py::test_launch_failure_diagnostic_bootstrap_evidence_is_bounded_and_incomplete api/tests/test_contract_method_pg.py::test_launch_failure_diagnostic_requires_pre_main_phase_evidence api/tests/test_contract_method_pg.py::test_bootstrap_observer_emitter_limits_and_unavailability_fail_closed --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-qa-final -q --tb=short",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-qa-final.log",
+      "passed": 50
+    },
+    "singleton-final": {
+      "command": "mkdir -m 700 /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-singleton-final-home && /usr/bin/python3 -I -B integrations/hermes/tests/contract_method_native_probe.py /home/kali/.hermes/cache/scratch/contract-method-evidence/pinned /home/kali/OmnisAI/integrations/hermes/upstream/managed-source /home/kali/OmnisAI/integrations/hermes/src /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-singleton-final-home",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-singleton-final.log",
+      "passed": 17,
+      "forbidden_effects": []
+    },
+    "adapter-final": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path.insert(0,\"integrations/hermes/src\"); raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_build.py'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_native_source.py'\"'\"', '\"'\"'integrations/hermes/tests/test_contract_method.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=line'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-adapter-final'\"'\"']))'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-adapter-final.log",
+      "passed": 29
+    },
+    "pg-collect-final": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py --collect-only -k 'batch2-release-first or batch2-stop-first' -q --tb=line",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-pg-collect-final.log",
+      "collected": 2,
+      "executed": 0,
+      "deselected": 177
+    },
+    "quality-final": {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py integrations/hermes/tests/contract_method_native_probe.py && api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_contract_method_pg.py integrations/hermes/tests/contract_method_native_probe.py && env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/tests/test_contract_method_pg.py && git diff --check",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-quality-final.log"
+    }
+  },
+  "intermediate_green": [
+    {
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f01 -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f01.log 2>&1",
+      "exit": 0,
+      "passed": 1,
+      "nested_native_tests": 5,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f01.log"
+    },
+    {
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f02 -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f02.log 2>&1",
+      "exit": 0,
+      "passed": 1,
+      "nested_native_tests": 6,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-f02.log"
+    },
+    {
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_singleton_post_stop_exception_loads api/tests/test_contract_method_pg.py::test_bootstrap_observer_pre_main_source_boundaries[complete] --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-qa -q --tb=short > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-qa.log 2>&1",
+      "exit": 0,
+      "passed": 2,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-green-qa.log"
+    }
+  ],
+  "reseal": {
+    "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "original_files": 15208,
+    "extra_files": 0,
+    "managed_sections": 15,
+    "unchanged_sections": 14,
+    "changed_sections": [
+      "agent/subagent_lifecycle.py"
+    ],
+    "inert_overlay_files": 5,
+    "post_inert_original_hashes_match": true,
+    "managed_files_exact": 15,
+    "checks": [
+      {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-inert.patch"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "git",
+          "apply",
+          "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-inert.patch"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-managed-final.patch"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "git",
+          "apply",
+          "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-managed-final.patch"
+        ],
+        "exit": 0
+      }
+    ]
+  },
+  "quality": {
+    "ruff": "PASS two edited test files check + format; managed upstream retains existing upstream style",
+    "mypy": "PASS strict no-incremental api/tests/test_contract_method_pg.py",
+    "syntax": "All three owned Python files compiled without bytecode writes; real source imports exercised",
+    "diff_check": "PASS after final reseal",
+    "secret_review": "Manual owned diff and finite added-line token patterns passed; not a universal secret scanner",
+    "source_identity": "All 17 prior scope paths checked; exactly six changed, eleven byte-identical. Only lifecycle section changes among 15 managed sections; framing/order and 14 other sections exact; inert artifacts byte-identical. Pin/manifest/source correlated."
+  },
+  "execution_issues": [
+    {
+      "issue": "QA cut initial selection found earlier batch2 branch, then included nested waiter return. Two initial harness failures retained; narrowed within same source-cut regression to direct branch/stop-if returns; no new verifier/runner. Third run produced intended behavioral RED before consumer edits.",
+      "logs": [
+        "fix-red-qa.log",
+        "fix-red-qa2.log",
+        "fix-red-qa3.log"
+      ]
+    },
+    {
+      "issue": "Initial Ruff B023 loop closures and mypy AST list invariance. Scoped per-case test methods and explicit ast.stmt collections repaired; final quality passes. No ignore/waiver.",
+      "logs": [
+        "fix-mypy.log",
+        "fix-mypy-final.log",
+        "fix-quality-final.log"
+      ]
+    },
+    {
+      "issue": "Initial reseal reapply exact but one consecutive blank context line triggered git diff --check. Only regenerated lifecycle section normalized with anchored blank-context regex; fresh final reapply exact and diff clean.",
+      "artifacts": [
+        "fix-reseal.json",
+        "fix-reseal-final.json",
+        "fix-reapply",
+        "fix-reapply-final"
+      ]
+    }
+  ],
+  "commit_order_for_parent": [
+    {
+      "order": "A",
+      "subject": "fix(native): make batch2 submission and publication failure atomic",
+      "paths": [
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+        "integrations/hermes/tests/contract_method_native_probe.py",
+        "integrations/hermes/upstream/omnis-managed.patch",
+        "integrations/hermes/upstream/managed-patch-manifest.json",
+        "integrations/hermes/pin.json"
+      ],
+      "rollback": "Parent git revert commit A then rerun affected SOURCE/native and reseal identity checks."
+    },
+    {
+      "order": "B",
+      "subject": "test(qa): enforce strict observer gate on batch2 exits and restore singleton exception scope",
+      "paths": [
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "rollback": "Parent git revert commit B; this reopens the two QA findings, not an accepted safety state."
+    }
+  ],
+  "limits": [
+    "No PG/Docker/OCI build/install/services/provider/model/target execution; only inert SOURCE plus collection.",
+    "No full canonical; re-review not run by author. Parent retains integration authority.",
+    "Old cancellation/replay scratch harness remains INCONCLUSIVE after its two attempts; not rerun or promoted.",
+    "Deadlines, count-specific assertions, overlap, UNKNOWN/indeterminate behavior and DB fence retained. No duplicate-constant cleanup or fingerprint closure changes.",
+    "No docs/Makefile/README/skills/profile/global edits. Original three reports unchanged. Protected documents/Omnis_Notite_Originale.html never read, hashed, edited, deleted or staged.",
+    "Test groups/counts are scoped, not a universal product PASS. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "lesson_for_parent_skill_update": "Keep multi-submit and multi-result rollback in the original registry critical section; public result/status at first unlock are required failure observations. Successful early returns in try/finally must still reach safety oracle after cleanup. No skill edit by child under this contract.",
+  "next": "Two complementary exact-snapshot focused re-reviews; parent adjudicates and commits A then B if approved. Separately authorized PG/native QA remains NOT_RUN; B06b/G02/P2 remain open."
+}

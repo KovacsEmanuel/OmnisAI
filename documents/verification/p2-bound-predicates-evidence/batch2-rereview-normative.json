@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "review_id": "BATCH2-NORMATIVE-REREVIEW-1",
+  "complete_report": true,
+  "review_mode": "INDEPENDENT_READ_ONLY_SOURCE_SCOPED",
+  "verdict": "APPROVED_SCOPED",
+  "phase_closed": false,
+  "summary_ro": "NORM-BATCH2-F01 și SAFETY-BATCH2-F03 închise pe remediul SOURCE exact. Importul necondițional păstrează singleton post-Stop; ambele ieșiri batch2 ating oracle-ul strict după cleanup la succes. Niciun blocker nou în delta examinată. Nu aprobă native lifecycle fixes, PG, distribuție instalată ori închiderea P2.",
+  "repository": "/home/kali/OmnisAI",
+  "scope": {
+    "requirement": "Păstrează singleton post-Stop și refuzul strict/readiness/forbidden la ambele ieșiri batch2, fără slăbirea cleanupului, capurilor, deadline-urilor ori assertions specifice count.",
+    "consumer": "api/tests/test_contract_method_pg.py: async run() din test_contract_method_real_native_pg_owner_receipts_check_inbox; SOURCE tests reale pentru observer și cut-uri AST ale consumerului.",
+    "risk": "UnboundLocalError înaintea ownerului și false-green după caught forbidden/unknown evidence.",
+    "decision": "Închidere focalizată SOURCE a celor două constatări și APPROVED_SCOPED pentru delta normativă; permite părintelui să combine cu review2 înainte de QA reală deja autorizată, nu acceptare runtime.",
+    "changed_file_reviewed": "api/tests/test_contract_method_pg.py",
+    "unchanged_behavior": "Cele 11 fișiere byte-identice păstrează concluziile și limitele reviewului inițial; nu am rerulat cele 273 teste ori reaudit general.",
+    "other_changed_files": "Cele cinci fișiere lifecycle/native test/distribution sunt legate prin hash, nu aprobate comportamental aici; review2 separat.",
+    "skills": [
+      "omnis-review-qa",
+      "omnis-project-status"
+    ],
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "snapshot": {
+    "product_base": "a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef",
+    "head_at_entry": "a8244b1062950c732b7a9a866e00a1725a75076a",
+    "head_at_final_verification": "ef6dae78cbc93d76ba4d985630f0e6e0e1a41de3",
+    "head_change": "Părintele a comis în timpul reviewului; cele17bytes sunt identice cu manifestul la intrare și final. Reviewerul nu a comis/staged/editat produsul.",
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-developer.json",
+    "manifest_file_sha256": "6b4c5bb421aefd87475d5f9e3e955f6290beb7db66e514cbfc3aa5d405326fce",
+    "declared_snapshot_sha256": "1ccbc78b67badd180f5b6e78fbde3cdc15d99def729233bf0e45caaf86ce9e0c",
+    "declared_snapshot_encoding": "SHA256(sorted compact JSON of the SIX changed_files path-to-SHA256 map), independently matched; not the all17 map.",
+    "all17_compact_sorted_sha256": "51e88317fb1317d03867205133542c617536264e79cb74812ed39a9478dacf97",
+    "base_to_worktree_diff_sha256": "1fcac24814726969ed34c1af7624ba3c040c4c5b65827a9bfcab65daed1c13e9",
+    "files_checked": 17,
+    "changed_count": 6,
+    "unchanged_count": 11,
+    "mismatches_start": [],
+    "mismatches_end": [],
+    "all_file_hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/method_checker_identity.py": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1",
+      "api/src/omnis/modules/tasks/method_checks.py": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2",
+      "api/tests/test_contract_method_pg.py": "4909d4419195e72acfab5edb10c9a57a1020f749862b84fba33feccbb89b09b3",
+      "api/tests/test_contract_method_producer.py": "dd93404a1b94ed0157c90d6c5305758cc00654223b0be6e24e4f3af1c7e90c1d",
+      "integrations/hermes/pin.json": "837db017717eb45cd562d67625b394d7aa9fdd637878b53438ebf81877544644",
+      "integrations/hermes/src/omnis_hermes/contract_method.py": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "fa363db9e4690e692be8f2ddf6930eba64e7b7720599866bd4ca4f6c6422cdfe",
+      "integrations/hermes/src/omnis_hermes/prompt_bundle.py": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "integrations/hermes/tests/contract_method_native_probe.py": "993a1c1ee6e3967a12743fc771ebcc15369931ca46b2a12cb0872918febe2918",
+      "integrations/hermes/tests/test_contract_method.py": "1e8739b9f2f4d85737d8f9c970aadaabacac1fcfebf200f716303a51365cf6c5",
+      "integrations/hermes/upstream/managed-patch-manifest.json": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0",
+      "integrations/hermes/upstream/managed-source/agent/contract_execution.py": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "integrations/hermes/upstream/omnis-managed.patch": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376"
+    },
+    "protected_path": "documents/Omnis_Notite_Originale.html never read/hash/edit/delete/stage; only its preexisting untracked filename appeared in required git status.",
+    "final_git_status": "Only protected preexisting untracked HTML; no tracked changes."
+  },
+  "finding_dispositions": [
+    {
+      "id": "NORM-BATCH2-F01",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "original_report": "documents/verification/p2-bound-predicates-evidence/batch2-review-normative.json",
+      "original_status_retained": "CHANGES_REQUESTED at original snapshot; never overwritten",
+      "current_code": [
+        "api/tests/test_contract_method_pg.py:36",
+        "api/tests/test_contract_method_pg.py:2016-2076",
+        "api/tests/test_contract_method_pg.py:5762-5767"
+      ],
+      "analysis": "ControlConflict is restored to the unconditional module import and the conditional function-local import is removed. Both original pytest.raises(ControlConflict) singleton post-Stop expressions remain unchanged. No remaining local import in run shadows the global exception class.",
+      "red": "Original reviewer bounded AST reproduced UnboundLocalError; fixes-developer.json red[2] records two intended QA regressions exit1 and parent reports reproduction. Historical failures retained, not independently rerun here.",
+      "green": "Independent test_singleton_post_stop_exception_loads PASS. Its bounded source cut reaches both actual raises expressions with batch2=False in one function scope.",
+      "limit": "Name resolution/regression only; full singleton PG/native post-Stop remains NOT_RUN in this contract."
+    },
+    {
+      "id": "SAFETY-BATCH2-F03",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "original_report": "documents/verification/p2-bound-predicates-evidence/batch2-review-safety.json",
+      "original_status_retained": "CHANGES_REQUESTED and caught-forbidden/invalid-row reproducer retained",
+      "current_code": [
+        "api/tests/test_contract_method_pg.py:2253-2265",
+        "api/tests/test_contract_method_pg.py:5887",
+        "api/tests/test_contract_method_pg.py:5999",
+        "api/tests/test_contract_method_pg.py:7691-7795"
+      ],
+      "analysis": "Both existing early returns traverse the shared finally. New batch2 gate executes after existing cleanup/readbacks and before successful return completes. Bounded read, diagnostic exact fields/types/duplicate/unknown/event/byte refusal, finite pre-ready completeness and observer READY plus forbidden checks are shared. Singleton calls the same helper after finally at its original point; task-count checks remain separate.",
+      "red": "Original source branch oracle accepted forbidden-sink, forbidden-effect and malformed batch2 row. Developer actual branch-return/finally SOURCE regression reported exit1 before fix. No original finding removed.",
+      "green": "Independent complete observer test accepts its real finite observer-generated positive on both actual branch-return/finally AST cuts. A caught real forbidden-sink and direct audit-guard forbidden-effect are recorded before raise and rejected for both exits; malformed batch2/unknown/extra/duplicate/invalid JSON, event/byte bounds and missing READY/phases all reject. Exact-fields regression PASS.",
+      "sys_exc_info": "At the actual caller asyncio.run(run()), success/return has no active exception; a caught exception has left its handler before return. An in-flight exception/cancellation remains active through awaited cleanup, skips the success-only oracle and propagates. Independent async cut exercised both returns and these cases. No except around the added oracle swallows its failure; cleanup assertion failure still fails rather than reaching success.",
+      "limit": "Real producer observation code at synthetic paths plus actual consumer return/finally nodes; DB/resource body omitted. Does not establish live PG/native cleanup, OS confinement or all asynchronous schedules."
+    },
+    {
+      "id": "SAFETY-BATCH2-F01",
+      "status": "DEFERRED_TO_COMPLEMENTARY_REREVIEW",
+      "note": "Not closed implicitly by this report; native partial-submit atomicity belongs to review2."
+    },
+    {
+      "id": "SAFETY-BATCH2-F02",
+      "status": "DEFERRED_TO_COMPLEMENTARY_REREVIEW",
+      "note": "Not closed implicitly by this report; native publication rollback belongs to review2."
+    }
+  ],
+  "new_findings": [],
+  "preserved_invariants": {
+    "cleanup": "AST equality confirms all preexisting owner.finalbody statements equal base before the single appended gate; except handlers identical. Cleanup failures/UNKNOWN/family readback/DB fence unchanged.",
+    "singleton": "Shared oracle remains before original singleton run_contract/read/handler/native-release/bound-predicate count assertions. Module import restoration does not change exception type or denial expectation.",
+    "batch2_counts": "Release-first keeps two BOUND, two results/checks/inbox, two read/four handler events, real overlap/two threads/two REAL_AIAgent entries, census on swapped final, no-rerun and consume2. Stop-first keeps no access/results/checks/inbox and drain. No count assertion moved into singleton-only gate.",
+    "bounds": "No deadlines, product caps, grant/binding schemas, cleanup behavior, pre-ready exemption set or observer allowance changed by this normative delta.",
+    "failure_semantics": "The new success-only gate cannot turn a propagating failure into success; its own failure propagates after cleanup. It intentionally does not replace the primary pending exception."
+  },
+  "verification": [
+    {
+      "label": "Independent affected SOURCE regressions",
+      "command": "umask 077; env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_singleton_post_stop_exception_loads 'api/tests/test_contract_method_pg.py::test_bootstrap_observer_pre_main_source_boundaries[complete]' api/tests/test_contract_method_pg.py::test_batch2_observation_exact_fields --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-normative-source -q --tb=line",
+      "exit_code": 0,
+      "result": "...                                                                      [100%]\n3 passed in 1.78s",
+      "passed": 3,
+      "seconds": 1.78,
+      "boundary": "SOURCE only; synthetic observer children with -I -B, no Hermes/PG/OCI launch. Fresh owned --basetemp.",
+      "artifacts": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-normative-source"
+    },
+    {
+      "label": "Actual guard async exception semantics and cleanup AST identity",
+      "command": "python3 -I -B -c 'import ast, asyncio, copy, hashlib, json, pathlib, subprocess, sys\nroot=pathlib.Path('\"'\"'/home/kali/OmnisAI'\"'\"')\np=root/'\"'\"'api/tests/test_contract_method_pg.py'\"'\"'\nsource=p.read_text()\nbase=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"','\"'\"'a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef:api/tests/test_contract_method_pg.py'\"'\"'],cwd=root,text=True)\ndef nodes(text):\n t=ast.parse(text)\n test=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='\"'\"'test_contract_method_real_native_pg_owner_receipts_check_inbox'\"'\"')\n run=next(n for n in ast.walk(test) if isinstance(n,ast.AsyncFunctionDef) and n.name=='\"'\"'run'\"'\"')\n owner=next(n for n in run.body if isinstance(n,ast.Try) and n.finalbody)\n return t,test,run,owner\nt,test,run,owner=nodes(source)\n_,old_test,old_run,old_owner=nodes(base)\ndump=lambda v:ast.dump(ast.Module(body=v,type_ignores=[]),include_attributes=False)\nassert dump(owner.finalbody[:-1])==dump(old_owner.finalbody)\nassert dump(owner.handlers)==dump(old_owner.handlers)\nassert isinstance(test.body[-1],ast.Expr) and ast.unparse(test.body[-1])=='\"'\"'asyncio.run(run())'\"'\"'\nbranch=next(n for n in ast.walk(owner) if isinstance(n,ast.If) and isinstance(n.test,ast.Name) and n.test.id=='\"'\"'batch2'\"'\"' and any(isinstance(v,ast.Return) and v.value is None for v in ast.walk(n)))\nreturns=[n for s in branch.body for n in (s.body if isinstance(s,ast.If) else [s]) if isinstance(n,ast.Return) and n.value is None]\nassert len(returns)==2\ncases=[]\nfor index,returned in enumerate(returns):\n for case,lead in [('\"'\"'success'\"'\"',[]),('\"'\"'caught'\"'\"',ast.parse('\"'\"'try:\\n raise RuntimeError()\\nexcept RuntimeError:\\n pass'\"'\"').body),('\"'\"'primary_error'\"'\"',ast.parse('\"'\"'raise ValueError(\"PRIMARY\")'\"'\"').body),('\"'\"'cancelled'\"'\"',ast.parse('\"'\"'raise asyncio.CancelledError()'\"'\"').body)]:\n  events=[]\n  async def cleanup():\n   await asyncio.sleep(0)\n   events.append('\"'\"'cleanup'\"'\"')\n  def oracle(observation):\n   events.append('\"'\"'oracle'\"'\"')\n  fn=ast.AsyncFunctionDef(name='\"'\"'cut'\"'\"',args=ast.arguments(posonlyargs=[],args=[],kwonlyargs=[],kw_defaults=[],defaults=[]),decorator_list=[],body=[ast.Try(body=copy.deepcopy(lead)+[copy.deepcopy(returned)],handlers=[],orelse=[],finalbody=ast.parse('\"'\"'await cleanup()'\"'\"').body+[copy.deepcopy(owner.finalbody[-1])])])\n  ns={'\"'\"'sys'\"'\"':sys,'\"'\"'asyncio'\"'\"':asyncio,'\"'\"'batch2'\"'\"':True,'\"'\"'observation'\"'\"':None,'\"'\"'cleanup'\"'\"':cleanup,'\"'\"'require_native_observation'\"'\"':oracle}\n  exec(compile(ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[])),'\"'\"'<actual-batch2-finally-guard>'\"'\"','\"'\"'exec'\"'\"'),ns)\n  outcome='\"'\"'returned'\"'\"'\n  try: asyncio.run(ns['\"'\"'cut'\"'\"']())\n  except BaseException as e: outcome=type(e).__name__\n  expected=['\"'\"'cleanup'\"'\"','\"'\"'oracle'\"'\"'] if case in ('\"'\"'success'\"'\"','\"'\"'caught'\"'\"') else ['\"'\"'cleanup'\"'\"']\n  assert events==expected,(case,events)\n  assert outcome==({'\"'\"'primary_error'\"'\"':'\"'\"'ValueError'\"'\"','\"'\"'cancelled'\"'\"':'\"'\"'CancelledError'\"'\"'}.get(case,'\"'\"'returned'\"'\"'))\n  cases.append({'\"'\"'return_line'\"'\"':returned.lineno,'\"'\"'case'\"'\"':case,'\"'\"'events'\"'\"':events,'\"'\"'outcome'\"'\"':outcome})\nmanifest=json.loads(pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-developer.json'\"'\"').read_text())\nmatched=[]\nfor scope in ('\"'\"'changed_files'\"'\"','\"'\"'all17_files'\"'\"'):\n for name,kwargs,suffix in [('\"'\"'compact'\"'\"',{'\"'\"'sort_keys'\"'\"':True,'\"'\"'separators'\"'\"':('\"'\"','\"'\"','\"'\"':'\"'\"')},'\"'\"''\"'\"'),('\"'\"'default'\"'\"',{'\"'\"'sort_keys'\"'\"':True},'\"'\"''\"'\"'),('\"'\"'indent2_newline'\"'\"',{'\"'\"'sort_keys'\"'\"':True,'\"'\"'indent'\"'\"':2},'\"'\"'\\n'\"'\"')]:\n  h=hashlib.sha256((json.dumps(manifest['\"'\"'snapshot'\"'\"'][scope],**kwargs)+suffix).encode()).hexdigest()\n  if h==manifest['\"'\"'snapshot'\"'\"']['\"'\"'sha256'\"'\"']: matched.append(scope+'\"'\"':'\"'\"'+name)\nprint(json.dumps({'\"'\"'cleanup_prefix_AST_unchanged'\"'\"':True,'\"'\"'owner_except_AST_unchanged'\"'\"':True,'\"'\"'callsite'\"'\"':'\"'\"'asyncio.run(run())'\"'\"','\"'\"'guard_cases'\"'\"':cases,'\"'\"'manifest_declared_hash_encoding_matches'\"'\"':matched},indent=2))\n'",
+      "exit_code": 0,
+      "observed": {
+        "cleanup_prefix_AST_unchanged": true,
+        "owner_except_AST_unchanged": true,
+        "callsite": "asyncio.run(run())",
+        "guard_cases": [
+          {
+            "return_line": 5887,
+            "case": "success",
+            "events": [
+              "cleanup",
+              "oracle"
+            ],
+            "outcome": "returned"
+          },
+          {
+            "return_line": 5887,
+            "case": "caught",
+            "events": [
+              "cleanup",
+              "oracle"
+            ],
+            "outcome": "returned"
+          },
+          {
+            "return_line": 5887,
+            "case": "primary_error",
+            "events": [
+              "cleanup"
+            ],
+            "outcome": "ValueError"
+          },
+          {
+            "return_line": 5887,
+            "case": "cancelled",
+            "events": [
+              "cleanup"
+            ],
+            "outcome": "CancelledError"
+          },
+          {
+            "return_line": 5999,
+            "case": "success",
+            "events": [
+              "cleanup",
+              "oracle"
+            ],
+            "outcome": "returned"
+          },
+          {
+            "return_line": 5999,
+            "case": "caught",
+            "events": [
+              "cleanup",
+              "oracle"
+            ],
+            "outcome": "returned"
+          },
+          {
+            "return_line": 5999,
+            "case": "primary_error",
+            "events": [
+              "cleanup"
+            ],
+            "outcome": "ValueError"
+          },
+          {
+            "return_line": 5999,
+            "case": "cancelled",
+            "events": [
+              "cleanup"
+            ],
+            "outcome": "CancelledError"
+          }
+        ],
+        "manifest_declared_hash_encoding_matches": [
+          "changed_files:compact"
+        ]
+      },
+      "boundary": "SOURCE AST from exact consumer; synthetic awaited cleanup and recording oracle. Real observer acceptance/refusal is established by the separate pytest test, not this stub."
+    },
+    {
+      "label": "Snapshot readback",
+      "command_description": "python3 -I -B: SHA256 each of the17 explicit manifest paths; compare prior report map; sorted compact map digests; git diff a7e4df5 -- explicit17paths. Repeat all17 hash comparison at end. No protected HTML read/hash.",
+      "exit_code": 0,
+      "result": "17/17 match; six changed, eleven unchanged; full diff exact; snapshot SHA encoding resolved to changed-six map."
+    },
+    {
+      "label": "Scoped diff whitespace",
+      "command": "git diff --check a7e4df5aa03b64763ca7c2cbd14fb904ae2273ef -- api/tests/test_contract_method_pg.py",
+      "exit_code": 0
+    },
+    {
+      "label": "Git readback",
+      "command": "git rev-parse HEAD; git status --short --branch",
+      "exit_code": 0,
+      "result": "HEAD ef6dae78cbc93d76ba4d985630f0e6e0e1a41de3, no tracked changes; protected preexisting untracked file left untouched."
+    }
+  ],
+  "execution_issues": [
+    {
+      "kind": "HARNESS_SYNTAX_ERROR",
+      "exit_code": 1,
+      "detail": "First independent inline AST semantics probe had an unescaped newline inside its -c string and failed to parse before execution or writes. Escaping fixed; next invocation passed eight cases. No product/source change or gate weakening."
+    },
+    {
+      "kind": "NON_BLOCKING_HASH_ENCODING_CLARIFICATION",
+      "detail": "Declared snapshot digest is the changed-six compact map, while the independently computed all17 compact map has a distinct digest. All per-file bytes and diff match; both encodings recorded explicitly, no integrity mismatch."
+    }
+  ],
+  "limits": [
+    "PG/binding visibility/real waiters/both batch2 runtime variants/full singleton post-Stop: NOT_RUN.",
+    "Installed Host/native, OCI/wheel build/install/reapply, distribution acceptance, canonical suite: NOT_RUN.",
+    "Native failure fixes require complementary exact-snapshot review2. The five changed native/distribution files are identity-bound only here.",
+    "Original normative N1-N6 unchanged-source conclusions retain their original scope and limits. N7 runtime and N8 changed distribution are not promoted.",
+    "Historical cancellation/replay scratch two harness failures remain INCONCLUSIVE; no retry or third attempt.",
+    "No PG/Docker/provider/model/target/network service/r1/profile/global/push actions; no raw private logs/DSN/capability read.",
+    "No global audit or universal schedule/exception guarantee. B06b/G02/P2 remain NOT_CLOSED.",
+    "Parent retains integration and status-map authority; read-only reviewer edits no repository file or skill."
+  ],
+  "files_created_or_modified": {
+    "repository_files_modified": [],
+    "commits_by_reviewer": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-normative.json",
+    "scratch_test_artifacts": [
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/rereview-normative-source"
+    ],
+    "report_policy": "Written once, complete and frozen. Do not overwrite historical reports."
+  },
+  "handoff": {
+    "AICI": "Finite2 B01-B03/H04: normative fix SOURCE APPROVED_SCOPED; both assigned findings CLOSED_SOURCE_SCOPED; real QA NOT_RUN.",
+    "next": "Parent adjudicates with complementary review2 and proceeds to existing authorized bounded real-consumer QA on exact bytes; no new inert approval required.",
+    "global_gates": "B06b/G02/P2 NOT_CLOSED; DATA/admission/canonical and Settings remain their separate gates; no live/r1 transfer.",
+    "skill_lesson_for_parent": "Early successful returns must run the shared safety gate after cleanup; preserve primary failure and singleton count checks. Conditional imports shadow all function-scope uses. Existing omnis-review-qa already captures these pitfalls; no reviewer skill edits."
+  }
+}

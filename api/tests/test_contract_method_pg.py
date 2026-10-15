@@ -3686,7 +3686,8 @@ def test_h03_mount_roots_refuse_physical_alias(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "mode", ["normal", "denial", "timeout", "cancelled", "unknown", "bad-receipt"]
+    "mode",
+    ["normal", "denial", "timeout", "cancelled", "interrupt", "exit", "unknown", "bad-receipt"],
 )
 def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: str) -> None:
     """Real nested reader producer; family/installed/DB seams are substituted."""
@@ -3705,16 +3706,21 @@ def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: s
     state = {"reader_unknown": False, "docker_unknown": False, "cleanup_failed": False}
     proof: dict[str, object] = {}
     reached: list[str] = []
+    primary = {
+        "cancelled": asyncio.CancelledError(),
+        "interrupt": KeyboardInterrupt(),
+        "exit": SystemExit(19),
+    }.get(mode)
 
     async def family(
         fn: object, argv: list[str], env: object, log: Path, timeout: int, **kwargs: object
     ) -> int:
         assert state["reader_unknown"] and fence["unsettled"], "H03_READER_PRELAUNCH_FENCE_MISSING"
         reached.append("family")
-        if mode == "cancelled":
-            raise asyncio.CancelledError
+        if primary is not None:
+            raise primary
         if mode == "timeout":
-            raise TimeoutError
+            raise TimeoutError("SYNTHETIC_PRIVATE_DSN")
         code = 2 if mode == "denial" else 99 if mode == "unknown" else 0
         audit = log.with_name(log.name.removesuffix(".gate.log") + ".jsonl")
         rows = [
@@ -3734,9 +3740,9 @@ def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: s
     namespace: dict[str, object] = dict(globals())
     namespace.update(
         tmp_path=tmp_path,
-        h03=True,
+        h03=False,
         installed_native=True,
-        batch2=False,
+        batch2=True,
         h03_state=state,
         db_fence=fence,
         reader_python=Path(sys.executable),
@@ -3764,9 +3770,16 @@ def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: s
     try:
         call = cast(Callable[[], Coroutine[object, object, object]], namespace["consumer"])
         asyncio.run(call())
-    except AssertionError:
+    except BaseException as exc:
+        if primary is not None:
+            assert exc is primary, "INSTALLED_READER_PRIMARY_REPLACED"
+        else:
+            assert type(exc) is AssertionError
+            assert str(exc) == "H03_READER_NOT_SETTLED"
         failed = True
     uncertain = mode not in {"normal", "denial"}
+    if uncertain:
+        assert proof == {"status": "UNCERTAIN", "h03_reader_cleanup": "NOT_SETTLED_DB_RETAINED"}
     assert reached == ["family"]
     assert failed is uncertain
     assert state["reader_unknown"] is uncertain
@@ -4035,6 +4048,15 @@ def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str,
         "duplicate-key",
         "wrong-origin",
         "wheel-hash",
+        "source-alias",
+        "installed-alias",
+        "oversize-descriptor",
+        "oversize-wheel",
+        "nonregular-wheel",
+        "oversize-source",
+        "bad-utf8",
+        "zip-member",
+        "zip-aggregate",
     ],
 )
 def test_batch2_current_reader_actual_helper(
@@ -4063,7 +4085,76 @@ def test_batch2_current_reader_actual_helper(
         current["python"] = str(wrong)
     elif mutation == "wheel-hash":
         current["wheel_sha256"] = "0" * 64
+    unsafe_reads: list[Path] = []
+    unsafe: Path | None = None
+    if mutation in {"source-alias", "installed-alias", "oversize-source"}:
+        import shutil
+
+        descriptor["root"] = str(Path(os.environ["TMPDIR"]).resolve())
+        if mutation == "installed-alias":
+            original = Path(str(current["python"])).parent.parent
+            copied = tmp_path / "reader"
+            shutil.copytree(original / "bin", copied / "bin", symlinks=True)
+            shutil.copy2(original / "pyvenv.cfg", copied / "pyvenv.cfg")
+            (copied / "lib").symlink_to(original / "lib", target_is_directory=True)
+            current["python"] = str(copied / "bin/python")
+        else:
+            original = Path(str(current["source"]))
+            copied = tmp_path / "source"
+            copied.mkdir()
+            if mutation == "source-alias":
+                (copied / "api").symlink_to(original / "api", target_is_directory=True)
+            else:
+                shutil.copytree(original / "api/src/omnis", copied / "api/src/omnis")
+                unsafe = copied / str(mapping(sequence(current["files"])[0])["path"])
+                unsafe.write_bytes(b" " * 131073)
+            current["source"] = str(copied)
+    elif mutation in {"oversize-wheel", "nonregular-wheel"}:
+        descriptor["root"] = str(Path(os.environ["TMPDIR"]).resolve())
+        unsafe = tmp_path / "unsafe.whl"
+        if mutation == "nonregular-wheel":
+            os.mkfifo(unsafe, 0o600)
+        else:
+            unsafe.write_bytes(b" " * 262145)
+        current["wheel"] = str(unsafe)
+    if mutation in {"zip-member", "zip-aggregate"}:
+        import zipfile
+
+        descriptor["root"] = str(Path(os.environ["TMPDIR"]).resolve())
+        copied_wheel = tmp_path / "expanded.whl"
+        with zipfile.ZipFile(str(current["wheel"])) as original_zip:
+            with zipfile.ZipFile(copied_wheel, "w", compression=zipfile.ZIP_DEFLATED) as target:
+                for member in original_zip.infolist():
+                    target.writestr(member, original_zip.read(member))
+                target.writestr(
+                    "bounded-control", b" " * (131073 if mutation == "zip-member" else 131072)
+                )
+        current["wheel"] = str(copied_wheel)
+        current["wheel_sha256"] = sha(copied_wheel.read_bytes())
+        assert copied_wheel.stat().st_size <= 262144
+        original_zip_read = zipfile.ZipFile.read
+
+        def zip_read_observed(
+            distribution: zipfile.ZipFile, name: str, pwd: bytes | None = None
+        ) -> bytes:
+            unsafe_reads.append(copied_wheel)
+            return original_zip_read(distribution, name, pwd)
+
+        monkeypatch.setattr(zipfile.ZipFile, "read", zip_read_observed)
+    original_read = Path.read_bytes
+
+    def read_observed(path: Path) -> bytes:
+        if path == unsafe:
+            unsafe_reads.append(path)
+            raise ValueError("UNSAFE_READ_REACHED")
+        return original_read(path)
+
+    monkeypatch.setattr(Path, "read_bytes", read_observed)
     raw = canonical(descriptor)
+    if mutation == "oversize-descriptor":
+        raw = b" " * 2097152 + raw
+    elif mutation == "bad-utf8":
+        raw = b"\xff"
     if mutation == "duplicate-key":
         raw = raw.replace(b'"schema_version":1', b'"schema_version":0,"schema_version":1')
     path = tmp_path / "reader.json"
@@ -4079,7 +4170,8 @@ def test_batch2_current_reader_actual_helper(
     else:
         with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
             batch2_current_reader(path)
-        assert observed.call_count == (1 if mutation == "wrong-origin" else 0)
+        assert observed.call_count == 0
+        assert unsafe_reads == [], "UNSAFE_MATERIAL_READ_BEFORE_REFUSAL"
 
 
 def test_batch2_actual_expanded_size_readback() -> None:
@@ -4138,9 +4230,197 @@ def test_batch2_installed_static_prerequisites(monkeypatch: pytest.MonkeyPatch) 
     assert python == root / "reader/bin/python"
 
 
+@pytest.mark.parametrize(
+    "mutation", [None, "duplicate-task", "duplicate-inbox", "swapped-inbox", "swapped-check"]
+)
+def test_batch2_actual_persisted_correspondence(mutation: str | None) -> None:
+    """SOURCE projection only: retained Brief/TaskResult, no persistence producer."""
+    import ast
+
+    from omnis.modules.settings.candidate_store import reference
+
+    handle = os.environ.get("OMNIS_BATCH2_SOURCE_STAGE")
+    if not handle:
+        pytest.skip("Retained SOURCE material not selected")
+    source = Path(handle)
+    stage = mapping(mapping(json.loads(source.read_bytes()))["stage"])
+    retained = mapping(json.loads(source.with_name("batch2-native-result.json").read_bytes()))
+    manifest = mapping(stage["manifest"])
+    entries = [mapping(e) for e in sequence(mapping(manifest["payload"])["entries"])]
+    pool = [mapping(r) for r in sequence(stage["record_pool"])]
+    briefs = [next(r for r in pool if reference(r) == e["brief_ref"]) for e in entries]
+    results = [
+        mapping(sequence(mapping(e)["records"])[0])
+        for e in sequence(mapping(retained["final"])["executions"])
+    ]
+    # These are readback projections, NOT emitted MethodChecks or a PG receipt.
+    checks: list[dict[str, object]] = [
+        {
+            "id": str(uuid4()),
+            "payload": {
+                "brief_ref": reference(b),
+                "task_result_ref": reference(result),
+                "status": "COMPLETE",
+            },
+        }
+        for b, result in zip(briefs, results, strict=True)
+    ]
+    tasks = [
+        {
+            "batch_index": e["batch_index"],
+            "task_id": e["task_id"],
+            "attempt_id": e["attempt_id"],
+            "brief_id": b["id"],
+            "result_id": result["id"],
+            "check_id": check["id"],
+        }
+        for e, b, result, check in zip(entries, briefs, results, checks, strict=True)
+    ]
+    inbox = [{"task_id": t["task_id"], "result_id": t["result_id"]} for t in tasks]
+    if mutation == "duplicate-task":
+        tasks[1] = deepcopy(tasks[0])
+        results[1] = deepcopy(results[0])
+        checks[1] = deepcopy(checks[0])
+    elif mutation == "duplicate-inbox":
+        inbox[1] = deepcopy(inbox[0])
+    elif mutation == "swapped-inbox":
+        inbox[0]["task_id"], inbox[1]["task_id"] = inbox[1]["task_id"], inbox[0]["task_id"]
+    elif mutation == "swapped-check":
+        mapping(checks[0]["payload"])["task_result_ref"] = reference(results[1])
+        mapping(checks[1]["payload"])["brief_ref"] = reference(briefs[0])
+    back = {
+        "manifest": manifest,
+        "briefs": briefs,
+        "tasks": tasks,
+        "results": results,
+        "checks": checks,
+        "inbox": inbox,
+    }
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    # Execute the actual installed success predicates, not a test-side oracle.
+    branch = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.If)
+        and any(
+            isinstance(x, ast.Call)
+            and isinstance(x.func, ast.Name)
+            and x.func.id == "checkpoint"
+            and any(
+                k.arg == "batch2"
+                and isinstance(k.value, ast.Constant)
+                and k.value.value == "RELEASE_FIRST_TWO_RESULTS_CHECKS_INBOX"
+                for k in x.keywords
+            )
+            for x in ast.walk(n)
+        )
+        and isinstance(n.test, ast.Name)
+        and n.test.id == "batch2"
+    )
+    start = next(
+        i
+        for i, n in enumerate(branch.body)
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "back" for t in n.targets)
+    )
+    end = next(
+        i
+        for i, n in enumerate(branch.body)
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "graph" for t in n.targets)
+    )
+    predicates = branch.body[start + 1 : end]
+    with pytest.raises(AssertionError) if mutation else nullcontext():
+        exec(
+            compile(
+                ast.fix_missing_locations(ast.Module(body=predicates, type_ignores=[])),
+                "<actual-installed-batch2-correspondence>",
+                "exec",
+            ),
+            {**globals(), "back": back},
+        )
+
+
+def batch2_persisted_correspondence(back: dict[str, object]) -> None:
+    """Two distinct manifest tasks retain their own Brief/result/check/inbox."""
+    from omnis.modules.settings.candidate_store import reference
+
+    entries = [
+        mapping(e) for e in sequence(mapping(mapping(back["manifest"])["payload"])["entries"])
+    ]
+    assert len(entries) == 2
+    assert {e["batch_index"] for e in entries} == {0, 1}
+    assert len({e["task_id"] for e in entries}) == len({e["attempt_id"] for e in entries}) == 2
+    assert len({mapping(e["brief_ref"])["id"] for e in entries}) == 2
+    tasks = [mapping(t) for t in sequence(back["tasks"])]
+    assert len(tasks) == 2
+    assert {t["task_id"] for t in tasks} == {e["task_id"] for e in entries}
+    for field in ("attempt_id", "brief_id", "result_id", "check_id"):
+        assert len({t[field] for t in tasks}) == 2
+    indexed: dict[str, dict[str, dict[str, object]]] = {}
+    for field in ("briefs", "results", "checks"):
+        rows = [mapping(r) for r in sequence(back[field])]
+        assert len(rows) == 2 and len({r["id"] for r in rows}) == 2
+        indexed[field] = {str(r["id"]): r for r in rows}
+    inbox = [mapping(i) for i in sequence(back["inbox"])]
+    assert len(inbox) == 2
+    for entry in entries:
+        task = next(t for t in tasks if t["task_id"] == entry["task_id"])
+        assert task["batch_index"] == entry["batch_index"]
+        assert task["attempt_id"] == entry["attempt_id"]
+        assert task["brief_id"] == mapping(entry["brief_ref"])["id"]
+        assert str(task["brief_id"]) in indexed["briefs"]
+        assert str(task["result_id"]) in indexed["results"]
+        assert str(task["check_id"]) in indexed["checks"]
+        brief = indexed["briefs"][str(task["brief_id"])]
+        result = indexed["results"][str(task["result_id"])]
+        check = indexed["checks"][str(task["check_id"])]
+        assert reference(brief) == entry["brief_ref"]
+        header = mapping(mapping(brief["payload"])["header"])
+        assert header["task_id"] == task["task_id"] and header["attempt_id"] == task["attempt_id"]
+        assert canonical(mapping(result["payload"])["header"]) == canonical(header)
+        payload = mapping(check["payload"])
+        assert payload["brief_ref"] == entry["brief_ref"]
+        assert payload["task_result_ref"] == reference(result)
+        assert payload["status"] == "COMPLETE"
+        assert (
+            sum(i["task_id"] == task["task_id"] and i["result_id"] == result["id"] for i in inbox)
+            == 1
+        )
+
+
+def batch2_reader_material(path: Path, maximum: int) -> bytes:
+    """Catalog bounded/no-follow FD reader plus this QA artifact's UID fence."""
+    from omnis.modules.settings.skill_catalog import read_file
+
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError
+    for parent in reversed(path.parents):
+        info = parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or (
+            parent.is_relative_to(Path("/home/kali")) and info.st_uid != os.getuid()
+        ):
+            raise ValueError
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode) or before.st_uid != os.getuid() or before.st_nlink != 1:
+        raise ValueError
+    raw = read_file(path, maximum)
+    after = path.lstat()
+    if (before.st_dev, before.st_ino, before.st_ctime_ns) != (
+        after.st_dev,
+        after.st_ino,
+        after.st_ctime_ns,
+    ):
+        raise ValueError
+    return raw
+
+
 def batch2_current_reader(handle: Path) -> dict[str, object]:
     """Current-only descriptor; historical old/current compatibility is untouched."""
     import zipfile
+    from io import BytesIO
 
     try:
         info = handle.lstat()
@@ -4152,7 +4432,9 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
         ):
             raise ValueError
         descriptor = mapping(
-            json.loads(handle.read_bytes(), object_pairs_hook=launch_observation_object)
+            json.loads(
+                batch2_reader_material(handle, 32768), object_pairs_hook=launch_observation_object
+            )
         )
         if set(descriptor) != {"schema_version", "status", "root", "current"}:
             raise ValueError
@@ -4162,8 +4444,10 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             raise ValueError
         if type(descriptor["root"]) is not str:
             raise ValueError
-        root = Path(str(descriptor["root"])).resolve(strict=True)
-        if not root.is_relative_to(Path("/home/kali/.hermes/cache/scratch")):
+        root = Path(str(descriptor["root"]))
+        if root.resolve(strict=True) != root or not root.is_relative_to(
+            Path("/home/kali/.hermes/cache/scratch")
+        ):
             raise ValueError
         current = mapping(descriptor["current"])
         if set(current) != {"tag", "commit", "source", "wheel", "wheel_sha256", "python", "files"}:
@@ -4183,7 +4467,11 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             if name != "python" and path.resolve(strict=True) != path:
                 raise ValueError
         wheel_path, source = Path(str(current["wheel"])), Path(str(current["source"]))
-        if sha(wheel_path.read_bytes()) != current["wheel_sha256"]:
+        # Immutable artifact: descriptor15342, wheel254962, 107 ZIP entries,
+        # 980133 expanded bytes, largest80828, 88 API files. Next binary buckets
+        # bound QA material only; no product caps or grants are changed.
+        wheel_raw = batch2_reader_material(wheel_path, 262144)
+        if sha(wheel_raw) != current["wheel_sha256"]:
             raise ValueError
         files = [mapping(row) for row in sequence(current["files"])]
         if any(
@@ -4193,28 +4481,68 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             for row in files
         ):
             raise ValueError
-        with zipfile.ZipFile(wheel_path) as wheel:
+        python = Path(str(current["python"]))
+        if (
+            python.resolve(strict=True) != Path(sys.executable).resolve(strict=True)
+            or python.parent.resolve(strict=True) != python.parent
+            or python.parent.lstat().st_uid != os.getuid()
+            or python.lstat().st_uid != os.getuid()
+        ):
+            raise ValueError
+        # Only the interpreter link to this attested toolchain is exempt.
+        batch2_reader_material(python.parent.parent / "pyvenv.cfg", 4096)
+        installed = python.parent.parent / "lib/python3.13/site-packages"
+        with zipfile.ZipFile(BytesIO(wheel_raw)) as wheel:
+            members = wheel.infolist()
+            if (
+                len(members) > 128
+                or len({m.filename for m in members}) != len(members)
+                or any(m.file_size > 131072 for m in members)
+                or sum(m.file_size for m in members) > 1048576
+            ):
+                raise ValueError
             names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
-            if len(files) != len(names) or {f["path"] for f in files} != {
-                "api/src/" + n for n in names
-            }:
+            if (
+                len(files) != 88
+                or len(names) != 88
+                or {f["path"] for f in files} != {"api/src/" + n for n in names}
+            ):
                 raise ValueError
             for row in files:
                 name = str(row["path"])
-                raw = (source / name).read_bytes()
+                raw = batch2_reader_material(source / name, 131072)
                 if (
                     sha(raw) != row["sha256"]
-                    or raw != (ROOT / name).read_bytes()
+                    or raw != batch2_reader_material(ROOT / name, 131072)
+                    or raw
+                    != batch2_reader_material(installed / name.removeprefix("api/src/"), 131072)
                     or raw != wheel.read(name.removeprefix("api/src/"))
                 ):
                     raise ValueError
+        origin_code = (
+            "import os, stat\nfrom pathlib import Path\nfrom io import BytesIO\n"
+            + inspect.getsource(batch2_reader_material)
+            + HISTORICAL_ORIGIN.replace(
+                "zipfile.ZipFile(wheel)",
+                "zipfile.ZipFile(BytesIO(batch2_reader_material(wheel, 262144)))",
+            )
+            .replace("actual.read_bytes()", "batch2_reader_material(actual, 131072)")
+            .replace("expected.read_bytes()", "batch2_reader_material(expected, 131072)")
+            .replace(
+                "    for name in distribution.namelist():",
+                "    assert len(distribution.infolist()) <= 128\n"
+                "    assert all(m.file_size <= 131072 for m in distribution.infolist())\n"
+                "    assert sum(m.file_size for m in distribution.infolist()) <= 1048576\n"
+                "    for name in distribution.namelist():",
+            )
+        )
         origin = subprocess.run(
             [
                 str(current["python"]),
                 "-I",
                 "-B",
                 "-c",
-                HISTORICAL_ORIGIN,
+                origin_code,
                 str(source),
                 str(wheel_path),
             ],
@@ -4307,11 +4635,12 @@ def h03_prerequisites(*, current_only: bool = False) -> tuple[dict[str, object],
             _, current = historical_installed_plan(Path(os.environ["OMNIS_H03_API_PREREQUISITES"]))
         import zipfile
 
-        with zipfile.ZipFile(str(current["wheel"])) as wheel:
-            for name in wheel.namelist():
-                if name.startswith("omnis/") and not name.endswith("/"):
-                    if wheel.read(name) != (ROOT / "api/src" / name).read_bytes():
-                        raise ValueError
+        if not current_only:  # Batch2 already compared bounded, no-follow bytes above.
+            with zipfile.ZipFile(str(current["wheel"])) as wheel:
+                for name in wheel.namelist():
+                    if name.startswith("omnis/") and not name.endswith("/"):
+                        if wheel.read(name) != (ROOT / "api/src" / name).read_bytes():
+                            raise ValueError
         return plan, Path(str(current["python"]))
     except (OSError, ValueError, KeyError, AssertionError):
         raise AssertionError("H03_INSTALLED_PREREQUISITE_REFUSED") from None
@@ -4992,8 +5321,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise AssertionError("H03_READER_FAMILY_OR_EXIT_UNCERTAIN")
                 stdout, stderr = (p.read_bytes() for p in output_paths)
                 h03_state["reader_unknown"] = prior_unknown
-            except BaseException:
+            except BaseException as exc:
                 checkpoint(status="UNCERTAIN", h03_reader_cleanup="NOT_SETTLED_DB_RETAINED")
+                if not isinstance(exc, Exception):
+                    raise
                 raise AssertionError("H03_READER_NOT_SETTLED") from None
         else:
             child = await asyncio.create_subprocess_exec(
@@ -6379,6 +6710,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     await stop_tasks[0]
                     back_request = seed.request(command_id=assignment["command_id"])
                     back = await domain.readback(back_request)
+                    batch2_persisted_correspondence(back)
                     assert (
                         len(sequence(back["results"]))
                         == len(sequence(back["checks"]))
@@ -6466,6 +6798,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             await restarted_cli("readback", back_request)
                         ) == canonical(back)
                         reconciled = await restarted_cli("reconcile", back_request)
+                        batch2_persisted_correspondence(reconciled)
                         assert all(
                             mapping(i)["domain_result_consumed"] is True
                             for i in sequence(reconciled["inbox"])

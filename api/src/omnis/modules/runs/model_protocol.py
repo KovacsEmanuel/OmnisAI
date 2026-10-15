@@ -13,7 +13,15 @@ from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_store as store
-from omnis.modules.tasks.managed_contract import exact, integer, mapping, record, ref, text
+from omnis.modules.tasks.managed_contract import (
+    exact,
+    integer,
+    mapping,
+    record,
+    ref,
+    sequence,
+    text,
+)
 from omnis.policy import budgets
 from omnis.policy.model_dispatch_contract import require_live_deadline
 from omnis.supervisor.runtime_client import FrozenPreflight
@@ -398,6 +406,21 @@ async def readback(
         and mapping(r["payload"])["dispatch_ref"] == references["dispatch_ref"]
     ]
     if state["state"] == "SETTLED":
+        usage = [
+            mapping(mapping(item)["payload"])["usage"]
+            for item in sequence(state["history"])
+            if mapping(item)["kind"] == "model-usage-receipt"
+        ]
+        expected_usage = {
+            "receipt_id": body["request_id"],
+            "usage_state": "KNOWN",
+            "output_tokens": 0,
+            "provider_receipt_ref": None,
+            "cost_observed": None,
+            "cost_estimate": None,
+        }
+        if canonical(usage) != canonical([expected_usage]):
+            raise CatalogError("MODEL_RECEIPT_CONFLICT")
         if len(receipts) != 1:
             raise CatalogError("MODEL_RECEIPT_CONFLICT")
         receipt = exact(
@@ -446,7 +469,9 @@ async def readback(
         "usage_state": state["usage_state"],
         "protocol_calls": state["charged_calls"],
         "model_calls": 0,
-        "output_tokens": 0 if state["usage_state"] == "KNOWN" else None,
+        "output_tokens": state["charged_output_tokens"]
+        if state["usage_state"] == "KNOWN"
+        else None,
         "cost_observed": None,
         "cost_estimate": None,
         "provider_receipt_ref": None,

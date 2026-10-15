@@ -756,6 +756,74 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                         mutation.setattr(budgets, "readback", forged_dispatch)
                         with pytest.raises(CatalogError):
                             await model_protocol.qualified(connection, consumer, command_dto, refs)
+                if protocol_case in {
+                    "usage_tokens",
+                    "usage_identity",
+                    "usage_cost_observed",
+                    "usage_cost_estimate",
+                    "usage_provider_receipt",
+                }:
+                    from omnis.modules.runs import model_protocol
+                    from omnis.modules.tasks.managed_contract import record
+
+                    command_dto = NativeTaskCommand.model_validate(protocol_command)
+                    usage_refs = await model_protocol.replay(connection, command_dto)
+                    assert usage_refs is not None
+                    usage = next(r for r in graph if r["kind"] == "model-usage-receipt")
+                    original_usage = dict(usage)
+                    usage_body = mapping(usage["payload"])
+                    usage_value = mapping(usage_body["usage"])
+                    changes: dict[str, dict[str, object]] = {
+                        "usage_tokens": {"output_tokens": 1},
+                        "usage_identity": {"receipt_id": str(uuid4())},
+                        "usage_cost_observed": {"cost_observed": "0"},
+                        "usage_cost_estimate": {"cost_estimate": "0"},
+                        "usage_provider_receipt": {
+                            "provider_receipt_ref": records.reference(
+                                records.envelope("provider-receipt", {})
+                            )
+                        },
+                    }
+                    usage["payload"] = {
+                        **usage_body,
+                        "usage": {**usage_value, **changes[protocol_case]},
+                    }
+                    usage["digest"] = sha256(
+                        canonical({k: v for k, v in usage.items() if k != "digest"})
+                    ).hexdigest()
+                    record(usage, "model-usage-receipt")
+                    retained = canonical(graph)
+                    try:
+                        ledger = await budgets.readback(connection, owner, usage_refs["dispatch_ref"])
+                        assert ledger["state"] == "SETTLED"
+                        assert ledger["charged_output_tokens"] == (
+                            1 if protocol_case == "usage_tokens" else 0
+                        )
+                        with monkeypatch.context() as mutation:
+                            mutation.setattr(
+                                managed_store, "put", AsyncMock(side_effect=AssertionError("write"))
+                            )
+                            mutation.setattr(
+                                service,
+                                "native_preparation_commit",
+                                Mock(side_effect=AssertionError("replay fence")),
+                            )
+                            mutation.setattr(
+                                service,
+                                "runtime_authority",
+                                AsyncMock(side_effect=AssertionError("replay grant")),
+                            )
+                            with pytest.raises(CatalogError, match="MODEL_RECEIPT_CONFLICT"):
+                                await model_protocol.readback(
+                                    connection, consumer, command_dto, usage_refs
+                                )
+                            with pytest.raises(CatalogError, match="TASK_REJECTED"):
+                                await control_task(root, protocol_command)
+                        if canonical(graph) != retained:
+                            raise AssertionError("readback mutated retained records")
+                    finally:
+                        usage.clear()
+                        usage.update(original_usage)
                 if protocol_case == "receipt_extra":
                     receipt = next(r for r in graph if r["kind"] == "model-protocol-receipt")
                     original_receipt = dict(receipt)
@@ -821,6 +889,25 @@ async def test_protocol_backpressure_retires_before_owner_a_exit(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("case", ["receipt_extra", "descriptor_version"])
 async def test_protocol_replay_rejects_resealed_receipt_extra(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case=case
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "case",
+    [
+        "usage_tokens",
+        "usage_identity",
+        "usage_cost_observed",
+        "usage_cost_estimate",
+        "usage_provider_receipt",
+    ],
+)
+async def test_protocol_replay_rejects_resealed_usage_contradiction(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
 ) -> None:
     await test_qualified_projection_reaches_cold_admission_without_model_reservation(

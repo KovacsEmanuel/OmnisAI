@@ -543,7 +543,10 @@ class RuntimeClient:
                 asyncio.IncompleteReadError,
                 asyncio.LimitOverrunError,
             ):
-                await self.close()
+                if _frozen is not None:
+                    self.retire_frozen()
+                else:
+                    await self.close()
                 raise RuntimeUnavailable("Runtime exchange unavailable") from None
 
     async def prepare(

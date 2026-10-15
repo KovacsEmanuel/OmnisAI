@@ -2,9 +2,10 @@
 
 import asyncio
 import json
+import socket
 import time
 from collections.abc import AsyncIterator, Callable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
@@ -92,6 +93,80 @@ async def peer_client(
         await asyncio.wait_for(settled.wait(), 1)
         server.close()
         await server.wait_closed()
+
+
+@asynccontextmanager
+async def backpressured_client(
+    directory: Path, runtime_boot: str, measured: dict[str, int]
+) -> AsyncIterator[RuntimeClient]:
+    """Real UDS; peer reads only after the caller has returned from its fence."""
+    left, right = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+    left.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4096)
+    left.setblocking(False)
+    right.setblocking(False)
+    client = RuntimeClient(directory, generation=0, epoch=1)
+    client.boot, client.capability = runtime_boot, "c" * 64
+    writer = None
+    try:
+        client.reader, client.writer = await asyncio.open_unix_connection(sock=left)
+        writer = client.writer
+        writer.transport.set_write_buffer_limits(high=1024, low=512)
+        yield client
+        measured["buffer_at_return"] = writer.transport.get_write_buffer_size()
+        received = 0
+        complete = 0
+        async with asyncio.timeout(1):
+            while part := await asyncio.get_running_loop().sock_recv(right, 65536):
+                received += len(part)
+                complete += part.count(b"\n")
+        measured["received_after_return"] = received
+        measured["complete_frames_after_return"] = complete
+    finally:
+        if writer is not None and left.fileno() != -1:
+            writer.transport.abort()
+            with suppress(OSError, TimeoutError):
+                await asyncio.wait_for(writer.wait_closed(), 0.2)
+        right.close()
+        left.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["timeout", "cancel"])
+async def test_frozen_backpressure_discards_pending_bytes_before_return(
+    ipc_directory: Path, failure: str
+) -> None:
+    measured: dict[str, int] = {}
+    async with backpressured_client(ipc_directory, str(uuid4()), measured) as client:
+        writer = client.writer
+        assert writer is not None
+        transport = writer.transport
+        frozen = client.freeze_preflight(
+            RuntimeAuthority(0, 1, time.monotonic_ns() + 4_500_000_000),
+            {"protocol": "omnis-managed-admission-v3", "text": "x" * 32000},
+            wall_seconds=1,
+        )
+        task = asyncio.create_task(client.exchange_frozen(frozen))
+        try:
+            async with asyncio.timeout(0.5):
+                while transport.get_write_buffer_size() == 0:
+                    await asyncio.sleep(0)
+            measured["buffer_before_failure"] = transport.get_write_buffer_size()
+            if failure == "cancel":
+                task.cancel()
+            with pytest.raises(
+                asyncio.CancelledError if failure == "cancel" else RuntimeUnavailable
+            ):
+                await asyncio.wait_for(task, 2)
+            assert client.reader is None and client.writer is None
+        finally:
+            if not task.done():
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+    assert measured["buffer_before_failure"] > 0
+    assert measured["buffer_at_return"] == 0
+    assert measured["complete_frames_after_return"] == 0
+    assert 0 < measured["received_after_return"] < len(frozen.frame)
 
 
 @pytest.mark.parametrize("operation", ["task_stage", "task_release", "task_status"])

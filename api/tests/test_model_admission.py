@@ -465,7 +465,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
 
     from omnis.supervisor.native_tasks import control_task
     from omnis.transport.local_control import LocalControl
-    from test_native_task_client import peer_client
+    from test_native_task_client import backpressured_client, peer_client
     from test_ready_model_configuration import configuration
 
     monkeypatch.setattr(budgets, "reserve", real_reserve)
@@ -539,6 +539,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="dap-") as directory:
         root = Path(directory)
         requests: list[dict[str, object]] = []
+        backpressure = protocol_case == "backpressure"
+        measured: dict[str, int] = {}
 
         observed = asyncio.Event()
 
@@ -546,7 +548,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
             result = mapping(lifecycle.model_preflight(payload))
             return {**result, "model_calls": 1} if protocol_failure == "invalid_ack" else result
 
-        async with peer_client(
+        peer = peer_client(
             root,
             requests,
             result=cold_result,
@@ -554,7 +556,12 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
             failure=protocol_failure,
             observed=observed,
             runtime_boot=str(mapping(binding["payload"])["runtime_boot"]),
-        ) as real:
+        )
+        if backpressure:
+            peer = backpressured_client(
+                root, str(mapping(binding["payload"])["runtime_boot"]), measured
+            )
+        async with peer as real:
             handler.runtime = real
             drained = asyncio.Event()
             drain_writer = real.writer
@@ -562,6 +569,11 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
             actual_drain = drain_writer.drain
 
             async def observed_drain() -> None:
+                if backpressure:
+                    measured["buffer_before_failure"] = (
+                        drain_writer.transport.get_write_buffer_size()
+                    )
+                    observed.set()
                 await actual_drain()
                 drained.set()
 
@@ -584,7 +596,11 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     "action": "model_protocol_prepare",
                     "provider_config_ref": config_reply["provider_config_ref"],
                     "protocol_id": str(uuid4()),
-                    "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+                    "protocol_caps": {
+                        "calls": 1,
+                        "output_tokens": 64,
+                        "wall_seconds": 1 if backpressure else 3,
+                    },
                 }
                 entered = 0
 
@@ -608,6 +624,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                         }:
                             assert real.writer is None and real.reader is None
                             assert transport is not None and transport.is_closing()
+                            if backpressure:
+                                measured["buffer_at_a_exit"] = transport.get_write_buffer_size()
 
                 service.native_preparation_commit = protocol_fence
                 if protocol_failure is None:
@@ -627,7 +645,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                             handler.handle(NativeTaskCommand.model_validate(protocol_command))
                         )
                         await asyncio.wait_for(observed.wait(), 2)
-                        await asyncio.wait_for(drained.wait(), 0.2)
+                        if not backpressure:
+                            await asyncio.wait_for(drained.wait(), 0.2)
                         writer = real.writer
                         assert writer is not None
                         actual_wait_closed = writer.wait_closed
@@ -677,7 +696,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     if protocol_failure != "before_sent":
                         assert real.writer is None and real.reader is None
                     reply = await control_task(root, protocol_command)
-                if protocol_failure != "before_sent":
+                if protocol_failure != "before_sent" and not backpressure:
                     assert drained.is_set()
                 accounting = mapping(reply["protocol_accounting"])
                 assert accounting["state"] == (
@@ -695,7 +714,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     and accounting["model_calls"] == 0
                 )
                 assert accounting["output_tokens"] == (0 if protocol_failure is None else None)
-                assert len(requests) == (0 if protocol_failure == "before_sent" else 1)
+                expected_requests = 0 if protocol_failure == "before_sent" or backpressure else 1
+                assert len(requests) == expected_requests
                 if protocol_case == "descriptor_version":
                     from omnis.modules.runs import model_protocol
 
@@ -756,8 +776,14 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                 service.native_preparation_commit = Mock(side_effect=AssertionError("replay grant"))
                 replay = await control_task(root, protocol_command)
                 assert mapping(replay["protocol_accounting"]) == accounting
-                assert len(requests) == (0 if protocol_failure == "before_sent" else 1)
+                assert len(requests) == expected_requests
                 service.runtime_authority.assert_not_awaited()
+        if backpressure:
+            assert measured["buffer_before_failure"] > 0
+            assert measured["buffer_at_a_exit"] == 0
+            assert measured["buffer_at_return"] == 0
+            assert measured["complete_frames_after_return"] == 0
+            assert measured["received_after_return"] > 0
     assert not {"native-turn"} & {str(r["kind"]) for r in graph}
 
 
@@ -775,6 +801,20 @@ async def test_protocol_data_reserve_sent_transport_settlement_source(
         monkeypatch,
         protocol_mode=True,
         protocol_failure=failure,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["timeout", "cancel"])
+async def test_protocol_backpressure_retires_before_owner_a_exit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path,
+        monkeypatch,
+        protocol_mode=True,
+        protocol_failure=failure,
+        protocol_case="backpressure",
     )
 
 

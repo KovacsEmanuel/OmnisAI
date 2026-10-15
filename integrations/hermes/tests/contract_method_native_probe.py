@@ -669,6 +669,229 @@ class ContractNative(unittest.TestCase):
 class Batch2Native(unittest.TestCase):
     """Full pinned SOURCE, real constructors/lifecycle/handlers; no DB claim."""
 
+    def staged_release(self):
+        from agent.cold_admission import ColdAdmission
+        from agent.subagent_lifecycle import SubagentLifecycleService
+        from omnis_hermes import contract_method as method
+        from run_agent import AIAgent
+
+        root = AIAgent(cold_admission=ColdAdmission())
+        self.addCleanup(root.close)
+        service = SubagentLifecycleService(lambda: root)
+        staged = service.stage(BATCH2["stage"])
+        batch = service._cold_batches[staged["manifest_ref"]["id"]]
+        for record in batch["records"]:
+            self.addCleanup(record.agent.close)
+        binding = method.record(
+            "runtime-binding",
+            {
+                "runtime_boot": str(uuid4()),
+                "run_id": BATCH2["stage"]["manifest"]["payload"]["run_id"],
+                "ticket": staged["ticket"],
+                "native_root_id": staged["native_root_id"],
+                "entries": staged["entries"],
+                "authority": {
+                    "instance_id": str(uuid4()),
+                    "owner": str(uuid4()),
+                    "epoch": 1,
+                    "generation": 0,
+                },
+            },
+        )
+        return (
+            service,
+            batch,
+            {
+                **{k: staged[k] for k in ("protocol", "ticket", "manifest_ref")},
+                "binding": binding,
+            },
+        )
+
+    def assert_unknown_public(self, service, batch, release):
+        from agent.subagent_lifecycle import SubagentState
+
+        self.assertTrue(batch["indeterminate"])
+        self.assertTrue(batch["failed"])
+        for record in batch["records"]:
+            self.assertEqual(service.status(record.handle).state, SubagentState.UNKNOWN)
+            result = service.result(record.handle)
+            self.assertFalse(result.ready)
+            self.assertEqual(result.terminal_state, SubagentState.UNKNOWN)
+            self.assertIsNone(record.completed_at)
+        with self.assertRaises(ValueError):
+            service.readback({k: release[k] for k in ("protocol", "ticket", "manifest_ref")})
+        with self.assertRaises(ValueError):
+            service.release(release)
+
+    def test_second_submit_failure_revokes_before_unlock(self):
+        for fail in (False, True):
+            with self.subTest(fail=fail):
+                self._test_second_submit_failure_revokes_before_unlock(fail)
+
+    def _test_second_submit_failure_revokes_before_unlock(self, fail):
+        import threading
+        from concurrent.futures import CancelledError
+        from unittest.mock import patch
+
+        from agent import subagent_lifecycle as lifecycle
+        from agent.contract_execution import BoundContractTools
+        from omnis_hermes import contract_method as method
+
+        service, batch, release = self.staged_release()
+        actual_submit = lifecycle._EXECUTOR.submit
+        actual_read = BoundContractTools._read_bound_input
+        actual_handler = method.run_handler
+        entered = threading.Event()
+        calls, reads, handlers, cuts = [], [], [], []
+        failed = False
+
+        def worker(fn, *args):
+            entered.set()
+            return fn(*args)
+
+        def submit(fn, *args):
+            nonlocal failed
+            calls.append(True)
+            if fail and len(calls) == 2:
+                self.assertTrue(entered.wait(timeout=1))
+                failed = True
+                raise RuntimeError("SOURCE second submit failure")
+            return actual_submit(worker, fn, *args)
+
+        def read(tools):
+            reads.append(True)
+            return actual_read(tools)
+
+        def handler(name, value):
+            handlers.append(name)
+            return actual_handler(name, value)
+
+        def settle():
+            for record in batch["records"]:
+                if record.future is not None:
+                    try:
+                        record.future.result(timeout=2)
+                    except (ValueError, RuntimeError, CancelledError):
+                        pass
+
+        def schedule(frame, event, arg):
+            # First legal cut after failed submit releases the real lock.
+            # Let the real waiting worker finish before the outer handler.
+            if (
+                failed
+                and not cuts
+                and event == "line"
+                and frame.f_code is service._release_contract.__func__.__code__
+                and not lifecycle._REGISTRY.lock._is_owned()
+            ):
+                cuts.append(True)
+                settle()
+            return schedule
+
+        previous = sys.gettrace()
+        try:
+            with (
+                patch.object(lifecycle._EXECUTOR, "submit", submit),
+                patch.object(BoundContractTools, "_read_bound_input", read),
+                patch.object(method, "run_handler", handler),
+            ):
+                sys.settrace(schedule)
+                try:
+                    if fail:
+                        with self.assertRaisesRegex(RuntimeError, "second submit failure"):
+                            service.release(release)
+                    else:
+                        self.assertEqual(service.release(release)["status"], "SUCCEEDED")
+                finally:
+                    sys.settrace(previous)
+                    settle()
+            if fail:
+                self.assertEqual(cuts, [True])
+                self.assert_unknown_public(service, batch, release)
+                self.assertEqual(reads, [], "reader escaped incomplete submission")
+                self.assertEqual(handlers, [], "handler escaped incomplete submission")
+            else:
+                self.assertEqual(len(reads), 2)
+                self.assertEqual(len(handlers), 4)
+                self.assertTrue(all(service.result(r.handle).ready for r in batch["records"]))
+            self.assertTrue(all(r.future is None or r.future.done() for r in batch["records"]))
+        finally:
+            sys.settrace(previous)
+            settle()
+
+    def test_result_failure_never_exposes_partial_success(self):
+        for cut in ("second-result", "first-publication"):
+            with self.subTest(cut=cut):
+                self._test_result_failure_never_exposes_partial_success(cut)
+
+    def _test_result_failure_never_exposes_partial_success(self, cut):
+        from unittest.mock import patch
+
+        from agent import subagent_lifecycle as lifecycle
+
+        class PublicationCut(BaseException):
+            pass
+
+        service, batch, release = self.staged_release()
+        actual_lock = lifecycle._REGISTRY.lock
+        actual_replace = lifecycle.dataclasses.replace
+        constructions, observed, fired = [], [], []
+
+        class ObserveUnlock:
+            def __enter__(self):
+                return actual_lock.__enter__()
+
+            def __exit__(self, typ, value, traceback):
+                outcome = actual_lock.__exit__(typ, value, traceback)
+                if typ is PublicationCut:
+                    # Exact first public read after the publication lock unwinds,
+                    # before an outer exception handler can repair the records.
+                    observed.append(
+                        [
+                            (service.result(r.handle).ready, service.status(r.handle).state)
+                            for r in batch["records"]
+                        ]
+                    )
+                return outcome
+
+        def replace(value, **kwargs):
+            if isinstance(value, lifecycle.SubagentResult):
+                constructions.append(True)
+                if cut == "second-result" and len(constructions) == 2:
+                    raise PublicationCut()
+            return actual_replace(value, **kwargs)
+
+        def interrupt(frame, event, arg):
+            if (
+                cut == "first-publication"
+                and not fired
+                and event == "line"
+                and frame.f_code is service._release_contract.__func__.__code__
+                and batch["records"][0].result is not None
+            ):
+                fired.append(True)
+                raise PublicationCut()
+            return interrupt
+
+        previous = sys.gettrace()
+        try:
+            with (
+                patch.object(lifecycle._REGISTRY, "lock", ObserveUnlock()),
+                patch.object(lifecycle.dataclasses, "replace", replace),
+            ):
+                sys.settrace(interrupt)
+                try:
+                    with self.assertRaises(PublicationCut):
+                        service.release(release)
+                finally:
+                    sys.settrace(previous)
+            self.assert_unknown_public(service, batch, release)
+            self.assertTrue(observed)
+            self.assertEqual(observed[0], [(False, lifecycle.SubagentState.UNKNOWN)] * 2)
+            self.assertTrue(all(r.future.done() for r in batch["records"]))
+        finally:
+            sys.settrace(previous)
+
     def test_stage_and_index_denials_before_constructor(self):
         from copy import deepcopy
         from unittest.mock import patch

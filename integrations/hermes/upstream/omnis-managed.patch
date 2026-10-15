@@ -490,11 +490,10 @@
      UNKNOWN = "UNKNOWN"
 
 
-@@ -241,9 +243,291 @@
+@@ -241,9 +243,315 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
--
 +        self._cold_batches = {}
 +
 +    def stage(self, payload):
@@ -745,8 +744,12 @@
 +            # All RUNNING/bindings are latched. Workers cannot pass the guard until
 +            # every submission has completed or partial submission has been revoked.
 +            with _REGISTRY.lock:
-+                for record in batch["records"]:
-+                    record.future = _EXECUTOR.submit(self._run_contract_record, batch, record, parent, committed)
++                try:
++                    for record in batch["records"]:
++                        record.future = _EXECUTOR.submit(self._run_contract_record, batch, record, parent, committed)
++                except BaseException:
++                    self._fail_contract_locked(batch)
++                    raise
 +            executions = [record.future.result(timeout=max(0, min(batch["expires"], batch["execution_deadline"]) - time.monotonic()))
 +                          for record in batch["records"]]
 +            terminal = SubagentState(executions[0]["records"][0]["payload"]["status"])
@@ -754,28 +757,48 @@
 +                     "binding_ref": ref(payload["binding"]), "executions": executions}
 +            validate_response(final)  # ordered homogeneous whole batch, unchanged aggregate cap
 +            with _REGISTRY.lock:
-+                for record, execution in zip(batch["records"], executions, strict=True):
-+                    result = SubagentResult(record.handle, terminal, True,
-+                        started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
-+                        usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
-+                    record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-+                    record.state = terminal
-+                    record.completed_at = record.updated_at = result.completed_at
-+                batch["response"] = final
-+                batch["indeterminate"] = False
-+                return json.loads(json.dumps(final))
++                previous_response = batch["response"]
++                try:
++                    results = []
++                    for record, execution in zip(batch["records"], executions, strict=True):
++                        result = SubagentResult(record.handle, terminal, True,
++                            started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
++                            usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
++                        results.append(dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result)))))
++                    response = json.loads(json.dumps(final))
++                    # Build/hash the whole set first; rollback any interrupted publication
++                    # before releasing the same lock used by result/status/readback.
++                    for record, result in zip(batch["records"], results, strict=True):
++                        record.result = result
++                        record.state = terminal
++                        record.completed_at = record.updated_at = result.completed_at
++                    batch["response"] = final
++                    batch["indeterminate"] = False
++                    return response
++                except BaseException:
++                    batch["response"] = previous_response
++                    self._fail_contract_locked(batch)
++                    raise
 +        except BaseException:
 +            with _REGISTRY.lock:
-+                batch["failed"] = True
-+                for record in batch["records"]:
-+                    record.state = SubagentState.UNKNOWN
-+                    if record.agent is not None:
-+                        record.agent.close()  # revoke further access, not proof of worker drain
-+                    if record.future is None or record.future.cancel():
-+                        record.agent = None
++                self._fail_contract_locked(batch)
 +            # Keep running futures and the indeterminate latch observable. No retry,
 +            # invented partial final, or false claim that a timeout drained a worker.
 +            raise
++    def _fail_contract_locked(self, batch):
++        # Caller holds the same lock as guards and public result readers. Never join.
++        batch["failed"] = True
++        batch["indeterminate"] = True
++        for record in batch["records"]:
++            record.result = None
++            record.completed_at = None
++            record.state = SubagentState.UNKNOWN
++            record.updated_at = time.time()
++            if record.agent is not None:
++                record.agent.close()  # revocation is not proof of worker drain
++            if record.future is None or record.future.cancel():
++                record.agent = None
+
      def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
          parent = self._parent_agent_resolver()
 +        from agent.cold_admission import require_warm_parent

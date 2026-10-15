@@ -33,7 +33,7 @@ from fixtures.b06b_pure_probe.consumer import Probe
 from fixtures.c03_journey import publish_capture
 from fixtures.c03_records import qualify_records
 from omnis.core.db import database_engine
-from omnis.modules.instance.domain import ControlCode
+from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService, RuntimeAuthority
 from omnis.modules.runs.contract_inputs import ContractInputs
@@ -1944,6 +1944,137 @@ def launch_observation_object(pairs: list[tuple[str, object]]) -> dict[str, obje
     return result
 
 
+def batch2_observation_exit(observation: Path, stop_first: bool) -> None:
+    """SOURCE cut: actual branch returns, finally oracle and post-finally oracle.
+
+    Omit resource/DB effects, not the return/finally ordering under regression.
+    The full PG journey remains a separately authorized check.
+    """
+    import ast
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    run = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    owner = next(n for n in run.body if isinstance(n, ast.Try) and n.finalbody)
+    branch = next(
+        n
+        for n in ast.walk(owner)
+        if isinstance(n, ast.If)
+        and isinstance(n.test, ast.Name)
+        and n.test.id == "batch2"
+        and any(isinstance(v, ast.Return) and v.value is None for v in ast.walk(n))
+    )
+    exits = [
+        node
+        for statement in branch.body
+        for node in (statement.body if isinstance(statement, ast.If) else [statement])
+        if isinstance(node, ast.Return) and node.value is None
+    ]
+    assert len(exits) == 2
+    # Only the added batch2 observation block; never cleanup effects in this cut.
+    final: list[ast.stmt] = [
+        n
+        for n in owner.finalbody
+        if isinstance(n, ast.If)
+        and any(isinstance(v, ast.Name) and v.id == "batch2" for v in ast.walk(n.test))
+    ]
+    after = run.body[run.body.index(owner) + 1 :]
+    end = next(
+        i
+        for i, n in enumerate(after)
+        if isinstance(n, ast.Assert) and "run_contract" in ast.unparse(n)
+    )
+    cut = ast.FunctionDef(
+        name="cut",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        decorator_list=[],
+        body=[
+            ast.Try(
+                body=[deepcopy(exits[0 if stop_first else 1])],
+                handlers=[],
+                orelse=[],
+                finalbody=deepcopy(final) or [ast.Pass()],
+            ),
+            *deepcopy(after[:end]),
+        ],
+    )
+    namespace = {**globals(), "observation": observation, "batch2": True}
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[cut], type_ignores=[])),
+            "<batch2-source-exit>",
+            "exec",
+        ),
+        namespace,
+    )
+    invoke = namespace["cut"]
+    assert callable(invoke)
+    invoke()
+
+
+def test_singleton_post_stop_exception_loads() -> None:
+    """Reach both actual pytest.raises expressions with batch2=False, no PG."""
+    import ast
+
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    run = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    imports: list[ast.stmt] = [
+        n
+        for n in ast.walk(run)
+        if isinstance(n, ast.ImportFrom) and any(a.name == "ControlConflict" for a in n.names)
+    ]
+    loads = sorted(
+        (
+            n
+            for n in ast.walk(run)
+            if isinstance(n, ast.With)
+            and any(
+                isinstance(i.context_expr, ast.Call)
+                and isinstance(i.context_expr.func, ast.Attribute)
+                and i.context_expr.func.attr == "raises"
+                and any(
+                    isinstance(a, ast.Name) and a.id == "ControlConflict"
+                    for a in i.context_expr.args
+                )
+                for i in n.items
+            )
+        ),
+        key=lambda n: n.lineno,
+    )
+    assert len(loads) == 2
+    body: list[ast.stmt] = [
+        ast.If(
+            test=ast.Name(id="batch2", ctx=ast.Load()),
+            body=deepcopy(imports) or [ast.Pass()],
+            orelse=[],
+        )
+    ]
+    for node in loads:
+        expression = deepcopy(node.items[0].context_expr)
+        body.append(ast.Expr(value=expression))
+    function = ast.FunctionDef(
+        name="cut",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        decorator_list=[],
+        body=body,
+    )
+    namespace = {**globals(), "batch2": False}
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[function], type_ignores=[])),
+            "<singleton-post-stop-loads>",
+            "exec",
+        ),
+        namespace,
+    )
+    invoke = namespace["cut"]
+    assert callable(invoke)
+    invoke()
+
+
 def test_batch2_observation_exact_fields() -> None:
     row: dict[str, object] = {
         "test": "batch2-access",
@@ -2117,6 +2248,21 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
         "phase_events": phase_events if entered else None,
         "issues": sorted(issues),
     }
+
+
+def require_native_observation(observation: Path) -> list[dict[str, object]]:
+    """Shared strict bounded evidence gate, independent of task-count assertions."""
+    with observation.open("rb") as stream:
+        observation_raw = stream.read(OBSERVATION_BYTES + 1)
+    bootstrap_diagnostic = launch_bootstrap_diagnostic(observation_raw)
+    assert set(sequence(bootstrap_diagnostic["issues"])) <= {"MISSING_PHASE_COMPLETION"}, (
+        "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+    )
+    assert bootstrap_diagnostic["pre_ready_complete"] is True, "NATIVE_PRE_READY_EVIDENCE_MISSING"
+    rows = [mapping(json.loads(line)) for line in observation_raw.splitlines()]
+    assert {"test": "observer", "status": "READY", "count": 1} in rows
+    assert not any(str(row["test"]).startswith("forbidden-") for row in rows)
+    return rows
 
 
 def launch_bootstrap_checkpoint(path: Path) -> dict[str, object]:
@@ -2589,6 +2735,90 @@ print(json.dumps({"frame_audits": frame_audits, "cutoff_observed": cutoff_observ
         assert diagnostic["completed"] == []
         assert diagnostic["phase_events"] == 6
     assert b"PRIVATE_SOURCE_SENTINEL" not in canonical(diagnostic), "PRIVATE_CHECKPOINT_DATA_LEAK"
+    if scenario == "complete":
+        for stop_first in (False, True):
+            batch2_observation_exit(evidence, stop_first)
+        # Actual observer guard calls whose caller catches denial: channel survives.
+        guard = BOOTSTRAP.split("def audit(event, args):", 1)[1].split("def timed_audit", 1)[0]
+        caught = subprocess.run(
+            [
+                sys.executable,
+                "-I",
+                "-B",
+                "-c",
+                setup
+                + "def emit("
+                + emitter
+                + "def audit(event, args):"
+                + guard
+                + "forbidden ="
+                + observer
+                + r"""
+exec(compile("def init_agent():\n    raise AssertionError('body entered')\n",
+             str(source / 'caught.py'), 'exec'))
+for function in (init_agent, lambda: audit('socket.connect', ())):
+    try:
+        function()
+    except RuntimeError:
+        pass
+sys.monitoring.set_events(sys.monitoring.PROFILER_ID, 0)
+sys.monitoring.free_tool_id(sys.monitoring.PROFILER_ID)
+os.close(evidence_fd)
+""",
+                str(evidence),
+            ],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+        require_empty_stderr(caught.stderr)
+        assert caught.returncode == 0
+        attempts = [
+            mapping(json.loads(line)) for line in evidence.read_bytes()[len(raw) :].splitlines()
+        ]
+        forbidden = [r for r in attempts if str(r["test"]).startswith("forbidden-")]
+        assert {str(r["test"]) for r in forbidden} == {"forbidden-sink", "forbidden-effect"}
+        negatives = [
+            *(canonical(row) + b"\n" for row in forbidden),
+            canonical(
+                {
+                    "test": "batch2-access",
+                    "status": "ENTER",
+                    "count": 1,
+                    "operation": "foreign",
+                    "thread": True,
+                    "clock_ns": 1,
+                }
+            )
+            + b"\n",
+            canonical({"test": "unknown", "status": "READY", "count": 1}) + b"\n",
+            b'{"test":"observer","status":"READY","count":1,"extra":0}\n',
+            b'{"test":"observer","status":"READY","count":1,"count":1}\n',
+            b"not-json\n",
+            b" " * (OBSERVATION_BYTES + 1),
+            (canonical({"test": "observer", "status": "EXIT", "count": 1}) + b"\n")
+            * OBSERVATION_EVENTS,
+        ]
+        try:
+            for negative in negatives:
+                evidence.write_bytes(raw + negative)
+                for stop_first in (False, True):
+                    with pytest.raises(
+                        AssertionError, match="NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+                    ):
+                        batch2_observation_exit(evidence, stop_first)
+            for missing, reason in (
+                ("observer", "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"),
+                ("bootstrap-phase", "NATIVE_PRE_READY_EVIDENCE_MISSING"),
+            ):
+                evidence.write_bytes(
+                    b"".join(canonical(row) + b"\n" for row in rows if row["test"] != missing)
+                )
+                for stop_first in (False, True):
+                    with pytest.raises(AssertionError, match=reason):
+                        batch2_observation_exit(evidence, stop_first)
+        finally:
+            evidence.write_bytes(raw)
 
 
 @pytest.mark.parametrize(
@@ -5534,7 +5764,6 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     from collections.abc import AsyncIterator
                     from contextlib import asynccontextmanager
 
-                    from omnis.modules.instance.domain import ControlConflict
                     from omnis.modules.instance.records import InstanceRecord, LeaseRecord
 
                     done.set()
@@ -7560,18 +7789,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     native_owned_pids=sorted(host._owned_pids()),
                     bootstrap_observation=launch_bootstrap_checkpoint(observation),
                 )
-        with observation.open("rb") as stream:
-            observation_raw = stream.read(OBSERVATION_BYTES + 1)
-        bootstrap_diagnostic = launch_bootstrap_diagnostic(observation_raw)
-        assert set(sequence(bootstrap_diagnostic["issues"])) <= {"MISSING_PHASE_COMPLETION"}, (
-            "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
-        )
-        assert bootstrap_diagnostic["pre_ready_complete"] is True, (
-            "NATIVE_PRE_READY_EVIDENCE_MISSING"
-        )
-        rows = [json.loads(line) for line in observation_raw.splitlines()]
-        assert {"test": "observer", "status": "READY", "count": 1} in rows
-        assert not any(r["test"].startswith("forbidden-") for r in rows)
+            if batch2 and sys.exc_info()[0] is None:
+                # Both early-return variants must pass the same oracle after cleanup.
+                require_native_observation(observation)
+        rows = require_native_observation(observation)
         assert [r for r in rows if r["test"] == "run_contract"] == [
             {"test": "run_contract", "status": "REAL_AIAgent", "count": 1}
         ]

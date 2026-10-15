@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import importlib.util
 import os
+import stat
 import subprocess
 import sys
 from collections.abc import Mapping
@@ -89,6 +90,56 @@ def environment(base: Mapping[str, str], case: str, *, reviewed: bool = False) -
     return clean
 
 
+def _pinned_sha256(path: Path, maximum: int) -> str:
+    """Only the fixed entry receipts/source below; no CLI-selected file authority."""
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("Physical absolute path required")
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+    directory = os.open(path.anchor, flags | os.O_DIRECTORY)
+    try:
+        for part in path.parts[1:-1]:
+            child = os.open(part, flags | os.O_DIRECTORY, dir_fd=directory)
+            os.close(directory)
+            directory = child
+        fd = os.open(path.name, flags | os.O_NONBLOCK, dir_fd=directory)
+    finally:
+        os.close(directory)
+    try:
+        before = os.fstat(fd)
+        if (
+            not stat.S_ISREG(before.st_mode)
+            or before.st_nlink != 1
+            or before.st_uid != os.getuid()
+            or not 0 <= before.st_size <= maximum
+        ):
+            raise ValueError("Owned single-link bounded regular file required")
+        raw = bytearray()
+        while len(raw) < maximum:
+            chunk = os.read(fd, min(65536, maximum - len(raw)))
+            if not chunk:
+                break
+            raw.extend(chunk)
+        after = os.fstat(fd)
+        stable = (
+            "st_dev",
+            "st_ino",
+            "st_mode",
+            "st_uid",
+            "st_gid",
+            "st_nlink",
+            "st_size",
+            "st_mtime_ns",
+            "st_ctime_ns",
+        )
+        if len(raw) != before.st_size or any(
+            getattr(before, field) != getattr(after, field) for field in stable
+        ):
+            raise ValueError("Entry file changed while reading")
+        return hashlib.sha256(raw).hexdigest()
+    finally:
+        os.close(fd)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", required=True, choices=CASES)
@@ -97,18 +148,20 @@ def main() -> int:
     args = parser.parse_args()
     batch2 = args.case in BATCH2_CASES
     source = BATCH2_SOURCE_SHA if batch2 else REVIEWED
-    if (
-        hashlib.sha256((ROOT / "api/tests/test_contract_method_pg.py").read_bytes()).hexdigest()
-        != source
-    ):
-        parser.error("Exact SOURCE snapshot changed; existing reviews cannot authorize it")
     artifact, expected = (
         (BATCH2_ARTIFACT, BATCH2_ARTIFACT_SHA) if batch2 else (ARTIFACT, ARTIFACT_SHA)
     )
-    if hashlib.sha256(artifact.read_bytes()).hexdigest() != expected:
-        parser.error("Exact installed artifact receipt changed")
-    if batch2 and hashlib.sha256(BATCH2_READER.read_bytes()).hexdigest() != BATCH2_READER_SHA:
-        parser.error("Exact current reader receipt changed")
+    # Measured source393896, native receipts20477/19332, current reader15342 bytes.
+    # Finite QA material bounds only; exact hashes remain mandatory.
+    try:
+        if _pinned_sha256(ROOT / "api/tests/test_contract_method_pg.py", 524288) != source:
+            parser.error("Exact SOURCE snapshot changed; existing reviews cannot authorize it")
+        if _pinned_sha256(artifact, 32768) != expected:
+            parser.error("Exact installed artifact receipt changed")
+        if batch2 and _pinned_sha256(BATCH2_READER, 32768) != BATCH2_READER_SHA:
+            parser.error("Exact current reader receipt changed")
+    except (OSError, ValueError):
+        parser.error("Pinned entry file is unavailable, unsafe, oversized or unstable")
     if args.collect_only:
         return subprocess.call(
             selected_argv(args.case, True), cwd=ROOT, env=environment(os.environ, args.case)

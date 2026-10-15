@@ -3257,7 +3257,9 @@ def test_h03_static_installed_origin_preflight(
     ],
 )
 @pytest.mark.parametrize("batch2", [False, True], ids=["h03", "batch2"])
-def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bool) -> None:
+def test_h03_actual_lifecycle_source_seams(
+    tmp_path: Path, mode: str, batch2: bool, exit_path: str = "fallthrough"
+) -> None:
     """Actual producer/acquisition/finalizer AST; substituted daemon/Host, not QA."""
     import ast
     from types import SimpleNamespace
@@ -3393,6 +3395,11 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
             raise RuntimeError("SYNTHETIC_PRE_BOOT_FAILURE")
         mapping(info["State"]).update(Running=True, Status="running")
         runtime.writer = object()
+        if batch2:
+            diagnostic_path = state_dir / "host-launch-diagnostic.json"
+            diagnostic_path.write_bytes(b'{"state":"ACTIVE","events":[]}\n')
+            diagnostic_path.chmod(0o600)
+            proof["host_launch_observation"] = host_launch_checkpoint(diagnostic_path)
         if mode == "body-error":
             raise RuntimeError("SYNTHETIC_BODY_ERROR")
         if mode == "body-cancel":
@@ -3440,6 +3447,17 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
                     daemon["inflight"] = True
                     raise asyncio.CancelledError
                 mapping(info["State"]).update(Running=False, Status="exited")
+                if batch2:
+                    diagnostic_path = state_dir / "host-launch-diagnostic.json"
+                    if mode == "host-missing":
+                        diagnostic_path.unlink()
+                    else:
+                        raw = {
+                            "host-malformed": b"{}\n",
+                            "host-active": b'{"state":"ACTIVE","events":[]}\n',
+                            "host-incomplete": b'{"state":"INCOMPLETE","events":[]}\n',
+                        }.get(mode, b'{"state":"STOPPED","events":[]}\n')
+                        diagnostic_path.write_bytes(raw)
             if op == "rm":
                 daemon["removed"] = True
             self.returncode = 0
@@ -3492,7 +3510,15 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
             raise AssertionError("NATIVE_PRE_READY_EVIDENCE_MISSING")
         return []
 
+    def host_guard(path: Path) -> dict[str, object]:
+        assert daemon["removed"] and "engine-dispose" in calls
+        assert fence["unsettled"] is True, "HOST_DIAGNOSTIC_AFTER_FENCE_CLEARANCE"
+        assert path == state_dir / "host-launch-diagnostic.json"
+        calls.append("host-oracle")
+        return host_launch_checkpoint(path)
+
     namespace.update(
+        host_launch_checkpoint=host_guard,
         require_native_observation=observation_guard,
         observation=tmp_path / "observation.jsonl",
         asyncio=SimpleNamespace(
@@ -3527,6 +3553,7 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
         engine=Engine(),
         host=None,
         proof=proof,
+        primary=asyncio.CancelledError() if exit_path == "cancel" else ValueError(),
     )
     unit = ast.AsyncFunctionDef(
         name="consumer",
@@ -3535,7 +3562,25 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
         body=[
             *ast.parse("cid = ''\ndaemon_id = ''\nimage_config = {}\n").body,
             *helpers,
-            ast.Try(body=branch.body, handlers=body.handlers, orelse=[], finalbody=body.finalbody),
+            ast.Try(
+                body=(
+                    [*ast.parse("raise primary").body, *branch.body]
+                    if exit_path == "pre-acquire"
+                    else [
+                        *branch.body,
+                        *ast.parse(
+                            "return"
+                            if exit_path == "return"
+                            else "raise primary"
+                            if exit_path in {"failure", "cancel"}
+                            else "pass"
+                        ).body,
+                    ]
+                ),
+                handlers=body.handlers,
+                orelse=[],
+                finalbody=body.finalbody,
+            ),
         ],
     )
     exec(
@@ -3552,6 +3597,30 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
     except BaseException as exc:
         error = exc
     assert "engine-dispose" in calls, "H03_LATE_CLEANUP_SKIPPED"
+    if mode.startswith("host-"):
+        valid = mode == "host-stopped"
+        if exit_path == "pre-acquire":
+            assert error is namespace["primary"]
+            assert "host-oracle" not in calls and fence["unsettled"] is True
+            return
+        assert calls.count("host-oracle") == 1, "HOST_DIAGNOSTIC_NOT_READ_AFTER_RETIREMENT"
+        assert mapping(proof["host_launch_observation"])["status"] == (
+            "OBSERVED" if valid else "INCOMPLETE"
+        )
+        assert mapping(proof["host_launch_observation"])["root_cause"] == "UNKNOWN"
+        if exit_path in {"failure", "cancel"}:
+            assert error is namespace["primary"]
+            assert fence["unsettled"] is True and proof["status"] == "UNCERTAIN"
+        elif valid:
+            assert error is None and fence["unsettled"] is False
+            assert proof["status"] == "PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED"
+            assert calls.count("oracle") == 2
+        else:
+            assert isinstance(error, AssertionError)
+            assert error.args == ("HOST_LAUNCH_DIAGNOSTIC_INCOMPLETE",)
+            assert fence["unsettled"] is True and state["cleanup_failed"] is True
+            assert not str(proof.get("status", "")).startswith("PASS")
+        return
     assert proof.get("h03_name") == "omnis-h03-" + nonce
     assert proof.get("h03_cidfile") == str(tmp_path / ("h03-" + nonce + ".cid"))
     negative = mode not in {"normal", "normal-absence-lf"} and (
@@ -3580,6 +3649,27 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bo
         assert error is None, "H03_NORMAL_SOURCE_CLEANUP_FAILED"
         if batch2:
             assert calls.count("oracle") == 2
+
+
+@pytest.mark.parametrize(
+    "mode,exit_path",
+    [
+        (mode, exit_path)
+        for mode in (
+            "host-stopped",
+            "host-malformed",
+            "host-missing",
+            "host-active",
+            "host-incomplete",
+        )
+        for exit_path in ("fallthrough", "return")
+    ]
+    + [("host-stopped", path) for path in ("failure", "cancel", "pre-acquire")]
+    + [("host-malformed", path) for path in ("failure", "cancel")],
+)
+def test_host_diagnostic_actual_finalizer(tmp_path: Path, mode: str, exit_path: str) -> None:
+    # Same real acquisition/finalizer cut; daemon/Host/native-positive seams, no runtime.
+    test_h03_actual_lifecycle_source_seams(tmp_path, mode, True, exit_path)
 
 
 @pytest.mark.parametrize("valid_drain", [True, False])
@@ -4033,7 +4123,21 @@ def test_batch2_installed_entry_uses_existing_constructor(
     assert launch.cwd == Path("/state/work")
 
 
-@pytest.mark.parametrize("fault", ["none", "closed-fd", "event-limit", "byte-limit", "busy-tool"])
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "none",
+        "closed-fd",
+        "event-limit",
+        "byte-limit",
+        "busy-tool",
+        "claim-race",
+        "disable-primary",
+        "unregister-cancel",
+        "disable-no-primary",
+        "enter-cleanup",
+    ],
+)
 def test_host_launch_filtered_source(tmp_path: Path, fault: str) -> None:
     source = globals().get("HOST_LAUNCH_DIAGNOSTIC")
     assert isinstance(source, str), "HOST_DIAGNOSTIC_PRODUCER_MISSING"
@@ -4074,7 +4178,106 @@ async def exercise():
     except ValueError:
         pass
 before = [sys.monitoring.get_tool(i) for i in range(6)]
-if sys.argv[2] == 'busy-tool':
+if sys.argv[2] == 'claim-race':
+    original = sys.monitoring.use_tool_id
+    claimed = []
+    def foreign_callback(*args):
+        return None
+    def competing_claim(tool, name):
+        original(tool, 'source-foreign-canary')
+        claimed.append(tool)
+        sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, foreign_callback)
+        sys.monitoring.set_events(tool, sys.monitoring.events.RAISE)
+        original(tool, name)
+    sys.monitoring.use_tool_id = competing_claim
+    try:
+        try:
+            with HostLaunchDiagnostic():
+                raise AssertionError('claim unexpectedly succeeded')
+        except ValueError:
+            pass
+        assert len(claimed) == 1
+        tool = claimed[0]
+        assert sys.monitoring.get_tool(tool) == 'source-foreign-canary'
+        assert sys.monitoring.get_events(tool) == sys.monitoring.events.RAISE
+        assert sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, foreign_callback) is foreign_callback
+    finally:
+        sys.monitoring.use_tool_id = original
+        for tool in claimed:
+            if sys.monitoring.get_tool(tool) == 'source-foreign-canary':
+                sys.monitoring.set_events(tool, 0)
+                sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, None)
+                sys.monitoring.free_tool_id(tool)
+elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary', 'enter-cleanup'}:
+    mode = sys.argv[2]
+    primary = asyncio.CancelledError() if mode == 'unregister-cancel' else ValueError()
+    original_set = sys.monitoring.set_events
+    original_register = sys.monitoring.register_callback
+    original_free = sys.monitoring.free_tool_id
+    cleanup = []
+    observer = HostLaunchDiagnostic()
+    owned = []
+    fd = -1
+    def set_events(tool, events):
+        if events == 0:
+            cleanup.append('disable')
+            if mode != 'unregister-cancel':
+                raise OSError('PRIVATE_HOST_SENTINEL')
+        return original_set(tool, events)
+    def register(tool, event, callback):
+        if callback is None:
+            cleanup.append(event)
+            if mode == 'unregister-cancel' and event == sys.monitoring.events.RAISE:
+                raise OSError('PRIVATE_HOST_SENTINEL')
+        elif mode == 'enter-cleanup':
+            owned.append(tool)
+            raise primary
+        return original_register(tool, event, callback)
+    def free(tool):
+        cleanup.append('free')
+        return original_free(tool)
+    sys.monitoring.set_events = set_events
+    sys.monitoring.register_callback = register
+    sys.monitoring.free_tool_id = free
+    caught = None
+    try:
+        try:
+            with observer:
+                fd = observer.fd
+                owned.append(observer.tool)
+                if mode != 'disable-no-primary':
+                    raise primary
+        except BaseException as error:
+            caught = error
+        assert observer.failed and observer.fd == -1
+        if fd >= 0:
+            try:
+                os.fstat(fd)
+            except OSError:
+                pass
+            else:
+                raise AssertionError('owned FD leaked')
+        assert cleanup == ['disable', sys.monitoring.events.RAISE, sys.monitoring.events.EXCEPTION_HANDLED, 'free']
+        if mode == 'disable-no-primary':
+            assert type(caught) is RuntimeError
+        else:
+            assert caught is primary
+        assert json.loads(open(sys.argv[3]).read())['state'] == 'INCOMPLETE'
+    finally:
+        sys.monitoring.set_events = original_set
+        sys.monitoring.register_callback = original_register
+        sys.monitoring.free_tool_id = original_free
+        # Exact test-owned rescue only, after the assertions (including RED).
+        for tool in owned:
+            if sys.monitoring.get_tool(tool) == 'batch2-host-launch':
+                original_set(tool, 0)
+                original_register(tool, sys.monitoring.events.RAISE, None)
+                original_register(tool, sys.monitoring.events.EXCEPTION_HANDLED, None)
+                original_free(tool)
+        if observer.fd >= 0:
+            os.close(observer.fd)
+            observer.fd = -1
+elif sys.argv[2] == 'busy-tool':
     for i in range(6):
         if sys.monitoring.get_tool(i) is None:
             sys.monitoring.use_tool_id(i, 'source-busy')
@@ -4087,7 +4290,9 @@ if sys.argv[2] == 'busy-tool':
         if before[i] is None:
             sys.monitoring.free_tool_id(i)
 else:
-    with HostLaunchDiagnostic() as observer:
+    from contextlib import nullcontext, suppress
+    expected_failure = suppress(RuntimeError) if sys.argv[2] != 'none' else nullcontext()
+    with expected_failure, HostLaunchDiagnostic() as observer:
         asyncio.run(foreign())
         from types import FunctionType
         clone = FunctionType(host.RuntimeHost._launch.__code__.replace(), host.RuntimeHost._launch.__globals__)
@@ -4114,7 +4319,16 @@ print(json.dumps({'frame_audits': frame_audits}))
 """
     )
     result = subprocess.run(
-        [sys.executable, "-I", "-B", "-c", script, str(ROOT / "integrations/hermes/src"), fault],
+        [
+            sys.executable,
+            "-I",
+            "-B",
+            "-c",
+            script,
+            str(ROOT / "integrations/hermes/src"),
+            fault,
+            str(evidence),
+        ],
         capture_output=True,
         timeout=10,
         check=False,
@@ -4214,10 +4428,11 @@ class HostLaunchDiagnostic:
             self.fd = os.open('/state/host-launch-diagnostic.json',
                 os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
             os.fchmod(self.fd, 0o600)
-            self.tool = next((i for i in range(6) if sys.monitoring.get_tool(i) is None), None)
-            if self.tool is None:
+            candidate = next((i for i in range(6) if sys.monitoring.get_tool(i) is None), None)
+            if candidate is None:
                 raise RuntimeError("Host diagnostic unavailable")
-            sys.monitoring.use_tool_id(self.tool, "batch2-host-launch")
+            sys.monitoring.use_tool_id(candidate, "batch2-host-launch")
+            self.tool = candidate  # Cleanup authority starts only after a successful claim.
             sys.monitoring.register_callback(self.tool, sys.monitoring.events.RAISE, self.raised)
             sys.monitoring.register_callback(self.tool, sys.monitoring.events.EXCEPTION_HANDLED, self.handled)
             self.save("ACTIVE")
@@ -4226,26 +4441,45 @@ class HostLaunchDiagnostic:
             return self
         except BaseException:
             self.failed = True
-            self.__exit__(None, None, None)
+            self.__exit__(*sys.exc_info())
             raise
     def __exit__(self, kind, value, tb):
-        if self.tool is not None:
-            sys.monitoring.set_events(self.tool, 0)
-            sys.monitoring.register_callback(self.tool, sys.monitoring.events.RAISE, None)
-            sys.monitoring.register_callback(self.tool, sys.monitoring.events.EXCEPTION_HANDLED, None)
-            sys.monitoring.free_tool_id(self.tool)
-            self.tool = None
-        if self.fd >= 0:
-            try:
-                self.save("INCOMPLETE" if self.failed else "STOPPED")
-            except BaseException:
-                self.failed = True
-            finally:
+        try:
+            if self.tool is not None:
+                # Independent finite attempts: one tooling fault must not skip the rest.
+                tool = self.tool
+                for cleanup in (
+                    lambda: sys.monitoring.set_events(tool, 0),
+                    lambda: sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, None),
+                    lambda: sys.monitoring.register_callback(tool, sys.monitoring.events.EXCEPTION_HANDLED, None),
+                    lambda: sys.monitoring.free_tool_id(tool),
+                ):
+                    try:
+                        if sys.monitoring.get_tool(tool) != "batch2-host-launch":
+                            self.failed = True
+                            break  # Never mutate a registration no longer owned by us.
+                        cleanup()
+                    except BaseException:
+                        self.failed = True
+                self.tool = None
+        finally:
+            if self.fd >= 0:
                 try:
-                    os.close(self.fd)
-                except OSError:
+                    self.save("INCOMPLETE" if self.failed else "STOPPED")
+                except BaseException:
                     self.failed = True
-                self.fd = -1
+                finally:
+                    try:
+                        os.close(self.fd)
+                    except BaseException:
+                        self.failed = True
+                        try:
+                            self.save("INCOMPLETE")
+                        except BaseException:
+                            pass  # Unwritable/closed evidence is refused by the reader.
+                    self.fd = -1
+        if self.failed and kind is None:
+            raise RuntimeError("Host diagnostic incomplete")
         return False
 """
 
@@ -8987,6 +9221,25 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             except BaseException:
                 cleanup_failed = True
             if installed_native:
+                if batch2:
+                    primary_failure = sys.exc_info()[0] is not None
+                    try:
+                        # Only the already registered owned mount; state_dir may be unbound
+                        # when acquisition failed. Refresh even a failed launch's ACTIVE read.
+                        host_observation = (
+                            host_launch_checkpoint(
+                                tmp_path / "h03-state/host-launch-diagnostic.json"
+                            )
+                            if proof.get("h03_state") == str(tmp_path / "h03-state")
+                            else {"status": "INCOMPLETE", "root_cause": "UNKNOWN", "events": []}
+                        )
+                        checkpoint(host_launch_observation=host_observation)
+                        if host_observation["status"] != "OBSERVED":
+                            raise AssertionError("HOST_LAUNCH_DIAGNOSTIC_INCOMPLETE")
+                    except BaseException:
+                        h03_state["cleanup_failed"] = True
+                        if not primary_failure:
+                            raise
                 if batch2 and sys.exc_info()[0] is None:
                     try:
                         require_native_observation(observation)

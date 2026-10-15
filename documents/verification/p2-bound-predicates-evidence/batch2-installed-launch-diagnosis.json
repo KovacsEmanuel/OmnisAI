@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "role": "DEVELOPER_DIAGNOSE_READ_ONLY",
+  "head": "2c45c37864bec9de9e7bd9945202cb8c831d201b",
+  "concurrent_parent_checkpoint": {
+    "final_head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+    "commit_subject": "qa(p2): retain first installed failure and revoke consumed attempt",
+    "caller_runtime_host_runtime_protocol_hashes_unchanged_at_handoff": true,
+    "selector_final_sha256": "df6cd05b059ba9c5d3849b73b40e0fa9b942b268689b79a44a6710b97110d80a",
+    "attribution": "Concurrent parent change, not produced by this diagnosis. Original attempt selector hash remains the historical binding; no admission was executed."
+  },
+  "scope": "First installed batch2 release-first failure only; no retry, no Stop-first, no phase closure.",
+  "cause": "UNKNOWN",
+  "product_decision": "BLOCKED: no demonstrated product launch defect and no justified product/grant/deadline fix. Retain failed attempt and native settlement UNCERTAIN; do not admit another QA execution from this report.",
+  "confirmed_facts": [
+    {
+      "fact": "Snapshot binding is unchanged for caller and both retained installed QA entry sources; original failure report SHA matches delegation.",
+      "hashes": {
+        "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+        "/home/kali/.hermes/cache/scratch/batch2-installed-attempt1-batch2-release-first/test_contract_method_real_nati0/h03-state/native_bootstrap.py": "722b40145bf2b48eb52b7df113ac4e2a65d7fa32c964ae363417f62bd719f488",
+        "/home/kali/.hermes/cache/scratch/batch2-installed-attempt1-batch2-release-first/test_contract_method_real_nati0/h03-state/host-qa.py": "89ed8abaf242ca2adc73ab3409e70d9e8bfcaf2cd2d969f28f0447cfd87d4f94",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-independent-qa.json": "5fc0152d4da86da8752fe9379f74085cf7038c8b6f8768e79bd1ebccf8fda32e"
+      }
+    },
+    {
+      "fact": "Existing artifact wheel runtime_host.py and runtime_protocol.py exactly equal the SOURCE files used for control-flow inspection; no image was exported, built, installed or launched.",
+      "files": [
+        {
+          "file": "omnis_hermes/runtime_host.py",
+          "wheel": "omnis_hermes-0.1.0-py3-none-any.whl",
+          "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+          "same_as_source_read": true
+        },
+        {
+          "file": "omnis_hermes/runtime_protocol.py",
+          "wheel": "omnis_hermes-0.1.0-py3-none-any.whl",
+          "sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+          "same_as_source_read": true
+        }
+      ]
+    },
+    {
+      "fact": "Actual mounted observer has exactly four rows, last ENTRY_SERVER_IMPORT_BEGIN ENTER at 99ms, 162 audit calls and audit_ms=0 (integer-ms precision). No END, EXIT, exception, frame, sink or native-method rows are present. This is incomplete evidence, not zero-effects certification.",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-attempt1-batch2-release-first/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "sha256": "035e43019192cbe8dd3d0f51df9c2c13042f09a3ac979b2b3dcfe69bd3e41822",
+      "rows": [
+        {
+          "test": "observer",
+          "status": "READY",
+          "count": 1
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 0,
+          "audit_ms": 0,
+          "audit_calls": 3
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "ENTRY_MODULE_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 14,
+          "audit_ms": 0,
+          "audit_calls": 13
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "ENTRY_SERVER_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 99,
+          "audit_ms": 0,
+          "audit_calls": 162
+        }
+      ]
+    },
+    {
+      "fact": "ENTRY_SERVER_IMPORT_BEGIN is the entry.py LINE23 event before executing from tui_gateway import server. There is no server module-entry label; first recorded server line is 36. The last marker does not prove server.py body started, much less which import blocked.",
+      "locations": [
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tui_gateway/entry.py:23",
+        "api/tests/test_contract_method_pg.py:173-181",
+        "api/tests/test_contract_method_pg.py:284-315"
+      ]
+    },
+    {
+      "fact": "Blind interval includes import machinery, server compile/start, server stdlib imports1-20, and first-party imports24-35. Earliest first-party chain includes server24 -> agent.secret_scope23 -> utils17 -> yaml; server28 imports env_loader17 -> dotenv. Other independent imports at31-35 are also unmeasured. No specific dependency is implicated by the retained rows.",
+      "locations": [
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tui_gateway/server.py:1-36",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/agent/secret_scope.py:23",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/utils.py:17",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/hermes_cli/env_loader.py:17"
+      ]
+    },
+    {
+      "fact": "All five phase code-object keys and all fixed line events match exact retained source compiled with installed /opt/hermes/source filenames on Python3.13.15. Source hashes match retained build-manifest source inventory. These are compiler/observer predicate controls, not native import execution.",
+      "bindings": [
+        {
+          "file": "tui_gateway/entry.py",
+          "name": "<module>",
+          "firstlineno": 1,
+          "phase_key_match": true,
+          "entry_label": "ENTRY_MODULE_BEGIN",
+          "fixed_lines": [
+            23,
+            24
+          ],
+          "missing_lines": [],
+          "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c"
+        },
+        {
+          "file": "tui_gateway/entry.py",
+          "name": "main",
+          "firstlineno": 439,
+          "phase_key_match": true,
+          "entry_label": "ENTRY_MAIN_BEGIN",
+          "fixed_lines": [
+            464,
+            469
+          ],
+          "missing_lines": [],
+          "sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c"
+        },
+        {
+          "file": "tui_gateway/server.py",
+          "name": "<module>",
+          "firstlineno": 1,
+          "phase_key_match": true,
+          "entry_label": null,
+          "fixed_lines": [
+            36,
+            37,
+            3363,
+            3386
+          ],
+          "missing_lines": [],
+          "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e"
+        },
+        {
+          "file": "agent/conversation_loop.py",
+          "name": "<module>",
+          "firstlineno": 1,
+          "phase_key_match": true,
+          "entry_label": "CONVERSATION_MODULE_BEGIN",
+          "fixed_lines": [
+            40,
+            41
+          ],
+          "missing_lines": [],
+          "sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+        },
+        {
+          "file": "tui_gateway/rpc_dispatch.py",
+          "name": "<module>",
+          "firstlineno": 1,
+          "phase_key_match": true,
+          "entry_label": "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+          "fixed_lines": [],
+          "missing_lines": [],
+          "sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027"
+        }
+      ]
+    },
+    {
+      "fact": "NativePeer drains and discards raw native stderr by design. Its read exceptions are normalized by _fail; handshake and Host/client introduce further normalization. No distinct retained native-stderr forensic file is identified in the existing fixture inventory. Logs were not dumped.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:278-284,313-316,318-385,441-452",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:201-231,799-805",
+        "api/src/omnis/supervisor/runtime_client.py:417-425"
+      ]
+    },
+    {
+      "fact": "Host watchdog stops STARTING on deadline or peer failure. _launch also stops on BaseException. Stop sends TERM then KILL. Native bootstrap try/except/finally cannot guarantee Python rows after abrupt process termination or failure of its own emitter; missing EXIT does not establish a swallowed import exception.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:229-231,618-625,651-685",
+        "api/tests/test_contract_method_pg.py:327-343"
+      ]
+    },
+    {
+      "fact": "Already established qualified sizes fit; stage/release/results/check/inbox/readers were not reached. PG/native resource absence is inherited parent evidence, not rerun here, and cannot convert UNCERTAIN to PASS.",
+      "existing_evidence": "installed-independent-qa.json and delegated parent exact-CID/endpoint readback"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H-PHASE-ROOT-COLLAPSE",
+      "hypothesis": "Collapsing source=managed=inert to /opt/hermes/source invalidates the five fixed phase keys or source line numbers.",
+      "disposition": "FALSIFIED_FOR_ATTESTED_COMPILED_SOURCE",
+      "evidence": "5/5 exact phase_key matches; no missing configured executable line; unique keys retained. Does not assert actual imported server origin was observed."
+    },
+    {
+      "id": "H-GLOBAL-FRAME-FANOUT",
+      "hypothesis": "The installed code-object rejection path necessarily recreates the older global frame.f_code audit fanout.",
+      "disposition": "FALSIFIED_FOR_REJECTION_PATH_ONLY",
+      "evidence": {
+        "iterations": 1000,
+        "audit_counts": {
+          "object.__getattr__": 0,
+          "sys._getframe": 0
+        }
+      },
+      "limit": "No cold import elapsed-time measurement and no inference about total monitoring burden."
+    },
+    {
+      "id": "H-WIDE-ADAPTER",
+      "hypothesis": "Installed adapter=libraries expands matching from adapter-only to the whole site-packages tree.",
+      "disposition": "CONFIRMED_SEMANTIC_DIFFERENCE_NOT_CAUSE",
+      "evidence": {
+        "installed": true,
+        "source_adapter_only": false,
+        "synthetic_only": true
+      },
+      "locations": [
+        "api/tests/test_contract_method_pg.py:74-76,234,280-283"
+      ],
+      "limit": "Synthetic matching _init_client is observed under installed root and rejected under adapter-only root. No actual third-party sink/false positive or slowdown is recorded; do not fix from this coincidence."
+    },
+    {
+      "id": "H-SLOW-PRE36-IMPORT",
+      "hypothesis": "An early import/compile or instrumentation overhead exhausted immutable launch budget.",
+      "disposition": "OPEN",
+      "evidence": "Compatible with partial phase and bounded stop chronology, but no completed early import timing, terminal native audit counters or Host exception class retained."
+    },
+    {
+      "id": "H-IMPORT-EXCEPTION",
+      "hypothesis": "Native import or observer raised and terminal evidence could not be recorded.",
+      "disposition": "OPEN",
+      "evidence": "BaseException handling would normally emit exception/frame/EXIT, but emitter failure or process termination can prevent them. Native raw stderr was intentionally discarded."
+    },
+    {
+      "id": "H-IPC-OR-PEER",
+      "hypothesis": "Host/native framing, EOF, deadline or client transport failure caused the normalized RuntimeUnavailable.",
+      "disposition": "OPEN",
+      "evidence": "No internal original Host/NativePeer exception type or code location retained. Client line425 does not distinguish these causes."
+    }
+  ],
+  "concrete_code_defect_reproduced": null,
+  "diagnostic_gap_confirmed": {
+    "scope": "Existing QA evidence, not demonstrated product failure cause",
+    "items": [
+      "No server module-entry marker and no finite import boundaries before server.py:36.",
+      "Failure checkpoint reads outer empty observation while installed native writes h03-state/native-observation.jsonl; already independently established, both preserved.",
+      "Installed Host diagnostic entry contains only TestLaunch substitution; no original Host/peer normalization cause producer."
+    ],
+    "locations": [
+      "api/tests/test_contract_method_pg.py:177-181",
+      "api/tests/test_contract_method_pg.py:4002-4033",
+      "api/tests/test_contract_method_pg.py:6547-6552"
+    ]
+  },
+  "executed_controls": {
+    "exit_code": 0,
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python -I -B (3.13.15)",
+    "workdir": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '\nimport ast, hashlib, json, sys\nfrom pathlib import Path\nfrom types import CodeType\nroot=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74'\"'\"')\nartifact=root/'\"'\"'installed-c6eac5f5a13440ffa6bcb35a6e853ab0'\"'\"'\nsource=artifact/'\"'\"'context/runtime-source'\"'\"'\nstate=Path('\"'\"'/home/kali/.hermes/cache/scratch/batch2-installed-attempt1-batch2-release-first/test_contract_method_real_nati0/h03-state'\"'\"')\ncaller=Path('\"'\"'/home/kali/OmnisAI/api/tests/test_contract_method_pg.py'\"'\"')\nboot=state/'\"'\"'native_bootstrap.py'\"'\"'\nbt=ast.parse(boot.read_text())\nallowed={'\"'\"'phase_inventory'\"'\"','\"'\"'phase_key'\"'\"','\"'\"'monitored'\"'\"'}\nselected=[n for n in bt.body if isinstance(n,ast.FunctionDef) and n.name in allowed or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in allowed for t in n.targets)]\nassert len(selected)==3\nnamespace={'\"'\"'CodeType'\"'\"':CodeType,'\"'\"'inert'\"'\"':Path('\"'\"'/opt/hermes/source'\"'\"'),'\"'\"'managed'\"'\"':Path('\"'\"'/opt/hermes/source'\"'\"'),'\"'\"'observer_roots'\"'\"':('\"'\"'/opt/hermes/source/'\"'\"','\"'\"'/opt/hermes/source/'\"'\"','\"'\"'/opt/hermes/source/'\"'\"','\"'\"'/opt/hermes/venv/lib/python3.13/site-packages/'\"'\"'),'\"'\"'observed'\"'\"':{'\"'\"'_init_client'\"'\"'}}\nexec(compile(ast.Module(body=selected,type_ignores=[]),str(boot),'\"'\"'exec'\"'\"'),namespace)\nrows=[]\nfor relative in ['\"'\"'tui_gateway/entry.py'\"'\"','\"'\"'tui_gateway/server.py'\"'\"','\"'\"'agent/conversation_loop.py'\"'\"','\"'\"'tui_gateway/rpc_dispatch.py'\"'\"']:\n raw=(source/relative).read_bytes()\n code=compile(raw,'\"'\"'/opt/hermes/source/'\"'\"'+relative,'\"'\"'exec'\"'\"')\n objects=[code]+[c for c in code.co_consts if type(c) is CodeType and c.co_name=='\"'\"'main'\"'\"' and relative=='\"'\"'tui_gateway/entry.py'\"'\"']\n for c in objects:\n  key=namespace['\"'\"'phase_key'\"'\"'](c)\n  assert key is not None\n  label, boundaries=namespace['\"'\"'phase_inventory'\"'\"'][key]\n  actual_lines={line for _,_,line in c.co_lines()}\n  missing=sorted(set(boundaries)-actual_lines)\n  assert not missing\n  rows.append({'\"'\"'file'\"'\"':relative,'\"'\"'name'\"'\"':c.co_name,'\"'\"'firstlineno'\"'\"':c.co_firstlineno,'\"'\"'phase_key_match'\"'\"':True,'\"'\"'entry_label'\"'\"':label,'\"'\"'fixed_lines'\"'\"':list(boundaries),'\"'\"'missing_lines'\"'\"':missing,'\"'\"'sha256'\"'\"':hashlib.sha256(raw).hexdigest()})\nassert len(rows)==len(namespace['\"'\"'phase_inventory'\"'\"'])==5\nsynthetic=compile('\"'\"'def _init_client(): pass'\"'\"','\"'\"'/opt/hermes/venv/lib/python3.13/site-packages/synthetic_control.py'\"'\"','\"'\"'exec'\"'\"').co_consts[0]\nwide=namespace['\"'\"'monitored'\"'\"'](synthetic)\nnamespace['\"'\"'observer_roots'\"'\"']=('\"'\"'/opt/hermes/source/'\"'\"','\"'\"'/bounded/source-adapter/'\"'\"')\nnarrow=namespace['\"'\"'monitored'\"'\"'](synthetic)\nassert wide is True and narrow is False\ncounter={'\"'\"'object.__getattr__'\"'\"':0,'\"'\"'sys._getframe'\"'\"':0}\ndef count(event,args):\n if event in counter: counter[event]+=1\nsys.addaudithook(count)\nnegative=compile('\"'\"'pass'\"'\"','\"'\"'/bounded/non-native.py'\"'\"','\"'\"'exec'\"'\"')\nfor _ in range(1000):\n assert namespace['\"'\"'phase_key'\"'\"'](negative) is None\n assert namespace['\"'\"'monitored'\"'\"'](negative) is False\nassert counter=={'\"'\"'object.__getattr__'\"'\"':0,'\"'\"'sys._getframe'\"'\"':0}\nmanifest=json.loads((artifact/'\"'\"'context/build-manifest.json'\"'\"').read_text())\nfor row in rows: assert manifest['\"'\"'source_files'\"'\"'][row['\"'\"'file'\"'\"']]==row['\"'\"'sha256'\"'\"']\nreport=json.loads((root/'\"'\"'installed-independent-qa.json'\"'\"').read_text())\npublic_inventory=report['\"'\"'artifact_inventory'\"'\"']\nlog_paths=[]\nfor row in public_inventory:\n if type(row) is dict:\n  p=row.get('\"'\"'path'\"'\"','\"'\"''\"'\"')\n  if any(tag in p for tag in ('\"'\"'host'\"'\"','\"'\"'native'\"'\"','\"'\"'log'\"'\"')) and not any(tag in p for tag in ('\"'\"'docker-'\"'\"','\"'\"'runtime.boot'\"'\"','\"'\"'password'\"'\"','\"'\"'credentials'\"'\"')):\n   log_paths.append({k:v for k,v in row.items() if k in {'\"'\"'path'\"'\"','\"'\"'bytes'\"'\"','\"'\"'size'\"'\"','\"'\"'sha256'\"'\"'}})\nprint(json.dumps({'\"'\"'python'\"'\"':sys.version.split()[0],'\"'\"'kind'\"'\"':'\"'\"'SOURCE_CODE_OBJECT_ONLY_NO_NATIVE_IMPORT'\"'\"','\"'\"'phase_bindings'\"'\"':rows,'\"'\"'negative_code_controls'\"'\"':{'\"'\"'iterations'\"'\"':1000,'\"'\"'audit_counts'\"'\"':counter},'\"'\"'installed_adapter_root_breadth'\"'\"':{'\"'\"'installed'\"'\"':wide,'\"'\"'source_adapter_only'\"'\"':narrow,'\"'\"'synthetic_only'\"'\"':True},'\"'\"'source_manifest_matches'\"'\"':True,'\"'\"'sha256'\"'\"':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [caller,boot,state/'\"'\"'host-qa.py'\"'\"',root/'\"'\"'installed-independent-qa.json'\"'\"']},'\"'\"'retained_log_paths'\"'\"':log_paths},indent=2))\n'",
+    "additional_readback_command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '\nfrom pathlib import Path\nimport json,hashlib,re,ast,zipfile\nroot=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74'\"'\"')\nartifact=root/'\"'\"'installed-c6eac5f5a13440ffa6bcb35a6e853ab0'\"'\"'\nstate=Path('\"'\"'/home/kali/.hermes/cache/scratch/batch2-installed-attempt1-batch2-release-first/test_contract_method_real_nati0/h03-state'\"'\"')\nrows=[json.loads(line) for line in (state/'\"'\"'native-observation.jsonl'\"'\"').read_text().splitlines()]\nallow={'\"'\"'test'\"'\"','\"'\"'status'\"'\"','\"'\"'count'\"'\"','\"'\"'edge'\"'\"','\"'\"'elapsed_ms'\"'\"','\"'\"'audit_ms'\"'\"','\"'\"'audit_calls'\"'\"'}\nassert all(set(row)<=allow for row in rows)\nassert len(rows)==4\nassert all(row['\"'\"'test'\"'\"'] in {'\"'\"'observer'\"'\"','\"'\"'bootstrap-phase'\"'\"'} for row in rows)\nassert all(row['\"'\"'status'\"'\"'] in {'\"'\"'READY'\"'\"','\"'\"'BOOTSTRAP_RUNPY_ENTRY_BEGIN'\"'\"','\"'\"'ENTRY_MODULE_BEGIN'\"'\"','\"'\"'ENTRY_SERVER_IMPORT_BEGIN'\"'\"'} for row in rows)\nreport=json.loads((root/'\"'\"'installed-independent-qa.json'\"'\"').read_text())\ndirect=[]\nfor item in report['\"'\"'artifact_inventory'\"'\"']:\n p=Path(item['\"'\"'path'\"'\"'])\n if p.parent==state or p.parent==state.parent:\n  direct.append({'\"'\"'name'\"'\"':str(p.relative_to(state.parent)),'\"'\"'bytes'\"'\"':item['\"'\"'bytes'\"'\"']})\nmanifest=json.loads((artifact/'\"'\"'context/build-manifest.json'\"'\"').read_text())\nmanifest_keys=list(manifest)\npyc=[p for p in manifest['\"'\"'source_files'\"'\"'] if p.endswith('\"'\"'.pyc'\"'\"')]\nwheel=list((artifact/'\"'\"'wheels'\"'\"').glob('\"'\"'*hermes*.whl'\"'\"'))\ncomparison=[]\nfor p in wheel:\n with zipfile.ZipFile(p) as z:\n  for relative in ('\"'\"'omnis_hermes/runtime_host.py'\"'\"','\"'\"'omnis_hermes/runtime_protocol.py'\"'\"'):\n   raw=z.read(relative)\n   local=(Path('\"'\"'/home/kali/OmnisAI/integrations/hermes/src'\"'\"')/relative).read_bytes()\n   comparison.append({'\"'\"'file'\"'\"':relative,'\"'\"'wheel'\"'\"':p.name,'\"'\"'sha256'\"'\"':hashlib.sha256(raw).hexdigest(),'\"'\"'same_as_source_read'\"'\"':raw==local})\nprint(json.dumps({'\"'\"'observation'\"'\"':rows,'\"'\"'observation_sha256'\"'\"':hashlib.sha256((state/'\"'\"'native-observation.jsonl'\"'\"').read_bytes()).hexdigest(),'\"'\"'retained_direct_files'\"'\"':direct,'\"'\"'manifest_keys'\"'\"':manifest_keys,'\"'\"'source_manifest_pyc'\"'\"':pyc,'\"'\"'wheel_comparison'\"'\"':comparison},indent=2))\n'",
+    "bound": "20-second tool timeout per command; no process-family spawn by tested code, no native module import, no network/DB/OCI. Only compile exact four modules, execute three selected observer definitions, evaluate fixed predicates, hash/read existing source and public receipts.",
+    "counts": {
+      "phase_code_objects": 5,
+      "negative_rejections": 1000
+    },
+    "not_measured": [
+      "Installed cold import wall time",
+      "Actual Host normalization cause",
+      "Actual native server code-object origin",
+      "Total audit/monitoring burden after 99ms"
+    ]
+  },
+  "minimum_next_step": {
+    "status": "PROPOSED_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+    "decision_required": "Authorize a narrowly scoped diagnostic-only change to the existing caller-generated host-qa/bootstrap before any fresh real execution; do not authorize a retry merely from resource absence.",
+    "producer_1": "In the existing host-qa entry, finite exception observation at exact installed RuntimeHost._launch and NativePeer._read/handshake handlers BEFORE normalization/cleanup; emit only allowlisted exception type, fixed method/line or bytecode offset, monotonic elapsed integer and bounded phase. Do not record exception messages/args/locals, protocol frames, native stderr, capability or env. Exact-code local EXCEPTION_HANDLED events are one possible mechanism; first verify this mechanism using bounded SOURCE controls. No new owner/global profiler.",
+    "producer_1_locations": [
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:229",
+      "integrations/hermes/src/omnis_hermes/runtime_protocol.py:384,451"
+    ],
+    "producer_2": "Extend the existing phase_inventory, not a new harness: a server module entry marker and finite LINE boundaries at server.py:24,25,28,29,30,31,32,33,34,35,36, using existing elapsed_ms/audit_ms/audit_calls and exact installed filename/code checks. Read the already-known mounted observation path. Keep existing cumulative caps and emit guards unchanged; validate code-object lines before launch.",
+    "changes_decision": {
+      "original_TimeoutError_at_launch_or_ready": "Localize next fixed early-import interval and distinguish cumulative audit time from remaining non-audit work; no larger deadline authorized.",
+      "native_read_error_or_other_Host_exception": "Investigate exact framing/EOF/exception boundary rather than claiming slow imports.",
+      "finite_native_bootstrap_exception_or_forbidden_sink": "Minimal source reproducer for named type/code path before any product fix.",
+      "no_original_cause_or_no_finite_completion": "Remain UNKNOWN; do not claim product PASS or authorize automatic retry."
+    },
+    "permission_boundary": "Current task permits only read-only diagnosis and bounded SOURCE code-object controls; no source/test/selector edits or actual producer implementation, PG/native/OCI launch, install/build, old-fixture reuse, credentials/profile access, prewarm or deadline/grant change. Any future actual measurement needs explicit parent-approved diagnostic snapshot and separately scoped fresh execution through existing owner; exact lifecycle command is intentionally NOT_ADMITTED here.",
+    "product_fix": "NONE justified yet"
+  },
+  "preserved_limits": {
+    "release_first": "FAIL + teardown error preserved",
+    "stop_first": "NOT_RUN",
+    "native_settlement": "UNCERTAIN",
+    "scope_closure": "NONE",
+    "historical_failures": "Not reopened or reattributed"
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-launch-diagnosis.json"
+  ],
+  "files_modified": [],
+  "skill_followup": "If parent later records the lesson, extend existing runtime/review skill: installed root collapse must be checked at code-object/line boundaries, and a first import ENTER is not proof of module-body entry. No skill edit in this read-only task.",
+  "issues_encountered": [
+    "Initial runtime/ path lookup returned absent; corrected to integrations/hermes/src from repository search.",
+    "No original Host/native exception evidence survived in available channels; cannot establish first launch root cause without a permitted finite producer."
+  ]
+}

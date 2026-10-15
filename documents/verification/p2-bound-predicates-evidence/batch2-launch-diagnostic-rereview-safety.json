@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "review": "launch-diagnostic-rereview-safety",
+  "complete": true,
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "scope": "Read-only focused F01/F02/F03 delta/call-site review and exact in-memory activation candidate; no broader inventory or reaudit.",
+  "base_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+  "final_head": "b95339b40c5888acb8549554d611aaf868392f50",
+  "head_transition": "Parent committed during review; both reviewed hashes remained identical before and after independent tests. Approval binds only to these bytes.",
+  "snapshot_sha256": {
+    "api/tests/test_contract_method_pg.py": "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "a9662dbd1a91be9f79a43d54c9394543498223c5b10c29dd8cc8c333498f13bb"
+  },
+  "requirement_consumer_risk_decision": "Actual Host diagnostic producer and installed consumer finalizer must preserve acquisition ownership, primary exception identity and strict incomplete-evidence refusal. Tests distinguish the original foreign-registration mutation, skipped cleanup and false-success mechanisms. Passing closes only these SOURCE blockers, not runtime acceptance.",
+  "original_finding_dispositions": [
+    {
+      "id": "SAFETY-HOST-DIAG-F01",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "file_lines": "api/tests/test_contract_method_pg.py:4426-4464; controls4181-4210,4317",
+      "review": "candidate stays local until real use_tool_id succeeds; only then self.tool receives cleanup authority. Each mutation also checks the owner label.",
+      "evidence": "claim-race passed on actual producer/real monitoring API. Canary name, event mask and callback identity are asserted before exact test rescue. Final monitoring inventory matches its initial value.",
+      "limit": "Closes failed acquisition cleanup; not universal concurrent takeover, same-label impersonation, reentrancy or foreign-race certification."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F02",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "file_lines": "api/tests/test_contract_method_pg.py:4442-4483; controls4211-4279,4317,4336-4345",
+      "review": "Disable, two unregisters and free are finite independent attempts; save/close execute in finally. Failures set INCOMPLETE. __enter__ forwards sys.exc_info. Active primary/cancellation is preserved; no-primary failure raises fixed sanitized RuntimeError('Host diagnostic incomplete').",
+      "evidence": "disable-primary, unregister-cancel, disable-no-primary and enter-cleanup all passed on actual producer in isolated SOURCE subprocesses. Controls assert all four attempts, INCOMPLETE and held primary identity (or RuntimeError without primary). Three exit controls capture the real numeric FD and require fstat failure before rescue. Enter-failure checks fd=-1, not a separately captured FD. Final monitoring inventory restored; sentinel absent from raw/decoded evidence and stderr empty.",
+      "limit": "Finite containment and remaining cleanup attempts, not guaranteed retirement under arbitrary repeated monitoring/close failures. Exact no-primary message additionally verified by source inspection."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F03",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "file_lines": "api/tests/test_contract_method_pg.py:9147-9282; changed gate9223-9242; decoder4487-4567; controls3260-3673",
+      "review": "Batch2 finalizer refreshes strict Host evidence after retirement/cleanup attempts and engine disposal, before native gate, fence clearance and PASS. Only registered fixed h03-state mount is read; early unbound state_dir is not used. Invalid evidence marks cleanup_failed; active failure/cancellation remains primary. Existing native checks/counts and resource/uncertainty guards remain unchanged.",
+      "evidence": "15 actual acquisition/handler/finalizer AST controls passed: STOPPED positive and malformed/missing/ACTIVE/INCOMPLETE negatives through fallthrough and return; held failure/cancellation with STOPPED and malformed; pre-acquisition failure without bound state_dir. Host-reader wrapper asserts synthetic resource removed, engine disposed, exact path and fence still unsettled, then invokes actual decoder. Positive reaches native oracle twice; invalid clean exit refuses with HOST_LAUNCH_DIAGNOSTIC_INCOMPLETE and no PASS. Failure/cancellation preserve identity and closed fence.",
+      "limit": "Real SOURCE consumer control flow and decoder with declared synthetic daemon/Host/resource/native-positive seams; not PG, OCI, native execution or physical retirement. Read occurs after cleanup attempts; existing settlement predicates still govern fence release."
+    }
+  ],
+  "new_concrete_findings": [],
+  "absence_claim": "No additional concrete blocker found in this delta/call-site scope; no universal absence claim.",
+  "candidate": {
+    "approval": "APPROVED_SOURCE_SCOPED_CONDITIONAL_ONLY",
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "new_line": "BATCH2_REVIEWED: str | None = \"8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7\"",
+    "computed_in_memory_sha256": "3a395d6e049758447b1104c83509bc6a10e2ace1c0c3004cb25e18a43d840397",
+    "verification": "Exactly one replacement; computed SHA matches supplied candidate; compile succeeds without execution. On-disk selector remains None.",
+    "applied": false,
+    "executed": false,
+    "conditions": "Both complementary exact-byte reviews must be approved and adjudicated by parent, followed by a fresh explicit ONE diagnostic release-first contract through existing owner240 and fresh batch2-installed-diagnostic1-<case> root. No automatic retry, Stop-first authority, attempt1 overwrite, deadline/grant changes or product acceptance. This review alone authorizes no effect."
+  },
+  "verification": {
+    "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-rereview-focused",
+    "workdir": "/home/kali/OmnisAI",
+    "exit_code": 0,
+    "result": "27 passed in 3.15s",
+    "composition": "10 producer controls + 15 finalizer controls + 2 existing call-site/marker controls",
+    "snapshot_check": "sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; git diff --check -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; git status --short --branch; git rev-parse HEAD",
+    "snapshot_result": "exit0; both hashes unchanged; final git status only preexisting protected HTML untracked. No repository edits by reviewer."
+  },
+  "retained_scope": "Original safety/fixes reports read unchanged. Their RED evidence is attributed to parent/author, not rerun here. Original privacy, exact code-identity filtering, source/artifact approvals reused at existing scope; no artifact/export audit. Product/image261aa5ec, dependencies, grants and deadlines unchanged by this delta.",
+  "limits": [
+    "SOURCE only; no PG/native/OCI/build/install/prewarm/provider/target/r1/profiles/global/push effects or selector execution.",
+    "Original attempt1 FAIL, cause UNKNOWN and native settlement UNCERTAIN remain. No retrospective cause attribution, runtime PASS or global B06b/G02/P2/P4a approval.",
+    "No broad historical suite, generic verifier/root-cause campaign or new adversarial inventory. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Protected documents/Omnis_Notite_Originale.html never read, hashed, edited, staged or deleted; name only observed in git status."
+  ],
+  "artifacts": {
+    "repository_files_modified": [],
+    "scratch_created": ["/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-rereview-focused", "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-rereview-safety.json"],
+    "commits_by_reviewer": []
+  },
+  "issues_encountered": "Initial report write was rejected for truncated/invalid JSON and created no file. Corrected by one shorter report-only write; no test/effect rerun. This required one extra tool invocation beyond the requested ten-call budget.",
+  "proposed_status_delta": "F01/F02/F03 CLOSED_SOURCE_SCOPED; diagnostic candidate safety approved conditionally. Parent owns complementary adjudication and any fresh execution contract; runtime remains BLOCKED_REAL_QA_FAILED.",
+  "lesson_for_parent": "Track candidate versus acquired monitoring ID; preserve primary errors across finite cleanup attempts; require strict completed Host evidence after cleanup and before fence/PASS, including return paths. No skill/profile writes under read-only mandate."
+}

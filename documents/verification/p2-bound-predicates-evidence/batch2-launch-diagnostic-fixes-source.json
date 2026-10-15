@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "status": "FIXED_SOURCE_SCOPED_PENDING_FOCUSED_REVIEW",
+  "base_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+  "snapshot_sha256": {
+    "api/tests/test_contract_method_pg.py": "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "a9662dbd1a91be9f79a43d54c9394543498223c5b10c29dd8cc8c333498f13bb"
+  },
+  "files_modified": [
+    "api/tests/test_contract_method_pg.py",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  ],
+  "selector_candidate": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "new_line": "BATCH2_REVIEWED: str | None = \"8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7\"",
+    "selector_candidate_sha256": "3a395d6e049758447b1104c83509bc6a10e2ace1c0c3004cb25e18a43d840397",
+    "applied": false,
+    "executed": false,
+    "BATCH2_REVIEWED": null
+  },
+  "findings": [
+    {
+      "id": "SAFETY-HOST-DIAG-F01",
+      "disposition": "RED_TO_GREEN_SOURCE",
+      "change": "Candidate ID becomes self.tool only after real use_tool_id succeeds. Cleanup also refuses a registration whose owner label no longer matches.",
+      "evidence": "Real monitoring claim-boundary injector claims source-foreign-canary, installs callback/events, then calls original claim and gets ValueError. Observer preserves canary/name/mask/callback before exact test rescue. Inventory restored. Added to existing isolated producer controls.",
+      "red": "f01-red: 1 failed, exit1; sanitized subprocess-failure wrapper. Parent independently reproduced the same failed-claim mutation on original bytes.",
+      "green": "f01-green: 1 passed; sealed-focused includes claim-race."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F02",
+      "disposition": "RED_TO_GREEN_SOURCE",
+      "change": "Finite independent exact-owned disable/unregister/free attempts; FD write/closure in finally. Failures set INCOMPLETE, not STOPPED. __enter__ forwards active exception identity to cleanup. Existing primary/cancellation preserved; no-primary incomplete exit raises sanitized RuntimeError.",
+      "evidence": "Existing producer test injects actual disable failure with held ValueError, unregister failure with held CancelledError, no-primary disable failure, and acquisition register failure plus disable failure. Assert exception identity, all four cleanup attempts, fstat denial on captured exit FD before rescue, closed observer FD, private INCOMPLETE snapshot, restored tool inventory. Enter path asserts fd=-1; direct fstat oracle is on exit controls.",
+      "red": "f02-red: 4 failed, exit1 via sanitized subprocess wrapper; parent had separately reproduced primary replacement and FD leak.",
+      "green": "f02-green: 4 passed; sealed-focused reruns all four.",
+      "limit": "Failure containment/remaining attempts are proved, not guaranteed success of a monitoring API that continues failing. No universal takeover, race, reentrancy or close-fault matrix."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F03",
+      "disposition": "RED_TO_GREEN_SOURCE",
+      "change": "Batch2-only finalizer reads strict Host decoder after retirement/resource cleanup, before native gate and DB-fence clearance/PASS. Refreshes mounted diagnostic on primary failures too. Known h03_state locator must equal fixed owned mount; early acquisition failure never reads unbound state_dir. Existing native oracle/count and uncertainty guards untouched.",
+      "evidence": "Extended existing actual lifecycle acquisition/finalizer AST consumer, with existing synthetic daemon/Host/native-positive seams. STOPPED positive plus malformed/missing/ACTIVE/INCOMPLETE through both fallthrough and early return. Read oracle asserts retired resource + engine disposed + fence still closed. Initial ACTIVE becomes STOPPED only in synthetic retirement seam. Failure/cancellation retain held primary and closed fence for both STOPPED and malformed diagnostics; pre-acquisition control leaves local state_dir unbound.",
+      "red": "f03-red: 12 failed at HOST_DIAGNOSTIC_NOT_READ_AFTER_RETIREMENT, 1 pre-acquire control passed; exit1.",
+      "green": "f03-green: 13 passed; two malformed-primary controls added and included in final 15 finalizer cases.",
+      "limit": "Actual SOURCE finalizer control flow/decoder, not OCI, PostgreSQL, native child or physical retirement evidence. H03 historical stock path remains outside batch2-only requirement."
+    }
+  ],
+  "verification": [
+    {
+      "label": "f01-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[claim-race] -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f01-red",
+      "exit_code": 1,
+      "result": "1 failed in 0.96s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "f01-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[claim-race] -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f01-green",
+      "exit_code": 0,
+      "result": "1 passed in 0.83s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "f02-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source -k 'disable or unregister or enter-cleanup' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f02-red",
+      "exit_code": 1,
+      "result": "4 failed, 6 deselected in 1.26s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "f02-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source -k 'disable or unregister or enter-cleanup' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f02-green",
+      "exit_code": 0,
+      "result": "4 passed, 6 deselected in 1.39s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "f03-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f03-red",
+      "exit_code": 1,
+      "result": "12 failed, 1 passed in 1.49s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "f03-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-f03-green",
+      "exit_code": 0,
+      "result": "13 passed in 1.63s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "1 file reformatted, 1 file left unchanged",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "focused",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-focused",
+      "exit_code": 0,
+      "result": "25 passed in 2.67s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "ruff",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "mypy",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-mypy-cache api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 2 source files",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "2 files left unchanged",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-focused",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-final-focused",
+      "exit_code": 0,
+      "result": "27 passed in 3.01s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "sealed-focused",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-sealed-focused",
+      "exit_code": 0,
+      "result": "27 passed in 3.65s",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-ruff",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-format-check",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "2 files already formatted",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-mypy",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fixes-mypy-cache api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 2 source files",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    },
+    {
+      "label": "final-git",
+      "command": "git diff --check && git status --short --branch && git diff --stat && git diff --cached --stat && git rev-parse HEAD",
+      "exit_code": 0,
+      "result": " 2 files changed, 279 insertions(+), 26 deletions(-)\n2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+      "scope": "SOURCE only; no autoload, explicit asyncio, no cacheprovider, -I -B for pytest; umask077"
+    }
+  ],
+  "final_result": {
+    "command_label": "sealed-focused",
+    "passed": 27,
+    "skipped": 0,
+    "exit_code": 0,
+    "duration_seconds": 3.65,
+    "composition": "7 existing focused controls + 5 producer fault controls + 15 finalizer controls",
+    "quality": "ruff check, ruff format --check, mypy on exact two files and git diff --check all exit0"
+  },
+  "limits": [
+    "SOURCE-only diagnostic correction; no runtime or selector activation, PG/native/OCI/build/install/prewarm/provider/target/r1/profile/global effects, stage, commit or push.",
+    "Original launch attempt1 cause UNKNOWN and native settlement UNCERTAIN unchanged. No product bug/root-cause claim or P2/B06b/G02/P4a closure.",
+    "Global RAISE/HANDLED authorized scope and exact three code identity filter remain; no frame inspection, args/messages/str in producer, unchanged 32/8192 Host caps and 256/65536/4096 native caps.",
+    "Product/image261aa5ec, dependency/pin, grants and deadlines unchanged; existing native oracle/count checks remain.",
+    "No 87-test/27-skip historical suite rerun or old cancel harness; all subprocesses were isolated SOURCE imports only.",
+    "Original normative/safety reports not edited; protected HTML never read/hashed/edited/deleted/staged.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Two exact-byte focused independent reviews remain for parent; no fresh diagnostic run admitted by this report."
+  ],
+  "future_root_pattern": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-<case>",
+  "proposed_scoped_lesson_for_parent": "For sys.monitoring observers, separate candidate from acquired ID and preserve a primary exception through every finite cleanup attempt. Require strict completed observer readback after retirement and before success/fence release, including early returns. No skill writes made outside the two-file contract.",
+  "original_review_sha256": {
+    "launch-diagnostic-review-normative.json": "62b8a134f0810297871287e23e052f32ecaf7e53d802950a3bb0b3146df349b7",
+    "launch-diagnostic-review-safety.json": "cac80e708ad9d8e47b859d4cfbb64de6c76cd4f9235d8d355b669b1445fb107c"
+  },
+  "issues_encountered": "No blocked source gate; no non-progress harness repair. RED subprocess diagnostics deliberately sanitize stderr; the independently supplied parent reproductions retain precise original mechanisms. Current snapshot awaits review, not approval."
+}

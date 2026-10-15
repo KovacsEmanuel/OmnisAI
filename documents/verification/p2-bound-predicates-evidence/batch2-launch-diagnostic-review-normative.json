@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "review_role": "independent normative focused read-only reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Exact two-file diagnostic delta: pre-normalization Host producer, finite pre-server native markers, mounted failure readback, honest evidence interpretation, and conditional one-line activation candidate. Not a product re-audit or runtime acceptance.",
+  "findings": [],
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "base_head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+    "initial_head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+    "final_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+    "head_change_disposition": "Parent committed during review, as allowed by the contract. Independent final hash readback matched both frozen files exactly. Reviewer made no repository edits or commit.",
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "cac99d57e8da882fae6ef832d9359c9ce4d34dc7c5f9a0206e528c0f15ab04c1"
+    },
+    "final_status": "No tracked modifications; protected preexisting untracked HTML only. That HTML was not read, hashed, edited, staged or deleted."
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Close a demonstrated diagnostic coverage gap, not claim to fix the unknown launch failure: attempt1 normalized Host/peer exceptions and ended before existing server import markers.",
+    "consumer": "Existing batch2 installed QA host-qa.py and native_bootstrap.py -> bounded private diagnostic channels -> existing launch failure checkpoint.",
+    "risk": "Capture only the normalized outer exception, read an empty outer placeholder, miss early server imports, or convert partial events into fatal-cause/runtime PASS claims.",
+    "decision": "Approve exact SOURCE diagnostic delta and exact conditional activation candidate; runtime remains separately admitted and NOT_RUN by this reviewer."
+  },
+  "requirements": [
+    {
+      "id": "HOST_PRE_NORMALIZATION",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": [
+        "api/tests/test_contract_method_pg.py:4153-4249 (HOST_LAUNCH_DIAGNOSTIC)",
+        "api/tests/test_contract_method_pg.py:4393-4415 (generated installed QA entry)",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:201-231",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:318-385,441-452"
+      ],
+      "assessment": "HostLaunchDiagnostic is entered before the existing RuntimeHost partial/constructor and host.main. Its held code references are RuntimeHost._launch, NativePeer._read and NativePeer.handshake. RAISE and EXCEPTION_HANDLED callbacks operate in that Host interpreter, not the outer pytest process. _read HANDLED precedes _fail; handshake HANDLED observes TimeoutError before the ProtocolError raise from None. _launch events precede the outer Host response normalization. Foreign code returns before exception type/attributes or source-position access; matching uses identity, not structurally equal code objects.",
+      "coordinates": "Method labels are fixed; bytecode offset is the callback value; line is mapped from dis.get_instructions on the retained exact code object; compiler-generated missing source positions use 0, not an invented line. Elapsed milliseconds derive from monotonic_ns since observer construction and include observer overhead.",
+      "registration_limit": "Interpreter-wide sys.monitoring RAISE|EXCEPTION_HANDLED in the isolated QA Host is the explicitly admitted mechanism. It is not local exception registration, not zero-overhead, and not native-filter cost equivalence. No new frames, sys.setprofile or sys.settrace are used by this Host channel."
+    },
+    {
+      "id": "FINITE_REAL_EARLY_MARKERS",
+      "status": "PASS_STATIC_AND_SOURCE_CONTROLS",
+      "code": "api/tests/test_contract_method_pg.py:173-195,290-330,1937-1952",
+      "assessment": "SERVER_MODULE_BEGIN is bound at server module PY_START. The three local LINE intervals are agent.secret_scope 24/25, hermes_cli.env_loader 28/29 and tools.environments.local 31/32. These actual import statements and all six compiled line boundaries were independently checked against retained installed build source without executing it. Module entry is distinct from the first early interval and covers localization before line24 without pretending to instrument every intervening import.",
+      "retained_source": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tui_gateway/server.py",
+      "retained_server_sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+      "compiled_only_no_execution": true,
+      "limitation": "These are finite source phase boundaries. An ENTER/END localizes progress; neither diagnoses jiter nor establishes the old fatal cause. No native import/prewarm occurred."
+    },
+    {
+      "id": "STRICT_COMPLETION_UNCHANGED",
+      "status": "PASS_DIFF_AND_CODE_REVIEW",
+      "code": "api/tests/test_contract_method_pg.py:2255-2287",
+      "assessment": "All fourteen phases must enter. Every finite import/module/READY boundary must complete except the original three loop-spanning frames: BOOTSTRAP_RUNPY_ENTRY_BEGIN, ENTRY_MODULE_BEGIN and ENTRY_MAIN_BEGIN. Missing completion still yields INCOMPLETE; the pre_ready_complete predicate excludes only those unchanged names. SERVER_MODULE_BEGIN and all three new intervals receive no exemption. require_native_observation still rejects issues other than the explicitly bounded missing-completion case and requires pre_ready_complete."
+    },
+    {
+      "id": "ACTUAL_MOUNT_FAILURE_READBACK",
+      "status": "PASS_SOURCE_CONSUMER_CONTROL",
+      "code": "api/tests/test_contract_method_pg.py:4336-4390,4393-4429,6941-6959",
+      "assessment": "On batch2 launch failure, native evidence is read directly from state_dir/native-observation.jsonl and Host evidence from its sibling host-launch-diagnostic.json, matching /state paths in both generated entries. It does not rely on the outer placeholder/rebinding. The actual failure-handler AST control leaves the outer file empty, supplies mounted READY evidence, and observes it. An unknown Host field is refused and not copied into the checkpoint. Original exception re-raise remains. Other cases retain the existing observation path."
+    },
+    {
+      "id": "HONEST_BOUNDED_EVIDENCE",
+      "status": "PASS_SCOPED_NORMATIVE_REVIEW",
+      "assessment": "Host snapshots are capped at 32 events/8192 bytes with only method,event,exception,offset,line,elapsed_ms per row. Built-in exact class tags or OTHER avoid args/messages/str. STOPPED maps to OBSERVED; ACTIVE and INCOMPLETE map to INCOMPLETE while preserving valid observed rows. Missing, unstable or invalid data yields INCOMPLETE and no rows. root_cause remains UNKNOWN. OBSERVED means a valid stopped observation session, not proof of an exception, fatality, native settlement, or complete product coverage; zero rows are possible. Original native caps remain 256 events/65536 bytes/4096 bytes per record.",
+      "complementary_review_limit": "This is the normative review, not a substitute for the separately required failure/privacy reviewer. No universal gap-free or zero-overhead claim."
+    },
+    {
+      "id": "UNCHANGED_PRODUCT_AND_QA_CONTRACT",
+      "status": "PASS_EXACT_DELTA_REVIEW",
+      "assessment": "Changes stay in the two admitted QA files. Existing main/constructor seam is retained, now wrapped by the diagnostic context. NO_MODEL, two-task checks, persistence, Stop, caps and cleanup are unchanged by the reviewed delta, except the expressly admitted diagnostic path readback. No product/image rebuild or install. Prior product/caller/reader/distribution approvals remain at their unchanged scopes, not newly re-certified.",
+      "unchanged_seconds": {
+        "grant": 4.5,
+        "stage": 4.5,
+        "execution": 3,
+        "host": 3.2,
+        "control": 4,
+        "runner": 240
+      }
+    }
+  ],
+  "candidate_activation": {
+    "verdict": "APPROVED_SCOPED_CONDITIONAL",
+    "applied": false,
+    "current_selector_reviewed": null,
+    "file": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "new_line": "BATCH2_REVIEWED: str | None = \"2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87\"",
+    "candidate_selector_sha256": "a4c18997cdb7cc44b13f9ea34ad5c1acbd932ec394380599518a81a9b5032b5d",
+    "calculation": "Independently replace exactly one occurrence in memory, SHA256 the resulting bytes, and ast.parse only; no write/import/execution of the candidate.",
+    "author_report_label_correction": "candidate_activation_hash_computed_only in the author report is the CALLER SHA, not the candidate selector SHA. The exact selector SHA above was independently recomputed and matched the parent value. This corrected label is not a code finding.",
+    "conditions": [
+      "Parent adjudicates both complementary reviews on these exact bytes, with no unresolved blocker.",
+      "Parent separately admits exactly one diagnostic batch2-release-first run; this report alone authorizes no PG/native/OCI execution or retry.",
+      "Use only /home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first as the fresh fixed basetemp; it was absent at this review's final readback. Recheck freshness before any later execution.",
+      "Old attempt1 remains immutable. Stop-first, H03 and the failed cancel harness are not admitted.",
+      "Retain the existing private runner/owner, deadlines, cleanup/uncertainty fences and unchanged retained image. No artifact rebuild, prewarm or wider grants.",
+      "The general selector still exposes both batch2 choices; the one-case/one-attempt scope is a separate parent admission, not a new one-shot enforcement claim about this one-line change."
+    ],
+    "proposed_case_only_not_executed": "--case batch2-release-first --review-adjudicated"
+  },
+  "verification": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff --name-only && git diff --cached --stat",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Initial base bfa65588d340beebea929dadc64e914ae271e1d8; exactly two tracked QA files modified; no staged delta."
+    },
+    {
+      "command": "git diff -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git diff --check",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Reviewed entire exact delta; both SHA256 values match the frozen snapshot; whitespace gate passed."
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'host_launch_filtered_source or launch_early_import_markers_and_mounted_failure or batch2_installed_entry_uses_existing_constructor' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-review-focused",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "output": "7 passed, 232 deselected in 1.87s",
+      "limits": "SOURCE Python controls only: five producer modes plus mounted failure consumer and existing constructor/main seam. Actual SOURCE method code objects with substituted process/ready/constructor inputs. No PG, native launch, OCI, provider, target, real handshake, runtime acceptance or broad suite."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast,hashlib,json,pathlib,sys; root=pathlib.Path(\"/home/kali/OmnisAI\"); p=root/\"documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\"; b=p.read_bytes(); old=b\"BATCH2_REVIEWED: str | None = None\"; new=b\"BATCH2_REVIEWED: str | None = \\\"2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87\\\"\"; assert b.count(old)==1; candidate=b.replace(old,new); candidate_sha=hashlib.sha256(candidate).hexdigest(); assert candidate_sha==\"a4c18997cdb7cc44b13f9ea34ad5c1acbd932ec394380599518a81a9b5032b5d\"; ast.parse(candidate); retained=pathlib.Path(\"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tui_gateway/server.py\"); rb=retained.read_bytes(); c=compile(rb,str(retained),\"exec\"); t=ast.parse(rb); expected={24:\"agent.secret_scope\",28:\"hermes_cli.env_loader\",31:\"tools.environments.local\"}; assert {n.lineno:n.module for n in t.body if isinstance(n,ast.ImportFrom) and n.lineno in expected}==expected; assert {24,25,28,29,31,32}<={n for s,e,n in c.co_lines()}; fresh=pathlib.Path(\"/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first\"); print(json.dumps({\"python\":sys.version,\"caller_sha256\":hashlib.sha256((root/\"api/tests/test_contract_method_pg.py\").read_bytes()).hexdigest(),\"selector_sha256\":hashlib.sha256(b).hexdigest(),\"candidate_selector_sha256\":candidate_sha,\"candidate_applied\":False,\"selector_reviewed\":None,\"retained_server_sha256\":hashlib.sha256(rb).hexdigest(),\"compiled_only_no_execution\":True,\"source_imports\":expected,\"six_line_boundaries_present\":True,\"future_fixed_root_exists\":fresh.exists() or fresh.is_symlink()}))'",
+      "exit_code": 0,
+      "python": "3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]",
+      "result": "Final frozen hashes match, candidate selector hash matches, candidate not applied, retained real server imports and six compiled boundaries match, future diagnostic root absent. No retained source execution."
+    },
+    {
+      "command": "git diff --check; git rev-parse HEAD; git status --short --branch",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Final HEAD 2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c; exact reviewed bytes preserved by parent commit; no tracked modifications."
+    }
+  ],
+  "evidence_limits": [
+    "The old failed runtime cause remains UNKNOWN and native settlement remains UNCERTAIN; this report does not alter either.",
+    "Seven focused SOURCE controls were independently executed. The author's 87-pass/27-skip suite is not rerun or promoted here; all 27 skipped fixtures remain uncredited.",
+    "A captured exception event need not be fatal and can be handled normally. Missing events or ACTIVE snapshots cannot establish absence of failure or complete coverage.",
+    "No real diagnostic run, activation, PG/native/OCI effects, build/install, prewarm, live/provider/target, r1/profiles/global changes or push occurred.",
+    "Unchanged product/caller/reader/distribution approvals are reused only at their original scopes. Runtime results/checks/inbox/Stop-first and canonical acceptance remain NOT_RUN/blocked as previously recorded.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-review-normative.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-review-focused (owned SOURCE test artifacts)"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "issues_encountered": "No blocking finding. Parent HEAD advanced with byte-identical reviewed files during review; recorded rather than treating old HEAD as current. Author candidate-hash label corrected explicitly without changing source."
+}

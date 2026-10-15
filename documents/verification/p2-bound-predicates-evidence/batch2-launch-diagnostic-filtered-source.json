@@ -1,0 +1,262 @@
+{
+  "final_quality_after_last_edit": {"command": "env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git diff --check", "output": "All checks passed!\n2 files already formatted\nSuccess: no issues found in 2 source files", "exit_code": 0, "error": null},
+  "status": "PASS_SOURCE_SCOPED_PENDING_TWO_EXACT_REVIEWS",
+  "base_head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+  "modified_sha256": {
+    "api/tests/test_contract_method_pg.py": "2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "cac99d57e8da882fae6ef832d9359c9ce4d34dc7c5f9a0206e528c0f15ab04c1"
+  },
+  "candidate_activation_hash_computed_only": "2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87",
+  "selector": {
+    "BATCH2_SOURCE_SHA": "2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87",
+    "BATCH2_REVIEWED": null
+  },
+  "contract": {
+    "scope": "SOURCE TDD only; two owned QA files; no product changes or runtime execution",
+    "consumer": "generated installed host-qa.py producer -> private bounded snapshot -> existing launch failure checkpoint",
+    "decision": "Admit exact-snapshot review only; installed diagnostic requires parent fresh contract after two reviews",
+    "registration": "Interpreter-wide sys.monitoring RAISE|EXCEPTION_HANDLED in isolated QA Host; not local registration",
+    "filter": "Immediate exact code-object identity for RuntimeHost._launch, NativePeer._read, NativePeer.handshake; held references; foreign returns None before exception type/attributes; no frames, filename heuristics, setprofile or settrace",
+    "limits_unchanged": {
+      "grant_seconds": 4.5,
+      "stage_seconds": 4.5,
+      "execution_seconds": 3,
+      "host_seconds": 3.2,
+      "control_seconds": 4,
+      "runner_seconds": 240
+    }
+  },
+  "private_channel": {
+    "path": "/state/host-launch-diagnostic.json",
+    "mode": "0600",
+    "event_cap": 32,
+    "snapshot_byte_cap": 8192,
+    "snapshot_schema": {
+      "state": [
+        "ACTIVE",
+        "STOPPED",
+        "INCOMPLETE"
+      ],
+      "events": "bounded array"
+    },
+    "event_fields": [
+      "method",
+      "event",
+      "exception",
+      "offset",
+      "line",
+      "elapsed_ms"
+    ],
+    "methods": [
+      "RuntimeHost._launch",
+      "NativePeer._read",
+      "NativePeer.handshake"
+    ],
+    "events": [
+      "RAISE",
+      "HANDLED"
+    ],
+    "exception_classes": [
+      "TimeoutError",
+      "BrokenPipeError",
+      "ConnectionResetError",
+      "OSError",
+      "ValueError",
+      "PermissionError",
+      "OTHER"
+    ],
+    "integer_range": [
+      0,
+      1000000000000
+    ],
+    "line_zero": "No source position for compiler-generated exception machinery; never guessed",
+    "decoder": "Exact keys/enums/types, duplicate-key refusal, bounded stable owned regular-file read, fail-closed; ACTIVE/INCOMPLETE cannot claim complete observation; invalid records project no rows",
+    "privacy": "No error str/args/locals/messages/frames/wire/stderr/env/capabilities in new channel",
+    "interpretation": "Exception event, not fatal causation. root_cause remains UNKNOWN"
+  },
+  "native_markers": {
+    "added": [
+      "SERVER_MODULE_BEGIN",
+      "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+      "SERVER_ENV_LOADER_IMPORT_BEGIN",
+      "SERVER_LOCAL_ENV_IMPORT_BEGIN"
+    ],
+    "coordinates": {
+      "python": "3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]",
+      "retained_server_sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+      "module_firstline": 1,
+      "source_imports": {
+        "24": "agent.secret_scope",
+        "28": "hermes_cli.env_loader",
+        "31": "tools.environments.local"
+      },
+      "six_line_boundaries_present": true,
+      "compiled_only_no_execution": true
+    },
+    "original_native_registration_unchanged": true,
+    "existing_caps_unchanged": {
+      "events": 256,
+      "bytes": 65536,
+      "record_bytes": 4096
+    },
+    "completion_exemptions_unchanged": [
+      "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+      "ENTRY_MODULE_BEGIN",
+      "ENTRY_MAIN_BEGIN"
+    ],
+    "interpretation": "Intervals only; no jiter root-cause attribution or native prewarm"
+  },
+  "source_controls": {
+    "producer": "Actual SOURCE method code objects; caught TimeoutError, BrokenPipeError transport, protocol OTHER, launch ValueError; RAISE and HANDLED supported on Python3.13.15",
+    "negative": "Unrelated coroutine and structurally-equal but distinct cloned _launch code produce zero rows; zero frame audit events; private args sentinel absent",
+    "emitter": "Real 32-event cap; injected byte-limit, closed-fd, busy-tool; tools restored/freed; no primary method exception replacement",
+    "consumer": "Actual failure handler AST exercised with outer file empty and mounted file valid; invalid host fields refused; existing constructor/main seam exercised",
+    "tdd_red": [
+      "5 FAIL HOST_DIAGNOSTIC_PRODUCER_MISSING",
+      "1 FAIL EARLY_IMPORT_MARKERS_MISSING"
+    ],
+    "intermediate_issue": "First GREEN had one INCOMPLETE result: compiler-generated HANDLED offset had no source line; preserve integer line=0 unavailable sentinel rather than invent position. Subsequent actual-code controls PASS.",
+    "final": "87 PASS,27 SKIP,125 deselected; 6.13s exit0",
+    "skipped": "18 static reader +1 retained stage +1 artifact +5 retained material not selected;2 native SOURCE consumer variants explicitly not enabled; not credited",
+    "quality": "ruff check+format check and mypy 2 files PASS; git diff --check PASS",
+    "collection": "Both fixed batch2 selectors collect exactly1 each, exit0; no execution"
+  },
+  "future_basetemp": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-<fixed case>",
+  "commands": [
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k host_launch_filtered_source -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-source-red",
+      "output": "FFFFF                                                                    [100%]\n=================================== FAILURES ===================================\nE   AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n    assert False\n     +  where False = isinstance(None, str)\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4005: AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\nE   AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n    assert False\n     +  where False = isinstance(None, str)\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4005: AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\nE   AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n    assert False\n     +  where False = isinstance(None, str)\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4005: AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\nE   AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n    assert False\n     +  where False = isinstance(None, str)\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4005: AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\nE   AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n    assert False\n     +  where False = isinstance(None, str)\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4005: AssertionError: HOST_DIAGNOSTIC_PRODUCER_MISSING\n=========================== short test summary info ============================\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[none]\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[closed-fd]\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[event-limit]\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[byte-limit]\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[busy-tool]\n5 failed, 233 deselected in 1.05s",
+      "exit_code": 1,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k host_launch_filtered_source -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-source-green",
+      "output": "F....                                                                    [100%]\n=================================== FAILURES ===================================\nE   AssertionError: assert 'INCOMPLETE' == 'OBSERVED'\n      \n      - OBSERVED\n      + INCOMPLETE\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4077: AssertionError: assert 'INCOMPLETE' == 'OBSERVED'\n=========================== short test summary info ============================\nFAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[none]\n1 failed, 4 passed, 233 deselected in 1.59s",
+      "exit_code": 1,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k host_launch_filtered_source -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-source-green2",
+      "output": ".....                                                                    [100%]\n5 passed, 233 deselected in 1.17s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k launch_early_import_markers_and_mounted_failure -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-boundary-red",
+      "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\nE   AssertionError: EARLY_IMPORT_MARKERS_MISSING\n    assert {'SERVER_ENV_...IMPORT_BEGIN'} <= {'BOOTSTRAP_R...E_BEGIN', ...}\n      \n      Extra items in the left set:\n      'SERVER_MODULE_BEGIN'\n      'SERVER_SECRET_SCOPE_IMPORT_BEGIN'\n      'SERVER_ENV_LOADER_IMPORT_BEGIN'\n      'SERVER_LOCAL_ENV_IMPORT_BEGIN'\n/home/kali/OmnisAI/api/tests/test_contract_method_pg.py:4239: AssertionError: EARLY_IMPORT_MARKERS_MISSING\n=========================== short test summary info ============================\nFAILED api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure\n1 failed, 238 deselected in 0.81s",
+      "exit_code": 1,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'host_launch_filtered_source or launch_early_import_markers_and_mounted_failure or bootstrap_observer or launch_failure_diagnostic or batch2_installed_entry' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-affected-green",
+      "output": "...............................................................          [100%]\n63 passed, 176 deselected in 4.36s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "B010 [*] Do not call `setattr` with a constant attribute value. It is not any safer than normal property access.\n    --> api/tests/test_contract_method_pg.py:3995:5\n     |\n3993 |     module = ModuleType(\"omnis_hermes.runtime_host\")\n3994 |     module.__file__ = \"/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py\"\n3995 |     setattr(constructor, \"_launch\", RuntimeHost._launch)\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n3996 |     module.__dict__[\"NativePeer\"] = NativePeer\n3997 |     module.__dict__[\"RuntimeHost\"] = constructor\n     |\nhelp: Replace `setattr` with assignment\n     |\n3994 |     module.__file__ = \"/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py\"\n     -     setattr(constructor, \"_launch\", RuntimeHost._launch)\n3995 +     constructor._launch = RuntimeHost._launch\n3996 |     module.__dict__[\"NativePeer\"] = NativePeer\n     |\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.",
+      "exit_code": 1,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "1 file reformatted, 1 file left unchanged\nAll checks passed!\napi/tests/test_contract_method_pg.py:3988: error: Module \"omnis_hermes.runtime_host\" does not explicitly export attribute \"NativePeer\"  [attr-defined]\nFound 1 error in 1 file (checked 2 source files)",
+      "exit_code": 1,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --fix --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "Found 1 error (1 fixed, 0 remaining).\nSuccess: no issues found in 2 source files",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'host_launch_filtered_source or launch_early_import_markers_and_mounted_failure or bootstrap_observer or launch_failure_diagnostic or batch2' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-final-source --deselect=api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox",
+      "output": "........................................................................ [ 63%]\n...............sssssssssssssssssssssssssss                               [100%]\n87 passed, 27 skipped, 125 deselected in 6.01s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only",
+      "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-release-first]\n\n1 test collected in 0.85s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'host_launch_filtered_source or launch_early_import_markers_and_mounted_failure or bootstrap_observer or launch_failure_diagnostic or batch2' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-final-source2 --deselect=api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox -rs",
+      "output": "........................................................................ [ 63%]\n...............sssssssssssssssssssssssssss                               [100%]\n=========================== short test summary info ============================\nSKIPPED [18] api/tests/test_contract_method_pg.py:4458: Owned static current reader not selected; no runtime effect\nSKIPPED [1] api/tests/test_contract_method_pg.py:4576: Retained SOURCE stage not selected\nSKIPPED [1] api/tests/test_contract_method_pg.py:4607: Owned static artifacts not selected; no runtime effect\nSKIPPED [5] api/tests/test_contract_method_pg.py:4635: Retained SOURCE material not selected\nSKIPPED [2] api/tests/test_contract_method_pg.py:5452: Explicit pinned native SOURCE consumer QA; not default unit/installed evidence\n87 passed, 27 skipped, 125 deselected in 5.68s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git diff --check && git status --short --branch && git diff --stat",
+      "output": "All checks passed!\n2 files already formatted\nSuccess: no issues found in 2 source files\n## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_contract_method_pg.py\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n api/tests/test_contract_method_pg.py               | 419 ++++++++++++++++++++-\n .../h03-process-fixed-pg-selection.py              |   4 +-\n 2 files changed, 412 insertions(+), 11 deletions(-)",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "2 files already formatted\nAll checks passed!\nSuccess: no issues found in 2 source files",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'host_launch_filtered_source or launch_early_import_markers_and_mounted_failure or bootstrap_observer or launch_failure_diagnostic or batch2' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/filtered-final-source3 --deselect=api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox -rs",
+      "output": "........................................................................ [ 63%]\n...............sssssssssssssssssssssssssss                               [100%]\n=========================== short test summary info ============================\nSKIPPED [18] api/tests/test_contract_method_pg.py:4460: Owned static current reader not selected; no runtime effect\nSKIPPED [1] api/tests/test_contract_method_pg.py:4578: Retained SOURCE stage not selected\nSKIPPED [1] api/tests/test_contract_method_pg.py:4609: Owned static artifacts not selected; no runtime effect\nSKIPPED [5] api/tests/test_contract_method_pg.py:4637: Retained SOURCE material not selected\nSKIPPED [2] api/tests/test_contract_method_pg.py:5454: Explicit pinned native SOURCE consumer QA; not default unit/installed evidence\n87 passed, 27 skipped, 125 deselected in 6.13s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast,hashlib,json,pathlib,sys; p=pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source/tui_gateway/server.py'\"'\"'); b=p.read_bytes(); c=compile(b,str(p),'\"'\"'exec'\"'\"'); t=ast.parse(b); expected={24:'\"'\"'agent.secret_scope'\"'\"',28:'\"'\"'hermes_cli.env_loader'\"'\"',31:'\"'\"'tools.environments.local'\"'\"'}; actual={n.lineno:n.module for n in t.body if isinstance(n,ast.ImportFrom) and n.lineno in expected}; assert actual==expected; lines={line for start,end,line in c.co_lines()}; assert {24,25,28,29,31,32}<=lines; print(json.dumps({'\"'\"'python'\"'\"':sys.version,'\"'\"'retained_server_sha256'\"'\"':hashlib.sha256(b).hexdigest(),'\"'\"'module_firstline'\"'\"':c.co_firstlineno,'\"'\"'source_imports'\"'\"':actual,'\"'\"'six_line_boundaries_present'\"'\"':True,'\"'\"'compiled_only_no_execution'\"'\"':True}))'",
+      "output": "{\"python\": \"3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]\", \"retained_server_sha256\": \"b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e\", \"module_firstline\": 1, \"source_imports\": {\"24\": \"agent.secret_scope\", \"28\": \"hermes_cli.env_loader\", \"31\": \"tools.environments.local\"}, \"six_line_boundaries_present\": true, \"compiled_only_no_execution\": true}",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only && env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-stop-first --collect-only",
+      "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-release-first]\n\n1 test collected in 0.77s\ntests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-stop-first]\n\n1 test collected in 0.78s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "command": "git diff --check && git status --short --branch && sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_contract_method_pg.py\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87  api/tests/test_contract_method_pg.py\ncac99d57e8da882fae6ef832d9359c9ce4d34dc7c5f9a0206e528c0f15ab04c1  documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "error": null
+    }
+  ],
+  "future_outcome_decisions": [
+    "Review rejection or unsafe/incomplete SOURCE evidence: keep selector inactive; no runtime attempt.",
+    "Both exact reviews approved and parent fresh bounded contract: parent alone may activate the candidate and admit one distinct installed diagnostic.",
+    "Installed rows + phase markers: localize observed interval/exception, never label root cause solely from RAISE/HANDLED or caught TimeoutError.",
+    "Missing/invalid/capped/unavailable evidence: UNKNOWN/INCOMPLETE; no grant increase, automatic retry or fabricated absence.",
+    "Any launch failure/cleanup uncertainty: retain original and new evidence separately, preserve existing cancel/error/settlement fences; P2 remains open."
+  ],
+  "not_run": [
+    "PG",
+    "OCI",
+    "native child",
+    "build",
+    "install",
+    "prewarm",
+    "effectful --check",
+    "installed diagnostic",
+    "canonical gate",
+    "two independent reviews"
+  ],
+  "preserved": [
+    "launch-diagnostic-source.json BLOCKED_LOCAL_EXCEPTION_EVENTS immutable; not rerun",
+    "original QA1 FAIL21.53s and original causeUNKNOWN",
+    "original attempt1 data",
+    "product image261aa5ec no rebuild",
+    "protected Omnis_Notite_Originale.html untouched",
+    "no skill/docs/product/pins/deps/global/profile/credential changes",
+    "no stage/commit/push"
+  ],
+  "limits": [
+    "SOURCE coroutine/transport fixtures are not installed/native integration",
+    "Global delivery may add overhead; no native/Python3.13 filter equivalence or overhead claim",
+    "No product result or P2/B06b/G02 closure"
+  ]
+}

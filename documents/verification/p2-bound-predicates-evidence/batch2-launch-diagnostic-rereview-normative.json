@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "review_role": "independent focused normative read-only re-review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "F03 shared success frontier and primary failure/cancellation preservation; normative effects of F01/F02; exact in-memory selector candidate. SOURCE only. Reuse all unaffected prior normative/static approvals at their original limits.",
+  "findings": [],
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "base_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+    "latest_observed_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "a9662dbd1a91be9f79a43d54c9394543498223c5b10c29dd8cc8c333498f13bb"
+    },
+    "identity_verification": "Independent SHA256 readback before tests and after tests/call-site inspection matched both frozen files. Approval binds to these bytes; a later identical-byte parent commit does not change this scope.",
+    "repository_status": "Two preexisting modified QA files, no reviewer repository edits. Protected preexisting untracked HTML appeared only by name in git status; never read, hashed, edited, staged or deleted."
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Require strict completed Host observation after owned retirement/resource cleanup and before native success gates, DB-fence clearance and PASS, including early return; retain primary exceptions and uncertainty on failure.",
+    "consumer": "Actual batch2 acquisition/except/finally in test_contract_method_real_native_pg_owner_receipts_check_inbox; host_launch_checkpoint at the mounted fixed Host diagnostic path.",
+    "risk": "Malformed/missing/ACTIVE/INCOMPLETE observation could bypass success acceptance; observer teardown could replace the primary exception or mutate an unacquired monitoring registration.",
+    "decision": "Approve exact fixes SOURCE-scoped with no new normative blocker. Conditional exact candidate approval is not activation, execution or parent adjudication."
+  },
+  "original_report_disposition": {
+    "normative": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-review-normative.json",
+      "sha256": "62b8a134f0810297871287e23e052f32ecaf7e53d802950a3bb0b3146df349b7",
+      "previous_verdict": "APPROVED_SCOPED",
+      "reuse": "Retain unaffected pre-normalization observer, finite native markers, strict native completion, bounded evidence and product/static approval findings only within their original scope. This re-review specifically adds the F03 acceptance-frontier assessment absent from that prior approval. Prior candidate hash is superseded, not reused."
+    },
+    "safety": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-review-safety.json",
+      "sha256": "cac80e708ad9d8e47b859d4cfbb64de6c76cd4f9235d8d355b669b1445fb107c",
+      "previous_verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+      "reuse": "All three original named findings are accounted for below. Their historic reproductions and failed runtime attempt remain retained. This normative review does not replace the complementary safety re-review."
+    }
+  },
+  "finding_dispositions": [
+    {
+      "id": "SAFETY-HOST-DIAG-F01",
+      "disposition": "CLOSED_SOURCE_SCOPED_NORMATIVE_EFFECTS",
+      "code": "api/tests/test_contract_method_pg.py:4428-4441,4447-4466",
+      "assessment": "Candidate ID is not assigned to self.tool until use_tool_id succeeds. A failed claim therefore cannot authorize cleanup of that candidate. Cleanup checks the owned label before each finite attempt and marks loss of ownership incomplete. This preserves refusal rather than weakening observer policy.",
+      "executed_control": "test_host_launch_filtered_source[claim-race] included in independent 27-test PASS; actual monitoring API with a synthetic foreign canary claim and exact test-owned rescue.",
+      "limit": "No universal takeover/concurrency/reentrancy audit. Detailed monitoring safety belongs to the complementary reviewer."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F02",
+      "disposition": "CLOSED_SOURCE_SCOPED_NORMATIVE_EFFECTS",
+      "code": "api/tests/test_contract_method_pg.py:4442-4482",
+      "assessment": "Acquisition cleanup receives active sys.exc_info. Disable/unregister/free attempts are individually failure-contained; FD save/close is in finally. Tooling failure records INCOMPLETE, not STOPPED. With a primary exception/cancellation, __exit__ returns False without replacing it; without a primary, failed observation raises the sanitized RuntimeError. Missing/unwritable diagnostic remains unacceptable at the strict reader/final gate.",
+      "executed_controls": [
+        "test_host_launch_filtered_source[disable-primary]",
+        "test_host_launch_filtered_source[unregister-cancel]",
+        "test_host_launch_filtered_source[disable-no-primary]",
+        "test_host_launch_filtered_source[enter-cleanup]"
+      ],
+      "limit": "Proves the declared finite failure controls and exception identities, not successful cleanup of an API that continues failing or an exhaustive asynchronous/FD-close fault matrix."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F03",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": [
+        "api/tests/test_contract_method_pg.py:5764-5765",
+        "api/tests/test_contract_method_pg.py:6334-6387",
+        "api/tests/test_contract_method_pg.py:7173-7193",
+        "api/tests/test_contract_method_pg.py:9147-9282",
+        "api/tests/test_contract_method_pg.py:4487-4567",
+        "api/tests/test_contract_method_pg.py:3260-3673"
+      ],
+      "assessment": "batch2 implies installed_native. The shared finally attempts exact retirement/owned absence checks, runtime/public-owner closure and engine.dispose before refreshing the strict Host decoder. The new Host requirement precedes the native gate at 9245, the sole installed DB-fence clearance at 9251 and final batch2 PASS at 9282. It is inside finally, so return cannot skip it. Only OBSERVED permits clean continuation; malformed, missing, ACTIVE or INCOMPLETE evidence sets cleanup_failed and raises before clearance/PASS when no primary is active.",
+      "owned_locator": "Read occurs only when proof.h03_state equals str(tmp_path / 'h03-state'); the actual decoder argument is the fixed tmp_path / 'h03-state/host-launch-diagnostic.json', not the supplied proof value. Otherwise an explicit INCOMPLETE/UNKNOWN empty projection is checkpointed. The finalizer never accesses the potentially unbound local state_dir.",
+      "primary_paths": "The real outer except latches cleanup_failed and db_fence.unsettled before re-raising. The finalizer captures whether a primary is active, refreshes completed or incomplete Host evidence, and suppresses only the new diagnostic refusal when preserving that primary. The existing uncertainty branch remains active; no native success gate or final PASS runs with the primary still propagating. STOPPED and malformed controls retain the exact held ValueError/CancelledError objects and the closed fence. Pre-acquisition failure retains its exact primary without calling the Host reader.",
+      "executed_controls": {
+        "count": 15,
+        "success_frontier": "STOPPED positive and malformed/missing/ACTIVE/INCOMPLETE negatives, each through fallthrough and early return.",
+        "primary": "STOPPED and malformed evidence, each with held ValueError and CancelledError.",
+        "early_acquisition": "Held primary before acquisition leaves local state_dir unbound and performs no Host diagnostic read.",
+        "ordering": "Host read oracle asserts synthetic resource removal, engine disposal and fence still closed. Initial ACTIVE is changed to STOPPED only by the synthetic retirement seam. Valid success still reaches both existing native oracles.",
+        "seams": "Actual source acquisition helpers, outer handlers and complete finalbody compiled from AST; substituted daemon/subprocess, Host/runtime, engine, public control, checkpoint persistence and positive native observation. Real strict Host decoder reads owned private files. Not physical cleanup, PG, OCI, native child execution or an installed E2E test."
+      },
+      "call_site_census": "Independent AST enumeration found exactly two host_launch_checkpoint calls in the actual consumer: launch-failure checkpoint at 7185 and finalizer at 9230. The former re-raises and grants no success; the latter refreshes its result at the shared success frontier. The only batch2 final PASS is downstream of this gate. No alternate credit path for invalid Host evidence was identified in the reviewed consumer.",
+      "limits": "Historical non-batch2 H03 does not gain this Host diagnostic requirement. Locator equality is additionally code-reviewed, not claimed as a newly executed mismatch-case test. No checkpoint-disk-failure or universal signal matrix is claimed. Existing native task/count/oracle/uncertainty checks remain unchanged."
+    }
+  ],
+  "unchanged_normative_constraints": [
+    "Interpreter-global sys.monitoring RAISE/EXCEPTION_HANDLED is parent-authorized in this isolated QA Host. Immediate exact code-object identity filtering remains limited to RuntimeHost._launch, NativePeer._read and NativePeer.handshake. No claim of local registration, zero overhead or native-filter cost equivalence.",
+    "Strict decoder maps STOPPED to OBSERVED; ACTIVE and INCOMPLETE retain INCOMPLETE. OBSERVED can have zero events and means only a valid stopped observation session, not product success or complete causal coverage.",
+    "Host caps remain 32 events/8192 bytes; native caps remain 256 events/65536 bytes/4096 bytes per record. Fixed allowlisted fields and UNKNOWN root cause remain unchanged.",
+    "Existing native oracle/counts, Stop, preparation, NO_MODEL, grants and deadlines are unchanged by the reviewed delta. Product, per-task/reader and retained image approvals are reused only at their original scopes; they were not re-audited.",
+    "Original launch attempt1 cause remains UNKNOWN and native settlement remains UNCERTAIN. A future observed RAISE/HANDLED event does not automatically establish fatal cause or retrospectively explain attempt1."
+  ],
+  "candidate_activation": {
+    "verdict": "APPROVED_SCOPED_CONDITIONAL",
+    "file": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "new_line": "BATCH2_REVIEWED: str | None = \"8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7\"",
+    "candidate_selector_sha256": "3a395d6e049758447b1104c83509bc6a10e2ace1c0c3004cb25e18a43d840397",
+    "verification": "Independently verified exactly one old-line occurrence, replaced only those bytes in memory, SHA256 matched the parent candidate, and ast.parse succeeded. Candidate not imported or executed.",
+    "applied": false,
+    "executed": false,
+    "current_BATCH2_REVIEWED": null,
+    "proposed_case_only_not_executed": "--case batch2-release-first --review-adjudicated",
+    "fixed_fresh_root": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first",
+    "fresh_root_absent_at_review_readback": true,
+    "conditions": [
+      "Parent must adjudicate both complementary exact-byte re-reviews with no surviving blocker; this report cannot stand in for the safety verdict.",
+      "Parent must separately admit exactly one fresh diagnostic release-first execution. No execution or effect is authorized by this read-only review alone.",
+      "Recheck fresh root absence immediately before execution; do not overwrite failed attempt1 or any existing diagnostic fixture. Diagnostic1 is distinct from historical attempt1.",
+      "Keep existing private runner/owner, 240-second runner limit, product deadlines, uncertainty/DB fences, retained image and all existing native oracles. No rebuild/install/prewarm, wider grants, automatic retry, H03, stop-first or failed cancel-harness execution.",
+      "The selector still exposes both batch2 choices. One-case/one-attempt scope is parent admission, not a new one-shot enforcement claim for this one-line candidate."
+    ]
+  },
+  "verification": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat -- . ':(exclude)documents/Omnis_Notite_Originale.html'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Base 2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c; only two tracked modified QA files."
+    },
+    {
+      "command": "git diff -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "result": "Entire two-file delta inspected; frozen hashes matched."
+    },
+    {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-rereview-focused",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "27 passed in 3.04s",
+      "passed": 27,
+      "skipped": 0,
+      "scope": "Independent SOURCE execution only, -I -B, no plugin autoload, explicit pytest_asyncio, no cacheprovider. No broad 87-test suite or 27 historical skips rerun/credited."
+    },
+    {
+      "command_description": "Isolated python -I -B: SHA256 both frozen files; exactly-one byte replacement and ast.parse of selector candidate in memory; enumerate actual consumer Host decoder calls with AST; lstat-style existence/symlink check of exact future diagnostic root. Follow with exact two-file git diff --check, HEAD and status.",
+      "exit_code": 0,
+      "result": "Both frozen hashes and candidate SHA match. Exactly two actual consumer decoder calls at 7185 and 9230. Candidate remains inactive. Future fixed root absent. Whitespace gate passed; HEAD still 2ec4a83 and tracked status unchanged."
+    },
+    {
+      "command_description": "Isolated python -I -B: AST-read batch2/installed_native bindings and checkpoint implementation; hash only the two original review JSONs.",
+      "exit_code": 0,
+      "result": "batch2 implies installed_native; prior report hashes match original source-remediation record."
+    }
+  ],
+  "status_delta_for_parent": {
+    "diagnostic_fixes_code": "SOURCE_IMPLEMENTED",
+    "diagnostic_fixes_proof": "PASS_SOURCE_SCOPED_27",
+    "normative_review": "APPROVED_SCOPED",
+    "integration": "PENDING_PARENT_ADJUDICATION_AND_COMPLEMENTARY_REVIEW",
+    "runtime_diagnostic": "NOT_RUN",
+    "original_runtime_attempt": "FAIL_CAUSE_UNKNOWN_NATIVE_SETTLEMENT_UNCERTAIN_RETAINED",
+    "P2_B06b_G02_P4a": "NOT_CLOSED_UNCHANGED"
+  },
+  "limits": [
+    "No product/runtime/PG/OCI/build/install/prewarm/provider/target/r1/profile/global effects, activation, stage, commit or push.",
+    "SOURCE control-flow evidence is not physical retirement, installed acceptance, native settlement or runtime PASS.",
+    "No universal concurrency, reentrancy, asynchronous interruption, FD-close or checkpoint I/O fault certification.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No additional tooling probes.",
+    "Parent owns integration, report persistence in versioned evidence and any later explicit effectful admission. Original reports/failures remain immutable."
+  ],
+  "artifacts": {
+    "repository_files_modified_by_reviewer": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-rereview-normative.json",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-rereview-focused"
+    ],
+    "commits_by_reviewer": []
+  },
+  "issues_encountered": "No blocking finding or failed execution in this focused re-review. Existing two-file edits belong to parent/author. No attempt to activate the selector or produce runtime evidence.",
+  "proposed_lesson_for_parent": "Require each successful early-return/fallthrough path to cross the same strict post-retirement observation gate before fence clearance. On failures preserve the original exception and record completed/incomplete evidence without granting success. Candidate monitoring IDs do not confer cleanup authority until claim succeeds. No skill edits under this read-only mandate."
+}

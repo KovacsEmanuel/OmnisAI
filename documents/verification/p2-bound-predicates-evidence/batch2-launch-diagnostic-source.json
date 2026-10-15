@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_LOCAL_EXCEPTION_EVENTS",
+  "role": "SOLE_SOURCE_AUTHOR_NO_RUNTIME_AUTHORITY",
+  "head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "decision": "No caller/selector delta applied: the required local RAISE/EXCEPTION_HANDLED producer is unsupported by the mandated interpreter. No global monitoring substitution, partial diagnostic implementation or runtime retry.",
+  "cause_of_original_launch": "UNKNOWN",
+  "confirmed_proof_gap": "Existing generated host-qa.py lacks a Host/peer exception producer before normalization; native server entry and early import intervals are unobserved. This is not a demonstrated product root cause.",
+  "blocker": {
+    "python": "3.13.15",
+    "api": "sys.monitoring.set_local_events",
+    "events": [
+      "RAISE",
+      "EXCEPTION_HANDLED"
+    ],
+    "result": "ValueError on all six event/code-object combinations",
+    "checks": [
+      {
+        "event": "RAISE",
+        "firstlineno": 201,
+        "method": "RuntimeHost._launch",
+        "remaining_local_events": 0,
+        "source_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      },
+      {
+        "event": "EXCEPTION_HANDLED",
+        "firstlineno": 201,
+        "method": "RuntimeHost._launch",
+        "remaining_local_events": 0,
+        "source_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      },
+      {
+        "event": "RAISE",
+        "firstlineno": 318,
+        "method": "NativePeer._read",
+        "remaining_local_events": 0,
+        "source_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      },
+      {
+        "event": "EXCEPTION_HANDLED",
+        "firstlineno": 318,
+        "method": "NativePeer._read",
+        "remaining_local_events": 0,
+        "source_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      },
+      {
+        "event": "RAISE",
+        "firstlineno": 441,
+        "method": "NativePeer.handshake",
+        "remaining_local_events": 0,
+        "source_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      },
+      {
+        "event": "EXCEPTION_HANDLED",
+        "firstlineno": 441,
+        "method": "NativePeer.handshake",
+        "remaining_local_events": 0,
+        "source_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+        "status": "LOCAL_EVENT_UNSUPPORTED"
+      }
+    ],
+    "exact_source_compiled_not_executed": true,
+    "existing_idiom_limit": "H03ExchangeObservation at original lines4786-4787 explicitly uses interpreter-wide RAISE with identity/task rejection because Python3.13 does not support it locally. Reusing that registration would violate the explicit LOCAL-only contract.",
+    "observer_tool_released": true
+  },
+  "verification": [
+    {
+      "phase": "RED_CAPABILITY_PREREQUISITE",
+      "command": "umask 077; set -C; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-local-events.py > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-local-events.json 2> /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-local-events.stderr",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 2,
+      "checks": 6,
+      "unsupported": 6,
+      "scope": "Actual function code objects compiled from unchanged product SOURCE. No runtime module execution, service or native import. No benign exception seam run because local event registration fails before observation.",
+      "stdout_mode": "0600",
+      "stderr_mode": "0600",
+      "stderr_bytes": 0
+    },
+    {
+      "phase": "GREEN",
+      "status": "NOT_RUN_BLOCKED",
+      "reason": "No implementation satisfying local-event constraint available; no fabricated PASS."
+    },
+    {
+      "phase": "REPOSITORY_INTEGRITY",
+      "command": "git diff --check && git diff --stat && git diff --cached --stat && git status --short --branch && git rev-parse HEAD",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "tracked_changes": false,
+      "staged_changes": false
+    }
+  ],
+  "file_hashes": {
+    "api/tests/test_contract_method_pg.py": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "df6cd05b059ba9c5d3849b73b40e0fa9b942b268689b79a44a6710b97110d80a"
+  },
+  "files_modified": [],
+  "scratch_files_created": [
+    "launch-diagnostic-local-events.py",
+    "launch-diagnostic-local-events.json",
+    "launch-diagnostic-local-events.stderr",
+    "launch-diagnostic-source.json"
+  ],
+  "implementation_status": {
+    "host_producer_fields_and_caps": "NOT_IMPLEMENTED_BLOCKED; no fields, rows, bytes or exception claims emitted into QA receipts",
+    "early_server_phase_boundaries": "NOT_IMPLEMENTED; planned module entry and24/25,28/29,31/32 remain within original scope",
+    "mounted_path_consumer": "NOT_MODIFIED; original incomplete proof retained, no false repaired claim",
+    "TDD_producer_private_args_controls": "NOT_RUN; no actual producer exists under allowed event registration",
+    "caller_refreeze": "UNCHANGED_SOURCE_SHA",
+    "selector_refreeze": "UNCHANGED_INACTIVE",
+    "BATCH2_REVIEWED": null,
+    "distinct_diagnostic_root": "NOT_APPLIED_BLOCKED; proposed only /home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-<fixed-case>"
+  },
+  "candidate_activation": {
+    "computed_source_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "admissible": false,
+    "applied": false,
+    "reason": "This is unchanged failed-attempt caller, NOT a diagnostic candidate. Do not bind BATCH2_REVIEWED to this value for another run."
+  },
+  "limits_unchanged": {
+    "grant_seconds": 4.5,
+    "stage_seconds": 4.5,
+    "execution_seconds": 3,
+    "host_seconds": 3.2,
+    "control_seconds": 4,
+    "runner_seconds": 240
+  },
+  "preserved": {
+    "attempt1_basetemp": "Not opened, overwritten or reused by this work",
+    "original_qa": "FAIL, cause UNKNOWN, native settlement UNCERTAIN; inherited parent cleanup facts not re-probed",
+    "image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "product_native_pins_dependencies": "No changes, build or install",
+    "protected_html": "Not read, hashed, edited, staged or deleted",
+    "no_effects": [
+      "PG",
+      "OCI",
+      "native launch",
+      "native prewarm",
+      "provider",
+      "target",
+      "r1",
+      "profile/global writes",
+      "stage",
+      "commit",
+      "push"
+    ]
+  },
+  "parent_steering": {
+    "fact_source": "Mid-turn parent read-only report, not independently rerun",
+    "agent_jiter_interval": "agent/__init__.py3 imports jiter_preload; jiter_preload20 imports jiter.jiter and29 invokes preload; SOURCE preimports agent before monitoring whereas installed does not.",
+    "disposition": "No prewarm or guard change; planned server entry plus24/25 would localize this interval. jiter is NOT established as cause."
+  },
+  "future_decision": [
+    "Parent must resolve the local-event API incompatibility before an implementation can meet the contract. Explicitly authorize an alternative observation mechanism, or retain BLOCKED. Interpreter-wide sys.monitoring with exact identity rejection is not silently equivalent to local events.",
+    "After a supported producer is approved: demonstrate real caught TimeoutError and transport class plus OTHER/private-args omission and emitter failure through actual functions and receipt; add planned native boundaries and mounted-path callback regression; freeze two-file delta and a distinct inactive diagnostic root.",
+    "Only parent exact-snapshot reviews and a fresh effect contract can admit later PG/native diagnosis. A future exception row proves observed RAISE/HANDLED ordering, not fatal causation; missing END/EXIT stays INCOMPLETE."
+  ],
+  "review": "NOT_REVIEWED_NO_DELTA",
+  "global_status": "P2/B06b/G02/P4a-minim NOT_CLOSED; no product acceptance change",
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "review": "launch-diagnostic-review-safety",
+  "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+  "complete": true,
+  "base_head": "bfa65588d340beebea929dadc64e914ae271e1d8",
+  "final_head": "2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c",
+  "head_transition": "Parent committed during review; both reviewed file hashes remained byte-exact. Review binds to those hashes, not to an approval implied by the new commit.",
+  "snapshot": {
+    "api/tests/test_contract_method_pg.py": "2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "cac99d57e8da882fae6ef832d9359c9ce4d34dc7c5f9a0206e528c0f15ab04c1"
+  },
+  "scope": "READ_ONLY_SOURCE review of new Host diagnostic, four finite native phase labels, mounted failure readback, and in-memory selector activation only. Existing product/source/image/API-reader approvals retained, not re-audited.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Exact identity filtering and bounded private observation; no foreign monitoring mutation, primary error replacement, or clean acceptance on malformed new evidence.",
+    "consumer": "Generated host-qa.py -> /state/host-launch-diagnostic.json -> launch failure checkpoint and final acceptance/fence.",
+    "risk": "Observer tooling can mutate another tool or replace primary failures; success path can omit diagnostic validity.",
+    "decision": "Keep selector inactive and do not authorize a fresh installed diagnostic until concrete findings are fixed and affected bytes reviewed."
+  },
+  "findings": [
+    {
+      "id": "SAFETY-HOST-DIAG-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "4217-4220,4227-4237",
+      "title": "Failed tool acquisition cleans up a monitoring ID it never acquired",
+      "mechanism": "self.tool is assigned by get_tool before use_tool_id succeeds. If another owner claims that ID at the claim boundary, use_tool_id raises ValueError; the except calls __exit__, which disables its events, unregisters callbacks and frees the foreign ID.",
+      "reproduction": "AST-extract the unchanged HOST_LAUNCH_DIAGNOSTIC string, bind actual SOURCE runtime_host, change only its fixed diagnostic path to a new private scratch file. Substitute sys.monitoring.use_tool_id with a deterministic claim-boundary injector: original_use(i,\"safety-owned-foreign-canary\"); original_use(i,name). Enter observer and catch ValueError. Read sys.monitoring.get_tool(i). It is None, not the canary. Restore the API and rescue only the owned canary if still present.",
+      "observed": {
+        "claim_failure_seen": true,
+        "foreign_tool_preserved": [
+          false
+        ],
+        "tool_inventory_restored_by_probe": true
+      },
+      "limit": "Deterministic same-process fault/claim-boundary control; not proof that a competing tool exists in the proposed isolated Host and not a universal adversarial race audit.",
+      "minimal_fix": "Track candidate versus successfully acquired tool ownership separately. Never unregister/disable/free on unsuccessful acquisition. Cleanup only the exact owned registration; retain uncertainty if ownership is lost. Add the failed-claim canary control without changing native observer registration or product methods."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "4231-4248",
+      "title": "Monitoring teardown errors replace the primary exception and skip FD cleanup",
+      "mechanism": "set_events/register_callback/free_tool_id in __exit__ are outside the guarded cleanup. Any exception there escapes before saving INCOMPLETE or closing the owned FD; an active product exception is replaced.",
+      "reproduction": "On the actual extracted producer, replace only sys.monitoring.set_events so it calls the real API normally but raises synthetic OSError on disabling this observer ID. Raise a held ValueError instance inside with HostLaunchDiagnostic(). Observe the exception exiting the with; restore the API and invoke cleanup on this exact observer to rescue the test-owned tool/FD.",
+      "observed": {
+        "primary_preserved": false,
+        "replacement_type": "OSError",
+        "primary_retained_as_context": true,
+        "tool_inventory_restored_by_probe": true
+      },
+      "limit": "SOURCE tooling fault injection, no product runtime, no native launch; cancellation has the same unguarded code path but was not separately executed.",
+      "minimal_fix": "Make monitoring teardown failure-contained and attempt all exact-owned cleanup in finally. Preserve an already propagating primary exception/cancellation; mark evidence INCOMPLETE rather than replacing it or claiming STOPPED after tooling failure. With no primary, return a sanitized diagnostic failure or make the final strict gate refuse. Add one disable/unregister failure regression."
+    },
+    {
+      "id": "SAFETY-HOST-DIAG-F03",
+      "severity": "HIGH",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "6941-6959,8989-9000,9026-9029",
+      "title": "Successful cleanup/early-return acceptance never validates the new Host diagnostic",
+      "mechanism": "The sole production host_launch_checkpoint call is inside the launch exception handler. Both existing success gates validate only native-observation.jsonl. Thus a malformed/missing/capped Host diagnostic is invisible to success acceptance and to the path that can clear db_fence after otherwise settled cleanup.",
+      "reproduction": "Create a real owned 0600 host-launch-diagnostic.json containing {} plus newline; the actual AST-extracted host_launch_checkpoint returns INCOMPLETE. Execute the actual finalizer gate AST (line9026) in both a falling-through try and a try with return, substituting only the existing native validator with a positive seam. Both publish PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED. Count host_launch_checkpoint calls in the real consumer AST: one, confined to launch failure.",
+      "observed": [
+        {
+          "early_return": false,
+          "host_decoded_status": "INCOMPLETE",
+          "gate_status": "PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED",
+          "native_validator_calls": 1
+        },
+        {
+          "early_return": true,
+          "host_decoded_status": "INCOMPLETE",
+          "gate_status": "PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED",
+          "native_validator_calls": 1
+        }
+      ],
+      "limit": "Executed SOURCE finalizer cut with a positive native-validator seam, not actual OCI/PG cleanup or a live fence-release reproduction. The before-fence placement requirement follows from the actual unchanged cleanup control flow.",
+      "minimal_fix": "At the existing shared post-cleanup acceptance frontier, after exact Host join and before DB-fence clearance/PASS, read the mounted Host diagnostic and require its valid completed state for clean diagnostic acceptance. Preserve ACTIVE/INCOMPLETE/invalid as incomplete; never bypass existing native checks, task counts or settlement guards. On an already propagating failure/cancellation, retain its primary error and incomplete evidence. Add a valid control plus malformed/missing/ACTIVE negative through both actual early-return cuts; no new runtime owner or harness."
+    }
+  ],
+  "satisfactory_scoped_checks": [
+    "Interpreter-wide RAISE|EXCEPTION_HANDLED is explicitly allowed here; no false local-registration claim. Immediate code-is-target gate is before type(error) or source offset lookup. Three held references map to RuntimeHost._launch, NativePeer._read, NativePeer.handshake.",
+    "Actual SOURCE positive and foreign/distinct-cloned-code negative tests pass. New Host producer has no frame, co_filename, sys.settrace or sys.setprofile filter; sentinel absent and zero frame audit events in existing controls.",
+    "Only exact built-in exception classes and OTHER are projected. Fields are method/event/exception/offset/line/elapsed_ms; exact bounded ints, line=0 unavailable. No args, messages, strerror, locals, wire, stderr, env or capabilities copied by this new channel.",
+    "Owned O_EXCL/O_NOFOLLOW/CLOEXEC file is 0600. Nominal record lock serializes count/append/save; caps 32 events and8192 snapshot bytes. Existing event-limit/byte-limit/closed-fd/busy-tool tests pass with incomplete outcomes. Reentrancy/universal concurrency safety is not certified by those tests.",
+    "Reader bounds bytes before JSON parse, requires owned single-link regular0600 stable file, exact fields/enums/types and duplicate-key refusal. Malformed records yield INCOMPLETE/UNKNOWN with no rows; ACTIVE/INCOMPLETE do not produce OBSERVED. No unknown fields are stripped into a clean result.",
+    "Mounted failure readback uses the fixed state_dir/native-observation.jsonl and sibling fixed Host channel rather than the empty outer placeholder. The original error is re-raised on the ordinary failure path.",
+    "Native observer registration/audit scope/forbidden checks/caps/completion exemptions are unchanged by the diff. New markers are server module entry and imports24/25,28/29,31/32; these localize intervals, not jiter cause. Coordinate compile evidence was supplied by parent and not rerun against retained source.",
+    "No product deadline/grant/transport/admission method changes. Existing constructor TestLaunch seam retained. The native cleanup guards themselves remain unchanged; F03 concerns integration of the newly added evidence at their success boundary."
+  ],
+  "candidate": {
+    "current_selector_reviewed": null,
+    "replacement_old": "BATCH2_REVIEWED: str | None = None",
+    "replacement_new": "BATCH2_REVIEWED: str | None = \"2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87\"",
+    "computed_in_memory_sha256": "a4c18997cdb7cc44b13f9ea34ad5c1acbd932ec394380599518a81a9b5032b5d",
+    "parent_candidate_hash_matches": true,
+    "applied": false,
+    "executed": false,
+    "approval": "NOT_APPROVED_DUE_TO_FINDINGS",
+    "note": "Author report candidate_activation_hash_computed_only is the caller SHA, not the selector candidate SHA. The in-memory candidate SHA above is independently verified.",
+    "future_authority": "Only after fixes, affected tests and two complementary exact-byte approvals plus a fresh explicit parent contract: at most one release-first diagnostic via the same existing owner240, new batch2-installed-diagnostic1-<fixed case> root. No attempt1 overwrite, stop-first permission, grant/deadline change, automatic retry or product acceptance. Fixes require new hashes and a recomputed candidate."
+  },
+  "evidence": {
+    "focused_tests": {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-focused-review1",
+      "exit_code": 0,
+      "output": "7 passed in 1.57s",
+      "scope": "SOURCE only; explicit asyncio plugin; no plugin autoload or cache; isolated -I -B imports."
+    },
+    "monitoring_controls": {
+      "command_prefix": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -c <AST-extract HOST_LAUNCH_DIAGNOSTIC; fixed private path replacement; F01/F02 injections described above>",
+      "exit_code": 0,
+      "private_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-monitoring-repro1",
+      "observed": {
+        "claim_failure_seen": true,
+        "foreign_tool_preserved": [
+          false
+        ],
+        "primary_preserved": false,
+        "replacement_type": "OSError",
+        "primary_retained_as_context": true,
+        "tool_inventory_restored_by_probe": true
+      }
+    },
+    "finalizer_control": {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -c '\nimport ast, copy, json, os, pathlib, stat, sys\np=pathlib.Path(\"/home/kali/OmnisAI/api/tests/test_contract_method_pg.py\")\nt=ast.parse(p.read_bytes())\nnames={\"host_launch_checkpoint\", \"launch_observation_counter\", \"launch_observation_object\"}\nns={\"Path\":pathlib.Path,\"os\":os,\"stat\":stat,\"json\":json}\nfor n in t.body:\n    if isinstance(n,ast.FunctionDef) and n.name in names:\n        exec(compile(ast.Module(body=[n],type_ignores=[]),str(p),\"exec\"),ns)\nroot=pathlib.Path(\"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-success-repro1\")\nroot.mkdir(mode=0o700)\nhost_path=root/\"host-launch-diagnostic.json\"\nhost_path.write_bytes(b\"{}\\n\")\nhost_path.chmod(0o600)\nfn=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name==\"test_contract_method_real_native_pg_owner_receipts_check_inbox\")\nrun=next(n for n in ast.walk(fn) if isinstance(n,ast.AsyncFunctionDef) and n.name==\"run\")\ngate=next(n for n in ast.walk(run) if isinstance(n,ast.If) and isinstance(n.test,ast.BoolOp) and ast.unparse(n.test)==\"batch2 and sys.exc_info()[0] is None\" and any(isinstance(c,ast.Call) and isinstance(c.func,ast.Name) and c.func.id==\"checkpoint\" and any(k.arg==\"status\" and isinstance(k.value,ast.Constant) and k.value.value==\"PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED\" for k in c.keywords) for c in ast.walk(n)))\nproof={}\nreads=[]\nns.update(sys=sys,batch2=True,observation=root/\"native-observation.jsonl\",state_dir=root,checkpoint=lambda **fields:proof.update(fields),require_native_observation=lambda path:reads.append(str(path)) or [])\nfor early in (False,True):\n    proof.clear(); reads.clear()\n    protected=ast.Try(body=[ast.Return(value=ast.Constant(None))] if early else [ast.Pass()],handlers=[],orelse=[],finalbody=[copy.deepcopy(gate)])\n    probe=ast.FunctionDef(name=\"cut\",args=ast.arguments(posonlyargs=[],args=[],kwonlyargs=[],kw_defaults=[],defaults=[]),body=[protected],decorator_list=[],type_params=[])\n    exec(compile(ast.fix_missing_locations(ast.Module(body=[probe],type_ignores=[])),\"<actual-finalizer-cut>\",\"exec\"),ns)\n    ns[\"cut\"]()\n    print(json.dumps({\"early_return\":early,\"host_decoded_status\":ns[\"host_launch_checkpoint\"](host_path)[\"status\"],\"gate_status\":proof.get(\"status\"),\"native_validator_calls\":len(reads),\"native_validator\":\"positive substituted seam; no product effects\"},sort_keys=True))\nprint(json.dumps({\"host_checkpoint_calls_in_consumer\":sum(isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id==\"host_launch_checkpoint\" for n in ast.walk(run)),\"last_gate_line\":gate.lineno}))\n'",
+      "exit_code": 0,
+      "scope": "SOURCE actual gate AST with declared positive native-validator seam, falling-through and early-return orderings; no resources/fence effects."
+    },
+    "final_snapshot": {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --check -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "output": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html\n2ec4a834eac9b21bc8dcb51f1ca9c0be0191640c\n2820be389d19d1a6ebb43a5e63f4119e000bd4938583a54f723c9cdadb22bc87  api/tests/test_contract_method_pg.py\ncac99d57e8da882fae6ef832d9359c9ce4d34dc7c5f9a0206e528c0f15ab04c1  documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit_code": 0,
+      "error": null
+    },
+    "not_credited": "No old27skips or historical full source/harness suites promoted. Parent7focused2.33s and author87PASS are retained as separate evidence, not independently re-certified here."
+  },
+  "limits": [
+    "Not universal adversarial race/reentrancy/OS confinement audit. Tool claim and cleanup failures were deterministic private-process injections.",
+    "No PG, native child, OCI, build, install, prewarm, providers, target traffic, r1/profiles/global changes, push or selector execution.",
+    "No retrospective root-cause inference from exception observations, no settlement proof from absence of events/resources, no P2/B06b/G02 closure.",
+    "Original attempt1 FAIL/causeUNKNOWN/nativeUNCERTAIN and retained data remain unchanged. Product image261aa5ec and API reader not reopened.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No new skill/global/profile writes under this read-only mandate; reusable lesson is the acquired-versus-candidate monitoring-ID distinction in F01."
+  ],
+  "artifacts": {
+    "repository_files_modified": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-focused-review1",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-monitoring-repro1",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-success-repro1",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/launch-diagnostic-review-safety.json"
+    ],
+    "protected_html": "Never read/hashed/edited/staged/deleted; its preexisting untracked name appeared only in git status.",
+    "commits": "None by reviewer. Existing two-file changes belong to parent/author; frozen hashes unchanged."
+  },
+  "parent_next": "Reproduce/adjudicate the three findings, fix minimally in the two owned QA files, rerun affected SOURCE controls and request focused exact-byte re-review. Keep all unaffected approvals and original runtime uncertainty; no fresh effectful attempt from this verdict."
+}

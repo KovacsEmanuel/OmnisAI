@@ -1,16 +1,62 @@
 # Prompt pentru sesiunea fresh — închidere P2-inert → P4a-minim
 
-**DOAR ÎN SESIUNEA FRESH, după ce operatorul publică explicit promptul pentru execuție.** Sesiunea care pregătește acest document este `HANDOFF_ONLY`: nu pornește dezvoltatori, implementări sau probe de produs. Acordul pentru o opțiune tehnică nu schimbă această limită. O cerere ulterioară de stop/handoff prevalează asupra vechiului mandat de continuare; rezultatele asincrone întârziate nu îl reactivează.
+**PAUZĂ CERUTĂ DE OPERATOR pentru oprirea laptopului, 15 octombrie 2026.** Livrabilul curent este `HANDOFF_ONLY`: fără autostart, dezvoltatori, implementări sau probe noi până la mesajul explicit de reluare al operatorului. Oprește orice continuitate derivată din mandatul anterior; rezultatele asincrone întârziate nu îl reactivează. După reluare, CURRENT și §0 de mai jos preced instrucțiunile istorice de „prima implementare”.
+
+**DOAR ÎN SESIUNEA FRESH cu prompt publicat explicit — sau în conversația restaurată după un mesaj nou explicit de reluare al operatorului.** Închiderea și redeschiderea aplicației nu reactivează singure implementarea.
 
 Acesta este promptul de execuție al planului existent, nu un plan paralel. Arhitectura decide comportamentul; planul §7.1/§8 decide ordinea și porțile. Handofful `p2-c10-session-handoff-20261012.md` trimite aici. Paragrafele și blocurile copy-ready istorice din alte documente nu sunt sarcini curente.
 
 ## CURRENT — stare de recuperat, nu de reinvestigat
 
-- Baza documentară verificată este `c3bde18efa735d93ab412f846747ad087d62797f`, branch `checkpoint/p2-vm-restart-20261011`; commitul final al acestui prompt este ulterior. Citește Git real. Implementarea batch2 **NU este livrată**. La oprirea cerută de operator, lista delegărilor live era goală și diff-ul tracked al produsului era gol; verifică din nou înainte de editare. Nu adopta un autor sau un proces vechi.
+- Branch activ de recuperare: **`checkpoint/p2-batch2-pause-20261015`**, WIP salvat în **`17866dd`** din baza `a916509`; commitul documentar final este ulterior și se citește din Git real. Branchul anterior `checkpoint/p2-vm-restart-20261011` rămâne la baza curată `a916509`. **Batch2 este implementat și aprobat SOURCE scoped** pe `ef6dae7`; QA PG/native instalată nu este livrată. Writerul s-a oprit, delegări live0/procese proprii0/containere proprii0 la readback. Nu adopta un proces/autor vechi și nu transfera aprobarea SOURCE la WIP-ul callerului QA.
 - Qualification `191b901` și H01/H02 installed history `c2fdf7d` rămân acceptate scoped. D01–D03/pre-main, M2/F01, numitorul CONTRACT, PARTIAL/evidence/invalidation și schema0013 nu sunt sarcini de reluat neschimbate.
 - **H03 ACCEPTED_SCOPED pe `e037cf1`**, caller SHA256 `05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77`: [adjudecare și cleanup](p2-bound-predicates-evidence/h03-installed-restart-parent-acceptance.json). Pozitiv1PASS40.69s și negativ fără final1PASS32.63s, ambele exit0/family_drained=true. Final/check autentice persistate → restart real Host/native OCI stock → public cached receive/readeri instalați fără reexecuție și consum1; lipsa finalului refuză TASK_INDETERMINATE/NEEDS_RECONCILIATION fără scrieri. API owner SOURCE, **nu recovery al supervisorului stock**. Resursele proprii au fost retrase/verificate, datele și logurile păstrate.
 - Packaging `9937bc5` a completat closure-ul jsonschema. IPC `0448cd9` închide canalul confirmat drenat înaintea readerilor offline; retirementul reconectează același owner pentru Stop/status fresh. `e037cf1` verifică boot și PID/starttime, nu unicitatea inode-ului namespace între vieți distincte. Confinarea privată rămâne obligatorie. Cauzele interne istorice release/cold-start rămân UNKNOWN; FAIL-urile și fence-urile vechi nu sunt șterse retrospectiv.
-- **Primul rezultat lipsă:** un singur RUN/manifest cu două taskuri având goaluri identice, identități distincte, binding integral comis înainte de acces, read/PURE concurente, două lanțuri result/check/inbox și consum unic per rezultat. Apoi DATA/admission → canonical P2-inert → Settings și browser/polish numai UI afectată. B06b/G02/P2-inert/P4a-minim nu sunt închise; P2-live rămâne separat.
+- **Primul rezultat lipsă:** acceptarea batch2 prin consumerul PostgreSQL/native instalat existent — binding integral COMMIT pre-access, overlap real read/PURE, două result/check/inbox și consum unic. Producerul/indexarea/concurența/checkerul SOURCE sunt deja implementate; nu le reface. Continuă WIP-ul installed QA din §0. Apoi DATA/admission → canonical P2-inert → Settings și browser/polish numai UI afectată. B06b/G02/P2-inert/P4a-minim nu sunt închise; P2-live rămâne separat.
+
+## 0. Reluare exactă după oprirea laptopului
+
+### Ce este salvat și acceptat
+
+- `a7e4df5`: implementare finită batch2 pe17fișiere, material comun versionat, două identități/Brief/scheme, executor existent și două checks; fără cap mai mare/owner nou. `edc19e5`: submit failure/publicare atomică. `ef6dae7`: oracle comun după cleanup și import singleton. `a8244b1`/`9abcd93` păstrează reviewurile/adjudecarea; `a916509` reține numai lecțiile procedurale.
+- [Registrul unic al feliei](p2-bound-predicates.md) și rapoartele originale legate acolo consemnează RED/GREEN și două re-reviewuri **APPROVED_SCOPED SOURCE**. NORM-BATCH2-F01 și SAFETY-BATCH2-F01/F02/F03 sunt închise numai în acel scope. Parent3PASS8.77s, normative3PASS1.78s și8controale async, safety3PASS8.41s inclusiv6native. Nu rerula grupurile neschimbate pentru o nouă sesiune.
+- Dimensiuni SOURCE complete: stage32503<=32768, graph47621+preparation14828=62449<=65536, final27775<=32768. Doubles storage/publication/receipt-read sunt declarate. Dimensiunile fixture-ului calificat real rămân de măsurat.
+- Cancel/replay scratch separat rămâne **INCONCLUSIVE după două eșecuri de harness**; nu reseta contorul și nu relansa acel harness. Restanța concretă este consumerul real, nu o campanie nouă de faults.
+
+### WIP întrerupt — nu este GREEN sau aprobat
+
+- `17866dd` salvează exact **numai** `api/tests/test_contract_method_pg.py`, SHA`6925c3d394a8f1e7989b969451a9e158fe625e29e6908ce14b1b32386148216d`.244adăugări/50ștergeri: routing `installed_native`, bootstrap QA explicit, reader current-only, identity/fence/cleanup. Parent a verificat SHA și `ast.parse`, **nu teste**. Trei RED-uri așteptate înainte de editare sunt păstrate; GREEN/quality/collect/review după editări **NOT_RUN**.
+- Selectorul `documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py` este încă **nemodificat** (SHA`b1c42e1382f82a87de78fbe5a0e83bb9be822fe5010348389aef9252e9032d64`); nu îl rula ca batch2. [Raportul original de pauză](p2-bound-predicates-evidence/batch2-installed-pause.json) enumeră complet ce s-a scris și ce lipsește. [Decizia de legare a consumerului](p2-bound-predicates-evidence/batch2-installed-consumer-seam.json) este perimetrul, nu un PASS.
+- Refolosește OCI/reader/family owner existente; installed-native pentru H03 sau batch2, restart numai pentru H03. Host/native bytes instalate cu **entry QA explicit**, nu stock argv nemodificat; imaginea păstrează CMD stock/autoload NONE. Fără Overlay/checkout/PIN/LIBRARIES personale în modul installed. API/owner/prepare CLI SOURCE și document-preparation prerequisite double rămân limite declarate. Nu relaxa vechiul manifest historical current=`2891a3f` pentru noul reader.
+
+### Distribuție păstrată și oprire verificată
+
+- Buildul offline deja pornit a terminat exit0 înaintea predării. Imagine nouă **`omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current`**, ID **`sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12`**, UID1000:1000/CMD stock;19native+15adapter, wheel API și reader privat copy-mode cu installed==wheel==snapshot. Acestea sunt probele statice ale autorului, **nu review independent al distribuției sau QA runtime**. Nu reconstrui automat un artefact încă identic/utilizabil.
+- Rootul artefactelor: `/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0`. Locatoare: `native-artifact.json`, `current-reader.json`, `attestation.json`, `context/Dockerfile`; driverul `../build-installed.py` este păstrat, dar nerevizuit ca artefact nou. Hashurile originale și toate comenzile sunt în raportul de pauză. Aceste fișiere nu acordă singure permisiunea de execuție.
+- Parent readback: daemon `94260307-c33f-46ac-af7c-8a5ac1a7ffdc`, base image`151e55e…` și noua imagine exacte; CID de extracție **`4aaaab3306d58850e3dbaf24b0e862851d5e18309cf0ac93864f1d81ee98a6d6`** absent, lista labelului `org.omnis.batch2.owner=c6eac5f5a13440ffa6bcb35a6e853ab0` goală, niciun proces cu argv sub rootul sarcinii. Containerul de extracție nu a fost pornit. **PG/Host/native runtime nu au fost pornite și nu există fixture/fence de reluat.** Nicio resursă străină nu a fost oprită/adoptată. Inversa imaginii, numai după probele dependente: elimină exact tagul nou din raport, fără prune/base cleanup.
+- **Backup privat durabil, în afara scratch-ului:** `/home/kali/.local/state/omnis-development/checkpoints/p2-batch2-pause-20261015/p2-batch2-cdbfa74.tar.gz`, SHA256 **`57ca33dfaa8d1fbc0715aa054f08c575423d6556bf44dd677263eb583c853891`**,269241033bytes, mod0600,39841intrări, gzip integrity PASS. Păstrează întregul scratch al sarcinii: rapoarte/loguri/source original/reapply/build context/wheels/reader/WIPdiff. Nu conține o copie a imaginii Docker, care rămâne locală în daemon. Este backup pe același laptop, nu backup off-device sau push.
+- La reluare verifică SHA-ul arhivei și existența/identitatea locatoarelor înainte de folosire. Scratch-ul poate fi curățat după24h; restaurează numai materialul propriu lipsă la **aceleași căi originale**, păstrând modes/symlinks, fără a suprascrie lucru nou. Nu muta venv-ul și nu rescrie receipts pentru că s-a schimbat calea. Upstream original din backup are SHA`f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80`, commit`ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`;15208fișiere PIN fuseseră comparate exact, zeroextra. Dacă exportul PIN a dispărut, refă doar acest export exact, nu un harness.
+
+### Primii pași după mesajul explicit de reluare
+
+1. Citește Git real și CURRENT de aici; confirmă checkpointul și păstrează originalul HTML protejat. Verifică read-only locatoarele/artefactul nou și absența writerilor proprii. Nu porni r1, servicii ori teste din reflex. Aprobarile source rămân numai pe bytes/callers neschimbate.
+2. Un singur dezvoltator continuă WIP-ul în exact cele două fișiere admise. Completează selectorul fail-closed cu choices/locatoare/hashuri batch2 distincte și măsurătorile **graph+FULL preparation/stage/final/expanded** prin CLI2 real. Verifică tipurile/constructor entry, current-reader negatives/origin și ambele early-return cleanup/fence. Rulează RED→GREEN/regresiile **focalizate** și quality pe delta, nu canonicalul integral încă.
+3. Două reviewuri complementare focalizate pe **delta callerului și distribuție**, nu reauditarea sursei batch2 deja aprobate. Fix/re-review numai constatările concrete. Preflight exact fără efecte (`--help`/collect/static inputs): **`ops/run_test_db_gate.py --check` NU este dry-run, ci creează DB**. `test-contract-method-native-pg` nu este choice CLI `--target`.
+4. După adjudecare, QA independentă: `batch2-release-first`, apoi `batch2-stop-first`, serial, maximum o tentativă inițială/variantă prin `run_gate`/`prove_private_fixture` existente, deadline240. Fresh boot/root și un RUN cu2taskuri în fiecare. Binding COMMIT vizibil altei conexiuni înainte read/PURE, overlap autentic,2result/check/inbox și replay/consum unic; negative pe același canal, waiter PG în ambele ordini. Fără retry automat, grants mărite, prewarm ori rezultat fabricat. Cleanup/family/reader/resource settlement înainte de DB clearance; incertitudinea păstrează fence/date.
+5. Numai după acceptarea batch2: restul DATA/admission din §4, canonical P2-inert din §5, Settings minim din §6. Fără P2-live înainte de acord separat cont/provider/model/date/buget. Nicio etapă nu începe în mandatul actual de pauză.
+
+### Cele opt criterii P2-inert la pauză
+
+| Criteriu §7.1 | Stare păstrată / rest concret |
+|---|---|
+| Transport/izolare | B05/H01/H02 acceptate scoped; extensia batch2 instalată încă NOT_RUN. |
+| Catalog/publicare | Seed și publicare acceptate scoped; fixture calificată fresh pe compilerul actual la QA, fără recertificare generală. |
+| Brief/composer/metodă | Batch2 SOURCE implementat/aprobat; consumerul PG/native final lipsește. |
+| Binding/inventar/lineage | Indexare/izolare/overlap SOURCE; COMMIT pre-access/overlap PG/installed și inventarul relevant încă restante. |
+| Rezultat/inbox/restart | Qualification/history/H03 acceptate; două checks/inbox batch2 și receive-only instalat încă NOT_RUN. |
+| DATA | Proiecție/guard/SDK existente scoped, integrarea admission restantă. |
+| Admission | Ledger/veto scoped; reserve COMMIT→SENT durabil→transport inert/Stop/caps/UNKNOWN încă nelivrate integral. |
+| Acceptare snapshot final | Source batch2 reviewuit; installed caller WIP nereviewuit, QA și canonical final NOT_RUN. |
 
 ## 1. Mandat și ierarhie în sesiunea nouă
 
@@ -48,6 +94,8 @@ Nu preda după fiecare fix, commit sau raport dacă implementarea este mandatul 
 6. Autorizarea inertă nu include provider/model/ținte, credentiale personale, P3, rollout sau push. NO_MODEL nu este tur Brain, rezultat de inferență sau PASS funcțional.
 
 ## 3. Prima implementare — batch2 cu reprezentare finită, nu încă o fezabilitate generală
+
+**Contract de referință după checkpoint:** producerul și verticala SOURCE de mai jos sunt deja implementate/reviewuite pe `ef6dae7`. La reluare execută numai restul concret din §0; nu recrea implementarea, rapoartele sau probele neschimbate.
 
 ### Dovezi suficiente pentru a începe felia, cu limitele lor
 
@@ -160,4 +208,4 @@ La final, actualizează în loc CURRENT/rândurile afectate și dă scurt rezult
 
 ## Mesaj de publicat în sesiunea fresh
 
-> Execută promptul din `/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md` în această sesiune nouă, din HEAD local verificat. Acum autorizez execuția continuării inerte în perimetrul lui: orchestrator → dezvoltator → revieweri independenți → QA pe consumer real. Începe cu batch2 prin producerii existenți și reprezentarea finită autorizată, apoi DATA/admission → canonical P2-inert → Settings, browser real și polish numai UI afectată. Refolosește qualification/history/H03 neafectate; nu încă un harness/audit și nu cap mai mare. Continuă până la livrabil sau blocker/autorizație/buget/context real, păstrând safety, probe, commituri și toate limitele. După Settings, oprește pentru acord live separat; nu declara întreaga fază2 completă din probe inerte.
+> Reia după pauză folosind CURRENT și §0 din `/home/kali/OmnisAI/documents/verification/p2-next-session-implementation.md`, din HEAD local verificat pe `checkpoint/p2-batch2-pause-20261015`. Autorizez reluarea continuării inerte: finalizează WIP-ul callerului installed QA din `17866dd`, refolosește sursa batch2 aprobată și distribuția păstrată dacă identitatea ei se confirmă, apoi review focalizat și QA reală. Nu reface qualification/history/H03 sau probele SOURCE neschimbate. După batch2 continuă DATA/admission → canonical P2-inert → Settings și browser/polish numai UI afectată, respectând rolurile, safety și commiturile. Oprește înainte de live pentru acord separat; nu declara faza2 completă din probe inerte.

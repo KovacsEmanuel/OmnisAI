@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "status": "DECIZIE_SOURCE_READ_ONLY; IMPLEMENTARE_DISTRIBUTIE_QA_NOT_RUN",
+  "snapshot": "ef6dae78cbc93d76ba4d985630f0e6e0e1a41de3",
+  "scope": "Numai prerechizitul installed al celor doua variante batch2 din consumerul PG existent; fara executie PG/native/build, schimbari produs sau profil.",
+  "decision": {
+    "variant": "OCI derivat offline nou + acelasi consumer/owner SOURCE + Host/native instalate cu entry QA explicit finit; fara restart H03.",
+    "tracked_file_cap": 2,
+    "files": [
+      {
+        "ordinal": 1,
+        "path": "api/tests/test_contract_method_pg.py",
+        "change": "Separa installed_native=(h03 or batch2) de restart_scenario=h03. Muta numai prerechizitele, OCI create/start/identity/cleanup/fence si reader-ul pe installed_native; lasa h03_restart_readers exclusiv H03. Batch2 nu mai cere PIN/LIBRARIES la runtime. Extinde local prerechizitul cu un descriptor current-only pentru reader, fara modificarile historical_installed_plan/istoriei."
+      },
+      {
+        "ordinal": 2,
+        "path": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "change": "Adauga cele doua choices batch2 si locatoare/hashuri noi explicit separate de H03; pastreaza selected_argv, run_gate/prove_private_fixture si deadline240. Nu executa selectorul vechi neschimbat; nu adauga alt runner."
+      }
+    ],
+    "qa_entry": "In acelasi test, un bootstrap QA finit scris in /state deja montat: importa omnis_hermes.runtime_host instalat, leaga constructorul real RuntimeHost prin functools.partial(...,_test_launch=TestLaunch(native_observer_argv, /state/work)), apoi apeleaza main() existent. Obiectul, bucla, semnalele, peer-ul si cleanup-ul sunt cele existente. Fara subclass/owner/runner nou si fara parametrizare env/IPC de produs. Docker command override este explicit QA, nu stock argv; imaginea isi pastreaza CMD stock si startup_autoload NONE.",
+    "native_observer": "Adapteaza BOOTSTRAP existent la mod installed: source=managed=inert=/opt/hermes/source, adapter/site-packages numai din /opt/hermes/venv; elimina Overlay si injectiile de sys.path catre checkout/PIN/LIBRARIES. Pastreaza audit failclosed, limitele256/4096/65536, sys.monitoring, phase_inventory pe fisierele instalate, REAL_AIAgent si barierele/intervalele batch2. Wrapperul executa real tui_gateway.entry prin runpy, nu raspunde la RPC si nu prewarm. Observatia trebuie scrisa in bindul /state, accesibila aceluiasi UID; python host/child din imagine.",
+    "attestation": "Reutilizeaza inventory/live /proc/root hashing si containment. Verifica separat imaginea cu CMD stock versus argv QA exact/hashul bootstrapurilor la container/proces, fara allowlist larga sau ignorarea Cmd. Host/native au PID/starttime/namespace proprii; entry QA schimbat inseamna INSTALLED_BYTES_QA_ENTRY, nu STOCK_ENTRYPOINT_UNMODIFIED. Readback installed-origin inainte de efectele de produs; final PASS numai dupa native/reader/family/resource settlement si fence DB.",
+    "reader": "Foloseste restarted_cli si RESTART_READER cu INSTALLED, interpreterul fresh instalat din wheel API al snapshotului curent, fara /api/src in sys.path. Refoloseste HISTORICAL_ORIGIN pentru verificare installed package == wheel == export exact si historical_run_gate pentru familie/fence. Nu refolosi current-ul2891a3f din manifestul istoric. SOURCE API owner/CLI prepare-method si preparation prerequisite double raman declarate, nu sunt instalare nativa."
+  },
+  "requirement_consumer_risk_decision": [
+    {
+      "requirement": "Native bytes noi distribuite/instalate",
+      "consumer": "api/tests/test_contract_method_pg.py:4422-4432,4973-5048; integrations/hermes/src/omnis_hermes/runtime_host.py:75-80,209-225,820-841",
+      "risk": "Batch2 intra in ramura SOURCE TestLaunch si biblioteca personala Python3.14; existenta PIN sau exportului nu este installed proof.",
+      "decision": "Un singur transport instalat pe imaginea derivata noua; TestLaunch folosit numai de QA explicit in procesul Host instalat."
+    },
+    {
+      "requirement": "BOUND COMMIT preaccess + overlap autentic",
+      "consumer": "api/tests/test_contract_method_pg.py:71-153,162-179,213-313,5762-5958",
+      "risk": "H03 nu ruleaza BOOTSTRAP; monkeypatch NativePeer din pytest nu observa procesul OCI. Simplul h03=True pierde proba batch2 ori cere restart.",
+      "decision": "Observerul existent trebuie executat in copilul nativ instalat; pastreaza PG pg_blocking_pids si intervalele native, nu le inlocui cu receipts/canned outputs."
+    },
+    {
+      "requirement": "Reader instalat/replay/consum unic",
+      "consumer": "api/tests/test_contract_method_pg.py:338-413,942-974,3863-3932,4547-4663,5963-5999",
+      "risk": "restarted_cli alege SOURCE pentru batch2; historical_installed_plan fixeaza old/current la e6ffcf8/2891a3f, incompatibil cu bytes curenti.",
+      "decision": "Descriptor current-only verificat in seamul existent, wheel/API instalat fresh; nu rerula H01/H02 sau fabrica compatibilitate a vechiului wheel."
+    },
+    {
+      "requirement": "Settlement inainte clearance DB",
+      "consumer": "api/tests/test_contract_method_pg.py:4427-4440,4687-4748,4908-4951,7686-7794",
+      "risk": "Daca numai launch este mutat pe OCI, cleanup/fence raman conditionate de h03, iar early return batch2 poate sari traseul instalat.",
+      "decision": "Toate ramurile de resource/fence/reader folosesc installed_native; numai restartul ramane h03. Adapteaza controalele existente ale acestor call-sites."
+    }
+  ],
+  "packaging": {
+    "already_sufficient_inputs_parent_verified": [
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/source-original.tar: Git ee5ee84a345204a3b1d6ef6ba1ab747e602867b9, SHA f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "PIN original cu15208 fisiere, zeroextra; prerequisite de reapply, nu installed runtime.",
+      "Base tag omnis-jsonschema-owned-c19198cc5fa9474cb9f0f507d11f84c7:current / sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f; closure jsonschema deja prezenta.",
+      "Sursa revizuita curenta + integrations/hermes/pin.json, upstream/omnis-managed.patch, managed-patch-manifest.json, inert overlay nemodificat; adapter src si dependency override exact.",
+      "ops/prepare_hermes_runtime.py::prepare/apply_inert_overlay/apply_managed_overlay, ops/Dockerfile.hermes; API Python3.13.15 si uv0.12.19 din locatoarele comunicate."
+    ],
+    "build_decision": "Refoloseste tooling-ul derivat revizuit pe un tag local verificat ID before/after; instaleaza/copiaza doar payloadul runtime-source produs din original+overlay exact si adapterul nou construit offline; actualizeaza manifestele distributiei. Closure-ul de dependente ramane cel al bazei. Nu FROM sha256:<id>, latest, include de checkout runtime, autoload QA sau imprumut de biblioteci. prepare --build neschimbat descarca wheeluri (linii210-219), deci nu este comanda offline aleasa.",
+    "new_outputs_required": "Imagine derivata/tag/id si receipt/inventory noi cu19 native +15 adapter la closure actuala, UID1000 search/read access; wheel API current + venv privat copy-mode/current-only locator; QA bootstrapuri din acelasi test montate explicit, nu incluse/autoload in release. Niciun asemenea output nu a fost produs aici.",
+    "source_review_limit": "Reseal/reapply/artifact equality ale bytes noi raman de verificat la packaging; vechiul PASS/audit nu se transfera. Nu am citit sau executat un script derivat nou in aceasta inspectie."
+  },
+  "bounded_next": {
+    "order": [
+      "1: batch2-release-first: un RUN cu doua taskuri, root/boot fresh, rezultate/checks/inbox2 si reader/replay/consum2 o singura data.",
+      "2: batch2-stop-first: alt fixture/root/boot fresh, un RUN cu doua taskuri; waiter PG real, refuz fara read/PURE/results/checks/inbox."
+    ],
+    "budget": "O executie per varianta, serial, deadline runner240 fiecare; fara retry automat, prewarm sau cresterea grant4.5/stage4.5/execution3/Host3.2/control4. Preflight FAIL opreste lansarea.",
+    "before_qa": "RED/GREEN pe actualele seamuri afectate (routing, origin negativ, observer missing/forbidden, cleanup early-return), doua reviews focalizate pe bytes integrati si packaging/origin nou. Nu este nevoie de fullH03restart sau alt harness."
+  },
+  "not_run": [
+    "Build/install nou, UID/live origin, PG/native batch2 ambele variante, installed reader current, cleanup extern, canonical P2-inert, DATA/admission restant si Settings.",
+    "Nu certifica recovery/restart stock-supervisor, preparation instalata, provider/model/target sau P2 integral."
+  ],
+  "changes": "Numai acest raport scratch; zero fisiere de produs/repo modificate. HTML protejat nu a fost citit/hashuit/modificat.",
+  "inspection_issues": [
+    "O cautare de modul nonexistent native_peer.py; definitia reala NativePeer este in runtime_protocol.py, callerul runtime_host a fost citit.",
+    "Un JSON istoric randat de read_file a fost trunchiat si nu s-a putut parsa; nu a fost folosit drept receipt valid. Au fost citite numai campurile nesensibile relevante ulterior."
+  ],
+  "review": "Decizie de implementare propusa pe snapshot exact, nu aprobare a unei implementari/distributii inexistente."
+}

@@ -1,0 +1,457 @@
+{
+  "schema_version": 1,
+  "status": "PAUSED_BY_USER_WIP_UNREVIEWED_UNTESTED_CALLER",
+  "head_at_start": "9abcd93120cc81a3829316785e99a03d204806c0",
+  "head_at_pause": "a916509c3563d38808f18ce2cdf555ccc2edaeaf",
+  "parent_changed_head_during_work": true,
+  "committed_staged_pushed_by_author": false,
+  "tracked_files": [
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "6925c3d394a8f1e7989b969451a9e158fe625e29e6908ce14b1b32386148216d",
+      "state": "MODIFIED_WIP",
+      "insertions": 244,
+      "deletions": 50
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "sha256": "b1c42e1382f82a87de78fbe5a0e83bb9be822fe5010348389aef9252e9032d64",
+      "state": "UNCHANGED_NOT_IMPLEMENTED"
+    }
+  ],
+  "protected_html": "NOT_READ_HASHED_EDITED_STAGED_OR_DELETED",
+  "implemented_unverified": [
+    "installed_native=(h03 or batch2) for prerequisite, OCI acquisition, reader, resource cleanup and DB fence; restart invocation retained h03-only.",
+    "BOOTSTRAP installed mode uses /opt/hermes/source and /opt/hermes/venv only; no installed-mode Overlay or personal libraries/path injection.",
+    "Explicit test-written host-qa.py constructor functools.partial(RuntimeHost,_test_launch=TestLaunch(...)) and existing main; QA Host/native argv and bootstrap hash checks added to container/process observation.",
+    "New current-only reader prerequisite branch, preserving historical_installed_plan; package/wheel/export origin preflight uses HISTORICAL_ORIGIN.",
+    "Batch2 require_native_observation added before finalizer fence clearance and retained after cleanup; source-cut fixture namespaces partially adapted.",
+    "Two routing RED cases and explicit constructor-entry RED test authored; no GREEN or quality execution after edits."
+  ],
+  "completed_distribution": {
+    "status": "PASS_STATIC_CURRENT_DISTRIBUTION",
+    "root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0",
+    "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "tag": "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current",
+    "base_tag": "omnis-jsonschema-owned-c19198cc5fa9474cb9f0f507d11f84c7:current",
+    "base_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+    "daemon_before": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "daemon_after": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "native_count": 19,
+    "adapter_count": 15,
+    "runtime_files": 3187,
+    "adapter_wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/wheels/omnis_hermes-0.1.0-py3-none-any.whl",
+      "sha256": "747fe1c48b466613a3348e6cb2640c7b99638ca665bcff3460e297f38b1f57fc"
+    },
+    "api_wheel_sha256": "21ccd49f25d141dc107c308e9ff8fcc191ab8b920c7f60afe149066a9cd6a60c",
+    "current_reader": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json",
+    "api_origin": {
+      "descriptor": {
+        "key": "managed.contract-pure.v2",
+        "code_digest": "0b488965a33800ce75559be6ee6129cd25a2320597481d075d06a05f62f497c3",
+        "semantics": "Verify bound native read/action receipts and artifact schemas; no method recomputation."
+      },
+      "package": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader/lib/python3.13/site-packages/omnis",
+      "prefix": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader",
+      "installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT"
+    },
+    "recipe_sha256": "19f82005c653e5e0cbfaa8719af181d80439a4ba99e8bb727c90558c01d38a37",
+    "dependency_provenance_sha256": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+    "effective_uid_access": true,
+    "startup_autoload": "NONE"
+  },
+  "distribution_scope": "Offline additive derivative built once, finite installed PURE positive/negative and full source hash inventory during build RUN UID1000; no Host/child/service launch. Runtime source original15208 + exact reapply, supported payload3187. Current API private wheel/venv copy-mode lock-hash dependencies and installed==wheel==source import check.",
+  "distribution_commands": [
+    {
+      "label": "daemon-before",
+      "argv": [
+        "docker",
+        "info",
+        "--format={{.ID}}"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/daemon-before.log"
+    },
+    {
+      "label": "base-before",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format={{.Id}}",
+        "omnis-jsonschema-owned-c19198cc5fa9474cb9f0f507d11f84c7:current"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/base-before.log"
+    },
+    {
+      "label": "omnis-inert.patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-inert.patch"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/omnis-inert.patch-check.log"
+    },
+    {
+      "label": "omnis-inert.patch-apply",
+      "argv": [
+        "git",
+        "apply",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-inert.patch"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/omnis-inert.patch-apply.log"
+    },
+    {
+      "label": "omnis-managed.patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/omnis-managed.patch-check.log"
+    },
+    {
+      "label": "omnis-managed.patch-apply",
+      "argv": [
+        "git",
+        "apply",
+        "/home/kali/OmnisAI/integrations/hermes/upstream/omnis-managed.patch"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/omnis-managed.patch-apply.log"
+    },
+    {
+      "label": "tracked-inputs",
+      "argv": [
+        "git",
+        "ls-files",
+        "-z",
+        "api/src",
+        "api/pyproject.toml",
+        "api/uv.lock",
+        "api/.python-version",
+        "integrations/hermes/src",
+        "integrations/hermes/pyproject.toml"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/tracked-inputs.log"
+    },
+    {
+      "label": "adapter-wheel",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/wheels",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/snapshot/integrations/hermes"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/adapter-wheel.log"
+    },
+    {
+      "label": "api-wheel",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/wheels",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/snapshot/api"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-wheel.log"
+    },
+    {
+      "label": "native-build",
+      "argv": [
+        "docker",
+        "build",
+        "--pull=false",
+        "--network=none",
+        "--tag",
+        "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-build.log"
+    },
+    {
+      "label": "image-after",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/image-after.log"
+    },
+    {
+      "label": "archive-create",
+      "argv": [
+        "docker",
+        "create",
+        "--network=none",
+        "--read-only",
+        "--name",
+        "omnis-batch2-archive-c6eac5f5a13440ffa6bcb35a6e853ab0",
+        "--label",
+        "org.omnis.batch2.owner=c6eac5f5a13440ffa6bcb35a6e853ab0",
+        "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/archive-create.log"
+    },
+    {
+      "label": "archive-inspect",
+      "argv": [
+        "docker",
+        "inspect",
+        "4aaaab3306d58850e3dbaf24b0e862851d5e18309cf0ac93864f1d81ee98a6d6"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/archive-inspect.log"
+    },
+    {
+      "label": "archive-copy",
+      "argv": [
+        "docker",
+        "cp",
+        "4aaaab3306d58850e3dbaf24b0e862851d5e18309cf0ac93864f1d81ee98a6d6:/opt/hermes/batch2/attestation.json",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/attestation.json"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/archive-copy.log"
+    },
+    {
+      "label": "archive-remove",
+      "argv": [
+        "docker",
+        "rm",
+        "4aaaab3306d58850e3dbaf24b0e862851d5e18309cf0ac93864f1d81ee98a6d6"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/archive-remove.log"
+    },
+    {
+      "label": "api-export",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "export",
+        "--offline",
+        "--frozen",
+        "--no-dev",
+        "--no-emit-project",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/requirements-api.txt",
+        "--project",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/snapshot/api"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-export.log"
+    },
+    {
+      "label": "api-venv",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "venv",
+        "--offline",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-venv.log"
+    },
+    {
+      "label": "api-deps",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "sync",
+        "--offline",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader/bin/python",
+        "--link-mode",
+        "copy",
+        "--require-hashes",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/requirements-api.txt"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-deps.log"
+    },
+    {
+      "label": "api-install",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader/bin/python",
+        "--link-mode",
+        "copy",
+        "--no-deps",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/wheels/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-install.log"
+    },
+    {
+      "label": "api-origin",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/reader/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "\nimport importlib, json, sys, zipfile\nfrom pathlib import Path\npython_root = Path(sys.prefix).absolute()\nsource, wheel = map(Path, sys.argv[1:3])\nfrom omnis.modules.tasks.method_checker_identity import descriptor\nimport omnis\npackage = Path(omnis.__file__).absolute().parent\nif not package.is_relative_to(python_root) or any(\"/api/src\" in p for p in sys.path):\n    raise AssertionError(\"HISTORICAL_ORIGIN_REFUSED\")\nwith zipfile.ZipFile(wheel) as distribution:\n    for name in distribution.namelist():\n        if name.startswith(\"omnis/\") and not name.endswith(\"/\"):\n            actual = package.parent / name\n            expected = source / \"api/src\" / name\n            if actual.read_bytes() != distribution.read(name) or actual.read_bytes() != expected.read_bytes():\n                raise AssertionError(\"HISTORICAL_INSTALLED_BYTES_REFUSED\")\nprint(json.dumps({\"descriptor\": descriptor(), \"package\": str(package), \"prefix\": str(python_root), \"installed_bytes\": \"EXACT_WHEEL_AND_GIT_EXPORT\"}))\n",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/snapshot",
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/wheels/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/api-origin.log"
+    },
+    {
+      "label": "base-after",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format={{.Id}}",
+        "omnis-jsonschema-owned-c19198cc5fa9474cb9f0f507d11f84c7:current"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/base-after.log"
+    },
+    {
+      "label": "daemon-after",
+      "argv": [
+        "docker",
+        "info",
+        "--format={{.ID}}"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/daemon-after.log"
+    }
+  ],
+  "artifact_sha256": {
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/build-installed.py": "7508fb207c037007a54955f7e660abfe28c1798432d6c7f7ff09af29c66db4ce",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/build-report.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/attestation.json": "eddf00cac1cf5b4f835ffb1a6f2c11ffeddf458ddd4a50bdbd81978f312acb68",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/Dockerfile": "19f82005c653e5e0cbfaa8719af181d80439a4ba99e8bb727c90558c01d38a37",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/build-manifest.json": "f4df5b2cd04046db447310c5db98865b54643edad8845bc358a18c9ba0b0f5ab",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/source-manifest.json": "f7c804d76c494960c1238548a1b7f628fd0256f583af30d305f69047bd31374a",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-red.log": "fc539375289cc12529bbc9d6efbaaa0de29568056cf76b52c8f8e420488fbac5",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-wip.diff": "7d6164f8e0e2b9125a168aaaf3f49eedec62b2443791feffa3f46e87fb920130"
+  },
+  "last_implementation_command": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/build-installed.py"
+    ],
+    "exit": 0,
+    "driver_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/build-installed-driver.log"
+  },
+  "red": {
+    "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k \"batch2_installed_route_before_fixture or batch2_installed_entry_uses_existing_constructor\" -q --tb=short",
+    "exit": 1,
+    "result": "3failed179deselected0.90s",
+    "reasons": [
+      "SOURCE_PIN_REQUIRED instead of review fence in both batch2 routes",
+      "BATCH2_INSTALLED_ENTRY_MISSING"
+    ],
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-red.log"
+  },
+  "not_run": [
+    "PG",
+    "native RuntimeHost or child runtime",
+    "actual batch2 consumer variants",
+    "selector collect-only",
+    "GREEN targeted regressions",
+    "quality gates",
+    "independent reviews",
+    "canonical tests",
+    "full qualified preparation/stage/final sizes on real fixture"
+  ],
+  "incomplete_minimum_remaining": [
+    "Finish the second allowed tracked file: distinct batch2 choices/locators/hashes/review references, selected_argv/run_gate240 unchanged; fail closed until parent adjudication. Old selector remains unchanged and cannot launch WIP.",
+    "Add FULL preparation+graph/stage/final and each-expanded size measurements through the actual prepare-method CLI2; current SOURCE CLI branch still bypasses measured_build. Do not alter limits.",
+    "Review/fix WIP caller and constructor/source-cut type declarations; run only narrow RED/GREEN on actual routing/argv/origin/missing-forbidden observer and cleanup/finalizer. Current caller has NOT been exercised after edits.",
+    "Complete targeted current-reader negatives and installed-origin prerequisite/collect before any runtime; verify snapshot initial commit vs parent docs-only moving HEAD without changing historical manifests.",
+    "Freeze exact two-file delta, two independent focused reviews of caller/distribution, parent adjudication; then separately authorized max1 attempt/variant serial. No selfapproval.",
+    "Produce installed-developer.json final only after completing resumed mandate; pause report is not caller-ready or QA PASS."
+  ],
+  "owned_resources": {
+    "processes": "No background task was created. Foreground build driver exited0; subprocess commands joined. No PG/Host/native/service started.",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "new_image": {
+      "tag": "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current",
+      "id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+      "retained": true,
+      "uid": "1000:1000",
+      "cmd": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_hermes.runtime_host"
+      ],
+      "inverse": [
+        "docker",
+        "image",
+        "rm",
+        "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current"
+      ]
+    },
+    "archive_container": {
+      "cid": "4aaaab3306d58850e3dbaf24b0e862851d5e18309cf0ac93864f1d81ee98a6d6",
+      "name": "omnis-batch2-archive-c6eac5f5a13440ffa6bcb35a6e853ab0",
+      "ever_started": false,
+      "removed": true,
+      "pause_readback": "exact docker inspect exit1 No such object; own label docker ps -a empty"
+    },
+    "scratch_retained": [
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/build-installed.py",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-build-locator.json",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/build-installed-driver.log",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-red.log",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-wip.diff"
+    ],
+    "scratch_inverse": "After dependent QA/evidence archival and exact ownership check, remove only these newly owned paths. Do not remove source-original.tar or foreign scratch.",
+    "base_and_shared_cache": "Base tag/id readback unchanged; cache preserved, no prune. uv used existing /home/kali/.cache/uv offline; no global environment install.",
+    "pg_fixture_or_fence": "NONE_ACQUIRED",
+    "external_uncertainty": false,
+    "pause_settlement_readback": "daemon/base/new-image IDs match; new image stock CMD/UID1000 match; exact archive CID absent, owner-label list empty."
+  },
+  "issues_and_limits": [
+    "User STOP arrived immediately after successful bounded build command; implementation suspended, no new build/test/install after STOP.",
+    "Only one of two allowed tracked files modified so far. WIP is not complete and not source-reviewed or GREEN.",
+    "Collect-before-expensive-step was not completed before build; preserved as a workflow gap, not a passing prerequisite.",
+    "No newly discovered workflow skill saved: STOP and exact tracked-file cap take priority; existing skills already describe this distribution seam.",
+    "No FAIL logs overwritten, no foreign cleanup, no profiles/credentials/provider/model/target accessed."
+  ]
+}

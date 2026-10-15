@@ -30,12 +30,15 @@ BATCH2_ROOT = Path(
 )
 BATCH2_SOURCE_SHA = "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7"
 BATCH2_REVIEWED: str | None = None
+STARTUP_REVIEWED: str | None = None
+STARTUP_SOURCE_SHA = "8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca"
+STARTUP_CASE = "batch2-startup-only"
 BATCH2_ARTIFACT = BATCH2_ROOT / "native-artifact.json"
 BATCH2_ARTIFACT_SHA = "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318"
 BATCH2_READER = BATCH2_ROOT / "current-reader.json"
 BATCH2_READER_SHA = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
 BATCH2_CASES = ("batch2-release-first", "batch2-stop-first")
-CASES = ("runtime-restart", "runtime-restart-no-final", *BATCH2_CASES)
+CASES = ("runtime-restart", "runtime-restart-no-final", *BATCH2_CASES, STARTUP_CASE)
 
 
 def selected_argv(case: str, collect_only: bool = False) -> list[str]:
@@ -48,7 +51,11 @@ def selected_argv(case: str, collect_only: bool = False) -> list[str]:
         + "]"
     )
     leaf = (
-        "batch2-installed-diagnostic1-" if case in BATCH2_CASES else "jsonschema-h03-05ee-attempt1-"
+        "batch2-installed-startup1-"
+        if case == STARTUP_CASE
+        else "batch2-installed-diagnostic1-"
+        if case in BATCH2_CASES
+        else "jsonschema-h03-05ee-attempt1-"
     ) + case
     return [
         str(PYTHON),
@@ -74,16 +81,23 @@ def environment(base: Mapping[str, str], case: str, *, reviewed: bool = False) -
     clean = {
         k: v
         for k, v in base.items()
-        if k not in ("PYTHONPATH", "PYTHONHOME", "MYPYPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS")
+        if k
+        not in (
+            "PYTHONPATH",
+            "PYTHONHOME",
+            "MYPYPATH",
+            "PYTEST_ADDOPTS",
+            "PYTEST_PLUGINS",
+        )
         and not k.startswith(("OMNIS_H03_", "OMNIS_BATCH2_"))
     }
     clean.update(PYTEST_DISABLE_PLUGIN_AUTOLOAD="1", OMNIS_CONTRACT_METHOD_NATIVE_PG="1")
-    batch2 = case in BATCH2_CASES
+    batch2 = case in BATCH2_CASES or case == STARTUP_CASE
     namespace = "OMNIS_BATCH2" if batch2 else "OMNIS_H03"
     clean[namespace + "_ARTIFACT"] = str(BATCH2_ARTIFACT if batch2 else ARTIFACT)
     clean[namespace + "_ARTIFACT_SHA"] = BATCH2_ARTIFACT_SHA if batch2 else ARTIFACT_SHA
     clean[namespace + "_API_PREREQUISITES"] = str(BATCH2_READER) if batch2 else API_PREREQUISITES
-    digest = BATCH2_REVIEWED if batch2 else REVIEWED
+    digest = STARTUP_REVIEWED if case == STARTUP_CASE else BATCH2_REVIEWED if batch2 else REVIEWED
     if reviewed and digest is not None:
         clean[namespace + "_NORMATIVE_REVIEWED"] = digest
         clean[namespace + "_INPUT_REVIEWED"] = digest
@@ -146,8 +160,9 @@ def main() -> int:
     parser.add_argument("--collect-only", action="store_true")
     parser.add_argument("--review-adjudicated", action="store_true")
     args = parser.parse_args()
-    batch2 = args.case in BATCH2_CASES
-    source = BATCH2_SOURCE_SHA if batch2 else REVIEWED
+    startup = args.case == STARTUP_CASE
+    batch2 = args.case in BATCH2_CASES or startup
+    source = STARTUP_SOURCE_SHA if startup else BATCH2_SOURCE_SHA if batch2 else REVIEWED
     artifact, expected = (
         (BATCH2_ARTIFACT, BATCH2_ARTIFACT_SHA) if batch2 else (ARTIFACT, ARTIFACT_SHA)
     )
@@ -164,9 +179,12 @@ def main() -> int:
         parser.error("Pinned entry file is unavailable, unsafe, oversized or unstable")
     if args.collect_only:
         return subprocess.call(
-            selected_argv(args.case, True), cwd=ROOT, env=environment(os.environ, args.case)
+            selected_argv(args.case, True),
+            cwd=ROOT,
+            env=environment(os.environ, args.case),
         )
-    if not args.review_adjudicated or batch2 and BATCH2_REVIEWED != BATCH2_SOURCE_SHA:
+    approved = STARTUP_REVIEWED if startup else BATCH2_REVIEWED if batch2 else REVIEWED
+    if not args.review_adjudicated or approved != source:
         parser.error(
             "Parent adjudication of both exact complementary reviews required; flag is not approval"
         )

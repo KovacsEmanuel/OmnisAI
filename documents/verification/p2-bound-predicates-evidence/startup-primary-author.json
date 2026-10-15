@@ -1,0 +1,266 @@
+{
+  "status": "SOURCE_CANDIDATE_FOR_REVIEW_NOT_ADMITTED",
+  "initial_head": "8253c0fee44e37c3bcdf63d42efdea6096472e95",
+  "snapshot": {
+    "head": "8b63f4b3662ef51b5b7d180932e71f8c00bb9f62",
+    "files": {
+      "api/tests/test_contract_method_pg.py": "2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "049e1244fb2aa8eea784ed7d037ee3fe2a59cb900b15c07f260456c8919ff49c"
+    },
+    "diff_numstat": "346\t34\tapi/tests/test_contract_method_pg.py\n27\t9\tdocuments/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n",
+    "focused_test_lines": 140,
+    "source_pin_matches": true,
+    "startup_reviewed": null,
+    "batch2_reviewed": null,
+    "proposed_pytest_argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-startup-only]",
+      "-q",
+      "--tb=line",
+      "--basetemp=/home/kali/.hermes/cache/scratch/batch2-installed-startup1-batch2-startup-only"
+    ],
+    "fresh_basetemp_absent": true,
+    "logs": {
+      "startup-red.log": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[ProtocolError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[IncompleteReadError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[LimitOverrunError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[CancelledError]",
+        "4 failed, 259 deselected in 0.84s"
+      ],
+      "startup-red2.log": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_native_boundary[True]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_native_boundary[False]",
+        "2 failed, 4 passed, 259 deselected in 0.95s"
+      ],
+      "startup-red3.log": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_stop_before_effect[False]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_stop_before_effect[True]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_route_no_domain_work",
+        "3 failed, 6 passed, 259 deselected in 0.98s"
+      ],
+      "startup-green.log": [
+        "FAILED api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-host-pidns]",
+        "FAILED api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-host-pidns]",
+        "FAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[none]",
+        "3 failed, 74 passed, 192 deselected in 5.71s"
+      ],
+      "startup-green2.log": [
+        "78 passed, 192 deselected in 7.44s"
+      ],
+      "startup-green3.log": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[return]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[failure]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[cancel]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[pre-acquire]",
+        "4 failed, 78 passed, 192 deselected in 7.64s"
+      ],
+      "startup-green4.log": [
+        "82 passed, 192 deselected in 6.13s"
+      ],
+      "startup-collect.log": [
+        "1 test collected in 1.00s"
+      ]
+    }
+  },
+  "scope": "Existing real InstanceService + RuntimeClient launch_inert -> installed RuntimeHost/NativePeer READY; startup-only QA branch. No product fix or batch2 success.",
+  "author_commits": [],
+  "staged": false,
+  "changes": [
+    "Exact ProtocolError, asyncio.IncompleteReadError/LimitOverrunError/CancelledError allowlist and decoder.",
+    "Startup-only native one-shot faulthandler PRIVATE FD plus uncaught finite class/code-frame JSONL before existing runpy rethrow.",
+    "Startup-only installed Host stop ENTER before delegated original once, END readback including PID/returncode/state/deadline/caller code identity.",
+    "Skip qualification/publish/select/domain construction and return before preparation/context/method/task/control; keep real acquire/heartbeat/client and shared retirement/fence/finalizer.",
+    "Closed independent STARTUP_REVIEWED=None, fixed fresh startup1 basetemp, pinned caller; old BATCH2_REVIEWED=None and old pin retained."
+  ],
+  "tests": [
+    {
+      "phase": "red",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k test_startup_primary_exception_classes -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-red",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-red.log",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[ProtocolError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[IncompleteReadError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[LimitOverrunError]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes[CancelledError]",
+        "4 failed, 259 deselected in 0.84s"
+      ]
+    },
+    {
+      "phase": "red2",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k test_startup_primary -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-red2",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-red2.log",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_native_boundary[True]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_native_boundary[False]",
+        "2 failed, 4 passed, 259 deselected in 0.95s"
+      ]
+    },
+    {
+      "phase": "red3",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k test_startup_primary -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-red3",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-red3.log",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_stop_before_effect[False]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_stop_before_effect[True]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_route_no_domain_work",
+        "3 failed, 6 passed, 259 deselected in 0.98s"
+      ]
+    },
+    {
+      "phase": "green",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'test_startup_primary or test_host_launch_filtered_source or test_batch2_installed_entry or test_h03_actual_lifecycle_source_seams or test_host_diagnostic_actual_finalizer' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-green",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-green.log",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-host-pidns]",
+        "FAILED api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-host-pidns]",
+        "FAILED api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[none]",
+        "3 failed, 74 passed, 192 deselected in 5.71s"
+      ]
+    },
+    {
+      "phase": "green2",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k '(test_startup_primary or test_host_launch_filtered_source or test_batch2_installed_entry or test_batch2_installed_route_before_fixture or test_h03_actual_lifecycle_source_seams or test_host_diagnostic_actual_finalizer) and not host-pidns' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-green2",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-green2.log",
+      "summary": [
+        "78 passed, 192 deselected in 7.44s"
+      ]
+    },
+    {
+      "phase": "green3",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k '(test_startup_primary or test_host_launch_filtered_source or test_batch2_installed_entry or test_batch2_installed_route_before_fixture or test_h03_actual_lifecycle_source_seams or test_host_diagnostic_actual_finalizer) and not host-pidns' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-green3",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-green3.log",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[return]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[failure]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[cancel]",
+        "FAILED api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[pre-acquire]",
+        "4 failed, 78 passed, 192 deselected in 7.64s"
+      ]
+    },
+    {
+      "phase": "green4",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k '(test_startup_primary or test_host_launch_filtered_source or test_batch2_installed_entry or test_batch2_installed_route_before_fixture or test_h03_actual_lifecycle_source_seams or test_host_diagnostic_actual_finalizer) and not host-pidns' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-source-green4",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-green4.log",
+      "summary": [
+        "82 passed, 192 deselected in 6.13s"
+      ]
+    }
+  ],
+  "quality": [
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-mypy3.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "no_effect_preflight": [
+    {
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --help",
+      "exit": 0
+    },
+    {
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --collect-only",
+      "exit": 0,
+      "collected": 1
+    },
+    {
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only",
+      "exit": 2,
+      "reason": "Parent complementary review/adjudication required before importing DB runner"
+    },
+    {
+      "python": "3.13.15",
+      "uv": "0.12.19",
+      "receipt_hashes_checked_by_selector": true,
+      "image_inspect": "NOT_RUN",
+      "effective_uid_access": "RETAINED_RECEIPT_ONLY_NOT_FRESH_IMAGE_AUDIT"
+    }
+  ],
+  "proposed_qa_command": "umask 077; set -C; api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --review-adjudicated > /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup1-owner.private.log 2>&1",
+  "qa_preconditions": [
+    "Parent adjudication on exact hashes, scoped blocker disposition and commit first.",
+    "Parent only may bind STARTUP_REVIEWED to current source SHA; old BATCH2_REVIEWED remains None.",
+    "One attempt via unchanged prove_private_fixture/run_gate owner240; startup1 path still unused; no retry/Stop-first."
+  ],
+  "effects": {
+    "postgres": "NOT_RUN",
+    "docker": "NOT_RUN",
+    "installed_native": "NOT_RUN",
+    "source_import_pair": "NOT_RERUN",
+    "provider_target": "NOT_RUN",
+    "protected_html": "NOT_READ_HASHED_EDITED_OR_STAGED"
+  },
+  "privacy": {
+    "raw_stderr": "NOT_CAPTURED_BY_NEW_HOOK",
+    "native_private_paths": [
+      "/state/native-primary.jsonl",
+      "/state/native-fault.private"
+    ],
+    "host_private_path": "/state/host-stop-primary.jsonl",
+    "mode": "0600 O_EXCL O_NOFOLLOW O_CLOEXEC",
+    "native_json_bounds": "32 frames; file-relative path <=192 chars; function <=96 chars; <=16384 bytes; no messages/args/locals",
+    "host_json_bounds": "32 events x <=1024 bytes; finite caller/state; no messages/args/locals",
+    "raw_faulthandler": "One-shot stdlib intrinsic max100 threads/max100 frames/thread; retained PRIVATE, never copied to checkpoint/log or tool output. No explicit RLIMIT change.",
+    "unknown": "Missing, partial or capped primary records are UNKNOWN; RAISE/HANDLED is not fatal-cause attribution."
+  },
+  "cleanup_limits": [
+    "Four SOURCE controls exercise reused acquisition/finalizer cut: successful early return, failure, cancellation, pre-acquire failure. Daemon/Host seams substituted, not real PG/OCI.",
+    "Static source-route test proves lexical skip and early return before preparation; full startup branch with real DB/native NOT_RUN.",
+    "Real cleanup remains unproven until the single admitted QA; historical failures/cycle count unchanged."
+  ],
+  "issues": [
+    "Broad affected SOURCE invocation retained two host-pidns failures in existing shared lifecycle test: startswith(host-) enters diagnostic-specific assertion branch. Left unchanged per scope; excluded only from final focused selection, not deleted or weakened. Requires parent disposition; no full-suite PASS claimed.",
+    "First regression run required updating old OTHER expectation to actual ProtocolError. Initial mypy two typing errors fixed; final strict mypy exit0.",
+    "Initial ruff invocation without explicit config used wrong source import grouping; rerun with required api/pyproject.toml passed, no import reorder applied.",
+    "A non-effect line-count analysis timed out after30s; it did not launch resources or modify files.",
+    "HEAD advanced during authoring to snapshot HEAD; parent-owned docs commit is separate. No author commit/stage.",
+    "Initial tool-call budget exceeded during bounded SOURCE authoring; no extra runtime attempts, framework, product changes or authority changes."
+  ],
+  "root_cause": "UNKNOWN",
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "phase_status": {
+    "B06b/G02/P2": "NOT_CLOSED",
+    "P4a-minim": "NOT_DELIVERED",
+    "review": "NOT_REVIEWED",
+    "real_probe": "NOT_RUN"
+  },
+  "net_delta_excluding_focused_tests": 190
+}

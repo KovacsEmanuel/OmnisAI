@@ -1,0 +1,182 @@
+{
+  "schema": "omnis.scoped-readonly-review.v1",
+  "review": "startup-primary-normative",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "SOURCE/static normative approval of the existing startup-only caller and diagnostic instrumentation; not admission by this reviewer, not causal proof, not runtime QA or P2 PASS.",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "8b63f4b3662ef51b5b7d180932e71f8c00bb9f62",
+    "files": {
+      "api/tests/test_contract_method_pg.py": "2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "049e1244fb2aa8eea784ed7d037ee3fe2a59cb900b15c07f260456c8919ff49c"
+    },
+    "both_hashes_verified_before_and_after_source_tests": true,
+    "tracked_delta_at_entry": "Exactly the two nominated paths; protected untracked HTML observed only in git status, never opened, hashed or modified.",
+    "startup_reviewed": null,
+    "batch2_reviewed": null
+  },
+  "findings": [],
+  "finding_count": 0,
+  "requirement_review": [
+    {
+      "requirement": "Real startup with necessary authority, without domain work",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:6037-6058",
+        "api/tests/test_contract_method_pg.py:6130-6139",
+        "api/tests/test_contract_method_pg.py:6295-6304",
+        "api/tests/test_contract_method_pg.py:6591-6614",
+        "api/tests/test_contract_method_pg.py:6634-6729",
+        "api/src/omnis/supervisor/runtime_client.py:512-523",
+        "api/src/omnis/modules/instance/service.py:153-187"
+      ],
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Startup skips qualify_records, publish_capture, select and ManagedAdmission/ContractInputs construction. It instantiates the real RuntimeClient, obtains InstanceService acquire/owned_status, maintains real heartbeat, uses launch_inert -> runtime_authority(inert_probe=True) -> real launch exchange, checks READY and immediately renews. runtime_authority uses current PG lease/instance/fence/generation and the unchanged short grant. PG remains necessary; no forged authority or preparation substitute is used on this branch. Existing installed start_host connects the owner after mounted-byte attestation. The early return precedes preparation, task stage, release and control. Definitions closing over seed are not invoked by the startup route; finalizer has no seed/domain dependency. Source route assertions and four acquisition/finalizer controls passed; this is not a live proof of zero domain writes."
+    },
+    {
+      "requirement": "Same installed lineage, containment and owner",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:4890-4940",
+        "api/tests/test_contract_method_pg.py:5471-5545",
+        "api/tests/test_contract_method_pg.py:6392-6405",
+        "api/tests/test_contract_method_pg.py:6467-6485",
+        "api/tests/test_contract_method_pg.py:6645-6684",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:191-209"
+      ],
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "The delta does not change image receipts, native product source, grants, caps, h03_container_argv, resource owner or original_gate/prove_private_fixture(..., 240). Startup uses the existing current-distribution receipt and installed Host/native QA argv branch, not a new runner or synthetic peer. Existing image/config/mount/process identity checks remain. Image availability and actual mounted bytes were not inspected live by this reviewer."
+    },
+    {
+      "requirement": "Primary exception versus external stop/alive wait is observable without inventing a cause",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:4386-4460",
+        "api/tests/test_contract_method_pg.py:4803-4886",
+        "api/tests/test_contract_method_pg.py:4905-4929",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:201-231",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:618-625",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:780-812"
+      ],
+      "result": "PASS_SOURCE_SCOPED_WITH_LIMITS",
+      "evidence": "Host classification adds exact ProtocolError/IncompleteReadError/LimitOverrunError/CancelledError and matching decoder values. Native startup captures uncaught runpy exception class and bounded traceback code fields before re-raising; normal SystemExit handling remains. A one-shot private faulthandler capture is armed before the existing audit hook. Stop wrapper records ENTER before delegating the original exactly once and END in finally, retaining exceptions/cancellation. Exact code identities distinguish LAUNCH and WATCHDOG; current pinned _handle line 812 is OWNER_DISCONNECT, while explicit stop at line 793 remains OTHER rather than being mislabeled as launch cause. Returncode before the original stop can distinguish already-exited from still-live, and timestamps support ordering with primary evidence. END is cleanup readback, not proof of root cause. Missing/capped/private evidence remains UNKNOWN; a one-second dump is a stack sample, not proof of a hang. The historical local_env 172ms prefix is not promoted to a hang diagnosis.",
+      "instrumentation_import_limit": "Startup adds stdlib asyncio/faulthandler/re imports before the native audit hook; asyncio therefore initializes earlier and outside that hook. This changes timing/module cache for those diagnostic dependencies, but does not import run_agent, initialize a provider, invoke native startup twice or prewarm the suspected product path. No native timing equivalence or reproduction of the prior failure is claimed. Instrumentation setup failures before runpy can still leave primary evidence unavailable; they must remain diagnostic UNKNOWN, not native causation."
+    },
+    {
+      "requirement": "Shared cleanup, exception propagation and uncertainty fence",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:1015-1036",
+        "api/tests/test_contract_method_pg.py:6546-6589",
+        "api/tests/test_contract_method_pg.py:6717-6729",
+        "api/tests/test_contract_method_pg.py:9454-9594"
+      ],
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Startup returns through the original outer finally. It joins the heartbeat, uses existing exact retirement and daemon uncertainty accounting, closes runtime/control, disposes engine and retains the DB fence on uncertainty. A propagating primary failure is not replaced by the shared host-diagnostic/observation assertion. Successful early return still reaches strict host and native observation gates and only then receives STARTUP_DIAGNOSTIC_READY_NOT_BATCH2_PASS. Startup's host variable remains None, so source-host-only postcleanup assertions do not introduce a startup seed/host leak. Four source seam cases (return, failure, cancellation, pre-acquire failure) passed. Real PG/OCI process retirement and cancellation under live resource failure remain NOT_RUN."
+    },
+    {
+      "requirement": "Original H03/batch2 oracles and readiness distinction",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:2279-2291",
+        "api/tests/test_contract_method_pg.py:9550-9624"
+      ],
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Shared strict observation is independent of domain task-count assertions. Startup invokes it in finally, then returns before the existing domain assertions after finally; no task-count assertion is added to startup. Existing batch2 postcleanup double observation and H03 success condition remain. Existing full-path task-count checks are unchanged. Startup READY is explicitly not batch2/P2 success and root cause stays UNKNOWN. The host exception expectation changing OTHER to ProtocolError follows the added exact classification rather than weakening an oracle."
+    },
+    {
+      "requirement": "Selector closed now; separately bounded future activation",
+      "locations": [
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:31-41",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:44-104",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:157-209"
+      ],
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Both review variables remain None. Real selector invocation with --case batch2-startup-only --review-adjudicated refused with exit 2 and the exact parent-adjudication reason, before DB runner import. In-memory-only positive binding supplied both startup review environment fields without enabling batch2. Exact caller and receipt hashes remain prerequisites. Startup uses its distinct fixed startup1 basetemp, observed absent. Parent must enforce one attempt and freshness; this selector is not an atomic one-shot consumption mechanism and pytest basetemp must never be reused. No activation or real attempt was performed."
+    }
+  ],
+  "activation_review": {
+    "decision": "APPROVED_ONE_LINE_TRANSFORMATION_CONDITIONALLY",
+    "preimage_selector_sha256": "049e1244fb2aa8eea784ed7d037ee3fe2a59cb900b15c07f260456c8919ff49c",
+    "allowed_old_line": "STARTUP_REVIEWED: str | None = None",
+    "allowed_new_line": "STARTUP_REVIEWED: str | None = \"2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694\"",
+    "conditions": [
+      "Parent adjudicates this report and the independent complementary privacy/input review on these exact preimage bytes, with every blocking finding resolved.",
+      "Parent has independently adjudicated both excluded host-pidns failures as PREEXISTING_NOT_NEW_REGRESSION on baseline 8f035aef and current 2d84aae0. Preserve the failed controls. If the assigned author applies the proposed test-only routing fix after this frozen review, retain all negative assertions, rerun without exclusions and obtain focused review/rebinding for the changed caller hash; the frozen activation approval does not automatically transfer to edited bytes.",
+      "Caller stays exactly 2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694 and selector changes only the specified STARTUP_REVIEWED line. BATCH2_REVIEWED remains None; original pins, argv, image receipt, resource owner and 240-second budget remain unchanged.",
+      "Parent verifies the startup1 basetemp is still absent and uses one fresh distinct root and private exclusive output, after its required commit/adjudication. No reuse, retry or stop-first attempt is admitted by this approval.",
+      "Only the startup-only case is admitted. Readiness, cleanup or SOURCE approval must not be reported as causal proof or batch2/P2 success."
+    ],
+    "another_normative_review_for_only_this_flag_change": "NOT_REQUIRED_IF_ALL_CONDITIONS_HOLD",
+    "activation_performed": false,
+    "runtime_attempt_performed": false
+  },
+  "independent_checks": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Base and two tracked changed paths match delegation; full nominated diff inspected."
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'test_startup_primary or test_batch2_installed_route_before_fixture' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-normative-source",
+      "environment": "Subprocess removed OMNIS_H03_*, OMNIS_BATCH2_*, OMNIS_CONTRACT_METHOD_NATIVE_PG, PYTEST_ADDOPTS, PYTEST_PLUGINS, PYTHONPATH and PYTHONHOME; autoload disabled explicitly.",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 16,
+      "deselected": 258,
+      "duration_seconds": 2.11,
+      "limit": "SOURCE tests only: generated native tail with runpy substitute, host stop substitute, extracted acquisition/finalizer seams and route admission. No PG/OCI/installed native. Not a repeat of all 82 author controls."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --review-adjudicated",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 2,
+      "result": "Expected closed refusal: Parent adjudication of both exact complementary reviews required; flag is not approval.",
+      "limit": "No --check, runner import, database, container or native execution."
+    },
+    {
+      "command": "python3 -I -B -c '<static AST/hash/selector controls; subprocesses listed separately above>'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Both nominated SHA256 values match before/after; startup1 path absent. Executed selector definitions with non-main module name, asserted closed environment, set STARTUP_REVIEWED only in memory, asserted both startup review fields match source hash and batch2 remains disabled. Extracted real start_host confirms owner connection and mounted installed-byte attestation.",
+      "limit": "Only in-memory selector state changed. No on-disk flag activation; static import/AST inspection is not real startup."
+    }
+  ],
+  "known_pending_dispositions": [
+    {
+      "item": "Existing host-pidns failures",
+      "state": "PREEXISTING_NOT_NEW_REGRESSION_PARENT_REPRODUCED",
+      "detail": "Parent independently reproduced both h03/batch2 host-pidns failures using the exact HEAD baseline caller 8f035aef from a Git archive and frozen current caller 2d84aae0, SOURCE seams only. Baseline assertions 3606/3620 and current 3611/3629 fail in the diagnostic-only expectation block. Current line 3605 mode.startswith('host-') incorrectly includes the host-pidns containment case at line 3358. This is a preexisting test routing defect, not evidence that startup introduced a containment regression. Parent supplied this result after report creation; this reviewer did not rerun those controls.",
+      "scoped_remedy": "Assigned author may replace only the broad startswith condition with the exact existing diagnostic-mode set after reviews, preserving the original host-pidns negative and all safety assertions, then rerun the affected SOURCE selection without host-pidns exclusions. No general audit or product fix is requested. Changed caller bytes require focused delta review and selector hash rebinding, not automatic transfer of this frozen-byte approval.",
+      "disposition": "Not a newly introduced blocker to this frozen startup-only scope. Existing failure remains recorded; no full-suite PASS and no claim it has been fixed."
+    },
+    {
+      "item": "Complementary privacy review",
+      "state": "SEPARATE_REVIEW_PENDING_FOR_PARENT",
+      "detail": "This normative review does not substitute for the independently delegated privacy/input review. Private diagnostic content was not read."
+    }
+  ],
+  "limits": [
+    "Root cause remains UNKNOWN. Neither API-venv SOURCE imports nor the source controls reproduce the installed native startup failure.",
+    "No real PG, OCI, native, provider or target operations, installs/builds or global/profile changes. No product code change.",
+    "No raw private PG logs, capabilities, native-fault dump or historical failure logs read or emitted.",
+    "The report is not approval to run immediately; parent complementary-review adjudication and fresh-root conditions are mandatory.",
+    "Failure preservation tested for the nominated ordinary failure/cancellation/return controls, not exhaustive injected filesystem failures in diagnostic writes.",
+    "Startup private native/stop records are evidence for later bounded interpretation, not an automatic root-cause classifier. Normal post-READY cleanup must not be attributed as the initial fault."
+  ],
+  "files_created_or_modified": {
+    "repository_files": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-primary-review-normative.json",
+    "source_test_artifacts_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-normative-source",
+    "stage_commit_push": "NONE"
+  },
+  "tool_issues": [
+    "A read-only search used nonexistent api/src/omnis_api once; corrected to actual api/src/omnis. No effects.",
+    "One batched source display was truncated; affected startup/finalizer source sections were retrieved in a narrower follow-up."
+  ],
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "status_matrix": {
+    "startup_only_source_review_AICI": "APPROVED_SCOPED",
+    "startup_runtime_QA": "NOT_RUN",
+    "causal_proof": "UNKNOWN",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "P4a_minim": "NOT_DELIVERED"
+  }
+}

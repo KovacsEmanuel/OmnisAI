@@ -1,0 +1,260 @@
+{
+  "status": "FIXED_SOURCE_CANDIDATE_FROZEN_FOR_FOCUSED_COMPLEMENTARY_REREVIEW_NOT_ADMITTED",
+  "scope": "Exactly two minimal fixes in QA caller plus STARTUP_SOURCE_SHA rebinding; no product/runtime change or activation.",
+  "snapshot": {
+    "head": "8b63f4b3662ef51b5b7d180932e71f8c00bb9f62",
+    "files": {
+      "api/tests/test_contract_method_pg.py": "8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "489b3f2319a4dade322ffd453b0dddf57c57a7d6a08c6fe04567f7b36985b994"
+    },
+    "original_candidate_sha256": "2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694",
+    "original_selector_sha256": "049e1244fb2aa8eea784ed7d037ee3fe2a59cb900b15c07f260456c8919ff49c",
+    "reconstructed_original_bytes_match": true,
+    "delta_verified": "Removing only the added focused test, replacing the route condition and undoing the diagnostic finally delta exactly reconstructs original caller SHA. Reversing only STARTUP_SOURCE_SHA exactly reconstructs original selector SHA.",
+    "startup_reviewed": null,
+    "batch2_reviewed": null,
+    "startup_source_matches_caller": true,
+    "fresh_startup1_basetemp_absent": true
+  },
+  "changes": [
+    {
+      "id": "PREEXISTING_HOST_PIDNS_SOURCE_ROUTING",
+      "standalone_commit_hunk": true,
+      "old_exact_text": "    if mode.startswith(\"host-\"):",
+      "new_exact_text": "    if mode in {\"host-stopped\", \"host-malformed\", \"host-missing\", \"host-active\", \"host-incomplete\"}:",
+      "delta": "Only the diagnostic-mode condition changes. All original containment, uncertainty, cleanup and negative assertions are byte-identical; host-pidns now reaches its original containment branch.",
+      "baseline_evidence": "Parent independently reproduced exact Git HEAD caller8f035aef and frozen candidate2d84aae0. This author also retained current RED for both h03 and batch2 host-pidns."
+    },
+    {
+      "id": "STARTUP-SAFETY-F01",
+      "old_exact_argument": "'finally:\\n    faulthandler.cancel_dump_traceback_later()\\n    os.close(startup_fault_fd)\\n    startup_fault_fd = -1\\n    os.close(startup_primary_fd)\\n    emit(\"observer\", \"EXIT\")'",
+      "new_exact_argument": "\"finally:\\n\"\n            \"    try:\\n\"\n            \"        faulthandler.cancel_dump_traceback_later()\\n\"\n            \"    except BaseException:\\n\"\n            \"        pass  # Diagnostic loss is UNKNOWN; preserve the primary exception.\\n\"\n            \"    for startup_fd in (startup_fault_fd, startup_primary_fd):\\n\"\n            \"        try:\\n\"\n            \"            os.close(startup_fd)\\n\"\n            \"        except BaseException:\\n\"\n            \"            pass  # Still attempt all remaining owned diagnostic/observer cleanup.\\n\"\n            \"    startup_fault_fd = startup_primary_fd = -1\\n\"\n            '    emit(\"observer\", \"EXIT\")'",
+      "delta": "Cancellation and each of the two exact owned diagnostic FD closes are separately best-effort BaseException boundaries. Continue remaining closes and unchanged observer EXIT/evidence cleanup. Preserve primary exception/cancellation identity; missing or failed diagnostic capture remains UNKNOWN. No generic cleanup framework or bootstrap rewrite.",
+      "focused_test": "test_startup_primary_native_cleanup[positive|fault-close-failure] executes exact generated hook and tail with only owned /state path replacement and runpy/observer no-effect seams; specific CancelledError object; fault negative pre-cancels timer and closes actual fault FD. Tests assert exact outgoing identity, zero rescue-required FDs and observer EXIT; finalizer rescues all exact owned open FDs on RED.",
+      "test_count": 2,
+      "cancel_step_failure_campaign": "NOT_ADDED; unnecessary to reproduce and close the demonstrated F01 boundary."
+    }
+  ],
+  "commands": [
+    {
+      "label": "startup-fixes-red",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'test_startup_primary_native_cleanup or (test_h03_actual_lifecycle_source_seams and host-pidns)' -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-red-source",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 1,
+      "expected_exit": 1,
+      "summary": [
+        "3 failed, 1 passed, 272 deselected in 1.03s"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-red.private.log",
+      "failed": 3,
+      "passed": 1,
+      "deselected": 272,
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-format",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-format.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-format-final",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-format-final.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-ruff",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-ruff.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-diff",
+      "command": "git diff --check",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-diff.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-mypy",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-mypy.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-closed",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --review-adjudicated",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 2,
+      "expected_exit": 2,
+      "summary": [],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-closed.private.log",
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-collect",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --collect-only",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [
+        "1 test collected in 1.67s"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-collect.private.log",
+      "test_collected": 1,
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-focused",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k test_startup_primary -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-focused-source",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [
+        "15 passed, 261 deselected in 2.28s"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-focused.private.log",
+      "passed": 15,
+      "deselected": 261,
+      "log_mode": "0o600"
+    },
+    {
+      "label": "startup-fixes-affected",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'test_startup_primary or test_host_launch_filtered_source or test_batch2_installed_entry or test_batch2_installed_route_before_fixture or test_h03_actual_lifecycle_source_seams or test_host_diagnostic_actual_finalizer' -q --tb=no --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-affected-source",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "expected_exit": 0,
+      "summary": [
+        "86 passed, 190 deselected in 7.99s"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-fixes-affected.private.log",
+      "passed": 86,
+      "deselected": 190,
+      "log_mode": "0o600"
+    }
+  ],
+  "execution_environment": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/kali",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74",
+    "LANG": "C.UTF-8",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+  },
+  "final_results": {
+    "startup_source": {
+      "passed": 15,
+      "original_tests": 13,
+      "new_f01_controls": 2,
+      "exit": 0
+    },
+    "full_affected_source": {
+      "passed": 86,
+      "previous_82_tests": 82,
+      "restored_original_host_pidns_negatives": 2,
+      "new_f01_controls": 2,
+      "exclusions": [],
+      "exit": 0
+    },
+    "ruff": 0,
+    "ruff_format": 0,
+    "mypy": 0,
+    "git_diff_check": 0,
+    "collected": 1,
+    "closed_refusal_exit": 2,
+    "closed_refusal_reason": "Parent adjudication of both exact complementary reviews required; flag is not approval"
+  },
+  "finding_dispositions": [
+    {
+      "id": "STARTUP-SAFETY-F01",
+      "original_verdict": "CHANGES_REQUESTED_SCOPED",
+      "disposition": "FIXED_SOURCE_RED_TO_GREEN_PENDING_FOCUSED_REREVIEW",
+      "evidence": "RED fault-close-failure fails while positive passes; after minimal cleanup fix both pass within 15 focused and 86 affected. Original exact CancelledError preserved, all owned FDs closed without rescue and observer EXIT reached on GREEN.",
+      "activation": "STILL_REFUSED_UNTIL_PARENT_ADJUDICATION"
+    },
+    {
+      "id": "PREEXISTING_HOST_PIDNS_SOURCE_ROUTING",
+      "disposition": "FIXED_SOURCE_RED_TO_GREEN_PENDING_FOCUSED_REREVIEW",
+      "evidence": "Both original h03/batch2 negatives fail before condition fix and pass in the full affected SOURCE selection without exclusions."
+    },
+    {
+      "id": "NORMATIVE_REVIEW",
+      "original_verdict": "APPROVED_SCOPED",
+      "original_findings": [],
+      "disposition": "UNCHANGED_REQUIREMENT_APPROVAL_RETAINED_ONLY_AT_ORIGINAL_SCOPE; changed bytes require focused complementary rereview, no activation approval transfer"
+    },
+    {
+      "id": "NONBLOCKING_DIAGNOSTIC_LIMIT",
+      "disposition": "RETAINED_NOT_WEAKENED",
+      "detail": "Short writes/missing/capped diagnostic records remain UNKNOWN, not product success; no new decoder/framework or causal attribution."
+    },
+    {
+      "id": "HISTORICAL_RUNTIME_FAILURES",
+      "disposition": "RETAINED_FAIL_UNCERTAIN",
+      "detail": "Attempt1/diagnostic1 and previous SOURCE RED logs untouched; native root cause UNKNOWN, product gates unchanged NOT_RUN."
+    }
+  ],
+  "privacy": {
+    "private_new_log_mode": "0600",
+    "raw_logs_printed": false,
+    "private_fault_contents_printed": false,
+    "original_failed_logs": "PRESERVED_UNTOUCHED",
+    "protected_html": "NOT_READ_HASHED_EDITED_OR_STAGED"
+  },
+  "effects": {
+    "PG": "NOT_RUN",
+    "OCI": "NOT_RUN",
+    "installed_native": "NOT_RUN",
+    "source_import_pair_retry": "NOT_RUN",
+    "prewarm": "NOT_RUN",
+    "provider_target": "NOT_RUN",
+    "build_install": "NOT_RUN",
+    "profile_changes": "NONE",
+    "TTL_grant_effect_oracle_changes": "NONE",
+    "activation": "NONE",
+    "runtime_artifact": "UNCHANGED_NO_REBUILD_NO_OCI_INSPECTION",
+    "full_product_gates": "NOT_RUN_UNCHANGED"
+  },
+  "git": {
+    "status": "## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_contract_method_pg.py\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "author_commits": [],
+    "stage_commit_push": "NONE; parent owns granular integration",
+    "only_modified_repository_paths": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ]
+  },
+  "limits": [
+    "SOURCE seams only, not live PG/OCI/native cleanup or cause diagnosis.",
+    "No broader observer failure campaign or initialization rewrite.",
+    "Parent must re-review final exact hashes with complementary reviewers before activation.",
+    "Skill update not made: task grants repository writes only to caller and selector; reusable lesson for parent is to isolate each diagnostic cleanup operation so observation cannot replace an active exception or skip remaining owned cleanup."
+  ],
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "status_matrix": {
+    "startup_source_fixes": "IMPLEMENTED_PASS_SOURCE_PENDING_FOCUSED_REVIEW",
+    "startup_real_probe": "NOT_RUN_NOT_ADMITTED",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "P4a_minim": "NOT_DELIVERED"
+  }
+}

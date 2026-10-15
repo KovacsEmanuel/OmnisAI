@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "review": "startup-primary-focused-safety-rereview",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused read-only SOURCE safety re-review of F01 cleanup fix, original host-pidns negative routing and source-pin rebinding. No actual PG/OCI/native QA or activation.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "initial_head": "8b63f4b3662ef51b5b7d180932e71f8c00bb9f62",
+    "files": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "489b3f2319a4dade322ffd453b0dddf57c57a7d6a08c6fe04567f7b36985b994"
+    },
+    "hashes_verified_before_after": true,
+    "final_git_readback": "## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_contract_method_pg.py\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n?? documents/verification/p2-bound-predicates-evidence/startup-primary-author.json\n?? documents/verification/p2-bound-predicates-evidence/startup-primary-fixes-author.json\n?? documents/verification/p2-bound-predicates-evidence/startup-primary-review-normative.json\n?? documents/verification/p2-bound-predicates-evidence/startup-primary-review-safety.json\n8b63f4b3662ef51b5b7d180932e71f8c00bb9f62 docs(runtime): bound approved diagnosis to authentic startup\n8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca  api/tests/test_contract_method_pg.py\n489b3f2319a4dade322ffd453b0dddf57c57a7d6a08c6fe04567f7b36985b994  documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "previous_caller_sha256": "2d84aae0634bea73586ea5a654a2d6cfafddbc84e89d93d4ea46a8882bf24694",
+    "previous_selector_sha256": "049e1244fb2aa8eea784ed7d037ee3fe2a59cb900b15c07f260456c8919ff49c",
+    "reverse_delta_reconstructs_both_previous_hashes": true,
+    "protected_html": "Listed only in Git status, not read/hashed/edited/staged"
+  },
+  "findings": [],
+  "blocking_finding_count": 0,
+  "finding_dispositions": [
+    {
+      "id": "STARTUP-SAFETY-F01",
+      "previous": "CHANGES_REQUESTED_SCOPED",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:4974-4988",
+        "api/tests/test_contract_method_pg.py:test_startup_primary_native_cleanup"
+      ],
+      "evidence": "Actual final generated tail was executed with the same specific CancelledError object. Positive and the original real preclosed-fault-FD EBADF negative both preserve object identity, close all remaining exact owned FDs without rescue, and reach unchanged observer EXIT/evidence cleanup. A separately injected cancel operation OSError also preserves identity and reaches both FD closes/observer cleanup. Cancellation and each diagnostic FD close have independent BaseException protection.",
+      "controls": [
+        {
+          "mode": "positive",
+          "primary_identity_preserved": true,
+          "outgoing_class": "CancelledError",
+          "rescued_owned_fds": 0,
+          "observer_exit_reached": true,
+          "private_sentinel_absent": true,
+          "cancel_failure_reached": false,
+          "directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-positive-c6bc_ou5",
+          "generated_tail_sha256": "3f21c83c10da7edf99ebaf1228465d891ecd578ca343688689203b30bb1aa56f"
+        },
+        {
+          "mode": "fault-close-failure",
+          "primary_identity_preserved": true,
+          "outgoing_class": "CancelledError",
+          "rescued_owned_fds": 0,
+          "observer_exit_reached": true,
+          "private_sentinel_absent": true,
+          "cancel_failure_reached": false,
+          "directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-fault-close-failure-bm2qoyg7",
+          "generated_tail_sha256": "3f21c83c10da7edf99ebaf1228465d891ecd578ca343688689203b30bb1aa56f"
+        },
+        {
+          "mode": "cancel-failure",
+          "primary_identity_preserved": true,
+          "outgoing_class": "CancelledError",
+          "rescued_owned_fds": 0,
+          "observer_exit_reached": true,
+          "private_sentinel_absent": true,
+          "cancel_failure_reached": true,
+          "directory": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-cancel-failure-sl6nknud",
+          "generated_tail_sha256": "3f21c83c10da7edf99ebaf1228465d891ecd578ca343688689203b30bb1aa56f"
+        }
+      ],
+      "limits": "AST-extracted generator plus exact generated hook/tail; /state remapped only to fresh private scratch. runpy and observer callbacks are synthetic no-effect seams. Cancel-failure control pre-cancels the real timer then substitutes only cancellation with a raising seam. No real native startup or live process settlement certified. No assertion that a failed close always closes its own FD; best effort continues remaining closures and evidence loss stays UNKNOWN."
+    },
+    {
+      "id": "PREEXISTING_HOST_PIDNS_SOURCE_ROUTING",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "location": "api/tests/test_contract_method_pg.py:3605",
+      "evidence": "Only five exact diagnostic modes reach diagnostic expectations. Original host-pidns h03/batch2 parameters, containment mutation, no-start assertion, retained UNCERTAIN/fence and exact cleanup checks are unchanged; reversing the condition, F01 replacement and added test exactly reconstructs prior reviewed caller hash. All original lifecycle parameters run without exclusions in independent 57-test selection.",
+      "limits": "This is a test assertion routing repair, not a change to the product containment guard or physical OCI certification."
+    },
+    {
+      "id": "NONBLOCKING_DIAGNOSTIC_LIMIT",
+      "disposition": "RETAINED_UNKNOWN_NOT_BLOCKING",
+      "evidence": "Short writes, capped/missing/incomplete primary/Stop diagnostics remain UNKNOWN, never causal proof or product PASS. No new general verifier requested. Raw faulthandler files remain private and were not read or emitted."
+    },
+    {
+      "id": "HISTORICAL_RUNTIME_FAILURES",
+      "disposition": "RETAINED_FAIL_UNCERTAIN",
+      "evidence": "Attempt1/diagnostic1, original SOURCE REDs and their data/logs/fences untouched; root cause UNKNOWN. No retrospective PASS."
+    }
+  ],
+  "unchanged_safety_scope": {
+    "method": "Exact reversed-delta hash match preserves the unchanged reviewed bytes; no full review restart.",
+    "auth": "Existing InstanceService/RuntimeClient and authentic PG authority still required for a later admitted startup; no new owner or forged grant.",
+    "no_domain_effects": "Startup still skips qualification/publish/select/domain setup and returns before preparation/stage/release/task/model/target work through the original shared finally. No product runtime file change.",
+    "cleanup": "Existing retirement/fence/engine and strict observation gates retained; four startup return/failure/cancel/pre-acquire SOURCE cases included in the 57 passing tests.",
+    "image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12 unchanged by this two-file delta; no live image inspection performed.",
+    "private_projection": "Exact error classes/bounded projections retained; sentinel absent in independently produced primary JSONL; no raw dump or PG trace returned."
+  },
+  "activation_decision": {
+    "decision": "APPROVED_ONE_LINE_TRANSFORMATION_CONDITIONALLY",
+    "current_activation_performed": false,
+    "immediate_execution": "NOT_AUTHORIZED_BY_THIS_REVIEW_ALONE",
+    "preimage_selector_sha256": "489b3f2319a4dade322ffd453b0dddf57c57a7d6a08c6fe04567f7b36985b994",
+    "allowed_old_line": "STARTUP_REVIEWED: str | None = None",
+    "allowed_new_line": "STARTUP_REVIEWED: str | None = \"8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca\"",
+    "postimage_selector_sha256": "5f79f82640ee2a46ea179bd69a955e12ad39a81b87f2092e4b7e0c6201135804",
+    "caller_sha256": "8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca",
+    "conditions": [
+      "Both complementary focused reviews approved/adjudicated by parent on these exact final bytes; all named findings disposed. This report supplies safety only.",
+      "Parent independently verifies affected SOURCE gates without original host-pidns exclusions, commits the intended source and rechecks exact hashes.",
+      "Only STARTUP_REVIEWED changes to the specified caller SHA. STARTUP_SOURCE_SHA stays matching; BATCH2_REVIEWED remains None; all other pins/argv/owner240/grants/deadlines/guards unchanged.",
+      "Immediately before separately contracted QA, verify the fixed startup1 root is still absent and private output destinations unused. One fresh root, one startup-to-READY attempt only; no retry, Stop-first, release-first or successor implied.",
+      "Same unchanged image and existing PG authority/fence/cleanup; no qualification/preparation/task/model/target effects, prewarm, build/install, profile or global changes.",
+      "Missing, capped, short or unavailable diagnostics remain UNKNOWN; preserve raw private files without printing, all historical FAIL/UNCERTAIN and retained data. READY/cleanup is not batch2/P2 PASS."
+    ],
+    "further_safety_review_for_only_this_one_line": "NOT_REQUIRED_IF_ALL_CONDITIONS_HOLD",
+    "selector_controls": {
+      "closed": true,
+      "in_memory_only_activation_positive": true,
+      "batch2_still_closed": true,
+      "fresh_basetemp_absent": true,
+      "basetemp": "/home/kali/.hermes/cache/scratch/batch2-installed-startup1-batch2-startup-only",
+      "allowed_old_line": "STARTUP_REVIEWED: str | None = None",
+      "allowed_new_line": "STARTUP_REVIEWED: str | None = \"8c283a79021da3950e877c17fdaee3842fea467fd723e1b99484d0394d9e47ca\"",
+      "activation_postimage_sha256": "5f79f82640ee2a46ea179bd69a955e12ad39a81b87f2092e4b7e0c6201135804"
+    }
+  },
+  "commands": [
+    {
+      "command": "git status --short --branch && git log -1 --format='%H %s' && git diff --stat && git diff -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-control.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Both prior hashes reconstructed exactly; three actual final generated-tail controls PASS; selector closed in source and only startup enabled in memory; final hashes unchanged.",
+      "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-control.py"
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/OmnisAI/api/pyproject.toml",
+        "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+        "-k",
+        "test_startup_primary or test_h03_actual_lifecycle_source_seams",
+        "-q",
+        "--tb=no",
+        "--basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-focused-tests"
+      ],
+      "exit": 0,
+      "summary": "57 passed, 219 deselected in 4.01s",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-focused.private.log",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74",
+        "LANG": "C.UTF-8",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      }
+    },
+    {
+      "command": "git diff --check && git status --short --branch && git log -1 --format=\"%H %s\" && sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Final source hashes still match; no whitespace errors."
+    }
+  ],
+  "author_evidence_not_independently_repeated": {
+    "report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-primary-fixes-author.json",
+    "results": "15 focused/86 affected without exclusions PASS, ruff/format/mypy exit0, collect1/closed refusal2; parent reruns affected selection separately. Independent evidence here is 57 PASS plus three direct tail controls, not a claim to have rerun all 86."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-primary-rereview-safety.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-control.py",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-controls.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-focused.private.log",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-focused-tests/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-positive-c6bc_ou5/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-fault-close-failure-bm2qoyg7/",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/startup-safety-rereview-cancel-failure-sl6nknud/"
+  ],
+  "repository_files_modified": [],
+  "stage_commit_push": "NONE",
+  "limits": [
+    "No PG/OCI/actual installed native/Host attempt, DB runner or --check, build/install, personal profile/credential/model/target/global operations.",
+    "No raw PG traces, historical private logs, capabilities or native-fault contents read/emitted.",
+    "No automatic QA continuation: reviewer stops after this report; separate parent contract required.",
+    "No generic verifier framework or repository skill edit. Parent reusable lesson: isolate each new diagnostic cleanup operation so it cannot mask an active exception or skip remaining owned cleanup.",
+    "Best-effort cleanup does not certify arbitrary filesystem failures or OS process settlement. SOURCE approval is not product acceptance."
+  ],
+  "issues_encountered": [
+    "Scratch AST/exec reproducer received editor-only Pyright dynamic typing diagnostics; actual API-venv -I -B execution exited 0 with all explicit assertions passed. No runtime test failure."
+  ],
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "status_matrix": {
+    "startup_source_fixes_AICI": {
+      "implementation": "IMPLEMENTED_SOURCE",
+      "proof": "57_SOURCE_PASS_AND_3_TAIL_CONTROLS",
+      "review": "APPROVED_SCOPED"
+    },
+    "real_startup_QA": "NOT_RUN",
+    "activation": "CONDITIONAL_PARENT_ONLY_NOT_PERFORMED",
+    "root_cause": "UNKNOWN",
+    "batch2": "BLOCKED_REAL_QA_FAILED_UNCHANGED",
+    "B06b_G02_P2": "NOT_CLOSED",
+    "P4a_minim": "NOT_DELIVERED"
+  }
+}

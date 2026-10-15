@@ -3258,7 +3258,11 @@ def test_h03_static_installed_origin_preflight(
 )
 @pytest.mark.parametrize("batch2", [False, True], ids=["h03", "batch2"])
 def test_h03_actual_lifecycle_source_seams(
-    tmp_path: Path, mode: str, batch2: bool, exit_path: str = "fallthrough"
+    tmp_path: Path,
+    mode: str,
+    batch2: bool,
+    exit_path: str = "fallthrough",
+    startup_mode: bool = False,
 ) -> None:
     """Actual producer/acquisition/finalizer AST; substituted daemon/Host, not QA."""
     import ast
@@ -3535,7 +3539,8 @@ def test_h03_actual_lifecycle_source_seams(
         tmp_path=tmp_path,
         h03=not batch2,
         installed_native=True,
-        batch2=batch2,
+        batch2=batch2 and not startup_mode,
+        startup=startup_mode,
         runtime=runtime,
         process_receipts=[],
         db_fence=fence,
@@ -3613,8 +3618,12 @@ def test_h03_actual_lifecycle_source_seams(
             assert fence["unsettled"] is True and proof["status"] == "UNCERTAIN"
         elif valid:
             assert error is None and fence["unsettled"] is False
-            assert proof["status"] == "PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED"
-            assert calls.count("oracle") == 2
+            assert proof["status"] == (
+                "STARTUP_DIAGNOSTIC_READY_NOT_BATCH2_PASS"
+                if startup_mode
+                else "PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED"
+            )
+            assert calls.count("oracle") == (1 if startup_mode else 2)
         else:
             assert isinstance(error, AssertionError)
             assert error.args == ("HOST_LAUNCH_DIAGNOSTIC_INCOMPLETE",)
@@ -4035,7 +4044,9 @@ def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> li
     ]
 
 
-@pytest.mark.parametrize("scenario", ["batch2-release-first", "batch2-stop-first"])
+@pytest.mark.parametrize(
+    "scenario", ["batch2-release-first", "batch2-stop-first", "batch2-startup-only"]
+)
 def test_batch2_installed_route_before_fixture(
     request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scenario: str
 ) -> None:
@@ -4351,7 +4362,11 @@ print(json.dumps({'frame_audits': frame_audits}))
             "NativePeer.handshake",
         }
         assert {r["event"] for r in rows} == {"RAISE", "HANDLED"}
-        assert {r["exception"] for r in rows} >= {"TimeoutError", "BrokenPipeError", "OTHER"}
+        assert {r["exception"] for r in rows} >= {
+            "TimeoutError",
+            "BrokenPipeError",
+            "ProtocolError",
+        }
         for row in rows:
             assert set(row) == {"method", "event", "exception", "offset", "line", "elapsed_ms"}
         raw = evidence.read_bytes()
@@ -4368,10 +4383,45 @@ print(json.dumps({'frame_audits': frame_audits}))
             assert b"PRIVATE_HOST_SENTINEL" not in canonical(invalid)
 
 
+@pytest.mark.parametrize(
+    "name", ["ProtocolError", "IncompleteReadError", "LimitOverrunError", "CancelledError"]
+)
+def test_startup_primary_exception_classes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str
+) -> None:
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    import omnis_hermes.runtime_host as host
+    from omnis_hermes.runtime_protocol import NativePeer, ProtocolError
+
+    errors = {
+        "ProtocolError": ProtocolError("PRIVATE_STARTUP_SENTINEL"),
+        "IncompleteReadError": asyncio.IncompleteReadError(b"PRIVATE_STARTUP_SENTINEL", 1),
+        "LimitOverrunError": asyncio.LimitOverrunError("PRIVATE_STARTUP_SENTINEL", 1),
+        "CancelledError": asyncio.CancelledError("PRIVATE_STARTUP_SENTINEL"),
+    }
+    path = tmp_path / "host-launch-diagnostic.json"
+    namespace: dict[str, object] = {"host": host}
+    exec(HOST_LAUNCH_DIAGNOSTIC.replace("/state/host-launch-diagnostic.json", str(path)), namespace)
+    factory = namespace["HostLaunchDiagnostic"]
+    assert callable(factory)
+    observer = factory()
+    primary = errors[name]
+    with pytest.raises(type(primary)) as caught, observer:
+        code = NativePeer._read.__code__
+        observer.record(code, next(iter(observer.lines[id(code)])), primary, "RAISE")
+        raise primary
+    assert caught.value is primary
+    decoded = host_launch_checkpoint(path)
+    assert decoded["status"] == "OBSERVED"
+    assert mapping(sequence(decoded["events"])[0])["exception"] == name
+    assert b"PRIVATE_STARTUP_SENTINEL" not in path.read_bytes()
+
+
 # Installed QA only: global exception delivery, exact identity rejection first.
 # This does not register local RAISE or claim native-filter cost equivalence.
 HOST_LAUNCH_DIAGNOSTIC = r"""
-import dis, json, os, stat, sys, threading, time
+import asyncio, dis, json, os, stat, sys, threading, time
+from omnis_hermes.runtime_protocol import ProtocolError
 class HostLaunchDiagnostic:
     def __init__(self):
         self.targets = (
@@ -4383,7 +4433,9 @@ class HostLaunchDiagnostic:
                       for code, name in self.targets}
         self.classes = ((TimeoutError, "TimeoutError"), (BrokenPipeError, "BrokenPipeError"),
                         (ConnectionResetError, "ConnectionResetError"), (OSError, "OSError"),
-                        (ValueError, "ValueError"), (PermissionError, "PermissionError"))
+                        (ValueError, "ValueError"), (PermissionError, "PermissionError"),
+                        (ProtocolError, "ProtocolError"), (asyncio.IncompleteReadError, "IncompleteReadError"),
+                        (asyncio.LimitOverrunError, "LimitOverrunError"), (asyncio.CancelledError, "CancelledError"))
         self.events, self.tool, self.fd = [], None, -1
         self.event_limit, self.byte_limit = 32, 8192
         self.failed = False
@@ -4548,6 +4600,10 @@ def host_launch_checkpoint(path: Path) -> dict[str, object]:
                     "OSError",
                     "ValueError",
                     "PermissionError",
+                    "ProtocolError",
+                    "IncompleteReadError",
+                    "LimitOverrunError",
+                    "CancelledError",
                     "OTHER",
                 }
                 or any(
@@ -4624,7 +4680,263 @@ def test_launch_early_import_markers_and_mounted_failure(tmp_path: Path) -> None
     assert b"SENTINEL" not in canonical(proof)
 
 
-def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str, str]]:
+@pytest.mark.parametrize("normal", [True, False])
+def test_startup_primary_native_boundary(tmp_path: Path, normal: bool) -> None:
+    builder = globals().get("batch2_installed_entry")
+    assert callable(builder)
+    builder(tmp_path, startup=True)
+    script = (tmp_path / "native_bootstrap.py").read_text()
+    assert "dump_traceback_later(1," in script
+    assert script.index("dump_traceback_later(1,") < script.index("sys.addaudithook")
+    hook = script.split("# STARTUP_PRIMARY_BEGIN\n", 1)[1].split("# STARTUP_PRIMARY_END", 1)[0]
+    tail = "try:\n    runpy.run_module" + script.split("try:\n    runpy.run_module", 1)[1]
+    from types import SimpleNamespace
+
+    primary = ValueError("PRIVATE_STARTUP_SENTINEL")
+
+    def invoke(*args: object, **kwargs: object) -> None:
+        if not normal:
+            raise primary
+
+    fd = os.open(tmp_path / "evidence", os.O_WRONLY | os.O_CREAT, 0o600)
+    namespace: dict[str, object] = {
+        "runpy": SimpleNamespace(run_module=invoke),
+        "emit": lambda *a, **kw: None,
+        "phase_transition": lambda *a: None,
+        "evidence_fd": fd,
+    }
+    exec(hook.replace("/state/", str(tmp_path) + "/"), namespace)
+    if normal:
+        exec(tail, namespace)
+    else:
+        with pytest.raises(ValueError) as caught:
+            exec(tail, namespace)
+        assert caught.value is primary
+    assert namespace["startup_fault_fd"] == -1
+    for name in ("native-primary.jsonl", "native-fault.private"):
+        assert stat.S_IMODE((tmp_path / name).stat().st_mode) == 0o600
+    raw = (tmp_path / "native-primary.jsonl").read_bytes()
+    assert b"PRIVATE_STARTUP_SENTINEL" not in raw
+    if not normal:
+        row = json.loads(raw)
+        assert row["exception"] == "ValueError" and len(row["frames"]) <= 32
+        assert all(set(f) == {"file", "line", "function"} for f in row["frames"])
+
+
+@pytest.mark.parametrize("close_failure", [False, True], ids=["positive", "fault-close-failure"])
+def test_startup_primary_native_cleanup(tmp_path: Path, close_failure: bool) -> None:
+    """Exercise the generated finally, rescuing only its exact owned FDs on RED."""
+    import faulthandler
+    from types import SimpleNamespace
+
+    batch2_installed_entry(tmp_path, startup=True)
+    script = (tmp_path / "native_bootstrap.py").read_text()
+    hook = script.split("# STARTUP_PRIMARY_BEGIN\n", 1)[1].split("# STARTUP_PRIMARY_END", 1)[0]
+    tail = "try:\n    runpy.run_module" + script.split("try:\n    runpy.run_module", 1)[1]
+    primary = asyncio.CancelledError("PRIVATE_STARTUP_SENTINEL")
+    events: list[tuple[object, ...]] = []
+
+    def invoke(*args: object, **kwargs: object) -> None:
+        raise primary
+
+    evidence_fd = os.open(tmp_path / "evidence", os.O_WRONLY | os.O_CREAT, 0o600)
+    namespace: dict[str, object] = {
+        "runpy": SimpleNamespace(run_module=invoke),
+        "emit": lambda *args: events.append(args),
+        "phase_transition": lambda *args: None,
+        "evidence_fd": evidence_fd,
+    }
+    owned = [evidence_fd]
+    rescued = []
+    outgoing: BaseException | None = None
+    try:
+        exec(hook.replace("/state/", str(tmp_path) + "/"), namespace)
+        fault_fd = integer(namespace["startup_fault_fd"], 0)
+        owned.extend((fault_fd, integer(namespace["startup_primary_fd"], 0)))
+        if close_failure:
+            faulthandler.cancel_dump_traceback_later()
+            os.close(fault_fd)
+        try:
+            exec(tail, namespace)
+        except BaseException as error:
+            outgoing = error
+    finally:
+        faulthandler.cancel_dump_traceback_later()
+        for fd in owned:
+            try:
+                os.fstat(fd)
+            except OSError:
+                continue
+            rescued.append(fd)
+            os.close(fd)
+    assert outgoing is primary
+    assert rescued == [], "STARTUP_DIAGNOSTIC_FD_CLEANUP_SKIPPED"
+    assert events == [("observer", "EXIT")]
+    assert b"PRIVATE_STARTUP_SENTINEL" not in (tmp_path / "native-primary.jsonl").read_bytes()
+
+
+@pytest.mark.parametrize("exited", [False, True])
+def test_startup_primary_stop_before_effect(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, exited: bool
+) -> None:
+    from types import SimpleNamespace
+
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    import omnis_hermes.runtime_host as host
+
+    calls = []
+    primary = asyncio.CancelledError("PRIVATE_STARTUP_SENTINEL")
+
+    async def original(instance: object) -> None:
+        rows = [
+            json.loads(line)
+            for line in (tmp_path / "host-stop-primary.jsonl").read_text().splitlines()
+        ]
+        assert rows[0]["edge"] == "ENTER"
+        assert rows[0]["returncode"] == (7 if exited else None)
+        calls.append(instance)
+        raise primary
+
+    monkeypatch.setattr(host.RuntimeHost, "stop", original)
+    batch2_installed_entry(tmp_path, startup=True)
+    script = (tmp_path / "host-qa.py").read_text()
+    assert "# STARTUP_STOP_BEGIN" in script
+    hook = script.split("# STARTUP_STOP_BEGIN\n", 1)[1].split("# STARTUP_STOP_END", 1)[0]
+    namespace: dict[str, object] = {"host": host}
+    exec(hook.replace("/state/", str(tmp_path) + "/"), namespace)
+    instance = SimpleNamespace(
+        process=SimpleNamespace(pid=123, returncode=7 if exited else None),
+        state="STARTING",
+        deadline_ns=0,
+    )
+    try:
+        with pytest.raises(asyncio.CancelledError) as caught:
+            stop = namespace["startup_stop"]
+            assert callable(stop)
+            asyncio.run(stop(instance))
+        assert caught.value is primary and calls == [instance]
+    finally:
+        os.close(integer(namespace["startup_stop_fd"], 0))
+    raw = (tmp_path / "host-stop-primary.jsonl").read_bytes()
+    assert b"PRIVATE_STARTUP_SENTINEL" not in raw
+    assert [json.loads(line)["edge"] for line in raw.splitlines()] == ["ENTER", "END"]
+
+
+@pytest.mark.parametrize("exit_path", ["return", "failure", "cancel", "pre-acquire"])
+def test_startup_primary_shared_cleanup(tmp_path: Path, exit_path: str) -> None:
+    test_h03_actual_lifecycle_source_seams(
+        tmp_path, "host-stopped", True, exit_path, startup_mode=True
+    )
+
+
+def test_startup_primary_route_no_domain_work() -> None:
+    import inspect
+
+    source = inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    assert 'startup = applicability == "batch2-startup-only"' in source
+    assert "if not startup:\n        qualified, evaluation = qualify_records" in source
+    branch = source.split("            if startup:\n", 1)[1].split(
+        "            # Preparation double", 1
+    )[0]
+    assert "await runtime.launch_inert(service, supervisor)" in branch
+    assert "await runtime.renew(service, supervisor)" in branch
+    assert "return" in branch
+    assert not any(
+        token in branch for token in ("prepare(", "stage(", "control_task(", "qualify_records(")
+    )
+    assert source.index("            if startup:\n") < source.index(
+        "            # Preparation double"
+    )
+    assert "finally:\n            cleanup_failed = False" in source
+
+
+STARTUP_HOST_STOP = r"""
+# STARTUP_STOP_BEGIN
+import json, os, sys, time
+startup_stop_fd = os.open('/state/host-stop-primary.jsonl', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+os.fchmod(startup_stop_fd, 0o600)
+startup_original_stop = host.RuntimeHost.stop
+startup_stop_calls = 0
+startup_callers = ((host.RuntimeHost._launch.__code__, 'LAUNCH'), (host.RuntimeHost._watch.__code__, 'WATCHDOG'))
+startup_handle = host.RuntimeHost._handle.__code__
+def startup_stop_record(instance, edge, caller):
+    global startup_stop_calls
+    try:
+        if startup_stop_calls >= 32:
+            return
+        process = instance.process
+        state = instance.state if instance.state in {'IDLE', 'STARTING', 'READY', 'STOPPING', 'STOPPED', 'UNCERTAIN'} else 'OTHER'
+        row = {'edge': edge, 'caller': caller, 'state': state, 'pid': None if process is None else process.pid,
+               'returncode': None if process is None else process.returncode,
+               'deadline_expired': time.monotonic_ns() >= instance.deadline_ns, 'clock_ns': time.monotonic_ns()}
+        raw = (json.dumps(row, separators=(',', ':')) + '\n').encode()
+        if len(raw) <= 1024:
+            os.write(startup_stop_fd, raw)
+            startup_stop_calls += 1
+    except BaseException:
+        pass  # Observation cannot suppress, duplicate or postpone the original stop.
+async def startup_stop(instance):
+    caller = 'OTHER'
+    try:
+        frame = sys._getframe(1)
+        caller = next((name for code, name in startup_callers if frame.f_code is code), 'OTHER')
+        if frame.f_code is startup_handle and frame.f_lineno == 812:
+            caller = 'OWNER_DISCONNECT'
+        del frame
+    except BaseException:
+        pass
+    startup_stop_record(instance, 'ENTER', caller)
+    try:
+        return await startup_original_stop(instance)
+    finally:
+        startup_stop_record(instance, 'END', caller)
+host.RuntimeHost.stop = startup_stop
+# STARTUP_STOP_END
+"""
+
+
+STARTUP_NATIVE_PRIMARY = r"""
+# STARTUP_PRIMARY_BEGIN
+import asyncio, faulthandler, json, os, re, sys, time
+startup_primary_fd = os.open('/state/native-primary.jsonl', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+startup_fault_fd = os.open('/state/native-fault.private', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+os.fchmod(startup_primary_fd, 0o600)
+os.fchmod(startup_fault_fd, 0o600)
+# One shot; raw stdlib dump stays PRIVATE, never copied into a checkpoint/log.
+faulthandler.dump_traceback_later(1, repeat=False, file=startup_fault_fd, exit=False)
+def startup_exception(error):
+    try:
+        classes = (ValueError, OSError, PermissionError, TimeoutError, RuntimeError,
+                   ImportError, ModuleNotFoundError, SyntaxError, SystemExit,
+                   asyncio.IncompleteReadError, asyncio.LimitOverrunError, asyncio.CancelledError)
+        name = next((c.__name__ for c in classes if type(error) is c), 'OTHER')
+        cursor, frames = error.__traceback__, []
+        for _ in range(32):
+            if cursor is None:
+                break
+            code = cursor.tb_frame.f_code
+            path = code.co_filename
+            roots = ('/opt/hermes/source/', '/opt/hermes/venv/lib/python3.13/', '/state/')
+            root = next((r for r in roots if path.startswith(r)), None)
+            relative = path[len(root):] if root else 'OTHER'
+            if not re.fullmatch(r'[A-Za-z0-9_./-]{1,192}', relative) or '..' in relative.split('/'):
+                relative = 'OTHER'
+            function = code.co_name if re.fullmatch(r'[A-Za-z0-9_<>]{1,96}', code.co_name) else 'OTHER'
+            frames.append({'file': relative, 'function': function, 'line': min(cursor.tb_lineno, 10**7)})
+            cursor = cursor.tb_next
+        raw = (json.dumps({'exception': name, 'frames': frames, 'truncated': cursor is not None,
+                           'clock_ns': time.monotonic_ns()}, separators=(',', ':')) + '\n').encode()
+        if len(raw) <= 16384:
+            os.write(startup_primary_fd, raw)
+    except BaseException:
+        pass  # Missing/incomplete diagnostic is UNKNOWN; preserve the primary exception.
+# STARTUP_PRIMARY_END
+"""
+
+
+def batch2_installed_entry(
+    state: Path, *, startup: bool = False
+) -> tuple[list[str], list[str], dict[str, str]]:
     """Explicit QA argv; image CMD is unchanged and no release autoload is added."""
     native = [
         "/opt/hermes/venv/bin/python",
@@ -4642,17 +4954,40 @@ def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str,
         "if not Path(host.__file__).is_relative_to('/opt/hermes/venv'):\n"
         "    raise AssertionError('BATCH2_HOST_ORIGIN_REFUSED')\n"
         + HOST_LAUNCH_DIAGNOSTIC
+        + (STARTUP_HOST_STOP if startup else "")
         + "\nwith HostLaunchDiagnostic():\n"
         "    host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
         + repr(tuple(native))
         + ", Path('/state/work')))\n"
         "    raise SystemExit(host.main())\n"
     )
+    native_bootstrap = BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True")
+    if startup:
+        native_bootstrap = native_bootstrap.replace(
+            "def audit(event, args):", STARTUP_NATIVE_PRIMARY + "\ndef audit(event, args):"
+        )
+        begin = native_bootstrap.index('        emit("bootstrap-exception",')
+        end = native_bootstrap.index("    raise\nfinally:", begin)
+        native_bootstrap = (
+            native_bootstrap[:begin] + "        startup_exception(error)\n" + native_bootstrap[end:]
+        )
+        native_bootstrap = native_bootstrap.replace(
+            'finally:\n    emit("observer", "EXIT")',
+            "finally:\n"
+            "    try:\n"
+            "        faulthandler.cancel_dump_traceback_later()\n"
+            "    except BaseException:\n"
+            "        pass  # Diagnostic loss is UNKNOWN; preserve the primary exception.\n"
+            "    for startup_fd in (startup_fault_fd, startup_primary_fd):\n"
+            "        try:\n"
+            "            os.close(startup_fd)\n"
+            "        except BaseException:\n"
+            "            pass  # Still attempt all remaining owned diagnostic/observer cleanup.\n"
+            "    startup_fault_fd = startup_primary_fd = -1\n"
+            '    emit("observer", "EXIT")',
+        )
     hashes = {}
-    for name, value in (
-        ("host-qa.py", bootstrap),
-        ("native_bootstrap.py", BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True")),
-    ):
+    for name, value in (("host-qa.py", bootstrap), ("native_bootstrap.py", native_bootstrap)):
         path = state / name
         with path.open("x") as output:
             output.write(value)
@@ -5716,6 +6051,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "runtime-restart-no-final"),
         (False, False, False, False, False, "batch2-release-first"),
         (False, False, False, False, False, "batch2-stop-first"),
+        (False, False, False, False, False, "batch2-startup-only"),
     ],
     ids=[
         "support-zero",
@@ -5742,6 +6078,7 @@ class PreparationPrerequisite(RuntimeClient):
         "runtime-restart-no-final",
         "batch2-release-first",
         "batch2-stop-first",
+        "batch2-startup-only",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -5762,12 +6099,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert tmp_path.resolve().is_relative_to(scratch)
     h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
-    installed_native = h03 or batch2
+    startup = applicability == "batch2-startup-only"
+    installed_native = h03 or batch2 or startup
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
     db_fence: dict[str, object] = {}
     if installed_native:
-        h03_plan, reader_python = h03_prerequisites(current_only=batch2)
+        h03_plan, reader_python = h03_prerequisites(current_only=batch2 or startup)
         db_fence = mapping(request.getfixturevalue("historical_database_fence"))
     else:
         assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
@@ -5785,6 +6123,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         applicability is not None
         and not h03
         and not batch2
+        and not startup
         and applicability
         not in {
             "mission-consumer",
@@ -5851,15 +6190,16 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     incomplete = (
         early_return and applicability != "evidence-optional-prefix"
     ) or applicability in {"not-applicable", "unknown"}
-    qualified, evaluation = qualify_records(tmp_path / "qualified", dsn)
-    seed = qualified.seed
-    _, snapshot = publish_capture(qualified, dsn)
-    probe = Probe(seed.directory, seed.package, seed.profile, seed.root, seed.owner)
-    selected = probe.success(
-        "select",
-        probe.write(snapshot_ref=snapshot["snapshot_ref"], recipe_key="records-mapper"),
-        dsn,
-    )
+    if not startup:
+        qualified, evaluation = qualify_records(tmp_path / "qualified", dsn)
+        seed = qualified.seed
+        _, snapshot = publish_capture(qualified, dsn)
+        probe = Probe(seed.directory, seed.package, seed.profile, seed.root, seed.owner)
+        selected = probe.success(
+            "select",
+            probe.write(snapshot_ref=snapshot["snapshot_ref"], recipe_key="records-mapper"),
+            dsn,
+        )
     bootstrap = tmp_path / "native_bootstrap.py"
     bootstrap.write_text(
         BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True") if batch2 else BOOTSTRAP
@@ -6017,8 +6357,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
 
         engine = database_engine(dsn)
         service, supervisor = InstanceService(engine), uuid4()
-        domain, inputs = ManagedAdmission(engine, seed.root), ContractInputs(engine, seed.root)
-        runtime: PreparationPrerequisite | None = None
+        if not startup:
+            domain, inputs = ManagedAdmission(engine, seed.root), ContractInputs(engine, seed.root)
+        runtime: RuntimeClient | None = None
         host: RuntimeHost | None = None
         done = asyncio.Event()
         heartbeat: asyncio.Task[None] | None = None
@@ -6114,7 +6455,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 mounts = [mapping(row) for row in sequence(created["Mounts"])]
                 expected = {(str(directory), "/runtime"), (str(state_dir), "/state")}
                 if (
-                    config["Cmd"] != (qa_host_argv if batch2 else h03_plan["stock_cmd"])
+                    config["Cmd"] != (qa_host_argv if batch2 or startup else h03_plan["stock_cmd"])
                     or config["Entrypoint"] not in (None, [])
                     or config["User"] != str(os.getuid()) + ":" + str(os.getgid())
                     or config["Env"] != image_config["Env"]
@@ -6191,7 +6532,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             before = (proc / "stat").read_bytes()
             command = (proc / "cmdline").read_bytes().split(b"\0")
             expected = [b"/opt/hermes/venv/bin/python", b"-I", b"-m", module.encode(), b""]
-            if batch2:
+            if batch2 or startup:
                 argv = qa_host_argv if module == "omnis_hermes.runtime_host" else qa_native_argv
                 expected = [os.fsencode(value) for value in argv] + [b""]
                 for name, digest in qa_hashes.items():
@@ -6325,12 +6666,15 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         pass
 
             heartbeat = asyncio.create_task(maintain_owner())
-            assert str(supervisor) != seed.owner
+            if not startup:
+                assert str(supervisor) != seed.owner
             # A pytest node name is not a portable AF_UNIX endpoint path.
             directory = scratch / ("cm-" + uuid4().hex)
             assert len(os.fsencode(directory / "runtime.sock")) < 108
             directory.mkdir(mode=0o700)
-            runtime = PreparationPrerequisite(directory, generation=status.generation, epoch=epoch)
+            runtime = (RuntimeClient if startup else PreparationPrerequisite)(
+                directory, generation=status.generation, epoch=epoch
+            )
             if installed_native:
                 state_dir = tmp_path / "h03-state"
                 state_dir.mkdir(mode=0o700)
@@ -6350,8 +6694,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 qa_host_argv: list[str] = []
                 qa_native_argv: list[str] = []
                 qa_hashes: dict[str, str] = {}
-                if batch2:
-                    qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(state_dir)
+                if batch2 or startup:
+                    qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(
+                        state_dir, startup=startup
+                    )
                     observation = state_dir / "native-observation.jsonl"
                     checkpoint(
                         native_entry="INSTALLED_BYTES_QA_ENTRY",
@@ -6420,6 +6766,30 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     ),
                 )
                 runtime.boot = host.boot
+            if startup:
+                # Same real owner/authority and installed Host; no domain setup/task path.
+                try:
+                    await service.heartbeat(supervisor, epoch)
+                    if runtime.writer is None:
+                        await runtime.connect()
+                    ready = await runtime.launch_inert(service, supervisor)
+                    assert ready["state"] == "READY"
+                    await runtime.renew(service, supervisor)
+                    native_process_receipt()
+                    checkpoint(status="STARTUP_READY_CLEANUP_PENDING", startup_ready=True)
+                except BaseException as error:
+                    checkpoint(
+                        startup_ready=False, launch_client_exceptions=launch_exception_chain(error)
+                    )
+                    raise
+                finally:
+                    checkpoint(
+                        bootstrap_observation=launch_bootstrap_checkpoint(observation),
+                        host_launch_observation=host_launch_checkpoint(
+                            state_dir / "host-launch-diagnostic.json"
+                        ),
+                    )
+                return  # Shared outer finally owns exact retirement/fence/engine cleanup.
             # Preparation double only; Host/native stock launch is never replaced.
             preparation = NativePrepareCommand.model_validate(
                 {
@@ -9221,7 +9591,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             except BaseException:
                 cleanup_failed = True
             if installed_native:
-                if batch2:
+                if batch2 or startup:
                     primary_failure = sys.exc_info()[0] is not None
                     try:
                         # Only the already registered owned mount; state_dir may be unbound
@@ -9240,7 +9610,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         h03_state["cleanup_failed"] = True
                         if not primary_failure:
                             raise
-                if batch2 and sys.exc_info()[0] is None:
+                if (batch2 or startup) and sys.exc_info()[0] is None:
                     try:
                         require_native_observation(observation)
                     except BaseException:
@@ -9275,6 +9645,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     native_exit=None if host.process is None else host.process.returncode,
                     native_owned_pids=sorted(host._owned_pids()),
                     bootstrap_observation=launch_bootstrap_checkpoint(observation),
+                )
+            if startup and sys.exc_info()[0] is None:
+                checkpoint(
+                    status="STARTUP_DIAGNOSTIC_READY_NOT_BATCH2_PASS",
+                    startup_primary_cause="UNKNOWN",
                 )
             if batch2 and sys.exc_info()[0] is None:
                 # Explicit post-cleanup oracle remains reachable on both early returns.

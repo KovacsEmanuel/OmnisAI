@@ -1,0 +1,793 @@
+{
+  "Chisel": "BLOCKED_NO_GO",
+  "Reticle": "NOT_APPLICABLE",
+  "access_clocks": [
+    {
+      "clock_ns": 101727679916449,
+      "count": 1,
+      "operation": "_read_bound_input",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    },
+    {
+      "clock_ns": 101727688122580,
+      "count": 1,
+      "operation": "_read_bound_input",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727688252694,
+      "count": 1,
+      "operation": "_read_bound_input",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727689122951,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727689351066,
+      "count": 1,
+      "operation": "_read_bound_input",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    },
+    {
+      "clock_ns": 101727689818934,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    },
+    {
+      "clock_ns": 101727784446642,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    },
+    {
+      "clock_ns": 101727785717700,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    },
+    {
+      "clock_ns": 101727786055146,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727786995386,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "ENTER",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727787209192,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408565552832
+    },
+    {
+      "clock_ns": 101727788989945,
+      "count": 1,
+      "operation": "run_handler",
+      "status": "END",
+      "test": "batch2-access",
+      "thread": 140408573945536
+    }
+  ],
+  "actual_native_container_config": {
+    "cap_drop": [
+      "ALL"
+    ],
+    "host_exit_codes_observed": [
+      0
+    ],
+    "memory": 805306368,
+    "mounts": [
+      {
+        "Destination": "/runtime",
+        "RW": true,
+        "Source": "/home/kali/.hermes/cache/scratch/cm-8e7117ad07b74e5ba1cf629e2119c622",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/state",
+        "RW": true,
+        "Source": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/h03-state",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/opt/hermes/venv/lib/python3.13/site-packages/sitecustomize.py",
+        "RW": false,
+        "Source": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/qa-sitecustomize.py",
+        "Type": "bind"
+      }
+    ],
+    "nano_cpus": 1000000000,
+    "network_mode": "none",
+    "pids_limit": 64,
+    "readonly_rootfs": true,
+    "security_opt": [
+      "no-new-privileges"
+    ],
+    "user": "1000:1000"
+  },
+  "attempts": 1,
+  "batch2_sizes": {
+    "expanded_text_bytes": [
+      18978,
+      18978
+    ],
+    "final_bytes": 27739,
+    "graph_bytes": 49145,
+    "graph_plus_complete_preparation_bytes": 63973,
+    "preparation_bytes": 14828,
+    "stage_bytes": 32434
+  },
+  "binding": {
+    "all_access_after_commit_clock": "PASSED_EXECUTED_ASSERTION_8457",
+    "commit_clock_not_persisted": true,
+    "whole_binding_visible_independent_pg_before_dispatch": "PASSED_EXECUTED_ASSERTION_8349"
+  },
+  "case": "batch2-release-first",
+  "cleanup_readback": {
+    "final_endpoint_lock_readback": {
+      "endpoints_absent": {
+        "control.cap": true,
+        "control.sock": true,
+        "runtime.boot": true,
+        "runtime.sock": true
+      },
+      "locks": {
+        "control.lock": "FREE",
+        "runtime.lock": "FREE"
+      }
+    },
+    "logical_db_retention": "Fixture finalizer explicitly refused under HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN; physical PGDATA retained. No independent SQL census after teardown and no blanket all-rows retention claim.",
+    "native": {
+      "cid": "0a00e63df7ced27e52052376ce38efa827a036f362a1c59634cf7b343948124b",
+      "name": "omnis-h03-6c86fb7be4c940f29e932a9fc11d9890",
+      "nonce": "6c86fb7be4c940f29e932a9fc11d9890"
+    },
+    "native-cid_absent": true,
+    "native-name_absent": true,
+    "native_endpoints_absent": {
+      "runtime.boot": true,
+      "runtime.sock": true
+    },
+    "native_lock_free": true,
+    "native_retirement_certificate": "MISSING_UNCERTAIN",
+    "outer_drained_is_native_certificate": false,
+    "pg": {
+      "container_id": "4ca0df62c833be1df25ab9a3332d8246ae55f0dfdade1e94891012640d5c6c2e",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "project": "omnis-p01-ab93fea3aac947188d51efeee0adc272",
+      "root": "/home/kali/.hermes/cache/scratch/db-c8604b8309714a07",
+      "system_identifier": "7696962866894753822"
+    },
+    "pg-cid_absent": true,
+    "pg-name_absent": true,
+    "pg_project_containers_absent": true,
+    "pg_project_networks_absent": true,
+    "pg_socket_files": [],
+    "pgdata_metadata": [
+      {
+        "bytes": 4096,
+        "device": 2049,
+        "inode": 9496596,
+        "mode": "0o700",
+        "path": "/home/kali/.hermes/cache/scratch/db-c8604b8309714a07/data",
+        "uid": 1000
+      },
+      {
+        "bytes": 3,
+        "device": 2049,
+        "inode": 9496625,
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/db-c8604b8309714a07/data/18/docker/PG_VERSION",
+        "uid": 1000
+      },
+      {
+        "bytes": 8192,
+        "device": 2049,
+        "inode": 9496636,
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/db-c8604b8309714a07/data/18/docker/global/pg_control",
+        "uid": 1000
+      }
+    ],
+    "process_identities": [
+      {
+        "boot": "07286827-394a-4a1a-a6d0-69aa42c38781",
+        "host": [
+          281556,
+          10171922,
+          4026533751
+        ],
+        "host_absent": true,
+        "native": [
+          281744,
+          10172242,
+          4026533751
+        ],
+        "native_absent": true
+      }
+    ],
+    "public_control_cleanup": "PASS"
+  },
+  "cleared_environment_names": [
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "MYPYPATH",
+    "PYTEST_ADDOPTS",
+    "PYTEST_PLUGINS"
+  ],
+  "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --review-adjudicated",
+  "consumption": {
+    "exactly_once_per_result": "PASSED_EXECUTED_ASSERTIONS_8512_8518",
+    "reconcile_repeat_equal": true,
+    "total": 2
+  },
+  "core_artifacts": [
+    {
+      "bytes": 3750,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "fd45d8b702f91ff089ab74b41cd0a6ee23c5ef0acc97b9e95d24079a40434d94"
+    },
+    {
+      "bytes": 7861,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "sha256": "250efd57a1dd9fd33b4f57aa9e31208db1dc6a2eafed721104c2a4ec64913696"
+    },
+    {
+      "bytes": 133,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/method-build-sizes.json",
+      "sha256": "d51aba25de742d4cf87e9fda8c269dcb9be9d71fad6328e622eb05189060f8d5"
+    },
+    {
+      "bytes": 56,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/db-c8604b8309714a07/gate.log.result.json",
+      "sha256": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7"
+    },
+    {
+      "bytes": 836,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-release3.stdout.private",
+      "sha256": "4c78faf8ae0613443c2992e5326b73eceda8f12790231aaa26c5742df21c246f"
+    },
+    {
+      "bytes": 0,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-release3.stderr.private",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-release3-readback.py",
+      "purpose": "read-only sanitized extraction and exact owned resource readback; no consumer launch"
+    }
+  ],
+  "daemon_unchanged": true,
+  "failure": {
+    "assertion": "observation.read_bytes() == native_before",
+    "before_bytes_retained": false,
+    "exception": "AssertionError",
+    "historical_waiter_timeout_exclusive_cause": "UNKNOWN",
+    "line": 8519,
+    "phase": "after installed readback/reconcile/reconcile and consumption checks",
+    "public_reason": "AssertionError; no product reason code at this assertion",
+    "root_cause": "UNKNOWN",
+    "source": "api/tests/test_contract_method_pg.py",
+    "teardown_exception": {
+      "line": 1031,
+      "observed_in_gate_log": true,
+      "reason": "HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN",
+      "source": "api/tests/test_contract_method_pg.py",
+      "type": "AssertionError"
+    }
+  },
+  "fresh_root_absent_immediately_before_exec": true,
+  "head": "09a060cb7acc4e71cf93b6e3c638cee69cc9f2e1",
+  "head_after": "09a060cb7acc4e71cf93b6e3c638cee69cc9f2e1",
+  "host_launch_observation": {
+    "events": [
+      {
+        "elapsed_ms": 5452,
+        "event": "RAISE",
+        "exception": "OTHER",
+        "line": 461,
+        "method": "NativePeer.handshake",
+        "offset": 578
+      },
+      {
+        "elapsed_ms": 5452,
+        "event": "HANDLED",
+        "exception": "OTHER",
+        "line": 461,
+        "method": "NativePeer.handshake",
+        "offset": 674
+      },
+      {
+        "elapsed_ms": 5452,
+        "event": "HANDLED",
+        "exception": "OTHER",
+        "line": 0,
+        "method": "NativePeer.handshake",
+        "offset": 678
+      },
+      {
+        "elapsed_ms": 5452,
+        "event": "RAISE",
+        "exception": "OTHER",
+        "line": 225,
+        "method": "RuntimeHost._launch",
+        "offset": 920
+      },
+      {
+        "elapsed_ms": 5453,
+        "event": "HANDLED",
+        "exception": "OTHER",
+        "line": 225,
+        "method": "RuntimeHost._launch",
+        "offset": 1120
+      },
+      {
+        "elapsed_ms": 9970,
+        "event": "RAISE",
+        "exception": "CancelledError",
+        "line": 322,
+        "method": "NativePeer._read",
+        "offset": 150
+      },
+      {
+        "elapsed_ms": 9970,
+        "event": "HANDLED",
+        "exception": "CancelledError",
+        "line": 322,
+        "method": "NativePeer._read",
+        "offset": 2062
+      },
+      {
+        "elapsed_ms": 9970,
+        "event": "HANDLED",
+        "exception": "CancelledError",
+        "line": 0,
+        "method": "NativePeer._read",
+        "offset": 2068
+      },
+      {
+        "elapsed_ms": 9970,
+        "event": "HANDLED",
+        "exception": "CancelledError",
+        "line": 0,
+        "method": "NativePeer._read",
+        "offset": 2198
+      },
+      {
+        "elapsed_ms": 9970,
+        "event": "HANDLED",
+        "exception": "CancelledError",
+        "line": 0,
+        "method": "NativePeer._read",
+        "offset": 2204
+      }
+    ],
+    "root_cause": "UNKNOWN",
+    "status": "OBSERVED"
+  },
+  "image_unchanged": true,
+  "input_hashes": [
+    {
+      "bytes": 469712,
+      "matches": true,
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sha256": "aa452ae3cd535b5281758b00dd465a82a976987fb1e50949e1a42980133c9743"
+    },
+    {
+      "bytes": 8301,
+      "matches": true,
+      "path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "sha256": "73469fc7adfbed488955b72739a93852f3a993617c07ef7e72a8dadbcfc72a84"
+    },
+    {
+      "bytes": 20477,
+      "matches": true,
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json",
+      "sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318"
+    },
+    {
+      "bytes": 15342,
+      "matches": true,
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json",
+      "sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    },
+    {
+      "bytes": 29222,
+      "matches": true,
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/qa-sitecustomize.py",
+      "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836"
+    }
+  ],
+  "limits": {
+    "changed": false,
+    "expanded_text_each_max_bytes": 32768,
+    "final_max_bytes": 32768,
+    "graph_plus_complete_preparation_max_bytes": 65536,
+    "native_deadline_seconds": 4.5,
+    "run_gate_seconds": 240,
+    "stage_max_bytes": 32768,
+    "waiter_count": 1,
+    "waiter_seconds": 0.75,
+    "waiter_sleep_seconds": 0.01
+  },
+  "native_drain": {
+    "before_replay": "AUTHENTIC_RUNTIME_DRAIN_TRUE_ASSERTION_8484_PASSED",
+    "final_retirement_certificate": "NOT_OBSERVED_UNCERTAIN",
+    "host_exit0_captured": true
+  },
+  "native_entry": "STOCK_HOST_NATIVE_ARGV_EXPLICIT_QA_SITECUSTOMIZE_RO",
+  "native_observation_counts": {
+    "_read_bound_input/ENTERED": 2,
+    "batch2-access/END": 6,
+    "batch2-access/ENTER": 6,
+    "bootstrap-audit/CALLS": 1,
+    "bootstrap-audit/ELAPSED_MS": 1,
+    "bootstrap-exit/NORMAL_SYSTEM_EXIT": 1,
+    "bootstrap-import/ELAPSED_MS": 1,
+    "bootstrap-phase/BOOTSTRAP_RUNPY_ENTRY_BEGIN": 1,
+    "bootstrap-phase/CONVERSATION_MODULE_BEGIN": 2,
+    "bootstrap-phase/CONVERSATION_TURN_API_IMPORT_BEGIN": 2,
+    "bootstrap-phase/ENTRY_MAIN_BEGIN": 1,
+    "bootstrap-phase/ENTRY_MODULE_BEGIN": 1,
+    "bootstrap-phase/ENTRY_READY_WRITE_BEGIN": 2,
+    "bootstrap-phase/ENTRY_SERVER_IMPORT_BEGIN": 2,
+    "bootstrap-phase/MANAGED_RPC_DISPATCH_MODULE_BEGIN": 2,
+    "bootstrap-phase/SERVER_CONVERSATION_IMPORT_BEGIN": 2,
+    "bootstrap-phase/SERVER_ENV_LOADER_IMPORT_BEGIN": 2,
+    "bootstrap-phase/SERVER_LOCAL_ENV_IMPORT_BEGIN": 2,
+    "bootstrap-phase/SERVER_MODULE_BEGIN": 2,
+    "bootstrap-phase/SERVER_SECRET_SCOPE_IMPORT_BEGIN": 2,
+    "bootstrap-phase/SERVER_SPLIT_HANDLERS_IMPORT_BEGIN": 2,
+    "bound-predicates/SATISFIED": 2,
+    "contract-guard/APPROVED": 14,
+    "initialize_contract/ENTERED": 2,
+    "initialize_contract/RETURNED_MS": 2,
+    "native-release/SUCCEEDED": 1,
+    "observer/EXIT": 1,
+    "observer/READY": 1,
+    "run_contract/REAL_AIAgent": 2,
+    "run_handler/ENTERED": 4,
+    "stage/ENTERED": 1,
+    "stage/RETURNED_MS": 1,
+    "validate_stage/ENTERED": 6,
+    "validate_stage/RETURNED_MS": 6
+  },
+  "native_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+  "native_settlement": "UNCERTAIN",
+  "outer_family": {
+    "code": 1,
+    "family_drained": true,
+    "schema_version": 1
+  },
+  "overlap": {
+    "_read_bound_input": {
+      "ended": 2,
+      "entered": 2,
+      "first_two_overlap": true,
+      "threads": 2
+    },
+    "run_handler": {
+      "ended": 4,
+      "entered": 4,
+      "first_two_overlap": true,
+      "threads": 2
+    }
+  },
+  "persisted_readbacks": [
+    {
+      "check_statuses": [
+        "COMPLETE",
+        "COMPLETE"
+      ],
+      "checks": 2,
+      "consumed": 2,
+      "criterion_outcome_count": 0,
+      "family": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "inbox": 2,
+      "no_oracle_functional_pass": false,
+      "operation": "reconcile",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/restart-observer-6c7c0db4dfb341a0a41ea2404f2017a2.stdout",
+      "pid": 281880,
+      "result_statuses": [
+        "SUCCEEDED",
+        "SUCCEEDED"
+      ],
+      "results": 2,
+      "run_id": "1ddd1885-f8c2-497d-aab0-889be3fc6337",
+      "status": "SUCCEEDED",
+      "task_mapping_verified": true,
+      "tasks": [
+        {
+          "attempt_id": "d973bcde-0fdf-4dfd-ac60-ca1dca411035",
+          "batch_index": 0,
+          "brief_id": "dd2449de-7fdc-4d48-8e89-0102c24a2a9f",
+          "check_id": "102cabc6-79d2-4f51-9a83-2360d132d473",
+          "result_id": "33dcfdf4-8ad0-4e3a-a2ec-2a300eaa0b0a",
+          "task_id": "d331d2e3-a801-4d14-9188-281bc3bd85dc"
+        },
+        {
+          "attempt_id": "57b4f511-d462-47a2-a6fe-e523405ce52a",
+          "batch_index": 1,
+          "brief_id": "bf0aed3d-1e9a-4052-bc48-b12a737a1c40",
+          "check_id": "2872e9ed-a4de-408d-9381-dcbd8fd88212",
+          "result_id": "c44a9274-9d91-40aa-9b4a-50d09cb31a79",
+          "task_id": "fa73fe0c-3e64-4975-840d-74f131cd79e5"
+        }
+      ],
+      "usage": [
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        },
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        }
+      ]
+    },
+    {
+      "check_statuses": [
+        "COMPLETE",
+        "COMPLETE"
+      ],
+      "checks": 2,
+      "consumed": 2,
+      "criterion_outcome_count": 0,
+      "family": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "inbox": 2,
+      "no_oracle_functional_pass": false,
+      "operation": "reconcile",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/restart-observer-84dd2c8e38c34a02aa1a985edf9d3a18.stdout",
+      "pid": 281905,
+      "result_statuses": [
+        "SUCCEEDED",
+        "SUCCEEDED"
+      ],
+      "results": 2,
+      "run_id": "1ddd1885-f8c2-497d-aab0-889be3fc6337",
+      "status": "SUCCEEDED",
+      "task_mapping_verified": true,
+      "tasks": [
+        {
+          "attempt_id": "d973bcde-0fdf-4dfd-ac60-ca1dca411035",
+          "batch_index": 0,
+          "brief_id": "dd2449de-7fdc-4d48-8e89-0102c24a2a9f",
+          "check_id": "102cabc6-79d2-4f51-9a83-2360d132d473",
+          "result_id": "33dcfdf4-8ad0-4e3a-a2ec-2a300eaa0b0a",
+          "task_id": "d331d2e3-a801-4d14-9188-281bc3bd85dc"
+        },
+        {
+          "attempt_id": "57b4f511-d462-47a2-a6fe-e523405ce52a",
+          "batch_index": 1,
+          "brief_id": "bf0aed3d-1e9a-4052-bc48-b12a737a1c40",
+          "check_id": "2872e9ed-a4de-408d-9381-dcbd8fd88212",
+          "result_id": "c44a9274-9d91-40aa-9b4a-50d09cb31a79",
+          "task_id": "fa73fe0c-3e64-4975-840d-74f131cd79e5"
+        }
+      ],
+      "usage": [
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        },
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        }
+      ]
+    },
+    {
+      "check_statuses": [
+        "COMPLETE",
+        "COMPLETE"
+      ],
+      "checks": 2,
+      "consumed": 0,
+      "criterion_outcome_count": 0,
+      "family": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "inbox": 2,
+      "no_oracle_functional_pass": false,
+      "operation": "readback",
+      "path": "/home/kali/.hermes/cache/scratch/batch2-stock3-batch2-release-first/test_contract_method_real_nati0/restart-observer-f14fc3dba3f648b49f0529bd07b79d64.stdout",
+      "pid": 281856,
+      "result_statuses": [
+        "SUCCEEDED",
+        "SUCCEEDED"
+      ],
+      "results": 2,
+      "run_id": "1ddd1885-f8c2-497d-aab0-889be3fc6337",
+      "status": "SUCCEEDED",
+      "task_mapping_verified": true,
+      "tasks": [
+        {
+          "attempt_id": "d973bcde-0fdf-4dfd-ac60-ca1dca411035",
+          "batch_index": 0,
+          "brief_id": "dd2449de-7fdc-4d48-8e89-0102c24a2a9f",
+          "check_id": "102cabc6-79d2-4f51-9a83-2360d132d473",
+          "result_id": "33dcfdf4-8ad0-4e3a-a2ec-2a300eaa0b0a",
+          "task_id": "d331d2e3-a801-4d14-9188-281bc3bd85dc"
+        },
+        {
+          "attempt_id": "57b4f511-d462-47a2-a6fe-e523405ce52a",
+          "batch_index": 1,
+          "brief_id": "bf0aed3d-1e9a-4052-bc48-b12a737a1c40",
+          "check_id": "2872e9ed-a4de-408d-9381-dcbd8fd88212",
+          "result_id": "c44a9274-9d91-40aa-9b4a-50d09cb31a79",
+          "task_id": "fa73fe0c-3e64-4975-840d-74f131cd79e5"
+        }
+      ],
+      "usage": [
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        },
+        {
+          "cost": "0",
+          "model_calls": 0,
+          "state": "KNOWN",
+          "target_actions": 0
+        }
+      ]
+    }
+  ],
+  "prerequisites": {
+    "document_preparation": "declared prerequisite double; not stock Supervisor recovery/model turn",
+    "prepare_cli": true,
+    "source_owner": true
+  },
+  "proof_physical_count": 1,
+  "protected_document": "Never read, hashed or modified",
+  "public_actions": [
+    {
+      "action": "stage",
+      "phase": "ACTIVE",
+      "task_status": "BOUND"
+    },
+    {
+      "action": "release",
+      "phase": "ACTIVE",
+      "task_status": "SUCCEEDED"
+    },
+    {
+      "action": "receive",
+      "phase": "AFTER_STOP",
+      "task_status": "SUCCEEDED"
+    },
+    {
+      "action": "release",
+      "phase": "AFTER_STOP",
+      "task_status": "SUCCEEDED"
+    }
+  ],
+  "pytest_current_symlink_deduplicated": true,
+  "readers": [
+    {
+      "execution_attempts": 0,
+      "exit": 0,
+      "operation": "readback",
+      "pid": 281856
+    },
+    {
+      "execution_attempts": 0,
+      "exit": 0,
+      "operation": "reconcile",
+      "pid": 281880
+    },
+    {
+      "execution_attempts": 0,
+      "exit": 0,
+      "operation": "reconcile",
+      "pid": 281905
+    }
+  ],
+  "reordered_final_negative": {
+    "census_unchanged": "PASSED_EXECUTED_ASSERTION_8453",
+    "reason_string": "NOT_CAPTURED",
+    "refused": "CatalogError"
+  },
+  "replay_no_new_work": {
+    "local_guards_and_three_installed_readers": "PASSED_BEFORE_FAILURE",
+    "no_new_effects_global_claim": "NOT_CERTIFIED",
+    "reader_attempts": 0,
+    "strict_final_native_oracle": "NOT_REACHED",
+    "whole_native_observation_byte_equality": "FAIL"
+  },
+  "repository_modified": false,
+  "retry": false,
+  "role_receipts": {
+    "host": {
+      "role": "host",
+      "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+      "status": "READY"
+    },
+    "native": {
+      "role": "native",
+      "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+      "status": "READY"
+    }
+  },
+  "runner_exit": 1,
+  "runner_pid": 279726,
+  "runner_settled": true,
+  "schema_version": 1,
+  "scope": "SOURCE_ORIGINAL_OWNER_INSTALLED_HOST_NATIVE_NOT_STOCK_SUPERVISOR_RECOVERY",
+  "session": "proc_c7e173d2d4b2",
+  "source_commit": "0da2eec",
+  "source_owner_acceptance": "PARTIAL_EVIDENCE_ONLY; FAIL; parent adjudication required",
+  "status": "FAIL",
+  "stop_first": false,
+  "test_counts_observed": [
+    {
+      "count": 1,
+      "kind": "failed"
+    },
+    {
+      "count": 1,
+      "kind": "error"
+    }
+  ],
+  "test_elapsed_seconds_observed": [
+    36.66
+  ],
+  "tracked_diff_empty": true,
+  "waiter": "OBSERVED_RELEASE_FIRST"
+}

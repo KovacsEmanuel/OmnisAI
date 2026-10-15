@@ -1,9 +1,10 @@
 """One private PG -> existing owner -> real pinned native CONTRACT/PURE journey.
 
-SOURCE_HOST_NOT_INSTALLED: stock inert stdio + NativePeer + RuntimeHost and
-RuntimeClient, not an OCI/installed gate. Only document preparation is the reused
-qualification prerequisite double. No native result/runtime/peer is substituted.
-The full source pin must already exist; this test never installs or downloads it.
+SOURCE owner/prepare CLI and document-preparation prerequisite double.
+Batch2: installed OCI Host/native bytes with an explicit QA TestLaunch entry,
+installed current API readers; H03 alone exercises stock-entry runtime restart.
+Other variants retain SOURCE_HOST_NOT_INSTALLED. No native results are doubled.
+This test never installs or downloads runtime/library prerequisites.
 """
 
 import asyncio
@@ -68,7 +69,16 @@ import threading
 import time
 from pathlib import Path
 
-source, managed, inert, adapter, libraries, home, evidence = map(Path, sys.argv[1:])
+installed = sys.argv[1] == "INSTALLED"
+if installed:
+    source = managed = inert = Path("/opt/hermes/source")
+    libraries = Path("/opt/hermes/venv/lib/python3.13/site-packages")
+    adapter = libraries
+    home, evidence = map(Path, sys.argv[2:])
+    if Path(sys.prefix) != Path("/opt/hermes/venv") or any("/api/src" in p or "/home/kali/" in p for p in sys.path):
+        raise ValueError("Installed origin required")
+else:
+    source, managed, inert, adapter, libraries, home, evidence = map(Path, sys.argv[1:])
 if not home.is_dir() or any(home.iterdir()):
     raise ValueError("Fresh home required")
 evidence_fd = os.open(evidence, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
@@ -99,7 +109,7 @@ os.environ.update(HOME=str(home), HERMES_HOME=str(home / "hermes"),
 os.chdir(home)
 allowed = (source, managed, inert, adapter, libraries, home,
            Path(sys.executable).resolve().parents[1],
-           Path("/home/kali/OmnisAI/api/.venv"))
+           *((Path("/home/kali/OmnisAI/api/.venv"),) if not installed else ()))
 bootstrap_path = Path(__file__).absolute()
 bootstrap_started_ns = time.monotonic_ns()
 audit_ns = 0
@@ -110,7 +120,7 @@ def audit(event, args):
     if event == "open" and isinstance(args[0], (str, bytes)):
         name = os.fsdecode(args[0])
         denied |= name.endswith((".env", "auth.json", "credentials.json"))
-        if name.startswith("/home/kali/"):
+        if name.startswith("/home/kali/") or installed and name.startswith("/home/"):
             path = Path(name).absolute()
             denied |= path != bootstrap_path and not any(path == p or p in path.parents for p in allowed)
     if denied:
@@ -134,23 +144,24 @@ def timed_audit(event, args):
         audit_calls += 1
 sys.addaudithook(timed_audit)
 
-class Overlay(importlib.abc.MetaPathFinder):
-    def find_spec(self, fullname, path=None, target=None):
-        relative = Path(*fullname.split("."))
-        for overlay in (managed, inert):
-            package = overlay / relative / "__init__.py"
-            if package.is_file():
-                return importlib.util.spec_from_file_location(fullname, package,
-                    submodule_search_locations=[str(package.parent), str(source / relative)])
-            module = (overlay / relative).with_suffix(".py")
-            if module.is_file():
-                return importlib.util.spec_from_file_location(fullname, module)
-sys.meta_path.insert(0, Overlay())
-sys.path[:0] = [str(source), str(adapter)]
-# Pure Python libraries only: no active profile, .pth evaluation or site startup.
-sys.path.append(str(libraries))
-import agent
-agent.__path__[:0] = [str(managed / "agent"), str(inert / "agent")]
+if not installed:
+    class Overlay(importlib.abc.MetaPathFinder):
+        def find_spec(self, fullname, path=None, target=None):
+            relative = Path(*fullname.split("."))
+            for overlay in (managed, inert):
+                package = overlay / relative / "__init__.py"
+                if package.is_file():
+                    return importlib.util.spec_from_file_location(fullname, package,
+                        submodule_search_locations=[str(package.parent), str(source / relative)])
+                module = (overlay / relative).with_suffix(".py")
+                if module.is_file():
+                    return importlib.util.spec_from_file_location(fullname, module)
+    sys.meta_path.insert(0, Overlay())
+    sys.path[:0] = [str(source), str(adapter)]
+    # Pure Python libraries only: no active profile, .pth evaluation or site startup.
+    sys.path.append(str(libraries))
+    import agent
+    agent.__path__[:0] = [str(managed / "agent"), str(inert / "agent")]
 
 forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "handle_function_call", "_init_client", "_resolve_runtime",
@@ -1999,7 +2010,8 @@ def batch2_observation_exit(observation: Path, stop_first: bool) -> None:
             *deepcopy(after[:end]),
         ],
     )
-    namespace = {**globals(), "observation": observation, "batch2": True}
+    namespace = {**globals(), "observation": observation, "batch2": True,
+                 "checkpoint": lambda **fields: None}
     exec(
         compile(
             ast.fix_missing_locations(ast.Module(body=[cut], type_ignores=[])),
@@ -3233,7 +3245,7 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
     branch = next(
         n
         for n in body.body
-        if isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == "h03"
+        if isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == "installed_native"
     )
     # Keep all real acquisition statements, substituting only actual resource seams.
     helpers = [
@@ -3451,6 +3463,8 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
         state_dir=state_dir,
         tmp_path=tmp_path,
         h03=True,
+        installed_native=True,
+        batch2=False,
         runtime=runtime,
         process_receipts=[],
         db_fence=fence,
@@ -3683,6 +3697,8 @@ def test_h03_reader_actual_launch_latches_family_unknown(tmp_path: Path, mode: s
     namespace.update(
         tmp_path=tmp_path,
         h03=True,
+        installed_native=True,
+        batch2=False,
         h03_state=state,
         db_fence=fence,
         reader_python=Path(sys.executable),
@@ -3860,16 +3876,167 @@ def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> li
     ]
 
 
-def h03_prerequisites() -> tuple[dict[str, object], Path]:
+@pytest.mark.parametrize("scenario", ["batch2-release-first", "batch2-stop-first"])
+def test_batch2_installed_route_before_fixture(
+    request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scenario: str
+) -> None:
+    monkeypatch.delenv("OMNIS_BATCH2_NORMATIVE_REVIEWED", raising=False)
+    monkeypatch.delenv("OMNIS_BATCH2_INPUT_REVIEWED", raising=False)
+    monkeypatch.setattr(sys.modules[__name__], "PIN", tmp_path / "missing-pin")
+    monkeypatch.setattr(sys.modules[__name__], "LIBRARIES", tmp_path / "missing-libraries")
+
+    def no_fixture(name: str) -> object:
+        raise AssertionError("BATCH2_EFFECT_BEFORE_REVIEW")
+
+    monkeypatch.setattr(request, "getfixturevalue", no_fixture)
+    with pytest.raises(AssertionError, match="^H03_EXACT_TWO_REVIEWS_REQUIRED$"):
+        test_contract_method_real_native_pg_owner_receipts_check_inbox(
+            request, tmp_path, monkeypatch, False, False, False, False, False, scenario
+        )
+
+
+def test_batch2_installed_entry_uses_existing_constructor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from types import ModuleType, SimpleNamespace
+
+    build = globals().get("batch2_installed_entry")
+    assert callable(build), "BATCH2_INSTALLED_ENTRY_MISSING"
+    host_argv, native_argv, hashes = build(tmp_path)
+    assert host_argv == ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
+    assert native_argv == [
+        "/opt/hermes/venv/bin/python", "-I", "-B", "/state/native_bootstrap.py",
+        "INSTALLED", "/state/native-home", "/state/native-observation.jsonl",
+    ]
+    for name, digest in hashes.items():
+        assert sha((tmp_path / name).read_bytes()) == digest
+    reached = []
+    module = ModuleType("omnis_hermes.runtime_host")
+    module.__file__ = "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py"
+    module.RuntimeHost = lambda *args, **kwargs: reached.append((args, kwargs))  # type: ignore[attr-defined]
+    module.TestLaunch = lambda command, cwd: SimpleNamespace(command=command, cwd=cwd)  # type: ignore[attr-defined]
+
+    def main() -> int:
+        module.RuntimeHost(Path("/runtime"))  # type: ignore[attr-defined]
+        return 0
+
+    module.main = main  # type: ignore[attr-defined]
+    parent = ModuleType("omnis_hermes")
+    parent.runtime_host = module  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "omnis_hermes", parent)
+    monkeypatch.setitem(sys.modules, "omnis_hermes.runtime_host", module)
+    with pytest.raises(SystemExit) as exit_value:
+        exec(compile((tmp_path / "host-qa.py").read_text(), "<qa-entry>", "exec"), {})
+    assert exit_value.value.code == 0 and len(reached) == 1
+    args, kwargs = reached[0]
+    assert args == (Path("/runtime"),) and set(kwargs) == {"_test_launch"}
+    assert list(kwargs["_test_launch"].command) == native_argv
+    assert kwargs["_test_launch"].cwd == Path("/state/work")
+
+
+def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str, str]]:
+    """Explicit QA argv; image CMD is unchanged and no release autoload is added."""
+    native = [
+        "/opt/hermes/venv/bin/python", "-I", "-B", "/state/native_bootstrap.py",
+        "INSTALLED", "/state/native-home", "/state/native-observation.jsonl",
+    ]
+    host = ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
+    bootstrap = (
+        "from functools import partial\nfrom pathlib import Path\n"
+        "import omnis_hermes.runtime_host as host\n"
+        "if not Path(host.__file__).is_relative_to('/opt/hermes/venv'):\n"
+        "    raise AssertionError('BATCH2_HOST_ORIGIN_REFUSED')\n"
+        "host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
+        + repr(tuple(native)) + ", Path('/state/work')))\n"
+        "raise SystemExit(host.main())\n"
+    )
+    hashes = {}
+    for name, value in (
+        ("host-qa.py", bootstrap),
+        ("native_bootstrap.py", BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True")),
+    ):
+        path = state / name
+        with path.open("x") as output:
+            output.write(value)
+        path.chmod(0o600)
+        hashes[name] = sha(path.read_bytes())
+    (state / "native-home").mkdir(mode=0o700)
+    (state / "native-observation.jsonl").touch(mode=0o600, exist_ok=False)
+    return host, native, hashes
+
+
+def batch2_current_reader(handle: Path) -> dict[str, object]:
+    """Current-only descriptor; historical old/current compatibility is untouched."""
+    import zipfile
+
+    try:
+        info = handle.lstat()
+        if (not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_nlink != 1 or info.st_uid != os.getuid()):
+            raise ValueError
+        descriptor = mapping(json.loads(handle.read_bytes()))
+        if set(descriptor) != {"schema_version", "status", "root", "current"}:
+            raise ValueError
+        if type(descriptor["schema_version"]) is not int or descriptor["schema_version"] != 1:
+            raise ValueError
+        if descriptor["status"] != "READY_CURRENT_ONLY_PREREQUISITES":
+            raise ValueError
+        root = Path(str(descriptor["root"])).resolve(strict=True)
+        if not root.is_relative_to(Path("/home/kali/.hermes/cache/scratch")):
+            raise ValueError
+        current = mapping(descriptor["current"])
+        if set(current) != {"tag", "commit", "source", "wheel", "wheel_sha256", "python", "files"}:
+            raise ValueError
+        if current["tag"] != "current" or current["commit"] != "9abcd93120cc81a3829316785e99a03d204806c0":
+            raise ValueError
+        for name in ("source", "wheel", "python"):
+            path = Path(str(current[name]))
+            # venv's interpreter may be a link to the attested toolchain, not its package.
+            if not path.is_absolute() or not path.is_relative_to(root) or not path.exists():
+                raise ValueError
+            if name != "python" and path.resolve(strict=True) != path:
+                raise ValueError
+        wheel_path, source = Path(str(current["wheel"])), Path(str(current["source"]))
+        if sha(wheel_path.read_bytes()) != current["wheel_sha256"]:
+            raise ValueError
+        files = [mapping(row) for row in sequence(current["files"])]
+        with zipfile.ZipFile(wheel_path) as wheel:
+            names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
+            if len(files) != len(names) or {f["path"] for f in files} != {"api/src/" + n for n in names}:
+                raise ValueError
+            for row in files:
+                name = str(row["path"])
+                raw = (source / name).read_bytes()
+                if (sha(raw) != row["sha256"] or raw != (ROOT / name).read_bytes()
+                        or raw != wheel.read(name.removeprefix("api/src/"))):
+                    raise ValueError
+        origin = subprocess.run(
+            [str(current["python"]), "-I", "-B", "-c", HISTORICAL_ORIGIN,
+             str(source), str(wheel_path)], cwd=root,
+            env={"PATH": "/usr/bin:/bin", "HOME": str(root), "TMPDIR": str(root)},
+            capture_output=True, timeout=15,
+        )
+        if origin.returncode != 0 or origin.stderr:
+            raise ValueError
+        observed = mapping(json.loads(origin.stdout))
+        if observed["installed_bytes"] != "EXACT_WHEEL_AND_GIT_EXPORT":
+            raise ValueError
+        return current
+    except (OSError, ValueError, KeyError, AssertionError, subprocess.TimeoutExpired, zipfile.BadZipFile):
+        raise AssertionError("BATCH2_CURRENT_READER_REFUSED") from None
+
+
+def h03_prerequisites(*, current_only: bool = False) -> tuple[dict[str, object], Path]:
     """Static installed origin before acquiring the existing DB or OCI fixture."""
     digest = sha(Path(__file__).read_bytes())
+    namespace = "OMNIS_BATCH2" if current_only else "OMNIS_H03"
     if any(
-        os.environ.get(key) != digest
-        for key in ("OMNIS_H03_NORMATIVE_REVIEWED", "OMNIS_H03_INPUT_REVIEWED")
+        os.environ.get(namespace + suffix) != digest
+        for suffix in ("_NORMATIVE_REVIEWED", "_INPUT_REVIEWED")
     ):
         raise AssertionError("H03_EXACT_TWO_REVIEWS_REQUIRED")
     try:
-        artifact = Path(os.environ["OMNIS_H03_ARTIFACT"])
+        artifact = Path(os.environ[namespace + "_ARTIFACT"])
         info = artifact.lstat()
         if (
             not stat.S_ISREG(info.st_mode)
@@ -3879,7 +4046,7 @@ def h03_prerequisites() -> tuple[dict[str, object], Path]:
         ):
             raise ValueError
         raw = artifact.read_bytes()
-        if sha(raw) != os.environ["OMNIS_H03_ARTIFACT_SHA"]:
+        if sha(raw) != os.environ[namespace + "_ARTIFACT_SHA"]:
             raise ValueError
         plan = mapping(json.loads(raw))
         root = Path(str(plan["root"])).resolve(strict=True)
@@ -3919,7 +4086,10 @@ def h03_prerequisites() -> tuple[dict[str, object], Path]:
             row["match"] is not True for row in rows
         ):
             raise ValueError
-        _, current = historical_installed_plan(Path(os.environ["OMNIS_H03_API_PREREQUISITES"]))
+        if current_only:
+            current = batch2_current_reader(Path(os.environ[namespace + "_API_PREREQUISITES"]))
+        else:
+            _, current = historical_installed_plan(Path(os.environ["OMNIS_H03_API_PREREQUISITES"]))
         import zipfile
 
         with zipfile.ZipFile(str(current["wheel"])) as wheel:
@@ -4421,11 +4591,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     assert tmp_path.resolve().is_relative_to(scratch)
     h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
+    installed_native = h03 or batch2
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
     db_fence: dict[str, object] = {}
-    if h03:
-        h03_plan, reader_python = h03_prerequisites()
+    if installed_native:
+        h03_plan, reader_python = h03_prerequisites(current_only=batch2)
         db_fence = mapping(request.getfixturevalue("historical_database_fence"))
     else:
         assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
@@ -4553,12 +4724,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         audit = tmp_path / ("restart-observer-" + uuid4().hex + ".jsonl")
         audit.touch(mode=0o600)
         argv = [
-            str(reader_python if h03 else python),
+            str(reader_python if installed_native else python),
             "-I",
             "-B",
             "-c",
             RESTART_READER,
-            "INSTALLED" if h03 else str(ROOT / "api/src"),
+            "INSTALLED" if installed_native else str(ROOT / "api/src"),
             str(audit),
             operation,
             "--request",
@@ -4566,7 +4737,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             "--catalog-root",
             str(seed.root),
         ]
-        if h03:
+        if installed_native:
             prior_unknown = h03_state["reader_unknown"]
             h03_state["reader_unknown"] = True
             db_fence["unsettled"] = True
@@ -4635,7 +4806,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         events = [json.loads(line) for line in audit.read_text().splitlines()]
         expected_exit = 0 if reason is None else 2
         if events != [
-            *([{"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid}] if h03 else []),
+            *([{"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid}] if installed_native else []),
             {"status": "READY", "name": "managed-cli", "pid": reader_pid},
             {"status": "EXIT", "name": str(expected_exit), "pid": reader_pid},
         ]:
@@ -4663,6 +4834,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         return historical_cli_result(expected_exit, stdout, stderr)
 
     async def run() -> None:
+        nonlocal observation
         from omnis.supervisor.native_tasks import control_task
         from omnis.transport.local_control import LocalControl
 
@@ -4765,7 +4937,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 mounts = [mapping(row) for row in sequence(created["Mounts"])]
                 expected = {(str(directory), "/runtime"), (str(state_dir), "/state")}
                 if (
-                    config["Cmd"] != h03_plan["stock_cmd"]
+                    config["Cmd"] != (qa_host_argv if batch2 else h03_plan["stock_cmd"])
                     or config["Entrypoint"] not in (None, [])
                     or config["User"] != str(os.getuid()) + ":" + str(os.getgid())
                     or config["Env"] != image_config["Env"]
@@ -4842,6 +5014,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             before = (proc / "stat").read_bytes()
             command = (proc / "cmdline").read_bytes().split(b"\0")
             expected = [b"/opt/hermes/venv/bin/python", b"-I", b"-m", module.encode(), b""]
+            if batch2:
+                argv = qa_host_argv if module == "omnis_hermes.runtime_host" else qa_native_argv
+                expected = [os.fsencode(value) for value in argv] + [b""]
+                for name, digest in qa_hashes.items():
+                    if sha((proc / "root/state" / name).read_bytes()) != digest:
+                        raise AssertionError("BATCH2_QA_BOOTSTRAP_BYTES_REFUSED")
             if command != expected:
                 raise AssertionError("H03_STOCK_PROCESS_ORIGIN_REFUSED")
             fields = before.rsplit(b")", 1)[1].split()
@@ -4896,6 +5074,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if len(children) != 1:
                 raise AssertionError("H03_NATIVE_FAMILY_UNOBSERVED")
             native_identity = process_identity(int(children[0]), module="tui_gateway.entry")
+            if native_identity[2] != host_identity[2] or host_identity[2] == Path("/proc/self/ns/pid").stat().st_ino:
+                raise AssertionError("H03_PRIVATE_NAMESPACE_REFUSED")
             receipt: dict[str, object] = {
                 "boot": runtime.boot,
                 "host": host_identity,
@@ -4971,7 +5151,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             assert len(os.fsencode(directory / "runtime.sock")) < 108
             directory.mkdir(mode=0o700)
             runtime = PreparationPrerequisite(directory, generation=status.generation, epoch=epoch)
-            if h03:
+            if installed_native:
                 state_dir = tmp_path / "h03-state"
                 state_dir.mkdir(mode=0o700)
                 for name in (
@@ -4987,6 +5167,14 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "xdg/data",
                 ):
                     (state_dir / name).mkdir(mode=0o700, parents=True, exist_ok=True)
+                qa_host_argv: list[str] = []
+                qa_native_argv: list[str] = []
+                qa_hashes: dict[str, str] = {}
+                if batch2:
+                    qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(state_dir)
+                    observation = state_dir / "native-observation.jsonl"
+                    checkpoint(native_entry="INSTALLED_BYTES_QA_ENTRY", qa_host_argv=qa_host_argv,
+                               qa_native_argv=qa_native_argv, qa_bootstrap_sha256=qa_hashes)
                 daemon_id = (await docker("info", "--format={{.ID}}")).decode().strip()
                 if re.fullmatch(r"[A-Za-z0-9:-]{8,128}", daemon_id) is None:
                     raise AssertionError("H03_DAEMON_IDENTITY_REFUSED")
@@ -5015,9 +5203,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 try:
                     cid_raw = await docker(
-                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[
-                            1:
-                        ]
+                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[1:],
+                        *qa_host_argv,
                     )
                 finally:
                     await recover_cid()
@@ -5754,7 +5941,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     raise
                 assert ready["state"] == "READY"
                 await runtime.renew(service, supervisor)
-                if h03:
+                if installed_native:
                     native_process_receipt()
                 checkpoint(launch_diagnostic=diagnostic)
                 staged = await submit_task("stage")
@@ -7684,7 +7871,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     post_adversarial_markers=await markers(),
                 )
         except BaseException:
-            if h03:
+            if installed_native:
                 h03_state["cleanup_failed"] = True
                 db_fence["unsettled"] = True
             raise
@@ -7693,7 +7880,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             resource_absent = False
             for waiter in dispatch_waiters:
                 if not waiter.done():
-                    if h03:
+                    if installed_native:
                         cleanup_failed = True
                     waiter.cancel()
             try:
@@ -7712,7 +7899,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     await heartbeat
             except BaseException:
                 cleanup_failed = True
-            if h03 and proof.get("h03_name"):
+            if installed_native and proof.get("h03_name"):
                 if not cid:
                     try:
                         await recover_cid()
@@ -7759,14 +7946,20 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 await engine.dispose()
             except BaseException:
                 cleanup_failed = True
-            if h03:
+            if installed_native:
+                if batch2 and sys.exc_info()[0] is None:
+                    try:
+                        require_native_observation(observation)
+                    except BaseException:
+                        h03_state["cleanup_failed"] = True
+                        raise
                 h03_state["cleanup_failed"] |= cleanup_failed
                 if resource_absent and not any(h03_state.values()):
                     db_fence["unsettled"] = False
                     checkpoint(
                         h03_resource_cleanup="EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED"
                     )
-                    if proof.get("status") == "H03_CLEANUP_PENDING":
+                    if h03 and proof.get("status") == "H03_CLEANUP_PENDING":
                         checkpoint(
                             status="PASS_SOURCE_OWNER_INSTALLED_HOST_NATIVE_SCOPED",
                             h03_process_restart="PASS_SCOPED_NOT_STOCK_SUPERVISOR_RECOVERY",
@@ -7790,8 +7983,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     bootstrap_observation=launch_bootstrap_checkpoint(observation),
                 )
             if batch2 and sys.exc_info()[0] is None:
-                # Both early-return variants must pass the same oracle after cleanup.
+                # Explicit post-cleanup oracle remains reachable on both early returns.
                 require_native_observation(observation)
+                checkpoint(status="PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED")
         rows = require_native_observation(observation)
         assert [r for r in rows if r["test"] == "run_contract"] == [
             {"test": "run_contract", "status": "REAL_AIAgent", "count": 1}

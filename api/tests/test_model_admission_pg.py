@@ -75,6 +75,8 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
     migrated_database_url: URL,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    protocol_mode: bool = False,
+    protocol_order: str = "nominal",
 ) -> None:
     monkeypatch.syspath_prepend(
         str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
@@ -458,6 +460,24 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
                     admission["projection_ref"],
                 )
         assert await counts() == (1, 1, 0)
+        if protocol_mode:
+            done.set()
+            assert heartbeat is not None
+            await heartbeat
+            heartbeat = None
+            await service.heartbeat(supervisor, epoch)
+            await protocol_pg_consumer(
+                migrated_database_url,
+                owner,
+                service,
+                lifecycle,
+                ready,
+                decision,
+                consumer,
+                monkeypatch,
+                protocol_order,
+            )
+            return
         done.set()
         await heartbeat
         heartbeat = None
@@ -482,3 +502,281 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
         if heartbeat is not None:
             await heartbeat
         await engine.dispose()
+
+
+async def protocol_pg_consumer(
+    database_url: URL,
+    owner: NativeTaskOwner,
+    service: InstanceService,
+    lifecycle: dict[str, object],
+    ready: dict[str, object],
+    decision: dict[str, object],
+    consumer: ModelDispatch,
+    monkeypatch: pytest.MonkeyPatch,
+    order: str,
+) -> None:
+    """Actual SQL + both UDS; only retained native identity is a synthetic seed.
+
+    Observer C runs its own READ COMMITTED connection immediately inside write,
+    then delegates the exact original bytes. No transport method is substituted.
+    """
+    import json
+    import os
+    import tempfile
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+
+    import psycopg
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    from omnis.core.db import validated_database_url
+    from omnis.modules.instance.records import InstanceRecord, LeaseRecord
+    from omnis.modules.runs import model_protocol
+    from omnis.supervisor.native_tasks import control_task
+    from omnis.transport.local_control import LocalControl
+    from test_native_task_client import peer_client
+
+    adapter = importlib.import_module("omnis_hermes.model_admission")
+    command_value = {
+        **lifecycle,
+        "action": "model_protocol_prepare",
+        "data_approval": decision,
+        "provider_config_ref": ready["provider_config_ref"],
+        "protocol_id": str(uuid4()),
+        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+    }
+    command = NativeTaskCommand.model_validate(command_value)
+    wire: list[dict[str, object]] = []
+    observations: list[dict[str, object]] = []
+    reserved, stop_locked, release_stop = asyncio.Event(), asyncio.Event(), asyncio.Event()
+    received, release_ack = asyncio.Event(), asyncio.Event()
+    actual_fence, actual_locked = service.native_preparation_commit, service._locked
+    fence_count, blocker_pid = 0, 0
+    send_tasks: list[asyncio.Task[dict[str, object]]] = []
+    stop_tasks: list[asyncio.Task[int]] = []
+
+    @asynccontextmanager
+    async def fenced(who: UUID, epoch: int, generation: int) -> AsyncIterator[AsyncConnection]:
+        nonlocal fence_count, blocker_pid
+        fence_count += 1
+        current = fence_count
+        async with actual_fence(who, epoch, generation) as conn:
+            if order == "send_first" and current == 2:
+                blocker_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
+            yield conn
+        if current == 1:  # actual RESERVE transaction has committed
+            reserved.set()
+            if order == "stop_first":
+                await asyncio.wait_for(stop_locked.wait(), 1)
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
+        nonlocal blocker_pid
+        async with actual_locked() as row:
+            task = asyncio.current_task()
+            if order == "stop_first" and task is not None and task.get_name() == "protocol-stop":
+                blocker_pid = int(
+                    (await row[0].execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+                )
+                stop_locked.set()
+                await asyncio.wait_for(release_stop.wait(), 1.5)
+            yield row
+
+    monkeypatch.setattr(service, "native_preparation_commit", fenced)
+    monkeypatch.setattr(service, "_locked", locked)
+
+    def cold(payload: dict[str, object]) -> dict[str, object]:
+        body = mapping(mapping(payload["binding"])["payload"])
+        return mapping(
+            adapter.cold_preflight(
+                payload,
+                native_root_id=body["native_root_id"],
+                native_entries=body["entries"],
+                source_configuration=protocol_configuration(payload),
+            )
+        )
+
+    dsn = database_url.render_as_string(hide_password=False)
+    url = validated_database_url(dsn)
+    # Only this attested fixture's existing UDS, no query override or fallback.
+    with psycopg.connect(
+        host=url.host,
+        port=url.port or 5432,
+        user=url.username,
+        password=url.password,
+        dbname=url.database,
+        connect_timeout=2,
+        options="-c statement_timeout=2000",
+        autocommit=True,
+    ) as observer:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="dapg-") as name:
+            root = Path(name)
+            async with peer_client(
+                root,
+                wire,
+                result=cold,
+                runtime_boot=owner.runtime.boot,
+                observed=received,
+                hold=release_ack if order == "send_first" else None,
+            ) as runtime:
+                assert runtime.epoch == owner.epoch
+                owner.runtime = runtime
+                writer = runtime.writer
+                assert writer is not None
+                actual_write = writer.write
+
+                def write(data: bytes) -> None:
+                    frame = mapping(load_json(data))
+                    rows = observer.execute(
+                        "SELECT d.envelope, t.envelope FROM managed_record d "
+                        "JOIN managed_record x ON x.owner_id=d.owner_id "
+                        "AND x.envelope->>'kind'='model-dispatch' "
+                        "AND x.envelope->'payload'->'dispatch_owner_ref'->>'id'=d.envelope->>'id' "
+                        "JOIN managed_record t ON t.owner_id=d.owner_id "
+                        "AND t.envelope->'payload'->'dispatch_ref'->>'id'=x.envelope->>'id' "
+                        "WHERE d.owner_id=%s AND d.envelope->>'kind'='model-dispatch-owner' "
+                        "AND d.envelope->'payload'->>'request_id'=%s "
+                        "AND t.envelope->>'kind'='model-dispatch-transition' "
+                        "AND t.envelope->'payload'->>'state'='SENT'",
+                        (command.owner_id, frame["id"]),
+                    ).fetchall()
+                    assert len(rows) == 1
+                    descriptor = mapping(mapping(rows[0][0])["payload"])
+                    actual_body = json.dumps(frame["payload"], separators=(",", ":")).encode()
+                    assert sha256(data).hexdigest() == descriptor["frame_digest"]
+                    assert sha256(actual_body).hexdigest() == descriptor["body_digest"]
+                    assert actual_body.decode() == descriptor["body"]
+                    assert descriptor["admitted_caps"] == command.protocol_caps
+                    observations.append({"state": "SENT", "request_id": frame["id"]})
+                    actual_write(data)
+
+                monkeypatch.setattr(writer, "write", write)
+                async with LocalControl(
+                    root, service, owner.owner, owner.epoch, native_task=owner.handle
+                ):
+
+                    async def waiter_observed() -> int:
+                        async with asyncio.timeout(0.75):
+                            while True:
+                                # Never reuse a cached pg_stat_activity query snapshot.
+                                observer.execute("SELECT pg_stat_clear_snapshot()")
+                                waiting = observer.execute(
+                                    "SELECT pid FROM pg_stat_activity WHERE datname=current_database() "
+                                    "AND %s=ANY(pg_blocking_pids(pid)) "
+                                    "AND query LIKE '%%instance_control%%FOR UPDATE%%'",
+                                    (blocker_pid,),
+                                ).fetchall()
+                                if len(waiting) == 1:
+                                    assert waiting[0][0] != blocker_pid
+                                    return int(waiting[0][0])
+                                await asyncio.sleep(0.01)
+
+                    if order == "nominal":
+                        reply = await control_task(root, command_value)
+                    else:
+                        try:
+                            sender = asyncio.create_task(control_task(root, command_value))
+                            send_tasks.append(sender)
+                            if order == "stop_first":
+                                await asyncio.wait_for(reserved.wait(), 1)
+                            else:
+                                await asyncio.wait_for(received.wait(), 1.5)
+                                assert len(observations) == 1  # committed SENT before real write
+                            stopper = asyncio.create_task(
+                                service.shutdown(
+                                    uuid4(), command.expected_generation, owner.owner, owner.epoch
+                                ),
+                                name="protocol-stop",
+                            )
+                            stop_tasks.append(stopper)
+                            if order == "stop_first":
+                                await asyncio.wait_for(stop_locked.wait(), 1)
+                            waiter_pid = await waiter_observed()
+                            assert waiter_pid > 0 and not sender.done() and not stopper.done()
+                            if order == "stop_first":
+                                assert not wire and not observations
+                                release_stop.set()
+                                await asyncio.wait_for(stopper, 1)
+                                with pytest.raises(CatalogError):
+                                    await asyncio.wait_for(sender, 1)
+                            else:
+                                # Stop is actually blocked on A until the finite exchange ends.
+                                assert not stopper.done()
+                                release_ack.set()
+                                await asyncio.wait_for(sender, 2)
+                                await asyncio.wait_for(stopper, 1)
+                            reply = await control_task(root, command_value)  # receive-only, stopped
+                        finally:
+                            release_stop.set()
+                            release_ack.set()
+                            for task in [*send_tasks, *stop_tasks]:
+                                if not task.done():
+                                    task.cancel()
+                            await asyncio.gather(*send_tasks, *stop_tasks, return_exceptions=True)
+                    accounting = mapping(reply["protocol_accounting"])
+                    if order == "stop_first":
+                        assert accounting["state"] == "RELEASED"
+                        assert accounting["usage_state"] == "UNKNOWN"
+                        assert (
+                            accounting["protocol_calls"] == 0
+                            and accounting["output_tokens"] is None
+                        )
+                        assert len(observations) == len(wire) == 0
+                        async with owner.domain.engine.begin() as conn:
+                            refs = await model_protocol.replay(conn, command)
+                            assert refs is not None
+                            from omnis.policy import budgets
+
+                            state = await budgets.readback(
+                                conn, command.owner_id, refs["dispatch_ref"]
+                            )
+                            assert all(
+                                mapping(mapping(row)["payload"])["state"] != "SENT"
+                                for row in sequence(state["history"])
+                            )
+                    else:
+                        assert (
+                            accounting["state"] == "SETTLED"
+                            and accounting["usage_state"] == "KNOWN"
+                        )
+                        assert (
+                            accounting["protocol_calls"] == 1 and accounting["output_tokens"] == 0
+                        )
+                        assert len(observations) == len(wire) == 1
+                    assert accounting["model_calls"] == 0
+                    if order == "nominal":
+                        await service.shutdown(
+                            uuid4(), command.expected_generation, owner.owner, owner.epoch
+                        )
+                    replay = await control_task(root, command_value)
+                    assert replay["protocol_accounting"] == accounting
+                    assert len(wire) == (0 if order == "stop_first" else 1)
+                    reader_engine = database_engine(dsn)
+                    try:
+                        fresh = ModelDispatch(ManagedAdmission(reader_engine, owner.domain.root))
+                        async with reader_engine.begin() as conn:
+                            refs = await model_protocol.replay(conn, command)
+                            assert refs is not None
+                            assert (
+                                await model_protocol.readback(conn, fresh, command, refs)
+                                == accounting
+                            )
+                    finally:
+                        await reader_engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("order", ["nominal", "stop_first", "send_first"])
+async def test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback(
+    migrated_database_url: URL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    order: str,
+) -> None:
+    await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
+        migrated_database_url,
+        tmp_path,
+        monkeypatch,
+        protocol_mode=True,
+        protocol_order=order,
+    )

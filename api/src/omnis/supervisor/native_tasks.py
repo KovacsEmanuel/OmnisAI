@@ -6,6 +6,7 @@ import os
 import socket
 import struct
 import sys
+import time
 from contextlib import suppress
 from pathlib import Path
 from typing import NoReturn
@@ -98,11 +99,117 @@ class NativeTaskOwner:
 
     async def handle(self, command: NativeTaskCommand) -> dict[str, object]:
         command = NativeTaskCommand.model_validate(command.model_dump(mode="json"))
-        async with asyncio.timeout(4):
+        deadline = asyncio.get_running_loop().time() + 4
+        async with asyncio.timeout_at(deadline):
             try:
-                return await self._handle(command)
+                return await self._handle(command, deadline)
             except RuntimeUnavailable:
                 raise CatalogError("TASK_INDETERMINATE") from None
+
+    async def _model_protocol(
+        self, command: NativeTaskCommand, binding: dict[str, object], deadline: float
+    ) -> dict[str, object]:
+        from omnis.modules.runs import model_protocol as protocol
+        from omnis.modules.runs.model_dispatch import ModelDispatch
+        from omnis.modules.tasks.managed_contract import integer
+        from omnis.policy import budgets
+
+        consumer = ModelDispatch(self.domain)
+        async with self.domain.engine.begin() as conn:
+            references = await protocol.replay(conn, command)
+            if references is not None:
+                accounting = await protocol.readback(conn, consumer, command, references)
+                return {
+                    **self._reply(command, binding, "BLOCKED"),
+                    "protocol_accounting": accounting,
+                }
+        body = mapping(binding["payload"])
+        if body["runtime_boot"] != self.runtime.boot:
+            raise CatalogError("TASK_INDETERMINATE")
+        authority = mapping(body["authority"])
+        if authority["owner"] != str(self.owner):
+            raise CatalogError("COMMAND_CONFLICT")
+        grant = await self.service.runtime_authority(
+            self.owner, self.epoch, command.expected_generation, inert_probe=True
+        )
+        # T0: Instance -> lease -> managed -> budget. All deterministic checks
+        # and real serialization precede RESERVE; this transaction commits first.
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            references = await protocol.replay(conn, command)
+            if references is not None:
+                accounting = await protocol.readback(conn, consumer, command, references)
+                return {
+                    **self._reply(command, binding, "BLOCKED"),
+                    "protocol_accounting": accounting,
+                }
+            config = await consumer.read_configuration(
+                conn, command.owner_id, command.manifest_ref, command.provider_config_ref, authority
+            )
+            from omnis.modules.tasks import managed_store
+
+            state = await managed_store.state(conn, command.owner_id, manifest=command.manifest_ref)
+            if state["release_started"] is not False or state["final_id"] is not None:
+                raise CatalogError("TASK_REJECTED")
+            caps = protocol.admitted_caps(command, config)
+            prepared = await consumer.prepare(
+                conn,
+                command.owner_id,
+                command.manifest_ref,
+                records.reference(binding),
+                command.data_approval,
+            )
+            frozen = self.runtime.freeze_preflight(
+                grant,
+                mapping(prepared["payload"]),
+                wall_seconds=integer(caps["wall_seconds"], 1, 3),
+            )
+            references = await protocol.reserve(conn, consumer, command, prepared, config, frozen)
+        try:
+            # A owns only Instance/lease; B owns only managed/budget on its own
+            # READ COMMITTED connection. No authority lookup or managed() in A.
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                try:
+                    self.runtime.validate_frozen(frozen)
+                    async with self.domain.engine.begin() as sent_conn:
+                        await protocol.mark_sent(sent_conn, consumer, command, references, frozen)
+                    self.runtime.validate_frozen(frozen)
+                    response = await self.runtime.exchange_frozen(frozen)
+                    result = mapping(response["managed"])
+                    consumer.accept_preflight(result, prepared)
+                except BaseException:
+                    # Retire before A unlocks, including cancellation and bad ACK.
+                    self.runtime.retire_frozen()
+                    raise
+        except BaseException:
+            # Best effort, receive-only and inside the ORIGINAL owner deadline.
+            # A read failure/timeout cannot replace the primary error or prove
+            # no-send. Ambiguous/SENT allocations are never refunded.
+            now = asyncio.get_running_loop().time()
+            cleanup_deadline = min(deadline, now + (frozen.deadline_ns - time.monotonic_ns()) / 1e9)
+            if now < cleanup_deadline:
+                with suppress(SQLAlchemyError, CatalogError, TimeoutError, asyncio.CancelledError):
+                    async with asyncio.timeout_at(cleanup_deadline):
+                        async with self.domain.engine.begin() as conn:
+                            state = await budgets.readback(
+                                conn, command.owner_id, references["dispatch_ref"]
+                            )
+                            if state["state"] == "RESERVED":
+                                await budgets.release(
+                                    conn, command.owner_id, references["dispatch_ref"]
+                                )
+            raise
+        # T2 is receive-only; Stop may already have committed. No new grant.
+        async with self.domain.engine.begin() as conn:
+            await protocol.settle(conn, consumer, command, references, result)
+        async with self.domain.engine.begin() as conn:
+            accounting = await protocol.readback(conn, consumer, command, references)
+        return {**self._reply(command, binding, "BLOCKED"), "protocol_accounting": accounting}
 
     async def _model_configuration(self, command: NativeTaskCommand) -> dict[str, object]:
         from omnis.modules.runs.model_dispatch import ModelDispatch
@@ -190,7 +297,7 @@ class NativeTaskOwner:
             "initialization_observation": observation,
         }
 
-    async def _handle(self, command: NativeTaskCommand) -> dict[str, object]:
+    async def _handle(self, command: NativeTaskCommand, deadline: float) -> dict[str, object]:
         # Lifecycle command ID is the original prepare ID, never an unused nonce.
         back = await self.domain.readback(
             {"schema_version": 1, "owner_id": command.owner_id, "command_id": command.command_id}
@@ -212,7 +319,11 @@ class NativeTaskOwner:
         binding = None if back["binding"] is None else mapping(back["binding"])
         if binding is not None:
             authority = mapping(mapping(binding["payload"])["authority"])
-            if command.action == "receive" and authority["owner"] != str(self.owner):
+            if command.action in {
+                "receive",
+                "model_protocol_prepare",
+                "model_protocol_validation",
+            } and authority["owner"] != str(self.owner):
                 raise CatalogError("COMMAND_CONFLICT")
             if any(
                 authority[key] != expected
@@ -223,6 +334,8 @@ class NativeTaskOwner:
                 )
             ):
                 raise CatalogError("COMMAND_CONFLICT")
+            if command.action in {"model_protocol_prepare", "model_protocol_validation"}:
+                return await self._model_protocol(command, binding, deadline)
             if command.action == "model_preflight":
                 if back["results"] or back["release_started"]:
                     raise CatalogError("TASK_REJECTED")
@@ -530,6 +643,11 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
             fields = {"ok", "correlation_id", "manifest_ref", "binding_ref", "task_status"}
             if command.action == "model_preflight":
                 fields.add("model_admission")
+            if command.action in {"model_protocol_prepare", "model_protocol_validation"}:
+                fields.add("protocol_accounting")
+                from omnis.modules.runs.model_protocol import validate_readback
+
+                validate_readback(reply.get("protocol_accounting"), command)
             if set(reply) != fields:
                 raise CatalogError("TASK_REJECTED")
             if ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref:

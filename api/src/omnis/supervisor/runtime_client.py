@@ -9,6 +9,8 @@ import stat
 import struct
 import time
 from contextlib import suppress
+from dataclasses import dataclass, field
+from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, TypedDict
 from uuid import UUID, uuid4
@@ -203,6 +205,28 @@ def _object(raw: bytes) -> dict[str, object]:
     return {key: item for key, item in value.items()}
 
 
+@dataclass(frozen=True)
+class FrozenPreflight:
+    """Memory-only secret-bearing frame. Never persist or log this object."""
+
+    request_id: str
+    boot: str
+    generation: int
+    epoch: int
+    deadline_ns: int
+    wall_seconds: int
+    frame: bytes = field(repr=False)
+    body: bytes = field(repr=False)
+
+    @property
+    def body_digest(self) -> str:
+        return sha256(self.body).hexdigest()
+
+    @property
+    def frame_digest(self) -> str:
+        return sha256(self.frame).hexdigest()
+
+
 class RuntimeClient:
     def __init__(
         self, directory: Path, *, generation: int, epoch: int, peer_uid: int | None = None
@@ -263,11 +287,98 @@ class RuntimeClient:
             await self.close()
             raise
 
+    def freeze_preflight(
+        self, authority: "RuntimeAuthority", payload: dict[str, object], *, wall_seconds: int
+    ) -> FrozenPreflight:
+        if type(wall_seconds) is not int or not 1 <= wall_seconds <= 3:
+            raise RuntimeUnavailable("Runtime protocol cap denied")
+        if payload.get("protocol") not in (
+            "omnis-managed-admission-v2",
+            "omnis-managed-admission-v3",
+        ):
+            raise RuntimeUnavailable("Runtime protocol denied")
+        body = json.dumps(payload, separators=(",", ":"), allow_nan=False).encode()
+        if len(body) > 32768:
+            raise RuntimeUnavailable("Runtime payload limit")
+        correlation = str(uuid4())
+        frame = (
+            json.dumps(
+                {
+                    "version": 1,
+                    "id": correlation,
+                    "boot": self.boot,
+                    "capability": self.capability,
+                    "generation": self.generation,
+                    "epoch": self.epoch,
+                    "op": "task_model_preflight",
+                    "deadline_ns": authority.deadline_ns,
+                    "payload": _object(body),
+                },
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+            + b"\n"
+        )
+        frozen = FrozenPreflight(
+            correlation,
+            self.boot,
+            authority.generation,
+            authority.epoch,
+            authority.deadline_ns,
+            wall_seconds,
+            frame,
+            body,
+        )
+        self.validate_frozen(frozen)
+        return frozen
+
+    def validate_frozen(self, frozen: FrozenPreflight) -> None:
+        if len(frozen.frame) > MAX_FRAME:
+            raise RuntimeUnavailable("Runtime managed-task limit")
+        if (frozen.boot, frozen.generation, frozen.epoch) != (
+            self.boot,
+            self.generation,
+            self.epoch,
+        ):
+            raise RuntimeUnavailable("Runtime authority mismatch")
+        if time.monotonic_ns() >= frozen.deadline_ns:
+            raise RuntimeUnavailable("Expired runtime authority")
+        if self.reader is None or self.writer is None:
+            raise RuntimeUnavailable("Runtime disconnected")
+
+    async def exchange_frozen(self, frozen: FrozenPreflight) -> dict[str, object]:
+        from omnis.modules.instance.service import RuntimeAuthority
+
+        try:
+            return await self._exchange(
+                "task_model_preflight",
+                RuntimeAuthority(frozen.generation, frozen.epoch, frozen.deadline_ns),
+                _object(frozen.body),
+                _frozen=frozen,
+            )
+        except BaseException:
+            self.retire_frozen()
+            raise
+
+    def retire_frozen(self) -> None:
+        """Retire uncertain protocol bytes before the caller releases its fence.
+
+        Abort discards buffered output synchronously; no fresh close timeout can
+        extend an expired owner/grant. Ordinary graceful close stays unchanged.
+        """
+        writer, self.writer = self.writer, None
+        self.reader = None
+        if writer is not None:
+            with suppress(OSError):
+                writer.transport.abort()
+
     async def _exchange(
         self,
         op: str,
         authority: "RuntimeAuthority | None" = None,
         payload: dict[str, object] | None = None,
+        *,
+        _frozen: FrozenPreflight | None = None,
     ) -> dict[str, object]:
         if (
             op
@@ -284,61 +395,72 @@ class RuntimeClient:
         async with self.lock:
             if self.reader is None or self.writer is None:
                 raise RuntimeUnavailable("Runtime disconnected")
-            correlation = str(uuid4())
-            request: dict[str, object] = {
-                "version": 1,
-                "id": correlation,
-                "boot": self.boot,
-                "capability": self.capability,
-                "generation": self.generation,
-                "epoch": self.epoch,
-                "op": op,
-            }
-            if authority is not None:
-                if (authority.generation, authority.epoch) != (self.generation, self.epoch):
-                    raise RuntimeUnavailable("Runtime authority mismatch")
-                request["deadline_ns"] = authority.deadline_ns
-            if op == "task_receive":
-                request["payload"] = payload
-                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
-                    raise RuntimeUnavailable("Runtime receive limit")
-            timeout = 2.0
-            if op in MANAGED_OPERATIONS and authority is not None:
-                request["payload"] = payload
-                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                if remaining <= 0:
-                    raise RuntimeUnavailable("Expired runtime authority")
-                timeout = min(3.2, remaining)
-                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
-                    raise RuntimeUnavailable("Runtime managed-task limit")
-            if op == "prepare" and authority is not None:
-                from omnis.modules.runs.native_preparation_models import (
-                    LIMITS,
-                    validate_bundle,
+            if _frozen is not None:
+                self.validate_frozen(_frozen)
+                correlation = _frozen.request_id
+                timeout = min(
+                    3.2,
+                    _frozen.wall_seconds,
+                    (_frozen.deadline_ns - time.monotonic_ns()) / 1_000_000_000,
                 )
+                frame = _frozen.frame
+            else:
+                correlation = str(uuid4())
+                request: dict[str, object] = {
+                    "version": 1,
+                    "id": correlation,
+                    "boot": self.boot,
+                    "capability": self.capability,
+                    "generation": self.generation,
+                    "epoch": self.epoch,
+                    "op": op,
+                }
+                if authority is not None:
+                    if (authority.generation, authority.epoch) != (self.generation, self.epoch):
+                        raise RuntimeUnavailable("Runtime authority mismatch")
+                    request["deadline_ns"] = authority.deadline_ns
+                if op == "task_receive":
+                    request["payload"] = payload
+                    if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                        raise RuntimeUnavailable("Runtime receive limit")
+                timeout = 2.0
+                if op in MANAGED_OPERATIONS and authority is not None:
+                    request["payload"] = payload
+                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                    if remaining <= 0:
+                        raise RuntimeUnavailable("Expired runtime authority")
+                    timeout = min(3.2, remaining)
+                    if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                        raise RuntimeUnavailable("Runtime managed-task limit")
+                if op == "prepare" and authority is not None:
+                    from omnis.modules.runs.native_preparation_models import (
+                        LIMITS,
+                        validate_bundle,
+                    )
 
-                if payload is None or set(payload) != {"bundle_ref", "bundle"}:
-                    raise RuntimeUnavailable("Runtime payload denied")
-                validate_bundle(payload["bundle_ref"], payload["bundle"])
-                request["payload"] = payload
-                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                if remaining <= 0:
-                    raise RuntimeUnavailable("Expired runtime authority")
-                # Explicit preparation-only budget; ordinary exchanges and launch unchanged.
-                timeout = min(3.2, remaining)
-                if (
-                    len(json.dumps(request, separators=(",", ":")).encode()) + 1
-                    > LIMITS["max_runtime_request_bytes"]
-                ):
-                    raise RuntimeUnavailable("Runtime preparation limit")
-            if op == "launch" and authority is not None:
-                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                if remaining <= 0:
-                    raise RuntimeUnavailable("Expired runtime authority")
-                timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
+                    if payload is None or set(payload) != {"bundle_ref", "bundle"}:
+                        raise RuntimeUnavailable("Runtime payload denied")
+                    validate_bundle(payload["bundle_ref"], payload["bundle"])
+                    request["payload"] = payload
+                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                    if remaining <= 0:
+                        raise RuntimeUnavailable("Expired runtime authority")
+                    # Explicit preparation-only budget; ordinary exchanges and launch unchanged.
+                    timeout = min(3.2, remaining)
+                    if (
+                        len(json.dumps(request, separators=(",", ":")).encode()) + 1
+                        > LIMITS["max_runtime_request_bytes"]
+                    ):
+                        raise RuntimeUnavailable("Runtime preparation limit")
+                if op == "launch" and authority is not None:
+                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                    if remaining <= 0:
+                        raise RuntimeUnavailable("Expired runtime authority")
+                    timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
+                frame = json.dumps(request, separators=(",", ":")).encode() + b"\n"
             try:
                 async with asyncio.timeout(timeout):
-                    self.writer.write(json.dumps(request, separators=(",", ":")).encode() + b"\n")
+                    self.writer.write(frame)
                     await self.writer.drain()
                     response = _object(await self.reader.readuntil(b"\n"))
                     if response.get("id") != correlation or response.get("boot") != self.boot:

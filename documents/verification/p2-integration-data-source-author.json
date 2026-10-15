@@ -1,0 +1,961 @@
+{
+  "status": "FROZEN_SOURCE_GREEN_PG_COLLECT_READY_NOT_REVIEWED_NOT_DATA_CLOSED",
+  "scope_adjustment": "Parent/operator mid-turn explicitly prioritised smallest reviewable vertical: cleanup/cancellation + separable baseline repair + SOURCE regressions + nominal/Stop-first/send-first PG authored and collected. Remaining breadth stays DATA closure gates, not waived.",
+  "base": "e521d92b2162a8b156061d244a31dcb38d856951",
+  "head": "e521d92b2162a8b156061d244a31dcb38d856951",
+  "sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+    "api/src/omnis/modules/runs/model_protocol.py": "3a6b5657d6df483784d495a89a63614dad209fa96d02cbcdae1825ebf4e3113f",
+    "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+    "api/src/omnis/supervisor/runtime_client.py": "d38d3c38a504fe670283bc7ccf9117d9203a388ec2d81840c2dd9962f0cdbabd",
+    "api/tests/test_model_admission.py": "a87a2e64551b3934ade843d177d533788c1ac98df0e199a393ee0fe2bfc371ad",
+    "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+    "api/tests/test_native_task_client.py": "dd5ced9d419994feebdb60ad82bd1b94d7c15121d3b0f5643a4a594a78819e59",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+  },
+  "files_count": 9,
+  "prior_report_preserved": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/data-admission-author.json",
+    "sha256": "f1aa17cf680ca7dede3cf76c18d0b93fee1e84ff786e0c5b38cbc5ac7d8b2fc1"
+  },
+  "unchanged_from_prior_snapshot": [
+    "api/src/omnis/modules/instance/schemas.py",
+    "api/src/omnis/modules/runs/model_dispatch.py"
+  ],
+  "modified_since_prior_snapshot": [
+    "api/src/omnis/modules/runs/model_protocol.py",
+    "api/src/omnis/supervisor/native_tasks.py",
+    "api/src/omnis/supervisor/runtime_client.py",
+    "api/tests/test_model_admission.py",
+    "api/tests/test_model_admission_pg.py",
+    "api/tests/test_native_task_client.py",
+    "api/tests/test_model_budget.py"
+  ],
+  "new_product_file": "api/src/omnis/modules/runs/model_protocol.py",
+  "separable_baseline_diff": {
+    "path": "api/tests/test_model_budget.py",
+    "change": "one SQL matcher: FROM managed_record -> FROM public.managed_record; catalog positive/malformed version/bool/revision denials and unknown-query assertion retained",
+    "red": "8 failed, 15 passed in 0.30s",
+    "green": "23 passed in 0.40s",
+    "product_budgets_and_store_exact_HEAD": true
+  },
+  "evidence_root": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza",
+  "review_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/review.patch",
+    "sha256": "1d0386645ece52b1d6468b2f4a5b5a23ee47da313894b59aab57cba3227756f2"
+  },
+  "environment": "api/.venv/bin/python -I -B; all inherited PYTHON*, PYTEST*, MYPY* variables removed; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; explicit pytest_asyncio.plugin/no:cacheprovider and api/pyproject.toml. Private evidence root0700 and logs0600. No raw DSN/capability/env/body printed.",
+  "commands": [
+    {
+      "label": "budget-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_budget.py",
+        "-q",
+        "--tb=no"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/budget-red.log",
+      "summary": [
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+        "FAILED api/tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+        "8 failed, 15 passed in 0.30s"
+      ]
+    },
+    {
+      "label": "budget-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_budget.py",
+        "-q",
+        "--tb=no"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/budget-green.log",
+      "summary": [
+        "23 passed in 0.40s"
+      ]
+    },
+    {
+      "label": "cleanup-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/cleanup-red",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/cleanup-red.log",
+      "summary": [
+        "E   asyncio.exceptions.CancelledError",
+        "E   sqlalchemy.exc.SQLAlchemyError: SYNTHETIC_DB_CLEANUP_ERROR",
+        "FAILED api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+        "1 failed, 1 passed in 6.05s"
+      ]
+    },
+    {
+      "label": "cleanup-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup",
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/cleanup-green",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/cleanup-green.log",
+      "summary": [
+        "7 passed in 14.36s"
+      ]
+    },
+    {
+      "label": "receipt-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/receipt-red",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/receipt-red.log",
+      "summary": [
+        "E   Failed: DID NOT RAISE CatalogError",
+        "FAILED api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra",
+        "1 failed in 1.57s"
+      ]
+    },
+    {
+      "label": "descriptor-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/descriptor-red",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/descriptor-red.log",
+      "summary": [
+        "E   Failed: DID NOT RAISE CatalogError",
+        "E   Failed: DID NOT RAISE CatalogError",
+        "FAILED api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+        "FAILED api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+        "2 failed in 4.16s"
+      ]
+    },
+    {
+      "label": "strict-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/strict-green",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/strict-green.log",
+      "summary": [
+        "2 passed in 2.67s"
+      ]
+    },
+    {
+      "label": "cleanup-final-source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_native_task_owner.py",
+        "api/tests/test_ready_model_configuration.py",
+        "api/tests/test_final_model_request.py",
+        "api/tests/test_model_budget.py",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-final",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/cleanup-final-source.log",
+      "summary": [
+        "128 passed in 30.96s"
+      ]
+    },
+    {
+      "label": "ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/ruff-check.log",
+      "summary": []
+    },
+    {
+      "label": "mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy.log",
+      "summary": [
+        "Success: no issues found in 9 source files"
+      ]
+    },
+    {
+      "label": "format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/format.log",
+      "summary": [
+        "5 files reformatted, 4 files left unchanged"
+      ]
+    },
+    {
+      "label": "ruff-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/ruff-final.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "format-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/format-final.log",
+      "summary": []
+    },
+    {
+      "label": "mypy-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-final",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-final.log",
+      "summary": [
+        "api/tests/test_model_admission.py:677: error: Right operand of \"and\" is never evaluated  [unreachable]"
+      ]
+    },
+    {
+      "label": "source-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_native_task_owner.py",
+        "api/tests/test_ready_model_configuration.py",
+        "api/tests/test_final_model_request.py",
+        "api/tests/test_model_budget.py",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-final2",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-final.log",
+      "summary": [
+        "128 passed in 29.63s"
+      ]
+    },
+    {
+      "label": "pg-collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission_pg.py",
+        "--collect-only",
+        "-q",
+        "--tb=no"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/pg-collect.log",
+      "summary": [
+        "4 tests collected in 0.40s"
+      ]
+    },
+    {
+      "label": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/runner-help.log",
+      "summary": []
+    },
+    {
+      "label": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/diff-check.log",
+      "summary": []
+    },
+    {
+      "label": "ruff-frozen",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/ruff-frozen.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "format-frozen",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/format-frozen.log",
+      "summary": []
+    },
+    {
+      "label": "mypy-frozen",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-frozen",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-frozen.log",
+      "summary": [
+        "api/tests/test_model_admission.py:677: error: Non-overlapping equality check (left operand type: \"tuple[StreamWriter, StreamReader | None]\", right operand type: \"tuple[None, None]\")  [comparison-overlap]"
+      ]
+    },
+    {
+      "label": "source-frozen",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_native_task_owner.py",
+        "api/tests/test_ready_model_configuration.py",
+        "api/tests/test_final_model_request.py",
+        "api/tests/test_model_budget.py",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-frozen",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-frozen.log",
+      "summary": [
+        "128 passed in 29.76s"
+      ]
+    },
+    {
+      "label": "pg-collect-frozen",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission_pg.py",
+        "--collect-only",
+        "-q",
+        "--tb=no"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/pg-collect-frozen.log",
+      "summary": [
+        "4 tests collected in 0.39s"
+      ]
+    },
+    {
+      "label": "diff-frozen",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/diff-frozen.log",
+      "summary": []
+    },
+    {
+      "label": "mypy-current",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-current",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/mypy-current.log",
+      "summary": [
+        "Success: no issues found in 9 source files"
+      ]
+    },
+    {
+      "label": "ruff-current",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/ruff-current.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "format-current",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src/omnis/modules/instance/schemas.py",
+        "api/src/omnis/modules/runs/model_dispatch.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/format-current.log",
+      "summary": []
+    },
+    {
+      "label": "source-accepted-snapshot",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_native_task_owner.py",
+        "api/tests/test_ready_model_configuration.py",
+        "api/tests/test_final_model_request.py",
+        "api/tests/test_model_budget.py",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-accepted-snapshot",
+        "-q",
+        "--tb=short"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/source-accepted-snapshot.log",
+      "summary": [
+        "128 passed in 30.15s"
+      ]
+    },
+    {
+      "label": "pg-collect-accepted-snapshot",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission_pg.py",
+        "--collect-only",
+        "-q",
+        "--tb=no"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/pg-collect-accepted-snapshot.log",
+      "summary": [
+        "4 tests collected in 0.39s"
+      ]
+    },
+    {
+      "label": "diff-accepted-snapshot",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/da-complete-62f7pbza/diff-accepted-snapshot.log",
+      "summary": []
+    }
+  ],
+  "final_results": {
+    "source": "128 passed in 30.15s",
+    "source_exit": 0,
+    "source_nonbudget": 105,
+    "budget": 23,
+    "pg_collect": "4 tests collected in 0.39s",
+    "pg_collect_exit": 0,
+    "ruff": 0,
+    "format_check": 0,
+    "mypy": "Success: no issues found in 9 source files",
+    "mypy_exit": 0,
+    "diff_check": 0,
+    "runner_help": 0
+  },
+  "primary_fix": {
+    "observed_red": "Actual handle -> real frozen UDS exchange -> cancellation after real drain, anticipated wait_closed OSError plus SQLAlchemyError on outer cleanup readback replaced original CancelledError. cleanup-red: 1 failed, 1 passed.",
+    "implementation": "handle carries its original per-invocation loop deadline into protocol. Frozen exchange and A error path synchronously abort/detach transport before A unlock, without starting a fresh .5s graceful close. Ordinary close/unrelated exchange unchanged. Receive-only cleanup suppresses anticipated SQLAlchemy/Catalog/timeout/cancellation failures only while primary is propagating; timeout_at(min(original owner deadline, original grant remaining)); skip expired cleanup. Refund only after actual ledger readback RESERVED under existing lock; SENT/ambiguous read failures keep reserve.",
+    "verified_source": "Cancellation, DB cleanup failure, cleanup stall, original-owner timeout reached after actual drain; is_closing plus no reader/writer observed at A exit; replay SENT/UNKNOWN/no resend. Separate before_sent path releases proven RESERVED. Runtime close OSError is not newly broadly swallowed; existing close already suppresses it.",
+    "limits": "Cooperative SOURCE faults prove tested caller paths. Full real-PG cancellation/rollback total-time envelope NOT_RUN; no universal certification of arbitrary database/driver cancellation resistance."
+  },
+  "strictness_fix": {
+    "red": "resealed receipt extra field and descriptor version=true each accepted on old code: 2 failed in 4.16s",
+    "fix": "Exact descriptor/receipt fields, strict version/deadline_ns/UUID/hash/Ref/caps validation before equality; configuration receipt Ref kind validated. New consumer SOURCE replay positives preserved.",
+    "boundary": "Descriptor adversarial reseed explicitly doubles owned descriptor/dispatch resolution; receipt extra runs actual replay consumer. Not forged-real-PG acceptance proof."
+  },
+  "acceptance_matrix": [
+    {
+      "obligation": "NativeTaskCommand -> LocalControl -> owner -> qualified DATA/config -> reserve -> SENT -> exact frozen UDS -> NO_MODEL -> accounting",
+      "status": "PASS_SOURCE / PG_AUTHORED_COLLECTED_NOT_RUN",
+      "tests": [
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]"
+      ]
+    },
+    {
+      "obligation": "After committed RESERVE, Stop-first holds actual Instance/lease lock; send waits; Stop commits then no SENT/no write; proven RESERVED release only",
+      "status": "PG_AUTHORED_COLLECTED_NOT_RUN; SOURCE_RELEASE_PASS",
+      "tests": [
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]"
+      ]
+    },
+    {
+      "obligation": "Send-first has separately committed correlated SENT before actual writer.write; actual Stop waiter until finite exchange ACK/drain",
+      "status": "PG_AUTHORED_COLLECTED_NOT_RUN",
+      "tests": [
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]"
+      ],
+      "observer": "pg_backend_pid from actual held lock, pg_blocking_pids on independent connection, local pg_stat_clear_snapshot each poll. Heartbeat joined before measured overlap and lease refreshed once; finite 0.75s observer. Owner/control/grant/statement deadlines unchanged."
+    },
+    {
+      "obligation": "EOF/timeout/cancel/invalid ACK after actual drain retain SENT/UNKNOWN and replay without grant/resend",
+      "status": "PASS_SOURCE; PG_VARIANTS_NOT_AUTHORED",
+      "tests": [
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+        "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]"
+      ]
+    },
+    {
+      "obligation": "Primary cancellation/error preserved; bounded cleanup using existing deadline; stream retired before A unlock",
+      "status": "PASS_SOURCE",
+      "tests": [
+        "api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+        "api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+        "api/tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]"
+      ]
+    },
+    {
+      "obligation": "Resealed descriptor version strictness and receipt exact fields",
+      "status": "PASS_SOURCE; OTHER_ADVERSARIAL_CASES_REMAIN",
+      "tests": [
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]"
+      ]
+    },
+    {
+      "obligation": "Command32/33 decisions, strict cap/purpose/extra_body controls, original frozen bytes and repr secrecy",
+      "status": "PASS_SOURCE_EXISTING_TESTS_RETAINED",
+      "tests": [
+        "api/tests/test_model_admission.py::test_protocol_command_maximum_control_frame",
+        "api/tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion",
+        "api/tests/test_native_task_client.py::test_frozen_preflight_uses_original_bytes"
+      ]
+    },
+    {
+      "obligation": "Cold preflight has no reservation; pre-stage configuration initialization guard and strict FinalModelRequest unchanged",
+      "status": "PASS_SOURCE_AFFECTED_REGRESSIONS",
+      "tests": [
+        "api/tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+        "api/tests/test_ready_model_configuration.py",
+        "api/tests/test_final_model_request.py",
+        "api/tests/test_native_task_owner.py"
+      ]
+    }
+  ],
+  "remaining_DATA_closure_gates": [
+    "Two independent complementary reviews on these exact nine hashes, then parent-authorized first bounded real consumer QA. This author does not close integration.",
+    "PG nominal/Stop-first/send-first execution and exact owned cleanup/readback remain NOT_RUN (collection is not transaction/concurrency PASS).",
+    "Concurrent duplicate protocol_id produces one send; conflicting duplicate denies: dedicated overlapping new-consumer tests not yet authored.",
+    "New-consumer calls/output exhaustion plus VALIDATION carveout and immutable exact budget conflict tests not yet authored (existing underlying 23 budget regressions green only).",
+    "Deadline expiry while B waits on managed/budget lock: dedicated real-overlap test not yet authored.",
+    "PG EOF/timeout/cancel after actual drain and durable SENT/UNKNOWN/no-refund/replay variants not yet authored/executed.",
+    "Post-Stop late valid receipt, duplicate and conflicting receive-only settlement without new grant: dedicated new cases not yet authored; settled post-Stop replay is present.",
+    "Dedicated new-consumer wrong-owner/config/projection/ref/body-digest, native-turn/purpose/extra_body, broader malformed reseed/receipt, sentinel-error-log channels, native-v4 preflight refusal controls remain incomplete. Existing command grammar/underlying guards are not credited as full new-consumer proof.",
+    "Full canonical, native installed/Host process, provider/model/target traffic remain NOT_RUN and unadmitted."
+  ],
+  "boundaries": {
+    "source": "Real owner/protocol/ledger/projection validation and local UDS transport; SOURCE storage/lease/native identity/preparation doubles explicitly retained. Strict existing cold validator generates ACK, not a canned SDK/model response.",
+    "pg": "Existing qualified publication/configuration and real SQL fixture, synthetic native identity/preparation/peer. Authored and collected only. No PostgreSQL provisioning/execution by this author.",
+    "limits": {
+      "grant_seconds_max": 4.5,
+      "exchange_seconds_max": 3.2,
+      "admitted_wall_seconds_max": 3,
+      "owner_control_seconds": 4,
+      "db_wait_seconds": 2,
+      "payload_bytes": 32768,
+      "runtime_frame_bytes": 65536,
+      "command_bytes": 3600,
+      "control_bytes": 4096,
+      "protocol_budget_calls": 2,
+      "protocol_budget_output": 128,
+      "validation_calls": 1,
+      "validation_output": 64,
+      "model_calls": 0,
+      "cost_observed": null,
+      "cost_estimate": null
+    },
+    "capability": "Full RPC frame/body repr hidden; frame remains memory-only. Persisted descriptor contains qualified DATA body/digests only.",
+    "protected": "Protected documents/Omnis_Notite_Originale.html never read, hashed, edited, staged, or deleted.",
+    "writes": "Only nine declared source/test paths plus private scratch evidence; no new owner/store/harness, dependency/schema/Host/native changes, no global/profile/installation effects.",
+    "git": "No stage/commit/push; index empty and HEAD unchanged."
+  },
+  "review": "NOT_REVIEWED; frozen for parent two independent reviews",
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "lesson_for_parent_skill_delta": "In a bounded cancellation handler, do not await a new close/DB cleanup budget after the owner timeout has already fired. Retire uncertain buffered transport before releasing its fence; preserve the primary cancellation; constrain optional receive-only cleanup to inherited deadlines and require RESERVED proof for release. Source tests must observe real drain and retirement at actual fence exit. No out-of-scope skill file written."
+}

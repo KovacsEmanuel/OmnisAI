@@ -87,6 +87,8 @@ class NativeTaskCommand(StrictBody):
         "model_preflight",
         "model_configuration",
         "model_initialization",
+        "model_protocol_prepare",
+        "model_protocol_validation",
     ]
     manifest_ref: dict[str, object]
     data_approval: dict[str, object] | None = Field(
@@ -99,6 +101,8 @@ class NativeTaskCommand(StrictBody):
         default=None, exclude_if=lambda v: v is None
     )
     initialization_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
+    protocol_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
+    protocol_caps: dict[str, object] | None = Field(default=None, exclude_if=lambda v: v is None)
 
     @field_validator("configuration", mode="before")
     @classmethod
@@ -112,6 +116,26 @@ class NativeTaskCommand(StrictBody):
     def model_preflight(self) -> Self:
         from omnis.modules.settings.catalog_schema import canonical
 
+        if self.action in {"model_protocol_prepare", "model_protocol_validation"}:
+            from omnis.modules.runs.model_dispatch import data_decision
+            from omnis.modules.settings.candidate_catalog import uuid_string
+            from omnis.modules.tasks.managed_contract import exact, integer, ref
+
+            if self.configuration is not None or self.initialization_id is not None:
+                raise ValueError("Protocol consumes owned source only")
+            self.protocol_id = uuid_string(self.protocol_id)
+            self.provider_config_ref = ref(self.provider_config_ref, "provider-config")
+            self.data_approval = data_decision(self.data_approval)
+            self.protocol_caps = exact(
+                self.protocol_caps, {"calls", "output_tokens", "wall_seconds"}
+            )
+            for key, maximum in (("calls", 1), ("output_tokens", 64), ("wall_seconds", 3)):
+                integer(self.protocol_caps[key], 1, maximum)
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Protocol command too large")
+            return self
+        if self.protocol_id is not None or self.protocol_caps is not None:
+            raise ValueError("Protocol fields only belong to protocol commands")
         if self.action == "model_initialization":
             from omnis.modules.settings.candidate_catalog import uuid_string
             from omnis.modules.tasks.managed_contract import ref

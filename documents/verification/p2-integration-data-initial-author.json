@@ -1,0 +1,140 @@
+{
+  "status": "WIP_SOURCE_VERTICAL_FUNCTIONAL_NOT_ACCEPTANCE_COMPLETE",
+  "base": "e521d92b2162a8b156061d244a31dcb38d856951",
+  "sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+    "api/src/omnis/modules/runs/model_protocol.py": "c198c7c2db4122b939b010b4c99414c775bfdf3820831d710975229d543acf56",
+    "api/src/omnis/supervisor/native_tasks.py": "108e69fdb892aef9e4518d3188c6056e5911021cd3c59b37671cd6ef5e19dc86",
+    "api/src/omnis/supervisor/runtime_client.py": "b9db21d15466c3425d19e0402b35d3eb524cdb1dcc12e9888303dbd06c7d200f",
+    "api/tests/test_model_admission.py": "dac373595cdb4e7dd6b4fe04cd0a5ec161c46688d09d7392177f2ce5c182fc60",
+    "api/tests/test_model_admission_pg.py": "bb7e8393da53b2fdf85bdaa061560197e66310c93dbd1b3dccdad8405b6bd4f2",
+    "api/tests/test_native_task_client.py": "6b183090e895b6c3ac7175e7d493358d5833e203617bb199acb43f7ff393c7a8"
+  },
+  "max_command_bytes": 3170,
+  "max_control_bytes": 3275,
+  "baseline_files_unchanged": {
+    "api/tests/test_model_budget.py": true,
+    "api/src/omnis/policy/budgets.py": true,
+    "api/src/omnis/modules/tasks/managed_store.py": true
+  },
+  "head": "e521d92b2162a8b156061d244a31dcb38d856951",
+  "diff_paths": [
+    "api/src/omnis/modules/instance/schemas.py",
+    "api/src/omnis/modules/runs/model_dispatch.py",
+    "api/src/omnis/supervisor/native_tasks.py",
+    "api/src/omnis/supervisor/runtime_client.py",
+    "api/tests/test_model_admission.py",
+    "api/tests/test_model_admission_pg.py",
+    "api/tests/test_native_task_client.py"
+  ],
+  "created_files": ["api/src/omnis/modules/runs/model_protocol.py"],
+  "scope": "Only eight allowed product/test files; no staging/commit/push, no protected HTML reads, no PG/native/live execution.",
+  "source_boundary": "Real NativeTaskCommand/LocalControl UDS/NativeTaskOwner/ModelDispatch/ModelProjections/ledger and RuntimeClient UDS. SOURCE storage/lease/native identity doubles; strict native cold validator computes ACK from received payload. PG test adds actual qualified publication/configuration/storage with C observer before delegated writer.write; COLLECT ONLY.",
+  "evidence_root": "/home/kali/.hermes/cache/scratch/da-author-8cl2fCpv",
+  "actual_summaries": {
+    "red.log": [
+      "2 failed in 0.31s"
+    ],
+    "vertical-red.log": [
+      "1 failed in 1.06s"
+    ],
+    "final-source2.log": [
+      "99 passed in 13.62s"
+    ],
+    "budget-isolated.log": [
+      "8 failed, 15 passed in 0.32s"
+    ],
+    "pg-collect.log": [
+      "2 tests collected in 0.40s"
+    ],
+    "mypy-final2.log": [
+      "Success: no issues found in 8 source files"
+    ]
+  },
+  "commands": {
+    "source_prefix": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml",
+    "red": [
+      "api/tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback api/tests/test_native_task_client.py::test_frozen_preflight_uses_original_bytes --basetemp /home/kali/.hermes/cache/scratch/da-author-8cl2fCpv/tests-red -q --tb=no",
+      "api/tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source --basetemp /home/kali/.hermes/cache/scratch/da-author-8cl2fCpv/vertical-red -q --tb=short"
+    ],
+    "final_source": "api/tests/test_model_admission.py api/tests/test_native_task_client.py api/tests/test_native_task_owner.py api/tests/test_ready_model_configuration.py api/tests/test_final_model_request.py --basetemp /home/kali/.hermes/cache/scratch/da-author-8cl2fCpv/final-source2 -q --tb=no",
+    "budget": "api/tests/test_model_budget.py -q --tb=no",
+    "pg_collection": "api/tests/test_model_admission_pg.py --collect-only -q --tb=no",
+    "mypy": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/da-author-8cl2fCpv/mypy api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/runs/model_dispatch.py api/src/omnis/modules/runs/model_protocol.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_native_task_client.py",
+    "ruff": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/runs/model_dispatch.py api/src/omnis/modules/runs/model_protocol.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_native_task_client.py",
+    "format": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/runs/model_dispatch.py api/src/omnis/modules/runs/model_protocol.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_native_task_client.py",
+    "runner_parser": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --help"
+  },
+  "exit_codes": {
+    "red": 1,
+    "vertical_red": 1,
+    "final_source": 0,
+    "isolated_budget": 1,
+    "pg_collect": 0,
+    "mypy_final": 0,
+    "ruff_final": 0,
+    "format_check_final": 0,
+    "runner_help": 0,
+    "diff_check": 0
+  },
+  "intermediate_failures": [
+    "green1:9 failures/97 passes including the 8 unchanged budget matcher failures",
+    "SOURCE storage fixture initially omitted catalog execution-selection resolution; fixed explicit SOURCE lookup",
+    "SOURCE cold identity producer initially used a different parent session from prior ordinary receipt; fixed by reusing actual existing lifecycle cold validator, not weakening product receipt conflict",
+    "mypy2:3 test method-assignment/annotation errors corrected",
+    "ruff final first pass:B010 on constant setattr corrected without ignore"
+  ],
+  "implemented": [
+    "fixed PREPARE/VALIDATION private commands, explicit caps/data/config refs",
+    "post-binding qualified source config reader retaining pre-stage initialization restriction",
+    "single immutable protocol budget and actual ledger reserve/SENT/settle",
+    "memory-only frozen RPC bytes and safe persisted descriptor digests",
+    "A Instance/lease, B separate managed/budget commit, T2 receive-only accounting",
+    "SOURCE real UDS positive, EOF/timeout/cancel/invalidACK preserve SENT/UNKNOWN and retire stream",
+    "read-only replay without new grant, including synthetic stopped-fence denial of new grants",
+    "32/33 decision grammar and payload32768/32769 boundaries with escaping; immutable frame mutation refusal"
+  ],
+  "not_run": [
+    "actual PostgreSQL tests",
+    "native installed/Host/native agent processes",
+    "live model/provider/target traffic",
+    "canonical",
+    "two independent reviews"
+  ],
+  "remaining_acceptance_work": [
+    "PG both Stop/send overlapping orders with real blocking PID and cleared statistics snapshots are NOT YET AUTHORED.",
+    "PG concurrent duplicate, PREPARE exhaustion plus VALIDATION carveout, ACK-loss variants and post-Stop in-flight settlement controls are NOT YET AUTHORED.",
+    "Dedicated new-consumer wrong-owner/config/ref/payload-digest and immutable-budget conflict tests are incomplete (existing underlying regressions reused).",
+    "PG consumer only collected, not exercised; no PG PASS or source-to-PG transfer.",
+    "Budget regression blocked by unchanged test matcher at test_model_budget.py:416 expecting FROM managed_record, while unchanged store uses FROM public.managed_record. Eight failures reproduced isolated; file is outside allowed writes."
+  ],
+  "review_risks": [
+    "After-error receive-only release/read cleanup awaits a DB operation after cancellation; review total owner/control deadline envelope, especially cancellation plus DB failure.",
+    "Descriptor and receipt readback strictness/cross-binding checks need independent adversarial review.",
+    "SOURCE fixture extends existing large tracer and inherits its synthetic identity/storage setup; not PG or native authority proof.",
+    "PG C observer query currently covers nominal single dispatch; expand exact transition-to-dispatch correlation before multiple-dispatch concurrency tests."
+  ],
+  "locks": "T0 Instance -> lease -> managed -> budget; A Instance -> lease with B separate connection managed -> budget then committed SENT; transport lock taken only after Instance and never invokes runtime_authority under it; T2 managed/budget only.",
+  "limits": {
+    "grant_seconds_max": 4.5,
+    "exchange_seconds_max": 3.2,
+    "admitted_wall_seconds_max": 3,
+    "owner_control_seconds": 4,
+    "db_wait_seconds": 2,
+    "payload_bytes": 32768,
+    "runtime_frame_bytes": 65536,
+    "command_bytes": 3600,
+    "control_bytes": 4096,
+    "protocol_budget_calls": 2,
+    "protocol_budget_output": 128,
+    "validation_calls": 1,
+    "validation_output": 64,
+    "model_calls": 0,
+    "cost_observed": null,
+    "cost_estimate": null
+  },
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "parent_next": "Do not accept or launch PG QA yet: complete missing concurrency/negative test obligations and adjudicate baseline test scope; then two complementary reviews on final hashes before admitted PG QA."
+}

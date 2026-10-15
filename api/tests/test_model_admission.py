@@ -91,6 +91,10 @@ def test_data_decision_cannot_be_attached_to_cold_release() -> None:
 async def test_qualified_projection_reaches_cold_admission_without_model_reservation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    protocol_mode: bool = False,
+    protocol_failure: str | None = None,
+    cleanup_fault: str | None = None,
+    protocol_case: str | None = None,
 ) -> None:
     """Real composer/reader/adapter; storage and native identity are SOURCE doubles."""
     name = "omnis.modules.runs.model_dispatch"
@@ -147,6 +151,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
 
     monkeypatch.setattr(managed, "_source", source_io)
     monkeypatch.setattr(budgets, "_transaction", AsyncMock())
+    real_reserve = budgets.reserve
     reserve = AsyncMock(side_effect=AssertionError("cold path reached ledger reserve"))
     monkeypatch.setattr(budgets, "reserve", reserve)
     monkeypatch.setattr(managed_store, "lock", AsyncMock())
@@ -167,7 +172,9 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
         conn: object, actual_owner: str, actual_run: str, pin: object
     ) -> dict[str, object]:
         assert actual_owner == owner and actual_run == run
-        return next(item for item in graph if records.reference(item) == pin)
+        return next(
+            item for item in [*graph, sources[0].selection] if records.reference(item) == pin
+        )
 
     async def put(conn: object, actual_owner: str, actual_run: str, value: object) -> None:
         assert actual_owner == owner and actual_run == run
@@ -447,3 +454,424 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
         await handler.handle(request)
     assert canonical(graph) == before
     reserve.assert_not_awaited()
+
+    if not protocol_mode:
+        return
+    # SYNTHETIC_PROTOCOL_SEED_NOT_NATIVE_PROOF. SQL storage/fences are SOURCE
+    # doubles; producer, ledger, qualified readers, owner and both UDS are real.
+    import asyncio
+    import os
+    import tempfile
+
+    from omnis.supervisor.native_tasks import control_task
+    from omnis.transport.local_control import LocalControl
+    from test_native_task_client import peer_client
+    from test_ready_model_configuration import configuration
+
+    monkeypatch.setattr(budgets, "reserve", real_reserve)
+    monkeypatch.setattr(budgets, "_scope_lock", AsyncMock())
+    state: dict[str, object] = {
+        "run_id": run,
+        "binding_id": None,
+        "stage_started": False,
+        "release_started": False,
+        "final_id": None,
+    }
+    monkeypatch.setattr(managed_store, "state", AsyncMock(side_effect=lambda *a, **k: dict(state)))
+
+    async def owned(conn: object, actual_owner: str, pin: object) -> tuple[str, dict[str, object]]:
+        return run, await get(conn, actual_owner, run, pin)
+
+    monkeypatch.setattr(managed_store, "owned", owned)
+
+    async def execute(statement: object, params: object = None) -> Mock:
+        query = str(statement)
+        args = {} if params is None else mapping(params)
+        found: list[dict[str, object]] = []
+        if "model-data-approval" in query:
+            found = [
+                r
+                for r in graph
+                if r["kind"] == "model-data-approval"
+                and mapping(r["payload"])["decision_id"] == args["decision"]
+            ]
+        elif "contract-input-command" in query:
+            found = [
+                r
+                for r in graph
+                if r["kind"] == "contract-input-command"
+                and mapping(r["payload"])["command_id"] == args["command"]
+            ]
+        elif "model-usage-receipt" in query:
+            found = [
+                r
+                for r in graph
+                if r["kind"] == "model-usage-receipt"
+                and mapping(mapping(r["payload"])["usage"])["receipt_id"] == args["receipt"]
+            ]
+        elif "instance_id" not in query:
+            raise AssertionError("unexpected SOURCE SQL")
+        answer = Mock()
+        answer.scalar_one.return_value = authority["instance_id"]
+        answer.scalars.return_value.all.return_value = found
+        return answer
+
+    connection.execute = execute
+    monkeypatch.setattr(managed.engine, "begin", lambda: fence(UUID(str(authority["owner"]))))
+    service.engine = managed.engine
+    monkeypatch.setattr(
+        "omnis.transport.local_control.readiness_reason", AsyncMock(return_value=None)
+    )
+    back: dict[str, object] = {
+        "manifest_ref": records.reference(manifest),
+        "manifest": manifest,
+        "binding": None,
+        "results": [],
+        "stage_started": False,
+        "release_started": False,
+    }
+    monkeypatch.setattr(managed, "readback", AsyncMock(side_effect=lambda *_: dict(back)))
+    service.runtime_authority = AsyncMock(
+        side_effect=lambda *a, **k: RuntimeAuthority(
+            runtime.generation, runtime.epoch, time.monotonic_ns() + 4_000_000_000
+        )
+    )
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="dap-") as directory:
+        root = Path(directory)
+        requests: list[dict[str, object]] = []
+
+        observed = asyncio.Event()
+
+        def cold_result(payload: dict[str, object]) -> dict[str, object]:
+            result = mapping(lifecycle.model_preflight(payload))
+            return {**result, "model_calls": 1} if protocol_failure == "invalid_ack" else result
+
+        async with peer_client(
+            root,
+            requests,
+            result=cold_result,
+            reply=protocol_failure != "eof",
+            failure=protocol_failure,
+            observed=observed,
+            runtime_boot=str(mapping(binding["payload"])["runtime_boot"]),
+        ) as real:
+            handler.runtime = real
+            drained = asyncio.Event()
+            drain_writer = real.writer
+            assert drain_writer is not None
+            actual_drain = drain_writer.drain
+
+            async def observed_drain() -> None:
+                await actual_drain()
+                drained.set()
+
+            monkeypatch.setattr(drain_writer, "drain", observed_drain)
+            async with LocalControl(
+                root, service, handler.owner, handler.epoch, native_task=handler.handle
+            ):
+                config_reply = await control_task(
+                    root,
+                    {
+                        **request.model_dump(mode="json", exclude={"data_approval"}),
+                        "action": "model_configuration",
+                        "configuration": configuration(),
+                    },
+                )
+                state.update(binding_id=binding["id"], stage_started=True)
+                back.update(binding=binding, stage_started=True)
+                protocol_command = {
+                    **request.model_dump(mode="json"),
+                    "action": "model_protocol_prepare",
+                    "provider_config_ref": config_reply["provider_config_ref"],
+                    "protocol_id": str(uuid4()),
+                    "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+                }
+                entered = 0
+
+                @asynccontextmanager
+                async def protocol_fence(*args: object) -> AsyncIterator[AsyncConnection]:
+                    nonlocal entered
+                    entered += 1
+                    this_entry = entered
+                    transport = real.writer.transport if real.writer is not None else None
+                    if this_entry == 2 and protocol_failure == "before_sent":
+                        raise CatalogError("TASK_INDETERMINATE")
+                    try:
+                        async with fence(*args) as conn:
+                            yield conn
+                    finally:
+                        if this_entry == 2 and protocol_failure in {
+                            "cancel",
+                            "eof",
+                            "timeout",
+                            "invalid_ack",
+                        }:
+                            assert real.writer is None and real.reader is None
+                            assert transport is not None and transport.is_closing()
+
+                service.native_preparation_commit = protocol_fence
+                if protocol_failure is None:
+                    reply = await control_task(root, protocol_command)
+                else:
+                    if protocol_failure == "cancel":
+                        if cleanup_fault == "expired":
+                            original_back = managed.readback
+
+                            async def delayed_back(value: object) -> dict[str, object]:
+                                await asyncio.sleep(1.25)
+                                return await original_back(value)
+
+                            monkeypatch.setattr(managed, "readback", delayed_back)
+                        owner_started = asyncio.get_running_loop().time()
+                        task = asyncio.create_task(
+                            handler.handle(NativeTaskCommand.model_validate(protocol_command))
+                        )
+                        await asyncio.wait_for(observed.wait(), 2)
+                        await asyncio.wait_for(drained.wait(), 0.2)
+                        writer = real.writer
+                        assert writer is not None
+                        actual_wait_closed = writer.wait_closed
+                        actual_readback = budgets.readback
+
+                        async def broken_wait_closed() -> None:
+                            await actual_wait_closed()
+                            raise OSError("SYNTHETIC_CLOSE_ERROR")
+
+                        async def broken_readback(
+                            *args: object, **kwargs: object
+                        ) -> dict[str, object]:
+                            from sqlalchemy.exc import SQLAlchemyError
+
+                            if cleanup_fault in {"stall", "expired"}:
+                                await asyncio.Event().wait()
+                            raise SQLAlchemyError("SYNTHETIC_DB_CLEANUP_ERROR")
+
+                        if cleanup_fault is not None:
+                            monkeypatch.setattr(writer, "wait_closed", broken_wait_closed)
+                            monkeypatch.setattr(budgets, "readback", broken_readback)
+                        started = asyncio.get_running_loop().time()
+                        if cleanup_fault != "expired":
+                            task.cancel()
+                        try:
+                            async with asyncio.timeout(4.25):  # test fuse, not a product grant
+                                with pytest.raises(
+                                    TimeoutError
+                                    if cleanup_fault == "expired"
+                                    else asyncio.CancelledError
+                                ):
+                                    await task
+                        finally:
+                            monkeypatch.setattr(budgets, "readback", actual_readback)
+                        assert asyncio.get_running_loop().time() - started < 4.1
+                        assert asyncio.get_running_loop().time() - owner_started < 4.15
+                    else:
+                        with pytest.raises(
+                            CatalogError,
+                            match=(
+                                "TASK_REJECTED"
+                                if protocol_failure == "invalid_ack"
+                                else "TASK_INDETERMINATE"
+                            ),
+                        ):
+                            await control_task(root, protocol_command)
+                    if protocol_failure != "before_sent":
+                        assert real.writer is None and real.reader is None
+                    reply = await control_task(root, protocol_command)
+                if protocol_failure != "before_sent":
+                    assert drained.is_set()
+                accounting = mapping(reply["protocol_accounting"])
+                assert accounting["state"] == (
+                    "SETTLED"
+                    if protocol_failure is None
+                    else "RELEASED"
+                    if protocol_failure == "before_sent"
+                    else "SENT"
+                )
+                assert accounting["usage_state"] == (
+                    "KNOWN" if protocol_failure is None else "UNKNOWN"
+                )
+                assert (
+                    accounting["protocol_calls"] == (0 if protocol_failure == "before_sent" else 1)
+                    and accounting["model_calls"] == 0
+                )
+                assert accounting["output_tokens"] == (0 if protocol_failure is None else None)
+                assert len(requests) == (0 if protocol_failure == "before_sent" else 1)
+                if protocol_case == "descriptor_version":
+                    from omnis.modules.runs import model_protocol
+
+                    command_dto = NativeTaskCommand.model_validate(protocol_command)
+                    refs = await model_protocol.replay(connection, command_dto)
+                    assert refs is not None
+                    descriptor = next(r for r in graph if r["kind"] == "model-dispatch-owner")
+                    forged = records.envelope(
+                        "model-dispatch-owner", {**mapping(descriptor["payload"]), "version": True}
+                    )
+                    actual_owned, actual_budget_read = managed_store.owned, budgets.readback
+
+                    async def forged_owned(
+                        conn: AsyncConnection, who: str, pin: object
+                    ) -> tuple[str, dict[str, object]]:
+                        if pin == refs["descriptor_ref"]:
+                            return run, forged
+                        return await actual_owned(conn, who, pin)
+
+                    async def forged_dispatch(
+                        conn: AsyncConnection, who: str, pin: object
+                    ) -> dict[str, object]:
+                        value = await actual_budget_read(conn, who, pin)
+                        dispatch = mapping(value["dispatch"])
+                        return {
+                            **value,
+                            "dispatch": {
+                                **dispatch,
+                                "payload": {
+                                    **mapping(dispatch["payload"]),
+                                    "dispatch_owner_ref": records.reference(forged),
+                                },
+                            },
+                        }
+
+                    with monkeypatch.context() as mutation:
+                        mutation.setattr(managed_store, "owned", forged_owned)
+                        mutation.setattr(budgets, "readback", forged_dispatch)
+                        with pytest.raises(CatalogError):
+                            await model_protocol.qualified(connection, consumer, command_dto, refs)
+                if protocol_case == "receipt_extra":
+                    receipt = next(r for r in graph if r["kind"] == "model-protocol-receipt")
+                    original_receipt = dict(receipt)
+                    receipt["payload"] = {
+                        **mapping(receipt["payload"]),
+                        "extra": "SYNTHETIC_SENTINEL",
+                    }
+                    receipt["digest"] = sha256(
+                        canonical({k: v for k, v in receipt.items() if k != "digest"})
+                    ).hexdigest()
+                    try:
+                        with pytest.raises(CatalogError):
+                            await control_task(root, protocol_command)
+                    finally:
+                        receipt.clear()
+                        receipt.update(original_receipt)
+                service.runtime_authority.reset_mock()
+                service.native_preparation_commit = Mock(side_effect=AssertionError("replay grant"))
+                replay = await control_task(root, protocol_command)
+                assert mapping(replay["protocol_accounting"]) == accounting
+                assert len(requests) == (0 if protocol_failure == "before_sent" else 1)
+                service.runtime_authority.assert_not_awaited()
+    assert not {"native-turn"} & {str(r["kind"]) for r in graph}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "failure", [None, "eof", "invalid_ack", "timeout", "cancel", "before_sent"]
+)
+async def test_protocol_data_reserve_sent_transport_settlement_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str | None,
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path,
+        monkeypatch,
+        protocol_mode=True,
+        protocol_failure=failure,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["receipt_extra", "descriptor_version"])
+async def test_protocol_replay_rejects_resealed_receipt_extra(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case=case
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fault", ["db_error", "stall", "expired"])
+async def test_protocol_cancel_preserves_primary_and_bounds_cleanup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_failure="cancel", cleanup_fault=fault
+    )
+
+
+@pytest.mark.asyncio
+async def test_protocol_command_reaches_owner_not_receive_fallback() -> None:
+    """RED tracer at the actual owner entry; storage is a SOURCE boundary double."""
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    value = {
+        **preflight_command(),
+        "action": "model_protocol_prepare",
+        "protocol_id": str(uuid4()),
+        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+        "provider_config_ref": records.reference(records.envelope("provider-config", {})),
+    }
+    command = NativeTaskCommand.model_validate(value)
+    domain = Mock(spec=ManagedAdmission)
+    domain.readback = AsyncMock(side_effect=CatalogError("OWNED_SOURCE_LOOKUP"))
+    owner = NativeTaskOwner(
+        domain,
+        Mock(spec=InstanceService),
+        uuid4(),
+        1,
+        RuntimeClient(Path("/unused"), generation=0, epoch=1),
+    )
+    with pytest.raises(CatalogError, match="OWNED_SOURCE_LOOKUP"):
+        await owner.handle(command)
+    domain.readback.assert_awaited_once()
+
+
+@pytest.mark.parametrize("count", [32, 33])
+def test_protocol_command_maximum_control_frame(count: int) -> None:
+    value = {
+        **preflight_command(),
+        "action": "model_protocol_validation",
+        "protocol_id": str(uuid4()),
+        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+        "provider_config_ref": records.reference(records.envelope("provider-config", {})),
+    }
+    approval = mapping(value["data_approval"])
+    approval["approved_text_digests"] = [sha256(str(i).encode()).hexdigest() for i in range(count)]
+    value["data_approval"] = approval
+    if count == 33:
+        with pytest.raises(ValueError):
+            NativeTaskCommand.model_validate(value)
+    else:
+        checked = NativeTaskCommand.model_validate(value).model_dump(mode="json")
+        assert len(canonical(checked)) <= 3600
+        assert (
+            len(canonical({"version": 1, "capability": "a" * 64, "command": checked})) + 1 <= 4096
+        )
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"purpose": "VALIDATION"},
+        {"cost_limit": "0"},
+        {"retry": True},
+        {"extra_body": {}},
+        {"protocol_caps": {"calls": 2, "output_tokens": 64, "wall_seconds": 3}},
+        {"protocol_caps": {"calls": 1, "output_tokens": 65, "wall_seconds": 3}},
+        {"protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 4}},
+        {"protocol_caps": {"calls": True, "output_tokens": 64, "wall_seconds": 3}},
+    ],
+)
+def test_protocol_command_rejects_untrusted_expansion(change: dict[str, object]) -> None:
+    value = {
+        **preflight_command(),
+        "action": "model_protocol_prepare",
+        "protocol_id": str(uuid4()),
+        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+        "provider_config_ref": records.reference(records.envelope("provider-config", {})),
+        **change,
+    }
+    with pytest.raises(ValueError):
+        NativeTaskCommand.model_validate(value)

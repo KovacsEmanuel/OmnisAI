@@ -126,7 +126,7 @@ class ModelDispatch:
         authority: dict[str, object],
     ) -> bytes:
         """First initialization reader: only exact owned source, not a request alias."""
-        from omnis.policy.ready_model_configuration import PROVENANCE, initialization_data
+        from omnis.policy.ready_model_configuration import initialization_data
 
         await budgets._transaction(connection, owner)
         state = await store.state(connection, owner, manifest=manifest_ref)
@@ -140,6 +140,28 @@ class ModelDispatch:
             or state["final_id"] is not None
         ):
             raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        return initialization_data(
+            await self.read_configuration(
+                connection, owner, manifest_ref, provider_config_ref, authority
+            )
+        )
+
+    async def read_configuration(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        manifest_ref: object,
+        provider_config_ref: object,
+        authority: dict[str, object],
+    ) -> dict[str, object]:
+        """Qualified immutable DATA, also usable post-binding; never a warm grant."""
+        from omnis.policy.ready_model_configuration import PROVENANCE
+
+        await budgets._transaction(connection, owner)
+        state = await store.state(connection, owner, manifest=manifest_ref)
+        run = uuid_string(state["run_id"])
+        manifest = await store.get(connection, owner, run, manifest_ref)
+        contract.validate_manifest(manifest)
         item = record(
             await store.get(connection, owner, run, ref(provider_config_ref, "provider-config")),
             "provider-config",
@@ -185,7 +207,7 @@ class ModelDispatch:
         )
         if produced is None or produced != {"provider_config_ref": records.reference(item)}:
             raise CatalogError("MODEL_CONFIGURATION_REJECTED")
-        return initialization_data(config)
+        return config
 
     async def prepare_initialization(
         self,

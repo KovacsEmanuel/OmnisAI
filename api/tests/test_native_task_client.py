@@ -3,7 +3,7 @@
 import asyncio
 import json
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock
@@ -17,9 +17,17 @@ from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
 @asynccontextmanager
 async def peer_client(
-    directory: Path, requests: list[dict[str, object]], *, reply: bool = True
+    directory: Path,
+    requests: list[dict[str, object]],
+    *,
+    reply: bool = True,
+    result: Callable[[dict[str, object]], dict[str, object]] | None = None,
+    runtime_boot: str | None = None,
+    failure: str | None = None,
+    observed: asyncio.Event | None = None,
+    hold: asyncio.Event | None = None,
 ) -> AsyncIterator[RuntimeClient]:
-    boot = str(uuid4())
+    boot = runtime_boot or str(uuid4())
     settled = asyncio.Event()
 
     async def handle(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
@@ -27,6 +35,13 @@ async def peer_client(
             raw = await reader.readuntil(b"\n")
             value = json.loads(raw)
             requests.append(value)
+            if observed is not None:
+                observed.set()
+            if failure in {"timeout", "cancel"}:
+                await reader.read()
+                return
+            if hold is not None:
+                await hold.wait()
             if reply:
                 response = {
                     "id": value["id"],
@@ -47,9 +62,15 @@ async def peer_client(
                             "count": None,
                             "entries": None,
                         },
-                        "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+                        "plugins": {
+                            "status": "NOT_INITIALIZED",
+                            "count": None,
+                            "entries": None,
+                        },
                     },
-                    "managed": {"protocol": value["payload"]["protocol"], "status": "STAGED"},
+                    "managed": result(value["payload"])
+                    if result is not None
+                    else {"protocol": value["payload"]["protocol"], "status": "STAGED"},
                 }
                 writer.write(json.dumps(response).encode() + b"\n")
                 await writer.drain()
@@ -102,6 +123,20 @@ async def test_managed_exchange_uses_current_grant_and_existing_stream(
     assert requests[0]["payload"] == payload
     assert requests[0]["op"] == operation
     assert requests[0]["deadline_ns"] == authority.deadline_ns
+
+
+@pytest.mark.asyncio
+async def test_frozen_preflight_uses_original_bytes(ipc_directory: Path) -> None:
+    requests: list[dict[str, object]] = []
+    authority = RuntimeAuthority(0, 1, time.monotonic_ns() + 1_000_000_000)
+    payload: dict[str, object] = {"protocol": "omnis-managed-admission-v3"}
+    async with peer_client(ipc_directory, requests) as client:
+        frozen = client.freeze_preflight(authority, payload, wall_seconds=1)
+        payload["protocol"] = "MUTATED_AFTER_FREEZE"
+        await client.exchange_frozen(frozen)
+        assert frozen.request_id == requests[0]["id"]
+        assert client.capability not in repr(frozen)
+    assert requests[0]["payload"] == {"protocol": "omnis-managed-admission-v3"}
 
 
 @pytest.mark.asyncio
@@ -159,3 +194,27 @@ async def test_unknown_managed_version_never_requests_authority(
     with pytest.raises(RuntimeUnavailable, match="payload denied"):
         await client.managed(service, uuid4(), "task_stage", {"protocol": protocol})
     service.runtime_authority.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("over", [False, True])
+async def test_frozen_payload_exact_wire_size_and_escaping(ipc_directory: Path, over: bool) -> None:
+    requests: list[dict[str, object]] = []
+    authority = RuntimeAuthority(0, 1, time.monotonic_ns() + 1_000_000_000)
+    payload: dict[str, object] = {"protocol": "omnis-managed-admission-v3", "text": 'é"\n'}
+    size = len(json.dumps(payload, separators=(",", ":"), allow_nan=False).encode())
+    payload["padding"] = ""
+    overhead = len(json.dumps(payload, separators=(",", ":"), allow_nan=False).encode()) - size
+    payload["padding"] = "x" * (32768 - size - overhead + int(over))
+    async with peer_client(ipc_directory, requests) as client:
+        if over:
+            with pytest.raises(RuntimeUnavailable, match="payload limit"):
+                client.freeze_preflight(authority, payload, wall_seconds=1)
+        else:
+            from dataclasses import FrozenInstanceError
+
+            frozen = client.freeze_preflight(authority, payload, wall_seconds=1)
+            assert len(frozen.body) == 32768 and len(frozen.frame) <= 65536
+            with pytest.raises(FrozenInstanceError):
+                frozen.__setattr__("body", b"mutated")
+    assert requests == []

@@ -29,7 +29,7 @@ BATCH2_ROOT = Path(
     "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0"
 )
 BATCH2_SOURCE_SHA = "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
-BATCH2_REVIEWED: str | None = "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
+BATCH2_REVIEWED: str | None = None
 STARTUP_REVIEWED: str | None = None
 STARTUP_SOURCE_SHA = "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d"
 STARTUP_CASE = "batch2-startup-only"

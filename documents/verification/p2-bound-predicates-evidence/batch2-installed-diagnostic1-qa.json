@@ -1,0 +1,854 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "verdict": "FAIL_RUNTIME_DIAGNOSTIC_COMPLETED_NATIVE_UNCERTAIN",
+  "case": "batch2-release-first",
+  "execution_count": 1,
+  "automatic_retries": 0,
+  "stop_first": "NOT_RUN_NOT_AUTHORIZED",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_before": "855a7106475157f8ab21c52997c01ea243d42358",
+    "head_after": "855a7106475157f8ab21c52997c01ea243d42358",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "tracked_changes": false,
+    "status": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+    "input_sha256_before": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "3a395d6e049758447b1104c83509bc6a10e2ace1c0c3004cb25e18a43d840397",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+      "/home/kali/OmnisAI/ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-installed-qa-attempt1-fail.json": "5fc0152d4da86da8752fe9379f74085cf7038c8b6f8768e79bd1ebccf8fda32e",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-launch-diagnostic-rereview-normative.json": "c4d21d5bfcd803f874596692dd79bd0d6541e320aa7d36c11eff0609f61cd346",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-launch-diagnostic-rereview-safety.json": "bc4cd289af659a38af967ddc3d2753da367a9bca6e79ac2c19fa43984b6274c2"
+    },
+    "input_sha256_after": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "8f035aef0984d0a9ff1d8a7da10169153e6ece33f743b32a66e7d75dd5264ac7",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "3a395d6e049758447b1104c83509bc6a10e2ace1c0c3004cb25e18a43d840397",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+      "/home/kali/OmnisAI/ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-installed-qa-attempt1-fail.json": "5fc0152d4da86da8752fe9379f74085cf7038c8b6f8768e79bd1ebccf8fda32e",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-launch-diagnostic-rereview-normative.json": "c4d21d5bfcd803f874596692dd79bd0d6541e320aa7d36c11eff0609f61cd346",
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/batch2-launch-diagnostic-rereview-safety.json": "bc4cd289af659a38af967ddc3d2753da367a9bca6e79ac2c19fa43984b6274c2"
+    },
+    "additional_decoder_helper_sha256": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+    "protected_html": "Name only from git status; never read/hashed/edited/staged/deleted"
+  },
+  "execution": {
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --review-adjudicated",
+    "cwd": "/home/kali/OmnisAI",
+    "session_id": "proc_19b1e3e0f1d3",
+    "launcher_pid": 231297,
+    "process_status": "exited",
+    "process_exit_code": 1,
+    "gate_exit_code": 1,
+    "gate_family_receipt": {
+      "schema_version": 1,
+      "code": 1,
+      "family_drained": true
+    },
+    "runner_timeout_seconds": 240,
+    "case_counts": {
+      "executed": 1,
+      "passed": 0,
+      "failed": 1,
+      "teardown_errors": 1,
+      "skipped": 0
+    },
+    "pytest_elapsed_seconds": 22.5,
+    "private_stdout": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.stdout.private.log",
+    "private_stderr": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.stderr.private.log",
+    "private_logs_created_before_exec": true,
+    "umask": "077",
+    "noclobber": true,
+    "neutral_environment": [
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "MYPYPATH",
+      "PYTEST_ADDOPTS",
+      "PYTEST_PLUGINS"
+    ],
+    "selected_child_argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/OmnisAI/api/pyproject.toml",
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-release-first]",
+      "-q",
+      "--tb=line",
+      "--basetemp=/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first"
+    ]
+  },
+  "preflight": {
+    "result": "PASS_NO_RUNTIME_IMPORT_PREWARM",
+    "root_absent_immediately_before_execution": true,
+    "intent_path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.intent.private.json",
+    "uid": 1000,
+    "gid": 1000,
+    "tools": {
+      "uv": "0.12.19",
+      "python": "3.13.15",
+      "node": "24.21.0",
+      "npm": "11.19.0"
+    },
+    "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "image_tag": "omnis-batch2-owned-c6eac5f5a13440ffa6bcb35a6e853ab0:current",
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_user": "1000:1000",
+    "reader_prerequisites": "STATIC_PATH_ACCESS_INTERPRETER_WHEEL_HASH_VERIFIED_NO_IMPORT_PREWARM",
+    "collection": "Prior affected collections reused; none replayed",
+    "existing_owner": "prove_private_fixture(test-contract-method-native-pg, pinned uv, 240) / unchanged run_gate"
+  },
+  "diagnostic": {
+    "root_cause": "UNKNOWN",
+    "host": {
+      "status": "OBSERVED",
+      "root_cause": "UNKNOWN",
+      "events": [
+        {
+          "method": "NativePeer._read",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 144,
+          "line": 322,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer._read",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 2068,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 310,
+          "line": 450,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 610,
+          "line": 450,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 614,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 660,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "NativePeer.handshake",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 782,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 920,
+          "line": 225,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1120,
+          "line": 225,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1128,
+          "line": 224,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1174,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1180,
+          "line": 0,
+          "elapsed_ms": 3899
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "RAISE",
+          "exception": "OTHER",
+          "offset": 1238,
+          "line": 230,
+          "elapsed_ms": 4049
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1244,
+          "line": 230,
+          "elapsed_ms": 4049
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1254,
+          "line": 0,
+          "elapsed_ms": 4050
+        },
+        {
+          "method": "RuntimeHost._launch",
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "offset": 1260,
+          "line": 0,
+          "elapsed_ms": 4050
+        }
+      ],
+      "source_path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/host-launch-diagnostic.json",
+      "event_count": 16,
+      "event_counts": {
+        "RAISE": 4,
+        "HANDLED": 12
+      },
+      "exception_counts": {
+        "OTHER": 16
+      },
+      "bytes": 1823
+    },
+    "native": {
+      "status": "INCOMPLETE",
+      "pre_ready_complete": false,
+      "root_cause": "UNKNOWN",
+      "observer_ready": true,
+      "last_enter": "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+      "completed": [
+        "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+        "SERVER_ENV_LOADER_IMPORT_BEGIN"
+      ],
+      "pending": [
+        "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+        "ENTRY_MODULE_BEGIN",
+        "ENTRY_SERVER_IMPORT_BEGIN",
+        "SERVER_MODULE_BEGIN",
+        "SERVER_LOCAL_ENV_IMPORT_BEGIN"
+      ],
+      "elapsed_ms": 172,
+      "audit_ms": 0,
+      "audit_calls": 423,
+      "phase_events": 9,
+      "issues": [
+        "MISSING_PHASE_COMPLETION"
+      ],
+      "source_path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "bytes": 1285,
+      "rows": [
+        {
+          "test": "observer",
+          "status": "READY",
+          "count": 1
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 0,
+          "audit_ms": 0,
+          "audit_calls": 3
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "ENTRY_MODULE_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 8,
+          "audit_ms": 0,
+          "audit_calls": 13
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "ENTRY_SERVER_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 54,
+          "audit_ms": 0,
+          "audit_calls": 162
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_MODULE_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 107,
+          "audit_ms": 0,
+          "audit_calls": 167
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 120,
+          "audit_ms": 0,
+          "audit_calls": 236
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "END",
+          "elapsed_ms": 159,
+          "audit_ms": 0,
+          "audit_calls": 377
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_ENV_LOADER_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 159,
+          "audit_ms": 0,
+          "audit_calls": 377
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_ENV_LOADER_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "END",
+          "elapsed_ms": 172,
+          "audit_ms": 0,
+          "audit_calls": 418
+        },
+        {
+          "test": "bootstrap-phase",
+          "status": "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+          "count": 1,
+          "edge": "ENTER",
+          "elapsed_ms": 172,
+          "audit_ms": 0,
+          "audit_calls": 423
+        }
+      ],
+      "row_count": 10,
+      "phase_count_expected": 14,
+      "entered_count": 7,
+      "completed_count": 2,
+      "pending_count": 5,
+      "not_entered": [
+        "SERVER_CONVERSATION_IMPORT_BEGIN",
+        "CONVERSATION_MODULE_BEGIN",
+        "CONVERSATION_TURN_API_IMPORT_BEGIN",
+        "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+        "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+        "ENTRY_MAIN_BEGIN",
+        "ENTRY_READY_WRITE_BEGIN"
+      ],
+      "counts": {
+        "observer:READY": 1,
+        "bootstrap-phase:BOOTSTRAP_RUNPY_ENTRY_BEGIN": 1,
+        "bootstrap-phase:ENTRY_MODULE_BEGIN": 1,
+        "bootstrap-phase:ENTRY_SERVER_IMPORT_BEGIN": 1,
+        "bootstrap-phase:SERVER_MODULE_BEGIN": 1,
+        "bootstrap-phase:SERVER_SECRET_SCOPE_IMPORT_BEGIN": 2,
+        "bootstrap-phase:SERVER_ENV_LOADER_IMPORT_BEGIN": 2,
+        "bootstrap-phase:SERVER_LOCAL_ENV_IMPORT_BEGIN": 1
+      },
+      "completed_intervals": [
+        {
+          "phase": "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+          "enter_ms": 120,
+          "end_ms": 159,
+          "duration_ms": 39,
+          "audit_calls_delta": 141
+        },
+        {
+          "phase": "SERVER_ENV_LOADER_IMPORT_BEGIN",
+          "enter_ms": 159,
+          "end_ms": 172,
+          "duration_ms": 13,
+          "audit_calls_delta": 41
+        }
+      ],
+      "last_interval": {
+        "phase": "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+        "enter_ms": 172,
+        "end_ms": null,
+        "duration_ms": null,
+        "completion": "NOT_OBSERVED"
+      }
+    },
+    "client_exception_chain": [
+      {
+        "reason": "Runtime exchange unavailable",
+        "type": "RuntimeUnavailable"
+      },
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "RuntimeUnavailable"
+      }
+    ],
+    "safe_log_source_locations": [
+      "/home/kali/OmnisAI/api/src/omnis/supervisor/runtime_client.py:425"
+    ],
+    "safe_log_reason_tokens": [
+      "HISTORICAL_DATABASE_RETAINED_FAMILY_UNCERTAIN"
+    ],
+    "interpretation": "All Host exception classifications are OTHER; no TimeoutError class or original fatal exception identified. Events localize _read -> handshake -> _launch handling, not causal attribution. Native last ENTER is local-env import; its completion and later phases are unobserved. Host and native clocks have different origins and are not subtracted.",
+    "stored_bootstrap_projection": {
+      "audit_calls": null,
+      "audit_ms": null,
+      "completed": [],
+      "elapsed_ms": null,
+      "issues": [
+        "MISSING_PHASE_COMPLETION",
+        "NO_DATA",
+        "OBSERVER_UNCONFIRMED"
+      ],
+      "last_enter": null,
+      "observer_ready": null,
+      "pending": [],
+      "phase_events": null,
+      "pre_ready_complete": false,
+      "root_cause": "UNKNOWN",
+      "status": "INCOMPLETE"
+    },
+    "projection_limit": "Original proof bootstrap projection reports NO_DATA; outer native-observation.jsonl is empty. Actual fixed h03-state mounted file has the independently decoded prefix above. Original proof retained unchanged; no oracle bypass or upgrade to PASS."
+  },
+  "actual_observables": {
+    "proof_status": "UNCERTAIN",
+    "native_entry": "INSTALLED_BYTES_QA_ENTRY",
+    "preparation_task_count": 2,
+    "sizes": {
+      "graph_bytes": 49145,
+      "preparation_bytes": 14828,
+      "stage_bytes": 32434,
+      "expanded_text_bytes": [
+        18978,
+        18978
+      ],
+      "final_bytes": null
+    },
+    "sizes_source": "method-build-sizes.json / actual CLI preparation, not evidence stage/release executed",
+    "stage": "NOT_OBSERVED",
+    "release": "NOT_OBSERVED",
+    "native_task_results": "NOT_OBSERVED",
+    "method_checks": "NOT_OBSERVED",
+    "inbox": "NOT_OBSERVED",
+    "consumption": "NOT_OBSERVED",
+    "historical_readers": "NOT_OBSERVED",
+    "public_control_cleanup": "PASS",
+    "runtime_failure_source": "api/src/omnis/supervisor/runtime_client.py:425",
+    "public_reason": "Runtime exchange unavailable"
+  },
+  "ownership_and_cleanup": {
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "native_nonce": "b4e92833926a46afbabc56dfdf5d9f18",
+    "native_cid": "b0d4bf223c44da9f573603e30977095296ee01cd16f189621921646c79de810d",
+    "native_name": "omnis-h03-b4e92833926a46afbabc56dfdf5d9f18",
+    "native_cidfile": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-b4e92833926a46afbabc56dfdf5d9f18.cid",
+    "native_state": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state",
+    "native_runtime": "/home/kali/.hermes/cache/scratch/cm-e971f2f142b44ba3b378669003f6831c",
+    "pg_fixture": {
+      "container_id": "c57428cfdf703d42827056f337a8a5d0fdfe17922855dc8380088a42e019c3fa",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "project": "omnis-p01-e658d52c8e974222b6620bc638ee6d0b",
+      "root": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc"
+    },
+    "readback": [
+      {
+        "target": "native_cid",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "ps",
+          "-aq",
+          "--no-trunc",
+          "--filter",
+          "id=b0d4bf223c44da9f573603e30977095296ee01cd16f189621921646c79de810d"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      },
+      {
+        "target": "native_name",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "ps",
+          "-aq",
+          "--no-trunc",
+          "--filter",
+          "name=^/omnis-h03-b4e92833926a46afbabc56dfdf5d9f18$"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      },
+      {
+        "target": "pg_cid",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "ps",
+          "-aq",
+          "--no-trunc",
+          "--filter",
+          "id=c57428cfdf703d42827056f337a8a5d0fdfe17922855dc8380088a42e019c3fa"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      },
+      {
+        "target": "pg_project",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "ps",
+          "-aq",
+          "--no-trunc",
+          "--filter",
+          "label=com.docker.compose.project=omnis-p01-e658d52c8e974222b6620bc638ee6d0b"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      },
+      {
+        "target": "pg_networks",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "network",
+          "ls",
+          "-q",
+          "--no-trunc",
+          "--filter",
+          "label=com.docker.compose.project=omnis-p01-e658d52c8e974222b6620bc638ee6d0b"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      },
+      {
+        "target": "native_nonce_networks",
+        "command": [
+          "/usr/bin/docker",
+          "--host",
+          "unix:///run/docker.sock",
+          "network",
+          "ls",
+          "-q",
+          "--no-trunc",
+          "--filter",
+          "label=omnis.h03.nonce=b4e92833926a46afbabc56dfdf5d9f18"
+        ],
+        "exit_code": 0,
+        "ids": [],
+        "absent": true
+      }
+    ],
+    "endpoint_absence": {
+      "/home/kali/.hermes/cache/scratch/cm-e971f2f142b44ba3b378669003f6831c/runtime.sock": true,
+      "/home/kali/.hermes/cache/scratch/cm-e971f2f142b44ba3b378669003f6831c/runtime.boot": true,
+      "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/socket/.s.PGSQL.5432": true,
+      "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/socket/.s.PGSQL.5432.lock": true
+    },
+    "runner_readback": {
+      "absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false
+    },
+    "last_docker": {
+      "exit": 1,
+      "operation": "inspect",
+      "pid": 234069
+    },
+    "last_docker_numeric_pid_absent": true,
+    "process_authority_limit": "Tracked owner exited and existing strict outer family receipt says drained. No Host/native PID/starttime or namespace identity was persisted before failed readiness; no independent lineage/native-drain assertion or signal authority inferred. Absent CID/endpoints does not settle native work.",
+    "h03_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+    "native_settlement": "UNCERTAIN",
+    "db_fence": "RETAINED_UNSETTLED; no clearance credited",
+    "data_retained": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/data",
+        "mode": "0o700",
+        "uid": 1000,
+        "gid": 1000,
+        "device": 2049,
+        "inode": 10267781,
+        "size_bytes": 4096
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cm-e971f2f142b44ba3b378669003f6831c",
+        "mode": "0o700",
+        "uid": 1000,
+        "gid": 1000,
+        "device": 2049,
+        "inode": 10368046,
+        "size_bytes": 4096
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state",
+        "mode": "0o700",
+        "uid": 1000,
+        "gid": 1000,
+        "device": 2049,
+        "inode": 10368047,
+        "size_bytes": 4096
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/data/18/docker/PG_VERSION",
+        "mode": "0o600",
+        "uid": 1000,
+        "gid": 1000,
+        "device": 2049,
+        "inode": 10365901,
+        "size_bytes": 3,
+        "sha256": "7ee29791fc17e986b97128845622b077fb45e349fdb80523fac9dba879b4ad60",
+        "postgres_major": "18",
+        "data_directory": {
+          "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/data/18/docker",
+          "mode": "0o700",
+          "uid": 1000,
+          "gid": 1000,
+          "device": 2049,
+          "inode": 10365837,
+          "size_bytes": 4096
+        }
+      }
+    ],
+    "logical_database_readback": "NOT_RUN; retained fence/teardown error and data, no DROP/reuse authorization",
+    "image_retained": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "cleanup_performed_by": "Existing test + prove_private_fixture only; no manual rescue or foreign effects"
+  },
+  "artifact_metadata": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.intent.private.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989219,
+      "size_bytes": 2949,
+      "sha256": "7b5cacfb0d2729e1a4c9e8372634d88f8d8de2f68fd6fd598e8463b95070d87f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.stdout.private.log",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989220,
+      "size_bytes": 836,
+      "sha256": "4291f23cacda5892d07696baddc2f8c177888ae7b99d50688a3b0c3417c3841e"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-diagnostic1.stderr.private.log",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989221,
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/gate.log",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989227,
+      "size_bytes": 1019,
+      "sha256": "7283192e36165563cc699209527eac8eb4df92d7caef9512946c60bfb1e3db67"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/gate.log.result.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989228,
+      "size_bytes": 56,
+      "sha256": "34c0278ef5361004955a3712077af87a51e608f60892c8dc249f2e6aa103a7e7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/db-356ea3dc2d3a4dbc/fixture.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 9989224,
+      "size_bytes": 457,
+      "sha256": "bb6428d8e636c505fb46969db189f6467c3d8dc3ca82d8de859f07f6ab85095a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/method-history-proof.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368063,
+      "size_bytes": 4050,
+      "sha256": "b117290ca3516c769359f33432e640da467bcf5a02ee24c69af4eda7778cf65a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/batch2-prepare.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368114,
+      "size_bytes": 777,
+      "sha256": "82ea88e04ffc8ce1de3b4a22799535b719d35c0cc8d2633582a8fdf9cd97c5e8"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/method-build-sizes.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368118,
+      "size_bytes": 132,
+      "sha256": "6b5411dfd6ba417920eb228187adaf657dca248dcdf7513763d6a1742dda31ac"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/host-launch-diagnostic.json",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368103,
+      "size_bytes": 1823,
+      "sha256": "b1fd798a8f3f8b4cf6aad288ffc2fc98145b0d55d864ac2d5ada991d430e8c81"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368062,
+      "size_bytes": 1285,
+      "sha256": "5a62c8dee73446032f0fa5ad4a335e55f09995bd14b56586cd02390ec932a39c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/native-observation.jsonl",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368045,
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-b4e92833926a46afbabc56dfdf5d9f18.cid",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368074,
+      "size_bytes": 64,
+      "sha256": "d77e4d87b122d87d5e70fb2edeed74011cba540a792f70484f429176ae723d2d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/host-qa.py",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368059,
+      "size_bytes": 6257,
+      "sha256": "353a11d3df6945878b28b51506e25be6397112c0f89076a72c8c28035396f574"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/batch2-installed-diagnostic1-batch2-release-first/test_contract_method_real_nati0/h03-state/native_bootstrap.py",
+      "mode": "0o600",
+      "uid": 1000,
+      "gid": 1000,
+      "device": 2049,
+      "inode": 10368060,
+      "size_bytes": 14265,
+      "sha256": "a3814ffe2d62f6676b2255cf8f26c468739eb559e7b5021dd705be3e2058f73a"
+    }
+  ],
+  "limits": [
+    "No retry, Stop-first, H03 restart, old cancel harness, unaffected source suites, new verifier/harness, build/install/export/prewarm or deadline/grant changes.",
+    "No source/product/profile/provider/model/target/r1/global edits or effects.",
+    "Host strict OBSERVED certifies finite stopped observation only, not product/native success.",
+    "Native phase observation incomplete; original fatal cause remains UNKNOWN.",
+    "No new P2 closure or full product acceptance. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "original_failure": {
+    "path": "documents/verification/p2-bound-predicates-evidence/batch2-installed-qa-attempt1-fail.json",
+    "sha256": "5fc0152d4da86da8752fe9379f74085cf7038c8b6f8768e79bd1ebccf8fda32e",
+    "unchanged": true,
+    "cause": "UNKNOWN",
+    "native_settlement": "UNCERTAIN",
+    "retrospective_attribution": false,
+    "old_roots_accessed": false
+  },
+  "issues_encountered": [
+    "Real single case failed: 1 test failure and 1 teardown error; retained.",
+    "A read-only post-run decoder extraction first failed NameError(mapping); no effects, diagnostic execution or retry. Re-read uses exact existing mapping helper and decoders, no changed oracle.",
+    "Stored bootstrap checkpoint points to an empty observation projection, whereas the authorized fixed mounted file contains valid incomplete early-import rows; both retained and distinguished."
+  ],
+  "status_delta_for_parent": {
+    "batch2_runtime": "FAIL_BEFORE_STAGE_RELEASE",
+    "host_diagnostic": "OBSERVED_SCOPED",
+    "native_diagnostic": "INCOMPLETE",
+    "B06b_G02_P2_P4a": "NOT_CLOSED_UNCHANGED"
+  },
+  "repository_files_created_or_modified": [],
+  "commits_created": [],
+  "readback_time_ns": 1792073424784056809
+}

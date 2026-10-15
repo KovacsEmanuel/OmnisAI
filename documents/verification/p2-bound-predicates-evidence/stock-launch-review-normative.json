@@ -1,0 +1,219 @@
+{
+  "schema": "omnis-stock-launch-normative-review-v1",
+  "role": "independent_readonly_normative_producer_to_consumer",
+  "verdict": "APPROVED_SCOPED_SOURCE_CONDITIONAL_ACTIVATION_NOT_RUNTIME_PASS",
+  "head": "f37b4c3c3fe1eb2d8a5fb32cf763598da3d55da8",
+  "workspace": "/home/kali/OmnisAI",
+  "snapshot": {
+    "files": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": {
+        "sha256": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+        "bytes": 460833
+      },
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+        "sha256": "4aa87b78948063ab3b5834a6458702fbeb7216973d4a5888a8a010178fad835a",
+        "bytes": 8201
+      },
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates.md": {
+        "sha256": "8942951cd0f1f475cbba60e3a2c9deb8c400234f63c2e26323bbcf5c73fa9f93",
+        "bytes": 77001
+      },
+      "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/stock-launch-seam-decision.json": {
+        "sha256": "159452ec3e494a734e839b02b6b075f4bc8df981372cbca76cca7448231d3bd3",
+        "bytes": 13504
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-launch-author.json": {
+        "sha256": "9dd67e60656be18fb6eb2b59605c5aacd55dfe31b78618cabd3d6e563c8da60e",
+        "bytes": 13317
+      },
+      "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/runtime_host.py": {
+        "sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+        "bytes": 37728
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-generated/batch2/qa-sitecustomize.py": {
+        "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+        "bytes": 29222
+      },
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-generated/startup/qa-sitecustomize.py": {
+        "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+        "bytes": 31497
+      }
+    },
+    "selector_startup_only_sha256": "ff88d334e0427f73df9a4b392369f80ea60bb6b6d90343b353a3d4adb4f6a2fa",
+    "selector_startup_and_batch2_sha256": "76d18278ac8c80e29e28ef1bf888583a1ae1938c4b0b55b817fbb813968d00ef",
+    "fresh_roots": {
+      "batch2-startup-only": true,
+      "batch2-release-first": true,
+      "batch2-stop-first": true
+    },
+    "git_status": " M api/tests/test_contract_method_pg.py\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n"
+  },
+  "findings": [],
+  "blocking_findings_count": 0,
+  "finding_disposition": [
+    {
+      "id": "STARTUP-QA-LAUNCH-MODE-01",
+      "status": "CLOSED_SOURCE_SCOPED_BY_CORRECTED_PRODUCER; INSTALLED_DRAIN_NOT_RUN",
+      "severity": "prior_blocker",
+      "repro": "Previous constructor TestLaunch necessarily made namespace_owned false even at PID1. Reviewed source constructor positive/negative remains tested.",
+      "remedy_verified": "Generated attachment does not call or replace RuntimeHost, set NATIVE_COMMAND/NATIVE_ENV, or set namespace_owned. Container has no command suffix. Stock main reaches RuntimeHost(Path(raw)) with both test seams None. Real PID1/argv/namespace readback and authentic drain remain the first installed QA criteria."
+    },
+    {
+      "id": "startup-primary-F01",
+      "status": "CLOSED_SOURCE_SCOPED_PRESERVED",
+      "severity": "prior_blocker",
+      "repro": "Diagnostic cleanup failure while primary exception/cancellation propagates.",
+      "remedy_verified": "native_finish separately attempts timer and each FD cleanup and does not replace a primary error. Host PY_UNWIND passes the actual primary type/value to the unchanged defensive diagnostic __exit__; Stop-FD close failure is raised only without primary. Existing startup_primary controls passed. Additional real-runpy PY_UNWIND with inert module resolution preserved the same ValueError despite observer EXIT emission failure and attempted evidence close."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Real stock launch; authority not granted by observer",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:4269-4327,5293-5443,6924-6968,7006-7067",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:84-116,692-700,820-847"
+      ],
+      "assessment": "PASS_SOURCE. Stock /opt/hermes/venv/bin/python -I -m omnis_hermes.runtime_host and native tui_gateway.entry. Same image/CMD/environment/limits; no constructor override or manual entry execution. Namespace eligibility control is explicitly not live drain certification."
+    },
+    {
+      "requirement": "One bounded immutable QA attachment outside both RW mounts",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:4289-4303,4317-4325,5309-5320,5406-5443,6924-6968,7006-7032,7185-7199"
+      ],
+      "assessment": "PASS_SOURCE. Exclusive nofollow mode0400 file, <=65536, same-UID regular nlink1, outside runtime/state roots, fixed RO destination. Inspect enforces two RW plus one RO, exact mount set/count/Mode empty/rprivate; process-root mounted bytes hash checked. Existing H03 two-mount path unchanged. SOURCE daemon fixture now models declared third mount without relaxing the real consumer."
+    },
+    {
+      "requirement": "Bind genuine __main__ exactly once, do not import package Host early",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:5349-5399,2246-2316"
+      ],
+      "assessment": "PASS_SOURCE. PY_START code file/name/qualname, actual __main__ globals/spec/file, main code identity and source SHA precede binding. Duplicate main refuses. RuntimeHost/NativePeer exact code objects are taken from the genuine module. Native role never imports Host. Source real-main test passed with asyncio execution explicitly substituted."
+    },
+    {
+      "requirement": "Interpreter-invoked runpy, finite pre-READY evidence and primary-preserving unwind",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:173-219,290-331,5190-5289,2490-2541"
+      ],
+      "assessment": "PASS_SOURCE. Shared observer is installed before native entry imports. Actual runpy._run_module_as_main code and exact mod_name tui_gateway.entry are monitored. Return completes phase; normal exact SystemExit(None/0) remains distinguished; unwind retains primary. Only three named long-lived phases may lack END and remain INCOMPLETE; all import/READY boundaries must complete. Supplemental real stdlib runpy controls passed, with inert module-resolution substitution, not native execution."
+    },
+    {
+      "requirement": "Stock native environment/cwd and fresh path domains remain intact",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:5238-5247,5332-5347,6481-6491,7165-7180,7285-7298",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:35-53,412-431"
+      ],
+      "assessment": "PASS_SOURCE. No env clear/update/chdir/native-home substitution. Checks stock HOME/HERMES_HOME/CODEX/XDG/TMP/managed-empty/work exact paths, owner/mode/physical empty directories. PreparationPrerequisite only returns document-loading prerequisite data and does not touch those native homes. Stock real preparation, if considered separately, owns native-prep-* under tmp rather than active. Audit allowance uses explicit fresh roots and qa-native file, not all /state."
+    },
+    {
+      "requirement": "Complete observation before admission and after every success-return cleanup",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:5447-5469,7260-7284,8031-8079,10087-10151"
+      ],
+      "assessment": "PASS_SOURCE. Launch READY -> renew same owner -> process identity/hash -> both hash-bound role READY files and strict native observation -> startup credit or first stage. Missing hook/role/hash/short-phase evidence refuses even if Host is READY. Shared finally retains Host OBSERVED requirement and strict stock gate before DB-fence clearance, including successful early returns. Missing observation is not zero forbidden attempts; caught attempts/unknown rows remain failures."
+    },
+    {
+      "requirement": "Original batch2 vertical, whole-batch binding and actual overlap oracles",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:166-282,8031-8324"
+      ],
+      "assessment": "PRESERVED_SOURCE. Stage payload canonical equality, whole batch states BOUND/BOUND seen by separate PG connection before committed_ns, both PG waiter orders through pg_blocking_pids, native-access timestamps after commitment. Requires two real AIAgent entries, read2/PURE4, two distinct threads, overlapping first intervals; Stop-first refuses with no results/checks/inbox or read/PURE. Persistence correspondence, reordered-final rejection without census change, COMPLETE checks not functional PASS, installed current readers, consumption2 and post-Stop no-resend/no-build/no-evaluator assertions remain. Product NativeFileGates/handlers and authority clocks not changed. Real PG/native overlap remains NOT_RUN here."
+    },
+    {
+      "requirement": "Same owner, authentic drain and PG/family fence",
+      "refs": [
+        "api/tests/test_contract_method_pg.py:7045-7155,7215-7238,7096-7139,10011-10129",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:184-208"
+      ],
+      "assessment": "PRESERVED_SOURCE. Real InstanceService acquire/heartbeat/authority and RuntimeClient are retained. Original private runner owns fixture/family, bounded240; no replacement owner/root/receipt. Retirement requires runtime.drain true, Host exit0, endpoints absent, old PID/starttime absent, runtime lock free and exact owned resource readback before unsettled fence clearance. No argv/observer-only assertion is credited as drain."
+    }
+  ],
+  "execution_evidence": [
+    {
+      "kind": "independent_source_tests",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-private-home TMPDIR=/home/kali/.hermes/cache/scratch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'stock_role or stock_site or batch2_installed_entry or startup_primary or bootstrap_observer or host_launch_filtered_source or h03_actual_lifecycle_source_seams or h03_stock_container or h03_mount_roots or installed_route_before_fixture' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-source-stock1",
+      "exit_code": 0,
+      "passed": 116,
+      "deselected": 174,
+      "seconds": 7.83,
+      "output": "116 passed, 174 deselected in 7.83s",
+      "scope": "Clean environment; API venv -I -B, no pytest cache. SOURCE subprocess/monitoring controls and substituted daemon/resource seams only. No OMNIS_CONTRACT_METHOD_NATIVE_PG enablement."
+    },
+    {
+      "kind": "independent_real_runpy_code_controls",
+      "command_prefix": "env -i PATH=/usr/bin:/bin HOME=<scratch-private-home> TMPDIR=<scratch> api/.venv/bin/python -I -B -c <AST-extracted generated callbacks; real runpy; inert _get_module_details>",
+      "exit_code": 0,
+      "details": {
+        "scope": "SOURCE real runpy code; module resolution inert-substituted; generated callbacks unchanged; no native imports",
+        "controls": [
+          {
+            "control": "RETURN",
+            "pass": true,
+            "primary_preserved": true,
+            "closed_count": 1
+          },
+          {
+            "control": "SYSTEMEXIT0",
+            "pass": true,
+            "primary_preserved": true,
+            "closed_count": 1
+          },
+          {
+            "control": "PRIMARY_WITH_EMIT_FAILURE",
+            "pass": true,
+            "primary_preserved": true,
+            "closed_count": 1
+          }
+        ]
+      },
+      "reproducer_source": "import ast, sys, runpy, types, json\nfrom pathlib import Path\np=Path('/home/kali/OmnisAI/api/tests/test_contract_method_pg.py')\ntree=ast.parse(p.read_text()); ns={}\nfor n in tree.body:\n if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'BOOTSTRAP','STOCK_NATIVE_FINISH','STARTUP_NATIVE_PRIMARY'} for t in n.targets):\n  exec(compile(ast.Module(body=[n],type_ignores=[]),str(p),'exec'),ns)\n if isinstance(n,ast.FunctionDef) and n.name=='batch2_native_observer':\n  exec(compile(ast.Module(body=[n],type_ignores=[]),str(p),'exec'),ns)\ncore=ast.parse(ns['batch2_native_observer'](startup=False))\nfuncs=[n for n in core.body if isinstance(n,ast.FunctionDef) and n.name in {'native_finish','monitor_call','monitor_return','monitor_unwind'}]\nresults=[]; original=runpy._get_module_details\nfor variant in ['RETURN','SYSTEMEXIT0','PRIMARY_WITH_EMIT_FAILURE']:\n rows=[]; closed=[]; error=SystemExit(0) if variant=='SYSTEMEXIT0' else ValueError('PRIVATE_SENTINEL') if variant.startswith('PRIMARY') else None\n def emit(*args,**kw):\n  if variant.startswith('PRIMARY') and args==('observer','EXIT'): raise OSError('synthetic cleanup failure')\n  rows.append(list(args))\n g={'sys':sys,'stock_runpy_code':runpy._run_module_as_main.__code__,'phase_transition':lambda *a: rows.append(list(a)), 'emit':emit,'startup':False,'evidence_fd':123,'os':types.SimpleNamespace(close=lambda fd:closed.append(fd)),'phase_key':lambda code:None,'monitored':lambda code:False}\n exec(compile(ast.Module(body=funcs,type_ignores=[]),'<actual-generated-callbacks>','exec'),g)\n spec=__import__('importlib.machinery',fromlist=['ModuleSpec']).ModuleSpec('tui_gateway.entry',None,origin='<inert-source-control>')\n code=compile('raise _qa_error' if error else 'pass','<inert-source-control>','exec')\n runpy._get_module_details=lambda *a:('tui_gateway.entry',spec,code)\n sys.modules['__main__'].__dict__['_qa_error']=error\n tool=4; caught=None\n try:\n  sys.monitoring.use_tool_id(tool,'normative-runpy-control')\n  for event,name in [(sys.monitoring.events.PY_START,'monitor_call'),(sys.monitoring.events.PY_RETURN,'monitor_return'),(sys.monitoring.events.PY_UNWIND,'monitor_unwind')]:sys.monitoring.register_callback(tool,event,g[name])\n  sys.monitoring.set_events(tool,sys.monitoring.events.PY_START|sys.monitoring.events.PY_RETURN|sys.monitoring.events.PY_UNWIND)\n  try:runpy._run_module_as_main('tui_gateway.entry',alter_argv=False)\n  except BaseException as e:caught=e\n finally:\n  sys.monitoring.set_events(tool,0);sys.monitoring.free_tool_id(tool);runpy._get_module_details=original\n assert caught is error and closed==[123] and rows[0]==['BOOTSTRAP_RUNPY_ENTRY_BEGIN','ENTER'], (variant,rows,closed)\n if variant=='RETURN':assert ['BOOTSTRAP_RUNPY_ENTRY_BEGIN','END'] in rows\n if variant=='SYSTEMEXIT0':assert ['bootstrap-exit','NORMAL_SYSTEM_EXIT'] in rows\n results.append({'control':variant,'pass':True,'primary_preserved':caught is error,'closed_count':len(closed)})\nprint(json.dumps({'scope':'SOURCE real runpy code; module resolution inert-substituted; generated callbacks unchanged; no native imports','controls':results}))\n",
+      "limit": "Three controls execute actual stdlib runpy and unchanged generated monitor/native_finish callbacks. Only module resolution is substituted with inert compiled pass/raise code. No tui_gateway or native imports, no OS close of synthetic FD, no real launch."
+    },
+    {
+      "kind": "snapshot_and_conditional_selector_hashes",
+      "exit_code": 0,
+      "assessment": "Frozen caller/selector match delegated hashes at end. Both selectors still None. Exact activation hashes computed in memory only. All three named fresh runtime roots absent. Repo status remains exactly two preexisting tracked modifications plus protected untracked HTML."
+    }
+  ],
+  "conditional_activation": {
+    "decision": "APPROVE_ONLY_AFTER_PARENT_ADJUDICATES_BOTH_COMPLEMENTARY_EXACT_SNAPSHOT_REPORTS_AND_COMMITS; NO_EXECUTION_BY_REVIEWER",
+    "caller_sha256": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+    "closed_selector_sha256": "4aa87b78948063ab3b5834a6458702fbeb7216973d4a5888a8a010178fad835a",
+    "first": {
+      "change": "Only STARTUP_REVIEWED: str | None = None -> STARTUP_REVIEWED: str | None = \"c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d\"; BATCH2_REVIEWED stays None",
+      "expected_selector_sha256": "ff88d334e0427f73df9a4b392369f80ea60bb6b6d90343b353a3d4adb4f6a2fa",
+      "case": "batch2-startup-only",
+      "fresh_root": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+      "maximum_attempts": 1,
+      "required_result": "Actual both-role hook loading, stock PID1/native identity, native READY plus complete pre-ready observations, authentic drain and exact owned cleanup/fence. Diagnostic only; no batch2 PASS."
+    },
+    "later": {
+      "condition": "Only after clean actual startup and separate parent adjudication of its evidence; unchanged exact caller and review scope",
+      "change": "From startup-activated bytes, set BATCH2_REVIEWED to same exact caller; retain STARTUP_REVIEWED value but its attempt remains consumed",
+      "expected_selector_sha256": "76d18278ac8c80e29e28ef1bf888583a1ae1938c4b0b55b817fbb813968d00ef",
+      "sequence": [
+        "batch2-release-first",
+        "batch2-stop-first"
+      ],
+      "fresh_roots": [
+        "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-release-first",
+        "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-stop-first"
+      ],
+      "maximum_attempts_per_case": 1,
+      "failure_policy": "Stop sequence on failed/uncertain prerequisite; preserve uncertainty and data. No retry/prewarm/reused root/deadline extension or new owner."
+    },
+    "hash_scope": "Computed exact single-line double-quoted value replacements, no edits. Different serialization or additional selector changes are not these hashes. Activation is not proof that a case passed."
+  },
+  "limits": [
+    "No PG, OCI, native launch, install/build, image audit, provider/model/target traffic, credential/profile access or external resource effect performed. Parent static image audit accepted as delegated context, not repeated or relabeled runtime evidence.",
+    "Generated source and callback correctness plus constructor eligibility are not installed -I site execution, native import timing, PID1 authority or drain certification. Those remain NOT_RUN for the approved first fresh QA.",
+    "Author source tests include substituted daemon fixtures and callbacks; actual startup/failure loading and real concurrency are not manufactured from those positives. No concrete new hook defect found; no generic new fault-matrix/verifier request.",
+    "No full canonical gate run; no scope transfer to B06b/G02/P2 closure, live, pristine runtime, or historical attempts. Old causes UNKNOWN and cleanup UNCERTAIN remain.",
+    "Production image startup_autoload=NONE is unchanged; this proposed runtime explicitly has a QA sitecustomize mount.",
+    "Only scratch report and isolated source-test artifacts were created. No repo edits, staging, commit, push or skill edits. Parent retains documentation/procedure closeout ownership. Protected documents/Omnis_Notite_Originale.html was not read or hashed.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "final_verification": {"tracked_source_hashes_unchanged": true, "git_diff_check_exit": 0, "additional_untracked_at_final_status": "documents/verification/p2-bound-predicates-evidence/stock-launch-author.json", "disposition": "Appeared after the recorded snapshot during review; not created, read, hashed or modified by this reviewer. Exact caller and selector bytes remain frozen. Earlier snapshot git_status is retained as observed."},
+  "issues_encountered": [
+    "Two overlarge read outputs were truncated; the relevant changed producer/consumer ranges were subsequently read directly before judgment. No tool/test failure or runtime attempt occurred."
+  ]
+}

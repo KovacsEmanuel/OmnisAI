@@ -1,0 +1,225 @@
+{
+  "schema": "omnis-stock-launch-author-v1",
+  "status": "SOURCE_GREEN_FROZEN_FOR_INDEPENDENT_REVIEW_NOT_RUNTIME_ACCEPTANCE",
+  "base": "fd9f8a5a9080dfbea334e6311d6f1c41b98fb951",
+  "files": {
+    "api/tests/test_contract_method_pg.py": {
+      "sha256": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+      "bytes": 460833,
+      "added": 686,
+      "deleted": 192
+    },
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+      "sha256": "4aa87b78948063ab3b5834a6458702fbeb7216973d4a5888a8a010178fad835a",
+      "added": 4,
+      "deleted": 6
+    }
+  },
+  "changes": [
+    "One generated qa-sitecustomize.py outside both writable runtime/state roots, O_EXCL/NOFOLLOW creation, mode0400, bounded65536, RO fixed site-packages mount; no Docker command override.",
+    "Stock Host/native -I -m argv; RuntimeHost class, stop, NATIVE_COMMAND, NATIVE_ENV and namespace authority unchanged. Real main bound once through exact source/hash/spec/code identity, no package-name Host import.",
+    "Shared BOOTSTRAP observer core reused without SOURCE import routing, env mutation, chdir or manual runpy. Actual runpy._run_module_as_main identity and mod_name enter/end/unwind callbacks; existing audit/sink/barriers/thread coverage retained.",
+    "Startup Stop observation now uses real stop code monitoring, no replacement. Independent best-effort diagnostic timer/FD cleanup and original primary exception preserved.",
+    "Hash-bound host/native READY files required alongside strict native phases before startup credit and first batch stage, and in existing strict finalizer. Exact three-mount inspect and bounded mounted readback through pinned process root; H03 remains two mounts.",
+    "Selector pins updated; BATCH2_REVIEWED and STARTUP_REVIEWED both None. New fixed batch2-stock1-<case> roots remain absent; old roots untouched."
+  ],
+  "red_green": [
+    {
+      "kind": "producer RED before implementation",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor -q --tb=line",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-red.log",
+      "reason": "Original generated Host argv was -I -B /state/host-qa.py, not stock -I -m; expected stock assertion failed."
+    },
+    {
+      "kind": "consumer missing-hook mutation RED",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k stock_site_actual_admission_cut -q --tb=line",
+      "exit": 1,
+      "failed": 2,
+      "passed": 2,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-consumer-red.log",
+      "reason": "Temporarily skipped actual require_stock_observation calls; both actual startup/batch admission cuts accepted missing native readiness. Mutation restored in finally. This is a mutation RED, not a preimplementation RED."
+    },
+    {
+      "kind": "final affected SOURCE GREEN",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'stock_role or stock_site or batch2_installed_entry or startup_primary or bootstrap_observer or host_launch_filtered_source or h03_actual_lifecycle_source_seams or h03_stock_container or h03_mount_roots or installed_route_before_fixture' -q --tb=line",
+      "exit": 0,
+      "passed": 116,
+      "deselected": 174,
+      "seconds": 7.81,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-final-tests.log"
+    },
+    {
+      "kind": "quality after final caller edit",
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "kind": "format",
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "kind": "typing after selector reseal",
+      "command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "kind": "diff whitespace",
+      "command": "git diff --check -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    }
+  ],
+  "intermediate_failures_preserved": [
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-green1.log",
+      "failed": 9,
+      "passed": 82,
+      "reason": "Existing synthetic daemon/cleanup controls still modeled old argv and two mounts; adapted their resource seams without weakening lifecycle/fence assertions."
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-green3.log",
+      "failed": 1,
+      "passed": 115,
+      "reason": "New SOURCE real-main binding control used incomplete SimpleNamespace spec; changed only test metadata to actual ModuleSpec."
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-mypy3.log",
+      "reason": "New test AST list annotation invariant; explicit list[ast.stmt] fixed."
+    }
+  ],
+  "generated": {
+    "batch2": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-generated/batch2/qa-sitecustomize.py",
+      "bytes": 29222,
+      "sha256": "854f5c507343ae1b4c87bfe06cb618e6772110e33299ee36092d73c8253ff836",
+      "host_argv": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_hermes.runtime_host"
+      ],
+      "native_argv": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "tui_gateway.entry"
+      ],
+      "mode": "0o400",
+      "links": 1
+    },
+    "startup": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-generated/startup/qa-sitecustomize.py",
+      "bytes": 31497,
+      "sha256": "b74711a3b6d7af60411afce7759c1089d7f0e9369089248ccd36665797efa90e",
+      "host_argv": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_hermes.runtime_host"
+      ],
+      "native_argv": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "tui_gateway.entry"
+      ],
+      "mode": "0o400",
+      "links": 1
+    }
+  },
+  "mount_schema": {
+    "original": [
+      {
+        "destination": "/runtime",
+        "rw": true
+      },
+      {
+        "destination": "/state",
+        "rw": true
+      }
+    ],
+    "additional": {
+      "source": "<fresh-case-root>/qa-sitecustomize.py",
+      "destination": "/opt/hermes/venv/lib/python3.13/site-packages/sitecustomize.py",
+      "rw": false,
+      "propagation": "rprivate",
+      "mode": "",
+      "max_bytes": 65536
+    },
+    "command_after_image": [],
+    "writable_alias": "refused by roots, regular-file and nlink checks"
+  },
+  "readiness_schema": {
+    "paths": [
+      "/state/qa-host.json",
+      "/state/qa-native.json"
+    ],
+    "exact_fields": {
+      "role": "host | native",
+      "sha256": "parent-generated expected QA attachment SHA256",
+      "status": "READY"
+    },
+    "max_bytes": 512,
+    "mode": "0600",
+    "owned_single_link_regular": true,
+    "expected_sha_binding": "generated descriptor/checkpoint -> mounted process-root readback -> both role evidence files; no embedded selfhash",
+    "decoder_boundary": "require_stock_observation first checks both bounded NOFOLLOW private role files and exact duplicate-free JSON, then require_native_observation checks existing bounded 65536-byte/256-row original native channel with all phase ENTER and short END requirements. Only original three long-lived missing END exceptions remain INCOMPLETE.",
+    "site_exception_behavior": "Known-role setup BaseException explicitly terminates with sanitized SystemExit78; missing or syntax-skipped hook cannot pass consumer readiness/phase gates. Unknown roles do no evidence IO."
+  },
+  "source_controls_scope": [
+    "Real SOURCE RuntimeHost constructor default at substituted PID1 is namespace eligible; TestLaunch remains ineligible. Not installed PID1/drain certification.",
+    "Real SOURCE main code executes with no_run coroutine closer instead of asyncio execution; exact main/module/spec/hash binding once, duplicate invocation denied, no new package-name Host module import.",
+    "Real source RuntimeHost.stop code monitored with no native process; method unchanged and ENTER/END observed. Startup callback finalizers tested with primary and diagnostic-close failure.",
+    "Actual extracted startup and batch pre-admission cuts exercise READY plus missing role through real consumer; existing finalizer tests keep substituted daemon/resource seams explicit.",
+    "Readiness missing-host/native, syntax-skipped evidence, wrong hash, unknown field, size cap, missing phases; unknown-role no-IO and wrong-known-role exit78; single RO mount/hardlink/writable-root controls.",
+    "Existing observer emission caps, caught forbidden calls, thread controls, source phases, Host diagnostics and cleanup regression selections passed."
+  ],
+  "no_effect_preflight": [
+    {
+      "case": "batch2-startup-only",
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-startup-only --collect-only",
+      "exit": 0,
+      "collected": 1,
+      "fresh_root": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+      "fresh_root_absent": true,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-collect-batch2-startup-only.log"
+    },
+    {
+      "case": "batch2-release-first",
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only",
+      "exit": 0,
+      "collected": 1,
+      "fresh_root": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-release-first",
+      "fresh_root_absent": true,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-collect-batch2-release-first.log"
+    },
+    {
+      "case": "batch2-stop-first",
+      "command": "api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-stop-first --collect-only",
+      "exit": 0,
+      "collected": 1,
+      "fresh_root": "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-stop-first",
+      "fresh_root_absent": true,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-author-collect-batch2-stop-first.log"
+    }
+  ],
+  "first_consumer_proposal": {
+    "requires": "Parent exact-snapshot two complementary review adjudications; leave review markers None until then.",
+    "case": "batch2-startup-only",
+    "count": 1,
+    "image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "artifact_sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "reader_sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+    "acceptance": "Actual installed -I site hook loading in BOTH roles, exact mount/hash and stock process identities, native READY with strict phase evidence, unchanged real authority/lease renewal and authentic drain/resource cleanup. Startup-only is not batch2 acceptance.",
+    "conditional_next": "Only if clean: one distinct fresh release-first, then one distinct fresh Stop-first, same existing PG/family owner. Failure stops affected sequence; no prewarm, retry or larger grant."
+  },
+  "limits": [
+    "No PG, OCI, native runtime/resource launch, image build/install/export, target/provider/model, personal profile or global changes performed. Only SOURCE subprocess controls and no-effect collection.",
+    "Installed sys.monitoring/site behavior, actual stock runpy/module phases, non-root image hook loading, real overlap and certified namespace drain remain NOT_RUN; retained static image preflight was not repeated.",
+    "Source tests exercise role/setup refusal and shared observer registration faults, not every possible occupied-ID/short-write failure through the complete installed hook. Review should assess the finite setup/callback boundary; missing readiness remains refusal.",
+    "Old startup/attempt failures remain UNKNOWN and historical cleanup UNCERTAIN. No retrospective cause or acceptance claim.",
+    "No full canonical gate; no commit/stage/push. Parent owns documentation, reviews and commits. Protected HTML never read/hashed/edited.",
+    "New nontrivial procedure belongs in parent-owned runtime/review skill notes after adjudication; no skill edits outside delegated two-file scope."
+  ]
+}

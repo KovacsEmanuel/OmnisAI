@@ -1,0 +1,118 @@
+{
+  "schema": "omnis-stock-launch-safety-review-v1",
+  "report_complete": true,
+  "verdict": "APPROVED_SCOPED_SOURCE",
+  "scope": "Independent READONLY safety review of the frozen two-file stock-launch QA correction; conditional selector forms reviewed in memory only. Not installed/runtime acceptance or authority to execute.",
+  "snapshot": {
+    "head": "f37b4c3c3fe1eb2d8a5fb32cf763598da3d55da8",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "files": {
+      "api/tests/test_contract_method_pg.py": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "4aa87b78948063ab3b5834a6458702fbeb7216973d4a5888a8a010178fad835a"
+    },
+    "end_hashes_and_head_unchanged": true,
+    "working_tree": "Exactly the same two tracked QA modifications at entry and exit; preexisting protected HTML untracked path observed in git status only, never opened or hashed. No staging/commit/push."
+  },
+  "findings_complete_for_scope": true,
+  "findings": [],
+  "finding_fields_if_present": ["id", "severity", "location", "reproducer", "violated_requirement", "remedy"],
+  "prior_dispositions": [
+    {
+      "id": "STARTUP-QA-LAUNCH-MODE-01",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "evidence": "Generated caller no longer constructs TestLaunch or overrides command/environment/class/method. Container command remains stock; SOURCE constructor control proves stock PID1 eligibility and TestLaunch ineligibility. This does not establish actual installed STOPPED."
+    },
+    {
+      "id": "startup-primary F01 cancellation/diagnostic cleanup",
+      "status": "UNCHANGED_REQUIREMENT_PRESERVED_SOURCE_SCOPED",
+      "evidence": "New native_finish attempts timer cancellation and both diagnostic FD closes independently, then observer emission and FD close. SOURCE cleanup controls preserve the identical CancelledError with a diagnostic close failure and require zero rescued FDs. HostLaunchDiagnostic still retains original exceptions/cancellation."
+    }
+  ],
+  "boundary_review": [
+    {
+      "boundary": "Single explicit RO QA attachment",
+      "locations": ["api/tests/test_contract_method_pg.py:4269-4325", "api/tests/test_contract_method_pg.py:5424-5471", "api/tests/test_contract_method_pg.py:6922-6968"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Builder uses exclusive/no-follow creation, mode0400, finite65536-byte bound and compile check. Mount planner requires physical path, scratch containment, regular single-link UID-owned file outside both physical RW roots. Inspect requires exact source/destination inventory and count: /runtime RW, /state RW, fixed site-packages file RO; no extra command after image. Existing H03 remains two mounts and containment flags remain unchanged. Hardlink/writable-root negative controls passed."
+    },
+    {
+      "boundary": "Stock process and mounted-byte identity",
+      "locations": ["api/tests/test_contract_method_pg.py:7003-7094", "api/tests/test_contract_method_pg.py:6005-6066"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Host exact ordered argv, PID1 and mounted file metadata/hash are checked before runtime.connect; installed public inventory is retained. Native direct-child argv, mounted hash, PID/starttime and common private namespace are checked after launch/renew and before batch stage. Existing source and artifact pins remain required. No namespace_owned assignment or NATIVE_COMMAND/NATIVE_ENV override was introduced."
+    },
+    {
+      "boundary": "Site role selection and fail-closed admission",
+      "locations": ["api/tests/test_contract_method_pg.py:5311-5421", "api/tests/test_contract_method_pg.py:5475-5502", "api/tests/test_contract_method_pg.py:7264-7272", "api/tests/test_contract_method_pg.py:8052-8064", "api/tests/test_contract_method_pg.py:10087-10127"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Exact sys.orig_argv/prefix/isolated/no-user-site/ignore-environment/safe-path/no_site/UID/GID/fixed-file checks bind known roles. Setup BaseException terminates explicitly as sanitized SystemExit78 rather than relying on an Exception swallowed by site. Unknown roles perform no evidence setup. Both exact role/hash/READY documents plus strict pre-READY phases are mandatory before startup credit and batch stage, and on successful finalizer exits. Missing/syntax-skipped hook evidence, wrong hash, extra field, oversize and missing phase controls refuse. Failed monitoring setup cannot produce accepted complete readiness."
+    },
+    {
+      "boundary": "Actual Host binding and observer neutrality",
+      "locations": ["api/tests/test_contract_method_pg.py:5359-5415", "api/tests/test_contract_method_pg.py:5103-5143", "integrations/hermes/src/omnis_hermes/runtime_host.py:84-116", "integrations/hermes/src/omnis_hermes/runtime_host.py:651-703"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Host is bound once to the executing __main__ module using actual globals/spec/origin/source hash/main code identity. No package-name Host import or duplicate RuntimeHost class is introduced. Startup Stop observes exact real stop code and self type, without replacing the method or mutating authority. Product PID1/default-test-seam guard, STOPPED predicate, deadlines and actual stop effects are unchanged. SOURCE real-main and real-stop controls passed; they do not execute a native child."
+    },
+    {
+      "boundary": "Native observer reuse and finite paths",
+      "locations": ["api/tests/test_contract_method_pg.py:61-350", "api/tests/test_contract_method_pg.py:5227-5310", "api/tests/test_contract_method_pg.py:5340-5358"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Reuses existing audit/sinks/emitter/phase/batch barrier core, removing only SOURCE routing and argv/env/chdir/manual-runpy wrapper. Added permitted state roots are the exact stock fresh HOME/HERMES/CODEX/XDG/TMP/managed/work directories, each checked empty/physical/owned0700, plus the exact native readiness file; not all /state. Credential filename denials remain. Actual interpreter runpy code identity/mod_name is observed, not invoked by the hook. Audit attempts are emitted before refusal; caught forbidden attempts still fail the consumer. Existing new-thread, bounded/reentrant emitter and phase controls passed."
+    },
+    {
+      "boundary": "Privacy and failure preservation",
+      "locations": ["api/tests/test_contract_method_pg.py:4668-4782", "api/tests/test_contract_method_pg.py:5103-5224", "api/tests/test_contract_method_pg.py:4930-5029"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "Host exception records filter exact code objects before extracting finite metadata; primary diagnostics serialize finite class/code-location fields, not exception text/args/locals. Raw faulthandler output stays private and was not read. Stop observation records finite state/caller fields without replacing effects. native_finish preserves the original propagating exception/cancellation and attempts remaining independent cleanup after a diagnostic failure. Short/lost/capped diagnostics remain UNKNOWN/incomplete, not strong causal attribution."
+    },
+    {
+      "boundary": "Real evidence, domain authority and finalizer",
+      "locations": ["api/tests/test_contract_method_pg.py:8052-8064", "api/tests/test_contract_method_pg.py:10030-10151", "api/tests/test_contract_method_pg.py:2529-2541"],
+      "result": "PASS_SOURCE_SCOPED",
+      "basis": "No product/domain owner, task result, overlap barrier, lease grant/deadline or PG/family-fence change. Real AIAgent/read/PURE and no-rerun/count assertions remain separate from startup evidence. Host final diagnostic and strict native gate stay before clean settlement/PASS; original failures are not replaced by diagnostic cleanup failures. Existing lifecycle return/failure/cancel/pre-acquire SOURCE controls passed with declared daemon/resource seams."
+    }
+  ],
+  "tests": [
+    {
+      "kind": "Independent affected SOURCE controls",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch TMPDIR=/home/kali/.hermes/cache/scratch PATH=/usr/bin:/bin LANG=C.UTF-8 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'stock_role or stock_site or batch2_installed_entry or startup_primary or bootstrap_observer or host_launch_filtered_source or h03_actual_lifecycle_source_seams or h03_stock_container or h03_mount_roots or installed_route_before_fixture' --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/stock-safety-source-controls -q --tb=line",
+      "exit": 0,
+      "passed": 116,
+      "deselected": 174,
+      "seconds": 7.98,
+      "stdout_summary": "116 passed, 174 deselected in 7.98s",
+      "limits": "SOURCE/synthetic filesystem and monitoring controls only; no PG/OCI/native launch. Actual installed hook startup and actual drain remain NOT_RUN."
+    },
+    {
+      "kind": "In-memory selector review and final snapshot",
+      "interpreter": "api/.venv/bin/python -I -B, Python3.13.15, clean environment",
+      "exit": 0,
+      "basis": "Compiled/executed selector module definitions only under non-main name; exercised selected_argv and environment for the three finite cases on closed/startup-only/both-enabled text variants. Did not invoke main, subprocess.call, runner or preflight resources. Verified exact review digest propagation and distinct absent fresh roots. Final source/selector hashes and HEAD unchanged; git diff --check exit0."
+    }
+  ],
+  "conditional_selector_review": {
+    "on_disk_markers": {"STARTUP_REVIEWED": null, "BATCH2_REVIEWED": null},
+    "caller_digest": "c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d",
+    "exact_edit_form": "Replace the respective `NAME: str | None = None` with `NAME: str | None = \"c22fb9883c561e5d8a3ed2ee099cced4d75ebbad1c42045e37a1a9e19a44342d\"`, changing no other bytes.",
+    "startup_only_sha256": "ff88d334e0427f73df9a4b392369f80ea60bb6b6d90343b353a3d4adb4f6a2fa",
+    "startup_and_batch2_sha256": "76d18278ac8c80e29e28ef1bf888583a1ae1938c4b0b55b817fbb813968d00ef",
+    "first_condition": "Both complementary exact-snapshot reviews adjudicated and source committed by parent; only STARTUP_REVIEWED may then be bound for ONE fresh batch2-stock1-batch2-startup-only under a separate QA execution contract.",
+    "second_condition": "Only after that actual installed startup/strict-observation/legitimate-drain/cleanup result is clean may parent additionally bind BATCH2_REVIEWED to the same caller, for distinct fresh release-first followed by Stop-first under separate QA contract. No other edit/activation is approved by this conditional source review.",
+    "fresh_roots_checked_absent": [
+      "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-startup-only",
+      "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-release-first",
+      "/home/kali/.hermes/cache/scratch/batch2-stock1-batch2-stop-first"
+    ],
+    "failure_policy": "Stop affected sequence on failure; retain old/new FAIL/UNKNOWN/UNCERTAIN and fences. No retry, prewarm, reused root, larger grant or implicit successor. In-memory approval forms do not enforce sequencing themselves; parent QA contract remains necessary.",
+    "activated": false
+  },
+  "limits": [
+    "No complete installed-hook sys.monitoring/site execution, native startup, genuine overlap, physical drain or installed acceptance was performed. SOURCE tests cannot replace the separately bounded first actual consumer.",
+    "Parent static image/site metadata findings were read from CURRENT and seam decision; no image export or static recensus repeated. Unchanged product image/startup_autoload is distinct from this explicitly instrumented QA runtime.",
+    "No PG/OCI/native/install/build/profile/credential/provider/target effects; no raw private PG/native-fault logs or capabilities emitted.",
+    "No repository edits, stage, commit, push, protected HTML read/hash, or skill edits. Only the requested scratch report and source-test scratch artifacts were created.",
+    "No universal absence-of-bugs or confinement claim. Python audit/monitoring checks are the admitted QA evidence boundary, not OS-level syscall confinement.",
+    "No retrospective causal explanation for historical launch failures. Existing product/global acceptance remains unchanged: batch2/B06b/G02/P2 not closed; canonical final NOT_RUN; P4a-minim not delivered.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Parent owns integration, documentation/status reconciliation and any reusable procedure update."
+  ]
+}

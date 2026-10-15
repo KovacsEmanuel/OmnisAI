@@ -1,7 +1,7 @@
 """One private PG -> existing owner -> real pinned native CONTRACT/PURE journey.
 
 SOURCE owner/prepare CLI and document-preparation prerequisite double.
-Batch2: installed OCI Host/native bytes with an explicit QA TestLaunch entry,
+Batch2: stock OCI Host/native argv with one read-only QA sitecustomize mount,
 installed current API readers; H03 alone exercises stock-entry runtime restart.
 Other variants retain SOURCE_HOST_NOT_INSTALLED. No native results are doubled.
 This test never installs or downloads runtime/library prerequisites.
@@ -2101,6 +2101,256 @@ def test_singleton_post_stop_exception_loads() -> None:
     invoke()
 
 
+@pytest.mark.parametrize(
+    "fault",
+    [
+        None,
+        "missing-host",
+        "missing-native",
+        "syntax-skipped",
+        "wrong-hash",
+        "extra-field",
+        "capped",
+        "missing-phase",
+    ],
+)
+def test_stock_role_evidence_required_even_when_ready(tmp_path: Path, fault: str | None) -> None:
+    digest = "a" * 64
+    for role in ("host", "native"):
+        path = tmp_path / ("qa-" + role + ".json")
+        value = {"role": role, "sha256": digest, "status": "READY"}
+        if fault == "wrong-hash" and role == "native":
+            value["sha256"] = "b" * 64
+        if fault == "extra-field" and role == "native":
+            value["unknown"] = "PRIVATE_MARKER"
+        path.write_bytes(canonical(value) + b"\n")
+        path.chmod(0o600)
+    rows = [{"test": "observer", "status": "READY", "count": 1}]
+    for label in BOOTSTRAP_PHASES:
+        for edge in ("ENTER", "END"):
+            rows.append(
+                {
+                    "test": "bootstrap-phase",
+                    "status": label,
+                    "count": 1,
+                    "edge": edge,
+                    "elapsed_ms": 0,
+                    "audit_ms": 0,
+                    "audit_calls": 0,
+                }
+            )
+    observation = tmp_path / "native-observation.jsonl"
+    observation.write_bytes(b"".join(canonical(row) + b"\n" for row in rows))
+    if fault in {"missing-host", "missing-native", "syntax-skipped"}:
+        (tmp_path / ("qa-host.json" if fault == "missing-host" else "qa-native.json")).unlink()
+    elif fault == "capped":
+        (tmp_path / "qa-native.json").write_bytes(b" " * 513)
+    elif fault == "missing-phase":
+        observation.write_bytes(canonical(rows[0]) + b"\n")
+    if fault is None:
+        require_stock_observation(tmp_path, digest)
+    else:
+        with pytest.raises((AssertionError, OSError, ValueError)):
+            require_stock_observation(tmp_path, digest)
+
+
+@pytest.mark.parametrize("startup", [True, False])
+@pytest.mark.parametrize("missing", [False, True])
+def test_stock_site_actual_admission_cut(tmp_path: Path, startup: bool, missing: bool) -> None:
+    import ast
+    from types import SimpleNamespace
+
+    test_stock_role_evidence_required_even_when_ready(tmp_path, None)
+    if missing:
+        (tmp_path / "qa-native.json").unlink()
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    run = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "run")
+    if startup:
+        branch = next(
+            n
+            for n in ast.walk(run)
+            if isinstance(n, ast.If)
+            and isinstance(n.test, ast.Name)
+            and n.test.id == "startup"
+            and "launch_inert" in ast.unparse(n)
+        )
+        body = deepcopy(branch.body)
+    else:
+        owner = next(
+            n
+            for n in ast.walk(run)
+            if isinstance(n, ast.AsyncWith) and "original_stage_exchange" in ast.unparse(n)
+        )
+        end = next(
+            i
+            for i, n in enumerate(owner.body)
+            if isinstance(n, ast.Assign) and "original_stage_exchange" in ast.unparse(n)
+        )
+        body = deepcopy(owner.body[:end])
+    calls: list[str] = []
+
+    async def ready(*args: object) -> dict[str, object]:
+        calls.append("runtime")
+        return {"state": "READY"}
+
+    namespace = {
+        **globals(),
+        "state_dir": tmp_path,
+        "observation": tmp_path / "native-observation.jsonl",
+        "qa_hashes": {"qa-sitecustomize.py": "a" * 64},
+        "batch2": True,
+        "installed_native": True,
+        "host": None,
+        "runtime": SimpleNamespace(writer=object(), launch_inert=ready, renew=ready),
+        "service": SimpleNamespace(heartbeat=ready),
+        "supervisor": None,
+        "epoch": 1,
+        "native_process_receipt": lambda: calls.append("identity"),
+        "checkpoint": lambda **kw: None,
+        "diagnostic": {},
+        "nullcontext": nullcontext,
+    }
+    cut = ast.AsyncFunctionDef(
+        name="cut",
+        args=ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]),
+        body=body,
+        decorator_list=[],
+    )
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[cut], type_ignores=[])),
+            "<stock-admission-cut>",
+            "exec",
+        ),
+        namespace,
+    )
+    invoke = namespace["cut"]
+    assert callable(invoke)
+    if missing:
+        with pytest.raises(OSError):
+            asyncio.run(invoke())
+    else:
+        asyncio.run(invoke())
+    assert "identity" in calls
+
+
+def test_stock_site_roles_no_setup_for_unknown(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    batch2_installed_entry(tmp_path)
+    script = (tmp_path / "qa-sitecustomize.py").read_text()
+    monkeypatch.setattr(sys, "orig_argv", ["python", "-I", "-m", "unrelated.reader"])
+    namespace: dict[str, object] = {}
+    exec(compile(script, QA_SITE_TARGET, "exec"), namespace)
+    assert namespace["qa_role"] is None
+    monkeypatch.setattr(sys, "orig_argv", ["wrong-python", "-I", "-m", "tui_gateway.entry"])
+    with pytest.raises(SystemExit) as caught:
+        exec(compile(script, QA_SITE_TARGET, "exec"), {})
+    assert caught.value.code == 78
+    assert set(p.name for p in tmp_path.iterdir()) == {"qa-sitecustomize.py"}
+    compile(batch2_native_observer(startup=True), QA_SITE_TARGET, "exec")
+
+
+def test_stock_site_binds_real_main_once_without_package_import(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import ast
+    import hashlib
+    from types import ModuleType
+
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    path = ROOT / "integrations/hermes/src/omnis_hermes/runtime_host.py"
+    raw = path.read_bytes()
+    tree = ast.parse(raw)
+    assert isinstance(tree.body[-1], ast.If)
+    tree.body.pop()  # SOURCE control: call the real main below with no asyncio run effects.
+    actual = ModuleType("__main__")
+    actual.__dict__.update(
+        __file__=str(path),
+        __package__="omnis_hermes",
+        __spec__=importlib.machinery.ModuleSpec(
+            "omnis_hermes.runtime_host", loader=None, origin=str(path)
+        ),
+    )
+    exec(compile(tree, str(path), "exec"), actual.__dict__)
+    monkeypatch.setitem(sys.modules, "__main__", actual)
+    prior = sys.modules.get("omnis_hermes.runtime_host")
+    ready: list[str] = []
+    namespace = {
+        **globals(),
+        "hashlib": hashlib,
+        "host": None,
+        "diagnostic": None,
+        "host_main_code": None,
+        "host_target": str(path),
+        "host_sha": sha(raw),
+        "qa_target": QA_SITE_TARGET,
+        "startup": False,
+        "qa_ready": lambda: ready.append("host"),
+        "host_diagnostic": HOST_LAUNCH_DIAGNOSTIC.replace("/state/", str(tmp_path) + "/"),
+    }
+    callbacks: list[ast.stmt] = [
+        n
+        for n in ast.walk(ast.parse(STOCK_SITE))
+        if isinstance(n, ast.FunctionDef) and n.name in {"host_start", "host_end", "host_unwind"}
+    ]
+    exec(compile(ast.Module(body=callbacks, type_ignores=[]), QA_SITE_TARGET, "exec"), namespace)
+
+    def no_run(coroutine: Coroutine[object, object, object]) -> None:
+        coroutine.close()
+
+    monkeypatch.setattr(asyncio, "run", no_run)
+    tool = 4
+    try:
+        sys.monitoring.use_tool_id(tool, "stock-host-source")
+        for event, name in (
+            (sys.monitoring.events.PY_START, "host_start"),
+            (sys.monitoring.events.PY_RETURN, "host_end"),
+            (sys.monitoring.events.PY_UNWIND, "host_unwind"),
+        ):
+            callback = namespace[name]
+            assert callable(callback)
+            sys.monitoring.register_callback(tool, event, callback)
+        sys.monitoring.set_events(
+            tool,
+            sys.monitoring.events.PY_START
+            | sys.monitoring.events.PY_RETURN
+            | sys.monitoring.events.PY_UNWIND,
+        )
+        assert actual.main() == 0
+        assert ready == ["host"] and namespace["host"] is actual
+        assert sys.modules.get("omnis_hermes.runtime_host") is prior
+        with pytest.raises(SystemExit) as caught:
+            actual.main()
+        assert caught.value.code == 78
+    finally:
+        sys.monitoring.set_events(tool, 0)
+        sys.monitoring.free_tool_id(tool)
+    assert host_launch_checkpoint(tmp_path / "host-launch-diagnostic.json")["status"] == "OBSERVED"
+
+
+def test_stock_site_mount_is_single_ro_outside_rw_roots(tmp_path: Path) -> None:
+    runtime, state = tmp_path / "runtime", tmp_path / "state"
+    runtime.mkdir(mode=0o700)
+    state.mkdir(mode=0o700)
+    batch2_installed_entry(tmp_path)
+    path = tmp_path / "qa-sitecustomize.py"
+    argv = h03_container_argv("sha256:" + "a" * 64, "b" * 32, runtime, state, path)
+    assert argv[-2] == "--mount=type=bind,src=" + str(path) + ",dst=" + QA_SITE_TARGET + ",readonly"
+    assert argv[-1] == "sha256:" + "a" * 64
+    assert len([x for x in argv if x.startswith("--mount=")]) == 3
+    alias = state / path.name
+    os.link(path, alias)
+    try:
+        for candidate in (path, alias):
+            with pytest.raises(AssertionError, match="QA_SITE_MOUNT_REFUSED"):
+                h03_container_argv("sha256:" + "a" * 64, "b" * 32, runtime, state, candidate)
+    finally:
+        alias.unlink()
+
+
 def test_batch2_observation_exact_fields() -> None:
     row: dict[str, object] = {
         "test": "batch2-access",
@@ -3434,8 +3684,18 @@ def test_h03_actual_lifecycle_source_seams(
                 ).encode(), b""
             if op == "create":
                 daemon["created"] = True
+                assert self.argv[-1] == image
                 if batch2:
-                    config["Cmd"] = list(self.argv[-4:])
+                    sequence(info["Mounts"]).append(
+                        {
+                            "Type": "bind",
+                            "Source": str(tmp_path / "qa-sitecustomize.py"),
+                            "Destination": QA_SITE_TARGET,
+                            "RW": False,
+                            "Mode": "",
+                            "Propagation": "rprivate",
+                        }
+                    )
                 path = tmp_path / ("h03-" + nonce + ".cid")
                 path.write_text(cid_value + "\n")
                 path.chmod(0o600)
@@ -3524,6 +3784,7 @@ def test_h03_actual_lifecycle_source_seams(
     namespace.update(
         host_launch_checkpoint=host_guard,
         require_native_observation=observation_guard,
+        require_stock_observation=lambda path, digest: observation_guard(path),
         observation=tmp_path / "observation.jsonl",
         asyncio=SimpleNamespace(
             create_subprocess_exec=spawn,
@@ -4005,7 +4266,9 @@ def h03_replaced_processes(old: dict[str, object], new: dict[str, object]) -> No
         raise AssertionError("H03_PROCESS_REPLACEMENT_REFUSED")
 
 
-def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> list[str]:
+def h03_container_argv(
+    image: str, nonce: str, runtime: Path, state: Path, qa_file: Path | None = None
+) -> list[str]:
     scratch = Path("/home/kali/.hermes/cache/scratch")
     if (
         re.fullmatch(r"sha256:[a-f0-9]{64}", image) is None
@@ -4023,6 +4286,20 @@ def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> li
         or runtime.absolute() == state.absolute()
     ):
         raise AssertionError("H03_CONTAINER_PLAN_REFUSED")
+    if qa_file is not None:
+        info = qa_file.lstat()
+        if (
+            qa_file.resolve(strict=True) != qa_file
+            or not qa_file.is_relative_to(scratch)
+            or qa_file.is_relative_to(runtime)
+            or qa_file.is_relative_to(state)
+            or not stat.S_ISREG(info.st_mode)
+            or info.st_uid != os.getuid()
+            or info.st_nlink != 1
+            or stat.S_IMODE(info.st_mode) not in (0o400, 0o600)
+            or not 0 < info.st_size <= 65536
+        ):
+            raise AssertionError("QA_SITE_MOUNT_REFUSED")
     return [
         "docker",
         "create",
@@ -4040,6 +4317,11 @@ def h03_container_argv(image: str, nonce: str, runtime: Path, state: Path) -> li
         "--cidfile=" + str(state.parent / ("h03-" + nonce + ".cid")),
         "--mount=type=bind,src=" + str(runtime) + ",dst=/runtime",
         "--mount=type=bind,src=" + str(state) + ",dst=/state",
+        *(
+            ["--mount=type=bind,src=" + str(qa_file) + ",dst=" + QA_SITE_TARGET + ",readonly"]
+            if qa_file is not None
+            else []
+        ),
         image,
     ]
 
@@ -4068,70 +4350,34 @@ def test_batch2_installed_route_before_fixture(
 def test_batch2_installed_entry_uses_existing_constructor(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from types import ModuleType
-
-    build = globals().get("batch2_installed_entry")
-    assert callable(build), "BATCH2_INSTALLED_ENTRY_MISSING"
-    host_argv, native_argv, hashes = build(tmp_path)
-    assert host_argv == ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
-    assert native_argv == [
-        "/opt/hermes/venv/bin/python",
-        "-I",
-        "-B",
-        "/state/native_bootstrap.py",
-        "INSTALLED",
-        "/state/native-home",
-        "/state/native-observation.jsonl",
-    ]
-    for name, digest in hashes.items():
-        assert sha((tmp_path / name).read_bytes()) == digest
+    host_argv, native_argv, hashes = batch2_installed_entry(tmp_path)
+    assert host_argv == ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]
+    assert native_argv == ["/opt/hermes/venv/bin/python", "-I", "-m", "tui_gateway.entry"]
+    assert set(hashes) == {"qa-sitecustomize.py"}
+    path = tmp_path / "qa-sitecustomize.py"
+    assert sha(path.read_bytes()) == hashes[path.name]
+    assert path.stat().st_nlink == 1 and stat.S_IMODE(path.stat().st_mode) == 0o400
+    script = path.read_text()
+    for forbidden in (
+        "TestLaunch",
+        "host.RuntimeHost =",
+        "host.RuntimeHost.stop =",
+        "runpy.run_module(",
+        "os.environ.clear(",
+        "os.chdir(",
+    ):
+        assert forbidden not in script
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
     from omnis_hermes.runtime_host import RuntimeHost
-    from omnis_hermes.runtime_host import TestLaunch as NativeHostTestLaunch
-    from omnis_hermes.runtime_protocol import NativePeer
+    from omnis_hermes.runtime_host import TestLaunch as Launch
 
-    reached: list[tuple[Path, NativeHostTestLaunch]] = []
-
-    def constructor(directory: Path, *, _test_launch: NativeHostTestLaunch) -> None:
-        reached.append((directory, _test_launch))
-
-    module = ModuleType("omnis_hermes.runtime_host")
-    module.__file__ = "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py"
-    constructor.__dict__["_launch"] = RuntimeHost._launch
-    module.__dict__["NativePeer"] = NativePeer
-    module.__dict__["RuntimeHost"] = constructor
-    module.__dict__["TestLaunch"] = NativeHostTestLaunch
-
-    def main() -> int:
-        actual = module.RuntimeHost
-        actual(Path("/runtime"))
-        return 0
-
-    module.__dict__["main"] = main
-    parent = ModuleType("omnis_hermes")
-    parent.__dict__["runtime_host"] = module
-    monkeypatch.setitem(sys.modules, "omnis_hermes", parent)
-    monkeypatch.setitem(sys.modules, "omnis_hermes.runtime_host", module)
-    with pytest.raises(SystemExit) as exit_value:
-        exec(
-            compile(
-                (tmp_path / "host-qa.py")
-                .read_text()
-                .replace(
-                    "/state/host-launch-diagnostic.json",
-                    str(tmp_path / "host-launch-diagnostic.json"),
-                ),
-                "<qa-entry>",
-                "exec",
-            ),
-            {},
-        )
-    assert exit_value.value.code == 0 and len(reached) == 1
-    directory, launch = reached[0]
-    assert directory == Path("/runtime")
-    assert isinstance(launch, NativeHostTestLaunch)
-    assert list(launch.command) == native_argv
-    assert launch.cwd == Path("/state/work")
+    monkeypatch.setattr(os, "getpid", lambda: 1)
+    assert RuntimeHost(tmp_path).namespace_owned is True
+    assert (
+        RuntimeHost(tmp_path, _test_launch=Launch(tuple(native_argv), tmp_path)).namespace_owned
+        is False
+    )
+    # No actual namespace/process/drain is certified by this SOURCE constructor control.
 
 
 @pytest.mark.parametrize(
@@ -4685,11 +4931,14 @@ def test_startup_primary_native_boundary(tmp_path: Path, normal: bool) -> None:
     builder = globals().get("batch2_installed_entry")
     assert callable(builder)
     builder(tmp_path, startup=True)
-    script = (tmp_path / "native_bootstrap.py").read_text()
+    script = batch2_native_observer(startup=True)
     assert "dump_traceback_later(1," in script
     assert script.index("dump_traceback_later(1,") < script.index("sys.addaudithook")
     hook = script.split("# STARTUP_PRIMARY_BEGIN\n", 1)[1].split("# STARTUP_PRIMARY_END", 1)[0]
-    tail = "try:\n    runpy.run_module" + script.split("try:\n    runpy.run_module", 1)[1]
+    tail = (
+        STOCK_NATIVE_FINISH
+        + "\ntry:\n    runpy.run_module()\nexcept BaseException as error:\n    native_finish(error)\n    raise\nelse:\n    native_finish()\n"
+    )
     from types import SimpleNamespace
 
     primary = ValueError("PRIVATE_STARTUP_SENTINEL")
@@ -4700,6 +4949,7 @@ def test_startup_primary_native_boundary(tmp_path: Path, normal: bool) -> None:
 
     fd = os.open(tmp_path / "evidence", os.O_WRONLY | os.O_CREAT, 0o600)
     namespace: dict[str, object] = {
+        "startup": True,
         "runpy": SimpleNamespace(run_module=invoke),
         "emit": lambda *a, **kw: None,
         "phase_transition": lambda *a: None,
@@ -4730,9 +4980,12 @@ def test_startup_primary_native_cleanup(tmp_path: Path, close_failure: bool) -> 
     from types import SimpleNamespace
 
     batch2_installed_entry(tmp_path, startup=True)
-    script = (tmp_path / "native_bootstrap.py").read_text()
+    script = batch2_native_observer(startup=True)
     hook = script.split("# STARTUP_PRIMARY_BEGIN\n", 1)[1].split("# STARTUP_PRIMARY_END", 1)[0]
-    tail = "try:\n    runpy.run_module" + script.split("try:\n    runpy.run_module", 1)[1]
+    tail = (
+        STOCK_NATIVE_FINISH
+        + "\ntry:\n    runpy.run_module()\nexcept BaseException as error:\n    native_finish(error)\n    raise\nelse:\n    native_finish()\n"
+    )
     primary = asyncio.CancelledError("PRIVATE_STARTUP_SENTINEL")
     events: list[tuple[object, ...]] = []
 
@@ -4741,6 +4994,7 @@ def test_startup_primary_native_cleanup(tmp_path: Path, close_failure: bool) -> 
 
     evidence_fd = os.open(tmp_path / "evidence", os.O_WRONLY | os.O_CREAT, 0o600)
     namespace: dict[str, object] = {
+        "startup": True,
         "runpy": SimpleNamespace(run_module=invoke),
         "emit": lambda *args: events.append(args),
         "phase_transition": lambda *args: None,
@@ -4775,51 +5029,48 @@ def test_startup_primary_native_cleanup(tmp_path: Path, close_failure: bool) -> 
     assert b"PRIVATE_STARTUP_SENTINEL" not in (tmp_path / "native-primary.jsonl").read_bytes()
 
 
-@pytest.mark.parametrize("exited", [False, True])
 def test_startup_primary_stop_before_effect(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, exited: bool
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from types import SimpleNamespace
-
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
     import omnis_hermes.runtime_host as host
 
-    calls = []
-    primary = asyncio.CancelledError("PRIVATE_STARTUP_SENTINEL")
-
-    async def original(instance: object) -> None:
-        rows = [
-            json.loads(line)
-            for line in (tmp_path / "host-stop-primary.jsonl").read_text().splitlines()
-        ]
-        assert rows[0]["edge"] == "ENTER"
-        assert rows[0]["returncode"] == (7 if exited else None)
-        calls.append(instance)
-        raise primary
-
-    monkeypatch.setattr(host.RuntimeHost, "stop", original)
-    batch2_installed_entry(tmp_path, startup=True)
-    script = (tmp_path / "host-qa.py").read_text()
-    assert "# STARTUP_STOP_BEGIN" in script
-    hook = script.split("# STARTUP_STOP_BEGIN\n", 1)[1].split("# STARTUP_STOP_END", 1)[0]
     namespace: dict[str, object] = {"host": host}
-    exec(hook.replace("/state/", str(tmp_path) + "/"), namespace)
-    instance = SimpleNamespace(
-        process=SimpleNamespace(pid=123, returncode=7 if exited else None),
-        state="STARTING",
-        deadline_ns=0,
-    )
+    exec(STARTUP_HOST_STOP.replace("/state/", str(tmp_path) + "/"), namespace)
+    original = host.RuntimeHost.stop
+    instance = host.RuntimeHost(tmp_path)
+    tool = 4
+    begin, end = namespace["startup_stop_begin"], namespace["startup_stop_end"]
+    assert callable(begin) and callable(end)
+
+    def start(code: CodeType, offset: int) -> object:
+        if code is original.__code__:
+            begin(sys._getframe(1))
+        return None
+
+    def finish(code: CodeType, offset: int, value: object) -> object:
+        if code is original.__code__:
+            end(sys._getframe(1))
+        return None
+
     try:
-        with pytest.raises(asyncio.CancelledError) as caught:
-            stop = namespace["startup_stop"]
-            assert callable(stop)
-            asyncio.run(stop(instance))
-        assert caught.value is primary and calls == [instance]
+        sys.monitoring.use_tool_id(tool, "qa-stop-source")
+        sys.monitoring.register_callback(tool, sys.monitoring.events.PY_START, start)
+        sys.monitoring.register_callback(tool, sys.monitoring.events.PY_RETURN, finish)
+        sys.monitoring.set_events(
+            tool, sys.monitoring.events.PY_START | sys.monitoring.events.PY_RETURN
+        )
+        asyncio.run(instance.stop())
     finally:
+        sys.monitoring.set_events(tool, 0)
+        sys.monitoring.free_tool_id(tool)
         os.close(integer(namespace["startup_stop_fd"], 0))
-    raw = (tmp_path / "host-stop-primary.jsonl").read_bytes()
-    assert b"PRIVATE_STARTUP_SENTINEL" not in raw
-    assert [json.loads(line)["edge"] for line in raw.splitlines()] == ["ENTER", "END"]
+    assert host.RuntimeHost.stop is original
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "host-stop-primary.jsonl").read_bytes().splitlines()
+    ]
+    assert [row["edge"] for row in rows] == ["ENTER", "END"]
 
 
 @pytest.mark.parametrize("exit_path", ["return", "failure", "cancel", "pre-acquire"])
@@ -4855,8 +5106,8 @@ STARTUP_HOST_STOP = r"""
 import json, os, sys, time
 startup_stop_fd = os.open('/state/host-stop-primary.jsonl', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
 os.fchmod(startup_stop_fd, 0o600)
-startup_original_stop = host.RuntimeHost.stop
 startup_stop_calls = 0
+startup_stop_frames = {}
 startup_callers = ((host.RuntimeHost._launch.__code__, 'LAUNCH'), (host.RuntimeHost._watch.__code__, 'WATCHDOG'))
 startup_handle = host.RuntimeHost._handle.__code__
 def startup_stop_record(instance, edge, caller):
@@ -4875,22 +5126,20 @@ def startup_stop_record(instance, edge, caller):
             startup_stop_calls += 1
     except BaseException:
         pass  # Observation cannot suppress, duplicate or postpone the original stop.
-async def startup_stop(instance):
-    caller = 'OTHER'
-    try:
-        frame = sys._getframe(1)
-        caller = next((name for code, name in startup_callers if frame.f_code is code), 'OTHER')
-        if frame.f_code is startup_handle and frame.f_lineno == 812:
-            caller = 'OWNER_DISCONNECT'
-        del frame
-    except BaseException:
-        pass
+def startup_stop_begin(frame):
+    instance = frame.f_locals.get('self')
+    if type(instance) is not host.RuntimeHost:
+        return
+    caller_frame = frame.f_back
+    caller = next((name for code, name in startup_callers if caller_frame is not None and caller_frame.f_code is code), 'OTHER')
+    if caller_frame is not None and caller_frame.f_code is startup_handle and caller_frame.f_lineno == 812:
+        caller = 'OWNER_DISCONNECT'
+    startup_stop_frames[id(frame)] = (instance, caller)
     startup_stop_record(instance, 'ENTER', caller)
-    try:
-        return await startup_original_stop(instance)
-    finally:
-        startup_stop_record(instance, 'END', caller)
-host.RuntimeHost.stop = startup_stop
+def startup_stop_end(frame):
+    row = startup_stop_frames.pop(id(frame), None)
+    if row is not None:
+        startup_stop_record(row[0], 'END', row[1])
 # STARTUP_STOP_END
 """
 
@@ -4934,68 +5183,290 @@ def startup_exception(error):
 """
 
 
-def batch2_installed_entry(
-    state: Path, *, startup: bool = False
-) -> tuple[list[str], list[str], dict[str, str]]:
-    """Explicit QA argv; image CMD is unchanged and no release autoload is added."""
-    native = [
-        "/opt/hermes/venv/bin/python",
-        "-I",
-        "-B",
-        "/state/native_bootstrap.py",
-        "INSTALLED",
-        "/state/native-home",
-        "/state/native-observation.jsonl",
-    ]
-    host = ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
-    bootstrap = (
-        "from functools import partial\nfrom pathlib import Path\n"
-        "import omnis_hermes.runtime_host as host\n"
-        "if not Path(host.__file__).is_relative_to('/opt/hermes/venv'):\n"
-        "    raise AssertionError('BATCH2_HOST_ORIGIN_REFUSED')\n"
-        + HOST_LAUNCH_DIAGNOSTIC
-        + (STARTUP_HOST_STOP if startup else "")
-        + "\nwith HostLaunchDiagnostic():\n"
-        "    host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
-        + repr(tuple(native))
-        + ", Path('/state/work')))\n"
-        "    raise SystemExit(host.main())\n"
-    )
-    native_bootstrap = BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True")
+QA_SITE_TARGET = "/opt/hermes/venv/lib/python3.13/site-packages/sitecustomize.py"
+QA_HOST_TARGET = "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py"
+
+# The interpreter calls runpy itself. This adapter never invokes an entrypoint.
+STOCK_NATIVE_FINISH = r"""
+def native_finish(error=None):
+    global evidence_fd, startup_fault_fd, startup_primary_fd
+    failed = False
+    normal = error is None or type(error) is SystemExit and (error.code is None or type(error.code) is int and error.code == 0)
+    try:
+        if error is None:
+            phase_transition('BOOTSTRAP_RUNPY_ENTRY_BEGIN', 'END')
+        elif normal:
+            emit('bootstrap-exit', 'NORMAL_SYSTEM_EXIT')
+        elif startup:
+            startup_exception(error)
+        else:
+            emit('bootstrap-exception', 'OTHER')
+    except BaseException:
+        failed = True
     if startup:
-        native_bootstrap = native_bootstrap.replace(
-            "def audit(event, args):", STARTUP_NATIVE_PRIMARY + "\ndef audit(event, args):"
-        )
-        begin = native_bootstrap.index('        emit("bootstrap-exception",')
-        end = native_bootstrap.index("    raise\nfinally:", begin)
-        native_bootstrap = (
-            native_bootstrap[:begin] + "        startup_exception(error)\n" + native_bootstrap[end:]
-        )
-        native_bootstrap = native_bootstrap.replace(
-            'finally:\n    emit("observer", "EXIT")',
-            "finally:\n"
-            "    try:\n"
-            "        faulthandler.cancel_dump_traceback_later()\n"
-            "    except BaseException:\n"
-            "        pass  # Diagnostic loss is UNKNOWN; preserve the primary exception.\n"
-            "    for startup_fd in (startup_fault_fd, startup_primary_fd):\n"
-            "        try:\n"
-            "            os.close(startup_fd)\n"
-            "        except BaseException:\n"
-            "            pass  # Still attempt all remaining owned diagnostic/observer cleanup.\n"
-            "    startup_fault_fd = startup_primary_fd = -1\n"
-            '    emit("observer", "EXIT")',
-        )
-    hashes = {}
-    for name, value in (("host-qa.py", bootstrap), ("native_bootstrap.py", native_bootstrap)):
-        path = state / name
-        with path.open("x") as output:
-            output.write(value)
-        path.chmod(0o600)
-        hashes[name] = sha(path.read_bytes())
-    (state / "native-home").mkdir(mode=0o700)
-    (state / "native-observation.jsonl").touch(mode=0o600, exist_ok=False)
-    return host, native, hashes
+        for cleanup in (faulthandler.cancel_dump_traceback_later,
+                        lambda: os.close(startup_fault_fd), lambda: os.close(startup_primary_fd)):
+            try:
+                cleanup()
+            except BaseException:
+                failed = True
+        startup_fault_fd = startup_primary_fd = -1
+    try:
+        emit('observer', 'EXIT')
+    except BaseException:
+        failed = True
+    finally:
+        try:
+            os.close(evidence_fd)
+        except BaseException:
+            failed = True
+        evidence_fd = -1
+    if failed and error is None:
+        raise RuntimeError('QA observation incomplete')
+"""
+
+
+def batch2_native_observer(*, startup: bool) -> str:
+    """Reuse the SOURCE observer, excluding its argv/env wrapper and manual runpy."""
+    emitter = BOOTSTRAP.split("evidence_fd = os.open", 1)[1].split("os.environ.clear()", 1)[0]
+    core = BOOTSTRAP.split("allowed = ", 1)[1].split(
+        'phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTER")\ntry:', 1
+    )[0]
+    core = "allowed = " + core
+    overlay_begin = core.index("if not installed:")
+    overlay_end = core.index("forbidden =", overlay_begin)
+    core = core[:overlay_begin] + core[overlay_end:]
+    core = core.replace("batch2_probe = False", "batch2_probe = True")
+    core = core.replace(
+        "adapter, libraries, home,",
+        'adapter, libraries, home, *fresh_roots, Path("/state/qa-native.json"),',
+    )
+    core = core.replace(
+        'installed and name.startswith("/home/")',
+        'installed and name.startswith(("/home/", "/state/"))',
+    )
+    core = core.replace(
+        "def monitor_call(code, offset):\n",
+        "def monitor_call(code, offset):\n"
+        "    if code is stock_runpy_code:\n"
+        "        frame = sys._getframe(1)\n"
+        '        if frame.f_locals.get("mod_name") != "tui_gateway.entry":\n'
+        "            raise SystemExit(78)\n"
+        '        phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTER")\n'
+        "        return\n",
+    )
+    core = core.replace(
+        "def monitor_return(code, offset, value):\n",
+        "def monitor_return(code, offset, value):\n"
+        "    if code is stock_runpy_code:\n"
+        "        native_finish()\n"
+        "        return\n",
+    )
+    core = core.replace(
+        "observer_id = sys.monitoring.PROFILER_ID",
+        "def monitor_unwind(code, offset, error):\n"
+        "    if code is stock_runpy_code:\n"
+        "        native_finish(error)\n"
+        "observer_id = sys.monitoring.PROFILER_ID",
+    )
+    core = core.replace(
+        "sys.monitoring.set_events(observer_id,",
+        "sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_UNWIND, monitor_unwind)\n"
+        "sys.monitoring.set_events(observer_id, sys.monitoring.events.PY_UNWIND |",
+    )
+    return (
+        "import importlib.abc, importlib.util, json, os, runpy, sys, threading, time\n"
+        "from pathlib import Path\n"
+        "installed = True\n"
+        'source = managed = inert = Path("/opt/hermes/source")\n'
+        'adapter = libraries = Path("/opt/hermes/venv/lib/python3.13/site-packages")\n'
+        'home = Path("/state/active")\n'
+        'evidence = Path("/state/native-observation.jsonl")\n'
+        "stock_runpy_code = runpy._run_module_as_main.__code__\n"
+        + ("evidence_fd = os.open" + emitter)
+        + (STARTUP_NATIVE_PRIMARY if startup else "")
+        + STOCK_NATIVE_FINISH
+        + core
+    )
+
+
+STOCK_SITE = r"""
+import os, sys
+# Unrelated installed readers/preparation workers retain stock startup behavior.
+qa_role = {'omnis_hermes.runtime_host': 'host', 'tui_gateway.entry': 'native'}.get(
+    sys.orig_argv[3] if len(sys.orig_argv) == 4 else None)
+if qa_role is not None:
+    try:
+        import hashlib, json, stat, threading
+        from pathlib import Path
+        if (sys.orig_argv != ['/opt/hermes/venv/bin/python', '-I', '-m',
+                             'omnis_hermes.runtime_host' if qa_role == 'host' else 'tui_gateway.entry']
+            or sys.prefix != '/opt/hermes/venv' or os.geteuid() != 1000 or os.getegid() != 1000
+            or __file__ != qa_target or sys.flags.isolated != 1 or sys.flags.no_site != 0
+            or sys.flags.no_user_site != 1 or sys.flags.ignore_environment != 1 or not sys.flags.safe_path
+            or any('/api/src' in p or '/home/kali/' in p for p in sys.path)):
+            raise ValueError('QA role refused')
+        fd = os.open(qa_target, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            info = os.fstat(fd)
+            if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_uid != 1000
+                or stat.S_IMODE(info.st_mode) not in (0o400, 0o600) or not 0 < info.st_size <= 65536):
+                raise ValueError('QA file refused')
+            raw = os.read(fd, 65537)
+            if len(raw) != info.st_size:
+                raise ValueError('QA file incomplete')
+            qa_sha = hashlib.sha256(raw).hexdigest()
+        finally:
+            os.close(fd)
+        def qa_ready():
+            fd = os.open('/state/qa-' + qa_role + '.json',
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+            try:
+                os.fchmod(fd, 0o600)
+                raw = (json.dumps({'role': qa_role, 'sha256': qa_sha, 'status': 'READY'},
+                                  separators=(',', ':')) + '\n').encode()
+                if os.write(fd, raw) != len(raw):
+                    raise ValueError('QA readiness incomplete')
+            finally:
+                os.close(fd)
+        if qa_role == 'native':
+            paths = {'HOME': '/state/os-home', 'HERMES_HOME': '/state/active',
+                     'CODEX_HOME': '/state/codex', 'TMPDIR': '/state/tmp',
+                     'XDG_CONFIG_HOME': '/state/xdg/config', 'XDG_CACHE_HOME': '/state/xdg/cache',
+                     'XDG_STATE_HOME': '/state/xdg/state', 'XDG_DATA_HOME': '/state/xdg/data',
+                     'HERMES_MANAGED_DIR': '/state/managed-empty'}
+            fresh_roots = tuple(Path(p) for p in (*paths.values(), '/state/work'))
+            if os.getcwd() != '/state/work' or any(os.environ.get(k) != v for k, v in paths.items()):
+                raise ValueError('QA native paths refused')
+            for path in fresh_roots:
+                info = path.lstat()
+                if (path.resolve(strict=True) != path or not stat.S_ISDIR(info.st_mode)
+                    or info.st_uid != 1000 or stat.S_IMODE(info.st_mode) != 0o700 or any(path.iterdir())):
+                    raise ValueError('QA fresh directory refused')
+            exec(compile(native_core, qa_target, 'exec'), globals())
+            qa_ready()
+        else:
+            from types import CodeType
+            host = diagnostic = host_main_code = None
+            host_observer_id = 4
+            def host_start(code, offset):
+                global host, diagnostic, host_main_code
+                if (type(code) is not CodeType or code.co_filename != host_target
+                    or code.co_name != 'main' or code.co_qualname != 'main'):
+                    if host is not None and startup and code is host.RuntimeHost.stop.__code__:
+                        frame = sys._getframe(1)
+                        startup_stop_begin(frame)
+                        return
+                    return sys.monitoring.DISABLE
+                try:
+                    frame = sys._getframe(1)
+                    actual = sys.modules.get('__main__')
+                    if (host is not None or actual is None or frame.f_globals is not actual.__dict__
+                        or actual.__spec__.name != 'omnis_hermes.runtime_host'
+                        or actual.__file__ != host_target or actual.main.__code__ is not code
+                        or hashlib.sha256(Path(host_target).read_bytes()).hexdigest() != host_sha):
+                        raise ValueError('QA Host identity refused')
+                    host, host_main_code = actual, code
+                    exec(compile(host_diagnostic, qa_target, 'exec'), globals())
+                    diagnostic = HostLaunchDiagnostic().__enter__()
+                    if startup:
+                        exec(compile(host_stop, qa_target, 'exec'), globals())
+                    qa_ready()
+                except BaseException:
+                    raise SystemExit(78) from None
+            def host_end(code, offset, value, *, unwind=False, frame=None):
+                if host is not None and startup and code is host.RuntimeHost.stop.__code__:
+                    startup_stop_end(sys._getframe(1) if frame is None else frame)
+                if host_main_code is not None and code is host_main_code:
+                    primary = value if unwind else None
+                    try:
+                        diagnostic.__exit__(type(primary) if primary is not None else None, primary, None)
+                    finally:
+                        if startup:
+                            try:
+                                os.close(startup_stop_fd)
+                            except BaseException:
+                                if primary is None:
+                                    raise RuntimeError('QA stop diagnostic incomplete') from None
+                return None
+            def host_unwind(code, offset, error):
+                return host_end(code, offset, error, unwind=True, frame=sys._getframe(1))
+            sys.monitoring.use_tool_id(host_observer_id, 'omnis-stock-host-qa')
+            sys.monitoring.register_callback(host_observer_id, sys.monitoring.events.PY_START, host_start)
+            sys.monitoring.register_callback(host_observer_id, sys.monitoring.events.PY_RETURN, host_end)
+            sys.monitoring.register_callback(host_observer_id, sys.monitoring.events.PY_UNWIND, host_unwind)
+            sys.monitoring.set_events(host_observer_id, sys.monitoring.events.PY_START |
+                sys.monitoring.events.PY_RETURN | sys.monitoring.events.PY_UNWIND)
+    except BaseException:
+        # site.execsitecustomize swallows Exception: explicit sanitized termination.
+        raise SystemExit(78) from None
+"""
+
+
+def batch2_installed_entry(
+    root: Path, *, startup: bool = False
+) -> tuple[list[str], list[str], dict[str, str]]:
+    """One immutable attachment outside both RW roots; no command override."""
+    script = (
+        "qa_target = "
+        + repr(QA_SITE_TARGET)
+        + "\nhost_target = "
+        + repr(QA_HOST_TARGET)
+        + "\nhost_sha = "
+        + repr(sha((ROOT / "integrations/hermes/src/omnis_hermes/runtime_host.py").read_bytes()))
+        + "\nstartup = "
+        + repr(startup)
+        + "\nnative_core = "
+        + repr(batch2_native_observer(startup=startup))
+        + "\nhost_diagnostic = "
+        + repr(HOST_LAUNCH_DIAGNOSTIC)
+        + "\nhost_stop = "
+        + repr(STARTUP_HOST_STOP)
+        + "\n"
+        + STOCK_SITE
+    ).encode()
+    if len(script) > 65536:
+        raise AssertionError("QA_SITE_SIZE_REFUSED")
+    compile(script, QA_SITE_TARGET, "exec")
+    path = root / "qa-sitecustomize.py"
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o400)
+    try:
+        os.fchmod(fd, 0o400)
+        if os.write(fd, script) != len(script):
+            raise AssertionError("QA_SITE_WRITE_INCOMPLETE")
+    finally:
+        os.close(fd)
+    argv = ["/opt/hermes/venv/bin/python", "-I", "-m"]
+    return (
+        [*argv, "omnis_hermes.runtime_host"],
+        [*argv, "tui_gateway.entry"],
+        {path.name: sha(script)},
+    )
+
+
+def require_stock_observation(state: Path, expected_sha: str) -> None:
+    """READY alone cannot authorize domain admission if site skipped a broken hook."""
+    for role in ("host", "native"):
+        fd = os.open(state / ("qa-" + role + ".json"), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or info.st_nlink != 1
+                or info.st_uid != os.getuid()
+                or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_size > 512
+            ):
+                raise AssertionError("QA_ROLE_EVIDENCE_REFUSED")
+            raw = os.read(fd, 513)
+        finally:
+            os.close(fd)
+        value = json.loads(raw, object_pairs_hook=launch_observation_object)
+        if value != {"role": role, "sha256": expected_sha, "status": "READY"} or not raw.endswith(
+            b"\n"
+        ):
+            raise AssertionError("QA_ROLE_EVIDENCE_REFUSED")
+    require_native_observation(state / "native-observation.jsonl")
 
 
 @pytest.mark.parametrize(
@@ -6451,11 +6922,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             ):
                 raise AssertionError("H03_CONTAINER_OWNERSHIP_REFUSED")
             if full:
-                h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)
+                h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir, qa_file)
                 mounts = [mapping(row) for row in sequence(created["Mounts"])]
                 expected = {(str(directory), "/runtime"), (str(state_dir), "/state")}
+                if qa_file is not None:
+                    expected.add((str(qa_file), QA_SITE_TARGET))
                 if (
-                    config["Cmd"] != (qa_host_argv if batch2 or startup else h03_plan["stock_cmd"])
+                    config["Cmd"] != h03_plan["stock_cmd"]
                     or config["Entrypoint"] not in (None, [])
                     or config["User"] != str(os.getuid()) + ":" + str(os.getgid())
                     or config["Env"] != image_config["Env"]
@@ -6482,11 +6955,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     or containment["UTSMode"] != ""
                     or containment["UsernsMode"] != ""
                     or containment["CgroupnsMode"] != "private"
-                    or len(mounts) != 2
+                    or len(mounts) != len(expected)
                     or {(m["Source"], m["Destination"]) for m in mounts} != expected
                     or any(
                         m["Type"] != "bind"
-                        or m["RW"] is not True
+                        or m["RW"] is not (m["Destination"] != QA_SITE_TARGET)
                         or m["Mode"] != ""
                         or m["Propagation"] != "rprivate"
                         for m in mounts
@@ -6535,9 +7008,23 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if batch2 or startup:
                 argv = qa_host_argv if module == "omnis_hermes.runtime_host" else qa_native_argv
                 expected = [os.fsencode(value) for value in argv] + [b""]
-                for name, digest in qa_hashes.items():
-                    if sha((proc / "root/state" / name).read_bytes()) != digest:
+                mounted = proc / "root" / QA_SITE_TARGET.lstrip("/")
+                fd = os.open(mounted, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+                try:
+                    info = os.fstat(fd)
+                    if (
+                        not stat.S_ISREG(info.st_mode)
+                        or info.st_nlink != 1
+                        or info.st_uid != os.getuid()
+                        or stat.S_IMODE(info.st_mode) != 0o400
+                        or not 0 < info.st_size <= 65536
+                    ):
                         raise AssertionError("BATCH2_QA_BOOTSTRAP_BYTES_REFUSED")
+                    raw = os.read(fd, 65537)
+                    if len(raw) != info.st_size or sha(raw) != qa_hashes["qa-sitecustomize.py"]:
+                        raise AssertionError("BATCH2_QA_BOOTSTRAP_BYTES_REFUSED")
+                finally:
+                    os.close(fd)
             if command != expected:
                 raise AssertionError("H03_STOCK_PROCESS_ORIGIN_REFUSED")
             fields = before.rsplit(b")", 1)[1].split()
@@ -6694,13 +7181,18 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 qa_host_argv: list[str] = []
                 qa_native_argv: list[str] = []
                 qa_hashes: dict[str, str] = {}
+                qa_file = None
                 if batch2 or startup:
                     qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(
-                        state_dir, startup=startup
+                        tmp_path, startup=startup
                     )
+                    qa_file = tmp_path / "qa-sitecustomize.py"
                     observation = state_dir / "native-observation.jsonl"
+                    observation.touch(mode=0o600, exist_ok=False)
                     checkpoint(
-                        native_entry="INSTALLED_BYTES_QA_ENTRY",
+                        native_entry="STOCK_HOST_NATIVE_ARGV_EXPLICIT_QA_SITECUSTOMIZE_RO",
+                        qa_mount_target=QA_SITE_TARGET,
+                        qa_mount_source=str(qa_file),
                         qa_host_argv=qa_host_argv,
                         qa_native_argv=qa_native_argv,
                         qa_bootstrap_sha256=qa_hashes,
@@ -6733,10 +7225,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 try:
                     cid_raw = await docker(
-                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[
-                            1:
-                        ],
-                        *qa_host_argv,
+                        *h03_container_argv(
+                            str(h03_plan["image_id"]), nonce, directory, state_dir, qa_file
+                        )[1:],
                     )
                 finally:
                     await recover_cid()
@@ -6776,6 +7267,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     assert ready["state"] == "READY"
                     await runtime.renew(service, supervisor)
                     native_process_receipt()
+                    require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                     checkpoint(status="STARTUP_READY_CLEANUP_PENDING", startup_ready=True)
                 except BaseException as error:
                     checkpoint(
@@ -7565,6 +8057,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 await runtime.renew(service, supervisor)
                 if installed_native:
                     native_process_receipt()
+                if batch2:
+                    require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                 checkpoint(launch_diagnostic=diagnostic)
                 original_stage_exchange = runtime._exchange
 
@@ -9612,7 +10106,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             raise
                 if (batch2 or startup) and sys.exc_info()[0] is None:
                     try:
-                        require_native_observation(observation)
+                        require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                     except BaseException:
                         h03_state["cleanup_failed"] = True
                         raise

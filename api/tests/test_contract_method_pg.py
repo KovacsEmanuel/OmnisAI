@@ -3597,7 +3597,7 @@ def test_h03_actual_lifecycle_source_seams(
     except BaseException as exc:
         error = exc
     assert "engine-dispose" in calls, "H03_LATE_CLEANUP_SKIPPED"
-    if mode.startswith("host-"):
+    if mode in {"host-stopped", "host-malformed", "host-missing", "host-active", "host-incomplete"}:
         valid = mode == "host-stopped"
         if exit_path == "pre-acquire":
             assert error is namespace["primary"]

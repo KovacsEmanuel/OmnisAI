@@ -8,7 +8,11 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
-## CURRENT — startup1 READY, QA FAIL; incompatibilitate TestLaunch/drain confirmată, fără retry
+## CURRENT — corectarea callerului stock și continuarea inertă autorizate explicit
+
+Operatorul a cerut **«ok, corecteaza si continua»** după diagnosticul de mai jos. Mandatul revine la remedierea STARTUP-QA-LAUNCH-MODE-01 și continuarea batch2→DATA/admission→P2-inert→Settings din planul existent; live rămâne separat. Decizia tehnică trebuie să păstreze simultan comenzile stock și constructorul fără TestLaunch/TestPreparation, observerul/guardurile și overlapul autentic batch2, plus cleanupul certificat. Nu forța namespace_owned, nu înlocui NATIVE_COMMAND sub altă etichetă și nu elimina oracolele. Soluția minimă de atașare QA se stabilește read-only înaintea autorului; selectoarele rămân None până la remedii, reviewuri și admiterea explicită a probelor fresh. Restricția fără successor din diagnosticul consumat este istorică, înlocuită numai de acest acord nou.
+
+### Diagnosticul încheiat și findingul de remediat
 
 [QA startup1 originală](p2-bound-predicates-evidence/startup1-independent-qa.json), pe `a0cd935`, **o execuție, READY observat,1failed+1teardown error11.10s/exit1**, outer family drained=true. Nu qualification/publication/prepare/stage/release/task. Native-primary este gol; un eșantion de stivă din importuri este urmat de READY, deci nu dovedește blocaj. Primul Stop ENTER este READY/deadline neexpirat/returncode null; -9 apare numai la END, apoi OWNER_DISCONNECT. Nu WATCHDOG observat; nici null nu dovedește proces viu, nici semnalul ulterior nu explică vechile eșecuri. **Cauza startupului istoric rămâne UNKNOWN.** Raportul original păstrează și UNKNOWN privind motivul cleanupului; constatarea ulterioară a părintelui este separată mai jos.
 

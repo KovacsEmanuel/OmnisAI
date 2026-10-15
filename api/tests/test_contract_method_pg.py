@@ -2010,8 +2010,12 @@ def batch2_observation_exit(observation: Path, stop_first: bool) -> None:
             *deepcopy(after[:end]),
         ],
     )
-    namespace = {**globals(), "observation": observation, "batch2": True,
-                 "checkpoint": lambda **fields: None}
+    namespace = {
+        **globals(),
+        "observation": observation,
+        "batch2": True,
+        "checkpoint": lambda **fields: None,
+    }
     exec(
         compile(
             ast.fix_missing_locations(ast.Module(body=[cut], type_ignores=[])),
@@ -3213,6 +3217,9 @@ def test_h03_static_installed_origin_preflight(
     [
         "normal",
         "normal-absence-lf",
+        "body-error",
+        "body-cancel",
+        "observer-missing",
         "absence-extra-whitespace",
         "absence-unexpected-output",
         "create-warning",
@@ -3231,7 +3238,8 @@ def test_h03_static_installed_origin_preflight(
         "daemon-changed",
     ],
 )
-def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
+@pytest.mark.parametrize("batch2", [False, True], ids=["h03", "batch2"])
+def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str, batch2: bool) -> None:
     """Actual producer/acquisition/finalizer AST; substituted daemon/Host, not QA."""
     import ast
     from types import SimpleNamespace
@@ -3245,7 +3253,9 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
     branch = next(
         n
         for n in body.body
-        if isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == "installed_native"
+        if isinstance(n, ast.If)
+        and isinstance(n.test, ast.Name)
+        and n.test.id == "installed_native"
     )
     # Keep all real acquisition statements, substituting only actual resource seams.
     helpers = [
@@ -3365,6 +3375,10 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
             raise RuntimeError("SYNTHETIC_PRE_BOOT_FAILURE")
         mapping(info["State"]).update(Running=True, Status="running")
         runtime.writer = object()
+        if mode == "body-error":
+            raise RuntimeError("SYNTHETIC_BODY_ERROR")
+        if mode == "body-cancel":
+            raise asyncio.CancelledError
 
     class Child:
         pid = 101
@@ -3391,6 +3405,8 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
                 ).encode(), b""
             if op == "create":
                 daemon["created"] = True
+                if batch2:
+                    config["Cmd"] = list(self.argv[-4:])
                 path = tmp_path / ("h03-" + nonce + ".cid")
                 path.write_text(cid_value + "\n")
                 path.chmod(0o600)
@@ -3449,7 +3465,18 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
             if mode == "engine-failure":
                 raise RuntimeError("SYNTHETIC_ENGINE_FAILURE")
 
+    def observation_guard(path: Path) -> list[dict[str, object]]:
+        assert daemon["removed"] and "engine-dispose" in calls
+        if len([c for c in calls if c == "oracle"]) == 0:
+            assert fence["unsettled"] is True
+        calls.append("oracle")
+        if mode == "observer-missing":
+            raise AssertionError("NATIVE_PRE_READY_EVIDENCE_MISSING")
+        return []
+
     namespace.update(
+        require_native_observation=observation_guard,
+        observation=tmp_path / "observation.jsonl",
         asyncio=SimpleNamespace(
             create_subprocess_exec=spawn,
             subprocess=asyncio.subprocess,
@@ -3462,9 +3489,9 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
         directory=directory,
         state_dir=state_dir,
         tmp_path=tmp_path,
-        h03=True,
+        h03=not batch2,
         installed_native=True,
-        batch2=False,
+        batch2=batch2,
         runtime=runtime,
         process_receipts=[],
         db_fence=fence,
@@ -3509,7 +3536,9 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
     assert "engine-dispose" in calls, "H03_LATE_CLEANUP_SKIPPED"
     assert proof.get("h03_name") == "omnis-h03-" + nonce
     assert proof.get("h03_cidfile") == str(tmp_path / ("h03-" + nonce + ".cid"))
-    negative = mode not in {"normal", "normal-absence-lf"}
+    negative = mode not in {"normal", "normal-absence-lf"} and (
+        batch2 or mode != "observer-missing"
+    )
     assert fence["unsettled"] is negative, "H03_UNSAFE_FENCE_TRANSITION"
     if mode not in {"daemon-changed"}:
         assert daemon["removed"], "H03_EXACT_RESOURCE_CLEANUP_SKIPPED"
@@ -3520,10 +3549,19 @@ def test_h03_actual_lifecycle_source_seams(tmp_path: Path, mode: str) -> None:
         assert "connect" not in calls, "H03_STOPPED_CLEANUP_REQUIRES_HOST"
     if mode in {"create-cancelled", "stop-cancelled"}:
         assert state["docker_unknown"] is True, "H03_ORIGINAL_UNKNOWN_NOT_LATCHED"
-    if negative:
+    if mode == "body-error":
+        assert isinstance(error, RuntimeError) and str(error) == "SYNTHETIC_BODY_ERROR"
+    elif mode == "body-cancel":
+        assert isinstance(error, asyncio.CancelledError)
+    elif mode == "observer-missing" and batch2:
+        assert isinstance(error, AssertionError)
+        assert str(error) == "NATIVE_PRE_READY_EVIDENCE_MISSING"
+    elif negative:
         assert proof.get("status") == "UNCERTAIN", "H03_UNCERTAINTY_NOT_CHECKPOINTED"
     else:
         assert error is None, "H03_NORMAL_SOURCE_CLEANUP_FAILED"
+        if batch2:
+            assert calls.count("oracle") == 2
 
 
 @pytest.mark.parametrize("valid_drain", [True, False])
@@ -3898,47 +3936,66 @@ def test_batch2_installed_route_before_fixture(
 def test_batch2_installed_entry_uses_existing_constructor(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from types import ModuleType, SimpleNamespace
+    from types import ModuleType
 
     build = globals().get("batch2_installed_entry")
     assert callable(build), "BATCH2_INSTALLED_ENTRY_MISSING"
     host_argv, native_argv, hashes = build(tmp_path)
     assert host_argv == ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
     assert native_argv == [
-        "/opt/hermes/venv/bin/python", "-I", "-B", "/state/native_bootstrap.py",
-        "INSTALLED", "/state/native-home", "/state/native-observation.jsonl",
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-B",
+        "/state/native_bootstrap.py",
+        "INSTALLED",
+        "/state/native-home",
+        "/state/native-observation.jsonl",
     ]
     for name, digest in hashes.items():
         assert sha((tmp_path / name).read_bytes()) == digest
-    reached = []
+    monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
+    from omnis_hermes.runtime_host import TestLaunch as NativeHostTestLaunch
+
+    reached: list[tuple[Path, NativeHostTestLaunch]] = []
+
+    def constructor(directory: Path, *, _test_launch: NativeHostTestLaunch) -> None:
+        reached.append((directory, _test_launch))
+
     module = ModuleType("omnis_hermes.runtime_host")
     module.__file__ = "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py"
-    module.RuntimeHost = lambda *args, **kwargs: reached.append((args, kwargs))  # type: ignore[attr-defined]
-    module.TestLaunch = lambda command, cwd: SimpleNamespace(command=command, cwd=cwd)  # type: ignore[attr-defined]
+    module.__dict__["RuntimeHost"] = constructor
+    module.__dict__["TestLaunch"] = NativeHostTestLaunch
 
     def main() -> int:
-        module.RuntimeHost(Path("/runtime"))  # type: ignore[attr-defined]
+        actual = module.RuntimeHost
+        actual(Path("/runtime"))
         return 0
 
-    module.main = main  # type: ignore[attr-defined]
+    module.__dict__["main"] = main
     parent = ModuleType("omnis_hermes")
-    parent.runtime_host = module  # type: ignore[attr-defined]
+    parent.__dict__["runtime_host"] = module
     monkeypatch.setitem(sys.modules, "omnis_hermes", parent)
     monkeypatch.setitem(sys.modules, "omnis_hermes.runtime_host", module)
     with pytest.raises(SystemExit) as exit_value:
         exec(compile((tmp_path / "host-qa.py").read_text(), "<qa-entry>", "exec"), {})
     assert exit_value.value.code == 0 and len(reached) == 1
-    args, kwargs = reached[0]
-    assert args == (Path("/runtime"),) and set(kwargs) == {"_test_launch"}
-    assert list(kwargs["_test_launch"].command) == native_argv
-    assert kwargs["_test_launch"].cwd == Path("/state/work")
+    directory, launch = reached[0]
+    assert directory == Path("/runtime")
+    assert isinstance(launch, NativeHostTestLaunch)
+    assert list(launch.command) == native_argv
+    assert launch.cwd == Path("/state/work")
 
 
 def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str, str]]:
     """Explicit QA argv; image CMD is unchanged and no release autoload is added."""
     native = [
-        "/opt/hermes/venv/bin/python", "-I", "-B", "/state/native_bootstrap.py",
-        "INSTALLED", "/state/native-home", "/state/native-observation.jsonl",
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-B",
+        "/state/native_bootstrap.py",
+        "INSTALLED",
+        "/state/native-home",
+        "/state/native-observation.jsonl",
     ]
     host = ["/opt/hermes/venv/bin/python", "-I", "-B", "/state/host-qa.py"]
     bootstrap = (
@@ -3947,7 +4004,8 @@ def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str,
         "if not Path(host.__file__).is_relative_to('/opt/hermes/venv'):\n"
         "    raise AssertionError('BATCH2_HOST_ORIGIN_REFUSED')\n"
         "host.RuntimeHost = partial(host.RuntimeHost, _test_launch=host.TestLaunch("
-        + repr(tuple(native)) + ", Path('/state/work')))\n"
+        + repr(tuple(native))
+        + ", Path('/state/work')))\n"
         "raise SystemExit(host.main())\n"
     )
     hashes = {}
@@ -3965,21 +4023,144 @@ def batch2_installed_entry(state: Path) -> tuple[list[str], list[str], dict[str,
     return host, native, hashes
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        None,
+        "current-list",
+        "root-list",
+        "path-list",
+        "hash-list",
+        "file-list",
+        "duplicate-key",
+        "wrong-origin",
+        "wheel-hash",
+    ],
+)
+def test_batch2_current_reader_actual_helper(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str | None
+) -> None:
+    handle = os.environ.get("OMNIS_BATCH2_SOURCE_API_ARTIFACT")
+    if not handle:
+        pytest.skip("Owned static current reader not selected; no runtime effect")
+    descriptor = mapping(json.loads(Path(handle).read_bytes()))
+    current = mapping(descriptor["current"])
+    if mutation == "current-list":
+        descriptor["current"] = []
+    elif mutation == "root-list":
+        descriptor["root"] = []
+    elif mutation == "path-list":
+        mapping(sequence(current["files"])[0])["path"] = []
+    elif mutation == "hash-list":
+        current["wheel_sha256"] = []
+    elif mutation == "file-list":
+        current["files"] = [None]
+    elif mutation == "wrong-origin":
+        # Real wrong interpreter, with all retained source/wheel bytes unchanged.
+        descriptor["root"] = str(Path(os.environ["TMPDIR"]).resolve())
+        wrong = tmp_path / "wrong-python"
+        wrong.symlink_to(sys.executable)
+        current["python"] = str(wrong)
+    elif mutation == "wheel-hash":
+        current["wheel_sha256"] = "0" * 64
+    raw = canonical(descriptor)
+    if mutation == "duplicate-key":
+        raw = raw.replace(b'"schema_version":1', b'"schema_version":0,"schema_version":1')
+    path = tmp_path / "reader.json"
+    path.write_bytes(raw)
+    path.chmod(0o600)
+    from unittest.mock import Mock
+
+    observed = Mock(wraps=subprocess.run)
+    monkeypatch.setattr(subprocess, "run", observed)
+    if mutation is None:
+        assert batch2_current_reader(path) == current
+        assert observed.call_count == 1
+    else:
+        with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
+            batch2_current_reader(path)
+        assert observed.call_count == (1 if mutation == "wrong-origin" else 0)
+
+
+def test_batch2_actual_expanded_size_readback() -> None:
+    """Actual CLI caller measurement on retained SOURCE material, no producer."""
+    import ast
+
+    from omnis.modules.tasks import managed_composition
+
+    handle = os.environ.get("OMNIS_BATCH2_SOURCE_STAGE")
+    if not handle:
+        pytest.skip("Retained SOURCE stage not selected")
+    stage = mapping(mapping(json.loads(Path(handle).read_bytes()))["stage"])
+    tree = ast.parse(
+        inspect.getsource(test_contract_method_real_native_pg_owner_receipts_check_inbox)
+    )
+    statement = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "expanded_bytes" for t in n.targets)
+    )
+    namespace: dict[str, object] = {
+        **globals(),
+        "managed_composition": managed_composition,
+        "batch_stage": stage,
+    }
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[statement], type_ignores=[])),
+            "<actual-batch2-size-readback>",
+            "exec",
+        ),
+        namespace,
+    )
+    sizes = sequence(namespace["expanded_bytes"])
+    assert len(sizes) == 2 and all(type(size) is int and 0 < size <= 32768 for size in sizes)
+
+
+def test_batch2_installed_static_prerequisites(monkeypatch: pytest.MonkeyPatch) -> None:
+    handle = os.environ.get("OMNIS_BATCH2_SOURCE_API_ARTIFACT")
+    if not handle:
+        pytest.skip("Owned static artifacts not selected; no runtime effect")
+    root = Path(handle).parent
+    artifact = root / "native-artifact.json"
+    for suffix in ("_NORMATIVE_REVIEWED", "_INPUT_REVIEWED"):
+        monkeypatch.setenv("OMNIS_BATCH2" + suffix, sha(Path(__file__).read_bytes()))
+    monkeypatch.setenv("OMNIS_BATCH2_ARTIFACT", str(artifact))
+    monkeypatch.setenv("OMNIS_BATCH2_ARTIFACT_SHA", sha(artifact.read_bytes()))
+    monkeypatch.setenv("OMNIS_BATCH2_API_PREREQUISITES", handle)
+    # Test-local guard input is not a review or execution permission.
+    plan, python = h03_prerequisites(current_only=True)
+    assert (
+        plan["image_id"]
+        == "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12"
+    )
+    assert python == root / "reader/bin/python"
+
+
 def batch2_current_reader(handle: Path) -> dict[str, object]:
     """Current-only descriptor; historical old/current compatibility is untouched."""
     import zipfile
 
     try:
         info = handle.lstat()
-        if (not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600
-                or info.st_nlink != 1 or info.st_uid != os.getuid()):
+        if (
+            not stat.S_ISREG(info.st_mode)
+            or stat.S_IMODE(info.st_mode) != 0o600
+            or info.st_nlink != 1
+            or info.st_uid != os.getuid()
+        ):
             raise ValueError
-        descriptor = mapping(json.loads(handle.read_bytes()))
+        descriptor = mapping(
+            json.loads(handle.read_bytes(), object_pairs_hook=launch_observation_object)
+        )
         if set(descriptor) != {"schema_version", "status", "root", "current"}:
             raise ValueError
         if type(descriptor["schema_version"]) is not int or descriptor["schema_version"] != 1:
             raise ValueError
         if descriptor["status"] != "READY_CURRENT_ONLY_PREREQUISITES":
+            raise ValueError
+        if type(descriptor["root"]) is not str:
             raise ValueError
         root = Path(str(descriptor["root"])).resolve(strict=True)
         if not root.is_relative_to(Path("/home/kali/.hermes/cache/scratch")):
@@ -3987,9 +4168,14 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
         current = mapping(descriptor["current"])
         if set(current) != {"tag", "commit", "source", "wheel", "wheel_sha256", "python", "files"}:
             raise ValueError
-        if current["tag"] != "current" or current["commit"] != "9abcd93120cc81a3829316785e99a03d204806c0":
+        if (
+            current["tag"] != "current"
+            or current["commit"] != "9abcd93120cc81a3829316785e99a03d204806c0"
+        ):
             raise ValueError
         for name in ("source", "wheel", "python"):
+            if type(current[name]) is not str:
+                raise ValueError
             path = Path(str(current[name]))
             # venv's interpreter may be a link to the attested toolchain, not its package.
             if not path.is_absolute() or not path.is_relative_to(root) or not path.exists():
@@ -4000,21 +4186,42 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
         if sha(wheel_path.read_bytes()) != current["wheel_sha256"]:
             raise ValueError
         files = [mapping(row) for row in sequence(current["files"])]
+        if any(
+            set(row) != {"path", "sha256"}
+            or type(row["path"]) is not str
+            or type(row["sha256"]) is not str
+            for row in files
+        ):
+            raise ValueError
         with zipfile.ZipFile(wheel_path) as wheel:
             names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
-            if len(files) != len(names) or {f["path"] for f in files} != {"api/src/" + n for n in names}:
+            if len(files) != len(names) or {f["path"] for f in files} != {
+                "api/src/" + n for n in names
+            }:
                 raise ValueError
             for row in files:
                 name = str(row["path"])
                 raw = (source / name).read_bytes()
-                if (sha(raw) != row["sha256"] or raw != (ROOT / name).read_bytes()
-                        or raw != wheel.read(name.removeprefix("api/src/"))):
+                if (
+                    sha(raw) != row["sha256"]
+                    or raw != (ROOT / name).read_bytes()
+                    or raw != wheel.read(name.removeprefix("api/src/"))
+                ):
                     raise ValueError
         origin = subprocess.run(
-            [str(current["python"]), "-I", "-B", "-c", HISTORICAL_ORIGIN,
-             str(source), str(wheel_path)], cwd=root,
+            [
+                str(current["python"]),
+                "-I",
+                "-B",
+                "-c",
+                HISTORICAL_ORIGIN,
+                str(source),
+                str(wheel_path),
+            ],
+            cwd=root,
             env={"PATH": "/usr/bin:/bin", "HOME": str(root), "TMPDIR": str(root)},
-            capture_output=True, timeout=15,
+            capture_output=True,
+            timeout=15,
         )
         if origin.returncode != 0 or origin.stderr:
             raise ValueError
@@ -4022,7 +4229,15 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
         if observed["installed_bytes"] != "EXACT_WHEEL_AND_GIT_EXPORT":
             raise ValueError
         return current
-    except (OSError, ValueError, KeyError, AssertionError, subprocess.TimeoutExpired, zipfile.BadZipFile):
+    except (
+        OSError,
+        ValueError,
+        TypeError,
+        KeyError,
+        AssertionError,
+        subprocess.TimeoutExpired,
+        zipfile.BadZipFile,
+    ):
         raise AssertionError("BATCH2_CURRENT_READER_REFUSED") from None
 
 
@@ -4806,7 +5021,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         events = [json.loads(line) for line in audit.read_text().splitlines()]
         expected_exit = 0 if reason is None else 2
         if events != [
-            *([{"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid}] if installed_native else []),
+            *(
+                [{"status": "ORIGIN", "name": "INSTALLED", "pid": reader_pid}]
+                if installed_native
+                else []
+            ),
             {"status": "READY", "name": "managed-cli", "pid": reader_pid},
             {"status": "EXIT", "name": str(expected_exit), "pid": reader_pid},
         ]:
@@ -5074,7 +5293,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if len(children) != 1:
                 raise AssertionError("H03_NATIVE_FAMILY_UNOBSERVED")
             native_identity = process_identity(int(children[0]), module="tui_gateway.entry")
-            if native_identity[2] != host_identity[2] or host_identity[2] == Path("/proc/self/ns/pid").stat().st_ino:
+            if (
+                native_identity[2] != host_identity[2]
+                or host_identity[2] == Path("/proc/self/ns/pid").stat().st_ino
+            ):
                 raise AssertionError("H03_PRIVATE_NAMESPACE_REFUSED")
             receipt: dict[str, object] = {
                 "boot": runtime.boot,
@@ -5173,8 +5395,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 if batch2:
                     qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(state_dir)
                     observation = state_dir / "native-observation.jsonl"
-                    checkpoint(native_entry="INSTALLED_BYTES_QA_ENTRY", qa_host_argv=qa_host_argv,
-                               qa_native_argv=qa_native_argv, qa_bootstrap_sha256=qa_hashes)
+                    checkpoint(
+                        native_entry="INSTALLED_BYTES_QA_ENTRY",
+                        qa_host_argv=qa_host_argv,
+                        qa_native_argv=qa_native_argv,
+                        qa_bootstrap_sha256=qa_hashes,
+                    )
                 daemon_id = (await docker("info", "--format={{.ID}}")).decode().strip()
                 if re.fullmatch(r"[A-Za-z0-9:-]{8,128}", daemon_id) is None:
                     raise AssertionError("H03_DAEMON_IDENTITY_REFUSED")
@@ -5203,7 +5429,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 try:
                     cid_raw = await docker(
-                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[1:],
+                        *h03_container_argv(str(h03_plan["image_id"]), nonce, directory, state_dir)[
+                            1:
+                        ],
                         *qa_host_argv,
                     )
                 finally:
@@ -5465,6 +5693,59 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 prepared = mapping(json.loads(stdout))
                 assert (
                     len(sequence(mapping(mapping(prepared["manifest"])["payload"])["entries"])) == 2
+                )
+                from omnis.modules.runs.native_preparation import read_receipt, reservation
+                from omnis.modules.tasks import managed_composition
+
+                # Read the exact CLI-produced graph and COMPLETE retained preparation.
+                # Never invoke a second BuildSource/NativePreparation producer for sizes.
+                batch_graph = [mapping(r) for r in sequence(prepared["records"])]
+                async with engine.connect() as size_connection:
+                    bundle_ref = await reservation(
+                        size_connection, seed.owner, str(preparation.command_id)
+                    )
+                    retained_preparation = await read_receipt(
+                        size_connection, seed.owner, bundle_ref
+                    )
+                batch_stage = managed_composition.stage_payload(prepared["manifest"], batch_graph)
+                expanded_bytes = [
+                    len(
+                        str(
+                            managed_composition.expanded_payload(
+                                mapping(c)["payload"],
+                                [
+                                    mapping(row)
+                                    for ref in managed_composition.compact_refs(
+                                        mapping(c)["payload"]
+                                    )
+                                    for row in sequence(batch_stage["record_pool"])
+                                    if mapping(row)["id"] == ref["id"]
+                                ],
+                            )["text"]
+                        ).encode()
+                    )
+                    for c in sequence(batch_stage["compositions"])
+                ]
+                batch_sizes: dict[str, object] = {
+                    "graph_bytes": len(canonical(batch_graph)),
+                    "preparation_bytes": len(canonical(retained_preparation["bundle"])),
+                    "stage_bytes": len(canonical(batch_stage)),
+                    "expanded_text_bytes": expanded_bytes,
+                    "final_bytes": None,
+                }
+                assert (
+                    len(canonical(batch_graph)) + len(canonical(retained_preparation["bundle"]))
+                    <= 65536
+                )
+                assert len(canonical(batch_stage)) <= 32768
+                assert len(expanded_bytes) == 2 and all(size <= 32768 for size in expanded_bytes)
+                sizes_path = tmp_path / "method-build-sizes.json"
+                with sizes_path.open("x") as size_output:
+                    size_output.write(json.dumps(batch_sizes))
+                sizes_path.chmod(0o600)
+                checkpoint(
+                    batch2_sizes=batch_sizes,
+                    batch2_size_source="CLI_PREPARE_METHOD2_RETAINED_READBACK",
                 )
             else:
                 with monkeypatch.context() as observer:
@@ -5944,7 +6225,23 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 if installed_native:
                     native_process_receipt()
                 checkpoint(launch_diagnostic=diagnostic)
-                staged = await submit_task("stage")
+                original_stage_exchange = runtime._exchange
+
+                async def measured_stage_exchange(
+                    op: str,
+                    authority: RuntimeAuthority | None = None,
+                    payload: dict[str, object] | None = None,
+                ) -> dict[str, object]:
+                    if op == "task_stage" and batch2:
+                        assert canonical(payload) == canonical(batch_stage), (
+                            "BATCH2_STAGE_SIZE_ORIGIN"
+                        )
+                    return await original_stage_exchange(op, authority, payload)
+
+                with monkeypatch.context() as stage_observer:
+                    if batch2:
+                        stage_observer.setattr(runtime, "_exchange", measured_stage_exchange)
+                    staged = await submit_task("stage")
                 assert staged["task_status"] == "BOUND"
                 if batch2:
                     # Fresh Host/root per parametrized RUN; no reuse/restart grant.
@@ -6097,6 +6394,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     final = mapping(
                         next(r["payload"] for r in graph if r["kind"] == "native-task-receipt")
                     )
+                    assert len(canonical(final)) <= 32768
+                    batch_sizes["final_bytes"] = len(canonical(final))
+                    sizes_path.write_text(json.dumps(batch_sizes))
+                    checkpoint(batch2_sizes=batch_sizes)
                     binding = mapping(back["binding"])
                     fence = mapping(binding["payload"])["authority"]
                     batch2_census = await mission_census()
@@ -7966,7 +8267,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         )
                 elif db_fence.get("unsettled"):
                     checkpoint(status="UNCERTAIN", h03_resource_cleanup="NOT_SETTLED_DB_RETAINED")
-                    raise AssertionError("H03_CLEANUP_NOT_SETTLED")
+                    if sys.exc_info()[0] is None:
+                        raise AssertionError("H03_CLEANUP_NOT_SETTLED")
             elif cleanup_failed:
                 raise AssertionError("NATIVE_CLEANUP_UNCERTAIN")
             if host is not None and host.process is not None:

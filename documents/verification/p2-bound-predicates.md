@@ -8,7 +8,13 @@ Rezultatul urmărit: seedul records publicat produce trei `done_when` și un `re
 
 Scope de integrare: exact cele **17 paths** și hashes din checkpoint, diferența finală `d7a51f3adc04be57fe528f6e14425111d3615144..8ea28b2794912726428fbc3cac6f6d18269be454`. Non-obiective: early partial return, forme noi/inputuri suplimentare, critic AI, alt owner/engine/fixture framework, schema/migrație, model/provider/target, rollout/r1/profiluri/global/push.
 
-## CURRENT — stock2 ajunge READY și BOUND; CONTROL_TIMEOUT la release, probă PG-only restrânsă
+## CURRENT — snapshot stale confirmat pe PG; remediu local al pollingului în lucru
+
+[Proba PG-only](p2-bound-predicates-evidence/waiter-snapshot-pg-diagnosis.json), o fixture fresh/exit0/drained, confirmă **STOCK-QA-WAITER-SNAPSHOT-01**. Query-ul original SHA`4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea`, extras AST fără import native, vede pe C78 **prime0→old0→fresh1** după `pg_stat_clear_snapshot`, aceeași conexiune și tranzacție READ COMMITTED/autocommit=false. A76 deținea rândul, B77 era blocat, confirmat separat prin D79/pg_blocking_pids înainte și după. Patru conexiuni atestate, tabela proprie sintetică, fără migrare/schema produs/Stop/nativ. Statement3s provine din helperul de conexiune test, lock2s local; nu măsurare a bugetului produsului. Parent a verificat scriptul, raportul hash-bound, CID/socket absente, receipt typed0/drained și PGDATA păstrat. **Nu se atribuie exclusiv CONTROL_TIMEOUT-ul vechi acestei probe.**
+
+Părintele atribuie numai **clear snapshot LOCAL înainte de fiecare poll** în waiterul existent, păstrând SQL/predicate/count==1,0.75s și0.01s, lockurile/ownerul/Stop/grants/hook/imagine nemodificate. Regression SOURCE pe helperul efectiv și comportamentul măsurat; proba PG deja produsă nu se repetă pentru stil. Selectorii rămân None până la reviewurile focalizate și admiterea separată; nici retry batch încă, nici alt strat de observare. Rooturile consumate și contorul/eșecurile rămân.
+
+### Stock2 și contractul probei PG consumate
 
 [Release stock2](p2-bound-predicates-evidence/stock-release2-independent-qa.json) pe `cce73d3`: **1failed+1teardown error23.28s/exit1/drained**, fără retry. Same-boot guard depășit, native READY și stage public BOUND; pregătire2/capuri păstrate. Release răspunde CONTROL_TIMEOUT la native_tasks.py388. Pe canalul nativ strict: stage/initialize_contract observate, zero run_contract/read/PURE, nici checkpoint waiter; rezultatele/checks/inbox/consum NOT_REACHED. **Cauza internă UNKNOWN**, nu încă defect de runtime demonstrat. Parent readback exact două CID-uri/identități PID/endpointuri absente, typed receipt1/drained și PGDATA păstrat; nativeUNCERTAIN/fence rămân. Stock2release consumat, BATCH2 revocat, Stop-first NOT_RUN.
 

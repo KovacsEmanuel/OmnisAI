@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.35
+version: 0.1.36
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -90,6 +90,7 @@ When typing a test observer/decoder, preserve unknown fields before leak/complet
 - Guard exact string type before set/dict membership on untrusted JSON lifecycle phases in every preflight/status consumer. A list or object can raise `TypeError` outside sanitized `StartError` handling; test both at real CLI entrypoints for exit 4, unchanged journal and zero lock/control/Docker effects rather than adding a broad `TypeError` catch that masks internal defects.
 - Validate exact scalar types and database bounds at the service method before an idempotent replay branch, not only at IPC or INSERT: Python annotations do not reject `True`/`1.0`, and equality with a persisted integer can return an unauthorized successful replay without reaching SQL. Give reviewers both first-write and existing-receipt paths, each state, unchanged DB snapshots and the original valid replay; identity JSON must also survive storage round-trip without type normalization (reject floating-point resource identities rather than silently rebinding them).
 - Require observed overlapping transactions when a review asks for concurrency: two sequential successful calls in opposite orders are not lock-wait evidence. Pause only after the actual product row locks, identify the owning PostgreSQL backend, observe its waiter through `pg_blocking_pids`, then release and inspect the state/result of both commands. Keep bounded cancellation/connection cleanup and state-injection coverage distinct from a real crash or ACK-loss producer.
+- Refresh the observer connection's local statistics snapshot before each `pg_stat_activity` poll in one transaction. Cached query text can hide a real waiter even while `pg_blocking_pids` sees the lock; prove the stale/fresh counts against an independently observed blocker, without `pg_stat_reset`, global settings, weaker predicates or wider deadlines. A synthetic-table reproduction establishes this mechanism, not the exclusive cause of an older product timeout.
 
 - On a C10 lock/owner negative, prove the *actual owner* refuses before READY/ADMIT on the same exact payload as its positive. An observer withholding a gate proves only observer refusal. When the product protocol adds a required field, the raw old owner will reject the new schema before reaching the changed check; use a same-schema mutation of only the guard comparison and require that it reaches READY, while the stock owner denies the identical locked-independent OFD. Pin/reap both test-owned processes; a helper that reaps inside its Popen wrapper does not certify `run_stop_owner` cleanup.
 - When duplicating a lifecycle lock FD before registering its `ExitStack.callback`, a BaseException during callback registration leaves the fresh alias and FLOCK live even though the stack unwinds older handles. Inject the first and second registration failures through the real Stop consumer on private roots, assert unchanged journal, closed guard FDs and reacquirable locks, and rescue only exact test-owned leaked aliases in RED. A failure of the second `dup` is a separate boundary and does not test callback registration.
@@ -127,6 +128,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 ## Settled IPC and process identity
 
 - Before a long offline-reader interval in an owned restart probe, close the IPC channel only after confirmed native drain; reconnect through the same original owner for fresh final Stop/status. A real Host can emit an uncorrelated idle-denial frame on a retained channel even when drained. Keep a real UDS positive and bad-drain refusal; closing the channel must not forgive uncertainty or replace resource retirement.
+- Before initial offline preparation, retain the original boot/capability needed by its receipt, not an idle transport. Close at that initial caller, reconnect and compare both identities before launch; leave later intentional replacement/recovery paths unchanged. Prove the held-idle refusal and same-identity positive through real UDS without starting native work.
 - Identify each replacement process by boot and host-visible PID/starttime, and verify old identities are absent before restart. A namespace inode may be recycled after its lifetime ends; do not require cross-lifetime inequality or accept an unchanged PID/starttime merely because its namespace differs. Preserve independent private-namespace attestation and Host/native namespace equality within each boot.
 
 ## Batch failure and QA exit boundaries

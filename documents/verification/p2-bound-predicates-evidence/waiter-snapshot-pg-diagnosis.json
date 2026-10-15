@@ -1,0 +1,200 @@
+{
+  "acceptance_scope": "PG18 current-query snapshot mechanism only; synthetic one-row table, not product instance/service/schema evidence",
+  "cleanup": {
+    "exact_cid_absent": true,
+    "family_receipt": {
+      "code": 0,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "outer_exit": 0,
+    "outer_session": "proc_6adc63095a7a",
+    "outer_state": "EXITED",
+    "owner_exit": {
+      "code": 0,
+      "schema_version": 1,
+      "source_hashes_unchanged": true
+    },
+    "pg_version_files": [
+      "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/data/18/docker/PG_VERSION"
+    ],
+    "pgdata_retained": true,
+    "project_container_count": 0,
+    "project_network_count": 0,
+    "same_daemon": true,
+    "socket_absent": true,
+    "socket_lock_absent": true
+  },
+  "command": "env PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter_snapshot_probe.py launch",
+  "exit_code": 0,
+  "files": [
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter_snapshot_probe.py",
+      "sha256": "9ecb79658081d09a34101e4c154e70ba87940baf7a718d378086b4a18b3295fc"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-intent.json",
+      "sha256": "a760aed8814051e12cf138e92d62e6452a05273faf8c8ef8a43f8cb68cc299be"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-observation.json",
+      "sha256": "3a2e8514b9a4995122c418f4e0f1d8bf47de2a71d4382816878806e9393442b5"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-owner-exit.json",
+      "sha256": "61705e99e79f493be3ae9e993313ce5c2d35a8629e2335088059377507afb5d0"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter-snapshot-owner.log",
+      "sha256": "caded7655ab4f29df3f2c0ee7042ebdf4bf409efeb2ccbe3bd0b919a69c47f3e"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/gate.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    }
+  ],
+  "fixture_count": 1,
+  "git_status_after": "## checkpoint/p2-batch2-pause-20261015\n M documents/verification/implementation-status.md\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n M documents/verification/p2-bound-predicates.md\n M documents/verification/p2-next-session-implementation.md\n?? documents/Omnis_Notite_Originale.html\n?? documents/verification/p2-bound-predicates-evidence/stock-release2-independent-qa.json\n",
+  "intent": {
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "inverse": "unchanged cleanup_owned exact attested CID after family drain; retain PGDATA/password; rollback/close owned SQL connections",
+    "limits": [
+      "No native/Host/batch/product operations",
+      "No migrations",
+      "No retry",
+      "No historical-cause attribution"
+    ],
+    "owner_invocation": "prove_private_fixture('test-contract-method-native-pg', pinnedUV, 240)",
+    "probe_command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter_snapshot_probe.py",
+      "probe"
+    ],
+    "resource_authority": "ONE fresh UUID PG-only root/project via unchanged existing owner; own synthetic table only",
+    "root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74",
+    "schema_version": 1,
+    "script": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/waiter_snapshot_probe.py",
+    "script_sha256": "9ecb79658081d09a34101e4c154e70ba87940baf7a718d378086b4a18b3295fc",
+    "snapshot_head": "cce73d30c498ba6a3c11e4f341f62f520923e8e3",
+    "source_hashes": {
+      "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "api/tests/test_contract_method_pg.py": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+      "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+    },
+    "sql_source_binding": {
+      "file_sha256": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "function_lines": [
+        8232,
+        8247
+      ],
+      "literal_lines": [
+        8238,
+        8240
+      ],
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sql_literal": "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND :blocker=ANY(pg_blocking_pids(pid)) AND query LIKE '%instance_control%FOR UPDATE%'",
+      "sql_sha256": "4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea"
+    },
+    "state": "PREFLIGHT_OK"
+  },
+  "limitations": [
+    "Historical stock-release2 CONTROL_TIMEOUT cause remains UNKNOWN; this is not retrospective proof",
+    "No native, Host, real batch, Stop, product acceptance, migration, qualification or SDK execution",
+    "Original SQL literal extracted via AST; sync psycopg rather than async engine, SQLAlchemy psycopg dialect preserves parameters and literal LIKE percentages",
+    "No repo edits or fix; parent must adjudicate; Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "observation": {
+    "actual_blocked_after": true,
+    "actual_blocked_before": true,
+    "actual_blocker_pids_after": [
+      76
+    ],
+    "actual_blocker_pids_before": [
+      76
+    ],
+    "connected_system_identifiers_verified": 4,
+    "connection_cleanup_errors": 0,
+    "connections_closed": true,
+    "container_id": "070ba6fd02b8de401572e46ec007d303592587c754e0df7bf1355f95f7620a3e",
+    "driver": "psycopg_sync_via_connect_test_database",
+    "fresh_count": 1,
+    "holder_row_locked": true,
+    "observer_autocommit": false,
+    "old_count": 0,
+    "pids": {
+      "A": 76,
+      "B": 77,
+      "C": 78,
+      "D": 79
+    },
+    "prime_count": 0,
+    "project": "omnis-p01-2214da373f1947d6a170ac2d2b92081b",
+    "same_transaction": true,
+    "schema": "synthetic_one_row_only_no_migrations",
+    "schema_version": 1,
+    "settings": {
+      "lock_timeout": "2s",
+      "statement_timeout": "3s",
+      "stats_fetch_consistency": "cache",
+      "transaction_isolation": "read committed"
+    },
+    "socket_directory": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/socket",
+    "sql_source_binding": {
+      "file_sha256": "fe051d1e0f12a6a2cd6c98b0f1fd5d38340fc725bf742aea305b144a62943e8d",
+      "function_lines": [
+        8232,
+        8247
+      ],
+      "literal_lines": [
+        8238,
+        8240
+      ],
+      "path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+      "sql_literal": "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND :blocker=ANY(pg_blocking_pids(pid)) AND query LIKE '%instance_control%FOR UPDATE%'",
+      "sql_sha256": "4fa6ede97654faba0260759d7d44f1fc74f43ec57ac46e8347c444a2f0d19fea"
+    },
+    "state": "SNAPSHOT_STALENESS_CONFIRMED",
+    "synthetic_table": "public.qa_instance_control_b868e65c4eea4841ad193ab9dbd2eb70",
+    "system_identifier": "7696958245275861022",
+    "waiter_result": {
+      "state": "ROW_ACQUIRED"
+    },
+    "waiter_thread_joined": true
+  },
+  "proposed_parent_lesson": "Repeated pg_stat_activity query observations in one transaction can remain stale; local pg_stat_clear_snapshot refreshes current-query data without pg_stat_reset or global settings.",
+  "resources": {
+    "container_id": "070ba6fd02b8de401572e46ec007d303592587c754e0df7bf1355f95f7620a3e",
+    "pgdata": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/data",
+    "private_root": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac",
+    "project": "omnis-p01-2214da373f1947d6a170ac2d2b92081b",
+    "socket_directory": "/home/kali/.hermes/cache/scratch/db-5a3631dbbd444cac/socket",
+    "table": "public.qa_instance_control_b868e65c4eea4841ad193ab9dbd2eb70"
+  },
+  "retries": 0,
+  "schema_version": 1,
+  "session": "proc_6adc63095a7a",
+  "source_hashes_stable": {
+    "api/tests/conftest.py": true,
+    "api/tests/test_contract_method_pg.py": true,
+    "ops/compose.test.yaml": true,
+    "ops/run_test_db_gate.py": true
+  },
+  "state": "SNAPSHOT_STALENESS_CONFIRMED"
+}

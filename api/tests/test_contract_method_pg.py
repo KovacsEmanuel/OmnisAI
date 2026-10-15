@@ -22,7 +22,7 @@ from copy import deepcopy
 from pathlib import Path
 from types import CodeType
 from typing import TYPE_CHECKING, cast
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text as sql
@@ -33,7 +33,7 @@ from fixtures.b06b_pure_probe.consumer import Probe
 from fixtures.c03_journey import publish_capture
 from fixtures.c03_records import qualify_records
 from omnis.core.db import database_engine
-from omnis.modules.instance.domain import ControlCode, ControlConflict
+from omnis.modules.instance.domain import ControlCode
 from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService, RuntimeAuthority
 from omnis.modules.runs.contract_inputs import ContractInputs
@@ -210,6 +210,9 @@ def phase_key(code):
         return None
     return key
 entered = {}
+batch2_probe = False
+batch2_read_barrier = threading.Barrier(2)
+batch2_pure_barrier = threading.Barrier(2)
 def observe(frame, event, arg):
     if event not in {"call", "return"}:
         return
@@ -245,6 +248,11 @@ def observe(frame, event, arg):
         emit("bound-predicates", "SATISFIED" if all(v is True for v in arg.values()) else "GAP", len(arg))
     if event == "call" and name in {"_read_bound_input", "run_handler"}:
         emit(name, "ENTERED")
+    if batch2_probe and name in {"_read_bound_input", "run_handler"}:
+        emit("batch2-access", "ENTER" if event == "call" else "END",
+             operation=name, thread=threading.get_ident(), clock_ns=time.monotonic_ns())
+        if event == "call":
+            (batch2_read_barrier if name == "_read_bound_input" else batch2_pure_barrier).wait(timeout=1)
     if event == "return" and name == "_contract_guard":
         emit("contract-guard", "APPROVED" if arg is True else "REFUSED")
     if event == "return" and name == "release" and type(arg) is dict:
@@ -1936,6 +1944,30 @@ def launch_observation_object(pairs: list[tuple[str, object]]) -> dict[str, obje
     return result
 
 
+def test_batch2_observation_exact_fields() -> None:
+    row: dict[str, object] = {
+        "test": "batch2-access",
+        "status": "ENTER",
+        "count": 1,
+        "operation": "run_handler",
+        "thread": 1234,
+        "clock_ns": 1234567890123456,
+    }
+    assert "INVALID_RECORD" not in sequence(
+        launch_bootstrap_diagnostic(canonical(row) + b"\n")["issues"]
+    )
+    for field, value in (
+        ("thread", True),
+        ("clock_ns", 0),
+        ("status", []),
+        ("operation", "foreign"),
+    ):
+        rejected = {**row, field: value}
+        assert "INVALID_RECORD" in sequence(
+            launch_bootstrap_diagnostic(canonical(rejected) + b"\n")["issues"]
+        )
+
+
 def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
     """Inspect the original bounded channel before projecting public fields.
 
@@ -1998,6 +2030,23 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
             continue
         row = mapping(value)
         test, status = row.get("test"), row.get("status")
+        if test == "batch2-access":
+            valid = (
+                set(row) == base_fields | {"operation", "thread", "clock_ns"}
+                and type(status) is str
+                and status in {"ENTER", "END"}
+                and type(row.get("count")) is int
+                and row["count"] == 1
+                and type(row.get("operation")) is str
+                and row.get("operation") in {"_read_bound_input", "run_handler"}
+                and all(
+                    type(counter) is int and 0 < counter < 2**63
+                    for counter in (row.get("thread"), row.get("clock_ns"))
+                )
+            )
+            if not valid:
+                issues.add("INVALID_RECORD")
+            continue
         expected = phase_fields if test == "bootstrap-phase" else base_fields
         if set(row) != expected:
             issues.add("UNKNOWN_OR_MISSING_FIELDS")
@@ -4094,6 +4143,8 @@ class PreparationPrerequisite(RuntimeClient):
         (False, True, False, False, False, "historical-installed"),
         (False, True, False, False, False, "runtime-restart"),
         (False, True, False, False, False, "runtime-restart-no-final"),
+        (False, False, False, False, False, "batch2-release-first"),
+        (False, False, False, False, False, "batch2-stop-first"),
     ],
     ids=[
         "support-zero",
@@ -4118,6 +4169,8 @@ class PreparationPrerequisite(RuntimeClient):
         "historical-installed",
         "runtime-restart",
         "runtime-restart-no-final",
+        "batch2-release-first",
+        "batch2-stop-first",
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -4137,6 +4190,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     )
     assert tmp_path.resolve().is_relative_to(scratch)
     h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
+    batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
     db_fence: dict[str, object] = {}
@@ -4158,6 +4212,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     if (
         applicability is not None
         and not h03
+        and not batch2
         and applicability
         not in {
             "mission-consumer",
@@ -4234,7 +4289,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         dsn,
     )
     bootstrap = tmp_path / "native_bootstrap.py"
-    bootstrap.write_text(BOOTSTRAP)
+    bootstrap.write_text(
+        BOOTSTRAP.replace("batch2_probe = False", "batch2_probe = True") if batch2 else BOOTSTRAP
+    )
     bootstrap.chmod(0o600)
     home = tmp_path / "native-home"
     home.mkdir(mode=0o700)
@@ -4875,7 +4932,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 schema_version=3,
                 selection_ref=selected["selection_ref"],
                 preparation_command_id=preparation.command_id,
-                task_count=1,
+                task_count=2 if batch2 else 1,
                 context_ref=context["context_ref"],
                 slot_values=[{"slot_name": "records", "refs": [original["input_ref"]]}],
             )
@@ -4956,9 +5013,46 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 return graph
 
-            with monkeypatch.context() as observer:
-                observer.setattr(BuildSource, "build", measured_build)
-                prepared = await domain.prepare_method(assignment)
+            if batch2:
+                assignment_path = tmp_path / "batch2-prepare.json"
+                assignment_path.write_bytes(canonical(assignment))
+                assignment_path.chmod(0o600)
+                child = await asyncio.create_subprocess_exec(
+                    str(python),
+                    "-I",
+                    "-B",
+                    "-m",
+                    "omnis.modules.runs.managed_admission",
+                    "prepare-method",
+                    "--request",
+                    str(assignment_path),
+                    "--catalog-root",
+                    str(seed.root),
+                    env=seed.environment(dsn),
+                    cwd=ROOT,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                try:
+                    stdout, stderr = await asyncio.wait_for(child.communicate(), 15)
+                finally:
+                    if child.returncode is None:
+                        child.kill()
+                        await child.wait()
+                for name, raw in (("stdout", stdout), ("stderr", stderr)):
+                    path = tmp_path / ("batch2-prepare." + name)
+                    path.write_bytes(raw)
+                    path.chmod(0o600)
+                assert child.returncode == 0, "BATCH2_CLI_PREPARE_FAILED"
+                require_empty_stderr(stderr)
+                prepared = mapping(json.loads(stdout))
+                assert (
+                    len(sequence(mapping(mapping(prepared["manifest"])["payload"])["entries"])) == 2
+                )
+            else:
+                with monkeypatch.context() as observer:
+                    observer.setattr(BuildSource, "build", measured_build)
+                    prepared = await domain.prepare_method(assignment)
             assert manifest_protocol(prepared["manifest"]) == ("omnis-managed-admission-v4")
             if with_criteria and not legacy_criteria:
                 briefs = [mapping(r) for r in sequence(prepared["briefs"])]
@@ -5162,6 +5256,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
 
             if (
                 h03
+                or batch2
                 or applicability in {"mission-consumer", "result-qualification"}
                 or (
                     applicability is not None
@@ -5434,6 +5529,245 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 checkpoint(launch_diagnostic=diagnostic)
                 staged = await submit_task("stage")
                 assert staged["task_status"] == "BOUND"
+                if batch2:
+                    # Fresh Host/root per parametrized RUN; no reuse/restart grant.
+                    from collections.abc import AsyncIterator
+                    from contextlib import asynccontextmanager
+
+                    from omnis.modules.instance.domain import ControlConflict
+                    from omnis.modules.instance.records import InstanceRecord, LeaseRecord
+
+                    done.set()
+                    assert heartbeat is not None
+                    await heartbeat
+                    actual_exchange = runtime._exchange
+                    actual_fence = service.native_preparation_commit
+                    fence_pid = 0
+                    stop_tasks: list[asyncio.Task[int]] = []
+                    release_tasks: list[asyncio.Task[dict[str, object]]] = []
+                    committed_ns = 0
+
+                    async def waiter_observed(blocker: int) -> None:
+                        async with asyncio.timeout(0.75), engine.connect() as observer:
+                            while True:
+                                count = (
+                                    await observer.execute(
+                                        sql(
+                                            "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() "
+                                            "AND :blocker=ANY(pg_blocking_pids(pid)) "
+                                            "AND query LIKE '%instance_control%FOR UPDATE%'"
+                                        ),
+                                        {"blocker": blocker},
+                                    )
+                                ).scalar_one()
+                                if count == 1:
+                                    return
+                                await asyncio.sleep(0.01)
+
+                    @asynccontextmanager
+                    async def observe_fence(
+                        owner_id: UUID, fence_epoch: int, generation: int
+                    ) -> AsyncIterator[AsyncConnection]:
+                        nonlocal fence_pid
+                        async with actual_fence(owner_id, fence_epoch, generation) as conn:
+                            fence_pid = int(
+                                (await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+                            )
+                            yield conn
+
+                    async def batch_exchange(
+                        op: str,
+                        authority: RuntimeAuthority | None = None,
+                        payload: dict[str, object] | None = None,
+                    ) -> dict[str, object]:
+                        nonlocal committed_ns
+                        if op == "task_release":
+                            # Another connection sees the WHOLE committed binding batch2_census native access.
+                            async with engine.connect() as observer:
+                                states = (
+                                    (
+                                        await observer.execute(
+                                            sql(
+                                                "SELECT state FROM managed_task WHERE run_id=:run ORDER BY task_id"
+                                            ),
+                                            {"run": prepared["run_id"]},
+                                        )
+                                    )
+                                    .scalars()
+                                    .all()
+                                )
+                                assert states == ["BOUND", "BOUND"], "BATCH2_BINDING_NOT_COMMITTED"
+                            committed_ns = time.monotonic_ns()
+                            task = asyncio.create_task(
+                                service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                            )
+                            stop_tasks.append(task)
+                            await waiter_observed(fence_pid)
+                            checkpoint(batch2_stop_waiter="OBSERVED_RELEASE_FIRST")
+                        return await actual_exchange(op, authority, payload)
+
+                    if applicability == "batch2-stop-first":
+                        actual_locked = service._locked
+
+                        # Retain the real shutdown transaction through waiter observation.
+                        @asynccontextmanager
+                        async def hold_stop() -> AsyncIterator[
+                            tuple[AsyncConnection, InstanceRecord, LeaseRecord]
+                        ]:
+                            async with actual_locked() as held:
+                                yield held
+                                conn = held[0]
+                                blocker = int(
+                                    (
+                                        await conn.execute(sql("SELECT pg_backend_pid()"))
+                                    ).scalar_one()
+                                )
+                                task = asyncio.create_task(submit_task("release"))
+                                release_tasks.append(task)
+                                await waiter_observed(blocker)
+                                checkpoint(batch2_release_waiter="OBSERVED_STOP_FIRST")
+
+                        with monkeypatch.context() as stop_control:
+                            # Only the Stop task uses this wrapper; restore batch2_census launching release.
+                            @asynccontextmanager
+                            async def once_locked() -> AsyncIterator[
+                                tuple[AsyncConnection, InstanceRecord, LeaseRecord]
+                            ]:
+                                stop_control.setattr(service, "_locked", actual_locked)
+                                async with hold_stop() as held:
+                                    yield held
+
+                            stop_control.setattr(service, "_locked", once_locked)
+                            await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                        assert len(release_tasks) == 1
+                        with pytest.raises((CatalogError, ControlConflict)):
+                            await release_tasks[0]
+                        back = await domain.readback(
+                            seed.request(command_id=assignment["command_id"])
+                        )
+                        assert back["results"] == back["checks"] == back["inbox"] == []
+                        events = [
+                            json.loads(line) for line in observation.read_bytes().splitlines()
+                        ]
+                        assert not any(
+                            e["test"] in {"_read_bound_input", "run_handler", "run_contract"}
+                            for e in events
+                        )
+                        assert await runtime.drain() is True
+                        checkpoint(batch2="STOP_FIRST_REFUSED_NO_ACCESS", batch2_count=2)
+                        return
+
+                    with monkeypatch.context() as concurrent:
+                        concurrent.setattr(service, "native_preparation_commit", observe_fence)
+                        concurrent.setattr(runtime, "_exchange", batch_exchange)
+                        released = await submit_task("release")
+                    assert released["task_status"] == "SUCCEEDED"
+                    assert len(stop_tasks) == 1
+                    await stop_tasks[0]
+                    back_request = seed.request(command_id=assignment["command_id"])
+                    back = await domain.readback(back_request)
+                    assert (
+                        len(sequence(back["results"]))
+                        == len(sequence(back["checks"]))
+                        == len(sequence(back["inbox"]))
+                        == 2
+                    )
+                    assert all(
+                        mapping(mapping(c)["payload"])["status"] == "COMPLETE"
+                        for c in sequence(back["checks"])
+                    )
+                    graph = [mapping(r) for r in sequence(back["records"])]
+                    assert len([r for r in graph if r["kind"] == "bound-procedure"]) == 1
+                    final = mapping(
+                        next(r["payload"] for r in graph if r["kind"] == "native-task-receipt")
+                    )
+                    binding = mapping(back["binding"])
+                    fence = mapping(binding["payload"])["authority"]
+                    batch2_census = await mission_census()
+                    batch2_bad = deepcopy(final)
+                    batch2_bad["executions"] = list(reversed(sequence(batch2_bad["executions"])))
+                    with pytest.raises(CatalogError):
+                        await domain.ingest_result(
+                            seed.owner,
+                            prepared["manifest_ref"],
+                            batch2_bad,
+                            runtime.boot,
+                            fence,
+                            held=True,
+                        )
+                    assert await mission_census() == batch2_census
+                    native_before = observation.read_bytes()
+                    events = [json.loads(line) for line in native_before.splitlines()]
+                    access = [e for e in events if e["test"] == "batch2-access"]
+                    assert access and min(e["clock_ns"] for e in access) > committed_ns
+                    for operation, total in (("_read_bound_input", 2), ("run_handler", 4)):
+                        entered = [
+                            e
+                            for e in access
+                            if e["operation"] == operation and e["status"] == "ENTER"
+                        ]
+                        ended = [
+                            e
+                            for e in access
+                            if e["operation"] == operation and e["status"] == "END"
+                        ]
+                        assert len(entered) == len(ended) == total
+                        assert len({e["thread"] for e in entered}) == 2
+                        assert max(e["clock_ns"] for e in entered[:2]) < min(
+                            e["clock_ns"] for e in ended[:2]
+                        )
+                    assert (
+                        len(
+                            [
+                                e
+                                for e in events
+                                if e["test"] == "run_contract" and e["status"] == "REAL_AIAgent"
+                            ]
+                        )
+                        == 2
+                    )
+                    assert await runtime.drain() is True
+
+                    def no_batch_rerun(*args: object, **kwargs: object) -> object:
+                        raise AssertionError("BATCH2_REEXECUTION_FORBIDDEN")
+
+                    with monkeypatch.context() as replay:
+                        replay.setattr(runtime, "_exchange", no_batch_rerun)
+                        replay.setattr(BuildSource, "build", no_batch_rerun)
+                        replay.setattr(ManagedAdmission, "_build", no_batch_rerun)
+                        replay.setattr(
+                            "omnis.modules.tasks.module_registry.run_handler", no_batch_rerun
+                        )
+                        assert (await domain.prepare_method(assignment))["created"] is False
+                        assert (await submit_task("receive", phase="AFTER_STOP"))[
+                            "task_status"
+                        ] == "SUCCEEDED"
+                        assert (await submit_task("release", phase="AFTER_STOP"))[
+                            "task_status"
+                        ] == "SUCCEEDED"
+                        assert canonical(
+                            await restarted_cli("readback", back_request)
+                        ) == canonical(back)
+                        reconciled = await restarted_cli("reconcile", back_request)
+                        assert all(
+                            mapping(i)["domain_result_consumed"] is True
+                            for i in sequence(reconciled["inbox"])
+                        )
+                        assert (await markers())["consumed"] == 2
+                        assert canonical(
+                            await restarted_cli("reconcile", back_request)
+                        ) == canonical(reconciled)
+                        assert canonical(await domain.readback(back_request)) == canonical(
+                            reconciled
+                        )
+                    assert observation.read_bytes() == native_before
+                    checkpoint(
+                        batch2="RELEASE_FIRST_TWO_RESULTS_CHECKS_INBOX",
+                        batch2_count=2,
+                        batch2_overlap="REAL_READ_PURE",
+                        batch2_post_stop="RECEIVE_REPLAY_RECONCILE_NO_RESEND",
+                    )
+                    return
                 # Release immediately after committed stage: the native 4.5s
                 # deadline is unchanged. No readback/negative between the two.
                 # Fail closed: no direct-native rescue or fabricated final.

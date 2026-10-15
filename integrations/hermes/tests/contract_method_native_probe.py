@@ -15,7 +15,7 @@ from uuid import uuid4
 
 
 def bootstrap():
-    source, overlay, adapter, home = map(lambda x: Path(x).resolve(), sys.argv[1:])
+    source, overlay, adapter, home = map(lambda x: Path(x).resolve(), sys.argv[1:5])
     if not home.is_dir() or any(home.iterdir()):
         raise ValueError("Fresh private home required")
     os.environ.clear()
@@ -219,7 +219,9 @@ class ContractNative(unittest.TestCase):
         from run_agent import AIAgent
 
         self.compact()
-        positive = AIAgent(contract_admission=ContractAdmission(self.root, canonical(self.payload)))
+        positive = AIAgent(
+            contract_admission=ContractAdmission(self.root, canonical(self.payload), 0)
+        )
         self.children.append(positive)
         self.assertIs(type(positive), AIAgent)
         self.assertIsNone(positive.provider)
@@ -256,7 +258,7 @@ class ContractNative(unittest.TestCase):
             self.assertEqual(calls, [])
             with self.assertRaisesRegex(ValueError, "Invalid native preparation"):
                 AIAgent.__init__(
-                    candidate, contract_admission=ContractAdmission(self.root, canonical(bad))
+                    candidate, contract_admission=ContractAdmission(self.root, canonical(bad), 0)
                 )
             self.assertEqual(calls, ["initialize_contract", "assignment"])
             self.assertEqual(object.__getattribute__(candidate, "__dict__"), {})
@@ -356,9 +358,9 @@ class ContractNative(unittest.TestCase):
             preserve = {
                 "key": "preserve-input-context",
                 "description": "Retain original records.",
-                "required": True,
+                "required": False,
                 "applies_if": [],
-                "step_ids": [],
+                "step_ids": ["normalize-operations"],
                 "artifact_schema_refs": [procedure["input_schema_ref"]],
                 "evidence_kinds": [],
             }
@@ -371,7 +373,7 @@ class ContractNative(unittest.TestCase):
                     },
                     "applicability": "APPLIES",
                     "applicability_basis_refs": [],
-                    "required": True,
+                    "required": False,
                 }
             )
             reseal_graph(self.payload, sections, payload["prompt_bundle"])
@@ -384,22 +386,35 @@ class ContractNative(unittest.TestCase):
             self.assertEqual(records[1]["payload"]["output_ref"], original_ref)
             self.assertEqual(result["consumed_input_refs"], [original_ref])
             self.assertEqual(result["method_results"][-1]["artifact_refs"], [original_ref])
-            self.assertEqual(result["method_results"][-1]["basis_refs"], [])
+            self.assertEqual(result["method_results"][-1]["basis_refs"], [ref(records[2])])
             self.assertEqual(result["method_results"][-1]["state"], "DONE")
             self.assertEqual(len(result["action_refs"]), 2)
 
     def count_accesses(self):
+        from unittest.mock import patch
+
+        from agent.contract_execution import BoundContractTools
+        from omnis_hermes import contract_method
+
         accesses = []
-        previous = sys.getprofile()
+        original_read = BoundContractTools._read_bound_input
+        original_handler = contract_method.run_handler
 
-        def observe(frame, event, arg):
-            if event == "call" and frame.f_code.co_name in {"_read_bound_input", "run_handler"}:
-                accesses.append(frame.f_code.co_name)
-            if previous:
-                previous(frame, event, arg)
+        def read(tools):
+            accesses.append("_read_bound_input")
+            return original_read(tools)
 
-        sys.setprofile(observe)
-        self.addCleanup(sys.setprofile, previous)
+        def handler(*args):
+            accesses.append("run_handler")
+            return original_handler(*args)
+
+        for target, name, wrapper in (
+            (BoundContractTools, "_read_bound_input", read),
+            (contract_method, "run_handler", handler),
+        ):
+            observer = patch.object(target, name, wrapper)
+            observer.start()
+            self.addCleanup(observer.stop)
         return accesses
 
     def assert_indeterminate_no_retry(self, accesses):
@@ -643,7 +658,7 @@ class ContractNative(unittest.TestCase):
         for options in (
             {"contract_admission": {"assignment": canonical(self.payload)}},
             {
-                "contract_admission": ContractAdmission(self.root, canonical(self.payload)),
+                "contract_admission": ContractAdmission(self.root, canonical(self.payload), 0),
                 "model": "forbidden",
             },
         ):
@@ -651,10 +666,415 @@ class ContractNative(unittest.TestCase):
                 AIAgent(**options)
 
 
+class Batch2Native(unittest.TestCase):
+    """Full pinned SOURCE, real constructors/lifecycle/handlers; no DB claim."""
+
+    def test_stage_and_index_denials_before_constructor(self):
+        from copy import deepcopy
+        from unittest.mock import patch
+
+        from agent.cold_admission import ColdAdmission
+        from agent.contract_execution import ContractAdmission
+        from agent.subagent_lifecycle import SubagentLifecycleService
+        from omnis_hermes import contract_method as method
+        from omnis_hermes.managed_admission_contract import canonical
+        from run_agent import AIAgent
+
+        root = AIAgent(cold_admission=ColdAdmission())
+        service = SubagentLifecycleService(lambda root=root: root)
+        original = AIAgent.__init__
+        called = []
+
+        def constructor(agent, *args, **kwargs):
+            called.append(True)
+            return original(agent, *args, **kwargs)
+
+        try:
+            for attack in (
+                "missing",
+                "extra",
+                "duplicate",
+                "shadow",
+                "kind",
+                "revision-bool",
+                "digest",
+                "ref",
+                "overflow",
+                "second-task",
+                "second-attempt",
+                "second-brief",
+            ):
+                with self.subTest(attack=attack):
+                    bad = deepcopy(BATCH2["stage"])
+                    pool = bad["record_pool"]
+                    if attack == "missing":
+                        pool.pop()
+                    elif attack == "extra":
+                        pool.append(method.record("prompt-content", {"text": "extra"}))
+                    elif attack == "duplicate":
+                        pool.append(deepcopy(pool[0]))
+                    elif attack == "shadow":
+                        shadow = deepcopy(pool[0])
+                        shadow["payload"]["provenance"] = []
+                        pool.append(shadow)
+                    elif attack == "kind":
+                        pool[-1]["kind"] = "schema"
+                    elif attack == "revision-bool":
+                        pool[-1]["revision"] = True
+                    elif attack == "digest":
+                        pool[-1]["digest"] = "0" * 64
+                    elif attack == "ref":
+                        bad["compositions"][1]["payload"]["sections"][2]["record_ref"][
+                            "revision"
+                        ] = True
+                    elif attack == "overflow":
+                        pool[-1]["payload"]["padding"] = "x" * 32768
+                    elif attack == "second-brief":
+                        from omnis_hermes.native_preparation_contract import digest
+                        from omnis_hermes.prompt_bundle import composition_pool, expanded_payload
+
+                        composition = bad["compositions"][1]
+                        pin = composition["payload"]["sections"][2]["record_ref"]
+                        brief = next(r for r in pool if r["id"] == pin["id"])
+                        brief["payload"]["limits"]["max_actions"] = 1
+                        brief["digest"] = digest(
+                            canonical({k: v for k, v in brief.items() if k != "digest"})
+                        )
+                        from omnis_hermes.managed_admission_contract import ref
+
+                        composition["payload"]["sections"][2]["record_ref"] = ref(brief)
+                        bad["manifest"]["payload"]["entries"][1]["brief_ref"] = ref(brief)
+                        expanded = expanded_payload(
+                            composition["payload"], composition_pool(composition["payload"], pool)
+                        )
+                        raw = expanded["text"].encode()
+                        composition["payload"].update(
+                            text_digest=digest(raw), byte_count=len(raw), token_upper_bound=len(raw)
+                        )
+                    else:
+                        field = "task_id" if attack == "second-task" else "attempt_id"
+                        bad["manifest"]["payload"]["entries"][1][field] = bad["manifest"][
+                            "payload"
+                        ]["entries"][0][field]
+                    from omnis_hermes.managed_admission_contract import ref
+                    from omnis_hermes.native_preparation_contract import digest
+
+                    if attack not in {"digest", "kind", "ref"}:
+                        for item in pool:
+                            item["digest"] = digest(
+                                canonical({k: v for k, v in item.items() if k != "digest"})
+                            )
+                    for i, composition in enumerate(bad["compositions"]):
+                        composition["digest"] = digest(
+                            canonical({k: v for k, v in composition.items() if k != "digest"})
+                        )
+                        bad["manifest"]["payload"]["entries"][i]["composition_ref"] = ref(
+                            composition
+                        )
+                    bad["manifest"]["digest"] = digest(
+                        canonical({k: v for k, v in bad["manifest"].items() if k != "digest"})
+                    )
+                    with (
+                        patch.object(AIAgent, "__init__", constructor),
+                        self.assertRaises(ValueError),
+                    ):
+                        service.stage(bad)
+                    self.assertEqual(called, [])
+            for index in (None, True, False, 0.0, 1.0, -1, 2):
+                with self.subTest(index=index), self.assertRaises(ValueError):
+                    method.assignment(canonical(BATCH2["stage"]), index)
+            for index in (True, 1.0, -1, 2):
+                with self.assertRaises(ValueError):
+                    AIAgent(
+                        contract_admission=ContractAdmission(
+                            root, canonical(BATCH2["stage"]), index
+                        )
+                    )
+        finally:
+            root.close()
+
+    def test_guard_failure_and_partial_submit_are_indeterminate(self):
+        from concurrent.futures import CancelledError
+        from unittest.mock import patch
+        from uuid import uuid4
+
+        from agent import subagent_lifecycle as lifecycle
+        from agent.cold_admission import ColdAdmission
+        from omnis_hermes import contract_method as method
+        from run_agent import AIAgent
+
+        for failure in ("false", "raise", "partial-submit"):
+            root = AIAgent(cold_admission=ColdAdmission())
+            service = lifecycle.SubagentLifecycleService(lambda root=root: root)
+            stage = service.stage(BATCH2["stage"])
+            binding = method.record(
+                "runtime-binding",
+                {
+                    "runtime_boot": str(uuid4()),
+                    "run_id": BATCH2["stage"]["manifest"]["payload"]["run_id"],
+                    "ticket": stage["ticket"],
+                    "native_root_id": stage["native_root_id"],
+                    "entries": stage["entries"],
+                    "authority": {
+                        "instance_id": str(uuid4()),
+                        "owner": str(uuid4()),
+                        "epoch": 1,
+                        "generation": 0,
+                    },
+                },
+            )
+            release = {
+                "protocol": stage["protocol"],
+                "manifest_ref": stage["manifest_ref"],
+                "ticket": stage["ticket"],
+                "binding": binding,
+            }
+            batch = service._cold_batches[stage["manifest_ref"]["id"]]
+            children = [r.agent for r in batch["records"]]
+            count = []
+            actual_submit = lifecycle._EXECUTOR.submit
+
+            def submit(*args, count=count, actual_submit=actual_submit):
+                count.append(True)
+                if len(count) == 2:
+                    raise RuntimeError("SOURCE partial submit")
+                return actual_submit(*args)
+
+            def guard(*args, failure=failure):
+                if failure == "raise":
+                    raise RuntimeError("SOURCE guard failure")
+                return False
+
+            try:
+                target, name, replacement = (
+                    (lifecycle._EXECUTOR, "submit", submit)
+                    if failure == "partial-submit"
+                    else (service, "_contract_guard", guard)
+                )
+                with (
+                    patch.object(target, name, replacement),
+                    self.assertRaises((ValueError, RuntimeError)),
+                ):
+                    service.release(release)
+                for record in batch["records"]:
+                    if record.future is not None:
+                        try:
+                            record.future.result(timeout=2)
+                        except (ValueError, RuntimeError, CancelledError):
+                            pass
+                self.assertTrue(batch["indeterminate"])
+                self.assertTrue(
+                    all(
+                        r.state == lifecycle.SubagentState.UNKNOWN and r.result is None
+                        for r in batch["records"]
+                    )
+                )
+                self.assertTrue(all(c._contract_state.closed for c in children))
+                with self.assertRaises(ValueError):
+                    service.release(release)
+            finally:
+                root.close()
+
+    def test_timeout_does_not_claim_worker_drain(self):
+        import threading
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError
+        from unittest.mock import patch
+        from uuid import uuid4
+
+        from agent import subagent_lifecycle as lifecycle
+        from agent.cold_admission import ColdAdmission
+        from omnis_hermes import contract_method as method
+        from run_agent import AIAgent
+
+        root = AIAgent(cold_admission=ColdAdmission())
+        service = lifecycle.SubagentLifecycleService(lambda root=root: root)
+        stage = service.stage(BATCH2["stage"])
+        binding = method.record(
+            "runtime-binding",
+            {
+                "runtime_boot": str(uuid4()),
+                "run_id": BATCH2["stage"]["manifest"]["payload"]["run_id"],
+                "ticket": stage["ticket"],
+                "native_root_id": stage["native_root_id"],
+                "entries": stage["entries"],
+                "authority": {
+                    "instance_id": str(uuid4()),
+                    "owner": str(uuid4()),
+                    "epoch": 1,
+                    "generation": 0,
+                },
+            },
+        )
+        release = {
+            "protocol": stage["protocol"],
+            "manifest_ref": stage["manifest_ref"],
+            "ticket": stage["ticket"],
+            "binding": binding,
+        }
+        batch = service._cold_batches[stage["manifest_ref"]["id"]]
+        children = [r.agent for r in batch["records"]]
+        entered, finish = threading.Barrier(3), threading.Event()
+        actual = method.run_handler
+
+        def held(name, value):
+            entered.wait(timeout=1)
+            if not finish.wait(timeout=5):
+                raise AssertionError("SOURCE settlement missing")
+            return actual(name, value)
+
+        try:
+            with (
+                ThreadPoolExecutor(max_workers=1) as executor,
+                patch.object(method, "run_handler", held),
+            ):
+                pending = executor.submit(service.release, release)
+                try:
+                    entered.wait(timeout=2)
+                    with self.assertRaises(TimeoutError):
+                        pending.result(timeout=4)
+                    self.assertTrue(batch["indeterminate"])
+                    self.assertTrue(all(not r.future.done() for r in batch["records"]))
+                    self.assertTrue(
+                        all(
+                            r.state == lifecycle.SubagentState.UNKNOWN and r.result is None
+                            for r in batch["records"]
+                        )
+                    )
+                    with self.assertRaises(ValueError):
+                        service.release(release)
+                finally:
+                    finish.set()
+                for record in batch["records"]:
+                    with self.assertRaises(ValueError):
+                        record.future.result(timeout=2)
+                self.assertTrue(all(c._contract_state.closed for c in children))
+                self.assertTrue(all(r.agent is None for r in batch["records"]))
+        finally:
+            finish.set()
+            root.close()
+
+    def test_complete_batch(self):
+        import threading
+        import time
+        from unittest.mock import patch
+
+        from agent.cold_admission import ColdAdmission
+        from agent.contract_execution import BoundContractTools
+        from agent.subagent_lifecycle import _REGISTRY, SubagentLifecycleService, SubagentState
+        from omnis_hermes import contract_method as method
+        from omnis_hermes.managed_admission_contract import canonical, ref, validate_response
+        from run_agent import AIAgent
+
+        stage = BATCH2["stage"]
+        root = AIAgent(cold_admission=ColdAdmission())
+        service = SubagentLifecycleService(lambda root=root: root)
+        staged = service.stage(stage)
+        binding = method.record(
+            "runtime-binding",
+            {
+                "runtime_boot": str(__import__("uuid").uuid4()),
+                "run_id": stage["manifest"]["payload"]["run_id"],
+                "ticket": staged["ticket"],
+                "native_root_id": staged["native_root_id"],
+                "entries": staged["entries"],
+                "authority": {
+                    "instance_id": str(__import__("uuid").uuid4()),
+                    "owner": str(__import__("uuid").uuid4()),
+                    "epoch": 1,
+                    "generation": 0,
+                },
+            },
+        )
+        release = {
+            "protocol": stage["protocol"],
+            "ticket": staged["ticket"],
+            "manifest_ref": ref(stage["manifest"]),
+            "binding": binding,
+        }
+        batch = service._cold_batches[stage["manifest"]["id"]]
+        children = [r.agent for r in batch["records"]]
+        self.assertEqual([c._contract_state.batch_index for c in children], [0, 1])
+        read_barrier, handler_barrier = threading.Barrier(2), threading.Barrier(2)
+        observed, lock = [], threading.Lock()
+        tools_by_index = {}
+        output_barrier = threading.Barrier(2)
+        original_action = BoundContractTools.pure_action
+        original_read, original_handler = BoundContractTools._read_bound_input, method.run_handler
+
+        def read(tools):
+            with lock:
+                tools_by_index[tools.state.batch_index] = tools
+            with _REGISTRY.lock:
+                self.assertEqual(batch["binding"], canonical(binding))
+                self.assertTrue(all(r.state == SubagentState.RUNNING for r in batch["records"]))
+            bad_ref = {**tools.original_ref, "revision": True}
+
+            def forbidden_read():
+                raise AssertionError("invalid revision reached reader")
+
+            with (
+                patch.object(tools, "_read_bound_input", forbidden_read),
+                self.assertRaises(ValueError),
+            ):
+                tools.read_input(bad_ref)
+            read_barrier.wait(timeout=1)
+            return original_read(tools)
+
+        def handler(name, value):
+            start = time.monotonic()
+            handler_barrier.wait(timeout=1)
+            output = original_handler(name, value)
+            with lock:
+                observed.append((name, threading.get_ident(), start, time.monotonic()))
+            return output
+
+        def action(tools, step_id, action_ref, input_refs):
+            if step_id == "build-map":
+                output_barrier.wait(timeout=1)
+                sibling = tools_by_index[1 - tools.state.batch_index]
+                with self.assertRaises(ValueError):
+                    original_action(tools, step_id, action_ref, [ref(sibling.artifacts[0])])
+                with self.assertRaises(ValueError):
+                    original_action(tools, step_id, action_ref, [ref(sibling.receipts[0])])
+            return original_action(tools, step_id, action_ref, input_refs)
+
+        try:
+            with (
+                patch.object(BoundContractTools, "_read_bound_input", read),
+                patch.object(method, "run_handler", handler),
+                patch.object(BoundContractTools, "pure_action", action),
+            ):
+                final = service.release(release)
+            validate_response(final)
+            self.assertEqual(len(final["executions"]), 2)
+            self.assertEqual(final["status"], "SUCCEEDED")
+            self.assertEqual(service.release(release), final)
+            self.assertEqual(
+                service.readback({k: release[k] for k in ("protocol", "ticket", "manifest_ref")}),
+                final,
+            )
+            for name in {r[0] for r in observed}:
+                pair = [r for r in observed if r[0] == name]
+                self.assertEqual(len(pair), 2)
+                self.assertNotEqual(pair[0][1], pair[1][1])
+                self.assertLess(max(r[2] for r in pair), min(r[3] for r in pair))
+            self.assertTrue(all(r.future.done() for r in batch["records"]))
+            self.assertTrue(all(c._contract_state.closed for c in children))
+            BATCH2_OUTPUT.write_bytes(
+                canonical({"binding": binding, "final": final, "overlap": observed})
+            )
+        finally:
+            for child in children:
+                child.close()
+            root.close()
+
+
 if __name__ == "__main__":
+    BATCH2 = json.loads(Path(sys.argv[5]).read_bytes()) if len(sys.argv) == 6 else None
+    BATCH2_OUTPUT = Path(sys.argv[5]).with_name("batch2-native-result.json") if BATCH2 else None
     effects = bootstrap()
     result = unittest.TextTestRunner(verbosity=2).run(
-        unittest.defaultTestLoader.loadTestsFromTestCase(ContractNative)
+        unittest.defaultTestLoader.loadTestsFromTestCase(Batch2Native if BATCH2 else ContractNative)
     )
     print(
         json.dumps(

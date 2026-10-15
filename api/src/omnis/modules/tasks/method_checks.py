@@ -63,24 +63,51 @@ def _binding(binding: object, brief: Data, execution: Data) -> Data:
     contract.authority(body["authority"])
     root = contract.text(body["native_root_id"], 128)
     entries = contract.sequence(body["entries"])
-    if len(entries) != 1:
+    if not 1 <= len(entries) <= 2:
         raise CatalogError(RECEIPT)
-    entry = _exact(
-        entries[0],
-        {
-            "batch_index",
-            "task_id",
-            "attempt_id",
-            "brief_ref",
-            "composition_ref",
-            "native_child_id",
-            "native_session_id",
-        },
-        RECEIPT,
-    )
-    contract.integer(entry["batch_index"], 0, 0)
-    contract.ref(entry["composition_ref"], "prompt-composition")
-    contract.ref(entry["brief_ref"], "task-brief")
+    checked = []
+    for index, raw in enumerate(entries):
+        item = _exact(
+            raw,
+            {
+                "batch_index",
+                "task_id",
+                "attempt_id",
+                "brief_ref",
+                "composition_ref",
+                "native_child_id",
+                "native_session_id",
+            },
+            RECEIPT,
+        )
+        contract.integer(item["batch_index"], index, index)
+        contract.ref(item["composition_ref"], "prompt-composition")
+        contract.ref(item["brief_ref"], "task-brief")
+        for key in ("task_id", "attempt_id"):
+            uuid_string(item[key])
+        for key in ("native_child_id", "native_session_id"):
+            contract.text(item[key], 128)
+        if item["native_child_id"] == root:
+            raise CatalogError(RECEIPT)
+        checked.append(item)
+    for key in (
+        "task_id",
+        "attempt_id",
+        "brief_ref",
+        "composition_ref",
+        "native_child_id",
+        "native_session_id",
+    ):
+        if len({canonical(item[key]) for item in checked}) != len(checked):
+            raise CatalogError(RECEIPT)
+    matches = [
+        item
+        for item in checked
+        if canonical(item["brief_ref"]) == canonical(records.reference(brief))
+    ]
+    if len(matches) != 1:
+        raise CatalogError(RECEIPT)
+    entry = matches[0]
     header = contract.mapping(contract.mapping(brief["payload"])["header"])
     for key in ("task_id", "attempt_id"):
         uuid_string(entry[key])
@@ -660,10 +687,12 @@ def check_execution(
         from omnis.modules.tasks.managed_composition import (
             COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
         )
 
         optional_completion = contract.mapping(prompt_bundle["payload"])["composer_revision"] in {
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
         }
         try:

@@ -6,12 +6,400 @@ from pathlib import Path
 
 import pytest
 
+from omnis.modules.runs.managed_admission import BuildSource
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_composition, managed_contract
 from omnis.modules.tasks.contract_case_input import material_section, produce_input
 from omnis.modules.tasks.managed_contract import mapping, text
 from test_c03_managed_capture import capture_source, material
+
+
+async def batch2_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[list[dict[str, object]], dict[str, object], BuildSource, str]:
+    """Real compile/capture/preparation/source/build; storage/publication doubles only."""
+    from types import SimpleNamespace
+    from typing import cast
+    from unittest.mock import AsyncMock, Mock
+    from uuid import uuid4
+
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+
+    from fixtures.c03_records import EVALUATION_VALUE, records_seed
+    from omnis.modules.instance.schemas import NativePrepareCommand
+    from omnis.modules.runs import native_preparation as preparation
+    from omnis.modules.runs.contract_inputs import ContractInputs
+    from omnis.modules.runs.managed_admission import ManagedAdmission, validate_request
+    from omnis.modules.runs.pure_probe import PureProbe
+    from omnis.modules.settings.candidate_index import bind_catalog
+    from omnis.modules.settings.candidate_material import capture
+    from omnis.modules.settings.catalog_models import Profile
+    from omnis.modules.settings.catalog_publication import PublicationCatalog
+    from omnis.modules.settings.catalog_schema import dto
+    from omnis.modules.settings.skill_catalog import compile_catalog
+    from omnis.modules.tasks import managed_store
+    from omnis.modules.tasks.execution_selection import selection_payload
+    from test_managed_contract import ref
+    from test_native_preparation import command
+
+    seed = records_seed(tmp_path / "batch2")
+    compiled = compile_catalog((seed.package,), seed.profile)
+    retained, sources, _ = capture([str(seed.package)], str(seed.profile))
+    compiled = bind_catalog(
+        compiled,
+        [
+            {
+                "package_key": r.package_key,
+                "entity_kind": r.entity_kind,
+                "key": r.key,
+                "ref": {**ref(r.entity_kind), "digest": r.digest},
+            }
+            for r in compiled.refs
+        ],
+    )
+    profile = dto(seed.profile.read_bytes(), Profile)
+    candidate = records.envelope("candidate-snapshot", {})
+    snapshot = records.envelope(
+        "run-snapshot",
+        {
+            "snapshot_ref": records.reference(candidate),
+            "publication_ref": ref("catalog-publication"),
+            "material_digest": compiled.material_digest,
+            "resolved_index_digest": compiled.resolved_index_digest,
+        },
+    )
+    selection = records.envelope(
+        "execution-selection",
+        selection_payload(
+            records.reference(snapshot),
+            profile.agent_recipes[0].key,
+            profile,
+            compiled,
+        ),
+    )
+    group = str(uuid4())
+
+    async def get(
+        connection: object, owner: str, reference: object
+    ) -> tuple[str, dict[str, object]]:
+        assert owner == seed.owner
+        return group, next(r for r in (candidate, selection) if records.reference(r) == reference)
+
+    publications = SimpleNamespace(
+        load_probe=AsyncMock(return_value=(group, snapshot, profile, compiled)),
+        candidates=SimpleNamespace(
+            sources=AsyncMock(
+                return_value=(None, [records.envelope("source-draft", s) for s in sources])
+            )
+        ),
+    )
+    # No constructor/runtime/DB authority is claimed by these SOURCE storage doubles.
+    producer = object.__new__(preparation.NativePreparation)
+    producer.root = seed.root
+    monkeypatch.setattr(producer, "publications", publications, raising=False)
+    monkeypatch.setattr(records, "get", get)
+    monkeypatch.setattr(preparation, "read_material", lambda *args: retained)
+    connection = cast(AsyncConnection, Mock(spec=AsyncConnection))
+    engine = cast(AsyncEngine, Mock(spec=AsyncEngine))
+    _, bundle = await producer.build(
+        connection,
+        NativePrepareCommand.model_validate(
+            {
+                **command(),
+                "owner_id": seed.owner,
+                "selection_ref": records.reference(selection),
+            }
+        ),
+    )
+    prepared = {"bundle": bundle, "receipt_ref": ref("native-preparation-receipt")}
+    monkeypatch.setattr(
+        preparation, "reservation", AsyncMock(return_value=records.reference(bundle))
+    )
+    monkeypatch.setattr(preparation, "read_receipt", AsyncMock(return_value=prepared))
+    monkeypatch.setattr(
+        PureProbe, "_selection", AsyncMock(return_value=(group, selection, compiled))
+    )
+    monkeypatch.setattr(PublicationCatalog, "load_probe", publications.load_probe)
+    consumer = ManagedAdmission(engine, seed.root)
+    request = {
+        "schema_version": 3,
+        "owner_id": seed.owner,
+        "command_id": str(uuid4()),
+        "selection_ref": records.reference(selection),
+        "preparation_command_id": str(uuid4()),
+        "task_count": 2,
+        "composition_version": 4,
+    }
+    source = await consumer._source(connection, seed.owner, request)
+    assert source.preparation_bytes == len(canonical(bundle)) > 14000
+    prefix = source.build(context_only=True, method_execution=True)
+    run = next(r for r in prefix if r["kind"] == "managed-run")
+    body = mapping(run["payload"])
+    schema_ref, raw, path = source.input_schema()
+    context = records.envelope(
+        "contract-input-context",
+        {
+            "version": 2,
+            "namespace": "RUN",
+            "owner_id": seed.owner,
+            "basis_ref": records.reference(run),
+            "snapshot_ref": body["snapshot_ref"],
+            "selection_ref": body["selection_ref"],
+            "procedure_ref": source.procedure_ref,
+            "mission_ref": body["mission_ref"],
+            "focus_ref": body["focus_ref"],
+            "schema_ref": schema_ref,
+        },
+    )
+    item = produce_input(context, EVALUATION_VALUE, raw, str(uuid4()))
+    prefix.extend([context, item])
+    request.update(
+        context_ref=records.reference(context),
+        slot_values=[
+            {
+                "slot_name": "records",
+                "refs": [records.reference(item)],
+            }
+        ],
+    )
+    validate_request(
+        "prepare-method", {k: v for k, v in request.items() if k != "composition_version"}
+    )
+    monkeypatch.setattr(managed_store, "owned", AsyncMock(return_value=(run["id"], context)))
+    monkeypatch.setattr(managed_store, "graph", AsyncMock(return_value=prefix))
+    monkeypatch.setattr(managed_store, "get", AsyncMock(return_value=item))
+    monkeypatch.setattr(ContractInputs, "current_source", AsyncMock(return_value=source))
+    monkeypatch.setattr(
+        connection,
+        "execute",
+        AsyncMock(return_value=SimpleNamespace(scalar_one_or_none=lambda: None)),
+    )
+    graph = await consumer._build(connection, seed.owner, request)
+    return graph, bundle, source, seed.owner
+
+
+@pytest.mark.asyncio
+async def test_batch2_complete_producer_stage(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    graph, bundle, source, _ = await batch2_source(tmp_path, monkeypatch)
+    stage = managed_composition.stage_payload(graph[-1], graph)
+    assert len(canonical(graph)) + len(canonical(bundle)) <= 65536
+    assert len(canonical(stage)) <= 32768
+    entries = managed_contract.sequence(mapping(graph[-1]["payload"])["entries"])
+    assert len(entries) == 2 and mapping(entries[0])["goal"] == mapping(entries[1])["goal"]
+    assert len([r for r in graph if r["kind"] == "bound-procedure"]) == 1
+    briefs = [r for r in graph if r["kind"] == "task-brief"]
+    assert len({text(mapping(mapping(b["payload"])["header"])["task_id"]) for b in briefs}) == 2
+    assert (
+        len(
+            {
+                text(mapping(mapping(mapping(b["payload"])["header"])["result_schema_ref"])["id"])
+                for b in briefs
+            }
+        )
+        == 2
+    )
+    monkeypatch.syspath_prepend(
+        str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+    )
+    native = import_module("omnis_hermes.managed_admission_contract")
+    assert native.validate_stage(stage) == graph[-1]
+    from copy import deepcopy
+
+    from omnis.modules.settings.candidate_material import digest
+
+    single = deepcopy(stage)
+    single["compositions"] = managed_contract.sequence(single["compositions"])[:1]
+    manifest = mapping(single["manifest"])
+    body = mapping(manifest["payload"])
+    body["entries"] = managed_contract.sequence(body["entries"])[:1]
+    manifest["payload"] = body
+    manifest["digest"] = digest(canonical({k: v for k, v in manifest.items() if k != "digest"}))
+    single["manifest"] = manifest
+    single["record_pool"] = managed_composition.composition_pool(
+        mapping(managed_contract.sequence(single["compositions"])[0])["payload"],
+        single["record_pool"],
+    )
+    with pytest.raises(ValueError):
+        native.validate_stage(single)
+    method = import_module("omnis_hermes.contract_method")
+    for i, brief in enumerate(briefs):
+        assert method.assignment(canonical(stage), i)[0] == brief
+    assert source.preparation_bytes == len(canonical(bundle))
+    from omnis.modules.tasks import method_checker_identity
+
+    old = records.envelope(
+        "method-checker",
+        {
+            **method_checker_identity.descriptor(),
+            "code_digest": "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5",
+        },
+    )
+    for empty in (False, True):
+        assert (
+            method_checker_identity.verify(
+                old,
+                pin=managed_composition.SINGLETON_COMPOSER_REVISION,
+                receive_only=True,
+                zero_predicates=empty,
+            )
+            == old
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch2_native_source_to_two_checks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+    import subprocess
+
+    from omnis.modules.settings.catalog_schema import load_json
+    from omnis.modules.tasks.method_checks import check_execution
+
+    graph, bundle, source, owner = await batch2_source(tmp_path, monkeypatch)
+    stage = managed_composition.stage_payload(graph[-1], graph)
+    fixture = tmp_path / "batch2.json"
+    fixture.write_bytes(
+        canonical(
+            {
+                "stage": stage,
+                "bundle": bundle,
+                "metrics": {
+                    "graph_bytes": len(canonical(graph)),
+                    "preparation_bytes": len(canonical(bundle)),
+                    "total_bytes": len(canonical(graph)) + len(canonical(bundle)),
+                    "stage_bytes": len(canonical(stage)),
+                },
+            }
+        )
+    )
+    home = tmp_path / "native-home"
+    home.mkdir(mode=0o700)
+    root = Path(__file__).resolve().parents[2]
+    process = subprocess.run(
+        [
+            "/usr/bin/python3",
+            "-I",
+            "-B",
+            str(root / "integrations/hermes/tests/contract_method_native_probe.py"),
+            "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+            str(root / "integrations/hermes/upstream/managed-source"),
+            str(root / "integrations/hermes/src"),
+            str(home),
+            str(fixture),
+        ],
+        capture_output=True,
+        timeout=20,
+        check=False,
+    )
+    (tmp_path / "native-source.log").write_bytes(process.stdout + process.stderr)
+    assert process.returncode == 0, process.stderr.decode()[-5000:]
+    back = json.loads(fixture.with_name("batch2-native-result.json").read_bytes())
+    binding, final = back["binding"], back["final"]
+    managed_contract.validate_final(final, graph[-1], binding)
+    briefs = [r for r in graph if r["kind"] == "task-brief"]
+    bound = next(r for r in graph if r["kind"] == "bound-procedure")
+    original = next(r for r in graph if r["kind"] == "contract-case-records")
+    checker = next(r for r in graph if r["kind"] == "method-checker")
+    actions = [r for r in graph if r["kind"] == "action_definition"]
+    schemas = {}
+    for entry in source.bindings:
+        if entry["entity_kind"] == "schema":
+            matches = [
+                b.path
+                for b in source.manifest.file_bindings
+                if b.entity_kind == "schema" and b.key == entry["key"]
+            ]
+            if matches:
+                schemas[canonical(entry["ref"]).decode()] = mapping(
+                    load_json(source.files[matches[0]])
+                )
+    prompt = next(r for r in graph if r["kind"] == "prompt-bundle")
+    checks = [
+        check_execution(
+            brief,
+            bound,
+            binding,
+            execution,
+            checker,
+            original,
+            actions,
+            schemas,
+            owner,
+            prompt_bundle=prompt,
+            composition_version=4,
+        )
+        for brief, execution in zip(briefs, final["executions"], strict=True)
+    ]
+    assert [mapping(c["payload"])["status"] for c in checks] == ["COMPLETE", "COMPLETE"]
+    assert [mapping(c["payload"])["brief_ref"] for c in checks] == [
+        records.reference(b) for b in briefs
+    ]
+    from copy import deepcopy
+
+    from jsonschema import Draft202012Validator
+
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    for i, brief in enumerate(briefs):
+        execution = final["executions"][i]
+        schema_ref = mapping(mapping(brief["payload"])["header"])["result_schema_ref"]
+        schema = next(r["payload"] for r in graph if records.reference(r) == schema_ref)
+        validator = Draft202012Validator(mapping(schema))
+        assert validator.is_valid(execution["records"][0]["payload"])
+        assert not validator.is_valid(final["executions"][1 - i]["records"][0]["payload"])
+        for attack in (
+            "execution",
+            "receipt",
+            "artifact",
+            "task",
+            "attempt",
+            "session",
+            "root",
+            "brief",
+            "row",
+        ):
+            bad_execution, bad_binding = deepcopy(execution), deepcopy(binding)
+            sibling = final["executions"][1 - i]
+            if attack == "execution":
+                bad_execution = deepcopy(sibling)
+            elif attack == "receipt":
+                bad_execution["records"][1] = sibling["records"][1]
+            elif attack == "artifact":
+                bad_execution["records"][-1] = sibling["records"][-1]
+            else:
+                body = bad_binding["payload"]
+                row = body["entries"][i]
+                if attack == "root":
+                    body["native_root_id"] = row["native_child_id"]
+                elif attack == "row":
+                    body["entries"].reverse()
+                else:
+                    field = {
+                        "task": "task_id",
+                        "attempt": "attempt_id",
+                        "session": "native_session_id",
+                        "brief": "brief_ref",
+                    }[attack]
+                    row[field] = body["entries"][1 - i][field]
+                bad_binding = records.envelope("runtime-binding", body)
+            with pytest.raises(CatalogError):
+                check_execution(
+                    brief,
+                    bound,
+                    bad_binding,
+                    bad_execution,
+                    checker,
+                    original,
+                    actions,
+                    schemas,
+                    owner,
+                    prompt_bundle=prompt,
+                    composition_version=4,
+                )
 
 
 @pytest.mark.parametrize("empty", [False, True])

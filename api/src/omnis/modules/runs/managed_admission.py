@@ -67,7 +67,9 @@ def validate_request(operation: str, value: object) -> dict[str, object]:
             raise CatalogError("INVALID_REQUEST")
         ref(result["selection_ref"], "execution-selection")
         uuid_string(result["preparation_command_id"])
-        contract.integer(result["task_count"], 1, 1 if version in (2, 3) else 2)
+        contract.integer(
+            result["task_count"], 1, 1 if version in (2, 3) and operation != "prepare-method" else 2
+        )
         if version in (2, 3):
             ref(result["context_ref"], "contract-input-context")
             contract.capture_slot_values(result["slot_values"], version=version - 1)
@@ -1026,6 +1028,7 @@ class ManagedAdmission:
                 "bound-procedure",
                 "task-brief",
                 "prompt-composition",
+                "prompt-material",
                 "method-checker",
                 "criterion-outcome-rule",
                 "criterion-outcome",
@@ -1176,7 +1179,12 @@ class ManagedAdmission:
             raise CatalogError("PREPARATION_MISMATCH")
         for raw in sequence(payload["compositions"]):
             body = managed_composition.expanded_payload(
-                mapping(raw)["payload"], payload.get("record_pool")
+                mapping(raw)["payload"],
+                managed_composition.composition_pool(
+                    mapping(raw)["payload"], payload["record_pool"]
+                )
+                if "record_pool" in payload
+                else None,
             )
             sections = sequence(load_json(text(body["text"], 65536)))
             brief = mapping(mapping(mapping(sections[2])["record"])["payload"])

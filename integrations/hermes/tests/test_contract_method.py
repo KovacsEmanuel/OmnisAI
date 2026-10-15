@@ -136,7 +136,7 @@ def test_real_constructor_has_separate_contract_admission_before_client_seam():
     assert code.index("initialize_contract") < code.index("from agent.agent_init import init_agent")
 
 
-def test_v4_release_rejects_two_native_entries_even_before_registry_lookup():
+def test_v4_release_rejects_duplicate_brief_before_registry_lookup():
     from uuid import uuid4
 
     from composition_fixture import record

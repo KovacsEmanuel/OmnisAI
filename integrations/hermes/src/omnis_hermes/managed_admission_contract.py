@@ -79,10 +79,12 @@ def entries(value: object, *, native: bool, composed: bool = False) -> list[dict
             text(entry["native_session_id"])
         else:
             text(entry["goal"], 4096)
-    unique = ["task_id", "attempt_id"] + (
-        ["native_child_id", "native_session_id"] if native else []
+    unique = (
+        ["task_id", "attempt_id", "brief_ref"]
+        + (["composition_ref"] if composed else [])
+        + (["native_child_id", "native_session_id"] if native else [])
     )
-    if any(len({e[k] for e in value}) != len(value) for k in unique):
+    if any(len({canonical(e[k]) for e in value}) != len(value) for k in unique):
         raise ValueError("Duplicate managed identity")
     return cast(list[dict[str, object]], value)
 
@@ -135,19 +137,67 @@ def validate_stage(value: object) -> dict[str, object]:
     if payload["resolution"] != "NO_MODEL" or payload["effective"] is not None:
         raise ValueError("Only NO_MODEL admission is supported")
     rows = entries(payload["entries"], native=False, composed=composed)
-    if composed and payload["composition_version"] in (2, 3, 4) and len(rows) != 1:
+    if composed and payload["composition_version"] in (2, 3) and len(rows) != 1:
         raise ValueError("Case input composition requires one attempt")
     if composed:
-        from .prompt_bundle import validate_composition
+        from .prompt_bundle import compact_refs, composition_pool, validate_composition
 
         compositions = value["compositions"]
         if type(compositions) is not list or len(compositions) != len(rows):
             raise ValueError("Incomplete compositions")
+        if len(rows) != 2 and any(
+            type(c) is dict
+            and type(c.get("payload")) is dict
+            and c["payload"].get("format") == "record-refs-v2"
+            for c in compositions
+        ):
+            raise ValueError("Shared material requires batch2")
+        if value["protocol"] == PROTOCOL_V4 and len(rows) == 2:
+            bodies = [envelope(c, "prompt-composition")["payload"] for c in compositions]
+            if not compact or any(
+                type(b) is not dict or b.get("format") != "record-refs-v2" for b in bodies
+            ):
+                raise ValueError("Batch2 shared material required")
+            from .prompt_bundle import mapping, sequence
+
+            common = [
+                [
+                    mapping(b)["prompt_bundle_ref"],
+                    mapping(b)["preparation_receipt_ref"],
+                    *[sequence(mapping(b)["sections"])[i] for i in (0, 1, 3, 4)],
+                ]
+                for b in bodies
+            ]
+            if canonical(common[0]) != canonical(common[1]):
+                raise ValueError("Batch2 common material mismatch")
+        if compact:
+            wanted: dict[str, dict[str, object]] = {}
+            for composition in compositions:
+                for pin in compact_refs(envelope(composition, "prompt-composition")["payload"]):
+                    identity = str(pin["id"])
+                    if identity in wanted and canonical(wanted[identity]) != canonical(pin):
+                        raise ValueError("Conflicting compact refs")
+                    wanted[identity] = pin
+            pool = value["record_pool"]
+            if type(pool) is not list or len(pool) != len(wanted):
+                raise ValueError("Incomplete compact union")
+            for item, pin in zip(pool, wanted.values(), strict=True):
+                if canonical(ref(envelope(item, str(pin["kind"])))) != canonical(pin):
+                    raise ValueError("Invalid compact union")
         for composition, entry in zip(compositions, rows, strict=True):
             body = envelope(composition, "prompt-composition")["payload"]
             if type(body) is not dict or compact != ("format" in body):
                 raise ValueError("Invalid compact assignment shape")
-            validate_composition(composition, result, entry, record_pool=value.get("record_pool"))
+            raw = validate_composition(
+                composition,
+                result,
+                entry,
+                record_pool=(composition_pool(body, value["record_pool"]) if compact else None),
+            )
+            if value["protocol"] == PROTOCOL_V4 and len(rows) == 2:
+                from .contract_method import assignment_material
+
+                assignment_material(raw)
     return result
 
 
@@ -169,13 +219,11 @@ def validate_release(value: object) -> dict[str, object]:
     for k in ("runtime_boot", "run_id", "ticket"):
         uuid(payload[k])
     text(payload["native_root_id"])
-    rows = entries(
+    entries(
         payload["entries"],
         native=True,
         composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3, PROTOCOL_V4),
     )
-    if value["protocol"] == PROTOCOL_V4 and len(rows) != 1:
-        raise ValueError("CONTRACT release requires one attempt")
     authority = obj(payload["authority"], {"instance_id", "owner", "epoch", "generation"})
     uuid(authority["instance_id"])
     uuid(authority["owner"])
@@ -215,109 +263,117 @@ def validate_response(value: object) -> dict[str, object]:
         native=True,
         composed=value["protocol"] in (PROTOCOL_V2, PROTOCOL_V3, PROTOCOL_V4),
     )
-    if value["protocol"] == PROTOCOL_V4 and (len(rows) != 1 or (final and not success)):
+    if value["protocol"] == PROTOCOL_V4 and final and not success:
         raise ValueError("Invalid CONTRACT response")
     if success:
         executions = value["executions"]
-        if type(executions) is not list or len(executions) != 1:
+        if type(executions) is not list or len(executions) != len(rows):
             raise ValueError("Invalid CONTRACT executions")
-        execution = obj(
-            executions[0],
-            {"native_child_id", "native_session_id", "brief_ref", "records"},
-        )
-        if any(
-            execution[k] != rows[0][k]
-            for k in ("native_child_id", "native_session_id", "brief_ref")
-        ):
-            raise ValueError("Invalid CONTRACT native execution binding")
-        records = execution["records"]
-        if type(records) is not list or len(records) not in (4, 6, 8):
-            raise ValueError("Invalid CONTRACT records")
-        kinds = [
-            obj(r, {"schema_version", "kind", "id", "revision", "payload", "digest"})["kind"]
-            for r in records
-        ]
-        steps = (len(records) - 2) // 2
-        if (
-            kinds
-            != ["task-result"]
-            + ["contract-tool-receipt"] * (steps + 1)
-            + ["contract-artifact"] * steps
-        ):
-            raise ValueError("Invalid CONTRACT record order")
-        if len(
-            {envelope(r, cast(str, k))["id"] for r, k in zip(records, kinds, strict=True)}
-        ) != len(records):
-            raise ValueError("Duplicate CONTRACT records")
-        from .contract_method import RESULT_EMPTY
+        for emitted, row in zip(executions, rows, strict=True):
+            execution = obj(
+                emitted,
+                {"native_child_id", "native_session_id", "brief_ref", "records"},
+            )
+            if any(
+                execution[k] != row[k]
+                for k in ("native_child_id", "native_session_id", "brief_ref")
+            ):
+                raise ValueError("Invalid CONTRACT native execution binding")
+            records = execution["records"]
+            if type(records) is not list or len(records) not in (4, 6, 8):
+                raise ValueError("Invalid CONTRACT records")
+            kinds = [
+                obj(r, {"schema_version", "kind", "id", "revision", "payload", "digest"})["kind"]
+                for r in records
+            ]
+            steps = (len(records) - 2) // 2
+            if (
+                kinds
+                != ["task-result"]
+                + ["contract-tool-receipt"] * (steps + 1)
+                + ["contract-artifact"] * steps
+            ):
+                raise ValueError("Invalid CONTRACT record order")
+            if len(
+                {envelope(r, cast(str, k))["id"] for r, k in zip(records, kinds, strict=True)}
+            ) != len(records):
+                raise ValueError("Duplicate CONTRACT records")
+            from .contract_method import RESULT_EMPTY
 
-        result = obj(
-            records[0]["payload"],
-            {
-                "header",
-                "status",
-                "method_results",
-                "method_review",
-                "gaps",
-                "usage",
-                *RESULT_EMPTY,
-            },
-        )
-        if (
-            result["status"] != value["status"]
-            or result["method_review"] is not None
-            or (value["status"] == "INCONCLUSIVE" and not result["gaps"])
-            or result["usage"]
-            != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}
-        ):
-            raise ValueError("Invalid CONTRACT TaskResult")
-        from .prompt_bundle import prose
-        from .prompt_bundle import sequence as items
-
-        for gap in items(result["gaps"]):
-            prose(gap)
-        _result_header(result["header"])
-        _criterion_results(result["criterion_results"])
-        for sequence, record in enumerate(records[1 : steps + 2]):
-            receipt = obj(
-                record["payload"],
+            result = obj(
+                records[0]["payload"],
                 {
                     "header",
-                    "binding_ref",
-                    "native_child_id",
-                    "native_session_id",
-                    "sequence",
-                    "operation",
-                    "step_id",
-                    "action_definition_ref",
-                    "input_refs",
-                    "output_ref",
+                    "status",
+                    "method_results",
+                    "method_review",
+                    "gaps",
+                    "usage",
+                    *RESULT_EMPTY,
                 },
             )
             if (
-                receipt["header"] != result["header"]
-                or receipt["binding_ref"] != value["binding_ref"]
-                or any(receipt[k] != execution[k] for k in ("native_child_id", "native_session_id"))
-                or type(receipt["sequence"]) is not int
-                or receipt["sequence"] != sequence
-                or receipt["operation"] != ("READ_INPUT" if sequence == 0 else "PURE_ACTION")
+                result["status"] != value["status"]
+                or result["method_review"] is not None
+                or (value["status"] == "INCONCLUSIVE" and not result["gaps"])
+                or result["usage"]
+                != {"state": "KNOWN", "model_calls": 0, "target_actions": 0, "cost": "0"}
             ):
-                raise ValueError("Invalid CONTRACT receipt")
-            if sequence == 0:
-                if receipt["step_id"] is not None or receipt["action_definition_ref"] is not None:
-                    raise ValueError("Invalid CONTRACT input read")
-            else:
-                text(receipt["step_id"])
-                reference(receipt["action_definition_ref"], "action_definition")
-            if type(receipt["input_refs"]) is not list or len(receipt["input_refs"]) != 1:
-                raise ValueError("Invalid CONTRACT input refs")
-            reference(receipt["input_refs"][0])
-            reference(receipt["output_ref"])
-        for record in records[steps + 2 :]:
-            artifact = obj(record["payload"], {"header", "schema_ref", "value"})
-            reference(artifact["schema_ref"], "schema")
-            if artifact["header"] != result["header"]:
-                raise ValueError("Invalid CONTRACT artifact header")
+                raise ValueError("Invalid CONTRACT TaskResult")
+            from .prompt_bundle import prose
+            from .prompt_bundle import sequence as items
+
+            for gap in items(result["gaps"]):
+                prose(gap)
+            header = _result_header(result["header"])
+            if any(header[k] != row[k] for k in ("task_id", "attempt_id")):
+                raise ValueError("Invalid CONTRACT result assignment")
+            _criterion_results(result["criterion_results"])
+            for sequence, record in enumerate(records[1 : steps + 2]):
+                receipt = obj(
+                    record["payload"],
+                    {
+                        "header",
+                        "binding_ref",
+                        "native_child_id",
+                        "native_session_id",
+                        "sequence",
+                        "operation",
+                        "step_id",
+                        "action_definition_ref",
+                        "input_refs",
+                        "output_ref",
+                    },
+                )
+                if (
+                    receipt["header"] != result["header"]
+                    or receipt["binding_ref"] != value["binding_ref"]
+                    or any(
+                        receipt[k] != execution[k] for k in ("native_child_id", "native_session_id")
+                    )
+                    or type(receipt["sequence"]) is not int
+                    or receipt["sequence"] != sequence
+                    or receipt["operation"] != ("READ_INPUT" if sequence == 0 else "PURE_ACTION")
+                ):
+                    raise ValueError("Invalid CONTRACT receipt")
+                if sequence == 0:
+                    if (
+                        receipt["step_id"] is not None
+                        or receipt["action_definition_ref"] is not None
+                    ):
+                        raise ValueError("Invalid CONTRACT input read")
+                else:
+                    text(receipt["step_id"])
+                    reference(receipt["action_definition_ref"], "action_definition")
+                if type(receipt["input_refs"]) is not list or len(receipt["input_refs"]) != 1:
+                    raise ValueError("Invalid CONTRACT input refs")
+                reference(receipt["input_refs"][0])
+                reference(receipt["output_ref"])
+            for record in records[steps + 2 :]:
+                artifact = obj(record["payload"], {"header", "schema_ref", "value"})
+                reference(artifact["schema_ref"], "schema")
+                if artifact["header"] != result["header"]:
+                    raise ValueError("Invalid CONTRACT artifact header")
     return value
 
 

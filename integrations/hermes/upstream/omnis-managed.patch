@@ -490,10 +490,11 @@
      UNKNOWN = "UNKNOWN"
 
 
-@@ -241,9 +243,253 @@
+@@ -241,9 +243,291 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
+-
 +        self._cold_batches = {}
 +
 +    def stage(self, payload):
@@ -528,7 +529,7 @@
 +                for entry in manifest["payload"]["entries"]:
 +                    if payload["protocol"] == "omnis-managed-admission-v4":
 +                        from agent.contract_execution import ContractAdmission
-+                        child = AIAgent(contract_admission=ContractAdmission(parent, canonical(payload)))
++                        child = AIAgent(contract_admission=ContractAdmission(parent, canonical(payload), entry["batch_index"]))
 +                    else:
 +                        child = AIAgent(cold_admission=ColdAdmission(parent_session_id=parent.session_id))
 +                    created = time.time()
@@ -648,95 +649,133 @@
 +            parent = self._parent_agent_resolver()
 +            self._require_cold_root(batch, parent)
 +            if response["protocol"] == "omnis-managed-admission-v4":
-+                return self._release_contract(batch, payload, parent)
-+            if (time.monotonic() >= batch["expires"]
-+                    or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
-+                           for r in batch["records"])):
-+                raise ColdAdmissionDenied("Native stage expired or stopped")
-+            # No observer participates in authority. Validation finishes before mutation.
-+            committed = canonical(binding)
-+            for record in batch["records"]:
-+                child = record.agent
-+                state = child._cold_state.block(committed)
-+                completed = time.time()
-+                result = SubagentResult(
-+                    record.handle, SubagentState(state), True, completed_at=completed,
-+                    error_classification="NO_MODEL", structured_payload={"binding_ref": ref(binding)},
-+                    usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": 0},
-+                )
-+                result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-+                record.result, record.state = result, result.terminal_state
-+                record.completed_at = record.updated_at = completed
-+                child.close()
-+                record.agent = None
-+            batch["binding"] = committed
-+            batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
-+            return json.loads(json.dumps(batch["response"]))
++                self._start_contract(batch, payload, parent)
++            else:
++                if (time.monotonic() >= batch["expires"]
++                        or any(r.state != SubagentState.PENDING or r.agent._cold_state.closed
++                               for r in batch["records"])):
++                    raise ColdAdmissionDenied("Native stage expired or stopped")
++                # No observer participates in authority. Validation finishes before mutation.
++                committed = canonical(binding)
++                for record in batch["records"]:
++                    child = record.agent
++                    state = child._cold_state.block(committed)
++                    completed = time.time()
++                    result = SubagentResult(
++                        record.handle, SubagentState(state), True, completed_at=completed,
++                        error_classification="NO_MODEL", structured_payload={"binding_ref": ref(binding)},
++                        usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": 0},
++                    )
++                    result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
++                    record.result, record.state = result, result.terminal_state
++                    record.completed_at = record.updated_at = completed
++                    child.close()
++                    record.agent = None
++                batch["binding"] = committed
++                batch["response"] = {**response, "status": "BLOCKED", "reason": "NO_MODEL", "binding_ref": ref(binding)}
++                return json.loads(json.dumps(batch["response"]))
++        # Futures/joins must never run under the registry lock (including this caller).
++        return self._release_contract(batch, payload, parent)
 +
 +    def _contract_guard(self, batch, record, parent, committed):
 +        from agent.cold_admission import ColdAdmissionDenied
 +        from agent.contract_execution import ContractState
-+        self._require_cold_root(batch, self._parent_agent_resolver())
-+        child = record.agent
-+        state = child._contract_state if child is not None else None
-+        row, = batch["response"]["entries"]
-+        if (type(state) is not ContractState or state.closed or state.parent is not parent
-+                or state.parent_session_id != parent.session_id or state.binding != committed
-+                or batch["binding"] != committed or record.state != SubagentState.RUNNING
-+                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
-+                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
-+                or child._parent_session_id != parent.session_id
-+                or time.monotonic() >= min(batch["expires"], batch["execution_deadline"])):
-+            raise ColdAdmissionDenied("CONTRACT live binding unavailable")
-+        return True
++        with _REGISTRY.lock:
++            self._require_cold_root(batch, self._parent_agent_resolver())
++            child = record.agent
++            state = child._contract_state if child is not None else None
++            index = state.batch_index if type(state) is ContractState else None
++            if type(index) is not int or not 0 <= index < len(batch["records"]):
++                raise ColdAdmissionDenied("CONTRACT trusted index unavailable")
++            row = batch["response"]["entries"][index]
++            if (batch["records"][index] is not record
++                    or _REGISTRY.records.get(record.handle.subagent_id) is not record
++                    or type(state) is not ContractState or state.closed or state.parent is not parent
++                    or state.parent_session_id != parent.session_id or state.binding != committed
++                    or batch.get("failed") or batch["binding"] != committed or record.state != SubagentState.RUNNING
++                    or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
++                    or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
++                    or child._parent_session_id != parent.session_id
++                    or time.monotonic() >= min(batch["expires"], batch["execution_deadline"])):
++                raise ColdAdmissionDenied("CONTRACT live binding unavailable")
++            return True
 +
-+    def _release_contract(self, batch, payload, parent):
++    def _start_contract(self, batch, payload, parent):
++        # Caller owns _REGISTRY.lock; validate the entire batch before any mutation.
 +        from agent.cold_admission import ColdAdmissionDenied
 +        from agent.contract_execution import ContractState
-+        from omnis_hermes.managed_admission_contract import canonical, digest, ref, validate_response
++        from omnis_hermes.managed_admission_contract import canonical
 +        from datetime import datetime, timezone
-+        record, = batch["records"]
-+        child = record.agent
-+        state = child._contract_state if child is not None else None
-+        row, = batch["response"]["entries"]
-+        # All identity/root/entry/deadline checks precede binding and input access.
-+        if (type(state) is not ContractState or state.closed or state.binding is not None
-+                or record.state != SubagentState.PENDING or state.parent is not parent
-+                or state.parent_session_id != parent.session_id
-+                or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
-+                or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
-+                or child._parent_session_id != parent.session_id or time.monotonic() >= batch["expires"]):
-+            raise ColdAdmissionDenied("CONTRACT stage expired or stopped")
-+        if datetime.now(timezone.utc) >= datetime.fromisoformat(state.deadline):
-+            raise ColdAdmissionDenied("CONTRACT assignment expired")
++        for index, (row, record) in enumerate(zip(batch["response"]["entries"], batch["records"], strict=True)):
++            child = record.agent
++            state = child._contract_state if child is not None else None
++            if (type(state) is not ContractState or state.closed or state.binding is not None or state.started
++                    or type(state.batch_index) is not int or state.batch_index != index
++                    or _REGISTRY.records.get(record.handle.subagent_id) is not record
++                    or record.state != SubagentState.PENDING or state.parent is not parent
++                    or state.parent_session_id != parent.session_id
++                    or state.native_id != row["native_child_id"] or state.session_id != row["native_session_id"]
++                    or child._subagent_id != row["native_child_id"] or child.session_id != row["native_session_id"]
++                    or child._parent_session_id != parent.session_id or time.monotonic() >= batch["expires"]):
++                raise ColdAdmissionDenied("CONTRACT stage expired or stopped")
++            if datetime.now(timezone.utc) >= datetime.fromisoformat(state.deadline):
++                raise ColdAdmissionDenied("CONTRACT assignment expired")
 +        committed = canonical(payload["binding"])
-+        batch["binding"] = committed  # latch BEFORE the first real child method call
++        batch["binding"] = committed
 +        batch["execution_deadline"] = time.monotonic() + 3.0
 +        batch["indeterminate"] = True
-+        record.state = SubagentState.RUNNING
-+        record.started_at = record.updated_at = time.time()
++        for record in batch["records"]:
++            record.agent._contract_state.binding = committed
++            record.state = SubagentState.RUNNING
++            record.started_at = record.updated_at = time.time()
++
++    def _run_contract_record(self, batch, record, parent, committed):
++        child = record.agent
 +        try:
-+            execution = child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
-+            terminal = SubagentState(execution["records"][0]["payload"]["status"])
-+            final = {**batch["response"], "status": terminal.value, "reason": "CONTRACT_PURE",
-+                     "binding_ref": ref(payload["binding"]), "executions": [execution]}
-+            validate_response(final)  # whole wire, including aggregate 32768 cap
-+            result = SubagentResult(record.handle, terminal, True,
-+                started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
-+                usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
-+            record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
-+            record.state = terminal
-+            record.completed_at = record.updated_at = result.completed_at
-+            batch["response"] = final
-+            batch["indeterminate"] = False
-+            return json.loads(json.dumps(final))
-+        except BaseException:
-+            record.state = SubagentState.UNKNOWN
-+            raise
++            return child.run_contract(committed, lambda: self._contract_guard(batch, record, parent, committed))
 +        finally:
 +            child.close()
-+            record.agent = None
-
++            with _REGISTRY.lock:
++                record.agent = None
++
++    def _release_contract(self, batch, payload, parent):
++        from omnis_hermes.managed_admission_contract import canonical, digest, ref, validate_response
++        committed = batch["binding"]
++        try:
++            # All RUNNING/bindings are latched. Workers cannot pass the guard until
++            # every submission has completed or partial submission has been revoked.
++            with _REGISTRY.lock:
++                for record in batch["records"]:
++                    record.future = _EXECUTOR.submit(self._run_contract_record, batch, record, parent, committed)
++            executions = [record.future.result(timeout=max(0, min(batch["expires"], batch["execution_deadline"]) - time.monotonic()))
++                          for record in batch["records"]]
++            terminal = SubagentState(executions[0]["records"][0]["payload"]["status"])
++            final = {**batch["response"], "status": terminal.value, "reason": "CONTRACT_PURE",
++                     "binding_ref": ref(payload["binding"]), "executions": executions}
++            validate_response(final)  # ordered homogeneous whole batch, unchanged aggregate cap
++            with _REGISTRY.lock:
++                for record, execution in zip(batch["records"], executions, strict=True):
++                    result = SubagentResult(record.handle, terminal, True,
++                        started_at=record.started_at, completed_at=time.time(), structured_payload=execution,
++                        usage_metadata={"api_calls": 0}, tool_execution_summary={"tool_calls": sum(r["kind"] == "contract-tool-receipt" for r in execution["records"])})
++                    record.result = dataclasses.replace(result, result_hash=digest(canonical(dataclasses.asdict(result))))
++                    record.state = terminal
++                    record.completed_at = record.updated_at = result.completed_at
++                batch["response"] = final
++                batch["indeterminate"] = False
++                return json.loads(json.dumps(final))
++        except BaseException:
++            with _REGISTRY.lock:
++                batch["failed"] = True
++                for record in batch["records"]:
++                    record.state = SubagentState.UNKNOWN
++                    if record.agent is not None:
++                        record.agent.close()  # revoke further access, not proof of worker drain
++                    if record.future is None or record.future.cancel():
++                        record.agent = None
++            # Keep running futures and the indeterminate latch observable. No retry,
++            # invented partial final, or false claim that a timeout drained a worker.
++            raise
      def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
          parent = self._parent_agent_resolver()
 +        from agent.cold_admission import require_warm_parent
@@ -1105,7 +1144,7 @@
      _params = locals()
 --- /dev/null
 +++ b/agent/contract_execution.py
-@@ -0,0 +1,295 @@
+@@ -0,0 +1,317 @@
 +"""Constructor-owned finite CONTRACT/PURE child; never a warm/cold promotion.
 +
 +Trusted lifecycle commits the binding and supplies a local fail-closed guard.
@@ -1120,8 +1159,8 @@
 +
 +from agent.cold_admission import ColdAdmissionDenied, ColdState
 +from omnis_hermes.managed_admission_contract import canonical, ref, validate_release
-+from omnis_hermes.native_preparation_contract import loads
-+from omnis_hermes.prompt_bundle import expanded_payload
++from omnis_hermes.native_preparation_contract import loads, reference
++from omnis_hermes.prompt_bundle import expanded_payload, composition_pool
 +from omnis_hermes import contract_method as method
 +
 +
@@ -1129,6 +1168,7 @@
 +class ContractAdmission:
 +    parent: object
 +    assignment: bytes
++    batch_index: int
 +
 +
 +@dataclass
@@ -1140,6 +1180,8 @@
 +    assignment: bytes
 +    manifest: bytes
 +    deadline: str
++    batch_index: int = 0
++    started: bool = False
 +    closed: bool = False
 +    binding: bytes | None = None
 +    terminal: str | None = None
@@ -1184,7 +1226,9 @@
 +        or cold.session_id != parent.session_id
 +    ):
 +        raise ColdAdmissionDenied("Live cold root required")
-+    brief, _, _ = method.assignment(admission.assignment)  # before any identity allocation
++    if type(admission.batch_index) is not int or not 0 <= admission.batch_index <= 1:
++        raise ColdAdmissionDenied("CONTRACT trusted index required")
++    brief, _, _ = method.assignment(admission.assignment, admission.batch_index)  # before any identity allocation
 +    manifest = canonical(loads(admission.assignment, 32768)["manifest"])
 +    state = ContractState(
 +        str(uuid4()),
@@ -1194,6 +1238,7 @@
 +        admission.assignment,
 +        manifest,
 +        brief["payload"]["deadline"],
++        batch_index=admission.batch_index,
 +    )
 +    object.__getattribute__(agent, "__dict__").update(
 +        _contract_state=state,
@@ -1220,10 +1265,11 @@
 +            guard,
 +        )
 +        self._guard()  # no method-material unpacking before the live native guard
-+        self.brief, self.bound, self.material = method.assignment(self.state.assignment)
++        self.brief, self.bound, self.material = method.assignment(self.state.assignment, self.state.batch_index)
 +        stage = loads(self.state.assignment, 65536)  # validated before bundle expansion
++        composition = stage["compositions"][self.state.batch_index]["payload"]
 +        self.prompt_bundle = expanded_payload(
-+            stage["compositions"][0]["payload"], stage.get("record_pool")
++            composition, composition_pool(composition, stage["record_pool"]) if "record_pool" in stage else None
 +        )["prompt_bundle"]
 +        self.original_ref = ref(self.material["input"])
 +        self.receipts, self.artifacts = [], []
@@ -1277,6 +1323,7 @@
 +
 +    def read_input(self, requested_ref):
 +        self._guard()  # before the real bound input access below
++        reference(requested_ref, self.original_ref["kind"])
 +        if requested_ref != self.original_ref or self.read:
 +            raise ColdAdmissionDenied("CONTRACT input scope mismatch")
 +        value = self._read_bound_input()
@@ -1289,6 +1336,10 @@
 +
 +    def pure_action(self, step_id, action_definition_ref, input_refs):
 +        self._guard()  # before any previous-output read or handler
++        reference(action_definition_ref, "action_definition")
++        if type(input_refs) is not list or len(input_refs) != 1:
++            raise ColdAdmissionDenied("CONTRACT input refs unavailable")
++        reference(input_refs[0])
 +        steps = self.bound["payload"]["resolved_procedure"]["probe"]
 +        index = len(self.artifacts)
 +        if not self.read or index >= len(steps):
@@ -1339,7 +1390,8 @@
 +    if (
 +        type(state) is not ContractState
 +        or state.closed
-+        or state.binding is not None
++        or state.started
++        or (state.binding is not None and state.binding != binding)
 +        or type(binding) is not bytes
 +        or not callable(guard)
 +    ):
@@ -1355,8 +1407,16 @@
 +    }
 +    validate_release(release)
 +    body = bound["payload"]
-+    (entry,) = body["entries"]
-+    expected = {k: v for k, v in manifest["payload"]["entries"][0].items() if k != "goal"}
++    index = state.batch_index
++    if type(index) is not int or not 0 <= index < len(manifest["payload"]["entries"]):
++        raise ColdAdmissionDenied("CONTRACT trusted index unavailable")
++    if len(body["entries"]) != len(manifest["payload"]["entries"]):
++        raise ColdAdmissionDenied("CONTRACT incomplete binding")
++    for assigned, native in zip(manifest["payload"]["entries"], body["entries"], strict=True):
++        if any(native[k] != v for k, v in assigned.items() if k != "goal"):
++            raise ColdAdmissionDenied("CONTRACT whole binding mismatch")
++    entry = body["entries"][index]
++    expected = {k: v for k, v in manifest["payload"]["entries"][index].items() if k != "goal"}
 +    expected.update(native_child_id=state.native_id, native_session_id=state.session_id)
 +    if (
 +        canonical(bound) != binding
@@ -1365,7 +1425,8 @@
 +        or body["native_root_id"] != state.parent._subagent_id
 +    ):
 +        raise ColdAdmissionDenied("CONTRACT native binding mismatch")
-+    state.binding = binding  # attempted/partial execution can never be repeated
++    state.binding = binding
++    state.started = True  # attempted/partial execution can never be repeated
 +    try:
 +        tools = BoundContractTools(agent, binding, guard)
 +        original = tools.read_input(tools.original_ref)

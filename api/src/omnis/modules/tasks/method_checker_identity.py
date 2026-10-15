@@ -84,6 +84,12 @@ MISSION_REVISION_HISTORICAL = {
 }
 
 
+# Exact cdbfa74 predecessor closure; never admitted for new assignments.
+BATCH2_PREDECESSOR = {
+    "5a0f0d58bd76dee9985b7f127e034e85817fedf2a2f9a4ebd8e1bbad1a77a5b5": "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338",
+}
+
+
 def descriptor() -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     closure = [{"path": p, "sha256": sha256((root / p).read_bytes()).hexdigest()} for p in SOURCES]
@@ -110,6 +116,13 @@ def verify(
     except (CatalogError, TypeError, ValueError, RecursionError):
         raise CatalogError("METHOD_CHECKER_INVALID") from None
     if canonical(body) == canonical(descriptor()):
+        return record
+    if (
+        receive_only is True
+        and key == KEY
+        and body["semantics"] == SEMANTICS
+        and BATCH2_PREDECESSOR.get(digest) == pin
+    ):
         return record
     if (
         receive_only is True

@@ -334,6 +334,7 @@ def validate_predicates(
             PRECONDITION_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             RECORDS_COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
         )
 
         bundle = record(prompt_bundle, "prompt-bundle")
@@ -349,6 +350,7 @@ def validate_predicates(
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             PREDICATE_COMPOSER_REVISION,
             CRITERIA_COMPOSER_REVISION,
             COMPACT_COMPOSER_REVISION,
@@ -366,10 +368,19 @@ def validate_predicates(
         if procedure["invalidation_predicate_ids"] and (
             version != 4
             or pin
-            not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+            not in {
+                COMPOSER_REVISION,
+                SINGLETON_COMPOSER_REVISION,
+                EVIDENCE_COMPOSER_REVISION,
+                INVALIDATION_COMPOSER_REVISION,
+            }
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
-        if pin not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION} and (
+        if pin not in {
+            COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+        } and (
             procedure["evidence_requirements"]
             or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
             or (
@@ -384,7 +395,7 @@ def validate_predicates(
         ):
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         if (
-            pin != COMPOSER_REVISION
+            pin not in {COMPOSER_REVISION, SINGLETON_COMPOSER_REVISION, SINGLETON_COMPOSER_REVISION}
             and procedure["key"] == "map-records"
             and any(
                 mapping(req)["step_ids"]
@@ -399,6 +410,7 @@ def validate_predicates(
             and pin
             in {
                 COMPOSER_REVISION,
+                SINGLETON_COMPOSER_REVISION,
                 EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
@@ -412,6 +424,7 @@ def validate_predicates(
             or pin
             not in {
                 COMPOSER_REVISION,
+                SINGLETON_COMPOSER_REVISION,
                 EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
@@ -434,7 +447,8 @@ def validate_predicates(
                 raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
     expected_done = (
         [name for name, requirement in closure.items() if requirement["required"]]
-        if prompt_bundle is not None and pin in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION}
+        if prompt_bundle is not None
+        and pin in {COMPOSER_REVISION, SINGLETON_COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION}
         else list(closure)
     )
     if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done:
@@ -839,7 +853,7 @@ def build_records(
             raise CatalogError("REF_MISMATCH")
         require_slots(authored["slots"], version=case_version)
         validate_capture_procedure(authored, version=case_version)
-        integer(count, 1, 1)
+        integer(count, 1, 2 if method_execution else 1)
         if prefix is None or composition_packages is None:
             raise CatalogError("MANAGED_REJECTED")
         context = mapping(mapping(case_input["context"])["payload"])
@@ -900,9 +914,30 @@ def build_records(
     ):
         raise CatalogError("REF_MISMATCH")
     entries: list[dict[str, object]] = []
+    shared_bound: dict[str, object] | None = None
+    shared_material: dict[str, object] | None = None
+    if method_execution and count == 2:
+        from omnis.modules.tasks import managed_composition
+
+        if case_input is None or composition_packages is None:
+            raise CatalogError("COMPOSITION_REJECTED")
+        shared_material = records.envelope(
+            "prompt-material",
+            {
+                "version": 1,
+                "schema": case_input["schema"],
+                "skills": managed_composition.selected_skills(
+                    composition_packages,
+                    source["selected_package_refs"],
+                    resolved["technique_ref"],
+                    bindings,
+                ),
+            },
+        )
+        graph.append(shared_material)
     for index in range(count):
         task_id, attempt_id = str(uuid4()), str(uuid4())
-        bound = add(
+        bound = shared_bound or add(
             "bound-procedure",
             {
                 "procedure_ref": procedure_ref,
@@ -911,6 +946,9 @@ def build_records(
                 "mission_ref": mission,
             },
         )
+        if method_execution and count == 2:
+            shared_bound = bound
+        bound_record = next(r for r in graph if r["id"] == bound["id"])
         prompt_record = next(r for r in graph if r["id"] == prompt["id"])
         from omnis.modules.tasks.managed_composition import COMPOSER_REVISION
 
@@ -931,7 +969,7 @@ def build_records(
         if return_predicate_id is not None and not predicates_enabled:
             raise CatalogError("BOUND_PREDICATE_UNAVAILABLE")
         requirements = compile_method_plan(
-            graph[-1], None if case_input is None else case_input["input"]
+            bound_record, None if case_input is None else case_input["input"]
         )
         # Exact per-assignment result schema: no success/evidence can be injected.
         header: dict[str, object] = {
@@ -1090,6 +1128,7 @@ def build_records(
                 ),
                 case_input=case_input,
                 method_execution=method_execution,
+                shared_material=shared_material,
             )
             graph.append(composed)
             composition = {"composition_ref": records.reference(composed)}
@@ -1716,7 +1755,7 @@ def validate_manifest(value: object) -> dict[str, object]:
     if body["resolution"] != "NO_MODEL" or body["effective"] is not None:
         raise CatalogError("MANAGED_REJECTED")
     entries = sequence(body["entries"])
-    if not 1 <= len(entries) <= (1 if body.get("composition_version") in (2, 3, 4) else 2):
+    if not 1 <= len(entries) <= (1 if body.get("composition_version") in (2, 3) else 2):
         raise CatalogError("MANAGED_REJECTED")
     identities: set[str] = set()
     for index, raw in enumerate(entries):

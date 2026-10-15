@@ -12,8 +12,8 @@ from uuid import uuid4
 
 from agent.cold_admission import ColdAdmissionDenied, ColdState
 from omnis_hermes.managed_admission_contract import canonical, ref, validate_release
-from omnis_hermes.native_preparation_contract import loads
-from omnis_hermes.prompt_bundle import expanded_payload
+from omnis_hermes.native_preparation_contract import loads, reference
+from omnis_hermes.prompt_bundle import expanded_payload, composition_pool
 from omnis_hermes import contract_method as method
 
 
@@ -21,6 +21,7 @@ from omnis_hermes import contract_method as method
 class ContractAdmission:
     parent: object
     assignment: bytes
+    batch_index: int
 
 
 @dataclass
@@ -32,6 +33,8 @@ class ContractState:
     assignment: bytes
     manifest: bytes
     deadline: str
+    batch_index: int = 0
+    started: bool = False
     closed: bool = False
     binding: bytes | None = None
     terminal: str | None = None
@@ -76,7 +79,9 @@ def initialize_contract(agent, admission, kwargs):
         or cold.session_id != parent.session_id
     ):
         raise ColdAdmissionDenied("Live cold root required")
-    brief, _, _ = method.assignment(admission.assignment)  # before any identity allocation
+    if type(admission.batch_index) is not int or not 0 <= admission.batch_index <= 1:
+        raise ColdAdmissionDenied("CONTRACT trusted index required")
+    brief, _, _ = method.assignment(admission.assignment, admission.batch_index)  # before any identity allocation
     manifest = canonical(loads(admission.assignment, 32768)["manifest"])
     state = ContractState(
         str(uuid4()),
@@ -86,6 +91,7 @@ def initialize_contract(agent, admission, kwargs):
         admission.assignment,
         manifest,
         brief["payload"]["deadline"],
+        batch_index=admission.batch_index,
     )
     object.__getattribute__(agent, "__dict__").update(
         _contract_state=state,
@@ -112,10 +118,11 @@ class BoundContractTools:
             guard,
         )
         self._guard()  # no method-material unpacking before the live native guard
-        self.brief, self.bound, self.material = method.assignment(self.state.assignment)
+        self.brief, self.bound, self.material = method.assignment(self.state.assignment, self.state.batch_index)
         stage = loads(self.state.assignment, 65536)  # validated before bundle expansion
+        composition = stage["compositions"][self.state.batch_index]["payload"]
         self.prompt_bundle = expanded_payload(
-            stage["compositions"][0]["payload"], stage.get("record_pool")
+            composition, composition_pool(composition, stage["record_pool"]) if "record_pool" in stage else None
         )["prompt_bundle"]
         self.original_ref = ref(self.material["input"])
         self.receipts, self.artifacts = [], []
@@ -169,6 +176,7 @@ class BoundContractTools:
 
     def read_input(self, requested_ref):
         self._guard()  # before the real bound input access below
+        reference(requested_ref, self.original_ref["kind"])
         if requested_ref != self.original_ref or self.read:
             raise ColdAdmissionDenied("CONTRACT input scope mismatch")
         value = self._read_bound_input()
@@ -181,6 +189,10 @@ class BoundContractTools:
 
     def pure_action(self, step_id, action_definition_ref, input_refs):
         self._guard()  # before any previous-output read or handler
+        reference(action_definition_ref, "action_definition")
+        if type(input_refs) is not list or len(input_refs) != 1:
+            raise ColdAdmissionDenied("CONTRACT input refs unavailable")
+        reference(input_refs[0])
         steps = self.bound["payload"]["resolved_procedure"]["probe"]
         index = len(self.artifacts)
         if not self.read or index >= len(steps):
@@ -231,7 +243,8 @@ def run_contract(agent, binding, guard):
     if (
         type(state) is not ContractState
         or state.closed
-        or state.binding is not None
+        or state.started
+        or (state.binding is not None and state.binding != binding)
         or type(binding) is not bytes
         or not callable(guard)
     ):
@@ -247,8 +260,16 @@ def run_contract(agent, binding, guard):
     }
     validate_release(release)
     body = bound["payload"]
-    (entry,) = body["entries"]
-    expected = {k: v for k, v in manifest["payload"]["entries"][0].items() if k != "goal"}
+    index = state.batch_index
+    if type(index) is not int or not 0 <= index < len(manifest["payload"]["entries"]):
+        raise ColdAdmissionDenied("CONTRACT trusted index unavailable")
+    if len(body["entries"]) != len(manifest["payload"]["entries"]):
+        raise ColdAdmissionDenied("CONTRACT incomplete binding")
+    for assigned, native in zip(manifest["payload"]["entries"], body["entries"], strict=True):
+        if any(native[k] != v for k, v in assigned.items() if k != "goal"):
+            raise ColdAdmissionDenied("CONTRACT whole binding mismatch")
+    entry = body["entries"][index]
+    expected = {k: v for k, v in manifest["payload"]["entries"][index].items() if k != "goal"}
     expected.update(native_child_id=state.native_id, native_session_id=state.session_id)
     if (
         canonical(bound) != binding
@@ -257,7 +278,8 @@ def run_contract(agent, binding, guard):
         or body["native_root_id"] != state.parent._subagent_id
     ):
         raise ColdAdmissionDenied("CONTRACT native binding mismatch")
-    state.binding = binding  # attempted/partial execution can never be repeated
+    state.binding = binding
+    state.started = True  # attempted/partial execution can never be repeated
     try:
         tools = BoundContractTools(agent, binding, guard)
         original = tools.read_input(tools.original_ref)

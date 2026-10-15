@@ -60,6 +60,7 @@ PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa931108
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 INVALIDATION_COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+SINGLETON_COMPOSER_REVISION = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
 EVIDENCE_COMPOSER_REVISION = "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
 ROLES = {"RECON", "INVESTIGATOR", "VALIDATOR", "RESEARCH"}
 BRIEF_FIELDS: set[str] = set(
@@ -578,6 +579,7 @@ def validate_predicates(
         pin = mapping(bundle["payload"])["composer_revision"]
         revisions = {
             composer_revision(),
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -599,10 +601,19 @@ def validate_predicates(
         if procedure["invalidation_predicate_ids"] and (
             version != 4
             or pin
-            not in {composer_revision(), EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+            not in {
+                composer_revision(),
+                SINGLETON_COMPOSER_REVISION,
+                EVIDENCE_COMPOSER_REVISION,
+                INVALIDATION_COMPOSER_REVISION,
+            }
         ):
             raise reject()
-        if pin not in {composer_revision(), EVIDENCE_COMPOSER_REVISION} and (
+        if pin not in {
+            composer_revision(),
+            SINGLETON_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+        } and (
             procedure["evidence_requirements"]
             or any(mapping(r)["evidence_kinds"] for r in sequence(procedure["method_requirements"]))
             or (
@@ -617,7 +628,7 @@ def validate_predicates(
         ):
             raise reject()
         if (
-            pin != composer_revision()
+            pin not in {composer_revision(), SINGLETON_COMPOSER_REVISION}
             and procedure["key"] == "map-records"
             and any(
                 mapping(req)["step_ids"] != [RECORD_PREDICATES[key(mapping(req)["key"])][0]]
@@ -631,6 +642,7 @@ def validate_predicates(
             and pin
             in {
                 composer_revision(),
+                SINGLETON_COMPOSER_REVISION,
                 EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
@@ -644,6 +656,7 @@ def validate_predicates(
             or pin
             not in {
                 composer_revision(),
+                SINGLETON_COMPOSER_REVISION,
                 EVIDENCE_COMPOSER_REVISION,
                 INVALIDATION_COMPOSER_REVISION,
                 PRECONDITION_COMPOSER_REVISION,
@@ -666,7 +679,8 @@ def validate_predicates(
                 raise reject()
     expected_done = (
         [name for name, requirement in closure.items() if requirement["required"]]
-        if prompt_bundle is not None and pin in {composer_revision(), EVIDENCE_COMPOSER_REVISION}
+        if prompt_bundle is not None
+        and pin in {composer_revision(), SINGLETON_COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION}
         else list(closure)
     )
     if [mapping(r)["predicate_id"] for r in sequence(b["done_when"])] != expected_done or not b[
@@ -768,6 +782,7 @@ def _brief(
         "composer_revision"
     ] not in {
         composer_revision(),
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -787,6 +802,7 @@ def _brief(
         or mapping(bundle["payload"])["composer_revision"]
         not in {
             composer_revision(),
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -797,7 +813,12 @@ def _brief(
     if p["invalidation_predicate_ids"] and (
         composition_version != 4
         or mapping(bundle["payload"])["composer_revision"]
-        not in {composer_revision(), EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+        not in {
+            composer_revision(),
+            SINGLETON_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
+        }
     ):
         raise reject()
     require_not_invalidated(p, None if capture is None else capture["input"])
@@ -820,6 +841,7 @@ def _brief(
         bundle["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -1187,6 +1209,7 @@ def _material(
         actual_version = 4
     revisions = {
         composer_revision(),
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -1245,6 +1268,7 @@ def _material(
         or b["composer_revision"]
         not in {
             composer_revision(),
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -1271,15 +1295,9 @@ def _material(
     return raw, brief, body
 
 
-def expanded_payload(body: object, record_pool: object = None) -> dict[str, object]:
-    """Expand only exact retained records, before constructor or domain access."""
-    source = mapping(body)
-    if "format" not in source:
-        if record_pool is not None:
-            raise reject()
-        return source
-    obj(
-        source,
+def compact_refs(body: object) -> list[dict[str, object]]:
+    compact = obj(
+        body,
         {
             "format",
             "prompt_bundle_ref",
@@ -1290,10 +1308,13 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
             "token_upper_bound",
         },
     )
-    if source["format"] != "record-refs-v1":
+    if compact["format"] not in {"record-refs-v1", "record-refs-v2"}:
         raise reject()
-    parts = sequence(source["sections"], 6, 7)
-    wanted = [reference(source["prompt_bundle_ref"], "prompt-bundle")]
+    parts = sequence(compact["sections"])
+    shared = compact["format"] == "record-refs-v2"
+    if not (len(parts) == 5 if shared else 6 <= len(parts) <= 7):
+        raise reject()
+    wanted = [reference(compact["prompt_bundle_ref"], "prompt-bundle")]
     for part, label, kind in zip(
         parts[:4],
         ("base", "role", "brief", "method"),
@@ -1304,7 +1325,10 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
         if item["section"] != label:
             raise reject()
         wanted.append(reference(item["record_ref"], kind))
-    material = obj(parts[4], {"section", "version", "context_ref", "input_ref", "schema"})
+    material = obj(
+        parts[4],
+        {"section", "version", "context_ref", "input_ref", "material_ref" if shared else "schema"},
+    )
     if material["section"] != "case-input":
         raise reject()
     version = integer(material["version"], 1, 2)
@@ -1317,18 +1341,47 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
             ),
         ]
     )
-    pool = [
-        envelope(r, cast(str, pin["kind"]))
-        for r, pin in zip(sequence(record_pool, 7, 7), wanted, strict=True)
-    ]
-    if len({r["id"] for r in pool}) != 7 or [canonical(ref(r)) for r in pool] != [
+    if shared:
+        wanted.append(reference(material["material_ref"], "prompt-material"))
+    if len({text(r["id"]) for r in wanted}) != len(wanted):
+        raise reject()
+    return wanted
+
+
+def composition_pool(body: object, record_pool: object) -> list[dict[str, object]]:
+    pool = [envelope(r, cast(str, mapping(r)["kind"])) for r in sequence(record_pool)]
+    local = {text(r["id"]): r for r in pool}
+    if len(local) != len(pool):
+        raise reject()
+    return [envelope(local.get(text(r["id"])), cast(str, r["kind"])) for r in compact_refs(body)]
+
+
+def expanded_payload(body: object, record_pool: object = None) -> dict[str, object]:
+    """Resolve only the exact immutable pool; never perform a domain lookup."""
+    source = mapping(body)
+    if "format" not in source:
+        if record_pool is not None:
+            raise reject()
+        return source
+    wanted = compact_refs(source)
+    pool = [envelope(r, cast(str, mapping(r)["kind"])) for r in sequence(record_pool)]
+    if len(pool) != len(wanted) or [canonical(ref(r)) for r in pool] != [
         canonical(r) for r in wanted
     ]:
         raise reject()
+    parts = sequence(source["sections"])
     sections: list[object] = [
         {"section": mapping(part)["section"], "record": item}
         for part, item in zip(parts[:4], pool[1:5], strict=True)
     ]
+    material = mapping(parts[4])
+    skills = parts[5:]
+    if source["format"] == "record-refs-v2":
+        common = obj(pool[-1]["payload"], {"version", "schema", "skills"})
+        integer(common["version"], 1, 1)
+        material = {k: v for k, v in material.items() if k != "material_ref"}
+        material["schema"] = common["schema"]
+        skills = sequence(common["skills"])
     sections.extend(
         [
             {
@@ -1336,24 +1389,18 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
                 "context": pool[5],
                 "input": pool[6],
             },
-            *parts[5:],
+            *skills,
         ]
     )
-    bounded(sections)
     raw = canonical(sections)
     if len(raw) > 32768:
         raise reject()
     return {
         "prompt_bundle": pool[0],
-        "text": raw.decode("utf-8"),
+        "text": raw.decode(),
         **{
             k: source[k]
-            for k in (
-                "preparation_receipt_ref",
-                "text_digest",
-                "byte_count",
-                "token_upper_bound",
-            )
+            for k in ("preparation_receipt_ref", "text_digest", "byte_count", "token_upper_bound")
         },
     }
 
@@ -1379,10 +1426,17 @@ def validate_composition(
     launch = mapping(envelope(manifest, "launch-manifest")["payload"])
     version = integer(launch.get("composition_version"), 1, 4)
     raw, brief, body = _material(payload, version)
+    if (
+        mapping(composition["payload"]).get("format") == "record-refs-v2"
+        and mapping(mapping(payload["prompt_bundle"])["payload"])["composer_revision"]
+        != composer_revision()
+    ):
+        raise reject()
     if "format" in mapping(composition["payload"]) and mapping(
         mapping(payload["prompt_bundle"])["payload"]
     )["composer_revision"] not in {
         composer_revision(),
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,

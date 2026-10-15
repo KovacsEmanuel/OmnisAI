@@ -148,7 +148,7 @@ def run_handler(handler: str, input_object: object) -> object:
     raise ValueError("UNKNOWN_HANDLER")
 
 
-def assignment(stage_raw: bytes) -> tuple[Data, Data, Data]:
+def assignment(stage_raw: bytes, batch_index: object = None) -> tuple[Data, Data, Data]:
     """Validate/freeze all assignment material before allocating native identity."""
     from .managed_admission_contract import MAX_BYTES, PROTOCOL_V4, validate_stage
 
@@ -158,13 +158,32 @@ def assignment(stage_raw: bytes) -> tuple[Data, Data, Data]:
     validate_stage(stage)
     if stage["protocol"] != PROTOCOL_V4 or canonical(stage) != stage_raw:
         raise ValueError("CONTRACT v4 assignment required")
-    composition = mapping(sequence(stage["compositions"])[0])
-    from .prompt_bundle import validate_composition
+    compositions = sequence(stage["compositions"])
+    if batch_index is None and len(compositions) == 1:
+        batch_index = 0
+    if type(batch_index) is not int or not 0 <= batch_index < len(compositions):
+        raise ValueError("Trusted batch index required")
+    composition = mapping(compositions[batch_index])
+    from .prompt_bundle import composition_pool, validate_composition
 
     manifest = mapping(stage["manifest"])
-    entry = sequence(mapping(manifest["payload"])["entries"])[0]
-    raw = validate_composition(composition, manifest, entry, record_pool=stage.get("record_pool"))
-    sections = sequence(loads(raw, MAX_BYTES))
+    entry = sequence(mapping(manifest["payload"])["entries"])[batch_index]
+    raw = validate_composition(
+        composition,
+        manifest,
+        entry,
+        record_pool=(
+            composition_pool(composition["payload"], stage["record_pool"])
+            if "record_pool" in stage
+            else None
+        ),
+    )
+    return assignment_material(raw)
+
+
+def assignment_material(raw: bytes) -> tuple[Data, Data, Data]:
+    """Check each complete method during whole-stage preflight, before construction."""
+    sections = sequence(loads(raw, 32768))
     brief, bound = (mapping(mapping(s)["record"]) for s in sections[2:4])
     material = mapping(sections[4])
     procedure = mapping(mapping(bound["payload"])["resolved_procedure"])
@@ -378,6 +397,7 @@ def task_result(
         )
     from .prompt_bundle import (
         EVIDENCE_COMPOSER_REVISION,
+        SINGLETON_COMPOSER_REVISION,
         composer_revision,
         evidence_minimum,
         evidence_outputs,
@@ -385,6 +405,7 @@ def task_result(
 
     current = mapping(prompt_bundle["payload"])["composer_revision"] in {
         composer_revision(),
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
     }
     proof_refs = evidence_outputs(procedure, artifacts)

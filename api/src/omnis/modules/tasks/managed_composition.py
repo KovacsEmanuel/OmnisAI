@@ -44,10 +44,11 @@ METHOD_COMPOSER_REVISION = "2cec176a5e622df2751e069b2a676c7e64578bea33b768aab63b
 COMPACT_COMPOSER_REVISION = "1d32db3dcd15ee65d9d479d0401675d255a856b36beaca1bde1093ed0fb0b00a"
 CRITERIA_COMPOSER_REVISION = "717549a613365ec95c40276903a92bf9b603092232947e0ee79bf5e1745854ed"
 PREDICATE_COMPOSER_REVISION = "4a3606b8e0354bceb8066f6de536932ee420d1147aa9311084ceafb4afbea850"
-COMPOSER_REVISION = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+COMPOSER_REVISION = "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91"
 APPLICABILITY_COMPOSER_REVISION = "bcc1cdbf7b3546e1269e22875bbec2670504e73f25a3e198f65990fb56f31d99"
 PRECONDITION_COMPOSER_REVISION = "065fda6c008f054909d144bf903e2097a6f3f39dbc9b437b0506c53e6eb24af8"
 INVALIDATION_COMPOSER_REVISION = "a33fa201d5bbbe785a3f6f82ce7bf3b29afbda4503b4097bd3569cf2d775733f"
+SINGLETON_COMPOSER_REVISION = "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
 EVIDENCE_COMPOSER_REVISION = "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36"
 PROVENANCE = [
     {
@@ -235,6 +236,7 @@ def compose(
     *,
     case_input: dict[str, object] | None = None,
     method_execution: bool = False,
+    shared_material: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sections = [
         {"section": "base", "record": base},
@@ -283,11 +285,32 @@ def compose(
                 if k not in {"prompt_bundle", "text"}
             },
         }
+        if shared_material is not None:
+            common = exact(
+                record(shared_material, "prompt-material")["payload"],
+                {"version", "schema", "skills"},
+            )
+            integer(common["version"], 1, 1)
+            if common["schema"] != material["schema"] or common["skills"] != skills:
+                raise CatalogError("COMPOSITION_REJECTED")
+            compact["format"] = "record-refs-v2"
+            compact_sections[4].pop("schema")
+            compact_sections[4]["material_ref"] = records.reference(shared_material)
+            compact["sections"] = compact_sections
         result = records.envelope("prompt-composition", compact)
         validate(
             result,
             version=4,
-            record_pool=[bundle, base, role, brief, bound, material["context"], material["input"]],
+            record_pool=[
+                bundle,
+                base,
+                role,
+                brief,
+                bound,
+                material["context"],
+                material["input"],
+                *([] if shared_material is None else [shared_material]),
+            ],
         )
     return result
 
@@ -320,10 +343,11 @@ def compact_refs(body: object) -> list[dict[str, object]]:
             "token_upper_bound",
         },
     )
-    if compact["format"] != "record-refs-v1":
+    if compact["format"] not in {"record-refs-v1", "record-refs-v2"}:
         raise CatalogError("COMPOSITION_REJECTED")
     parts = sequence(compact["sections"])
-    if not 6 <= len(parts) <= 7:
+    shared = compact["format"] == "record-refs-v2"
+    if not (len(parts) == 5 if shared else 6 <= len(parts) <= 7):
         raise CatalogError("COMPOSITION_REJECTED")
     wanted = [ref(compact["prompt_bundle_ref"], "prompt-bundle")]
     for part, label, kind in zip(
@@ -336,7 +360,10 @@ def compact_refs(body: object) -> list[dict[str, object]]:
         if item["section"] != label:
             raise CatalogError("COMPOSITION_REJECTED")
         wanted.append(ref(item["record_ref"], kind))
-    material = exact(parts[4], {"section", "version", "context_ref", "input_ref", "schema"})
+    material = exact(
+        parts[4],
+        {"section", "version", "context_ref", "input_ref", "material_ref" if shared else "schema"},
+    )
     if material["section"] != "case-input":
         raise CatalogError("COMPOSITION_REJECTED")
     version = integer(material["version"], 1, 2)
@@ -349,9 +376,19 @@ def compact_refs(body: object) -> list[dict[str, object]]:
             ),
         ]
     )
-    if len({text(r["id"]) for r in wanted}) != 7:
+    if shared:
+        wanted.append(ref(material["material_ref"], "prompt-material"))
+    if len({text(r["id"]) for r in wanted}) != len(wanted):
         raise CatalogError("COMPOSITION_REJECTED")
     return wanted
+
+
+def composition_pool(body: object, record_pool: object) -> list[dict[str, object]]:
+    pool = [record(r) for r in sequence(record_pool)]
+    local = {text(r["id"]): r for r in pool}
+    if len(local) != len(pool):
+        raise CatalogError("COMPOSITION_REJECTED")
+    return [record(local.get(text(r["id"]))) for r in compact_refs(body)]
 
 
 def expanded_payload(body: object, record_pool: object = None) -> dict[str, object]:
@@ -363,7 +400,7 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
         return source
     wanted = compact_refs(source)
     pool = [record(r) for r in sequence(record_pool)]
-    if len(pool) != 7 or [canonical(records.reference(r)) for r in pool] != [
+    if len(pool) != len(wanted) or [canonical(records.reference(r)) for r in pool] != [
         canonical(r) for r in wanted
     ]:
         raise CatalogError("COMPOSITION_REJECTED")
@@ -373,6 +410,13 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
         for part, item in zip(parts[:4], pool[1:5], strict=True)
     ]
     material = mapping(parts[4])
+    skills = parts[5:]
+    if source["format"] == "record-refs-v2":
+        common = exact(pool[-1]["payload"], {"version", "schema", "skills"})
+        integer(common["version"], 1, 1)
+        material = {k: v for k, v in material.items() if k != "material_ref"}
+        material["schema"] = common["schema"]
+        skills = sequence(common["skills"])
     sections.extend(
         [
             {
@@ -380,7 +424,7 @@ def expanded_payload(body: object, record_pool: object = None) -> dict[str, obje
                 "context": pool[5],
                 "input": pool[6],
             },
-            *parts[5:],
+            *skills,
         ]
     )
     raw = canonical(sections)
@@ -447,6 +491,7 @@ def validate(
         metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -461,6 +506,11 @@ def validate(
         }
         or metadata["provenance"] != PROVENANCE
         or metadata["tokenizer_revision"] != "utf8-byte-upper-bound-v1"
+    ):
+        raise CatalogError("COMPOSITION_REJECTED")
+    if (
+        mapping(result["payload"]).get("format") == "record-refs-v2"
+        and metadata["composer_revision"] != COMPOSER_REVISION
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     integer(metadata["brief_schema"], 1, 1)
@@ -494,6 +544,7 @@ def validate(
     )
     if compact and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -505,6 +556,7 @@ def validate(
         raise CatalogError("COMPOSITION_REJECTED")
     revisions = {
         COMPOSER_REVISION,
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -542,6 +594,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -556,6 +609,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -575,7 +629,12 @@ def validate(
     if procedure["invalidation_predicate_ids"] and (
         not method_execution
         or metadata["composer_revision"]
-        not in {COMPOSER_REVISION, EVIDENCE_COMPOSER_REVISION, INVALIDATION_COMPOSER_REVISION}
+        not in {
+            COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
+            EVIDENCE_COMPOSER_REVISION,
+            INVALIDATION_COMPOSER_REVISION,
+        }
     ):
         raise CatalogError("COMPOSITION_REJECTED")
     if procedure["preconditions"] and (
@@ -583,6 +642,7 @@ def validate(
         or metadata["composer_revision"]
         not in {
             COMPOSER_REVISION,
+            SINGLETON_COMPOSER_REVISION,
             EVIDENCE_COMPOSER_REVISION,
             INVALIDATION_COMPOSER_REVISION,
             PRECONDITION_COMPOSER_REVISION,
@@ -593,6 +653,7 @@ def validate(
         mapping(r)["applies_if"] for r in sequence(procedure["method_requirements"])
     ) and metadata["composer_revision"] not in {
         COMPOSER_REVISION,
+        SINGLETON_COMPOSER_REVISION,
         EVIDENCE_COMPOSER_REVISION,
         INVALIDATION_COMPOSER_REVISION,
         PRECONDITION_COMPOSER_REVISION,
@@ -721,6 +782,8 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
     if len(local) != len(graph):
         raise CatalogError("COMPOSITION_REJECTED")
     compositions = []
+    union: dict[str, dict[str, object]] = {}
+    pool = None
     for raw in sequence(mapping(checked["payload"])["entries"]):
         entry = mapping(raw)
         reference = ref(entry["composition_ref"], "prompt-composition")
@@ -728,14 +791,17 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
         if composition is None:
             raise CatalogError("COMPOSITION_REJECTED")
         compact = "format" in mapping(composition["payload"])
+        if (
+            mapping(composition["payload"]).get("format") == "record-refs-v2"
+            and len(sequence(mapping(checked["payload"])["entries"])) != 2
+        ):
+            raise CatalogError("COMPOSITION_REJECTED")
         pool = None
         if compact:
-            if (
-                mapping(checked["payload"])["composition_version"] != 4
-                or len(sequence(mapping(checked["payload"])["entries"])) != 1
-            ):
+            if mapping(checked["payload"])["composition_version"] != 4:
                 raise CatalogError("COMPOSITION_REJECTED")
-            pool = [local.get(text(r["id"])) for r in compact_refs(composition["payload"])]
+            pool = [record(local.get(text(r["id"]))) for r in compact_refs(composition["payload"])]
+            union.update({text(r["id"]): r for r in pool})
         validated = validate(composition, entry, checked, record_pool=pool)
         body = expanded_payload(validated["payload"], pool)
         nested = [mapping(s)["record"] for s in sequence(load_json(text(body["text"], 65536)))[:4]]
@@ -747,11 +813,25 @@ def stage_payload(manifest: object, graph: list[dict[str, object]]) -> dict[str,
             if local.get(text(item["id"])) != item:
                 raise CatalogError("COMPOSITION_REJECTED")
         compositions.append(validated)
+    if mapping(checked["payload"]).get("composition_version") == 4 and len(compositions) == 2:
+        bodies = [mapping(c["payload"]) for c in compositions]
+        if any(b.get("format") != "record-refs-v2" for b in bodies):
+            raise CatalogError("COMPOSITION_REJECTED")
+        common = [
+            [
+                b["prompt_bundle_ref"],
+                b["preparation_receipt_ref"],
+                *[sequence(b["sections"])[i] for i in (0, 1, 3, 4)],
+            ]
+            for b in bodies
+        ]
+        if canonical(common[0]) != canonical(common[1]):
+            raise CatalogError("COMPOSITION_REJECTED")
     result: dict[str, object] = {
         "protocol": contract.manifest_protocol(checked),
         "manifest": checked,
         "compositions": compositions,
-        **({"record_pool": pool} if pool is not None else {}),
+        **({"record_pool": list(union.values())} if pool is not None else {}),
     }
     if len(canonical(result)) > 32768:
         raise CatalogError("CONTEXT_OVERFLOW")

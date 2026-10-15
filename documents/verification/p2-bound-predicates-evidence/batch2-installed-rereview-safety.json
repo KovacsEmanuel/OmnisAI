@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "review": "focused-installed-safety-rereview-F01-F02-and-exact-activation",
+  "complete": true,
+  "snapshot": {
+    "start_head": "b16eda547fcee1c1a817281969e8f345369f85e8",
+    "end_head": "1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86",
+    "head_transition": "Parent committed during read-only review; both reviewed source hashes unchanged.",
+    "caller_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "selector_sha256": "1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b",
+    "candidate_selector_sha256": "e66fc224c74a7aa3f45ec1b9cc2f39ddd86146884d33dcc0906f5cc726c32064"
+  },
+  "verdicts": {
+    "caller_helper_and_cancellation": "APPROVED_SOURCE_SCOPED",
+    "composed_selector_current_reader_admission": "CHANGES_REQUESTED_SCOPED",
+    "candidate_activation": "WITHHELD_REMAINING_F01_DUPLICATE_DESCRIPTOR_READ",
+    "candidate_mechanical_replacement": "VALID_EXACT_HASH_AST_PARSES_NOT_APPLIED_NOT_EXECUTED",
+    "distribution": "APPROVED_SCOPED_STATIC_READ_ONLY_RETAINED",
+    "real_PG_native_runtime": "NOT_RUN",
+    "phase": "NOT_CLOSED_PARENT_ADJUDICATION_REQUIRED"
+  },
+  "original_findings_dispositions": [
+    {
+      "id": "INSTALLED-SAFETY-F01",
+      "disposition": "HELPER_REMEDIED_COMPOSED_ENTRY_REMAINS_BLOCKED",
+      "closed_part": "Actual batch2_current_reader now uses batch2_reader_material over existing catalog FD/no-follow/nonblocking/single-link/stability reader. Physical ancestors and owned regular-file identity are checked. Source and installed nested aliases, oversized/nonregular inputs, invalid UTF8, expanded member and aggregate negatives refuse before origin launch. Genuine installed-origin positive passes. Current-only h03_prerequisites no longer repeats unbounded wheel/API comparisons.",
+      "remaining": "Selector main still performs a full unbounded current-reader descriptor read before hash comparison and before the repaired helper can enforce its bound; see INSTALLED-SAFETY-F01-ENTRY."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F02",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "evidence": "Actual restarted_cli latches reader_unknown/db_fence before await; on failure records UNCERTAIN then bare-raises the identical non-Exception BaseException. CancelledError, KeyboardInterrupt and SystemExit identity controls pass. Ordinary TimeoutError carrying a private marker yields exactly H03_READER_NOT_SETTLED from None. Normal/denial family receipts retained; unknown exit and bad receipt remain uncertain.",
+      "lines": "api/tests/test_contract_method_pg.py:5284-5328; surrounding except/finally 8507-8604",
+      "limits": "Family seam substituted; no physical reader family or PG proof. Outer finally statically retains failure/fence and avoids replacement cleanup error when an exception propagates. Does not certify independently failing checkpoint I/O or universal interruption timing."
+    }
+  ],
+  "findings": [
+    {
+      "id": "INSTALLED-SAFETY-F01-ENTRY",
+      "parent_finding": "INSTALLED-SAFETY-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "line": 110,
+      "title": "Selector fully reads the current-reader descriptor before the repaired bounded reader",
+      "criterion": "F01 bounded descriptor read before allocation, including affected actual call sites; a subsequent hash refusal is not a bound on the preceding read.",
+      "evidence": {
+        "actual_selector_main": true,
+        "allocated_descriptor_bytes": 2112494,
+        "material_limit": 32768,
+        "denial_exit": 2,
+        "denial_after_full_read": true,
+        "subprocess_or_PG_or_native": false,
+        "activation_candidate_applied_or_executed": false
+      },
+      "reproducer": "Actual unchanged selector module main(), --case batch2-release-first --collect-only; substitute only BATCH2_READER locator with the original retained oversized-reader fixture. Observe Path.read_bytes after real read. Child/collection seam forbidden. Exact source and native-artifact guards pass; selector allocates 2112494 descriptor bytes then exits2 for hash mismatch. No candidate activation, PG/native, new process harness or original artifact mutation.",
+      "impact": "No hash bypass or unauthorized runtime was observed: refusal is correct but late for allocation. An oversized descriptor still reaches an unbounded allocation at the real entrypoint, so the helper-only fix does not close the original bounded-read defect in composition.",
+      "remedy": "Minimally replace the selector current-reader hash input with a bounded no-follow regular/single-link/owned reader (32768 limit) before SHA; reuse the existing safe primitive/approach rather than a new harness. Retain exact descriptor SHA and genuine positive. Target the same entrypoint oversized negative and reseal only changed selector/candidate bytes."
+    }
+  ],
+  "examined_scope": [
+    "Delta versus b16eda5 for exact caller/selector, actual material helper and catalog read_file implementation, all current-reader material/origin comparisons, current-only duplicate-read guard.",
+    "Actual restarted_cli and its existing exact-object SOURCE controls; enclosing failure/finally fence semantics.",
+    "Exact proposed one-line activation in memory; line110 descriptor read examined only because it composes the F01 boundary, not a general selector/framework re-audit.",
+    "Normative per-task correspondence changes noted but adjudication belongs to separate complementary review; no cross-scope finding erased."
+  ],
+  "material_bounds": {
+    "descriptor": 32768,
+    "wheel": 262144,
+    "member": 131072,
+    "expanded_aggregate": 1048576,
+    "zip_entries": 128,
+    "api_files": 88,
+    "venv_cfg": 4096,
+    "zip_unique_names_checked_before_inflate": true,
+    "interpreter_exception": "Only link resolving to the current explicitly attested API toolchain; installed package paths still use physical bounded reads."
+  },
+  "commands": [
+    {
+      "label": "source_actual_helper_and_reader_controls",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'test_batch2_current_reader_actual_helper or test_h03_reader_actual_launch_latches_family_unknown' --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-rereview-source",
+      "exit": 0,
+      "output": "..........................                                               [100%]\n26 passed, 207 deselected in 2.03s",
+      "limit": "18 real helper/origin controls plus8 actual nested-reader SOURCE controls; no DB/native/old cancellation process harness."
+    },
+    {
+      "label": "exact_hash_candidate_and_git",
+      "command": "python3 -I -B -c 'import pathlib,hashlib,ast,json; r=pathlib.Path(\"/home/kali/OmnisAI\"); c=(r/\"api/tests/test_contract_method_pg.py\").read_bytes(); s=(r/\"documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\").read_bytes(); old=b\"BATCH2_REVIEWED: str | None = None\"; h=hashlib.sha256(c).hexdigest(); assert h==\"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"; assert s.count(old)==1; candidate=s.replace(old,(\"BATCH2_REVIEWED: str | None = \\\"\"+h+\"\\\"\").encode()); ast.parse(candidate); print(json.dumps({\"caller\":h,\"selector\":hashlib.sha256(s).hexdigest(),\"candidate\":hashlib.sha256(candidate).hexdigest(),\"replacement_count\":s.count(old),\"candidate_applied\":False,\"candidate_executed\":False}))' && git diff --check && git rev-parse HEAD && git status --short --branch",
+      "exit": 0,
+      "output": "{\"caller\": \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\", \"selector\": \"1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b\", \"candidate\": \"e66fc224c74a7aa3f45ec1b9cc2f39ddd86146884d33dcc0906f5cc726c32064\", \"replacement_count\": 1, \"candidate_applied\": false, \"candidate_executed\": false}\n1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86\n## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+      "limit": "Candidate parsed and hashed in memory, never written/executed. Protected HTML only appears as preexisting untracked Git status; its bytes were not read or hashed."
+    },
+    {
+      "label": "F01_composed_selector_descriptor_read",
+      "command": "api/.venv/bin/python -I -B -c 'import importlib.util,sys,json\nfrom pathlib import Path\nfrom unittest.mock import patch\nroot=Path(\"/home/kali/OmnisAI\")\nselector=root/\"documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\"\nspec=importlib.util.spec_from_file_location(\"safety_selector_readonly\",selector)\nm=importlib.util.module_from_spec(spec)\nspec.loader.exec_module(m)\npadded=Path(\"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/reviewer2-static/padded-reader.json\")\nassert padded.is_file()\nm.BATCH2_READER=padded\noriginal=Path.read_bytes\nobserved=[]\ndef read(path):\n    raw=original(path)\n    if path==padded: observed.append(len(raw))\n    return raw\ndef forbidden(*args,**kwargs):\n    raise AssertionError(\"UNEXPECTED_PROCESS_OR_COLLECTION\")\nwith patch.object(Path,\"read_bytes\",read), patch.object(sys,\"argv\",[str(selector),\"--case\",\"batch2-release-first\",\"--collect-only\"]), patch.object(m.subprocess,\"call\",forbidden):\n    try: m.main()\n    except SystemExit as exc: exitcode=exc.code\n    else: raise AssertionError(\"EXPECTED_HASH_DENIAL\")\nassert exitcode==2 and observed and observed[0]>32768\nprint(json.dumps({\"actual_selector_main\":True,\"allocated_descriptor_bytes\":observed[0],\"material_limit\":32768,\"denial_exit\":exitcode,\"denial_after_full_read\":True,\"subprocess_or_PG_or_native\":False,\"activation_candidate_applied_or_executed\":False}))\n'",
+      "exit": 0,
+      "output": "usage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Exact current reader receipt changed\n{\"actual_selector_main\": true, \"allocated_descriptor_bytes\": 2112494, \"material_limit\": 32768, \"denial_exit\": 2, \"denial_after_full_read\": true, \"subprocess_or_PG_or_native\": false, \"activation_candidate_applied_or_executed\": false}",
+      "limit": "Only source-level static descriptor path/read guard, using retained original oversized fixture. No effectful runner import or launch."
+    }
+  ],
+  "activation": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "exact_new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "applied": false,
+    "executed": false,
+    "condition": "Withheld pending remaining scoped F01 entry fix, exact updated complementary reviews and parent adjudication. No BATCH2 effect admission from this report."
+  },
+  "retained_distribution": {
+    "source_report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-review-safety.json",
+    "verdict": "APPROVED_SCOPED_STATIC_READ_ONLY",
+    "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "evidence_reused": "Original actual51layers/3187runtime/34native+adapter/88API static proof retained; no image re-export or new distribution audit."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-safety.json",
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/safety-rereview-source/* (owned SOURCE pytest fixtures only)"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "limits": [
+    "No PG/native/runtime/build/install/provider/target/r1/profile/global/push effects.",
+    "No protected original HTML read/hash/edit/stage/delete.",
+    "No product library or skill edits; no parent commit action performed by reviewer.",
+    "Old two-failure cancellation harness remains INCONCLUSIVE, not rerun; historical counter unchanged.",
+    "No universal same-UID adversarial race/timing proof. Unchanged common historical/native inventory reads are not re-certified as bounded by this report.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "B06b/G02/P2/P4a-minim remain open; normative oracle review remains separate."
+  ],
+  "proposed_skill_lesson": "For a bounded-reader remediation, trace the same artifact through entrypoint SHA guards: read_bytes-before-hash still allocates unbounded input even when a later bounded helper is correct. Suggested only; read-only scope forbids skill edits.",
+  "proposed_status_delta": "AICI: material helper/F02 SOURCE-approved; installed selector activation blocked on one concrete residual F01 descriptor read. Distribution approval retained. Real QA NOT_RUN, pending minimal fix and parent adjudication."
+}

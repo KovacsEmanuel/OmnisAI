@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "review_id": "BATCH2-SELECTOR-ENTRY-NORMATIVE-FOCUSED",
+  "complete": true,
+  "verdict": "APPROVED_SCOPED_NORMATIVE",
+  "decision": "The bounded fixed-entry hash reads preserve the previously reviewed admission, argv, environment and 240-second runner contract. No normative blocker found in the exact selector delta. The exact in-memory activation candidate is normatively approved, conditional on parent adjudication of both complementary reviews on the same bytes. This is not activation, PG/native acceptance or global admission.",
+  "snapshot": {
+    "root": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "comparison_base": "1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86",
+    "head_at_entry_short": "1ab0274",
+    "head_at_final_verification": "e4531b84aa679b84246c573424afcf5d5f112bb0",
+    "head_transition": "Parent committed during review. Independently verified selector bytes still match the supplied frozen SHA; final status has no tracked changes. Reviewer did not stage or commit.",
+    "selector_path": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "baseline_selector_sha256": "1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b",
+    "reviewed_selector_sha256": "df6cd05b059ba9c5d3849b73b40e0fa9b942b268689b79a44a6710b97110d80a",
+    "caller_path": "api/tests/test_contract_method_pg.py",
+    "caller_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "caller_disposition": "Hash verified unchanged; behavior, tests and distribution not re-audited."
+  },
+  "examined_delta": {
+    "git_diff": "Actual selector-only diff against base: 62 insertions, 9 deletions; full 196-line current selector read.",
+    "added_import": "stat",
+    "new_helper": "_pinned_sha256, selector lines 93-140",
+    "changed_call_sites": "main lines 151-164: fixed source, selected fixed native receipt, and batch2-only fixed current-reader receipt",
+    "fixed_hash_call_count": 3,
+    "unchanged_ast_verified": [
+      "Every existing top-level Assign and AnnAssign, including paths, pins, CASES, BATCH2_CASES and inactive BATCH2_REVIEWED=None.",
+      "Entire selected_argv function.",
+      "Entire environment function.",
+      "Final ten main statements, including collection return, adjudication refusal, db_gate import, existing run_gate substitution, prove_private_fixture(..., UV, 240) and return."
+    ],
+    "no_remaining_selector_read_bytes_call": true,
+    "no_new_cli_path_authority": true,
+    "cli": "Only existing --case choices, --collect-only and --review-adjudicated remain. No file locator or bound is CLI-selected."
+  },
+  "bounds": {
+    "source": {"actual_bytes": 393896, "maximum_bytes": 524288},
+    "batch2_native_receipt": {"actual_bytes": 20477, "maximum_bytes": 32768},
+    "historical_native_receipt": {"actual_bytes": 19332, "maximum_bytes": 32768},
+    "batch2_current_reader": {"actual_bytes": 15342, "maximum_bytes": 32768},
+    "measurement": "Source byte count and receipt filesystem sizes independently measured in this review; all fit their literal bounds. These are QA material bounds, not changes to product grants/caps or qualified CLI size evidence.",
+    "normative_read": "Helper checks owned single-link regular-file size before payload reads; the accumulation/read loop cannot consume more than its maximum. It retains pre/post metadata and exact-length checks before SHA. Detailed FD lifecycle and adversarial safety verification belongs to the complementary review."
+  },
+  "preserved_requirements": [
+    {
+      "requirement": "Exact pins still gate every path before effects",
+      "evidence": "main lines 156-164 compares each bounded digest to the unchanged source/artifact/current-reader pin. Mismatch calls parser.error; OSError/ValueError sanitizes to parser.error. All these guards precede the collection subprocess and the effectful db_gate import.",
+      "verification_kind": "Direct source inspection and unchanged-pin AST comparison; no new runtime test claimed."
+    },
+    {
+      "requirement": "Parent approval remains explicit and snapshot-bound",
+      "evidence": "main lines 169-172 still requires --review-adjudicated and, for batch2, BATCH2_REVIEWED == BATCH2_SOURCE_SHA. The current file remains inactive. A flag alone cannot activate it."
+    },
+    {
+      "requirement": "Fixed selection and environment admission remain unchanged",
+      "evidence": "selected_argv and environment are AST-identical to the reviewed baseline. Exact node/case allowlist, isolated Python, pytest flags, basetemp, stale-variable stripping and dual reviewed environment bindings are preserved. Collection branch remains the same inert collection mechanism; no collection execution was performed by this reviewer."
+    },
+    {
+      "requirement": "Existing owner and deadline remain unchanged",
+      "evidence": "Final ten main statements are AST-identical. No new runner, process owner, timeout or lifecycle authority is introduced; original_gate receives the existing timeout_seconds, and prove_private_fixture retains the literal 240."
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "id": "INSTALLED-SAFETY-F01-ENTRY",
+      "original_disposition": "OPEN_BLOCKING: actual selector fully allocated the 2112494-byte descriptor before hash refusal.",
+      "current_normative_disposition": "CLOSED_SCOPED_NORMATIVE_ENTRY_BOUND",
+      "basis": "The actual outer selector hash guard now uses the bounded helper, not an unbounded read followed by a downstream bound. The original oversized current-reader input exceeds 32768 and is rejected before os.read by the size check. Adjacent fixed source and artifact reads are also bounded without weakening their hashes.",
+      "retained_execution_evidence": "Developer report records original RED exit1 and GREEN exit0: two unittest methods, one matched-metadata collection-seam positive and seven negative subtests. Parent task context additionally reports an independent repeat exit0 in 0.054s. These results are reused and explicitly attributed, not claimed as newly executed by this reviewer.",
+      "closure_limit": "This report closes the normative bounded-entry requirement only. Overall safety closure and activation require the complementary focused safety report plus parent adjudication; old helper/cancellation approvals remain within their original scopes."
+    }
+  ],
+  "new_blocking_findings": [],
+  "activation_candidate": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "exact_new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "sha256": "5f99ce77c93b13a29a00c9acca90b13034bea1525d42185ca00035d0d7e71f85",
+    "verification": "Independent literal byte replacement in memory reproduces the required SHA. Current and candidate parse. AST comparison proves the sole change is BATCH2_REVIEWED None to the exact unchanged caller digest.",
+    "approval": "APPROVED_SCOPED_NORMATIVE_EXACT_CANDIDATE",
+    "conditions": [
+      "Parent must adjudicate both complementary focused reviews bound to the same frozen selector and candidate hashes before applying or executing activation.",
+      "Any further selector byte change requires affected re-review; approval of older e66fc224 candidate bytes is not transferred.",
+      "This approval does not itself authorize a new PG/native run or close any product/global gate."
+    ],
+    "applied": false,
+    "executed": false
+  },
+  "reused_reports": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-normative.json",
+      "sha256": "a2de7f750fdec167fd1be6e6922fde8e1e85c5ac43822ee3a71a6063322d3337",
+      "disposition": "Unchanged caller normative/per-task-oracle approval and its explicit runtime limits retained. Old selector candidate superseded only by the exact new candidate approval here."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-safety.json",
+      "sha256": "05af21d5098d04eaf1af0595f2e9a446d64314b49c280a16cde40302df14f67e",
+      "disposition": "Caller bounded-helper/cancellation and unchanged distribution approvals retained. Original entry reproducer preserved; only its changed selector boundary is considered here."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-fix-developer.json",
+      "sha256": "0f423d61677a974ee0d6f86cf61d5503bb9b0f9f996b26085cdcf3dc1b0476b0",
+      "disposition": "Retained attributed RED/GREEN evidence; actual selector diff, bounds, hashes and AST preservation independently checked rather than accepting its claims alone."
+    }
+  ],
+  "independent_verification": [
+    {
+      "command": "git status --short --branch && git rev-parse --short HEAD && git diff --stat -- documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git diff -- documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Entry base1ab0274, exactly the supplied selector delta; protected untracked HTML pathname only."
+    },
+    {
+      "command": "python3 -I -B -c <stdlib snapshot/AST verification script> && git diff --check -- documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git status --short --branch",
+      "command_is_abbreviated": true,
+      "script_location": "Exact inline command retained in this review tool transcript.",
+      "script_description": "Assert frozen selector, baseline and caller SHA; compare all top-level assignments, selected_argv, environment and final ten main statements; count three bounded hash calls and literal bounds; assert absence of selector read_bytes calls; construct/parse/compare/hash one-line candidate in memory; measure source and fixed receipt sizes; hash prior reports; read current HEAD.",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "All assertions passed; exact candidate SHA confirmed. Parent HEAD e4531b84aa679b84246c573424afcf5d5f112bb0, no tracked changes, protected HTML pathname only."
+    }
+  ],
+  "limits": {
+    "independent_runtime_regression": "NOT_RERUN; retained developer and parent direct-main evidence attributed above",
+    "PG_native_containers_build_install": "NOT_RUN",
+    "caller_product_distribution_reaudit": "NOT_PERFORMED",
+    "full_source_old_cancellation_canonical": "NOT_RERUN",
+    "FD_safety_concurrency": "Complementary focused reviewer scope; no universal race or interruption claim",
+    "protected_html": "NEVER_READ_HASHED_EDITED_STAGED_DELETED; pathname seen only in git status",
+    "r1_profiles_provider_target_global_push": "NOT_TOUCHED",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "B06b_G02_P2_P4a_minim": "NOT_CLOSED"
+  },
+  "files_created_or_modified": {
+    "repository": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-review-normative.json",
+    "skills": "UNCHANGED under read-only scope; existing proposed bounded-entry lesson remains for parent adoption."
+  },
+  "issues": [
+    "HEAD advanced during review through parent activity, but the exact supplied frozen selector and caller hashes were independently verified unchanged.",
+    "Developer report contains long rendered lines truncated by read_file. No conclusion depends on truncated embedded source/diff: actual complete selector and actual git diff were read separately."
+  ],
+  "proposed_status_delta": "AICI: selector bounded-entry normative APPROVED_SCOPED; exact activation candidate normatively approved pending complementary safety and parent adjudication. Unchanged caller/distribution scopes retained. PG/native NOT_RUN; product/global gates remain open. Parent owns versioned status reconciliation."
+}

@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "review_id": "BATCH2-INSTALLED-NORMATIVE-2-FOCUSED",
+  "verdict": "APPROVED_SCOPED_NORMATIVE_READ_ONLY",
+  "decision": "NORM-INSTALLED-BATCH2-F01 is CLOSED_SCOPED on the exact caller bytes below. The exact proposed selector activation bytes are approved by this normative reviewer, conditional on parent adjudication of both complementary reviews before applying or executing activation. This is source/oracle readiness for the first authorized installed QA, not a product runtime PASS or unilateral global admission.",
+  "snapshot": {
+    "root": "/home/kali/OmnisAI",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "comparison_base_and_head_at_entry": "b16eda547fcee1c1a817281969e8f345369f85e8",
+    "head_at_final_readback": "1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86",
+    "head_change_disposition": "Parent committed during review. Both reviewed file SHA256 values remained exactly equal to the supplied frozen snapshot. Final status has no tracked changes; only the preexisting protected untracked HTML is listed. Reviewer made no repository edits, staging or commits.",
+    "files": {
+      "api/tests/test_contract_method_pg.py": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b"
+    },
+    "protected_html": "documents/Omnis_Notite_Originale.html was seen only as a git-status pathname; NOT_READ_HASHED_EDITED_STAGED_DELETED."
+  },
+  "original_review_reuse": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-review-normative.json",
+    "sha256": "05dfde1f73a5352f5b2500be3ce4b717ff191ec7273fe67fd453ee12be933fb8",
+    "original_review_id": "BATCH2-INSTALLED-NORMATIVE-1",
+    "disposition": "Original report remains unmodified, including its historical CHANGES_REQUESTED verdict and original reproducer. This focused report supersedes only F01's current disposition and approval of the newly frozen activation candidate. All originally examined unchanged requirements and their runtime/evidence limits are retained, not inferred from the focused tests.",
+    "retained_requirements": [
+      "Existing installed owner/loop, one RUN/two same-goal tasks and fresh boot/root per variant: prior SOURCE review retained, runtime NOT_RUN.",
+      "Actual prepare-method CLI, full retained envelope/stage/ordered expansion/final size hooks and unchanged caps: prior hook review retained; qualified real CLI size measurement NOT_RUN.",
+      "Committed two-task binding visible through a separate connection before native access and real two-thread overlap instrumentation: prior SOURCE review retained, runtime NOT_RUN.",
+      "Actual PostgreSQL waiter observation in release-first and Stop-first: prior SOURCE review retained, runtime NOT_RUN.",
+      "Reversed native-final refusal and unchanged five-table census: prior SOURCE review retained, runtime NOT_RUN. Newly fixed persisted task/result/check/inbox correspondence is examined below.",
+      "Post-Stop public receive/cached release, installed readback/reconcile/replay and no-rerun guards: prior review retained; new mapping oracle and equality chain inspected below, runtime NOT_RUN.",
+      "Installed native/Host origins, explicit QA argv and current-only reader: prior source/distribution scope retained. Actual current reader positive rerun on new bounded helper, no native import/launch.",
+      "Strict observation in both successful early-return cleanup paths: prior SOURCE review retained; detailed failure/resource safety belongs to complementary reviewer.",
+      "No product source/model/target/grant/cap change or substitution of SOURCE PASS for runtime QA: unchanged scope retained.",
+      "Fail-closed selector, historical H03 and existing runner240: unchanged mechanism retained; new caller binding and exact one-line activation candidate inspected below."
+    ]
+  },
+  "finding_dispositions": [
+    {
+      "id": "NORM-INSTALLED-BATCH2-F01",
+      "original_severity": "MEDIUM",
+      "original_blocking": true,
+      "disposition": "CLOSED_SCOPED",
+      "current_blocking": false,
+      "scope": "Acceptance-oracle completeness for exact per-task persisted correspondence, not a claim that a product persistence defect existed or that PG/native QA ran.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:4233-4343 test_batch2_actual_persisted_correspondence",
+        "api/tests/test_contract_method_pg.py:4346-4401 batch2_persisted_correspondence",
+        "api/tests/test_contract_method_pg.py:6711-6723 initial persisted readback",
+        "api/tests/test_contract_method_pg.py:6797-6812 installed readback/reconcile and equality preservation"
+      ],
+      "required_behavior_verified_by_inspection": [
+        "Exactly two manifest entries, indexes {0,1}, two distinct task IDs, attempt IDs and Brief IDs; exactly two tasks whose task-ID set equals the manifest.",
+        "Distinct per-task attempt/Brief/result/check IDs; exactly two uniquely identified Brief/result/check records, with every task association resolved to its corresponding record.",
+        "Each task's batch_index, attempt_id and brief_id match its manifest entry; the full Brief reference matches the manifest brief_ref.",
+        "Brief header task_id and attempt_id match that task; canonical full TaskResult payload.header equals that Brief's full header.",
+        "MethodCheck brief_ref equals the task's manifest Brief ref; task_result_ref equals the associated TaskResult reference; status remains COMPLETE, not functional security PASS.",
+        "Exactly two inbox rows overall and exactly one matching (task_id,result_id) pair per distinct task/result; duplicated and cross-task inbox mappings cannot satisfy this predicate."
+      ],
+      "real_call_sites": {
+        "initial": "The real batch2 release-first branch calls batch2_persisted_correspondence(back) immediately after await domain.readback(back_request), before its old count/COMPLETE predicates and success checkpoint.",
+        "installed_reconcile": "The same real branch calls batch2_persisted_correspondence(reconciled) immediately after await restarted_cli('reconcile', back_request).",
+        "post_stop_preservation": "The installed post-Stop readback is canonically equal to already checked back; the repeated installed reconcile and final domain.readback are canonically equal to independently checked reconciled. Consumed flags and total consumed==2 remain. Thus both post-Stop read/reconcile projections retain the per-task oracle without a separate permissive projection.",
+        "stop_first": "The unchanged Stop-first branch requires empty results/checks/inbox and zero relevant native access; the positive correspondence helper is appropriately not called on that denial branch."
+      },
+      "schema_basis": "Inspected api/src/omnis/modules/runs/managed_admission.py:1250-1333. Real readback exposes manifest, validated Briefs, task rows including batch_index/task_id/attempt_id/brief_id/result_id/check_id, results, checks and inbox task_id/result_id. No invented TaskResult native_receipt field or fake persistence producer is required.",
+      "controls": {
+        "channel": "Actual installed success-predicate AST cut from the current consumer. Real retained SOURCE Brief/TaskResult/manifest bytes; tasks/checks/inbox are explicitly declared schema-grounded projections, not emitted MethodChecks or PG evidence.",
+        "positive": "Unmodified retained same-channel projection accepted.",
+        "negatives": ["duplicate-task/result/check", "duplicate-inbox", "swapped-inbox", "swapped-check-reference"],
+        "independent_current_result": "All five parametrized correspondence controls passed in the six-test focused invocation, exit0, no skip reported.",
+        "retained_red": "Original independent review reproduced duplicated/single-task mappings passing the exact old count-and-COMPLETE assertions. installed-fixes-developer.json additionally records norm-red exit1 (4 failed,1 passed) and norm-green exit0 (5 passed). These historical REDs are retained, not rerun or relabeled as product defects."
+      }
+    }
+  ],
+  "new_blocking_findings": [],
+  "other_changed_bytes_normative_effect": {
+    "bounded_current_reader": "Reviewed changed helper/caller delta for normative consequence only. Limits fence QA artifact allocation and extraction, not product grants or native caps. Actual current-reader positive test passed against the unchanged installed reader descriptor and wheel/export/current-source identity checks. No broad distribution or dependency re-audit was performed.",
+    "reader_bound_basis": "Developer artifact measurements retained: descriptor15342 bytes, wheel254962 bytes,107 ZIP entries,980133 total expanded bytes,80828 largest member,88 API files. Bounds are32768/262144/128/1048576/131072 with88 required API files. The actual positive on the current helper confirms this retained material is accepted; these numbers are not new qualified PG/CLI measurements.",
+    "cancellation": "The changed restarted_cli catch retains the UNCERTAIN checkpoint and existing fences; non-Exception BaseExceptions are re-raised, ordinary Exception remains sanitized H03_READER_NOT_SETTLED. No normative success weakening identified. Detailed cancellation/family proof belongs to complementary safety re-review; old cancellation harness was not rerun."
+  },
+  "proposed_activation": {
+    "path": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "exact_new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "candidate_sha256": "e66fc224c74a7aa3f45ec1b9cc2f39ddd86146884d33dcc0906f5cc726c32064",
+    "verification": "Independent in-memory byte replacement reproduced the expected SHA. Both files parsed; AST comparison proved exactly one changed top-level annotated assignment, BATCH2_REVIEWED None to the exact caller digest. Candidate was not written or executed.",
+    "mechanism": "BATCH2_SOURCE_SHA matches the reviewed caller. Main checks caller/artifact/current-reader digests, then requires both --review-adjudicated and BATCH2_REVIEWED==BATCH2_SOURCE_SHA before db_gate import. environment strips stale approval variables and emits both exact review bindings only for reviewed execution. Historical choices/pins and prove_private_fixture(...,240) remain unchanged.",
+    "approval": "APPROVED_SCOPED_NORMATIVE_EXACT_CANDIDATE_BYTES",
+    "condition": "Parent must adjudicate the complementary safety re-review on this same snapshot and this exact activation candidate before applying/executing it. Any further byte change requires affected re-review, not transfer from this candidate.",
+    "applied": false,
+    "executed": false
+  },
+  "unchanged_distribution": {
+    "review_path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-review-safety.json",
+    "review_sha256": "edeb0fe3cd0a6c6727c04a8504ce2a41a150bbf4cd36c4664e0ca321ee0f5bde",
+    "disposition": "Parent-provided independent APPROVED_SCOPED_STATIC distribution conclusions reused within their unchanged artifact scope; no re-export/build/install/re-audit or Docker inspection.",
+    "artifact_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0",
+    "image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "image_identity_provenance": "Retained original review/parent evidence, not a new image measurement in this review."
+  },
+  "commands": [
+    {
+      "command": "git status --short --branch && git diff --stat && git rev-parse HEAD",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Entry b16eda5, exactly the two allowed tracked files modified; protected untracked HTML preserved."
+    },
+    {
+      "command": "git diff b16eda547fcee1c1a817281969e8f345369f85e8 -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Focused complete changed-file delta read, including new oracle/tests/call-sites, bounded reader, cancellation re-raise and caller refreeze."
+    },
+    {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_batch2_actual_persisted_correspondence 'api/tests/test_contract_method_pg.py::test_batch2_current_reader_actual_helper[None]' -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-rereview-focused",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "6 passed in1.92s:5 correspondence controls plus1 actual bounded current-reader positive. No DB/native test selected."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c <stdlib AST/hash verification inline script>",
+      "command_is_abbreviated": true,
+      "script_description": "Read only the two allowed source files; assert their frozen SHA256 values; require exactly one literal inactive-to-proposed replacement; SHA256/parse candidate in memory; zip current/candidate AST bodies and require the sole changed AnnAssign be BATCH2_REVIEWED None to the caller SHA; hash the two original scratch reports; obtain git rev-parse HEAD. Full inline command is present in this review's tool transcript.",
+      "exit": 0,
+      "result": "Exact caller/selector hashes, expected e66fc224 candidate, ONE_ANNOTATED_CONSTANT_ONLY, parent HEAD1ab0274; original report hashes recorded above."
+    },
+    {
+      "command": "git diff --check -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && git status --short --branch",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "No whitespace errors or tracked changes; only protected preexisting untracked pathname."
+    }
+  ],
+  "limits": {
+    "real_pg_native_qa": "NOT_RUN",
+    "qualified_cli_sizes": "NOT_RUN; hooks retained as reviewed, not a pre-QA blocker when correctly wired",
+    "full_source_suite_canonical_h03_old_cancel_harness": "NOT_RERUN",
+    "safety_failure_family_deep_review": "Complementary reviewer scope, not certified by this normative report",
+    "build_install_activation_export_dependency_audit": "NOT_RUN",
+    "product_runtime_or_global_admission": "NOT_CLAIMED",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "B06b_G02_P2_P4a_minim": "NOT_CLOSED",
+    "operator_profiles_r1_provider_target_push": "NOT_TOUCHED"
+  },
+  "files_created_or_modified": {
+    "repository": [],
+    "scratch_report": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-normative.json",
+    "focused_test_output_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/normative-rereview-focused",
+    "original_reports": "UNCHANGED",
+    "skills": "UNCHANGED: read-only scope; existing developer proposed lesson remains for parent-owned adoption, no new workflow introduced."
+  },
+  "issues": [
+    "Initial combined file_glob search returned no matches; direct-file search and actual consumer source reads located both helper call-sites. No missing-code conclusion was drawn.",
+    "README/status CURRENT still describes the operator pause and earlier WIP. Current user/delegated continuation is explicit; parent owns updating the shared status map after adjudication. No status document was edited by this reviewer."
+  ],
+  "handoff": "Normative F01 is closed scoped and the exact e66fc224 activation candidate is normatively approved. Parent compares both complementary reports against these exact hashes, adjudicates, and only then applies activation and continues the separately authorized first real bounded QA. Retain all prior FAIL/UNKNOWN and runtime NOT_RUN limits; no new broad audit or source-only closure."
+}

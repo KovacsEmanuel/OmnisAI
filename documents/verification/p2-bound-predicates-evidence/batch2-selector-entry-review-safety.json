@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "review": "focused-selector-only-safety-F01-ENTRY-and-exact-activation",
+  "complete": true,
+  "snapshot": {
+    "requested_base": "1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86",
+    "observed_head": "e4531b84aa679b84246c573424afcf5d5f112bb0",
+    "head_note": "Parent already committed selector fix; exact requested bytes verified before and after focused test. Reviewer made no repository edits.",
+    "selector_path": "/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+    "selector_sha256": "df6cd05b059ba9c5d3849b73b40e0fa9b942b268689b79a44a6710b97110d80a",
+    "caller_path": "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py",
+    "caller_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "current_Batch2_reviewed": null
+  },
+  "verdicts": {
+    "selector_entry": "APPROVED_SOURCE_SCOPED",
+    "INSTALLED-SAFETY-F01-ENTRY": "CLOSED_SOURCE_SCOPED",
+    "exact_activation_candidate": "APPROVED_SOURCE_SCOPED_CONDITIONAL_PARENT_ADJUDICATION",
+    "PG_native_runtime": "NOT_RUN",
+    "global_phase": "NOT_CLOSED"
+  },
+  "finding_dispositions": [
+    {
+      "id": "INSTALLED-SAFETY-F01-ENTRY",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "original": "Full 2112494-byte current-reader allocation occurred before exit2; downstream bounded helper did not protect main().",
+      "current": "Actual main now bounds all three hash inputs before content reading; original padded-reader input refuses before os.read/Path.read_bytes on that target, exits2 and never reaches collection.",
+      "evidence": "Independent exact frozen regression passed: 2 test methods, matched-metadata positive and 7 negative subtests. Static review covers shared guards for both batch2 cases."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F01",
+      "disposition": "PRIOR_HELPER_APPROVAL_RETAINED_ENTRY_RESIDUAL_CLOSED_SOURCE_SCOPED",
+      "scope": "No new helper, installed-origin, nested reader or distribution audit; unchanged caller hash independently confirmed."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F02",
+      "disposition": "PRIOR_CLOSED_SOURCE_SCOPED_RETAINED",
+      "scope": "Cancellation/fence approval reused only within original limitations; historical inconclusive process harness not rerun or promoted."
+    }
+  ],
+  "findings": [],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Bound pinned input before allocation/hash",
+      "code": "selector:93-140,156-164",
+      "assessment": "fstat checks regular type/current UID/single link and nonnegative size within maximum before first os.read. Each os.read request is bounded by remaining budget, accumulated logical input length cannot exceed maximum. Exact length and stable dev/inode/mode/uid/gid/nlink/size/mtime_ns/ctime_ns are checked before SHA.",
+      "bounds_bytes": {
+        "source": 524288,
+        "native_artifact": 32768,
+        "current_reader": 32768
+      },
+      "evidence": "Oversized reader, source and native-artifact direct-main negatives: no target content reads, exit2, no collection."
+    },
+    {
+      "requirement": "No-follow physical path and nonblocking unsafe-leaf refusal",
+      "code": "selector:95-115",
+      "assessment": "Absolute fixed paths without parent traversal; root and every ancestor opened with O_DIRECTORY|O_NOFOLLOW, child lookup relative to held directory FD, leaf O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC. Directory and leaf finalizers close descriptors along implemented normal/error paths. No arbitrary filename CLI authority introduced.",
+      "evidence": "Leaf and parent symlink, hardlink and FIFO direct-main negatives all refuse without target reads or collection. No universal asynchronous FD-leak proof claimed."
+    },
+    {
+      "requirement": "Preserve genuine positive and admission barriers",
+      "code": "selector:143-192; regression:81-100",
+      "assessment": "Matching pinned metadata reaches mocked collection exactly once and returns37. Negative targets return2 before collection. BATCH2_REVIEWED remains None, explicit flag remains necessary, source hash must match, effectful runner import occurs only after these guards. Candidate only changes the reviewed binding, not guards/argv/environment/deadline.",
+      "evidence": "Positive and negatives execute actual main on same channel; subprocess.call substituted and Popen forbidden. No real pytest child/runtime launch in independent regression."
+    }
+  ],
+  "evidence": {
+    "developer_report": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-fix-developer.json",
+      "sha256": "0f423d61677a974ee0d6f86cf61d5503bb9b0f9f996b26085cdcf3dc1b0476b0",
+      "red": "Developer-recorded exit1 with positive passing and seven negative subtests failing; retained as historical RED, not rerun on old source.",
+      "green": "Developer-recorded 2 tests exit0, lint/format/mypy exit0, both cases collect one test, unactivated explicit-flag run exits2. These are reused records, not newly run suites."
+    },
+    "original_residual_report": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-safety.json",
+      "sha256": "05af21d5098d04eaf1af0595f2e9a446d64314b49c280a16cde40302df14f67e"
+    },
+    "regression": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py",
+      "sha256": "d6b7590d8c357a6b49f709dfa88edb048accad992c4adbfb3149788bb8cd3950",
+      "source_reviewed": true,
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "test_methods": 2,
+      "positive_controls": 1,
+      "negative_subtests": 7,
+      "output": "EXACT_HASHES_AND_ONLY_CANDIDATE_AST_CHANGE_OK\ntest_matched_metadata_reaches_only_collection_seam (__main__.SelectorEntry.test_matched_metadata_reaches_only_collection_seam) ... ok\ntest_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) ... usage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.027s\n\nOK\nEXACT_HASHES_AND_ONLY_CANDIDATE_AST_CHANGE_OK\ne4531b84aa679b84246c573424afcf5d5f112bb0\n## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+      "limits": "Source actual main with launch seam mocked; not installed process/PG/native integration. Temporary synthetic files cleaned by TemporaryDirectory."
+    }
+  },
+  "activation": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "exact_new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "candidate_sha256": "5f99ce77c93b13a29a00c9acca90b13034bea1525d42185ca00035d0d7e71f85",
+    "ast_parses": true,
+    "only_AST_change": "Annotated BATCH2_REVIEWED value None to exact unchanged caller digest; verified by normalizing only that value and comparing ASTs.",
+    "applied": false,
+    "executed": false,
+    "approval": "APPROVED_SOURCE_SCOPED_CONDITIONAL_PARENT_ADJUDICATION",
+    "conditions": [
+      "Parent must adjudicate both complementary exact-snapshot selector/candidate reviews.",
+      "Parent must recompare exact caller/source/candidate hashes before any separately authorized activation.",
+      "This report does not apply activation, authorize PG/native execution or certify runtime outcomes."
+    ]
+  },
+  "reused_approvals": {
+    "normative": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-normative.json",
+      "basis": "Prior unchanged-caller normative approval retained per delegation; not independently reopened here. Exact changed-selector normative approval is separate."
+    },
+    "helper_cancellation": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-safety.json",
+      "basis": "Read original scope and limits; caller exact hash unchanged."
+    },
+    "distribution": {
+      "verdict": "APPROVED_SCOPED_STATIC_READ_ONLY_RETAINED",
+      "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+      "basis": "Prior static distribution approval only; no image export, rebuild or new attestation."
+    }
+  },
+  "limits": [
+    "No PG/native/runtime/create/build/install/provider/target/r1/profile/credential/global/push actions.",
+    "No full41/85 suites, old cancellation harness, arbitrary same-UID race audit or repeated unknown BaseException matrix.",
+    "No claim of atomic binding across later pathname reopening/execution, hostile same-UID mutation immunity or universal interruption safety.",
+    "Accumulated content is bounded; this is not a peak Python allocator/RSS measurement.",
+    "Historical H03 branch uses the new fixed bounds but was not runtime-rerun; no historical caller acceptance is expanded.",
+    "Protected documents/Omnis_Notite_Originale.html appeared only as a preexisting untracked status pathname; never read/hashed/edited/staged/deleted.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "B06b/G02/P2/P4a-minim remain open; phase closure and parent integration are not delegated."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-review-safety.json"
+  ],
+  "repository_files_modified": [],
+  "commits_by_reviewer": [],
+  "issues": [
+    "Initial broad read output truncated; exact selector and relevant proof were subsequently reread in bounded output.",
+    "Initial in-memory replacement probe used unannotated text and correctly found zero replacements; no approval based on that probe. Correct annotated literal was then read from source, replaced exactly once, AST-compared and matched expected candidate hash."
+  ],
+  "proposed_skill_lesson": "Reuse existing review-qa call-site lesson: trace artifact bounds through entrypoint hash guards and test allocation before refusal on actual main. No skill edits in read-only delegated scope.",
+  "proposed_status_delta": "AICI selector bounded admission IMPLEMENTED / focused actual-main regression PASS / APPROVED_SOURCE_SCOPED. F01-ENTRY closed within SOURCE scope. Exact activation approved conditionally; parent complementary adjudication pending. Unchanged approvals retained, real PG/native NOT_RUN and global gates NOT_CLOSED."
+}

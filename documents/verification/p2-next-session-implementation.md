@@ -1,6 +1,6 @@
 # Prompt pentru sesiunea fresh — închidere P2-inert → P4a-minim
 
-**PAUZĂ CERUTĂ DE OPERATOR pentru oprirea laptopului, 15 octombrie 2026.** Livrabilul curent este `HANDOFF_ONLY`: fără autostart, dezvoltatori, implementări sau probe noi până la mesajul explicit de reluare al operatorului. Oprește orice continuitate derivată din mandatul anterior; rezultatele asincrone întârziate nu îl reactivează. După reluare, CURRENT și §0 de mai jos preced instrucțiunile istorice de „prima implementare”.
+**RELUAT EXPLICIT după reboot de operator; mandatul curent este continuarea inertă.** Pauza din 15 octombrie și backupul de mai jos rămân recovery istoric, nu interdicție după mesajul nou de reluare. Orice stop ulterior prevalează și schimbă livrabilul în `HANDOFF_ONLY`; rezultatele asincrone nu îl anulează. CURRENT precede pașii istorici de „prima implementare” sau WIP.
 
 **DOAR ÎN SESIUNEA FRESH cu prompt publicat explicit — sau în conversația restaurată după un mesaj nou explicit de reluare al operatorului.** Închiderea și redeschiderea aplicației nu reactivează singure implementarea.
 
@@ -8,13 +8,16 @@ Acesta este promptul de execuție al planului existent, nu un plan paralel. Arhi
 
 ## CURRENT — stare de recuperat, nu de reinvestigat
 
-- Branch activ de recuperare: **`checkpoint/p2-batch2-pause-20261015`**, WIP salvat în **`17866dd`** din baza `a916509`; commitul documentar final este ulterior și se citește din Git real. Branchul anterior `checkpoint/p2-vm-restart-20261011` rămâne la baza curată `a916509`. **Batch2 este implementat și aprobat SOURCE scoped** pe `ef6dae7`; QA PG/native instalată nu este livrată. Writerul s-a oprit, delegări live0/procese proprii0/containere proprii0 la readback. Nu adopta un proces/autor vechi și nu transfera aprobarea SOURCE la WIP-ul callerului QA.
+- Branch activ: **`checkpoint/p2-batch2-pause-20261015`**. WIP-ul istoric `17866dd` este continuat în `b16eda5`, remediat în `1ab0274`/`e4531b8`; citește HEAD real. **Produsul batch2 SOURCE aprobat pe `ef6dae7` este neschimbat.** Callerul installed și distribuția au reviewuri complementare scoped; cele3findings QA și rezidualul selectorului sunt închise SOURCE, cu FAIL-uri păstrate în [registru](p2-bound-predicates.md). Nu relua implementarea, restaurarea, buildul sau grupurile aprobate neschimbate.
+- **Pasul imediat actual este prima QA reală**, nu finalizarea WIP-ului: caller SHA`93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28`, selector activ SHA`5f99ce77c93b13a29a00c9acca90b13034bea1525d42185ca00035d0d7e71f85`, candidat exact aprobat de ambii revieweri și adjudecat de părinte. Imaginea/readerul din §0 sunt păstrate identic și aprobate static. Refolosește selectorul existent: release-first, apoi stop-first, serial, fresh fixture/root/boot, deadline240 și cel mult o tentativă inițială/variantă. Preflightul/collect au trecut; verifică numai identitatea și prerechizitele care s-ar fi schimbat. Qualified sizes/PG/native/canonical încă NOT_RUN; nu transforma această admitere în PASS.
 - Qualification `191b901` și H01/H02 installed history `c2fdf7d` rămân acceptate scoped. D01–D03/pre-main, M2/F01, numitorul CONTRACT, PARTIAL/evidence/invalidation și schema0013 nu sunt sarcini de reluat neschimbate.
 - **H03 ACCEPTED_SCOPED pe `e037cf1`**, caller SHA256 `05ee180c0b11287c1b275c71fa63da1bdc3eaff8e8e2df59f1233ccbc5570c77`: [adjudecare și cleanup](p2-bound-predicates-evidence/h03-installed-restart-parent-acceptance.json). Pozitiv1PASS40.69s și negativ fără final1PASS32.63s, ambele exit0/family_drained=true. Final/check autentice persistate → restart real Host/native OCI stock → public cached receive/readeri instalați fără reexecuție și consum1; lipsa finalului refuză TASK_INDETERMINATE/NEEDS_RECONCILIATION fără scrieri. API owner SOURCE, **nu recovery al supervisorului stock**. Resursele proprii au fost retrase/verificate, datele și logurile păstrate.
 - Packaging `9937bc5` a completat closure-ul jsonschema. IPC `0448cd9` închide canalul confirmat drenat înaintea readerilor offline; retirementul reconectează același owner pentru Stop/status fresh. `e037cf1` verifică boot și PID/starttime, nu unicitatea inode-ului namespace între vieți distincte. Confinarea privată rămâne obligatorie. Cauzele interne istorice release/cold-start rămân UNKNOWN; FAIL-urile și fence-urile vechi nu sunt șterse retrospectiv.
 - **Primul rezultat lipsă:** acceptarea batch2 prin consumerul PostgreSQL/native instalat existent — binding integral COMMIT pre-access, overlap real read/PURE, două result/check/inbox și consum unic. Producerul/indexarea/concurența/checkerul SOURCE sunt deja implementate; nu le reface. Continuă WIP-ul installed QA din §0. Apoi DATA/admission → canonical P2-inert → Settings și browser/polish numai UI afectată. B06b/G02/P2-inert/P4a-minim nu sunt închise; P2-live rămâne separat.
 
-## 0. Reluare exactă după oprirea laptopului
+## 0. Checkpoint istoric de pauză și contractul probei reale
+
+**După reluare:** WIP-ul și pașii2–3 de pregătire de mai jos au fost executați și reviewuiți în commiturile CURRENT. Artefactele și backupul rămân valabile la scope-ul lor; primul rest este pasul4, QA reală. Nu reseta contorul încercărilor sau reexecuta munca neschimbată din descrierea pauzei.
 
 ### Ce este salvat și acceptat
 

@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "review": "independent-2-of-2-installed-caller-safety-and-additive-distribution",
+  "complete": true,
+  "snapshot": {
+    "start_head": "86217c48fa7ac799c684a3d7b66b0b26675c10a0",
+    "end_head": "b16eda547fcee1c1a817281969e8f345369f85e8",
+    "head_transition": "Parent committed exact reviewed bytes during read-only review; both source SHA values unchanged.",
+    "base": "ef6dae7",
+    "caller_sha256": "2fd30261135e72e0f156a71f7be492e408b78076075d85cd102d2f280fdf8a9c",
+    "selector_sha256": "576b5809edba0b6811f27e3c8d24f0b83600a28f4c0c532a2047d00200182eae",
+    "candidate_selector_sha256": "2aee5051cc3df8481423903997a21e90efb7d2f0a7989bac9aa63aaa0956e501"
+  },
+  "exact_hashes": {
+    "build-installed.py": "7508fb207c037007a54955f7e660abfe28c1798432d6c7f7ff09af29c66db4ce",
+    "native-artifact.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "build-report.json": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "current-reader.json": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+    "context/Dockerfile": "19f82005c653e5e0cbfaa8719af181d80439a4ba99e8bb727c90558c01d38a37",
+    "attestation.json": "eddf00cac1cf5b4f835ffb1a6f2c11ffeddf458ddd4a50bdbd81978f312acb68",
+    "source-original.tar": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "adapter_wheel": "747fe1c48b466613a3348e6cb2640c7b99638ca665bcff3460e297f38b1f57fc",
+    "api_wheel": "21ccd49f25d141dc107c308e9ff8fcc191ab8b920c7f60afe149066a9cd6a60c"
+  },
+  "examined_scope": [
+    "Complete supplied caller/selector delta versus ef6dae7, including WIP17866dd; current acquisition, installed TestLaunch bootstrap, observation and early-return/finally branches, reader launch/family and dynamic fixture fence surrounding code.",
+    "Existing RuntimeHost TestLaunch/main/run entry, namespace ownership qualification, native BOOTSTRAP audit/sys.monitoring, fresh environment, original strict observation gate and actual batch2 two-thread read/PURE overlap assertions.",
+    "Original build-installed.py, actual Dockerfile/smoke/provenance, prepare_hermes_runtime.py source/overlay/pin mechanism and unchanged dependency inputs.",
+    "Read-only Docker image inspect and image save; SHA-bound config and every layer; layered filesystem content, UID/search permission metadata and static build attestation. Actual current reader wheel, installed files and repository/export equality.",
+    "Exact activation replacement computed in memory only; selector still None. No run_gate/prove_private_fixture/--check effects."
+  ],
+  "findings": [
+    {
+      "id": "INSTALLED-SAFETY-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "4141-4241; nested path/metadata validation 4176-4184, unbounded descendant reads 4202-4207 (function batch2_current_reader)",
+      "title": "Current-reader preflight accepts symlinked source descendants and has no bounded file reads",
+      "evidence": "Actual unchanged helper accepts the genuine descriptor, then accepts a private descriptor whose source is a real directory but source/api is a symlink to the retained snapshot/api. The first source root resolve check does not cover descendants. A genuine descriptor padded with 2097152 ASCII spaces (2112494 bytes total) also succeeds. No original artifact was modified.",
+      "reproducer": "Run commands[descriptor_and_cancellation_reproducer] and commands[oversized_descriptor_reproducer] below under api/.venv/bin/python -I -B. They call the actual helper and installed origin comparator, no DB/native runtime. Output: original_accepted True; source_ancestor_symlink_accepted True; descriptor_bytes 2112494 oversized_descriptor_accepted True.",
+      "criterion": "Explicit review requirement: strict descriptor paths/UID/symlinks/bounded reads before effects. Hash equality is not regular-single-link file/ancestor identity or a bound on the read that precedes hashing.",
+      "impact": "Preflight can follow an unvalidated nested alias, and read_bytes on descriptor/wheel/source/installed material can consume unbounded data or block on replaced nonregular files before the subprocess timeout. This is a local artifact-safety/acceptance gap, not a demonstrated remote exploit or compromised current artifact.",
+      "remedy": "Reuse bounded no-follow regular single-link readers and physical owned ancestor validation for descriptor, wheel and source/installed members; check sizes before reading and ZIP expanded member sizes. Keep only the explicitly attested interpreter symlink exception. Add focused positive plus nested-link/nonregular/oversize negatives on this helper before activation; no new harness."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": "4995-4997",
+      "title": "Installed reader cancellation is replaced with an AssertionError",
+      "evidence": "An AST extraction of the actual restarted_cli with installed_native=True and batch2=True, substituting only asyncio.to_thread with an async CancelledError producer, returns AssertionError(H03_READER_NOT_SETTLED), __context__ CancelledError and __suppress_context__ True; fence remains unsettled=True.",
+      "reproducer": "commands[descriptor_and_cancellation_reproducer]. Finite SOURCE-only injected cancellation; no process launch, PostgreSQL, OCI runtime or old cancellation-harness rerun.",
+      "criterion": "Preserve primary errors/cancellation through installed acquisition/reader/finalizer; retain UNKNOWN, do not mask the primary error.",
+      "impact": "DB clearance remains conservatively blocked, but cancellation semantics and primary failure are lost at the new batch2 installed-reader route. Outer finally preservation cannot restore an exception already replaced here.",
+      "remedy": "Checkpoint the unsettled state, preserve the original cancellation/BaseException with a bare re-raise (at minimum handle CancelledError/KeyboardInterrupt separately), while keeping sensitive ordinary diagnostic output private and the uncertainty latch true. Add a direct actual-reader control asserting the original cancellation propagates and the fence remains closed."
+    }
+  ],
+  "verdicts": {
+    "caller": "CHANGES_REQUESTED_SCOPED",
+    "distribution": "APPROVED_SCOPED_STATIC_READ_ONLY",
+    "candidate_activation": "WITHHELD_BLOCKED_BY_INSTALLED_SAFETY_F01_F02",
+    "candidate_mechanical_replacement": "VALID_EXACT_HASH_NOT_APPLIED",
+    "real_pg_native": "NOT_RUN",
+    "phase": "NOT_CLOSED_PARENT_ADJUDICATION_REQUIRED"
+  },
+  "distribution_evidence": {
+    "artifact_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0",
+    "image_id": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "base_id": "sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_layers_hashed": 51,
+    "base_prefix_layers_identical": 45,
+    "original_files_hashed": 15208,
+    "runtime_payload_files_exact": 3187,
+    "native_files": 19,
+    "adapter_modules": 15,
+    "api_package_files_wheel_installed_source_equal": 88,
+    "installed_api_files_regular_single_link_uid1000": true,
+    "uid1000_file_and_ancestor_access_static": true,
+    "stock_cmd": [
+      "/opt/hermes/venv/bin/python",
+      "-I",
+      "-m",
+      "omnis_hermes.runtime_host"
+    ],
+    "entrypoint": null,
+    "runtime_test_bootstraps_in_image": false,
+    "pth_content": "/opt/hermes/source\n",
+    "new_dependency_payload_in_added_layers": false,
+    "full_manifest_derived_from_original_tar_plus_ordered_overlays": true,
+    "build_RUN_attestation_byte_equal_to_actual_saved_image": true,
+    "limit": "Archive/static proof including preserved build-RUN attestation; not a fresh live installed runtime approval. No image create/start/build performed."
+  },
+  "preserved_properties": [
+    "Review digest guard occurs before migrated_database_url acquisition; no personal PIN/LIBRARIES fallback for installed_native.",
+    "Explicit QA host delegates to real RuntimeHost/TestLaunch and host.main; native observer invokes real tui_gateway.entry. Stock image CMD unchanged, QA entry files runtime-mounted only.",
+    "Container exact configuration/UID, argv, live proc-root inventory and private namespace comparisons remain before stage/release access; no omitted comparison in the reviewed changed branches.",
+    "Fresh home/environment clear, audit and bounded locked event channel, sys.monitoring, forbidden attempts retained even when caught, actual two-handler overlap checks and original task count assertions retained.",
+    "Reader_unknown and docker_unknown latch before acquisition, prior unknown restored rather than forgiven; strict managed family owner used. Final resource/daemon/native cleanup and observer check precede dynamic DB fence clearance. Error/cancel body controls pass; reader cancellation finding is separately identified.",
+    "Both batch2 early returns reach shared strict observation gate after cleanup. No arbitrary raw PG trace/capability emitted in this review.",
+    "Original product source and pin/dependency scope unchanged versus ef6dae7; old F01/F02/F03/NORM closures not reopened."
+  ],
+  "commands": {
+    "snapshot": {
+      "command": "git status --short --branch; git diff --stat; git rev-parse HEAD; git show --stat --oneline HEAD",
+      "exit": 0
+    },
+    "hashes_and_candidate": {
+      "command": "Python hashlib over exact caller, selector, driver and named artifact files; replace exactly one BATCH2_REVIEWED: str | None = None in memory and SHA256 the candidate",
+      "exit": 0
+    },
+    "image_inspect": {
+      "command": "docker image inspect sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12 sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f; docker info --format={{.ID}}",
+      "exit": 0
+    },
+    "image_save": {
+      "command": "umask 077; mkdir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/reviewer2-static; docker image save -o /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/reviewer2-static/native-image.tar sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+      "exit": 0
+    },
+    "artifact_check_initial": {
+      "exit": 1,
+      "limit": "Reviewer script initially compared overlapping inert intermediate bytes to final managed-overlay bytes. Assertion failed in reviewer comparison, not artifact. Preserved failure; corrected comparison to ordered overlay union."
+    },
+    "artifact_check_final": {
+      "command": "python3 -I -B -c '\nimport hashlib, json, tarfile, pathlib, subprocess, stat, zipfile\nP=pathlib.Path; repo=P('\"'\"'/home/kali/OmnisAI'\"'\"'); root=P('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74'\"'\"'); a=root/'\"'\"'installed-c6eac5f5a13440ffa6bcb35a6e853ab0'\"'\"'\ndef sha(b): return hashlib.sha256(b).hexdigest()\ndef streamsha(f):\n h=hashlib.sha256()\n while b:=f.read(1048576): h.update(b)\n return h.hexdigest()\nt=tarfile.open(root/'\"'\"'reviewer2-static/native-image.tar'\"'\"'); manifest=json.load(t.extractfile('\"'\"'manifest.json'\"'\"'))[0]; configraw=t.extractfile(manifest['\"'\"'Config'\"'\"']).read(); config=json.loads(configraw)\nassert sha(configraw)=='\"'\"'261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12'\"'\"'\nbase=json.loads(subprocess.check_output(['\"'\"'docker'\"'\"','\"'\"'image'\"'\"','\"'\"'inspect'\"'\"','\"'\"'sha256:151e55e57b7ace35bb0053ab74caf4d2a71d8d2c82a0176aa9872c148071329f'\"'\"'],timeout=20))[0]\nassert config['\"'\"'rootfs'\"'\"']['\"'\"'diff_ids'\"'\"'][:len(base['\"'\"'RootFS'\"'\"']['\"'\"'Layers'\"'\"'])]==base['\"'\"'RootFS'\"'\"']['\"'\"'Layers'\"'\"']\nstate={}; contents={}; suffix=set(); pth={}\nfor i,(name,diffid) in enumerate(zip(manifest['\"'\"'Layers'\"'\"'],config['\"'\"'rootfs'\"'\"']['\"'\"'diff_ids'\"'\"'],strict=True)):\n assert streamsha(t.extractfile(name))==diffid.split('\"'\"':'\"'\"')[1]\n with tarfile.open(fileobj=t.extractfile(name),mode='\"'\"'r|'\"'\"') as layer:\n  for m in layer:\n   n=m.name.removeprefix('\"'\"'./'\"'\"').rstrip('\"'\"'/'\"'\"'); path=P(n)\n   if path.name.startswith('\"'\"'.wh.'\"'\"'):\n    target=str(path.parent/path.name.removeprefix('\"'\"'.wh.'\"'\"'))\n    if path.name=='\"'\"'.wh..wh..opq'\"'\"': target=str(path.parent)+'\"'\"'/'\"'\"'\n    for old in list(state):\n     if old==target or old.startswith(target.rstrip('\"'\"'/'\"'\"')+'\"'\"'/'\"'\"'): state.pop(old,None); contents.pop(old,None)\n    continue\n   relevant=n.startswith(('\"'\"'opt/hermes/source/'\"'\"','\"'\"'opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/'\"'\"','\"'\"'opt/hermes/provenance/'\"'\"','\"'\"'opt/hermes/batch2/'\"'\"')) or n.endswith('\"'\"'.pth'\"'\"')\n   digest=None\n   if relevant and m.isfile():\n    raw=layer.extractfile(m).read();digest=sha(raw)\n    if n.endswith('\"'\"'.json'\"'\"') or n.endswith('\"'\"'.pth'\"'\"') or n.endswith('\"'\"'/smoke.py'\"'\"'): contents[n]=raw\n   state[n]={'\"'\"'sha256'\"'\"':digest,'\"'\"'uid'\"'\"':m.uid,'\"'\"'gid'\"'\"':m.gid,'\"'\"'mode'\"'\"':m.mode,'\"'\"'type'\"'\"':m.type.decode(),'\"'\"'link'\"'\"':m.linkname}\n   if i>=len(base['\"'\"'RootFS'\"'\"']['\"'\"'Layers'\"'\"']) and not m.isdir(): suffix.add(n)\nsource_manifest=json.loads(contents['\"'\"'opt/hermes/provenance/source-manifest.json'\"'\"']); bm=json.loads(contents['\"'\"'opt/hermes/provenance/build-manifest.json'\"'\"'])\nactual={n.removeprefix('\"'\"'opt/hermes/source/'\"'\"'):v['\"'\"'sha256'\"'\"'] for n,v in state.items() if n.startswith('\"'\"'opt/hermes/source/'\"'\"') and v['\"'\"'type'\"'\"']=='\"'\"'0'\"'\"' and '\"'\"'__pycache__'\"'\"' not in P(n).parts and not n.endswith('\"'\"'.pyc'\"'\"')}\nassert actual==bm['\"'\"'source_files'\"'\"']; assert len(actual)==3187\nexpected=json.loads((a/'\"'\"'context/expected.json'\"'\"').read_bytes())\nfor n,h in expected.items():\n assert state[n]['\"'\"'sha256'\"'\"']==h and state[n]['\"'\"'type'\"'\"']=='\"'\"'0'\"'\"' and state[n]['\"'\"'uid'\"'\"']==1000 and state[n]['\"'\"'gid'\"'\"']==1000\n assert state[n]['\"'\"'mode'\"'\"']&0o400\n for parent in P(n).parents:\n  if str(parent)=='\"'\"'.'\"'\"':continue\n  d=state[str(parent)]; assert d['\"'\"'type'\"'\"']=='\"'\"'5'\"'\"'; assert d['\"'\"'mode'\"'\"'] & (0o100 if d['\"'\"'uid'\"'\"']==1000 else 0o010 if d['\"'\"'gid'\"'\"']==1000 else 0o001)\nassert contents['\"'\"'opt/hermes/batch2/attestation.json'\"'\"']==(a/'\"'\"'attestation.json'\"'\"').read_bytes()\nfor n in ['\"'\"'expected.json'\"'\"','\"'\"'smoke.py'\"'\"']:assert contents['\"'\"'opt/hermes/batch2/'\"'\"'+n]==(a/'\"'\"'context'\"'\"'/n).read_bytes()\nfor n in ['\"'\"'source-manifest.json'\"'\"','\"'\"'build-manifest.json'\"'\"']:assert contents['\"'\"'opt/hermes/provenance/'\"'\"'+n]==(a/'\"'\"'context'\"'\"'/n).read_bytes()\nassert source_manifest['\"'\"'pin'\"'\"']==json.loads((repo/'\"'\"'integrations/hermes/pin.json'\"'\"').read_bytes())\nassert bm['\"'\"'dependency_override'\"'\"']==json.loads((repo/'\"'\"'integrations/hermes/runtime-override/provenance.json'\"'\"').read_bytes())\nassert bm['\"'\"'dependency_base'\"'\"']==base['\"'\"'Id'\"'\"']\nfor n in suffix: assert n.startswith(('\"'\"'opt/hermes/source/'\"'\"','\"'\"'opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/'\"'\"','\"'\"'opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes-0.1.0.dist-info/'\"'\"','\"'\"'opt/hermes/provenance/'\"'\"','\"'\"'opt/hermes/batch2/'\"'\"')),n\nassert not any(P(n).name in ('\"'\"'host-qa.py'\"'\"','\"'\"'native_bootstrap.py'\"'\"') for n in state)\noverlays={}\nfor n in ('\"'\"'patch-manifest.json'\"'\"','\"'\"'managed-patch-manifest.json'\"'\"'):\n mf=json.loads((repo/'\"'\"'integrations/hermes/upstream'\"'\"'/n).read_bytes())\n directory='\"'\"'inert-source'\"'\"' if n=='\"'\"'patch-manifest.json'\"'\"' else '\"'\"'managed-source'\"'\"'\n for p in mf['\"'\"'files'\"'\"']:\n  overlays[p]=sha((repo/'\"'\"'integrations/hermes/upstream'\"'\"'/directory/p).read_bytes())\nfor p,h in overlays.items():\n assert h==expected['\"'\"'opt/hermes/source/'\"'\"'+p]==sha((a/'\"'\"'reapply'\"'\"'/p).read_bytes())\ndesc=json.loads((a/'\"'\"'current-reader.json'\"'\"').read_bytes()); cur=desc['\"'\"'current'\"'\"']; api_count=0\nwith zipfile.ZipFile(cur['\"'\"'wheel'\"'\"']) as wheel:\n for n in wheel.namelist():\n  if n.startswith('\"'\"'omnis/'\"'\"') and not n.endswith('\"'\"'/'\"'\"'):\n   raw=wheel.read(n); p=a/'\"'\"'reader/lib/python3.13/site-packages'\"'\"'/n; s=p.lstat(); assert stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==1000\n   assert raw==p.read_bytes()==(repo/'\"'\"'api/src'\"'\"'/n).read_bytes()==(a/'\"'\"'snapshot/api/src'\"'\"'/n).read_bytes(); api_count+=1\nassert sha(P(cur['\"'\"'wheel'\"'\"']).read_bytes())==cur['\"'\"'wheel_sha256'\"'\"']\noriginal=streamsha((root/'\"'\"'source-original.tar'\"'\"').open('\"'\"'rb'\"'\"')); assert original==source_manifest['\"'\"'pin'\"'\"']['\"'\"'source_archive_sha256'\"'\"']\nprint(json.dumps({'\"'\"'image_id_bound'\"'\"':sha(configraw),'\"'\"'layers_hashed'\"'\"':len(manifest['\"'\"'Layers'\"'\"']),'\"'\"'base_prefix_layers'\"'\"':len(base['\"'\"'RootFS'\"'\"']['\"'\"'Layers'\"'\"']),'\"'\"'runtime_files_exact'\"'\"':len(actual),'\"'\"'native_adapter_exact'\"'\"':len(expected),'\"'\"'API_files_wheel_installed_source_exact'\"'\"':api_count,'\"'\"'original_sha256'\"'\"':original,'\"'\"'attestation_exact'\"'\"':True,'\"'\"'uid_access_static'\"'\"':True,'\"'\"'QA_bootstraps_absent'\"'\"':True,'\"'\"'dependency_suffix_unchanged'\"'\"':True,'\"'\"'pth'\"'\"':{n:contents[n].decode() for n in contents if n.endswith('\"'\"'.pth'\"'\"')},'\"'\"'stock_cmd'\"'\"':config['\"'\"'config'\"'\"']['\"'\"'Cmd'\"'\"']},indent=2))\n\n# Independently derive the runtime inventory from original tar + overlays.\nwith tarfile.open(root/'\"'\"'source-original.tar'\"'\"') as original_tar:\n originals={}\n for member in original_tar:\n  if member.isfile(): originals[member.name]=sha(original_tar.extractfile(member).read())\nassert originals==source_manifest['\"'\"'original_files'\"'\"']\nfor p,h in actual.items(): assert h==overlays.get(p,originals.get(p)),p\npin=source_manifest['\"'\"'pin'\"'\"']\nfor rel,key in [('\"'\"'integrations/hermes/requirements-native.txt'\"'\"','\"'\"'requirements_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/uv.lock'\"'\"','\"'\"'uv_lock_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/pyproject.toml'\"'\"','\"'\"'pyproject_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/omnis-inert.patch'\"'\"','\"'\"'patch_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/patch-manifest.json'\"'\"','\"'\"'patch_manifest_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/omnis-managed.patch'\"'\"','\"'\"'managed_patch_sha256'\"'\"'),('\"'\"'integrations/hermes/upstream/managed-patch-manifest.json'\"'\"','\"'\"'managed_patch_manifest_sha256'\"'\"')]: assert sha((repo/rel).read_bytes())==pin[key]\nfor n,h in bm['\"'\"'dependency_override'\"'\"']['\"'\"'files'\"'\"'].items(): assert sha((repo/'\"'\"'integrations/hermes/runtime-override'\"'\"'/n).read_bytes())==h\nfor n,h in actual.items(): assert sha((a/'\"'\"'context/runtime-source'\"'\"'/n).read_bytes())==h\nprint('\"'\"'ORIGINAL_INVENTORY_AND_PIN_INPUTS_EXACT'\"'\"',len(originals),'\"'\"'RUNTIME_DERIVED_EXACT'\"'\"',len(actual))\n'",
+      "exit": 0,
+      "output": "{\n  \"image_id_bound\": \"261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12\",\n  \"layers_hashed\": 51,\n  \"base_prefix_layers\": 45,\n  \"runtime_files_exact\": 3187,\n  \"native_adapter_exact\": 34,\n  \"API_files_wheel_installed_source_exact\": 88,\n  \"original_sha256\": \"f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80\",\n  \"attestation_exact\": true,\n  \"uid_access_static\": true,\n  \"QA_bootstraps_absent\": true,\n  \"dependency_suffix_unchanged\": true,\n  \"pth\": {\n    \"opt/hermes/venv/lib/python3.13/site-packages/omnis-native-source.pth\": \"/opt/hermes/source\\n\"\n  },\n  \"stock_cmd\": [\n    \"/opt/hermes/venv/bin/python\",\n    \"-I\",\n    \"-m\",\n    \"omnis_hermes.runtime_host\"\n  ]\n}\nORIGINAL_INVENTORY_AND_PIN_INPUTS_EXACT 15208 RUNTIME_DERIVED_EXACT 3187"
+    },
+    "descriptor_and_cancellation_reproducer": {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '\nimport sys,json,ast,asyncio,types\nfrom pathlib import Path\nsys.path.insert(0,'\"'\"'/home/kali/OmnisAI/api/tests'\"'\"')\nimport test_contract_method_pg as m\nr=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74'\"'\"'); a=r/'\"'\"'installed-c6eac5f5a13440ffa6bcb35a6e853ab0'\"'\"'; own=r/'\"'\"'reviewer2-static'\"'\"'\nd=json.loads((a/'\"'\"'current-reader.json'\"'\"').read_bytes())\nprint('\"'\"'original_accepted'\"'\"',m.batch2_current_reader(a/'\"'\"'current-reader.json'\"'\"')==d['\"'\"'current'\"'\"'])\np=own/'\"'\"'alias-source'\"'\"';p.mkdir(mode=0o700);(p/'\"'\"'api'\"'\"').symlink_to(a/'\"'\"'snapshot/api'\"'\"',target_is_directory=True)\nd['\"'\"'root'\"'\"']=str(r);d['\"'\"'current'\"'\"']['\"'\"'source'\"'\"']=str(p)\nf=own/'\"'\"'alias-reader.json'\"'\"';f.write_text(json.dumps(d));f.chmod(0o600)\nprint('\"'\"'source_ancestor_symlink_accepted'\"'\"',m.batch2_current_reader(f)==d['\"'\"'current'\"'\"'])\n# Cancellation at the exact new installed reader call site, without a child/DB.\ntree=ast.parse(__import__('\"'\"'inspect'\"'\"').getsource(m.test_contract_method_real_native_pg_owner_receipts_check_inbox));fn=next(n for n in tree.body[0].body if isinstance(n,ast.AsyncFunctionDef) and n.name=='\"'\"'restarted_cli'\"'\"')\nasync def cancel(*args,**kwargs):raise asyncio.CancelledError('\"'\"'synthetic'\"'\"')\nns={**vars(m),'\"'\"'tmp_path'\"'\"':own,'\"'\"'installed_native'\"'\"':True,'\"'\"'batch2'\"'\"':True,'\"'\"'h03'\"'\"':False,'\"'\"'h03_state'\"'\"':{'\"'\"'reader_unknown'\"'\"':False},'\"'\"'db_fence'\"'\"':{'\"'\"'unsettled'\"'\"':False},'\"'\"'reader_python'\"'\"':Path(sys.executable),'\"'\"'dsn'\"'\"':'\"'\"'SYNTHETIC'\"'\"','\"'\"'seed'\"'\"':types.SimpleNamespace(root=own,environment=lambda _:{}),'\"'\"'checkpoint'\"'\"':lambda **kw:None,'\"'\"'asyncio'\"'\"':types.SimpleNamespace(to_thread=cancel)}\nexec(compile(ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[])),'\"'\"'<actual-reader>'\"'\"','\"'\"'exec'\"'\"'),ns)\ntry:asyncio.run(ns['\"'\"'restarted_cli'\"'\"']('\"'\"'readback'\"'\"',{}))\nexcept BaseException as e:print('\"'\"'reader_cancel_type'\"'\"',type(e).__name__,'\"'\"'reader_cancel_reason'\"'\"',str(e),'\"'\"'cause_context_type'\"'\"',type(e.__context__).__name__,'\"'\"'context_suppressed'\"'\"',e.__suppress_context__,'\"'\"'fence'\"'\"',ns['\"'\"'db_fence'\"'\"'])\n'",
+      "exit": 0,
+      "output": "original_accepted True\nsource_ancestor_symlink_accepted True\nreader_cancel_type AssertionError reader_cancel_reason H03_READER_NOT_SETTLED cause_context_type CancelledError context_suppressed True fence {'unsettled': True}"
+    },
+    "oversized_descriptor_reproducer": {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '\nimport json,sys\nfrom pathlib import Path\nsys.path.insert(0,'\"'\"'/home/kali/OmnisAI/api/tests'\"'\"');import test_contract_method_pg as m\nr=Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74'\"'\"');a=r/'\"'\"'installed-c6eac5f5a13440ffa6bcb35a6e853ab0'\"'\"';p=r/'\"'\"'reviewer2-static/padded-reader.json'\"'\"'\np.write_bytes(b'\"'\"' '\"'\"'*2097152+(a/'\"'\"'current-reader.json'\"'\"').read_bytes());p.chmod(0o600)\nprint('\"'\"'descriptor_bytes'\"'\"',p.stat().st_size,'\"'\"'oversized_descriptor_accepted'\"'\"',m.batch2_current_reader(p)['\"'\"'tag'\"'\"']=='\"'\"'current'\"'\"')\n'",
+      "exit": 0,
+      "output": "descriptor_bytes 2112494 oversized_descriptor_accepted True"
+    },
+    "focused_source_tests": {
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/reviewer2-static/source-tests -k 'test_batch2_installed_route_before_fixture or test_batch2_installed_entry_uses_existing_constructor or (test_h03_actual_lifecycle_source_seams and batch2 and (normal or body-error or body-cancel or observer-missing or daemon-changed or engine-failure))'",
+      "exit": 0,
+      "output": "..........                                                               [100%]\n10 passed, 207 deselected in 1.36s",
+      "scope": "10 SOURCE tests, lifecycle daemon/Host seams substituted; not installed/native/PG execution."
+    },
+    "final_integrity": {
+      "command": "git diff --check; git diff ef6dae7 -- api/src integrations/hermes/src integrations/hermes/pin.json integrations/hermes/upstream/omnis-inert.patch integrations/hermes/upstream/omnis-managed.patch integrations/hermes/runtime-override/provenance.json; sha256sum <caller> <selector>; git rev-parse HEAD",
+      "exit": 0,
+      "source_sha_unchanged": true
+    }
+  },
+  "files_created": [
+    "installed-review-safety.json",
+    "reviewer2-static/native-image.tar",
+    "reviewer2-static/alias-source/api (owned symlink to retained snapshot)",
+    "reviewer2-static/alias-reader.json",
+    "reviewer2-static/padded-reader.json",
+    "reviewer2-static/source-tests/* (SOURCE pytest fixtures)",
+    "reviewer2-static/restart-request-*.json and restart-observer-*.jsonl (synthetic cancellation control)"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "limits": [
+    "No PG/native runtime/start/create/build/install/provider/target/r1/profile/push. No protected HTML read/hash/edit/stage/delete.",
+    "No general source/dependency re-audit; unchanged dependency closure retained and actual added layer paths compared.",
+    "Old two cancel-harness failures remain INCONCLUSIVE and were not retried. SOURCE cancellation reproducer is finite and distinct.",
+    "Review supports only current immutable distribution bytes. Physical native namespace/mounted-state/reader-family proof remains NOT_RUN until authorized real QA after blockers and parent adjudication.",
+    "Parent owns report adoption, source repairs, exact new hashes, complementary reviews and activation; candidate was not applied.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "proposed_status_delta": "AICI: caller CHANGES_REQUESTED; additive distribution APPROVED_SCOPED_STATIC; batch2 real PG/native NOT_RUN; B06b/G02/P2 and P4a-minim remain open."
+}

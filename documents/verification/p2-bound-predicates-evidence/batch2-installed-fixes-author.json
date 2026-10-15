@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_SOURCE_FIXES_FOR_FOCUSED_RE_REVIEW_NOT_RUNTIME_ACCEPTANCE",
+  "base_head": "b16eda547fcee1c1a817281969e8f345369f85e8",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "changedpaths": [
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28"
+    },
+    {
+      "path": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "sha256": "1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b"
+    }
+  ],
+  "findings": [
+    {
+      "id": "NORM-INSTALLED-BATCH2-F01",
+      "disposition": "REMEDIED_SOURCE_PENDING_RE_REVIEW",
+      "change": "Exact two distinct manifest tasks, indexes/attempts/Brief/result/check IDs, full canonical TaskResult header equality, exact MethodCheck references and one inbox pair per task/result. Applied at first persisted readback and installed reconciliation; post-Stop installed readback/repeated reconcile retain canonical equality.",
+      "red": "norm-red exit1:4failed1passed; actual installed branch count/COMPLETE predicates accepted duplicate-task/result/check, duplicate inbox, swapped inbox and swapped check refs.",
+      "green": "norm-green exit0:5passed; same5 in frozen-focused.",
+      "limit": "SOURCE cut executes actual installed success predicates. Brief/TaskResult/manifest bytes come from retained SOURCE artifacts; tasks/checks/inbox are explicitly schema-grounded projections, not new emitted checks or fake PG/native producer evidence."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F01",
+      "disposition": "REMEDIED_SOURCE_PENDING_RE_REVIEW",
+      "change": "Reuse skill_catalog.read_file bounded FD/no-follow/nonblocking/single-link/stability reader; QA wrapper checks physical directory ancestors, UID and stable file identity. Descriptor/wheel/export/current-source/installed files bounded before allocation; ZIP count, uniqueness, member expanded size and aggregate checked before extraction. Current-only caller avoids subsequent unbounded duplicate wheel reads. Historical reader unchanged. Only interpreter alias to this attested API toolchain accepted.",
+      "red": "f01-red initial6failed10passed before helper edit; f01-red-baseline repeat exact b16 helper against6 same-source negative controls exit1. No DB/native launch; FIFO read intercepted before blocking on RED.",
+      "green": "f01-green16passed; final18 controls include genuine installed origin, nested source/installed aliases, oversized descriptor/wheel/source, FIFO wheel, ZIP expansion/member aggregate, bad UTF8 and prior malformed/duplicate-key/wrong-origin cases. All refuse before origin subprocess except genuine positive. ZIP reads independently observed absent on expansion refusal.",
+      "bounds": {
+        "descriptor_max": 32768,
+        "wheel_max": 262144,
+        "member_max": 131072,
+        "zip_aggregate_max": 1048576,
+        "zip_entries_max": 128,
+        "api_files_exact": 88,
+        "venv_cfg_max": 4096
+      },
+      "measured_unchanged_artifact": {
+        "descriptor_bytes": 15342,
+        "wheel_bytes": 254962,
+        "zip_entries": 107,
+        "zip_expanded_bytes": 980133,
+        "largest_member_bytes": 80828
+      },
+      "limit": "Finite static material/origin validation, not adversarial concurrent same-UID writer confinement or native runtime approval. Uses original snapshot9abcd93120cc81a3829316785e99a03d204806c0, not HEAD docs."
+    },
+    {
+      "id": "INSTALLED-SAFETY-F02",
+      "disposition": "REMEDIED_SOURCE_PENDING_RE_REVIEW",
+      "change": "Actual restarted_cli checkpoints uncertainty and retains reader_unknown/db_fence on failure. Non-Exception BaseException propagates the exact object; ordinary Exception remains sanitized H03_READER_NOT_SETTLED with suppressed context. No fence clearance added.",
+      "red": "f02-red exit1:3failed5passed on original CancelledError/KeyboardInterrupt/SystemExit identity assertions.",
+      "green": "8 existing reader-source seam cases pass, including normal/denial family receipt and cancellation/interrupt/SystemExit exact primary identities plus ordinary sensitive-marker timeout, unknown exit/bad receipt.",
+      "limit": "SOURCE actual reader function with substituted family seam; no cancellation process harness or real family/PG proof."
+    }
+  ],
+  "commands": [
+    {
+      "label": "f02-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_h03_reader_actual_launch_latches_family_unknown --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f02-red",
+      "exit": 1,
+      "result": "3 failed,5 passed; CancelledError/KeyboardInterrupt/SystemExit replaced by AssertionError",
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f02-red.log"
+    },
+    {
+      "label": "f02-green-before-timeout",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_h03_reader_actual_launch_latches_family_unknown --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f02-green",
+      "exit": null,
+      "result": "8 passed; outer execute_code timed out and lost terminal return. Final frozen-focused exit0 separately verifies all8 cases.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f02-green.log"
+    },
+    {
+      "label": "f01-red-initial",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_batch2_current_reader_actual_helper --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-red",
+      "exit": null,
+      "result": "6 failed10passed; outer execute_code timeout lost terminal return. f01-red-baseline later repeated the same6 negatives against exact b16 helper and captured exit1.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-red.log"
+    },
+    {
+      "label": "f01-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_batch2_current_reader_actual_helper --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-green",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-green.log"
+    },
+    {
+      "label": "norm-red",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_batch2_actual_persisted_correspondence --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/norm-red",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/norm-red.log"
+    },
+    {
+      "label": "norm-green",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k test_batch2_actual_persisted_correspondence --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/norm-green",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/norm-green.log"
+    },
+    {
+      "label": "format-edit",
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/format-edit.log"
+    },
+    {
+      "label": "ruff",
+      "command": "api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/ruff.log"
+    },
+    {
+      "label": "mypy",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/mypy.log"
+    },
+    {
+      "label": "format-last",
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/format-last.log"
+    },
+    {
+      "label": "final-focused",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'batch2_current_reader_actual_helper or test_batch2_actual_persisted_correspondence or test_h03_reader_actual_launch_latches_family_unknown or batch2_installed_route_before_fixture or batch2_installed_entry_uses_existing_constructor or (test_h03_actual_lifecycle_source_seams and batch2 and (normal or body-error or body-cancel or observer-missing or daemon-changed or engine-failure))' --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/final-focused",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/final-focused.log"
+    },
+    {
+      "label": "quality-final",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/quality-final.log"
+    },
+    {
+      "label": "collect-batch2-release-first",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/collect-batch2-release-first.log"
+    },
+    {
+      "label": "collect-batch2-stop-first",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-stop-first --collect-only",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/collect-batch2-stop-first.log"
+    },
+    {
+      "label": "refused",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --review-adjudicated",
+      "exit": 2,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/refused.log"
+    },
+    {
+      "label": "selector-final-quality",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py && env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/mypy /home/kali/OmnisAI/api/tests/test_contract_method_pg.py /home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/selector-final-quality.log"
+    },
+    {
+      "label": "f01-red-baseline",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -c 'import ast, subprocess, sys\nfrom pathlib import Path\nrepo=Path(\"/home/kali/OmnisAI\")\nsys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\")]\nimport test_contract_method_pg as caller\noriginal=subprocess.check_output([\"git\",\"show\",\"b16eda547fcee1c1a817281969e8f345369f85e8:api/tests/test_contract_method_pg.py\"],cwd=repo).decode()\nfn=next(n for n in ast.parse(original).body if isinstance(n,ast.FunctionDef) and n.name==\"batch2_current_reader\")\nexec(compile(ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[])),\"<actual-b16-reader>\",\"exec\"),vars(caller))\nimport pytest\nraise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"api/tests/test_contract_method_pg.py\",\"-k\",\"test_batch2_current_reader_actual_helper and (source-alias or installed-alias or oversize-descriptor or oversize-wheel or nonregular-wheel or oversize-source)\",\"-q\",\"--tb=line\",\"--basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-red-baseline\"]))\n'",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/f01-red-baseline.log"
+    },
+    {
+      "label": "frozen-focused",
+      "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_BATCH2_SOURCE_API_ARTIFACT=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json OMNIS_BATCH2_SOURCE_STAGE=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/fix-source-final/test_batch2_native_source_to_t0/batch2.json api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'batch2_current_reader_actual_helper or test_batch2_actual_persisted_correspondence or test_h03_reader_actual_launch_latches_family_unknown or batch2_installed_route_before_fixture or batch2_installed_entry_uses_existing_constructor or (test_h03_actual_lifecycle_source_seams and batch2 and (normal or body-error or body-cancel or observer-missing or daemon-changed or engine-failure))' --basetemp=/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/frozen-focused",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-fixes/frozen-focused.log"
+    }
+  ],
+  "final_verification": {
+    "python": "3.13.15 -I -B",
+    "pytest": "41 passed,192 deselected in2.91s; exit0; no autoload, explicit pytest_asyncio, no cache; frozen-focused after caller and selector final edits",
+    "quality": "Ruff check/format and mypy on2paths exit0, no ignores/waivers",
+    "selector_collect": "release-first1node exit0; Stop-first1node exit0",
+    "selector_no_approval": "--review-adjudicated still exit2 before db_gate import/provision",
+    "diff_check": "exit0",
+    "logs": "0600 verified"
+  },
+  "proposed_activation": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "exact_new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "candidate_sha256": "e66fc224c74a7aa3f45ec1b9cc2f39ddd86146884d33dcc0906f5cc726c32064",
+    "ast_parse": "PASS",
+    "applied": false,
+    "executed": false
+  },
+  "unchanged_scope": {
+    "distribution_review": "Reuse installed-review-safety.json APPROVED_SCOPED_STATIC_READ_ONLY; not re-audited",
+    "image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "product_source_pins_dependencies_original_artifacts": "NOT_MODIFIED",
+    "original_reviews": "NOT_MODIFIED",
+    "protected_html": "NOT_READ_HASHED_EDITED_STAGED_DELETED",
+    "old_cancel_replay_harness": "INCONCLUSIVE; not rerun, historical counters not reset"
+  },
+  "limits": {
+    "PG_native_runtime": "NOT_RUN",
+    "qualified_sizes": "NOT_RUN",
+    "canonical_old_H03_source_corpus": "NOT_RERUN",
+    "review": "PENDING_PARENT_FOCUSED_COMPLEMENTARY_RE_REVIEW",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "P2_B06b_G02_P4a": "NOT_CLOSED",
+    "stage_commit_push": false,
+    "build_install_download_global_r1_provider_target": false
+  },
+  "issues": [
+    "One execute_code call timed out at300s after its tests completed; original logs preserved. Missing return codes explicitly null, not invented; baseline RED and final GREEN exits captured separately.",
+    "One multi-hunk patch rejected ambiguous matches without changing files; applied uniquely scoped helper replacement instead.",
+    "Tool-call budget exceeded during targeted reads/edits; no additional general audit or runtime attempt was started."
+  ],
+  "proposed_skill_lesson": "At installed acceptance readback, assert one-to-one task/attempt/Brief/result/check/inbox identities independently of counts; bound the read before hashing and preserve control-flow BaseExceptions while sanitizing ordinary diagnostics. Not applied to skills because ownership is exactly2QA paths.",
+  "handoff": "Parent owns commit/adjudication and two focused reviews of changed bytes plus call sites; unchanged distribution approval remains scoped. Selector remains None. After admission continue authorized real first-consumer product mandate; this report is not P2 closure or a replacement for runtime QA."
+}

@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_SELECTOR_ENTRY_SOURCE_FIX_PENDING_PARENT_ADJUDICATION_AND_FOCUSED_REVIEW",
+  "base_head": "1ab0274e87fc30a2c67cc5bd7c18ec95a18f2c86",
+  "contract": {
+    "requirement": "INSTALLED-SAFETY-F01-ENTRY: reject oversized/unsafe pinned files before allocation/SHA in actual selector.main()",
+    "consumer": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py main()",
+    "risk": "Unbounded outer read bypasses already approved bounded reader helper",
+    "decision": "Refreeze selector-only delta for focused review; no activation or runtime admission",
+    "scope": "One modified QA selector; optional existing caller regression not needed: frozen small scratch direct-main controls used instead",
+    "rollback": "Parent may revert this exact unstaged selector diff; no external product state changed"
+  },
+  "finding": {
+    "id": "INSTALLED-SAFETY-F01-ENTRY",
+    "original_disposition": "OPEN_BLOCKING: full 2112494-byte descriptor read before exit2",
+    "current_disposition": "REMEDIED_SOURCE_PENDING_FOCUSED_REVIEW",
+    "red": "exit1: positive succeeds; 7 negative subtests fail, including actual 2112494-byte allocation, aliases/hardlink followed, and FIFO attempt intercepted before blocking",
+    "green": "exit0: 2 unittest methods, positive plus all7 negative subtests; each negative rejects with exit2 and zero target read bytes, collection seam not called",
+    "not_claimed": "Independent closure, PG/native PASS or full same-UID adversarial concurrency proof"
+  },
+  "bounds_bytes": {
+    "source": {
+      "observed": 393896,
+      "maximum": 524288
+    },
+    "native_artifact": {
+      "observed": 20477,
+      "maximum": 32768
+    },
+    "shared_historical_artifact": {
+      "observed": 19332,
+      "maximum": 32768,
+      "historical_runtime_not_rerun": true
+    },
+    "current_reader": {
+      "observed": 15342,
+      "maximum": 32768
+    }
+  },
+  "implementation": "Local stdlib FD-only SHA reader at three fixed call sites. No new CLI file authority. O_NOFOLLOW directory-FD walk and leaf open; O_NONBLOCK leaf; fstat regular/single-link/current UID/size before os.read; total read allocation bounded by explicit maximum; stable identity/mode/UID/GID/link/size/mtime/ctime and exact size before SHA; descriptors closed on failure; OSError/ValueError sanitized to parser exit2; no product/pytest/native imports introduced.",
+  "source_hashes": {
+    "api/tests/test_contract_method_pg.py": {
+      "before_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+      "after_sha256": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+      "bytes": 393896
+    },
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+      "before_sha256": "1ce1f7701af48a5f60fd74192e89b56b9a8224d354fce27cdeed65882f39b16b",
+      "after_sha256": "df6cd05b059ba9c5d3849b73b40e0fa9b942b268689b79a44a6710b97110d80a",
+      "bytes": 7679
+    }
+  },
+  "unchanged_scope": {
+    "caller_file_byte_identical": true,
+    "caller_whole_ast_sha256": "af102169c55b9e3599a15f12ce6f4eb6fd997e118c3eee98d7308f0b4abdf868",
+    "caller_whole_ast_matches_HEAD": true,
+    "existing_run_function_and_all_helpers_ast_identical": true,
+    "BATCH2_SOURCE_SHA_unchanged_matches_caller": "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28",
+    "all_selector_top_level_assignments_unchanged": true,
+    "selected_argv_and_environment_ast_unchanged": true,
+    "main_final_10_statements_ast_identical_including_collection_adjudication_runner_deadline240": true,
+    "BATCH2_REVIEWED": null,
+    "no_check_option_added": true
+  },
+  "activation_candidate": {
+    "old_line": "BATCH2_REVIEWED: str | None = None",
+    "new_line": "BATCH2_REVIEWED: str | None = \"93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28\"",
+    "replacement_count": 1,
+    "candidate_sha256": "5f99ce77c93b13a29a00c9acca90b13034bea1525d42185ca00035d0d7e71f85",
+    "only_AST_change": "BATCH2_REVIEWED None to exact unchanged caller SHA",
+    "applied": false,
+    "executed": false
+  },
+  "regression": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py",
+    "sha256": "d6b7590d8c357a6b49f709dfa88edb048accad992c4adbfb3149788bb8cd3950",
+    "exact_code": "\"\"\"Frozen narrow controls on the actual selector main; never launch its seam.\"\"\"\nimport importlib.util\nimport os\nfrom pathlib import Path\nimport sys\nimport tempfile\nimport unittest\nfrom unittest.mock import patch\n\nROOT = Path('/home/kali/OmnisAI')\nSCRATCH = Path('/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74')\nSELECTOR = ROOT / 'documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py'\n\n\nclass SelectorEntry(unittest.TestCase):\n    def exercise(self, fault):\n        spec = importlib.util.spec_from_file_location('selector_entry_actual', SELECTOR)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        self.assertIsNone(module.BATCH2_REVIEWED)\n        with tempfile.TemporaryDirectory(prefix='selector-entry-', dir=SCRATCH) as directory:\n            private = Path(directory)\n            reader = private / 'current-reader.json'\n            reader.write_bytes(module.BATCH2_READER.read_bytes())\n            reader.chmod(0o600)\n            module.BATCH2_READER = reader\n            target = None\n            if fault == 'padded-reader':\n                target = SCRATCH / 'reviewer2-static/padded-reader.json'\n                module.BATCH2_READER = target\n            elif fault == 'leaf-symlink':\n                target = private / 'alias.json'\n                target.symlink_to(reader)\n                module.BATCH2_READER = target\n            elif fault == 'fifo':\n                target = private / 'fifo.json'\n                os.mkfifo(target, 0o600)\n                module.BATCH2_READER = target\n            elif fault == 'hardlink':\n                target = private / 'link.json'\n                os.link(reader, target)\n                module.BATCH2_READER = target\n            elif fault == 'parent-symlink':\n                alias = private / 'alias'\n                alias.symlink_to(private, target_is_directory=True)\n                target = alias / reader.name\n                module.BATCH2_READER = target\n            elif fault == 'oversize-source':\n                target = private / 'api/tests/test_contract_method_pg.py'\n                target.parent.mkdir(parents=True)\n                with target.open('wb') as stream:\n                    stream.truncate(1048576)\n                module.ROOT = private\n            elif fault == 'oversize-native-artifact':\n                target = private / 'native-artifact.json'\n                with target.open('wb') as stream:\n                    stream.truncate(1048576)\n                module.BATCH2_ARTIFACT = target\n            allocations = []\n            original_bytes, original_read = Path.read_bytes, os.read\n            identity = None if target is None else (target.stat().st_dev, target.stat().st_ino)\n\n            def read_bytes(path):\n                if path == target and fault == 'fifo':\n                    raise AssertionError('unsafe FIFO read reached before rejection; intercepted')\n                raw = original_bytes(path)\n                if path == target:\n                    allocations.append(len(raw))\n                return raw\n\n            def read_fd(fd, count):\n                info = os.fstat(fd)\n                raw = original_read(fd, count)\n                if (info.st_dev, info.st_ino) == identity:\n                    allocations.append(len(raw))\n                return raw\n\n            def forbidden(*args, **kwargs):\n                raise AssertionError('unexpected process launch')\n\n            with patch.object(Path, 'read_bytes', read_bytes), patch.object(os, 'read', read_fd), patch.object(sys, 'argv', [str(SELECTOR), '--case', 'batch2-release-first', '--collect-only']), patch.object(module.subprocess, 'call', return_value=37) as collection, patch.object(module.subprocess, 'Popen', forbidden):\n                if fault is None:\n                    self.assertEqual(module.main(), 37)\n                    collection.assert_called_once_with(module.selected_argv('batch2-release-first', True), cwd=ROOT, env=module.environment(os.environ, 'batch2-release-first'))\n                else:\n                    try:\n                        result = module.main()\n                    except SystemExit as error:\n                        result = error.code\n                    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n                    self.assertEqual(result, 2)\n                    collection.assert_not_called()\n\n    def test_matched_metadata_reaches_only_collection_seam(self):\n        self.exercise(None)\n\n    def test_rejects_before_allocation(self):\n        for fault in ('padded-reader', 'leaf-symlink', 'fifo', 'hardlink', 'parent-symlink', 'oversize-source', 'oversize-native-artifact'):\n            with self.subTest(fault=fault):\n                self.exercise(fault)\n\n\nif __name__ == '__main__':\n    unittest.main(verbosity=2)\n",
+    "channel": "actual imported selector.main(); only collection subprocess.call substituted; subprocess.Popen forbidden. No subprocess launched by regression. Private matched descriptor copy, retained original oversized fixture unchanged.",
+    "cases": [
+      "matched-metadata collection seam positive",
+      "padded-reader denies before bytes",
+      "leaf-symlink denies before bytes",
+      "FIFO denied boundedly",
+      "hardlink denied",
+      "parent-symlink denied",
+      "adjacent oversized source denied before bytes",
+      "adjacent oversized native artifact denied before bytes"
+    ],
+    "fixture_cleanup": "TemporaryDirectory private fixtures removed on exit. Original metadata and retained reviewer2-static/padded-reader.json never modified."
+  },
+  "red_command": {
+    "command": "env -u PYTHONPATH -u PYTHONHOME -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS -u OMNIS_CONTRACT_METHOD_NATIVE_PG PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py",
+    "cwd": "/home/kali/OmnisAI",
+    "exit": 1,
+    "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-red.log",
+    "output": "test_matched_metadata_reaches_only_collection_seam (__main__.SelectorEntry.test_matched_metadata_reaches_only_collection_seam) ... ok\ntest_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) ... usage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Exact current reader receipt changed\n\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='padded-reader') ... FAIL\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='leaf-symlink') ... FAIL\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='fifo') ... FAIL\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='hardlink') ... FAIL\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='parent-symlink') ... FAIL\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Exact SOURCE snapshot changed; existing reviews cannot authorize it\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='oversize-source') ... FAIL\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Exact installed artifact receipt changed\n  test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='oversize-native-artifact') ... FAIL\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='padded-reader')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [2112494] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n2112494\n\n- [2112494]\n+ [] : padded-reader: allocated before denial: [2112494]\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='leaf-symlink')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [15342] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n15342\n\n- [15342]\n+ [] : leaf-symlink: allocated before denial: [15342]\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='fifo')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 87, in exercise\n    result = module.main()\n  File \"/home/kali/OmnisAI/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\", line 110, in main\n    if batch2 and hashlib.sha256(BATCH2_READER.read_bytes()).hexdigest() != BATCH2_READER_SHA:\n                                 ~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 65, in read_bytes\n    raise AssertionError('unsafe FIFO read reached before rejection; intercepted')\nAssertionError: unsafe FIFO read reached before rejection; intercepted\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='hardlink')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [15342] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n15342\n\n- [15342]\n+ [] : hardlink: allocated before denial: [15342]\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='parent-symlink')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [15342] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n15342\n\n- [15342]\n+ [] : parent-symlink: allocated before denial: [15342]\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='oversize-source')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [1048576] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n1048576\n\n- [1048576]\n+ [] : oversize-source: allocated before denial: [1048576]\n\n======================================================================\nFAIL: test_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) (fault='oversize-native-artifact')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 100, in test_rejects_before_allocation\n    self.exercise(fault)\n    ~~~~~~~~~~~~~^^^^^^^\n  File \"/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py\", line 90, in exercise\n    self.assertEqual(allocations, [], f'{fault}: allocated before denial: {allocations}')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [1048576] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n1048576\n\n- [1048576]\n+ [] : oversize-native-artifact: allocated before denial: [1048576]\n\n----------------------------------------------------------------------\nRan 2 tests in 0.034s\n\nFAILED (failures=7)\n"
+  },
+  "verification": {
+    "environment_removed": [
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "MYPYPATH",
+      "PYTEST_ADDOPTS",
+      "PYTEST_PLUGINS",
+      "OMNIS_CONTRACT_METHOD_NATIVE_PG",
+      "OMNIS_BATCH2_*",
+      "OMNIS_H03_*"
+    ],
+    "environment_set": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "commands": [
+      {
+        "label": "format",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--config",
+          "api/pyproject.toml",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-format.log",
+        "output": "1 file reformatted\n"
+      },
+      {
+        "label": "green",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-regression.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-green.log",
+        "output": "test_matched_metadata_reaches_only_collection_seam (__main__.SelectorEntry.test_matched_metadata_reaches_only_collection_seam) ... ok\ntest_rejects_before_allocation (__main__.SelectorEntry.test_rejects_before_allocation) ... usage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nusage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Pinned entry file is unavailable, unsafe, oversized or unstable\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.037s\n\nOK\n"
+      },
+      {
+        "label": "ruff",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_contract_method_pg.py",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-ruff.log",
+        "output": "All checks passed!\n"
+      },
+      {
+        "label": "format-check",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_contract_method_pg.py",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-format-check.log",
+        "output": "2 files already formatted\n"
+      },
+      {
+        "label": "mypy",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "api/pyproject.toml",
+          "--cache-dir",
+          "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-mypy",
+          "api/tests/test_contract_method_pg.py",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-mypy api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-mypy.log",
+        "output": "Success: no issues found in 2 source files\n"
+      },
+      {
+        "label": "collect-batch2-release-first",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+          "--case",
+          "batch2-release-first",
+          "--collect-only"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --collect-only",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-collect-batch2-release-first.log",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-release-first]\n\n1 test collected in 0.74s\n"
+      },
+      {
+        "label": "collect-batch2-stop-first",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+          "--case",
+          "batch2-stop-first",
+          "--collect-only"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-stop-first --collect-only",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-collect-batch2-stop-first.log",
+        "output": "tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[batch2-stop-first]\n\n1 test collected in 0.89s\n"
+      },
+      {
+        "label": "no-approval",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+          "--case",
+          "batch2-release-first",
+          "--review-adjudicated"
+        ],
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py --case batch2-release-first --review-adjudicated",
+        "exit": 2,
+        "expected_exit": 2,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-no-approval.log",
+        "output": "usage: h03-process-fixed-pg-selection.py [-h]\n                                         --case {runtime-restart,runtime-restart-no-final,batch2-release-first,batch2-stop-first}\n                                         [--collect-only]\n                                         [--review-adjudicated]\nh03-process-fixed-pg-selection.py: error: Parent adjudication of both exact complementary reviews required; flag is not approval\n"
+      },
+      {
+        "label": "diff-check",
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "api/tests/test_contract_method_pg.py",
+          "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+        ],
+        "command": "git diff --check -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+        "exit": 0,
+        "expected_exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/selector-entry-diff-check.log",
+        "output": ""
+      }
+    ]
+  },
+  "artifact_readback": {
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json": {
+      "sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+      "bytes": 15342,
+      "unchanged_pinned_original": true
+    },
+    "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json": {
+      "sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "bytes": 20477,
+      "unchanged_pinned_original": true
+    }
+  },
+  "original_reviews_reused": {
+    "normative": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-normative.json",
+    "safety_helper_cancellation": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-rereview-safety.json",
+    "scope": "Entire caller byte-identical, so existing caller/helper/oracle/cancellation approval scope is unchanged. Prior candidate selector approval is not transferred to new bytes; parent focused selector review required.",
+    "distribution_image_retained": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+    "distribution_rebuild_reaudit": false
+  },
+  "diff": "diff --git a/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py b/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\nindex 0c277f6..2d5b379 100644\n--- a/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n+++ b/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n@@ -8,6 +8,7 @@ import argparse\n import hashlib\n import importlib.util\n import os\n+import stat\n import subprocess\n import sys\n from collections.abc import Mapping\n@@ -89,6 +90,56 @@ def environment(base: Mapping[str, str], case: str, *, reviewed: bool = False) -\n     return clean\n \n \n+def _pinned_sha256(path: Path, maximum: int) -> str:\n+    \"\"\"Only the fixed entry receipts/source below; no CLI-selected file authority.\"\"\"\n+    if not path.is_absolute() or \"..\" in path.parts:\n+        raise ValueError(\"Physical absolute path required\")\n+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC\n+    directory = os.open(path.anchor, flags | os.O_DIRECTORY)\n+    try:\n+        for part in path.parts[1:-1]:\n+            child = os.open(part, flags | os.O_DIRECTORY, dir_fd=directory)\n+            os.close(directory)\n+            directory = child\n+        fd = os.open(path.name, flags | os.O_NONBLOCK, dir_fd=directory)\n+    finally:\n+        os.close(directory)\n+    try:\n+        before = os.fstat(fd)\n+        if (\n+            not stat.S_ISREG(before.st_mode)\n+            or before.st_nlink != 1\n+            or before.st_uid != os.getuid()\n+            or not 0 <= before.st_size <= maximum\n+        ):\n+            raise ValueError(\"Owned single-link bounded regular file required\")\n+        raw = bytearray()\n+        while len(raw) < maximum:\n+            chunk = os.read(fd, min(65536, maximum - len(raw)))\n+            if not chunk:\n+                break\n+            raw.extend(chunk)\n+        after = os.fstat(fd)\n+        stable = (\n+            \"st_dev\",\n+            \"st_ino\",\n+            \"st_mode\",\n+            \"st_uid\",\n+            \"st_gid\",\n+            \"st_nlink\",\n+            \"st_size\",\n+            \"st_mtime_ns\",\n+            \"st_ctime_ns\",\n+        )\n+        if len(raw) != before.st_size or any(\n+            getattr(before, field) != getattr(after, field) for field in stable\n+        ):\n+            raise ValueError(\"Entry file changed while reading\")\n+        return hashlib.sha256(raw).hexdigest()\n+    finally:\n+        os.close(fd)\n+\n+\n def main() -> int:\n     parser = argparse.ArgumentParser(description=__doc__)\n     parser.add_argument(\"--case\", required=True, choices=CASES)\n@@ -97,18 +148,20 @@ def main() -> int:\n     args = parser.parse_args()\n     batch2 = args.case in BATCH2_CASES\n     source = BATCH2_SOURCE_SHA if batch2 else REVIEWED\n-    if (\n-        hashlib.sha256((ROOT / \"api/tests/test_contract_method_pg.py\").read_bytes()).hexdigest()\n-        != source\n-    ):\n-        parser.error(\"Exact SOURCE snapshot changed; existing reviews cannot authorize it\")\n     artifact, expected = (\n         (BATCH2_ARTIFACT, BATCH2_ARTIFACT_SHA) if batch2 else (ARTIFACT, ARTIFACT_SHA)\n     )\n-    if hashlib.sha256(artifact.read_bytes()).hexdigest() != expected:\n-        parser.error(\"Exact installed artifact receipt changed\")\n-    if batch2 and hashlib.sha256(BATCH2_READER.read_bytes()).hexdigest() != BATCH2_READER_SHA:\n-        parser.error(\"Exact current reader receipt changed\")\n+    # Measured source393896, native receipts20477/19332, current reader15342 bytes.\n+    # Finite QA material bounds only; exact hashes remain mandatory.\n+    try:\n+        if _pinned_sha256(ROOT / \"api/tests/test_contract_method_pg.py\", 524288) != source:\n+            parser.error(\"Exact SOURCE snapshot changed; existing reviews cannot authorize it\")\n+        if _pinned_sha256(artifact, 32768) != expected:\n+            parser.error(\"Exact installed artifact receipt changed\")\n+        if batch2 and _pinned_sha256(BATCH2_READER, 32768) != BATCH2_READER_SHA:\n+            parser.error(\"Exact current reader receipt changed\")\n+    except (OSError, ValueError):\n+        parser.error(\"Pinned entry file is unavailable, unsafe, oversized or unstable\")\n     if args.collect_only:\n         return subprocess.call(\n             selected_argv(args.case, True), cwd=ROOT, env=environment(os.environ, args.case)\n",
+  "repository_modified": [
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  ],
+  "git_status": "## checkpoint/p2-batch2-pause-20261015\n M documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py\n?? documents/Omnis_Notite_Originale.html\n",
+  "staging_commits_push": "NOT_PERFORMED",
+  "logs_mode": "0600 verified",
+  "limits": [
+    "PG/native/runtime NOT_RUN",
+    "No build/install/dependency/product changes",
+    "No full source41/85 or PG suite rerun",
+    "No H03/native identity/qualification/history/cancellation harness reopening",
+    "No global/r1/credentials/provider/target actions",
+    "Protected documents/Omnis_Notite_Originale.html only a status pathname; never read/hashed/edited/deleted",
+    "B06b/G02/P2/P4a-minim NOT_CLOSED"
+  ],
+  "issues": [
+    "Initial discovery output was truncated; exact selector read separately before editing.",
+    "Scratch regression has dynamic-module static-editor diagnostics; execution verified RED/GREEN. Required Ruff/format/mypy gates on exact two QA paths all passed."
+  ],
+  "proposed_skill_lesson": "Parent-owned adoption only: bound the entrypoint hash read as well as the downstream parser; direct main regression must distinguish pre-allocation refusal from exit2 after an unbounded read. No skill files changed under this two-QA-file scope.",
+  "handoff": "Parent adjudicates/integrates and requests focused selector-only review on exact frozen SHA/candidate. Leave BATCH2_REVIEWED=None until separately authorized. No phase closure or PG PASS."
+}

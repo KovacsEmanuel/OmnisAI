@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "review_role": "INDEPENDENT_COMPLEMENTARY_SAFETY_FOCUSED_REREVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "DATA-SAFETY-F01, real buffered AF_UNIX retirement before the actual NativeTaskOwner A-context exits in SOURCE, and safety-relevant delta of the two model_protocol readback repairs. This complements the original safety review; it is not a new general audit or PostgreSQL PASS.",
+  "repository": "/home/kali/OmnisAI",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "entry_head": "b677fe96766cbcea7d903d5ed82402cf88bf165c",
+  "exit_head_observed": "64eb55eedc06e51040ad9382c91aac2fcec97926",
+  "head_change": {
+    "classification": "DOCUMENTATION_SKILLS_ONLY_BY_OTHER_ACTOR",
+    "changed_paths": [
+      ".hermes/skills/omnis-api-data/SKILL.md",
+      ".hermes/skills/omnis-review-qa/SKILL.md"
+    ],
+    "reviewed_product_snapshot_unchanged": true,
+    "action": "Compared b677fe9..HEAD names and commit stat; rehashed all nine product/test files. Approval is bound to hashes, not inferred from the moving documentation HEAD."
+  },
+  "snapshot": {
+    "files_count": 9,
+    "entry_matches": 9,
+    "exit_matches": 9,
+    "sha256": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "changed_since_original_safety_review": [
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/tests/test_model_admission.py",
+      "api/tests/test_native_task_client.py"
+    ],
+    "unchanged_reused": [
+      "api/src/omnis/modules/instance/schemas.py",
+      "api/src/omnis/modules/runs/model_dispatch.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/tests/test_model_admission_pg.py",
+      "api/tests/test_model_budget.py"
+    ],
+    "git_diff_against_b677fe9_sha256": "4d0e7eb1d72e8dd6d924dee3f975a7fec37c7ca7e395d7f5a2c5d842674002a4"
+  },
+  "inputs": {
+    "original_safety_review": {
+      "path": "documents/verification/p2-integration-data-review-safety.json",
+      "sha256": "fc0094f48a2679ee569a4ffc4f30aafe1d2587c4e126539b57d04b571cd56ef1",
+      "verdict_preserved": "CHANGES_REQUESTED_ON_ORIGINAL_SNAPSHOT"
+    },
+    "final_author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/report.json",
+      "sha256": "890d120a4c45b3840f5b665b9cfd8e145519188d8c51d1036b37e2ec3a0b319c",
+      "read_scope": "Snapshot, final SOURCE/quality results, RED/GREEN command summaries, original reproducer identity and limits; private logs not dumped."
+    },
+    "authority": [
+      "AGENTS.md as provided in task context",
+      "CONTRIBUTING.md product-oriented execution and complementary review contract",
+      "README.md and implementation-status.md CURRENT for read-only orientation",
+      "documents/verification/p2-next-session-implementation.md",
+      "documents/verification/p2-integration-b06cm.md lines 1-34, D1-D3",
+      "documents/Omnis_Implementation_Plan.md section 7.1",
+      "documents/Omnis_MVP_Architecture.md section 5.2",
+      "Skills omnis-review-qa, omnis-api-data, omnis-project-status"
+    ]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "D3 requires synchronous retirement of uncertain frozen output before releasing the A fence. Pending bytes must be discarded; detached reader/writer and is_closing alone are insufficient. Timeout and cancellation stay finite, with SENT/UNKNOWN and no refund/resend.",
+    "consumer": "NativeTaskOwner._model_protocol -> RuntimeClient.exchange_frozen -> RuntimeClient._exchange, actual SOURCE owner and asyncio AF_UNIX socket transport. Database/fence state is a SOURCE double in these regressions.",
+    "risk": "The original inner graceful close detached the writer and could retain buffered output after failed exchange/A exit, allowing the peer to receive the complete request only after the fence had ended.",
+    "decision": "The original safety blocker is closed on these exact bytes. Original review plus this focused delta permits proceeding to the first nominal/Stop-first/send-first QA from the safety scope, subject to the complementary normative disposition and parent admission/preflight. This reviewer neither starts nor passes that QA."
+  },
+  "finding_dispositions": [
+    {
+      "id": "DATA-SAFETY-F01",
+      "original_severity": "HIGH",
+      "status": "CLOSED_SCOPED",
+      "blocking_on_final_snapshot": false,
+      "original_failure_preserved": "Original timeout returned with 24275 bytes still pending; a peer released after return received the complete 32339-byte frame. Cancellation control discarded pending bytes. Parent RED confirmation is retained, not relabeled.",
+      "fix_location": "api/src/omnis/supervisor/runtime_client.py:539-550",
+      "fix_analysis": "The caught-error branch checks _frozen and calls retire_frozen synchronously instead of await close. retire_frozen still owns the original writer, clears the client references and aborts the transport before the exception leaves _exchange. There is no new await/cleanup deadline here. exchange_frozen BaseException retirement and NativeTaskOwner retirement before A exit remain in place. Ordinary non-frozen close still takes the unchanged graceful path.",
+      "call_sites_reviewed": [
+        "api/src/omnis/supervisor/runtime_client.py:335-373, 395-406, 461-550, 661-667",
+        "api/src/omnis/supervisor/native_tasks.py:100-107, 109-212",
+        "api/tests/test_native_task_client.py:98-170",
+        "api/tests/test_model_admission.py:539-718, 908-920, 939-951"
+      ],
+      "regression_analysis": "The real AF_UNIX helper reduces SO_SNDBUF and asyncio write-buffer watermarks without enlarging product limits. A non-reading peer forces a nonzero buffer. Timeout and cancellation are exercised through exchange_frozen and through the actual owner. The owner regression records buffer_at_a_exit at the second native_preparation_commit context used by _model_protocol, requires zero at that boundary, then requires zero at return and no newline-terminated complete frame when the peer is finally released. The timeout path uses LocalControl; cancellation calls the actual owner directly. Replay checks retain SENT/UNKNOWN and require no new authority call. Transaction ownership/locks remain SOURCE doubles, not PostgreSQL overlap.",
+      "red_green": {
+        "author_regression_red_final": "2 failed, 2 passed in 5.22s, exit 1; existing cancellation positives retained, timeout negatives exposed the defect.",
+        "author_final_affected_source": "92 passed in 36.71s, exit 0 on the final snapshot; reused, not rerun in full.",
+        "independent_final_regressions": "4 passed in 4.22s, exit 0.",
+        "independent_original_reproducer": "Same original script SHA, finding_reproduced=false, both cases zero pending/no complete frame; legacy script exits 2 when the RED conjunction is absent. That exit is not described as a conventional successful test exit."
+      }
+    }
+  ],
+  "new_findings": [],
+  "safety_delta_review": [
+    {
+      "topic": "Usage receipt coherence",
+      "location": "api/src/omnis/modules/runs/model_protocol.py:408-423, 478-486",
+      "decision": "No new safety blocker. qualified obtains ledger-validated history; the new check requires exactly one protocol usage receipt matching the frozen request identity, KNOWN, zero output and null provider/cost fields. Canonical comparison does not accept bool/integer aliases or discard extra fields. Returning charged_output_tokens from the ledger no longer masks a contradictory charge behind a hard-coded zero. SENT/UNKNOWN paths are not promoted or refunded.",
+      "evidence": "Read changed code, unchanged budgets history validator at policy/budgets.py:87-142, and added five resealed-usage negative controls. Author RED 5 failed then final focused GREEN 5 passed and final affected suite are reused. Formal normative finding closure remains owned by the complementary reviewer."
+    },
+    {
+      "topic": "Configuration receipt and no live-authority promotion",
+      "location": "api/src/omnis/modules/runs/model_protocol.py:438-465",
+      "decision": "No new safety blocker. After strict accept_preflight and original request/receipt correlations, the owner/run-scoped referenced record must be model-configuration-receipt with the complete canonical payload independently derived by the existing configuration_payload function. That function binds manifest/binding/runtime/projection/selection/task/attempt/context and enforces source NO_MODEL/effective null plus inference_authorized=false. The readback delta does not issue a grant, call read_configuration, write records or acquire an Instance fence.",
+      "evidence": "Read configuration_payload/validate_source and the resealed inference_authorized mutation regression with no-write/no-fence/no-grant and retained-byte checks. Author RED 1 failed then GREEN 1 passed and final affected suite are reused. Formal normative finding closure remains owned by the complementary reviewer."
+    },
+    {
+      "topic": "Unchanged safety and first-PG oracle scope",
+      "decision": "Retain the original safety review's unchanged lock-graph, exact-byte/input, no-resend/refund, secret boundary and static PG-oracle assessments at their explicit scope. The five unchanged files match the original hashes; NativeTaskOwner A/B ordering, budgets, schema and PG test bytes were not modified by these fixes. This is not a renewed claim that deferred scenarios or real PostgreSQL scheduling have passed."
+    }
+  ],
+  "independent_probes": [
+    {
+      "label": "focused_backpressure_regressions",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest",
+        "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider",
+        "-c", "api/pyproject.toml", "--tb=line", "-q",
+        "--basetemp", "/home/kali/.hermes/cache/scratch/dsr-23l9lkgk/pytest",
+        "api/tests/test_native_task_client.py::test_frozen_backpressure_discards_pending_bytes_before_return",
+        "api/tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit"
+      ],
+      "subprocess_timeout_seconds": 45,
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "pytest_seconds": 4.22,
+      "process_elapsed_seconds": 4.867,
+      "raw_output_bytes": 98,
+      "raw_output_persisted": false
+    },
+    {
+      "label": "original_safety_reproducer_unchanged",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety_repro.py"
+      ],
+      "script_sha256": "eb1bb22487fcf8942c752fbe683fade206b6e7e3493dac72ff9209ff3cbff931",
+      "subprocess_timeout_seconds": 10,
+      "exit_code": 2,
+      "exit_meaning": "Original RED-detection script: 1 means defect reproduced; 2 means RED conjunction absent; 3 means probe error. Final metrics, not exit 2 alone, establish the repaired property.",
+      "process_elapsed_seconds": 1.477,
+      "finding_reproduced": false,
+      "stderr_empty": true,
+      "results": [
+        {
+          "mode": "cancel",
+          "outcome": "CancelledError",
+          "body_bytes": 32061,
+          "frame_bytes": 32339,
+          "buffered_before_failure": 24275,
+          "buffered_at_exchange_return": 0,
+          "client_detached_at_exchange_return": true,
+          "peer_read_only_after_return_bytes": 8064,
+          "complete_frame_after_return": false,
+          "elapsed_seconds": 0.0,
+          "transport_fd_closed_after_peer_read": true
+        },
+        {
+          "mode": "timeout",
+          "outcome": "RuntimeUnavailable",
+          "body_bytes": 32061,
+          "frame_bytes": 32339,
+          "buffered_before_failure": 24275,
+          "buffered_at_exchange_return": 0,
+          "client_detached_at_exchange_return": true,
+          "peer_read_only_after_return_bytes": 8064,
+          "complete_frame_after_return": false,
+          "elapsed_seconds": 1.001,
+          "transport_fd_closed_after_peer_read": true
+        }
+      ]
+    },
+    {
+      "label": "diff_hygiene_and_final_snapshot",
+      "command": "git diff --check; git diff --cached --stat; exact nine-file SHA256 comparison; git status --short --branch; git diff --name-status b677fe96766cbcea7d903d5ed82402cf88bf165c..HEAD; git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "staged_diff_empty": true,
+      "result": "Nine hashes still match; same four preexisting tracked modifications and protected untracked HTML. Parent-only skill documentation commit observed."
+    }
+  ],
+  "reused_evidence": {
+    "author_final_source": {"passed": 92, "failed": 0, "seconds": 36.71, "exit_code": 0},
+    "author_final_quality": {"ruff_exit": 0, "format_exit": 0, "mypy_exit": 0, "mypy_files": 4, "diff_check_exit": 0},
+    "unchanged_original_source": "The original 128 SOURCE/quality evidence remains scoped to its matching unchanged source and original review; it is not transferred wholesale to changed files. The final 92 affected tests and focused independent four-case rerun cover the changed snapshot at their stated SOURCE boundary.",
+    "original_failed_attempts": "Original safety RED and author intermediate RED/quality failures remain in their original reports. Nothing is erased or converted into a historical PASS.",
+    "batch2": "Accepted B01-B03 and their cleanup are outside this delta and were not rerun."
+  },
+  "execution_and_cleanup": {
+    "python": "3.13.15 from api/.venv/bin/python",
+    "python_flags": ["-I", "-B"],
+    "environment": "Inherited PYTHON*, PYTEST*, PG* and OMNIS_* variables removed from test subprocess environments without printing values; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; pytest_asyncio explicitly loaded; explicit api/pyproject.toml; cacheprovider disabled; TMPDIR and pytest basetemp point to owned scratch.",
+    "scratch_root": "/home/kali/.hermes/cache/scratch/dsr-23l9lkgk",
+    "scratch_root_mode": "0700",
+    "resources": "Finite SOURCE subprocesses joined normally. Test-owned AF_UNIX socketpair and LocalControl resources only. Original reproducer observed transport FD closed in both cases; its finally closes both endpoints. Selected pytest finalizers completed; post-run owned scratch scan found no socket paths. No persistent service or background process was started.",
+    "owned_remaining_socket_paths": [],
+    "repository_files_written_by_reviewer": [],
+    "commits_created_by_reviewer": [],
+    "created_artifacts": ["review.json", "pytest-owned SOURCE fixture artifacts under pytest/"],
+    "protected_html": "Preexisting untracked documents/Omnis_Notite_Originale.html was never read, hashed, edited, staged or deleted.",
+    "private_material": "No full runtime frame, capability, DSN, environment values or raw private logs emitted/persisted by reviewer. Runtime frame observations are byte counts and booleans only."
+  },
+  "limits": [
+    "This is a scoped safety source review and actual SOURCE AF_UNIX probe, not proof of actual PostgreSQL locks, transaction rollback timing or process/fixture cleanup for the future PG invocation.",
+    "A exit is exercised through the real NativeTaskOwner call chain with SOURCE transaction/storage/identity doubles. The test does not establish real Stop/Instance lock overlap; that remains the first PG QA obligation.",
+    "Abort discards userspace pending output, not already-kernel-accepted bytes or an effect at a remote consumer. The retained 8064-byte prefix is expected; no complete request arrives after peer release in these controlled cases. SENT/UNKNOWN and reservations remain conservative.",
+    "No claim of native installed Host authentication, real inference, remote cancellation, token enforcement or live model authority from the synthetic NO_MODEL peer.",
+    "The normative receipt findings require the complementary reviewer's own disposition; this report evaluates only their safety-relevant delta and reuses the author's final affected checks.",
+    "First PG nominal/Stop-first/send-first remains NOT_RUN by this reviewer. Its execution requires parent admission and both review dispositions; --check on the existing DB runner is effectful, not a preflight flag.",
+    "Deferred duplicate/conflict, caps/VALIDATION breadth, B-wait expiry, PG EOF/cancel/lost ACK/late settlement and remaining DATA channels stay deferred, without a waiver.",
+    "No PostgreSQL provisioning/connection, OCI, canonical, Settings, batch2, provider/model/target, r1/profile/global or push effects. No limits, grants, deadlines, caps, pins, schemas, ledgers or Host changes.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No new harness, verifier or agent was created."
+  ],
+  "proposed_parent_status_delta": {
+    "DATA_SAFETY_F01": "CLOSED_SCOPED on the nine-hash snapshot",
+    "safety_review": "APPROVED_SCOPED; original safety review plus this focused delta permits the first QA from the safety scope",
+    "first_PG_QA": "NOT_RUN; parent may admit only after complementary normative review and existing no-effect preflight",
+    "DATA_B06c_B06m_P2": "NOT_CLOSED; no global gate promotion",
+    "repository_integration": "Parent-owned; four reviewed preexisting code/test changes remain uncommitted at final readback"
+  },
+  "lesson_for_parent": "Retire frozen transports synchronously in the inner error-normalization branch before graceful close can detach the original writer. Test nonzero buffered output, zero pending at actual owner fence exit, and a peer released only afterward; is_closing alone is insufficient. This lesson was already present in the original finding and a parent skill-only commit appeared during review; no repository/global skill write was made by this read-only reviewer."
+}

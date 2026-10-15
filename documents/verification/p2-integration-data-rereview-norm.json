@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "report_id": "DATA-NORM-FOCUSED-REREVIEW-F01-F02",
+  "role": "Independent read-only normative delta reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused re-review of DATA-NORM-F01/F02 fixes and affected producer/readback/public-owner call sites on the frozen final source snapshot. Original normative review is retained, not replaced by a new global audit. No PostgreSQL execution or repository modifications.",
+  "repository": "/home/kali/OmnisAI",
+  "snapshot": {
+    "entry_head": "b677fe96766cbcea7d903d5ed82402cf88bf165c",
+    "exit_head": "64eb55eedc06e51040ad9382c91aac2fcec97926",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "head_change": "Concurrent parent-owned documentation/skill commit only: 64eb55e changes omnis-api-data and omnis-review-qa. Reviewed product/test bytes remain frozen and match the author manifest at entry and exit.",
+    "diff_base": "b677fe96766cbcea7d903d5ed82402cf88bf165c",
+    "original_normative_review_head": "40c0224ba02deb5a618ea38469a575e8b9420ff6",
+    "original_product_commit": "1a36558",
+    "original_review_base": "e521d92b2162a8b156061d244a31dcb38d856951",
+    "files_count": 9,
+    "all_nine_match_final_author_manifest_at_entry_and_exit": true,
+    "unchanged_from_original_count": 5,
+    "sha256": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "changed_paths": [
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/tests/test_model_admission.py",
+      "api/tests/test_native_task_client.py"
+    ],
+    "supporting_readonly_hashes_unchanged_from_original": {
+      "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+      "api/src/omnis/policy/model_configuration.py": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "api/src/omnis/modules/runs/model_projection.py": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48"
+    }
+  },
+  "evidence_sources": {
+    "original_normative": {
+      "path": "documents/verification/p2-integration-data-review-norm.json",
+      "sha256": "e7de706d4608c12aa93b5d2f7765d485adc97430cf05128f5f452eabc6bdcff3",
+      "historical_verdict": "CHANGES_REQUESTED",
+      "preserved": true
+    },
+    "original_safety": {
+      "path": "documents/verification/p2-integration-data-review-safety.json",
+      "sha256": "fc0094f48a2679ee569a4ffc4f30aafe1d2587c4e126539b57d04b571cd56ef1",
+      "historical_verdict": "CHANGES_REQUESTED",
+      "preserved": true
+    },
+    "author_fixes": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/report.json",
+      "sha256": "890d120a4c45b3840f5b665b9cfd8e145519188d8c51d1036b37e2ec3a0b319c",
+      "scope": "Snapshot, dispositions, relevant final checks and normative RED/GREEN evidence reused; author results are not independent reviewer execution."
+    },
+    "active_contract": "documents/verification/p2-next-session-implementation.md",
+    "active_decisions": "documents/verification/p2-integration-b06cm.md lines1-34, CURRENT/D1-D3",
+    "normative_sections": ["documents/Omnis_MVP_Architecture.md section5.2", "documents/Omnis_Implementation_Plan.md section7.1", "CONTRIBUTING.md product-oriented execution"]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "D1-D2 and architecture5.2: retained protocol settlement must exactly correlate usage/configuration with the qualified NO_MODEL producer; receive-only replay must not write, acquire a new grant, or resend.",
+    "consumer": "NativeTaskCommand/control_task -> LocalControl -> NativeTaskOwner._model_protocol -> model_protocol.readback; actual ledger reducer and cold configuration derivation.",
+    "risk": "Independently valid resealed rows could still contradict each other, while an optimistic constant projection hides the mismatch. A fix must reject those rows without corrupting positive or replay behavior.",
+    "decision": "Close only F01/F02 if same-consumer valid/resealed-invalid/restored-valid controls pass on exact final bytes; reuse original unaffected normative review and author affected checks. Permit the first scoped PG QA from the normative side, without treating this as integration acceptance."
+  },
+  "finding_dispositions": [
+    {
+      "id": "DATA-NORM-F01",
+      "original_severity": "MEDIUM",
+      "original_status": "CONFIRMED_SOURCE",
+      "original_title": "SETTLED readback does not correlate the ledger usage receipt with the protocol receipt and reports invented zero usage",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "fix_locations": ["api/src/omnis/modules/runs/model_protocol.py:408-423", "api/src/omnis/modules/runs/model_protocol.py:478-483"],
+      "reason": "The reader extracts usage from the actual validated dispatch history, canonically requires exactly one request-id-bound KNOWN/output_tokens=0/null provider/null observed cost/null estimate usage, and rejects disagreement as MODEL_RECEIPT_CONFLICT. The output projection now uses charged_output_tokens instead of manufacturing a zero. General-ledger validation remains unchanged and still independently validates dispatch/sequence/envelopes and strict scalar types.",
+      "independent_controls": ["usage_tokens", "usage_identity", "usage_cost_observed", "usage_cost_estimate", "usage_provider_receipt"],
+      "consumer_evidence": "All five existing regressions passed independently. Each starts with a produced SETTLED positive, mutates/reseals the retained usage record, confirms the general reducer still accepts its semantics, then requires MODEL_RECEIPT_CONFLICT from the actual reader and TASK_REJECTED through public control. Writes, new fence and grant are forbidden during rejection; retained graph equality and final replay/request-count assertions pass after restoration.",
+      "retained_red_green": {"author_red_label": "norm-f01-red-final", "author_red_exit": 1, "author_red_summary": "5 failed in 5.67s", "author_green_label": "norm-f01-green-final", "author_green_exit": 0, "author_green_summary": "5 passed in 6.09s"},
+      "limits": "SOURCE retained-row mutation proves the reader invariant, not a remote write primitive, PG durability, or live usage enforcement. Historical RED remains valid at its original snapshot."
+    },
+    {
+      "id": "DATA-NORM-F02",
+      "original_severity": "MEDIUM",
+      "original_status": "CONFIRMED_SOURCE",
+      "original_title": "The referenced model-configuration-receipt is resolved but its semantic payload is not checked",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "fix_locations": ["api/src/omnis/modules/runs/model_protocol.py:454-465"],
+      "reason": "The exact owned configuration record is captured from store.get, its kind/envelope validated, and its entire payload canonically compared to configuration_payload(qualified prepared payload, accepted source_configuration). This is the same derivation used by persist_configuration; it is pure and does not create or repair a receipt during readback. Qualified() has already compared the persisted prepared object with the current retained reader output.",
+      "independent_controls": ["configuration_payload"],
+      "consumer_evidence": "The existing regression passed independently: produced positive; configuration inference_authorized=true resealed together with the protocol receipt's exact ref; direct MODEL_RECEIPT_CONFLICT and public TASK_REJECTED with forbidden write/grant/fence; retained graph equality; restored valid public replay with unchanged request count.",
+      "retained_red_green": {"author_red_label": "norm-f02-red", "author_red_exit": 1, "author_red_summary": "1 failed in 1.44s", "author_green_label": "norm-f02-green", "author_green_exit": 0, "author_green_summary": "1 passed in 1.57s"},
+      "limits": "SOURCE semantic/provenance readback proof only; no PG mutation or installed runtime proof. Historical RED remains valid at its original snapshot."
+    },
+    {
+      "id": "DATA-SAFETY-F01",
+      "original_severity": "HIGH",
+      "original_status": "OPEN in original complementary report",
+      "disposition": "COMPLEMENTARY_REVIEW_DISPOSITION_NOT_ASSUMED",
+      "notes": "Author reports frozen abort-before-graceful-close fix and transport/owner backpressure regressions. This reviewer inspected the five-line runtime_client delta and its owner call site: ordinary non-frozen close is preserved, no grants/caps/deadlines/ledger changes. No new normative blocker found. This is not attribution of a safety APPROVED verdict and not a replacement for the separately delegated safety re-review. Parent must adjudicate that finding before PG admission."
+    }
+  ],
+  "new_findings": [],
+  "affected_call_site_review": [
+    {"site": "model_protocol.settle:289-335 and ModelDispatch.persist_configuration:460-504", "result": "Producer unchanged; expected usage and configuration derivation match the new reader checks exactly. No receipt rewrite or ledger/schema change."},
+    {"site": "model_protocol.qualified:152-266; budgets.reduce_history:63-142 and readback:343-369", "result": "Qualified descriptor/source and exact dispatch history remain the source of truth. Specialized checking occurs after general-ledger validation, rather than weakening it or trusting a separately fabricated state."},
+    {"site": "NativeTaskOwner._model_protocol:118-125,137-147,207-212", "result": "Initial replay, concurrent-replay branch and post-settlement readback all call the repaired reader. Initial replay precedes runtime boot/grant/reserve. Existing transaction/advisory-lock reads are not a new dispatch grant or durable write."},
+    {"site": "NativeTaskOwner._handle:318-338 and control_task:643-650", "result": "Binding/owner checks and both trusted protocol actions route to the same consumer; the public client retains strict validate_readback. Public-control positive and rejection paths were exercised by the six focused regressions."},
+    {"site": "RuntimeClient._exchange:539-550 and NativeTaskOwner._model_protocol:173-188", "result": "Safety delta inspected for normative interaction only: frozen errors now retire before propagation and A-unlock. Full safety verdict remains complementary. Normal accounting/uncertainty paths are unchanged."}
+  ],
+  "original_review_preservation": {
+    "D1": "Original qualified-source/cold-not-live assessment retained; no redesign or new authority.",
+    "D2": "Original fixed purpose/caps/shared immutable budget assessment retained; F01/F02 readback exceptions now closed at SOURCE scope.",
+    "D3": "Original static transaction order retained, not promoted to PG evidence. Frozen transport safety exception remains subject to complementary adjudication.",
+    "replay_failure": "Original no-resend/UNKNOWN limits preserved. New reader checks do not settle or refund a SENT dispatch.",
+    "pg_oracle": "Original oracle assessment retained because test_model_admission_pg.py is byte-identical. No new harness or breadth; nominal/Stop-first/send-first must still demonstrate independent committed readback and actual PG lock overlap. Existing target regressions must not be removed.",
+    "global": "DATA/B06c/B06m/P2-inert remain NOT_CLOSED; review approval is not first-PG execution, canonical acceptance or global completeness."
+  },
+  "independent_probe": {
+    "python": "3.13.15",
+    "cwd": "/home/kali/OmnisAI",
+    "environment_overrides": {"TMPDIR": "/home/kali/.hermes/cache/scratch/dn-ghqx13e4", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "PYTHONDONTWRITEBYTECODE": "1"},
+    "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "--tb=no", "-q", "--basetemp", "/home/kali/.hermes/cache/scratch/dn-ghqx13e4/pytest", "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction", "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction"],
+    "outer_timeout_seconds": 90,
+    "exit_code": 0,
+    "passed": 6,
+    "failed": 0,
+    "pytest_seconds": 7.51,
+    "wall_seconds": 8.237,
+    "private_log_path": "/home/kali/.hermes/cache/scratch/dn-ghqx13e4/focused-private.log",
+    "private_log_sha256": "0169ba3483439e9ffe8db3bbdb9d5397aa5e0093bc2350ff9e621b9895266e6b",
+    "private_log_mode": "0600",
+    "evidence_boundary": "Existing source fixture only: real composer/reader/general ledger/public LocalControl/NativeTaskOwner/RuntimeClient and owned UDS; synthetic protocol peer/native identities, SOURCE storage/authority/transaction doubles. No PG, real installed Host, native agent launch or provider/model call."
+  },
+  "reused_author_final_evidence": {
+    "affected_SOURCE": {"passed": 92, "failed": 0, "pytest_seconds": 36.71, "exit_code": 0},
+    "ruff_exit": 0,
+    "format_exit": 0,
+    "mypy_exit": 0,
+    "mypy_files": 4,
+    "original_reproducer_final": "Author reports original three normative mutations rejected, valid and restored positives accepted; not rerun here because the final six existing regressions independently exercise those defects plus their public consumer and no-write controls.",
+    "unchanged_checks": "Original SOURCE evidence reused only within unchanged scope; no new full-suite or canonical claim."
+  },
+  "first_pg_admission": {
+    "normative_initial_plus_delta_permits_first_scoped_pg": true,
+    "decision": "PERMITTED_FROM_NORMATIVE_REVIEW_SCOPE",
+    "reason": "Both concrete blockers in the original normative report are closed on the final snapshot; unchanged original normative/order/oracle assessments plus this focused delta support proceeding to the contract's first PG nominal/Stop-first/send-first QA.",
+    "conditions_not_waived": ["Parent adjudicates complementary safety re-review on the same final hashes, including DATA-SAFETY-F01.", "Parent-owned no-effect runner/source/access/oracle preflight and owned fixture/cleanup contract remain required.", "Use existing test_model_admission_pg.py and runner target without weakening regressions or widening grants/TTL/caps/timeouts.", "Checkpoint and STOP after the admitted first QA result; no automatic deferred-breadth or canonical expansion."],
+    "execution_by_this_reviewer": "NOT_RUN",
+    "not_an_overall_integration_approval": true,
+    "other_reviewer_verdict": "NOT_CLAIMED"
+  },
+  "limits_and_deferred_obligations": {
+    "deferred_not_waived": ["Concurrent duplicate/conflict", "New-consumer calls/output caps and VALIDATION carveout breadth", "Deadline expiry while waiting for B", "PG EOF/timeout/cancel and durable SENT/UNKNOWN", "Late receive-only settlement", "Remaining DATA/input/result/error/log adversarial channels"],
+    "not_run": ["PostgreSQL", "OCI", "Installed Host/native QA", "Physical crash/power loss", "Full canonical", "Settings", "P2-live", "Provider/model/target traffic", "r1/global/profile operations", "Push"],
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "no_completeness_claim": "Closing these named defects does not certify every DATA/admission obligation or transfer this result to installed distribution or changed future bytes."
+  },
+  "files_effects_and_cleanup": {
+    "repository_files_created_or_modified_by_reviewer": [],
+    "staged_by_reviewer": [],
+    "commits_by_reviewer": [],
+    "scratch_root": "/home/kali/.hermes/cache/scratch/dn-ghqx13e4",
+    "scratch_artifacts": ["review.json", "focused-private.log", "pytest-owned synthetic fixture material"],
+    "new_harness_or_framework": false,
+    "pytest_child_joined": true,
+    "remaining_socket_paths_in_owned_scratch_at_exit": [],
+    "external_db_oci_or_global_effects": "NONE",
+    "protected_html": "documents/Omnis_Notite_Originale.html was not read, hashed, edited, staged or deleted.",
+    "secret_handling": "No credentials, private frames, capabilities or raw logs are included in this report or tool summaries. Test output retained privately; only allowlisted exit/count fields returned.",
+    "diff_check_exit": 0,
+    "repo_status": "Four preexisting modified product/test paths and protected untracked HTML retained; no staged changes.",
+    "skill_delta": "No reviewer skill writes. Parent-owned 64eb55e already records the relevant receipt-coherence and frozen-retirement lessons."
+  },
+  "proposed_parent_status_delta": {
+    "implementation": "Frozen SOURCE fixes present, not committed by reviewer",
+    "normative_review": "APPROVED_SCOPED; DATA-NORM-F01/F02 CLOSED_SOURCE_SCOPED",
+    "proof": "Independent6SOURCE PASS7.51s/exit0; author92SOURCE and quality reused; PG NOT_RUN",
+    "next": "Adjudicate complementary safety outcome, then only the admitted first PG nominal/Stop-first/send-first QA and checkpoint/STOP.",
+    "global": "DATA/B06c/B06m/P2-inert NOT_CLOSED; canonical/Settings/live remain separate."
+  }
+}

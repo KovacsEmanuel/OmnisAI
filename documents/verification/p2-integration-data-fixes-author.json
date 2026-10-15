@@ -1,0 +1,1234 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_FROZEN_FOR_FOCUSED_REREVIEW_NOT_INTEGRATED",
+  "repository": "/home/kali/OmnisAI",
+  "entry_head": "40c0224ba02deb5a618ea38469a575e8b9420ff6",
+  "final_head": "b677fe96766cbcea7d903d5ed82402cf88bf165c",
+  "head_change": "Parent-only documentation commit b677fe9; product base unchanged. No child commit/stage.",
+  "scope": {
+    "allowed_and_changed_source_files": [
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/tests/test_native_task_client.py",
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/tests/test_model_admission.py"
+    ],
+    "native_tasks_changed": false,
+    "protected_html": "NOT_READ_HASHED_EDITED_STAGED_DELETED",
+    "PG": "NOT_RUN",
+    "OCI": "NOT_RUN",
+    "provider_model_target_r1_global_push": "NOT_RUN"
+  },
+  "requirement_consumer_risk_decision": [
+    {
+      "finding": "DATA-SAFETY-F01",
+      "requirement": "D3 frozen output abort before A unlock without added cleanup budget",
+      "consumer": "NativeTaskOwner._model_protocol -> RuntimeClient.exchange_frozen/_exchange",
+      "risk": "graceful close detaches live buffered output",
+      "decision": "minimal frozen-only abort, leave ordinary graceful behavior; SOURCE qualifies focused re-review, not PG admission approval"
+    },
+    {
+      "finding": "DATA-NORM-F01",
+      "requirement": "D2 ACK-correlated exact KNOWN zero/null settlement",
+      "consumer": "model_protocol.readback via existing owner/control replay",
+      "risk": "general ledger permits nonzero/foreign receipt while projection invents zero",
+      "decision": "compare retained usage history to exact descriptor request-id/KNOWN/zero/null payload; return validated charged output"
+    },
+    {
+      "finding": "DATA-NORM-F02",
+      "requirement": "D1/D2 exact immutable configuration receipt matches cold observation",
+      "consumer": "same readback and public control replay",
+      "risk": "owned selfdigest-valid but contradictory configuration receipt accepted",
+      "decision": "record kind/envelope validation and canonical existing configuration_payload comparison, read-only"
+    }
+  ],
+  "snapshot": {
+    "sha256": {
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+      "api/tests/test_model_admission_pg.py": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+    },
+    "files_count": 9,
+    "changed": [
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/tests/test_model_admission.py",
+      "api/tests/test_native_task_client.py"
+    ],
+    "unchanged_reused": [
+      "api/src/omnis/modules/instance/schemas.py",
+      "api/src/omnis/modules/runs/model_dispatch.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/tests/test_model_admission_pg.py",
+      "api/tests/test_model_budget.py"
+    ],
+    "final_files_frozen_after_last_edit": {
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa"
+    },
+    "final_cumulative_diff": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/03-norm-f02-final-cumulative.patch",
+    "final_cumulative_diff_sha256": "4d0e7eb1d72e8dd6d924dee3f975a7fec37c7ca7e395d7f5a2c5d842674002a4"
+  },
+  "patches": {
+    "apply_order": [
+      {
+        "label": "01-safety-final",
+        "previous": null,
+        "hashes": {
+          "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+          "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+          "api/src/omnis/modules/runs/model_protocol.py": "3a6b5657d6df483784d495a89a63614dad209fa96d02cbcdae1825ebf4e3113f",
+          "api/tests/test_model_admission.py": "678c5d60d5d27a922e6749b84cf60eb9d1b99e5cf083040311d9254ff2a29642"
+        },
+        "cumulative_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/01-safety-final-cumulative.patch",
+        "cumulative_sha256": "c5f0777392e2e28ea4d40f129ef58fd305191d57cab20de843733233e268f750",
+        "incremental_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/01-safety-final-incremental.patch",
+        "incremental_sha256": "0c9a139d87d020cee25436c0ad3af167016d859ed80a550284875f00759bba2e",
+        "incremental_reapply_hash_match": true
+      },
+      {
+        "label": "02-norm-f01-final",
+        "previous": "01-safety-final",
+        "hashes": {
+          "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+          "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+          "api/src/omnis/modules/runs/model_protocol.py": "320e93d993d31cb5a83556c9ee06e54943cc966f940e19862c2c08e74a954395",
+          "api/tests/test_model_admission.py": "663b91437399dba32bec03cc78ace1dc96aa63eb7a57aa21b035dd29c8d8481b"
+        },
+        "cumulative_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/02-norm-f01-final-cumulative.patch",
+        "cumulative_sha256": "902e8f3de92d30cfb86df6040d06eebc86d151f1dc5478b4fd167bcfd5a4f416",
+        "incremental_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/02-norm-f01-final-incremental.patch",
+        "incremental_sha256": "8f0c57f795f6b53deb5aaf724ac8d70e7abb5c8527114c32ff9800e0ae6e48c9",
+        "incremental_reapply_hash_match": true
+      },
+      {
+        "label": "03-norm-f02-final",
+        "previous": "02-norm-f01-final",
+        "hashes": {
+          "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+          "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+          "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+          "api/tests/test_model_admission.py": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa"
+        },
+        "cumulative_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/03-norm-f02-final-cumulative.patch",
+        "cumulative_sha256": "4d0e7eb1d72e8dd6d924dee3f975a7fec37c7ca7e395d7f5a2c5d842674002a4",
+        "incremental_patch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/03-norm-f02-final-incremental.patch",
+        "incremental_sha256": "3f3b9975904b847df4854209a7ef1a70d181f97275aaec300f0eee00afa8c87f",
+        "incremental_reapply_hash_match": true
+      }
+    ],
+    "instructions": "Incremental patches apply to the prior stage in order 01 safety -> 02 NORM-F01 -> 03 NORM-F02. They were applied without index/commits in scratch and every intermediate file hash matched. Common checkout already contains final bytes; parent may stage granular patches against index after own verification. Do not apply cumulative patches on top of incrementals.",
+    "requested_f01_exact_git_diff_before_f02": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/02-norm-f01-final-before-f02-exact-git-diff.patch",
+      "sha256": "9478773217465b35dd2a3bb03c71ba7733496f680d8049bdee3f19cc2a61ad29",
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "--",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "contains": "cumulative safety test hunks plus F01; 02 incremental excludes safety"
+    },
+    "reapply_checks": [
+      {
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/01-safety-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "apply",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/01-safety-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/02-norm-f01-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "apply",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/02-norm-f01-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/03-norm-f02-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "apply",
+          "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/03-norm-f02-final-incremental.patch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/patch-reapply",
+        "exit_code": 0
+      }
+    ],
+    "superseded_intermediates_preserved": [
+      "01-safety-* before mypy narrowing correction",
+      "02-norm-f01-* before captured-variable rename; use filenames containing final"
+    ]
+  },
+  "finding_dispositions": [
+    {
+      "id": "DATA-SAFETY-F01",
+      "status": "FIXED_SOURCE_PENDING_INDEPENDENT_REREVIEW",
+      "product_change": "_exchange caught errors call retire_frozen synchronously when frozen, else unchanged await close. Existing outer cancellation/bad ACK retirement preserved.",
+      "red": [
+        "original-red-safety",
+        "safety-regression-red-final"
+      ],
+      "green": [
+        "safety-tests-final",
+        "safety-client-final",
+        "final-affected-source"
+      ],
+      "original_probe_final": {
+        "exit_code": 2,
+        "meaning": "The unchanged reproducer exits 2 when the old defect predicate no longer matches; not an exit0 claim. Affirmative measurements separately checked and committed regression tests exit0.",
+        "finding_reproduced": false,
+        "results": [
+          {
+            "body_bytes": 32061,
+            "buffered_at_exchange_return": 0,
+            "buffered_before_failure": 24275,
+            "client_detached_at_exchange_return": true,
+            "complete_frame_after_return": false,
+            "elapsed_seconds": 0.0,
+            "frame_bytes": 32339,
+            "mode": "cancel",
+            "outcome": "CancelledError",
+            "peer_read_only_after_return_bytes": 8064,
+            "transport_fd_closed_after_peer_read": true
+          },
+          {
+            "body_bytes": 32061,
+            "buffered_at_exchange_return": 0,
+            "buffered_before_failure": 24275,
+            "client_detached_at_exchange_return": true,
+            "complete_frame_after_return": false,
+            "elapsed_seconds": 1.002,
+            "frame_bytes": 32339,
+            "mode": "timeout",
+            "outcome": "RuntimeUnavailable",
+            "peer_read_only_after_return_bytes": 8064,
+            "transport_fd_closed_after_peer_read": true
+          }
+        ]
+      },
+      "owner_evidence": "Actual NativeTaskOwner enters T0/A through SOURCE fence double and real UDS backpressure. Capture at the second fence finally: pending >0 before failure, zero at A exit and owner return; peer reads only after owner/replay return and receives no complete frame. Timeout and cancellation controls both pass. No PG lock proof."
+    },
+    {
+      "id": "DATA-NORM-F01",
+      "status": "FIXED_SOURCE_PENDING_INDEPENDENT_REREVIEW",
+      "red": [
+        "original-red-norm",
+        "norm-f01-red-final"
+      ],
+      "green": [
+        "norm-f01-green-final",
+        "final-affected-source",
+        "original-repro-final-norm"
+      ],
+      "controls": "Valid produced SETTLED receipt before and after each mutation; independently resealed usage output_tokens=1, foreign receipt_id, non-null observed cost=0, estimate=0 and provider ref. Actual budget reducer still accepts general usage, protocol reader rejects MODEL_RECEIPT_CONFLICT; public owner/control normalizes TASK_REJECTED. No writes/grants/fence or redispatch allowed."
+    },
+    {
+      "id": "DATA-NORM-F02",
+      "status": "FIXED_SOURCE_PENDING_INDEPENDENT_REREVIEW",
+      "red": [
+        "original-red-norm",
+        "norm-f02-red"
+      ],
+      "green": [
+        "norm-f02-green",
+        "final-affected-source",
+        "original-repro-final-norm"
+      ],
+      "controls": "Produced valid positive, resealed inference_authorized=true configuration plus exact resealed protocol ref, then restored positive. Real reader MODEL_RECEIPT_CONFLICT and owner/control TASK_REJECTED, no write/grant/fence/resend."
+    }
+  ],
+  "final_results": {
+    "affected_SOURCE": {
+      "label": "final-affected-source",
+      "passed": 92,
+      "failed": 0,
+      "exit_code": 0,
+      "pytest_seconds": 36.71
+    },
+    "ruff": 0,
+    "format": 0,
+    "mypy": {
+      "exit_code": 0,
+      "files": 4
+    },
+    "diff_check": 0,
+    "independent_rereview": "NOT_RUN_BY_AUTHOR",
+    "PG_nominal_Stop_first_send_first": "NOT_RUN",
+    "canonical": "NOT_RUN"
+  },
+  "original_reproducer_bytes": {
+    "safety": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety_repro.py",
+      "sha256": "eb1bb22487fcf8942c752fbe683fade206b6e7e3493dac72ff9209ff3cbff931"
+    },
+    "norm": {
+      "path": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm_repro.py",
+      "sha256": "6f4e1baf512920528961c15bc3dc6527711852d15e1f253e4619819704f81c6c"
+    }
+  },
+  "norm_original_final_outcomes": {
+    "outcomes": [
+      {
+        "case": "positive",
+        "output_tokens": 0,
+        "state": "SETTLED"
+      },
+      {
+        "case": "usage_tokens",
+        "outcome": "REJECTED",
+        "reason": "MODEL_RECEIPT_CONFLICT"
+      },
+      {
+        "case": "usage_identity",
+        "outcome": "REJECTED",
+        "reason": "MODEL_RECEIPT_CONFLICT"
+      },
+      {
+        "case": "configuration_payload",
+        "outcome": "REJECTED",
+        "reason": "MODEL_RECEIPT_CONFLICT"
+      },
+      {
+        "case": "restored_positive",
+        "same_as_positive": true,
+        "state": "SETTLED"
+      }
+    ],
+    "probe_status": "COMPLETE_SOURCE_ONLY"
+  },
+  "commands": [
+    {
+      "label": "original-red-safety",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety_repro.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 1.976,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/original-red-safety.log",
+      "log_sha256": "3e7a4e8e19955e9301b23e1e5053340a1513d9abb3a2066f5994c4a2fa96cacc",
+      "summary": []
+    },
+    {
+      "label": "original-red-norm",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm_repro.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 2,
+      "elapsed_seconds": 2.274,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/original-red-norm.log",
+      "log_sha256": "05a6f49540e5ccde455265c3c5ded537ac3b9a880534da48b8b686d1aa0377c5",
+      "summary": []
+    },
+    {
+      "label": "safety-regression-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py::test_frozen_backpressure_discards_pending_bytes_before_return",
+        "api/tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 5.908,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-regression-red.log",
+      "log_sha256": "20897d1731d3933f429f5ca86062fbc987a37c46dc97374bed2de2d6cd409cc9",
+      "summary": [
+        "2 failed, 2 passed in 5.22s"
+      ]
+    },
+    {
+      "label": "safety-regression-red2",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py::test_frozen_backpressure_discards_pending_bytes_before_return",
+        "api/tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 5.944,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-regression-red2.log",
+      "log_sha256": "1598b2b2ac9af889f1ca9a6c97cdc5691b8bfd70fc12927670c0f8fe1744f0bc",
+      "summary": [
+        "2 failed, 2 passed in 5.25s"
+      ]
+    },
+    {
+      "label": "safety-regression-red-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py::test_frozen_backpressure_discards_pending_bytes_before_return",
+        "api/tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 5.894,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-regression-red-final.log",
+      "log_sha256": "e0101ba6e2f0e0d2c9f0724dcf6201ea27449d529899994b10fa13d2dc0185d0",
+      "summary": [
+        "2 failed, 2 passed in 5.22s"
+      ]
+    },
+    {
+      "label": "safety-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 29.469,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-green.log",
+      "log_sha256": "c2c7a0edcf2b72dc01de38ccded592d60442b31680f2e4d06b61f185a8249532",
+      "summary": [
+        "53 passed in 28.81s"
+      ]
+    },
+    {
+      "label": "safety-format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 0.165,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-format.log",
+      "log_sha256": "73aca81e6a09c7ef35f5c77afa66d1d937feb60d9ce80dd2f65fa66abb038a25",
+      "summary": []
+    },
+    {
+      "label": "safety-format-apply",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-format-apply.log",
+      "log_sha256": "ecadcab6ba8db65f26e491b8a5abf181e94e6e96cf96718dc2e4c83e7c8ab2c5",
+      "summary": []
+    },
+    {
+      "label": "safety-quality",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-quality.log",
+      "log_sha256": "e934c9a42e0102473e87aa959a0862f32a167fdd72c68452dc9559eb711e3d93",
+      "summary": []
+    },
+    {
+      "label": "safety-mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 8.002,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-mypy.log",
+      "log_sha256": "31d9e8c45314cdbd4520d937020431822467a6a6b464f93b8b7f15ac246e5d3e",
+      "summary": []
+    },
+    {
+      "label": "safety-final-targeted",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py::test_frozen_backpressure_discards_pending_bytes_before_return",
+        "api/tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 5.195,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-final-targeted.log",
+      "log_sha256": "fbef1446ba3c1b2bb9bea0917293e3a1cd2a7bf04aafdf8db6c7aa04dc831e01",
+      "summary": [
+        "4 passed in 4.38s"
+      ]
+    },
+    {
+      "label": "safety-ruff-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-cache",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-ruff-final.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "safety-mypy-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 0.417,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-mypy-final.log",
+      "log_sha256": "41ea1ce8cdfffaea9a8d798d554bef449901edb65180ac36b0ff142b01a928b8",
+      "summary": []
+    },
+    {
+      "label": "safety-tests-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 29.615,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-tests-final.log",
+      "log_sha256": "d689ad1652874d0de91ce8a478bb99873b0a71f08a3026e86c2fa9e949468e95",
+      "summary": [
+        "53 passed in 28.96s"
+      ]
+    },
+    {
+      "label": "safety-mypy-corrected",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.416,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-mypy-corrected.log",
+      "log_sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb",
+      "summary": [
+        "Success: no issues found in 4 source files"
+      ]
+    },
+    {
+      "label": "safety-client-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_native_task_client.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 2.075,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety-client-final.log",
+      "log_sha256": "53cf7cf1c1a9f54153203c8b81e3c6041e8a1afc59874ea870c181bc5210625b",
+      "summary": [
+        "24 passed in 1.23s"
+      ]
+    },
+    {
+      "label": "norm-f01-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 6.342,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-red.log",
+      "log_sha256": "6b9d1a9426e9d0ed043a23ceb6c3bb33396492faa6131d38ada3bf0446a8ff70",
+      "summary": [
+        "5 failed in 5.51s"
+      ]
+    },
+    {
+      "label": "norm-f01-red-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 6.449,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-red-final.log",
+      "log_sha256": "9c719303eef9658647a803f3539089bb9f40863dbe50a3bf467160de28347598",
+      "summary": [
+        "5 failed in 5.67s"
+      ]
+    },
+    {
+      "label": "norm-f01-format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-format.log",
+      "log_sha256": "10869b88a75066aa23546ef1f95fcd4678c3fb92a56ed46ef91688052b67976a",
+      "summary": []
+    },
+    {
+      "label": "norm-f01-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 34.394,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-green.log",
+      "log_sha256": "d647a8fa14c4e3cbcdb569c1b54a8059a3f6c9683c8221ca4317da22d5476566",
+      "summary": [
+        "34 passed in 33.68s"
+      ]
+    },
+    {
+      "label": "norm-f01-quality",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 0.518,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-quality.log",
+      "log_sha256": "4ada9961e81f88fcc32a9d9179341add37c0f06b33024ca5e1c1b2a6b6fe9c7c",
+      "summary": []
+    },
+    {
+      "label": "norm-f01-mypy-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.518,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-mypy-final.log",
+      "log_sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb",
+      "summary": [
+        "Success: no issues found in 4 source files"
+      ]
+    },
+    {
+      "label": "norm-f01-check-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-cache",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-check-final.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "norm-f01-green-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 6.645,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f01-green-final.log",
+      "log_sha256": "d7dac81e2d46b3b5fa3225f5337d4cd5582c5d95d08ad982cc86cdd912faf8f7",
+      "summary": [
+        "5 passed in 6.09s"
+      ]
+    },
+    {
+      "label": "norm-f02-red",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "elapsed_seconds": 2.225,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f02-red.log",
+      "log_sha256": "f6bf0275f3b8794579736af1bedd5b5c08ccf5f8a59b01cbb12bbf1d60eec94f",
+      "summary": [
+        "1 failed in 1.44s"
+      ]
+    },
+    {
+      "label": "norm-f02-format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f02-format.log",
+      "log_sha256": "10869b88a75066aa23546ef1f95fcd4678c3fb92a56ed46ef91688052b67976a",
+      "summary": []
+    },
+    {
+      "label": "norm-f02-green",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 2.275,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm-f02-green.log",
+      "log_sha256": "43557565734a08c43e5a3973973179f5bf3692ffb6987e822d48d508730995f8",
+      "summary": [
+        "1 passed in 1.57s"
+      ]
+    },
+    {
+      "label": "final-ruff",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-cache",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.115,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/final-ruff.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "final-format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.116,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/final-format.log",
+      "log_sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+      "summary": [
+        "4 files already formatted"
+      ]
+    },
+    {
+      "label": "final-mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/mypy",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.517,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/final-mypy.log",
+      "log_sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb",
+      "summary": [
+        "Success: no issues found in 4 source files"
+      ]
+    },
+    {
+      "label": "final-affected-source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--tb=line",
+        "-q",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_native_task_client.py",
+        "api/tests/test_native_task_owner.py",
+        "api/tests/test_ready_model_configuration.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 37.395,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/final-affected-source.log",
+      "log_sha256": "2dc7e32c91ef781374ec7fa773141152ae69054b867bab6cec8ffd4083a674fc",
+      "summary": [
+        "92 passed in 36.71s"
+      ]
+    },
+    {
+      "label": "original-repro-final-norm",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/norm_repro.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 2.277,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/original-repro-final-norm.log",
+      "log_sha256": "cb6a7a570de1d4865ffb0d338c88f28689555407dbd7ed0c029bce47c6919d29",
+      "summary": []
+    },
+    {
+      "label": "original-repro-final-safety",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/safety_repro.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 2,
+      "elapsed_seconds": 1.471,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/original-repro-final-safety.log",
+      "log_sha256": "5e8decb335ee122010297f1d82e584f5d886531060ca6885ee847923ea88ca7c",
+      "summary": []
+    },
+    {
+      "label": "final-diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "api/src/omnis/supervisor/runtime_client.py",
+        "api/tests/test_native_task_client.py",
+        "api/src/omnis/modules/runs/model_protocol.py",
+        "api/tests/test_model_admission.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "elapsed_seconds": 0.008,
+      "log": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr/final-diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": []
+    }
+  ],
+  "environment": {
+    "python": "Python 3.13.15",
+    "command_prefix": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B"
+    ],
+    "inherited_removed_prefixes": [
+      "PYTHON",
+      "PYTEST",
+      "MYPY"
+    ],
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "pytest_plugins": [
+      "pytest_asyncio.plugin",
+      "no:cacheprovider"
+    ],
+    "pytest_config": "api/pyproject.toml",
+    "scratch": "/home/kali/.hermes/cache/scratch/data-fixes-ts2x0rzr",
+    "scratch_mode": "0700",
+    "logs_mode": "0600",
+    "mypy_cache": "scratch",
+    "no_pycache_flag": "-B"
+  },
+  "failed_attempts_preserved": [
+    "Initial safety regression finalizer tried aborting an already-closed transport then awaited a close future previously cancelled by the old graceful timeout. Narrowed cleanup to the still-open owned FD. Original reproducer RED already established product defect; final regression RED reached exact buffered-byte assertions 24265/6353, cancellation controls passed.",
+    "Ruff invocation without explicit --config misclassified imports; corrected invocation rather than rewriting valid imports.",
+    "Mypy flow narrowed client.writer across async mutation; retain local writer for transport observation. Reused refs name invalidated earlier closure narrowing; renamed new usage_refs.",
+    "Additional cost controls initially used noncanonical 0.00, rejected by existing general ledger; preserved FAIL and changed fixture to canonical 0 to reach protocol guard. No product rule changed."
+  ],
+  "repair_budget": {
+    "product_fix_hypotheses_per_finding": 1,
+    "redesign": false,
+    "scope_expansion": false,
+    "new_owner_harness_framework": false,
+    "test_fixture_adjustments": "Finite helper in existing test_native_task_client reused by existing owner fixture; no new runner or product owner."
+  },
+  "reused_evidence": {
+    "source_author_report": "documents/verification/p2-integration-data-source-author.json",
+    "unchanged_budget_final_request_SOURCE": "Reused scoped previous report; not counted in 92 fresh tests",
+    "PG_collection": "previous four-node collection reused; no execution or fresh preflight claim",
+    "batch2": "not rerun"
+  },
+  "cleanup": {
+    "owned_UDS": "test-owned socketpairs/peer listeners closed by bounded finalizers; direct probe reports FDs closed in timeout/cancel; owner tests complete without lingering peer",
+    "subprocess_family": "only synchronous pytest/probe/quality commands, all joined",
+    "DB_or_container_resources_created": false,
+    "scratch_preserved": true,
+    "index_empty": true,
+    "tracked_changes_only_allowed_paths": true
+  },
+  "limitations": [
+    "SOURCE storage, instance/lease/Stop transaction and native identity doubles, not PostgreSQL overlap or persistence.",
+    "Synthetic peer/NO_MODEL only, not installed Host/native/inference/token enforcement.",
+    "ACK EOF/timeout/cancel remains SENT/UNKNOWN; no refund/resend changes.",
+    "No grants/TTL/deadlines/caps/pins/schema/ledger/Host/read_configuration changes.",
+    "Independent complementary focused re-reviews and first PG consumer remain parent-owned admission gates.",
+    "DATA complete/canonical/Settings/live/batch2 deferred as mandated; integration NOT_ACCEPTED."
+  ],
+  "parent_status_delta": "AICI: three blockers implemented with fresh SOURCE evidence, frozen snapshot ready for complementary focused re-reviews; first PG QA remains NOT_RUN pending parent adjudication.",
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "lesson_for_parent_skill_delta": "Abort uncertain frozen output on the inner caught-error branch before graceful close can detach its writer. Prove discard with real pending UDS bytes at owner fence exit, not only is_closing/None. For protocol-specific zero usage, compare exact retained ledger history and semantic configuration payload, not only reference existence or a zero-valued projection. Record this in the project skill only if parent authorizes the separate documentation scope."
+}

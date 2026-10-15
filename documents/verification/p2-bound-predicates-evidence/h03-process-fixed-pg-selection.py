@@ -29,7 +29,7 @@ BATCH2_ROOT = Path(
     "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0"
 )
 BATCH2_SOURCE_SHA = "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28"
-BATCH2_REVIEWED: str | None = "93c1784138823628f488a562d113107e5fd215a1a05894beac14fba3f26d0a28"
+BATCH2_REVIEWED: str | None = None
 BATCH2_ARTIFACT = BATCH2_ROOT / "native-artifact.json"
 BATCH2_ARTIFACT_SHA = "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318"
 BATCH2_READER = BATCH2_ROOT / "current-reader.json"

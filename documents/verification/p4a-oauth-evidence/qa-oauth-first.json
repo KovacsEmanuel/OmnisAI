@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "verdict": "BLOCKED_PREFLIGHT",
+  "stage0": {
+    "verdict": "APPROVED_SCOPED",
+    "report": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-api-quality.json",
+    "base": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+    "head": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+    "test_sha256": "6e6969a179b785d22163b7d70c3fa560301661f8032b64c1b43bcfa889910734",
+    "result": "Exact two-replacement byte comparison passed; actual frozen runtime_host.os is stdlib os. All test oracle/assertion bytes unchanged. No new full review/test cycle."
+  },
+  "authorization": "/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/intent.json",
+  "attempt": {
+    "preflight_attempts": 1,
+    "cli_installations": 0,
+    "image_builds": 0,
+    "runtime_invocations": 0,
+    "connect_operations": 0,
+    "account_approvals": 0,
+    "inference_or_target_calls": 0,
+    "retry": false,
+    "last_readback_time": "2026-10-17T00:16:48+03:00"
+  },
+  "first_failure": {
+    "id": "QA-DOCKER-CONFIG-PREFLIGHT-01",
+    "classification": "Unmet private-configuration prerequisite; not a live product failure or a re-review of the accepted import delta",
+    "locations": ["cli/src/omnis_cli/compose.py:40-54", "cli/src/omnis_cli/compose.py:288-304", "cli/src/omnis_cli/compose.py:367-368"],
+    "observed": "The exact wheel's normal install-image path calls _preflight/_run. _run gives Docker only PATH, discarding the caller's private HOME, and supplies no --config argument. Setting a private DOCKER_CONFIG is rejected by _preflight before any subprocess with ImageInstallError: Ambient Docker overrides are forbidden.",
+    "source_control": "Imported the exact hash-bound CLI wheel directly under -I -B; substituted only subprocess.run in memory to inspect its constructed argv/env without launching Docker. The captured environment key set was exactly [PATH]; no HOME or DOCKER_CONFIG and no --config argument. Separately supplied a synthetic owned DOCKER_CONFIG and confirmed refusal with zero subprocess calls.",
+    "decision": "STOP before installation/build/runtime. The authorized private HOME cannot constrain this child path, and the alternative private DOCKER_CONFIG is forbidden by the actual CLI. No ad-hoc Docker wrapper, constructor override, config mutation, or source repair was introduced to bypass the prerequisite.",
+    "limit": "No actual Docker process was launched and no personal Docker configuration was read. This establishes missing private-config propagation/admission, not an observed credential read, credential use, or exploit. Runtime ControlRuntime.run is a distinct path with explicit --config and does not cure the earlier normal installer path.",
+    "next_owner": "Parent causal diagnosis/adjudication of the normal installer prerequisite; this delegate does not authorize another attempt or repair."
+  },
+  "verified_preflight": {
+    "worktree_clean_and_head_exact": true,
+    "source_bindings_matched": 42,
+    "cli_python_members_byte_exact": 22,
+    "bundle_manifest_validated_by_existing_manifest_reader": true,
+    "bundle_payload_count": 15,
+    "native_full_context_validated_by_existing_validate_context": true,
+    "native_closure_files": 3260,
+    "actual_proposed_runner_argv_ast_parse": "PASS",
+    "actual_run_installed_stop_signature_bind": "PASS",
+    "node_playwright_cache_paths_exist": true,
+    "computed_native_uds_max_bytes": 90,
+    "computed_native_uds_limit": 108,
+    "disk_available_before": 13647237120,
+    "installed_compose_actual_validate_config": "NOT_RUN: preceding private-config prerequisite blocked before installation",
+    "docker_daemon_base_images_registration": "NOT_RUN: no Docker process launched",
+    "native_uid_runtime_mount_and_image_entrypoint_actual_readback": "NOT_RUN: no images created"
+  },
+  "artifact_bindings": {
+    "manifest": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/final-artifacts/readback.json",
+    "bundle": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/final-artifacts/bundle",
+    "release_sha256": "6446994d3a2f4e689f2727a8b45f2e79702c1402e42045a786643e97c61972e2",
+    "cli_wheel_sha256": "4e346f33e311257d1f6db32dd989be1f9272ee874a0287acae3284979c86db0f",
+    "api_wheel_sha256": "23f5d8d364c967c7209d8cf8a5886047ceb34e4d87b2af6b1a88d7dde91af431",
+    "native_context": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared-repair",
+    "adapter_sha256": "24e50cc00a74444653176d2619cda7ea78f2d26927d1480f88b224a3b5550761",
+    "rebuilt": false
+  },
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "isolated_prefix": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/h TMPDIR=/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c",
+    "checks": [
+      {"command": "git diff f25ff6aa485fb8d0b70754e47492d879d53ad0b1 d6243644a8a69e621b5b1d7306f5cef417d13cd5 -- api/tests/test_provider_process_source.py; git diff --name-only f25ff6aa485fb8d0b70754e47492d879d53ad0b1 d6243644a8a69e621b5b1d7306f5cef417d13cd5", "exit": 0},
+      {"command_scope": "One combined isolated read-only preflight: compare all source and wheel bytes; call _manifest(bundle), validate_context(native_context,payloads), ast.parse(proposed_argv[-1]), inspect.signature(run_installed_stop).bind(...); verify empty roots/access paths and bounded socket lengths; capture exact wheel compose._run environment and _preflight refusal with subprocess.run substituted only in memory", "exit": 0, "seconds": 0.778, "meaning": "Assertions confirmed the prerequisite BLOCKER; not QA PASS"}
+    ],
+    "normal_install_command_not_run": "/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/cli/bin/omnis install --bundle /home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/final-artifacts/bundle",
+    "normal_image_command_not_run": "/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/cli/bin/omnis install-image --runtime-context /home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared-repair",
+    "runner_not_run": "run_installed_stop(data, image_receipt, installed_cli, settings_browser={node, cache, playwright}) with only qa-next root replaced by /home/kali/.hermes/cache/scratch/oa-i7yt8_ha",
+    "background_handles": []
+  },
+  "resources": {
+    "root": "/home/kali/.hermes/cache/scratch/oa-i7yt8_ha",
+    "before_after": "Only original intent.json and empty h,d,c,t,cwd; no installation, s4 state root, data, images or runtime allocated by this delegate.",
+    "root_identities": {
+      "h": {"inode": 8922985, "uid": 1000, "mode": "0700", "empty": true},
+      "d": {"inode": 8922986, "uid": 1000, "mode": "0700", "empty": true},
+      "c": {"inode": 8923472, "uid": 1000, "mode": "0700", "empty": true},
+      "t": {"inode": 8923473, "uid": 1000, "mode": "0700", "empty": true},
+      "cwd": {"inode": 8923474, "uid": 1000, "mode": "0700", "empty": true}
+    },
+    "daemon_id": null,
+    "project": null,
+    "image_ids": [],
+    "container_ids": [],
+    "network_ids": [],
+    "stop_receipts": [],
+    "typed_probe_receipts": [],
+    "cleanup": "NOT_REQUIRED_NO_OWNED_RUNTIME; no physical cleanup or absence proof credited",
+    "retention": "Original intent and prepared source/bundle/context retained unchanged; no PG/provider data or new images existed to delete."
+  },
+  "preserved_failures": [
+    "Initial author API Ruff invocation with auto-discovered wrong configuration exit1; canonical explicit API config subsequently passed without source repair.",
+    "Initial parent mandatory CLI quality failure and initial API type-check failure retained; final scoped quality evidence is separate.",
+    "Initial API lock export exit2: private PATH lacked pinned Python; corrected only PATH, no install. Original failed artifact/log retained.",
+    "First post-build native readback omitted required Dockerfile and refused; corrected full payload readback only, no rebuild.",
+    "This QA private-Docker-configuration preflight blocker remains; no retry or workaround."
+  ],
+  "journey": "NOT_RUN: no Start/status/Settings/Connect/challenge/reload/Cancel/Stop/restart/browser or native execution",
+  "provider_tls_boundary_evidence": "NOT_OBSERVED_LIVE",
+  "visual_review": "NOT_RUN; previous skip-link overlap remains INCONCLUSIVE",
+  "scope_not_run": ["account login", "model reachability/inference", "rest P4a", "P2-live/G04a/G02-live", "canonical", "P3/target traffic"],
+  "tools_limits": {"Reticle": "NOT_INTEGRATED", "Chisel": "BLOCKED_NO_GO"},
+  "unchanged_approvals": "Complementary SOURCE approvals at c935834 and focused quality approval at f25ff6a retained only for their unchanged artifact scopes; this report does not reopen the import delta or grant integration acceptance.",
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-api-quality.json",
+    "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/qa-oauth-first.json"
+  ],
+  "product_docs_skills_or_main_writes": false,
+  "commits": [],
+  "protected_paths": "Original HTML and ponytail unread, unhashed, unmodified. Personal config/.env/auth/session/log/environment values not inspected."
+}

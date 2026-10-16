@@ -1,0 +1,30 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "role": "independent read-only reviewer; separate conditional installed QA contract",
+  "base": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+  "head": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+  "scope": "api/tests/test_provider_process_source.py only",
+  "sha256": "6e6969a179b785d22163b7d70c3fa560301661f8032b64c1b43bcfa889910734",
+  "findings": [],
+  "independent_checks": {
+    "git_clean": true,
+    "only_changed_path": "api/tests/test_provider_process_source.py",
+    "exact_bytes_equal_old_plus_import_os_and_same_getuid_patch_target": true,
+    "runtime_host_os_is_stdlib_os": true,
+    "test_oracle_and_assertions_unchanged": true,
+    "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/h TMPDIR=/home/kali/.hermes/cache/scratch/oa-i7yt8_ha/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c <exact two-replacement byte comparison, SHA assertion, frozen runtime_host import and runtime_host.os is os assertion>",
+    "exit": 0,
+    "product_effects": "none; read-only import without bytecode writes"
+  },
+  "retained_author_evidence": {
+    "report": "/home/kali/.hermes/cache/scratch/aq-QgU7mt/control/author-api-quality.json",
+    "mypy": "exit0, 240 source files",
+    "ruff_explicit_api_config": "exit0",
+    "format_explicit_api_config": "exit0",
+    "affected_source_tests": "7 passed, exit0, 0.76s; not rerun for this import-only review",
+    "initial_wrong_auto_discovered_ruff_config": "exit1 retained; explicit canonical config subsequently passed without source repair"
+  },
+  "carry": "Prior scoped complementary source approvals and quality review apply only to unchanged artifacts; this review does not certify installed behavior or parent integration.",
+  "qa_admission": "Stage0 passed. Progression remains conditional on actual artifact/source/access/argv/daemon/project/Compose preflights under /home/kali/.hermes/cache/scratch/oa-i7yt8_ha/intent.json.",
+  "limits": ["No source/docs/skills edits or commits", "No additional full review or test cycle", "No runtime/provider/browser effects before this report"]
+}

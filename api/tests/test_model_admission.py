@@ -1425,6 +1425,126 @@ async def test_protocol_marker_preserves_failure_and_owns_only_its_waiter(case: 
 
 
 @pytest.mark.asyncio
+async def test_protocol_phase_timing_delegates_without_task_or_error_changes() -> None:
+    """SOURCE observer control: real elapsed time, pending/return/raise, finite storage."""
+    from time import monotonic
+
+    from test_model_admission_pg import ProtocolTiming
+
+    timing = ProtocolTiming()
+    task = asyncio.current_task()
+    timing.handlers[task] = "sender"
+    token = object()
+    error = ValueError("SYNTHETIC_DIAGNOSTIC_OMIT_ME")
+    called = 0
+
+    async def actual(value: object, *, fail: bool = False) -> object:
+        nonlocal called
+        called += 1
+        assert asyncio.current_task() is task and value is token
+        if task in timing.handlers:
+            pending = timing.snapshot()
+            assert pending[-1]["outcome"] == "PENDING"
+        await asyncio.sleep(0.01)
+        if fail:
+            raise error
+        return value
+
+    measured = timing.delegate("protocol.readback", actual)
+    start = monotonic()
+    assert await measured(token) is token
+    with pytest.raises(ValueError) as caught:
+        await measured(token, fail=True)
+    assert caught.value is error and called == 2
+    rows = timing.snapshot()
+    assert [row["outcome"] for row in rows] == ["RETURNED", "RAISED"]
+    assert all(0 < row["elapsed_ms"] <= 1000 * (monotonic() - start) for row in rows)
+    assert "SYNTHETIC_DIAGNOSTIC_OMIT_ME" not in str(rows)
+    # Untracked readers cannot inflate the first-two-command observation.
+    timing.handlers.clear()
+    assert await measured(token) is token
+    assert len(timing.snapshot()) == 2
+    for _ in range(62):
+        with timing.phase("sender", "qa.before_a"):
+            pass
+    with pytest.raises(AssertionError, match="protocol timing capacity"):
+        with timing.phase("sender", "qa.before_a"):
+            pass
+    assert len(timing.snapshot()) == 64
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["nominal", "duplicate", "conflict"])
+async def test_protocol_phase_timing_existing_source_consumer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], case: str
+) -> None:
+    """Actual SOURCE callers/qualification; not PG graph/lock or QA-pause timing."""
+    import json
+
+    from omnis.modules.runs import model_protocol
+    from omnis.supervisor import native_tasks
+    from test_model_admission_pg import ProtocolCaller, ProtocolTiming
+
+    timing = ProtocolTiming()
+    original_handle = native_tasks.NativeTaskOwner.handle
+    original_control = native_tasks.control_task
+    owner_count = control_count = 0
+    limit = 1 if case == "nominal" else 2
+
+    async def handle(
+        self: native_tasks.NativeTaskOwner, value: NativeTaskCommand
+    ) -> dict[str, object]:
+        nonlocal owner_count
+        if value.action != "model_protocol_prepare" or owner_count >= limit:
+            return await original_handle(self, value)
+        owner_count += 1
+        caller: ProtocolCaller = "sender" if owner_count == 1 else "second"
+        task = asyncio.current_task()
+        timing.handlers[task] = caller
+        try:
+            with timing.phase(caller, "owner"):
+                return await original_handle(self, value)
+        finally:
+            timing.handlers.pop(task)
+
+    async def control(root: Path, value: object) -> dict[str, object]:
+        nonlocal control_count
+        if mapping(value)["action"] != "model_protocol_prepare" or control_count >= limit:
+            return await original_control(root, value)
+        control_count += 1
+        with timing.phase("sender" if control_count == 1 else "second", "control"):
+            return await original_control(root, value)
+
+    monkeypatch.setattr(native_tasks.NativeTaskOwner, "handle", handle)
+    monkeypatch.setattr(native_tasks, "control_task", control)
+    monkeypatch.setattr(
+        model_protocol, "qualified", timing.delegate("protocol.qualified", model_protocol.qualified)
+    )
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case=None if case == "nominal" else case
+    )
+    rows = timing.snapshot()
+    qualified = [r for r in rows if r["phase"] == "protocol.qualified"]
+    assert len(qualified) == (4 if case == "duplicate" else 3)
+    assert all(r["outcome"] == "RETURNED" and r["elapsed_ms"] > 0 for r in qualified)
+    assert owner_count == control_count == limit and not timing.handlers
+    assert [r["caller"] for r in qualified].count("second") == int(case == "duplicate")
+    with capsys.disabled():
+        print(
+            "\nP2_PROTOCOL_TIMING "
+            + json.dumps(
+                {
+                    "scope": "SOURCE_CONTROL",
+                    "order": case,
+                    "timing": rows,
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("case", ["duplicate", "conflict"])
 async def test_protocol_join_uses_existing_control_deadline(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
@@ -1483,6 +1603,7 @@ async def test_protocol_failure_observation_before_cleanup_on_line_channel(
     from omnis.modules.settings.catalog_models import CatalogError
 
     pg = importlib.import_module("test_model_admission_pg")
+    timing = pg.ProtocolTiming()
     marker, started = asyncio.Event(), asyncio.Event()
     if case == "pg_waiter":
         marker.set()  # SOURCE: ready already reached; the lock observation stalls.
@@ -1507,7 +1628,8 @@ async def test_protocol_failure_observation_before_cleanup_on_line_channel(
         if case != "returned":
             await asyncio.Event().wait()
 
-    sender = asyncio.create_task(send())
+    sender = asyncio.create_task(timing.delegate("domain.readback", send)())
+    timing.handlers[sender] = "sender"
     snapshot: dict[str, object] | None = None
     primary: BaseException | None = None
     try:
@@ -1549,6 +1671,7 @@ async def test_protocol_failure_observation_before_cleanup_on_line_channel(
                             "readiness_started": readiness_start,
                             "readiness_finished": readiness_start if completed else None,
                         },
+                        timing=timing,
                         source_control=True,
                     )
                 raise
@@ -1559,6 +1682,19 @@ async def test_protocol_failure_observation_before_cleanup_on_line_channel(
         await asyncio.gather(sender, return_exceptions=True)
     assert snapshot is not None, "first-error observation missing before cleanup"
     assert snapshot["tasks"] == {"sender": expected}
+    rows = sequence(snapshot["timing"])
+    assert len(rows) == 1
+    span = mapping(rows[0])
+    assert span["phase"] == "domain.readback" and span["caller"] == "sender"
+    assert (
+        span["outcome"]
+        == {
+            "PENDING": "PENDING",
+            "RETURNED": "RETURNED",
+            "FAILED": "RAISED",
+            "CANCELLED": "RAISED",
+        }[str(expected["state"])]
+    )
     assert snapshot["error"] == {"type": primary_type.__name__, "reason": None}
     assert snapshot["scope"] == "SOURCE_CONTROL"
     assert snapshot["markers"] == {"t0_ready": bool(completed)}

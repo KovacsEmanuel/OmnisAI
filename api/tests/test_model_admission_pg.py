@@ -8,11 +8,14 @@ actual initialization/turn, model compatibility, SDK and inference are not claim
 import asyncio
 import importlib
 import json
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Iterator, Mapping
+from contextlib import contextmanager
 from copy import deepcopy
+from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 from time import monotonic
+from typing import Literal, TypedDict
 from uuid import UUID, uuid4
 
 import pytest
@@ -47,6 +50,92 @@ from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
 from test_ready_model_configuration import configuration
 
+ProtocolCaller = Literal["sender", "second"]
+ProtocolPhase = Literal[
+    "control",
+    "owner",
+    "domain.readback",
+    "protocol.replay",
+    "protocol.reserve",
+    "protocol.mark_sent",
+    "protocol.settle",
+    "protocol.readback",
+    "protocol.qualified",
+    "qa.t0_locked",
+    "qa.before_a",
+]
+
+
+class ProtocolTimingRow(TypedDict):
+    caller: ProtocolCaller
+    phase: ProtocolPhase
+    entered_ms: int
+    elapsed_ms: int
+    outcome: Literal["PENDING", "RETURNED", "RAISED"]
+
+
+@dataclass
+class _ProtocolSpan:
+    caller: ProtocolCaller
+    phase: ProtocolPhase
+    started: float
+    ended: float | None = None
+    outcome: Literal["PENDING", "RETURNED", "RAISED"] = "PENDING"
+
+
+class ProtocolTiming:
+    """First two commands only; wall spans overlap, so do NOT sum nested phases.
+
+    No argument/result/error bytes, new tasks, timers or authority. Delegation
+    runs in the original task. RAISED includes cancellation, never success.
+    """
+
+    def __init__(self) -> None:
+        self.handlers: dict[object, ProtocolCaller] = {}
+        self.spans: list[_ProtocolSpan] = []
+
+    @contextmanager
+    def phase(self, caller: ProtocolCaller, phase: ProtocolPhase) -> Iterator[None]:
+        assert len(self.spans) < 64, "protocol timing capacity"
+        span = _ProtocolSpan(caller, phase, monotonic())
+        self.spans.append(span)
+        try:
+            yield
+        except BaseException:
+            span.outcome = "RAISED"
+            raise
+        else:
+            span.outcome = "RETURNED"
+        finally:
+            span.ended = monotonic()
+
+    def delegate[**P, R](
+        self, phase: ProtocolPhase, original: Callable[P, Awaitable[R]]
+    ) -> Callable[P, Awaitable[R]]:
+        async def measured(*args: P.args, **kwargs: P.kwargs) -> R:
+            caller = self.handlers.get(asyncio.current_task())
+            if caller is None:
+                return await original(*args, **kwargs)
+            with self.phase(caller, phase):
+                return await original(*args, **kwargs)
+
+        return measured
+
+    def snapshot(self) -> list[ProtocolTimingRow]:
+        now = monotonic()
+        return [
+            {
+                "caller": span.caller,
+                "phase": span.phase,
+                "entered_ms": int(1000 * (span.started - self.spans[0].started)),
+                "elapsed_ms": int(
+                    1000 * ((now if span.ended is None else span.ended) - span.started)
+                ),
+                "outcome": span.outcome,
+            }
+            for span in self.spans
+        ]
+
 
 def report_protocol_failure(
     capsys: pytest.CaptureFixture[str],
@@ -57,6 +146,7 @@ def report_protocol_failure(
     markers: dict[str, asyncio.Event],
     tasks: Mapping[str, asyncio.Task[dict[str, object]] | asyncio.Task[int] | asyncio.Task[None]],
     progress: dict[str, int | float | None],
+    timing: ProtocolTiming | None = None,
     source_control: bool = False,
 ) -> dict[str, object]:
     """One synchronous pre-cleanup snapshot; never format exception/input bytes.
@@ -127,6 +217,7 @@ def report_protocol_failure(
         "readiness_elapsed_ms": (
             None if start is None else int(1000 * ((monotonic() if end is None else end) - start))
         ),
+        "timing": [] if timing is None else timing.snapshot(),
     }
     with capsys.disabled():
         print("\nP2_PROTOCOL_FAILURE " + json.dumps(snapshot, sort_keys=True), flush=True)
@@ -671,6 +762,24 @@ async def protocol_pg_consumer(
     readiness_entered = readiness_completed = 0
     readiness_started: float | None = None
     readiness_finished: float | None = None
+    timing = ProtocolTiming()
+
+    # Exact original awaits; only trusted finite names and monotonic spans.
+    monkeypatch.setattr(
+        model_protocol, "replay", timing.delegate("protocol.replay", model_protocol.replay)
+    )
+    monkeypatch.setattr(
+        model_protocol, "mark_sent", timing.delegate("protocol.mark_sent", model_protocol.mark_sent)
+    )
+    monkeypatch.setattr(
+        model_protocol, "settle", timing.delegate("protocol.settle", model_protocol.settle)
+    )
+    monkeypatch.setattr(
+        model_protocol, "readback", timing.delegate("protocol.readback", model_protocol.readback)
+    )
+    monkeypatch.setattr(
+        model_protocol, "qualified", timing.delegate("protocol.qualified", model_protocol.qualified)
+    )
 
     async def observed_readiness(engine: AsyncEngine | None) -> ReadinessReason | None:
         nonlocal readiness_entered, readiness_completed, readiness_started, readiness_finished
@@ -709,6 +818,7 @@ async def protocol_pg_consumer(
                 "readiness_started": readiness_started,
                 "readiness_finished": readiness_finished,
             },
+            timing=timing,
         )
 
     @asynccontextmanager
@@ -723,35 +833,39 @@ async def protocol_pg_consumer(
             if concurrent and current == 1:
                 # Product T0 holds Instance/lease/managed/budget locks and has
                 # written reserve + command receipt, but has NOT committed.
-                blocker_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
-                t0_records = list(
-                    (
-                        await conn.execute(
-                            sql(
-                                "SELECT to_jsonb(t) FROM managed_record t ORDER BY to_jsonb(t)::text"
+                with timing.phase("sender", "qa.t0_locked"):
+                    blocker_pid = int(
+                        (await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+                    )
+                    t0_records = list(
+                        (
+                            await conn.execute(
+                                sql(
+                                    "SELECT to_jsonb(t) FROM managed_record t ORDER BY to_jsonb(t)::text"
+                                )
                             )
                         )
+                        .scalars()
+                        .all()
                     )
-                    .scalars()
-                    .all()
-                )
-                rows = [mapping(r)["envelope"] for r in t0_records]
-                added = [mapping(r) for r in rows if str(mapping(r)["id"]) not in baseline_ids]
-                assert Counter(str(r["kind"]) for r in added) == {
-                    "model-budget": 1,
-                    "model-dispatch-owner": 1,
-                    "model-reservation": 1,
-                    "model-dispatch": 1,
-                    "contract-input-command": 1,
-                }
-                t0_ready.set()
-                await asyncio.wait_for(release_t0.wait(), 1.5)
+                    rows = [mapping(r)["envelope"] for r in t0_records]
+                    added = [mapping(r) for r in rows if str(mapping(r)["id"]) not in baseline_ids]
+                    assert Counter(str(r["kind"]) for r in added) == {
+                        "model-budget": 1,
+                        "model-dispatch-owner": 1,
+                        "model-reservation": 1,
+                        "model-dispatch": 1,
+                        "contract-input-command": 1,
+                    }
+                    t0_ready.set()
+                    await asyncio.wait_for(release_t0.wait(), 1.5)
         if current == 1:  # actual RESERVE transaction has committed
             reserved.set()
             if concurrent:
                 # Let the actual waiter finish receive-only before A can add
                 # SENT; this makes zero writes/send by the second falsifiable.
-                await asyncio.wait_for(second_finished.wait(), 1.5)
+                with timing.phase("sender", "qa.before_a"):
+                    await asyncio.wait_for(second_finished.wait(), 1.5)
             if order == "stop_first":
                 await asyncio.wait_for(stop_locked.wait(), 1)
 
@@ -776,6 +890,15 @@ async def protocol_pg_consumer(
         request_count += 1
         if request_count == 2:
             second_handler = asyncio.current_task()
+        if request_count <= (2 if concurrent else 1):
+            task = asyncio.current_task()
+            caller: ProtocolCaller = "sender" if request_count == 1 else "second"
+            timing.handlers[task] = caller
+            try:
+                with timing.phase(caller, "owner"):
+                    return await owner.handle(value)
+            finally:
+                timing.handlers.pop(task)
         return await owner.handle(value)
 
     async def observed_readback(value: object) -> dict[str, object]:
@@ -823,11 +946,15 @@ async def protocol_pg_consumer(
         reserve_calls += 1
         return await actual_reserve(conn, dispatch, value, prepared, config, frozen)
 
+    monkeypatch.setattr(
+        owner.domain, "readback", timing.delegate("domain.readback", observed_readback)
+    )
+    monkeypatch.setattr(
+        model_protocol, "reserve", timing.delegate("protocol.reserve", observed_reserve)
+    )
     if concurrent:
-        monkeypatch.setattr(owner.domain, "readback", observed_readback)
         monkeypatch.setattr(managed_store, "lock", observed_lock)
         monkeypatch.setattr(service, "runtime_authority", observed_authority)
-        monkeypatch.setattr(model_protocol, "reserve", observed_reserve)
 
     def cold(payload: dict[str, object]) -> dict[str, object]:
         body = mapping(mapping(payload["binding"])["payload"])
@@ -932,6 +1059,12 @@ async def protocol_pg_consumer(
                     native_task=observed_handle,
                 ):
 
+                    async def measured_control(
+                        value: dict[str, object], caller: ProtocolCaller
+                    ) -> dict[str, object]:
+                        with timing.phase(caller, "control"):
+                            return await control_task(root, value)
+
                     async def waiter_observed() -> int:
                         async with asyncio.timeout(0.75):
                             while True:
@@ -958,13 +1091,13 @@ async def protocol_pg_consumer(
                         }
                         NativeTaskCommand.model_validate(other_value)
                         try:
-                            sender = asyncio.create_task(control_task(root, command_value))
+                            sender = asyncio.create_task(measured_control(command_value, "sender"))
                             send_tasks.append(sender)
                             await_site = "t0_ready"
                             await wait_protocol_marker(t0_ready, sender)
                             # A separate connection cannot see any of T0's writes.
                             assert census() == before and not wire and not observations
-                            second = asyncio.create_task(control_task(root, other_value))
+                            second = asyncio.create_task(measured_control(other_value, "second"))
                             send_tasks.append(second)
                             async with asyncio.timeout(0.75):
                                 await_site = "second_lock_entered"
@@ -1016,10 +1149,14 @@ async def protocol_pg_consumer(
                                     pending.cancel()
                             await asyncio.gather(*send_tasks, return_exceptions=True)
                     elif order == "nominal":
-                        reply = await control_task(root, command_value)
+                        try:
+                            reply = await measured_control(command_value, "sender")
+                        except BaseException as error:
+                            observe(error)
+                            raise
                     else:
                         try:
-                            sender = asyncio.create_task(control_task(root, command_value))
+                            sender = asyncio.create_task(measured_control(command_value, "sender"))
                             send_tasks.append(sender)
                             if order == "stop_first":
                                 await_site = "reserved"
@@ -1069,6 +1206,21 @@ async def protocol_pg_consumer(
                                 if not task.done():
                                     task.cancel()
                             await asyncio.gather(*send_tasks, *stop_tasks, return_exceptions=True)
+                    # Same channel on success: nominal/conflict are timing controls,
+                    # not missing observations. This is NOT the final test verdict.
+                    with capsys.disabled():
+                        print(
+                            "\nP2_PROTOCOL_TIMING "
+                            + json.dumps(
+                                {
+                                    "scope": "PG",
+                                    "order": order,
+                                    "timing": timing.snapshot(),
+                                },
+                                sort_keys=True,
+                            ),
+                            flush=True,
+                        )
                     accounting = mapping(reply["protocol_accounting"])
                     if order == "stop_first":
                         assert accounting["state"] == "RELEASED"

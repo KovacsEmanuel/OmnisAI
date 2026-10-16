@@ -628,7 +628,146 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                                 measured["buffer_at_a_exit"] = transport.get_write_buffer_size()
 
                 service.native_preparation_commit = protocol_fence
-                if protocol_failure is None:
+                if protocol_case in {"duplicate", "conflict"}:
+                    from omnis.modules.runs import model_protocol
+                    from omnis.modules.runs.model_dispatch import ModelDispatch
+                    from omnis.supervisor.runtime_client import FrozenPreflight
+
+                    # SOURCE transaction/storage doubles: force BOTH actual initial
+                    # replay reads to miss before either enters serialized T0.
+                    # The public owner, replay/reserve/ledger and UDS remain real.
+                    first_miss, both_missed = asyncio.Event(), asyncio.Event()
+                    second_finished = asyncio.Event()
+                    first_committed = asyncio.Event()
+                    transaction_lock = asyncio.Lock()
+                    actual_replay = model_protocol.replay
+                    actual_reserve = model_protocol.reserve
+                    replay_calls: dict[object, int] = {}
+                    initial_misses = 0
+                    first_handler: object = None
+                    reserve_calls = 0
+                    baseline = canonical(graph)
+                    baseline_ids = {str(r["id"]) for r in graph}
+                    t0_records = b""
+                    service.runtime_authority.reset_mock()
+
+                    async def replay_barrier(
+                        conn: AsyncConnection, value: NativeTaskCommand
+                    ) -> dict[str, object] | None:
+                        nonlocal initial_misses, first_handler
+                        task = asyncio.current_task()
+                        replay_calls[task] = replay_calls.get(task, 0) + 1
+                        result = await actual_replay(conn, value)
+                        if replay_calls[task] == 1:
+                            assert result is None
+                            initial_misses += 1
+                            if initial_misses == 1:
+                                first_handler = task
+                            first_miss.set()
+                            if initial_misses == 2:
+                                both_missed.set()
+                            await asyncio.wait_for(both_missed.wait(), 0.75)
+                        return result
+
+                    async def counted_reserve(
+                        conn: AsyncConnection,
+                        dispatch: ModelDispatch,
+                        value: NativeTaskCommand,
+                        prepared: dict[str, object],
+                        config: dict[str, object],
+                        frozen: FrozenPreflight,
+                    ) -> dict[str, object]:
+                        nonlocal reserve_calls
+                        reserve_calls += 1
+                        return await actual_reserve(conn, dispatch, value, prepared, config, frozen)
+
+                    @asynccontextmanager
+                    async def serialized_t0(*args: object) -> AsyncIterator[AsyncConnection]:
+                        nonlocal t0_records
+                        # Model only transaction serialization, not PostgreSQL locks.
+                        # Pause the winning caller AFTER its T0 has committed; let
+                        # the losing T0 finish before A, avoiding a fake SETTLED reply.
+                        if asyncio.current_task() is not first_handler:
+                            await asyncio.wait_for(first_committed.wait(), 0.75)
+                        async with transaction_lock:
+                            async with protocol_fence(*args) as conn:
+                                yield conn
+                            current = entered
+                        if current == 1:
+                            t0_records = canonical(graph)
+                            first_committed.set()
+                            await asyncio.wait_for(second_finished.wait(), 0.75)
+
+                    other_command = {
+                        **protocol_command,
+                        "protocol_caps": {
+                            **mapping(protocol_command["protocol_caps"]),
+                            "output_tokens": 63 if protocol_case == "conflict" else 64,
+                        },
+                    }
+                    NativeTaskCommand.model_validate(other_command)
+                    monkeypatch.setattr(model_protocol, "replay", replay_barrier)
+                    monkeypatch.setattr(model_protocol, "reserve", counted_reserve)
+                    service.native_preparation_commit = serialized_t0
+                    first = asyncio.create_task(control_task(root, protocol_command))
+                    second: asyncio.Task[dict[str, object]] | None = None
+                    duplicate_accounting: dict[str, object] = {}
+                    try:
+                        await asyncio.wait_for(first_miss.wait(), 0.75)
+                        second = asyncio.create_task(control_task(root, other_command))
+                        await asyncio.wait_for(both_missed.wait(), 0.75)
+                        if protocol_case == "conflict":
+                            with pytest.raises(CatalogError) as denied:
+                                await asyncio.wait_for(second, 1)
+                            assert denied.value.reason == "COMMAND_CONFLICT"
+                        else:
+                            duplicate = await asyncio.wait_for(second, 1)
+                            duplicate_accounting = mapping(duplicate["protocol_accounting"])
+                            assert duplicate_accounting["state"] == "RESERVED"
+                            assert duplicate_accounting["usage_state"] == "UNKNOWN"
+                        assert not first.done() and not requests
+                        assert initial_misses == 2 and reserve_calls == 1
+                        assert canonical(graph) == t0_records
+                        assert service.runtime_authority.await_count == 2
+                        assert (
+                            canonical([r for r in graph if str(r["id"]) in baseline_ids])
+                            == baseline
+                        )
+                        second_finished.set()
+                        reply = await asyncio.wait_for(first, 2)
+                        first_accounting = mapping(reply["protocol_accounting"])
+                        if protocol_case == "duplicate":
+                            for key in ("descriptor_ref", "dispatch_ref", "request_id"):
+                                assert duplicate_accounting[key] == first_accounting[key]
+                        assert_protocol_records(
+                            graph, baseline_ids, protocol_command, first_accounting
+                        )
+                        settled = canonical(graph)
+                        # Existing receipt: conflict and original replay are both
+                        # receive-only. No fresh authority/reservation/write/send.
+                        monkeypatch.setattr(model_protocol, "replay", actual_replay)
+                        service.runtime_authority.side_effect = AssertionError("replay grant")
+                        service.native_preparation_commit = Mock(
+                            side_effect=AssertionError("replay T0")
+                        )
+                        if protocol_case == "conflict":
+                            with pytest.raises(CatalogError) as denied:
+                                await control_task(root, other_command)
+                            assert denied.value.reason == "COMMAND_CONFLICT"
+                        again = await control_task(root, protocol_command)
+                        assert again["protocol_accounting"] == first_accounting
+                        assert canonical(graph) == settled
+                        assert reserve_calls == 1 and len(requests) == 1
+                    finally:
+                        both_missed.set()
+                        first_committed.set()
+                        second_finished.set()
+                        tasks = [first] if second is None else [first, second]
+                        for pending in tasks:
+                            if not pending.done():
+                                pending.cancel()
+                        await asyncio.gather(*tasks, return_exceptions=True)
+                elif protocol_failure is None:
                     reply = await control_task(root, protocol_command)
                 else:
                     if protocol_failure == "cancel":
@@ -917,6 +1056,71 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
             assert measured["complete_frames_after_return"] == 0
             assert measured["received_after_return"] > 0
     assert not {"native-turn"} & {str(r["kind"]) for r in graph}
+
+
+def assert_protocol_records(
+    graph: list[dict[str, object]],
+    baseline_ids: set[str],
+    command: dict[str, object],
+    accounting: dict[str, object],
+) -> None:
+    """One shared SOURCE/PG oracle over actual producer envelopes, not RPC frames."""
+    from collections import Counter
+
+    added = [r for r in graph if str(r["id"]) not in baseline_ids]
+    assert Counter(str(r["kind"]) for r in added) == {
+        "model-budget": 1,
+        "model-dispatch-owner": 1,
+        "model-reservation": 1,
+        "model-dispatch": 1,
+        "contract-input-command": 1,
+        "model-dispatch-transition": 1,
+        "model-usage-receipt": 1,
+        "model-protocol-receipt": 1,
+    }
+    by_kind = {str(r["kind"]): r for r in added}
+    for kind in ("model-data-approval", "model-projection", "model-configuration-receipt"):
+        assert sum(r["kind"] == kind for r in graph) == 1
+    descriptor = by_kind["model-dispatch-owner"]
+    dispatch = by_kind["model-dispatch"]
+    assert accounting["descriptor_ref"] == records.reference(descriptor)
+    assert accounting["dispatch_ref"] == records.reference(dispatch)
+    assert mapping(dispatch["payload"])["dispatch_owner_ref"] == records.reference(descriptor)
+    assert mapping(dispatch["payload"])["reservation_ref"] == records.reference(
+        by_kind["model-reservation"]
+    )
+    receipt = mapping(by_kind["contract-input-command"]["payload"])
+    assert receipt["command_id"] == command["protocol_id"]
+    assert receipt["operation"] == command["action"]
+    checked = NativeTaskCommand.model_validate(command).model_dump(mode="json")
+    assert receipt["request_digest"] == sha256(canonical(checked)).hexdigest()
+    assert receipt["result_refs"] == {
+        "descriptor_ref": accounting["descriptor_ref"],
+        "dispatch_ref": accounting["dispatch_ref"],
+    }
+    for kind in ("model-dispatch-transition", "model-usage-receipt", "model-protocol-receipt"):
+        assert mapping(by_kind[kind]["payload"])["dispatch_ref"] == accounting["dispatch_ref"]
+    sent = mapping(by_kind["model-dispatch-transition"]["payload"])
+    usage = mapping(by_kind["model-usage-receipt"]["payload"])
+    assert (sent["state"], sent["sequence"]) == ("SENT", 1)
+    assert (usage["state"], usage["sequence"]) == ("SETTLED", 2)
+    assert mapping(usage["usage"])["receipt_id"] == accounting["request_id"]
+    assert (
+        mapping(by_kind["model-protocol-receipt"]["payload"])["request_id"]
+        == accounting["request_id"]
+    )
+    assert mapping(descriptor["payload"])["requested_caps"] == command["protocol_caps"]
+    assert mapping(descriptor["payload"])["admitted_caps"] == command["protocol_caps"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["duplicate", "conflict"])
+async def test_protocol_concurrent_initial_replay_misses_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case=case
+    )
 
 
 @pytest.mark.asyncio

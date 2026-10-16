@@ -35,7 +35,7 @@ from omnis.policy.model_projection import SyntheticApproval, projection_input
 from omnis.supervisor.native_tasks import NativeTaskOwner
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_managed_contract import stage
-from test_model_admission import protocol_configuration
+from test_model_admission import assert_protocol_records, protocol_configuration
 from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
 from test_ready_model_configuration import configuration
@@ -523,6 +523,7 @@ async def protocol_pg_consumer(
     import json
     import os
     import tempfile
+    from collections import Counter
     from collections.abc import AsyncIterator
     from contextlib import asynccontextmanager
 
@@ -532,6 +533,7 @@ async def protocol_pg_consumer(
     from omnis.core.db import validated_database_url
     from omnis.modules.instance.records import InstanceRecord, LeaseRecord
     from omnis.modules.runs import model_protocol
+    from omnis.modules.tasks import managed_store
     from omnis.supervisor.native_tasks import control_task
     from omnis.transport.local_control import LocalControl
     from test_native_task_client import peer_client
@@ -552,20 +554,65 @@ async def protocol_pg_consumer(
     received, release_ack = asyncio.Event(), asyncio.Event()
     actual_fence, actual_locked = service.native_preparation_commit, service._locked
     fence_count, blocker_pid = 0, 0
+    concurrent = order in {"duplicate", "conflict"}
+    t0_ready, release_t0 = asyncio.Event(), asyncio.Event()
+    second_finished = asyncio.Event()
+    t0_records: list[object] = []
+    second_lock_entered, second_lock_acquired = asyncio.Event(), asyncio.Event()
+    duplicate_waiter_pid = 0
+    second_handler: object = None
+    readback_tasks: set[object] = set()
+    request_count = 0
+    authority_calls = 0
+    reserve_calls = 0
+    baseline_ids: set[str] = set()
+    duplicate_accounting: dict[str, object] = {}
+    actual_readback, actual_lock = owner.domain.readback, managed_store.lock
+    actual_authority, actual_reserve = service.runtime_authority, model_protocol.reserve
     send_tasks: list[asyncio.Task[dict[str, object]]] = []
     stop_tasks: list[asyncio.Task[int]] = []
 
     @asynccontextmanager
     async def fenced(who: UUID, epoch: int, generation: int) -> AsyncIterator[AsyncConnection]:
-        nonlocal fence_count, blocker_pid
+        nonlocal fence_count, blocker_pid, t0_records
         fence_count += 1
         current = fence_count
         async with actual_fence(who, epoch, generation) as conn:
             if order == "send_first" and current == 2:
                 blocker_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
             yield conn
+            if concurrent and current == 1:
+                # Product T0 holds Instance/lease/managed/budget locks and has
+                # written reserve + command receipt, but has NOT committed.
+                blocker_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
+                t0_records = list(
+                    (
+                        await conn.execute(
+                            sql(
+                                "SELECT to_jsonb(t) FROM managed_record t ORDER BY to_jsonb(t)::text"
+                            )
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                rows = [mapping(r)["envelope"] for r in t0_records]
+                added = [mapping(r) for r in rows if str(mapping(r)["id"]) not in baseline_ids]
+                assert Counter(str(r["kind"]) for r in added) == {
+                    "model-budget": 1,
+                    "model-dispatch-owner": 1,
+                    "model-reservation": 1,
+                    "model-dispatch": 1,
+                    "contract-input-command": 1,
+                }
+                t0_ready.set()
+                await asyncio.wait_for(release_t0.wait(), 1.5)
         if current == 1:  # actual RESERVE transaction has committed
             reserved.set()
+            if concurrent:
+                # Let the actual waiter finish receive-only before A can add
+                # SENT; this makes zero writes/send by the second falsifiable.
+                await asyncio.wait_for(second_finished.wait(), 1.5)
             if order == "stop_first":
                 await asyncio.wait_for(stop_locked.wait(), 1)
 
@@ -584,6 +631,64 @@ async def protocol_pg_consumer(
 
     monkeypatch.setattr(service, "native_preparation_commit", fenced)
     monkeypatch.setattr(service, "_locked", locked)
+
+    async def observed_handle(value: NativeTaskCommand) -> dict[str, object]:
+        nonlocal request_count, second_handler
+        request_count += 1
+        if request_count == 2:
+            second_handler = asyncio.current_task()
+        return await owner.handle(value)
+
+    async def observed_readback(value: object) -> dict[str, object]:
+        task = asyncio.current_task()
+        readback_tasks.add(task)
+        try:
+            return await actual_readback(value)
+        finally:
+            readback_tasks.remove(task)
+
+    async def observed_lock(conn: AsyncConnection, who: str) -> None:
+        nonlocal duplicate_waiter_pid
+        # The initial domain readback, not protocol.replay, takes the first
+        # managed lock. Pin THIS connection before delegating the real lock.
+        observe = asyncio.current_task() is second_handler and not second_lock_entered.is_set()
+        if observe:
+            assert asyncio.current_task() in readback_tasks
+            duplicate_waiter_pid = int(
+                (await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one()
+            )
+            second_lock_entered.set()
+        await actual_lock(conn, who)
+        if observe:
+            second_lock_acquired.set()
+
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.supervisor.runtime_client import FrozenPreflight
+
+    async def observed_authority(
+        who: UUID, epoch: int, generation: int, *, inert_probe: bool = False
+    ) -> RuntimeAuthority:
+        nonlocal authority_calls
+        authority_calls += 1
+        return await actual_authority(who, epoch, generation, inert_probe=inert_probe)
+
+    async def observed_reserve(
+        conn: AsyncConnection,
+        dispatch: ModelDispatch,
+        value: NativeTaskCommand,
+        prepared: dict[str, object],
+        config: dict[str, object],
+        frozen: FrozenPreflight,
+    ) -> dict[str, object]:
+        nonlocal reserve_calls
+        reserve_calls += 1
+        return await actual_reserve(conn, dispatch, value, prepared, config, frozen)
+
+    if concurrent:
+        monkeypatch.setattr(owner.domain, "readback", observed_readback)
+        monkeypatch.setattr(managed_store, "lock", observed_lock)
+        monkeypatch.setattr(service, "runtime_authority", observed_authority)
+        monkeypatch.setattr(model_protocol, "reserve", observed_reserve)
 
     def cold(payload: dict[str, object]) -> dict[str, object]:
         body = mapping(mapping(payload["binding"])["payload"])
@@ -609,6 +714,35 @@ async def protocol_pg_consumer(
         options="-c statement_timeout=2000",
         autocommit=True,
     ) as observer:
+
+        def census() -> dict[str, list[object]]:
+            # Protocol writes only managed_record. Retain complete sorted rows,
+            # not just counts, plus lifecycle/revision/catalog neighbours.
+            # Stop is outside this comparison; no authority is renewed here.
+            return {
+                table: [
+                    r[0]
+                    for r in observer.execute(
+                        f"SELECT to_jsonb(t) FROM {table} t ORDER BY to_jsonb(t)::text"
+                    ).fetchall()
+                ]
+                for table in (
+                    "managed_record",
+                    "managed_run",
+                    "managed_task",
+                    "managed_inbox",
+                    "managed_mission_revision",
+                    "catalog_record",
+                    "catalog_command",
+                )
+            }
+
+        before = census() if concurrent else {}
+        settled: dict[str, list[object]] = {}
+        baseline_records = [
+            mapping(mapping(r)["envelope"]) for r in before.get("managed_record", [])
+        ]
+        baseline_ids = {str(r["id"]) for r in baseline_records}
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="dapg-") as name:
             root = Path(name)
             async with peer_client(
@@ -652,7 +786,11 @@ async def protocol_pg_consumer(
 
                 monkeypatch.setattr(writer, "write", write)
                 async with LocalControl(
-                    root, service, owner.owner, owner.epoch, native_task=owner.handle
+                    root,
+                    service,
+                    owner.owner,
+                    owner.epoch,
+                    native_task=observed_handle if concurrent else owner.handle,
                 ):
 
                     async def waiter_observed() -> int:
@@ -671,7 +809,65 @@ async def protocol_pg_consumer(
                                     return int(waiting[0][0])
                                 await asyncio.sleep(0.01)
 
-                    if order == "nominal":
+                    if concurrent:
+                        other_value = {
+                            **command_value,
+                            "protocol_caps": {
+                                **mapping(command_value["protocol_caps"]),
+                                "output_tokens": 63 if order == "conflict" else 64,
+                            },
+                        }
+                        NativeTaskCommand.model_validate(other_value)
+                        try:
+                            sender = asyncio.create_task(control_task(root, command_value))
+                            send_tasks.append(sender)
+                            await asyncio.wait_for(t0_ready.wait(), 1.5)
+                            # A separate connection cannot see any of T0's writes.
+                            assert census() == before and not wire and not observations
+                            second = asyncio.create_task(control_task(root, other_value))
+                            send_tasks.append(second)
+                            async with asyncio.timeout(0.75):
+                                await second_lock_entered.wait()
+                                while True:
+                                    observer.execute("SELECT pg_stat_clear_snapshot()")
+                                    waiting = observer.execute(
+                                        "SELECT pid FROM pg_stat_activity WHERE datname=current_database() "
+                                        "AND pid=%s AND %s=ANY(pg_blocking_pids(pid)) "
+                                        "AND wait_event_type='Lock'",
+                                        (duplicate_waiter_pid, blocker_pid),
+                                    ).fetchall()
+                                    if waiting == [(duplicate_waiter_pid,)]:
+                                        break
+                                    await asyncio.sleep(0.01)
+                            assert duplicate_waiter_pid != blocker_pid
+                            assert not second_lock_acquired.is_set()
+                            assert not sender.done() and not second.done()
+                            assert census() == before and not wire and not observations
+                            release_t0.set()
+                            if order == "conflict":
+                                with pytest.raises(CatalogError) as denied:
+                                    await asyncio.wait_for(second, 2)
+                                assert denied.value.reason == "COMMAND_CONFLICT"
+                            else:
+                                duplicate = await asyncio.wait_for(second, 2)
+                                duplicate_accounting = mapping(duplicate["protocol_accounting"])
+                                assert duplicate_accounting["state"] == "RESERVED"
+                                assert duplicate_accounting["usage_state"] == "UNKNOWN"
+                            after_second = census()
+                            assert after_second == {**before, "managed_record": t0_records}
+                            assert not wire and not observations and not sender.done()
+                            second_finished.set()
+                            reply = await asyncio.wait_for(sender, 2)
+                            assert second_lock_acquired.is_set()
+                            assert authority_calls == reserve_calls == 1
+                        finally:
+                            release_t0.set()
+                            second_finished.set()
+                            for pending in send_tasks:
+                                if not pending.done():
+                                    pending.cancel()
+                            await asyncio.gather(*send_tasks, return_exceptions=True)
+                    elif order == "nominal":
                         reply = await control_task(root, command_value)
                     else:
                         try:
@@ -744,6 +940,32 @@ async def protocol_pg_consumer(
                         )
                         assert len(observations) == len(wire) == 1
                     assert accounting["model_calls"] == 0
+                    if concurrent:
+                        settled = census()
+                        graph = [mapping(mapping(r)["envelope"]) for r in settled["managed_record"]]
+                        assert_protocol_records(graph, baseline_ids, command_value, accounting)
+                        assert [
+                            r
+                            for r in settled["managed_record"]
+                            if str(mapping(r)["id"]) in baseline_ids
+                        ] == before["managed_record"]
+                        assert {k: v for k, v in settled.items() if k != "managed_record"} == {
+                            k: v for k, v in before.items() if k != "managed_record"
+                        }
+                        if order == "duplicate":
+                            for key in ("descriptor_ref", "dispatch_ref", "request_id"):
+                                assert duplicate_accounting[key] == accounting[key]
+                        # Same valid changed request after settlement: public
+                        # conflict and exact durable snapshots must remain stable.
+                        conflict_value = {
+                            **command_value,
+                            "protocol_caps": {"calls": 1, "output_tokens": 63, "wall_seconds": 3},
+                        }
+                        with pytest.raises(CatalogError) as denied:
+                            await control_task(root, conflict_value)
+                        assert denied.value.reason == "COMMAND_CONFLICT"
+                        assert census() == settled
+                        assert authority_calls == reserve_calls == len(wire) == 1
                     if order == "nominal":
                         await service.shutdown(
                             uuid4(), command.expected_generation, owner.owner, owner.epoch
@@ -751,6 +973,9 @@ async def protocol_pg_consumer(
                     replay = await control_task(root, command_value)
                     assert replay["protocol_accounting"] == accounting
                     assert len(wire) == (0 if order == "stop_first" else 1)
+                    if concurrent:
+                        assert census() == settled
+                        assert authority_calls == reserve_calls == 1
                     reader_engine = database_engine(dsn)
                     try:
                         fresh = ModelDispatch(ManagedAdmission(reader_engine, owner.domain.root))
@@ -763,6 +988,9 @@ async def protocol_pg_consumer(
                             )
                     finally:
                         await reader_engine.dispose()
+                    if concurrent:
+                        assert census() == settled
+                        assert authority_calls == reserve_calls == len(wire) == 1
 
 
 @pytest.mark.asyncio
@@ -779,4 +1007,17 @@ async def test_pg_protocol_sent_committed_before_exact_write_and_poststop_readba
         monkeypatch,
         protocol_mode=True,
         protocol_order=order,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("order", ["duplicate", "conflict"])
+async def test_pg_protocol_concurrent_duplicate_and_conflict(
+    migrated_database_url: URL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    order: str,
+) -> None:
+    await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
+        migrated_database_url, tmp_path, monkeypatch, protocol_mode=True, protocol_order=order
     )

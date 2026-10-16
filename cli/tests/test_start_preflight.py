@@ -20,6 +20,7 @@ class RuntimePreflightTest(unittest.TestCase):
             data = Path(name)
             digest = hashlib.sha256(b"{}").hexdigest()
             receipt = SimpleNamespace(
+                profile=None,
                 project="omnis-local-" + "a" * 32,
                 image_id="sha256:" + "b" * 64,
                 docker_host="unix:///run/docker.sock",

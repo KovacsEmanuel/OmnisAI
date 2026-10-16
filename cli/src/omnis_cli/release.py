@@ -52,17 +52,17 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         raw: object = json.loads(source, object_pairs_hook=unique_pairs)
     except RecursionError:
         raise ReleaseError("Invalid release manifest") from None
-    if not isinstance(raw, dict) or set(raw) != {
-        "format",
-        "release",
-        "schema",
-        "platform",
-        "files",
-    }:
+    if not isinstance(raw, dict):
         raise ReleaseError("Invalid release manifest")
+    native = type(raw.get("format")) is int and raw["format"] == 2
+    fields = {"format", "release", "schema", "platform", "files"}
+    if set(raw) != fields | ({"profile"} if native else set()):
+        raise ReleaseError("Invalid release manifest")
+    if native and raw["profile"] != "p4a-settings-offline":
+        raise ReleaseError("Unsupported release profile")
     if (
         type(raw["format"]) is not int
-        or raw["format"] != 1
+        or raw["format"] not in (1, 2)
         or raw["release"] != _RELEASE
         or raw["schema"] != _SCHEMA
         or raw["platform"] != "linux/amd64"
@@ -70,14 +70,19 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     ):
         raise ReleaseError("Incompatible release")
     files = raw["files"]
+    base = _BASE_FILES
+    if native:
+        from .native_artifacts import FILES
+
+        base = base | FILES
     if (
-        not _BASE_FILES <= set(files)
-        or not len(_BASE_FILES) <= len(files) <= 128
+        not base <= set(files)
+        or not len(base) <= len(files) <= 128
         or not any(name.endswith(".js") for name in files)
-        or any(name not in _BASE_FILES and not _ASSET.fullmatch(name) for name in files)
+        or any(name not in base and not _ASSET.fullmatch(name) for name in files)
     ):
         raise ReleaseError("Unsupported release file set")
-    expected_dirs = {"api", "cli", "ops", "web", "web/assets"}
+    expected_dirs = {"api", "cli", "ops", "web", "web/assets"} | ({"native"} if native else set())
     found: set[str] = set()
     for parent, dirs, entries in os.walk(root, followlinks=False):
         relative = Path(parent).relative_to(root)
@@ -102,6 +107,10 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         if total > 8 * 1024 * 1024 or hashlib.sha256(content).hexdigest() != expected:
             raise ReleaseError("Release checksum mismatch")
         result[name] = content
+    if native:
+        from .native_artifacts import closure
+
+        closure(result)
     return source, result
 
 

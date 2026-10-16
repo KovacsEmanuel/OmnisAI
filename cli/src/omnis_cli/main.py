@@ -52,7 +52,12 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
-    commands.add_parser("install-image", help="Explicitly build the pinned local control image")
+    image_parser = commands.add_parser(
+        "install-image", help="Explicitly build the pinned local images"
+    )
+    image_parser.add_argument(
+        "--runtime-context", type=Path, help="Prepared native input for p4a-settings-offline only"
+    )
     args = parser.parse_args(argv)
     try:
         config = load_config()
@@ -119,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"
         try:
-            receipt = install_control_image(root)
+            receipt = install_control_image(root, runtime_context=args.runtime_context)
         except ImageInstallError:
             print("IMAGE_INSTALL_REFUSED: verificați releaseul și Docker local.", file=sys.stderr)
             return 2

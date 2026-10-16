@@ -26,6 +26,124 @@ class ImageInstallTest(unittest.TestCase):
             "daemon-identity",
         )
 
+    def test_native_install_binds_both_images_to_one_receipt(self):
+        import omnis_cli.compose as compose
+        from omnis_cli.release import install_release
+        from test_install import InstallTest
+
+        fixture = InstallTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        context = fixture.native_bundle()
+        install_release(fixture.bundle, fixture.data_home)
+        built = {}
+
+        def inspect(tag, bundle, project, manifest_sha, *, host, runtime=False):
+            return built.get(tag)
+
+        def command(*args, **kwargs):
+            self.assertEqual(args[0], "build")
+            tag = args[args.index("-t") + 1]
+            if "runtime" in tag:
+                staged = Path(args[-1])
+                self.assertNotEqual(staged, context)
+                self.assertEqual(
+                    (staged / "runtime-source/hermes_cli/main.py").read_bytes(), b"management"
+                )
+                self.assertFalse((staged / "source").exists())
+            built[tag] = "sha256:" + ("d" if "runtime" in tag else "c") * 64
+            return subprocess.CompletedProcess(args, 0)
+
+        with (
+            patch.object(compose, "_preflight", return_value="unix:///owned/docker.sock"),
+            patch.object(compose, "_docker_id", return_value="daemon-identity"),
+            patch.object(compose, "_base_image"),
+            patch.object(compose, "_validate_image", side_effect=inspect),
+            patch.object(compose, "_run", side_effect=command),
+        ):
+            receipt = compose.install_control_image(fixture.data_home, runtime_context=context)
+        self.assertEqual(receipt.profile, "p4a-settings-offline")
+        self.assertEqual(receipt.runtime_image_id, "sha256:" + "d" * 64)
+        self.assertEqual(len(built), 2)
+        raw = json.loads((fixture.data_home / "omnis/image.json").read_bytes())
+        self.assertEqual(raw["format"], 2)
+        self.assertEqual(
+            compose._record(
+                fixture.data_home / "omnis/image.json", receipt.manifest_sha256, complete=True
+            ),
+            receipt,
+        )
+        from omnis_cli.lifecycle import StartError
+        from omnis_cli.start_runtime import ControlRuntime
+
+        with patch.object(ControlRuntime, "run") as effect:
+            with self.assertRaisesRegex(StartError, "NATIVE_LIFECYCLE_REQUIRED"):
+                ControlRuntime(fixture.data_home, 100)
+        effect.assert_not_called()
+
+    def test_native_missing_or_wrong_context_refuses_before_docker(self):
+        import omnis_cli.compose as compose
+        from omnis_cli.release import install_release
+        from test_install import InstallTest
+
+        fixture = InstallTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        context = fixture.native_bundle()
+        install_release(fixture.bundle, fixture.data_home)
+        with patch.object(compose, "_run") as command:
+            with self.assertRaises(ImageInstallError):
+                compose.install_control_image(fixture.data_home)
+            (context / "runtime-source/hermes_cli/main.py").write_bytes(b"wrong")
+            with self.assertRaises(ImageInstallError):
+                compose.install_control_image(fixture.data_home, runtime_context=context)
+        command.assert_not_called()
+        self.assertFalse((fixture.data_home / "omnis/image-installing.json").exists())
+
+    def test_native_image_requires_new_profile_role_and_direct_host(self):
+        import omnis_cli.compose as compose
+
+        item = {
+            "Id": "sha256:" + "d" * 64,
+            "Architecture": "amd64",
+            "Os": "linux",
+            "Config": {
+                "User": "65532:65532",
+                "Entrypoint": None,
+                "Cmd": ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"],
+                "Labels": {
+                    "org.omnis.project": "fixture",
+                    "org.omnis.bundle_sha256": "a" * 64,
+                    "org.omnis.profile": "p4a-settings-offline",
+                    "org.omnis.image-role": "runtime",
+                },
+            },
+        }
+        with patch.object(compose, "_image", return_value=item):
+            self.assertEqual(
+                compose._validate_image(
+                    "tag", Path("/"), "fixture", "a" * 64, host="unix:///fixture", runtime=True
+                ),
+                item["Id"],
+            )
+            item["Os"] = "windows"
+            with self.assertRaises(ImageInstallError):
+                compose._validate_image(
+                    "tag", Path("/"), "fixture", "a" * 64, host="unix:///fixture", runtime=True
+                )
+            item["Os"] = "linux"
+            del item["Config"]["Labels"]["org.omnis.profile"]
+            with self.assertRaises(ImageInstallError):
+                compose._validate_image(
+                    "tag", Path("/"), "fixture", "a" * 64, host="unix:///fixture", runtime=True
+                )
+            item["Config"]["Labels"]["org.omnis.profile"] = "p4a-settings-offline"
+            item["Config"]["Entrypoint"] = ["tini", "--"]
+            with self.assertRaises(ImageInstallError):
+                compose._validate_image(
+                    "tag", Path("/"), "fixture", "a" * 64, host="unix:///fixture", runtime=True
+                )
+
     def test_existing_receipt_does_not_require_base_image_for_readback(self):
         import omnis_cli.compose as compose
 

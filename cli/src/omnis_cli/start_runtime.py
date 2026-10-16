@@ -74,6 +74,12 @@ class ControlRuntime:
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
         self.receipt: ImageReceipt = receipt
+        if ("native/source-manifest.json" in self.files) != (receipt.profile is not None):
+            raise StartError("IMAGE_PROFILE_MISMATCH")
+        # Artifact admission does not silently reinterpret the three-service
+        # lifecycle. The finite native topology must be installed as one unit.
+        if receipt.profile is not None:
+            raise StartError("NATIVE_LIFECYCLE_REQUIRED")
         if (
             platform.system() != "Linux"
             or platform.machine() != "x86_64"

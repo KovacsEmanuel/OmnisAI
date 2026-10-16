@@ -38,6 +38,26 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 
 `install` copiază idempotent releaseul; `install-image` construiește explicit imaginea și păstrează receiptul. Numai buildul explicit poate descărca dependențele cu hashes. **Start/status nu fac pull, build, instalare sau upgrade.** Releaseul este input local trusted al operatorului: checksumurile verifică consistența, nu o semnătură independentă. [Istoric bundle](../documents/verification/p04-bundle-install.md), [artefact imagine](../documents/verification/p04-image-artifact.md), [receipt imagine](../documents/verification/p04-image-install.md).
 
+## Profilul de artefacte Settings offline — prerechizită SOURCE
+
+`build_control_bundle.py --runtime-metadata <prepared-root>` sigilează cele patru
+metadate native standard și `Dockerfile.hermes` într-un release format 2 cu profilul
+finit `p4a-settings-offline`. `omnis install-image --runtime-context <prepared-root>`
+verifică exact sursele rezultate după cele trei overlays, wheelurile, requirements,
+license-ul și metadatele, apoi construiește numai din copia privată proprie.
+Symlinkurile/hardlinkurile, fișierele executabile suplimentare și hashurile diferite
+sunt refuzate. Mediile/cache-urile/logurile producerului nu sunt copiate în imagine.
+Același `image.json` format 2 leagă ambele imagini de release/proiect/daemon;
+receipturile control-only format 1 rămân distincte. Limitele releaseului rămân
+2 MiB/fișier și 8 MiB cumulat.
+
+**Această prerechizită nu livrează încă Settings instalat:** startupul profilului
+nou refuză explicit `NATIVE_LIFECYCLE_REQUIRED` înainte de Docker. Al patrulea
+serviciu, provider home și extensia completă Stop/atestare/restart trebuie livrate
+împreună înainte de eliminarea refuzului. Nu folosiți mediul nativ pregătit la boot,
+nu adoptați o instalare veche și nu construiți/porniți imagini înaintea reviewului și
+admiterii QA. SOURCE și wheel-ul CLI nu reprezintă probe native/PG/browser.
+
 ## Contractul startului
 
 ### Configurație non-secretă M22

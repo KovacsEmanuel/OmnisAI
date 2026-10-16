@@ -32,6 +32,9 @@ class ImageReceipt:
     manifest_sha256: str
     docker_host: str
     docker_id: str
+    profile: str | None = None
+    runtime_tag: str | None = None
+    runtime_image_id: str | None = None
 
 
 def _run(
@@ -74,7 +77,7 @@ def _image(tag: str, bundle: Path, host: str) -> dict[str, object] | None:
 
 
 def _validate_image(
-    tag: str, bundle: Path, project: str, manifest_sha: str, *, host: str
+    tag: str, bundle: Path, project: str, manifest_sha: str, *, host: str, runtime: bool = False
 ) -> str | None:
     result = _image(tag, bundle, host)
     if result is None:
@@ -91,6 +94,15 @@ def _validate_image(
         or config.get("User") != "65532:65532"
         or labels.get("org.omnis.project") != project
         or labels.get("org.omnis.bundle_sha256") != manifest_sha
+        or runtime
+        and (
+            result.get("Os") != "linux"
+            or labels.get("org.omnis.profile") != "p4a-settings-offline"
+            or labels.get("org.omnis.image-role") != "runtime"
+            or config.get("Entrypoint") not in (None, [])
+            or config.get("Cmd")
+            != ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]
+        )
     ):
         raise ImageInstallError("Image identity mismatch")
     return image_id
@@ -101,7 +113,15 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         raw: object = json.loads(private_file(path, limit=1024), object_pairs_hook=unique_pairs)
     except FileNotFoundError:
         return None
-    if not isinstance(raw, dict) or set(raw) != (
+    if not isinstance(raw, dict):
+        raise ImageInstallError("Invalid image receipt")
+    native = type(raw.get("format")) is int and raw["format"] == 2
+    extra = (
+        ({"profile", "runtime_tag"} | ({"runtime_image_id"} if complete else set()))
+        if native
+        else set()
+    )
+    if set(raw) != extra | (
         {
             "format",
             "release",
@@ -124,7 +144,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     docker_id = raw["docker_id"]
     if (
         type(raw["format"]) is not int
-        or raw["format"] != 1
+        or raw["format"] not in (1, 2)
         or raw["release"] != "0.1.0"
         or not isinstance(project, str)
         or not _PROJECT.fullmatch(project)
@@ -142,8 +162,26 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         or digest != manifest_sha
     ):
         raise ImageInstallError("Image receipt/release mismatch")
+    runtime_tag, runtime_image = raw.get("runtime_tag"), raw.get("runtime_image_id")
+    if native and (
+        raw.get("profile") != "p4a-settings-offline"
+        or runtime_tag != f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
+        or complete
+        and (not isinstance(runtime_image, str) or not _DIGEST.fullmatch(runtime_image))
+    ):
+        raise ImageInstallError("Invalid native image receipt")
     _sync_parent(path)
-    return ImageReceipt(project, tag, image_id, digest, docker_host, docker_id)
+    return ImageReceipt(
+        project,
+        tag,
+        image_id,
+        digest,
+        docker_host,
+        docker_id,
+        "p4a-settings-offline" if native else None,
+        runtime_tag,
+        runtime_image,
+    )
 
 
 def _sync_parent(path: Path) -> None:
@@ -164,6 +202,10 @@ def _put_record(path: Path, receipt: ImageReceipt, *, complete: bool) -> None:
         "docker_host": receipt.docker_host,
         "docker_id": receipt.docker_id,
     }
+    if receipt.profile is not None:
+        record.update(format=2, profile=receipt.profile, runtime_tag=receipt.runtime_tag)
+        if complete:
+            record["runtime_image_id"] = receipt.runtime_image_id
     if complete:
         record["image_id"] = receipt.image_id
     fd, temporary = tempfile.mkstemp(prefix=".image-", dir=path.parent)
@@ -269,7 +311,7 @@ def _base_image(bundle: Path, host: str) -> None:
         raise ImageInstallError("Pinned Python base identity mismatch")
 
 
-def install_control_image(data_home: Path) -> ImageReceipt:
+def install_control_image(data_home: Path, *, runtime_context: Path | None = None) -> ImageReceipt:
     """Build only on explicit operator action; reconcile one recorded intent on retry."""
     try:
         root = data_home / "omnis"
@@ -277,7 +319,14 @@ def install_control_image(data_home: Path) -> ImageReceipt:
         if not _installed_pointer(root / "installed.json"):
             raise ImageInstallError("Install the release bundle first")
         bundle = root / "releases/0.1.0"
-        manifest, _ = _manifest(bundle)
+        manifest, payloads = _manifest(bundle)
+        native = json.loads(manifest).get("profile") == "p4a-settings-offline"
+        if native != (runtime_context is not None):
+            raise ImageInstallError("Explicit matching native context required")
+        if runtime_context is not None:
+            from .native_artifacts import validate_context
+
+            validate_context(runtime_context, payloads)
         manifest_sha = hashlib.sha256(manifest).hexdigest()
         fd = os.open(root / "install.lock", os.O_RDWR | os.O_NOFOLLOW)
         try:
@@ -290,20 +339,31 @@ def install_control_image(data_home: Path) -> ImageReceipt:
             ):
                 raise ImageInstallError("Unsafe install lock")
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            return _install_locked(root, bundle, manifest_sha)
+            return _install_locked(
+                root, bundle, manifest_sha, runtime_context=runtime_context, payloads=payloads
+            )
         finally:
             os.close(fd)
     except (OSError, ValueError, UnicodeError, RecursionError, subprocess.SubprocessError) as exc:
         raise ImageInstallError("Image installation refused") from exc
 
 
-def _install_locked(root: Path, bundle: Path, manifest_sha: str) -> ImageReceipt:
+def _install_locked(
+    root: Path,
+    bundle: Path,
+    manifest_sha: str,
+    *,
+    runtime_context: Path | None = None,
+    payloads: dict[str, bytes] | None = None,
+) -> ImageReceipt:
     host = _preflight(bundle)
     docker_id = _docker_id(bundle, host)
     receipt_path = root / "image.json"
     intent_path = root / "image-installing.json"
     prior = _record(receipt_path, manifest_sha, complete=True)
     if prior is not None:
+        if (prior.profile is not None) != (runtime_context is not None):
+            raise ImageInstallError("Image profile mismatch")
         if prior.docker_host != host or prior.docker_id != docker_id:
             raise ImageInstallError("Installed image belongs to another Docker endpoint")
         if (
@@ -311,6 +371,14 @@ def _install_locked(root: Path, bundle: Path, manifest_sha: str) -> ImageReceipt
             != prior.image_id
         ):
             raise ImageInstallError("Installed image unavailable")
+        if prior.profile is not None and (
+            prior.runtime_tag is None
+            or _validate_image(
+                prior.runtime_tag, bundle, prior.project, manifest_sha, host=host, runtime=True
+            )
+            != prior.runtime_image_id
+        ):
+            raise ImageInstallError("Installed native image unavailable")
         if _docker_id(bundle, host) != docker_id:
             raise ImageInstallError("Docker daemon changed during image verification")
         return prior
@@ -327,7 +395,26 @@ def _install_locked(root: Path, bundle: Path, manifest_sha: str) -> ImageReceipt
         manifest_sha,
         host,
         docker_id,
+        "p4a-settings-offline" if runtime_context is not None else None,
+        f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
+        if runtime_context is not None
+        else None,
     )
+    staged = None
+    if runtime_context is not None:
+        from .native_artifacts import stage_context
+
+        if payloads is None or intent.runtime_tag is None:
+            raise ImageInstallError("Native metadata required")
+        if (
+            _validate_image(
+                intent.runtime_tag, bundle, project, manifest_sha, host=host, runtime=True
+            )
+            is not None
+        ):
+            raise ImageInstallError("Native image tag already exists")
+        staged = root / ("runtime-inputs-" + project.removeprefix("omnis-local-"))
+        stage_context(runtime_context, payloads, staged)
     if _validate_image(intent.tag, bundle, intent.project, manifest_sha, host=host) is not None:
         raise ImageInstallError("Image tag already exists")
     if _docker_id(bundle, host) != docker_id:
@@ -362,7 +449,50 @@ def _install_locked(root: Path, bundle: Path, manifest_sha: str) -> ImageReceipt
         raise ImageInstallError("Build acknowledged without image readback")
     if _docker_id(bundle, host) != docker_id:
         raise ImageInstallError("Docker daemon changed during image build")
-    final = ImageReceipt(intent.project, intent.tag, image_id, manifest_sha, host, docker_id)
+    runtime_image_id = None
+    if staged is not None:
+        assert intent.runtime_tag is not None
+        result = _run(
+            "build",
+            "--platform",
+            "linux/amd64",
+            "--pull=false",
+            "--network=none",
+            "--label",
+            f"org.omnis.project={intent.project}",
+            "--label",
+            f"org.omnis.bundle_sha256={manifest_sha}",
+            "--label",
+            "org.omnis.profile=p4a-settings-offline",
+            "--label",
+            "org.omnis.image-role=runtime",
+            "-f",
+            str(staged / "Dockerfile"),
+            "-t",
+            intent.runtime_tag,
+            str(staged),
+            cwd=staged,
+            timeout=300,
+            host=host,
+        )
+        if result.returncode:
+            raise ImageInstallError("Native image build uncertain; recovery required")
+        runtime_image_id = _validate_image(
+            intent.runtime_tag, bundle, intent.project, manifest_sha, host=host, runtime=True
+        )
+        if runtime_image_id is None or _docker_id(bundle, host) != docker_id:
+            raise ImageInstallError("Native image readback unavailable")
+    final = ImageReceipt(
+        intent.project,
+        intent.tag,
+        image_id,
+        manifest_sha,
+        host,
+        docker_id,
+        intent.profile,
+        intent.runtime_tag,
+        runtime_image_id,
+    )
     _put_record(receipt_path, final, complete=True)
     if _record(receipt_path, manifest_sha, complete=True) != final:
         raise ImageInstallError("Image receipt not durable")

@@ -33,6 +33,8 @@ def build_bundle(
     requirements: Path,
     web_root: Path,
     output: Path,
+    *,
+    runtime_metadata: Path | None = None,
 ) -> None:
     if not output.is_absolute() or output.exists() or output.is_symlink():
         raise BundleError("Output must be a new absolute directory")
@@ -106,6 +108,29 @@ def build_bundle(
         "ops/compose.yaml": _canonical_file(Path(__file__).with_name("compose.control.yaml")),
         "web/omnis-web.json": source,
     }
+    if runtime_metadata is not None:
+        from omnis_cli.native_artifacts import METADATA, closure
+
+        for name in METADATA:
+            payloads["native/" + name] = _canonical_file(runtime_metadata / name)
+        payloads["ops/Dockerfile.hermes"] = _canonical_file(
+            Path(__file__).with_name("Dockerfile.hermes")
+        )
+        closure(payloads)
+        integration = Path(__file__).resolve().parents[1] / "integrations/hermes"
+        native = json.loads(payloads["native/source-manifest.json"], object_pairs_hook=unique_pairs)
+        if native.get("pin") != json.loads(_canonical_file(integration / "pin.json")):
+            raise BundleError("Native source pin mismatch")
+        for key, filename in (
+            ("patched_files", "patch-manifest.json"),
+            ("managed_patched_files", "managed-patch-manifest.json"),
+            ("management_patched_files", "management-patch-manifest.json"),
+        ):
+            if (
+                native.get(key)
+                != json.loads(_canonical_file(integration / "upstream" / filename))["files"]
+            ):
+                raise BundleError("Native overlay mismatch")
     for name, digest in web_files.items():
         if not isinstance(name, str) or (name != "index.html" and not name.startswith("assets/")):
             raise BundleError("Unexpected asset name")
@@ -129,6 +154,8 @@ def build_bundle(
         "platform": "linux/amd64",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }
+    if runtime_metadata is not None:
+        manifest.update(format=2, profile="p4a-settings-offline")
     stage = Path(tempfile.mkdtemp(prefix=".bundle-", dir=output.parent))
     try:
         for name, content in payloads.items():
@@ -147,9 +174,21 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Build a local P0 release from pinned artifacts")
     for option in ("api-wheel", "cli-wheel", "requirements", "web-root", "output"):
         parser.add_argument(f"--{option}", type=Path, required=True)
+    parser.add_argument(
+        "--runtime-metadata",
+        type=Path,
+        help="Seal prepared native metadata for p4a-settings-offline",
+    )
     args = parser.parse_args()
     try:
-        build_bundle(args.api_wheel, args.cli_wheel, args.requirements, args.web_root, args.output)
+        build_bundle(
+            args.api_wheel,
+            args.cli_wheel,
+            args.requirements,
+            args.web_root,
+            args.output,
+            runtime_metadata=args.runtime_metadata,
+        )
     except (OSError, ValueError, UnicodeError, RecursionError, subprocess.SubprocessError):
         print("BUNDLE_REFUSED", file=sys.stderr)
         return 2

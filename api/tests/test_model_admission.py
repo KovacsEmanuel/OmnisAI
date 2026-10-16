@@ -1279,3 +1279,118 @@ def test_protocol_command_rejects_untrusted_expansion(change: dict[str, object])
     }
     with pytest.raises(ValueError):
         NativeTaskCommand.model_validate(value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "case,expected",
+    [
+        ("failed", {"state": "FAILED", "type": "CatalogError", "reason": "CONTROL_UNAVAILABLE"}),
+        ("pending", {"state": "PENDING"}),
+        ("pg_waiter", {"state": "PENDING"}),
+        ("cancelled", {"state": "CANCELLED"}),
+        ("primary_cancelled", {"state": "PENDING"}),
+        ("join_timeout", {"state": "CANCELLED"}),
+        ("returned", {"state": "RETURNED"}),
+        ("unknown_reason", {"state": "FAILED", "type": "CatalogError", "reason": "OTHER"}),
+        ("unknown_type", {"state": "FAILED", "type": "OTHER", "reason": None}),
+    ],
+)
+async def test_protocol_failure_observation_before_cleanup_on_line_channel(
+    capsys: pytest.CaptureFixture[str], case: str, expected: dict[str, object]
+) -> None:
+    """SOURCE: a real marker timeout must not erase an earlier sender failure."""
+    import asyncio
+    import json
+    from time import monotonic
+
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    pg = importlib.import_module("test_model_admission_pg")
+    marker, started = asyncio.Event(), asyncio.Event()
+    if case == "pg_waiter":
+        marker.set()  # SOURCE: ready already reached; the lock observation stalls.
+    completed = int(marker.is_set())
+    readiness_start = monotonic()
+    synthetic = "SYNTHETIC_DIAGNOSTIC_OMIT_ME"
+
+    class UnlistedError(Exception):
+        def __str__(self) -> str:
+            raise AssertionError("diagnostic must not format an exception")
+
+    async def send() -> None:
+        started.set()
+        if case == "failed":
+            error = CatalogError("CONTROL_UNAVAILABLE")
+            error.args = (synthetic,)
+            raise error
+        if case == "unknown_reason":
+            raise CatalogError(synthetic)
+        if case == "unknown_type":
+            raise UnlistedError(synthetic)
+        if case != "returned":
+            await asyncio.Event().wait()
+
+    sender = asyncio.create_task(send())
+    snapshot: dict[str, object] | None = None
+    primary: BaseException | None = None
+    try:
+        await started.wait()
+        if case == "cancelled":
+            sender.cancel()
+            await asyncio.gather(sender, return_exceptions=True)
+        primary_type = asyncio.CancelledError if case == "primary_cancelled" else TimeoutError
+        with pytest.raises(primary_type) as caught:
+            try:
+                if case == "primary_cancelled":
+                    raise asyncio.CancelledError(synthetic)
+                elif case == "join_timeout":
+                    await asyncio.wait_for(sender, 0)
+                else:
+                    async with asyncio.timeout(0):
+                        await (asyncio.Event() if case == "pg_waiter" else marker).wait()
+            except BaseException as error:
+                primary = error
+                # Without the observation the old marker/finally path loses
+                # precisely this state. Keep the RED about missing evidence.
+                observe = getattr(pg, "report_protocol_failure", None)
+                if observe is not None:
+                    snapshot = observe(
+                        capsys,
+                        error,
+                        order="duplicate",
+                        await_site={
+                            "join_timeout": "join_sender",
+                            "pg_waiter": "duplicate_pg_waiter",
+                        }.get(case, "t0_ready"),
+                        markers={"t0_ready": marker},
+                        tasks={"sender": sender},
+                        progress={
+                            "owner_entered": completed,
+                            "fence_entered": completed,
+                            "readiness_entered": 1,
+                            "readiness_completed": completed,
+                            "readiness_started": readiness_start,
+                            "readiness_finished": readiness_start if completed else None,
+                        },
+                        source_control=True,
+                    )
+                raise
+        assert caught.value is primary
+    finally:
+        if not sender.done():
+            sender.cancel()
+        await asyncio.gather(sender, return_exceptions=True)
+    assert snapshot is not None, "first-error observation missing before cleanup"
+    assert snapshot["tasks"] == {"sender": expected}
+    assert snapshot["error"] == {"type": primary_type.__name__, "reason": None}
+    assert snapshot["scope"] == "SOURCE_CONTROL"
+    assert snapshot["markers"] == {"t0_ready": bool(completed)}
+    assert snapshot["owner_entered"] == snapshot["fence_entered"] == completed
+    assert snapshot["readiness_entered"] == 1 and snapshot["readiness_completed"] == completed
+    elapsed = snapshot["readiness_elapsed_ms"]
+    assert type(elapsed) is int and elapsed >= 0
+    assert synthetic not in json.dumps(snapshot)
+    # This is printed outside capture, on the SAME --tb=line terminal channel
+    # used by PG. The command's actual stdout is checked alongside these controls.
+    assert "P2_PROTOCOL_FAILURE" not in capsys.readouterr().out

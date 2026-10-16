@@ -7,9 +7,12 @@ actual initialization/turn, model compatibility, SDK and inference are not claim
 
 import asyncio
 import importlib
+import json
+from collections.abc import Mapping
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
+from time import monotonic
 from uuid import UUID, uuid4
 
 import pytest
@@ -21,7 +24,7 @@ from fixtures.b06b_pure_probe.consumer import Probe
 from fixtures.c03_journey import publish_capture
 from fixtures.c03_records import qualify_records
 from omnis.core.db import database_engine
-from omnis.modules.instance.domain import ControlConflict
+from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.schemas import NativePrepareCommand, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs.contract_inputs import ContractInputs
@@ -39,6 +42,91 @@ from test_model_admission import assert_protocol_records, protocol_configuration
 from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
 from test_ready_model_configuration import configuration
+
+
+def report_protocol_failure(
+    capsys: pytest.CaptureFixture[str],
+    error: BaseException,
+    *,
+    order: str,
+    await_site: str,
+    markers: dict[str, asyncio.Event],
+    tasks: Mapping[str, asyncio.Task[dict[str, object]] | asyncio.Task[int] | asyncio.Task[None]],
+    progress: dict[str, int | float | None],
+    source_control: bool = False,
+) -> dict[str, object]:
+    """One synchronous pre-cleanup snapshot; never format exception/input bytes.
+
+    Names/keys come only from the finite test sites below. Capture is disabled
+    ONLY for this sanitized line: pytest --tb=line omits ordinary captured output.
+    PENDING means no exception was observed, not a fabricated task failure.
+    """
+
+    def failure(exc: BaseException) -> dict[str, object]:
+        types = {
+            TimeoutError: "TimeoutError",
+            asyncio.CancelledError: "CancelledError",
+            CatalogError: "CatalogError",
+            ControlConflict: "ControlConflict",
+            AssertionError: "AssertionError",
+            ValueError: "ValueError",
+            TypeError: "TypeError",
+            RuntimeError: "RuntimeError",
+            OSError: "OSError",
+        }
+        reason: str | None = None
+        if type(exc) is CatalogError:
+            allowed = {
+                "TASK_UNAVAILABLE",
+                "TASK_REJECTED",
+                "TASK_INDETERMINATE",
+                "COMMAND_CONFLICT",
+                "CONTROL_TIMEOUT",
+                "CONTROL_UNAVAILABLE",
+                "LEASE_LOST",
+                "INVALID_REQUEST",
+            }
+            reason = exc.reason if type(exc.reason) is str and exc.reason in allowed else "OTHER"
+        elif type(exc) is ControlConflict:
+            reason = exc.code.value if type(exc.code) is ControlCode else "OTHER"
+        return {"type": types.get(type(exc), "OTHER"), "reason": reason}
+
+    states: dict[str, object] = {}
+    for name, task in tasks.items():
+        if not task.done():
+            states[name] = {"state": "PENDING"}
+        elif task.cancelled():
+            states[name] = {"state": "CANCELLED"}
+        else:
+            exc = task.exception()
+            states[name] = (
+                {"state": "RETURNED"} if exc is None else {"state": "FAILED", **failure(exc)}
+            )
+    start = progress["readiness_started"]
+    end = progress["readiness_finished"]
+    snapshot: dict[str, object] = {
+        "scope": "SOURCE_CONTROL" if source_control else "PG",
+        "order": order,
+        "await_site": await_site,
+        "error": failure(error),
+        "markers": {name: event.is_set() for name, event in markers.items()},
+        "tasks": states,
+        **{
+            key: progress[key]
+            for key in (
+                "owner_entered",
+                "fence_entered",
+                "readiness_entered",
+                "readiness_completed",
+            )
+        },
+        "readiness_elapsed_ms": (
+            None if start is None else int(1000 * ((monotonic() if end is None else end) - start))
+        ),
+    }
+    with capsys.disabled():
+        print("\nP2_PROTOCOL_FAILURE " + json.dumps(snapshot, sort_keys=True), flush=True)
+    return snapshot
 
 
 def synthetic_decision(owner: str, run: str, composition: dict[str, object]) -> dict[str, object]:
@@ -75,6 +163,7 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
     migrated_database_url: URL,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
     protocol_mode: bool = False,
     protocol_order: str = "nominal",
 ) -> None:
@@ -476,6 +565,7 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
                 consumer,
                 monkeypatch,
                 protocol_order,
+                capsys,
             )
             return
         done.set()
@@ -514,6 +604,7 @@ async def protocol_pg_consumer(
     consumer: ModelDispatch,
     monkeypatch: pytest.MonkeyPatch,
     order: str,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     """Actual SQL + both UDS; only retained native identity is a synthetic seed.
 
@@ -528,13 +619,14 @@ async def protocol_pg_consumer(
     from contextlib import asynccontextmanager
 
     import psycopg
-    from sqlalchemy.ext.asyncio import AsyncConnection
+    from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-    from omnis.core.db import validated_database_url
+    from omnis.core.db import ReadinessReason, readiness_reason, validated_database_url
     from omnis.modules.instance.records import InstanceRecord, LeaseRecord
     from omnis.modules.runs import model_protocol
     from omnis.modules.tasks import managed_store
     from omnis.supervisor.native_tasks import control_task
+    from omnis.transport import local_control
     from omnis.transport.local_control import LocalControl
     from test_native_task_client import peer_client
 
@@ -571,6 +663,49 @@ async def protocol_pg_consumer(
     actual_authority, actual_reserve = service.runtime_authority, model_protocol.reserve
     send_tasks: list[asyncio.Task[dict[str, object]]] = []
     stop_tasks: list[asyncio.Task[int]] = []
+    await_site = "sender_start"
+    readiness_entered = readiness_completed = 0
+    readiness_started: float | None = None
+    readiness_finished: float | None = None
+
+    async def observed_readiness(engine: AsyncEngine | None) -> ReadinessReason | None:
+        nonlocal readiness_entered, readiness_completed, readiness_started, readiness_finished
+        readiness_entered += 1
+        readiness_started, readiness_finished = monotonic(), None
+        result = await readiness_reason(engine)
+        readiness_completed += 1
+        readiness_finished = monotonic()
+        return result
+
+    monkeypatch.setattr(local_control, "readiness_reason", observed_readiness)
+
+    def observe(error: BaseException) -> None:
+        report_protocol_failure(
+            capsys,
+            error,
+            order=order,
+            await_site=await_site,
+            markers={
+                "t0_ready": t0_ready,
+                "reserved": reserved,
+                "received": received,
+                "stop_locked": stop_locked,
+                "second_lock_entered": second_lock_entered,
+                "second_lock_acquired": second_lock_acquired,
+            },
+            tasks={
+                **dict(zip(("sender", "second"), send_tasks, strict=False)),
+                **dict(zip(("stopper",), stop_tasks, strict=False)),
+            },
+            progress={
+                "owner_entered": request_count,
+                "fence_entered": fence_count,
+                "readiness_entered": readiness_entered,
+                "readiness_completed": readiness_completed,
+                "readiness_started": readiness_started,
+                "readiness_finished": readiness_finished,
+            },
+        )
 
     @asynccontextmanager
     async def fenced(who: UUID, epoch: int, generation: int) -> AsyncIterator[AsyncConnection]:
@@ -790,7 +925,7 @@ async def protocol_pg_consumer(
                     service,
                     owner.owner,
                     owner.epoch,
-                    native_task=observed_handle if concurrent else owner.handle,
+                    native_task=observed_handle,
                 ):
 
                     async def waiter_observed() -> int:
@@ -821,13 +956,16 @@ async def protocol_pg_consumer(
                         try:
                             sender = asyncio.create_task(control_task(root, command_value))
                             send_tasks.append(sender)
+                            await_site = "t0_ready"
                             await asyncio.wait_for(t0_ready.wait(), 1.5)
                             # A separate connection cannot see any of T0's writes.
                             assert census() == before and not wire and not observations
                             second = asyncio.create_task(control_task(root, other_value))
                             send_tasks.append(second)
                             async with asyncio.timeout(0.75):
+                                await_site = "second_lock_entered"
                                 await second_lock_entered.wait()
+                                await_site = "duplicate_pg_waiter"
                                 while True:
                                     observer.execute("SELECT pg_stat_clear_snapshot()")
                                     waiting = observer.execute(
@@ -844,6 +982,7 @@ async def protocol_pg_consumer(
                             assert not sender.done() and not second.done()
                             assert census() == before and not wire and not observations
                             release_t0.set()
+                            await_site = "join_second"
                             if order == "conflict":
                                 with pytest.raises(CatalogError) as denied:
                                     await asyncio.wait_for(second, 2)
@@ -857,9 +996,13 @@ async def protocol_pg_consumer(
                             assert after_second == {**before, "managed_record": t0_records}
                             assert not wire and not observations and not sender.done()
                             second_finished.set()
+                            await_site = "join_sender"
                             reply = await asyncio.wait_for(sender, 2)
                             assert second_lock_acquired.is_set()
                             assert authority_calls == reserve_calls == 1
+                        except BaseException as error:
+                            observe(error)
+                            raise
                         finally:
                             release_t0.set()
                             second_finished.set()
@@ -874,8 +1017,10 @@ async def protocol_pg_consumer(
                             sender = asyncio.create_task(control_task(root, command_value))
                             send_tasks.append(sender)
                             if order == "stop_first":
+                                await_site = "reserved"
                                 await asyncio.wait_for(reserved.wait(), 1)
                             else:
+                                await_site = "received"
                                 await asyncio.wait_for(received.wait(), 1.5)
                                 assert len(observations) == 1  # committed SENT before real write
                             stopper = asyncio.create_task(
@@ -886,22 +1031,32 @@ async def protocol_pg_consumer(
                             )
                             stop_tasks.append(stopper)
                             if order == "stop_first":
+                                await_site = "stop_locked"
                                 await asyncio.wait_for(stop_locked.wait(), 1)
+                            await_site = "stop_pg_waiter"
                             waiter_pid = await waiter_observed()
                             assert waiter_pid > 0 and not sender.done() and not stopper.done()
                             if order == "stop_first":
                                 assert not wire and not observations
                                 release_stop.set()
+                                await_site = "join_stopper"
                                 await asyncio.wait_for(stopper, 1)
+                                await_site = "join_sender"
                                 with pytest.raises(CatalogError):
                                     await asyncio.wait_for(sender, 1)
                             else:
                                 # Stop is actually blocked on A until the finite exchange ends.
                                 assert not stopper.done()
                                 release_ack.set()
+                                await_site = "join_sender"
                                 await asyncio.wait_for(sender, 2)
+                                await_site = "join_stopper"
                                 await asyncio.wait_for(stopper, 1)
+                            await_site = "poststop_replay"
                             reply = await control_task(root, command_value)  # receive-only, stopped
+                        except BaseException as error:
+                            observe(error)
+                            raise
                         finally:
                             release_stop.set()
                             release_ack.set()
@@ -999,12 +1154,14 @@ async def test_pg_protocol_sent_committed_before_exact_write_and_poststop_readba
     migrated_database_url: URL,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
     order: str,
 ) -> None:
     await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
         migrated_database_url,
         tmp_path,
         monkeypatch,
+        capsys,
         protocol_mode=True,
         protocol_order=order,
     )
@@ -1016,8 +1173,14 @@ async def test_pg_protocol_concurrent_duplicate_and_conflict(
     migrated_database_url: URL,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
     order: str,
 ) -> None:
     await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
-        migrated_database_url, tmp_path, monkeypatch, protocol_mode=True, protocol_order=order
+        migrated_database_url,
+        tmp_path,
+        monkeypatch,
+        capsys,
+        protocol_mode=True,
+        protocol_order=order,
     )

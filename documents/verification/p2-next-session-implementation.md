@@ -1,6 +1,6 @@
-# Predare — duplicate/conflict BLOCKED_QA; STOP
+# Reluare activă — cauza QA și închiderea P2-inert
 
-**DOAR ÎN SESIUNEA FRESH — o sesiune, un rezultat verificabil.** După acceptarea primei verticale, operatorul a autorizat duplicate/conflict; noua felie s-a oprit la **BLOCKED_QA / HANDOFF_ONLY**. Nu relansa orb targetul sau batch2. Notificările întârziate nu reactivează implementarea. Reluarea este numai pentru diagnosticul/remediul acestei frontiere, cu mandat nou, nu pentru restul DATA.
+**Mandat ACTIV ulterior al operatorului:** investighează cauza reală a QA, prompturile și dovezile, remediază și continuă până la închiderea **P2-inert** în cele8criterii§7.1. Nu preda după fiecare helper/review/fix și nu relansa orb targetul sau batch2. CURRENT și contractul de execuție actual sunt în [registrul integrării](p2-integration-b06cm.md). Formulările istorice „DOAR ÎN SESIUNEA FRESH” și „HANDOFF_ONLY” de mai jos nu anulează acest acord nou; nici notificările întârziate nu extind singure scopul. Live păstrează acordul separat cont/model/date/buget.
 
 ## CURRENT — duplicate/conflict BLOCKED_QA; cauza timeouturilor UNKNOWN
 

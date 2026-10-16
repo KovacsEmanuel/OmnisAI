@@ -1,0 +1,1200 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-PHASE-TIMING-FRESH-PG-QA",
+  "status": "FAIL_INFORMATIVE",
+  "acceptance": "Duplicate remains BLOCKED_QA. P2-inert NOT_CLOSED; parent continues cause/fix mandate. No phase handoff/closure.",
+  "scope": "One full existing test-model-admission-pg invocation, actual PostgreSQL18.6/UDS source consumer; finite phase attribution without changing code, deadlines, grant, TTL, caps or assertions.",
+  "snapshot": {
+    "head_at_entry": "0a99edf0a8e70bada37eb0ce01dc883b490a2952",
+    "head_at_preflight": "cb0b66a1df3b104ac62bccf38f0619b781221d6f",
+    "head_after": "cb0b66a1df3b104ac62bccf38f0619b781221d6f",
+    "parent_concurrent_commit": "cb0b66a: integration register and phase-timing review only; 30 source and 26 library input hashes unchanged through QA.",
+    "test_sha256": {
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_admission_pg.py": "d575e42b347508c45f735be0d79c17d6b9e5e4bc9930686fcaf9c859142d4877"
+    },
+    "production_baseline": "75c6fab",
+    "production_unchanged": true,
+    "input_manifest": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/preflight.json",
+      "sha256": "ae1de535a5737f4d06ab52ba45cd7ad66919609ea930b73592b46c84ab2884b4"
+    },
+    "source_input_count": 30,
+    "library_input_count": 26,
+    "all_before_after_inputs_unchanged": true,
+    "review": {
+      "path": "documents/verification/p2-integration-phase-timing-review.json",
+      "sha256": "af35b541823e7bf3f94c4c6b0a760e8f51c9d8f945e3a523cc29929ca81b8e2e"
+    },
+    "git_status_after": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+    "leaf_repository_edits": [],
+    "leaf_stage_commit_push": false,
+    "protected_html": "Not read, hashed, edited, staged or deleted."
+  },
+  "preflight": {
+    "status": "PASS_NO_EFFECT_PREFLIGHT",
+    "proof": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/preflight.json",
+      "sha256": "ae1de535a5737f4d06ab52ba45cd7ad66919609ea930b73592b46c84ab2884b4"
+    },
+    "runner_help": {
+      "exit": 0,
+      "sha256": "1a7d2956e80a7dc7a55ed4c3bfc1a7f8fb9843f7eb8e414e42024a06ff6af3df",
+      "target_present": true
+    },
+    "toolchain": [
+      {
+        "argv": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import platform;print(platform.python_version())"
+        ],
+        "exit": 0,
+        "result": "3.13.15"
+      },
+      {
+        "argv": [
+          "cli/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import platform;print(platform.python_version())"
+        ],
+        "exit": 0,
+        "result": "3.13.15"
+      },
+      {
+        "argv": [
+          "/home/kali/.local/share/omnis-toolchains/bin/uv",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+      },
+      {
+        "argv": [
+          "node",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "v24.21.0"
+      },
+      {
+        "argv": [
+          "npm",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "11.19.0"
+      }
+    ],
+    "collection": {
+      "command": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_model_budget.py",
+        "api/tests/test_model_budget_pg.py",
+        "--collect-only",
+        "-q"
+      ],
+      "exit": 0,
+      "per_file": {
+        "tests/test_model_admission.py": 60,
+        "tests/test_model_admission_pg.py": 6,
+        "tests/test_model_budget.py": 23,
+        "tests/test_model_budget_pg.py": 10
+      },
+      "pg": 16,
+      "source": 83,
+      "total": 99
+    },
+    "source_library_access": "Exact readable source/library inputs; UID1000; new scratch0700. No native export needed, no prewarm, no PG fixture/query. Existing pinned Docker image and local daemon read-only.",
+    "docker": {
+      "context": "default",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "endpoint": "unix:///run/docker.sock",
+      "image": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+      "image_identity": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64",
+      "socket": {
+        "dev": 25,
+        "inode": 2279,
+        "mode": "0o660",
+        "uid": 0
+      }
+    },
+    "semantics": "--check is effectful; only --help/collection/static+access/toolchain/Docker identity used before launch."
+  },
+  "execution": {
+    "attempts": 1,
+    "retries": 0,
+    "exact_command": "umask 077; exec env -i PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600 > /home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/outer.log 2>&1",
+    "cwd": "/home/kali/OmnisAI",
+    "environment": {
+      "HOME": "/home/kali",
+      "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5"
+    },
+    "umask": "077",
+    "timeout_seconds": 600,
+    "session": {
+      "session_id": "proc_2d9a6326b924",
+      "pid": 452947,
+      "background_requested": true,
+      "notify_requested": true,
+      "notify_on_complete_returned": false,
+      "readback_tool": "process_manage",
+      "readback_action": "wait",
+      "readback_timeout_seconds": 180,
+      "status": "exited",
+      "exit_code": 2,
+      "completion_reason": "exited",
+      "termination_source": "",
+      "outer_command": "umask 077; exec env -i PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600 > /home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/outer.log 2>&1",
+      "tool_output_note": "Exact-session wait returned two shell zle option warnings. These are not protocol diagnostics; the original gate receipt and outer log independently establish exit2/drained. No command retry."
+    },
+    "session_receipt": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/session-result.json",
+      "sha256": "1cc1d71784e1555752469ab910b79d721565e3c7c462687ea993b4dc6777cdbb"
+    },
+    "gate_exit": 2,
+    "original_gate_receipt": {
+      "code": 2,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "original_gate_receipt_handle": {
+      "bytes": 56,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+    },
+    "strict_receipt_fields_types_verified": true,
+    "test_counts": {
+      "collected": 99,
+      "deselected": 0,
+      "errors": 0,
+      "failed": 1,
+      "passed": 98,
+      "pg_failed": 1,
+      "pg_passed": 15,
+      "skipped": 0,
+      "source_failed": 0,
+      "source_passed": 83
+    },
+    "duration_seconds": 215.16,
+    "failed_node_ids": [
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]"
+    ],
+    "failure_ids_verified_against_collection": true,
+    "final_verdict_contrast": "Nominal/conflict/stop_first/send_first passed in the completed full target; duplicate is the only FAILED node. A TIMING line alone was not treated as PASS."
+  },
+  "diagnostics": {
+    "PG_records": [
+      {
+        "order": "nominal",
+        "scope": "PG",
+        "tag": "P2_PROTOCOL_TIMING",
+        "timing": [
+          {
+            "caller": "sender",
+            "elapsed_ms": 3341,
+            "entered_ms": 0,
+            "outcome": "RETURNED",
+            "phase": "control"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 3295,
+            "entered_ms": 44,
+            "outcome": "RETURNED",
+            "phase": "owner"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 107,
+            "entered_ms": 45,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 153,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 162,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 60,
+            "entered_ms": 845,
+            "outcome": "RETURNED",
+            "phase": "protocol.reserve"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 608,
+            "entered_ms": 914,
+            "outcome": "RETURNED",
+            "phase": "protocol.mark_sent"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 586,
+            "entered_ms": 914,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1180,
+            "entered_ms": 1539,
+            "outcome": "RETURNED",
+            "phase": "protocol.settle"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 587,
+            "entered_ms": 1539,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 618,
+            "entered_ms": 2721,
+            "outcome": "RETURNED",
+            "phase": "protocol.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 602,
+            "entered_ms": 2721,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          }
+        ]
+      },
+      {
+        "order": "stop_first",
+        "scope": "PG",
+        "tag": "P2_PROTOCOL_TIMING",
+        "timing": [
+          {
+            "caller": "sender",
+            "elapsed_ms": 991,
+            "entered_ms": 0,
+            "outcome": "RAISED",
+            "phase": "control"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 944,
+            "entered_ms": 45,
+            "outcome": "RAISED",
+            "phase": "owner"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 111,
+            "entered_ms": 46,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 2,
+            "entered_ms": 158,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 167,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 53,
+            "entered_ms": 855,
+            "outcome": "RETURNED",
+            "phase": "protocol.reserve"
+          }
+        ]
+      },
+      {
+        "order": "send_first",
+        "scope": "PG",
+        "tag": "P2_PROTOCOL_TIMING",
+        "timing": [
+          {
+            "caller": "sender",
+            "elapsed_ms": 3259,
+            "entered_ms": 0,
+            "outcome": "RETURNED",
+            "phase": "control"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 3217,
+            "entered_ms": 40,
+            "outcome": "RETURNED",
+            "phase": "owner"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 109,
+            "entered_ms": 41,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 151,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 158,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 52,
+            "entered_ms": 825,
+            "outcome": "RETURNED",
+            "phase": "protocol.reserve"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 574,
+            "entered_ms": 886,
+            "outcome": "RETURNED",
+            "phase": "protocol.mark_sent"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 556,
+            "entered_ms": 886,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1158,
+            "entered_ms": 1490,
+            "outcome": "RETURNED",
+            "phase": "protocol.settle"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 578,
+            "entered_ms": 1490,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 608,
+            "entered_ms": 2649,
+            "outcome": "RETURNED",
+            "phase": "protocol.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 594,
+            "entered_ms": 2649,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          }
+        ]
+      },
+      {
+        "await_site": "join_sender",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 2,
+        "markers": {
+          "received": true,
+          "reserved": true,
+          "second_lock_acquired": true,
+          "second_lock_entered": true,
+          "stop_locked": false,
+          "t0_ready": true
+        },
+        "order": "duplicate",
+        "owner_entered": 2,
+        "readiness_completed": 2,
+        "readiness_elapsed_ms": 34,
+        "readiness_entered": 2,
+        "scope": "PG",
+        "tag": "P2_PROTOCOL_FAILURE",
+        "tasks": {
+          "second": {
+            "state": "RETURNED"
+          },
+          "sender": {
+            "reason": null,
+            "state": "FAILED",
+            "type": "TimeoutError"
+          }
+        },
+        "timing": [
+          {
+            "caller": "sender",
+            "elapsed_ms": 4005,
+            "entered_ms": 0,
+            "outcome": "RAISED",
+            "phase": "control"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 3962,
+            "entered_ms": 42,
+            "outcome": "PENDING",
+            "phase": "owner"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 117,
+            "entered_ms": 42,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 2,
+            "entered_ms": 161,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1,
+            "entered_ms": 171,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 48,
+            "entered_ms": 876,
+            "outcome": "RETURNED",
+            "phase": "protocol.reserve"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 56,
+            "entered_ms": 925,
+            "outcome": "RETURNED",
+            "phase": "qa.t0_locked"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 746,
+            "entered_ms": 936,
+            "outcome": "RETURNED",
+            "phase": "control"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 709,
+            "entered_ms": 972,
+            "outcome": "RETURNED",
+            "phase": "owner"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 128,
+            "entered_ms": 972,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 705,
+            "entered_ms": 983,
+            "outcome": "RETURNED",
+            "phase": "qa.before_a"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 6,
+            "entered_ms": 1101,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 572,
+            "entered_ms": 1108,
+            "outcome": "RETURNED",
+            "phase": "protocol.readback"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 560,
+            "entered_ms": 1108,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 584,
+            "entered_ms": 1692,
+            "outcome": "RETURNED",
+            "phase": "protocol.mark_sent"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 563,
+            "entered_ms": 1692,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1135,
+            "entered_ms": 2287,
+            "outcome": "RETURNED",
+            "phase": "protocol.settle"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 553,
+            "entered_ms": 2287,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 580,
+            "entered_ms": 3424,
+            "outcome": "PENDING",
+            "phase": "protocol.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 566,
+            "entered_ms": 3424,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          }
+        ]
+      },
+      {
+        "order": "conflict",
+        "scope": "PG",
+        "tag": "P2_PROTOCOL_TIMING",
+        "timing": [
+          {
+            "caller": "sender",
+            "elapsed_ms": 3556,
+            "entered_ms": 0,
+            "outcome": "RETURNED",
+            "phase": "control"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 3513,
+            "entered_ms": 41,
+            "outcome": "RETURNED",
+            "phase": "owner"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 113,
+            "entered_ms": 42,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 2,
+            "entered_ms": 156,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 2,
+            "entered_ms": 166,
+            "outcome": "RETURNED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 50,
+            "entered_ms": 866,
+            "outcome": "RETURNED",
+            "phase": "protocol.reserve"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 57,
+            "entered_ms": 917,
+            "outcome": "RETURNED",
+            "phase": "qa.t0_locked"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 174,
+            "entered_ms": 928,
+            "outcome": "RAISED",
+            "phase": "control"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 140,
+            "entered_ms": 962,
+            "outcome": "RAISED",
+            "phase": "owner"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 134,
+            "entered_ms": 962,
+            "outcome": "RETURNED",
+            "phase": "domain.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 133,
+            "entered_ms": 976,
+            "outcome": "RETURNED",
+            "phase": "qa.before_a"
+          },
+          {
+            "caller": "second",
+            "elapsed_ms": 3,
+            "entered_ms": 1098,
+            "outcome": "RAISED",
+            "phase": "protocol.replay"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 581,
+            "entered_ms": 1113,
+            "outcome": "RETURNED",
+            "phase": "protocol.mark_sent"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 562,
+            "entered_ms": 1113,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 1206,
+            "entered_ms": 1705,
+            "outcome": "RETURNED",
+            "phase": "protocol.settle"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 579,
+            "entered_ms": 1705,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 641,
+            "entered_ms": 2913,
+            "outcome": "RETURNED",
+            "phase": "protocol.readback"
+          },
+          {
+            "caller": "sender",
+            "elapsed_ms": 619,
+            "entered_ms": 2913,
+            "outcome": "RETURNED",
+            "phase": "protocol.qualified"
+          }
+        ]
+      }
+    ],
+    "PG_record_count": 5,
+    "PG_timing_row_count": 68,
+    "SOURCE_CONTROL_counts": {
+      "P2_PROTOCOL_FAILURE": 9,
+      "P2_PROTOCOL_TIMING": 3
+    },
+    "schema_validation": "Exact PG top-level and timing fields/types, finite caller/phase/outcome/error/reason allowlists, <=64 rows/record, duplicate JSON member refusal. SOURCE_CONTROL counted separately, never promoted to real PG observations.",
+    "safe_output": "No DSN/password/capability/client body/raw frame/private error message or raw traceback emitted."
+  },
+  "phase_comparison": [
+    {
+      "order": "nominal",
+      "caller": "sender",
+      "control_elapsed_ms": 3341,
+      "control_outcome": "RETURNED",
+      "measured_QA_pauses_ms": {},
+      "control_wall_minus_QA_union_ms": 3341,
+      "qualified_elapsed_ms": [
+        586,
+        587,
+        602
+      ],
+      "last_pending_phase": null
+    },
+    {
+      "order": "duplicate",
+      "caller": "second",
+      "control_elapsed_ms": 746,
+      "control_outcome": "RETURNED",
+      "measured_QA_pauses_ms": {},
+      "control_wall_minus_QA_union_ms": 746,
+      "qualified_elapsed_ms": [
+        560
+      ],
+      "last_pending_phase": null
+    },
+    {
+      "order": "duplicate",
+      "caller": "sender",
+      "control_elapsed_ms": 4005,
+      "control_outcome": "RAISED",
+      "measured_QA_pauses_ms": {
+        "qa.t0_locked": 56,
+        "qa.before_a": 705
+      },
+      "control_wall_minus_QA_union_ms": 3244,
+      "qualified_elapsed_ms": [
+        563,
+        553,
+        566
+      ],
+      "last_pending_phase": {
+        "caller": "sender",
+        "elapsed_ms": 580,
+        "entered_ms": 3424,
+        "outcome": "PENDING",
+        "phase": "protocol.readback"
+      }
+    },
+    {
+      "order": "conflict",
+      "caller": "second",
+      "control_elapsed_ms": 174,
+      "control_outcome": "RAISED",
+      "measured_QA_pauses_ms": {},
+      "control_wall_minus_QA_union_ms": 174,
+      "qualified_elapsed_ms": [],
+      "last_pending_phase": null
+    },
+    {
+      "order": "conflict",
+      "caller": "sender",
+      "control_elapsed_ms": 3556,
+      "control_outcome": "RETURNED",
+      "measured_QA_pauses_ms": {
+        "qa.t0_locked": 57,
+        "qa.before_a": 133
+      },
+      "control_wall_minus_QA_union_ms": 3366,
+      "qualified_elapsed_ms": [
+        562,
+        579,
+        619
+      ],
+      "last_pending_phase": null
+    },
+    {
+      "order": "stop_first",
+      "caller": "sender",
+      "control_elapsed_ms": 991,
+      "control_outcome": "RAISED",
+      "measured_QA_pauses_ms": {},
+      "control_wall_minus_QA_union_ms": 991,
+      "qualified_elapsed_ms": [],
+      "last_pending_phase": null
+    },
+    {
+      "order": "send_first",
+      "caller": "sender",
+      "control_elapsed_ms": 3259,
+      "control_outcome": "RETURNED",
+      "measured_QA_pauses_ms": {},
+      "control_wall_minus_QA_union_ms": 3259,
+      "qualified_elapsed_ms": [
+        556,
+        578,
+        594
+      ],
+      "last_pending_phase": null
+    }
+  ],
+  "observed_conclusions": [
+    "Duplicate sender public control raised TimeoutError after4005ms at join_sender; second RETURNED746ms. Pre-cleanup counters: owner2/fence2/readiness2 entered+completed, last readiness34ms; T0/reserved/received/second-lock-entered+acquired true.",
+    "Duplicate sender QA pauses consumed56ms in qa.t0_locked and705ms in qa.before_a; nonoverlapping union761ms inside the original public-control interval. Observed control wall excluding those QA spans is3244ms, but the sender has NOT completed; this is not its hypothetical successful runtime.",
+    "Nominal completed3341ms with no measured QA pauses. Conflict sender completed3556ms with QA57+133ms (union190ms), leaving3366ms excluding measured QA; conflict second raised the expected COMMAND_CONFLICT and completed174ms with no qualified span.",
+    "The extra duplicate second path includes a real560ms qualified span nested in572ms protocol.readback. That occurs inside sender qa.before_a; do not add second work again to the sender elapsed. Duplicate-vs-conflict measured QA difference571ms; observed control difference449ms. Nominal margin below4000ms is659ms.",
+    "Duplicate sender mark_sent returned584ms and settle returned1135ms; final protocol.readback entered at3424ms and remained PENDING580ms at the failure snapshot. Its nested third qualified returned566ms, completing at3990ms. Owner still pending. This localizes the observed public timeout to final readback after qualification, not readiness or the initial PG waiter.",
+    "All three sender qualified calls returned: nominal586/587/602ms, duplicate563/553/566ms, conflict562/579/619ms. These nested spans are not additive to their parent mark_sent/settle/readback. Repeated qualification is a measured cost, not proof of an individually unnecessary validation."
+  ],
+  "causal_limits_and_next_decision": {
+    "supported": "Original4s public deadline expires while the sender is still in final readback; the test deliberately holds its original owner for761ms total. Nominal/conflict complete with shorter/no QA holds and similar observed non-QA wall time. Both product work and QA sequencing consume the same unchanged budget.",
+    "not_proven": [
+      "No exclusive CPU/SQL/lock/contention cause inside qualified or the post-qualified readback tail; these are wall spans including scheduling and observer overhead.",
+      "No counterfactual successful duplicate duration, or proof that deleting/rescheduling QA pauses alone would pass.",
+      "protocol.settle returned before final readback, but this diagnostic is not a complete independent durable settlement/census result for the failed duplicate. Its later assertions did not run.",
+      "PENDING is a pre-cleanup snapshot, not the final owner outcome. Original gate-family receipt proves later drain, not successful command completion."
+    ],
+    "minimal_predictions_to_test_not_performed": [
+      "Restrict parent diagnosis to the existing duplicate flow: verify which required checks/reads dominate qualified and the small post-qualified readback tail. A guard-preserving reduction in this path should shorten nominal/conflict too; measure on the same finite spans before claiming it fixes duplicate.",
+      "Separately examine whether the original mandatory pre-A second-result/census ordering can be proven without consuming that whole705ms in the first command. Any change must retain actual PG overlap, exact second result, complete census/no-additional-send assertions and the original product deadlines; no blind removal of the proof.",
+      "Do not add cache/prewarm, reset timing, extend deadlines/grants/caps/TTL, weaken validation, invent settlement, or retry this unchanged snapshot. Any new effect requires an independently reviewed concrete change and fresh owned fixture."
+    ],
+    "code_boundaries": [
+      "api/tests/test_model_admission_pg.py:833-868 QA pause boundaries",
+      "api/tests/test_model_admission_pg.py:1093-1143 duplicate ordering/pre-cleanup observation",
+      "api/src/omnis/supervisor/native_tasks.py:100-107 original owner4s;451-483 public4s",
+      "api/src/omnis/supervisor/native_tasks.py:207-212 settlement then separate final readback",
+      "api/src/omnis/modules/runs/model_protocol.py:152-266 qualified;394-401 final readback then graph"
+    ]
+  },
+  "cleanup": {
+    "cid_exact_absent": true,
+    "cid_filter_empty": true,
+    "daemon_unchanged": true,
+    "kernel_unix_byte_filter": {
+      "encoding": "bytes; no decoding of unrelated kernel paths",
+      "matches": 0,
+      "root": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5"
+    },
+    "limits": [
+      "Read-only exact cleanup verification; no manual cleanup or resource reuse.",
+      "Per-test databases are DROPped by conftest; retained PGDATA does not retain those rows.",
+      "PostgreSQL log snapshot was saved while owned container was live; final Docker log tail unavailable after original runner removed it. Original gate and outer logs retained.",
+      "No offline pg_controldata executed; no claim of independently observed final pg_control shutdown state.",
+      "Pinned process identities plus runner family_drained receipt; not a universal host-process census."
+    ],
+    "original_gate_receipt": {
+      "code": 2,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "original_gate_receipt_path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/gate.log.result.json",
+    "pinned_image_retained_unchanged": true,
+    "pinned_process_readback": [
+      {
+        "pgrp": 452947,
+        "pid": 452947,
+        "ppid": 7825,
+        "readback": "PID_ABSENT",
+        "sid": 452947,
+        "start_ticks": 14735486
+      },
+      {
+        "pgrp": 453419,
+        "pid": 453419,
+        "ppid": 453396,
+        "readback": "PID_ABSENT",
+        "sid": 453419,
+        "start_ticks": 14735630
+      },
+      {
+        "pgrp": 453555,
+        "pid": 453555,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453555,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453556,
+        "pid": 453556,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453556,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453557,
+        "pid": 453557,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453557,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453558,
+        "pid": 453558,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453558,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453559,
+        "pid": 453559,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453559,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453561,
+        "pid": 453561,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453561,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453562,
+        "pid": 453562,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453562,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 453563,
+        "pid": 453563,
+        "ppid": 453419,
+        "readback": "PID_ABSENT",
+        "sid": 453563,
+        "start_ticks": 14735774
+      },
+      {
+        "pgrp": 452947,
+        "pid": 453756,
+        "ppid": 452947,
+        "readback": "PID_ABSENT",
+        "sid": 452947,
+        "start_ticks": 14735919
+      },
+      {
+        "pgrp": 453757,
+        "pid": 453757,
+        "ppid": 453756,
+        "readback": "PID_ABSENT",
+        "sid": 453757,
+        "start_ticks": 14735926
+      },
+      {
+        "pgrp": 453757,
+        "pid": 453759,
+        "ppid": 453757,
+        "readback": "PID_ABSENT",
+        "sid": 453757,
+        "start_ticks": 14735927
+      }
+    ],
+    "production_unchanged_since": "75c6fab",
+    "project_container_empty": true,
+    "project_network_empty": true,
+    "remaining_filesystem_sockets": [],
+    "resource_identity": {
+      "container_id": "a486c0d49f516bdc81ed9020dfac91c0fb0099d6632a5e34c0f147640ea984d7",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-639a174aa22440bca551a3664e6655b6",
+      "root": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d",
+      "schema_version": 1,
+      "system_identifier": "7697158945351307294"
+    },
+    "retained_directories": [
+      {
+        "dev": 2049,
+        "gid": 1000,
+        "inode": 10499019,
+        "is_dir": true,
+        "is_socket": false,
+        "mode": "0o700",
+        "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d",
+        "uid": 1000
+      },
+      {
+        "dev": 2049,
+        "gid": 1000,
+        "inode": 10499020,
+        "is_dir": true,
+        "is_socket": false,
+        "mode": "0o700",
+        "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/data",
+        "uid": 1000
+      },
+      {
+        "dev": 2049,
+        "gid": 1000,
+        "inode": 10499023,
+        "is_dir": true,
+        "is_socket": false,
+        "mode": "0o755",
+        "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/data/18",
+        "uid": 1000
+      },
+      {
+        "dev": 2049,
+        "gid": 1000,
+        "inode": 10499024,
+        "is_dir": true,
+        "is_socket": false,
+        "mode": "0o700",
+        "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/data/18/docker",
+        "uid": 1000
+      },
+      {
+        "dev": 2049,
+        "gid": 1000,
+        "inode": 10499021,
+        "is_dir": true,
+        "is_socket": false,
+        "mode": "0o3775",
+        "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/socket",
+        "uid": 1000
+      }
+    ],
+    "socket_lock_postmaster_absent": [
+      "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/socket/.s.PGSQL.5432",
+      "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/socket/.s.PGSQL.5432.lock",
+      "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/data/18/docker/postmaster.pid"
+    ],
+    "source_and_library_hashes_unchanged": true,
+    "status": "EXACT_OWNED_RESOURCES_RETIRED_DATA_RETAINED"
+  },
+  "artifact_handles": {
+    "analysis.json": {
+      "bytes": 29384,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/analysis.json",
+      "sha256": "dc85c1dbaf2bdd12a4da2efa9528d77a3d85fa7384e7b719465bdb2e8ca55981"
+    },
+    "collection.log": {
+      "bytes": 9838,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/collection.log",
+      "sha256": "f6abf0fb2175b95040b751787f40de5a074e87174bdeb0c6fe785464169579b9"
+    },
+    "db-77e77466e437413d/fixture.json": {
+      "bytes": 470,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/fixture.json",
+      "sha256": "c3290bc83c383eaad2e3636b03c3acd2e071bc9be51b146ae15736367a2b25ce"
+    },
+    "db-77e77466e437413d/gate.log": {
+      "bytes": 16018,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/gate.log",
+      "sha256": "5060f9fc6aa04caeaf724f196a3e44951240c75a5572b898f941d45de4ad4d97"
+    },
+    "db-77e77466e437413d/gate.log.result.json": {
+      "bytes": 56,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+    },
+    "live-resources.json": {
+      "bytes": 4788,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/live-resources.json",
+      "sha256": "dbc4e7647d3677cf16f8c196090f5eb1c03a419d816a93077ef8be066340b737"
+    },
+    "outer.log": {
+      "bytes": 881,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/outer.log",
+      "sha256": "00b5c6b2b00309b446691a73fcd8f31b3003d95588fe38d754f06cccb04af2f3"
+    },
+    "postgres-before.log": {
+      "bytes": 3147,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/postgres-before.log",
+      "sha256": "9fa898c3379a4c3ed7bbee05f4c9407a89752ef8414caa5578a5eb7e9c4605ef"
+    },
+    "preflight.json": {
+      "bytes": 20711,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/preflight.json",
+      "sha256": "ae1de535a5737f4d06ab52ba45cd7ad66919609ea930b73592b46c84ab2884b4"
+    },
+    "runner-help.log": {
+      "bytes": 1172,
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/runner-help.log",
+      "sha256": "1a7d2956e80a7dc7a55ed4c3bfc1a7f8fb9843f7eb8e414e42024a06ff6af3df"
+    },
+    "cleanup": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/cleanup.json",
+      "sha256": "dec0305bbfef54b1353ad9dcf83f1ca72a67d8adf69f1fd79d0d9a4865952741"
+    },
+    "session": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/session-result.json",
+      "sha256": "1cc1d71784e1555752469ab910b79d721565e3c7c462687ea993b4dc6777cdbb"
+    },
+    "preflight_script": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/preflight.py",
+      "sha256": "cb36ad371ea3fb49971bc1e9f8c8d5dbdf06e5f52bbf1db72283e7ce3467208d"
+    },
+    "live_readback_script": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/live_readback.py",
+      "sha256": "377b32730c4e2fd8860c494ac3c8638b98eebeab724fa1082e2ea845c47a3fd6"
+    },
+    "analysis_script": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/analyze.py",
+      "sha256": "6a0d46dab425cb3005f011325fb2b34ed54ac8c510c08d2968b05c0fa4ff96bb"
+    },
+    "cleanup_script": {
+      "path": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/cleanup_readback.py",
+      "sha256": "f609846ecca710f8c560a5734e5fe0d6d40618a97b8359b1ab3723c7ac8b5412"
+    }
+  },
+  "limits": [
+    "SOURCE NativeTaskOwner/LocalControl plus actual DB/qualification/publication and both private UDS; identity/preparation/native peer are synthetic seeds/doubles. Not installed Host/native execution, SDK/provider/model/target or UI proof.",
+    "No canonical, Settings, live, batch2, r1/operator profile, global configuration, rollout or push.",
+    "Millisecond values are truncated wall measurements; subtract only interval union of measured QA spans. Excludes those QA pauses, not all measurement/scheduler overhead. Other Stop QA waits were not separately instrumented by these two pause spans.",
+    "Complete PG records and original private logs retained; old failed attempts remain unchanged.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "issues": [
+    "One duplicate public-sender TimeoutError remains; no retry or code edit.",
+    "Subagent background launch returned notify_on_complete=false despite notify=true. Explicit exact-session process_manage wait obtained exited2.",
+    "Wait tool emitted two benign shell zle option warnings; original gate receipt/logs independently parsed. No parsing/cleanup-script failures.",
+    "README/global map still contain stale STOP/HANDOFF wording. Active integration CURRENT and current delegated mandate govern; parent reconciles docs."
+  ],
+  "files_created_or_modified": {
+    "repository": [],
+    "private_scratch": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5",
+    "contents": "QA preflight/readback/parser scripts and sanitized JSON reports, collection/help logs, original outer/gate/fixture/receipt, PostgreSQL live log snapshot, runner-owned retained cluster and synthetic fixture artifacts. No password content read by QA parser or exposed."
+  },
+  "status_delta": {
+    "diagnostic_review": "APPROVED_SCOPED on exact two test SHA",
+    "real_QA": "98PASS1FAIL; duplicate still BLOCKED_QA",
+    "production": "UNCHANGED75c6fab",
+    "P2_inert": "NOT_CLOSED; parent continues causefix and remaining accepted mandate"
+  },
+  "proposed_skill_note_for_parent": "When comparing overlapping per-caller protocol spans, subtract only the clipped union of measured QA pauses from the original client wall interval; retain incomplete tails and the same-channel nominal/conflict controls. A returned nested phase and elapsed subtraction do not prove hypothetical successful completion or exclusive cause. No shared skill modified by this read-only leaf."
+}

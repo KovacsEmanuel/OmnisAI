@@ -1,0 +1,393 @@
+{
+  "acceptance": {
+    "green_snapshot_delivered": false,
+    "installed_qa": "BLOCKED_NOT_RUN_PARENT_OWNED",
+    "quality": "Ruff check/format, strict mypy on affected API test, diff-check PASS exit0",
+    "source_broad": "FAIL: 2 failed, 315 passed, 42 skipped; 359 collected; exit1",
+    "source_h04": "All five actual SOURCE observer scenarios included; none failed. SOURCE only, not installed/native acceptance.",
+    "two_complementary_reviews": "NOT_RUN_PARENT_OWNED"
+  },
+  "access": {
+    "gid": 1000,
+    "manifest_inputs_readable_searchable": true,
+    "missing_inputs": [],
+    "private_logs": {
+      "collect.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/collect.log",
+        "sha256": "b960017f84aece2cd676d14fab512063b8120cda02e62f82d0f3011a7843b205"
+      },
+      "diff-check.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/diff-check.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "format.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/format.log",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "mypy.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/mypy.log",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      },
+      "reader-diagnosis.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/reader-diagnosis.log",
+        "sha256": "cfe617a1b92ab44811d8e5fafd2e846958e440942d42133e15a925b61e8d1892"
+      },
+      "red.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/red.log",
+        "sha256": "4196c5020869d0814c13f9e3be410ed88d9c2b7e26ee945e5461c7e2ea5db0ec"
+      },
+      "ruff.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/ruff.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "source-broad.log": {
+        "mode": "0o600",
+        "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/source-broad.log",
+        "sha256": "c36a5a2cbbdf81c2ea8ce58bad9f87e9e74dbddcd874db5c07bdb8eca8710973"
+      }
+    },
+    "scratch_root_mode": "0o700",
+    "source_pin_and_libraries": "Present/readable; no restoration/prewarm/rebuild performed",
+    "uid": 1000
+  },
+  "artifact_attestation": {
+    "native_artifact": {
+      "expected_sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "matches": true,
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json",
+      "sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318"
+    },
+    "native_source_inventory": "34/34 receipt SHA rows match current native source and adapter; provenance matches; no current OCI/image readback claimed",
+    "original_consumer": {
+      "exit": 0,
+      "expected_match": true,
+      "git_object": "d0504e4:api/tests/test_contract_method_pg.py",
+      "sha256": "504e2ff667e2938e470cc67b14b33df86625df60b3dea5cce84de7b642eec05e"
+    },
+    "read_only_origin": "Original exported API, wheel and installed files validate with one isolated -I -B interpreter. Test-local diagnostic ROOT substitution only; execution ROOT not changed.",
+    "reader": {
+      "expected_sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+      "matches": true,
+      "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json",
+      "sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    }
+  },
+  "base": "d0504e4bc2066172e9313568a7e3cf5600e9ed70",
+  "branch": "work/p2-h04-42ef34fc",
+  "changes_this_resume": [],
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/tests/test_contract_method_pg.py",
+        "-q",
+        "--tb=line",
+        "-k",
+        "current_reader_actual_helper or installed_static_prerequisites",
+        "--basetemp=/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/red"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/red.log",
+      "name": "red"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/tests/test_contract_method_pg.py",
+        "--collect-only",
+        "-q",
+        "--basetemp=/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/collect"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/collect.log",
+      "name": "collect",
+      "summary": [
+        "359 tests collected in 1.18s"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/tests/test_contract_method_pg.py",
+        "-q",
+        "--tb=line",
+        "--basetemp=/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/broad"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/source-broad.log",
+      "name": "source-broad",
+      "summary": [
+        "FAILED api/tests/test_contract_method_pg.py::test_batch2_current_reader_actual_helper[None]",
+        "FAILED api/tests/test_contract_method_pg.py::test_batch2_installed_static_prerequisites",
+        "2 failed, 315 passed, 42 skipped in 53.57s"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/ruff.log",
+      "name": "ruff",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/format.log",
+      "name": "format",
+      "summary": [
+        "2 files already formatted"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/mypy-cache",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/mypy.log",
+      "name": "mypy",
+      "summary": [
+        "Success: no issues found in 1 source file"
+      ]
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "d0504e4"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/diff-check.log",
+      "name": "diff-check",
+      "summary": []
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/diagnose_reader.py"
+      ],
+      "evidence": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/reader-diagnosis.json",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/reader-diagnosis.log",
+      "name": "reader-diagnosis"
+    }
+  ],
+  "diagnostic_controls": {
+    "actual_static_prerequisite": "REFUSED_BY_READER_DEPENDENCY",
+    "actual_worktree_reader": "REFUSED_EXPECTED_SAFETY_FENCE",
+    "limits": "Read-only origin validation only. Diagnostic ROOT substitution is not adoption or installed-QA authorization. No PG/OCI/runtime/model launch.",
+    "origin_calls": 1,
+    "origin_calls_before_actual_refusal": 0,
+    "original_export_reader_control": "PASS_EXACT_WHEEL_SOURCE_INSTALLED_BYTES",
+    "trace": [
+      {
+        "exception_type": "ValueError",
+        "function": "batch2_current_reader",
+        "line": 6832
+      },
+      {
+        "exception_type": "AssertionError",
+        "function": "batch2_current_reader",
+        "line": 6880
+      },
+      {
+        "exception_type": "ValueError",
+        "function": "batch2_current_reader",
+        "line": 6832
+      },
+      {
+        "exception_type": "AssertionError",
+        "function": "batch2_current_reader",
+        "line": 6880
+      },
+      {
+        "exception_type": "AssertionError",
+        "function": "h03_prerequisites",
+        "line": 6944
+      },
+      {
+        "exception_type": "AssertionError",
+        "function": "h03_prerequisites",
+        "line": 6957
+      }
+    ]
+  },
+  "findings": [
+    {
+      "api_mismatches": [
+        {
+          "installed_export_sha256": "bf9a05291ead51953bab44bf75a8811c71c4ad4bbdc1b0eb2a3352fad80645a0",
+          "path": "api/src/omnis/modules/instance/schemas.py",
+          "worktree_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba"
+        },
+        {
+          "installed_export_sha256": "649660fc0827bc540a3b78d70831417606d1bcbe66e052fa3b50d6ca34187b65",
+          "path": "api/src/omnis/modules/runs/model_dispatch.py",
+          "worktree_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231"
+        },
+        {
+          "installed_export_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+          "path": "api/src/omnis/modules/runs/model_projection.py",
+          "worktree_sha256": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7"
+        },
+        {
+          "installed_export_sha256": "f4a3fba25f05d4dce61aac0d69582c0845d354553be2b3a559a8d4b02ec9e0ee",
+          "path": "api/src/omnis/supervisor/native_tasks.py",
+          "worktree_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a"
+        },
+        {
+          "installed_export_sha256": "a8864cc4e0bce558e70f004d968b52aa8128b3f01908b439b8738296656a2366",
+          "path": "api/src/omnis/supervisor/runtime_client.py",
+          "worktree_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f"
+        }
+      ],
+      "id": "H04-STATIC-CURRENT-READER-01",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:6824-6832",
+        "api/tests/test_contract_method_pg.py:6943-6957"
+      ],
+      "mechanism": "The immutable reader descriptor and installed wheel/export agree, but five API files differ from the current executable worktree. The current-reader guard refuses at the exact ROOT byte comparison before any installed origin subprocess. h03_prerequisites normalizes that refusal.",
+      "next_authority_required": "Parent must adjudicate and supply a separately authorized hash-attested current API reader/wheel matching its final source snapshot, or explicitly review a narrowed consumer/prerequisite design. This child cannot rebuild/adopt or authorize either alternative.",
+      "repair_disposition": "No in-scope code defect demonstrated. Removing ROOT equality, accepting changed bytes, switching the execution root, weakening positives or skipping the failures would mask a real prerequisite. No such change made.",
+      "severity": "BLOCKING_PREREQUISITE"
+    }
+  ],
+  "head": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+  "historical_disposition": {
+    "old_broad_count": "Historical 2FAIL316PASS42SKIP is preserved. Fresh exact checkpoint collects359 and returns2FAIL315PASS42SKIP. The historical one-test difference is not attributed without retained exact collection/source provenance.",
+    "old_targeted_23_pass": "NOT_USED_TO_CLOSE_THE_FAILURES",
+    "test_batch2_current_reader_actual_helper[None]": "REPRODUCED; positive prerequisite is genuinely unavailable on the current API, not an H04 regression. Correct fail-closed refusal is retained.",
+    "test_batch2_installed_static_prerequisites": "REPRODUCED; wraps the same batch2_current_reader refusal, not a second native artifact failure."
+  },
+  "limits": [
+    "PG, OCI/Docker, live RuntimeHost/native process, model/provider, network target effects NOT_RUN.",
+    "Finite SOURCE AIAgent checks and one read-only installed API origin interpreter are not live/native integration.",
+    "No new RPC, registry, grant, overlay, pin, dependency or product component.",
+    "No stage, commit, main write, protected HTML read/hash/edit/delete, image adoption or rebuild.",
+    "All foreground tool commands and directly observed diagnostic subprocesses returned; no universal process/resource cleanup claim.",
+    "Canonical make check requires forbidden effectful prerequisites here and remains NOT_RUN.",
+    "No repair cycles or third harness iteration; one exact historical reproduction, one broad SOURCE run, one bounded root-comparison diagnostic."
+  ],
+  "observable_goal": "H04/H05 cold ROOT and CONTRACT child callable inventory; lineage and guard denials before read/PURE or usable results, through the existing consumer and observer.",
+  "parent_status_delta": "H04/H05 SOURCE prerequisite adjudicated BLOCKED, not green or reviewed; P2-inert/G02 remain unclosed. Existing accepted batch2 evidence is unchanged and not reopened.",
+  "procedural_lesson_for_parent": "Reattest exact installed API reader against current owner bytes before admitting new native QA. Matching immutable receipts/native source is insufficient when current-reader deliberately fences the whole API closure.",
+  "schema_version": 1,
+  "scope": [
+    "api/tests/test_contract_method_pg.py",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  ],
+  "selector": {
+    "ROOT": "/home/kali/OmnisAI",
+    "effectful_flags_enabled": false,
+    "executed_main_selector": false,
+    "fields": {
+      "BATCH2_REVIEWED": null,
+      "H04_REVIEWED": null,
+      "H04_SOURCE_SHA": "b2f47e840b6e1d749c208d677e9b156a6930fc3fd8fa7ea7b05e29f701143121",
+      "STARTUP_REVIEWED": null
+    },
+    "source_hash_matches": true
+  },
+  "snapshot": {
+    "diff": {
+      "base_to_head_stat": "2 files, 623 insertions, 23 deletions",
+      "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/h04-h05-checkpoint.diff",
+      "scope_exact": true,
+      "sha256": "0d2ddd8b43a51d89c5f926ee2073168197e57bda69b737e46620432003464249"
+    },
+    "input_manifest": {
+      "includes": "Owned tests/selector, API source and imported test fixtures, native overlay manifests/source/adapter and probe fixtures, original pinned Python source closure, original API source/wheel/installed bytes, relevant handoff documents and interpreter/toolchain. Named paths, not a physical artifact count.",
+      "named_path_count": 7506,
+      "path": "/home/kali/.hermes/cache/scratch/h04-resume-source-20261016/input-manifest.json",
+      "protected_html_included": false,
+      "sha256": "3e006f08dacaecb8e678d543df376f0a668f3985977bac1bb0b07f5885a4972f"
+    },
+    "owned_files": {
+      "api/tests/test_contract_method_pg.py": "b2f47e840b6e1d749c208d677e9b156a6930fc3fd8fa7ea7b05e29f701143121",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "a7eb6b9ceaca89f93fc8ba0fb9e8c196cae38b0daf5e3ab4ac9906b34a5c259d"
+    }
+  },
+  "stage_commit_main_integration": "NOT_PERFORMED",
+  "status": "BLOCKED_STATIC_PREREQUISITE_NOT_SOURCE_GREEN",
+  "toolchain": {
+    "ambient_uv": "0.11.7 observed, never used for provisioning/install",
+    "pinned_uv": "0.12.19 /home/kali/.local/share/omnis-toolchains/bin/uv",
+    "python": "3.13.15 /home/kali/OmnisAI/api/.venv/bin/python -I -B"
+  },
+  "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc"
+}

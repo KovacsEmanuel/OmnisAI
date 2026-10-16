@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "review_role": "independent_read_only_safety_input_lineage_cleanup",
+  "verdict": "CHANGES_REQUESTED_SCOPED_API_READER_SOURCE_ATTESTATION",
+  "language": "ro",
+  "summary": "Un false-green concret: readerul admite bytecode executabil neinventariat din __pycache__ deși sursele/descriptorul rămân exacte. Nu am identificat un nou bypass de lineage în candidatul H04–H05 prin inspecția statică; aceasta nu este QA nativă. Selectorii sunt închiși și acceptarea instalată rămâne NOT_RUN.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+    "base": "d0504e4bc2066172e9313568a7e3cf5600e9ed70",
+    "head": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+    "preexisting_dirty_files": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ],
+    "before": {
+      "api/tests/test_contract_method_pg.py": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3"
+    },
+    "after": {
+      "api/tests/test_contract_method_pg.py": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3"
+    },
+    "candidate_unchanged": true,
+    "all_manifest_api_snapshot_inputs_match": true,
+    "snapshot_artifacts": {
+      "directory": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016",
+      "delta-manifest.json": "c515f7f704ebf395ed978002a68b8400bd5b912c5459847e826f5c26c9b49014",
+      "candidate-from-base.diff": "d0039836f47fe4961f12c0cafadb00b2db888b5a85691b40b6dd06f54302a9bc",
+      "delta-from-checkpoint.diff": "5250ba47c2c948370879b5e43fc83a1c81784f8b50d736634b02f0feb7fafca7",
+      "offline-api-only-commands.json": "12fabf35cf953443e53ea89b774d901ef51be91b64de685fc0048be73150399c"
+    }
+  },
+  "findings": [
+    {
+      "id": "H04-SAFETY-READER-PYC-01",
+      "severity": "HIGH",
+      "category": "QA_FALSE_GREEN_EXECUTED_SOURCE_IDENTITY",
+      "file": "api/tests/test_contract_method_pg.py",
+      "line": 7005,
+      "related_lines": [6981, 7001, 7011, 7020, 7037, 7040, 7041, 7055],
+      "title": "Excluderea __pycache__ permite executarea de bytes care nu apar în descriptor/wheel/export/ROOT",
+      "requirement": "Readerul finit trebuie să refuze unknown source și orice diferență între sursa efectiv executată și closure-ul exact ROOT/export/wheel/installed; SOURCE nu poate fabrica acceptare de origin.",
+      "mechanism": "Inventarul nou ignoră orice fișier cu __pycache__ în cale. Subprocessul origin pornește Python -I -B și importă omnis înainte de readback; -B interzice scrierea cache-ului, nu citirea unui pyc existent. Un __init__.cpython-313.pyc UNCHECKED_HASH poate conține alt cod decât omnis/__init__.py. Helperul verifică apoi doar .py bytes și acceptă installed_bytes=EXACT_WHEEL_AND_GIT_EXPORT.",
+      "observed": {
+        "baseline_exact_reader_accepted": true,
+        "after_unlisted_pyc_exact_reader_accepted": true,
+        "synthetic_bytecode_marker_created": true,
+        "installed_init_source_unchanged_at_acceptance": true,
+        "descriptor_sha256_unchanged_during_pyc_control": "116ea8f06e8c20e7f4a46db81305c9f6b7e447c6a55196c01d8f4815bd56198f",
+        "ordinary_source_mutation_refused_exact_reason": true,
+        "ordinary_source_mutation_origin_calls": 0
+      },
+      "reproducer": {
+        "script": "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016.py",
+        "script_sha256": "e0382dc269a14bdf4c031ab81b43db90e5e8fa7439ec6577a5dbd8d1e950b21c",
+        "executed_command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h04-safety-review-20261016.py",
+        "cwd": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+        "exit": 0,
+        "steps": [
+          "Apelează test_h04_current_reader_source_snapshot(..., None) pe fixture proprie; origin seam este cel substituit explicit în testul original.",
+          "Pregătește venv privat fără pip/network; dependențele API existente sunt expuse printr-un .pth privat declarat. Acesta este un seam SOURCE, nu distribuția finală acceptată.",
+          "Apelează helperul real batch2_current_reader cu origin subprocess real; controlul pozitiv este acceptat.",
+          "Compilează o copie sintetică a __init__.py cu un marker scratch în __pycache__/__init__.cpython-313.pyc, UNCHECKED_HASH. Nu schimbă descriptorul, wheelul sau .py-urile inventariate.",
+          "Apelează același helper real și același origin: acceptă, iar markerul demonstrează execuția bytecode-ului suplimentar.",
+          "Modifică ulterior .py-ul propriu și confirmă refuz exact înainte de origin; fixture-ul final păstrează intenționat această mutație negativă. Pentru replay folosește un OUT scratch nou: scriptul este one-shot și refuză reutilizarea directorului existent."
+        ],
+        "raw_log": "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016-execution.log",
+        "sanitized_results": "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/repro-results.json",
+        "sanitized_results_sha256": "8e7083c7b3030ea3f46540863f6787240c12b7b7b99bef4bf7e434b6b8165f59"
+      },
+      "impact_scope": "Defect al frontierei QA/source-attribution înainte de DB/native; nu demonstrează un bypass de autoritate al produsului sau o compromitere a readerului istoric păstrat. Este relevant pentru noua afirmație de closure curent exact și unknown-source refusal.",
+      "remedy": "Refuză cache executabil neattestat înainte de primul subprocess/import și asigură că fiecare cititor ulterior execută numai closure-ul admis. Păstrează -I/-B și plafoanele; nu șterge/tolera bytes necunoscuți pentru a fabrica green. Adaugă controlul pozitiv identic plus acest negativ pyc pe helperul real; dacă pth/sitecustomize sunt necesare, proveniența lor trebuie admisă explicit, nu implicit din simpla egalitate a pachetului omnis. Remediu minim în frontiera existentă, fără framework/owner nou."
+    }
+  ],
+  "checks": [
+    {
+      "name": "snapshot_and_diff",
+      "commands": ["git status --short --branch", "git rev-parse HEAD", "git diff --stat", "git show --stat --oneline HEAD", "git diff --check"],
+      "exit": 0,
+      "result": "Exact două fișiere preexistente dirty; fără stage/commit/edit repo; am citit total candidate-from-base.diff și delta-from-checkpoint.diff."
+    },
+    {
+      "name": "api_only_reproducer",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h04-safety-review-20261016.py",
+      "exit": 0,
+      "result": "Baseline API origin acceptat; pyc suplimentar executat și acceptat; sursă modificată refuzată pre-origin. Nu native/PG."
+    },
+    {
+      "name": "h04_observation_oracle_controls",
+      "execution": "Import API test module cu interpreterul fix -I -B și căile API/test explicite; rows sintetice construite direct pentru require_h04_observation; fără instanțiere sau execuție nativă.",
+      "exit": 0,
+      "cases": [
+        {"case": "h04-inventory", "valid_control_accepted": true, "mutants_refused": 5},
+        {"case": "h04-root-lineage", "valid_control_accepted": true, "mutants_refused": 5},
+        {"case": "h04-child-lineage", "valid_control_accepted": true, "mutants_refused": 5},
+        {"case": "h04-guard-false", "valid_control_accepted": true, "mutants_refused": 5},
+        {"case": "h04-guard-exception", "valid_control_accepted": true, "mutants_refused": 5}
+      ],
+      "mutations": ["missing-inventory", "extra-read", "wrong-lineage", "unknown-field", "missing-fault (always-deny/incomplete channel control)"],
+      "limit": "Teste ale consumerului oracle, nu dovadă producer autentic sau comportament nativ. Nu creditez un always-deny nativ din rows sintetice."
+    },
+    {
+      "name": "offline_recipe_serialization_hypothesis_disproved",
+      "execution": "AST/shlex extrage numai funcția save din rețeta existentă; serializează un obiect sintetic în scratch și îl parsează cu json.loads.",
+      "exit": 0,
+      "valid_json": true,
+      "result": "Escaparea newline este corectă; nu există finding de serializare. Build/export/install/rețeta completă NU au fost executate."
+    },
+    {
+      "name": "native_and_legacy_immutable_artifacts",
+      "exit": 0,
+      "native_artifact_sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+      "native_inventory_count": 34,
+      "native_inventory_exact": true,
+      "native_provenance_match": true,
+      "historical_reader_sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+      "legacy_intact": true,
+      "limit": "Numai fișiere și hashuri, fără launch/OCI/native. Inventarul API actual are 89 fișiere; model_protocol este inclus. Cele cinci module modificate și modulul adăugat nu sunt compatibilitate current a readerului88 istoric."
+    }
+  ],
+  "static_requirement_assessment": {
+    "cold_root_and_contract_child_inventory": "H04_NATIVE h04_inventory cere type(agent) is run_agent.AIAgent, tuple exacte goale/provider/model null; callables ROOT=[close], CHILD=[close,run_contract], plus cinci refuzuri nominale. run_agent.py:346-367 refuză necunoscutele prin allowlist înainte de object.__getattribute__; acesta este enforcement de produs, nu doar observer. Inventarul observat este suprafața allowlist, nu census de memorie/OS.",
+    "wrong_root_lineage": "Observerul schimbă session_id al parentului la intrarea release. Produsul release:397-400 apelează _require_cold_root:308-317 înainte de _start_contract/executor; refuzul este în produs. Niciun rezultat utilizabil nu este creditat prin simpla excepție a observerului.",
+    "wrong_child_lineage": "Observerul schimbă child.session_id; _start_contract:457-470 compară identitățile/părintele/state/registry sub lock înainte de commit și submit. Static denial pre-access; nu am executat native.",
+    "real_guard_vs_fault_injection": "h04-guard-false/exception înlocuiesc service._contract_guard cu invalid_guard: acestea probează consumerul BoundContractTools._guard:131-151, nu implementarea reală a producerului _contract_guard. Guardul real subagent_lifecycle.py:428-449 reverifică root/registry/child/binding/RUNNING/deadline. Constructorul BoundContractTools:120 invocă guard înainte de method.assignment și read; read_input:178 și pure_action:191,224 îl repetă înaintea accesului/handlerului. Controalele de lineage ating verificările reale anterioare release, nu constituie singure fault coverage pentru fiecare ramură a guardului live.",
+    "same_channel_no_usable_result": "require_h04_observation leagă identitățile de binding și numără run_contract/read/handler pe același log; refuză native-release/task-result/tool-receipt/artifact/contract-guard în negative. Cazul PG verifică results/checks/inbox goale și refuz retry/reconcile fără runtime_authority/exchange/ingest. Acestea sunt cod/oracle inspectate, nu rezultate PG ale reviewerului.",
+    "admission_before_setup": "h03_prerequisites:7072-7078 cere ambele hashuri de review înaintea artifact-reader; testul PG:7649-7664 execută prerechizitele înainte de getfixturevalue(migrated_database_url). Selectorul verifică pinurile și approved!=source înainte de importul runnerului și prove_private_fixture. H04_READER/SHA și H04/BATCH2/STARTUP_REVIEWED sunt None; nu există fallback H04 la readerul88. environment elimină ambient OMNIS_H03/OMNIS_BATCH2 și injectează numai selecția explicită.",
+    "finite_schema_and_path_safety": "Descriptor SHA obligatoriu, schema/câmpuri stricte, commit40hex, cale scratch fizică; wheel/exports/installed/ROOT și fișiere cu UID/nlink/no-follow/bounds prin readerul catalogului. Interpretorul poate fi numai alias al aceluiași toolchain. Egalitatea celor patru inventare nu permite surse API aditive neenumerate. Excepția __pycache__ este findingul concret. Nu am demonstrat un bypass symlink sau o relaxare de grant/cap.",
+    "finite_bounds": {"descriptor_bytes": 32768, "wheel_bytes": 262144, "zip_entries": 128, "zip_member_bytes": 131072, "zip_total_bytes": 1048576, "origin_seconds": 15},
+    "cleanup": "H04 return:9229 intră în finally comun, iar gate-ul require_h04_observation:11305-11309 se află în finally după resource settlement, nu după return. Pe eșec păstrează h03_state.cleanup_failed/db_fence.unsettled. Finalizerul încearcă owner retirement, inspect/stop/rm al CID propriu, close IPC/control/engine; certificatele și uncertainty nu sunt înlocuite de simplul join. Nu s-au schimbat ownerul/finalizerul sau limitele deja acceptate; nu am executat cleanup PG/native și nu certific drenaj runtime nou.",
+    "offline_api_recipe": "Exportă doar API/src, pyproject și uv.lock din commitul freeze explicit; uv offline/hash/copy și wheel API, fără build-installed.py integral, Docker/OCI/native. NOT_RUN până la freeze. Verificarea source/wheel/origin finală nu poate închide findingul pyc fără remediu."
+  },
+  "proof_disposition": {
+    "reported_source36": "Dovadă autor SOURCE cu origin seam explicit substituit; nu QA installed și nu executată integral de acest reviewer.",
+    "old_two_source_failures": "PĂSTRATE; nu declar închidere din acest review sau din source36.",
+    "final_api_reader_build_and_origin_controls": "NOT_RUN_PENDING_ADMISSION_FREEZE",
+    "native_product_positive_and_negatives": "NOT_RUN_BY_REVIEWER; fără credit din simularea oracle-ului sau din importul API.",
+    "review_selector_admission": "H04_READER=null; H04_READER_SHA=null; H04_REVIEWED=null; BATCH2_REVIEWED=null; STARTUP_REVIEWED=null",
+    "unchanged_acceptances": "Batch2/H03/history/P0/P1 nu sunt redeschise. Findingul vizează noul reader/current source claim.",
+    "parent_action": "Reproduce/adjudecă H04-SAFETY-READER-PYC-01 și remediază minimal înainte de API-reader final și QA serială instalată. Păstrează eșecurile și gate-urile închise."
+  },
+  "writes_and_resources": {
+    "repository_files_changed": [],
+    "scratch_created": [
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016.py",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016-execution.log",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/repro-results.json",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/report.json",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/fixture (private API source/wheel/venv projections, synthetic pyc and dependency .pth)",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/bytecode-entered",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/synthetic-init.py",
+      "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/recipe-save-probe.json"
+    ],
+    "permissions": "umask077; private execution log and generated reports; directories0700, files0600 from creation except venv tool-managed metadata.",
+    "cleanup": "Toate subprocessurile API origin sunt subprocess.run cu timeout15 și au revenit; niciun proces persistent/DB/socket/native/container creat. Fixture-urile scratch sunt păstrate ca dovadă, nu șterse pentru green.",
+    "prohibited_effects": "Fără PG/Docker/OCI/native/RuntimeHost/model/provider/network/r1/profile/global/stage/commit/edit main/worktree. HTML original protejat nu a fost citit sau hashuit. Fără raw exception/DSN/capability/fullframe în output."
+  },
+  "limits": [
+    "Review static întreg candidat și probe API-only finite; nu probă OS confinement sau execuție nativă.",
+    "Reproducerul origin folosește dependency seam .pth/system-site explicit și dependențe deja instalate, nu un rebuild offline sau distribuția finală. False-green-ul pyc este observat pe helperul real în acel perimetru.",
+    "Nu am rulat canonical make check din cauza prerechizitelor effectful interzise; NOT_RUN, nu PASS.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Părintele adjudecă; acest raport nu aprobă integrarea, Admission freeze, H04/H05, G02/P2 sau P4a-minim."
+  ],
+  "status_delta": {"AICI_H04_H05": {"implementation": "CANDIDATE_UNCHANGED", "proof": "API_READER_FALSE_GREEN_CONFIRMED; FINAL_INSTALLED_NOT_RUN", "review": "CHANGES_REQUESTED_SCOPED"}, "P2_G02": "NOT_CLOSED", "P4a_minim": "NOT_IMPLEMENTED", "P0_P1_H03_batch2_history": "UNCHANGED_SCOPED_ACCEPTANCE"}
+}

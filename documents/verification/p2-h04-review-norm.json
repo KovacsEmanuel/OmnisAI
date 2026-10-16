@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "review_id": "H04-H05-NORMATIVE-42c14b9e",
+  "role": "independent read-only normative reviewer",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "final_acceptance": "BLOCKED_PENDING_FINAL_API_READER_AND_REAL_CONSUMER_QA",
+  "summary_ro": "Întregul delta H04 față de d0504e4, inclusiv checkpointul nereviewuit și schimbarea strictă current-reader, este conform SOURCE-scoped. Nu am confirmat un defect blocant în cele două fișiere. Aprobarea nu închide H04/H05, P2-inert sau vreun gate installed. Prerechizitele și cele două eșecuri istorice rămân deschise.",
+  "scope": {
+    "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+    "base": "d0504e4bc2066172e9313568a7e3cf5600e9ed70",
+    "checkpoint_head": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+    "reviewed_dirty_bytes_not_head_approval": true,
+    "files": {
+      "api/tests/test_contract_method_pg.py": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3"
+    },
+    "initial_and_final_sha_equal": true,
+    "total_delta_matches_supplied_diff": true,
+    "candidate_from_base_diff_sha256": "d0039836f47fe4961f12c0cafadb00b2db888b5a85691b40b6dd06f54302a9bc",
+    "delta_from_checkpoint_diff_sha256": "5250ba47c2c948370879b5e43fc83a1c81784f8b50d736634b02f0feb7fafca7",
+    "manifest": {
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/delta-manifest.json",
+      "sha256": "c515f7f704ebf395ed978002a68b8400bd5b912c5459847e826f5c26c9b49014",
+      "owned_file_hashes_match": true,
+      "api_snapshot_inputs_matching": 91,
+      "api_snapshot_inputs_total": 91,
+      "api_package_files": 89
+    },
+    "author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/h04-current-reader-report.json",
+      "sha256": "7d55d6cd9de080b56b30709c1bdbffe98b81054f9d2c771edffc487d6f17a6a0"
+    },
+    "out_of_scope": [
+      "Separate in-progress API Admission implementation: no behavioral review or approval",
+      "Previously accepted H03/batch2/P0/P1 gates: no rerun or reopening",
+      "Live compression and model-facing inventory requiring inference",
+      "Integration, final installed QA, global/canonical acceptance"
+    ]
+  },
+  "authority": [
+    "AGENTS.md and CONTRIBUTING.md, especially product-oriented execution and exact-snapshot review",
+    "documents/Omnis_Implementation_Plan.md:254-264 and 268-287, especially binding/inventory row 277 and final acceptance row 281",
+    "documents/Omnis_MVP_Architecture.md:215-239, especially binding steps 226-229",
+    "CURRENT and affected rows of implementation-status.md and p2-next-session-implementation.md",
+    "omnis-review-qa, omnis-hermes-runtime, omnis-project-status, hermes-agent skills"
+  ],
+  "native_contract_identity": {
+    "hermes_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "native_artifact": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json",
+    "native_artifact_sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "native_source_files": 19,
+    "adapter_source_files": 15,
+    "public_inventory_rows_compared_to_actual_local_sources": 34,
+    "matching_public_inventory_rows": 34,
+    "comparison_detail": "/home/kali/.hermes/cache/scratch/h04-normative-review-42c14b9e/verified-snapshot.json",
+    "limit": "Static receipt/source equality, not fresh installed runtime attestation. No native execution performed by this reviewer."
+  },
+  "criteria": [
+    {
+      "id": "NORM-01-INVENTORY",
+      "status": "APPROVED_SOURCE_SCOPED_REAL_QA_NOT_RUN",
+      "requirement": "Explicit callable inventory for real cold ROOT and CONTRACT child, without promoting null configuration to model readiness.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:5675-5733",
+        "api/tests/test_contract_method_pg.py:5769-5863",
+        "integrations/hermes/upstream/managed-source/agent/cold_admission.py:41-64",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:43-61",
+        "integrations/hermes/upstream/omnis-managed.patch:947-968"
+      ],
+      "decision": "Inventory is taken from exact native AIAgent objects through the actual constructor-mode readable sets; native __getattribute__ denies all other names. Public callable sets are close for ROOT and close/run_contract for CHILD; stock/unknown surface denials are exact. Exact tuple types, zero tools/toolsets and provider/model None are required. BoundContractTools exposes read_input/pure_action as an ephemeral, unregistered scope, not a new model-facing registration. This proves the finite constructor-mode surface only, not stock plugin/model-facing readiness."
+    },
+    {
+      "id": "NORM-02-LINEAGE",
+      "status": "APPROVED_SOURCE_SCOPED_REAL_QA_NOT_RUN",
+      "requirement": "Trusted root/child identity or explicit refusal before domain access; no goal/FIFO association.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:5716-5765",
+        "api/tests/test_contract_method_pg.py:5845-5863",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:248-317",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:377-478"
+      ],
+      "decision": "Observer captures original staged real parent/child and checks binding native IDs, child session and parent session against the retained mapping. Independent fresh cases change root session or child session before actual release. Native root and whole-stage guards deny before run_contract/read/PURE; exact exception and unchanged staged/no-result state are required. Refusal is the inert H05 alternative, not a claim of successful live compression. Unaffected batch/attempt and pre-access persistence evidence remains reusable at its accepted scope."
+    },
+    {
+      "id": "NORM-03-GUARD-DENY-BEFORE-ACCESS",
+      "status": "APPROVED_SOURCE_SCOPED_REAL_QA_NOT_RUN",
+      "requirement": "Guard False or exception must not authorize read/PURE or usable final result.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:5743-5765",
+        "api/tests/test_contract_method_pg.py:5867-5920",
+        "api/tests/test_contract_method_pg.py:9172-9233",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:113-151",
+        "integrations/hermes/upstream/managed-source/agent/contract_execution.py:177-191",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:428-549"
+      ],
+      "decision": "Negative cases replace only the existing trusted service guard, preserving real constructor/release/read/PURE consumer code. False and exception reach run_contract but precede BoundContractTools method-material unpacking and all domain read/PURE. Oracle requires zero _read_bound_input/run_handler, no scope, no approval/final/receipt/artifact, exact refusal, committed binding plus failed/indeterminate/closed and no result. Installed-domain branch requires TASK_INDETERMINATE, no results/checks/inbox, receive-only refusal and unchanged census/readback on retry/reconcile. Positive requires the same channel to observe one real read, two PURE handlers and native SUCCEEDED, preventing always-deny credit."
+    },
+    {
+      "id": "NORM-04-OBSERVER-CONSUMER-REUSE",
+      "status": "APPROVED_SOURCE_SCOPED_REAL_QA_NOT_RUN",
+      "requirement": "Reuse observer/consumer/selector, no new RPC, grant, native overlay or model/source artifact.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:6101-6184",
+        "api/tests/test_contract_method_pg.py:6299-6338",
+        "api/tests/test_contract_method_pg.py:7641-7656",
+        "api/tests/test_contract_method_pg.py:9169-9233",
+        "api/tests/test_contract_method_pg.py:11170-11309"
+      ],
+      "decision": "Changes stay in existing test and fixed selector. H04 attachment is finite/opt-in, uses the existing stock sitecustomize/monitoring route, and leaves ordinary batch2 unchanged. Native callback filtering checks exact file/qualname/code object. Early return still reaches shared owner cleanup and the strict settled observation oracle in finally; PASS is not placed after an unreachable return. No product RPC, model registration, native patch or grant was added. Stage byte assertion preserves, rather than widens, the original cap."
+    },
+    {
+      "id": "NORM-05-CURRENT-READER",
+      "status": "APPROVED_SOURCE_SCOPED_FINAL_REAL_POSITIVE_PENDING",
+      "requirement": "New final API-only current reader must be pinned and fully match ROOT/export/wheel/installed; historical reader remains immutable and must refuse as current.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:6674-6826",
+        "api/tests/test_contract_method_pg.py:6876-7067",
+        "api/tests/test_contract_method_pg.py:7128-7135"
+      ],
+      "decision": "Required expected_sha256 pins the whole descriptor before origin execution. Commit is exact-format provenance, not a replacement for byte authority. Full non-bytecode path sets and every byte must agree across all four projections; additive model_protocol is not exempted and no hardcoded 88-file escape remains. Existing descriptor/wheel/member/expanded/origin bounds and no-follow/ownership/material controls remain. Real unchanged old descriptor is rejected against actual current ROOT with zero origin calls. New positive SOURCE control substitutes the installed-origin subprocess explicitly and is not installed acceptance."
+    },
+    {
+      "id": "NORM-06-SELECTOR-AND-OFFLINE-RECIPE",
+      "status": "APPROVED_SOURCE_SCOPED_EXECUTION_CLOSED",
+      "requirement": "Independent H04 reader and review fence; final build only after API freeze, offline and API-only.",
+      "code": [
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:32-55",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:96-137",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:190-265",
+        "api/tests/test_contract_method_pg.py:6041-6098"
+      ],
+      "decision": "H04_READER and H04_READER_SHA are independently unbound; no fallback to the historical reader. H04_REVIEWED/BATCH2_REVIEWED/STARTUP_REVIEWED remain None. Ambient review authority is removed; a CLI flag alone cannot authorize execution. Fixed selector targets the real existing runner and exact source hash. Template keeps offline/frozen/hash-required copy dependencies and API-only wheel/origin; no OCI/native branch is run. Final frozen commit/source manifest/descriptor hashes must be retained by parent. Actual Python -c payloads at template command indices 3 and 12 parse; pytest -c at index 13 is configuration, not Python code. Recipe remains unexecuted."
+    }
+  ],
+  "findings": [],
+  "evidence_gaps_and_required_prerequisites": [
+    {
+      "id": "H04-STATIC-CURRENT-READER-01",
+      "kind": "OPEN_PREREQUISITE_NOT_CONFIRMED_CODE_DEFECT",
+      "severity": "HIGH_FOR_FINAL_ACCEPTANCE",
+      "location": "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py:50-54,219-224",
+      "reproducer": "Current selector constants have H04_READER=None and H04_READER_SHA=None; the actual final API-only descriptor/origin does not yet exist as an admitted H04 binding.",
+      "remedy": "Parent freezes/integrates final Admission API snapshot, runs the retained offline API-only recipe once under its separate authorization, records frozen commit/source manifest/wheel/descriptor hashes, verifies complete four-way equality and real isolated installed origin, then binds both H04 reader constants. Do not rebuild OCI or alter historical receipts.",
+      "blocks": "Final static prerequisite and real installed H04/H05 QA, not this source-scoped review."
+    },
+    {
+      "id": "H04-H05-REAL-CONSUMER-NOT-RUN",
+      "kind": "OPEN_ACCEPTANCE_EVIDENCE",
+      "severity": "HIGH_FOR_FINAL_ACCEPTANCE",
+      "location": "api/tests/test_contract_method_pg.py:9172-9233,11305-11309",
+      "reproducer": "Only collection of the five real-consumer nodes was executed in this review; no PG/OCI/native attempt was authorized or performed.",
+      "remedy": "After final prerequisite controls, complementary exact-snapshot reviews and parent adjudication, run the bounded fresh singleton positive and four negatives serially through the existing owner. Require settled exact cleanup plus actual no-access/no-final observations; retain failed attempts and do not reuse consumed batch2 roots.",
+      "blocks": "Final H04/H05 acceptance and any downstream P3 promotion."
+    },
+    {
+      "id": "H04-HISTORICAL-TWO-SOURCE-FAILURES",
+      "kind": "RETAINED_HISTORICAL_FAILURES_NOT_CLOSED",
+      "severity": "MEDIUM_PREREQUISITE_TRACKING",
+      "location": "api/tests/test_contract_method_pg.py:6367-6524,6538-6563; author report limits",
+      "reproducer": "Historical batch2 reader helper positive and installed_static_prerequisites are not a current-reader positive after the five changed API modules plus additive model_protocol. This review did not rerun or relabel those failures.",
+      "remedy": "Keep both failures OPEN until exact final frozen API reader succeeds through the authentic helper/origin and the old descriptor still refuses before origin. No mocked-origin control, new empty findings list or source count closes them."
+    }
+  ],
+  "executed_evidence": {
+    "commands_file": "/home/kali/.hermes/cache/scratch/h04-normative-review-42c14b9e/commands.json",
+    "retained_negative_command_file": "/home/kali/.hermes/cache/scratch/h04-normative-review-42c14b9e/retained-command.json",
+    "bounded_source": {
+      "exit": 0,
+      "summary": "24 passed, 17 skipped, 332 deselected in 2.53s",
+      "limit": "Pure reader/selector/schema and generated-attachment compile checks only. The 17 legacy controls skipped without their explicit retained descriptor handle; this is not counted as passing them."
+    },
+    "retained_legacy_negative_controls": {
+      "exit": 0,
+      "summary": "17 passed, 356 deselected in 1.73s",
+      "limit": "Separate bounded run with explicit unchanged retained reader handle; excludes historical None positive. No installed-origin subprocess reached for these negatives."
+    },
+    "real_consumer_collection": {
+      "exit": 0,
+      "summary": "5/373 tests collected (368 deselected) in 1.33s",
+      "limit": "Collection only, no DB/native fixtures or product execution."
+    },
+    "git_diff_check": {"command": "git diff --check", "exit": 0, "empty_output": true},
+    "static_integrity": {
+      "exit": 0,
+      "details": "/home/kali/.hermes/cache/scratch/h04-normative-review-42c14b9e/verified-snapshot.json",
+      "verified": ["Initial/final owned SHA", "entire candidate diff vs base", "all 91 API manifest inputs", "34 native/adapter public inventory hashes against actual source", "unchanged historical reader and native artifact SHA"]
+    },
+    "author_quality_evidence": "Ruff/format/mypy exit0 and 36 SOURCE PASS are retained author evidence in checks.json; reviewer did not recast them as independently executed quality or installed QA."
+  },
+  "restrictions_observed": {
+    "product_test_docs_modified_by_reviewer": false,
+    "main_or_worktree_edits_stage_commit": false,
+    "protected_original_html_read_or_hashed": false,
+    "pg_docker_oci_native_host_model_provider_network_effects": false,
+    "operator_profiles_r1_global_access_or_mutation": false,
+    "new_owner_rpc_grant_model_or_source_artifact": false,
+    "writes": "Only this review scratch directory: JSON reports, private pytest logs and pytest temporary synthetic fixtures. Python executed with explicit -I -B and worktree config/cwd.",
+    "sensitive_output": "No raw private traceback/log, capability, DSN or full protocol frame was emitted."
+  },
+  "limits": [
+    "This is one normative reviewer, not the complementary safety review or parent adjudication.",
+    "No final API freeze/build/install/origin or real PG/OCI/native consumer execution. No global runtime PASS, family drain or cleanup claim.",
+    "H04 actual pinned-SOURCE native execution test was inspected, not executed by this reviewer; generated attachment compile checks are distinct.",
+    "Current-reader positive substitutes origin seam explicitly; authentic installed positive remains pending.",
+    "Historical H03/batch2/P0/P1 acceptances remain at their own exact snapshots; no unchanged acceptance was rerun.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; canonical make check NOT_RUN because its effectful prerequisites are forbidden here.",
+    "Static recipe check initially treated pytest -c as Python code; that diagnostic was rejected after checking argv semantics, and is not a finding. No recipe command was executed."
+  ],
+  "parent_status_delta": {
+    "H04_H05_source": "APPROVED_SOURCE_SCOPED_ON_EXACT_DIRTY_BYTES_BY_THIS_NORMATIVE_REVIEWER",
+    "H04_H05_final_proof": "NOT_RUN_PENDING_FINAL_API_READER_AND_ADJUDICATION",
+    "historical_batch2_H03": "UNCHANGED_ACCEPTED_SCOPED",
+    "P2_inert_G02": "NOT_CLOSED",
+    "P4a_minim_and_live": "NOT_CREDITED",
+    "next": "Freeze final API -> offline API-only reader and real positive/old refusal/origin controls -> bind/review exact delta -> parent-admitted serial real consumer QA."
+  }
+}

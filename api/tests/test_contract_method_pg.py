@@ -9,6 +9,7 @@ This test never installs or downloads runtime/library prerequisites.
 
 import asyncio
 import importlib
+import importlib.util
 import inspect
 import json
 import os
@@ -2476,6 +2477,7 @@ def test_stock_site_actual_admission_cut(
         "state_dir": tmp_path,
         "observation": tmp_path / "native-observation.jsonl",
         "qa_hashes": {"qa-sitecustomize.py": "a" * 64},
+        "h04": None,
         "batch2": batch2,
         "installed_native": True,
         "host": None,
@@ -2744,6 +2746,10 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
             continue
         row = mapping(value)
         test, status = row.get("test"), row.get("status")
+        if type(test) is str and test.startswith("h04-"):
+            if not h04_row_valid(row):
+                issues.add("INVALID_RECORD")
+            continue
         if test == "batch2-access":
             valid = (
                 set(row) == base_fields | {"operation", "thread", "clock_ns"}
@@ -4109,6 +4115,7 @@ def test_h03_actual_lifecycle_source_seams(
         state_dir=state_dir,
         tmp_path=tmp_path,
         h03=not batch2,
+        h04=None,
         installed_native=True,
         batch2=batch2 and not startup_mode,
         startup=startup_mode,
@@ -4718,7 +4725,17 @@ def h03_container_argv(
 
 
 @pytest.mark.parametrize(
-    "scenario", ["batch2-release-first", "batch2-stop-first", "batch2-startup-only"]
+    "scenario",
+    [
+        "batch2-release-first",
+        "batch2-stop-first",
+        "batch2-startup-only",
+        "h04-inventory",
+        "h04-root-lineage",
+        "h04-child-lineage",
+        "h04-guard-false",
+        "h04-guard-exception",
+    ],
 )
 def test_batch2_installed_route_before_fixture(
     request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scenario: str
@@ -5284,7 +5301,7 @@ def test_launch_early_import_markers_and_mounted_failure(tmp_path: Path) -> None
     handler = next(
         n
         for n in ast.walk(run)
-        if isinstance(n, ast.ExceptHandler) and "launch_client_exceptions=" in ast.unparse(n)
+        if isinstance(n, ast.ExceptHandler) and "failure_observation =" in ast.unparse(n)
     )
     outer = tmp_path / "native-observation.jsonl"
     outer.touch(mode=0o600)
@@ -5301,6 +5318,7 @@ def test_launch_early_import_markers_and_mounted_failure(tmp_path: Path) -> None
         **globals(),
         "observation": outer,
         "state_dir": state,
+        "h04": None,
         "batch2": True,
         "checkpoint": lambda **fields: proof.update(fields),
         "error": TimeoutError(),
@@ -5617,8 +5635,473 @@ def native_finish(error=None):
 """
 
 
-def batch2_native_observer(*, startup: bool) -> str:
+@pytest.mark.parametrize(
+    "case",
+    [
+        "h04-inventory",
+        "h04-root-lineage",
+        "h04-child-lineage",
+        "h04-guard-false",
+        "h04-guard-exception",
+    ],
+)
+def test_h04_installed_attachment_is_finite_and_opt_in(tmp_path: Path, case: str) -> None:
+    host, native, hashes = batch2_installed_entry(tmp_path, h04=case)
+    assert host == ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]
+    assert native == ["/opt/hermes/venv/bin/python", "-I", "-m", "tui_gateway.entry"]
+    raw = (tmp_path / "qa-sitecustomize.py").read_bytes()
+    assert len(raw) <= 65536 and hashes == {"qa-sitecustomize.py": sha(raw)}
+    generated = batch2_native_observer(startup=False, h04=case)
+    compile(generated, QA_SITE_TARGET, "exec")
+    assert "h04-inventory" in generated and "h04_observe" in generated
+    assert "batch2_probe = False" in generated
+    assert "h04_observe" not in batch2_native_observer(startup=False)
+    with pytest.raises(ValueError, match="H04_CASE_REFUSED"):
+        batch2_native_observer(startup=False, h04="unknown")
+    with pytest.raises(ValueError, match="H04_CASE_REFUSED"):
+        batch2_native_observer(startup=True, h04=case)
+
+
+H04_CASES = (
+    "h04-inventory",
+    "h04-root-lineage",
+    "h04-child-lineage",
+    "h04-guard-false",
+    "h04-guard-exception",
+)
+
+# Test-only attachment through the existing immutable sitecustomize. No RPC,
+# protocol field, native overlay or model-facing tool registration is introduced.
+H04_NATIVE = r"""
+h04_state = {}
+h04_code_keys = {
+        (str(managed / "agent/subagent_lifecycle.py"), "SubagentLifecycleService.stage"),
+        (str(managed / "agent/subagent_lifecycle.py"), "SubagentLifecycleService.release"),
+        (str(managed / "agent/contract_execution.py"), "BoundContractTools.__init__"),
+}
+def h04_monitored(code):
+    if type(code) is not CodeType or (code.co_filename, code.co_qualname) not in h04_code_keys:
+        return False
+    lifecycle = sys.modules.get("agent.subagent_lifecycle")
+    contract = sys.modules.get("agent.contract_execution")
+    return ((lifecycle is not None and code in (
+        lifecycle.SubagentLifecycleService.stage.__code__,
+        lifecycle.SubagentLifecycleService.release.__code__))
+        or (contract is not None and code is contract.BoundContractTools.__init__.__code__))
+
+def h04_inventory(agent, role):
+    from agent.cold_admission import COLD_READABLE, ColdAdmissionDenied
+    from agent.contract_execution import CONTRACT_READABLE
+    native = sys.modules["run_agent"].AIAgent
+    if type(agent) is not native:
+        raise RuntimeError("H04 real agent required")
+    readable = COLD_READABLE if role == "ROOT" else CONTRACT_READABLE
+    callables = sorted(name for name in readable if not name.startswith("_") and callable(getattr(agent, name)))
+    denied = []
+    for name in ("run_conversation", "make_client", "_init_client", "execute_tool", "unknown_future_surface"):
+        try:
+            getattr(agent, name)
+        except ValueError as error:
+            expected = (ColdAdmissionDenied, "NO_MODEL: cold surface denied") if role == "ROOT" else (ValueError, "CONTRACT/PURE: native surface denied")
+            if (type(error), str(error)) != expected:
+                raise
+            denied.append(name)
+    emit("h04-inventory", role, native_id=agent._subagent_id, session_id=agent.session_id,
+         parent_session_id=agent._parent_session_id, agent_type="REAL_AIAgent",
+         tools_type="tuple" if type(agent.tools) is tuple else "OTHER", tools_count=len(agent.tools),
+         toolsets_type="tuple" if type(agent.enabled_toolsets) is tuple else "OTHER", toolsets_count=len(agent.enabled_toolsets),
+         provider_null=agent.provider is None, model_null=agent.model is None,
+         callables=callables, denied=denied)
+
+def h04_observe(frame, event, value):
+    from agent.subagent_lifecycle import SubagentLifecycleService
+    from agent.contract_execution import BoundContractTools
+    code = frame.f_code
+    if code is SubagentLifecycleService.stage.__code__ and event == "return":
+        service = frame.f_locals["self"]
+        batch = service._cold_batches[value["manifest_ref"]["id"]]
+        if h04_state or type(service) is not SubagentLifecycleService or len(batch["records"]) != 1:
+            raise RuntimeError("H04 fresh singleton required")
+        child = batch["records"][0].agent
+        h04_state.update(service=service, batch=batch, child=child, injected=False)
+        h04_inventory(batch["parent"], "ROOT")
+        h04_inventory(child, "CHILD")
+    elif code is BoundContractTools.__init__.__code__ and event == "return":
+        scope = frame.f_locals["self"]
+        emit("h04-scope", "EPHEMERAL_UNREGISTERED",
+             operations=sorted(name for name in vars(type(scope)) if not name.startswith("_") and callable(getattr(scope, name))))
+    elif code is SubagentLifecycleService.release.__code__:
+        if event == "call":
+            if not h04_state or frame.f_locals["self"] is not h04_state["service"] or h04_state["injected"]:
+                raise RuntimeError("H04 release cannot be replayed by the observer")
+            h04_state["injected"] = True
+            batch, child = h04_state["batch"], h04_state["child"]
+            if h04_case == "h04-root-lineage":
+                batch["parent"].session_id = "h04-invalid-session"
+            elif h04_case == "h04-child-lineage":
+                child.session_id = "h04-invalid-session"
+            elif h04_case in {"h04-guard-false", "h04-guard-exception"}:
+                def invalid_guard(*args):
+                    emit("h04-guard", h04_case)
+                    if h04_case == "h04-guard-exception":
+                        raise RuntimeError("H04 guard exception")
+                    return False
+                h04_state["service"]._contract_guard = invalid_guard
+            emit("h04-fault", h04_case)
+        elif event == "unwind":
+            from agent.cold_admission import ColdAdmissionDenied
+            expected = {
+                "h04-root-lineage": (ColdAdmissionDenied, "Native root lineage changed or stopped"),
+                "h04-child-lineage": (ColdAdmissionDenied, "CONTRACT stage expired or stopped"),
+                "h04-guard-false": (ColdAdmissionDenied, "CONTRACT guard refused"),
+                "h04-guard-exception": (RuntimeError, "H04 guard exception"),
+            }.get(h04_case)
+            batch = h04_state["batch"]
+            emit("h04-denial", h04_case if expected == (type(value), str(value)) else "UNEXPECTED",
+                 indeterminate=batch.get("indeterminate", False), failed=batch.get("failed", False),
+                 binding_committed=batch["binding"] is not None,
+                 child_closed=h04_state["child"]._contract_state.closed,
+                 result_absent=all(r.result is None for r in batch["records"]),
+                 response_staged=batch["response"]["status"] == "STAGED")
+"""
+
+
+def h04_row_valid(row: dict[str, object]) -> bool:
+    base = {"test", "status", "count"}
+    if type(row.get("count")) is not int or row["count"] != 1:
+        return False
+    tag, status = row.get("test"), row.get("status")
+    if type(tag) is not str:
+        return False
+    if tag in {"h04-fault", "h04-guard"}:
+        return set(row) == base and type(status) is str and status in H04_CASES
+    if tag == "h04-scope":
+        return (
+            set(row) == base | {"operations"}
+            and status == "EPHEMERAL_UNREGISTERED"
+            and row["operations"] == ["pure_action", "read_input"]
+        )
+    if tag == "h04-denial":
+        flags = {
+            "indeterminate",
+            "failed",
+            "binding_committed",
+            "child_closed",
+            "result_absent",
+            "response_staged",
+        }
+        return (
+            set(row) == base | flags
+            and type(status) is str
+            and status in H04_CASES[1:]
+            and all(type(row[k]) is bool for k in flags)
+        )
+    if tag != "h04-inventory" or type(status) is not str or status not in {"ROOT", "CHILD"}:
+        return False
+    expected = base | {
+        "native_id",
+        "session_id",
+        "parent_session_id",
+        "agent_type",
+        "tools_type",
+        "tools_count",
+        "toolsets_type",
+        "toolsets_count",
+        "provider_null",
+        "model_null",
+        "callables",
+        "denied",
+    }
+    if set(row) != expected:
+        return False
+    identities = [row["native_id"], row["session_id"]]
+    if status == "CHILD":
+        identities.append(row["parent_session_id"])
+    elif row["parent_session_id"] is not None:
+        return False
+    try:
+        if any(type(value) is not str or str(UUID(value)) != value for value in identities):
+            return False
+    except ValueError:
+        return False
+    return (
+        row["agent_type"] == "REAL_AIAgent"
+        and row["tools_type"] == row["toolsets_type"] == "tuple"
+        and all(type(row[k]) is int and row[k] == 0 for k in ("tools_count", "toolsets_count"))
+        and row["provider_null"] is True
+        and row["model_null"] is True
+        and row["callables"] == (["close"] if status == "ROOT" else ["close", "run_contract"])
+        and row["denied"]
+        == [
+            "run_conversation",
+            "make_client",
+            "_init_client",
+            "execute_tool",
+            "unknown_future_surface",
+        ]
+    )
+
+
+def require_h04_observation(
+    rows: list[dict[str, object]], case: str, binding: dict[str, object]
+) -> None:
+    """Same settled channel for the successful native read/PURE and all denials."""
+    assert case in H04_CASES
+    selected = [r for r in rows if str(r["test"]).startswith("h04-")]
+    assert all(h04_row_valid(r) for r in selected), "H04_INVALID_OBSERVATION"
+    inventories = [r for r in selected if r["test"] == "h04-inventory"]
+    assert [r["status"] for r in inventories] == ["ROOT", "CHILD"], "H04_INVENTORY_MISSING"
+    root, child = inventories
+    body = mapping(binding["payload"])
+    (entry,) = sequence(body["entries"])
+    assert root["native_id"] == body["native_root_id"]
+    assert child["native_id"] == mapping(entry)["native_child_id"]
+    assert child["session_id"] == mapping(entry)["native_session_id"]
+    assert child["parent_session_id"] == root["session_id"]
+    assert (
+        len({root["native_id"], root["session_id"], child["native_id"], child["session_id"]}) == 4
+    )
+    assert [r for r in selected if r["test"] == "h04-fault"] == [
+        {"test": "h04-fault", "status": case, "count": 1}
+    ]
+    positive, guarded = case == "h04-inventory", case.startswith("h04-guard-")
+    for tag, count in (
+        ("run_contract", int(positive or guarded)),
+        ("_read_bound_input", int(positive)),
+        ("run_handler", 2 * int(positive)),
+    ):
+        assert len([r for r in rows if r["test"] == tag]) == count, "H04_ACCESS_COUNT"
+    assert [r for r in selected if r["test"] == "h04-guard"] == (
+        [{"test": "h04-guard", "status": case, "count": 1}] if guarded else []
+    )
+    assert [r for r in selected if r["test"] == "h04-scope"] == (
+        [
+            {
+                "test": "h04-scope",
+                "status": "EPHEMERAL_UNREGISTERED",
+                "count": 1,
+                "operations": ["pure_action", "read_input"],
+            }
+        ]
+        if positive
+        else []
+    )
+    assert [r for r in selected if r["test"] == "h04-denial"] == (
+        []
+        if positive
+        else [
+            {
+                "test": "h04-denial",
+                "status": case,
+                "count": 1,
+                "indeterminate": guarded,
+                "failed": guarded,
+                "binding_committed": guarded,
+                "child_closed": guarded,
+                "result_absent": True,
+                "response_staged": True,
+            }
+        ]
+    )
+    if positive:
+        assert any(r["test"] == "contract-guard" and r["status"] == "APPROVED" for r in rows)
+        assert {"test": "native-release", "status": "SUCCEEDED", "count": 1} in rows
+    else:
+        assert not any(
+            r["test"]
+            in {
+                "native-release",
+                "task-result",
+                "contract-tool-receipt",
+                "contract-artifact",
+                "contract-guard",
+            }
+            for r in rows
+        ), "H04_USABLE_FINAL_OR_APPROVAL"
+
+
+@pytest.mark.parametrize("case", H04_CASES)
+def test_h04_actual_source_observer(tmp_path: Path, case: str) -> None:
+    """Full pinned SOURCE real AIAgent; generated installed hook, not OCI evidence."""
+    core = batch2_native_observer(startup=False, h04=case).split("forbidden =", 1)[1]
+    emitter = BOOTSTRAP.split("evidence_fd = os.open", 1)[1].split("os.environ.clear()", 1)[0]
+    home = tmp_path / "home"
+    home.mkdir(mode=0o700)
+    observation = tmp_path / "observation.jsonl"
+    observation.touch(mode=0o600)
+    setup = r"""
+import json, os, runpy, sys, threading, time
+from pathlib import Path
+root, source, libraries, home, evidence, result_path = map(Path, sys.argv[1:])
+managed = root / "integrations/hermes/upstream/managed-source"
+inert = root / "integrations/hermes/upstream/inert-source"
+adapter = root / "integrations/hermes/src"
+probe = runpy.run_path(str(root / "integrations/hermes/tests/contract_method_native_probe.py"))
+sys.argv = ["source", str(source), str(managed), str(adapter), str(home)]
+sys.path.append(str(libraries))
+effects = probe["bootstrap"]()
+bootstrap_started_ns = time.monotonic_ns()
+audit_ns = audit_calls = 0
+stock_runpy_code = None
+"""
+    exercise = r"""
+from agent.cold_admission import ColdAdmission
+from agent.subagent_lifecycle import SubagentLifecycleService
+from run_agent import AIAgent
+from test_contract_method import method_fixture
+from composition_fixture import record
+root_agent = AIAgent(cold_admission=ColdAdmission())
+service = SubagentLifecycleService(lambda: root_agent)
+payload = method_fixture(records=True)
+staged = service.stage(payload)
+binding = record("runtime-binding", {
+    "runtime_boot": str(__import__("uuid").uuid4()),
+    "run_id": payload["manifest"]["payload"]["run_id"],
+    "ticket": staged["ticket"], "native_root_id": staged["native_root_id"],
+    "entries": staged["entries"],
+    "authority": {"instance_id": str(__import__("uuid").uuid4()), "owner": str(__import__("uuid").uuid4()), "epoch": 1, "generation": 0}})
+release = {k: staged[k] for k in ("protocol", "ticket", "manifest_ref")}
+release["binding"] = binding
+try:
+    try:
+        final = service.release(release)
+        assert h04_case == "h04-inventory" and final["status"] == "SUCCEEDED"
+    except (ValueError, RuntimeError):
+        assert h04_case != "h04-inventory"
+    # Disable only this test attachment for direct product retry checks. The
+    # invalid lineage/guard and original indeterminate state are NEVER restored.
+    sys.monitoring.set_events(observer_id, 0)
+    if h04_case != "h04-inventory":
+        try:
+            service.release(release)
+        except (ValueError, RuntimeError):
+            pass
+        else:
+            raise AssertionError("Native retry unexpectedly succeeded")
+    assert effects == []
+    result_path.write_text(json.dumps({"binding": binding, "effects": effects}))
+finally:
+    for record in service._cold_batches[staged["manifest_ref"]["id"]]["records"]:
+        if record.agent is not None:
+            record.agent.close()
+    root_agent.close()
+    os.close(evidence_fd)
+"""
+    script = setup + "evidence_fd = os.open" + emitter + "forbidden =" + core + exercise
+    result_path = tmp_path / "result.json"
+    result = subprocess.run(
+        [
+            "/home/kali/OmnisAI/api/.venv/bin/python",
+            "-I",
+            "-B",
+            "-c",
+            script,
+            str(ROOT),
+            str(PIN),
+            str(LIBRARIES),
+            str(home),
+            str(observation),
+            str(result_path),
+        ],
+        capture_output=True,
+        timeout=20,
+        check=False,
+        env={"PATH": "/usr/bin:/bin", "TMPDIR": str(tmp_path)},
+        cwd=tmp_path,
+    )
+    log = tmp_path / "source.log"
+    log.write_bytes(result.stdout + result.stderr)
+    log.chmod(0o600)
+    if result.returncode != 0:
+        raise AssertionError("H04_SOURCE_EXECUTION_FAILED")
+    rows = [mapping(json.loads(line)) for line in observation.read_bytes().splitlines()]
+    assert not any(str(r["test"]).startswith("forbidden-") for r in rows)
+    back = mapping(json.loads(result_path.read_bytes()))
+    assert back["effects"] == []
+    binding = mapping(back["binding"])
+    require_h04_observation(rows, case, binding)
+    assert set(sequence(launch_bootstrap_diagnostic(observation.read_bytes())["issues"])) == {
+        "MISSING_PHASE_COMPLETION"
+    }
+    # Missing inventory, invented zero, leaked unknown field and always-deny
+    # cannot turn this same observed positive/negative channel green.
+    for mutation in ("missing-inventory", "missing-fault", "unknown-field", "extra-read"):
+        damaged = deepcopy(rows)
+        if mutation.startswith("missing-"):
+            tag = "h04-inventory" if mutation == "missing-inventory" else "h04-fault"
+            damaged = [r for r in damaged if r["test"] != tag]
+        elif mutation == "unknown-field":
+            next(r for r in damaged if r["test"] == "h04-inventory")["unexpected"] = "SYNTHETIC"
+        else:
+            damaged.append({"test": "_read_bound_input", "status": "ENTERED", "count": 1})
+        with pytest.raises(AssertionError):
+            require_h04_observation(damaged, case, binding)
+
+
+@pytest.mark.parametrize("case", H04_CASES)
+def test_h04_selector_is_closed_before_effects(monkeypatch: pytest.MonkeyPatch, case: str) -> None:
+    path = (
+        ROOT
+        / "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    )
+    spec = importlib.util.spec_from_file_location("h04_selection", path)
+    assert spec is not None and spec.loader is not None
+    selector = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(selector)
+    assert tuple(selector.H04_CASES) == H04_CASES and selector.H04_REVIEWED is None
+    assert selector.BATCH2_REVIEWED is None and selector.STARTUP_REVIEWED is None
+    assert selector.ROOT == Path("/home/kali/OmnisAI")
+    argv = selector.selected_argv(case, True)
+    assert argv[:5] == ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "pytest"]
+    assert "--collect-only" in argv
+    assert any(str(v).endswith("[" + case + "]") for v in argv)
+    assert "--basetemp=/home/kali/.hermes/cache/scratch/h04-stock1-attempt1-" + case in argv
+    monkeypatch.setattr(selector, "H04_READER", None)
+    monkeypatch.setattr(selector, "H04_READER_SHA", None)
+    environment = selector.environment(
+        {"OMNIS_BATCH2_NORMATIVE_REVIEWED": "ambient", "OMNIS_BATCH2_INPUT_REVIEWED": "ambient"},
+        case,
+        reviewed=True,
+    )
+    assert "OMNIS_BATCH2_NORMATIVE_REVIEWED" not in environment
+    assert "OMNIS_BATCH2_INPUT_REVIEWED" not in environment
+    assert environment["OMNIS_BATCH2_ARTIFACT"] == str(selector.BATCH2_ARTIFACT)
+    assert selector.H04_READER is None and selector.H04_READER_SHA is None
+    assert "OMNIS_BATCH2_API_PREREQUISITES" not in environment
+    assert "OMNIS_BATCH2_API_PREREQUISITES_SHA" not in environment
+    # Binding the independent H04 reader must not mutate/fall back to batch2.
+    h04_reader = Path("/home/kali/.hermes/cache/scratch/h04-source-control/reader.json")
+    monkeypatch.setattr(selector, "H04_READER", h04_reader)
+    monkeypatch.setattr(selector, "H04_READER_SHA", "a" * 64)
+    selected = selector.environment({}, case)
+    assert selected["OMNIS_BATCH2_API_PREREQUISITES"] == str(h04_reader)
+    assert selected["OMNIS_BATCH2_API_PREREQUISITES_SHA"] == "a" * 64
+    legacy = selector.environment({}, selector.BATCH2_CASES[0])
+    assert legacy["OMNIS_BATCH2_API_PREREQUISITES"] == str(selector.BATCH2_READER)
+    assert legacy["OMNIS_BATCH2_API_PREREQUISITES_SHA"] == selector.BATCH2_READER_SHA
+
+    # Pure SOURCE cut: force prerequisite reads successful, never execute the
+    # runner/import path. A CLI flag alone cannot adjudicate two reviews.
+    def pinned(path: Path, maximum: int) -> str:
+        if path == selector.BATCH2_ARTIFACT:
+            return str(selector.BATCH2_ARTIFACT_SHA)
+        if path == selector.BATCH2_READER:
+            return str(selector.BATCH2_READER_SHA)
+        if path == selector.H04_READER:
+            return str(selector.H04_READER_SHA)
+        return str(selector.H04_SOURCE_SHA)
+
+    monkeypatch.setattr(selector, "_pinned_sha256", pinned)
+    monkeypatch.setattr(sys, "argv", [str(path), "--case", case, "--review-adjudicated"])
+    with pytest.raises(SystemExit) as denied:
+        selector.main()
+    assert denied.value.code == 2
+
+
+def batch2_native_observer(*, startup: bool, h04: str | None = None) -> str:
     """Reuse the SOURCE observer, excluding its argv/env wrapper and manual runpy."""
+    if h04 is not None and (h04 not in H04_CASES or startup):
+        raise ValueError("H04_CASE_REFUSED")
     emitter = BOOTSTRAP.split("evidence_fd = os.open", 1)[1].split("os.environ.clear()", 1)[0]
     core = BOOTSTRAP.split("allowed = ", 1)[1].split(
         'phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTER")\ntry:', 1
@@ -5627,7 +6110,8 @@ def batch2_native_observer(*, startup: bool) -> str:
     overlay_begin = core.index("if not installed:")
     overlay_end = core.index("forbidden =", overlay_begin)
     core = core[:overlay_begin] + core[overlay_end:]
-    core = core.replace("batch2_probe = False", "batch2_probe = True")
+    if h04 is None:
+        core = core.replace("batch2_probe = False", "batch2_probe = True")
     core = core.replace(
         "adapter, libraries, home,",
         'adapter, libraries, home, *fresh_roots, Path("/state/qa-native.json"),',
@@ -5665,6 +6149,26 @@ def batch2_native_observer(*, startup: bool) -> str:
         "sys.monitoring.register_callback(observer_id, sys.monitoring.events.PY_UNWIND, monitor_unwind)\n"
         "sys.monitoring.set_events(observer_id, sys.monitoring.events.PY_UNWIND |",
     )
+    if h04 is not None:
+        core = core.replace(
+            "def observe(frame, event, arg):",
+            "h04_case = " + repr(h04) + "\n" + H04_NATIVE + "\ndef observe(frame, event, arg):",
+        )
+        for function, event, value in (
+            ("monitor_call(code, offset)", "call", "None"),
+            ("monitor_return(code, offset, value)", "return", "value"),
+            ("monitor_unwind(code, offset, error)", "unwind", "error"),
+        ):
+            marker = "def " + function + ":\n"
+            core = core.replace(
+                marker,
+                marker
+                + "    if h04_monitored(code):\n        h04_observe(sys._getframe(1), "
+                + repr(event)
+                + ", "
+                + value
+                + ")\n",
+            )
     return (
         "import importlib.abc, importlib.util, json, os, runpy, sys, threading, time\n"
         "from pathlib import Path\n"
@@ -5795,7 +6299,7 @@ if qa_role is not None:
 
 
 def batch2_installed_entry(
-    root: Path, *, startup: bool = False
+    root: Path, *, startup: bool = False, h04: str | None = None
 ) -> tuple[list[str], list[str], dict[str, str]]:
     """One immutable attachment outside both RW roots; no command override."""
     script = (
@@ -5808,7 +6312,7 @@ def batch2_installed_entry(
         + "\nstartup = "
         + repr(startup)
         + "\nnative_core = "
-        + repr(batch2_native_observer(startup=startup))
+        + repr(batch2_native_observer(startup=startup, h04=h04))
         + "\nhost_diagnostic = "
         + repr(HOST_LAUNCH_DIAGNOSTIC)
         + "\nhost_stop = "
@@ -5989,11 +6493,11 @@ def test_batch2_current_reader_actual_helper(
     observed = Mock(wraps=subprocess.run)
     monkeypatch.setattr(subprocess, "run", observed)
     if mutation is None:
-        assert batch2_current_reader(path) == current
+        assert batch2_current_reader(path, expected_sha256=sha(raw)) == current
         assert observed.call_count == 1
     else:
         with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
-            batch2_current_reader(path)
+            batch2_current_reader(path, expected_sha256=sha(raw))
         assert observed.call_count == 0
         assert unsafe_reads == [], "UNSAFE_MATERIAL_READ_BEFORE_REFUSAL"
 
@@ -6039,12 +6543,15 @@ def test_batch2_installed_static_prerequisites(monkeypatch: pytest.MonkeyPatch) 
     if not handle:
         pytest.skip("Owned static artifacts not selected; no runtime effect")
     root = Path(handle).parent
-    artifact = root / "native-artifact.json"
+    artifact = Path(
+        os.environ.get("OMNIS_BATCH2_SOURCE_NATIVE_ARTIFACT", str(root / "native-artifact.json"))
+    )
     for suffix in ("_NORMATIVE_REVIEWED", "_INPUT_REVIEWED"):
         monkeypatch.setenv("OMNIS_BATCH2" + suffix, sha(Path(__file__).read_bytes()))
     monkeypatch.setenv("OMNIS_BATCH2_ARTIFACT", str(artifact))
     monkeypatch.setenv("OMNIS_BATCH2_ARTIFACT_SHA", sha(artifact.read_bytes()))
     monkeypatch.setenv("OMNIS_BATCH2_API_PREREQUISITES", handle)
+    monkeypatch.setenv("OMNIS_BATCH2_API_PREREQUISITES_SHA", sha(Path(handle).read_bytes()))
     # Test-local guard input is not a review or execution permission.
     plan, python = h03_prerequisites(current_only=True)
     assert (
@@ -6167,6 +6674,242 @@ def test_batch2_actual_persisted_correspondence(mutation: str | None) -> None:
         )
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        None,
+        "descriptor-pin",
+        "commit-type",
+        "commit-format",
+        "root-byte",
+        "export-byte",
+        "installed-byte",
+        "extra-root",
+        "extra-export",
+        "extra-installed",
+        "missing-row",
+        "duplicate-row",
+        "stale-reader",
+    ],
+)
+def test_h04_current_reader_source_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str | None
+) -> None:
+    """SOURCE schema/bytes control; origin seam substituted, NOT installed acceptance."""
+    import shutil
+    import zipfile
+
+    fixture = tmp_path / "h04-reader"
+    fixture.mkdir(mode=0o700)
+    source, checkout = fixture / "snapshot", fixture / "checkout"
+    installed = fixture / "reader/lib/python3.13/site-packages"
+    package = ROOT / "api/src/omnis"
+    paths = sorted(p for p in package.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+    files: list[dict[str, str]] = []
+    wheel_path = fixture / "source-fixture.whl"
+    with zipfile.ZipFile(wheel_path, "w", compression=zipfile.ZIP_DEFLATED) as wheel:
+        for path in paths:
+            name = "omnis/" + str(path.relative_to(package))
+            raw = path.read_bytes()
+            for target in (
+                source / "api/src" / name,
+                checkout / "api/src" / name,
+                installed / name,
+            ):
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+            wheel.writestr(name, raw)
+            files.append({"path": "api/src/" + name, "sha256": sha(raw)})
+        # Exercise an additive protocol file even on a pre-Admission checkout.
+        if not any(row["path"].endswith("/model_protocol.py") for row in files):
+            name, raw = (
+                "omnis/supervisor/model_protocol.py",
+                b"# SOURCE additive protocol fixture\n",
+            )
+            for target in (
+                source / "api/src" / name,
+                checkout / "api/src" / name,
+                installed / name,
+            ):
+                target.write_bytes(raw)
+            wheel.writestr(name, raw)
+            files.append({"path": "api/src/" + name, "sha256": sha(raw)})
+    python = fixture / "reader/bin/python"
+    python.parent.mkdir(parents=True)
+    python.symlink_to(Path(sys.executable).resolve())
+    shutil.copyfile(Path(sys.prefix) / "pyvenv.cfg", python.parent.parent / "pyvenv.cfg")
+    current: dict[str, object] = {
+        "tag": "current",
+        "commit": "a" * 40,
+        "source": str(source),
+        "wheel": str(wheel_path),
+        "wheel_sha256": sha(wheel_path.read_bytes()),
+        "python": str(python),
+        "files": files,
+    }
+    descriptor = {
+        "schema_version": 1,
+        "status": "READY_CURRENT_ONLY_PREREQUISITES",
+        "root": str(fixture),
+        "current": current,
+    }
+    if mutation == "commit-type":
+        current["commit"] = True
+    elif mutation == "commit-format":
+        current["commit"] = "not-a-commit"
+    elif mutation in {"extra-root", "extra-export", "extra-installed"}:
+        base = {
+            "extra-root": checkout / "api/src",
+            "extra-export": source / "api/src",
+            "extra-installed": installed,
+        }[mutation]
+        (base / "omnis/unlisted.py").write_bytes(b"# unlisted\n")
+    elif mutation in {"root-byte", "export-byte", "installed-byte"}:
+        base = {
+            "root-byte": checkout / "api/src",
+            "export-byte": source / "api/src",
+            "installed-byte": installed,
+        }[mutation]
+        (base / files[0]["path"].removeprefix("api/src/")).write_bytes(b"# changed\n")
+    elif mutation == "missing-row":
+        files.pop()
+    elif mutation == "duplicate-row":
+        files.append(dict(files[0]))
+    handle = fixture / "h04-current-reader.json"
+    handle.write_bytes(canonical(descriptor))
+    handle.chmod(0o600)
+    expected = "0" * 64 if mutation == "descriptor-pin" else sha(handle.read_bytes())
+    calls: list[object] = []
+
+    def origin(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(
+            [], 0, canonical({"installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT"}), b""
+        )
+
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", checkout)
+    monkeypatch.setattr(subprocess, "run", origin)
+    if mutation == "stale-reader":
+        handle = Path(
+            "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json"
+        )
+        expected = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    if mutation is None:
+        assert batch2_current_reader(handle, expected_sha256=expected) == current
+        assert len(calls) == 1
+    else:
+        with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
+            batch2_current_reader(handle, expected_sha256=expected)
+        assert not calls
+
+
+@pytest.mark.parametrize("cache_phase", [None, "origin", "fresh-reader"])
+def test_h04_real_reader_cache_controls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cache_phase: str | None
+) -> None:
+    """Real API imports; private dependency .pth seam, not final distribution QA."""
+    import py_compile
+    import venv
+    from unittest.mock import Mock
+
+    # Reuse the existing exact ROOT/export/wheel/installed SOURCE fixture.
+    with monkeypatch.context() as fixture_patch:
+        test_h04_current_reader_source_snapshot(tmp_path, fixture_patch, None)
+    fixture = tmp_path / "h04-reader"
+    handle = fixture / "h04-current-reader.json"
+    current = mapping(mapping(json.loads(handle.read_bytes()))["current"])
+    python = Path(str(current["python"]))
+    venv.EnvBuilder(system_site_packages=True, symlinks=True, with_pip=False).create(
+        python.parent.parent
+    )
+    installed = python.parent.parent / "lib/python3.13/site-packages"
+    (installed / "source-dependencies.pth").write_text(
+        str(Path(sys.prefix) / "lib/python3.13/site-packages") + "\n"
+    )
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", fixture / "checkout")
+    observed = Mock(wraps=subprocess.run)
+    monkeypatch.setattr(subprocess, "run", observed)
+    expected = sha(handle.read_bytes())
+    if cache_phase != "origin":
+        assert batch2_current_reader(handle, expected_sha256=expected) == current
+        assert observed.call_count == 1
+    source = installed / "omnis/__init__.py"
+    original = source.read_bytes()
+    marker = tmp_path / "unattested-bytecode-entered"
+    cache: Path | None = None
+    if cache_phase is not None:
+        synthetic = tmp_path / "synthetic-init.py"
+        synthetic.write_text(
+            "from pathlib import Path\nPath("
+            + repr(str(marker))
+            + ").write_text('SYNTHETIC')\n"
+            + original.decode()
+        )
+        cache = Path(importlib.util.cache_from_source(str(source)))
+        cache.parent.mkdir(exist_ok=True)
+        py_compile.compile(
+            str(synthetic),
+            cfile=str(cache),
+            dfile=str(source),
+            doraise=True,
+            invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH,
+        )
+    if cache_phase == "origin":
+        with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
+            batch2_current_reader(handle, expected_sha256=expected)
+        assert observed.call_count == 0
+    else:
+        # Exercise the actual fresh reader's inert control, not a substitute import.
+        audit = tmp_path / "fresh-reader.jsonl"
+        audit.touch(mode=0o600)
+        code = batch2_reader_code(python, RESTART_READER)
+        child = subprocess.run(
+            [str(python), "-I", "-B", "-c", code, "INSTALLED", str(audit), "--history-control"],
+            cwd=fixture,
+            capture_output=True,
+            timeout=15,
+        )
+        if cache_phase is None:
+            assert child.returncode == 0 and child.stdout == child.stderr == b""
+            events = [mapping(json.loads(line)) for line in audit.read_text().splitlines()]
+            assert [(row["status"], row["name"]) for row in events] == [
+                ("ORIGIN", "INSTALLED"),
+                ("READY", "managed-cli"),
+                ("EXIT", "0"),
+            ]
+        else:
+            assert child.returncode == 1 and child.stdout == b""
+            assert child.stderr.endswith(b"AssertionError: BATCH2_CURRENT_READER_REFUSED\n")
+            assert audit.read_bytes() == b""
+    assert not marker.exists()
+    assert source.read_bytes() == original
+    assert sha(handle.read_bytes()) == expected
+    if cache is not None:
+        assert cache.is_file()  # Preserve unknown bytes; never delete for green.
+
+
+def test_h04_rejects_exact_retained_batch2_reader_before_origin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real historical descriptor against current ROOT, never adopted as current."""
+    handle = Path(
+        "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/"
+        "installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json"
+    )
+    expected = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+    assert sha(handle.read_bytes()) == expected
+    calls: list[object] = []
+
+    def forbidden(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        calls.append((args, kwargs))
+        raise AssertionError("H04_STALE_READER_ORIGIN_REACHED")
+
+    monkeypatch.setattr(subprocess, "run", forbidden)
+    with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
+        batch2_current_reader(handle, expected_sha256=expected)
+    assert not calls
+
+
 def batch2_persisted_correspondence(back: dict[str, object]) -> None:
     """Two distinct manifest tasks retain their own Brief/result/check/inbox."""
     from omnis.modules.settings.candidate_store import reference
@@ -6241,8 +6984,36 @@ def batch2_reader_material(path: Path, maximum: int) -> bytes:
     return raw
 
 
-def batch2_current_reader(handle: Path) -> dict[str, object]:
-    """Current-only descriptor; historical old/current compatibility is untouched."""
+def batch2_reader_inventory(installed: Path, names: set[str]) -> None:
+    """Installed code has no cache exemption; run before the first API import."""
+    actual = {
+        str(path.relative_to(installed))
+        for path in (installed / "omnis").rglob("*")
+        if path.is_file()
+    }
+    if actual != names:
+        raise AssertionError("BATCH2_CURRENT_READER_REFUSED")
+
+
+def batch2_reader_code(python: Path, code: str) -> str:
+    """Recheck the current reader inventory in each fresh process, not just once."""
+    base = ROOT / "api/src"
+    names = {
+        str(path.relative_to(base))
+        for path in (base / "omnis").rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    }
+    installed = python.parent.parent / "lib/python3.13/site-packages"
+    return (
+        "from pathlib import Path\n"
+        + inspect.getsource(batch2_reader_inventory)
+        + f"batch2_reader_inventory(Path({str(installed)!r}), {names!r})\n"
+        + code
+    )
+
+
+def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, object]:
+    """Pinned API snapshot; commit is provenance, exact current bytes are authority."""
     import zipfile
     from io import BytesIO
 
@@ -6255,10 +7026,15 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             or info.st_uid != os.getuid()
         ):
             raise ValueError
+        raw_descriptor = batch2_reader_material(handle, 32768)
+        if (
+            type(expected_sha256) is not str
+            or re.fullmatch(r"[a-f0-9]{64}", expected_sha256) is None
+            or sha(raw_descriptor) != expected_sha256
+        ):
+            raise ValueError
         descriptor = mapping(
-            json.loads(
-                batch2_reader_material(handle, 32768), object_pairs_hook=launch_observation_object
-            )
+            json.loads(raw_descriptor, object_pairs_hook=launch_observation_object)
         )
         if set(descriptor) != {"schema_version", "status", "root", "current"}:
             raise ValueError
@@ -6278,7 +7054,8 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             raise ValueError
         if (
             current["tag"] != "current"
-            or current["commit"] != "9abcd93120cc81a3829316785e99a03d204806c0"
+            or type(current["commit"]) is not str
+            or re.fullmatch(r"[a-f0-9]{40}", str(current["commit"])) is None
         ):
             raise ValueError
         for name in ("source", "wheel", "python"):
@@ -6291,9 +7068,9 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
             if name != "python" and path.resolve(strict=True) != path:
                 raise ValueError
         wheel_path, source = Path(str(current["wheel"])), Path(str(current["source"]))
-        # Immutable artifact: descriptor15342, wheel254962, 107 ZIP entries,
-        # 980133 expanded bytes, largest80828, 88 API files. Next binary buckets
-        # bound QA material only; no product caps or grants are changed.
+        # Existing finite QA bounds are unchanged for the new API-only reader.
+        # The pinned descriptor binds commit + inventory + wheel SHA together;
+        # the legacy batch2 receipt remains a separate historical artifact.
         wheel_raw = batch2_reader_material(wheel_path, 262144)
         if sha(wheel_raw) != current["wheel_sha256"]:
             raise ValueError
@@ -6327,11 +7104,24 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
                 raise ValueError
             names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
             if (
-                len(files) != 88
-                or len(names) != 88
+                not files
+                or len(files) != len(names)
                 or {f["path"] for f in files} != {"api/src/" + n for n in names}
             ):
                 raise ValueError
+            # Additive API modules are admitted only when ALL four inventories
+            # and every byte agree. No filename/count exception for new modules.
+            # ROOT/export caches are not executed here. Installed caches are:
+            # -B prevents writes, not reading an UNCHECKED_HASH .pyc.
+            batch2_reader_inventory(installed, names)
+            for base in (ROOT / "api/src", source / "api/src"):
+                actual = {
+                    str(path.relative_to(base))
+                    for path in (base / "omnis").rglob("*")
+                    if path.is_file() and "__pycache__" not in path.parts
+                }
+                if actual != names:
+                    raise ValueError
             for row in files:
                 name = str(row["path"])
                 raw = batch2_reader_material(source / name, 131072)
@@ -6360,6 +7150,7 @@ def batch2_current_reader(handle: Path) -> dict[str, object]:
                 "    for name in distribution.namelist():",
             )
         )
+        origin_code = batch2_reader_code(python, origin_code)
         origin = subprocess.run(
             [
                 str(current["python"]),
@@ -6454,7 +7245,10 @@ def h03_prerequisites(*, current_only: bool = False) -> tuple[dict[str, object],
         ):
             raise ValueError
         if current_only:
-            current = batch2_current_reader(Path(os.environ[namespace + "_API_PREREQUISITES"]))
+            current = batch2_current_reader(
+                Path(os.environ[namespace + "_API_PREREQUISITES"]),
+                expected_sha256=os.environ[namespace + "_API_PREREQUISITES_SHA"],
+            )
         else:
             _, current = historical_installed_plan(Path(os.environ["OMNIS_H03_API_PREREQUISITES"]))
         import zipfile
@@ -6914,6 +7708,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, False, False, False, False, "batch2-release-first"),
         (False, False, False, False, False, "batch2-stop-first"),
         (False, False, False, False, False, "batch2-startup-only"),
+        *[(False, False, False, False, False, case) for case in H04_CASES],
     ],
     ids=[
         "support-zero",
@@ -6941,6 +7736,7 @@ class PreparationPrerequisite(RuntimeClient):
         "batch2-release-first",
         "batch2-stop-first",
         "batch2-startup-only",
+        *H04_CASES,
     ],
 )
 def test_contract_method_real_native_pg_owner_receipts_check_inbox(
@@ -6962,12 +7758,15 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
     startup = applicability == "batch2-startup-only"
-    installed_native = h03 or batch2 or startup
+    h04 = applicability if applicability in H04_CASES else None
+    installed_native = h03 or batch2 or startup or h04 is not None
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
     db_fence: dict[str, object] = {}
     if installed_native:
-        h03_plan, reader_python = h03_prerequisites(current_only=batch2 or startup)
+        h03_plan, reader_python = h03_prerequisites(
+            current_only=batch2 or startup or h04 is not None
+        )
         db_fence = mapping(request.getfixturevalue("historical_database_fence"))
     else:
         assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
@@ -6986,6 +7785,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         and not h03
         and not batch2
         and not startup
+        and h04 is None
         and applicability
         not in {
             "mission-consumer",
@@ -7101,7 +7901,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             "-I",
             "-B",
             "-c",
-            RESTART_READER,
+            batch2_reader_code(reader_python, RESTART_READER)
+            if reader_python is not None and (batch2 or startup or h04 is not None)
+            else RESTART_READER,
             "INSTALLED" if installed_native else str(ROOT / "api/src"),
             str(audit),
             operation,
@@ -7573,9 +8375,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 qa_native_argv: list[str] = []
                 qa_hashes: dict[str, str] = {}
                 qa_file = None
-                if batch2 or startup:
+                if batch2 or startup or h04 is not None:
                     qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(
-                        tmp_path, startup=startup
+                        tmp_path, startup=startup, h04=h04
                     )
                     qa_file = tmp_path / "qa-sitecustomize.py"
                     observation = state_dir / "native-observation.jsonl"
@@ -7843,6 +8645,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     reclaimed = len(canonical(original_graph)) - len(canonical(graph))
                     assert reclaimed > 0
                     assert len(canonical(graph)) + source.preparation_bytes <= 65536
+                    assert len(canonical(stage_payload)) <= 32768
                     assert canonical(
                         mapping(mapping(sequence(json.loads(str(expanded["text"])))[4])["input"])[
                             "payload"
@@ -7856,6 +8659,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     json.dumps(
                         {
                             "graph_bytes": len(canonical(graph)),
+                            "stage_bytes": len(canonical(stage_payload))
+                            if not context_only
+                            else None,
                             "preparation_bytes": source.preparation_bytes,
                             "total": len(canonical(graph)) + source.preparation_bytes,
                             "inline_total": len(canonical(original_graph))
@@ -8171,6 +8977,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if (
                 h03
                 or batch2
+                or h04 is not None
                 or applicability in {"mission-consumer", "result-qualification"}
                 or (
                     applicability is not None
@@ -8438,7 +9245,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 except BaseException as error:
                     # Bind failure readback to the actual installed mount, not the outer placeholder.
                     failure_observation = (
-                        state_dir / "native-observation.jsonl" if batch2 else observation
+                        state_dir / "native-observation.jsonl"
+                        if batch2 or h04 is not None
+                        else observation
                     )
                     checkpoint(
                         launch_client_exceptions=launch_exception_chain(error),
@@ -8449,7 +9258,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                                     failure_observation.with_name("host-launch-diagnostic.json")
                                 )
                             }
-                            if batch2
+                            if batch2 or h04 is not None
                             else {}
                         ),
                     )
@@ -8458,7 +9267,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 await runtime.renew(service, supervisor)
                 if installed_native:
                     native_process_receipt()
-                if batch2:
+                if batch2 or h04 is not None:
                     require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                 checkpoint(launch_diagnostic=diagnostic)
                 original_stage_exchange = runtime._exchange
@@ -8479,6 +9288,64 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         stage_observer.setattr(runtime, "_exchange", measured_stage_exchange)
                     staged = await submit_task("stage")
                 assert staged["task_status"] == "BOUND"
+                if h04 is not None:
+                    # One fresh boot/root and one assignment; never reset a fault
+                    # or reuse the accepted batch2 roots. Original payload/caps.
+                    back_request = seed.request(command_id=assignment["command_id"])
+                    if h04 == "h04-inventory":
+                        assert (await submit_task("release"))["task_status"] == "SUCCEEDED"
+                        back = await domain.readback(back_request)
+                        assert (
+                            len(sequence(back["results"]))
+                            == len(sequence(back["checks"]))
+                            == len(sequence(back["inbox"]))
+                            == 1
+                        )
+                        assert (
+                            mapping(mapping(sequence(back["checks"])[0])["payload"])["status"]
+                            == "COMPLETE"
+                        )
+                    else:
+                        with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                            await submit_task("release")
+                        back = await domain.readback(back_request)
+                        assert back["release_started"] is True
+                        assert back["results"] == back["checks"] == back["inbox"] == []
+                        assert not any(
+                            mapping(r)["kind"]
+                            in {
+                                "native-task-receipt",
+                                "task-result",
+                                "contract-tool-receipt",
+                                "contract-artifact",
+                            }
+                            for r in sequence(back["records"])
+                        )
+                        census = await mission_census()
+                        attempts: list[str] = []
+
+                        def no_retry(*args: object, **kwargs: object) -> object:
+                            attempts.append("RETRY_EFFECT")
+                            raise AssertionError("H04_RETRY_EFFECT")
+
+                        with monkeypatch.context() as retry_guard:
+                            retry_guard.setattr(service, "runtime_authority", no_retry)
+                            retry_guard.setattr(runtime, "_exchange", no_retry)
+                            retry_guard.setattr(domain, "ingest_result", no_retry)
+                            with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                                await submit_task("release")
+                            with pytest.raises(CatalogError, match="^NEEDS_RECONCILIATION$"):
+                                await domain.reconcile(back_request)
+                        assert attempts == []
+                        assert await mission_census() == census, "H04_RETRY_CHANGED_DOMAIN"
+                        assert canonical(await domain.readback(back_request)) == canonical(back)
+                    checkpoint(
+                        h04_case=h04,
+                        h04_binding=back["binding"],
+                        h04_markers=await markers(),
+                        status="H04_CLEANUP_PENDING",
+                    )
+                    return  # Shared exact original owner cleanup, then settled oracle below.
                 if batch2:
                     # Fresh Host/root per parametrized RUN; no reuse/restart grant.
                     from collections.abc import AsyncIterator
@@ -10490,7 +11357,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             except BaseException:
                 cleanup_failed = True
             if installed_native:
-                if batch2 or startup:
+                if batch2 or startup or h04 is not None:
                     primary_failure = sys.exc_info()[0] is not None
                     try:
                         # Only the already registered owned mount; state_dir may be unbound
@@ -10509,7 +11376,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         h03_state["cleanup_failed"] = True
                         if not primary_failure:
                             raise
-                if (batch2 or startup) and sys.exc_info()[0] is None:
+                if (batch2 or startup or h04 is not None) and sys.exc_info()[0] is None:
                     try:
                         require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                     except BaseException:
@@ -10554,6 +11421,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 # Explicit post-cleanup oracle remains reachable on both early returns.
                 require_native_observation(observation)
                 checkpoint(status="PASS_SOURCE_OWNER_INSTALLED_BYTES_QA_ENTRY_SCOPED")
+            if h04 is not None and sys.exc_info()[0] is None:
+                require_h04_observation(
+                    require_native_observation(observation), h04, mapping(proof["h04_binding"])
+                )
+                checkpoint(status="PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED")
         rows = require_native_observation(observation)
         assert [r for r in rows if r["test"] == "run_contract"] == [
             {"test": "run_contract", "status": "REAL_AIAgent", "count": 1}

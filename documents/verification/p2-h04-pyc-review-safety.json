@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "review_role": "independent_read_only_focused_safety_rereview",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Remediul H04-SAFETY-READER-PYC-01 pe delta 121/-2 și call-sites current origin/RESTART_READER; nu acceptare H04/H05 ori P2.",
+  "summary": "False-green-ul PYC original este închis în frontiera SOURCE/API-only verificată: cache UNCHECKED_HASH necunoscut este refuzat înainte de origin, iar inserarea după origin este refuzată în cititorul nou real înainte de import/observer. Controlul pozitiv pe același RESTART_READER trece. Nu am identificat un blocker nou al aceluiași mecanism în call-sites curente afectate.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+    "head": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+    "test_sha256": "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9",
+    "selector_sha256": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3",
+    "before_manifest": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/before.json",
+    "after_manifest": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/after.json",
+    "manifest_file_count": 93,
+    "composition": "2 candidate files + all 91 API snapshot inputs from source-hash-manifest.json",
+    "all_manifest_inputs_match": true,
+    "before_after_identical": true,
+    "frozen_candidate_byte_exact": true,
+    "preexisting_dirty_files": [
+      "api/tests/test_contract_method_pg.py",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+    ],
+    "delta_path": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/delta-from-reviewed.diff",
+    "delta_sha256_expected_from_author": "93f41cd74b71aec339da821f689aaa98c9bbecc6b0ae32ac860fe39c88447f4a"
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "H04-SAFETY-READER-PYC-01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SCOPED_SOURCE_API_ONLY",
+      "original_report": "/home/kali/.hermes/cache/scratch/h04-safety-review-20261016/report.json",
+      "parent_red": "/home/kali/.hermes/cache/scratch/h04-parent-pyc-red-20261016/repro-results.json",
+      "original_reproducer": "Unlisted omnis/__pycache__/__init__.cpython-313.pyc UNCHECKED_HASH executed while exact source/descriptor remained unchanged and helper accepted. Parent reproduced on previous test SHA42c14b9e.",
+      "file": "api/tests/test_contract_method_pg.py",
+      "repair_lines": [6987, 6998, 7116, 7153, 7904, 7905],
+      "regression_lines": [6806, 6833, 6855, 6858, 6860, 6865, 6867, 6873, 6875, 6881, 6884, 6888],
+      "remedy_reviewed": "Installed inventory includes ALL files, including caches; refuses unknown names before origin. The same predicate is prepended in the origin child and each actual current batch2/startup/H04 reader before any omnis import. Unknown cache is preserved, not deleted or tolerated.",
+      "reproduction_on_fixed_bytes": {
+        "positive_real_origin": "PASS; helper returns current, exactly one observed origin subprocess",
+        "positive_real_fresh_reader": "PASS; actual RESTART_READER --history-control, exit0, empty stdout/stderr, ORIGIN/INSTALLED -> READY/managed-cli -> EXIT/0",
+        "unknown_pyc_before_origin": "PASS; exact BATCH2_CURRENT_READER_REFUSED, zero observed origin subprocess calls",
+        "unknown_pyc_after_successful_origin": "PASS; actual new Python -I -B RESTART_READER exits1 with exact refusal, empty stdout and empty observer, no bytecode marker",
+        "unknown_pyc_files_preserved": 2,
+        "preserved_pyc_flags": "1 = hash-based, unchecked",
+        "unexpected_bytecode_markers": 0,
+        "installed_init_unchanged": true,
+        "descriptor_unchanged_by_cache_insertion": true
+      },
+      "remaining_requirement": "Parent integration must run final batch2_current_reader positive against matching main ROOT and frozen final distribution; no ROOT substitution is credited here. H04 native acceptance remains NOT_RUN."
+    }
+  ],
+  "affected_call_sites": [
+    {
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [7116, 7153, 7154],
+      "assessment": "Inventory checked in parent before subprocess, then again at the beginning of origin code before HISTORICAL_ORIGIN API imports. Four-way byte equality, no-follow/bounded material reads, pinned descriptor and origin timeout15 retained."
+    },
+    {
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [7758, 7759, 7760, 7761, 7762, 7767, 7891, 7904, 7905, 7925, 7937],
+      "assessment": "Every current batch2/startup/H04 path obtains reader_python from prerequisites and prepends inventory to actual argv code. Managed-family redirect execs the same guarded argv. Actual AST branch predicates evaluated for batch2, startup, H04 and historical fallback; true/true/true/false. PG/native path itself not executed."
+    },
+    {
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [747, 1771],
+      "assessment": "Other raw RESTART_READER executions belong to retained historical distribution controls/journey, not the newly attested current reader. Unchanged and outside this focused repair; not credited as current closure."
+    },
+    {
+      "file": "api/tests/test_contract_method_pg.py",
+      "lines": [7004, 7117, 7121],
+      "assessment": "ROOT/export caches remain excluded only as nonexecuted comparison inputs. No exclusion remains in installed inventory. SOURCE dependency .pth/system-site seam is declared, not final installed distribution certification."
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_affected_tests",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'h04_real_reader_cache_controls or h04_current_reader_source_snapshot or h04_rejects_exact_retained_batch2_reader_before_origin or h04_selector_is_closed_before_effects' --basetemp=/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/pytest-fixtures --junitxml=/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/pytest.xml",
+      "cwd": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+      "environment": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; OMNIS_/PG/DOCKER_/COMPOSE_/PYTEST_ ambient keys removed before explicit plugin setting",
+      "exit": 0,
+      "result": "22 passed, 354 deselected in 5.56s",
+      "counts": {"actual_cache_controls": 3, "schema_inventory_byte_controls": 13, "retained_stale_reader_refusal": 1, "selector_closed_cases": 5},
+      "junit": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/pytest.xml",
+      "private_log": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/pytest.private.log",
+      "limit": "SOURCE/API import execution only; not the full 37 author SOURCE suite and not PG/native QA."
+    },
+    {
+      "name": "artifact_and_fixture_readback",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/readback.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+      "exit": 0,
+      "evidence": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016/evidence-readback.json",
+      "result": "Parsed all22 JUnit cases; read back 3 cache fixtures, two preserved UNCHECKED_HASH caches, zero markers, exact source-init descriptor hashes; before/after93 hashes + HEAD/status/diff SHA unchanged. Actual current-reader conditional AST covers all3 affected branches."
+    },
+    {
+      "name": "repository_read_only_integrity",
+      "commands": ["git status --short --branch", "git diff --stat", "git rev-parse HEAD", "git show --stat --oneline HEAD", "git diff --check", "git diff --cached --stat"],
+      "exit": 0,
+      "result": "Only the same two preexisting dirty files; no staged changes; no repository edits by reviewer."
+    }
+  ],
+  "final_api_distribution": {
+    "status": "EXISTING_BUILD_AND_ORIGIN_EVIDENCE_READ_BACK_NOT_NOT_RUN",
+    "descriptor": "/home/kali/.hermes/cache/scratch/h04-api-reader-Htmt7Hzk/h04-current-reader.json",
+    "descriptor_sha256": "71c7b332043cb3dc34e1cf0706687b2fbfce2dc3f59ed6a6756ca703fac0620b",
+    "source_commit": "35efc3f0317d2345e3a345e7cb042f13029dc362",
+    "wheel_sha256": "ac9451f1bcb28e1e474703fe4b4cdcf40ab3894a832b9155bd455d2367610826",
+    "wheel_bytes": 261472,
+    "api_module_count": 89,
+    "installed_pyc_count": 0,
+    "reviewer_independent_export_wheel_installed_equality": true,
+    "existing_api_origin_result": "EXACT_WHEEL_AND_GIT_EXPORT",
+    "existing_api_origin_result_path": "/home/kali/.hermes/cache/scratch/h04-api-reader-Htmt7Hzk/api-origin.json",
+    "build_or_origin_reexecuted_by_reviewer": false,
+    "final_helper_main_positive": "PENDING_PARENT_INTEGRATION; worktree API differs from final frozen API; no ROOT substitution",
+    "h04_native_qa": "NOT_RUN"
+  },
+  "admission": {
+    "H04_REVIEWED": null,
+    "H04_READER": null,
+    "H04_READER_SHA": null,
+    "BATCH2_REVIEWED": null,
+    "STARTUP_REVIEWED": null,
+    "H04_SOURCE_SHA": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+    "disposition": "Closed fences unchanged. Source pin is stale pending parent rebinding after both reviews; not bypassed and not an additional safety finding."
+  },
+  "issues_encountered": [
+    {
+      "status": "CORRECTED_EVIDENCE_DISCOVERY_ONLY",
+      "exit": 1,
+      "detail": "First readback command used an overlong pytest fixture directory glob ending cache_cont*. Pytest truncates it to cache_con0/1/2; assertion on discovery count failed. No tests/product bytes changed and no rerun of product tests. Corrected actual directory discovery and readback script exit0; all22 original JUnit cases remain PASS."
+    }
+  ],
+  "writes_and_resources": {
+    "repository_files_changed": [],
+    "commits": [],
+    "scratch_root_created": "/home/kali/.hermes/cache/scratch/h04-pyc-safety-rereview-20261016",
+    "scratch_files": ["before.json", "after.json", "pytest-result.json", "pytest.xml", "pytest.private.log", "readback.py", "evidence-readback.json", "report.json", "pytest-fixtures/ (private source/wheel/venv projections, synthetic cache inputs and audit rows)"],
+    "subprocesses": "Bounded API-only subprocess.run, all returned; no persistent process/service launched. Unknown caches and failed evidence remain preserved.",
+    "forbidden_effects": "No PG, Docker, OCI, native RuntimeHost, provider/model/network/target, r1/profile/global changes, stage/commit/push or protected HTML access. -I -B used explicitly for Python reviewer/probe processes."
+  },
+  "limits": [
+    "APPROVED_SCOPED closes this original PYC QA false-green, not all H04/H05/native product requirements, integration or admission freeze.",
+    "Real fresh reader is the actual inert --history-control consumer with API imports; not a substitute minimal import and not PG receipt/replay execution.",
+    "Private system-site/.pth seam is SOURCE-only and explicitly not final distribution acceptance. No universal dependency/.pth/sitecustomize audit asserted.",
+    "No claim of hostile concurrent filesystem/import race resistance, OS confinement, arbitrary native syscall observation or absolute absence of defects.",
+    "Author37SOURCE/quality evidence remains author evidence, not falsely reported as reviewer execution.",
+    "Full canonical make check and H04 PG/native are NOT_RUN here because effects are outside authorization. No unchanged historical acceptances reopened.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No skill/procedure edit under read-only scope. Parent should persist the lesson that -B suppresses writes, not cache reads, and recheck inventory at every fresh first-import boundary."
+  ],
+  "status_delta": {
+    "AICI_H04_PYC_REPAIR": {"code": "CANDIDATE_UNCHANGED", "proof": "22_SOURCE_API_ONLY_PASS", "review": "APPROVED_SCOPED"},
+    "H04_H05_product": {"proof": "NATIVE_QA_NOT_RUN", "review": "NOT_CLOSED_BY_THIS_REPORT"},
+    "final_API_reader": "BUILD_ORIGIN_EXISTS_READ_BACK; FINAL_MAIN_HELPER_POSITIVE_PENDING_INTEGRATION",
+    "P0_P1_H03_batch2_history": "UNCHANGED_SCOPED_ACCEPTANCE",
+    "P2_G02": "NOT_CLOSED",
+    "P4a_minim": "NOT_IMPLEMENTED"
+  },
+  "parent_next_action": "Adjudecă acest raport împreună cu reviewul normativ pe aceiași bytes, integrează/releagă explicit pinul44a4b8e6 și readerul final, apoi verifică helperul real pe main fără substituție ROOT înaintea QA H04 PG/native autorizate. Nu promova acest review la acceptare P2."
+}

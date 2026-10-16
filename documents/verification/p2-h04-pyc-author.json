@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "finding": "H04-SAFETY-READER-PYC-01",
+  "status": "FROZEN_FOR_TWO_FOCUSED_RE_REVIEWS_NOT_ACCEPTED",
+  "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+  "head": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+  "contract": "Exact installed omnis closure: no unlisted cache execution in real origin or fresh RESTART_READER; retain ROOT/export/wheel/installed equality, -I/-B and all finite limits. API/SOURCE only, one concrete safety repair.",
+  "before": {
+    "api/tests/test_contract_method_pg.py": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3"
+  },
+  "after": {
+    "api/tests/test_contract_method_pg.py": "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "92891b3ce9ac8fd6acab737364f6e2487cafdbce6a2590bf182c11c3b7c3a3f3"
+  },
+  "changed_in_this_repair": [
+    "api/tests/test_contract_method_pg.py"
+  ],
+  "delta": {
+    "path": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/delta-from-reviewed.diff",
+    "sha256": "93f41cd74b71aec339da821f689aaa98c9bbecc6b0ae32ac860fe39c88447f4a",
+    "added_lines": 121,
+    "removed_lines": 2
+  },
+  "frozen_files": {
+    "api/tests/test_contract_method_pg.py": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/frozen/api/tests/test_contract_method_pg.py",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/frozen/documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  },
+  "source_hash_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/source-hash-manifest.json",
+    "sha256": "1259be7d48e625388ce6bd099dcdf32cde64bd79eee7e04d58482b3f4d998d73",
+    "api_inputs_unchanged": 91
+  },
+  "implementation": [
+    "Installed inventory has no __pycache__ exemption; unknown cache refuses before the origin subprocess.",
+    "The SAME inventory predicate is prepended before any omnis import in real origin and current restarted_cli readers (batch2/startup/H04). Historical H03 reader branch unchanged.",
+    "ROOT/export caches remain nonexecuted inputs and are not deleted or newly prohibited.",
+    "Existing bounded reads, descriptor pin, exact four-way source equality, -I/-B and 15s origin limit retained."
+  ],
+  "red": {
+    "exit": 1,
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'h04_real_reader_cache_controls and origin' --basetemp=/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/red-fixture",
+    "summary": [
+      "E   Failed: DID NOT RAISE AssertionError",
+      "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc/api/tests/test_contract_method_pg.py:6853: Failed: DID NOT RAISE AssertionError",
+      "1 failed, 375 deselected in 2.22s"
+    ],
+    "unchecked_hash_marker_executed": true,
+    "log": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/red.log"
+  },
+  "green": {
+    "exit": 0,
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line -k 'h04 and not real_native' --basetemp=/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/final-fixture",
+    "summary": [
+      "37 passed, 339 deselected in 13.81s"
+    ],
+    "unattested_bytecode_markers": 0,
+    "log": "/home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/final-source.log",
+    "controls": [
+      "real origin accepts exact projection",
+      "origin UNCHECKED_HASH negative refuses exact reason with zero subprocess calls",
+      "actual RESTART_READER inert --history-control reaches ORIGIN/READY/EXIT0",
+      "cache inserted AFTER successful origin refuses in fresh process before observer/API import; exact refusal/exit1; no marker",
+      "source/descriptor bytes unchanged; malicious cache preserved"
+    ]
+  },
+  "quality": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/ruff check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/ruff format --check --config api/pyproject.toml api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py",
+      "exit": 0
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/h04-pyc-fix-20261016/mypy-cache api/tests/test_contract_method_pg.py",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "intermediate": [
+    "First patch attempt failed validation atomically: zero files changed.",
+    "Initial formatter --check exit1; applied formatter, then ran final 37 SOURCE and quality on final bytes.",
+    "Intermediate 22 SOURCE passed exit0 before actual RESTART_READER control replaced minimal import control; final evidence is 37 SOURCE."
+  ],
+  "native_artifact": {
+    "sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "unchanged": true,
+    "prior_inventory": "34/34; reused, no native launch"
+  },
+  "historical_reader": {
+    "sha256": "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007",
+    "unchanged": true
+  },
+  "limits": [
+    "Private venv system-site/.pth dependency seam is explicit SOURCE fixture, NOT final accepted distribution.",
+    "Final API build/export/wheel/install and origin controls NOT_RUN_PENDING_ADMISSION_FREEZE.",
+    "No PG/Docker/OCI/native/RuntimeHost/model/provider/target/r1/global/profile/stage/commit/main changes.",
+    "Not a universal dependency/runtime audit, OS confinement proof or concurrent hostile-filesystem import guarantee.",
+    "All generated logs/reports private; failed and malicious fixtures retained, no unknown bytes deleted.",
+    "No new product framework, no cap/deadline/grant/source relaxation."
+  ],
+  "review": {
+    "normative": "FOCUSED_RE_REVIEW_REQUIRED_ON_AFTER_HASHES",
+    "safety": "FOCUSED_RE_REVIEW_REQUIRED_ON_AFTER_HASHES",
+    "admission_freeze": "NOT_DECLARED",
+    "H04_READER": null,
+    "H04_READER_SHA": null,
+    "reviewed_selector_pins": null
+  },
+  "git": "No stage/commit per delegated scope; parent owns integration and commit.",
+  "procedure_delta_for_parent": "-B prevents writing caches but still reads existing bytecode. Exact-source QA must refuse unknown installed cache before launch and recheck before every fresh reader first import. No skill edit here: repository scope permits only two files."
+}

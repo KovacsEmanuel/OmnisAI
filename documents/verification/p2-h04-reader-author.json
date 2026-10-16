@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "status": "CANDIDATE_SOURCE_GREEN_FINAL_API_READER_WAITING_ADMISSION_FREEZE",
+  "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+  "base": "d0504e4bc2066172e9313568a7e3cf5600e9ed70",
+  "checkpoint": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+  "scope": [
+    "api/tests/test_contract_method_pg.py",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+  ],
+  "delta_manifest": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/delta-manifest.json",
+  "commands": [
+    {
+      "name": "source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "-q",
+        "--tb=line",
+        "-k",
+        "h04_current_reader_source_snapshot or h04_rejects_exact_retained_batch2_reader_before_origin or h04_selector_is_closed_before_effects or (batch2_current_reader_actual_helper and not None)",
+        "--basetemp=/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/source"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/source.log",
+      "summary": [
+        "36 passed, 337 deselected in 2.44s"
+      ]
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/ruff.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/format.log",
+      "summary": [
+        "2 files already formatted"
+      ]
+    },
+    {
+      "name": "mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/mypy-cache",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/mypy.log",
+      "summary": [
+        "Success: no issues found in 1 source file"
+      ]
+    },
+    {
+      "name": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/diff.log",
+      "summary": []
+    }
+  ],
+  "source_results": {
+    "red": "11 failed before required expected_sha256 argument/generalized exact inventories existed; red.log preserved",
+    "green": {
+      "name": "source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py",
+        "-q",
+        "--tb=line",
+        "-k",
+        "h04_current_reader_source_snapshot or h04_rejects_exact_retained_batch2_reader_before_origin or h04_selector_is_closed_before_effects or (batch2_current_reader_actual_helper and not None)",
+        "--basetemp=/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/source"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/source.log",
+      "summary": [
+        "36 passed, 337 deselected in 2.44s"
+      ]
+    },
+    "real_historical_negative": "PASS through actual helper against actual current ROOT, pinned unchanged old descriptor, zero origin calls",
+    "positive": "SOURCE current89 files exact in all four projections; installed-origin subprocess seam substituted. NOT authentic installed acceptance",
+    "legacy_denials": "17 retained mutation negatives PASS with old source artifact; no existing denial removed",
+    "quality": "Ruff, format, strict mypy, git diff --check exit0 after final edit"
+  },
+  "design": {
+    "binding": "Required exact SHA256 of descriptor from fixed selector pins commit, full inventory and wheel hash. Commit is syntactically validated provenance, not a substitute for exact four-way bytes. ROOT/export/installed/wheel path sets must all match; no old 88 constant or old commit-as-current. All bounds and guard denials retained.",
+    "isolation": "New H04_READER/H04_READER_SHA fields remain None until final freeze/build. No fallback to historical batch2. Existing BATCH2 native artifact/reader identities retained. Static SOURCE positive accepts separately selected old native receipt plus new API reader.",
+    "unchanged_bounds": {
+      "descriptor": 32768,
+      "wheel": 262144,
+      "zip_entries": 128,
+      "zip_member": 131072,
+      "zip_total": 1048576,
+      "origin_seconds": 15
+    }
+  },
+  "offline_final_recipe": {
+    "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/offline-api-only-commands.json",
+    "status": "PREPARED_NOT_EXECUTED",
+    "syntax": "Python AST and bash -n checked without executing commands",
+    "reuse": "Existing API-only193-211 plus uv_build wheel producer; no full old script execution",
+    "required": "Parent freezes/integrates final Admission bytes and supplies exact40hex commit; then executes offline recipe and retains manifest/descriptor SHA results."
+  },
+  "selector": {
+    "BATCH2_REVIEWED": null,
+    "STARTUP_REVIEWED": null,
+    "H04_SOURCE_SHA": "42c14b9e8487589adeb31783f4aa9e5ca87b10f1f595b6be0810b612424574e4",
+    "H04_REVIEWED": null,
+    "H04_READER": null,
+    "H04_READER_SHA": null
+  },
+  "native_artifact": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json",
+    "sha256": "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c122b70318",
+    "matching_inventory": 34,
+    "provenance_matches": true
+  },
+  "limits": [
+    "Final API artifact, frozen-source real positive, final installed origin controls: NOT_RUN_PENDING_FREEZE. Existing two historical SOURCE failures are not marked closed.",
+    "No new PG/Docker/native/RuntimeHost/model/provider/r1/profile/global/network effect. No final runtime PASS or resource cleanup claim.",
+    "No stage/commit/main edit. Exactly two allowed repo files modified. Protected original HTML not read/hashed.",
+    "Two complementary exact-snapshot reviews, final installed QA and integration are parent-owned NOT_RUN.",
+    "Canonical make check NOT_RUN: forbidden effectful prerequisites. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Inventory excludes conventional __pycache__ generated bytecode only; no shipped API source bytes excluded or mismatches tolerated."
+  ],
+  "issues": [
+    {
+      "id": "H04-STATIC-CURRENT-READER-01",
+      "status": "DESIGN_AND_SOURCE_CANDIDATE_READY_FINAL_PREREQUISITE_STILL_BLOCKED",
+      "next": "Build NEW API-only reader after Admission freeze, verify actual current positive plus exact historical negative, bind selector path/hash, parent reviews and serial installed QA."
+    },
+    {
+      "id": "PREPARE_OPTIONAL_PYTHON_VERSION",
+      "status": "FIXED_IN_COMMAND_RECIPE",
+      "detail": "Read-only manifest probe found absent api/.python-version; original ls-files treated it optional. Recipe now names only actual tracked inputs. No install/build attempted."
+    }
+  ],
+  "parent_status_delta": {
+    "H04": "SOURCE_CANDIDATE_ONLY_NOT_REVIEWED",
+    "BATCH2": "HISTORICAL_ACCEPTANCE_UNCHANGED",
+    "STARTUP": "NOT_REVIEWED",
+    "P2_inert_G02": "NOT_CLOSED",
+    "next": "Admission freeze -> offline API reader -> scoped real controls -> two parent reviews/serial installed QA"
+  },
+  "procedural_lesson_for_parent": "Keep immutable native and historical reader receipts separate from each new API source closure. Optional git ls-files patterns must not become mandatory git archive paths without existence discovery.",
+  "snapshot": {
+    "delta-from-checkpoint.diff": {
+      "sha256": "5250ba47c2c948370879b5e43fc83a1c81784f8b50d736634b02f0feb7fafca7",
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/delta-from-checkpoint.diff"
+    },
+    "candidate-from-base.diff": {
+      "sha256": "d0039836f47fe4961f12c0cafadb00b2db888b5a85691b40b6dd06f54302a9bc",
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/candidate-from-base.diff"
+    },
+    "delta-manifest.json": {
+      "sha256": "c515f7f704ebf395ed978002a68b8400bd5b912c5459847e826f5c26c9b49014",
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/delta-manifest.json"
+    },
+    "offline-api-only-commands.json": {
+      "sha256": "12fabf35cf953443e53ea89b774d901ef51be91b64de685fc0048be73150399c",
+      "path": "/home/kali/.hermes/cache/scratch/h04-reader-design-20261016/offline-api-only-commands.json"
+    }
+  }
+}

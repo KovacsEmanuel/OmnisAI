@@ -1,7 +1,8 @@
-"""One installed H03/batch2 node; existing private runner owns DB/family.
+"""One installed H03/batch2/H04 node; existing private runner owns DB/family.
 
 Batch2 collection is inert. Execution stays closed until parent adjudicates two
 independent exact-snapshot reviews and explicitly binds BATCH2_REVIEWED.
+H04 uses fresh singleton roots and its own closed H04_REVIEWED fence.
 """
 
 import argparse
@@ -38,7 +39,22 @@ BATCH2_ARTIFACT_SHA = "e097a2bc581678345050edfc31c0bf787890a0af527d9be6520436c12
 BATCH2_READER = BATCH2_ROOT / "current-reader.json"
 BATCH2_READER_SHA = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
 BATCH2_CASES = ("batch2-release-first", "batch2-stop-first")
-CASES = ("runtime-restart", "runtime-restart-no-final", *BATCH2_CASES, STARTUP_CASE)
+H04_CASES = (
+    "h04-inventory",
+    "h04-root-lineage",
+    "h04-child-lineage",
+    "h04-guard-false",
+    "h04-guard-exception",
+)
+H04_SOURCE_SHA = "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9"
+H04_REVIEWED: str | None = None
+# Parent binds BOTH only after Admission API bytes are frozen and API-only
+# build/origin readback completed. Never reuse/overwrite the batch2 reader.
+H04_READER: Path | None = Path(
+    "/home/kali/.hermes/cache/scratch/h04-api-reader-Htmt7Hzk/h04-current-reader.json"
+)
+H04_READER_SHA: str | None = "71c7b332043cb3dc34e1cf0706687b2fbfce2dc3f59ed6a6756ca703fac0620b"
+CASES = ("runtime-restart", "runtime-restart-no-final", *BATCH2_CASES, STARTUP_CASE, *H04_CASES)
 
 
 def selected_argv(case: str, collect_only: bool = False) -> list[str]:
@@ -51,7 +67,9 @@ def selected_argv(case: str, collect_only: bool = False) -> list[str]:
         + "]"
     )
     leaf = (
-        "batch2-stock1-"
+        "h04-stock1-attempt1-"
+        if case in H04_CASES
+        else "batch2-stock1-"
         if case == STARTUP_CASE
         else "batch2-stock4-"
         if case in BATCH2_CASES
@@ -92,12 +110,29 @@ def environment(base: Mapping[str, str], case: str, *, reviewed: bool = False) -
         and not k.startswith(("OMNIS_H03_", "OMNIS_BATCH2_"))
     }
     clean.update(PYTEST_DISABLE_PLUGIN_AUTOLOAD="1", OMNIS_CONTRACT_METHOD_NATIVE_PG="1")
-    batch2 = case in BATCH2_CASES or case == STARTUP_CASE
+    batch2 = case in BATCH2_CASES or case == STARTUP_CASE or case in H04_CASES
     namespace = "OMNIS_BATCH2" if batch2 else "OMNIS_H03"
     clean[namespace + "_ARTIFACT"] = str(BATCH2_ARTIFACT if batch2 else ARTIFACT)
     clean[namespace + "_ARTIFACT_SHA"] = BATCH2_ARTIFACT_SHA if batch2 else ARTIFACT_SHA
-    clean[namespace + "_API_PREREQUISITES"] = str(BATCH2_READER) if batch2 else API_PREREQUISITES
-    digest = STARTUP_REVIEWED if case == STARTUP_CASE else BATCH2_REVIEWED if batch2 else REVIEWED
+    if case in H04_CASES:
+        if H04_READER is not None and H04_READER_SHA is not None:
+            clean[namespace + "_API_PREREQUISITES"] = str(H04_READER)
+            clean[namespace + "_API_PREREQUISITES_SHA"] = H04_READER_SHA
+    else:
+        clean[namespace + "_API_PREREQUISITES"] = (
+            str(BATCH2_READER) if batch2 else API_PREREQUISITES
+        )
+        if batch2:
+            clean[namespace + "_API_PREREQUISITES_SHA"] = BATCH2_READER_SHA
+    digest = (
+        H04_REVIEWED
+        if case in H04_CASES
+        else STARTUP_REVIEWED
+        if case == STARTUP_CASE
+        else BATCH2_REVIEWED
+        if batch2
+        else REVIEWED
+    )
     if reviewed and digest is not None:
         clean[namespace + "_NORMATIVE_REVIEWED"] = digest
         clean[namespace + "_INPUT_REVIEWED"] = digest
@@ -161,8 +196,17 @@ def main() -> int:
     parser.add_argument("--review-adjudicated", action="store_true")
     args = parser.parse_args()
     startup = args.case == STARTUP_CASE
-    batch2 = args.case in BATCH2_CASES or startup
-    source = STARTUP_SOURCE_SHA if startup else BATCH2_SOURCE_SHA if batch2 else REVIEWED
+    h04 = args.case in H04_CASES
+    batch2 = args.case in BATCH2_CASES or startup or h04
+    source = (
+        H04_SOURCE_SHA
+        if h04
+        else STARTUP_SOURCE_SHA
+        if startup
+        else BATCH2_SOURCE_SHA
+        if batch2
+        else REVIEWED
+    )
     artifact, expected = (
         (BATCH2_ARTIFACT, BATCH2_ARTIFACT_SHA) if batch2 else (ARTIFACT, ARTIFACT_SHA)
     )
@@ -173,8 +217,13 @@ def main() -> int:
             parser.error("Exact SOURCE snapshot changed; existing reviews cannot authorize it")
         if _pinned_sha256(artifact, 32768) != expected:
             parser.error("Exact installed artifact receipt changed")
-        if batch2 and _pinned_sha256(BATCH2_READER, 32768) != BATCH2_READER_SHA:
-            parser.error("Exact current reader receipt changed")
+        if batch2:
+            reader = H04_READER if h04 else BATCH2_READER
+            reader_sha = H04_READER_SHA if h04 else BATCH2_READER_SHA
+            if reader is None or reader_sha is None:
+                parser.error("Final frozen H04 API reader not bound")
+            if _pinned_sha256(reader, 32768) != reader_sha:
+                parser.error("Exact current reader receipt changed")
     except (OSError, ValueError):
         parser.error("Pinned entry file is unavailable, unsafe, oversized or unstable")
     if args.collect_only:
@@ -183,7 +232,15 @@ def main() -> int:
             cwd=ROOT,
             env=environment(os.environ, args.case),
         )
-    approved = STARTUP_REVIEWED if startup else BATCH2_REVIEWED if batch2 else REVIEWED
+    approved = (
+        H04_REVIEWED
+        if h04
+        else STARTUP_REVIEWED
+        if startup
+        else BATCH2_REVIEWED
+        if batch2
+        else REVIEWED
+    )
     if not args.review_adjudicated or approved != source:
         parser.error(
             "Parent adjudication of both exact complementary reviews required; flag is not approval"

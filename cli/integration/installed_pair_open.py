@@ -202,7 +202,13 @@ def run_browser(
     on_joined=None,
 ):
     """One existing browser owner; private input and exact normal-close receipt."""
-    assert mode in {"session", "settings-save", "settings-readback"}
+    assert mode in {
+        "session",
+        "settings-save",
+        "settings-readback",
+        "settings-auth",
+        "settings-auth-readback",
+    }
     if browser is None:
         cache = Path(
             os.environ.get("PLAYWRIGHT_BROWSERS_PATH", str(Path.home() / ".cache/ms-playwright"))

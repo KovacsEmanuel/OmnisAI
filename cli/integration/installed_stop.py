@@ -131,6 +131,8 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         nonlocal driver_pending, provider_identity
         if settings_browser is None:
             return
+        if receipt.get("profile") == "p4a-codex-auth":
+            mode = "settings-auth" if mode == "settings-save" else "settings-auth-readback"
         require_observer_settled()
         assert runtime.native, "Settings requires the sealed native installation"
         identity = record["provider_identity"]

@@ -3,8 +3,14 @@ import assert from 'node:assert/strict';
 import { assertProvider, assertDenial, assertJourney } from './installed_browser.mjs';
 
 const selection = { provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' };
+test('auth journey has one Connect and same-operation Cancel', () => {
+  const steps = [{action:'read',id:'a'}, {action:'save',id:'b'}, {action:'read',id:'c'}, {action:'connect',id:'d'}, {action:'cancel',id:'d'}];
+  assertJourney('settings-auth', steps);
+  assert.throws(() => assertJourney('settings-auth', [...steps, {action:'connect',id:'e'}]));
+  assert.throws(() => assertJourney('settings-auth', [...steps.slice(0,4), {action:'cancel',id:'e'}]));
+});
 const view = { operation_id: 'a', status: 'CONFIRMED', selection, configured: true,
-  authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false };
+  authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false, oauth: 'NONE', challenge: null };
 test('actual browser oracle accepts exact readback, refuses dishonest axes and selection', () => {
   assertProvider(view, 'a', true);
   assertProvider({ ...view, selection: null, configured: false }, 'a', false);

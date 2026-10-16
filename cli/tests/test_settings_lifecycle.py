@@ -187,6 +187,14 @@ class SettingsTopologyTest(ProductAttestationTest):
             self.assertLessEqual(len(frame), 4096)
             self.assertLessEqual(len(encoded(maximum)), 2900)
             print("AUTH_PRODUCER_SIZES", len(encoded(maximum)), len(encoded(grant)), len(frame))
+            reply_frame = (
+                json.dumps(
+                    {"ok": True, "correlation_id": record["stop_command"], "grant": grant}
+                ).encode()
+                + b"\n"
+            )
+            self.assertLessEqual(len(reply_frame), 4096)
+            print("AUTH_REPLY_FRAME_BYTES", len(reply_frame))
             _stop_grant(
                 {"ok": True, "correlation_id": record["stop_command"], "grant": grant}, command
             )

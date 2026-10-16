@@ -9,12 +9,18 @@ const route = '/api/v1/settings/provider';
 export function assertProvider(value, id, configured) {
   assert.deepEqual(value, { operation_id: id, status: 'CONFIRMED',
     selection: configured ? selection : null, configured,
-    authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false });
+    authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false, oauth: 'NONE', challenge: null });
 }
 export function assertDenial(status, value, expected, reason) {
   assert.equal(status, expected); assert.equal(value.error?.code, reason);
 }
 export function assertJourney(mode, operations) {
+  if (mode === 'settings-auth') {
+    assert.deepEqual(operations.map(item => item.action), ['read', 'save', 'read', 'connect', 'cancel']);
+    assert.equal(new Set(operations.slice(0, 4).map(item => item.id)).size, 4);
+    assert.equal(operations[3].id, operations[4].id);
+    return;
+  }
   assert.deepEqual(operations.map(item => item.action), mode === 'settings-save' ? ['read', 'save', 'read'] : ['read']);
   assert.equal(new Set(operations.map(item => item.id)).size, operations.length);
 }
@@ -84,12 +90,47 @@ async function settings(page, context, expect, origin, mode, manifestText, captu
     await expect(page.getByText(`Configured: ${configured ? 'yes' : 'no'} — native readback`, { exact: true })).toBeVisible();
     for (const text of ['Authenticated: not verified', 'Provider reachable: not verified', 'Inference ready: no']) await expect(page.getByText(text, { exact: true })).toBeVisible();
   }
-  await operation('read', mode === 'settings-readback');
-  if (mode === 'settings-save') {
+  if (mode === 'settings-auth-readback') {
+    const current = await context.request.get(`${origin}${route}/operations/current`, { maxRedirects: 0, timeout: 5000 });
+    assert.equal(current.status(), 200);
+    const value = await current.json();
+    assert.equal(value.status, 'UNAVAILABLE'); assert.equal(value.oauth, 'NONE'); assert.equal(value.challenge, null);
+  }
+  await operation('read', mode === 'settings-readback' || mode === 'settings-auth-readback');
+  if (mode === 'settings-save' || mode === 'settings-auth') {
     await operation('save', true);
     await page.reload();
-    await expect(page.getByText('Configured: not confirmed', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Provider configuration' })).toBeVisible();
     await operation('read', true);
+  }
+  if (mode === 'settings-auth') {
+    async function flow(action, label) {
+      const pending = page.waitForResponse(response => response.url() === `${origin}${route}` && response.request().method() === 'PUT');
+      await page.getByRole('button', { name: label, exact: true }).click();
+      const response = await pending;
+      assert.equal(response.status(), 200);
+      const sent = response.request().postDataJSON();
+      assert.equal(sent.action, action);
+      operations.push({action, id: sent.operation_id});
+      return sent.operation_id;
+    }
+    const id = await flow('connect', 'Connect Codex');
+    // Never read code text, response bodies or screenshots while a challenge exists.
+    await expect(page.getByRole('link', { name: 'Open Codex device authorization' })).toHaveAttribute('href', 'https://auth.openai.com/codex/device', {timeout: 30000});
+    await expect(page.locator('code')).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('link', { name: 'Open Codex device authorization' })).toBeVisible();
+    assert.equal(await flow('cancel', 'Cancel connection'), id);
+    await expect.poll(async () => {
+      const response = await context.request.get(`${origin}${route}/operations/${id}`, {maxRedirects: 0, timeout: 5000});
+      assert.equal(response.status(), 200);
+      const value = await response.json();
+      if (value.status === 'CONFIRMED') {
+        assert.equal(value.challenge, null); assert.equal(value.inference_ready, false);
+      }
+      return value.oauth;
+    }, {timeout: 30000}).toBe('CANCELLED');
+    await expect(page.locator('code')).toHaveCount(0);
   }
   assertJourney(mode, operations);
   assert.deepEqual(observed, operations);
@@ -110,7 +151,7 @@ async function settings(page, context, expect, origin, mode, manifestText, captu
 
 async function main() {
   const mode = process.env.OMNIS_BROWSER_MODE ?? 'session';
-  assert.ok(['session', 'settings-save', 'settings-readback'].includes(mode));
+  assert.ok(['session', 'settings-save', 'settings-readback', 'settings-auth', 'settings-auth-readback'].includes(mode));
   const origin = process.env.OMNIS_BROWSER_ORIGIN;
   const instance = process.env.OMNIS_BROWSER_INSTANCE;
   assert.match(origin ?? '', /^http:\/\/127\.0\.0\.1:[0-9]+$/);

@@ -154,7 +154,13 @@ def assert_resources_absent(runtime, root, control, record, *, observer=None):
         assert runtime.inspect("container", cid) is None, "Claimed cleanup left exact CID"
     paths = [root / "http/api.sock", control / "control.sock", control / "control.cap"]
     if "runtime" in record.get("containers", {}):
-        paths.extend((root / "native-ipc/runtime.sock", root / "native-ipc/runtime.boot"))
+        paths.extend(
+            (
+                root / "native-ipc/runtime.sock",
+                root / "native-ipc/runtime.boot",
+                root / "native-ipc/auth-egress.sock",
+            )
+        )
     for path in paths:
         assert not os.path.lexists(path), "Claimed cleanup left IPC"
 

@@ -245,6 +245,7 @@ class RuntimeClient:
         self.recovery_lock = asyncio.Lock()
         self.bootstrap_inventory: BootstrapInventory | None = None
         self._initial_management_bind = True
+        self._stop_serial = 0
 
     async def connect(self) -> None:
         private_directory(self.directory)
@@ -380,6 +381,7 @@ class RuntimeClient:
         payload: dict[str, object] | None = None,
         *,
         _frozen: FrozenPreflight | None = None,
+        _settings_stop_serial: int | None = None,
     ) -> dict[str, object]:
         if (
             op
@@ -409,6 +411,10 @@ class RuntimeClient:
         ):
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
+            if op == "stop":
+                self._stop_serial += 1
+            if op == "settings" and _settings_stop_serial != self._stop_serial:
+                raise RuntimeUnavailable("Settings overtaken by Stop")
             if (
                 op == "settings"
                 and authority is not None
@@ -429,9 +435,12 @@ class RuntimeClient:
                 if time.monotonic_ns() >= authority.deadline_ns:
                     raise RuntimeUnavailable("Expired runtime authority")
                 self.generation = authority.generation
-            if op not in {"status", "settings_status", "task_receive"}:
+            if op not in {"status", "settings_status", "task_receive", "stop"}:
                 self._initial_management_bind = False
-            return await self._exchange_locked(op, authority, payload, _frozen=_frozen)
+            response = await self._exchange_locked(op, authority, payload, _frozen=_frozen)
+            if op == "stop" and response["state"] != "IDLE":
+                self._initial_management_bind = False
+            return response
 
     async def _exchange_locked(
         self,
@@ -686,6 +695,7 @@ class RuntimeClient:
         from omnis.modules.settings.provider_models import ProviderCommand, ProviderView
 
         command = ProviderCommand.model_validate(payload)
+        stop_serial = self._stop_serial
         from omnis.modules.instance.domain import ControlCode, ControlConflict
 
         try:
@@ -706,7 +716,12 @@ class RuntimeClient:
                 owner, self.epoch, current.generation, management=True
             )
         try:
-            response = await self._exchange("settings", authority, command.model_dump(mode="json"))
+            response = await self._exchange(
+                "settings",
+                authority,
+                command.model_dump(mode="json"),
+                _settings_stop_serial=stop_serial,
+            )
             result = ProviderView.model_validate(response.get("settings"))
             if result.operation_id != command.operation_id:
                 raise RuntimeUnavailable("Settings correlation mismatch")

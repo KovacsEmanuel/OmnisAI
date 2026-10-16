@@ -77,7 +77,8 @@ async def test_settings_management_retains_exact_selection_without_ready_invento
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "cut", ["open", "stopped", "uncertain", "active", "jump", "closed", "owner", "race"]
+    "cut",
+    ["open", "prior-quiesce", "stopped", "uncertain", "active", "jump", "closed", "owner", "race"],
 )
 async def test_first_settings_binds_only_current_open_idle_generation(
     ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str
@@ -125,8 +126,14 @@ async def test_first_settings_binds_only_current_open_idle_generation(
         await client.connect()
         boot, writer = client.boot, client.writer
         try:
-            if cut == "stopped":
+            if cut == "prior-quiesce":
+                # The supervisor quiesces the previous finalized generation
+                # before OPEN; a cold Host with no process remains IDLE.
                 assert await client.drain()
+                assert (await client.status())["state"] == "IDLE"
+            elif cut == "stopped":
+                host.state = "STOPPED"
+                host.generation, host.epoch = 10, 7
             elif cut == "uncertain":
                 host.state = "UNCERTAIN"
                 host.generation, host.epoch = 10, 7
@@ -139,7 +146,7 @@ async def test_first_settings_binds_only_current_open_idle_generation(
                 "action": "read",
                 "selection": None,
             }
-            if cut == "open":
+            if cut in {"open", "prior-quiesce"}:
                 result = await client.settings(service, owner, command)
                 assert result["status"] == "PENDING"
                 assert client.generation == 11 and host.generation == 11

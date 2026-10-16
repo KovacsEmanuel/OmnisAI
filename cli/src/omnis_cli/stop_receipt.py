@@ -24,7 +24,7 @@ STAGES = (
 def stages(inventory: dict[str, object]) -> tuple[str, ...]:
     return (
         (*STAGES[:5], "runtime.stop", "runtime.rm", *STAGES[5:])
-        if inventory.get("version") == 2
+        if inventory.get("version") in (2, 3)
         else STAGES
     )
 
@@ -118,7 +118,7 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
     ):
         raise StartError("STOP_INVENTORY_INVALID", 4)
     for key, expected in (
-        ("version", 2 if native else 1),
+        ("version", 3 if record.get("format") == 4 else 2 if native else 1),
         ("release", record["release_digest"]),
         ("project", record["project"]),
         ("attempt", record["attempt"]),
@@ -171,6 +171,7 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
         "identity": fingerprint(process),
         "listener": record["listener_inode"],
         "port": record["port"],
+        **({"auth": record["auth"]} if record.get("format") == 4 else {}),
     }
     if encoded(inventory["forwarder"]) != encoded(expected_forwarder):
         raise StartError("STOP_INVENTORY_INVALID", 4)
@@ -218,7 +219,7 @@ def completed_receipt(path: Path, grant: dict[str, object]) -> dict[str, object]
     if (
         set(value) != {"version", "grant", "owner", "launcher", "state", "pending", "completed"}
         or type(value["version"]) is not int
-        or value["version"] not in (1, 2)
+        or value["version"] not in (1, 2, 3)
         or value["version"] != mapping(grant["inventory"])["version"]
         or encoded(value["grant"]) != encoded(grant)
         or value["state"] != "COMPLETED"

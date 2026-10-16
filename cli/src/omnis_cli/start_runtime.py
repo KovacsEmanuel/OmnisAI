@@ -47,7 +47,7 @@ def attest_runtime_image(image: dict[str, object], receipt: ImageReceipt, digest
         or config.get("Cmd") != list(RUNTIME_COMMAND)
         or labels.get("org.omnis.project") != receipt.project
         or labels.get("org.omnis.bundle_sha256") != digest
-        or labels.get("org.omnis.profile") != "p4a-settings-offline"
+        or labels.get("org.omnis.profile") != receipt.profile
         or labels.get("org.omnis.image-role") != "runtime"
     ):
         raise StartError("RUNTIME_IMAGE_IDENTITY_MISMATCH", 4)
@@ -66,7 +66,7 @@ def check_native_paths(root: Path, record: dict[str, object] | None = None) -> N
         record = read_record(root / "startup.json")
     if (
         type(record.get("format")) is not int
-        or record["format"] != 3
+        or record["format"] not in (3, 4)
         or private_identity(root / "provider") != record.get("provider_identity")
         or private_identity(root / "native-ipc") != record.get("runtime_dir_identity")
     ):
@@ -145,7 +145,9 @@ class ControlRuntime:
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
         self.receipt: ImageReceipt = receipt
-        if ("native/source-manifest.json" in self.files) != (receipt.profile is not None):
+        if ("native/source-manifest.json" in self.files) != (
+            receipt.profile is not None
+        ) or json.loads(manifest).get("profile") != receipt.profile:
             raise StartError("IMAGE_PROFILE_MISMATCH")
         # The finite profile below selects both the four-role template and its
         # independently installed runtime image. No ambient configuration opts in.
@@ -384,7 +386,7 @@ class ControlRuntime:
 
     @property
     def native(self) -> bool:
-        return getattr(self.receipt, "profile", None) == "p4a-settings-offline"
+        return getattr(self.receipt, "profile", None) in {"p4a-settings-offline", "p4a-codex-auth"}
 
     def compose(
         self, env: dict[str, str], *args: str, effect: bool = False

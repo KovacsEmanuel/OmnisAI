@@ -165,7 +165,11 @@ def cleanup_startup_ipc(
             if stem == "runtime"
             else None
         )
-        if not os.path.lexists(path) and not (cap and os.path.lexists(cap)):
+        if (
+            not os.path.lexists(path)
+            and not (cap and os.path.lexists(cap))
+            and not (stem == "runtime" and os.path.lexists(directory / "auth-egress.sock"))
+        ):
             continue
         try:
             private_dir(directory)
@@ -187,8 +191,10 @@ def cleanup_startup_ipc(
                     record = read_record(root / "startup.json")
                     check_native_paths(root, record)
                     pinned = record.get("runtime_ipc")
-                    if pinned is not None and runtime_ipc(root) != pinned:
+                    if pinned is not None and os.path.lexists(path) and runtime_ipc(root) != pinned:
                         raise StartError("IPC_REPLACED", 4)
+                    if record.get("format") == 4:
+                        cleanup_auth_socket(root, mapping(record.get("auth")))
                 if os.path.lexists(path):
                     identity = socket_identity(path)
                     if expected is not None and identity != expected.get(stem):
@@ -220,6 +226,26 @@ def cleanup_startup_ipc(
         except (OSError, ValueError):
             problems.append("IPC ownership uncertain")
     return problems
+
+
+def cleanup_auth_socket(root: Path, auth: dict[str, object]) -> None:
+    """Caller holds lifecycle/service locks and has proven forwarder exit/drain."""
+    path = root / "native-ipc/auth-egress.sock"
+    if set(auth) != {"socket", "listener"}:
+        raise StartError("AUTH_IPC_UNCERTAIN", 4)
+    for row in Path("/proc/net/unix").read_bytes().splitlines()[1:]:
+        fields = row.split()
+        if len(fields) >= 7 and (
+            fields[6] == str(auth["listener"]).encode()
+            or len(fields) == 8
+            and fields[7] == os.fsencode(path)
+        ):
+            raise StartError("AUTH_IPC_STILL_LIVE", 4)
+    if os.path.lexists(path):
+        if socket_identity(path) != auth["socket"]:
+            raise StartError("AUTH_IPC_REPLACED", 4)
+        path.unlink()
+        _sync_dir(path.parent)
 
 
 def socket_identity(path: Path) -> list[int]:

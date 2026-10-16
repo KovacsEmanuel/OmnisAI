@@ -275,8 +275,13 @@ def prepare_stop_inventory(
     if api != record["api_socket"] or ctl != record["control_socket"]:
         raise StartError("STOP_IPC_DRIFT", 4)
     check_runtime_ipc(root, record)
+    if record.get("format") == 4:
+        from .start import auth_listener
+
+        if auth_listener(root, identity) != record["auth"]:
+            raise StartError("AUTH_LISTENER_UNVERIFIED", 4)
     inventory: dict[str, object] = {
-        "version": 2 if native_fields(record) else 1,
+        "version": 3 if record.get("format") == 4 else 2 if native_fields(record) else 1,
         "release": runtime.digest,
         "project": runtime.receipt.project,
         "attempt": record["attempt"],
@@ -289,6 +294,7 @@ def prepare_stop_inventory(
             "identity": fingerprint(identity),
             "listener": record["listener_inode"],
             "port": record["port"],
+            **({"auth": record["auth"]} if record.get("format") == 4 else {}),
         },
         "ipc": {
             "api": api,
@@ -383,11 +389,16 @@ def _ipc_absent(root: Path, control: Path, inventory: dict[str, object]) -> None
 
 
 def _ipc_progress(
-    root: Path, control: Path, inventory: dict[str, object], stopped: set[str]
+    root: Path,
+    control: Path,
+    inventory: dict[str, object],
+    stopped: set[str],
+    *,
+    cleanup: bool = False,
 ) -> None:
     # Existing service locks serialize legitimate writers; no pathname cleanup.
     expected = mapping(inventory["ipc"])
-    native = inventory.get("version") == 2
+    native = inventory.get("version") in (2, 3)
     if native:
         ipc = mapping(inventory["runtime_ipc"])
         expected.update(runtime=ipc["socket"], runtime_lock=ipc["lock"])
@@ -427,6 +438,13 @@ def _ipc_progress(
             fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK)
             fds.append(fd)  # Includes cleanup if the second acquisition fails.
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if stem == "runtime" and inventory.get("version") == 3:
+                from .lifecycle import cleanup_auth_socket
+
+                if cleanup:
+                    cleanup_auth_socket(root, mapping(mapping(inventory["forwarder"])["auth"]))
+                elif os.path.lexists(root / "native-ipc/auth-egress.sock"):
+                    raise StartError("STOP_IPC_REMAINS", 4)
             if (
                 os.path.lexists(sock)
                 or (stem == "control" and os.path.lexists(control / "control.cap"))
@@ -551,11 +569,12 @@ def _execute(
     prepare("forwarder")
     listener_owned(identity, int(str(record["port"])), int(str(record["listener_inode"])))
     intent = {
-        "version": 1,
+        "version": 2 if record.get("format") == 4 else 1,
         "attempt": record["attempt"],
         "command_id": record["stop_command"],
         "forwarder": identity,
         "listener_inode": record["listener_inode"],
+        **({"auth": record["auth"]} if record.get("format") == 4 else {}),
     }
     persist(root / f"stop-forwarder-{record['attempt']}.json", intent)
     signal.pidfd_send_signal(forwarder_fd, signal.SIGTERM)
@@ -592,7 +611,7 @@ def _execute(
             _stopped(after)
             family.drained()
             stopped.add(role)
-            _ipc_progress(root, control, inventory, stopped)
+            _ipc_progress(root, control, inventory, stopped, cleanup=True)
             complete(role + ".stop", ack, {"state": after["State"], "family_empty": True})
             prepare(role + ".rm")
             after = view.attest(cid, role, root, control, int(str(record["port"])))
@@ -684,11 +703,12 @@ def verify_stop_completion(
     _ipc_absent(root, control, inventory)
     _listener_absent(record)
     intent = {
-        "version": 1,
+        "version": 2 if record.get("format") == 4 else 1,
         "attempt": record["attempt"],
         "command_id": record["stop_command"],
         "forwarder": record["forwarder"],
         "listener_inode": record["listener_inode"],
+        **({"auth": record["auth"]} if record.get("format") == 4 else {}),
         "drained": True,
     }
     if encoded(read_record(root / f"stop-forwarder-{record['attempt']}-drained.json")) != encoded(

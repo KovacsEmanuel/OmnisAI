@@ -58,7 +58,7 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     fields = {"format", "release", "schema", "platform", "files"}
     if set(raw) != fields | ({"profile"} if native else set()):
         raise ReleaseError("Invalid release manifest")
-    if native and raw["profile"] != "p4a-settings-offline":
+    if native and raw["profile"] not in {"p4a-settings-offline", "p4a-codex-auth"}:
         raise ReleaseError("Unsupported release profile")
     if (
         type(raw["format"]) is not int

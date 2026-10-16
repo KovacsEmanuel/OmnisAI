@@ -107,7 +107,28 @@ NATIVE_FIELDS = {"runtime_image_id", "provider_identity", "runtime_dir_identity"
 
 
 def native_fields(record: dict[str, object]) -> set[str]:
-    return NATIVE_FIELDS if type(record.get("format")) is int and record["format"] == 3 else set()
+    if type(record.get("format")) is int and record["format"] in (3, 4):
+        return NATIVE_FIELDS | ({"auth"} if record["format"] == 4 else set())
+    return set()
+
+
+def auth_listener(root: Path, identity: dict[str, object]) -> dict[str, object]:
+    """Bind the filesystem endpoint to this forwarder's kernel listener."""
+    path = root / "native-ipc/auth-egress.sock"
+    pair = socket_identity(path)
+    inodes = process_sockets(int(str(identity["pid"])))
+    rows = Path("/proc/net/unix").read_bytes().splitlines()[1:]
+    matches = [
+        int(parts[6])
+        for row in rows
+        if len(parts := row.split()) == 8
+        and parts[7] == os.fsencode(path)
+        and parts[3] == b"00010000"
+        and int(parts[6]) in inodes
+    ]
+    if len(matches) != 1 or process_identity(int(str(identity["pid"]))) != identity:
+        raise StartError("AUTH_LISTENER_UNVERIFIED", 4)
+    return {"socket": pair, "listener": matches[0]}
 
 
 def service_roles(record: dict[str, object]) -> tuple[str, ...]:
@@ -493,6 +514,7 @@ def launch_forwarder(
     *,
     ownership: ForwarderOwnership | None = None,
     stop_attempt: str | None = None,
+    auth: bool = False,
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
     # The private intent and caller holder exist before birth. The tuple is NOT
     # the ownership transfer: finally/close and tuple unpacking remain interruptible.
@@ -516,6 +538,7 @@ def launch_forwarder(
                         str(root / "http"),
                         "--port",
                         str(port),
+                        *(["--auth-directory", str(root / "native-ipc")] if auth else []),
                         *(["--stop-attempt", stop_attempt] if stop_attempt is not None else []),
                     ],
                     cwd=root,
@@ -809,7 +832,7 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
         or phase not in fields
         or set(record) not in tuple(value | native_fields(record) for value in fields[phase])
         or type(record.get("format")) is not int
-        or record["format"] not in (2, 3)
+        or record["format"] not in (2, 3, 4)
         or type(value) is not list
         or len(value) != 2
         or any(type(part) is not int or part < 0 for part in value)
@@ -840,6 +863,15 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
         ):
             raise StartError("RECOVERY_REQUIRED", 4)
         if phase in {"READY", "FORWARDING", "STOPPING", "STOPPED"}:
+            if record["format"] == 4:
+                auth = record.get("auth")
+                if (
+                    type(auth) is not dict
+                    or set(auth) != {"socket", "listener"}
+                    or not _socket_receipt(auth["socket"])
+                    or not _receipt_int(auth["listener"], 1)
+                ):
+                    raise StartError("RECOVERY_REQUIRED", 4)
             ipc = record.get("runtime_ipc")
             if (
                 type(ipc) is not dict
@@ -865,7 +897,7 @@ def _ready_record(record: dict[str, object]) -> None:
         set(record) != READY_FIELDS | native_fields(record)
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
-        or record["format"] not in (2, 3)
+        or record["format"] not in (2, 3, 4)
         or type(record.get("generation")) is not int
         or type(record.get("supervisor_epoch")) is not int
         or type(record.get("containers")) is not dict
@@ -885,8 +917,13 @@ def _bound_instance(
     _pgdata_receipt(record)
     _owned_record(record)
     instance = load_instance(root)
-    if bool(native_fields(record)) != (runtime.native is True) or (
-        native_fields(record) and record["runtime_image_id"] != runtime.receipt.runtime_image_id
+    if (
+        (record.get("format") == 4)
+        != (getattr(runtime.receipt, "profile", None) == "p4a-codex-auth")
+        or bool(native_fields(record)) != (runtime.native is True)
+        or (
+            native_fields(record) and record["runtime_image_id"] != runtime.receipt.runtime_image_id
+        )
     ):
         raise StartError("IMAGE_PROFILE_MISMATCH", 4)
     if (
@@ -944,6 +981,8 @@ def verify_running(
     def route_owned() -> None:
         check_runtime_ipc(root, record)
         listener_owned(identity, port, inode)
+        if record.get("format") == 4 and auth_listener(root, identity) != record["auth"]:
+            raise StartError("AUTH_LISTENER_UNVERIFIED", 4)
         if socket_identity(root / "http/api.sock") != record.get("api_socket") or socket_identity(
             control / "control.sock"
         ) != record.get("control_socket"):
@@ -1138,12 +1177,14 @@ def start_instance(
                 ensure_private(root / "provider")
                 ensure_private(root / "native-ipc")
             record.update(
-                format=3,
+                format=4 if getattr(runtime.receipt, "profile", None) == "p4a-codex-auth" else 3,
                 runtime_image_id=runtime.receipt.runtime_image_id,
                 provider_identity=private_identity(root / "provider"),
                 runtime_dir_identity=private_identity(root / "native-ipc"),
                 runtime_ipc=None,
             )
+            if record["format"] == 4:
+                record["auth"] = None
         restart_intent = None
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
@@ -1334,8 +1375,15 @@ def start_instance(
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
             _, _, forwarder, inode = launch_forwarder(
-                root, selected, deadline, ownership=owner, stop_attempt=str(record["attempt"])
+                root,
+                selected,
+                deadline,
+                ownership=owner,
+                stop_attempt=str(record["attempt"]),
+                **({"auth": True} if record["format"] == 4 else {}),
             )
+            if record["format"] == 4:
+                record["auth"] = auth_listener(root, forwarder)
             record.update(
                 forwarder=forwarder,
                 listener_inode=inode,

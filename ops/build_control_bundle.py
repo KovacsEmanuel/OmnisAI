@@ -35,7 +35,12 @@ def build_bundle(
     output: Path,
     *,
     runtime_metadata: Path | None = None,
+    profile: str = "p4a-settings-offline",
 ) -> None:
+    if profile not in {"p4a-settings-offline", "p4a-codex-auth"} or (
+        profile == "p4a-codex-auth" and runtime_metadata is None
+    ):
+        raise BundleError("Native metadata required for auth profile")
     if not output.is_absolute() or output.exists() or output.is_symlink():
         raise BundleError("Output must be a new absolute directory")
     private_dir(output.parent)
@@ -155,7 +160,7 @@ def build_bundle(
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }
     if runtime_metadata is not None:
-        manifest.update(format=2, profile="p4a-settings-offline")
+        manifest.update(format=2, profile=profile)
     stage = Path(tempfile.mkdtemp(prefix=".bundle-", dir=output.parent))
     try:
         for name, content in payloads.items():
@@ -179,7 +184,13 @@ def main() -> int:
         type=Path,
         help="Seal prepared native metadata for p4a-settings-offline",
     )
+    parser.add_argument(
+        "--profile",
+        choices=("p4a-settings-offline", "p4a-codex-auth"),
+        default="p4a-settings-offline",
+    )
     args = parser.parse_args()
+    # Selected explicitly in the sealed manifest, never by ambient environment.
     try:
         build_bundle(
             args.api_wheel,
@@ -188,6 +199,7 @@ def main() -> int:
             args.web_root,
             args.output,
             runtime_metadata=args.runtime_metadata,
+            profile=args.profile,
         )
     except (OSError, ValueError, UnicodeError, RecursionError, subprocess.SubprocessError):
         print("BUNDLE_REFUSED", file=sys.stderr)

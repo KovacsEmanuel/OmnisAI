@@ -77,7 +77,14 @@ def _image(tag: str, bundle: Path, host: str) -> dict[str, object] | None:
 
 
 def _validate_image(
-    tag: str, bundle: Path, project: str, manifest_sha: str, *, host: str, runtime: bool = False
+    tag: str,
+    bundle: Path,
+    project: str,
+    manifest_sha: str,
+    *,
+    host: str,
+    runtime: bool = False,
+    profile: str | None = "p4a-settings-offline",
 ) -> str | None:
     result = _image(tag, bundle, host)
     if result is None:
@@ -97,7 +104,8 @@ def _validate_image(
         or runtime
         and (
             result.get("Os") != "linux"
-            or labels.get("org.omnis.profile") != "p4a-settings-offline"
+            or profile not in {"p4a-settings-offline", "p4a-codex-auth"}
+            or labels.get("org.omnis.profile") != profile
             or labels.get("org.omnis.image-role") != "runtime"
             or config.get("Entrypoint") not in (None, [])
             or config.get("Cmd")
@@ -164,7 +172,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         raise ImageInstallError("Image receipt/release mismatch")
     runtime_tag, runtime_image = raw.get("runtime_tag"), raw.get("runtime_image_id")
     if native and (
-        raw.get("profile") != "p4a-settings-offline"
+        raw.get("profile") not in {"p4a-settings-offline", "p4a-codex-auth"}
         or runtime_tag != f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
         or complete
         and (not isinstance(runtime_image, str) or not _DIGEST.fullmatch(runtime_image))
@@ -178,7 +186,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         digest,
         docker_host,
         docker_id,
-        "p4a-settings-offline" if native else None,
+        raw["profile"] if native else None,
         runtime_tag,
         runtime_image,
     )
@@ -320,7 +328,7 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
             raise ImageInstallError("Install the release bundle first")
         bundle = root / "releases/0.1.0"
         manifest, payloads = _manifest(bundle)
-        native = json.loads(manifest).get("profile") == "p4a-settings-offline"
+        native = json.loads(manifest).get("profile") in {"p4a-settings-offline", "p4a-codex-auth"}
         if native != (runtime_context is not None):
             raise ImageInstallError("Explicit matching native context required")
         if runtime_context is not None:
@@ -374,7 +382,13 @@ def _install_locked(
         if prior.profile is not None and (
             prior.runtime_tag is None
             or _validate_image(
-                prior.runtime_tag, bundle, prior.project, manifest_sha, host=host, runtime=True
+                prior.runtime_tag,
+                bundle,
+                prior.project,
+                manifest_sha,
+                host=host,
+                runtime=True,
+                profile=prior.profile,
             )
             != prior.runtime_image_id
         ):
@@ -395,7 +409,7 @@ def _install_locked(
         manifest_sha,
         host,
         docker_id,
-        "p4a-settings-offline" if runtime_context is not None else None,
+        json.loads(_manifest(bundle)[0])["profile"] if runtime_context is not None else None,
         f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
         if runtime_context is not None
         else None,
@@ -408,7 +422,13 @@ def _install_locked(
             raise ImageInstallError("Native metadata required")
         if (
             _validate_image(
-                intent.runtime_tag, bundle, project, manifest_sha, host=host, runtime=True
+                intent.runtime_tag,
+                bundle,
+                project,
+                manifest_sha,
+                host=host,
+                runtime=True,
+                profile=intent.profile,
             )
             is not None
         ):
@@ -463,7 +483,7 @@ def _install_locked(
             "--label",
             f"org.omnis.bundle_sha256={manifest_sha}",
             "--label",
-            "org.omnis.profile=p4a-settings-offline",
+            f"org.omnis.profile={intent.profile}",
             "--label",
             "org.omnis.image-role=runtime",
             "-f",
@@ -478,7 +498,13 @@ def _install_locked(
         if result.returncode:
             raise ImageInstallError("Native image build uncertain; recovery required")
         runtime_image_id = _validate_image(
-            intent.runtime_tag, bundle, intent.project, manifest_sha, host=host, runtime=True
+            intent.runtime_tag,
+            bundle,
+            intent.project,
+            manifest_sha,
+            host=host,
+            runtime=True,
+            profile=intent.profile,
         )
         if runtime_image_id is None or _docker_id(bundle, host) != docker_id:
             raise ImageInstallError("Native image readback unavailable")

@@ -13,6 +13,39 @@ from omnis_cli import forwarder
 
 
 class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
+    async def test_numeric_connect_once_and_mixed_answer_never_connects(self):
+        good = (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))
+        bad = (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("127.0.0.1", 443))
+        from unittest.mock import AsyncMock
+
+        for rows in ([good], [good, bad]):
+            with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+                root = Path(name)
+                with (
+                    patch.object(socket, "getaddrinfo", return_value=rows) as dns,
+                    patch.object(
+                        asyncio.get_running_loop(),
+                        "sock_connect",
+                        new=AsyncMock(side_effect=ConnectionRefusedError),
+                    ) as connect,
+                ):
+                    listener = await forwarder.start_auth_forwarder(root)
+                    local = socket.socket(socket.AF_UNIX)
+                    local.connect(str(root / "auth-egress.sock"))
+                    reader, writer = await asyncio.open_unix_connection(sock=local)
+                    try:
+                        self.assertEqual(await asyncio.wait_for(reader.read(), 3), b"")
+                        self.assertEqual(dns.call_count, 1)
+                        self.assertEqual(connect.call_count, 1 if len(rows) == 1 else 0)
+                        if len(rows) == 1:
+                            self.assertEqual(connect.call_args.args[1], ("8.8.8.8", 443))
+                    finally:
+                        writer.close()
+                        await writer.wait_closed()
+                        listener.close()
+                        await listener.wait_closed()
+                        (root / "auth-egress.sock").unlink()
+
     async def test_full_dns_set_is_validated_before_any_connect(self):
         validate = getattr(forwarder, "auth_addresses", None)
         self.assertTrue(callable(validate), "auth address validator missing")

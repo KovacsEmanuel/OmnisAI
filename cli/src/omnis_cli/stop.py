@@ -110,6 +110,13 @@ def _marker(root: Path, record: dict[str, object], runtime: ControlRuntime) -> N
 
 def _listener_absent(record: dict[str, object]) -> None:
     inode, port = _integer(record, "listener_inode"), _integer(record, "port")
+    if record.get("format") == 4:
+        auth = mapping(record["auth"])
+        if any(
+            len(fields := row.split()) >= 7 and fields[6] == str(auth["listener"]).encode()
+            for row in Path("/proc/net/unix").read_bytes().splitlines()[1:]
+        ):
+            raise StartError("STOP_READBACK_UNCERTAIN", 4)
     for name in ("tcp", "tcp6"):
         for row in Path(f"/proc/net/{name}").read_text().splitlines()[1:]:
             fields = row.split()
@@ -269,7 +276,7 @@ def _emergency_inventory(
             set(record)
             != (READY_FIELDS | native_fields(record)) - {"generation", "supervisor_epoch"}
             or type(record.get("format")) is not int
-            or record["format"] not in (2, 3)
+            or record["format"] not in (2, 3, 4)
             or not isinstance(command, str)
         ):
             raise StartError("RECOVERY_REQUIRED", 4)

@@ -53,7 +53,7 @@ class SyntheticFamily:
 def owner_test_argv(argv):
     source = str(Path(__file__).resolve())
     code = (
-        "import runpy,sys; import omnis_cli.stop_owner as m; "
+        f"import runpy,sys; sys.path.insert(0,{str(Path(__file__).resolve().parents[1] / 'src')!r}); import omnis_cli.stop_owner as m; "
         f"m._ContainerFamily=runpy.run_path({source!r})['SyntheticFamily']; "
         "sys.argv=['stop-owner',*sys.argv[1:]]; sys.exit(m.main())"
     )
@@ -75,7 +75,9 @@ class Fixture:
             stack.callback(os.close, state_guard)
             yield (data_fd, state_fd), (data_guard, state_guard)
 
-    def __init__(self, *, native=False):
+    def __init__(self, *, native=False, auth=False):
+        assert not auth or native
+        self.auth = auth
         self.native = native
         self.temp = tempfile.TemporaryDirectory(prefix="s4o-", dir=os.environ["TMPDIR"])
         self.base = Path(self.temp.name)
@@ -134,12 +136,13 @@ class Fixture:
             [
                 sys.executable,
                 "-I",
-                "-m",
-                "omnis_cli.forwarder",
+                "-c",
+                f"import sys,runpy; sys.path.insert(0,{str(Path(__file__).resolve().parents[1] / 'src')!r}); runpy.run_module('omnis_cli.forwarder',run_name='__main__')",
                 "--socket-dir",
                 str(self.root / "http"),
                 "--port",
                 str(self.port),
+                *(["--auth-directory", str(self.root / "native-ipc")] if auth else []),
                 "--stop-attempt",
                 self.attempt,
             ],
@@ -211,6 +214,8 @@ class Fixture:
                     ),
                 )
             )
+        if auth:
+            manifest["profile"] = "p4a-codex-auth"
         (release / "release.json").write_text(json.dumps(manifest))
         digest = hashlib.sha256((release / "release.json").read_bytes()).hexdigest()
         self.digest = digest
@@ -237,7 +242,7 @@ class Fixture:
             "synthetic-stop-daemon",
             **(
                 {
-                    "profile": "p4a-settings-offline",
+                    "profile": "p4a-codex-auth" if auth else "p4a-settings-offline",
                     "runtime_image_id": self.runtime_image,
                     "runtime_tag": "omnis-runtime-"
                     + self.project.removeprefix("omnis-local-")
@@ -301,12 +306,16 @@ class Fixture:
             from omnis_cli.start_runtime import private_identity
 
             self.record.update(
-                format=3,
+                format=4 if auth else 3,
                 runtime_image_id=self.runtime_image,
                 provider_identity=private_identity(self.root / "provider"),
                 runtime_dir_identity=private_identity(self.root / "native-ipc"),
                 runtime_ipc=runtime_ipc(self.root),
             )
+            if auth:
+                from omnis_cli.start import auth_listener
+
+                self.record["auth"] = auth_listener(self.root, self.record["forwarder"])
         write_record(self.root / "startup.json", self.record)
         self.runtime = _load_runtime(self.data, self.record, time.monotonic() + 15)
 
@@ -315,7 +324,9 @@ class Fixture:
             receipt=SimpleNamespace(
                 project=self.project,
                 image_id=self.image,
-                profile="p4a-settings-offline" if self.native else None,
+                profile=("p4a-codex-auth" if self.auth else "p4a-settings-offline")
+                if self.native
+                else None,
                 runtime_image_id=self.runtime_image,
             ),
             pg_image=self.pg_image,
@@ -362,7 +373,9 @@ class Fixture:
                         Labels={
                             "org.omnis.project": self.project,
                             "org.omnis.bundle_sha256": self.digest,
-                            "org.omnis.profile": "p4a-settings-offline",
+                            "org.omnis.profile": "p4a-codex-auth"
+                            if self.auth
+                            else "p4a-settings-offline",
                             "org.omnis.image-role": "runtime",
                         },
                     )

@@ -38,7 +38,18 @@ class ImageInstallTest(unittest.TestCase):
         install_release(fixture.bundle, fixture.data_home)
         built = {}
 
-        def inspect(tag, bundle, project, manifest_sha, *, host, runtime=False):
+        def inspect(
+            tag,
+            bundle,
+            project,
+            manifest_sha,
+            *,
+            host,
+            runtime=False,
+            profile="p4a-settings-offline",
+        ):
+            if runtime:
+                self.assertEqual(profile, "p4a-settings-offline")
             return built.get(tag)
 
         def command(*args, **kwargs):

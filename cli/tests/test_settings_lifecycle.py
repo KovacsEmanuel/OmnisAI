@@ -36,12 +36,12 @@ class SettingsTopologyTest(ProductAttestationTest):
         from stop_owner_fixture import Fixture
 
         self.assertTrue(callable(runtime_ipc))
-        fixture = Fixture(native=True)
+        fixture = Fixture(native=True, auth=True)
         try:
             inventory = prepare_stop_inventory(
                 fixture.runtime, fixture.root, fixture.control, fixture.record
             )
-            self.assertEqual(inventory["version"], 2)
+            self.assertEqual(inventory["version"], 3)
             self.assertEqual(
                 [x["role"] for x in inventory["containers"]], ["api", "supervisor", "runtime", "db"]
             )
@@ -74,7 +74,7 @@ class SettingsTopologyTest(ProductAttestationTest):
                 )
             verify_stop_completion(fixture.runtime, fixture.root, fixture.control, fixture.record)
             completed = completed_receipt(receipt_path(fixture.root, fixture.record), grant)
-            self.assertEqual(completed["version"], 2)
+            self.assertEqual(completed["version"], 3)
             self.assertEqual(
                 [x["stage"] for x in completed["completed"]],
                 [
@@ -113,7 +113,8 @@ class SettingsTopologyTest(ProductAttestationTest):
             restart = prepare_restart(
                 fixture.runtime, fixture.root, fixture.control, fixture.record, str(uuid4())
             )
-            self.assertEqual(restart["request"]["grant"]["inventory"]["version"], 2)
+            self.assertEqual(restart["request"]["grant"]["inventory"]["version"], 3)
+            self.assertFalse((fixture.root / "native-ipc/auth-egress.sock").exists())
             self.assertEqual(fixture.record["provider_identity"], original_provider)
         finally:
             fixture.close()
@@ -124,7 +125,7 @@ class SettingsTopologyTest(ProductAttestationTest):
         from omnis_cli.stop_receipt import encoded, fingerprint, validate_grant, validate_inventory
         from stop_owner_fixture import Fixture
 
-        fixture = Fixture(native=True)
+        fixture = Fixture(native=True, auth=True)
         try:
             inventory = prepare_stop_inventory(
                 fixture.runtime, fixture.root, fixture.control, fixture.record
@@ -155,6 +156,10 @@ class SettingsTopologyTest(ProductAttestationTest):
             for key in ("socket", "lock", "file"):
                 maximum["runtime_ipc"][key] = [u64, u64]
             record["runtime_ipc"] = deepcopy(maximum["runtime_ipc"])
+            record["format"] = 4
+            record["auth"] = {"socket": [u64, u64], "listener": u64}
+            maximum["version"] = 3
+            maximum["forwarder"]["auth"] = deepcopy(record["auth"])
             record.update(
                 stop_generation=9223372036854775807,
                 finalized_generation=9223372036854775807,
@@ -175,6 +180,13 @@ class SettingsTopologyTest(ProductAttestationTest):
             }
             command["op"] = "arm_stop"
             _stop_binding(command)
+            frame = (
+                json.dumps({"version": 1, "capability": "0" * 64, "command": command}).encode()
+                + b"\n"
+            )
+            self.assertLessEqual(len(frame), 4096)
+            self.assertLessEqual(len(encoded(maximum)), 2900)
+            print("AUTH_PRODUCER_SIZES", len(encoded(maximum)), len(encoded(grant)), len(frame))
             _stop_grant(
                 {"ok": True, "correlation_id": record["stop_command"], "grant": grant}, command
             )

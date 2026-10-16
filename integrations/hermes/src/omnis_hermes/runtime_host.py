@@ -139,6 +139,7 @@ class RuntimeHost:
         self.management_token = secrets.token_hex(32)
         self.management_port: int | None = None
         self.management_failed = False
+        self.management_lifeline_write: int | None = None
         self.management_output: list[asyncio.Task[None]] = []
 
     async def __aenter__(self) -> Self:
@@ -179,6 +180,7 @@ class RuntimeHost:
             raise
 
     async def __aexit__(self, *_exc: object) -> None:
+        self._revoke_management_lifeline()
         if self.server is not None:
             self.server.close()
             # Python 3.13 wait_closed includes active transports. Close them
@@ -332,6 +334,7 @@ class RuntimeHost:
         ):
             self.settings_result = settings.view(operation_id, "INDETERMINATE")
             self.management_failed = True
+            self._revoke_management_lifeline()
 
     async def _oauth_flow(self, operation_id: str) -> None:
         fence = (self.generation, self.epoch)
@@ -397,6 +400,27 @@ class RuntimeHost:
                 await asyncio.sleep(0.25)
                 action = "cancel" if self.oauth_cancel else "status"
 
+    def _revoke_management_lifeline(self) -> None:
+        fd, self.management_lifeline_write = self.management_lifeline_write, None
+        if fd is not None:
+            with suppress(OSError):
+                os.close(fd)
+
+    def _open_management_lifeline(self) -> int:
+        if self.management_lifeline_write is not None:
+            raise ValueError("Management owner already exists")
+        reader, writer = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
+        try:
+            info = os.fstat(reader)
+            os.write(writer, struct.pack("!QQ", info.st_dev, info.st_ino))
+        except BaseException:
+            for fd in (reader, writer):
+                with suppress(OSError):
+                    os.close(fd)
+            raise
+        self.management_lifeline_write = writer
+        return reader
+
     async def _settings_native(self, action: str, selected: object) -> dict[str, object] | None:
         fence = (self.generation, self.epoch)
 
@@ -459,12 +483,14 @@ class RuntimeHost:
                 if self.management_spec is None
                 else self.management_spec.command
             )
+            lifeline = self._open_management_lifeline()
             spawn = asyncio.create_task(
                 asyncio.create_subprocess_exec(
                     *command,
                     cwd=root,
                     env=environment,
-                    stdin=asyncio.subprocess.DEVNULL,
+                    stdin=lifeline,
+                    close_fds=True,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                     start_new_session=True,
@@ -474,8 +500,14 @@ class RuntimeHost:
             try:
                 self.process = await asyncio.shield(spawn)
             except asyncio.CancelledError:
+                self._revoke_management_lifeline()
                 self.process = await spawn
                 raise
+            except BaseException:
+                self._revoke_management_lifeline()
+                raise
+            finally:
+                os.close(lifeline)
             assert self.process.stdout is not None and self.process.stderr is not None
 
             async def discard(stream: asyncio.StreamReader) -> None:
@@ -945,6 +977,9 @@ class RuntimeHost:
         return owned
 
     async def stop(self) -> None:
+        # EOF is synchronous and visible in the native worker without signal
+        # delivery or an event-loop turn. Revoke before even waiting for the lock.
+        self._revoke_management_lifeline()
         async with self.stop_lock:
             if self.state == "STOPPED":
                 return

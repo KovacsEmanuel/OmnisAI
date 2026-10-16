@@ -5,9 +5,14 @@ Neither alone claims confinement against arbitrary code execution in the TCB.
 """
 
 import contextlib
+import fcntl
 import importlib
+import os
 import re
 import secrets
+import select
+import stat
+import struct
 import threading
 import time
 from collections.abc import Callable, Iterator
@@ -141,8 +146,53 @@ class NativeOAuth:
         self.deadline_ns = 0
         self.expires_ns = 0
         self.terminal: str | None = None
+        self.owner_fd: int | None = None
+        self.owner_identity: tuple[int, int] | None = None
+
+    @classmethod
+    def from_owner_fd(cls, fd: int) -> Self:
+        """Direct-spawn stdin only; never an env/browser-supplied grant.
+
+        The Host owns the sole writer. The child receives only the read end;
+        bootstrap binds its kernel identity before any worker may be admitted.
+        """
+        info = os.fstat(fd)
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+        if (
+            not stat.S_ISFIFO(info.st_mode)
+            or info.st_nlink != 1
+            or stat.S_IMODE(info.st_mode) != 0o600
+            or info.st_uid != os.getuid()
+            or flags & os.O_ACCMODE != os.O_RDONLY
+            or not flags & os.O_NONBLOCK
+        ):
+            raise ValueError("Invalid management lifeline")
+        bootstrap = os.read(fd, 17)
+        if bootstrap != struct.pack("!QQ", info.st_dev, info.st_ino):
+            raise ValueError("Invalid management bootstrap")
+        os.set_inheritable(fd, False)
+        owner = cls()
+        owner.owner_fd = fd
+        owner.owner_identity = (info.st_dev, info.st_ino)
+        owner._owner_alive()
+        return owner
+
+    def _owner_alive(self) -> None:
+        try:
+            if self.owner_fd is None:
+                raise ValueError("Auth owner missing")
+            info = os.fstat(self.owner_fd)
+            if (info.st_dev, info.st_ino) != self.owner_identity:
+                raise ValueError("Auth owner changed")
+            poll = select.poll()
+            poll.register(self.owner_fd, select.POLLIN | select.POLLHUP | select.POLLERR)
+            if poll.poll(0):
+                raise ValueError("Auth owner revoked")
+        except OSError:
+            raise ValueError("Auth owner unavailable") from None
 
     def guard(self) -> None:
+        self._owner_alive()
         if (
             self.session is None
             or self.session.get("cancelled")
@@ -183,6 +233,7 @@ class NativeOAuth:
         if action not in {"connect", "status", "cancel"}:
             raise ValueError("Invalid auth action")
         if action == "connect" and self.binding != binding:
+            self._owner_alive()
             if self.active or (self.session is not None and self.terminal is None):
                 raise ValueError("Auth worker busy")
             if lease["deadline_ns"] <= time.monotonic_ns():

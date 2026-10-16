@@ -119,7 +119,10 @@ def main() -> int:
     lock = asyncio.Lock()
     from .management_oauth import NativeOAuth
 
-    oauth = NativeOAuth()
+    try:
+        oauth = NativeOAuth.from_owner_fd(0)
+    except (ValueError, OSError):
+        return 3
 
     @app.middleware("http")
     async def boundary(
@@ -222,5 +225,8 @@ def main() -> int:
             print(f"HERMES_BACKEND_READY port={port}", flush=True)
             await task
 
-        asyncio.run(serve())
+        try:
+            asyncio.run(serve())
+        finally:
+            os.close(0)
     return 0

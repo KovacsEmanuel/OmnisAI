@@ -217,6 +217,192 @@ def test_fixed_client_post_tls_trace_rechecks_current_authority() -> None:
             client.post("https://auth.openai.com/oauth/token")
 
 
+@pytest.mark.asyncio
+async def test_stop_lifeline_revokes_at_real_http_cleanup(tmp_path: Path) -> None:
+    import asyncio
+    import os
+    from unittest.mock import patch
+
+    from httpcore import Origin, Request
+    from httpcore._sync.http11 import HTTP11Connection
+    from omnis_hermes import management_http, runtime_host
+    from omnis_hermes.management_oauth import FixedClient, NativeOAuth
+
+    host = runtime_host.RuntimeHost(tmp_path)
+    host.state = "MANAGEMENT"
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+    read_fd = host._open_management_lifeline()
+    owner = NativeOAuth.from_owner_fd(read_fd)
+    owner.session = {"cancelled": False}
+    owner.deadline_ns = host.deadline_ns
+    owner.expires_ns = host.deadline_ns
+    writes: list[bytes] = []
+
+    class Stream:
+        def write(self, data: bytes, timeout: object = None) -> None:
+            writes.append(data)
+
+        def read(self, max_bytes: int, timeout: object = None) -> bytes:
+            return b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
+
+        def close(self) -> None:
+            pass
+
+        def get_extra_info(self, info: str) -> None:
+            return None
+
+    def send() -> None:
+        with FixedClient(owner.guard) as client:
+            connection = HTTP11Connection(Origin(b"https", b"auth.openai.com", 443), Stream())
+            try:
+                response = connection.handle_request(
+                    Request(
+                        b"POST",
+                        b"https://auth.openai.com/oauth/token",
+                        headers=[(b"Host", b"auth.openai.com"), (b"Content-Length", b"0")],
+                        content=b"",
+                        extensions={"trace": client._trace},
+                    )
+                )
+                response.close()
+            finally:
+                connection.close()
+
+    sent, closing, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+
+    class Reader:
+        async def readuntil(self, sep: bytes) -> bytes:
+            sent.set()
+            await asyncio.Event().wait()
+            return b""
+
+    class Writer:
+        def write(self, raw: bytes) -> None:
+            pass
+
+        async def drain(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+        async def wait_closed(self) -> None:
+            closing.set()
+            await release.wait()
+
+    async def connect(*args: object, **kwargs: object) -> tuple[Reader, Writer]:
+        return Reader(), Writer()
+
+    try:
+        send()
+        assert sum(bool(x) for x in writes) == 1
+        writes.clear()
+        with patch.object(management_http.asyncio, "open_connection", connect):
+            host.settings_task = asyncio.create_task(
+                management_http.request(
+                    1,
+                    "synthetic",
+                    "POST",
+                    "/api/auth/codex/flow/status",
+                    {},
+                    dispatch_guard=lambda: None,
+                )
+            )
+            await asyncio.wait_for(sent.wait(), 1)
+            stopper = asyncio.create_task(host.stop())
+            try:
+                await asyncio.wait_for(closing.wait(), 1)
+                assert host.state == "STOPPING"
+                with pytest.raises(ValueError):
+                    send()
+                assert writes == []
+            finally:
+                release.set()
+                await asyncio.wait_for(stopper, 1)
+    finally:
+        host._revoke_management_lifeline()
+        os.close(read_fd)
+
+
+@pytest.mark.asyncio
+async def test_lifeline_child_observes_owner_eof_without_signal(tmp_path: Path) -> None:
+    import asyncio
+    import os
+    import sys
+
+    from omnis_hermes import management_oauth, runtime_host
+
+    host = runtime_host.RuntimeHost(tmp_path)
+    reader = host._open_management_lifeline()
+    source = str(Path(management_oauth.__file__).resolve().parents[1])
+    code = (
+        "import sys,time,select;sys.path.insert(0," + repr(source) + ");"
+        "from omnis_hermes.management_oauth import NativeOAuth;"
+        "o=NativeOAuth.from_owner_fd(0);o.session={'cancelled':False};"
+        "o.deadline_ns=o.expires_ns=time.monotonic_ns()+4_000_000_000;"
+        "o.guard();print('ALLOWED',flush=True);select.select([0],[],[],2);\n"
+        "try:o.guard()\n"
+        "except ValueError:print('DENIED',flush=True)\n"
+        "else:raise AssertionError('owner EOF admitted')\n"
+    )
+    child = await asyncio.create_subprocess_exec(
+        sys.executable,
+        "-I",
+        "-B",
+        "-c",
+        code,
+        stdin=reader,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        close_fds=True,
+        env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+    )
+    os.close(reader)
+    try:
+        assert child.stdout is not None
+        assert await asyncio.wait_for(child.stdout.readline(), 1) == b"ALLOWED\n"
+        await host.stop()
+        output, errors = await asyncio.wait_for(child.communicate(), 3)
+        assert child.returncode == 0 and output == b"DENIED\n" and errors == b""
+    finally:
+        host._revoke_management_lifeline()
+        if child.returncode is None:
+            child.kill()
+        await child.wait()
+
+
+def test_lifeline_missing_wrong_mode_identity_and_eof_fail_closed(tmp_path: Path) -> None:
+    import os
+
+    from omnis_hermes.management_oauth import NativeOAuth
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    with pytest.raises(ValueError):
+        NativeOAuth().guard()
+    host = RuntimeHost(tmp_path)
+    reader = host._open_management_lifeline()
+    try:
+        assert host.management_lifeline_write is not None
+        with pytest.raises(ValueError):
+            NativeOAuth.from_owner_fd(host.management_lifeline_write)
+        owner = NativeOAuth.from_owner_fd(reader)
+        owner.session = {"cancelled": False}
+        owner.deadline_ns = owner.expires_ns = time.monotonic_ns() + 4_000_000_000
+        owner.guard()
+        identity = owner.owner_identity
+        owner.owner_identity = (0, 0)
+        with pytest.raises(ValueError):
+            owner.guard()
+        owner.owner_identity = identity
+        owner.guard()
+        host._revoke_management_lifeline()
+        with pytest.raises(ValueError):
+            owner.guard()
+    finally:
+        host._revoke_management_lifeline()
+        os.close(reader)
+
+
 def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -242,7 +428,13 @@ def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
         "import_module",
         lambda name: native if name == "hermes_cli.web_routers.oauth" else original(name),
     )
-    owner = management_oauth.NativeOAuth()
+    import os
+
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    host = RuntimeHost(Path("unused"))
+    reader = host._open_management_lifeline()
+    owner = management_oauth.NativeOAuth.from_owner_fd(reader)
     assert hasattr(owner, "revoke"), "Native Stop fence missing"
     lease = {
         "operation_id": str(uuid4()),
@@ -269,3 +461,5 @@ def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
         release.set()
         if owner.thread:
             owner.thread.join(2)
+        host._revoke_management_lifeline()
+        os.close(reader)

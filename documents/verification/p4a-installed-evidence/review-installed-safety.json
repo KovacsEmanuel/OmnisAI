@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "reviewer_scope": "Independent complementary security, authority, concurrency and cleanup SOURCE review; read-only frozen candidate",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "Nu am confirmat blocante SOURCE în delta examinată. Candidatul exact poate continua la QA bounded pe instalarea normală, numai după adjudecarea părintelui și a reviewului complementar. Acesta nu este installed/native/PG/browser PASS și nu aprobă integrarea.",
+  "bindings": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "base": "d8b1066e5098fcc80b486624722bea6957579aaf",
+    "head": "5359ac3a5bcd4f3746136d589385761de0be01a0",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-installed-lifecycle.json",
+    "manifest_sha256": "07bfc620c613a0d5d316d174a800a92ceaf169fd1fe22a4c9c6f694640db6f0d",
+    "manifest_field": "snapshot.files",
+    "source_files_checked_before_and_after": 29,
+    "source_hash_mismatches": [],
+    "cumulative_git_pathset_exact": true,
+    "git_status_before_and_after": "clean, branch work/p4i-72e9e2c1",
+    "wheel": "/home/kali/.hermes/cache/scratch/i72/lifecycle-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "4d4b7379fce58539971cad9ad8440308dc84fd8c41969ab051639312c6b20d4f",
+    "installed_cli": "/home/kali/.hermes/cache/scratch/i72/cli-env/lib/python3.13/site-packages/omnis_cli",
+    "cli_source_wheel_installed_modules_checked": 22,
+    "cli_mismatches": [],
+    "installed_single_link_files": true,
+    "existing_installed_pyc": {
+      "count": 16,
+      "mtime_utc": "2026-10-16T17:22:12Z",
+      "magic_and_compiled_source_equivalence_checked": true,
+      "mismatches": [],
+      "limit": "Cache census/equivalence was performed after the tests, not a pre-import census; caches were preserved. -B suppresses writes but does not prohibit loading existing caches."
+    },
+    "bundle": "/home/kali/.hermes/cache/scratch/i72/lifecycle-bundle",
+    "bundle_release_json_sha256": "3af875dc3a823451a8d8f9d45960355ddcd0493d3554901f8580c61f6ac7db1d"
+  },
+  "findings": [],
+  "reviewed_boundaries": [
+    {
+      "boundary": "Sealed artifact inputs and installation",
+      "result": "Release v2/image v2 closed forms; profile and both image identities bound to manifest/project/daemon; direct runtime command/role checked. Real prepared closure validated independently using the installed consumer. Staging rereads/hash-checks copied bytes and excludes producer-only environments/logs; no source-tree build/adoption at startup.",
+      "evidence": ["C1", "C3", "C7"],
+      "limit": "Trusted explicit local release input, not independent signature verification; no OCI build executed."
+    },
+    {
+      "boundary": "Four-role topology and persistent provider home",
+      "result": "Fixed installed-wheel overlay; runtime network none, direct PID1 command, no Docker ports, mapped nonroot UID, readonly root, cap drop/no-new-privileges and exact mounts/environment. Runtime IPC only supervisor/runtime; provider home only runtime. Physical private-directory identities checked before mounts and in attestation/reuse/restart/Stop. API receives neither native IPC nor provider home.",
+      "evidence": ["C1", "C5"],
+      "limit": "Compose output and Engine inspections are doubles; actual Compose normalization, namespaces, mounts and PID1 require real QA."
+    },
+    {
+      "boundary": "Initial Settings post-OPEN generation and Stop",
+      "result": "Real SOURCE supervisor/adapter UDS tests use one RuntimeClient and same boot/stream. Current owner/epoch authority is fetched before runtime locking; rebind requires initial +1 generation and IDLE readback. Active/stopped/uncertain/jump/closed/owner-loss and Stop-wins controls refuse. No new DB lock is held by the changed settings rebind while awaiting the host.",
+      "evidence": ["C2", "C4"],
+      "limit": "DB authority and native Settings IO are explicit doubles. Existing InstanceService.quiesce DB-to-runtime ordering was traced, not redesigned or certified by a PG overlap test."
+    },
+    {
+      "boundary": "Stop, cleanup and retained state",
+      "result": "Source call chain preserves SHUTDOWN/barrier, runtime drain, quiescence, FINALIZE, durable grant and fixed owner before physical teardown. Four-role owner uses forwarder/API/supervisor/runtime/DB/network/IPC order. Existing ownership/cgroup/lease authorities remain in place. Runtime-specific lost ACK, nondrain and absent CID do not produce completed Stop or authorize DB removal. Provider and PG paths remain retained; identity replacement refuses. Partial-startup/emergency paths remain explicitly uncertainty-bearing rather than minting STOPPED.",
+      "evidence": ["C1", "C5", "C6"],
+      "limit": "Real child/UDS transport with SyntheticFamily is not Docker/cgroup drain proof. Actual emergency/crash/restart settlement remains real-QA work."
+    }
+  ],
+  "execution_environment": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review",
+    "environment_policy": "env -i; only PATH, HOME, XDG_CONFIG_HOME and TMPDIR; API pytest also PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/home",
+    "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/config",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/s72rev",
+    "api_python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "cli_python": "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+    "python_flags": ["-I", "-B"],
+    "cli_child_limit": "Existing fixture starts isolated child processes from the same installed interpreter/wheel; its original argv is unchanged."
+  },
+  "commands": [
+    {
+      "id": "C1",
+      "command": "cli_python -I -B -c 'import sys,unittest; sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/tests\"); import omnis_cli.start; print(\"ORIGIN\",omnis_cli.start.__file__); s=unittest.defaultTestLoader.loadTestsFromNames([\"test_install\", \"test_image_install\", \"test_settings_lifecycle\"]); r=unittest.TextTestRunner(verbosity=1).run(s); print(\"RESULT\",r.testsRun,len(r.failures),len(r.errors)); sys.exit(not r.wasSuccessful())'",
+      "path_expansion": "WORK=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work; cli_python/execution environment above",
+      "observed_origin": "/home/kali/.hermes/cache/scratch/i72/cli-env/lib/python3.13/site-packages/omnis_cli/start.py",
+      "exit_code": 0,
+      "tests_run": 54,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 2.918
+    },
+    {
+      "id": "C2",
+      "command": "api_python -I -B -c 'import sys; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/api/src\",\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/integrations/hermes/src\"]; import omnis.supervisor.runtime_client as m; print(\"ORIGIN\",m.__file__); import pytest; sys.exit(pytest.main([\"-c\",\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/api/pyproject.toml\",\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"--override-ini=addopts=\",\"--tb=short\",\"-q\",\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/api/tests/test_provider_settings_source.py\"]))'",
+      "path_expansion": "WORK=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work; api_python/execution environment above",
+      "observed_origin": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/api/src/omnis/supervisor/runtime_client.py",
+      "exit_code": 0,
+      "passed": 11,
+      "elapsed_seconds": 0.31
+    },
+    {
+      "id": "C3",
+      "command": "cli_python -I -B -c 'from pathlib import Path; from omnis_cli.release import _manifest; from omnis_cli.native_artifacts import validate_context; p=Path(\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared\"); _, payloads=_manifest(Path(\"/home/kali/.hermes/cache/scratch/i72/lifecycle-bundle\")); e=validate_context(p,payloads); print({\"closure_count\":len(e),\"source\":sum(n.startswith(\"runtime-source/\") for n in e),\"wheels\":sum(n.startswith(\"wheelhouse/\") for n in e),\"result\":\"valid\"})'",
+      "exit_code": 0,
+      "result": "valid",
+      "closure_files": 3260,
+      "runtime_source_files": 3187,
+      "wheelhouse_files": 68,
+      "wheelhouse_composition": "67 dependency wheels plus adapter",
+      "prepared_context_modified": false
+    },
+    {
+      "id": "C4",
+      "command": "api_python -I -B /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/probe_bind_stop.py",
+      "exit_code": 0,
+      "positive": {"generation": 11, "drained": true, "events": ["idle_status_received_by_host", "native_double_save", "settings_PENDING"]},
+      "overlap": {"generation": 11, "drained": true, "events": ["idle_status_received_by_host", "drain_entered", "stop_waiting_on_runtime_lock", "native_double_save", "settings_PENDING", "drain_returned"]},
+      "disposition": "Not a confirmed blocker: Settings already owns the runtime serialization lock before Stop queues, so its bind/send linearizes first; no completed Stop is bypassed. The opposite Stop-wins ordering is refused in C2. This probe does not claim DB-barrier priority over an already-authorized in-flight exchange.",
+      "seams": "Actual unchanged RuntimeClient, real adapter UDS; delayed peer at existing command_lock; native save and DB authority doubles. Initial exploratory variant inserted a delay after IDLE readback; the recorded stronger variant leaves RuntimeClient untouched."
+    },
+    {
+      "id": "C5",
+      "command": "cli_python -I -B -c 'import sys,unittest; sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/tests\"); s=unittest.defaultTestLoader.loadTestsFromNames([\"test_start\", \"test_start_cleanup_faults\", \"test_stop\"]); r=unittest.TextTestRunner(verbosity=1).run(s); print(\"RESULT\",r.testsRun,len(r.failures),len(r.errors)); sys.exit(not r.wasSuccessful())'",
+      "path_expansion": "WORK=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work; cli_python/execution environment above",
+      "exit_code": 0,
+      "tests_run": 36,
+      "failures": 0,
+      "errors": 0,
+      "elapsed_seconds": 0.667
+    },
+    {
+      "id": "C6",
+      "command": "cli_python -I -B /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/probe_runtime_stop.py",
+      "exit_code": 0,
+      "results": [
+        {"cut": "normal", "completion_verified": true, "completed_stages": ["forwarder", "api.stop", "api.rm", "supervisor.stop", "supervisor.rm", "runtime.stop", "runtime.rm", "db.stop", "db.rm", "network.rm", "ipc"], "owned_children_reaped": true},
+        {"cut": "runtime-lost-ack", "refused": true, "reason": "STOP_HANDOFF_REFUSED", "pending_stage": "runtime.stop", "completion_verified": false, "db_retained": true, "owned_children_reaped": true},
+        {"cut": "runtime-nondrain", "refused": true, "reason": "STOP_HANDOFF_REFUSED", "pending_stage": "runtime.stop", "completion_verified": false, "db_retained": true, "owned_children_reaped": true},
+        {"cut": "runtime-absent-without-ack", "refused": true, "reason": "STOP_CONTAINER_DRIFT", "receipt_present": false, "completion_verified": false, "db_retained": true, "owned_children_reaped": true}
+      ],
+      "seams": "Installed copy and actual fixed Stop owner/handoff/UDS; synthetic Engine and explicit SyntheticFamily, not Docker drainage."
+    },
+    {
+      "id": "C7",
+      "command": "Read-only hashlib/ZIP comparison of snapshot.files and all omnis_cli/*.py against frozen source/wheel/installed copy; git diff --check d8b1066..5359ac3; git status --short --branch; installed Python marshal/compile comparison for existing package caches",
+      "exit_code": 0,
+      "source_bindings_exact": 29,
+      "cli_bindings_exact": 22,
+      "existing_pyc_code_matches": 16,
+      "diff_check": "clean",
+      "short_tmp_entries_after_probes": []
+    }
+  ],
+  "retained_failures": [
+    {
+      "command": "First execution of probe_runtime_stop.py",
+      "exit_code": 1,
+      "cause": "Reviewer helper expected StartError only; the absent-container refusal occurs before receipt creation, and verify_stop_completion raises FileNotFoundError for that missing receipt. This is refusal, not successful Stop.",
+      "correction": "Only the scratch helper now recognizes OSError/missing receipt as unverified, still requires refusal, DB retention and no completion. Fresh rerun C6 recorded separately.",
+      "cleanup": "Fixture finally executed and reaped every owned child; no product/test edits."
+    }
+  ],
+  "cleanup": {
+    "fixture_children_reaped": true,
+    "uds_resources_closed_by_original_fixture_owners": true,
+    "short_tmp_empty_at_final_readback": true,
+    "docker_oci_db_native_hermes_provider_oauth_target_operations": "NOT_RUN",
+    "source_or_product_test_edits": [],
+    "commits": [],
+    "protected_original_html_and_ponytail": "not read or modified",
+    "personal_configuration_credentials_or_logs": "not read",
+    "created_files": [
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/probe_bind_stop.py",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/safety-review/probe_runtime_stop.py",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/review-installed-safety.json"
+    ]
+  },
+  "limits": [
+    "Approval binds only the exact 5359ac3 candidate and changed SOURCE boundaries; no inherited global or historical native/UI approval is asserted.",
+    "Normal installed OCI startup, actual Compose output, provider-home mount identity after real restart, native Settings save/readback and browser/PG flow remain NOT_RUN under this delegation.",
+    "Synthetic Engine/child evidence does not prove Docker cgroup drainage, physical crash cuts, daemon settlement or native provider behavior.",
+    "No concrete source installation blocker was established; actual installation usability is not claimed from these tests.",
+    "Original four Settings findings are outside this unchanged-native/UI review and retain their earlier source disposition.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; full make check not run.",
+    "P4a-minim remains IN_PROGRESS/NOT_ACCEPTED. P2-live remains NOT_CLOSED; STOP before P3."
+  ]
+}

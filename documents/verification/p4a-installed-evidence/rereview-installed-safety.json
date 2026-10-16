@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "review_id": "P4I-INSTALLED-SAFETY-REREVIEW-3efb093",
+  "verdict": "CHANGES_REQUESTED",
+  "decision": "NU admiteți încă tentativa reală. Un HIGH confirmat în noul caller QA: incertitudinea familiei observerului apărută în citirea absenței este ignorată, permițând fresh Start și/sau PASS/VERIFIED. Fixul distribuției nu a introdus o problemă de siguranță confirmată; nu este o redeschidere a celor29bytes de produs neschimbați.",
+  "scope": "Focused read-only SOURCE re-review of /state ownership and optional Settings journey in the existing installed Stop owner. No image, OCI, PG, native boot, browser, provider, OAuth or target QA.",
+  "bindings": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "base": "5359ac3a5bcd4f3746136d589385761de0be01a0",
+    "head": "3efb0934d28920078aa59b565533a1bbed156a67",
+    "author_report": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-installed-f01-qa.json",
+    "author_report_sha256": "53cbcd9201ef0aa963b81e2266c085392772d384c95901217e6a230474ad826a",
+    "files": [
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "bytes": 32444,
+        "sha256": "6860b618f38417c2f21550dfdee7730af76d9bc8fe7a548191254986983bda17"
+      },
+      {
+        "path": "api/tests/test_provider_process_source.py",
+        "bytes": 6474,
+        "sha256": "91083d4f5c0b5d355e905bd21f7a6a8f5469abc845f9b9ab875be2c15e22e7c6"
+      },
+      {
+        "path": "api/tests/test_provider_settings_source.py",
+        "bytes": 11933,
+        "sha256": "75e24e8193db6f91b61eefdb41108618f75a937539ff95143ae6d6e949e38c36"
+      },
+      {
+        "path": "cli/README.md",
+        "bytes": 18232,
+        "sha256": "8a7ee86cd77de8cd84be7a7e2d1cc6b3f9f7501abff0ee9dbb49e6d8180eb4f5"
+      },
+      {
+        "path": "cli/integration/installed_browser.mjs",
+        "bytes": 10005,
+        "sha256": "7e0d68a2b200fe243cb8f4f252b2b910bb0a3c9033167dc3b9efe558004f3667"
+      },
+      {
+        "path": "cli/integration/installed_pair_open.py",
+        "bytes": 13966,
+        "sha256": "73d691dae7f513dffb6f42cf853499f0d6f7631e48ee2e3f047181b362246b55"
+      },
+      {
+        "path": "cli/integration/installed_start.py",
+        "bytes": 42167,
+        "sha256": "28c7420e1ba81ee1fd6feface0b3c923121fd9f0a543fa65ff55b8d47b14505b"
+      },
+      {
+        "path": "cli/integration/installed_stop.py",
+        "bytes": 21162,
+        "sha256": "93dd697c36bcd261f7a665d3c0380b111f098f1d0617948c4baef53efd669985"
+      },
+      {
+        "path": "cli/integration/test_installed_browser.mjs",
+        "bytes": 1810,
+        "sha256": "57e4a51d2ca24e55af7e97d8d1665eb243af2cf8277f6e25db3384c4cc7b6561"
+      },
+      {
+        "path": "cli/integration/test_installed_settings.py",
+        "bytes": 16790,
+        "sha256": "3940bcd02f81bd8f1ce44f2d40a79d2da654eb9f229fc879284a6eb81e0da298"
+      },
+      {
+        "path": "cli/src/omnis_cli/compose.py",
+        "bytes": 18932,
+        "sha256": "7862abba135368dccdc6ff3a167bd6c46424143d0645e8effbe2e37c3ac1abfd"
+      },
+      {
+        "path": "cli/src/omnis_cli/lifecycle.py",
+        "bytes": 8570,
+        "sha256": "dd547be413f709124fccbf562c37f9b2e5e158ff897e24e2a19499e4fe6727d1"
+      },
+      {
+        "path": "cli/src/omnis_cli/main.py",
+        "bytes": 5669,
+        "sha256": "074ba372ec33e05723fd581f06f59c290c08c2c98d92b890bba6b26f72b79138"
+      },
+      {
+        "path": "cli/src/omnis_cli/native_artifacts.py",
+        "bytes": 11856,
+        "sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c"
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "bytes": 11317,
+        "sha256": "4b09f89c2c1c058bde7c59454dbc2d2731cef8810ce2e238d27aa1fdb1524c1e"
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "bytes": 60750,
+        "sha256": "6e0388555206cb7144be24c6326a3b385406e1dfd6a36ae3e126211c5385d9c6"
+      },
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "bytes": 30686,
+        "sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop.py",
+        "bytes": 35671,
+        "sha256": "d3bc6de7c0db26c2a2bc231cd2a17a2f0b74bfbb8cb3969d29dc713b18a413aa"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_owner.py",
+        "bytes": 38246,
+        "sha256": "62a463c5929fffd479c3ca1da3a115a547b07ce33bd1411bb396ea1aa5aa7713"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_receipt.py",
+        "bytes": 9014,
+        "sha256": "37827118d69c2ca20be42b179024d0ee13a1cc6e5cc4f2f2db042b1fe7f56fe1"
+      },
+      {
+        "path": "cli/tests/runtime_inspect_fixture.py",
+        "bytes": 5538,
+        "sha256": "7c9a09fe448d7352f8f3c1e0e0bf42b13ddc6ad8a073f68f7afbf1c361d20c8e"
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "bytes": 19181,
+        "sha256": "f1d998f2a1daa4addf42462f96e75c3f35f21c2fc29d1797dba63dd6d6386928"
+      },
+      {
+        "path": "cli/tests/test_config_consumers.py",
+        "bytes": 9302,
+        "sha256": "b252caf8510d8b81f011d1981f9bf9ab842005d3221d0ae23d5a38c9214d63a1"
+      },
+      {
+        "path": "cli/tests/test_forwarder_handoff.py",
+        "bytes": 7476,
+        "sha256": "a45992b0bb72b9af3e7c737c984b6453087ab5b72f25f9d9ed20112e0f982a19"
+      },
+      {
+        "path": "cli/tests/test_image_install.py",
+        "bytes": 19024,
+        "sha256": "017d617eef601d999eee4d8dc9c675e77281a4a0a69e279542754b092ed2113d"
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "bytes": 18178,
+        "sha256": "de02770a8b4f8667c53c4758ca653207cf5f293ddf07a006d7c2ab5c64cd4ff3"
+      },
+      {
+        "path": "cli/tests/test_ready_journal.py",
+        "bytes": 4170,
+        "sha256": "fc1d72c58bdaf5026ab5db772676f550df84c794ab7e7c964de4200bf97b0016"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "bytes": 18337,
+        "sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8"
+      },
+      {
+        "path": "cli/tests/test_start.py",
+        "bytes": 16587,
+        "sha256": "3e48a7e7e0bde9c6109c83db17a198708929f6416499ef284be5f9e9a539ecde"
+      },
+      {
+        "path": "cli/tests/test_start_boundaries.py",
+        "bytes": 14385,
+        "sha256": "7357f1b6d0deb0916266e1136f05266e3b8a3952d5ce13115acc8bae648b819e"
+      },
+      {
+        "path": "cli/tests/test_start_cleanup_faults.py",
+        "bytes": 3558,
+        "sha256": "b090c4deede7562f0064558db4ee25f1416526ff42976d607e4ed068c3396caa"
+      },
+      {
+        "path": "cli/tests/test_start_preflight.py",
+        "bytes": 7012,
+        "sha256": "658c6424829a62231ba5db5d3b8cc2dc98b562a253d3b740ea729ba12c577c99"
+      },
+      {
+        "path": "cli/tests/test_start_process.py",
+        "bytes": 40061,
+        "sha256": "0cf2ef839794cbb372f781708b203f090122dd9d0f8d6110d371e3178d63598c"
+      },
+      {
+        "path": "cli/tests/test_status.py",
+        "bytes": 17941,
+        "sha256": "0a666938b6274b3a24dd65cfe230b5b1475380b4d9f493398b06210058ba1a4a"
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "bytes": 58398,
+        "sha256": "57f55fc0dba53e1b22af4c48d8967473272d4568c6a5d2a749fd18016f2a2789"
+      },
+      {
+        "path": "ops/Dockerfile.hermes",
+        "bytes": 2948,
+        "sha256": "e9e069daee8bc6620e89ce237d151270f7effb89205d33c4550d7766753ff1ea"
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "bytes": 7737,
+        "sha256": "9ec6236772c23d91df4c1dc047e99f593b00aac144daccf47f9076555b705cc2"
+      }
+    ],
+    "file_count": 37,
+    "complete_changed_pathset_checked": true,
+    "delta_paths": [
+      "api/tests/test_provider_process_source.py",
+      "cli/integration/installed_browser.mjs",
+      "cli/integration/installed_pair_open.py",
+      "cli/integration/installed_start.py",
+      "cli/integration/installed_stop.py",
+      "cli/integration/test_installed_browser.mjs",
+      "cli/integration/test_installed_settings.py",
+      "ops/Dockerfile.hermes"
+    ],
+    "unchanged_original_file_count": 29,
+    "source_hash_mismatches": [],
+    "final_worktree_status": "clean work/p4i-72e9e2c1",
+    "bundle_manifest": "/home/kali/.hermes/cache/scratch/i72/lifecycle-f01-bundle/release.json",
+    "bundle_manifest_sha256": "8350d505e45b02ac39aa5347fdcbb3f253b80b673c65f97899f993be3c57084a",
+    "bundle_payload_count": 15,
+    "all_payload_hashes_verified": true,
+    "image_built": false,
+    "cli_installed_origin": "/home/kali/.hermes/cache/scratch/i72/cli-env/lib/python3.13/site-packages/omnis_cli",
+    "cli_source_vs_copy_installed_modules": "All current top-level .py modules compared before import; existing package pyc code compared to compile(source) before import, no cache writes (-I -B).",
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node"
+  },
+  "existing_finding_dispositions": [
+    {
+      "id": "P4I-NORM-F01",
+      "prior": "HIGH OPEN_CONFIRMED_SOURCE at5359ac3",
+      "current": "DISTRIBUTION_SAFETY_APPROVED_SOURCE_SCOPED; final compatibility/artifact adjudication owned by complementary norm reviewer",
+      "evidence": "After recursive child chown, /state is reset0:0/0755; USER remains nonroot. Read-only rootfs, mapped UID, private provider bind and private_paths guard unchanged. Independent six mapped-UID image/current/foreign read/save controls PASS. No real OCI ownership or native config readback claimed."
+    },
+    {
+      "id": "prior review-installed-safety.json",
+      "prior": "APPROVED_SCOPED on5359ac3",
+      "current": "Retained only for29unchanged hashed paths. It did not approve the new8-path delta or real installed acceptance; no opportunistic historical audit."
+    },
+    {
+      "id": "302075e observer-family correction",
+      "prior": "Author discovered late engine-unknown before finalizer admission",
+      "current": "Existing test case PASS and early finalizer predicate correct; NOT complete for observer uncertainty raised during absence readback after that predicate or on nominal path. New finding below is a distinct cut, not rejection of the earlier regression."
+    },
+    {
+      "id": "3efb093 formatting claim",
+      "current": "Formatting-only followup verified in Git; prior author format exit1 retained in original report, not converted retrospectively to PASS."
+    }
+  ],
+  "findings": [
+    {
+      "id": "P4I-SAFETY-QA-F01",
+      "severity": "HIGH",
+      "status": "OPEN_CONFIRMED_SOURCE",
+      "title": "Late observer-family uncertainty is converted to VERIFIED and permits restart",
+      "locations": [
+        "cli/integration/installed_stop.py:300-320",
+        "cli/integration/installed_stop.py:333-336",
+        "cli/integration/installed_stop.py:353-361,378-392"
+      ],
+      "producer_location": "cli/src/omnis_cli/start_runtime.py:360-367 (unchanged dependency inspected only to reproduce flag production)",
+      "mechanism": "302075e checks runtime.uncertain/family_drained only before entering exceptional cleanup. assert_resources_absent itself invokes Engine observer commands. A real signalled inspect can return None after emitting the expected No such diagnostic while ControlRuntime correctly leaves family_drained=false. The nominal caller does not check that flag after the first absence census, proceeds to fresh Start/second Settings/final Stop, and unconditionally sets proof=cleanup=True after the last census. Its final receipt checks driver_pending but not runtime flags. The exceptional STOPPED/READY branches likewise assign cleanup=True after absence without another settlement check.",
+      "violated_requirement": "Existing runtime.family_drained=false or runtime.uncertain must retain UNCERTAIN and forbid further lifecycle teardown/restart; an absent resource is not proof that its observer family settled.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/probe_late_uncertainty.py",
+      "command": [
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/probe_late_uncertainty.py"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/config",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/tmp",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "exit_meaning": "Defect reproduced, NOT product PASS",
+      "actual_output": {
+        "actual_stop_caller": [
+          {
+            "cut": "first-absence",
+            "events": [
+              "start",
+              "settings-save",
+              "stop",
+              "absent",
+              "start",
+              "settings-readback",
+              "stop",
+              "absent"
+            ],
+            "family_drained": false,
+            "final_probe": [
+              "PASS",
+              "VERIFIED"
+            ],
+            "uncertain": false
+          },
+          {
+            "cut": "last-absence",
+            "events": [
+              "start",
+              "settings-save",
+              "stop",
+              "absent",
+              "start",
+              "settings-readback",
+              "stop",
+              "absent"
+            ],
+            "family_drained": false,
+            "final_probe": [
+              "PASS",
+              "VERIFIED"
+            ],
+            "uncertain": false
+          }
+        ],
+        "producer": {
+          "absence_returned": true,
+          "family_drained": false,
+          "owned_children_reaped": true,
+          "uncertain": false
+        }
+      },
+      "positive_control": "Unmodified test_installed_settings:7 tests PASS; normal Settings caller ends PASS/VERIFIED. Its existing engine-unknown case rejects the earlier cut. New probe uses the identical actual run_installed_stop caller and existing SOURCE fixture for two post-absence cuts.",
+      "seams": "Real installed ControlRuntime.run/inspect owns, waits and reaps an inert no-descendant shell emitting synthetic No such container then SIGTERM. No Docker involved. Its actually observed flags are passed at first/last absence into the existing test helper, whose Engine/CLI/browser and clock remain explicit doubles. This is composed SOURCE evidence, not end-to-end process-family/Docker QA.",
+      "minimal_remedy": "Require the existing observer flags to be settled after each affected absence/resource readback and before fresh Start or any subsequent normal Stop/cleanup credit. Re-read the flags when publishing final cleanup; do not allow proof/PASS on UNCERTAIN. Keep the original failure and data/locator; add the demonstrated late-cut regression to the existing caller, without new owner, retries or wider budgets.",
+      "required_rereview": "Focused late first/last-absence controls on the repaired existing caller; verify original browser-failure+closed remains ordinary FAIL, and unsettled observer remains UNCERTAIN with no later lifecycle operations. Only then parent may admit one fresh installed attempt."
+    }
+  ],
+  "reviewed_boundaries": [
+    {
+      "boundary": "Distribution ancestor",
+      "result": "No confirmed safety regression. Immutable root-owned traversable ancestor removes cross-UID replaceability without making /state writable to mapped runtime user or weakening private child guards.",
+      "limit": "SOURCE metadata only; norm reviewer owns artifact compatibility and real image still NOT_BUILT."
+    },
+    {
+      "boundary": "Secrets and browser settlement",
+      "result": "Code travels existing private PTY -> in-memory -> stdin only; origin/instance/mode/tool paths in explicit environment, no credential argv/env. Dynamic Playwright import is inside main; import-only Node oracle does not execute main. JS errors normalize to fixed FAILED marker, CLOSED follows awaited browser.close, Python requires recognized0/1 plus exactly one CLOSED before callback. Screens occur after pairing and after zero Pairing-code fields; no trace/video/raw exception print.",
+      "limit": "Static review + source doubles/Node oracles, not a live browser secret transport certification."
+    },
+    {
+      "boundary": "Finite journey/authority",
+      "result": "Optional settings_browser mapping retains default legacy path; exact same-origin installed manifest bytes hashed, instance checked, model/effort/four axes exact. First read(false), one Save, CONFIRMED, reload distinct read(true); normal Stop and new Start retain provider_identity, fresh paired read-only operation. Exact Host/Origin/CSRF/auth status/reason plus negative operation UNAVAILABLE. No second RuntimeClient created for readiness.",
+      "limit": "Live assets/screens/readback/identity/denial semantics remain NOT_RUN."
+    },
+    {
+      "boundary": "Pending and errors",
+      "result": "Existing durable write_record locator is written PENDING/UNCERTAIN before CLI/pair/browser and multi-command Stop window. Timeout/signal/unknown/missing-close retain driver pending. Joined browser assertion uses normal product Stop only under READY/current owned authority. Existing tests verify primary exception survives secondary cleanup failure.",
+      "limit": "Late Engine uncertainty not covered correctly; blocking F01 above."
+    },
+    {
+      "boundary": "New runtime role census",
+      "result": "Control-network census excludes network:none runtime. Exact CID census includes runtime and native-ipc/runtime.sock/runtime.boot absence; lock files are not deleted. Existing resources/data retained.",
+      "limit": "No live Engine/network/IPC inspect or native drain proof."
+    }
+  ],
+  "tests": [
+    {
+      "label": "qa-source",
+      "exit_code": 0,
+      "seconds": 0.266,
+      "output": [
+        "Ran 7 tests in 0.050s",
+        "OK",
+        "SOURCE_TEST_COUNT 7 FAILURES 0 ERRORS 0"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/qa-source.log"
+    },
+    {
+      "label": "node-oracle",
+      "exit_code": 0,
+      "seconds": 0.166,
+      "output": [
+        "ℹ tests 3",
+        "ℹ pass 3",
+        "ℹ fail 0"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/node-oracle.log"
+    },
+    {
+      "label": "late-uncertainty",
+      "command": [
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/probe_late_uncertainty.py"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/late-uncertainty.log"
+    },
+    {
+      "label": "image-mapped-uid-source",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib\nwork=pathlib.Path('/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work')\nsys.path[:0]=[str(work/'api/src'),str(work/'integrations/hermes/src')]\nimport omnis_hermes.runtime_host as h\nassert pathlib.Path(h.__file__)==work/'integrations/hermes/src/omnis_hermes/runtime_host.py'\nimport pytest\nraise SystemExit(pytest.main(['-p','pytest_asyncio.plugin','-p','no:cacheprovider','-c',str(work/'api/pyproject.toml'),str(work/'api/tests/test_provider_process_source.py')+'::test_image_provider_ancestor_through_settings','-q','--tb=no','--override-ini=addopts=']))\n"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/image-source.log",
+      "tests": 6
+    }
+  ],
+  "node_import_preflight": "Read installed_browser.mjs and test_installed_browser.mjs before execution: top-level imports only node builtins; Playwright import/launch reside in main guarded by argv1 exact URL. node --test imports exports without main.",
+  "execution_environment": {
+    "private_root": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46",
+    "env": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/home",
+      "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/config",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/tmp",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "api_python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "cli_python": "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+    "python_flags": [
+      "-I",
+      "-B"
+    ],
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node"
+  },
+  "cleanup": {
+    "real_inert_observer_children_reaped": true,
+    "source_tests": "No real services/browser/native launch. Existing fixture creates synthetic private s4-* data retained under this reviewer TMPDIR; not runtime resources. Unittest temporary roots use their existing finalizers.",
+    "synthetic_state_directories_retained": [
+      "s4-abyy1y2s",
+      "s4-hh0c3x36",
+      "s4-lb4yyf1e",
+      "s4-nb71sfxi",
+      "s4-qvbt97mf",
+      "s4-rwn1rvgd",
+      "s4-s_asdosi",
+      "s4-t8t_zjzw",
+      "s4-uuqy5323"
+    ],
+    "docker_oci_pg_native_provider_oauth_target": "NOT_RUN",
+    "worktree_source_test_doc_edits": [],
+    "commits": [],
+    "protected_html_ponytail_personal_configs_auth_env_sessions_logs": "not read or modified"
+  },
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/qa-source.log",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/node-oracle.log",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/image-source.log",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/commands.json",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/probe_late_uncertainty.py",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/inert-observer",
+    "/home/kali/.hermes/cache/scratch/sfr-isbu2b46/late-uncertainty.log",
+    "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-safety.json"
+  ],
+  "limits": [
+    "No real installed QA or image build admitted by this review.",
+    "No canonical suite or unchanged29path recertification.",
+    "CLOSED marker is an owned browser API completion receipt, not independent OS-wide process census.",
+    "Reticle NOT_APPLICABLE for SOURCE review; live UI NOT_INTEGRATED/NOT_RUN. Chisel BLOCKED_NO_GO.",
+    "P4a-minim IN_PROGRESS/NOT_ACCEPTED; P2-live NOT_CLOSED; STOP before P3.",
+    "README/global map are stale versus active p4a-minim register; parent owns reconciliation, no reviewer edits."
+  ],
+  "parent_skill_handoff": "Challenge uncertainty produced during cleanup/readback, not just injected before finalizer eligibility. A sticky flag must gate both subsequent effects and the final receipt; absence and successful normal product Stop cannot erase an unsettled observer family.",
+  "qa_admission": {
+    "one_fresh_normal_installed_qa": false,
+    "source_integration_accepted": false,
+    "real_qa_pass": false
+  }
+}

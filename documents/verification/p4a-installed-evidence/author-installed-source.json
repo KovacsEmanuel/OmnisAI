@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL_SOURCE_CHECKPOINT_NOT_INSTALLED_VERTICAL",
+  "review": "NOT_REVIEWED",
+  "installed_qa_admission": "NOT_READY",
+  "base": "d8b1066e5098fcc80b486624722bea6957579aaf",
+  "branch": "work/p4i-72e9e2c1",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+  "snapshot": {
+    "head": "de4e829611964671eed6417fabf8ec2d69eae492",
+    "commits": [
+      "c11d58d9e2e6c7a3ba4398dc23a922d9b4ba6403",
+      "feb4b7a57648e7126cdfc849a3d02b24aa476186",
+      "de4e829611964671eed6417fabf8ec2d69eae492"
+    ],
+    "files": [
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "6860b618f38417c2f21550dfdee7730af76d9bc8fe7a548191254986983bda17",
+        "bytes": 32444
+      },
+      {
+        "path": "api/tests/test_provider_settings_source.py",
+        "sha256": "51544694c9c4262034e8501def43d460b67595b02677911249324d2f1fc01934",
+        "bytes": 7145
+      },
+      {
+        "path": "cli/README.md",
+        "sha256": "ad662790e10fbcfe32e3a7cc9346cd06503642a4c419391ce11badfe917cef73",
+        "bytes": 17551
+      },
+      {
+        "path": "cli/src/omnis_cli/compose.py",
+        "sha256": "7862abba135368dccdc6ff3a167bd6c46424143d0645e8effbe2e37c3ac1abfd",
+        "bytes": 18932
+      },
+      {
+        "path": "cli/src/omnis_cli/main.py",
+        "sha256": "074ba372ec33e05723fd581f06f59c290c08c2c98d92b890bba6b26f72b79138",
+        "bytes": 5669
+      },
+      {
+        "path": "cli/src/omnis_cli/native_artifacts.py",
+        "sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c",
+        "bytes": 11856
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "sha256": "4b09f89c2c1c058bde7c59454dbc2d2731cef8810ce2e238d27aa1fdb1524c1e",
+        "bytes": 11317
+      },
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "sha256": "0ac57224eeeabc637188cde409fe9f6dad5f7a5fbd8c99d277d03b6908291b2e",
+        "bytes": 25507
+      },
+      {
+        "path": "cli/tests/test_image_install.py",
+        "sha256": "ed4608fd2ff376766d5960c6822882054509b9a09420437f5b3caef6140a4ea9",
+        "bytes": 17058
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "sha256": "de02770a8b4f8667c53c4758ca653207cf5f293ddf07a006d7c2ab5c64cd4ff3",
+        "bytes": 18178
+      },
+      {
+        "path": "cli/tests/test_start_preflight.py",
+        "sha256": "658c6424829a62231ba5db5d3b8cc2dc98b562a253d3b740ea729ba12c577c99",
+        "bytes": 7012
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "sha256": "9ec6236772c23d91df4c1dc047e99f593b00aac144daccf47f9076555b705cc2",
+        "bytes": 7737
+      }
+    ],
+    "status": "",
+    "metadata": [
+      {
+        "name": "source-manifest.json",
+        "bytes": 1861086,
+        "sha256": "c691c0eadbffe560655294484784cc49c96135b614a53bd57fc40beeeaef1531"
+      },
+      {
+        "name": "build-manifest.json",
+        "bytes": 396844,
+        "sha256": "df462968dddeb0bc2e1ad0e4ee25f97758d6b8f1aa7811a63b76ec7b1b351bf6"
+      },
+      {
+        "name": "requirements-native.txt",
+        "bytes": 33552,
+        "sha256": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b"
+      },
+      {
+        "name": "requirements-artifacts.txt",
+        "bytes": 164,
+        "sha256": "0e43d3b8ef938e1bc19884c64c36cbd5ce119f7850b5a8684d56df61c4256aff"
+      }
+    ],
+    "source_original_files": 15208,
+    "native_source_files": 3187,
+    "dependency_wheels": 67,
+    "adapter": {
+      "name": "omnis_hermes-0.1.0-py3-none-any.whl",
+      "sha256": "54c33d77e9d12bf85384090c8c76933d306723ab26e67830862d6a108a76cabf"
+    },
+    "bundle": {
+      "path": "/home/kali/.hermes/cache/scratch/i72/freeze-bundle",
+      "manifest_sha256": "efb3f26392ba2183526e5967c5a7deeb15b73b34292679818abd8f33044796e6",
+      "payload_files": 15,
+      "payload_bytes": 3150112,
+      "largest_file_bytes": 1861086
+    },
+    "wheels": {
+      "cli": {
+        "path": "/home/kali/.hermes/cache/scratch/i72/final-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+        "sha256": "17aa2355fff547221f778df5f182b9318fccb9de8953abe6ee229b7c12cdb05b",
+        "changed_module_bytes_match": true
+      },
+      "api": {
+        "path": "/home/kali/.hermes/cache/scratch/i72/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+        "sha256": "56cfcb3bfa57f1a1c8cd510024ece51c133c95fa248740eee05000d3ebf398d2",
+        "runtime_client_bytes_match": true
+      }
+    },
+    "logs": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/generation-red.log",
+        "sha256": "b29cc339f736faaa3bdb5cd12848afdc858c42861986696f34c0054ca9f0f408",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/generation-regression-final.log",
+        "sha256": "57c2cfc9dd6875f4c14723721a563c98bf449a472a484dd8fadaf7eb065b2bd3",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prior-quiesce-red.log",
+        "sha256": "5bc98d3835a4ddc45105d9a79deff6519b47ef88d103b0730e56db823c544d1d",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prior-quiesce-green.log",
+        "sha256": "dc58e4296e1bcaa0d025d932fd3df511dc74a62c0ae8cd507bdb4c87c7c0bf43",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/artifact-red.log",
+        "sha256": "ac16bafb10e6acd7aea589e75cc84d952584f4d37fef54798f3b8f63f237ef7a",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/artifact-green.log",
+        "sha256": "1109ddf6d2a4614334b32b70c2bbfa49a72e986e897ab6ed05173880eab15a63",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/image-red.log",
+        "sha256": "ed6192c00705612fd34f2b8a377f9e38d82ad48db73f0b402933436c058fab53",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/native-start-red.log",
+        "sha256": "24d7eaf4e370591bce17d3686909d9fd305e714f0c37cfd1ade6fb5ba65ee493",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/image-os-red.log",
+        "sha256": "8fc5bf24f3ed97185aae61a9ca03abbb848b001ce03a5719b0d2d95f2553f3c8",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/bundle-malformed-red.log",
+        "sha256": "99e732230aeb700af6b20bae4b6499583d9a159345dc59e1e5239537cf246f7b",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-regression.log",
+        "sha256": "ffdce41c150b8e4b25425c3e3bea41122a04510e06d368ccde0fe999b45c6693",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-regression-owned-origin.log",
+        "sha256": "ee6fa3f7f12a8d64aea11aadb9ee174ce912ced2bf223a07988a2c50d1b2a16c",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-focused-wheel.log",
+        "sha256": "f3be029a189cfab813c7521efb29710ee02bf2c98a8c6dad7da11f5370cb57bc",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-final-focused.log",
+        "sha256": "ed76de30ec8926bee7cd4370ce192294b329829e083f59ff1e8dd1ac6966c7ee",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-freeze-75.log",
+        "sha256": "a054a787cd67c0974d0a1bbf0ee5a7fe6a5db1ab4663713ccf595c222c8fa5a6",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/docs-render.log",
+        "sha256": "da395fcb3a80420a2759a91399d972bef080a5a922cf922b48f60ef752928572",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/docs-tests.log",
+        "sha256": "f5e47d64114f594dc9b8bc8b31dd70bee640c14d27df8ef49731f0e4f26f974f",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/bundle-freeze.log",
+        "sha256": "9e7b883a6d08d13bfa6f4ac1a536fe3ae19626cdfec027a61b56270c8e4fe924",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/actual-closure-final.log",
+        "sha256": "85275b33b641560202a71146bf7c93fa18436eb826e9e6d27f104ecf91395ebf",
+        "mode": "0o600"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/restart-quiesce-red.log",
+        "sha256": "f2d918716f59ed2a946825cf9dd0cc43e04c7868a51484bc8d0547b5e751c980",
+        "mode": "0o600"
+      }
+    ],
+    "test_summaries": {
+      "prior-quiesce-green.log": [
+        "60 passed in 5.27s"
+      ],
+      "cli-freeze-75.log": [
+        "Ran 75 tests in 7.629s",
+        "OK"
+      ],
+      "docs-tests.log": [
+        "Ran 75 tests in 1.567s",
+        "OK"
+      ],
+      "bundle-freeze.log": [
+        "BUNDLE_READY"
+      ]
+    }
+  },
+  "implemented": [
+    "First Settings authentic post-OPEN successor generation via existing owned_status/runtime_authority; same connected boot, exchange-locked IDLE check, no DB lock acquired while runtime exchange lock held.",
+    "Prior finalized-generation cold drain preserves IDLE binding; a Stop serial captured before grant acquisition fences any concurrent Stop before Settings send. Active, STOPPED, UNCERTAIN, changed owner/epoch, non-successor generation and closed-instance controls refuse.",
+    "Finite optional p4a-settings-offline release format 2 and image receipt format 2; legacy v1 remains explicit. install-image --runtime-context is installation-only and never enters startup metadata.",
+    "build_control_bundle --runtime-metadata seals exact four native metadata files plus existing Dockerfile.hermes, verifies current pin/overlay identity, preserves original 2MiB/file and 8MiB aggregate release caps.",
+    "Exact build_native/inject_adapter executable closure, three overlay lineage, native source file set, dependency wheel sizes/hashes and adapter/requirements/license binding; canonical paths, regular single-link files, extra files/directories, symlinks/hardlinks and traversal checks.",
+    "Owned exact staging excludes producer source/build environments, caches and logs. Same existing image installer owns both fresh builds, checks image role/profile/direct Host command/Linux identity and emits one release-bound receipt only after both readbacks.",
+    "Fail-closed NATIVE_LIFECYCLE_REQUIRED prevents the new profile from silently using the old three-service lifecycle before Docker. IMAGE_PROFILE_MISMATCH rejects inconsistent release/image shapes."
+  ],
+  "not_implemented": [
+    "Fourth isolated RuntimeHost Compose service and supervisor IPC mount/readiness through existing owner.",
+    "Private persistent provider home creation, physical identity receipt, pre-mount and restart verification.",
+    "Startup v3, four-role full Compose/runtime attestation, runtime socket/lock/boot identity and opaque digest.",
+    "Four-role Stop inventory/completion v2, forwarder/API/supervisor/runtime/DB/network/IPC order, emergency/partial-failure cleanup and restart readback.",
+    "Normal installed UI/API Settings save/readback -> Stop -> fresh Start retained configuration journey."
+  ],
+  "scope_explanation": {
+    "extra_product_module": "cli/src/omnis_cli/native_artifacts.py separates the specific prepared-native validation/staging responsibility shared by bundle and image installation; no framework, dependency, independent owner or launcher.",
+    "stop_reason": "Bounded partial checkpoint, not completion: remaining lifecycle changes are a coupled safety/receipt/cleanup increment and were not implemented within this authoring slice. No invented external blocker or missing authorization is asserted.",
+    "main": "No writes/commits in main; private commits only; no amend/reset/rebase/push.",
+    "protected": "Neither protected original HTML nor ponytail.json was read, hashed or modified.",
+    "native_management_and_case_slot": "Unchanged; prepared producer inputs read-only, not mutated. No DB/schema/dependency changes."
+  },
+  "verification": [
+    {
+      "label": "GENERATION_RED",
+      "exit_code": 1,
+      "output": "1 failed, 8 passed; expected GENERATION_CONFLICT before first Settings",
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/generation-red.log",
+      "command": "Same SOURCE API interpreter/origin command as API_AFFECTED_GREEN, selecting api/tests/test_provider_settings_source.py only at pre-fix bytes."
+    },
+    {
+      "label": "GENERATION_INITIAL_GREEN",
+      "exit_code": 0,
+      "output": "59 passed in 5.31s",
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/generation-regression-final.log"
+    },
+    {
+      "label": "PRIOR_QUIESCE_RED",
+      "exit_code": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prior-quiesce-red.log",
+      "output": "New prior-quiesce positive refused after process-free prior-generation drain."
+    },
+    {
+      "label": "API_AFFECTED_GREEN",
+      "exit_code": 0,
+      "output": [
+        "60 passed in 5.27s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prior-quiesce-green.log",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/i72 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest;sys.path[:0]=[\"api/src\",\"integrations/hermes/src\"];raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_api_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'",
+      "limits": "Real owned UDS/client/Host/control with explicit DB/native doubles and finite inert subprocesses, not installed native or PostgreSQL."
+    },
+    {
+      "label": "ARTIFACT_IMAGE_RED",
+      "exit_code": 1,
+      "logs": [
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/artifact-red.log",
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/image-red.log"
+      ],
+      "output": "Missing native module/release-v2 admission and missing runtime_context keyword before implementation."
+    },
+    {
+      "label": "IMAGE_OS_AND_BUNDLE_TYPE_RED",
+      "exit_code": 1,
+      "logs": [
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/image-os-red.log",
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/bundle-malformed-red.log"
+      ],
+      "output": "Wrong native OS accepted; list source metadata raised AttributeError. Fixed without broad exception swallowing."
+    },
+    {
+      "label": "CLI_FOCUSED_FINAL",
+      "exit_code": 0,
+      "output": [
+        "Ran 75 tests in 7.629s",
+        "OK"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/cli-freeze-75.log",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/i72 XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/i72/config /home/kali/.hermes/cache/scratch/i72/cli-env/bin/python -I -B -c 'import sys,unittest;sys.path.insert(0,\"cli/tests\");s=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(n) for n in ['\"'\"'test_install'\"'\"', '\"'\"'test_image_install'\"'\"', '\"'\"'test_start_preflight'\"'\"', '\"'\"'test_installed_pointer_schema'\"'\"', '\"'\"'test_start_attestation'\"'\"', '\"'\"'test_runtime_completeness'\"'\"', '\"'\"'test_restart_wiring'\"'\"', '\"'\"'test_start_process.StartupProcessTest.test_default_sigchld_real_child_completes'\"'\"', '\"'\"'test_start_process.StartupProcessTest.test_exec_inherited_ignored_sigchld_refused_before_spawn'\"'\"', '\"'\"'test_start_process.StartupProcessTest.test_sigchld_reaper_handler_refused_before_spawn'\"'\"']);r=unittest.TextTestRunner(verbosity=1).run(s);raise SystemExit(not r.wasSuccessful())'",
+      "limits": "Byte-matching copy-installed CLI wheel; Docker channels substituted. Includes legacy install/preflight/pointer/attestation/restart guards, not OCI/PG/native certification."
+    },
+    {
+      "label": "QUALITY",
+      "exit_code": 0,
+      "commands": [
+        "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix <changed Python files>",
+        "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check <changed Python files>",
+        "env -u PYTHONPATH MYPYPATH=api/src:integrations/hermes/src /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/supervisor/runtime_client.py api/tests/test_provider_settings_source.py",
+        "env -u PYTHONPATH MYPYPATH=cli/src /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental cli/src ops/build_control_bundle.py",
+        "git diff --check"
+      ],
+      "output": "Ruff clean; mypy API 2 files and CLI/builder 23 files clean."
+    },
+    {
+      "label": "DOCS",
+      "exit_code": 0,
+      "commands": [
+        "TMPDIR=/home/kali/.hermes/cache/scratch/i72 python3 -I -B scripts/render_docs.py --check",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/i72 python3 -I -B -m unittest discover -s tests/documentation -v"
+      ],
+      "output": [
+        "Ran 75 tests in 1.567s",
+        "OK"
+      ],
+      "logs": [
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/docs-render.log",
+        "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/docs-tests.log"
+      ]
+    },
+    {
+      "label": "REAL_BUNDLE_PRODUCER",
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/bundle-freeze.log",
+      "output": "BUNDLE_READY",
+      "command": "OMNIS_UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 /home/kali/.hermes/cache/scratch/i72/cli-env/bin/python -I -B ops/build_control_bundle.py --api-wheel /home/kali/.hermes/cache/scratch/i72/api-wheel/omnis_api-0.1.0-py3-none-any.whl --cli-wheel /home/kali/.hermes/cache/scratch/i72/final-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl --requirements /home/kali/.hermes/cache/scratch/i72/api-requirements.txt --web-root /home/kali/OmnisAI/web/dist --runtime-metadata /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared --output /home/kali/.hermes/cache/scratch/i72/freeze-bundle",
+      "limits": "Actual packaging/size proof. Existing main web/dist reused; no fresh UI build/served-asset attestation here, no usable installed Settings claim."
+    }
+  ],
+  "input_and_size_proof": {
+    "prepared_root": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared",
+    "producer": "Current ops/prepare_hermes_runtime.py prepare/build_native/inject_adapter, genuine parent-owned standard output; derivative sample not used for implementation.",
+    "own_readonly_validation": "validate_context checked 3260 executable/root files: 3187 native-source + 67 dependency wheels + adapter + 5 root metadata/license files. Source manifest contains 15208 original file hashes; all original archive bytes were checked by parent producer, not re-certified by this consumer.",
+    "native_metadata_bytes": 2291646,
+    "sealed_metadata_with_dockerfile_bytes": 2294547,
+    "release_caps": {
+      "per_file": 2097152,
+      "aggregate": 8388608,
+      "max_and_max_plus_one": "SOURCE tests passed without widening either cap"
+    },
+    "actual_bundle": {
+      "path": "/home/kali/.hermes/cache/scratch/i72/freeze-bundle",
+      "manifest_sha256": "efb3f26392ba2183526e5967c5a7deeb15b73b34292679818abd8f33044796e6",
+      "payload_files": 15,
+      "payload_bytes": 3150112,
+      "largest_file_bytes": 1861086
+    },
+    "image_receipt_max_shape_source_bytes": 809,
+    "stop_four_role_sizing": "Parent proposed inventory/grant/frame sizing remains SOURCE proposal only; no new v2 Stop producer exists in this checkpoint.",
+    "genuine_context_staging": "NOT_RUN; genuine input read-only validation passed. Staging/build orchestration tested on explicit synthetic producer-schema fixtures; no actual Docker build/import.",
+    "toolchain": "API and CLI Python3.13.15 verified; uv0.12.19 local pinned helper. CLI/API wheels built offline; own CLI wheel copy-installed without dependencies in private scratch. No Node/browser invoked."
+  },
+  "retained_failures_and_limits": [
+    "First full CLI SOURCE run: 291 tests, 3 failures (subprocess imported main origin) and 15 fixture errors (legacy SimpleNamespace lacked new profile field). No overall PASS claimed.",
+    "Second full CLI SOURCE run: private venv fixed origin but lacked the package console script. Preserved failure; switched to ordinary local wheel/copy installation and narrowed affected tests, not another owner/harness.",
+    "One focused selection used nonexistent test_restart instead of actual test_restart_wiring; 68 passes plus import error were not called PASS. Corrected exact-name final selection has75PASS.",
+    "Prepared producer root is0775 beneath owner0700 control root; initial overly strict source-root admission refused it. Current canonical-source guard permits group bits only behind a private owner ancestor; staged context is0700. Real inputs not chmodded.",
+    "First bundle attempt used the supplied uv symlink path and was refused by the existing canonical executable guard. Diagnosed exact pinned canonical /home/kali/.local/share/omnis-toolchains/uv-0.12.19, then BUNDLE_READY. No guard weakened.",
+    "Initial quiesce hypothesis (cold drain stops Host) was disproved: actual Host stayedIDLE. Probe log has historical -red filename but exit0 and is explicitly a disproof, not a failing test. It exposed client binding retirement; the real Settings positive then failed RED and was corrected in feb4b7a.",
+    "No full canonical, real DB, installed native/image, provider, OAuth, model, target or browser execution. No r1/P0 adoption, global configuration, external service provisioning or push.",
+    "No independent review yet; no acceptance transfer from old source29 approvals to these changed bytes."
+  ],
+  "remaining_qa_prerequisites": [
+    "Finish the coupled four-role normal lifecycle/attestation/providerhome/Stop/restart source increment before removing NATIVE_LIFECYCLE_REQUIRED.",
+    "Add positive/negative full native Compose and runtime inspect controls, replaced provider home, runtime IPC ownership, stop-before-first-Settings/pending/lost-ACK/nondrained controls and exact new max/max+1 frame sizing.",
+    "Two independent complementary reviews and parent admission on exact completed bytes; recheck final native metadata/adapter closure if any native bytes change.",
+    "Only then use additive fresh XDG roots and normal install/install-image/start/status/pair/open/stop from another cwd; real DB/schema, paired Settings exact native Save/readback, Stop->fresh Start retained config and browser cleanup.",
+    "Full canonical only at final integration boundary. OAuth/provider/model/P2-live and target/P3 remain outside this increment."
+  ],
+  "reusable_lessons_for_parent_skill_update": [
+    "Before invoking a whole CLI suite from a worktree, use a private copy-installed CLI wheel, verify matching module origin in both parent and subprocess, and confirm its console entrypoint. sys.path injection alone cannot fix -I children.",
+    "A prior finalized-generation quiesce can call drain on a new process-free Host before OPEN. Keep its idle binding eligibility while fencing grants against a Stop serial; do not infer STOPPED from a drain call or acquire DB locks while holding the runtime exchange lock.",
+    "Use standard build_native/inject_adapter metadata, not retained derivative schema; attest only the exact executable staging closure and leave producer build environments/caches/logs unmounted and unread."
+  ],
+  "rollback": "Private commits only. Revert artifact commit before dependent future lifecycle changes; generation commits are ordered and feb4b7a closes the restart hole in c11d58d. No native/DB/operator data was created by this author. Scratch artifacts/logs retained for parent, not global rollout.",
+  "freeze": "All intended repository changes committed; clean worktree. No further product writes after this report."
+}

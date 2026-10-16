@@ -1,0 +1,32 @@
+{
+  "scope": "PARENT_EXACT_READBACK_AND_READ_ONLY_REPRODUCTION",
+  "attempt": "ca19a4c1-b723-45e1-9c1c-9dbfa670a1e6",
+  "project": "omnis-local-98706c97c02c4674a60e0176cecd72aa",
+  "processes": {
+    "proc_3f2d7e6edb70": "exited0; image installer",
+    "proc_e68a66f9f758": "exited1; first Start runner; original runner identity absent"
+  },
+  "daemon_equal": true,
+  "owned_containers_empty": true,
+  "owned_networks_empty": true,
+  "owned_listener_absent": true,
+  "owned_IPC_absent": true,
+  "both_image_ids_and_labels_identical": true,
+  "retained_pg_provider_native_ipc_password_file_metadata": "original dev/inode/uid/gid/mode equal; password content not read by parent",
+  "typed_probe": "FAIL/UNCERTAIN retained, not ACK/STOPPED certification",
+  "finding": "P4I-QA-FIRST-COMPOSE-01",
+  "actual_renderer_reproduction": {
+    "exit_code": 0,
+    "expected_failure": "COMPOSE_RUNTIME_INVALID",
+    "actual_only_keys": [
+      "entrypoint"
+    ],
+    "expected_only_keys": [],
+    "entrypoint_actual_is_null": true,
+    "common_fields_equal": true,
+    "family_drained": true,
+    "uncertain": false,
+    "lifecycle_effects": false
+  },
+  "next": "Minimal producer/validator fix and focused review; a new physical attempt needs fresh owned roots. No blind retry, resource adoption or timeout increase."
+}

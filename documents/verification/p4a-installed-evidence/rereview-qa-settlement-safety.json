@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "review_id": "P4I-SAFETY-QA-F01-REREVIEW-40ee24b",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "SOURCE; re-review independent focalizat exclusiv pe late observer uncertainty în callerul Settings existent.",
+  "decision": "P4I-SAFETY-QA-F01 este RESOLVED_SOURCE_SCOPED pe 40ee24b. Niciun blocker concret rămas în acest scope. Părintele poate admite O SINGURĂ tentativă reală Settings pe fixture proprie, conform contractului existent; această aprobare nu este QA nativă, integrare sau acceptare P4a-minim.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "base": "3efb0934d28920078aa59b565533a1bbed156a67",
+    "head": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "initial_and_final_status": "clean work/p4i-72e9e2c1",
+    "actual_active_checkout": "/home/kali/OmnisAI",
+    "actual_active_head": "d7f5e4473dfdba6c90e34186ed222f3914d1981a",
+    "actual_active_branch": "checkpoint/p2-batch2-pause-20261015",
+    "active_checkout_preexisting_untracked": "documents/Omnis_Notite_Originale.html (unread, untouched)",
+    "main_ref_note": "d372295 a fost valoarea refs/heads/main din raportul autorului, nu HEAD-ul checkoutului activ; nu există dovadă de schimbare concurentă a checkoutului.",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-qa-settlement.json",
+    "manifest_sha256": "eb18457b0e5c3a5db608a86a105df3fb80776912ed00f1caa3f234663e72b405",
+    "existing_bindings_checked": 37,
+    "mismatches": [],
+    "changed_count": 2,
+    "unchanged_count": 35,
+    "delta": [
+      {
+        "path": "cli/integration/installed_stop.py",
+        "sha256": "c00fb5d6c11c4e6393e0362d978f19e4dafceddb7f7fed632602ac9c49efefac"
+      },
+      {
+        "path": "cli/integration/test_installed_settings.py",
+        "sha256": "86fd69cbabdbd06b4fe0a2a5ec66cacf212e39654a268e413b7a758c2502cd22"
+      }
+    ],
+    "unchanged_scope": "Lista existentă de 35 din manifest reutilizată fără inventar nou; cele 37 hashes curente comparate direct. Copy-installed22 și dovezile neafectate reutilizate din bindingurile părintelui, fără rebuild/reinstall."
+  },
+  "finding_dispositions": [
+    {
+      "id": "P4I-SAFETY-QA-F01",
+      "original_severity": "HIGH",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "original_report": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-safety.json",
+      "original_probe": "/home/kali/.hermes/cache/scratch/p4ql-q2aumw1c/probe.py",
+      "original_probe_sha256": "a04ed6db6b45a2077a429489a39681009e892aa11bdf8e37a1194650d841bf4a",
+      "inverse_method": "Același probe citit/hash-verificat, transformat numai în memorie: ROOT privat, pozitiv settings identic, așteptare RuntimeError exact + FAIL/UNCERTAIN în loc de false-green PASS/VERIFIED și census start/absence. Producerul și locurile de injecție originale rămân identice. Fișierul original nu a fost scris.",
+      "producer": {
+        "absence_returned": true,
+        "uncertain": false,
+        "family_drained": false,
+        "owned_children_reaped": true
+      },
+      "first_absence": {
+        "events": [
+          "start",
+          "settings-save",
+          "stop",
+          "absent"
+        ],
+        "final_probe": [
+          "FAIL",
+          "UNCERTAIN"
+        ],
+        "restart_after_cut": false,
+        "exception": "RuntimeError: Installed observer family unsettled"
+      },
+      "last_absence": {
+        "events": [
+          "start",
+          "settings-save",
+          "stop",
+          "absent",
+          "start",
+          "settings-readback",
+          "stop",
+          "absent"
+        ],
+        "final_probe": [
+          "FAIL",
+          "UNCERTAIN"
+        ],
+        "exception": "RuntimeError: Installed observer family unsettled"
+      },
+      "positive": "Același _stop_scenario(settings) rămâne PASS/VERIFIED; suitea păstrează și legacy pozitiv.",
+      "cleanup_and_publication": "Controalele existente trecute pentru cleanup-absence READY, stopped-absence, cleanup-readback și final-readback: fără comenzi ulterioare, fără teardown optimist, fără INSTALLED_STOP_VERIFIED, date sintetice reținute, FAIL/UNCERTAIN. Primary browser AssertionError rămâne primară la incertitudine/eșec secundar; closed-browser failure settled rămâne FAIL/VERIFIED, nu PASS.",
+      "code_locations": [
+        "cli/integration/installed_stop.py:97-104",
+        "cli/integration/installed_stop.py:134",
+        "cli/integration/installed_stop.py:180-224",
+        "cli/integration/installed_stop.py:234-235",
+        "cli/integration/installed_stop.py:314-350",
+        "cli/integration/installed_stop.py:359-427"
+      ],
+      "reason": "Guardul folosește flags curente după readback și înainte de continuare. Cleanup se recalculează la publicare, inclusiv după cleanup=True; markerul de succes este după finalizare. ControlRuntime păstrează previous_drained/previous_uncertain, deci un read normal ulterior nu șterge incertitudinea observată."
+    }
+  ],
+  "new_findings": [],
+  "commands_results": [
+    {
+      "label": "existing-settings-source",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,unittest,os\nsys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\")\ns=unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\"])\nr=unittest.TextTestRunner(verbosity=2).run(s)\nprint(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors))\ntry: os.waitpid(-1,os.WNOHANG)\nexcept ChildProcessError: print(\"OWNED_CHILDREN_REAPED true\")\nelse: raise AssertionError(\"Unexpected waitable child\")\nraise SystemExit(not r.wasSuccessful())"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "output": "test_cleanup_absence_keeps_primary_failure_and_uncertainty (test_installed_settings.InstalledSettingsTest.test_cleanup_absence_keeps_primary_failure_and_uncertainty) ... ok\ntest_cleanup_readback_refuses_stop_and_keeps_primary_failure (test_installed_settings.InstalledSettingsTest.test_cleanup_readback_refuses_stop_and_keeps_primary_failure) ... ok\ntest_default_is_legacy_and_callbacks_surround_normal_stop_restart (test_installed_settings.InstalledSettingsTest.test_default_is_legacy_and_callbacks_surround_normal_stop_restart) ... ok\ntest_final_publication_rechecks_settlement_after_cleanup_credit (test_installed_settings.InstalledSettingsTest.test_final_publication_rechecks_settlement_after_cleanup_credit) ... ok\ntest_four_role_absence_keeps_native_ipc_in_census (test_installed_settings.InstalledSettingsTest.test_four_role_absence_keeps_native_ipc_in_census) ... ok\ntest_late_uncertain_flag_refuses_absence (test_installed_settings.InstalledSettingsTest.test_late_uncertain_flag_refuses_absence) ... ok\ntest_legacy_browser_keeps_raw_stdin_and_finite_session_mode (test_installed_settings.InstalledSettingsTest.test_legacy_browser_keeps_raw_stdin_and_finite_session_mode) ... ok\ntest_native_runtime_is_excluded_from_control_network (test_installed_settings.InstalledSettingsTest.test_native_runtime_is_excluded_from_control_network) ... ok\ntest_private_browser_payload_and_settlement (test_installed_settings.InstalledSettingsTest.test_private_browser_payload_and_settlement) ... ok\ntest_real_signalled_observer_refuses_first_and_last_absence (test_installed_settings.InstalledSettingsTest.test_real_signalled_observer_refuses_first_and_last_absence) ... ok\ntest_real_stop_caller_order_and_pending_browser_refusal (test_installed_settings.InstalledSettingsTest.test_real_stop_caller_order_and_pending_browser_refusal) ... ok\ntest_timeout_remains_uncertain_and_is_not_retried (test_installed_settings.InstalledSettingsTest.test_timeout_remains_uncertain_and_is_not_retried) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 0.106s\n\nOK\nCOUNT 12 FAILURES 0 ERRORS 0\nOWNED_CHILDREN_REAPED true",
+      "exit_code": 0,
+      "error": null,
+      "log": "/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/existing-settings-source.json"
+    },
+    {
+      "label": "original-probe-inverse",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "from pathlib import Path\nimport hashlib\np=Path(\"/home/kali/.hermes/cache/scratch/p4ql-q2aumw1c/probe.py\")\nb=p.read_bytes()\nassert hashlib.sha256(b).hexdigest()==\"a04ed6db6b45a2077a429489a39681009e892aa11bdf8e37a1194650d841bf4a\"\ns=b.decode()\ns=s.replace(\"ROOT = Path(__file__).parent\", \"ROOT = Path('/home/kali/.hermes/cache/scratch/sqs-gv3lmajr')\")\ns=s.replace(\"rows = []\", \"tests.InstalledSettingsTest()._stop_scenario('settings')\\nrows = []\".replace('\\n','\n'))\ns=s.replace(\"        tests.InstalledSettingsTest()._stop_scenario('settings')\", \"\"\"        try:\n            tests.InstalledSettingsTest()._stop_scenario('settings')\n        except RuntimeError as error:\n            assert str(error) == 'Installed observer family unsettled'\n        else:\n            raise AssertionError('Original late cut did not refuse')\"\"\")\ns=s.replace(\"row['final_probe'] == ('PASS', 'VERIFIED')\", \"row['final_probe'] == ('FAIL', 'UNCERTAIN')\")\ns=s.replace(\"    rows.append(row)\", \"\"\"    assert row['events'].count('start') == (1 if cut == 'first-absence' else 2)\n    assert row['events'].count('absent') == (1 if cut == 'first-absence' else 2)\n    assert 'teardown' not in row['events']\n    rows.append(row)\"\"\")\nexec(compile(s,str(p),\"exec\"),{\"__file__\":str(p),\"__name__\":\"__main__\"})\nprint(\"SAME_CHANNEL_SETTINGS_POSITIVE PASS_VERIFIED\")"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "output": "File \"<string>\", line 8\n    s=s.replace(\"rows = []\", \"tests.InstalledSettingsTest()._stop_scenario('settings')\\nrows = []\".replace('\\n','\n                                                                                                                ^\nSyntaxError: unterminated string literal (detected at line 8)",
+      "exit_code": 1,
+      "error": null,
+      "log": "/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/original-probe-inverse.json"
+    },
+    {
+      "label": "original-probe-inverse-fixed-invocation",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/sqs-gv3lmajr",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "from pathlib import Path\nimport hashlib\np=Path(\"/home/kali/.hermes/cache/scratch/p4ql-q2aumw1c/probe.py\")\nb=p.read_bytes()\nassert hashlib.sha256(b).hexdigest()==\"a04ed6db6b45a2077a429489a39681009e892aa11bdf8e37a1194650d841bf4a\"\ns=b.decode()\nassert 'ROOT = Path(__file__).parent' in s; s=s.replace('ROOT = Path(__file__).parent',\"ROOT = Path('/home/kali/.hermes/cache/scratch/sqs-gv3lmajr')\")\nassert 'rows = []' in s; s=s.replace('rows = []',\"tests.InstalledSettingsTest()._stop_scenario('settings')\\nrows = []\")\nassert \"        tests.InstalledSettingsTest()._stop_scenario('settings')\" in s; s=s.replace(\"        tests.InstalledSettingsTest()._stop_scenario('settings')\",\"        try:\\n            tests.InstalledSettingsTest()._stop_scenario('settings')\\n        except RuntimeError as error:\\n            assert str(error) == 'Installed observer family unsettled'\\n        else:\\n            raise AssertionError('Original late cut did not refuse')\")\nassert \"row['final_probe'] == ('PASS', 'VERIFIED')\" in s; s=s.replace(\"row['final_probe'] == ('PASS', 'VERIFIED')\",\"row['final_probe'] == ('FAIL', 'UNCERTAIN')\")\nassert '    rows.append(row)' in s; s=s.replace('    rows.append(row)',\"    assert row['events'].count('start') == (1 if cut == 'first-absence' else 2)\\n    assert row['events'].count('absent') == (1 if cut == 'first-absence' else 2)\\n    assert 'teardown' not in row['events']\\n    rows.append(row)\")\nexec(compile(s,str(p),\"exec\"),{\"__file__\":str(p),\"__name__\":\"__main__\"})\nprint(\"SAME_CHANNEL_SETTINGS_POSITIVE PASS_VERIFIED\")"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "output": "{\"actual_stop_caller\": [{\"cut\": \"first-absence\", \"events\": [\"start\", \"settings-save\", \"stop\", \"absent\"], \"family_drained\": false, \"final_probe\": [\"FAIL\", \"UNCERTAIN\"], \"uncertain\": false}, {\"cut\": \"last-absence\", \"events\": [\"start\", \"settings-save\", \"stop\", \"absent\", \"start\", \"settings-readback\", \"stop\", \"absent\"], \"family_drained\": false, \"final_probe\": [\"FAIL\", \"UNCERTAIN\"], \"uncertain\": false}], \"producer\": {\"absence_returned\": true, \"family_drained\": false, \"owned_children_reaped\": true, \"uncertain\": false}}\nSAME_CHANNEL_SETTINGS_POSITIVE PASS_VERIFIED",
+      "exit_code": 0,
+      "error": null,
+      "log": "/home/kali/.hermes/cache/scratch/sqs-gv3lmajr/original-probe-inverse-fixed-invocation.json"
+    }
+  ],
+  "source_summary": {
+    "test_methods": 12,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "seconds": 0.106,
+    "original_inverse_exit_code": 0,
+    "original_inverse_negative_cuts": 2,
+    "same_channel_positive": true
+  },
+  "other_checks": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --check 3efb0934d28920078aa59b565533a1bbed156a67..HEAD",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "result": "clean, exact HEAD, diff-check clean"
+    },
+    {
+      "check": "Manifestul existent: SHA256 pentru exact 2 delta +35 unchanged",
+      "exit_code": 0,
+      "result": "37/37, zero mismatch"
+    }
+  ],
+  "issues": [
+    {
+      "kind": "INVOCATION_SYNTAX_ERROR",
+      "result": "Prima invocare a inversului a ieșit 1 la parsarea -c, înainte de import/probe/child; quotingul a fost corectat și execuția distinctă a trecut. Comanda și rezultatul eșuat sunt păstrate separat; nu a fost schimbată sursa sau oracle-ul pentru a obține verde."
+    }
+  ],
+  "evidence_limits": {
+    "real": "Numai producerul ControlRuntime.run/inspect din CLI copy-installed, cu shell inert propriu fără descendenți, self-SIGTERM și reap verificat. SOURCE callerul run_installed_stop este cel real din worktree.",
+    "substituted": "Engine/CLI lifecycle/browser/clock/receipt sink sunt doubles existente; final-readback înlocuiește Path.is_dir. Nu sunt rezultate ale serviciilor/native/browserului real.",
+    "network": "Numai rezervări locale de port prin bind ale fixture-ului SOURCE; fără listen/connect/HTTP/target/provider sau trafic extern.",
+    "not_run": [
+      "Docker/OCI build sau inspect",
+      "PostgreSQL/DB",
+      "import/boot Hermes nativ",
+      "browser/UI sau Settings real",
+      "provider/OAuth/model/target",
+      "API26",
+      "CLI205",
+      "Node3",
+      "canonical suite"
+    ],
+    "retained_author_evidence": "30 SOURCE GREEN și 7 subtest failures pe baseline sunt evidența autorului, nu rerulate sau reclasificate ca măsurători independente aici.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "integration_claim": false,
+    "native_qa_claim": false
+  },
+  "cleanup": {
+    "private_root": "/home/kali/.hermes/cache/scratch/sqs-gv3lmajr",
+    "real_owned_children_reaped": true,
+    "owned_services_started": false,
+    "synthetic_s4_state": "Păstrată în rootul privat, fără cleanup al altor resurse. TemporaryDirectory se închide prin finalizatorul existent.",
+    "original_probe_unchanged": true
+  },
+  "preservation": {
+    "source_test_skill_commits": false,
+    "protected_html_ponytail_reads": false,
+    "personal_config_auth_env_log_reads": false,
+    "other_profile_changes": false
+  },
+  "cycle_count": {
+    "qa_only": 2,
+    "new_harness_or_verifier": false,
+    "next": "O singură tentativă Settings reală admisă de părinte, nu încă un strat SOURCE."
+  },
+  "project_status": {
+    "AICI": "Fix QA implementat pe40ee24b / SOURCE PASS / safety APPROVED_SCOPED",
+    "P4a_minim": "IN_PROGRESS / NOT_ACCEPTED; Settings real NOT_RUN",
+    "P2_inert": "CLOSED_SCOPED păstrat",
+    "P2_live": "NOT_CLOSED",
+    "P3": "STOP_BEFORE"
+  },
+  "skill_handoff": "Fără scriere de skill în mandatul read-only. Părinte: adaugă în skill-ul de review existent lecția demonstrată — verifică flags și după absence/readback, apoi din nou înaintea publicării finale; absența resurselor nu dovedește settlementul observatorului."
+}

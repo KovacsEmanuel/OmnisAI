@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "finding": "P4I-SAFETY-QA-F01",
+  "status": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+  "final_acceptance": false,
+  "contract": {
+    "requirement": "Late observer uncertainty must forbid lifecycle continuation and PASS/VERIFIED",
+    "consumer": "existing run_installed_stop opt-in Settings caller",
+    "risk": "Absence can return while observer family_drained=false",
+    "decision": "Freeze one coherent minimal QA caller correction for focused rereview; no new harness or live attempt here",
+    "allowed_files": [
+      "cli/integration/installed_stop.py",
+      "cli/integration/test_installed_settings.py"
+    ]
+  },
+  "snapshot": {
+    "base": "3efb0934d28920078aa59b565533a1bbed156a67",
+    "head": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "branch": "work/p4i-72e9e2c1",
+    "status": "## work/p4i-72e9e2c1",
+    "main_observed": "d372295a5fa592e16443944b8ace4fdc0c3f1d18",
+    "show": "40ee24b fix(qa): gate installed Settings continuation on observer settlement\n cli/integration/installed_stop.py          |  41 +++++++--\n cli/integration/test_installed_settings.py | 133 +++++++++++++++++++++++++++--\n 2 files changed, 161 insertions(+), 13 deletions(-)",
+    "delta": [
+      {
+        "path": "cli/integration/installed_stop.py",
+        "bytes": 22370,
+        "sha256": "c00fb5d6c11c4e6393e0362d978f19e4dafceddb7f7fed632602ac9c49efefac",
+        "base_sha256": "93dd697c36bcd261f7a665d3c0380b111f098f1d0617948c4baef53efd669985"
+      },
+      {
+        "path": "cli/integration/test_installed_settings.py",
+        "bytes": 21849,
+        "sha256": "86fd69cbabdbd06b4fe0a2a5ec66cacf212e39654a268e413b7a758c2502cd22",
+        "base_sha256": "3940bcd02f81bd8f1ce44f2d40a79d2da654eb9f229fc879284a6eb81e0da298"
+      }
+    ],
+    "unchanged": [
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "bytes": 32444,
+        "sha256": "6860b618f38417c2f21550dfdee7730af76d9bc8fe7a548191254986983bda17",
+        "base_sha256": "6860b618f38417c2f21550dfdee7730af76d9bc8fe7a548191254986983bda17"
+      },
+      {
+        "path": "api/tests/test_provider_process_source.py",
+        "bytes": 6474,
+        "sha256": "91083d4f5c0b5d355e905bd21f7a6a8f5469abc845f9b9ab875be2c15e22e7c6",
+        "base_sha256": "91083d4f5c0b5d355e905bd21f7a6a8f5469abc845f9b9ab875be2c15e22e7c6"
+      },
+      {
+        "path": "api/tests/test_provider_settings_source.py",
+        "bytes": 11933,
+        "sha256": "75e24e8193db6f91b61eefdb41108618f75a937539ff95143ae6d6e949e38c36",
+        "base_sha256": "75e24e8193db6f91b61eefdb41108618f75a937539ff95143ae6d6e949e38c36"
+      },
+      {
+        "path": "cli/README.md",
+        "bytes": 18232,
+        "sha256": "8a7ee86cd77de8cd84be7a7e2d1cc6b3f9f7501abff0ee9dbb49e6d8180eb4f5",
+        "base_sha256": "8a7ee86cd77de8cd84be7a7e2d1cc6b3f9f7501abff0ee9dbb49e6d8180eb4f5"
+      },
+      {
+        "path": "cli/integration/installed_browser.mjs",
+        "bytes": 10005,
+        "sha256": "7e0d68a2b200fe243cb8f4f252b2b910bb0a3c9033167dc3b9efe558004f3667",
+        "base_sha256": "7e0d68a2b200fe243cb8f4f252b2b910bb0a3c9033167dc3b9efe558004f3667"
+      },
+      {
+        "path": "cli/integration/installed_pair_open.py",
+        "bytes": 13966,
+        "sha256": "73d691dae7f513dffb6f42cf853499f0d6f7631e48ee2e3f047181b362246b55",
+        "base_sha256": "73d691dae7f513dffb6f42cf853499f0d6f7631e48ee2e3f047181b362246b55"
+      },
+      {
+        "path": "cli/integration/installed_start.py",
+        "bytes": 42167,
+        "sha256": "28c7420e1ba81ee1fd6feface0b3c923121fd9f0a543fa65ff55b8d47b14505b",
+        "base_sha256": "28c7420e1ba81ee1fd6feface0b3c923121fd9f0a543fa65ff55b8d47b14505b"
+      },
+      {
+        "path": "cli/integration/test_installed_browser.mjs",
+        "bytes": 1810,
+        "sha256": "57e4a51d2ca24e55af7e97d8d1665eb243af2cf8277f6e25db3384c4cc7b6561",
+        "base_sha256": "57e4a51d2ca24e55af7e97d8d1665eb243af2cf8277f6e25db3384c4cc7b6561"
+      },
+      {
+        "path": "cli/src/omnis_cli/compose.py",
+        "bytes": 18932,
+        "sha256": "7862abba135368dccdc6ff3a167bd6c46424143d0645e8effbe2e37c3ac1abfd",
+        "base_sha256": "7862abba135368dccdc6ff3a167bd6c46424143d0645e8effbe2e37c3ac1abfd"
+      },
+      {
+        "path": "cli/src/omnis_cli/lifecycle.py",
+        "bytes": 8570,
+        "sha256": "dd547be413f709124fccbf562c37f9b2e5e158ff897e24e2a19499e4fe6727d1",
+        "base_sha256": "dd547be413f709124fccbf562c37f9b2e5e158ff897e24e2a19499e4fe6727d1"
+      },
+      {
+        "path": "cli/src/omnis_cli/main.py",
+        "bytes": 5669,
+        "sha256": "074ba372ec33e05723fd581f06f59c290c08c2c98d92b890bba6b26f72b79138",
+        "base_sha256": "074ba372ec33e05723fd581f06f59c290c08c2c98d92b890bba6b26f72b79138"
+      },
+      {
+        "path": "cli/src/omnis_cli/native_artifacts.py",
+        "bytes": 11856,
+        "sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c",
+        "base_sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c"
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "bytes": 11317,
+        "sha256": "4b09f89c2c1c058bde7c59454dbc2d2731cef8810ce2e238d27aa1fdb1524c1e",
+        "base_sha256": "4b09f89c2c1c058bde7c59454dbc2d2731cef8810ce2e238d27aa1fdb1524c1e"
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "bytes": 60750,
+        "sha256": "6e0388555206cb7144be24c6326a3b385406e1dfd6a36ae3e126211c5385d9c6",
+        "base_sha256": "6e0388555206cb7144be24c6326a3b385406e1dfd6a36ae3e126211c5385d9c6"
+      },
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "bytes": 30686,
+        "sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2",
+        "base_sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop.py",
+        "bytes": 35671,
+        "sha256": "d3bc6de7c0db26c2a2bc231cd2a17a2f0b74bfbb8cb3969d29dc713b18a413aa",
+        "base_sha256": "d3bc6de7c0db26c2a2bc231cd2a17a2f0b74bfbb8cb3969d29dc713b18a413aa"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_owner.py",
+        "bytes": 38246,
+        "sha256": "62a463c5929fffd479c3ca1da3a115a547b07ce33bd1411bb396ea1aa5aa7713",
+        "base_sha256": "62a463c5929fffd479c3ca1da3a115a547b07ce33bd1411bb396ea1aa5aa7713"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_receipt.py",
+        "bytes": 9014,
+        "sha256": "37827118d69c2ca20be42b179024d0ee13a1cc6e5cc4f2f2db042b1fe7f56fe1",
+        "base_sha256": "37827118d69c2ca20be42b179024d0ee13a1cc6e5cc4f2f2db042b1fe7f56fe1"
+      },
+      {
+        "path": "cli/tests/runtime_inspect_fixture.py",
+        "bytes": 5538,
+        "sha256": "7c9a09fe448d7352f8f3c1e0e0bf42b13ddc6ad8a073f68f7afbf1c361d20c8e",
+        "base_sha256": "7c9a09fe448d7352f8f3c1e0e0bf42b13ddc6ad8a073f68f7afbf1c361d20c8e"
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "bytes": 19181,
+        "sha256": "f1d998f2a1daa4addf42462f96e75c3f35f21c2fc29d1797dba63dd6d6386928",
+        "base_sha256": "f1d998f2a1daa4addf42462f96e75c3f35f21c2fc29d1797dba63dd6d6386928"
+      },
+      {
+        "path": "cli/tests/test_config_consumers.py",
+        "bytes": 9302,
+        "sha256": "b252caf8510d8b81f011d1981f9bf9ab842005d3221d0ae23d5a38c9214d63a1",
+        "base_sha256": "b252caf8510d8b81f011d1981f9bf9ab842005d3221d0ae23d5a38c9214d63a1"
+      },
+      {
+        "path": "cli/tests/test_forwarder_handoff.py",
+        "bytes": 7476,
+        "sha256": "a45992b0bb72b9af3e7c737c984b6453087ab5b72f25f9d9ed20112e0f982a19",
+        "base_sha256": "a45992b0bb72b9af3e7c737c984b6453087ab5b72f25f9d9ed20112e0f982a19"
+      },
+      {
+        "path": "cli/tests/test_image_install.py",
+        "bytes": 19024,
+        "sha256": "017d617eef601d999eee4d8dc9c675e77281a4a0a69e279542754b092ed2113d",
+        "base_sha256": "017d617eef601d999eee4d8dc9c675e77281a4a0a69e279542754b092ed2113d"
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "bytes": 18178,
+        "sha256": "de02770a8b4f8667c53c4758ca653207cf5f293ddf07a006d7c2ab5c64cd4ff3",
+        "base_sha256": "de02770a8b4f8667c53c4758ca653207cf5f293ddf07a006d7c2ab5c64cd4ff3"
+      },
+      {
+        "path": "cli/tests/test_ready_journal.py",
+        "bytes": 4170,
+        "sha256": "fc1d72c58bdaf5026ab5db772676f550df84c794ab7e7c964de4200bf97b0016",
+        "base_sha256": "fc1d72c58bdaf5026ab5db772676f550df84c794ab7e7c964de4200bf97b0016"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "bytes": 18337,
+        "sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8",
+        "base_sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8"
+      },
+      {
+        "path": "cli/tests/test_start.py",
+        "bytes": 16587,
+        "sha256": "3e48a7e7e0bde9c6109c83db17a198708929f6416499ef284be5f9e9a539ecde",
+        "base_sha256": "3e48a7e7e0bde9c6109c83db17a198708929f6416499ef284be5f9e9a539ecde"
+      },
+      {
+        "path": "cli/tests/test_start_boundaries.py",
+        "bytes": 14385,
+        "sha256": "7357f1b6d0deb0916266e1136f05266e3b8a3952d5ce13115acc8bae648b819e",
+        "base_sha256": "7357f1b6d0deb0916266e1136f05266e3b8a3952d5ce13115acc8bae648b819e"
+      },
+      {
+        "path": "cli/tests/test_start_cleanup_faults.py",
+        "bytes": 3558,
+        "sha256": "b090c4deede7562f0064558db4ee25f1416526ff42976d607e4ed068c3396caa",
+        "base_sha256": "b090c4deede7562f0064558db4ee25f1416526ff42976d607e4ed068c3396caa"
+      },
+      {
+        "path": "cli/tests/test_start_preflight.py",
+        "bytes": 7012,
+        "sha256": "658c6424829a62231ba5db5d3b8cc2dc98b562a253d3b740ea729ba12c577c99",
+        "base_sha256": "658c6424829a62231ba5db5d3b8cc2dc98b562a253d3b740ea729ba12c577c99"
+      },
+      {
+        "path": "cli/tests/test_start_process.py",
+        "bytes": 40061,
+        "sha256": "0cf2ef839794cbb372f781708b203f090122dd9d0f8d6110d371e3178d63598c",
+        "base_sha256": "0cf2ef839794cbb372f781708b203f090122dd9d0f8d6110d371e3178d63598c"
+      },
+      {
+        "path": "cli/tests/test_status.py",
+        "bytes": 17941,
+        "sha256": "0a666938b6274b3a24dd65cfe230b5b1475380b4d9f493398b06210058ba1a4a",
+        "base_sha256": "0a666938b6274b3a24dd65cfe230b5b1475380b4d9f493398b06210058ba1a4a"
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "bytes": 58398,
+        "sha256": "57f55fc0dba53e1b22af4c48d8967473272d4568c6a5d2a749fd18016f2a2789",
+        "base_sha256": "57f55fc0dba53e1b22af4c48d8967473272d4568c6a5d2a749fd18016f2a2789"
+      },
+      {
+        "path": "ops/Dockerfile.hermes",
+        "bytes": 2948,
+        "sha256": "e9e069daee8bc6620e89ce237d151270f7effb89205d33c4550d7766753ff1ea",
+        "base_sha256": "e9e069daee8bc6620e89ce237d151270f7effb89205d33c4550d7766753ff1ea"
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "bytes": 7737,
+        "sha256": "9ec6236772c23d91df4c1dc047e99f593b00aac144daccf47f9076555b705cc2",
+        "base_sha256": "9ec6236772c23d91df4c1dc047e99f593b00aac144daccf47f9076555b705cc2"
+      }
+    ],
+    "baseline_bindings_checked": 37,
+    "prior_original29_unchanged": true,
+    "logs": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/green-final.log",
+        "sha256": "ae71b126d230b393b731d52f093d309156ae5c97d0472e89db963f16e15a4724",
+        "mode": "0o600",
+        "summary": [
+          "Ran 30 tests in 0.166s",
+          "OK",
+          "COUNT 30 FAILURES 0 ERRORS 0"
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/green.log",
+        "sha256": "b04dc4d6160b46f98743d77e99b51ac6f8a7bf35df407620a80ed1516cfcca75",
+        "mode": "0o600",
+        "summary": [
+          "Ran 29 tests in 0.165s",
+          "OK",
+          "COUNT 29 FAILURES 0 ERRORS 0"
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/red-final.log",
+        "sha256": "582bfce24fd0ab17f520106924923147f43e833a0a7e32fc43fda5684cadc4ae",
+        "mode": "0o600",
+        "summary": [
+          "Ran 30 tests in 0.185s",
+          "FAILED (failures=7)",
+          "COUNT 30 FAILURES 7 ERRORS 0"
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/red.log",
+        "sha256": "d4d25caffcc6f1da2ef4a72042cc24aed6a075cd5c71d4fd67a2a058cac66e1d",
+        "mode": "0o600",
+        "summary": [
+          "Ran 29 tests in 0.157s",
+          "FAILED (failures=6)",
+          "COUNT 29 FAILURES 6 ERRORS 0"
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/ruff-check.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "mode": "0o600",
+        "summary": [
+          "All checks passed!"
+        ]
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/qs7/ruff-format.log",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "mode": "0o600",
+        "summary": [
+          "2 files already formatted"
+        ]
+      }
+    ],
+    "review_reports": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-safety.json",
+        "sha256": "cfb0bfbdbd32874024e80a62fe5ed2c962e37a77a15a73d47a6bca4c6361b98b"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-norm.json",
+        "sha256": "e18416b37ea9aba878b1b65a6fc2b835fb8ba0832c2f7f97e06a34f6b5f6f3de"
+      }
+    ]
+  },
+  "bindings": {
+    "baseline37_checked_against_original_safety_report": true,
+    "current_unchanged35": true,
+    "current_changed2": true,
+    "prior_original29_unchanged": true,
+    "copy_installed22_modules_byte_equal": true,
+    "original_reviewer_probe_equals_parent_copy": true,
+    "original_probe_sha256": "a04ed6db6b45a2077a429489a39681009e892aa11bdf8e37a1194650d841bf4a",
+    "original_probe_rerun": false,
+    "original_exit0_meaning": "CONFIRMED_DEFECT, not PASS",
+    "product_native_UI_distribution_bundle_bytes": "unchanged; no rebuild, reinstall or native context changes"
+  },
+  "change": [
+    "Guard current runtime uncertainty/family_drained after every caller absence/resource readback and before normal commands/browser/Stop continuation. Existing flags/owner only; no retry.",
+    "Recompute cleanup against current observer/driver/lock state immediately before final receipt, including prior cleanup=True. FAIL/UNCERTAIN is retained.",
+    "Move INSTALLED_STOP_VERIFIED after successful finalization; preserve primary exceptions and owned data/locator.",
+    "Five targeted regression methods extend the existing fixture only; all existing 25 tests retained."
+  ],
+  "commands_results": [
+    {
+      "label": "initial-red-before-caller-edit",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/qs7/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qs7/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/qs7",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,unittest;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\");s=unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\",\"test_installed_stop_lock_oracle\",\"test_installed_start\"]);r=unittest.TextTestRunner(verbosity=2).run(s);print(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors));raise SystemExit(not r.wasSuccessful())"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/red.log",
+      "exit_code": 1,
+      "test_methods": 29,
+      "failing_subtests": 6,
+      "errors": 0,
+      "limit": "Four new methods; first/last real-produced flags and cleanup/readback cuts fail for expected false-green mechanism."
+    },
+    {
+      "label": "intermediate-green",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/qs7/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qs7/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/qs7",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,unittest;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\");s=unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\",\"test_installed_stop_lock_oracle\",\"test_installed_start\"]);r=unittest.TextTestRunner(verbosity=2).run(s);print(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors));raise SystemExit(not r.wasSuccessful())"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/green.log",
+      "exit_code": 0,
+      "test_methods": 29,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "label": "final-regressions-baseline-red",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/qs7/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qs7/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/qs7",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,unittest,subprocess;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\");import installed_stop;old=subprocess.check_output([\"git\",\"show\",\"3efb0934d28920078aa59b565533a1bbed156a67:cli/integration/installed_stop.py\"],text=True);exec(compile(old,installed_stop.__file__,\"exec\"),installed_stop.__dict__);s=unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\",\"test_installed_stop_lock_oracle\",\"test_installed_start\"]);r=unittest.TextTestRunner(verbosity=2).run(s);print(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors));raise SystemExit(not r.wasSuccessful())"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/red-final.log",
+      "exit_code": 1,
+      "test_methods": 30,
+      "failing_subtests": 7,
+      "errors": 0,
+      "limit": "Exact baseline caller loaded in memory without altering files; added final-publication regression, all original 25 remain green. Negative result retained, not PASS."
+    },
+    {
+      "label": "final-green-after-last-format",
+      "argv": [
+        "env",
+        "-i",
+        "PATH=/usr/bin:/bin",
+        "HOME=/home/kali/.hermes/cache/scratch/qs7/home",
+        "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qs7/config",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/qs7",
+        "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,unittest;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\");s=unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\",\"test_installed_stop_lock_oracle\",\"test_installed_start\"]);r=unittest.TextTestRunner(verbosity=2).run(s);print(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors));raise SystemExit(not r.wasSuccessful())"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/green-final.log",
+      "exit_code": 0,
+      "test_methods": 30,
+      "passed": 30,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.166
+    },
+    {
+      "label": "ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "api/pyproject.toml",
+        "cli/integration/installed_stop.py",
+        "cli/integration/test_installed_settings.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/ruff-check.log",
+      "exit_code": 0
+    },
+    {
+      "label": "ruff-format-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "api/pyproject.toml",
+        "cli/integration/installed_stop.py",
+        "cli/integration/test_installed_settings.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "log": "/home/kali/.hermes/cache/scratch/qs7/ruff-format.log",
+      "exit_code": 0
+    },
+    {
+      "label": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0
+    }
+  ],
+  "evidence_limits": {
+    "real_producer": "Installed ControlRuntime.run/inspect executes only an owned inert no-descendant SIGTERM shell, bounded five-second observer deadline; no children remain waitable. Observed false family_drained flags flow into real source caller at first/last absence.",
+    "source_seams": "Engine/resource census, lifecycle CLI, browser and clock are the preexisting explicit doubles. Final-publication cut additionally substitutes Path.is_dir for synthetic retained-data readback. No live resource settlement claimed.",
+    "normal_positive": "Existing settings and legacy journeys remain PASS/VERIFIED; closed browser assertion remains FAIL/VERIFIED; unknown/timeout and secondary cleanup failures retain original failure and UNCERTAIN.",
+    "no_retry": "Command census unchanged after each late cut, no teardown, no optimistic marker, postgres fixture retained.",
+    "QA_NOT_RUN": [
+      "one real installed Settings save/read/reload/Stop/fresh Start consumer attempt",
+      "Docker/OCI build and image filesystem inspection",
+      "PostgreSQL/native imports/boot",
+      "browser/UI visual review",
+      "provider/OAuth/model/target/network traffic",
+      "canonical suite",
+      "independent focused rereview"
+    ],
+    "reused_unchanged_evidence": [
+      "Node3",
+      "native/source26",
+      "original29 source review"
+    ],
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "cycle_count": {
+    "qa_only_correction_cycles_for_same_acceptance_row": 2,
+    "prior": "302075e",
+    "current": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "not_reset": true,
+    "next": "Focused rereview, then parent may admit ONE real consumer attempt. No third verifier layer."
+  },
+  "preservation": {
+    "original_reports_logs_reproducer": "unmodified",
+    "protected_original_html_ponytail": "unread and untouched",
+    "personal_secret_protected_reads": false,
+    "source_main_writes": false,
+    "main_ref_discrepancy": {
+      "assignment": "d7f5e44",
+      "observed_after_commit": "d372295a5fa592e16443944b8ace4fdc0c3f1d18",
+      "disposition": "Not modified by this author; parent must adjudicate concurrent ref change. No rewrite/push/reset."
+    },
+    "private_logs_mode": "0600",
+    "scratch_root": "/home/kali/.hermes/cache/scratch/qs7",
+    "cleanup": "Real inert observer reaped; synthetic owned s4 data/locators retained. No live services created."
+  },
+  "issues": [
+    "Two patch applications refused ambiguous hunks atomically; no files modified by those attempts. Retried with unique context.",
+    "Initial/new baseline REDs are expected failures retained in separate logs.",
+    "Formatting applied only to the two owned files before final suite."
+  ],
+  "skill_handoff": "Parent: append to existing review skill, within separately authorized scope, that observer flags must be checked AFTER each absence/readback and again at publication; absence is not observer settlement. No skill/profile/main edit in this two-file correction.",
+  "project_status": {
+    "P4a-minim": "IN_PROGRESS/NOT_ACCEPTED",
+    "P2-inert": "CLOSED_SCOPED retained",
+    "P2-live": "NOT_CLOSED",
+    "P3": "STOP_BEFORE"
+  },
+  "frozen": true,
+  "rollback": "git revert 40ee24b7ea11d7c1b71ac9df992282abac4b8084 then affected tests; scratch reports retained"
+}

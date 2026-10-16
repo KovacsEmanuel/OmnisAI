@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "review_id": "P4I-INSTALLED-NORM-REREVIEW-3efb093",
+  "verdict": "APPROVED_SCOPED",
+  "decision_ro": "P4I-NORM-F01 este CLOSED_SOURCE_SCOPED. Remediul distribuției și extensia finită a consumerului QA existent sunt aprobate SOURCE pe snapshotul exact. Nu am confirmat blocante noi în delta examinată. QA instalată rămâne pregătită, nu executată; admiterea tentativei reale și integrarea aparțin părintelui după reviewul complementar.",
+  "scope": "Focused independent normative/distribution and Settings QA-contract re-review; not a new full historical review, not real installed QA or P4a acceptance.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "previous_review_head": "5359ac3a5bcd4f3746136d589385761de0be01a0",
+    "head": "3efb0934d28920078aa59b565533a1bbed156a67",
+    "branch": "work/p4i-72e9e2c1",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-installed-f01-qa.json",
+    "manifest_sha256": "53cbcd9201ef0aa963b81e2266c085392772d384c95901217e6a230474ad826a",
+    "manifest_field": "snapshot.files",
+    "cumulative_file_count": 37,
+    "initial_and_final_all_hashes_match": true,
+    "cumulative_git_pathset_exact": true,
+    "original_29_unchanged": true,
+    "initial_and_final_git_clean": true,
+    "delta_files": [
+      {"path": "api/tests/test_provider_process_source.py", "sha256": "91083d4f5c0b5d355e905bd21f7a6a8f5469abc845f9b9ab875be2c15e22e7c6"},
+      {"path": "cli/integration/installed_browser.mjs", "sha256": "7e0d68a2b200fe243cb8f4f252b2b910bb0a3c9033167dc3b9efe558004f3667"},
+      {"path": "cli/integration/installed_pair_open.py", "sha256": "73d691dae7f513dffb6f42cf853499f0d6f7631e48ee2e3f047181b362246b55"},
+      {"path": "cli/integration/installed_start.py", "sha256": "28c7420e1ba81ee1fd6feface0b3c923121fd9f0a543fa65ff55b8d47b14505b"},
+      {"path": "cli/integration/installed_stop.py", "sha256": "93dd697c36bcd261f7a665d3c0380b111f098f1d0617948c4baef53efd669985"},
+      {"path": "cli/integration/test_installed_browser.mjs", "sha256": "57e4a51d2ca24e55af7e97d8d1665eb243af2cf8277f6e25db3384c4cc7b6561"},
+      {"path": "cli/integration/test_installed_settings.py", "sha256": "3940bcd02f81bd8f1ce44f2d40a79d2da654eb9f229fc879284a6eb81e0da298"},
+      {"path": "ops/Dockerfile.hermes", "sha256": "e9e069daee8bc6620e89ce237d151270f7effb89205d33c4550d7766753ff1ea"}
+    ],
+    "bundle": {
+      "path": "/home/kali/.hermes/cache/scratch/i72/lifecycle-f01-bundle",
+      "release_json_sha256": "8350d505e45b02ac39aa5347fdcbb3f253b80b673c65f97899f993be3c57084a",
+      "payloads": 15,
+      "payload_bytes": 3158655,
+      "installed_manifest_parser_validated": true,
+      "same_payload_pathset_as_previous_bundle": true,
+      "only_changed_payload": "ops/Dockerfile.hermes",
+      "changed_payload_equals_reviewed_source": true
+    },
+    "cli_binding": {
+      "wheel": "/home/kali/.hermes/cache/scratch/i72/lifecycle-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "installed_package": "/home/kali/.hermes/cache/scratch/i72/cli-env/lib/python3.13/site-packages/omnis_cli",
+      "modules": 22,
+      "source_wheel_installed_equal": true,
+      "installed_single_link": true,
+      "preimport_caches": 16,
+      "cache_magic_and_compiled_source_equivalence": true,
+      "limit": "Dependency/interpreter startup seams remain trusted; this is not a universal runtime audit."
+    }
+  },
+  "finding_dispositions": [
+    {
+      "id": "P4I-NORM-F01",
+      "previous_severity": "HIGH",
+      "previous_status": "OPEN_CONFIRMED_SOURCE",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "fix_commit": "9fd54307c19c33fcb54c23c51a2db2e181143af2",
+      "locations": ["ops/Dockerfile.hermes:32-36", "api/tests/test_provider_process_source.py:86-151"],
+      "reason": "The final nonrecursive chown 0:0 /state and chmod 0755 /state occur after the original recursive child chown. Thus /state is an accepted root-owned traversable ancestor for mapped operator UID1000, while nonroot USER, build args, child ownership, provider bind, readonly root and the private_paths guard remain unchanged.",
+      "independent_red": "Existing six parameterized cases with only Dockerfile read substituted from git show 5359ac3:ops/Dockerfile.hermes: image-read/image-save failed, current/foreign controls passed; pytest exit1, 2FAILED/4PASS. No source/test edits.",
+      "independent_green": "Final exact source: affected API suite26PASS, including six image/current/foreign read/save cases. Real RuntimeHost Settings coroutine and directory guard, image-stat/process/config/health doubles.",
+      "distribution": "Installed _manifest independently validated both bundles; same15 payloads, only Dockerfile.hermes changed and byte-equal to reviewed source.",
+      "not_claimed": "OCI filesystem inspection or installed native save/readback. Those are the next QA boundary, not required to close this SOURCE finding."
+    }
+  ],
+  "findings": [],
+  "requirement_consumer_risk_decision": {
+    "requirement": "Usable normal installation with explicit Settings save/readback/reload, Stop then explicit fresh Start retaining config and provider physical identity; truthful readiness axes.",
+    "consumer": "Existing run_installed_stop -> normal installed CLI -> tty_pair -> existing browser owner -> actual public Settings routes; same lifecycle owner for Stop/restart.",
+    "risk": "A filesystem source fix could fail to reach the artifact, or a prepared QA oracle could accept cached/replayed/mock configuration or claim readiness from saving alone.",
+    "decision": "Focused SOURCE regression, artifact comparison and changed-driver review support proceeding to one admitted bounded installed attempt; no new launcher, framework or historical gate."
+  },
+  "contract_matrix": [
+    {
+      "requirement": "Native filesystem/distribution",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "evidence": "Dockerfile root ownership fix and six guard/coroutine cases; exact resealed Dockerfile. Compose runs mapped UID with provider home mounted at /state/provider. Management subprocess derives HOME/CODEX/XDG/TMPDIR beneath that private provider root, not unchanged inert child directories.",
+      "locations": ["ops/Dockerfile.hermes:32-36", "cli/src/omnis_cli/start_runtime.py:76-103", "integrations/hermes/src/omnis_hermes/runtime_host.py:320-350"]
+    },
+    {
+      "requirement": "Actual public operations, no fabricated live data",
+      "status": "APPROVED_QA_CONTRACT_SOURCE",
+      "evidence": "Admitted browser code contains no route fulfillment/mock response or native-config rewrite. Positives come from UI-issued PUT and actual GET polling by the sent operation_id; denials use the same public route with exact status/reason. Test-only substitutes remain explicitly labeled SOURCE.",
+      "locations": ["cli/integration/installed_browser.mjs:29-95", "cli/integration/test_installed_settings.py:151-355"]
+    },
+    {
+      "requirement": "Fresh operation identity/readback",
+      "status": "APPROVED_QA_CONTRACT_SOURCE",
+      "evidence": "Read(false) -> Save(true) -> reload with not-confirmed UI -> distinct Read(true); exact ordered action set and unique IDs checked against observed page requests. Fresh browser after explicit restart performs only Read(true), not Save/replay. Unknown, PENDING, stale ID or altered selection cannot pass exact ProviderView oracle.",
+      "locations": ["cli/integration/installed_browser.mjs:9-20,64-96", "cli/integration/installed_stop.py:125-164,222,320-334"]
+    },
+    {
+      "requirement": "Real served identity and readiness",
+      "status": "APPROVED_QA_CONTRACT_SOURCE",
+      "evidence": "Fetch/hash each served manifest entry against exact installed manifest bytes; browser pairs to exact instance, checks disabled Start assessment and httpOnly/Strict session cookie. Configured is verified independently from authenticated/reachable NOT_VERIFIED and inference_ready=false. Reload and desktop/mobile captures exercise only paired UI; screenshots are not visual approval until inspected.",
+      "locations": ["cli/integration/installed_browser.mjs:22-35,83-108,140-159"]
+    },
+    {
+      "requirement": "Normal flow and retained state",
+      "status": "APPROVED_QA_CONTRACT_SOURCE",
+      "evidence": "Existing driver uses fresh XDG roots, normal CLI in foreign cwd, original lock/STOPPING/queued Start refusal and exact absence, explicit Start, same instance plus greater generation/epoch, sentinel retained, same provider_identity, fresh pair/read, final normal Stop. No second lifecycle owner.",
+      "locations": ["cli/integration/installed_stop.py:47-77,166-216,222-339", "cli/integration/installed_start.py:152-160"]
+    },
+    {
+      "requirement": "Versions and compatibility",
+      "status": "APPROVED_SOURCE_SCOPED_WITH_REUSED_PRIOR_SCOPE",
+      "evidence": "API/CLI wheels and native context/pin/writer/datastore unchanged. Prior reviewed explicit release/image/startup/Stop schema compatibility remains scoped to unchanged29. Independent Python3.13.15, Node24.21.0 and Playwright package1.63.0 readback. No browser engine launched or new dependency selected."
+    },
+    {
+      "requirement": "Uncertainty/secret/cleanup contract",
+      "status": "COMPLEMENTARY_REVIEW_OWNS_DETAIL",
+      "evidence": "Traced existing-driver finite subprocess deadlines, private stdin, exact normal close marker, pending flags and normal product Stop finalizer. Executed existing25 SOURCE controls. No contradictory concrete normative defect found; this does not replace the complementary safety review or real family/cgroup settlement."
+    }
+  ],
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "private_tmpdir": "/home/kali/.hermes/cache/scratch/nr7ahxseh5",
+    "environment": "env -i; PATH=/usr/bin:/bin; HOME=<private_tmpdir>/home; XDG_CONFIG_HOME=<private_tmpdir>/config; TMPDIR=<private_tmpdir>; API adds PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "python_flags": ["-I", "-B"],
+    "api_python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "cli_python": "/home/kali/.hermes/cache/scratch/i72/cli-env/bin/python",
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node"
+  },
+  "commands_results": [
+    {
+      "id": "C1",
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat 5359ac3..HEAD; git show --stat --oneline HEAD; git diff --no-ext-diff 5359ac3..HEAD -- <eight delta paths>; read full new test_installed_settings.py",
+      "exit_code": 0,
+      "result": "Exact clean3efb093; eight-path delta read; all37 snapshot hashes and full cumulative pathset independently compared before/final; original29 unchanged."
+    },
+    {
+      "id": "C2",
+      "command": "api_python -I -B -c 'import sys,pathlib,pytest;sys.path[:0]=[str(pathlib.Path(\"api/src\").resolve()),str(pathlib.Path(\"integrations/hermes/src\").resolve())];import omnis.supervisor.runtime_client as c,omnis_hermes.runtime_host as h;assert pathlib.Path(c.__file__).resolve()==pathlib.Path(\"api/src/omnis/supervisor/runtime_client.py\").resolve();assert pathlib.Path(h.__file__).resolve()==pathlib.Path(\"integrations/hermes/src/omnis_hermes/runtime_host.py\").resolve();raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"--override-ini=addopts=\",\"api/tests/test_provider_process_source.py\",\"api/tests/test_provider_settings_source.py\",\"api/tests/test_provider_dispatch_source.py\",\"-q\",\"--tb=no\"]))'",
+      "exit_code": 0,
+      "tests": 26,
+      "passed": 26,
+      "duration_seconds": 3.58,
+      "boundary": "SOURCE/real adapter UDS and existing inert owned subprocess; DB/native config/process metadata seams explicitly doubled. No native Hermes import/boot."
+    },
+    {
+      "id": "C3",
+      "command": "cli_python -I -B; before package import compare all22 source/wheel/installed modules, single-link files and16 existing pyc magic/compiled-source code equality; then sys.path.insert(0,absolute worktree cli/integration); unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings\",\"test_installed_stop_lock_oracle\",\"test_installed_start\"]))",
+      "exit_code": 0,
+      "tests": 25,
+      "passed": 25,
+      "failures": 0,
+      "errors": 0,
+      "duration_seconds": 0.123,
+      "boundary": "Actual driver functions with substituted Engine/CLI/browser; printed INSTALLED_* markers here are synthetic test output, NOT installed QA."
+    },
+    {
+      "id": "C4",
+      "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --version; same node --test cli/integration/test_installed_browser.mjs; same node --check cli/integration/installed_browser.mjs; git diff --check 5359ac3..HEAD",
+      "exit_code": 0,
+      "node_version": "v24.21.0",
+      "tests": 3,
+      "passed": 3,
+      "boundary": "Imports only pure actual oracle functions; no Playwright import or browser launch. Syntax and diff checks passed."
+    },
+    {
+      "id": "C5",
+      "command": "cli_python -I -B; from omnis_cli.release import _manifest; validate lifecycle-f01-bundle and lifecycle-bundle; compare full payload sets/bytes, new manifest SHA and source Dockerfile equality; read @playwright/test/package.json version",
+      "exit_code": 0,
+      "result": "Both bundle parsers accepted;15 payloads/3158655 bytes; only Dockerfile.hermes changed, exact source bytes; expected release SHA matched; Playwright1.63.0."
+    },
+    {
+      "id": "C6",
+      "command": "api_python -I -B; obtain old=subprocess.check_output([\"git\",\"show\",\"5359ac3:ops/Dockerfile.hermes\"],text=True); patch pathlib.Path.read_text only for exact worktree ops/Dockerfile.hermes to old; pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"--override-ini=addopts=\",\"api/tests/test_provider_process_source.py::test_image_provider_ancestor_through_settings\",\"-q\",\"--tb=no\"]); require pytest result1",
+      "exit_code": 0,
+      "inner_pytest_exit_code": 1,
+      "failed": 2,
+      "passed": 4,
+      "failed_cases": ["image-read", "image-save"],
+      "result": "Expected old-Dockerfile RED reproduced without file edits; exit0 is successful defect-reproduction assertion, not product PASS."
+    },
+    {
+      "id": "C7",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/nr7ahxseh5/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/nr7ahxseh5/config TMPDIR=/home/kali/.hermes/cache/scratch/nr7ahxseh5 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/nr7ahxseh5/public_denials.py",
+      "script_sha256": "02aef5ae12753e3f4b8a4ff25124c777ab476c3d50731504447825efa6c9a8fc",
+      "exit_code": 0,
+      "result": "Actual public ASGI Settings middleware returned401/UNAUTHENTICATED,403/INVALID_CSRF,403/INVALID_ORIGIN,400/INVALID_HOST. Original real public-route+adapter-UDS save/fresh-read/no-resend/zero-write denial assertions passed.",
+      "boundary": "Existing source test invoked unchanged; narrow AsyncClient.put wrapper adds actual denial requests, never substitutes responses. Session/DB/native configuration remain original explicit fixture doubles. Not HTTP socket/browser/native evidence.",
+      "additional_source_check": "Pinned Playwright _updateRequestCookieHeader at coreBundle.js:26462-26469 preserves an explicitly empty Cookie header rather than restoring context cookies; no transport launched."
+    }
+  ],
+  "retained_issues": [
+    "Two exploratory read_file paths were absent; resolved actual provider_routes.py and management_contract import via source lookup. No product failure or side effect.",
+    "Scratch script static analyzer could not resolve pytest and the explicit worktree test module in its ambient environment; execution under declared API interpreter with explicit origins passed.",
+    "README/global-map CURRENT is stale relative to active p4a-minim.md: map says next/not-started, active contract says IN_PROGRESS/NOT_ACCEPTED. No status files changed; parent owns reconciliation. This is not a newly imposed product blocker."
+  ],
+  "limits": [
+    "SOURCE approval only. No Docker/OCI build, install-image, DB provisioning, native Hermes import/boot, browser launch, provider/OAuth/model/target/network attempt.",
+    "Actual image ownership/mounts, served asset hashes, native save/persistence, paired screenshots, fresh restart and cgroup/family settlement are NOT_RUN. The code prepares those checks but does not supply their live results.",
+    "No broad unchanged CLI205/API61 rerun; prior29-file review scope reused only after hash equality. Native context closure/writer/datastore/pin remain unchanged and prior attestation is reused, not claimed freshly executed.",
+    "No new model or effort support is asserted: gpt-6.1-sol/xhigh are exact requested selection, not inferred effective compatibility. Authenticated/reachable/inference_ready remain unverified/false.",
+    "No canonical make check, integration approval, visual approval, P4a acceptance or P2-live closure. Reticle NOT_APPLICABLE to this SOURCE execution / future UI NOT_INTEGRATED; Chisel BLOCKED_NO_GO.",
+    "Complementary reviewer owns detailed uncertainty/secret/cleanup/concurrency adjudication. No no-blocker claim beyond this exact scope.",
+    "P4a-minim IN_PROGRESS/NOT_ACCEPTED; P2-inert remains CLOSED_SCOPED at its own evidence; P2-live NOT_CLOSED; STOP before P3."
+  ],
+  "files_and_side_effects": {
+    "source_or_test_edits": [],
+    "commits": [],
+    "created": [
+      "/home/kali/.hermes/cache/scratch/nr7ahxseh5/public_denials.py",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-norm.json"
+    ],
+    "private_test_state": "Private HOME/config and seven synthetic s4-* fixture directories retained under nr7ahxseh5; no installed services were launched. Existing source fixture owners closed UDS and reaped their inert child. No synthetic receipt claimed as live cleanup.",
+    "protected_original_html_and_ponytail": "unread and untouched",
+    "personal_profiles_env_auth_logs": "unread",
+    "original_prepared_context": "unmodified; prior closure review reused",
+    "main_checkout": "not modified; no branch/ref substitution"
+  },
+  "handoff_ro": "Remediu F01 închis SOURCE; QA consumer aprobat scoped, fără blocante noi. Dovezi independente26API,25Python QA,3Node oracle PASS și RED vechi2FAIL/4PASS;37hashuri exacte, bundle15payloads valid cu numai Dockerfile schimbat. Urmează numai adjudecarea complementară/părinte și tentativa instalată bounded deja prevăzută, nu alt framework sau acceptare P4a."
+}

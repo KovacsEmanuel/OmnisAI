@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "review_id": "P4I-INSTALLED-NORM-5359ac3",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent read-only SOURCE normative/order/compatibility/persistence/generation review of normal installed offline Settings candidate, not whole historical Omnis or installed acceptance.",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+  "base": "d8b1066e5098fcc80b486624722bea6957579aaf",
+  "head": "5359ac3a5bcd4f3746136d589385761de0be01a0",
+  "verified_hash_scope": {
+    "complete_changed_pathset": true,
+    "file_count": 29,
+    "files": [
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "bytes": 32444,
+        "sha256": "6860b618f38417c2f21550dfdee7730af76d9bc8fe7a548191254986983bda17"
+      },
+      {
+        "path": "api/tests/test_provider_settings_source.py",
+        "bytes": 11933,
+        "sha256": "75e24e8193db6f91b61eefdb41108618f75a937539ff95143ae6d6e949e38c36"
+      },
+      {
+        "path": "cli/README.md",
+        "bytes": 18232,
+        "sha256": "8a7ee86cd77de8cd84be7a7e2d1cc6b3f9f7501abff0ee9dbb49e6d8180eb4f5"
+      },
+      {
+        "path": "cli/src/omnis_cli/compose.py",
+        "bytes": 18932,
+        "sha256": "7862abba135368dccdc6ff3a167bd6c46424143d0645e8effbe2e37c3ac1abfd"
+      },
+      {
+        "path": "cli/src/omnis_cli/lifecycle.py",
+        "bytes": 8570,
+        "sha256": "dd547be413f709124fccbf562c37f9b2e5e158ff897e24e2a19499e4fe6727d1"
+      },
+      {
+        "path": "cli/src/omnis_cli/main.py",
+        "bytes": 5669,
+        "sha256": "074ba372ec33e05723fd581f06f59c290c08c2c98d92b890bba6b26f72b79138"
+      },
+      {
+        "path": "cli/src/omnis_cli/native_artifacts.py",
+        "bytes": 11856,
+        "sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c"
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "bytes": 11317,
+        "sha256": "4b09f89c2c1c058bde7c59454dbc2d2731cef8810ce2e238d27aa1fdb1524c1e"
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "bytes": 60750,
+        "sha256": "6e0388555206cb7144be24c6326a3b385406e1dfd6a36ae3e126211c5385d9c6"
+      },
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "bytes": 30686,
+        "sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop.py",
+        "bytes": 35671,
+        "sha256": "d3bc6de7c0db26c2a2bc231cd2a17a2f0b74bfbb8cb3969d29dc713b18a413aa"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_owner.py",
+        "bytes": 38246,
+        "sha256": "62a463c5929fffd479c3ca1da3a115a547b07ce33bd1411bb396ea1aa5aa7713"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_receipt.py",
+        "bytes": 9014,
+        "sha256": "37827118d69c2ca20be42b179024d0ee13a1cc6e5cc4f2f2db042b1fe7f56fe1"
+      },
+      {
+        "path": "cli/tests/runtime_inspect_fixture.py",
+        "bytes": 5538,
+        "sha256": "7c9a09fe448d7352f8f3c1e0e0bf42b13ddc6ad8a073f68f7afbf1c361d20c8e"
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "bytes": 19181,
+        "sha256": "f1d998f2a1daa4addf42462f96e75c3f35f21c2fc29d1797dba63dd6d6386928"
+      },
+      {
+        "path": "cli/tests/test_config_consumers.py",
+        "bytes": 9302,
+        "sha256": "b252caf8510d8b81f011d1981f9bf9ab842005d3221d0ae23d5a38c9214d63a1"
+      },
+      {
+        "path": "cli/tests/test_forwarder_handoff.py",
+        "bytes": 7476,
+        "sha256": "a45992b0bb72b9af3e7c737c984b6453087ab5b72f25f9d9ed20112e0f982a19"
+      },
+      {
+        "path": "cli/tests/test_image_install.py",
+        "bytes": 19024,
+        "sha256": "017d617eef601d999eee4d8dc9c675e77281a4a0a69e279542754b092ed2113d"
+      },
+      {
+        "path": "cli/tests/test_install.py",
+        "bytes": 18178,
+        "sha256": "de02770a8b4f8667c53c4758ca653207cf5f293ddf07a006d7c2ab5c64cd4ff3"
+      },
+      {
+        "path": "cli/tests/test_ready_journal.py",
+        "bytes": 4170,
+        "sha256": "fc1d72c58bdaf5026ab5db772676f550df84c794ab7e7c964de4200bf97b0016"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "bytes": 18337,
+        "sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8"
+      },
+      {
+        "path": "cli/tests/test_start.py",
+        "bytes": 16587,
+        "sha256": "3e48a7e7e0bde9c6109c83db17a198708929f6416499ef284be5f9e9a539ecde"
+      },
+      {
+        "path": "cli/tests/test_start_boundaries.py",
+        "bytes": 14385,
+        "sha256": "7357f1b6d0deb0916266e1136f05266e3b8a3952d5ce13115acc8bae648b819e"
+      },
+      {
+        "path": "cli/tests/test_start_cleanup_faults.py",
+        "bytes": 3558,
+        "sha256": "b090c4deede7562f0064558db4ee25f1416526ff42976d607e4ed068c3396caa"
+      },
+      {
+        "path": "cli/tests/test_start_preflight.py",
+        "bytes": 7012,
+        "sha256": "658c6424829a62231ba5db5d3b8cc2dc98b562a253d3b740ea729ba12c577c99"
+      },
+      {
+        "path": "cli/tests/test_start_process.py",
+        "bytes": 40061,
+        "sha256": "0cf2ef839794cbb372f781708b203f090122dd9d0f8d6110d371e3178d63598c"
+      },
+      {
+        "path": "cli/tests/test_status.py",
+        "bytes": 17941,
+        "sha256": "0a666938b6274b3a24dd65cfe230b5b1475380b4d9f493398b06210058ba1a4a"
+      },
+      {
+        "path": "cli/tests/test_stop.py",
+        "bytes": 58398,
+        "sha256": "57f55fc0dba53e1b22af4c48d8967473272d4568c6a5d2a749fd18016f2a2789"
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "bytes": 7737,
+        "sha256": "9ec6236772c23d91df4c1dc047e99f593b00aac144daccf47f9076555b705cc2"
+      }
+    ],
+    "additional_unchanged_consumer_bindings": [
+      {
+        "path": "ops/Dockerfile.hermes",
+        "sha256": "6a24f14b89aa20dedce03858ae0b7d518d8a43d62baf01a43383285a1d60938f"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/private_paths.py",
+        "sha256": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "1c2cfb11ad33766cb096549baa3628014eb4f9ebab4dd231af03dd35d69a31a1"
+      },
+      {
+        "path": "api/src/omnis/supervisor/__main__.py",
+        "sha256": "6659412dc28e55e65a6d98ed7724dab90964636a410cd5ddd019cfc7bbc72cc9"
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "3cac2dc0e0b64efcd744ca9d55d9cc86cdbfee88f00ac30a4584b12ff0fad8ad"
+      },
+      {
+        "path": "api/src/omnis/modules/instance/stop_contract.py",
+        "sha256": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9"
+      },
+      {
+        "path": "cli/src/omnis_cli/restart.py",
+        "sha256": "7ef844b2e61c6b979520d683d6c6398ea1c9154bc3b33fe017e0b6e126a740ea"
+      },
+      {
+        "path": "cli/src/omnis_cli/verified.py",
+        "sha256": "54a49edac3b343f3a2a79321be17f98f8fd3c3962518868daf0c82e5392a8222"
+      },
+      {
+        "path": "cli/src/omnis_cli/control.py",
+        "sha256": "b54eb495d18347db449a8e24be9817c399372471c9cf49591e655b290257cf67"
+      },
+      {
+        "path": "cli/src/omnis_cli/instance.py",
+        "sha256": "3d8747430f0a91f0c96fe89b158a64f20cc10c15d1acbbcde4c05e8841ec81d5"
+      }
+    ],
+    "initial_and_final_hashes_match": true,
+    "final_worktree_clean": true,
+    "wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/i72/lifecycle-wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "4d4b7379fce58539971cad9ad8440308dc84fd8c41969ab051639312c6b20d4f",
+      "module_count": 22,
+      "all_source_wheel_installed_bytes_equal": true,
+      "single_link": true,
+      "origin": "/home/kali/.hermes/cache/scratch/i72/cli-env/lib/python3.13/site-packages/omnis_cli/start.py"
+    },
+    "bundle": {
+      "path": "/home/kali/.hermes/cache/scratch/i72/lifecycle-bundle",
+      "sha256": "3af875dc3a823451a8d8f9d45960355ddcd0493d3554901f8580c61f6ac7db1d",
+      "payload_files": 15,
+      "payload_bytes": 3158608,
+      "largest_file_bytes": 1861086,
+      "web_manifest_sha256": "b055e4cc13846f38dfa269d0a9c683e50130762bba3c7fadf6176921380c28e4"
+    }
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Normal install/install-image --runtime-context/start --no-open/status/pair/open/stop, explicit native Settings save/readback, Stop -> fresh Start retaining the same provider home.",
+    "consumer": "Sealed artifact -> installed CLI -> four-role startup -> one supervisor RuntimeClient -> post-OPEN authority -> RuntimeHost._settings_native -> native config.",
+    "risk": "SOURCE mocks can preserve lifecycle ordering yet omit the actual image ancestor ownership under mapped UID. A user-owned temporary management home is not /state/provider beneath the shipped /state.",
+    "decision": "F01 is a demonstrated source incompatibility blocking the successful real installed consumer path. Repair minimally and re-review affected bytes before the existing bounded installed QA; no new harness or historical audit."
+  },
+  "findings": [
+    {
+      "id": "P4I-NORM-F01",
+      "severity": "HIGH",
+      "status": "OPEN_CONFIRMED_SOURCE",
+      "title": "Provider-home ancestor ownership rejects every normal first Settings operation for operator UID different from 65532",
+      "file_line": "cli/src/omnis_cli/start_runtime.py:87-100",
+      "related_locations": [
+        "cli/src/omnis_cli/compose.py:453-476",
+        "ops/Dockerfile.hermes:16-17,32-34",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:320-328",
+        "integrations/hermes/src/omnis_hermes/private_paths.py:19-28"
+      ],
+      "concrete_input_and_timing": "Fresh p4a-settings-offline installation via normal installer, mapped operator UID=1000, first explicit Settings save/read after OPEN. Installer supplies no RUNTIME_UID/RUNTIME_GID build args. Image defaults are 65532 and Dockerfile recursively chowns /state to 65532. Overlay runs as UID/GID of operator and binds only /runtime and /state/provider, leaving /state owned by 65532.",
+      "mechanism": "The provider bind is correctly current-UID/mode0700, but RuntimeHost._settings_native calls private_paths.directory(root) before spawning management. Ancestor /state has UID65532, outside {0,current UID}; guard raises ValueError(\"Replaceable ancestor\"). _settings_run catches it and latches management_failed=True with INDETERMINATE. Native config is never reached; subsequent operations in that boot are blocked. This is introduced by composing the new normal installed profile with the unchanged image/validator, not a reopening of earlier management-config findings.",
+      "violated_contract": [
+        "documents/verification/p4a-minim.md:32,38,63-73",
+        "documents/Omnis_MVP_Architecture.md:103-105,128-140,219-221"
+      ],
+      "observed": {
+        "mapped_operator_uid": 1000,
+        "directory_controls": [
+          {
+            "state_parent_uid": 0,
+            "provider_uid": 1000,
+            "directory_outcome": "ACCEPTED"
+          },
+          {
+            "state_parent_uid": 65532,
+            "provider_uid": 1000,
+            "directory_outcome": "Replaceable ancestor"
+          },
+          {
+            "state_parent_uid": 1000,
+            "provider_uid": 1000,
+            "directory_outcome": "ACCEPTED"
+          }
+        ],
+        "actual_settings_consumer_with_image_stat_seam": {
+          "status": "INDETERMINATE",
+          "management_failed": true,
+          "native_spawns": 0
+        },
+        "boundary": "SOURCE image-filesystem metadata double; no OCI, native import or boot"
+      },
+      "positive_control": "Same provider UID/mode, but /state UID0 or current UID: real directory guard ACCEPTED. Shipped UID65532: Replaceable ancestor. Actual unmodified Settings coroutine under this stat seam: INDETERMINATE/management_failed=true/native_spawns=0.",
+      "minimal_fix": "Keep immutable /state root-owned and traversable in the native image while preserving the mapped operator-owned private provider bind; adjust only required distribution ownership after existing chown and reseal Dockerfile/bundle/image. Do not weaken ancestor guard, run as root, adopt personal auth or add another launcher. Preserve inert child-directory requirements.",
+      "required_regression": "Exercise image ancestor ownership with mapped UID through the existing Settings consumer. After focused review, real normal install/start/save/readback/Stop/freshStart/read proves persistence; a temporary same-owner home alone is insufficient.",
+      "reproducer": {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+        "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config TMPDIR=/home/kali/.hermes/cache/scratch/n72 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys\nsys.path[:0]=[\"api/src\",\"integrations/hermes/src\"]\nimport asyncio,json,os,stat,time\nfrom pathlib import Path\nfrom types import SimpleNamespace\nfrom unittest.mock import patch,AsyncMock\nfrom omnis_hermes import private_paths\nfrom omnis_hermes.runtime_host import RuntimeHost\nuid=os.getuid()\nassert uid!=65532\nrows=[]\nfor parent_uid in (0,65532,uid):\n def lstat(path):\n  text=str(path)\n  return SimpleNamespace(st_mode=stat.S_IFDIR|(0o700 if text==\"/state/provider\" else 0o755),st_uid=uid if text==\"/state/provider\" else parent_uid if text==\"/state\" else 0)\n with patch.object(Path,\"resolve\",lambda self:self),patch.object(Path,\"lstat\",lstat):\n  try:\n   private_paths.directory(Path(\"/state/provider\")); outcome=\"ACCEPTED\"\n  except ValueError as exc: outcome=str(exc)\n rows.append({\"state_parent_uid\":parent_uid,\"provider_uid\":uid,\"directory_outcome\":outcome})\nasync def consumer():\n host=RuntimeHost(Path(\"/unopened-source-fixture\"));host.state=\"MANAGEMENT\";host.generation=1;host.epoch=1;host.deadline_ns=time.monotonic_ns()+4_000_000_000\n def lstat(path):\n  text=str(path)\n  return SimpleNamespace(st_mode=stat.S_IFDIR|(0o700 if text==\"/state/provider\" else 0o755),st_uid=uid if text==\"/state/provider\" else 65532 if text==\"/state\" else 0)\n spawn=AsyncMock(side_effect=AssertionError(\"native spawn forbidden\"))\n with patch.object(Path,\"resolve\",lambda self:self),patch.object(Path,\"mkdir\"),patch.object(Path,\"lstat\",lstat),patch(\"asyncio.create_subprocess_exec\",spawn):\n  await host._settings_run({\"operation_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"action\":\"save\",\"selection\":{\"provider\":\"openai-codex\",\"model\":\"gpt-6.1-sol\",\"effort\":\"xhigh\"}})\n return {\"status\":host.settings_result[\"status\"],\"management_failed\":host.management_failed,\"native_spawns\":spawn.await_count}\nprint(json.dumps({\"mapped_operator_uid\":uid,\"directory_controls\":rows,\"actual_settings_consumer_with_image_stat_seam\":asyncio.run(consumer()),\"boundary\":\"SOURCE image-filesystem metadata double; no OCI, native import or boot\"}))\n'",
+        "exit_code": 0,
+        "exit_meaning": "Defect reproduced, not product PASS",
+        "output": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/provider-parent-repro.json",
+        "boundary": "SOURCE deterministic image filesystem stat seam; real private_paths.directory and RuntimeHost._settings_run/_settings_native. No OCI/native import or boot. Image owner is derived directly from sealed Dockerfile and normal installer argv, not claimed as a live inspect result."
+      }
+    }
+  ],
+  "contract_matrix": [
+    {
+      "requirement": "Genuine artifact -> explicit install-image",
+      "result": "SOURCE_CONSISTENT_EXCEPT_RUNTIME_CONSUMPTION_F01",
+      "review": "Standard producer metadata/overlay lineage, sealed profile, closed staging, one installer lock/intent and both full image readbacks traced. No startup runtime-context input. Independent genuine closure validation:3187 sources,67 dependency wheels+adapter,3260 entries.",
+      "limits": "Actual image build and daemon readback NOT_RUN."
+    },
+    {
+      "requirement": "Authentic first post-OPEN generation and prior finalized quiesce",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "review": "Normal supervisor constructs one RuntimeClient at acquired generation, status-only boot, binds same drain/settings callbacks. First settings catches only initial GENERATION_CONFLICT, reads owned OPEN successor and reacquires DB authority outside runtime lock. IDLE status/bind/send serialized on same stream; Stop serial rejects overtaking during grant acquisition. Prior cold quiesce allowed; active/STOPPED/UNCERTAIN/jump/owner loss/race refusals exercised.",
+      "limits": "DB authority is a SOURCE double; actual PG lock overlap/lease timing NOT_RUN."
+    },
+    {
+      "requirement": "Versioned receipt/profile compatibility and unchanged readers",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "review": "Release/image v2 profile coupling; startup v3 exact four roles versus v2 three-role form. Stop inventory/completion v2 explicit, legacy v1 unchanged; transport/grant/reconciliation v1 carry opaque inventory. Traced unchanged verified/instance/control/restart and API stop_contract/service readers. No automatic legacy reinterpretation or migration.",
+      "limits": "Scoped SOURCE regressions, not upgrade/rollout certification."
+    },
+    {
+      "requirement": "Four-role lifecycle ordering and provider-home retention",
+      "result": "ORDER_AND_PHYSICAL_IDENTITY_SOURCE_CONSISTENT; SAVE_BLOCKED_F01",
+      "review": "Provider/native directory physical identity persisted before mount; checked at composition, attestation and retained readback. DB/schema or DB-only reconciliation -> runtime -> supervisor -> API -> OPEN. Barrier/drain/FINALIZE/grant precedes forwarder/API/supervisor/runtime/DB/network/IPC Stop. Existing synthetic Engine owner completion/readback/prepare_restart retains provider directory.",
+      "limits": "No actual config retention after restart claimed; test reaches prepare_restart, not a real restarted instance."
+    },
+    {
+      "requirement": "Boot publication without second authenticated runtime owner",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "review": "CLI observes published socket/lock/boot identities and raw-byte digest, not a second RuntimeClient. Socket-before-boot and raw CRLF digest controls executed.",
+      "limits": "Real OCI publication/mount namespace timing NOT_RUN."
+    },
+    {
+      "requirement": "Finite sizing and honest Stop/readiness projections",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "review": "Existing maximum-shape/control-frame and 2900-positive/2901-negative tests executed. Caps2900/3600/4096 unchanged; no Pause/Stop/assessment_ready/inference_ready fake success added.",
+      "limits": "Author natural-width byte counts are author evidence; independent review executes existing sizing boundaries rather than claiming a new platform survey."
+    }
+  ],
+  "independent_tests": [
+    {
+      "label": "CLI_AFFECTED_COPY_INSTALLED_WHEEL",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config TMPDIR=/home/kali/.hermes/cache/scratch/n72 /home/kali/.hermes/cache/scratch/i72/cli-env/bin/python -I -B -c 'import sys,unittest,pathlib,zipfile; import omnis_cli; root=pathlib.Path(\"cli/src/omnis_cli\").resolve(); installed=pathlib.Path(omnis_cli.__file__).parent; assert str(installed).startswith(\"/home/kali/.hermes/cache/scratch/i72/cli-env/\"); z=zipfile.ZipFile(\"/home/kali/.hermes/cache/scratch/i72/lifecycle-wheel/omnis_cli-0.1.0-py3-none-any.whl\"); sources=list(root.glob(\"*.py\")); assert len(sources)==22; assert all(p.read_bytes()==(installed/p.name).read_bytes()==z.read(\"omnis_cli/\"+p.name) and (installed/p.name).stat().st_nlink==1 for p in sources); print(\"INSTALLED_ORIGIN_AND_22_MODULES_OK\"); sys.path.insert(0,\"cli/tests\"); names=['\"'\"'test_install'\"'\"', '\"'\"'test_image_install'\"'\"', '\"'\"'test_settings_lifecycle'\"'\"', '\"'\"'test_start'\"'\"', '\"'\"'test_stop_receipt'\"'\"', '\"'\"'test_restart_wiring'\"'\"', '\"'\"'test_pair_open'\"'\"', '\"'\"'test_lifecycle_consumers'\"'\"', '\"'\"'test_config_consumers'\"'\"']; r=unittest.TextTestRunner(verbosity=0).run(unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(n) for n in names)); print(\"NORM_TESTS\",r.testsRun,\"FAIL\",len(r.failures),\"ERROR\",len(r.errors)); raise SystemExit(not r.wasSuccessful())'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "tests": 91,
+      "failures": 0,
+      "errors": 0,
+      "duration_seconds": 21.254,
+      "result": "PASS_SOURCE_SCOPED",
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/cli-tests.log",
+      "boundary": "Existing synthetic Engine/config/DB/readiness fixtures; finite own UDS/inert owner child. Asserted installed origin and22source/wheel/installed modules identical/single-link. Not Docker/PG/native/browser QA."
+    },
+    {
+      "label": "API_AFFECTED_SOURCE_UDS",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config TMPDIR=/home/kali/.hermes/cache/scratch/n72 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pathlib,pytest; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\"]; import omnis.supervisor.runtime_client as c; assert pathlib.Path(c.__file__).resolve()==pathlib.Path(\"api/src/omnis/supervisor/runtime_client.py\").resolve(); print(\"WORKTREE_API_ORIGIN_OK\"); raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_api_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=no'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "tests": 61,
+      "duration_seconds": 5.45,
+      "result": "PASS_SOURCE_SCOPED",
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/api-tests.log",
+      "boundary": "Pinned API interpreter/worktree origins; real adapter UDS; DB authority/LocalControl/native-save doubles. No native Hermes import/boot."
+    },
+    {
+      "label": "GENUINE_PREPARED_CLOSURE",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config TMPDIR=/home/kali/.hermes/cache/scratch/n72 /home/kali/.hermes/cache/scratch/i72/cli-env/bin/python -I -B -c 'from pathlib import Path; from omnis_cli.release import _manifest; from omnis_cli.native_artifacts import validate_context; raw,payloads=_manifest(Path(\"/home/kali/.hermes/cache/scratch/i72/lifecycle-bundle\")); closure=validate_context(Path(\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared\"),payloads); assert len(payloads)==15 and sum(map(len,payloads.values()))==3158608 and len(closure)==3260'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "result": "PASS_READ_ONLY_ARTIFACT_SCOPE",
+      "payload_files": 15,
+      "payload_bytes": 3158608,
+      "sources": 3187,
+      "wheels_including_adapter": 68,
+      "closure_entries": 3260,
+      "boundary": "Exact producer source/wheel/metadata hashes; no producer logs/venvs/native import/build/download. Sealed Dockerfile separately byte-compared to reviewed source."
+    },
+    {
+      "label": "F01_MAPPED_UID_ANCESTOR",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config TMPDIR=/home/kali/.hermes/cache/scratch/n72 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys\nsys.path[:0]=[\"api/src\",\"integrations/hermes/src\"]\nimport asyncio,json,os,stat,time\nfrom pathlib import Path\nfrom types import SimpleNamespace\nfrom unittest.mock import patch,AsyncMock\nfrom omnis_hermes import private_paths\nfrom omnis_hermes.runtime_host import RuntimeHost\nuid=os.getuid()\nassert uid!=65532\nrows=[]\nfor parent_uid in (0,65532,uid):\n def lstat(path):\n  text=str(path)\n  return SimpleNamespace(st_mode=stat.S_IFDIR|(0o700 if text==\"/state/provider\" else 0o755),st_uid=uid if text==\"/state/provider\" else parent_uid if text==\"/state\" else 0)\n with patch.object(Path,\"resolve\",lambda self:self),patch.object(Path,\"lstat\",lstat):\n  try:\n   private_paths.directory(Path(\"/state/provider\")); outcome=\"ACCEPTED\"\n  except ValueError as exc: outcome=str(exc)\n rows.append({\"state_parent_uid\":parent_uid,\"provider_uid\":uid,\"directory_outcome\":outcome})\nasync def consumer():\n host=RuntimeHost(Path(\"/unopened-source-fixture\"));host.state=\"MANAGEMENT\";host.generation=1;host.epoch=1;host.deadline_ns=time.monotonic_ns()+4_000_000_000\n def lstat(path):\n  text=str(path)\n  return SimpleNamespace(st_mode=stat.S_IFDIR|(0o700 if text==\"/state/provider\" else 0o755),st_uid=uid if text==\"/state/provider\" else 65532 if text==\"/state\" else 0)\n spawn=AsyncMock(side_effect=AssertionError(\"native spawn forbidden\"))\n with patch.object(Path,\"resolve\",lambda self:self),patch.object(Path,\"mkdir\"),patch.object(Path,\"lstat\",lstat),patch(\"asyncio.create_subprocess_exec\",spawn):\n  await host._settings_run({\"operation_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"action\":\"save\",\"selection\":{\"provider\":\"openai-codex\",\"model\":\"gpt-6.1-sol\",\"effort\":\"xhigh\"}})\n return {\"status\":host.settings_result[\"status\"],\"management_failed\":host.management_failed,\"native_spawns\":spawn.await_count}\nprint(json.dumps({\"mapped_operator_uid\":uid,\"directory_controls\":rows,\"actual_settings_consumer_with_image_stat_seam\":asyncio.run(consumer()),\"boundary\":\"SOURCE image-filesystem metadata double; no OCI, native import or boot\"}))\n'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "exit_code": 0,
+      "result": "CONFIRMED_DEFECT",
+      "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/provider-parent-repro.json",
+      "boundary": "Image stat metadata double, paired guard controls and actual Settings coroutine."
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/cli-tests.log",
+      "sha256": "592a1c054a563400c74b20ca6d4614fd959a59482dcbd65c809dd490fe8083ea",
+      "bytes": 163
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/provider-parent-repro.json",
+      "sha256": "1da12d49b6e95e22730455619304b9479351ca8076a76a1016b824ac5e59886a",
+      "bytes": 524
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/api-tests.log",
+      "sha256": "67eb2a8404b0bfb930c089cb9d9a55a909876648fb63bd726c2d84aaa19f8ab0",
+      "bytes": 122
+    }
+  ],
+  "not_run_and_limits": [
+    "No actual Docker/OCI/Compose renderer, PG, native Hermes import/boot, browser, provider/OAuth/model/target/network effects.",
+    "No real paired UI/API save/readback, native Stop drain or freshStart/config retention; F01 blocks the normal successful consumer path.",
+    "Real Compose normalized output and complete two-image/container inspect remain unrun; synthetic config equality is not renderer proof.",
+    "No canonical make check; no web rerun for unchanged UI. Prior Settings/four-fix evidence reused only at earlier scope.",
+    "No DBmigration/dependencyupdate/new owner/harness. OAuth/catalog/Responses/P2-live/P3 not accepted.",
+    "Complementary security/failure/cleanup review is separate; no absence-of-all-defects claim.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "issues_encountered": [
+    "Initial provided base8b1066e5098fcc80b486624722bea6957579aaf did not resolve (git exit128). Exact authoritative report base d8b1066e5098fcc80b486624722bea6957579aaf used thereafter; no ref change.",
+    "README/global status CURRENT remains older than active p4a-minim register; parent should reconcile after adjudication, not considered a product blocker here.",
+    "First report assembly attempted to read tool result content at wrong wrapper key; KeyError before report write. No product/test effect; final report constructed from already-verified metadata."
+  ],
+  "safety_and_changes": {
+    "product_source_test_or_doc_edits": false,
+    "commits": false,
+    "final_worktree_clean": true,
+    "created": [
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/review-installed-norm.json",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/cli-tests.log",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/api-tests.log",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/provider-parent-repro.json",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/home",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/norm-review/config",
+      "/home/kali/.hermes/cache/scratch/n72"
+    ],
+    "fixtures": "Finite existing fixtures/finalizers only. No services provisioned; no broader independent kernel family census claimed.",
+    "protected": "Protected HTML/ponytail.json and personal auth/config/env/logs not read or modified. Main checkout unchanged; authorized pinned interpreter used.",
+    "skill_handoff": "Apply existing effective-UID native/release lesson to every ancestor of final mount target, not merely host bind ownership. Parent may record this minimal lesson after adjudication; reviewer did not edit skills outside allowed artifacts."
+  },
+  "qa_readiness": {
+    "ready_for_positive_real_installed_qa": false,
+    "source_integration_accepted": false,
+    "installed_acceptance": false,
+    "next_action": "Parent reproduces F01, repairs minimal distribution ownership, reseals exact artifact and gets focused re-review, then existing bounded normal-command Settings save/readback/Stop/freshStart consumer."
+  },
+  "handoff": "CHANGES_REQUESTED pe5359ac3:un HIGH confirmat SOURCE.91CLI+61API PASS nu acoperă /state UID65532 versus mappedUID1000. Fără acceptare integrare/QA/P4a/P2-live/P3."
+}

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "review_id": "P4I-QA-SETTLEMENT-NORM-40ee24b",
+  "verdict": "APPROVED_SCOPED",
+  "decision_ro": "Corecția QA păstrează contractul finit Settings/save/readback/reload/Stop/Start explicit și implicitul legacy. Refuzul continuării și publicării optimiste este aditiv; nu înlocuiește oracle-urile sau rezultatul real cerut. Nu am confirmat blocante normative noi în delta de două fișiere. Părintele poate admite tentativa normală reală după adjudecarea reviewului safety complementar; acest raport nu este QA instalată sau acceptare P4a.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "base": "3efb0934d28920078aa59b565533a1bbed156a67",
+    "head": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "branch": "work/p4i-72e9e2c1",
+    "initial_and_final_git_clean": true,
+    "exact_git_delta": [
+      {"path": "cli/integration/installed_stop.py", "sha256": "c00fb5d6c11c4e6393e0362d978f19e4dafceddb7f7fed632602ac9c49efefac"},
+      {"path": "cli/integration/test_installed_settings.py", "sha256": "86fd69cbabdbd06b4fe0a2a5ec66cacf212e39654a268e413b7a758c2502cd22"}
+    ],
+    "delta_hashes_checked_before_and_after": true,
+    "manifest": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-qa-settlement.json",
+    "manifest_unique_bindings": 37,
+    "delta_count": 2,
+    "unchanged_count": 35,
+    "binding_limit": "Inventarul 2+35 și pathsetul Git exact verificate programatic; aprobările neschimbate și verificarea completă a celor37 bindings ale părintelui sunt reutilizate, nu pretinse ca re-review nou. Hashurile celor trei callers citiți sunt identice cu raportul anterior.",
+    "main_ref_note": "Conform contextului părintelui, checkoutul activ d7f5e44 și refs/heads/main=d372295 sunt obiecte distincte; eticheta din raportul autorului nu dovedește o schimbare concurentă. Checkoutul activ nu a fost modificat."
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Păstrarea parcursului normal finit și a refuzului sub incertitudine, fără PASS derivat din simpla absență de resurse.",
+    "consumer": "run_installed_stop(settings_browser=...) și finalizerul existent; default settings_browser=None rămâne legacy.",
+    "risk": "Guardurile noi ar putea înlocui aserțiuni, crește bugete, omite readbackul după restart ori publica succes înaintea settlementului final.",
+    "decision": "Review focalizat pe delta/callers și opt controale SOURCE existente; fără alt framework, rebuild sau tentativă live."
+  },
+  "scoped_disposition": [
+    {
+      "id": "P4I-NORM-F01",
+      "status": "CLOSED_SOURCE_SCOPED_REUSED",
+      "evidence": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-installed-norm.json",
+      "evidence_sha256": "e18416b37ea9aba878b1b65a6fc2b835fb8ba0832c2f7f97e06a34f6b5f6f3de",
+      "limit": "Distribuția/state fix și contractul browser anterior nu sunt modificate de acest commit. Nu redeschid reviewul original29 sau rebuildul artefactului."
+    },
+    {
+      "id": "P4I-SAFETY-QA-F01",
+      "status": "FIX_SUPPORTED_NORMATIVE_SOURCE_SCOPED",
+      "evidence": "Guard după absență/readback și înaintea continuării; recalcul cleanup la publicare, inclusiv după cleanup=True. Markerul VERIFIED apare numai după finalizarea reușită. Nu se resetează flagurile observerului și nu se introduce retry.",
+      "locations": ["cli/integration/installed_stop.py:97-103", "cli/integration/installed_stop.py:312-350", "cli/integration/installed_stop.py:359-427"],
+      "limit": "Reproducerea originală și deep fault proof aparțin părintelui/reviewerului safety; acest verdict complementar nu substituie închiderea lor."
+    }
+  ],
+  "contract_checks": [
+    {
+      "requirement": "Primul save, readback și reload reale rămân criteriul",
+      "result": "PRESERVED_SOURCE",
+      "evidence": "installed_browser.mjs:64-95 rămâne read(false) → save(true) → reload/not-confirmed → read(true), ID-uri distincte și exact observed==operations; ProviderView exact păstrează configured separat de authenticated/reachable NOT_VERIFIED și inference_ready=false. Browserul neschimbat nu a fost executat aici."
+    },
+    {
+      "requirement": "Stop și fresh Start explicit cu read-only Settings",
+      "result": "PRESERVED_SOURCE",
+      "evidence": "installed_stop.py:234-352 păstrează save înaintea Stop, STOPPING/refuz queued Start, absență exactă, Stop idempotent, Start explicit, aceeași instanță/origin și generație/epoch crescute, sentinel7 și provider_identity identic. Noua vizită settings-readback cere numai read, nu resave/replay, apoi Stop final."
+    },
+    {
+      "requirement": "Aserțiuni, timeouturi și legacy",
+      "result": "PRESERVED_SOURCE_AND_TARGETED_PASS",
+      "evidence": "Comparația AST păstrează toate66 aserțiuni din installed_stop.py și multisetul constantelor numerice. Diff-ul nu modifică timeouturi/granturi. Cele7 metode Settings originale rămân,5 sunt adăugate. settings_browser=None este păstrat; ordinea legacy și Settings a trecut pe callerul real cu seams declarate."
+    },
+    {
+      "requirement": "Eșec, cleanup și publicare consistente",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "evidence": "Eșecul browserului deja închis rămâne FAIL/VERIFIED după cleanup normal; driver/observer necunoscut ori cleanup eșuat rămâne FAIL/UNCERTAIN. Excepția primară nu este înlocuită de eșecul secundar. Guardurile nu autorizează teardown legacy pentru Settings. Probe receipt final precedă markerul INSTALLED_STOP_VERIFIED.",
+      "important_limit": "Controlul sintetic final-readback poate reveni normal din funcție cu receipt FAIL/UNCERTAIN și fără marker. Nu susțin că orice incertitudine produce exit nenul: părintele trebuie să citească receiptul final și settlementul, nu să trateze return/exit0 drept PASS. Nu există o contradicție PASS/VERIFIED în acest control."
+    }
+  ],
+  "checks": [
+    {
+      "id": "snapshot-and-delta",
+      "commands": ["git status --short --branch", "git diff --stat", "git rev-parse HEAD", "git show --stat --oneline HEAD", "git diff --no-ext-diff 3efb0934d28920078aa59b565533a1bbed156a67..40ee24b7ea11d7c1b71ac9df992282abac4b8084 -- cli/integration/installed_stop.py cli/integration/test_installed_settings.py", "git diff --check 3efb0934d28920078aa59b565533a1bbed156a67..HEAD"],
+      "exit_code": 0,
+      "result": "Snapshot curat/exact, delta două fișiere; hashurile finale coincid."
+    },
+    {
+      "id": "targeted-existing-source-controls",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/qnhy5o1_x1/home XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qnhy5o1_x1/config TMPDIR=/home/kali/.hermes/cache/scratch/qnhy5o1_x1 /home/kali/.hermes/cache/scratch/i72/cli-env/bin/python -I -B -c 'import sys,unittest;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work/cli/integration\");names=[\"test_default_is_legacy_and_callbacks_surround_normal_stop_restart\",\"test_legacy_browser_keeps_raw_stdin_and_finite_session_mode\",\"test_private_browser_payload_and_settlement\",\"test_real_stop_caller_order_and_pending_browser_refusal\",\"test_timeout_remains_uncertain_and_is_not_retried\",\"test_cleanup_absence_keeps_primary_failure_and_uncertainty\",\"test_cleanup_readback_refuses_stop_and_keeps_primary_failure\",\"test_final_publication_rechecks_settlement_after_cleanup_credit\"];r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromNames([\"test_installed_settings.InstalledSettingsTest.\"+n for n in names]));print(\"COUNT\",r.testsRun,\"FAILURES\",len(r.failures),\"ERRORS\",len(r.errors));raise SystemExit(not r.wasSuccessful())'",
+      "exit_code": 0,
+      "tests": 8,
+      "passed": 8,
+      "failures": 0,
+      "errors": 0,
+      "duration_seconds": 0.067,
+      "log": "/home/kali/.hermes/cache/scratch/qnhy5o1_x1/source-check.log",
+      "log_sha256": "7c507c349b4cde4667f8f3a3b20f5a703135fd4bd6ef448116056144162923d1",
+      "limit": "SOURCE: caller real cu Engine/CLI/browser/clock doubles existente. Fără native imports/boot, DB, Docker sau browser real; nu am rerulat producerul SIGTERM al safety reviewerului."
+    }
+  ],
+  "findings": [],
+  "limits": [
+    "Nu QA instalată, integrare, acceptare vizuală ori P4a/P2-live PASS. Nicio încercare Docker/OCI/PG/native/browser/provider/OAuth/model/țintă/rețea externă.",
+    "Nu rebuild/context/wheel/reinstall; aprobările sursei/distribuției neschimbate și bindings copy-installed22 sunt reutilizate din contextul părintelui. Nu revendic o verificare nouă a celor22 module.",
+    "Ciclul QA-only rămâne2; nu se resetează și nu se propune un al treilea strat de verificare. Urmează adjudecarea complementară și o tentativă reală bounded prin consumerul existent.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; canonical NOT_RUN."
+  ],
+  "files_and_effects": {
+    "source_test_skill_edits": [],
+    "commits": [],
+    "created_report": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/rereview-qa-settlement-norm.json",
+    "private_source_log": "/home/kali/.hermes/cache/scratch/qnhy5o1_x1/source-check.log",
+    "scratch": "HOME/config private și fixture-uri s4 sintetice păstrate în qnhy5o1_x1; testele nu au lansat servicii sau copii reali. Rezervări locale de port fără trafic, conform fixture-ului existent.",
+    "protected_html_ponytail_private_profiles": "unread and untouched"
+  },
+  "issues": [
+    "Niciun blocker nou confirmat. CURRENT din README/harta globală este anterior registrului activ P4a; discrepanța deja cunoscută rămâne părintelui, fără schimbări de status aici."
+  ],
+  "project_status": {
+    "AICI": "QA settlement40ee24b: implementat/comis;8SOURCE PASS; review normativ APPROVED_SCOPED",
+    "P4a-minim": "IN_PROGRESS/NOT_ACCEPTED; consumer real NOT_RUN",
+    "P2-inert": "CLOSED_SCOPED păstrat",
+    "P2-live": "NOT_CLOSED",
+    "P3": "STOP_BEFORE"
+  }
+}

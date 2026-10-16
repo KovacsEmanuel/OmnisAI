@@ -47,6 +47,12 @@ Reconciliere minimă pentru continuarea P2-inert: qualification `191b901`, histo
 
 Readback părinte: `proc_00b1818ca9f6` exited2, receipt strict code2/family_drainedtrue; daemon/imagine identice, CID `b593cb43dc77c4d36e7cf5828ccc2fb9709bbed33b8bb5df8b5983dd2f314765`, proiect `omnis-p01-6cc96de0c2ff4a4c801b1c9e94c4a2df`, rețele/UDS/lockuri și5identități procese absente. Root `/home/kali/.hermes/cache/scratch/feq-_2sy9h6_/db-77a5f5eab9664dae`, PGDATA dev/inode/uid/mode păstrate; fără cleanup/retry/fixture reuse. Cele două tentative PG eșuate și diagnosticul rămân înregistrate; corecția următoare restrânge oracle-ul la contractul real, nu construiește încă un harness.
 
+### Corecția oracle-ului timing — SOURCE/review, PG în curs
+
+`e87a8de` schimbă numai cele două teste: markerul concurează cu terminarea senderului original, iar joinurile așteaptă același control_task bounded, fără buget nou per fază. Produsul, timeouturile sale4s și cleanup0.2s, granturile/caps/TTL, observerul PG0.75s, pause-fuses și cele93aserțiuni PG rămân neschimbate. [Autor](p2-integration-timing-oracle-author.json) SHA256 `446de799a477367c51a30941fb6a02e018c7def2c9faa7341a4f12d6bca937d7`: RED8→GREEN8 pe control/UDS real cu seams SOURCE, marker/reply2.1s permis, timeoutul real4s refuzat înainte și după marker, early conflict/cancel/missing-marker și cleanup waiter verificate. Final79SOURCE55.98s/quality0,95noduri colectate16PG.
+
+Două reviewuri focalizate [normativ](p2-integration-timing-oracle-review-norm.json) SHA `08f93439a9a8d49fba72bbf95182be12386b3e35a0d6f0033c88d79cda3778d9` și [safety](p2-integration-timing-oracle-review-safety.json) SHA `2f42b3cc221dc7f8611a000c365227aa88f874e4b25f37b43d8688f12ef4388d` APPROVED_SCOPED, fără findings, pe source-test`aa122a18…27f5344`/PG-test`98ba1d00…74830ba`. Părinte a confirmat hashes și lipsa diffului în callchainul produsului. O QA fresh pe targetul complet existent este admisă și în curs; dacă deadline-ul real expiră, rămâne FAIL. Nu se declară cauza internă sau închiderea fazei din această corecție de oracle. Rapoartele originale sunt păstrate byte-exact, iar cele două FAIL-uri precedente nu sunt șterse.
+
 ### D1 — descriptor contabil finit, fără native-turn fabricat
 
 - Se alege varianta minimă: payloadul exact `task_model_preflight` v2/v3 și validatorul/receiptul cold existente, fără opcode/overlay/Host nou și fără promovarea implicită a batch2 v4 în model-preflight. `FinalModelRequest` și schema nativă rămân neschimbate; `native_turn=None` nu este admis acolo.

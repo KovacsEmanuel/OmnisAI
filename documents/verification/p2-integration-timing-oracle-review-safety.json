@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "review": "independent_safety_concurrency_marker_sender_bounded_joins",
+  "verdict": "APPROVED_SCOPED",
+  "product_pass": false,
+  "scope": "Read-only review of the two frozen test files, their changed callers and existing producer/cleanup contracts; no PG execution.",
+  "repository": "/home/kali/OmnisAI",
+  "head": "9e851df0e4b4a047d81a5029209c6d06fa57c67c",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "snapshot": {
+    "api/tests/test_model_admission.py": "aa122a18f7e6dd8cce243cd0fc291def30a5c04d3d483ee7c7351becd27f5344",
+    "api/tests/test_model_admission_pg.py": "98ba1d003778af7d7573d9b3155d5a49ce3a4047c667310449cd854ca74830ba"
+  },
+  "snapshot_verified_before_and_after_review": true,
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/timing-oracle-rOGeIh/report.json",
+    "sha256": "446de799a477367c51a30941fb6a02e018c7def2c9faa7341a4f12d6bca937d7",
+    "verified": true,
+    "base_difference": "Author report names 5ce1c683780fd1318eba4ac8be4e0eaca48a08e9; Git confirms the subsequent HEAD commit changes only the slice register and recorded diagnostic QA. The two reviewed test hashes match exactly."
+  },
+  "requirement_consumer_risk_decision": "Preserve the existing command deadline and original failure while observing PG protocol markers and joining SOURCE/PG public senders. Reject premature observer cancellation, refreshed phase budgets, swallowed failures or orphan helper tasks. This review permits parent adjudication of the test-only fix, not product or PG acceptance.",
+  "findings": [],
+  "reviewed_properties": [
+    {
+      "property": "Marker/sender race and error precedence",
+      "locations": ["api/tests/test_model_admission.py:26-39", "api/tests/test_model_admission_pg.py:961-964", "api/tests/test_model_admission_pg.py:1022-1029"],
+      "assessment": "asyncio.wait(FIRST_COMPLETED) observes the original sender without cancelling it. sender.result() runs before accepting the marker whenever the sender is already done, preserving its exact exception or CancelledError even when the marker is also ready. A successful completed sender without a marker asserts instead of hanging or accepting missing evidence. All three changed PG marker sites pass the actual newly created control_task Task."
+    },
+    {
+      "property": "Waiter ownership and caller cleanup",
+      "locations": ["api/tests/test_model_admission.py:30-39", "api/tests/test_model_admission.py:728-785", "api/tests/test_model_admission_pg.py:1008-1017", "api/tests/test_model_admission_pg.py:1062-1071"],
+      "assessment": "The helper owns only Event.wait's task and cancels/joins it in finally; cancelling the observer does not cancel the sender through asyncio.wait. SOURCE and PG callers retain their original task ownership, release pause events, cancel only pending owned tasks and gather them. PG registers each sender/second/stopper before its next await. PG observes the first error before cleanup and re-raises it; return_exceptions=True is cleanup, not the success oracle. No newly introduced orphan, unbounded await of an unbounded producer, or primary-error suppression was identified in this delta."
+    },
+    {
+      "property": "Original deadline, not per-phase renewal",
+      "locations": ["api/tests/test_model_admission.py:735-753", "api/tests/test_model_admission_pg.py:989-1005", "api/tests/test_model_admission_pg.py:1048-1059", "api/src/omnis/supervisor/native_tasks.py:451-483", "api/src/omnis/supervisor/native_tasks.py:737-740"],
+      "assessment": "Changed joins directly await the already-created public control_task; none creates a fresh task, shield, retry or replacement four-second timeout. control_task retains asyncio.timeout(4), including its original writer close/finally with wait_closed bounded by 0.2 seconds. NativeTaskOwner retains its original absolute four-second owner deadline, and LocalControl retains its own four-second handling deadline. Product bytes are unchanged."
+    },
+    {
+      "property": "No weakened concurrency or safety assertions",
+      "locations": ["api/tests/test_model_admission_pg.py:714-768", "api/tests/test_model_admission_pg.py:935-1007", "api/tests/test_model_admission_pg.py:1038-1138", "api/tests/test_model_admission.py:670-785"],
+      "assessment": "The actual PG lock waiter observation, distinct backend identities, uncommitted/committed census checks, exact COMMAND_CONFLICT, duplicate accounting identity and single authority/reserve/send assertions remain. Pause fuses (PG 1.5 seconds, SOURCE 0.75 seconds), overlap observation 0.75 seconds and Stop waits/joins remain unchanged. The test-only fix does not relax grants, caps, DB settings or wire validation."
+    },
+    {
+      "property": "Authentic deadline negatives cannot pass via the rescue fuse",
+      "locations": ["api/tests/test_model_admission.py:1300-1457"],
+      "assessment": "The six real control_task/LocalControl UDS cases cover a 2.1-second marker, original deadline before/after a marker, early exact conflict, sender cancellation and success without a marker. Timeout negatives require the sender done, not cancelled, with exact TimeoutError and elapsed 4 <= t < 4.25. An outer 4.25-second rescue timeout therefore cannot satisfy PASS by cancelling a still-pending sender. Separate controls cover simultaneous failure, observer-only waiter ownership and actual duplicate/conflict SOURCE callers with a delayed 2.1-second first reply. Final task and socket/client assertions support owned cleanup at the stated SOURCE boundary."
+    }
+  ],
+  "evidence": {
+    "independent_execution": "Read-only Git/diff/source/hash inspection and sanitized parsing of existing author logs; no test suite rerun because no concrete defect required reproduction.",
+    "commands_and_results": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff -- api/tests/test_model_admission.py api/tests/test_model_admission_pg.py", "exit": 0},
+      {"command": "sha256sum api/tests/test_model_admission.py api/tests/test_model_admission_pg.py /home/kali/.hermes/cache/scratch/timing-oracle-rOGeIh/report.json", "exit": 0},
+      {"command": "git diff --quiet -- api/src", "exit": 0},
+      {"command": "git diff --check; git diff --cached --stat; git show --stat --oneline HEAD; git diff 5ce1c683780fd1318eba4ac8be4e0eaca48a08e9..HEAD --stat", "exit": 0}
+    ],
+    "reused_author_results": {
+      "logs_directory": "/home/kali/.hermes/cache/scratch/timing-oracle-rOGeIh",
+      "source_summary_readback": "79 passed in 55.98s",
+      "red_summary_readback": "8 failed, 46 deselected in 17.17s",
+      "green_summary_readback": "8 passed, 46 deselected in 17.21s",
+      "quality_summary_readback": ["All checks passed!", "2 files already formatted", "Success: no issues found in 2 source files"],
+      "collection_summary_readback": "95 tests collected in 0.52s",
+      "unique_collected_nodes_parsed": 95,
+      "pg_nodes_collected_not_executed": 16,
+      "execution_exits": "Author report records final SOURCE/quality/collection exit0; RED pytest exit1. This reviewer parsed existing log summaries rather than rerunning those commands."
+    }
+  },
+  "limits": [
+    "APPROVED_SCOPED covers this test-only safety/concurrency correction on the exact two hashes, not product PASS, PG acceptance or P2 closure.",
+    "No PG, OCI, provider, native worker, target traffic, r1/profile/global action, canonical suite, batch2, stage, commit or push was performed.",
+    "The public four-second timeout is the existing cooperative asyncio deadline, not a new hard wall-clock guarantee covering synchronous validation, scheduler stalls or all existing cleanup. The original 0.2-second close allowance remains. Existing synchronous PG observer queries are unchanged and were not executed here.",
+    "Reused SOURCE tests have explicit readiness/work/storage seams. They establish the observer correction and public UDS behavior, not persistent-PG completion or real native inference.",
+    "The historical four PG failures remain failures. Earlier PENDING/cancelled observations do not prove their senders will all finish within the original deadline; the parent's fresh actual PG QA must decide that.",
+    "No generic repeated-cancellation, arbitrary transport-fault or whole-product cleanup proof is claimed from this focused delta review.",
+    "Protected original HTML was not opened, read, hashed, changed or removed; only its preexisting name appeared in git status. No repository files were written.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "status_delta_for_parent": {
+    "test_fix": "Implemented in dirty snapshot; safety/concurrency review APPROVED_SCOPED.",
+    "proof": "Author SOURCE evidence retained; independent PG on these bytes NOT_RUN.",
+    "product": "Duplicate/conflict integration remains BLOCKED_QA; B06c/B06m/G02/P2 not closed.",
+    "next": "Parent combines this verdict with complementary review on the same two hashes, then performs the authorized existing fresh bounded PG QA without changing product limits. Preserve all prior FAIL diagnostics."
+  },
+  "artifacts_created": ["/home/kali/.hermes/cache/scratch/timing-safety-review-APNOWK0x/report.json"],
+  "repository_files_modified_by_reviewer": [],
+  "issues_encountered": []
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused normative review of the test-oracle correction only; not product, PG or P2 acceptance.",
+  "head": "9e851df0e4b4a047d81a5029209c6d06fa57c67c",
+  "snapshot": {
+    "api/tests/test_model_admission.py": "aa122a18f7e6dd8cce243cd0fc291def30a5c04d3d483ee7c7351becd27f5344",
+    "api/tests/test_model_admission_pg.py": "98ba1d003778af7d7573d9b3155d5a49ce3a4047c667310449cd854ca74830ba"
+  },
+  "findings": [],
+  "decision": "The oracle respects the existing bounded consumer instead of imposing shorter non-normative phase timeouts. No assertion or product contract weakening identified in this exact delta. Admit the next separately owned fresh PG QA after complementary review and existing preflight; do not infer its outcome.",
+  "grounds": [
+    {
+      "references": ["documents/verification/p2-integration-b06cm.md:44-46", "api/src/omnis/supervisor/native_tasks.py:100-105,451-458,737-740", "api/src/omnis/transport/local_control.py:243-281"],
+      "conclusion": "The adjudicated 1/1.5/2s observation caps are not product latency requirements. Actual control_task retains asyncio.timeout(4), original close wait 0.2, owner timeout_at(original deadline) and LocalControl timeout(4). No product source diff. No new per-phase 4s allowance."
+    },
+    {
+      "references": ["api/tests/test_model_admission.py:26-39", "api/tests/test_model_admission_pg.py:961-1017,1021-1071"],
+      "conclusion": "Marker observation races the existing sender task. sender.result() precedes marker acceptance when sender is done, preserving failure/cancellation even with a simultaneous marker. Successful completion without the marker fails. Later joins await the same task, never restart its deadline. The real client TimeoutError is not accepted or suppressed by the affected PG success paths; existing outer diagnostics re-raise before cleanup."
+    },
+    {
+      "references": ["api/tests/test_model_admission_pg.py:714-768,935-1153", "api/tests/test_model_admission.py:670-785"],
+      "conclusion": "Actual PG lock-overlap predicates and 0.75s observer, pause fuses 1.5s, Stop waits/joins 1s, full census, exact COMMAND_CONFLICT, accounting, ref equality, single-send/reservation, replay/readback and finalizers remain unchanged. SOURCE serialization/pause fuses 0.75s remain unchanged. Inspection of control flow as well as assertion ASTs found no bypass of those checks."
+    },
+    {
+      "references": ["api/tests/test_model_admission.py:1300-1457"],
+      "conclusion": "Existing new SOURCE controls exercise authentic control_task/LocalControl UDS: 2.1s marker/reply acceptance, true original deadline before/after marker, early conflict/cancellation, missing marker and simultaneous failure. Deadline negatives require done, non-cancelled sender with exact TimeoutError and elapsed >=4 and <4.25, preventing the outer rescue fuse from manufacturing PASS. The delayed public duplicate/conflict consumer retains its original assertions. These are SOURCE controls, not PG proof."
+    }
+  ],
+  "verification": {
+    "independently_executed_read_only": [
+      "git status --short --branch; git rev-parse HEAD; git diff of the two candidate files; git diff --cached --stat; git log -3 --oneline",
+      "sha256sum of both candidate files and supplied author/informative-QA reports; candidate hashes matched at entry and exit",
+      "python3 -I -B AST multiset comparison of HEAD and candidate assertions",
+      "git diff --exit-code -- api/src; git diff --check (exit 0)",
+      "Read-only collection-log parser confirmed 95 unique nodes: 56 admission SOURCE, 6 admission PG, 23 budget SOURCE, 10 budget PG"
+    ],
+    "assertions": {
+      "SOURCE": {"original": 102, "candidate": 122, "missing_original": 0},
+      "PG": {"original": 93, "candidate": 93, "missing_original": 0}
+    },
+    "reused_existing_evidence_not_rerun": {
+      "author_report": "/home/kali/.hermes/cache/scratch/timing-oracle-rOGeIh/report.json",
+      "author_report_sha256": "446de799a477367c51a30941fb6a02e018c7def2c9faa7341a4f12d6bca937d7",
+      "logs_inspected": ["red.log", "green.log", "source-final.log", "quality-final.log", "collect-final.log"],
+      "observed_summaries": ["RED 8 failed / 17.17s", "GREEN 8 passed / 17.21s", "final SOURCE 79 passed / 55.98s", "Ruff check/format and mypy successful"],
+      "informative_PG_report": "documents/verification/p2-integration-first-error-pg-qa.json",
+      "informative_PG_report_sha256": "82dc1eae8793a79384a7ad1c03742fcbc230724f50af9ace668a8dd80b4519f3"
+    }
+  },
+  "limits": [
+    "No test execution or new harness in this review; existing SOURCE evidence reused because no concrete defect required reproduction.",
+    "No PG/OCI/native/provider/target execution, service operations, fixture reuse or external cleanup.",
+    "No repository edits, stage, commit, push, global/profile edits; preexisting protected untracked HTML not read or modified. Only this scratch report was created.",
+    "Complementary reviewer owns detailed concurrency/cleanup review. This verdict is normative and snapshot-bound.",
+    "Historical original and informative PG FAILs remain FAIL. Next PG must still fail for a genuine consumer timeout or unmet assertions; latency inside 4s is not established by this review.",
+    "P2 acceptance, deferred DATA/caps and broader phase audits are outside scope. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "issues_encountered": []
+}

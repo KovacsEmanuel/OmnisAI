@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_FOR_FOCUSED_REVIEW_NOT_PG_ACCEPTED",
+  "base": "5ce1c683780fd1318eba4ac8be4e0eaca48a08e9",
+  "snapshot": {
+    "api/tests/test_model_admission.py": "aa122a18f7e6dd8cce243cd0fc291def30a5c04d3d483ee7c7351becd27f5344",
+    "api/tests/test_model_admission_pg.py": "98ba1d003778af7d7573d9b3155d5a49ce3a4047c667310449cd854ca74830ba"
+  },
+  "requirement_consumer_risk_decision": "Do not cancel bounded control_task work before its existing deadline. Race protocol markers against actual sender completion and join the same task without a fresh phase timer. SOURCE controls establish observer correctness; independent PG QA must still expose any real product deadline failure.",
+  "input_evidence": {
+    "path": "/home/kali/.hermes/cache/scratch/feq-_2sy9h6_/report.json",
+    "verified_sha256": "82dc1eae8793a79384a7ad1c03742fcbc230724f50af9ace668a8dd80b4519f3",
+    "interpretation": "The supplied informative QA observes still-pending work at marker observer timeouts and sender cancellation at short joins. This correction does not prove all four old cases would succeed within product limits or establish their full internal causes. Historical failures remain unchanged."
+  },
+  "changes": {
+    "marker_waits": {
+      "PG_t0_ready_seconds_before": 1.5,
+      "PG_reserved_seconds_before": 1,
+      "PG_received_seconds_before": 1.5,
+      "after": "wait_protocol_marker races Event.wait against the existing control_task task. Sender exception/cancellation propagates unchanged; successful completion without a marker asserts. Simultaneous failure takes precedence over a ready marker. The helper owns, cancels and joins only its marker waiter."
+    },
+    "joins": {
+      "PG_second_duplicate_or_conflict_seconds_before": 2,
+      "PG_sender_duplicate_conflict_send_first_seconds_before": 2,
+      "PG_sender_stop_first_seconds_before": 1,
+      "SOURCE_second_duplicate_or_conflict_seconds_before": 1,
+      "SOURCE_first_duplicate_or_conflict_seconds_before": 2,
+      "after": "Direct await of the original bounded control_task task; no replacement or per-phase 4s timer."
+    },
+    "unchanged": [
+      "Product control_task asyncio.timeout(4), including its original finally with wait_closed timeout 0.2",
+      "LocalControl handler timeout 4 and NativeTaskOwner original absolute deadline 4",
+      "PG overlap observer 0.75, release_t0/second_finished/release_stop pause fuses 1.5",
+      "Stop locked waits and operational stopper joins 1; SOURCE replay/serialization pause waits 0.75",
+      "PG synchronous polling/statistics refresh, connect timeout 2 and statement timeout 2000ms",
+      "Grants, caps, TTLs, wire format, census, exact COMMAND_CONFLICT checks, accounting/readback assertions and cleanup finalizers",
+      "First-failure diagnostic producer and its nine SOURCE_CONTROL cases"
+    ],
+    "new_test_only_fuse": "Regression controls use timeout_at(original_test_start + 4.25), solely as a rescue fuse around authentic control_task. Both real-deadline negatives additionally require a done, non-cancelled sender with exact TimeoutError and elapsed >=4 and <4.25, so the rescue fuse cannot supply PASS. No new fuse is added to PG."
+  },
+  "evidence": {
+    "red": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py -k 'protocol_marker_observes_bounded_control_completion or protocol_join_uses_existing_control_deadline' -q --tb=line",
+      "pytest_exit": 1,
+      "failed": 8,
+      "deselected": 46,
+      "seconds": 17.17,
+      "log": "red.log",
+      "scope": "First extracted the original 1.5s t0_ready/received wait unchanged into the shared helper and wired those existing PG sites; no behavior correction yet. Six authentic control/UDS cases fail under that old marker oracle. Two additional regressions execute the actual SOURCE duplicate/conflict consumer: delaying the first owner's completed reply by 2.1s inside LocalControl/control_task makes its original 2s join fail. This is not PG execution. The shell wrapper expected pytest exit1 and itself returned0."
+    },
+    "green": {
+      "command": "Same exact eight-case pytest command as RED, after the correction",
+      "pytest_exit": 0,
+      "passed": 8,
+      "deselected": 46,
+      "seconds": 17.21,
+      "log": "green.log"
+    },
+    "final_source": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_budget.py -q --tb=line",
+      "exit": 0,
+      "passed": 79,
+      "seconds": 55.98,
+      "sanitized_SOURCE_CONTROL_diagnostics": 9,
+      "log": "source-final.log",
+      "after_last_edit": true
+    },
+    "final_quality": {
+      "commands": [
+        "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+        "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+        "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+        "git diff --check"
+      ],
+      "exits": [0, 0, 0, 0],
+      "log": "quality-final.log",
+      "after_last_edit": true
+    },
+    "final_collection": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py -q --tb=line --collect-only",
+      "exit": 0,
+      "unique_nodes": 95,
+      "per_file": {
+        "test_model_admission.py": 56,
+        "test_model_admission_pg.py": 6,
+        "test_model_budget.py": 23,
+        "test_model_budget_pg.py": 10
+      },
+      "log": "collect-final.log",
+      "after_last_edit": true,
+      "PG_executed": false
+    },
+    "controls": [
+      "Authentic control_task/LocalControl UDS with SOURCE readiness/work seams: marker at 2.1s is allowed while sender remains pending, then its valid reply joins before 4s",
+      "Authentic consumer deadline expires at 4s with marker absent: exact sender TimeoutError propagates, not an observer timeout or swallowed failure",
+      "Authentic consumer deadline also expires at original 4s after a marker at 2.1s: no reset or extra 4s budget",
+      "Early COMMAND_CONFLICT propagates with the exact sender exception identity/reason",
+      "Early sender cancellation propagates CancelledError",
+      "Successful sender completion without marker raises AssertionError rather than waiting forever",
+      "Simultaneously ready marker and failed bounded sender preserve the original failure identity",
+      "Observer cancellation joins its marker waiter but leaves pending sender cancellation to its caller; final task census matches baseline",
+      "The actual SOURCE duplicate/conflict public-control first join permits a 2.1s delayed reply; original protocol, census, single-send, replay and conflict assertions still pass"
+    ],
+    "static_preservation": {
+      "PG_original_assertions": 93,
+      "PG_current_assertions": 93,
+      "SOURCE_original_assertions": 102,
+      "SOURCE_current_assertions": 122,
+      "missing_original_assertions_AST_multiset": 0,
+      "product_worktree_diff_exit": 0
+    }
+  },
+  "issues": [
+    "One initial patch validation rejected an ambiguous import match without modifying files; corrected with exact context.",
+    "Initial Ruff format check exited1 for one long comment; split the comment, then reran SOURCE, quality and collection after the last edit.",
+    "Initial collection-log summarizer expected api/tests/ while pytest printed tests/ and counted zero. Actual pytest collected95; corrected read-only parser verified95 unique nodes and per-file totals without rerunning collection.",
+    "Later SOURCE-only logs initially had mode0664 inside the private scratch directory; all owned logs and this report were hardened to0600 before delivery. No PG raw output was produced."
+  ],
+  "limits": [
+    "Only the two named test files changed; no product/runner/Makefile/schema/Host/global edits, no stage or commit.",
+    "No PG/OCI/provider/native process was launched or historical fixture adopted; local SOURCE UDS cleanup was exercised.",
+    "Preexisting protected HTML was not read, hashed, modified or removed.",
+    "Independent focused re-review and the parent's fresh actual PG QA remain required; SOURCE/collect-only are not PG acceptance or P2 closure.",
+    "Any true product 4s failure must remain FAIL on the next QA, not be reinterpreted as PASS."
+  ],
+  "lesson_for_parent": "At a bounded public command, observe markers by racing them against that same command's completion. Do not layer a shorter observer cancellation or reset its budget for each phase; preserve primary errors and own/join only the added event waiter."
+}

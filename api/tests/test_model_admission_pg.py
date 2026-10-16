@@ -86,7 +86,7 @@ class _ProtocolSpan:
 
 
 class ProtocolTiming:
-    """First two commands only; wall spans overlap, so do NOT sum nested phases.
+    """First two racing callers or finite caps commands; do NOT sum nested spans.
 
     No argument/result/error bytes, new tasks, timers or authority. Delegation
     runs in the original task. RAISED includes cancellation, never success.
@@ -923,9 +923,9 @@ async def protocol_pg_consumer(
         request_count += 1
         if request_count == 2:
             second_handler = asyncio.current_task()
-        if request_count <= (2 if concurrent else 1):
+        if admission_case or request_count <= (2 if concurrent else 1):
             task = asyncio.current_task()
-            caller: ProtocolCaller = "sender" if request_count == 1 else "second"
+            caller: ProtocolCaller = "second" if concurrent and request_count == 2 else "sender"
             timing.handlers[task] = caller
             try:
                 with timing.phase(caller, "owner"):
@@ -1207,7 +1207,7 @@ async def protocol_pg_consumer(
                                         str(mapping(r)["id"])
                                         for r in before_accept["managed_record"]
                                     }
-                                    answer = await control_task(root, value)
+                                    answer = await measured_control(value, "sender")
                                     assert [
                                         r
                                         for r in census()["managed_record"]
@@ -1221,8 +1221,8 @@ async def protocol_pg_consumer(
                                     await service.heartbeat(owner.owner, owner.epoch)
                                     await_site = "budget_exhausted"
                                     with pytest.raises(CatalogError) as denied:
-                                        await control_task(
-                                            root, {**value, "protocol_id": str(uuid4())}
+                                        await measured_control(
+                                            {**value, "protocol_id": str(uuid4())}, "sender"
                                         )
                                     assert denied.value.reason == "TASK_REJECTED"
                                     assert protocol_errors[-1] == "MODEL_BUDGET_EXHAUSTED"

@@ -1,0 +1,497 @@
+{
+  "approved_caps_bodies_unchanged": {
+    "api/tests/test_model_admission.py::assert_protocol_budget_accounting": true,
+    "api/tests/test_model_admission.py::assert_protocol_budget_records": true,
+    "api/tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io": true,
+    "api/tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source": true,
+    "api/tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline": true
+  },
+  "branch": "work/p2-admission-final-20261016",
+  "collection": {
+    "nodes": [
+      "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+      "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+      "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[budget]",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[budget_conflict]",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[deadline_b]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[output_tokens-65]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[calls-2]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[wall_seconds-4]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[duplicate]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[conflict]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+      "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[slow_marker]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[deadline_before]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[deadline_after]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[failed]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[cancelled]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[returned]",
+      "tests/test_model_admission.py::test_protocol_marker_preserves_failure_and_owns_only_its_waiter[simultaneous_failure]",
+      "tests/test_model_admission.py::test_protocol_marker_preserves_failure_and_owns_only_its_waiter[observer_cancel]",
+      "tests/test_model_admission.py::test_protocol_budget_observer_tracks_fourth_command_failure",
+      "tests/test_model_admission.py::test_protocol_phase_timing_delegates_without_task_or_error_changes",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[nominal]",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[duplicate]",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[conflict]",
+      "tests/test_model_admission.py::test_protocol_join_uses_existing_control_deadline[duplicate]",
+      "tests/test_model_admission.py::test_protocol_join_uses_existing_control_deadline[conflict]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[failed-expected0]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[pending-expected1]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[pg_waiter-expected2]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[cancelled-expected3]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[primary_cancelled-expected4]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[join_timeout-expected5]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[returned-expected6]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[unknown_reason-expected7]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[unknown_type-expected8]",
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget_conflict]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[deadline_b]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+      "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+      "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+      "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+      "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+      "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+      "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+      "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+      "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+      "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+      "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "pg": 19,
+    "source": 90,
+    "total": 109
+  },
+  "commit": null,
+  "diff": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/review.patch",
+    "sha256": "6f7a876ca01e7e704fe3fa3ac1e73b58691617b0468a0e2506769fc30b5d19a7"
+  },
+  "findings": [
+    {
+      "cause": "Only first owner (or first two concurrent callers) was timed, and budget positives used unmeasured control_task. budget_accept diagnostic timing was the initial cap denial, not fourth VALIDATION command.",
+      "classification": "CONFIRMED_HARNESS_DEFECT_SOURCE_RED_GREEN",
+      "fix": "Observe finite admission-case commands and delegate positive/exhaustion clients through same measured_control; immutable 64-span bound retained.",
+      "id": "CAPS-OBS-01",
+      "path": "api/tests/test_model_admission_pg.py"
+    },
+    {
+      "classification": "OPEN_PRODUCT_CONSUMER_TIMEOUT_INNER_PHASE_UNOBSERVED",
+      "evidence": "owner_entered=4/fence_entered=6 identifies the second positive VALIDATION invoking A (the counter increments before actual fence acquisition). received=true is cumulative and does not prove its second write; stale timing cannot localize the failing phase.",
+      "id": "PG108-BUDGET",
+      "timeout_contract": "control_task has its own four-second asyncio.timeout started before LocalControl/owner. Raw TimeoutError means its client deadline; a received negative CONTROL_TIMEOUT response is CatalogError(CONTROL_TIMEOUT). No exception expectation relaxed."
+    },
+    {
+      "classification": "CONFIRMED_REAL_PG_CONSUMER_TIMEOUT; MINIMAL_CAUSE_PROPOSAL_NOT_IMPLEMENTED",
+      "evidence": "send_first and duplicate time out in final protocol.readback/qualified, after settlement; repeated qualification consumes bounded client budget.",
+      "id": "PG108-MARGIN",
+      "limits": "Repeated qualification is directly observed in source/PG phase times; exclusive internal cost of budget failure remains UNKNOWN; SOURCE savings cannot prove PG deadline.",
+      "source_chain": "model_protocol.settle -> qualified -> ModelDispatch.read; then persist_configuration -> ModelDispatch.read again in same T2 transaction. Immediate final model_protocol.readback -> qualified -> ModelDispatch.read in a new transaction."
+    }
+  ],
+  "gap_inventory": [
+    {
+      "disposition": "DEFERRED_BY_OPERATOR_UNTIL_PG108_BLOCKERS_RESOLVED",
+      "gap": "EOF/timeout/cancel/invalid ACK after write preserve SENT/UNKNOWN, no refund/resend",
+      "new_case": null,
+      "pg_gap": "No such failure variations in existing PG consumer; only nominal/stop_first/send_first.",
+      "reuse": "test_protocol_data_reserve_sent_transport_settlement_source[eof/timeout/cancel/invalid_ack] + test_protocol_backpressure_retires_before_owner_a_exit[timeout/cancel]"
+    },
+    {
+      "disposition": "DEFERRED_BY_OPERATOR_UNTIL_PG108_BLOCKERS_RESOLVED",
+      "gap": "Late receipt/accounting after Stop",
+      "new_case": null,
+      "pg_gap": "Force settlement/receipt after committed Stop on existing consumer; not implemented in this snapshot.",
+      "reuse": "Existing T2 receive-only implementation and poststop readbacks; send_first is now retained FAIL, not proof of forced late settlement."
+    },
+    {
+      "disposition": "REUSE_EXISTING_WITH_CURRENT_FAIL_PRESERVED",
+      "gap": "Duplicate/conflict receive-only/no grant",
+      "new_case": null,
+      "pg_gap": "No new replay variations until margin blocker addressed.",
+      "reuse": "test_protocol_concurrent_initial_replay_misses_source[duplicate/conflict]; existing PG concurrent consumer unchanged logically (duplicate current FAIL, conflict current PASS; prior scoped acceptance retained)."
+    },
+    {
+      "disposition": "DEFERRED_BY_OPERATOR_UNTIL_PG108_BLOCKERS_RESOLVED",
+      "gap": "Negative DATA/owner/config/projection/ref/digest/receipt on same NativeTaskCommand-owner-ledger-UDS",
+      "new_case": null,
+      "pg_gap": "Full finite negative set on protocol consumer, not added.",
+      "reuse": "SOURCE qualified projection denial/boot guard; replay receipt_extra, descriptor_version, five usage contradictions and configuration_payload; PG preflight direct decision/owner/config denials do not certify complete protocol channel."
+    },
+    {
+      "disposition": "DEFERRED_BY_OPERATOR_UNTIL_PG108_BLOCKERS_RESOLVED",
+      "gap": "Sentinel input/result/error/log on same consumer",
+      "new_case": null,
+      "pg_gap": "Not a complete input/result/error/log channel proof.",
+      "reuse": "SOURCE private=value/path omission and diagnostic sentinel omission; existing PG SYNTHETIC_PRIVATE_I1 omission before protocol channel."
+    },
+    {
+      "disposition": "SOURCE_GREEN; PG_DELTA_NOT_RUN",
+      "gap": "Budget fourth-command failure observer",
+      "new_case": "test_protocol_budget_observer_tracks_fourth_command_failure",
+      "reuse": "Existing ProtocolTiming, observed_handle, measured_control"
+    }
+  ],
+  "head": "f4b990feb975f07194273bde600be90f78107535",
+  "limits": {
+    "chisel": "BLOCKED_NO_GO",
+    "control_seconds": 4,
+    "cost_estimate": null,
+    "cost_observed": null,
+    "db_wait_seconds": 2,
+    "exchange_seconds_max": 3.2,
+    "grant_seconds_max": 4.5,
+    "known_output_tokens": 0,
+    "model_calls": 0,
+    "new_owner_harness_api_rpc_model_descriptor": false,
+    "owner_seconds": 4,
+    "p2_acceptance": "NOT_CLOSED",
+    "pg_oci_provider_native_live_account_profile_global_push_stage_commit_effects": false,
+    "provenance": "SYNTHETIC_PROTOCOL_NO_MODEL",
+    "reticle": "NOT_APPLICABLE",
+    "review": "NOT_REVIEWED (parent owns two complementary reviews)"
+  },
+  "manifest_count": 45,
+  "manifest_sha256": {
+    "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+    "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+    "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+    "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+    "api/src/omnis/modules/runs/model_dispatch.py": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+    "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+    "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+    "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+    "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+    "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+    "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+    "api/src/omnis/supervisor/native_tasks.py": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+    "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+    "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+    "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+    "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+    "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+    "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+    "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+    "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+    "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+    "api/tests/test_model_admission.py": "1d9ffc7aa800880f639528411167f6d0aabc242c8793b831d4cb249e34d07e96",
+    "api/tests/test_model_admission_pg.py": "6abb4535e35925187282b04b7f6e0b8a713a63b7146ac117dfdce017c6f37bd0",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+    "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+    "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+    "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+    "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+    "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+    "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+    "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+    "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+    "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+    "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+    "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+    "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+  },
+  "modified_paths": [
+    "api/tests/test_model_admission.py",
+    "api/tests/test_model_admission_pg.py"
+  ],
+  "pg108_external_evidence": {
+    "elapsed_seconds": 369.09,
+    "exit": 2,
+    "failed": 3,
+    "failed_nodes": [
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget]",
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]"
+    ],
+    "family_drained": true,
+    "owner": "parent QA proc_30065b667b07",
+    "passed": 105,
+    "rerun_by_this_author": false,
+    "sanitized_report": "/home/kali/.hermes/cache/scratch/p2qa108-0bdv2ly2/sanitized-result.json",
+    "sanitized_sha256": "efc309cd8ea1780ef035947a45f3b68d84f432a2200973dc3aaacfb2876737ec"
+  },
+  "prior_manifest_reuse": {
+    "changed_only": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "path": "documents/verification/p2-integration-caps-author.json",
+    "unchanged": 38
+  },
+  "private_log_modes": "0600 verified for all owned *.log",
+  "proposed_product_scope_awaits_adjudication": {
+    "conditional": [
+      "api/src/omnis/supervisor/native_tasks.py"
+    ],
+    "primary": [
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/src/omnis/modules/runs/model_dispatch.py"
+    ],
+    "red_first": "Count actual qualification/read invocations in existing SOURCE owner/ledger/UDS consumer, including second VALIDATION, then challenge immutable context, retained receipt and eligibility negatives. Demonstrate redundant same-transaction read before minimal reuse.",
+    "safety": "No cross-command/transaction cache, skipped context/schema/eligibility check, larger grant, prewarm or altered timeout oracle.",
+    "tests": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ]
+  },
+  "red_green": {
+    "green_exit": 0,
+    "negative_control": "fourth raises same TimeoutError object; both control and owner must record RAISED, no exception bytes",
+    "positive_control": "first three actual wrapper calls RETURNED and preserve identity",
+    "red_exit": 1,
+    "red_guard": "budget observer lost the actual fourth owner failure",
+    "red_log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/red-observer.log",
+    "scope": "exact existing PG wrapper code objects; SOURCE substituted callbacks, no PG execution",
+    "test": "test_protocol_budget_observer_tracks_fourth_command_failure"
+  },
+  "retained_attempts": [
+    {
+      "classification": "test-authoring NameError, fixed namespace; not product RED",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/red.log"
+    },
+    {
+      "classification": "new test typing no-any-return, fixed identity comparison; not product defect",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/mypy.log"
+    }
+  ],
+  "schema_version": 1,
+  "stage": false,
+  "status": "SOURCE_GREEN_REVIEW_READY; REQUESTED_FAILURE_DATA_DELTA_BLOCKED_BY_PG108",
+  "suggested_parent_skill_lesson": "When a finite caps test issues several commands, register each owner/control in the existing bounded observer; otherwise the latest await-site can display only the first expected refusal. Never infer the failing phase from stale spans.",
+  "task_change": "Mid-turn operator stopped failure/DATA breadth pending QA108 caps/deadline diagnosis. Only confirmed timing-observer defect repaired; no product edits.",
+  "verification": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/format.log",
+      "log_sha256": "43affe539ba0ae8b202b306a3294d04f3b7fc062316c1c825399076d966c8f2d",
+      "name": "format",
+      "summary": [
+        "2 files left unchanged"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib,pytest; root=pathlib.Path.cwd(); sys.path.insert(0,str(root/\"api/src\")); import omnis.supervisor.native_tasks as n; assert pathlib.Path(n.__file__).is_relative_to(root); raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml']+sys.argv[1:]))",
+        "api/tests/test_model_admission.py::test_protocol_budget_observer_tracks_fourth_command_failure",
+        "-q",
+        "--tb=line"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/observer-green.log",
+      "log_sha256": "7f20721722339faad833bedbd918bbce72ec5ee8917b82cf8b1a09bf4e47f2f3",
+      "name": "observer-green",
+      "summary": [
+        "1 passed in 0.50s"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib,pytest; root=pathlib.Path.cwd(); sys.path.insert(0,str(root/\"api/src\")); import omnis.supervisor.native_tasks as n; assert pathlib.Path(n.__file__).is_relative_to(root); raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml']+sys.argv[1:]))",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_budget.py",
+        "-q",
+        "--tb=line"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/source.log",
+      "log_sha256": "cd2153117f37a54003540c861c88e7f31440b32e3f42beb053c3b81f815e60b8",
+      "name": "source",
+      "summary": [
+        "90 passed in 54.10s"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib,pytest; root=pathlib.Path.cwd(); sys.path.insert(0,str(root/\"api/src\")); import omnis.supervisor.native_tasks as n; assert pathlib.Path(n.__file__).is_relative_to(root); raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml']+sys.argv[1:]))",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_model_budget.py",
+        "api/tests/test_model_budget_pg.py",
+        "--collect-only",
+        "-q",
+        "--tb=line"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/collection.log",
+      "log_sha256": "ecf7aae4ae4dc62e7f3b9c4f82f0ecd786b4397d5044ce846a380f5762f0ac3b",
+      "name": "collection",
+      "summary": [
+        "109 tests collected in 0.56s"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/ruff.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "name": "ruff",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/format-check.log",
+      "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "name": "format-check",
+      "summary": []
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/mypy",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/mypy.log",
+      "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "name": "mypy",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ]
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-final-evidence-20261016/final/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "diff-check",
+      "summary": []
+    }
+  ],
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-final-20261016"
+}

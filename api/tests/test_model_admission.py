@@ -1786,6 +1786,84 @@ async def test_protocol_marker_preserves_failure_and_owns_only_its_waiter(case: 
 
 
 @pytest.mark.asyncio
+async def test_protocol_budget_observer_tracks_fourth_command_failure() -> None:
+    """SOURCE control of the exact PG wrappers; no SQL/native effects or timeout inflation."""
+    import ast
+    import inspect
+
+    from test_model_admission_pg import ProtocolTiming, protocol_pg_consumer
+
+    tree = ast.parse(inspect.getsource(protocol_pg_consumer))
+    wrappers = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.AsyncFunctionDef)
+        and node.name in {"observed_handle", "measured_control"}
+    ]
+    assert len(wrappers) == 2
+    source = (
+        "def bind(protocol_handle, control_task, timing, root):\n"
+        "    concurrent, admission_case = False, True\n"
+        "    request_count, second_handler = 0, None\n"
+        + "\n".join("    " + line for node in wrappers for line in ast.unparse(node).splitlines())
+        + "\n    return observed_handle, measured_control\n"
+    )
+    namespace: dict[str, object] = {"asyncio": asyncio}
+    exec("from __future__ import annotations\n" + source, namespace)
+    bind = namespace["bind"]
+    assert callable(bind)
+    timing = ProtocolTiming()
+    command = NativeTaskCommand.model_validate(preflight_command())
+    token: dict[str, object] = {"synthetic": True}
+    primary = TimeoutError("SYNTHETIC_DIAGNOSTIC_OMIT_ME")
+    called = 0
+    task = asyncio.current_task()
+
+    async def handle(value: NativeTaskCommand) -> dict[str, object]:
+        nonlocal called
+        assert value is command and asyncio.current_task() is task
+        called += 1
+        if called == 4:
+            raise primary
+        return token
+
+    async def control(root: object, value: object) -> dict[str, object]:
+        assert root is token and value is command
+        pending = observed(command)
+        assert inspect.isawaitable(pending)
+        assert id(await pending) == id(token)
+        return token
+
+    observers = bind(handle, control, timing, token)
+    assert isinstance(observers, tuple) and len(observers) == 2
+    observed, measured = observers
+    assert callable(observed) and callable(measured)
+    for _ in range(3):
+        pending = measured(command, "sender")
+        assert inspect.isawaitable(pending)
+        assert await pending is token
+    with pytest.raises(TimeoutError) as caught:
+        pending = measured(command, "sender")
+        assert inspect.isawaitable(pending)
+        await pending
+    assert caught.value is primary and called == 4 and not timing.handlers
+    rows = timing.snapshot()
+    assert [row["outcome"] for row in rows if row["phase"] == "owner"] == [
+        "RETURNED",
+        "RETURNED",
+        "RETURNED",
+        "RAISED",
+    ], "budget observer lost the actual fourth owner failure"
+    assert [row["outcome"] for row in rows if row["phase"] == "control"] == [
+        "RETURNED",
+        "RETURNED",
+        "RETURNED",
+        "RAISED",
+    ]
+    assert "SYNTHETIC_DIAGNOSTIC_OMIT_ME" not in str(rows)
+
+
+@pytest.mark.asyncio
 async def test_protocol_phase_timing_delegates_without_task_or_error_changes() -> None:
     """SOURCE observer control: real elapsed time, pending/return/raise, finite storage."""
     from time import monotonic

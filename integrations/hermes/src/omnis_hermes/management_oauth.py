@@ -34,10 +34,15 @@ DEVICE_URL = "https://auth.openai.com/codex/device"
 _context = threading.local()
 
 
+class AuthAdmissionDenied(ValueError):
+    """Trusted guard denial before this request could send; not transport loss."""
+
+
 class FixedClient:
     def __init__(self, guard: Callable[[], None]):
         self.guard = guard
         self._trace = self.trace
+        self._headers_started = False
         self.client = httpx.Client(
             transport=httpx.HTTPTransport(
                 uds="/runtime/auth-egress.sock", retries=0, trust_env=False
@@ -63,7 +68,14 @@ class FixedClient:
         # Synchronous httpcore hook also runs after connect/TLS, immediately
         # before header/body writes. HTTPX request hooks alone precede connect.
         if event.endswith(".started"):
-            self.guard()
+            try:
+                self.guard()
+            except AuthAdmissionDenied:
+                if self._headers_started:
+                    raise ValueError("Auth in-flight outcome unknown") from None
+                raise
+            if event.endswith(".send_request_headers.started"):
+                self._headers_started = True
 
     @staticmethod
     def body(response: httpx.Response) -> None:
@@ -80,6 +92,7 @@ class FixedClient:
         response._content = bytes(data)
 
     def post(self, url: str, **kwargs: object) -> httpx.Response:
+        self._headers_started = False
         if url not in URLS or set(kwargs) - {"json", "data", "headers"}:
             raise ValueError("Auth request denied")
         headers = kwargs.get("headers", {})
@@ -192,13 +205,16 @@ class NativeOAuth:
             raise ValueError("Auth owner unavailable") from None
 
     def guard(self) -> None:
-        self._owner_alive()
+        try:
+            self._owner_alive()
+        except ValueError:
+            raise AuthAdmissionDenied("Auth owner revoked") from None
         if (
             self.session is None
             or self.session.get("cancelled")
             or time.monotonic_ns() >= min(self.deadline_ns, self.expires_ns)
         ):
-            raise ValueError("Auth authority expired")
+            raise AuthAdmissionDenied("Auth authority expired")
 
     def revoke(self) -> None:
         if self.native is not None:
@@ -286,10 +302,12 @@ class NativeOAuth:
                 self.terminal = (
                     "SAVED"
                     if status == "approved"
+                    else "INDETERMINATE"
+                    if status == "error"
                     else "EXPIRED"
                     if expired or status == "expired"
                     else "CANCELLED"
-                    if self.session.get("cancelled")
+                    if self.session.get("cancelled") or status == "cancelled"
                     else "INDETERMINATE"
                 )
                 self.native._oauth_sessions.pop(self.sid, None)

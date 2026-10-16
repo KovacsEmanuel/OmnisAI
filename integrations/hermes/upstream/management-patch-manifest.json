@@ -3,7 +3,7 @@
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "policy": "MANAGEMENT_CONFIG_LOCAL_AUTH",
   "files": {
-    "hermes_cli/web_routers/oauth.py": {"original_sha256": "f5ac65f27eb9722a433ab600f336617185b74e0ac75a25d727b7d4836d4ab076", "patched_sha256": "f24142234ba90516ef94499a052ee3d0b111976f5e07ece1ac9ca00a1c317290"},
+    "hermes_cli/web_routers/oauth.py": {"original_sha256": "f5ac65f27eb9722a433ab600f336617185b74e0ac75a25d727b7d4836d4ab076", "patched_sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7"},
     "hermes_cli/main.py": {
       "original_sha256": "5f24d7022c1c5213d9d3fcec8b4c21280cc2778e23c7d339d157ced8223c3f74",
       "patched_sha256": "9af28bd6b3daffcc1df2ae6cf345f17372356b3146cd8cac4be964c91d18d77d"

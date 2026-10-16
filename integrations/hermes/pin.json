@@ -18,8 +18,8 @@
   "patch_sha256": "481c19d07c9309f18f61b0c2bdab0b6c6533a384e5aebd27d4add219b052f223",
   "patch_manifest_sha256": "2336536e22e56a0f5dc361a11ae9ee228cf6e4eab24fb2b48909eda37d76bcab",
   "runtime_inference_authorized": false,
-  "management_patch_sha256": "d1c1775e33cff654b1ec28013dc2746b637d837b5bedf2c424b184650649de72",
-  "management_patch_manifest_sha256": "2c5a33a66706eb87b9adbc4902b061994b9e16d449613bdd22dc6795965acf2c",
+  "management_patch_sha256": "0aef4f608a96e0b9e922316dde89b603c93e0e876b6b0216140c58982d97f9d1",
+  "management_patch_manifest_sha256": "8a00b91756cb3c16491fe7f5e47feadf7798db1f7753706ea49d48ad5b78521f",
   "managed_patch_sha256": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376",
   "managed_patch_manifest_sha256": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0"
 }

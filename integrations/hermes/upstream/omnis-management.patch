@@ -132,10 +132,14 @@
                      raise
                  consecutive_blips += 1
                  if consecutive_blips >= max_consecutive_blips:
-@@ -310,7 +331,7 @@
+@@ -310,7 +331,11 @@
              s = _oauth_sessions.get(session_id)
              if s:
                  s["status"] = "error"
++                if _omnis_managed:
++                    from omnis_hermes.management_oauth import AuthAdmissionDenied
++                    if isinstance(e, AuthAdmissionDenied):
++                        s["status"] = "cancelled"
 -                s["error_message"] = str(e)
 +                s["error_message"] = "AUTH_INDETERMINATE" if _omnis_managed else str(e)
 

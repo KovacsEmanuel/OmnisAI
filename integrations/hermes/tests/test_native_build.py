@@ -41,6 +41,101 @@ def run_node(node, namespace):
 
 
 class NativeInertSeam(unittest.TestCase):
+    def test_native_error_precedence_over_cancel_and_expiry(self):
+        import importlib
+        import logging
+        from uuid import uuid4
+
+        import httpx
+        from omnis_hermes.management_oauth import NativeOAuth
+        from omnis_hermes.runtime_host import RuntimeHost
+
+        for case in ("error", "cancel", "expiry", "ordinary_cancel", "guard_denial", "saved"):
+            with self.subTest(case=case):
+                entered, release = threading.Event(), threading.Event()
+                native = types.ModuleType("synthetic_native")
+                native._oauth_sessions = {}
+                native._oauth_sessions_lock = threading.RLock()
+                native._omnis_managed = True
+                native._log = logging.getLogger("synthetic-native-precedence")
+                native._log.disabled = True
+                native._CODEX_ISSUER = "https://auth.openai.com"
+                native._CODEX_EXPIRES_IN = 900
+                native.time = time
+                native._CANCELLED = object()
+                native._profile_scope = lambda _: contextlib.nullcontext()
+                native._codex_cancelled = lambda *args: False
+                native._codex_exchange_tokens = lambda *args: {}
+                native._codex_poll_authorization = lambda *args: (
+                    native._CANCELLED if case == "ordinary_cancel" else {}
+                )
+
+                def request(_httpx):
+                    entered.set()
+                    assert release.wait(2)
+                    if case == "guard_denial":
+                        owner.guard()
+                    if case in {"error", "cancel", "expiry"}:
+                        raise httpx.ReadError("synthetic reply loss")
+                    return {"user_code": "TEST-CODE", "device_auth_id": "synthetic", "interval": 3}
+
+                native._codex_request_user_code = request
+                run_node(
+                    function("hermes_cli/web_routers/oauth.py", "_codex_full_login_worker"),
+                    native.__dict__,
+                )
+                host = RuntimeHost(Path("unused"))
+                reader = host._open_management_lifeline()
+                owner = NativeOAuth.from_owner_fd(reader)
+                lease = {
+                    "operation_id": str(uuid4()),
+                    "boot": str(uuid4()),
+                    "generation": 1,
+                    "epoch": 1,
+                    "deadline_ns": time.monotonic_ns() + 4_000_000_000,
+                }
+                auth = types.ModuleType("hermes_cli.auth")
+                saves = []
+                auth._save_codex_tokens = lambda tokens: saves.append(True)
+                original = importlib.import_module
+                try:
+                    with (
+                        patch.object(
+                            importlib,
+                            "import_module",
+                            lambda name: (
+                                native if name == "hermes_cli.web_routers.oauth" else original(name)
+                            ),
+                        ),
+                        patch.dict(sys.modules, {"hermes_cli.auth": auth}),
+                    ):
+                        owner.operate("connect", lease)
+                        self.assertTrue(entered.wait(1))
+                        if case in {"cancel", "ordinary_cancel", "guard_denial"}:
+                            owner.operate("cancel", lease)
+                        if case == "expiry":
+                            owner.expires_ns = 1
+                        release.set()
+                        owner.thread.join(1)
+                        self.assertFalse(owner.active)
+                        result = owner.operate("cancel" if case == "saved" else "status", lease)
+                    self.assertEqual(
+                        result["oauth"],
+                        "SAVED"
+                        if case == "saved"
+                        else "CANCELLED"
+                        if case in {"ordinary_cancel", "guard_denial"}
+                        else "INDETERMINATE",
+                    )
+                    self.assertEqual(saves, [True] if case == "saved" else [])
+                    self.assertEqual(native._oauth_sessions, {})
+                finally:
+                    release.set()
+                    if owner.thread:
+                        owner.thread.join(2)
+                    host._revoke_management_lifeline()
+                    os.close(reader)
+
     @unittest.skipUnless((SOURCE / "hermes_cli/auth.py").is_file(), "full pinned source required")
     def test_managed_auth_import_does_not_discover_plugins(self):
         tree = ast.parse((SOURCE / "hermes_cli/auth.py").read_text())

@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs.managed_admission import BuildSource, ManagedAdmission
+from omnis.modules.runs.model_dispatch import ModelDispatch
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_store
@@ -594,15 +595,32 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                 drained.set()
 
             monkeypatch.setattr(drain_writer, "drain", observed_drain)
+            admission_case = protocol_case in {"budget", "budget_conflict", "deadline_b"}
+            protocol_errors: list[str] = []
+
+            async def observed_handle(value: NativeTaskCommand) -> dict[str, object]:
+                try:
+                    return await handler.handle(value)
+                except CatalogError as error:
+                    protocol_errors.append(error.reason)
+                    raise
+
             async with LocalControl(
-                root, service, handler.owner, handler.epoch, native_task=handler.handle
+                root,
+                service,
+                handler.owner,
+                handler.epoch,
+                native_task=observed_handle if admission_case else handler.handle,
             ):
+                config = configuration()
+                if protocol_case == "budget":
+                    config["technical_caps"] = {"calls": 1, "output_tokens": 64, "wall_seconds": 2}
                 config_reply = await control_task(
                     root,
                     {
                         **request.model_dump(mode="json", exclude={"data_approval"}),
                         "action": "model_configuration",
-                        "configuration": configuration(),
+                        "configuration": config,
                     },
                 )
                 state.update(binding_id=binding["id"], stage_started=True)
@@ -644,9 +662,212 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                                 measured["buffer_at_a_exit"] = transport.get_write_buffer_size()
 
                 service.native_preparation_commit = protocol_fence
+                if admission_case:
+                    from datetime import UTC, datetime, timedelta
+
+                    from omnis.modules.runs import model_protocol
+                    from omnis.policy import model_dispatch_contract
+                    from omnis.supervisor.runtime_client import FrozenPreflight
+
+                    # SOURCE-only rollback double. PostgreSQL rollback is exercised
+                    # separately by the same public commands in the PG case.
+                    @asynccontextmanager
+                    async def rollback_fence(*args: object) -> AsyncIterator[AsyncConnection]:
+                        snapshot = list(graph)
+                        try:
+                            async with protocol_fence(*args) as conn:
+                                yield conn
+                        except BaseException:
+                            graph[:] = snapshot
+                            raise
+
+                    service.native_preparation_commit = rollback_fence
+                    budget_reserve = AsyncMock(wraps=model_protocol.reserve)
+                    monkeypatch.setattr(model_protocol, "reserve", budget_reserve)
+                    service.runtime_authority.reset_mock()
+                    baseline_ids = {str(r["id"]) for r in graph}
+                    accepted: list[tuple[dict[str, object], dict[str, object]]] = []
+
+                    if protocol_case == "budget_conflict":
+                        run_record = next(r for r in graph if r["kind"] == "managed-run")
+                        seeded = await budgets.create_budget(
+                            connection,
+                            owner,
+                            records.reference(run_record),
+                            {**model_protocol.LIMITS, "output_tokens": 127},
+                        )
+                        before_conflict = canonical(graph)
+                        with pytest.raises(CatalogError) as denied:
+                            await control_task(root, protocol_command)
+                        assert denied.value.reason == "TASK_REJECTED"
+                        assert protocol_errors == ["MODEL_BUDGET_CONFLICT"]
+                        assert canonical(graph) == before_conflict
+                        assert [r for r in graph if r["kind"] == "model-budget"] == [seeded]
+                        assert not requests and budget_reserve.await_count == 1
+                        return
+
+                    if protocol_case == "budget":
+                        # A qualified source cap is lower than the public DTO cap.
+                        # The original request (wall=3) is valid DTO, but not admitted.
+                        NativeTaskCommand.model_validate(protocol_command)
+                        before_cap = canonical(graph)
+                        with pytest.raises(CatalogError) as denied:
+                            await control_task(root, protocol_command)
+                        assert denied.value.reason == "TASK_REJECTED"
+                        assert protocol_errors == ["MODEL_PROTOCOL_CAP_REJECTED"]
+                        assert canonical(graph) == before_cap
+                        assert not requests and budget_reserve.await_count == 0
+                        protocol_command["protocol_caps"] = {
+                            "calls": 1,
+                            "output_tokens": 64,
+                            "wall_seconds": 2,
+                        }
+                        for action, purpose in (
+                            ("model_protocol_prepare", "PREPARE"),
+                            ("model_protocol_validation", "VALIDATION"),
+                        ):
+                            if accepted:
+                                # The existing synthetic peer handles one frame per
+                                # connection. Reopen only for a NEW validation id,
+                                # never as retry/resend of an accepted request.
+                                await real.close()
+                                real.reader, real.writer = await asyncio.open_unix_connection(
+                                    str(root / "peer.sock")
+                                )
+                            value = {
+                                **protocol_command,
+                                "action": action,
+                                "protocol_id": str(uuid4()),
+                            }
+                            prior_graph = canonical(graph)
+                            prior_ids = {str(r["id"]) for r in graph}
+                            reply = await control_task(root, value)
+                            assert (
+                                canonical([r for r in graph if str(r["id"]) in prior_ids])
+                                == prior_graph
+                            )
+                            accounting = mapping(reply["protocol_accounting"])
+                            assert_protocol_budget_accounting(accounting, value, purpose)
+                            accepted.append((value, accounting))
+                            before_denial = canonical(graph)
+                            sent_count = len(requests)
+                            # Fresh id is exhaustion, not replay/conflict. Settlement
+                            # keeps the protocol call charged despite zero model use.
+                            with pytest.raises(CatalogError) as denied:
+                                await control_task(root, {**value, "protocol_id": str(uuid4())})
+                            assert denied.value.reason == "TASK_REJECTED"
+                            assert protocol_errors[-1] == "MODEL_BUDGET_EXHAUSTED"
+                            assert canonical(graph) == before_denial
+                            assert len(requests) == sent_count
+                        assert budget_reserve.await_count == 4 and len(requests) == 2
+                        assert_protocol_budget_records(graph, baseline_ids, accepted)
+                    else:
+                        # Deterministic SOURCE clock/lock doubles, NOT a PG expiry
+                        # proof. Freeze/grant/request are unmodified; advance only
+                        # the deadline guard's wall clock after B has begun waiting.
+                        entered_b, release_b = asyncio.Event(), asyncio.Event()
+                        actual_mark = model_protocol.mark_sent
+                        frozen_values: list[FrozenPreflight] = []
+                        actual_freeze = real.freeze_preflight
+
+                        def freeze(
+                            grant: RuntimeAuthority,
+                            payload: dict[str, object],
+                            *,
+                            wall_seconds: int,
+                        ) -> FrozenPreflight:
+                            frozen = actual_freeze(grant, payload, wall_seconds=wall_seconds)
+                            frozen_values.append(frozen)
+                            return frozen
+
+                        async def blocked_mark(
+                            conn: AsyncConnection,
+                            dispatch: ModelDispatch,
+                            value: NativeTaskCommand,
+                            refs: dict[str, object],
+                            frozen: FrozenPreflight,
+                        ) -> None:
+                            assert entered == 2  # T0 completed, A entered.
+                            entered_b.set()
+                            await release_b.wait()
+                            await actual_mark(conn, dispatch, value, refs, frozen)
+
+                        monkeypatch.setattr(real, "freeze_preflight", freeze)
+                        monkeypatch.setattr(model_protocol, "mark_sent", blocked_mark)
+                        sender = asyncio.create_task(control_task(root, protocol_command))
+                        try:
+                            await wait_protocol_marker(entered_b, sender)
+                            assert len(frozen_values) == 1 and not requests
+                            descriptor = next(
+                                r for r in graph if r["kind"] == "model-dispatch-owner"
+                            )
+                            deadline = datetime.fromisoformat(
+                                str(mapping(descriptor["payload"])["deadline"])
+                            )
+                            assert (
+                                mapping(descriptor["payload"])["deadline_ns"]
+                                == frozen_values[0].deadline_ns
+                            )
+
+                            class ExpiredClock(datetime):
+                                @classmethod
+                                def now(cls, tz: object = None) -> "ExpiredClock":
+                                    assert tz is UTC
+                                    return cls.fromtimestamp(
+                                        (deadline + timedelta(microseconds=1)).timestamp(), UTC
+                                    )
+
+                            with monkeypatch.context() as clock:
+                                clock.setattr(model_dispatch_contract, "datetime", ExpiredClock)
+                                release_b.set()
+                                with pytest.raises(CatalogError) as denied:
+                                    await sender
+                            assert denied.value.reason == "TASK_REJECTED"
+                            assert protocol_errors == ["MODEL_DEADLINE_EXPIRED"]
+                        finally:
+                            release_b.set()
+                            if not sender.done():
+                                sender.cancel()
+                            await asyncio.gather(sender, return_exceptions=True)
+                        # Monotonic time is intentionally still live in this SOURCE
+                        # control, so cleanup can prove no-send and release. PG must
+                        # retain RESERVED when its real frozen deadline has expired.
+                        reply = await control_task(root, protocol_command)
+                        accounting = mapping(reply["protocol_accounting"])
+                        assert accounting["state"] == "RELEASED"
+                        assert accounting["usage_state"] == "UNKNOWN"
+                        assert accounting["protocol_calls"] == accounting["model_calls"] == 0
+                        assert not requests and not drained.is_set()
+                        assert all(
+                            mapping(r["payload"])["state"] != "SENT"
+                            for r in graph
+                            if r["kind"] == "model-dispatch-transition"
+                        )
+                        accepted.append((protocol_command, accounting))
+                    settled = canonical(graph)
+                    calls = budget_reserve.await_count
+                    service.runtime_authority.side_effect = AssertionError("replay grant")
+                    service.native_preparation_commit = Mock(
+                        side_effect=AssertionError("replay T0")
+                    )
+                    for value, accounting in accepted:
+                        replay = await control_task(root, value)
+                        assert replay["protocol_accounting"] == accounting
+                        refs = await model_protocol.replay(
+                            connection, NativeTaskCommand.model_validate(value)
+                        )
+                        assert refs is not None
+                        assert (
+                            await model_protocol.readback(
+                                connection, consumer, NativeTaskCommand.model_validate(value), refs
+                            )
+                            == accounting
+                        )
+                    assert canonical(graph) == settled and budget_reserve.await_count == calls
+                    assert len(requests) == (2 if protocol_case == "budget" else 0)
+                    return
                 if protocol_case in {"duplicate", "conflict"}:
                     from omnis.modules.runs import model_protocol
-                    from omnis.modules.runs.model_dispatch import ModelDispatch
                     from omnis.supervisor.runtime_client import FrozenPreflight
 
                     # SOURCE transaction/storage doubles: force BOTH actual initial
@@ -1127,6 +1348,146 @@ def assert_protocol_records(
     )
     assert mapping(descriptor["payload"])["requested_caps"] == command["protocol_caps"]
     assert mapping(descriptor["payload"])["admitted_caps"] == command["protocol_caps"]
+
+
+def assert_protocol_budget_accounting(
+    accounting: dict[str, object],
+    command: dict[str, object],
+    purpose: str,
+) -> None:
+    assert accounting["state"] == "SETTLED" and accounting["usage_state"] == "KNOWN"
+    assert accounting["purpose"] == purpose
+    assert accounting["protocol_calls"] == 1
+    assert accounting["model_calls"] == accounting["output_tokens"] == 0
+    assert accounting["requested_caps"] == accounting["admitted_caps"] == command["protocol_caps"]
+    assert all(
+        accounting[key] is None
+        for key in ("cost_observed", "cost_estimate", "provider_receipt_ref")
+    )
+
+
+def assert_protocol_budget_records(
+    graph: list[dict[str, object]],
+    baseline_ids: set[str],
+    accepted: list[tuple[dict[str, object], dict[str, object]]],
+) -> None:
+    """Full immutable ledger/receipt identities; NO_MODEL never invents token usage."""
+    from collections import Counter
+
+    from omnis.modules.runs import model_protocol
+
+    assert len(accepted) == 2
+    added = [r for r in graph if str(r["id"]) not in baseline_ids]
+    assert Counter(str(r["kind"]) for r in added) == {
+        "model-budget": 1,
+        "model-dispatch-owner": 2,
+        "model-reservation": 2,
+        "model-dispatch": 2,
+        "contract-input-command": 2,
+        "model-dispatch-transition": 2,
+        "model-usage-receipt": 2,
+        "model-protocol-receipt": 2,
+    }
+    budget = next(r for r in added if r["kind"] == "model-budget")
+    assert (
+        mapping(budget["payload"])["limits"]
+        == model_protocol.LIMITS
+        == {
+            "calls": 2,
+            "output_tokens": 128,
+            "validation_calls": 1,
+            "validation_output_tokens": 64,
+            "cost_limit": None,
+        }
+    )
+    for command, accounting in accepted:
+        dispatch = next(r for r in added if records.reference(r) == accounting["dispatch_ref"])
+        allocation = next(
+            r
+            for r in added
+            if records.reference(r) == mapping(dispatch["payload"])["reservation_ref"]
+        )
+        assert mapping(allocation["payload"])["budget_ref"] == records.reference(budget)
+        req = mapping(mapping(allocation["payload"])["request"])
+        assert (
+            req["purpose"]
+            == model_protocol.PURPOSE[str(command["action"])]
+            == accounting["purpose"]
+        )
+        assert req["technical_caps"] == command["protocol_caps"]
+        assert req["native_turn_ref"] is None
+        # Reuse the existing exact eight-kind/receipt oracle for this allocation,
+        # sharing the original budget, and treating only the other allocation as baseline.
+        relevant = {
+            str(budget["id"]),
+            str(dispatch["id"]),
+            str(allocation["id"]),
+            str(mapping(accounting["descriptor_ref"])["id"]),
+        }
+        relevant.update(
+            str(r["id"])
+            for r in added
+            if mapping(r["payload"]).get("dispatch_ref") == accounting["dispatch_ref"]
+        )
+        relevant.update(
+            str(r["id"])
+            for r in added
+            if r["kind"] == "contract-input-command"
+            and mapping(r["payload"])["command_id"] == command["protocol_id"]
+        )
+        assert_protocol_records(
+            graph, {str(r["id"]) for r in graph} - relevant, command, accounting
+        )
+        reserved = budgets.reduce_history(dispatch, allocation, [])
+        assert (reserved["charged_calls"], reserved["charged_output_tokens"]) == (1, 64)
+    # Two calls, each at most 64: the public 128-token ceiling cannot be
+    # independently exhausted before the call ceiling. Actual settled usage=0.
+    calls = model_protocol.LIMITS["calls"]
+    assert calls is not None
+    assert calls * 64 == model_protocol.LIMITS["output_tokens"]
+    assert not any(r["kind"] == "native-turn" for r in graph)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["budget", "budget_conflict", "deadline_b"])
+async def test_protocol_caps_validation_immutable_budget_and_deadline_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path,
+        monkeypatch,
+        protocol_mode=True,
+        protocol_case=case,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "field,invalid", [("output_tokens", 65), ("calls", 2), ("wall_seconds", 4)]
+)
+async def test_protocol_caps_dto_refuses_before_control_io(
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    invalid: int,
+) -> None:
+    from omnis.supervisor.native_tasks import control_task
+
+    value = {
+        **preflight_command(),
+        "action": "model_protocol_prepare",
+        "protocol_id": str(uuid4()),
+        "provider_config_ref": records.reference(records.envelope("provider-config", {})),
+        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+    }
+    assert NativeTaskCommand.model_validate(value).protocol_caps == value["protocol_caps"]
+    io = Mock(side_effect=AssertionError("invalid DTO reached control metadata"))
+    monkeypatch.setattr("omnis.modules.runs.native_preparation.existing_private_root", io)
+    value["protocol_caps"] = {**mapping(value["protocol_caps"]), field: invalid}
+    with pytest.raises(ValidationError):
+        await control_task(Path("/unused"), value)
+    io.assert_not_called()
 
 
 @pytest.mark.asyncio

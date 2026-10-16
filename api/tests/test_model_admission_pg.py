@@ -39,9 +39,11 @@ from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import load_json
 from omnis.policy.model_projection import SyntheticApproval, projection_input
 from omnis.supervisor.native_tasks import NativeTaskOwner
-from omnis.supervisor.runtime_client import RuntimeClient
+from omnis.supervisor.runtime_client import FrozenPreflight, RuntimeClient
 from test_managed_contract import stage
 from test_model_admission import (
+    assert_protocol_budget_accounting,
+    assert_protocol_budget_records,
     assert_protocol_records,
     protocol_configuration,
     wait_protocol_marker,
@@ -418,6 +420,8 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
         owner = NativeTaskOwner(domain, service, supervisor, epoch, runtime)
         consumer = ModelDispatch(domain)
         config = configuration()  # explicit SOURCE material, not account/model/turn authority
+        if protocol_order == "budget":
+            config["technical_caps"] = {"calls": 1, "output_tokens": 64, "wall_seconds": 2}
         configuration_command = NativeTaskCommand.model_validate(
             {**lifecycle, "action": "model_configuration", "configuration": config}
         )
@@ -742,6 +746,11 @@ async def protocol_pg_consumer(
     actual_fence, actual_locked = service.native_preparation_commit, service._locked
     fence_count, blocker_pid = 0, 0
     concurrent = order in {"duplicate", "conflict"}
+    admission_case = order in {"budget", "budget_conflict", "deadline_b"}
+    protocol_errors: list[str] = []
+    frozen_values: list[FrozenPreflight] = []
+    a_pid = 0
+    a_open = asyncio.Event()
     t0_ready, release_t0 = asyncio.Event(), asyncio.Event()
     second_finished = asyncio.Event()
     t0_records: list[object] = []
@@ -763,6 +772,7 @@ async def protocol_pg_consumer(
     readiness_started: float | None = None
     readiness_finished: float | None = None
     timing = ProtocolTiming()
+    failure_reported = False
 
     # Exact original awaits; only trusted finite names and monotonic spans.
     monkeypatch.setattr(
@@ -793,6 +803,10 @@ async def protocol_pg_consumer(
     monkeypatch.setattr(local_control, "readiness_reason", observed_readiness)
 
     def observe(error: BaseException) -> None:
+        nonlocal failure_reported
+        if failure_reported:
+            return
+        failure_reported = True
         report_protocol_failure(
             capsys,
             error,
@@ -823,13 +837,20 @@ async def protocol_pg_consumer(
 
     @asynccontextmanager
     async def fenced(who: UUID, epoch: int, generation: int) -> AsyncIterator[AsyncConnection]:
-        nonlocal fence_count, blocker_pid, t0_records
+        nonlocal fence_count, blocker_pid, t0_records, a_pid
         fence_count += 1
         current = fence_count
         async with actual_fence(who, epoch, generation) as conn:
             if order == "send_first" and current == 2:
                 blocker_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
-            yield conn
+            if order == "deadline_b" and current == 2:
+                a_pid = int((await conn.execute(sql("SELECT pg_backend_pid()"))).scalar_one())
+                a_open.set()
+            try:
+                yield conn
+            finally:
+                if order == "deadline_b" and current == 2:
+                    a_open.clear()
             if concurrent and current == 1:
                 # Product T0 holds Instance/lease/managed/budget locks and has
                 # written reserve + command receipt, but has NOT committed.
@@ -861,6 +882,10 @@ async def protocol_pg_consumer(
                     await asyncio.wait_for(release_t0.wait(), 1.5)
         if current == 1:  # actual RESERVE transaction has committed
             reserved.set()
+            if order == "deadline_b":
+                # The original public command still bounds this pause. The test
+                # acquires its managed blocker only AFTER T0 commits.
+                await release_t0.wait()
             if concurrent:
                 # Let the actual waiter finish receive-only before A can add
                 # SENT; this makes zero writes/send by the second falsifiable.
@@ -885,6 +910,14 @@ async def protocol_pg_consumer(
     monkeypatch.setattr(service, "native_preparation_commit", fenced)
     monkeypatch.setattr(service, "_locked", locked)
 
+    async def protocol_handle(value: NativeTaskCommand) -> dict[str, object]:
+        try:
+            return await owner.handle(value)
+        except CatalogError as error:
+            if admission_case:
+                protocol_errors.append(error.reason)
+            raise
+
     async def observed_handle(value: NativeTaskCommand) -> dict[str, object]:
         nonlocal request_count, second_handler
         request_count += 1
@@ -896,10 +929,10 @@ async def protocol_pg_consumer(
             timing.handlers[task] = caller
             try:
                 with timing.phase(caller, "owner"):
-                    return await owner.handle(value)
+                    return await protocol_handle(value)
             finally:
                 timing.handlers.pop(task)
-        return await owner.handle(value)
+        return await protocol_handle(value)
 
     async def observed_readback(value: object) -> dict[str, object]:
         task = asyncio.current_task()
@@ -925,7 +958,6 @@ async def protocol_pg_consumer(
             second_lock_acquired.set()
 
     from omnis.modules.instance.service import RuntimeAuthority
-    from omnis.supervisor.runtime_client import FrozenPreflight
 
     async def observed_authority(
         who: UUID, epoch: int, generation: int, *, inert_probe: bool = False
@@ -944,7 +976,16 @@ async def protocol_pg_consumer(
     ) -> dict[str, object]:
         nonlocal reserve_calls
         reserve_calls += 1
-        return await actual_reserve(conn, dispatch, value, prepared, config, frozen)
+        if order == "deadline_b":
+            frozen_values.append(frozen)
+        refs = await actual_reserve(conn, dispatch, value, prepared, config, frozen)
+        if admission_case:
+            from omnis.policy import budgets
+
+            pending = await budgets.readback(conn, value.owner_id, refs["dispatch_ref"])
+            assert pending["state"] == "RESERVED" and pending["usage_state"] == "UNKNOWN"
+            assert pending["charged_calls"] == 1 and pending["charged_output_tokens"] == 64
+        return refs
 
     monkeypatch.setattr(
         owner.domain, "readback", timing.delegate("domain.readback", observed_readback)
@@ -954,6 +995,7 @@ async def protocol_pg_consumer(
     )
     if concurrent:
         monkeypatch.setattr(managed_store, "lock", observed_lock)
+    if concurrent or admission_case:
         monkeypatch.setattr(service, "runtime_authority", observed_authority)
 
     def cold(payload: dict[str, object]) -> dict[str, object]:
@@ -1003,7 +1045,7 @@ async def protocol_pg_consumer(
                 )
             }
 
-        before = census() if concurrent else {}
+        before = census() if concurrent or admission_case else {}
         settled: dict[str, list[object]] = {}
         baseline_records = [
             mapping(mapping(r)["envelope"]) for r in before.get("managed_record", [])
@@ -1081,6 +1123,347 @@ async def protocol_pg_consumer(
                                     return int(waiting[0][0])
                                 await asyncio.sleep(0.01)
 
+                    if admission_case:
+                        from time import monotonic_ns
+
+                        from omnis.policy import budgets
+
+                        accepted: list[tuple[dict[str, object], dict[str, object]]] = []
+                        try:
+                            if order == "budget_conflict":
+                                run_record = next(
+                                    r for r in baseline_records if r["kind"] == "managed-run"
+                                )
+                                async with owner.domain.engine.begin() as conn:
+                                    seeded = await budgets.create_budget(
+                                        conn,
+                                        command.owner_id,
+                                        records.reference(run_record),
+                                        {**model_protocol.LIMITS, "output_tokens": 127},
+                                    )
+                                before_conflict = census()
+                                await service.heartbeat(owner.owner, owner.epoch)
+                                await_site = "budget_conflict"
+                                with pytest.raises(CatalogError) as denied:
+                                    await measured_control(command_value, "sender")
+                                assert denied.value.reason == "TASK_REJECTED"
+                                assert protocol_errors == ["MODEL_BUDGET_CONFLICT"]
+                                assert census() == before_conflict
+                                assert not observations and not wire
+                                assert reserve_calls == authority_calls == 1
+                                assert [
+                                    mapping(mapping(r)["envelope"])
+                                    for r in before_conflict["managed_record"]
+                                    if mapping(mapping(r)["envelope"])["kind"] == "model-budget"
+                                ] == [seeded]
+                                return
+
+                            if order == "budget":
+                                # Source configuration was published by the actual
+                                # READY producer before binding, not changed in SQL.
+                                await service.heartbeat(owner.owner, owner.epoch)
+                                await_site = "qualified_cap_refusal"
+                                with pytest.raises(CatalogError) as denied:
+                                    await measured_control(command_value, "sender")
+                                assert denied.value.reason == "TASK_REJECTED"
+                                assert protocol_errors == ["MODEL_PROTOCOL_CAP_REJECTED"]
+                                assert census() == before
+                                assert not observations and not wire and reserve_calls == 0
+                                command_value["protocol_caps"] = {
+                                    "calls": 1,
+                                    "output_tokens": 64,
+                                    "wall_seconds": 2,
+                                }
+                                command = NativeTaskCommand.model_validate(command_value)
+                                for action, purpose in (
+                                    ("model_protocol_prepare", "PREPARE"),
+                                    ("model_protocol_validation", "VALIDATION"),
+                                ):
+                                    if accepted:
+                                        # The existing peer serves one frame per connection.
+                                        # Only a NEW id may use this new stream; replay
+                                        # below never opens another stream or resends.
+                                        await runtime.close()
+                                        (
+                                            runtime.reader,
+                                            runtime.writer,
+                                        ) = await asyncio.open_unix_connection(
+                                            str(root / "peer.sock")
+                                        )
+                                        assert runtime.writer is not None
+                                        actual_write = runtime.writer.write
+                                        monkeypatch.setattr(runtime.writer, "write", write)
+                                    value = {
+                                        **command_value,
+                                        "action": action,
+                                        "protocol_id": str(uuid4()),
+                                    }
+                                    # The setup's heartbeat loop was joined. Multi-command
+                                    # tests renew normally BETWEEN joined public commands.
+                                    await service.heartbeat(owner.owner, owner.epoch)
+                                    await_site = "budget_accept"
+                                    before_accept = census()
+                                    prior_ids = {
+                                        str(mapping(r)["id"])
+                                        for r in before_accept["managed_record"]
+                                    }
+                                    answer = await control_task(root, value)
+                                    assert [
+                                        r
+                                        for r in census()["managed_record"]
+                                        if str(mapping(r)["id"]) in prior_ids
+                                    ] == before_accept["managed_record"]
+                                    accounting = mapping(answer["protocol_accounting"])
+                                    assert_protocol_budget_accounting(accounting, value, purpose)
+                                    accepted.append((value, accounting))
+                                    prior = census()
+                                    sent_count = len(wire)
+                                    await service.heartbeat(owner.owner, owner.epoch)
+                                    await_site = "budget_exhausted"
+                                    with pytest.raises(CatalogError) as denied:
+                                        await control_task(
+                                            root, {**value, "protocol_id": str(uuid4())}
+                                        )
+                                    assert denied.value.reason == "TASK_REJECTED"
+                                    assert protocol_errors[-1] == "MODEL_BUDGET_EXHAUSTED"
+                                    assert census() == prior
+                                    assert len(wire) == len(observations) == sent_count
+                                assert reserve_calls == 4 and authority_calls == 5
+                                settled = census()
+                                graph = [
+                                    mapping(mapping(r)["envelope"])
+                                    for r in settled["managed_record"]
+                                ]
+                                assert_protocol_budget_records(graph, baseline_ids, accepted)
+                                assert [
+                                    r
+                                    for r in settled["managed_record"]
+                                    if str(mapping(r)["id"]) in baseline_ids
+                                ] == before["managed_record"]
+                                assert {
+                                    k: v for k, v in settled.items() if k != "managed_record"
+                                } == {k: v for k, v in before.items() if k != "managed_record"}
+                                await service.heartbeat(owner.owner, owner.epoch)
+                                await service.shutdown(
+                                    uuid4(), command.expected_generation, owner.owner, owner.epoch
+                                )
+                            else:
+                                # Let the ORIGINAL five-second lease age naturally;
+                                # its derived grant then expires inside control's 4s.
+                                # Never update expiry/caps/grant/clock or DB timeouts.
+                                await service.heartbeat(owner.owner, owner.epoch)
+                                while True:
+                                    lease_time = observer.execute(
+                                        "SELECT extract(epoch FROM expires_at-clock_timestamp()) FROM supervisor_lease WHERE id=1"
+                                    ).fetchone()
+                                    assert lease_time is not None
+                                    remaining = float(lease_time[0])
+                                    if remaining <= 3:
+                                        break
+                                    await asyncio.sleep(remaining - 3)
+                                entered_b = asyncio.Event()
+                                b_pid = 0
+                                actual_mark = model_protocol.mark_sent
+
+                                async def waiting_mark(
+                                    conn: AsyncConnection,
+                                    dispatch: ModelDispatch,
+                                    value: NativeTaskCommand,
+                                    refs: dict[str, object],
+                                    frozen: FrozenPreflight,
+                                ) -> None:
+                                    nonlocal b_pid
+                                    assert a_open.is_set() and a_pid > 0
+                                    assert frozen is frozen_values[0]
+                                    # Keep the REAL lock wait inside the default 2s
+                                    # statement timeout, using only original time left.
+                                    await asyncio.sleep(
+                                        max(0, (frozen.deadline_ns - monotonic_ns()) / 1e9 - 1)
+                                    )
+                                    b_pid = int(
+                                        (
+                                            await conn.execute(sql("SELECT pg_backend_pid()"))
+                                        ).scalar_one()
+                                    )
+                                    assert (
+                                        await conn.execute(sql("SHOW statement_timeout"))
+                                    ).scalar_one() == "2s"
+                                    entered_b.set()
+                                    await actual_mark(conn, dispatch, value, refs, frozen)
+
+                                monkeypatch.setattr(model_protocol, "mark_sent", waiting_mark)
+                                sender = asyncio.create_task(
+                                    measured_control(command_value, "sender")
+                                )
+                                send_tasks.append(sender)
+                                try:
+                                    await_site = "deadline_t0_committed"
+                                    await wait_protocol_marker(reserved, sender)
+                                    reserved_census = census()
+                                    reserved_graph = [
+                                        mapping(mapping(r)["envelope"])
+                                        for r in reserved_census["managed_record"]
+                                    ]
+                                    added = [
+                                        r
+                                        for r in reserved_graph
+                                        if str(r["id"]) not in baseline_ids
+                                    ]
+                                    assert Counter(str(r["kind"]) for r in added) == {
+                                        "model-budget": 1,
+                                        "model-dispatch-owner": 1,
+                                        "model-reservation": 1,
+                                        "model-dispatch": 1,
+                                        "contract-input-command": 1,
+                                    }
+                                    descriptor = mapping(
+                                        next(
+                                            r for r in added if r["kind"] == "model-dispatch-owner"
+                                        )["payload"]
+                                    )
+                                    assert len(frozen_values) == 1
+                                    frozen = frozen_values[0]
+                                    assert descriptor["deadline_ns"] == frozen.deadline_ns
+                                    async with owner.domain.engine.begin() as blocker:
+                                        await actual_lock(blocker, command.owner_id)
+                                        blocker_pid = int(
+                                            (
+                                                await blocker.execute(
+                                                    sql("SELECT pg_backend_pid()")
+                                                )
+                                            ).scalar_one()
+                                        )
+                                        release_t0.set()
+                                        await_site = "deadline_b_entered"
+                                        await wait_protocol_marker(entered_b, sender)
+                                        # Observe the actual B backend waiting on OUR
+                                        # managed lock while A retains Instance/lease.
+                                        while True:
+                                            if sender.done():
+                                                sender.result()
+                                                raise AssertionError("sender ended before B wait")
+                                            observer.execute("SELECT pg_stat_clear_snapshot()")
+                                            waiting = observer.execute(
+                                                "SELECT pid FROM pg_stat_activity WHERE datname=current_database() AND pid=%s AND %s=ANY(pg_blocking_pids(pid)) AND wait_event_type='Lock'",
+                                                (b_pid, blocker_pid),
+                                            ).fetchall()
+                                            if waiting == [(b_pid,)]:
+                                                break
+                                            await asyncio.sleep(0.005)
+                                        assert (
+                                            len({a_pid, b_pid, blocker_pid}) == 3
+                                            and a_open.is_set()
+                                        )
+                                        assert monotonic_ns() < frozen.deadline_ns
+                                        assert (
+                                            census() == reserved_census
+                                            and not wire
+                                            and not observations
+                                        )
+                                        await_site = "deadline_original_expiry"
+                                        await asyncio.sleep(
+                                            max(0, (frozen.deadline_ns - monotonic_ns()) / 1e9)
+                                        )
+                                        # Both persisted UTC and frozen monotonic deadlines
+                                        # have actually expired before releasing the blocker.
+                                        while True:
+                                            expiry = observer.execute(
+                                                "SELECT clock_timestamp() >= %s::timestamptz",
+                                                (descriptor["deadline"],),
+                                            ).fetchone()
+                                            assert expiry is not None
+                                            if expiry[0] is True:
+                                                break
+                                            if sender.done():
+                                                sender.result()
+                                                raise AssertionError("sender ended before expiry")
+                                            await asyncio.sleep(0.001)
+                                        assert a_open.is_set() and not sender.done()
+                                    await_site = "deadline_join"
+                                    with pytest.raises(CatalogError) as denied:
+                                        await sender
+                                    assert denied.value.reason == "TASK_REJECTED"
+                                    assert protocol_errors == ["MODEL_DEADLINE_EXPIRED"]
+                                    assert not a_open.is_set() and not observations and not wire
+                                    assert census() == reserved_census
+                                    assert authority_calls == reserve_calls == 1
+                                    reply = await control_task(root, command_value)
+                                    accounting = mapping(reply["protocol_accounting"])
+                                    assert (
+                                        accounting["state"] == "RESERVED"
+                                        and accounting["usage_state"] == "UNKNOWN"
+                                    )
+                                    assert (
+                                        accounting["protocol_calls"] == 1
+                                        and accounting["model_calls"] == 0
+                                    )
+                                    assert accounting["output_tokens"] is None
+                                    assert (
+                                        accounting["requested_caps"]
+                                        == accounting["admitted_caps"]
+                                        == command.protocol_caps
+                                    )
+                                    assert all(
+                                        accounting[k] is None
+                                        for k in (
+                                            "cost_observed",
+                                            "cost_estimate",
+                                            "provider_receipt_ref",
+                                        )
+                                    )
+                                    accepted.append((command_value, accounting))
+                                except BaseException as error:
+                                    observe(error)  # first snapshot, BEFORE cancelling/joining
+                                    raise
+                                finally:
+                                    release_t0.set()
+                                    if not sender.done():
+                                        sender.cancel()
+                                    await asyncio.gather(sender, return_exceptions=True)
+                            settled = census()
+                            calls_before = (
+                                authority_calls,
+                                reserve_calls,
+                                len(wire),
+                                len(observations),
+                            )
+                            reader_engine = database_engine(dsn)
+                            try:
+                                fresh = ModelDispatch(
+                                    ManagedAdmission(reader_engine, owner.domain.root)
+                                )
+                                for value, accounting in accepted:
+                                    replay = await control_task(root, value)
+                                    assert replay["protocol_accounting"] == accounting
+                                    dto = NativeTaskCommand.model_validate(value)
+                                    async with reader_engine.begin() as conn:
+                                        refs = await model_protocol.replay(conn, dto)
+                                        assert refs is not None
+                                        assert (
+                                            await model_protocol.readback(conn, fresh, dto, refs)
+                                            == accounting
+                                        )
+                                        state = await budgets.readback(
+                                            conn, dto.owner_id, refs["dispatch_ref"]
+                                        )
+                                        assert state["charged_calls"] == 1
+                                        assert state["charged_output_tokens"] == (
+                                            64 if order == "deadline_b" else 0
+                                        )
+                            finally:
+                                await reader_engine.dispose()
+                            assert census() == settled
+                            assert (
+                                authority_calls,
+                                reserve_calls,
+                                len(wire),
+                                len(observations),
+                            ) == calls_before
+                            assert len(wire) == (0 if order == "deadline_b" else 2)
+                            return
+                        except BaseException as error:
+                            observe(error)
+                            raise
                     if concurrent:
                         other_value = {
                             **command_value,
@@ -1303,6 +1686,25 @@ async def protocol_pg_consumer(
                     if concurrent:
                         assert census() == settled
                         assert authority_calls == reserve_calls == len(wire) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("order", ["budget", "budget_conflict", "deadline_b"])
+async def test_pg_protocol_caps_validation_immutable_budget_and_deadline(
+    migrated_database_url: URL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    order: str,
+) -> None:
+    await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
+        migrated_database_url,
+        tmp_path,
+        monkeypatch,
+        capsys,
+        protocol_mode=True,
+        protocol_order=order,
+    )
 
 
 @pytest.mark.asyncio

@@ -1,12 +1,14 @@
 """No-effect controls for the opt-in Settings consumer; no browser/OCI."""
 
 import inspect
+import io
 import json
 import os
 import subprocess
 import tempfile
+import time
 import unittest
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack, nullcontext, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -148,7 +150,40 @@ class InstalledSettingsTest(unittest.TestCase):
         ):
             self._stop_scenario(scenario)
 
-    def _stop_scenario(self, scenario):
+    def test_real_signalled_observer_refuses_first_and_last_absence(self):
+        # Same producer as F01: real bounded run/inspect, inert shell, no Docker.
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as base:
+            child = Path(base) / "observer"
+            child.write_text('#!/bin/sh\nprintf "No such container\\n" >&2\nkill -TERM $$\n')
+            child.chmod(0o700)
+            runtime = object.__new__(stop.ControlRuntime)
+            runtime.docker = child
+            runtime.release = Path(base)
+            runtime.host = "unix:///unused-owned-fixture"
+            runtime.deadline = time.monotonic() + 5
+            runtime.uncertain = False
+            runtime.family_drained = True
+            self.assertIsNone(runtime.inspect("container", "synthetic-owned-cid"))
+            self.assertFalse(runtime.family_drained)
+            with self.assertRaises(ChildProcessError):
+                os.waitpid(-1, os.WNOHANG)
+            for cut in ("first-absence", "last-absence"):
+                self._stop_scenario(cut, flags=(runtime.uncertain, runtime.family_drained))
+
+    def test_late_uncertain_flag_refuses_absence(self):
+        self._stop_scenario("last-absence", flags=(True, True))
+
+    def test_cleanup_absence_keeps_primary_failure_and_uncertainty(self):
+        self._stop_scenario("cleanup-absence")
+        self._stop_scenario("stopped-absence")
+
+    def test_cleanup_readback_refuses_stop_and_keeps_primary_failure(self):
+        self._stop_scenario("cleanup-readback")
+
+    def test_final_publication_rechecks_settlement_after_cleanup_credit(self):
+        self._stop_scenario("final-readback")
+
+    def _stop_scenario(self, scenario, *, flags=(False, False)):
         with (
             self.subTest(scenario=scenario),
             tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as base,
@@ -156,7 +191,17 @@ class InstalledSettingsTest(unittest.TestCase):
             base = Path(base)
             (base / "web").mkdir()
             (base / "web/omnis-web.json").write_text('{"version":1,"files":{}}')
-            events, probes = [], []
+            events, probes, commands = [], [], []
+            cut_commands = None
+            output = io.StringIO()
+            primary_failure = scenario in {
+                "browser-failure",
+                "cleanup-failure",
+                "engine-unknown",
+                "cleanup-absence",
+                "cleanup-readback",
+                "stopped-absence",
+            }
             tick = iter(range(0, 10000, 15))
             runtime = SimpleNamespace(
                 receipt=SimpleNamespace(image_id="image"),
@@ -171,6 +216,7 @@ class InstalledSettingsTest(unittest.TestCase):
 
             def run(argv, **kw):
                 nonlocal state, boots
+                commands.append(argv[1])
                 if (
                     scenario == "cleanup-failure"
                     and argv[1] == "stop"
@@ -246,6 +292,7 @@ class InstalledSettingsTest(unittest.TestCase):
                 returncode = None
 
                 def __init__(self, *a, **kw):
+                    commands.append("stop")
                     events.append("stop")
                     record = json.loads((state / "startup.json").read_text())
                     record["phase"] = "STOPPING"
@@ -259,6 +306,8 @@ class InstalledSettingsTest(unittest.TestCase):
                     record = json.loads((state / "startup.json").read_text())
                     record["phase"] = "STOPPED"
                     (state / "startup.json").write_text(json.dumps(record))
+                    if scenario == "stopped-absence":
+                        return ('{"state":"STOPPED","dashboard_ready":true}', "")
                     return (
                         '{"state":"STOPPED","dashboard_ready":false,"assessment_ready":false}',
                         "",
@@ -270,16 +319,45 @@ class InstalledSettingsTest(unittest.TestCase):
                 if scenario == "browser-unknown":
                     raise pair.ObserverUncertain("synthetic unsettled browser")
                 kw["on_joined"]()
-                if scenario in {"browser-failure", "cleanup-failure", "engine-unknown"}:
+                if primary_failure and scenario != "stopped-absence":
                     if scenario == "engine-unknown":
                         runtime.family_drained = False
                     events.append("browser-failure")
                     raise AssertionError("primary browser failure")
 
+            def unsettled():
+                nonlocal cut_commands
+                runtime.uncertain, runtime.family_drained = flags
+                cut_commands = len(commands)
+
+            def absent(*args):
+                events.append("absent")
+                if (
+                    scenario in {"cleanup-absence", "stopped-absence", "first-absence"}
+                    or scenario == "last-absence"
+                    and events.count("absent") == 2
+                ):
+                    unsettled()
+
+            def snapshot(*args):
+                if scenario == "cleanup-readback" and "browser-failure" in events:
+                    unsettled()
+                return {}
+
+            real_is_dir = Path.is_dir
+
+            def is_dir(path):
+                result = real_is_dir(path)
+                if scenario == "final-readback" and events.count("absent") == 2:
+                    unsettled()
+                return result
+
             with ExitStack() as stack:
+                stack.enter_context(redirect_stdout(output))
+                stack.enter_context(patch.object(Path, "is_dir", is_dir))
                 replacements = {
                     "ControlRuntime": lambda *a: runtime,
-                    "resource_snapshot": lambda *a: {},
+                    "resource_snapshot": snapshot,
                     "_lock_effect_snapshot": lambda *a: {
                         "control": {"admission_open": True},
                         "stop_receipts": [],
@@ -294,7 +372,7 @@ class InstalledSettingsTest(unittest.TestCase):
                     "lifecycle_lock": lambda *a: nullcontext(),
                     "tty_pair": lambda *a: "synthetic-private-code",
                     "run_browser": browser,
-                    "assert_resources_absent": lambda *a: events.append("absent"),
+                    "assert_resources_absent": absent,
                     "teardown": lambda *a: events.append("teardown"),
                     "save_probe": lambda *a, **kw: probes.append((kw["probe"], kw["cleanup"])),
                 }
@@ -308,8 +386,11 @@ class InstalledSettingsTest(unittest.TestCase):
                     if scenario == "legacy"
                     else dict.fromkeys(("node", "cache", "playwright"), str(base))
                 )
-                if scenario in {"browser-failure", "cleanup-failure", "engine-unknown"}:
-                    with self.assertRaisesRegex(AssertionError, "primary browser failure"):
+                if primary_failure:
+                    with self.assertRaisesRegex(
+                        AssertionError,
+                        "" if scenario == "stopped-absence" else "primary browser failure",
+                    ):
                         stop.run_installed_stop(
                             base,
                             {"image_id": "image", "project": "owned"},
@@ -321,6 +402,15 @@ class InstalledSettingsTest(unittest.TestCase):
                         ("FAIL", "VERIFIED" if scenario == "browser-failure" else "UNCERTAIN"),
                     )
                     self.assertNotIn("teardown", events)
+                elif scenario in {"first-absence", "last-absence"}:
+                    with self.assertRaisesRegex(RuntimeError, "observer.*unsettled"):
+                        stop.run_installed_stop(
+                            base,
+                            {"image_id": "image", "project": "owned"},
+                            "cli",
+                            settings_browser=opts,
+                        )
+                    self.assertEqual(probes[-1], ("FAIL", "UNCERTAIN"))
                 elif scenario.endswith("unknown"):
                     with self.assertRaises(RuntimeError):
                         stop.run_installed_stop(
@@ -332,6 +422,14 @@ class InstalledSettingsTest(unittest.TestCase):
                     self.assertEqual(probes[-1], ("FAIL", "UNCERTAIN"))
                     self.assertNotIn("stop", events)
                     self.assertNotIn("teardown", events)
+                elif scenario == "final-readback":
+                    stop.run_installed_stop(
+                        base,
+                        {"image_id": "image", "project": "owned"},
+                        "cli",
+                        settings_browser=opts,
+                    )
+                    self.assertEqual(probes[-1], ("FAIL", "UNCERTAIN"))
                 else:
                     stop.run_installed_stop(
                         base,
@@ -354,6 +452,25 @@ class InstalledSettingsTest(unittest.TestCase):
                             "stop",
                         ],
                     )
+
+            if scenario in {
+                "first-absence",
+                "last-absence",
+                "cleanup-absence",
+                "stopped-absence",
+                "cleanup-readback",
+                "final-readback",
+            }:
+                self.assertIsNotNone(cut_commands, "Late observation cut was not reached")
+            if cut_commands is not None:
+                self.assertEqual(
+                    len(commands), cut_commands, "Lifecycle continued after uncertainty"
+                )
+                self.assertNotIn("teardown", events)
+                self.assertNotIn("INSTALLED_STOP_VERIFIED", output.getvalue())
+                self.assertEqual(probes[-1], ("FAIL", "UNCERTAIN"))
+                self.assertIsNotNone(state)
+                self.assertTrue((state / "postgres").is_dir())
 
     def test_timeout_remains_uncertain_and_is_not_retried(self):
         events = []

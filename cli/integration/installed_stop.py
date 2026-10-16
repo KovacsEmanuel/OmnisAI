@@ -94,8 +94,13 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         cleanup="NOT_RUN",
     )
 
+    def require_observer_settled():
+        if settings_browser is not None and (runtime.uncertain or not runtime.family_drained):
+            raise RuntimeError("Installed observer family unsettled")
+
     def command(*args, expected=0, timeout=330):
         nonlocal driver_pending
+        require_observer_settled()
         prior_pending = driver_pending
         driver_pending = True
         save_probe(
@@ -126,6 +131,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         nonlocal driver_pending, provider_identity
         if settings_browser is None:
             return
+        require_observer_settled()
         assert runtime.native, "Settings requires the sealed native installation"
         identity = record["provider_identity"]
         if provider_identity is None:
@@ -172,6 +178,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         runtime.attempt = record["attempt"]
         runtime.deadline = time.monotonic() + 30
         before = resource_snapshot(runtime, root, control, port)
+        require_observer_settled()
         before_journal = (root / "startup.json").read_bytes()
         before_instance = (root / "instance.json").read_bytes()
         original_config = config.read_bytes()
@@ -183,6 +190,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
             assert (root / "startup.json").read_bytes() == before_journal
             assert (root / "instance.json").read_bytes() == before_instance
             assert resource_snapshot(runtime, root, control, port) == before
+            require_observer_settled()
         finally:
             config.write_bytes(original_config)
             assert config.read_bytes() == original_config
@@ -190,10 +198,13 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         assert initial["admission_open"] is True and initial["generation"] == 1
         db = record["containers"]["db"]
         runtime.psql(db, "CREATE TABLE sl04_sentinel (value integer NOT NULL)")
+        require_observer_settled()
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
+        require_observer_settled()
 
         runtime.deadline = time.monotonic() + 30
         before_lock = _lock_effect_snapshot(runtime, root, control, port, record)
+        require_observer_settled()
         assert before_lock["control"]["admission_open"] is True
         assert not before_lock["stop_receipts"] and not before_lock["unreconciled"]
         original_config = config.read_bytes()
@@ -210,6 +221,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
             assert (root / "instance.json").read_bytes() == before_instance
             runtime.deadline = time.monotonic() + 30
             assert _lock_effect_snapshot(runtime, root, control, port, record) == before_lock
+            require_observer_settled()
         finally:
             config.write_bytes(original_config)
             assert config.read_bytes() == original_config
@@ -220,6 +232,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         )
 
         settings_visit("settings-save")
+        require_observer_settled()
         driver_pending = True
         save_probe(
             state,
@@ -299,6 +312,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         assert record["phase"] == "STOPPED"
         runtime.deadline = time.monotonic() + 30
         assert_resources_absent(runtime, root, control, record)
+        require_observer_settled()
         assert (root / "postgres").is_dir() and (root / "db-password").is_file()
         first_receipt = (root / "startup.json").read_bytes()
         assert command("stop", "--json", timeout=50)["state"] == "STOPPED"
@@ -326,18 +340,16 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         runtime.attempt = record["attempt"]
         runtime.deadline = time.monotonic() + 30
         assert runtime.psql(record["containers"]["db"], "SELECT value FROM sl04_sentinel") == "7"
+        require_observer_settled()
         assert command("status", "--json", timeout=50)["state"] == "READY"
         settings_visit("settings-readback")
         assert command("stop", "--json")["state"] == "STOPPED"
         record = json.loads((root / "startup.json").read_text())
         runtime.deadline = time.monotonic() + 30
         assert_resources_absent(runtime, root, control, record)
+        require_observer_settled()
         assert (root / "postgres").is_dir()
         proof = cleanup = True
-        print(
-            f"INSTALLED_STOP_VERIFIED project={receipt['project']} restart=explicit data=retained",
-            flush=True,
-        )
     finally:
         # An ordinary RED refusal with unchanged READY authority remains a
         # test-owned healthy instance. Only then can the existing observer
@@ -358,6 +370,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                 runtime.deadline = time.monotonic() + 110
                 if record["phase"] == "STOPPED":
                     assert_resources_absent(runtime, root, control, record)
+                    require_observer_settled()
                     cleanup = True
                 elif record["phase"] == "READY":
                     current = request(control, {"op": "status"})
@@ -368,6 +381,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                         ):
                             assert (root / "startup.json").read_bytes() == before_journal
                             assert resource_snapshot(runtime, root, control, port) == before
+                            require_observer_settled()
                         if settings_browser is not None:
                             # Reuse product cgroup/Engine owner, not the legacy observer teardown.
                             assert command("stop", "--json")["state"] == "STOPPED"
@@ -376,12 +390,23 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                         else:
                             teardown(runtime, root, control, port, record)
                         assert_resources_absent(runtime, root, control, record)
+                        require_observer_settled()
                         cleanup = True
         except BaseException:
             if primary is None:
                 raise
         finally:
             try:
+                # Absence does not settle the observer that performed the census.
+                cleanup = (
+                    cleanup
+                    and not driver_pending
+                    and not lock_probe_pending
+                    and (
+                        settings_browser is None
+                        or (not runtime.uncertain and runtime.family_drained)
+                    )
+                )
                 save_probe(
                     state,
                     data,
@@ -389,11 +414,17 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                     root,
                     record,
                     probe="PASS" if proof and cleanup else "FAIL",
-                    cleanup="VERIFIED" if cleanup and not driver_pending else "UNCERTAIN",
+                    cleanup="VERIFIED" if cleanup else "UNCERTAIN",
                 )
             except BaseException:
                 if primary is None:
                     raise
+
+    if proof and cleanup:
+        print(
+            f"INSTALLED_STOP_VERIFIED project={receipt['project']} restart=explicit data=retained",
+            flush=True,
+        )
 
 
 def run_emergency_stop(data, receipt, cli):

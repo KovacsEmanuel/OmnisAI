@@ -1,0 +1,589 @@
+{
+  "status": "INTERRUPTED_WIP_NOT_REVIEWED_NOT_INTEGRATED",
+  "reason": "User requested safe handoff before context compression; author stopped at model boundary, no final report delivered.",
+  "worktree": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+  "branch": "work/p2-h04-42ef34fc",
+  "base": "d0504e4bc2066172e9313568a7e3cf5600e9ed70",
+  "checkpoint_commit": "619e3ecd3e536df77b6ac7b7dc42273f4949915b",
+  "checkpoint_location": "Local Git object/ref in main repository; survives loss of scratch worktree. Not merged into main.",
+  "files": {
+    "api/tests/test_contract_method_pg.py": {
+      "sha256": "b2f47e840b6e1d749c208d677e9b156a6930fc3fd8fa7ea7b05e29f701143121",
+      "bytes": 502554
+    },
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": {
+      "sha256": "a7eb6b9ceaca89f93fc8ba0fb9e8c196cae38b0daf5e3ab4ac9906b34a5c259d",
+      "bytes": 8986
+    }
+  },
+  "parent_read_only_checks": {
+    "AST_parse": "PASS",
+    "git_diff_check": "PASS",
+    "author_state": "INTERRUPTED; delegate registry confirms zero live subagents",
+    "process_readback": "No tracked running jobs; no same-UID cmdline/cwd match for owned H04 worktree/source fixtures after excluding observer ancestry; five preexisting permission-limited processes, not a universal census",
+    "effect_selectors": "Main BATCH2_REVIEWED/STARTUP_REVIEWED and WIP BATCH2_REVIEWED/STARTUP_REVIEWED/H04_REVIEWED are all None; AST readback only",
+    "effectful_QA": "NOT_RUN",
+    "independent_review": "NOT_RUN",
+    "source_execution_by_parent": "NOT_RUN"
+  },
+  "evidence_limit": "Original logs privately parsed after stop. Targeted23PASS does not close the broader2FAIL; final author adjudication missing. Do not claim current full SOURCE or installed QA green. No source execution rerun for handoff.",
+  "log_summaries": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-collection-final-42ef34fc.log",
+      "sha256": "18415079bcebfa4826d13608d7cd884ee40a45c92bdd8f928d59867564b1cf8b",
+      "summary": [],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-collection-final-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-green1-42ef34fc.log",
+      "sha256": "6d26f1e8768897611885c370665cda54c6cd9d09c6f8dd7c59244423ecef7881",
+      "summary": [
+        "5 failed, 5 passed, 339 deselected in 10.34s"
+      ],
+      "failed_nodes": [
+        "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-inventory]",
+        "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-root-lineage]",
+        "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-child-lineage]",
+        "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-false]",
+        "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-exception]"
+      ],
+      "safe_locations": [
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5883,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5883,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5883,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5883,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5883,
+          "type": "AssertionError"
+        }
+      ],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-green1-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-green2-42ef34fc.log",
+      "sha256": "29d8dacd3fba8824355d2cf1a1b406a283abf85f14b5da269469675f47c94dd4",
+      "summary": [
+        "10 passed, 339 deselected in 9.79s"
+      ],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-green2-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-mypy-42ef34fc.log",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "summary": [],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-mypy-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-red-42ef34fc.log",
+      "sha256": "54a22be1918c32e80e31dd3fe3565ecfc9e17a98e7b05da58e69605aa8baecb2",
+      "summary": [
+        "5 failed, 334 deselected in 0.92s"
+      ],
+      "failed_nodes": [
+        "api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in[h04-inventory]",
+        "api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in[h04-root-lineage]",
+        "api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in[h04-child-lineage]",
+        "api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in[h04-guard-false]",
+        "api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in[h04-guard-exception]"
+      ],
+      "safe_locations": [
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5625,
+          "type": "TypeError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5625,
+          "type": "TypeError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5625,
+          "type": "TypeError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5625,
+          "type": "TypeError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 5625,
+          "type": "TypeError"
+        }
+      ],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-red-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-regression1-42ef34fc.log",
+      "sha256": "949a953e4bb7f21d43718927fe84aa881c09041870ab4a820ed90dfa4a248aeb",
+      "summary": [
+        "64 failed, 224 passed, 61 skipped in 42.53s"
+      ],
+      "failed_nodes": [
+        "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-False-False]",
+        "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-True-False]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal-absence-lf]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-error]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-cancel]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-observer-missing]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-extra-whitespace]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-unexpected-output]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-warning]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-cancelled]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-never-started]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-drain-failed]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-stop-cancelled]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-public-exit-failure]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-engine-failure]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-reader-unknown]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-mount]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-host-pidns]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-privileged]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-env]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-network]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-daemon-changed]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal-absence-lf]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-error]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-cancel]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-observer-missing]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-extra-whitespace]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-unexpected-output]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-warning]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-cancelled]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-never-started]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-drain-failed]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-stop-cancelled]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-public-exit-failure]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-engine-failure]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-reader-unknown]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-mount]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-host-pidns]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-privileged]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-env]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-network]",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-daemon-changed]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-fallthrough]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-return]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-fallthrough]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-return]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-fallthrough]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-return]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-fallthrough]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-return]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-fallthrough]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-return]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-failure]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-cancel]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-pre-acquire]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-failure]",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-cancel]",
+        "api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[return]",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[failure]",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[cancel]",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[pre-acquire]"
+      ],
+      "safe_locations": [
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4208,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 4186,
+          "type": "AssertionError"
+        }
+      ],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-regression1-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-regression2-42ef34fc.log",
+      "sha256": "251596ff3aab32d8952db77ce11d5a83fa08e77eb3ec7427d7fd386daf9be5a9",
+      "summary": [
+        "288 passed, 61 skipped in 40.71s"
+      ],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-regression2-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-regression3-42ef34fc.log",
+      "sha256": "d6e1654d73b0d69a08116e2f447653220e078cd2994f19158525f144e368250e",
+      "summary": [
+        "293 passed, 61 skipped in 43.18s"
+      ],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-regression3-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-source-final-42ef34fc.log",
+      "sha256": "05090a33c49aecd9a7908b214f348c5cf9dfc7ec0619639c6ba4c352a856d448",
+      "summary": [
+        "2 failed, 316 passed, 42 skipped in 57.88s"
+      ],
+      "failed_nodes": [
+        "api/tests/test_contract_method_pg.py::test_batch2_current_reader_actual_helper[None]",
+        "api/tests/test_contract_method_pg.py::test_batch2_installed_static_prerequisites"
+      ],
+      "safe_locations": [
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 6880,
+          "type": "AssertionError"
+        },
+        {
+          "file": "test_contract_method_pg.py",
+          "line": 6957,
+          "type": "AssertionError"
+        }
+      ],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-source-final-42ef34fc.log"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-target-final-42ef34fc.log",
+      "sha256": "670c1d6fba57fbf1e66504d31cc8a1db8716482dabfee7137b450d6ab124458e",
+      "summary": [
+        "23 passed, 336 deselected in 11.43s"
+      ],
+      "failed_nodes": [],
+      "safe_locations": [],
+      "mode_before": "0o664",
+      "mode_after": "0o600",
+      "metadata_inverse_if_explicitly_required": "chmod 664 /home/kali/.hermes/cache/scratch/h04-target-final-42ef34fc.log"
+    }
+  ],
+  "raw_logs_policy": "Private original logs remain scratch, bytes unchanged; only exact owned top-level log modes tightened0664->0600. Never dump or commit raw output. Source logs may expire; durable summary and WIP branch preserve recovery facts.",
+  "next": "Inspect/adjudicate remaining current-reader/static prerequisite SOURCE failures on frozen WIP; finish affected checks, obtain two complementary reviews, then integrate exact bytes and explicitly admit new owned installed QA. Do not reuse consumed stock4 roots or execute effect selectors merely because a new case exists."
+}

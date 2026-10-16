@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "status": "PASS_INTEGRATED_GUARD_EXCEPTION_SCOPED",
+  "tested_head": "3e58ace0aed377cde2667d9b24d84bdb543322aa",
+  "case": "h04-guard-exception",
+  "session_id": "proc_c735e9925166",
+  "attempts": 1,
+  "outer_exit": 0,
+  "gate_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "pytest": {
+    "passed": 1,
+    "seconds": 32.83,
+    "failed": 0
+  },
+  "source_hashes": {
+    "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+    "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+    "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+    "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+    "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+    "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+    "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+    "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+    "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+    "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+    "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+    "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+    "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+    "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+    "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+    "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+    "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+    "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+    "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+    "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+    "api/tests/test_contract_method_pg.py": "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886",
+    "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+    "api/tests/test_model_admission.py": "9c07b83264095dc30b169d27e6083cdd537c0fcd01b05d837cf5b444afb63a9f",
+    "api/tests/test_model_admission_pg.py": "1875b48681ca68eab0145189b0e9dee846855cb7e8a9f5746de85068aa08828e",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+    "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+    "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+    "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+    "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+    "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+    "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+    "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+    "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+    "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+    "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "303d8113ac97cf9652d4823b642566ae932784faf781406e47a9fd86c5d2b0c1",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+    "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+    "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+    "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+  },
+  "native_image": "sha256:261aa5ec522b407d6a014cc3f05e4e08eef783ce0b79ddca492c7dd592b29e12",
+  "api_reader_sha256": "71c7b332043cb3dc34e1cf0706687b2fbfce2dc3f59ed6a6756ca703fac0620b",
+  "preflight": "No-effect pin/inventory34/current-reader-origin/toolchain PASS; exact1node collection; original private selector/owner and240s. Only in-memory reviewed SHA and fresh basetemp inside TMPDIR bound. No product/artifact/budget edit.",
+  "launch_observation": {
+    "host": {
+      "events": [
+        {
+          "elapsed_ms": 2918,
+          "event": "ENTER",
+          "line": 441,
+          "method": "NativePeer.handshake",
+          "offset": 4,
+          "ready_timeout_s": 4.496297901
+        },
+        {
+          "elapsed_ms": 7045,
+          "event": "RAISE",
+          "exception": "OTHER",
+          "line": 461,
+          "method": "NativePeer.handshake",
+          "offset": 578
+        },
+        {
+          "elapsed_ms": 7045,
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "line": 461,
+          "method": "NativePeer.handshake",
+          "offset": 674
+        },
+        {
+          "elapsed_ms": 7045,
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "line": 0,
+          "method": "NativePeer.handshake",
+          "offset": 678
+        },
+        {
+          "elapsed_ms": 7045,
+          "event": "RAISE",
+          "exception": "OTHER",
+          "line": 225,
+          "method": "RuntimeHost._launch",
+          "offset": 920
+        },
+        {
+          "elapsed_ms": 7045,
+          "event": "HANDLED",
+          "exception": "OTHER",
+          "line": 225,
+          "method": "RuntimeHost._launch",
+          "offset": 1120
+        },
+        {
+          "elapsed_ms": 9647,
+          "event": "RAISE",
+          "exception": "CancelledError",
+          "line": 322,
+          "method": "NativePeer._read",
+          "offset": 150
+        },
+        {
+          "elapsed_ms": 9647,
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "line": 322,
+          "method": "NativePeer._read",
+          "offset": 2062
+        },
+        {
+          "elapsed_ms": 9647,
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "line": 0,
+          "method": "NativePeer._read",
+          "offset": 2068
+        },
+        {
+          "elapsed_ms": 9647,
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "line": 0,
+          "method": "NativePeer._read",
+          "offset": 2198
+        },
+        {
+          "elapsed_ms": 9647,
+          "event": "HANDLED",
+          "exception": "CancelledError",
+          "line": 0,
+          "method": "NativePeer._read",
+          "offset": 2204
+        }
+      ],
+      "root_cause": "UNKNOWN",
+      "status": "OBSERVED"
+    },
+    "native_ready_end_ms": 3997,
+    "interpretation": "This successful attempt entered handshake with nearly the full4.5s grant. No retrospective attribution for original c2; its root cause remainsUNKNOWN."
+  },
+  "guard_observation": [
+    {
+      "test": "h04-fault",
+      "status": "h04-guard-exception",
+      "count": 1
+    },
+    {
+      "test": "h04-guard",
+      "status": "h04-guard-exception",
+      "count": 1
+    },
+    {
+      "test": "h04-denial",
+      "status": "h04-guard-exception",
+      "count": 1,
+      "indeterminate": true,
+      "failed": true,
+      "binding_committed": true,
+      "child_closed": true,
+      "result_absent": true,
+      "response_staged": true
+    }
+  ],
+  "access_counts": {
+    "run_contract": 1,
+    "_read_bound_input": 0,
+    "run_handler": 0,
+    "task-result": 0,
+    "forbidden-effect": 0
+  },
+  "domain_markers": {
+    "admitted": 0,
+    "consumed": 0,
+    "delivered": 0,
+    "inbox": 0,
+    "records": {
+      "action_definition": 3,
+      "bound-procedure": 1,
+      "contract-case-records": 1,
+      "contract-input-command": 2,
+      "contract-input-context": 1,
+      "focus": 1,
+      "focus-selection-rule": 1,
+      "launch-manifest": 1,
+      "managed-cursor": 1,
+      "managed-run": 1,
+      "method-checker": 1,
+      "mission": 1,
+      "probe-policy": 1,
+      "probe-scope": 1,
+      "prompt-bundle": 1,
+      "prompt-composition": 1,
+      "prompt-content": 2,
+      "runtime-binding": 1,
+      "schema": 1,
+      "task-brief": 1
+    },
+    "turn_completed": 0
+  },
+  "domain_oracle": "Existing real owner/PG path asserts TASK_INDETERMINATE; no results/checks/inbox or native final; replay/reconcile unchanged census and no runtime/grant/ingest attempt. The actual test passed; not an independent post-DROP DB query.",
+  "proof_status": "PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED",
+  "proof_resource_status": "EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED",
+  "cleanup": {
+    "schema_version": 1,
+    "resources": [
+      {
+        "kind": "native",
+        "cid": "793710b5a8ba0852a57d9b4ca06aa79fd76b70f7658fdf45266453cb6b6203d0",
+        "absence_exit": 1,
+        "absent": true
+      },
+      {
+        "kind": "pg",
+        "cid": "1a451514b20a1492596fad4b3ef7333028f9803b6e003f9c113bcfd934d58389",
+        "absence_exit": 1,
+        "absent": true
+      },
+      {
+        "kind": "pg_project_containers",
+        "exit": 0,
+        "empty": true
+      },
+      {
+        "kind": "pg_project_networks",
+        "exit": 0,
+        "empty": true
+      },
+      {
+        "kind": "native_name",
+        "exit": 0,
+        "empty": true
+      },
+      {
+        "kind": "daemon",
+        "same": true
+      },
+      {
+        "kind": "pg_image",
+        "same": true
+      },
+      {
+        "kind": "native_image",
+        "same": true
+      }
+    ],
+    "directories": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/db-ba40a474c2af4d4c",
+        "dev": 2049,
+        "inode": 8818626,
+        "uid": 1000,
+        "mode": "0o700",
+        "identity_same": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/db-ba40a474c2af4d4c/data",
+        "dev": 2049,
+        "inode": 8820221,
+        "uid": 1000,
+        "mode": "0o700",
+        "identity_same": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/db-ba40a474c2af4d4c/socket",
+        "dev": 2049,
+        "inode": 8820222,
+        "uid": 1000,
+        "mode": "0o3775",
+        "identity_same": true
+      }
+    ],
+    "processes": [
+      {
+        "role": "host",
+        "pid": 1143534,
+        "start_ticks": 17221170,
+        "namespace": 4026534093,
+        "pid_absent": true
+      },
+      {
+        "role": "native",
+        "pid": 1143721,
+        "start_ticks": 17221528,
+        "namespace": 4026534093,
+        "pid_absent": true
+      },
+      {
+        "role": "outer_driver",
+        "pid": 1141410,
+        "start_ticks": 17218291,
+        "pid_absent": true
+      }
+    ],
+    "remaining_sockets": [],
+    "kernel_root_socket_matches": 0,
+    "source_mismatches": []
+  },
+  "private_handles": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/outer.log",
+      "bytes": 888,
+      "sha256": "02c431dbc3220409b2228dadec9d5fec8f1ca2b2e79797a66fa978fa46ea0f66",
+      "summary": [],
+      "failed_nodes": []
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/db-ba40a474c2af4d4c/gate.log",
+      "bytes": 99,
+      "sha256": "3f638c089c41d2c4fc72c708ec6430b08be8bd8857834a932763d566607e729c",
+      "summary": [
+        "1 passed in 32.83s"
+      ],
+      "failed_nodes": [],
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/pytest/test_contract_method_real_nati0/method-history-proof.json",
+      "sha256": "2b98f9ca6452b030630ab8f4e9c5dd9602841f488b384ea8aaf84855fa791a84"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h4b-dilc5bxz/pytest/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "sha256": "382d5ccb6833877cc78da02307f64bf425f382d08fa301798267affa4e3bedfe"
+    }
+  ],
+  "scope_decision": "Parent accepts composed inert binding evidence: unchanged SOURCE child-lineage/False + prior installed inventory/wrong-root + this actual post-binding failure. Does not claim five installed PASS, H05 LLM compression, live or P2 closure. Canonical final remains required.",
+  "notes": [
+    "Initial parent cleanup reader used UTF-8 for /proc/net/unix and failed on a foreign non-UTF8 socket name; no mutation. Corrected to byte membership without weaker checks; original failure retained here.",
+    "Launcher command contained an unused expected string; effective admission used exact reviewed H04_REVIEWED and selector source SHA. No extra attempt.",
+    "Outer terminal emitted shell zle notices before exec; original gate/strict receipt and actual consumer establish result."
+  ],
+  "limits": [
+    "Native/Host real installed; original API owner source, API reader original installed; preparation double remains declared.",
+    "No inference/provider/target/r1/global/push; original deadlines and resources owner unchanged.",
+    "Per-test DB DROP by the successful finalizer; original macro PGDATA/state/logs/images retained.",
+    "Old H04 child-lineage FAIL/UNKNOWN and guardFalse installed NOT_RUN preserved; no blind retry.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

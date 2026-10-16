@@ -4,11 +4,18 @@ import json
 import os
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
 
-from installed_start import assert_resources_absent, resource_snapshot, save_probe, teardown
+from installed_pair_open import run_browser, tty_pair
+from installed_start import (
+    assert_resources_absent,
+    resource_snapshot,
+    save_probe,
+    teardown,
+)
 from omnis_cli.control import request
 from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
@@ -16,7 +23,9 @@ from omnis_cli.start_runtime import ControlRuntime
 
 def _lock_effect_snapshot(runtime, root, control, port, record):
     """Read the Stop lock boundary, including effects outside container state."""
-    network_id = runtime.network(set(record["containers"].values()))
+    network_id = runtime.network(
+        {cid for role, cid in record["containers"].items() if role != "runtime"}
+    )
     assert network_id is not None
     network = runtime.inspect("network", network_id)
     assert network is not None and network["Id"] == network_id
@@ -35,7 +44,14 @@ def _lock_effect_snapshot(runtime, root, control, port, record):
     }
 
 
-def run_installed_stop(data, receipt, cli):
+def run_installed_stop(data, receipt, cli, *, settings_browser=None):
+    """Opt-in finite Settings visits share this fixture and its normal Stop owner."""
+    if settings_browser is not None:
+        assert set(settings_browser) == {"node", "cache", "playwright"}
+        assert all(
+            Path(value).is_absolute() and Path(value).exists()
+            for value in settings_browser.values()
+        )
     state = Path(tempfile.mkdtemp(prefix="s4-", dir=os.environ["TMPDIR"]))
     root, control = state / "s/omnis", state / "r/omnis"
     cwd = state / "cwd"
@@ -66,17 +82,86 @@ def run_installed_stop(data, receipt, cli):
     before_journal = None
     proof = cleanup = False
     lock_probe_pending = False
-    save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
+    driver_pending = False
+    provider_identity = None
+    save_probe(
+        state,
+        data,
+        receipt["project"],
+        root,
+        record,
+        probe="PREPARED",
+        cleanup="NOT_RUN",
+    )
 
     def command(*args, expected=0, timeout=330):
+        nonlocal driver_pending
+        prior_pending = driver_pending
+        driver_pending = True
+        save_probe(
+            state,
+            data,
+            receipt["project"],
+            root,
+            record,
+            probe="PENDING",
+            cleanup="UNCERTAIN",
+        )
         result = subprocess.run(
-            [cli, *args], cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout
+            [cli, *args],
+            cwd=cwd,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
         )
         if result.returncode not in {0, 2, 3, 4}:
             raise RuntimeError("Unknown installed CLI child outcome")
+        driver_pending = prior_pending
         assert result.returncode == expected, f"Installed {args[0]} exit {result.returncode}"
         assert "Traceback" not in result.stderr
         return json.loads(result.stdout)
+
+    def settings_visit(mode):
+        nonlocal driver_pending, provider_identity
+        if settings_browser is None:
+            return
+        assert runtime.native, "Settings requires the sealed native installation"
+        identity = record["provider_identity"]
+        if provider_identity is None:
+            provider_identity = identity
+        assert identity == provider_identity, "Provider directory replaced across restart"
+        captures = state / "screens"
+        captures.mkdir(mode=0o700, exist_ok=True)
+        manifest = (runtime.release / "web/omnis-web.json").read_bytes().decode("utf-8")
+        driver_pending = True
+        save_probe(
+            state,
+            data,
+            receipt["project"],
+            root,
+            record,
+            probe="PENDING",
+            cleanup="UNCERTAIN",
+        )
+        code = tty_pair(cli, cwd, env)
+
+        def joined():
+            nonlocal driver_pending
+            driver_pending = False
+
+        run_browser(
+            code,
+            cwd,
+            env,
+            f"http://127.0.0.1:{port}",
+            record["instance_id"],
+            mode=mode,
+            manifest=manifest,
+            captures=captures,
+            browser=settings_browser,
+            on_joined=joined,
+        )
 
     try:
         started = command("start", "--no-open", "--json")
@@ -134,6 +219,17 @@ def run_installed_stop(data, receipt, cli):
             flush=True,
         )
 
+        settings_visit("settings-save")
+        driver_pending = True
+        save_probe(
+            state,
+            data,
+            receipt["project"],
+            root,
+            record,
+            probe="PENDING",
+            cleanup="UNCERTAIN",
+        )
         stopper = subprocess.Popen(
             [cli, "stop", "--json"],
             cwd=cwd,
@@ -168,6 +264,15 @@ def run_installed_stop(data, receipt, cli):
                 timeout=220,
             )
             stop_out, stop_err = stopper.communicate(timeout=220)
+            if all(
+                code in {0, 2, 3, 4}
+                for code in (
+                    stopper.returncode,
+                    queued.returncode,
+                    stopping_status.returncode,
+                )
+            ):
+                driver_pending = False
             assert stopper.returncode == 0 and "Traceback" not in stop_err
             stopped = json.loads(stop_out)
             assert queued.returncode == 4, "Start queued behind Stop must not become restart"
@@ -180,9 +285,14 @@ def run_installed_stop(data, receipt, cli):
             }
             assert "admission_open" not in stopping_view and not stopping_view["dashboard_ready"]
         finally:
-            if stopper.poll() is None:
-                stopper.terminate()  # Only this direct, still-live test child.
-                stopper.wait(timeout=30)
+            stop_primary = sys.exception()
+            try:
+                if stopper.poll() is None:
+                    stopper.terminate()  # Only this direct, still-live test child.
+                    stopper.wait(timeout=30)
+            except BaseException:
+                if stop_primary is None:
+                    raise
         assert stopped["state"] == "STOPPED"
         assert stopped["dashboard_ready"] is False and stopped["assessment_ready"] is False
         record = json.loads((root / "startup.json").read_text())
@@ -217,6 +327,7 @@ def run_installed_stop(data, receipt, cli):
         runtime.deadline = time.monotonic() + 30
         assert runtime.psql(record["containers"]["db"], "SELECT value FROM sl04_sentinel") == "7"
         assert command("status", "--json", timeout=50)["state"] == "READY"
+        settings_visit("settings-readback")
         assert command("stop", "--json")["state"] == "STOPPED"
         record = json.loads((root / "startup.json").read_text())
         runtime.deadline = time.monotonic() + 30
@@ -233,34 +344,55 @@ def run_installed_stop(data, receipt, cli):
         # dismantle it; a partial Stop keeps its locator and UNCERTAIN verdict.
         # A timed-out or malformed lock probe may have an unsettled child family;
         # preserve its locator instead of retiring an apparently unchanged READY.
-        if not cleanup and not lock_probe_pending and os.path.lexists(root / "startup.json"):
-            record = json.loads((root / "startup.json").read_text())
-            runtime.attempt = record["attempt"]
-            runtime.deadline = time.monotonic() + 110
-            if record["phase"] == "STOPPED":
-                assert_resources_absent(runtime, root, control, record)
-                cleanup = True
-            elif record["phase"] == "READY":
-                current = request(control, {"op": "status"})
-                if current["admission_open"] is True and current["shutdown_command_id"] is None:
-                    if (
-                        before_journal is not None
-                        and record["attempt"] == json.loads(before_journal)["attempt"]
-                    ):
-                        assert (root / "startup.json").read_bytes() == before_journal
-                        assert resource_snapshot(runtime, root, control, port) == before
-                    teardown(runtime, root, control, port, record)
+        primary = sys.exception()
+        try:
+            if (
+                not cleanup
+                and not driver_pending
+                and not lock_probe_pending
+                and os.path.lexists(root / "startup.json")
+            ):
+                record = json.loads((root / "startup.json").read_text())
+                runtime.attempt = record["attempt"]
+                runtime.deadline = time.monotonic() + 110
+                if record["phase"] == "STOPPED":
                     assert_resources_absent(runtime, root, control, record)
                     cleanup = True
-        save_probe(
-            state,
-            data,
-            receipt["project"],
-            root,
-            record,
-            probe="PASS" if proof else "FAIL",
-            cleanup="VERIFIED" if cleanup else "UNCERTAIN",
-        )
+                elif record["phase"] == "READY":
+                    current = request(control, {"op": "status"})
+                    if current["admission_open"] is True and current["shutdown_command_id"] is None:
+                        if (
+                            before_journal is not None
+                            and record["attempt"] == json.loads(before_journal)["attempt"]
+                        ):
+                            assert (root / "startup.json").read_bytes() == before_journal
+                            assert resource_snapshot(runtime, root, control, port) == before
+                        if settings_browser is not None:
+                            # Reuse product cgroup/Engine owner, not the legacy observer teardown.
+                            assert command("stop", "--json")["state"] == "STOPPED"
+                            record = json.loads((root / "startup.json").read_text())
+                            assert record["phase"] == "STOPPED"
+                        else:
+                            teardown(runtime, root, control, port, record)
+                        assert_resources_absent(runtime, root, control, record)
+                        cleanup = True
+        except BaseException:
+            if primary is None:
+                raise
+        finally:
+            try:
+                save_probe(
+                    state,
+                    data,
+                    receipt["project"],
+                    root,
+                    record,
+                    probe="PASS" if proof and cleanup else "FAIL",
+                    cleanup="VERIFIED" if cleanup and not driver_pending else "UNCERTAIN",
+                )
+            except BaseException:
+                if primary is None:
+                    raise
 
 
 def run_emergency_stop(data, receipt, cli):
@@ -280,7 +412,15 @@ def run_emergency_stop(data, receipt, cli):
     runtime = ControlRuntime(data, time.monotonic() + 30)
     record = {}
     proof = cleanup = False
-    save_probe(state, data, receipt["project"], root, record, probe="PREPARED", cleanup="NOT_RUN")
+    save_probe(
+        state,
+        data,
+        receipt["project"],
+        root,
+        record,
+        probe="PREPARED",
+        cleanup="NOT_RUN",
+    )
     try:
         started = subprocess.run(
             [cli, "start", "--no-open", "--port", str(port), "--json"],

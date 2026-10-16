@@ -175,12 +175,77 @@ def observed_open(cli, cwd, env, origin):
         if key not in ("DISPLAY", "WAYLAND_DISPLAY", "DBUS_SESSION_BUS_ADDRESS")
     }
     opened = subprocess.run(
-        [cli, "open"], cwd=cwd, env=no_display, capture_output=True, text=True, timeout=50
+        [cli, "open"],
+        cwd=cwd,
+        env=no_display,
+        capture_output=True,
+        text=True,
+        timeout=50,
     )
     if opened.returncode not in {0, 2, 3}:
         raise ObserverUncertain("Installed open child family not reconciled")
     outcome = opener_outcome(opened.returncode, opened.stdout, origin, opened.stderr)
     return outcome, opened.stdout + opened.stderr
+
+
+def run_browser(
+    code,
+    cwd,
+    env,
+    origin,
+    instance,
+    *,
+    mode="session",
+    manifest=None,
+    captures=None,
+    browser=None,
+    on_joined=None,
+):
+    """One existing browser owner; private input and exact normal-close receipt."""
+    assert mode in {"session", "settings-save", "settings-readback"}
+    if browser is None:
+        cache = Path(
+            os.environ.get("PLAYWRIGHT_BROWSERS_PATH", str(Path.home() / ".cache/ms-playwright"))
+        )
+        assert cache.is_dir(), "Pinned development browser cache unavailable"
+        browser = {
+            "node": "node",
+            "cache": str(cache),
+            "playwright": str(ROOT / "web/node_modules/@playwright/test/index.mjs"),
+        }
+    child_env = {
+        "PATH": env["PATH"],
+        "HOME": str(cwd),
+        "TMPDIR": str(cwd),
+        "PLAYWRIGHT_BROWSERS_PATH": str(browser["cache"]),
+        "OMNIS_PLAYWRIGHT_MODULE": str(browser["playwright"]),
+        "OMNIS_BROWSER_ORIGIN": origin,
+        "OMNIS_BROWSER_INSTANCE": instance,
+        "OMNIS_BROWSER_MODE": mode,
+    }
+    if captures is not None:
+        child_env["OMNIS_BROWSER_CAPTURES"] = str(captures)
+    result = subprocess.run(
+        [str(browser["node"]), str(ROOT / "cli/integration/installed_browser.mjs")],
+        cwd=cwd,
+        env=child_env,
+        input=code if mode == "session" else json.dumps({"code": code, "manifest": manifest}),
+        umask=0o077,
+        capture_output=True,
+        text=True,
+        timeout=75 if mode == "session" else 180,
+    )
+    lines = result.stdout.splitlines()
+    if result.returncode not in {0, 1} or lines.count("INSTALLED_BROWSER_CLOSED") != 1:
+        raise ObserverUncertain("Installed browser outcome/close unverified")
+    if on_joined is not None:
+        on_joined()
+    # Never interpolate raw stderr/stdin into an assertion or report.
+    assert code not in result.stdout + result.stderr, "Private browser output refused"
+    marker = "INSTALLED_BROWSER_SESSION_OK" if mode == "session" else "INSTALLED_SETTINGS_OK"
+    assert result.returncode == 0 and marker in lines and not result.stderr, (
+        "Installed browser scenario failed"
+    )
 
 
 def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_code):
@@ -201,7 +266,11 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     assert not stdout and "PAIRING_FORMAT_REFUSED" in stderr
     assert runtime.psql(db, "SELECT count(*) FROM pairing_issuance") == "1"
     status, headers, payload = http_request(
-        port, "/api/pairing", method="POST", body={"code": initial_code}, headers={"Origin": origin}
+        port,
+        "/api/pairing",
+        method="POST",
+        body={"code": initial_code},
+        headers={"Origin": origin},
     )
     assert status == 200 and initial_code.encode() not in payload, (
         "Initial TTY code was not consumable"
@@ -242,7 +311,11 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     )
     assert status == 400, "Foreign Host accepted pairing"
     status, headers, payload = http_request(
-        port, "/api/pairing", method="POST", body={"code": code}, headers={"Origin": origin}
+        port,
+        "/api/pairing",
+        method="POST",
+        body={"code": code},
+        headers={"Origin": origin},
     )
     assert status == 200 and code.encode() not in payload, (
         "Pairing exchange refused or reflected code"
@@ -253,7 +326,11 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     status, _, payload = http_request(port, "/api/session", headers={"Cookie": cookie})
     assert status == 200 and json.loads(payload)["csrf_token"] == csrf
     status, _, _ = http_request(
-        port, "/api/pairing", method="POST", body={"code": code}, headers={"Origin": origin}
+        port,
+        "/api/pairing",
+        method="POST",
+        body={"code": code},
+        headers={"Origin": origin},
     )
     assert status == 401, "One-use code accepted twice"
     status, _, _ = http_request(
@@ -272,40 +349,18 @@ def prove(cli, cwd, env, root, control, record, runtime, port, outputs, initial_
     )
     assert (
         http_request(
-            port, "/api/pairing", method="POST", body={"code": code}, headers={"Origin": origin}
+            port,
+            "/api/pairing",
+            method="POST",
+            body={"code": code},
+            headers={"Origin": origin},
         )[0]
         == 401
     )
     # A new issuance is used through the installed, same-origin shell in an owned browser.
     code = tty_pair(cli, cwd, env)
     assert code is not None
-    runner = ROOT / "cli/integration/installed_browser.mjs"
-    browser_cache = Path(
-        os.environ.get("PLAYWRIGHT_BROWSERS_PATH", str(Path.home() / ".cache/ms-playwright"))
-    )
-    assert browser_cache.is_dir(), "Pinned development browser cache unavailable"
-    browser = subprocess.run(
-        ["node", str(runner)],
-        cwd=cwd,
-        env={
-            "PATH": env["PATH"],
-            "HOME": str(cwd),
-            "TMPDIR": str(cwd),
-            "PLAYWRIGHT_BROWSERS_PATH": str(browser_cache),
-            "OMNIS_BROWSER_ORIGIN": origin,
-            "OMNIS_BROWSER_INSTANCE": record["instance_id"],
-        },
-        input=code,
-        capture_output=True,
-        text=True,
-        timeout=75,
-    )
-    if "INSTALLED_BROWSER_CLOSED" not in browser.stdout:
-        raise RuntimeError("Installed browser lab cleanup unverified")
-    assert browser.returncode == 0 and "INSTALLED_BROWSER_SESSION_OK" in browser.stdout, (
-        "Installed browser pairing/session failed"
-    )
-    assert code not in browser.stdout + browser.stderr, "Browser log leaked code"
+    run_browser(code, cwd, env, origin, record["instance_id"])
     # No browser-success claim from xdg-open; this only tests the installed command's report.
     outcome, report = observed_open(cli, cwd, env, origin)
     outputs.append(report)

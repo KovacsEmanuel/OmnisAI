@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { assertProvider, assertDenial, assertJourney } from './installed_browser.mjs';
+
+const selection = { provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' };
+const view = { operation_id: 'a', status: 'CONFIRMED', selection, configured: true,
+  authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false };
+test('actual browser oracle accepts exact readback, refuses dishonest axes and selection', () => {
+  assertProvider(view, 'a', true);
+  assertProvider({ ...view, selection: null, configured: false }, 'a', false);
+  for (const change of [{ operation_id: 'b' }, { status: 'PENDING' }, { authenticated: 'READY' },
+    { reachable: 'READY' }, { inference_ready: true }, { configured: 1 },
+    { selection: { ...selection, effort: 'high' } }, { extra: true }]) {
+    assert.throws(() => assertProvider({ ...view, ...change }, 'a', true));
+  }
+});
+test('denial oracle checks status and exact public reason', () => {
+  assertDenial(403, { error: { code: 'INVALID_CSRF' } }, 403, 'INVALID_CSRF');
+  assert.throws(() => assertDenial(200, { error: { code: 'INVALID_CSRF' } }, 403, 'INVALID_CSRF'));
+  assert.throws(() => assertDenial(403, { error: { code: 'INVALID_ORIGIN' } }, 403, 'INVALID_CSRF'));
+});
+test('finite journey rejects replay and save after restart', () => {
+  assertJourney('settings-save', [{ action: 'read', id: 'a' }, { action: 'save', id: 'b' }, { action: 'read', id: 'c' }]);
+  assertJourney('settings-readback', [{ action: 'read', id: 'd' }]);
+  assert.throws(() => assertJourney('settings-readback', [{ action: 'save', id: 'd' }]));
+  assert.throws(() => assertJourney('settings-save', [{ action: 'read', id: 'a' }, { action: 'save', id: 'a' }, { action: 'read', id: 'c' }]));
+});

@@ -12,6 +12,7 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+
 from omnis.modules.instance.service import RuntimeAuthority
 from omnis.supervisor.runtime_client import RuntimeClient
 

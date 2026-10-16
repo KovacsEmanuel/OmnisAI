@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "report_id": "P4I-COMPOSE-NULL-INDEPENDENT-SAFETY",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "SOURCE: delta entrypoint:null și regresia aferentă; nu PASS Settings instalat sau autorizare de pornire",
+  "head": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+  "base": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+  "snapshot": {
+    "clean_before": true,
+    "clean_after": true,
+    "head_unchanged": true,
+    "files": [
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "sha256": "d3d5c64b9d136ac999cd1c6f65a09949dd5dfbe821d310e2a2ff03d5ccf8f7e5"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "sha256": "2f249b46684d920bc341d88525cd373291e701738170fdc503b5095d74f1cdd0"
+      }
+    ],
+    "changed_product_lines": 1,
+    "installed_changed_module": {
+      "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/lib/python3.13/site-packages/omnis_cli/start_runtime.py",
+      "sha256": "d3d5c64b9d136ac999cd1c6f65a09949dd5dfbe821d310e2a2ff03d5ccf8f7e5",
+      "matches_reviewed_source": true
+    },
+    "distribution_context_from_parent_not_reaudited": {
+      "wheel_sha256": "e29cd33bf4890432c5b79d15461bcb46406df0038feebdd089c28bcd66d0b088",
+      "bundle_manifest_sha256": "af72b994f0e0e17e5a548568ae0dce9d64404bb090c1ba8cd67a4ae6421b6a75",
+      "new_image_identity_required": true
+    }
+  },
+  "findings": [],
+  "decision_basis": [
+    {
+      "reference": "cli/src/omnis_cli/start_runtime.py:76-104",
+      "result": "Producerul finit adaugă exclusiv entrypoint=None. Command rămâne lista RUNTIME_COMMAND, network_mode=none, image=runtime_image_id, aceleași mounts/env/user/read_only/cap_drop/security_opt. Nu există normalizare sau eliminare generică de câmpuri."
+    },
+    {
+      "reference": "cli/src/omnis_cli/start.py:188-217",
+      "result": "Validatorul compară întregul obiect runtime cu template-ul înaintea validării restului topologiei. Față de None, string/list/false/empty-list sunt diferite și refuzate; lipsa entrypoint sau orice cheie suplimentară schimbă obiectul și este refuzată. Nu a fost relaxat validatorul."
+    },
+    {
+      "reference": "cli/src/omnis_cli/start_runtime.py:35-53,129-195,385-408",
+      "result": "Profilul sigilat selectează overlay-ul. Constructorul atestă imaginea/ID-ul/tag-ul și cere Entrypoint None sau [] plus Cmd exact [/opt/hermes/venv/bin/python,-I,-m,omnis_hermes.runtime_host]. Null din Compose moștenește numai acest entrypoint gol deja atestat, nu un executabil configurabil."
+    },
+    {
+      "reference": "cli/src/omnis_cli/start_runtime.py:465-495; cli/src/omnis_cli/start.py:1033,1172-1189",
+      "result": "Atestarea containerului păstrează Cmd fix și Entrypoint None/[]; constructorul și validate_config preced crearea/pornirea. Nu sunt modificate ordine, limite, timeouturi sau căi de mod alternativ."
+    }
+  ],
+  "repro": {
+    "kind": "Regresie SOURCE existentă, fără harness sau verifier nou",
+    "positive": "Testul test_sealed_native_compose_and_full_attestation introduce explicit entrypoint:null în configurația sintetică și trece prin validate_config complet.",
+    "negative_entrypoints": ["/bin/sh", ["/bin/sh"], false, []],
+    "negative_config_fields": ["network_mode", "init (extra)", "image", "volumes", "environment", "command"],
+    "expected_negative_reason": "COMPOSE_RUNTIME_INVALID",
+    "result": "Pozitiv acceptat; toate negativele existente enumerate sunt refuzate cu motivul exact. Același test verifică și atestarea sintetică a containerului pentru command/confinement/mount/path replacements.",
+    "image_control": "test_native_image_requires_new_profile_role_and_direct_host acceptă imaginea sintetică cu Entrypoint=None și Cmd fix; refuză OS/profil greșit și Entrypoint=[tini,--].",
+    "renderer_evidence": "Raportul autorului /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-compose-fix.json a fost citit. RED/GREEN Compose real rămâne dovada autorului/părintelui; reviewerul nu a relansat rendererul și nu o prezintă drept reproducere independentă."
+  },
+  "tests": {
+    "interpreter": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python",
+    "flags": ["-I", "-B"],
+    "private_tmpdir": "/home/kali/.hermes/cache/scratch/cs-xjElw0oq",
+    "scope": "Exact două metode existente; importul produsului din worktree este afirmat explicit. CLI instalat folosit ca interpreter, nu probă end-to-end installed CLI.",
+    "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/cs-xjElw0oq /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B -c 'import sys,unittest,os; from pathlib import Path; root=Path.cwd(); sys.path[:0]=[str(root/\"cli/src\"),str(root/\"cli/tests\")]; import omnis_cli.start_runtime as runtime; assert Path(runtime.__file__).resolve()==root/\"cli/src/omnis_cli/start_runtime.py\"; names=[\"test_settings_lifecycle.SettingsTopologyTest.test_sealed_native_compose_and_full_attestation\",\"test_image_install.ImageInstallTest.test_native_image_requires_new_profile_role_and_direct_host\"]; suite=unittest.defaultTestLoader.loadTestsFromNames(names); assert suite.countTestCases()==2; print(\"SOURCE_ORIGIN=\"+str(Path(runtime.__file__).resolve()),flush=True); print(\"PRIVATE_TMPDIR=\"+os.environ[\"TMPDIR\"],flush=True); result=unittest.TextTestRunner(verbosity=2).run(suite); raise SystemExit(not result.wasSuccessful())'",
+    "exit_code": 0,
+    "test_count": 2,
+    "output": [
+      "test_sealed_native_compose_and_full_attestation ... ok",
+      "test_native_image_requires_new_profile_role_and_direct_host ... ok",
+      "Ran 2 tests in 0.017s",
+      "OK"
+    ],
+    "log": "/home/kali/.hermes/cache/scratch/cs-xjElw0oq/source.log",
+    "log_sha256": "a84b109825bce3eb677154808b702b7256297a0fa120b70ca6bb642bf044bbb9",
+    "git_diff_check_exit_code": 0
+  },
+  "effects": {
+    "repository_edits": false,
+    "commits": false,
+    "installs": false,
+    "docker_or_compose_calls": false,
+    "startup_database_native_browser_provider_oauth_target_network": false,
+    "writes": [
+      "/home/kali/.hermes/cache/scratch/cs-xjElw0oq (log și fixtures SOURCE proprii)",
+      "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/review-compose-safety.json"
+    ],
+    "protected_files": "Original HTML, ponytail, profiluri/secrete personale necitite și nemodificate."
+  },
+  "limits": [
+    "Verdictul privește exclusiv delta frozen și frontierele direct afectate, nu re-auditul four-role/distribution/harness sau acoperire universală.",
+    "Compose/inspect sunt substituite în testele SOURCE; nu certifică Docker real sau Settings funcțional.",
+    "Nu s-au executat Start/Stop/restart, PostgreSQL, OCI build, native sau browser; canonical NOT_RUN.",
+    "QA inițială FAIL/UNCERTAIN rămâne intactă; această aprobare nu o promovează și nu resetează cele două cicluri QA-only.",
+    "QA reală fresh pe artefactele noi și identități de imagini fresh rămâne obligatorie; fără relabel al imaginilor vechi.",
+    "P4a-minim NOT_ACCEPTED; P2-live NOT_CLOSED; P3 STOP_BEFORE.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "handoff": "Niciun blocker nou în delta analizată. Părintele poate adjudeca reviewul SOURCE și pregăti QA reală fresh conform contractului existent; nu se revendică Settings PASS. Nu sunt necesare schimbări de produs sau skill pentru acest re-review."
+}

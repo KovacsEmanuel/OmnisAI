@@ -1,0 +1,123 @@
+{
+  "verdict": "ACCEPTED_OFFLINE_SETTINGS_INSTALLED_SCOPED",
+  "product_head": "39266490b52e417c550c8016de219819ddc3c88d",
+  "tested_source_head": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+  "source_bindings_matched": 37,
+  "source_deltas": [],
+  "integration_commits": [
+    {
+      "source": "c11d58d9e2e6c7a3ba4398dc23a922d9b4ba6403",
+      "integrated": "63c42e1f9ac20c20264f25e843f2ec05972dab34"
+    },
+    {
+      "source": "feb4b7a57648e7126cdfc849a3d02b24aa476186",
+      "integrated": "ef0d7e040d027c3918adc65aedc8897baa3d7698"
+    },
+    {
+      "source": "de4e829611964671eed6417fabf8ec2d69eae492",
+      "integrated": "03156b64fa9a199cb8f5b2ef7dcbd40751cc51f5"
+    },
+    {
+      "source": "636c88a9a07f33060899042a5890b4bb70664e35",
+      "integrated": "c51c13ef22b5688e5f40a75578f747ad98ce9510"
+    },
+    {
+      "source": "e86dd94f9a11548e6e2f7e5593d91741214aa99e",
+      "integrated": "383b21876e4849c5161f6fe8bcd8a83075ae4095"
+    },
+    {
+      "source": "1ed7e5397ba1e46552de4a55f7ee275de6728b86",
+      "integrated": "042d118d08a75f6f51fb03725389aa2ad8643441"
+    },
+    {
+      "source": "5359ac3a5bcd4f3746136d589385761de0be01a0",
+      "integrated": "e95038aa5c845cf20b7f9ffe0b0d3b0bb1e12a97"
+    },
+    {
+      "source": "9fd54307c19c33fcb54c23c51a2db2e181143af2",
+      "integrated": "a4ea97ce38cbbe23c5f928ed4d94020e193f41fd"
+    },
+    {
+      "source": "3a6d6ec66a7b71a3f8b6fc0a57a63be017be91f0",
+      "integrated": "e00000b87c639cd61fc95dfd005e06b00ae80d51"
+    },
+    {
+      "source": "302075e866545695938e5c355781f1044967796f",
+      "integrated": "c689959eaaf7ba842c661ca79c8ba64e410989d3"
+    },
+    {
+      "source": "3efb0934d28920078aa59b565533a1bbed156a67",
+      "integrated": "5b769ef8258b89d4e042547a5eb9948d41c5ba63"
+    },
+    {
+      "source": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+      "integrated": "d03d19d86277fc3b5422fcd35212aa52d3187495"
+    },
+    {
+      "source": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+      "integrated": "39266490b52e417c550c8016de219819ddc3c88d"
+    }
+  ],
+  "accepted_behavior": "Normal installed UI/API/native config read\u2192save\u2192readback\u2192reload\u2192Stop\u2192freshStart\u2192read-only same configuration\u2192Stop; not OAuth/catalog/inference",
+  "real_runner": {
+    "session": "proc_a52ab281e07a",
+    "exit_code": 0,
+    "seconds": 162.871,
+    "typed_probe": "PASS/VERIFIED",
+    "probe_sha256": "66c1a3c475b84edce1d720178490ff0616eddf6c2055fd37ad02eef0d13c2658"
+  },
+  "parent_effect_readback": {
+    "daemon_same": true,
+    "exact_container_HTTP404_count": 8,
+    "exact_network_HTTP404_count": 2,
+    "two_STOP_completed_receipts_checked": true,
+    "stop_receipt_sha256": [
+      "b2e9d29962e74a878dafd1d81f32768609a71fdf3e85c0c2b9fd173db74ef1fc",
+      "e67d39793fc5c6d9b2ba4552d3390643922f1e3b99f3293f20883372d976e392"
+    ],
+    "original_process_identities_absent": 7,
+    "exact_IPC_listener_absent": true,
+    "retained_provider_pg_nativeIPC_identity_same": true,
+    "images_same_retained": [
+      "sha256:e6f5d09ddcf5c9b4058939ce74ff4cf765e3790a5fc3b0796cbba56e61928d67",
+      "sha256:0381d3b5f070f80a7a5693016fc16ef6b65a1aaed4f2e422ad0aa4c06a75a7bc"
+    ],
+    "native_config_hash_equal": true,
+    "native_config_full_finite_shape_verified": true,
+    "adopt_external_logins": false,
+    "normal_installed_status_command": {
+      "exit_code": 0,
+      "state": "STOPPED",
+      "generation": 4,
+      "admission_open": false,
+      "dashboard_ready": false,
+      "assessment_ready": false
+    }
+  },
+  "parent_integrated_source_checks": {
+    "API": {
+      "passed": 11,
+      "seconds": 0.69,
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p4in-58appq2_/api.log"
+    },
+    "CLI_QA": {
+      "passed": 14,
+      "seconds": 0.126,
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p4in-58appq2_/cli.log"
+    }
+  },
+  "visual_disposition": {
+    "desktop": "Parent inspected actual screenshot: readable exact selection/states and focus, no visible clipping",
+    "mobile": "Full-page pixels show skip-link rectangle at heading; live occlusion INCONCLUSIVE. No established functional blocker, no aesthetic approval. Check viewport/geometry during next affected UI journey, not another whole-fixture rerun."
+  },
+  "limits": [
+    "P4a-minim overall IN_PROGRESS: OAuth, read-only published catalog and live readiness not delivered",
+    "G-MODEL/G-DATA-EARLY/G02-live/G04a/faza2 remain not closed",
+    "final canonical NOT_RUN; targeted/installed proof not full gate",
+    "oldq4 FAIL/UNCERTAIN unchanged; new successful run does not retrospectively clear it",
+    "services stopped afterQA; no durable operator rollout or r1/P0 adoption",
+    "no account/provider/model/target calls in this installed proof; STOP beforeP3"
+  ]
+}

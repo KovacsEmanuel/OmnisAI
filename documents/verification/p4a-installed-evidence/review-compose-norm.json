@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "report_id": "P4I-COMPOSE-NULL-NORM-5956152",
+  "verdict": "APPROVED_SCOPED",
+  "acceptance": "NOT_INSTALLED_PASS",
+  "summary_ro": "Fixul explicit entrypoint:null închide scoped cauza concretă COMPOSE_RUNTIME_INVALID înainte de create; egalitatea integrală și atestarea imaginii rămân intacte. Nu certifică primul Start sau Settings instalat.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "base": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "head": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+    "branch": "work/p4i-72e9e2c1",
+    "clean_before_after": true,
+    "scope": ["cli/src/omnis_cli/start_runtime.py", "cli/tests/test_settings_lifecycle.py"],
+    "bindings": [
+      {"path": "cli/src/omnis_cli/start_runtime.py", "sha256": "d3d5c64b9d136ac999cd1c6f65a09949dd5dfbe821d310e2a2ff03d5ccf8f7e5", "base_sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2"},
+      {"path": "cli/tests/test_settings_lifecycle.py", "sha256": "2f249b46684d920bc341d88525cd373291e701738170fdc503b5095d74f1cdd0", "base_sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8"}
+    ],
+    "active_parent_checkout": "Not reviewed; delegated frozen worktree is authoritative for this report. Parent evidence-only advancement does not transfer this approval to unrelated main refs."
+  },
+  "contract": {
+    "requirement": "P4I-QA-FIRST-COMPOSE-01: accept actual finite Compose null default without weakening runtime validation",
+    "consumer": "settings_overlay -> ControlRuntime.compose -> complete validate_config before resource creation",
+    "risk": "False denial of legitimate renderer output or acceptance of alternate entrypoint/command/unknown fields",
+    "decision": "Allow parent to close the concrete pre-create renderer defect, not the installed acceptance row",
+    "qa_only_cycle_count": 2
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "P4I-QA-FIRST-COMPOSE-01",
+      "disposition": "CLOSED_SCOPED_PRECREATE_RENDERER",
+      "basis": [
+        "Single product line at start_runtime.py:90 declares None in the finite native overlay only; no generic normalization or field removal added.",
+        "start.py:188-194 complete runtime-service comparison is unchanged; unknown fields and non-null entrypoint remain unequal.",
+        "Null inherits the image entrypoint rather than requesting an empty override. start_runtime.py:38-53 independently requires image Entrypoint None/[] and exact fixed RUNTIME_COMMAND. Constructor applies this before renderer validation. No arbitrary image entrypoint is admitted.",
+        "Original real installed Compose2.32.4-3 RED has only entrypoint added with value null, no common-field differences, and COMPOSE_RUNTIME_INVALID.",
+        "New copy-installed wheel actual renderer GREEN calls the complete validate_config successfully, not merely an equality helper; original state receipt unchanged and family drained.",
+        "Independent focused SOURCE rerun: 8 tests PASS, including null positive and str/list/false/empty-list entrypoint plus unknown init, command, network, image, mount and environment negatives."
+      ],
+      "historical_failure_retained": "Original actual first QA remains FAIL / NOT_ACCEPTED with typed probe FAIL and cleanup UNCERTAIN; FAILED_CLEANED is not retroactively installed PASS.",
+      "next": "Parent adjudication/complementary review; any later physical QA needs fresh identity/artifact admission."
+    }
+  ],
+  "artifact_binding": {
+    "wheel": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/wheel/omnis_cli-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "e29cd33bf4890432c5b79d15461bcb46406df0038feebdd089c28bcd66d0b088",
+    "installed_cli": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli",
+    "source_wheel_installed_modules_equal": 22,
+    "installed_modules_regular_single_link": true,
+    "bundle": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/compose-null-bundle",
+    "manifest": "release.json",
+    "manifest_sha256": "af72b994f0e0e17e5a548568ae0dce9d64404bb090c1ba8cd67a4ae6421b6a75",
+    "payload_hashes_verified": 15,
+    "changed_payloads": ["cli/omnis_cli-0.1.0-py3-none-any.whl"],
+    "unchanged_distribution_scope": "Parent/author unchanged native/API/web/Dockerfile review retained; no rebuild or repeat audit. 15 current payload hashes independently matched the author manifest.",
+    "fresh_image_identity_required_later": true,
+    "cache_observation": {
+      "initial_probe_exit": 1,
+      "reason": "Reviewer assumption that installed package had zero pyc was false, after source/wheel/module comparisons had passed.",
+      "preexisting_pyc_count": 16,
+      "followup_exit": 0,
+      "result": "All16 caches use timestamp flags0; marshalled code objects compared equal to compile(exact installed source, original co_filename, exec, dont_inherit=True, optimize=0). Read-only comparison; no cache execution/deletion/rewrite. Not a product finding.",
+      "independent_test_control": "Fresh private -X pycache_prefix plus -I -B avoids those existing caches for the focused SOURCE rerun."
+    }
+  },
+  "reused_real_renderer_proof": {
+    "observer": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/render.py",
+    "observer_sha256": "a6edb5073e8645b9527b6f7534ef445aacc475bdeafcc3ffa0e97ea04dceef4e",
+    "observer_inspected": true,
+    "reviewer_reran_docker": false,
+    "red": {"path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/red-renderer.json", "sha256": "a940ba2a0350f77133ee342b7f674d3d39b6792cd99dae5ae96bcd75f62d5122", "compose_exit": 0, "validator": "COMPOSE_RUNTIME_INVALID", "actual_only_keys": ["entrypoint"], "entrypoint_is_null": true, "common_field_differences": 0},
+    "green": {"path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/green-renderer.json", "sha256": "f929e38e7c701ceff5f999cce5dc7cf5a6afb1ac6aa3ebb9cfb1f86b9ba8793b", "compose_exit": 0, "full_validate_config": true, "family_drained": true, "uncertain": false, "record_unchanged": true, "mutated_captured_output_negative_count": 6, "negative_reason": "COMPOSE_RUNTIME_INVALID"},
+    "limits": "Read-only installed renderer on old owned release/image metadata. Six negatives mutate captured output in memory (SOURCE), not six native renderer executions. No Start or new-bundle OCI proof."
+  },
+  "evidence_bindings": {
+    "author_report": {"path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/author-compose-fix.json", "sha256": "e538f2702495aa0df723f44a66c098babc62665bce8457ea457f266886c6eb41"},
+    "original_qa": {"path": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/qa-installed-first.json", "sha256": "58f960d4667a8eec7d2727fda77547d7730ad0df68f43090071cea33fdeb1778", "unchanged": true},
+    "original_receipts_unchanged": [
+      {"path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/probe-receipt.json", "sha256": "a69b683c4d78845778b614cb54c73f6b8f667649abdb0e44b719c3cd531c0114"},
+      {"path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/startup.json", "sha256": "ae05b6a2f2f50105864389c612d73294a46e6cd5ace0135937dca50b9c2a5011"},
+      {"path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/d/omnis/image.json", "sha256": "e00b59970c3df048e2ec757dc1872f8f22a9c778f2c03ea699718fa808ff91b2"}
+    ],
+    "source_red_log": {"sha256": "4446cb748f867eec2f453c52d17bb4e587ae77b6fa720b6b2b49b215a2c172da", "retained_summary": "1test FAILED(errors=1), COMPOSE_RUNTIME_INVALID present", "hash_verified": true},
+    "source_green_log": {"sha256": "76c5f8e7421bb5341bf7f6c8bbb5924e886043a79a3da24ec8dc5ad014548515", "retained_summary": "39tests OK", "hash_verified": true, "not_rerun_broadly": true}
+  },
+  "commands_results": [
+    {"command": "git status --short --branch && git diff --stat && git rev-parse HEAD && git show --stat --oneline HEAD", "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work", "exit": 0, "result": "Clean frozen5956152; exactly2changed files, one product line."},
+    {"command": "git diff 40ee24b7ea11d7c1b71ac9df992282abac4b8084 59561528079cc21cdd837a58371b7e711c6e3fd6 -- cli/src/omnis_cli/start_runtime.py cli/tests/test_settings_lifecycle.py && git diff --check 40ee24b7ea11d7c1b71ac9df992282abac4b8084 59561528079cc21cdd837a58371b7e711c6e3fd6", "exit": 0, "result": "Only explicit null producer and stronger regression; no validator changes."},
+    {"command": "R=$(mktemp -d /home/kali/.hermes/cache/scratch/cnr-XXXXXXXX); export TMPDIR=\"$R\"; /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B -X \"pycache_prefix=$R/pycache\" -c 'import sys,unittest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"cli/src\"),str(r/\"cli/tests\")]; import omnis_cli.start_runtime as runtime; assert Path(runtime.__file__)==r/\"cli/src/omnis_cli/start_runtime.py\"; names=[\"test_settings_lifecycle.SettingsTopologyTest.test_sealed_native_compose_and_full_attestation\",\"test_start_attestation.ProductAttestationTest\"]; suite=unittest.defaultTestLoader.loadTestsFromNames(names); assert suite.countTestCases()>0; result=unittest.TextTestRunner(verbosity=2).run(suite); raise SystemExit(not result.wasSuccessful())'", "cwd": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work", "exit": 0, "result": "Ran8tests in0.058s; OK; SOURCE/synthetic inspect/config only."},
+    {"command_family": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B -c <direct hashlib/zipfile/stat/marshal checks recorded in review tool transcript>", "exits": [1, 0, 0, 0], "result": "First zero-cache assumption failed; all source/wheel/module/payload/proof hashes matched, cache-code/source followup matched; original receipts and negative logs retained. No product imports in artifact check."},
+    {"command": "git status --short --branch && git rev-parse HEAD && git diff --check", "exit": 0, "result": "Frozen59561528079cc21cdd837a58371b7e711c6e3fd6 clean after tests."}
+  ],
+  "limits": [
+    "No source/test/skill edit or commit. Only this scratch report and a private disposable test temporary directory created.",
+    "No Docker invocation by reviewer; no create/up/start/stop/build/rm, launch/adoption/deletion or fresh image identity.",
+    "No DB/native/browser/provider/target/network attempt; full canonical NOT_RUN.",
+    "Original failed q4 attempt and FAIL/UNCERTAIN are retained; no installed Start/Settings/native/Stop/restart PASS.",
+    "Original source/distribution/QA-caller complementary reviews reused only within unchanged scope. This is normative delta review, not exhaustive re-audit.",
+    "P4a-minim NOT_ACCEPTED; P2-live NOT_CLOSED; P3 STOP_BEFORE. Parent owns final adjudication and integration.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Protected original HTML, ponytail and private profiles unread."
+  ],
+  "skill_handoff_no_edit": "Existing review/release rules already require preserving full validation and exact-source proof. Parent may retain the finite-default lesson from author report; no skill edit authorized here."
+}

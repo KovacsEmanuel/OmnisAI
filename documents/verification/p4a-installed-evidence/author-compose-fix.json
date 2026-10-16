@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "report_id": "P4I-QA-FIRST-COMPOSE-01-AUTHOR-FIX",
+  "status": "IMPLEMENTED_FROZEN_FOR_FOCUSED_REVIEW",
+  "acceptance": "NOT_CLAIMED",
+  "review": "NOT_REVIEWED",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/work",
+    "branch": "work/p4i-72e9e2c1",
+    "base": "40ee24b7ea11d7c1b71ac9df992282abac4b8084",
+    "head": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+    "commit": "59561528079cc21cdd837a58371b7e711c6e3fd6",
+    "clean": true,
+    "files": [
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "sha256": "d3d5c64b9d136ac999cd1c6f65a09949dd5dfbe821d310e2a2ff03d5ccf8f7e5",
+        "base_sha256": "4152f1a613fabc852a76c4c1d3ede2313ca1622fa62434f2a2818a7cf5564bf2"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "sha256": "2f249b46684d920bc341d88525cd373291e701738170fdc503b5095d74f1cdd0",
+        "base_sha256": "a263e4396a45e4256cc6c3f2b32cce3a7b03dc347e4274e7b5dbcb333154efb8"
+      }
+    ]
+  },
+  "contract": {
+    "finding": "P4I-QA-FIRST-COMPOSE-01",
+    "consumer": "installed ControlRuntime.compose -> full validate_config",
+    "change": "Declare entrypoint:null only in finite native settings_overlay; retain complete runtime equality and independent fixed-image Entrypoint/Cmd attestation",
+    "non_goals": [
+      "new physical attempt",
+      "harness repair",
+      "generic normalization",
+      "native/image/API rebuild",
+      "deadline/limit/profile changes"
+    ],
+    "qa_only_cycle_count_preserved": 2
+  },
+  "real_renderer": {
+    "compose_version": "2.32.4-3",
+    "red": {
+      "mode": "red",
+      "reason": "COMPOSE_RUNTIME_INVALID",
+      "full_validate_config": false,
+      "actual_only_keys": [
+        "entrypoint"
+      ],
+      "expected_only_keys": [],
+      "entrypoint_present": true,
+      "entrypoint_is_null": true,
+      "common_field_differences": 0,
+      "compose_exit": 0,
+      "family_drained": true,
+      "uncertain": false,
+      "record_unchanged": true,
+      "source": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/cli/lib/python3.13/site-packages/omnis_cli/start_runtime.py"
+    },
+    "green": {
+      "mode": "green",
+      "reason": null,
+      "full_validate_config": true,
+      "actual_only_keys": [],
+      "expected_only_keys": [],
+      "entrypoint_present": true,
+      "entrypoint_is_null": true,
+      "common_field_differences": 0,
+      "compose_exit": 0,
+      "family_drained": true,
+      "uncertain": false,
+      "record_unchanged": true,
+      "source": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/lib/python3.13/site-packages/omnis_cli/start_runtime.py",
+      "mutated_captured_renderer_source_negatives": [
+        {
+          "key": "entrypoint",
+          "type": "str",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        },
+        {
+          "key": "entrypoint",
+          "type": "list",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        },
+        {
+          "key": "entrypoint",
+          "type": "bool",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        },
+        {
+          "key": "entrypoint",
+          "type": "list",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        },
+        {
+          "key": "unknown_field",
+          "type": "bool",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        },
+        {
+          "key": "command",
+          "type": "list",
+          "reason": "COMPOSE_RUNTIME_INVALID"
+        }
+      ]
+    },
+    "observer": {
+      "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/render.py",
+      "sha256": "a6edb5073e8645b9527b6f7534ef445aacc475bdeafcc3ffa0e97ea04dceef4e"
+    },
+    "commands": [
+      "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/cli/bin/python -I -B /home/kali/.hermes/cache/scratch/cf-XKujIA7T/render.py red",
+      "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B /home/kali/.hermes/cache/scratch/cf-XKujIA7T/render.py green"
+    ],
+    "observer_exit_codes": [
+      0,
+      0
+    ],
+    "scope": "RED is actual old installed Compose output and validator denial. GREEN uses new copy-installed CLI wheel, old owned immutable release/image receipt and same original attempt only for read-only rendering. No state adoption or launch. Complete validator passes, not merely runtime dict equality. Negatives mutate captured actual stdout in memory and are SOURCE seam controls, not native renderer runs. Raw env/DSN/Compose not emitted or retained."
+  },
+  "source_controls": {
+    "red_exit_code": 1,
+    "green_exit_code": 0,
+    "green_test_count": 39,
+    "modules": [
+      "test_settings_lifecycle",
+      "test_start_attestation",
+      "test_start",
+      "test_ready_journal",
+      "test_start_preflight"
+    ],
+    "origins": "-I -B; explicit current worktree cli/src and cli/tests; module origin asserted; child interpreter uses new copy-installed identical wheel",
+    "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/cf-XKujIA7T XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/cf-XKujIA7T/config /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B -c 'import sys,unittest; from pathlib import Path; root=Path.cwd(); sys.path[:0]=[str(root/\"cli/src\"),str(root/\"cli/tests\")]; import omnis_cli.start_runtime as r; assert Path(r.__file__).is_relative_to(root); names=[\"test_settings_lifecycle\",\"test_start_attestation\",\"test_start\",\"test_ready_journal\",\"test_start_preflight\"]; assert all((root/\"cli/tests\"/(n+\".py\")).is_file() for n in names); suite=unittest.defaultTestLoader.loadTestsFromNames(names); assert suite.countTestCases()>0; result=unittest.TextTestRunner(verbosity=2).run(suite); raise SystemExit(not result.wasSuccessful())' > /home/kali/.hermes/cache/scratch/cf-XKujIA7T/source-green.log 2>&1",
+    "logs": {
+      "source-red.log": {
+        "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/source-red.log",
+        "sha256": "4446cb748f867eec2f453c52d17bb4e587ae77b6fa720b6b2b49b215a2c172da",
+        "summary": [
+          "Ran 1 test in 0.008s",
+          "FAILED (errors=1)"
+        ]
+      },
+      "source-green.log": {
+        "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/source-green.log",
+        "sha256": "76c5f8e7421bb5341bf7f6c8bbb5924e886043a79a3da24ec8dc5ad014548515",
+        "summary": [
+          "Ran 39 tests in 2.828s",
+          "OK"
+        ]
+      }
+    },
+    "denials": "str/list/false/empty-list entrypoint and unknown init, alternate command/network/image/mount/environment -> exact COMPOSE_RUNTIME_INVALID",
+    "unchanged_evidence_reused": [
+      "205 CLI prior source checks",
+      "61 API prior checks",
+      "browser oracles prior evidence"
+    ]
+  },
+  "quality": {
+    "ruff_check": {
+      "exit_code": 0,
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix cli/src/omnis_cli/start_runtime.py cli/tests/test_settings_lifecycle.py"
+    },
+    "ruff_format": {
+      "exit_code": 0,
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check cli/src/omnis_cli/start_runtime.py cli/tests/test_settings_lifecycle.py"
+    },
+    "mypy": {
+      "exit_code": 0,
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/cf-XKujIA7T/mypy cli/src/omnis_cli/start_runtime.py"
+    },
+    "git_diff_check_exit": 0
+  },
+  "artifacts": {
+    "wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "e29cd33bf4890432c5b79d15461bcb46406df0038feebdd089c28bcd66d0b088",
+      "bytes": 83795,
+      "build_exit": 0,
+      "offline": true
+    },
+    "fresh_cli": {
+      "path": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli",
+      "no_index": true,
+      "no_deps": true,
+      "link_mode": "copy",
+      "modules_equal_source_wheel_installed": 22,
+      "all_modules_single_link": true
+    },
+    "bundle": {
+      "directory": "/home/kali/.hermes/cache/scratch/cf-XKujIA7T/compose-null-bundle",
+      "manifest_sha256": "af72b994f0e0e17e5a548568ae0dce9d64404bb090c1ba8cd67a4ae6421b6a75",
+      "build_exit": 0,
+      "payload_count": 15,
+      "payload_bytes": 3158695,
+      "files": {
+        "api/omnis_api-0.1.0-py3-none-any.whl": "56cfcb3bfa57f1a1c8cd510024ece51c133c95fa248740eee05000d3ebf398d2",
+        "api/requirements.txt": "6053b8ec8aa28604a55fec5559bc0299db6729f57088405647fc5d0884d3020c",
+        "cli/omnis_cli-0.1.0-py3-none-any.whl": "e29cd33bf4890432c5b79d15461bcb46406df0038feebdd089c28bcd66d0b088",
+        "native/build-manifest.json": "df462968dddeb0bc2e1ad0e4ee25f97758d6b8f1aa7811a63b76ec7b1b351bf6",
+        "native/requirements-artifacts.txt": "0e43d3b8ef938e1bc19884c64c36cbd5ce119f7850b5a8684d56df61c4256aff",
+        "native/requirements-native.txt": "3450935a881d8b5799f61e5f31dffd8f3c4cefced73f252c5155c20c5e8a206b",
+        "native/source-manifest.json": "c691c0eadbffe560655294484784cc49c96135b614a53bd57fc40beeeaef1531",
+        "ops/Dockerfile": "d4a06424229b5e0aceb34c986b7ee2373872e2a3cd70e9234ff7dbd24dbd705b",
+        "ops/Dockerfile.hermes": "e9e069daee8bc6620e89ce237d151270f7effb89205d33c4550d7766753ff1ea",
+        "ops/compose.yaml": "5cb3300a5ecb310eb0f7a5dfb3a10f4441000029951bea62de2077016f94cd65",
+        "web/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "web/assets/index-CmHn1de5.js": "c242ac3857125a39aaefd64aaa10a2e3149ceb740aab60648b1e742cd37338a4",
+        "web/assets/index-qLRttWws.css": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+        "web/index.html": "bdc06ee8c91691ea5e8099518a6039cab345d26fb5b6efcc463e429b0daccf16",
+        "web/omnis-web.json": "b055e4cc13846f38dfa269d0a9c683e50130762bba3c7fadf6176921380c28e4"
+      },
+      "changed_payloads": [
+        "cli/omnis_cli-0.1.0-py3-none-any.whl"
+      ],
+      "all_payload_hashes_verified": true,
+      "fresh_image_identity_required": true
+    },
+    "reused_native_context": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared",
+    "native_context_rebuilt": false,
+    "adapter_wheel_sha256": "54c33d77e9d12bf85384090c8c76933d306723ab26e67830862d6a108a76cabf",
+    "commands": [
+      "env UV_OFFLINE=1 TMPDIR=/home/kali/.hermes/cache/scratch/cf-XKujIA7T /home/kali/.local/share/omnis-toolchains/uv-0.12.19 build --offline --no-config --no-python-downloads --python /home/kali/OmnisAI/api/.venv/bin/python --wheel cli --out-dir /home/kali/.hermes/cache/scratch/cf-XKujIA7T/wheel",
+      "/home/kali/.local/share/omnis-toolchains/uv-0.12.19 venv --offline --no-config --python /home/kali/OmnisAI/api/.venv/bin/python /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli",
+      "/home/kali/.local/share/omnis-toolchains/uv-0.12.19 pip install --offline --no-config --python /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python --no-deps --no-index --no-compile-bytecode --link-mode copy /home/kali/.hermes/cache/scratch/cf-XKujIA7T/wheel/omnis_cli-0.1.0-py3-none-any.whl",
+      "env -u PYTHONPATH -u MYPYPATH OMNIS_UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 UV_OFFLINE=1 TMPDIR=/home/kali/.hermes/cache/scratch/cf-XKujIA7T /home/kali/.hermes/cache/scratch/cf-XKujIA7T/cli/bin/python -I -B ops/build_control_bundle.py --api-wheel /home/kali/.hermes/cache/scratch/i72/api-wheel/omnis_api-0.1.0-py3-none-any.whl --cli-wheel /home/kali/.hermes/cache/scratch/cf-XKujIA7T/wheel/omnis_cli-0.1.0-py3-none-any.whl --requirements /home/kali/.hermes/cache/scratch/i72/api-requirements.txt --web-root /home/kali/OmnisAI/web/dist --runtime-metadata /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared --output /home/kali/.hermes/cache/scratch/cf-XKujIA7T/compose-null-bundle"
+    ],
+    "command_exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "preservation": {
+    "original_receipts": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/probe-receipt.json",
+        "sha256": "a69b683c4d78845778b614cb54c73f6b8f667649abdb0e44b719c3cd531c0114",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/startup.json",
+        "sha256": "ae05b6a2f2f50105864389c612d73294a46e6cd5ace0135937dca50b9c2a5011",
+        "unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/d/omnis/image.json",
+        "sha256": "e00b59970c3df048e2ec757dc1872f8f22a9c778f2c03ea699718fa808ff91b2",
+        "unchanged": true
+      }
+    ],
+    "original_paths": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/postgres",
+        "device": 2049,
+        "inode": 11165046,
+        "mode": "0o711",
+        "identity_unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/provider",
+        "device": 2049,
+        "inode": 11165040,
+        "mode": "0o700",
+        "identity_unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/native-ipc",
+        "device": 2049,
+        "inode": 11165041,
+        "mode": "0o700",
+        "identity_unchanged": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/q4-_qlnmi41/t/s4-cjcrzdb1/s/omnis/db-password",
+        "device": 2049,
+        "inode": 11165047,
+        "mode": "0o600",
+        "identity_unchanged": true
+      }
+    ],
+    "original_report_sha256": "58f960d4667a8eec7d2727fda77547d7730ad0df68f43090071cea33fdeb1778",
+    "old_probe_verdict": "FAIL/UNCERTAIN unchanged",
+    "image_ids": [
+      "sha256:bc03cf908ae3e405aaf4f6fda20238085ed24ffe5827911d4a8bfafbea1016fb",
+      "sha256:609b5336cc13b8e2ed17e900bed10baf1d76e593699b32ba08307b7a5e6f27b6"
+    ],
+    "image_attestation": "both exact IDs/tags attested by real ControlRuntime constructor before green rendering",
+    "project": "omnis-local-98706c97c02c4674a60e0176cecd72aa",
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_host": "unix:///run/docker.sock",
+    "effects": "Only read-only info/image inspect/compose version/config. No create/up/start/stop/rm/build/pull/tag. No original receipt/image/env writes."
+  },
+  "limits": [
+    "No installed first Start/Settings/native/PG/browser/Stop/restart acceptance",
+    "Full canonical NOT_RUN by contract",
+    "Focused complementary reviews and parent fresh admission required",
+    "No new image built; never relabel old images for new bundle digest",
+    "Protected original HTML, ponytail, private profiles and main source untouched",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+    "P4a-minim NOT_ACCEPTED; P2-live NOT_CLOSED; P3 STOP_BEFORE"
+  ],
+  "skill_handoff_no_edit": "Record in release-ops: test complete native service equality against actual installed Compose config; explicit null defaults are distinct from missing keys. Prefer declaring the finite producer default, never dropping unknown fields. No skill/main/profile edits authorized in this slice.",
+  "rollback": "git revert 59561528079cc21cdd837a58371b7e711c6e3fd6; generated new scratch wheel/bundle may be retained; original failed state requires no reversal"
+}

@@ -38,7 +38,7 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 
 `install` copiază idempotent releaseul; `install-image` construiește explicit imaginea și păstrează receiptul. Numai buildul explicit poate descărca dependențele cu hashes. **Start/status nu fac pull, build, instalare sau upgrade.** Releaseul este input local trusted al operatorului: checksumurile verifică consistența, nu o semnătură independentă. [Istoric bundle](../documents/verification/p04-bundle-install.md), [artefact imagine](../documents/verification/p04-image-artifact.md), [receipt imagine](../documents/verification/p04-image-install.md).
 
-## Profilul de artefacte Settings offline — prerechizită SOURCE
+## Profilul de artefacte Settings offline — verificat scoped
 
 `build_control_bundle.py --runtime-metadata <prepared-root>` sigilează cele patru
 metadate native standard și `Dockerfile.hermes` într-un release format 2 cu profilul
@@ -51,7 +51,7 @@ Același `image.json` format 2 leagă ambele imagini de release/proiect/daemon;
 receipturile control-only format 1 rămân distincte. Limitele releaseului rămân
 2 MiB/fișier și 8 MiB cumulat.
 
-**Candidatul SOURCE include acum lifecycle-ul cu patru roluri**, selectat exclusiv
+**Lifecycle-ul cu patru roluri este verificat offline pe instalare nouă**, selectat exclusiv
 prin release/image receipt `p4a-settings-offline`: CLI-ul aplică template-ul JSON
 finit din wheel peste Compose-ul sigilat, fără profile/config ambiental. Ordinea
 este DB/schemă → RuntimeHost → supervisorul cu un singur RuntimeClient → API → OPEN.
@@ -62,9 +62,11 @@ nu se copiază profile personale. Managementul pornește numai prin Settings exp
 Startup format 3 și inventarul/completion Stop v2 sunt distincte de formele control-only;
 Stop păstrează DB barrier/drain/FINALIZE/grant și ordinea
 forwarder → API → supervisor → runtime → DB → network → IPC. Rezultatele incerte nu
-publică STOPPED. **Reviewurile complementare și QA instalată rămân necesare**;
-SOURCE/doubles și wheel-ul CLI nu sunt probe native/PG/browser și nu autorizează
-adopția instalărilor vechi, OAuth, inferență sau trafic către ținte.
+publică STOPPED. [QA instalată și adjudecarea](../documents/verification/p4a-installed-evidence/parent-offline-acceptance.json)
+leagă reviewurile de UI/API/config nativ real, reload și Stop→Start→read-only pe aceeași
+configurație păstrată, plus cleanup exact. Candidatul testat este integrat în `3926649`;
+instanța QA este oprită. Nu este rollout peste r1/P0, upgrade, OAuth, catalog complet,
+inferență sau trafic de țintă; canonicalul final și restul P4a/P2-live rămân separate.
 
 ## Contractul startului
 

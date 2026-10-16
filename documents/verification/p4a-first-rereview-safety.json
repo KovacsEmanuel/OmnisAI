@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "review_role": "independent focused safety/lifecycle/concurrency SOURCE re-review",
+  "verdict": "APPROVED_SCOPED",
+  "approval_scope": "The four original Settings findings and their changed SOURCE consumers at the exact frozen snapshot; no integration, installed-native, PostgreSQL, browser or P4a acceptance.",
+  "integration_acceptance": false,
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+    "head": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+    "initial_candidate": "1fc0c5dc2624311a46df25ea1e182159c80c1f89",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first-repair.json",
+    "manifest_sha256": "96959bfd04f02e159b362c8755eec8c048fa311b2fdaf3ccbb5ea5cee559ba9a",
+    "snapshot_sha256": "bc97fa843c48e34889e285cf7aff55e0555fa27f42a4484875b30b9df8cbdff6",
+    "snapshot_hash_algorithm": "SHA256 of manifest files array serialized with sort_keys=True,separators=(comma,colon), UTF-8",
+    "independent_hash_check_before": "29/29 match; zero mismatches",
+    "independent_hash_check_after": "29/29 match; zero mismatches",
+    "clean_worktree_before_and_after": true,
+    "git_diff_check_exit": 0,
+    "changed_paths": [
+      "api/tests/test_provider_dispatch_source.py",
+      "api/tests/test_provider_native_source.py",
+      "api/tests/test_provider_settings_denials.py",
+      "integrations/hermes/src/omnis_hermes/management_http.py",
+      "integrations/hermes/src/omnis_hermes/management_server.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py"
+    ],
+    "changed_source_sha256": {
+      "integrations/hermes/src/omnis_hermes/management_http.py": "ce1a9ed84b53779e7d417c6242abb7c2ed3b3615b7bf9917f33112641416bb25",
+      "integrations/hermes/src/omnis_hermes/management_server.py": "0efe36c39cff645223f847386222c2f56c61e44a71c7af3a3b268f534cbf3230",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "1c2cfb11ad33766cb096549baa3628014eb4f9ebab4dd231af03dd35d69a31a1"
+    },
+    "unchanged_original_files": 23,
+    "unchanged_scope": "UI/DTO/native patch/pin and other unchanged original bytes retain only their earlier scoped evidence; not broadly re-reviewed or rerun.",
+    "main_ref_observed_at_finish": "d372295a5fa592e16443944b8ace4fdc0c3f1d18",
+    "main_ref_note": "Task context named ad5bf75, but main had advanced concurrently by final readback. This reviewer made no main/worktree edits or commits; approval is exclusively bound to frozen 5d9c2b99, not main."
+  },
+  "authority_and_scope": {
+    "original_findings": "documents/verification/p4a-first-review-safety.json",
+    "original_parent_reproduction": "documents/verification/p4a-first-parent-repro.json",
+    "contract": "documents/verification/p4a-minim.md:38,52-57",
+    "interpretation": "Refuse a NEW send after known Stop/fence revocation/expiry at the last yielding boundary. Already-admitted/sent work may remain in-flight/UNKNOWN. Stop cannot certify STOPPED before owned native writer/process drain. No cross-DB/filesystem rollback or new commit-barrier framework is demanded.",
+    "original_reproducers": "Original defect assertions and parent confirmations remain historical defect evidence, not safety PASS. They were not relabeled or blindly rerun against the changed required dispatch_guard signature. Current inverse controls were independently executed.",
+    "skills_loaded": ["omnis-review-qa", "omnis-hermes-runtime", "omnis-safety-evaluation", "hermes-agent", "omnis-project-status"],
+    "status_discrepancy": "README/global implementation map still name P4a NOT_STARTED; active p4a-minim register describes the current unintegrated candidate. Parent owns status reconciliation."
+  },
+  "finding_dispositions": [
+    {
+      "id": "SAFETY-FIRST-F01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking_remaining": false,
+      "fix_commit": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+      "locations": ["integrations/hermes/src/omnis_hermes/runtime_host.py:306-320,401-423", "integrations/hermes/src/omnis_hermes/management_http.py:12-43,74-96"],
+      "assessment": "Host creates a synchronous closure over its trusted MANAGEMENT state, management_failed, captured generation/epoch and current deadline. Every health/config request requires that closure. request invokes it AFTER await open_connection and immediately BEFORE writer.write, without an intervening yield. Host checks again after health and after configure/readback. A post-result-only fence is no longer the admission mechanism.",
+      "executed_regressions": {
+        "test_settings_checks_authority_after_connect_before_bytes": {
+          "valid": "PASS: real configure/request/parser, physical UDS GET health -> PUT -> GET; CONFIRMED",
+          "expired": "PASS: real monotonic deadline crosses inside awaited connect return, before watchdog turn; physical peer sees only health GET, zero PUT; INDETERMINATE",
+          "stop": "PASS: actual owner Stop during awaited connect cancels pending dispatch; zero PUT; INDETERMINATE",
+          "stopping": "PASS: trusted owner STOPPING at last connect cut; zero PUT; INDETERMINATE",
+          "fence": "PASS: trusted epoch changes at last connect cut; zero PUT; INDETERMINATE",
+          "health_expired": "PASS: real health completion crosses actual deadline; zero PUT; INDETERMINATE"
+        },
+        "test_sent_save_stays_indeterminate_until_owned_process_drains": {
+          "stop": "PASS: one simulated sent save; live TERM-resistant FIFO-held owned child while STOPPING, drained=false; terminal process reaped, no owned PIDs, repeated status INDETERMINATE; source state UNCERTAIN",
+          "expiry": "PASS: same live-child/drain predicates through actual watchdog expiry; one simulated send, repeated status INDETERMINATE; source state UNCERTAIN"
+        },
+        "independent_wire_controls": "Six additional current-SOURCE Host._settings_run/configure/request/parser controls passed: valid CONFIRMED; GET connect STOPPING/real expiry permits only already-sent PUT and no new GET; fence/management_failed/real expiry at returned readback keeps INDETERMINATE even though PUT and GET completed."
+      },
+      "boundaries": "Main dispatch regressions use real Host/RuntimeClient UDS, owned inert subprocesses and a private UDS HTTP peer; only loopback connect is redirected. Pending-save HTTP endpoint is a declared double, not a native writer. Additional independent post-readback controls use a declared SimpleNamespace existing-process readiness double, no Host boot. Neither demonstrates installed namespace drain, native filesystem commit behavior, or rollback of earlier sends."
+    },
+    {
+      "id": "SAFETY-FIRST-F02",
+      "aliases": ["P4A-NORM-F01"],
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking_remaining": false,
+      "fix_commit": "e992dfa0f855737f2a115c7d5674d7bc67cacffa",
+      "locations": ["integrations/hermes/src/omnis_hermes/management_server.py:21-57,60-90"],
+      "assessment": "saved_selection now admits only an exact empty dict or the complete finite model/agent/auth shape, exact nested fields and scalar values, with false identity for adopt_external_logins. config_operation validates the full existing raw config before GET projection or PUT writer entry, and validates complete raw readback after native save. Unsupported content is refused, not silently stripped or hidden behind a selected-triple projection.",
+      "executed_regressions": "All eleven test_complete_native_config_refused_before_writer variants PASS: fallback_model, providers, delegation, auxiliary, extra agent/auth, numeric adoption, extra reasoning mapping, and _config_version bool/float/int. Each has the same-channel allowed read/write control, asserts no additional writer call and unchanged stored state on refused GET/PUT, accepts empty -> save -> exact readback, and refuses a no-op writer. Existing two projection/request controls also PASS.",
+      "static_native_evidence": {
+        "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/hermes_cli/config.py",
+        "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+        "sha256": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+        "lines": "1759-1859 normalization; 2422-2464 save/merge/cache",
+        "finding": "Native merge_existing preserves omitted raw sections, so pre-save whole-shape denial is necessary. The inspected normalization leaves this exact sparse shape without injected metadata/defaults; rejecting _config_version is consistent with that path. Static only; no native import."
+      },
+      "boundaries": "Native reader/writer are explicit SOURCE doubles. Deep native normalization/persistence analysis is also assigned to the complementary normative reviewer; this does not claim a native store/restart PASS or race-proofing against unauthorized external filesystem mutation."
+    },
+    {
+      "id": "SAFETY-FIRST-F03",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking_remaining": false,
+      "fix_commit": "6e9257f1655068ee88271c20a48cc7fb1b8a8845",
+      "locations": ["integrations/hermes/src/omnis_hermes/runtime_host.py:285-304,853-875"],
+      "assessment": "Owner Stop settles residual PENDING after joining cancellation instead of depending solely on coroutine entry. A task cancelled before entry becomes UNAVAILABLE; an entered worker handles cancellation as INDETERMINATE. Neither reports a successful configuration or resends work.",
+      "executed_regressions": {
+        "test_stop_finalizes_prestart_and_running_receipt[False]": "PASS: admission followed immediately by Stop without yield; zero native calls, task done, UNAVAILABLE read twice over authenticated RuntimeClient UDS, identical operation replay returns UNAVAILABLE without execution",
+        "test_stop_finalizes_prestart_and_running_receipt[True]": "PASS: entered native double cancelled, exactly one call; INDETERMINATE read twice over authenticated UDS, identical replay returns INDETERMINATE without resend"
+      },
+      "boundaries": "The exact pre-entry scheduling cut is direct trusted owner admission; subsequent status is real UDS. No process exists in these two cases, so their drained=true does not certify installed native drain. UI bytes are unchanged and no browser recovery claim is made."
+    },
+    {
+      "id": "SAFETY-FIRST-F04",
+      "original_severity": "LOW",
+      "original_blocking": false,
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking_remaining": false,
+      "fix_commit": "af5c1218475b0b7fd026eb53fe0aa85c5100fb9c",
+      "locations": ["integrations/hermes/src/omnis_hermes/management_http.py:91-100"],
+      "assessment": "ACK requires exact dict, exactly the ok key and ok is True. Canonical ACK still needs exact selection readback.",
+      "executed_regressions": "All three direct decoder negatives PASS for integer 1, float 1.0 and extra key, paired with exact true/readback positive; denial occurs before GET. Independent real UDS/parser controls: true -> ACCEPTED with PUT/GET; integer 1 -> REFUSED_ACK/Unconfirmed native save with PUT only; extra key -> same ACK refusal; float 1.0 -> REFUSED_PARSER/Invalid native preparation with PUT only, because the real parser rejects floats before configure sees them.",
+      "boundaries": "The direct float test covers programmatic decoder input; the physical wire float denial is earlier in loads. No compatibility or inference-readiness claim."
+    }
+  ],
+  "new_blocking_findings": [],
+  "verification": {
+    "environment": {
+      "python": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+      "private_home_tmpdir": "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk",
+      "environment_policy": "umask 077; env -i; PATH=/usr/bin:/bin; pytest autoload disabled, explicit pytest_asyncio.plugin; no native source added to sys.path",
+      "import_policy": "Explicit frozen worktree api/src and integrations/hermes/src; both package origins asserted before collection/execution; no bytecode writes"
+    },
+    "collect": {"exit_code": 0, "collected": 34, "seconds": 0.23},
+    "affected_pytest": {
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk TMPDIR=/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"--basetemp\",\"/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/pytest\",\"--junitxml\",\"/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/affected.xml\",\"-v\",\"--tb=no\",\"api/tests/test_provider_dispatch_source.py\",\"api/tests/test_provider_native_source.py\",\"api/tests/test_provider_settings_denials.py\",\"api/tests/test_provider_process_source.py\"]))' > /home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/affected.log 2>&1",
+      "exit_code": 0,
+      "passed": 34,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "summary_seconds": 3.68,
+      "junit_seconds": 3.686,
+      "log_sha256": "e09840277ef3bd99ead8c65d45e6a1b0643a553c6c38d1259cb4073656de369d",
+      "junit_sha256": "eff00c66accbef90f5adf66b263f030fd18b0ef85b229fd82c9ebe116275198e"
+    },
+    "additional_independent_wire": {
+      "execution": "An inline asyncio SOURCE probe under the same env -i/python -I -B/origin assertions; full invocation is in this review tool transcript, with exact case inputs/outcomes retained in the JSON artifact.",
+      "artifact": "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/independent-wire-v2.json",
+      "sha256": "01b35c1fd5fd018edc1c2e1c75c98a690e06dbce9b148c036f5649147c93f32c",
+      "exit_code": 0,
+      "passed_controls": 10,
+      "stderr_bytes": 0,
+      "native_module_absence_asserted": true,
+      "boundary": "Physical private UDS HTTP; actual configure/request/parser and Host _settings_run/_settings_native; no subprocess, existing-process readiness explicitly substituted by SimpleNamespace(returncode=None). No real Host boot/status transport claim for these additional controls."
+    },
+    "preserved_failed_attempt": {
+      "artifact": "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/independent-wire.json",
+      "bytes": 0,
+      "exit_code": 1,
+      "reason": "Reviewer expected every malformed wire ACK to reach configure with Unconfirmed native save. Float 1.0 is rejected earlier by native_preparation_contract.loads(parse_float=no_number), producing Invalid native preparation. This caused the probe expectation assertion, not an unsafe acceptance.",
+      "correction": "Read the actual parser at lines 74-90; kept the refused/no-GET requirements and split exact reason/outcome for float from integer/extra-key ACK. Corrected invocation uses separate v2 artifacts; original empty output and failed tool result retained. No product/test edits; no false product PASS credited to the first invocation."
+    },
+    "not_reexecuted": "Author SOURCE59/quality115 and unchanged UI/DTO/patch evidence remain author/historical evidence, not independently reproduced counts in this report. No broad suite, canonical make check/test, browser or native QA."
+  },
+  "cleanup_and_artifacts": {
+    "owned_resource_set": "Only fresh short private scratch root, test-owned UDS endpoints and inert FIFO-held/finite owned subprocesses admitted by the existing source tests; additional inline probe creates UDS endpoints only.",
+    "process_readback": "Affected process tests PASS only after actual process.returncode terminal and not host._owned_pids(); pending-save tests observe the live child before kill/reap. No namespace/PID1 certification inferred.",
+    "uds_readback": "Accepted clients joined, servers closed before wait_closed; final recursive owned-root socket census empty.",
+    "retained_artifacts": [
+      "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/affected.log",
+      "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/affected.xml",
+      "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/independent-wire.json",
+      "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/independent-wire-v2.json",
+      "/home/kali/.hermes/cache/scratch/p4sr-lt3plfzk/independent-wire-v2.stderr",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/rereview-first-safety.json"
+    ],
+    "product_or_test_files_modified": false,
+    "commits": [],
+    "personal_or_protected_reads": false,
+    "private_capabilities_or_frames_dumped": false
+  },
+  "remaining_limits": [
+    "SOURCE approval only; no native import/boot, actual native config persistence/restart, PostgreSQL overlap, OCI, browser, provider/OAuth/model/target/network test.",
+    "Outside PID1 and TestLaunch remain UNCERTAIN; joining owned source children is not installed namespace STOPPED acceptance.",
+    "Already-sent work is not rolled back; pending native HTTP/writer behavior remains a declared double. Native local writer/process drain and real save/readback/restart require separately admitted installed QA.",
+    "Normal installed CLI/Compose RuntimeHost and /state/provider wiring remain parent prerequisites. No acceptance of whole P4a or P2-live from these fixes.",
+    "No broad repeat of unchanged original review; complementary normative review and parent adjudication remain separate.",
+    "Reticle NOT_APPLICABLE to this source-only re-review; Chisel BLOCKED_NO_GO.",
+    "No changes to frozen source/tests, skills, status map, personal profile, protected original HTML or ponytail.json. Parent owns status/lesson persistence."
+  ],
+  "parent_handoff": "Close F01-F04 at SOURCE scope after complementary adjudication on the same hashes. Preserve initial defect confirmations and this probe-expectation failure. Proceed only through the separately admitted installed/native and UI/API/PG prerequisites; do not mark integration or P4a complete. No fresh verifier framework is needed.",
+  "romanian_summary": "APPROVED_SCOPED pe 5d9c2b99, 29/29 hashuri înainte/după. F01-F04 închise numai SOURCE: fence la writer.write după connect, receipt terminal după Stop, raw config finit/exact, ACK true strict. 34 teste afectate PASS și 10 controale UDS independente PASS. Prima probă proprie a greșit motivul refuzului pentru float, apoi a corectat numai așteptarea. Native/PG/browser/P4a integrare rămân NOT_RUN; copiii SOURCE nu certifică namespace STOPPED. Nicio modificare de produs/test sau commit."
+}

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "review_id": "P4A-FIRST-NORM-REREVIEW-F02",
+  "verdict": "APPROVED_SCOPED",
+  "language": "ro",
+  "scope": "Re-review independent normativ SOURCE al remedierii SAFETY-FIRST-F02 / P4A-NORM-F01: configurație nativă finită, refuz înainte de writer, readback integral după Save și păstrarea contractului primului increment. Nu este acceptare de integrare, QA instalată sau închidere P4a.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+    "head": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+    "original_checkpoint": "1fc0c5dc2624311a46df25ea1e182159c80c1f89",
+    "main_head_unchanged": "ad5bf758c840fef9443c680bfc0325a1665b360e",
+    "worktree_clean_before_and_after": true,
+    "repair_manifest": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first-repair.json",
+    "manifest_snapshot_sha256": "bc97fa843c48e34889e285cf7aff55e0555fa27f42a4484875b30b9df8cbdff6",
+    "binding_scope": "Cele șase căi schimbate în reparație verificate independent înainte/după probe, zero hash mismatches. Inventarul original neschimbat și verificarea părintelui 29/29 se păstrează la scope-ul declarat; nu am refăcut reviewul original complet.",
+    "changed_bindings": {
+      "api/tests/test_provider_native_source.py": "99f1191bc182b9f7a82e522edfbb3d41d6a79c04c3593164b043714dae05dff7",
+      "api/tests/test_provider_settings_denials.py": "a2f2bfa46b922cca343dd5eb52cc5015e1dbdeef0416d1ecc26e0c6f292d2a9c",
+      "integrations/hermes/src/omnis_hermes/management_http.py": "ce1a9ed84b53779e7d417c6242abb7c2ed3b3615b7bf9917f33112641416bb25",
+      "integrations/hermes/src/omnis_hermes/management_server.py": "0efe36c39cff645223f847386222c2f56c61e44a71c7af3a3b268f534cbf3230",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "1c2cfb11ad33766cb096549baa3628014eb4f9ebab4dd231af03dd35d69a31a1",
+      "api/tests/test_provider_dispatch_source.py": "ed2e7349eb726ac3b84f8bcd25d62b8e9650bacf2f8cd0e9b9d35dfaf734edf8"
+    }
+  },
+  "original_finding_dispositions": [
+    {
+      "id": "P4A-NORM-F01",
+      "alias": "SAFETY-FIRST-F02",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "original_report": "documents/verification/p4a-first-review-norm.json",
+      "repair_commit": "e992dfa0f855737f2a115c7d5674d7bc67cacffa",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/management_server.py:21-57",
+        "integrations/hermes/src/omnis_hermes/management_server.py:69-90"
+      ],
+      "reason": "saved_selection acceptă numai dict gol sau inventarul exact model/agent/auth, cu câmpuri, tipuri și valori finite. Nu mai ignoră fallback/providers/delegation/auxiliary, câmpuri agent/auth străine ori metadata. Aceeași validare integrală precede GET și PUT și se aplică readbackului după writer. Configurația străină existentă nu ajunge la writer; configurația contaminată după writer nu produce ACK de succes.",
+      "original_reproducer": "Executat neschimbat pe snapshotul final: exit1, ValueError: Foreign native config fields la primul GET al variantei fallback_model, după controalele inițiale valide. Originalul afirmă existența defectului; acest nonzero este păstrat explicit, nu prezentat drept suită PASS și nici ca dovadă suficientă singură.",
+      "independent_positive_negative_evidence": "Varianta adaptată păstrează originalele fixtures și exact cele două funcții pure de merge extrase din pin; inversează așteptările celor trei configurații străine, verifică zero writer pe refuz și adaugă șase contaminări numai după save. 13 cazuri SOURCE exit0: pozitiv inițial/final, no-op writer pe stocare goală refuzat, trei extras originale și auth fără selecție refuzate înainte de writer, șase readbackuri străine refuzate după exact o scriere și două citiri, fără retry.",
+      "remaining_limit": "Refuzul după Save nu demonstrează rollback sau absența efectului deja produs. Persistența reală, concurența cu writeri externi și restartul nativ nu au fost executate. Acest verdict închide findingul SOURCE, nu acceptance row-ul instalat."
+    }
+  ],
+  "findings": [],
+  "complementary_scope": {
+    "SAFETY-FIRST-F01": "Lăsat reviewerului complementar: lifecycle/expiry/dispatch.",
+    "SAFETY-FIRST-F03": "Lăsat reviewerului complementar: anulare înainte de worker/receipt.",
+    "SAFETY-FIRST-F04": "Lăsat reviewerului complementar pentru verdict; testele ACK incluse în fișierul SOURCE țintit au trecut."
+  },
+  "native_static_assessment": {
+    "source_root": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "declared_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "config_py_sha256": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+    "reader": "config.py:1997-2029 este readerul fresh strict al mappingului brut, fără canonicalizare sau default merge. Aliasurile și metadatele străine nu sunt normalizate înaintea guardului adaptorului.",
+    "canonicalizer": "config.py:1759-1859: _normalize_max_turns_config copiază agent și mută max_turns numai dacă există; _normalize_root_model_keys întoarce neschimbată forma exactă provider/default. Nu există aliasuri, root-model keys sau max_turns în forma admisă. _canonicalize_config nu adaugă _config_version sau defaults.",
+    "writer": "config.py:2422-2464 confirmă strip_defaults=False și merge_existing=True. Merge-ul păstrează necunoscutele, motiv pentru care guardul integral rămâne necesar. Defaults stripping este ocolit explicit; normalizarea nu introduce chei pe această formă. _preserve_env_ref_templates:1670-1706 nu extinde nimic pentru valorile literale admise fără ${...}. _config_version este scris de migrare, nu de această cale save.",
+    "helper_semantics": "Nu s-au adăugat copiere de canonicalizer, motor config, metadata allowance, store ori helper de persistență în produs. ensure_hermes_home:556-570/config_home.initialize_home:55-79 creează structura home/SOUL, nu config defaults; save_config păstrează efectele sale native existente, nu este declarat pur. _commented_sections_for_save:2410-2419 generează comentarii, nu câmpuri brute admise. Cazurile managed/no-op nu pot transforma stocarea goală în succes fără readback egal.",
+    "execution_limit": "Readerul real, canonicalizerul real și save_config nu au fost importați sau executați. Doar cele două funcții pure de merge din reproducerul original au fost AST-extrase/executate ca seam SOURCE în memorie; nu modulul sau graful de import nativ. Documentația oficială relevantă a fost citită din exportul pinului, fără rețea."
+  },
+  "scope_preservation": [
+    "Păstrată adjudecarea părintelui din p4a-minim.md:57: adaptor management-only finit peste reader/save_config native, nu reutilizare fictivă a handlerelor HTTP stock.",
+    "Nu apar REST proxy/config engine/store/owner noi, modificări UI/generated/pin/patch, relaxări ale CaseSlot sau ale autorității de execuție în remediul F02.",
+    "Readbackul serverului rămâne obligatoriu; management_http păstrează ACK strict și GET separat cu egalitate. No-op writer pe stocare goală și ACK fără readback sunt refuzate.",
+    "Testele SOURCE ale consumerului păstrează exact openai-codex/gpt-6.1-sol/xhigh și configured separat de authenticated/reachable/inference_ready, fără afirmație de compatibilitate sau inferență.",
+    "Acceptările originale neschimbate nu sunt redeschise; CLI/Compose, montarea provider store-ului, OAuth/catalog și dependența viitoare spre configurația frozen a execuției rămân la scope-ul și ordinea existente."
+  ],
+  "execution_environment": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": ["-I", "-B"],
+    "environment_mode": "env -i; umask 077",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1"
+    },
+    "pytest_additional_environment": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "PYTEST_PLUGINS": "pytest_asyncio.plugin"
+    },
+    "origin_checks": "sys.path explicit api/src + integrations/hermes/src; originile omnis/omnis_hermes în worktree afirmate înainte de probe. Proba independentă afirmă și originea exactă management_server.py."
+  },
+  "executed_checks": [
+    {
+      "id": "targeted-regression",
+      "python_c": "import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).resolve().is_relative_to(r/\"api/src\"); assert Path(omnis_hermes.__file__).resolve().is_relative_to(r/\"integrations/hermes/src\"); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); result=pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"--basetemp\",\"/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/regression\",\"-q\",\"--tb=no\",\"api/tests/test_provider_native_source.py\",\"api/tests/test_provider_settings_source.py\",\"api/tests/test_provider_settings_api_source.py\"]); assert not any(n == \"hermes_cli\" or n.startswith(\"hermes_cli.\") for n in sys.modules); raise SystemExit(result)",
+      "exit_code": 0,
+      "result": "18 passed in 0.58s",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/regression.log",
+      "limit": "ASGI/private UDS autentice; DB/session authority și operație nativă doubles. Nu QA native/PG/browser."
+    },
+    {
+      "id": "original-defect-confirmation-preserved",
+      "python_c": "import sys,runpy; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes; assert Path(omnis.__file__).resolve().is_relative_to(r/\"api/src\"); assert Path(omnis_hermes.__file__).resolve().is_relative_to(r/\"integrations/hermes/src\"); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\",flush=True); runpy.run_path(\"/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/norm-source-probe.py\",run_name=\"__main__\")",
+      "exit_code": 1,
+      "result": "ValueError: Foreign native config fields; originalul așteaptă acceptarea defectuoasă, acum refuzată.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/original-defect-confirmation.log"
+    },
+    {
+      "id": "independent-safe-contract",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B",
+        "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/norm-safe-contract.py"
+      ],
+      "exit_code": 0,
+      "case_count": 13,
+      "result": "Controale pozitive/refuzuri pre-save și post-save confirmate pe aceeași frontieră config_operation; zero retry, fără writer pe refuzul stării inițiale străine.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/norm-safe-contract.log",
+      "probe_sha256": "49457b2f03dfef133b3c9f669525edcc1d217cce92097a00916aaebcf22122b6",
+      "log_sha256": "d7f4080a61e6cbe4e4a3f6ada77ac785ee41e95febfcd61d5450a7f789104db7"
+    },
+    {
+      "id": "snapshot-final",
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --check; git diff --check 1fc0c5d..HEAD; git diff --cached --stat; SHA256 des șase căi schimbate înainte/după",
+      "exit_code": 0,
+      "result": "Worktree clean, HEAD exact, main neschimbat, diff fără whitespace errors, zero mismatch în cele șase bindings; zero socketuri rămase în rootul propriu."
+    }
+  ],
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/rereview-first-norm.json",
+    "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/norm-safe-contract.py",
+    "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/norm-safe-contract.log",
+    "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/original-defect-confirmation.log",
+    "/home/kali/.hermes/cache/scratch/p4nr-xkkc3xb1/regression.log"
+  ],
+  "limits": [
+    "Fără scrieri în source/tests/repo, fără commit, fără citirea originalului HTML protejat sau ponytail.json, fără profiluri private.",
+    "Fără native boot/import, disk config native, DB, OCI, browser, OAuth, provider/model, țintă ori trafic de rețea IP. SOURCE a folosit numai UDS proprii și doubles; rootul privat și logurile sunt păstrate.",
+    "Canonical complet, QA instalată, restart/reload/persistență reale: NOT_RUN. Nu există credit de integrare sau de P4a/P2-live din aceste probe.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, neutilizate.",
+    "Harta globală veche NOT_STARTED nu este reparată de reviewer; registrul activ din worktree și mandatul părintelui fixează acest increment IN_REVIEW. Adjudecarea și actualizarea statusului aparțin părintelui."
+  ],
+  "handoff": {
+    "result": "F02/NORM-F01 închis normativ numai SOURCE pe snapshotul exact; fără blocante noi în perimetrul focalizat.",
+    "next": "Părintele combină verdictul complementar, adjudecă findings și păstrează condițiile instalării/QA reale deja definite. Nu sunt cerute OAuth/CLI/full P4a ca extindere a acestui re-review.",
+    "integration_claim": false,
+    "qa_acceptance_claim": false,
+    "skill_delta": "Nicio lecție procedurală nouă și nicio editare de skill: procedura existentă cere deja refuz finit, readback integral, controale pe aceeași frontieră și păstrarea nonzero-ului reproducerului de defect."
+  }
+}

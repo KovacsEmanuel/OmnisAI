@@ -1,0 +1,760 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_REPAIRED_FROZEN_NOT_ACCEPTED",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+  "branch": "work/p4a-169c9470b2",
+  "initial_checkpoint": "1fc0c5dc2624311a46df25ea1e182159c80c1f89",
+  "final_head": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+  "main_head_readonly": "ad5bf758c840fef9443c680bfc0325a1665b360e",
+  "author_commits": [
+    "e992dfa0f855737f2a115c7d5674d7bc67cacffa",
+    "af5c1218475b0b7fd026eb53fe0aa85c5100fb9c",
+    "6e9257f1655068ee88271c20a48cc7fb1b8a8845",
+    "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4"
+  ],
+  "integration_claim": false,
+  "acceptance_claim": false,
+  "writes_frozen_after_this_report": true,
+  "files": [
+    {
+      "path": "api/src/omnis/api.py",
+      "sha256": "cb90cb1fc128124ac06a34e9da4b1bbb101978c4e57daeefa067dc220e90aa36",
+      "bytes": 7161,
+      "initial_sha256": "cb90cb1fc128124ac06a34e9da4b1bbb101978c4e57daeefa067dc220e90aa36",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "3d67a8aac20aed61aeabfd24ef2e14235a5d19ec584e244b424052d6072102df",
+      "bytes": 8162,
+      "initial_sha256": "3d67a8aac20aed61aeabfd24ef2e14235a5d19ec584e244b424052d6072102df",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "3cac2dc0e0b64efcd744ca9d55d9cc86cdbfee88f00ac30a4584b12ff0fad8ad",
+      "bytes": 40135,
+      "initial_sha256": "3cac2dc0e0b64efcd744ca9d55d9cc86cdbfee88f00ac30a4584b12ff0fad8ad",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_models.py",
+      "sha256": "9624ba90a58dfc79e169e58880c8a743b1a3b7e3a99175a21da7cb99c858e266",
+      "bytes": 2939,
+      "initial_sha256": "9624ba90a58dfc79e169e58880c8a743b1a3b7e3a99175a21da7cb99c858e266",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_routes.py",
+      "sha256": "1a884b589175864787285e7818933abfe1c2c401acadf237ea3026985ebac631",
+      "bytes": 3993,
+      "initial_sha256": "1a884b589175864787285e7818933abfe1c2c401acadf237ea3026985ebac631",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "6659412dc28e55e65a6d98ed7724dab90964636a410cd5ddd019cfc7bbc72cc9",
+      "bytes": 9079,
+      "initial_sha256": "6659412dc28e55e65a6d98ed7724dab90964636a410cd5ddd019cfc7bbc72cc9",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "4a793b3944dc1d7f79fcb3a33e4c700c7111173ac0acc66b08d17985df6b9dba",
+      "bytes": 30050,
+      "initial_sha256": "4a793b3944dc1d7f79fcb3a33e4c700c7111173ac0acc66b08d17985df6b9dba",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "2d29eb3e4048296f06d8c85898652c79e0035dd97af6e7d0095dca2ed263fdab",
+      "bytes": 12792,
+      "initial_sha256": "2d29eb3e4048296f06d8c85898652c79e0035dd97af6e7d0095dca2ed263fdab",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/tests/test_provider_native_source.py",
+      "sha256": "99f1191bc182b9f7a82e522edfbb3d41d6a79c04c3593164b043714dae05dff7",
+      "bytes": 7002,
+      "initial_sha256": "4cc742a3312fcf71a9e0b9cda4bb8b733f1456e70e4cdd56b45b9443ea2ab3ef",
+      "changed_by_repair": true
+    },
+    {
+      "path": "api/tests/test_provider_process_source.py",
+      "sha256": "b0bd40311aa6dc35346398757daabf16a1e997dbd1def7a4e987d955f6825223",
+      "bytes": 3083,
+      "initial_sha256": "b0bd40311aa6dc35346398757daabf16a1e997dbd1def7a4e987d955f6825223",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/tests/test_provider_settings_api_source.py",
+      "sha256": "4ea880f706820252fb568b65faf4a3e3c1c2c7af71a10fac27a4228e61a495c1",
+      "bytes": 8515,
+      "initial_sha256": "4ea880f706820252fb568b65faf4a3e3c1c2c7af71a10fac27a4228e61a495c1",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/tests/test_provider_settings_denials.py",
+      "sha256": "a2f2bfa46b922cca343dd5eb52cc5015e1dbdeef0416d1ecc26e0c6f292d2a9c",
+      "bytes": 7857,
+      "initial_sha256": "3d229e6f499dc269eafb95880da9cf904bca1446fcbe3cc3b9582b91d6c88ec1",
+      "changed_by_repair": true
+    },
+    {
+      "path": "api/tests/test_provider_settings_source.py",
+      "sha256": "6aeee72fa2ec7b95cd4f328525a6dd964028449d2564dfd9202da50a8b7133fa",
+      "bytes": 2782,
+      "initial_sha256": "6aeee72fa2ec7b95cd4f328525a6dd964028449d2564dfd9202da50a8b7133fa",
+      "changed_by_repair": false
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "15e27142891885a6b7c70921a699dd015724ad5d51aaff8edec56b3e78d9488f",
+      "bytes": 69657,
+      "initial_sha256": "15e27142891885a6b7c70921a699dd015724ad5d51aaff8edec56b3e78d9488f",
+      "changed_by_repair": false
+    },
+    {
+      "path": "integrations/hermes/pin.json",
+      "sha256": "b147540221cc0aa857f0f99d0b90f0d0569d43bad29c49813a870bbda9899914",
+      "bytes": 1571,
+      "initial_sha256": "b147540221cc0aa857f0f99d0b90f0d0569d43bad29c49813a870bbda9899914",
+      "changed_by_repair": false
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_contract.py",
+      "sha256": "b5077f484ff46614471d41fa0d957c029c0927ee7edade10982b3126f91b28cd",
+      "bytes": 1577,
+      "initial_sha256": "b5077f484ff46614471d41fa0d957c029c0927ee7edade10982b3126f91b28cd",
+      "changed_by_repair": false
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_http.py",
+      "sha256": "ce1a9ed84b53779e7d417c6242abb7c2ed3b3615b7bf9917f33112641416bb25",
+      "bytes": 3714,
+      "initial_sha256": "245a5f310662d6d24bb4834f143f14be132f659034d79c36ec0364cf70acc888",
+      "changed_by_repair": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_server.py",
+      "sha256": "0efe36c39cff645223f847386222c2f56c61e44a71c7af3a3b268f534cbf3230",
+      "bytes": 6814,
+      "initial_sha256": "0067a4dbefb9dc1f3c9b5d6fb62a8e34f1f1d9cd7c4055e30a09c64e9e7e0d3e",
+      "changed_by_repair": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "1c2cfb11ad33766cb096549baa3628014eb4f9ebab4dd231af03dd35d69a31a1",
+      "bytes": 48953,
+      "initial_sha256": "d435f2b6b7f6a17629128ded444d315253e0541e688e6f675ca297680f59c30b",
+      "changed_by_repair": true
+    },
+    {
+      "path": "integrations/hermes/upstream/management-patch-manifest.json",
+      "sha256": "ac851aa505fde8f44ac56561902ee7175747e03f57e3b58cf8465d37883cf149",
+      "bytes": 361,
+      "initial_sha256": "ac851aa505fde8f44ac56561902ee7175747e03f57e3b58cf8465d37883cf149",
+      "changed_by_repair": false
+    },
+    {
+      "path": "integrations/hermes/upstream/omnis-management.patch",
+      "sha256": "04ed4d993503213dc74633dc8aa78b8acdf18d036e58d9b1e2932439ca96a008",
+      "bytes": 737,
+      "initial_sha256": "04ed4d993503213dc74633dc8aa78b8acdf18d036e58d9b1e2932439ca96a008",
+      "changed_by_repair": false
+    },
+    {
+      "path": "ops/prepare_hermes_runtime.py",
+      "sha256": "a81408342f96e7a42a1fa7d2de2b6395ff291b3d43fc76369285e2aad56aa9a7",
+      "bytes": 17490,
+      "initial_sha256": "a81408342f96e7a42a1fa7d2de2b6395ff291b3d43fc76369285e2aad56aa9a7",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/app/ProviderSettings.test.tsx",
+      "sha256": "5e5339d4168946cb3053152b9c4d8e180abb0dac4153ad204f7097441ad9423d",
+      "bytes": 2127,
+      "initial_sha256": "5e5339d4168946cb3053152b9c4d8e180abb0dac4153ad204f7097441ad9423d",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "sha256": "e2191336564c178b59a814dc8caba67bfb1ef004435b07bc6945dc0d1a2a9bbd",
+      "bytes": 5318,
+      "initial_sha256": "e2191336564c178b59a814dc8caba67bfb1ef004435b07bc6945dc0d1a2a9bbd",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/features/engagement/Settings.tsx",
+      "sha256": "3b85bede8b661bfa1ce10077858ba5302eedae42ff3cda9677b1a3653237d707",
+      "bytes": 738,
+      "initial_sha256": "3b85bede8b661bfa1ce10077858ba5302eedae42ff3cda9677b1a3653237d707",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/shared/api/client.ts",
+      "sha256": "63a0b811cd95a250bcfccc5f80b638b1b03a487df261407e6db7a44537af3528",
+      "bytes": 6352,
+      "initial_sha256": "63a0b811cd95a250bcfccc5f80b638b1b03a487df261407e6db7a44537af3528",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "35eff3e764487f2844f4d1e20577e3341575327637408c83480469ce1ba45caf",
+      "bytes": 56418,
+      "initial_sha256": "35eff3e764487f2844f4d1e20577e3341575327637408c83480469ce1ba45caf",
+      "changed_by_repair": false
+    },
+    {
+      "path": "web/src/shared/api/providers.ts",
+      "sha256": "ef8b2f439bc5e8b9c479320552b414a633a99941313cfd9766b350619ed635f6",
+      "bytes": 1741,
+      "initial_sha256": "ef8b2f439bc5e8b9c479320552b414a633a99941313cfd9766b350619ed635f6",
+      "changed_by_repair": false
+    },
+    {
+      "path": "api/tests/test_provider_dispatch_source.py",
+      "sha256": "ed2e7349eb726ac3b84f8bcd25d62b8e9650bacf2f8cd0e9b9d35dfaf734edf8",
+      "bytes": 10030,
+      "new_in_repair": true
+    }
+  ],
+  "file_count": 29,
+  "original_file_count": 28,
+  "unchanged_original_file_count": 23,
+  "new_paths": [
+    "api/tests/test_provider_dispatch_source.py"
+  ],
+  "repair_changed_paths": [
+    "api/tests/test_provider_dispatch_source.py",
+    "api/tests/test_provider_native_source.py",
+    "api/tests/test_provider_settings_denials.py",
+    "integrations/hermes/src/omnis_hermes/management_http.py",
+    "integrations/hermes/src/omnis_hermes/management_server.py",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py"
+  ],
+  "snapshot_sha256": "bc97fa843c48e34889e285cf7aff55e0555fa27f42a4484875b30b9df8cbdff6",
+  "snapshot_hash_algorithm": "sha256 of JSON files array, sort_keys=True,separators=(comma,colon), UTF-8",
+  "diff_path": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first-repair.diff",
+  "diff_sha256": "32437e51459a8b047f994cbd5b13102f50baf6f919ce5b609df6eb28d52fade9",
+  "diff_bytes": 27139,
+  "findings": [
+    {
+      "id": "SAFETY-FIRST-F02",
+      "aliases": [
+        "P4A-NORM-F01"
+      ],
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "commit": "e992dfa0f855737f2a115c7d5674d7bc67cacffa",
+      "red": {
+        "label": "f02-red",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red.log 2>&1",
+        "exit_code": 1,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "9 failed, 4 passed in 0.09s"
+        ]
+      },
+      "green": {
+        "label": "f02-green-final",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final.log 2>&1",
+        "exit_code": 0,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "13 passed in 0.05s"
+        ]
+      },
+      "final_regression_label": "source-final",
+      "remedy_and_evidence": "Entire raw config is {} or the exact model/agent/auth shape. Reject top-level fallback/providers/delegation/auxiliary, nested unknown fields, nonboolean adoption and extra reasoning mappings before GET projection or PUT save. Eleven paired controls retain zero additional writer calls on refusal, restore empty Save->readback and deny a no-op writer. Nine new negatives failed before fix; two existing type/shape denials already passed.",
+      "limit": "Pinned native _canonicalize_config and save_config inspected statically: no metadata/default keys added for this exact strip_defaults=False shape, so _config_version is refused even as int, not given a guessed allowance. Native reader/writer are SOURCE doubles; no native imports or disk persistence proof."
+    },
+    {
+      "id": "SAFETY-FIRST-F04",
+      "aliases": [],
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "commit": "af5c1218475b0b7fd026eb53fe0aa85c5100fb9c",
+      "red": {
+        "label": "f04-red",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'ack_requires'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red.log 2>&1",
+        "exit_code": 1,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "2 failed, 1 passed, 13 deselected in 0.07s"
+        ]
+      },
+      "green": {
+        "label": "f04-green",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green.log 2>&1",
+        "exit_code": 0,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "16 passed in 0.05s"
+        ]
+      },
+      "final_regression_label": "source-final",
+      "remedy_and_evidence": "ACK requires exact dict, exact {ok} keys and ok is True. Numeric 1/1.0 negatives failed before fix; unknown-field denial was already correct. Same fake endpoint has canonical ACK plus matching readback positive and refuses malformed ACK before GET.",
+      "limit": "SOURCE native endpoint double only; exact readback remains necessary and is not compatibility/inference evidence."
+    },
+    {
+      "id": "SAFETY-FIRST-F03",
+      "aliases": [],
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "commit": "6e9257f1655068ee88271c20a48cc7fb1b8a8845",
+      "red": {
+        "label": "f03-red",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'finalizes_prestart'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red.log 2>&1",
+        "exit_code": 1,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "1 failed, 1 passed, 7 deselected in 0.20s"
+        ]
+      },
+      "green": {
+        "label": "f03-green",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green.log 2>&1",
+        "exit_code": 0,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "25 passed in 2.46s"
+        ]
+      },
+      "final_regression_label": "source-final",
+      "remedy_and_evidence": "Owner Stop finalizes a residual PENDING receipt after joining the task, including cancellation before its first coroutine turn. Pre-entry cancellation UNAVAILABLE; entered cancellation retains INDETERMINATE. Deterministic prestart and running cuts; real authenticated RuntimeClient UDS reads retained status twice and exact replay does not resend.",
+      "limit": "Prestart admission ordering is a direct trusted owner scheduling cut, with status subsequently read over UDS. No process on prestart; running operation is a native double."
+    },
+    {
+      "id": "SAFETY-FIRST-F01",
+      "aliases": [],
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "commit": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+      "red": {
+        "label": "f01-red",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red.log 2>&1",
+        "exit_code": 1,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "3 failed, 3 passed in 2.28s"
+        ]
+      },
+      "green": {
+        "label": "f01-green-final",
+        "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final.log 2>&1",
+        "exit_code": 0,
+        "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final.log",
+        "summary": [
+          "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+          "34 passed in 3.69s"
+        ]
+      },
+      "final_regression_label": "source-final",
+      "remedy_and_evidence": "Host captures generation/epoch and supplies a required synchronous guard over its current MANAGEMENT state, management_failed flag, fence and existing deadline. request calls it after awaited connect immediately before writer.write with no yield. Host also checks after health and readback. Real request/configure/HTTP parser exercised over owned UDS (only TCP connect redirected): positive GET/PUT/GET, expired, actual Stop, trusted STOPPING and changed-fence cuts have zero new PUT; health-expiry has zero PUT. Red demonstrated expired/STOPPING physical UDS PUT and changed-fence false CONFIRMED. Pending-send Stop/expiry regression keeps INDETERMINATE and drained=false while TERM-resistant FIFO child is alive; child then reaped, non-PID1 remains UNCERTAIN.",
+      "limit": "Guard prohibits new admission after known revocation/expiry, not rollback of writes admitted/sent before it. Already-sent work may be unknown until readback/drain. Pending native endpoint is a double; no native thread/FS/PG atomicity claim. Existing Stop process-kill/drain path met this SOURCE regression, so no new commit-barrier framework was added."
+    }
+  ],
+  "final_verification": {
+    "source-final": {
+      "label": "source-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_api_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"', '\"'\"'integrations/hermes/tests/test_client.py'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "59 passed in 6.48s"
+      ]
+    },
+    "ruff-final": {
+      "label": "ruff-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/ruff-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/ruff-final.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    "format-final": {
+      "label": "format-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/format-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/format-final.log",
+      "summary": []
+    },
+    "mypy-final": {
+      "label": "mypy-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/mypy-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/mypy-final.log",
+      "summary": [
+        "Success: no issues found in 115 source files"
+      ]
+    }
+  },
+  "final_test_count": 59,
+  "original_source_count": 35,
+  "added_controls_count": 24,
+  "original_test_functions_retained": [
+    {
+      "path": "api/tests/test_provider_settings_source.py",
+      "retained_top_level_tests": 1,
+      "missing": []
+    },
+    {
+      "path": "api/tests/test_provider_settings_api_source.py",
+      "retained_top_level_tests": 1,
+      "missing": []
+    },
+    {
+      "path": "api/tests/test_provider_settings_denials.py",
+      "retained_top_level_tests": 3,
+      "missing": []
+    },
+    {
+      "path": "api/tests/test_provider_native_source.py",
+      "retained_top_level_tests": 2,
+      "missing": []
+    },
+    {
+      "path": "api/tests/test_provider_process_source.py",
+      "retained_top_level_tests": 1,
+      "missing": []
+    },
+    {
+      "path": "api/tests/test_runtime_supervisor.py",
+      "retained_top_level_tests": 3,
+      "missing": []
+    },
+    {
+      "path": "integrations/hermes/tests/test_host.py",
+      "retained_top_level_tests": 8,
+      "missing": []
+    },
+    {
+      "path": "integrations/hermes/tests/test_client.py",
+      "retained_top_level_tests": 1,
+      "missing": []
+    }
+  ],
+  "all_executions": [
+    {
+      "label": "f02-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-red.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "9 failed, 4 passed in 0.09s"
+      ]
+    },
+    {
+      "label": "f02-format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_provider_native_source.py integrations/hermes/src/omnis_hermes/management_server.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-format.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-format.log",
+      "summary": [
+        "1 file reformatted, 1 file left unchanged"
+      ]
+    },
+    {
+      "label": "f02-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "13 passed in 0.04s"
+      ]
+    },
+    {
+      "label": "f02-mypy",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/tests/test_provider_native_source.py integrations/hermes/src/omnis_hermes/management_server.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-mypy.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-mypy.log",
+      "summary": [
+        "api/tests/test_provider_native_source.py:51: error: Module \"omnis_hermes.management_server\" does not explicitly export attribute \"importlib\"  [attr-defined]",
+        "api/tests/test_provider_native_source.py:53: error: Module \"omnis_hermes.management_server\" does not explicitly export attribute \"importlib\"  [attr-defined]",
+        "Found 2 errors in 1 file (checked 2 source files)"
+      ]
+    },
+    {
+      "label": "f02-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-final.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "13 passed in 0.05s"
+      ]
+    },
+    {
+      "label": "f02-quality",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/tests/test_provider_native_source.py integrations/hermes/src/omnis_hermes/management_server.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-quality.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-quality.log",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ]
+    },
+    {
+      "label": "f02-green-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f02-green-final.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "13 passed in 0.05s"
+      ]
+    },
+    {
+      "label": "f04-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'ack_requires'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-red.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "2 failed, 1 passed, 13 deselected in 0.07s"
+      ]
+    },
+    {
+      "label": "f04-format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_provider_native_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-format.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-format.log",
+      "summary": [
+        "1 file reformatted"
+      ]
+    },
+    {
+      "label": "f04-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f04-green.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "16 passed in 0.05s"
+      ]
+    },
+    {
+      "label": "f03-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'finalizes_prestart'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-red.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "1 failed, 1 passed, 7 deselected in 0.20s"
+      ]
+    },
+    {
+      "label": "f03-format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml api/tests/test_provider_settings_denials.py integrations/hermes/src/omnis_hermes/runtime_host.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-format.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-format.log",
+      "summary": [
+        "1 file reformatted, 1 file left unchanged"
+      ]
+    },
+    {
+      "label": "f03-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f03-green.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "25 passed in 2.46s"
+      ]
+    },
+    {
+      "label": "f01-red",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-red.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "3 failed, 3 passed in 2.28s"
+      ]
+    },
+    {
+      "label": "f01-format",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/management_http.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-format.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-format.log",
+      "summary": [
+        "4 files reformatted"
+      ]
+    },
+    {
+      "label": "f01-green",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "32 passed in 2.90s"
+      ]
+    },
+    {
+      "label": "f01-mypy",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/management_http.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-mypy.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-mypy.log",
+      "summary": [
+        "api/tests/test_provider_dispatch_source.py:213: error: Right operand of \"or\" is never evaluated  [unreachable]",
+        "api/tests/test_provider_dispatch_source.py:215: error: Statement is unreachable  [unreachable]",
+        "Found 2 errors in 1 file (checked 4 source files)"
+      ]
+    },
+    {
+      "label": "f01-format-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/management_http.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-format-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-format-final.log",
+      "summary": [
+        "1 file reformatted, 3 files left unchanged"
+      ]
+    },
+    {
+      "label": "f01-green-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-green-final.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "34 passed in 3.69s"
+      ]
+    },
+    {
+      "label": "f01-mypy-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/management_http.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-mypy-final.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-mypy-final.log",
+      "summary": [
+        "api/tests/test_provider_dispatch_source.py:111: error: Module \"omnis_hermes.runtime_host\" does not explicitly export attribute \"request\"  [attr-defined]",
+        "Found 1 error in 1 file (checked 4 source files)"
+      ]
+    },
+    {
+      "label": "f01-ruff",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/management_http.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-ruff.log 2>&1",
+      "exit_code": 1,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/f01-ruff.log",
+      "summary": [
+        "Found 1 error."
+      ]
+    },
+    {
+      "label": "source-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert Path(omnis.__file__).is_relative_to(r); assert Path(omnis_hermes.__file__).is_relative_to(r); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'--basetemp'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_api_source.py'\"'\"', '\"'\"'api/tests/test_provider_settings_denials.py'\"'\"', '\"'\"'api/tests/test_provider_native_source.py'\"'\"', '\"'\"'api/tests/test_provider_process_source.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"', '\"'\"'integrations/hermes/tests/test_client.py'\"'\"', '\"'\"'api/tests/test_provider_dispatch_source.py'\"'\"']))' > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/source-final.log",
+      "summary": [
+        "SOURCE_ORIGINS_WORKTREE_CONFIRMED",
+        "59 passed in 6.48s"
+      ]
+    },
+    {
+      "label": "ruff-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/ruff-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/ruff-final.log",
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "label": "format-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/format-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/format-final.log",
+      "summary": []
+    },
+    {
+      "label": "mypy-final",
+      "command": "umask 077; env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4fix-3xley84y TMPDIR=/home/kali/.hermes/cache/scratch/p4fix-3xley84y PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTEST_PLUGINS=pytest_asyncio.plugin /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src integrations/hermes/src api/tests/test_provider_dispatch_source.py api/tests/test_provider_native_source.py api/tests/test_provider_process_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_settings_source.py > /home/kali/.hermes/cache/scratch/p4fix-3xley84y/mypy-final.log 2>&1",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y/mypy-final.log",
+      "summary": [
+        "Success: no issues found in 115 source files"
+      ]
+    }
+  ],
+  "initial_review_evidence": {
+    "norm_report": "documents/verification/p4a-first-review-norm.json",
+    "safety_report": "documents/verification/p4a-first-review-safety.json",
+    "parent_reproduction": "documents/verification/p4a-first-parent-repro.json",
+    "parent_private_original_logs": "/home/kali/.hermes/cache/scratch/p4pr-xp9p6z_d/{norm,safety}.log",
+    "interpretation": "Original reproducers assert defects; parent exit0 is defect confirmation, NOT product PASS. Original files and roots were not changed/reused. This repair used proper inverse regression assertions with RED/GREEN; original reproducers were not rerun or relabeled after the required internal request signature changed."
+  },
+  "preserved_attempts": [
+    {
+      "labels": [
+        "f02-mypy"
+      ],
+      "cause": "Test accessed imported importlib through consumer module, strict no-implicit-reexport refused. Import same stdlib module directly; no runtime assertion weakened."
+    },
+    {
+      "labels": [
+        "f01-mypy"
+      ],
+      "cause": "mypy retained narrowing of process.returncode across awaits; capture observations in distinct before/during variables without changing live assertion."
+    },
+    {
+      "labels": [
+        "f01-mypy-final",
+        "f01-ruff"
+      ],
+      "cause": "Test imported request through runtime_host reexport and import order. Use defining management_http.request and prescribed import grouping; same patched consumer and assertions."
+    }
+  ],
+  "verification_environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": [
+      "-I",
+      "-B"
+    ],
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p4fix-3xley84y",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "PYTEST_PLUGINS": "pytest_asyncio.plugin"
+    },
+    "private_log_mode": "0600",
+    "source_imports": "Both omnis and omnis_hermes origins explicitly asserted inside assigned worktree",
+    "resource_policy": "Fresh short scratch root and fresh per-run pytest basetemp; only owned UDS and inert FIFO-held children; no reused reviewer/parent roots."
+  },
+  "native_static_evidence": {
+    "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/hermes_cli/config.py",
+    "sha256": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+    "lines": [
+      "1759-1859 normalization pipeline",
+      "2422-2464 strict read/native merge/canonicalize/save"
+    ],
+    "execution": "NOT_RUN; read-only source inspection, no native import/boot"
+  },
+  "reused_unchanged_evidence": {
+    "source": "documents/verification/p4a-first-author.json",
+    "scope": "Web tests83, lint/build/type/contracts and management overlay evidence remain at original scope; every associated original file SHA matches. No UI, contract, pin, patch, CaseSlot or build changes in repair. No new browser/installed claim."
+  },
+  "cleanup": {
+    "owned_endpoint_residue": [],
+    "process_evidence": "Every new process case asserts direct process returncode is terminal and _owned_pids empty. Pending-save test observes live child while STOPPING/drained=false, then actual reaping. SOURCE non-PID1 namespace remains UNCERTAIN. Test endpoints close clients before wait_closed.",
+    "retained": "Private logs and synthetic scratch files retained; no resource adoption or cleanup outside owned test roots."
+  },
+  "scope_limits": [
+    "No native imports/boot, real native config writer, PostgreSQL, OCI, browser, provider/OAuth/model/target execution.",
+    "Canonical make check/test NOT_RUN: native/PG/browser integration is outside this repair authorization. SOURCE59 is not canonical.",
+    "Normal installed CLI/Compose wiring and /state/provider mount remain next prerequisites owned by parent; not implemented.",
+    "OAuth/catalog, compatibility of exact gpt-6.1-sol/xhigh and P2-live remain unimplemented/unverified by this increment.",
+    "No main writes, amend/reset/rebase, package changes, new framework/runner/owner, grant/timeout widening or protected/personal reads.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No independent re-review or final acceptance supplied by author.",
+    "Parent owns canonical status/register reconciliation. Existing stale NOT_STARTED map not edited; active p4a-minim register remains authoritative."
+  ],
+  "lesson_for_parent_project_skill": "Place the synchronous trusted authority guard after transport connect and immediately before writer.write; a post-health or post-response check alone is not dispatch admission. Finalize admitted operation receipts in the owner even when asyncio cancellation precedes coroutine entry. Keep no-send unavailable distinct from sent/unknown, and do not turn drain into rollback. No personal/project skill edits were made outside this repair scope.",
+  "handoff": "Focused complementary re-review on final29 file hashes, adjudicate each original finding; no integration/native QA before parent acceptance. Preserve initial checkpoint and four separate correction commits."
+}

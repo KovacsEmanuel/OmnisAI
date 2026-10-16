@@ -1,0 +1,29 @@
+{
+  "status": "INTEGRATED_SOURCE_SCOPED_NOT_P4A_ACCEPTED",
+  "head": "783dbb0480b21ab3fa37505dcf7b923e580f1c7c",
+  "source_snapshot": "5d9c2b99dbe3670eeaa4dae2e9a19ea255522af4",
+  "source_manifest": "p4a-first-repair.json",
+  "bindings_matched": 29,
+  "mismatches": [],
+  "review_reports": [
+    "p4a-first-rereview-norm.json",
+    "p4a-first-rereview-safety.json"
+  ],
+  "findings_disposition": "F01-F04 CLOSED_SOURCE_SCOPED; original evidence and failures preserved",
+  "parent_execution": {
+    "command": "api/.venv/bin/python -I -B with explicit main api/src+integrations/hermes/src origins; pytest -c api/pyproject.toml -p pytest_asyncio.plugin -p no:cacheprovider --basetemp <owned>/p -q --tb=no on 6 provider SOURCE files + runtime_supervisor + Host/client tests",
+    "exit_code": 0,
+    "passed": 59,
+    "seconds": 6.39,
+    "log": "/home/kali/.hermes/cache/scratch/p4is-h1ah4s_x/source.log",
+    "log_sha256": "cce4dffce44def2e884d31c7af4c43ff7b7754bb20660ba274e2840923f88409"
+  },
+  "review_note_correction": "Safety re-review read refs/heads/main=d372295, not the active checkout branch. Parent verified active checkout checkpoint/p2-batch2-pause-20261015 stayed ad5bf75 until this explicit integration. Original review retained unchanged.",
+  "limits": [
+    "normal installed CLI/Compose/provider-root wiring not implemented",
+    "first Settings grant post-OPEN must bind current generation, known source integration prerequisite",
+    "native save/persistence/restart, PostgreSQL, real browser NOT_RUN",
+    "OAuth/catalog/P2live/faza2 not closed",
+    "no native/provider/target/global/r1/push effects"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "status": "NATIVE_BUILD_INPUTS_READY_NO_BOOT",
+  "source_head": "d8b1066e5098fcc80b486624722bea6957579aaf",
+  "session_id": "proc_0982f77c7721",
+  "process_readback": {"status": "exited", "exit_code": 0, "uptime_seconds": 49},
+  "context": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared",
+  "log": "/home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/native-build.log",
+  "producer": "Existing ops/prepare_hermes_runtime.py prepare(source archive) then build_native(output, pinned API Python3.13.15, uv0.12.19), pinned uv build of integrations/hermes wheel, inject_adapter and uv pip check. No new builder/harness.",
+  "source_archive": "/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar",
+  "native_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "dependency_wheels_verified": 67,
+  "dependency_wheel_mismatches": [],
+  "native_source_files_verified": 3187,
+  "native_source_mismatches": [],
+  "adapter_sha256": "54c33d77e9d12bf85384090c8c76933d306723ab26e67830862d6a108a76cabf",
+  "recorded_command_exit_codes": [0, 0, 0, 0, 0, 0],
+  "pip_check": "67 packages checked; all installed packages compatible",
+  "metadata_sizes": {
+    "source-manifest.json": 1861086,
+    "build-manifest.json": 396844,
+    "requirements-native.txt": 33552,
+    "requirements-artifacts.txt": 164
+  },
+  "metadata_total_bytes": 2291646,
+  "per_file_limit_bytes": 2097152,
+  "bundle_limit_bytes": 8388608,
+  "native_started": false,
+  "adapter_injected_into_context": true,
+  "OCI_build": "NOT_RUN",
+  "limits": [
+    "Real standard native build inputs, not an installed image, native save/readback or OAuth/inference proof.",
+    "Original SOURCE prerequisite and separately pinned management overlay reused; unchanged dependency closure downloaded from hash-locked public package URLs into private build paths, no global installation or provider/target traffic.",
+    "Fresh source-manifest/build-manifest are authoritative for subsequent installation; the earlier retained derivative build-manifest was size-only evidence, not substituted as the new producer schema.",
+    "Bundle aggregate with final API/CLI/web still requires final producer check; no cap increased.",
+    "Build subprocess completed; private environments/artifacts/logs retained. No runtime service, DB or container was created."
+  ],
+  "prior_preflight": "An initial metadata lookup in the historical derivative context found requirements-native.txt absent; the actual prepared producer was located, then a new current prepare/build completed. No effectful retry or old artifact mutation."
+}

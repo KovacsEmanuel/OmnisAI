@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.13
+version: 0.1.14
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -29,6 +29,9 @@ Read stack baseline and rejected dependencies; inspect current manifests/locks a
 
 ## Pitfalls
 Host Playwright/Chromium validation is not certification of the planned executor version. Docker tags can move. Git rollback does not restore DB or secrets. Documentation readiness is not runtime readiness.
+
+- Compare the complete strict service expectation with the installed Compose renderer before the first create. Presence matters: a rendered `entrypoint: null` is not an absent key in dictionary equality. Declare only the intended null default explicitly in the finite producer, preserve denial of alternative entrypoints/commands and unknown fields, and pass the whole actual validator read-only. Do not dump rendered environments containing DSNs, generalize away differences or spend a physical attempt on a template double alone.
+- Check ownership and traversal of every image ancestor of a mapped private bind, not just the bind root. A current-UID `0700` provider directory can still be refused beneath a different non-root image-owned `/state`. Prefer a root-owned, traversable immutable ancestor while retaining private child ownership, non-root execution and the unchanged ancestor guard; reseal the Dockerfile/bundle and verify the actual installed consumer rather than weakening path validation.
 
 - Do not overwrite an immutable installed release when a focused UI fix changes its bytes. Verify the actual served asset after rebuilding, not just checkout/dist or a passing component test. For an operator-authorized provisional candidate containing only synthetic QA data, an additive fresh candidate may avoid an unsupported upgrade: record original roots/wrapper digest and inverse, Stop and read back exact owned resources, retain the original dataset, then bind separate data/state/config/IPC/project/image and rerun the real consumer on the corrected artifact. Never silently substitute a fresh profile for real operator data; migration/restore requires its own approved procedure. Keep the installed CLI/interpreter durable outside scratch, and leave the final tested candidate READY only after review/QA/readback. Archive adjudicated findings and evidence limits in versioned notes before scratch expires; a same-version fresh candidate is a delivery decision, not proof that upgrades work.
 

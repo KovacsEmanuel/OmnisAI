@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent read-only safety review of installer Docker configuration delta only; SOURCE and finite daemon-free Docker client checks, not integration or physical QA",
+  "base": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+  "head": "805deba89545feaa1cae180f2fb247568ac69014",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "sha256": {
+    "cli/src/omnis_cli/compose.py": "4ffa69ede302e703b597f0b47fe81fa9fd0821718c8f5e16502ff35b9c9c798c",
+    "cli/tests/test_image_install.py": "475903597cf7c2b0636089df3e8703bcea496c35ad39b68d9704688e710b7e37"
+  },
+  "snapshot_verification": "Clean worktree, exact HEAD and both hashes confirmed before and after probes; git diff --check d6243644..HEAD exit 0. Exactly two changed files. No source/docs/skills/commits modified.",
+  "decision_contract": "QA-DOCKER-CONFIG-PREFLIGHT-01 -> main install-image/install_control_image/_install_locked/_run -> personal configuration or helper/proxy/context leakage -> approve only the frozen installer fix if config binding, early refusal, cleanup and retained build uncertainty hold.",
+  "findings": [],
+  "original_blocker": {
+    "id": "QA-DOCKER-CONFIG-PREFLIGHT-01",
+    "disposition": "CLOSED_SOURCE_SCOPED_BY_THIS_SAFETY_REVIEW",
+    "reason": "Every installer subprocess now selects its fresh anonymous config through --config and matching HOME/DOCKER_CONFIG. The caller's HOME is not lost into an NSS/personal-home fallback. Ambient DOCKER_* remains forbidden before Docker. The old BLOCKED_PREFLIGHT attempt is preserved; this does not promote that attempt or the old wheel to PASS.",
+    "next": "Parent must adjudicate complementary reviews, build/read back the new CLI artifact and use a fresh separately authorized QA root; no reuse/retry of the old blocked attempt."
+  },
+  "reviewed_properties": [
+    {
+      "location": "cli/src/omnis_cli/compose.py:40-67",
+      "property": "Valid anonymous auth configuration suppresses default credential-helper discovery",
+      "evidence": "Docker CLI v20.10.24 and v28.5.1 LoadFromReader retain the nonempty auth map and add ServerAddress without username/password/token. ContainsAuth is TRUE because len(AuthConfigs)>0; therefore LoadDefaultConfigFile skips DetectDefaultStore. GetCredentialsStore selects file storage because credsStore/credHelpers are absent. v27.5.1 loader independently checked to match the installed client generation. Empty auths would not have this property. This is source-established semantics, not a live credential-manager exercise."
+    },
+    {
+      "location": "cli/src/omnis_cli/compose.py:46-62",
+      "property": "Exact private state selection, including ordinary CLI plugin chain",
+      "evidence": "Only PATH is inherited. HOME and DOCKER_CONFIG equal the same generated directory passed by --config; XDG/proxy/BUILDX and other caller variables are absent. Public Docker plugin manager forwards original global argv and inherits the sanitized environment; personal plugin paths are under the private config, with only system plugin directories remaining. Buildx config source uses BUILDX_CONFIG or Docker config filename parent/buildx; BUILDX_CONFIG is stripped. BuildKit auth provider uses the supplied ConfigFile.GetAuthConfig, not an independent personal store. Trusted installed system plugins and PATH remain operator TCB, not arbitrary-plugin confinement."
+    },
+    {
+      "location": "cli/src/omnis_cli/compose.py:46-67,457-474,489-511",
+      "property": "Fresh owned configuration stays outside sealed and staged build contexts and through synchronous child execution",
+      "evidence": "private_dir validates absolute canonical private parent and ancestors before tempfile creation. TemporaryDirectory creates 0700 fresh state; config creation is exclusive 0600 and closed before spawn. All bundle call sites use releases/ as parent; native build uses omnis/ above staged inputs. The context manager encloses subprocess.run. Cleanup never selects an existing operator directory or another generated name. Unit controls exercise success, spawn exception and timeout in both cwd categories."
+    },
+    {
+      "location": "cli/src/omnis_cli/compose.py:300-318,369-370,381-416,456-539",
+      "property": "No late allow after refusal, no automatic retry after uncertain image effect",
+      "evidence": "Only private default context accepted; unsafe/missing canonical socket remains refusal and all effectful commands retain verified --host. Existing receipt/daemon identity comparisons are unchanged. Build timeout leaves intent with no successful receipt; subsequent public main install-image refuses without another build. Config creation failure and unsafe/symlinked parent separately proved zero child invocation. Cleanup failure propagates rather than turning into success."
+    }
+  ],
+  "execution": {
+    "prefix": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/ds-p5muQYeR/h TMPDIR=/home/kali/.hermes/cache/scratch/ds-p5muQYeR/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/ds-p5muQYeR/cache -c",
+    "source_test_command": "sys.path[:0]=['cli/src','cli/tests','cli/integration']; import omnis_cli.compose as c; assert Path(c.__file__).resolve()==Path.cwd()/'cli/src/omnis_cli/compose.py'; suite=unittest.defaultTestLoader.loadTestsFromNames(['test_image_install','test_install','test_release_image_cleanup']); r=unittest.TextTestRunner(verbosity=1).run(suite); raise SystemExit(not r.wasSuccessful())",
+    "source_tests": {"exit": 0, "tests": 39, "seconds": 0.863, "result": "PASS", "boundary": "Normal public main install-image chain with synthetic Engine at subprocess.run, not only helper stubs; successful two-image readback/replay and timeout/no-rebuild tested. No real Engine effects."},
+    "finite_actual_client": {
+      "exit": 0,
+      "version": "Docker version 27.5.1+dfsg4, build cab968b3",
+      "calls": 3,
+      "commands_via_new_run_only": [["--version"], ["context", "show"], ["context", "show"]],
+      "guard": "Before forwarding each command to the original subprocess.run, checked exact command allowlist, --config, 0700/0600 modes, anonymous JSON, exact three-key environment, cwd, outside-context placement and 15-second timeout.",
+      "positive": "Synthetic caller HOME contained poisoned .docker/config.json with currentContext, credsStore and proxy, plus legacy .dockercfg; synthetic XDG_CONFIG_HOME/HTTP_PROXY/BUILDX_CONFIG supplied. New _run context show returned default, exit0.",
+      "negative": "On the same new _run channel, the observer added only currentContext=safety-private-negative to the generated private anonymous config before forwarding context show. Actual client returned safety-private-negative, exit0, demonstrating the selected generated config is genuinely consumed rather than context show being a constant stub.",
+      "cleanup": "All three exact generated config directories absent after each synchronous call completed; synthetic caller poison unchanged. No context inspect, daemon API, info, build, pull, login or context mutation command invoked."
+    },
+    "additional_negative_controls": {
+      "exit": 0,
+      "cases": ["0755 parent refuses before subprocess", "symlinked parent refuses before subprocess", "injected exclusive config creation OSError refuses before subprocess and removes fresh temporary directory"],
+      "docker_spawns": 0,
+      "result": "PASS"
+    },
+    "tooling_issue": "refs/heads/main resolved to historical d372295a5fa592e16443944b8ace4fdc0c3f1d18, so the first requested current-register lookup failed. Read the explicitly supplied b067c3d5c6a2f23ff7216fa542bfcc7f1f053257 instead and obtained the accepted constraint. No checkout/ref modification."
+  },
+  "public_sources": [
+    "https://raw.githubusercontent.com/docker/cli/v20.10.24/cli/config/config.go",
+    "https://raw.githubusercontent.com/docker/cli/v20.10.24/cli/config/configfile/file.go",
+    "https://raw.githubusercontent.com/docker/cli/v27.5.1/cli/config/config.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/config.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/configfile/file.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/credentials/default_store.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/credentials/default_store_linux.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli-plugins/manager/manager.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli-plugins/manager/manager_unix.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli-plugins/plugin/plugin.go",
+    "https://raw.githubusercontent.com/docker/cli/v28.5.1/cmd/docker/builder.go",
+    "https://raw.githubusercontent.com/docker/buildx/v0.20.1/util/confutil/config.go",
+    "https://raw.githubusercontent.com/moby/buildkit/v0.19.0/session/auth/authprovider/authprovider.go"
+  ],
+  "limits": [
+    "No daemon/OCI/PG/native/provider/account/target/inference/browser effects. No installed-wheel or physical QA. Actual Docker client scope strictly --version and context show.",
+    "Helper-discovery and plugin/buildx behavior reviewed against public upstream source; no credential helper, plugin build or credential-manager integration executed. No claim of complete OS-syscall tracing or arbitrary malicious-plugin isolation.",
+    "TemporaryDirectory cleanup proves owned client-state retirement, not daemon settlement or descendant-family drain. subprocess.run timeout remains direct-child scope; unchanged intent/manual-recovery policy conservatively preserves image uncertainty. Abrupt owner death may leave anonymous scratch state, which is not adopted.",
+    "Fresh default local context only. Personal/rootless/remote contexts not adopted. Missing/unsafe default endpoint refuses. Existing runtime ControlRuntime.run is outside this delta and is not certified here.",
+    "No arbitrary malicious same-UID/root isolation or unrelated executable pinning required. PATH/system Docker components remain existing operator TCB.",
+    "Original qa-oauth-first.json and oa-i7yt8_ha receipts/root unchanged. No personal configuration, environment values, .env, auth/session/log, protected HTML or ponytail content read or hashed. Complementary new normative review not read before verdict.",
+    "Full canonical NOT_RUN; existing unchanged OAuth/source approvals neither reopened nor enlarged."
+  ],
+  "resources_and_files": {
+    "own_scratch": "/home/kali/.hermes/cache/scratch/ds-p5muQYeR",
+    "retained": "Only owned directories and synthetic poison configuration fixtures; no background handles or daemon resources allocated.",
+    "report_created": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-docker-config-safety.json",
+    "repository_files_modified": [],
+    "commits": []
+  },
+  "proposed_parent_lesson": "For anonymous Docker clients, --config alone or an empty auths map does not suppress automatic credential-helper discovery. Bind HOME and DOCKER_CONFIG as well, retain a finite nonempty anonymous auth entry, inspect normal plugin forwarding, and distinguish client-state cleanup from unresolved image/build intent. Parent owns any procedure update; reviewer made none.",
+  "tools_limits": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"}
+}

@@ -1,0 +1,46 @@
+{
+  "status": "SOURCE_GREEN_FROZEN_FOR_REVIEW",
+  "base": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+  "head": "805deba89545feaa1cae180f2fb247568ac69014",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "clean": true,
+  "sha256": {
+    "cli/src/omnis_cli/compose.py": "4ffa69ede302e703b597f0b47fe81fa9fd0821718c8f5e16502ff35b9c9c798c",
+    "cli/tests/test_image_install.py": "475903597cf7c2b0636089df3e8703bcea496c35ad39b68d9704688e710b7e37"
+  },
+  "binary_git_diff_sha256": "0f0cdf98a06950842e91d34c3afe18d09586aa077146677cc73ab57454edf28f",
+  "contract": "Normal main install-image -> install_control_image -> _install_locked -> _run: every Docker child gets anonymous private config, including discovery/base inspect/control and native builds/readback; no CLI interface expansion or new owner/harness.",
+  "implementation": {
+    "location": "Each _run creates its own .docker-client-* under validated cwd.parent: installed releases/ for bundle callers, omnis/ for native staged caller. Outside both build contexts and sealed bundle inventory; no persistent store or receipt schema change.",
+    "config": {"auths": {"https://index.docker.io/v1/": {}}},
+    "rationale": "Docker CLI LoadDefaultConfigFile calls DetectDefaultStore only when ContainsAuth is false. ContainsAuth includes len(AuthConfigs)>0; empty anonymous registry entry prevents automatic helper discovery without invented credentials. No credsStore/credHelpers/proxies/currentContext/plugins fields. Explicit --config plus child HOME and DOCKER_CONFIG bind all clients/plugins to fresh private state; only PATH is inherited.",
+    "public_source_review": [
+      "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/config.go",
+      "https://raw.githubusercontent.com/docker/cli/v28.5.1/cli/config/configfile/file.go",
+      "https://raw.githubusercontent.com/docker/cli/v20.10.24/cli/config/config.go",
+      "https://raw.githubusercontent.com/docker/cli/v20.10.24/cli/config/configfile/file.go"
+    ],
+    "default_context_limit": "Fresh isolated default local context only. Nondefault response refuses before inspect; missing/unsafe endpoint still refuses through unchanged _checked_socket. Personal/rootless/remote contexts are not copied/adopted. Existing receipt host/daemon comparison remains authoritative; existing live installations are untouched.",
+    "cleanup": "0700 TemporaryDirectory, exclusive 0600 config file; scope remains alive through synchronous subprocess.run. Cleanup owns only fresh directory on success, spawn exception, or timeout. Existing ImageInstallError normalization and interrupted-intent/no-retry uncertainty retained. No daemon settlement or descendant cleanup claim; no process-owner redesign. Abrupt process death can retain anonymous scratch state, never adopted on retry.",
+    "unchanged": "Canonical Unix socket validation; daemon/image/provenance/intent/replay guards; ambient DOCKER_* refusal; 15s reads/300s builds; API/native/UI/artifacts and parent docs. No actual personal configuration read claimed."
+  },
+  "execution": {
+    "prefix": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/h TMPDIR=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/t",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B",
+    "final_private_pycache_option": "-X pycache_prefix=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/cache/pycache",
+    "tool_versions": {"python": "3.13.15", "ruff": "0.16.9", "mypy": "2.3.1"},
+    "source_runner": "import sys,unittest; sys.path[:0]=['cli/src','cli/tests','cli/integration']; import omnis_cli.compose as c; assert '/o4-pr4lhcmr/work/' in c.__file__; suite=unittest.defaultTestLoader.loadTestsFromNames(['test_image_install','test_install','test_release_image_cleanup']); result=unittest.TextTestRunner(verbosity=1).run(suite); raise SystemExit(not result.wasSuccessful())",
+    "results": [
+      {"stage": "RED", "command": "python -I -B -c <unittest runner selecting test_image_install.ImageInstallTest.test_docker_command_uses_verified_endpoint_in_argv; sys.path cli/src,cli/tests; current source asserted>", "exit": 1, "result": "1 test, six subcase failures: actual argv docker,--host versus required docker,--config; valid private HOME/cwd; subprocess substituted, no Docker"},
+      {"stage": "RED_DEFAULT_CONTEXT", "command": "python -I -B -c <unittest runner selecting test_image_install>", "exit": 1, "result": "18 tests, sole failure: nondefault context did not raise. New direct isolation and public CLI synthetic tests passed."},
+      {"stage": "GREEN_FINAL", "command": "prefix python final_private_pycache_option -c source_runner", "exit": 0, "result": "39 tests in 0.842s; actual CLI consumer with synthetic Engine; normal/readback, build timeout, preserved intent and no replay, cleanup, both build contexts"},
+      {"stage": "RUFF_INITIAL", "command": "prefix RUFF_CACHE_DIR=private/cache python -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests", "exit": 1, "result": "15 B023 loop-closure diagnostics; explicitly bound test state, no suppression"},
+      {"stage": "RUFF_FINAL", "command": "prefix RUFF_CACHE_DIR=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/cache python -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests", "exit": 0},
+      {"stage": "FORMAT_FINAL", "command": "prefix RUFF_CACHE_DIR=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/cache python -m ruff format --config api/pyproject.toml --check cli/src cli/tests", "exit": 0, "result": "68 files already formatted"},
+      {"stage": "MYPY_FINAL", "command": "prefix MYPY_CACHE_DIR=/home/kali/.hermes/cache/scratch/dc-sc4noxnv/cache/mypy python final_private_pycache_option -m mypy --config-file api/pyproject.toml --no-incremental cli/src", "exit": 0, "result": "22 source files; no MYPYPATH"},
+      {"stage": "DIFF_COMMIT_READBACK", "command": "git diff --check; git diff --cached --check; git commit; git show --stat --oneline HEAD; git status --short --branch; sha256sum <two scoped files>; git diff base HEAD --binary | sha256sum", "exit": 0}
+    ]
+  },
+  "limits": "SOURCE only, NOT integration or APPROVED. No Docker, PG, native OCI, browser, provider DNS/account/inference/target or installed wheel executions. Full canonical NOT_RUN; affected quality gates completed. CLI wheel/bundle rebuild and real consumer QA await parent complementary reviews on this exact snapshot. Historic 6446994d release and qa-oauth-first.json remain unchanged, as does oa-i7yt8_ha original empty-root attempt. No protected HTML/ponytail/personal config/env/session/log reads or hashes.",
+  "next": "Parent: two focused complementary reviews; then new CLI artifact/new QA root, not reuse of blocked attempt. Proposed release-ops lesson: --config alone does not prevent Docker default credential-helper discovery; finite nonempty anonymous auths plus private HOME/config binding must be checked at the actual installer subprocess seam. Parent owns project-doc/skill reconciliation."
+}

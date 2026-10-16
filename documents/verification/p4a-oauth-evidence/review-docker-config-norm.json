@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Read-only normative/caller/lifecycle review of the two-file private Docker installer delta; SOURCE evidence only, not installed or physical QA acceptance.",
+  "base": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+  "head": "805deba89545feaa1cae180f2fb247568ac69014",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "clean_before_and_after": true,
+  "sha256": {
+    "cli/src/omnis_cli/compose.py": "4ffa69ede302e703b597f0b47fe81fa9fd0821718c8f5e16502ff35b9c9c798c",
+    "cli/tests/test_image_install.py": "475903597cf7c2b0636089df3e8703bcea496c35ad39b68d9704688e710b7e37"
+  },
+  "binary_git_diff_sha256": "0f0cdf98a06950842e91d34c3afe18d09586aa077146677cc73ab57454edf28f",
+  "bindings": "Both source SHA256 values and binary diff SHA256 match author-docker-config.json; HEAD and two source hashes checked again after execution. No parallel review report read.",
+  "requirements_read": [
+    "Exact worktree AGENTS.md and CONTRIBUTING.md, relevant README and implementation-status CURRENT rows",
+    "omnis-review-qa, omnis-lifecycle-receipt-review, omnis-project-status and omnis-release-ops procedures",
+    "b067c3d:documents/verification/p4a-minim.md final QA-DOCKER-CONFIG-PREFLIGHT-01 admission, read as evidence only, not as refs/heads/main identity",
+    "control/author-docker-config.json and control/qa-oauth-first.json"
+  ],
+  "original_finding_disposition": {
+    "id": "QA-DOCKER-CONFIG-PREFLIGHT-01",
+    "disposition": "RESOLVED_SOURCE_SCOPED",
+    "basis": "The actual main install-image -> install_control_image -> _install_locked -> _run path reaches private explicit --config, HOME and DOCKER_CONFIG for discovery, daemon/base/image reads, both builds and replay/readback. Ambient DOCKER_CONFIG and DOCKER_CONTEXT still refuse. This closes the missing propagation/config prerequisite at the source boundary, not the old blocked installed attempt or new artifact QA.",
+    "historical_attempt": "qa-oauth-first BLOCKED_PREFLIGHT and oa-i7yt8_ha remain preserved; no access, adoption, retry or physical cleanup performed here."
+  },
+  "findings": [],
+  "requirement_code_evidence": [
+    {
+      "requirement": "All installer Docker children receive isolated finite configuration through the normal caller",
+      "code": "main.py:123-131; compose.py:40-67,300-333,336-370,373-540",
+      "evidence": "Exact-source public CLI test substitutes only subprocess.run and passes through installed synthetic release validation, preflight, local socket validation, base lookup, control/native builds, durable receipt and repeat readback. Actual _run creates and cleans config on every observed command; ordinary _run tests cover 0700/0600, env allowlist and success/spawn-error/timeout for bundle/native cwd.",
+      "decision": "PASS_SOURCE; no interface, store, owner, profile or receipt-field expansion."
+    },
+    {
+      "requirement": "Default-only local context and fail-closed old receipt compatibility",
+      "code": "compose.py:300-318,381-416",
+      "evidence": "Nondefault context refuses before inspect; ambient overrides refuse before subprocess. Positive public replay returns success with two total builds only. Supplemental public-caller test independently changes a valid stored docker_host and docker_id; each returns exit2, preserves exact changed receipt bytes, and reaches only context show/inspect plus info before refusal, with no image inspect/build.",
+      "decision": "PASS_SOURCE. No migration/adoption of personal/rootless contexts. Previously recorded incompatible endpoints fail closed; existing live ControlRuntime path is not changed."
+    },
+    {
+      "requirement": "Configuration remains outside immutable release and both build contexts; normal source effects are confined",
+      "code": "compose.py:43-54,450-451,457-474,489-511; release.py:239-270; instance.py:16-33",
+      "evidence": "Existing installer creates/validates private releases parent and private omnis root. _run validates cwd.parent without chmod or mkdir of an existing parent. Config is sibling to bundle or native staging, not a build input. Exact-source public test compares manifest/payload readback before/after and asserts every captured config absent after completion. Direct tests leave caller HOME and cwd empty.",
+      "decision": "PASS_SOURCE. Existing native staged inputs and failed-build intent retention are unchanged, not newly cleaned or silently adopted."
+    },
+    {
+      "requirement": "Persistent failed-build intent, no automatic retry, and verified readback",
+      "code": "compose.py:413-416,456-485,489-539",
+      "evidence": "Exact-source tests exercise failed build with a tag, interrupted intent with/without a tag, daemon change, receipt durability and first-build timeout via public main. Supplemental public-caller test moves the timeout to the native build, asserts completed control build was reached, preserves exact intent bytes across explicit second invocation, requires exit2/no complete receipt and no additional builds. Positive replay remains successful without rebuilding.",
+      "decision": "PASS_SOURCE. No retry policy, settlement authority, or DRAINED success was introduced."
+    },
+    {
+      "requirement": "Descriptor/directory cleanup does not imply daemon settlement",
+      "code": "compose.py:47-67,353-370",
+      "evidence": "Source inspection: config stream closes before spawn; synchronous subprocess.run occurs within TemporaryDirectory; install lock retains existing finally close. Direct tests observe fresh-directory removal on success, spawn OSError and TimeoutExpired. Supplemental native timeout preserves uncertainty through the real CLI normalization.",
+      "decision": "PASS for ordinary changed boundary. No universal asynchronous allocation-failure/abrupt-death matrix or real process-family/daemon drain was exercised or claimed."
+    }
+  ],
+  "execution": [
+    {
+      "command": "git status --short --branch; git diff --stat; git rev-parse HEAD; git diff --name-only d6243644a8a69e621b5b1d7306f5cef417d13cd5 805deba89545feaa1cae180f2fb247568ac69014; git diff <base> <head> -- cli/src/omnis_cli/compose.py cli/tests/test_image_install.py; sha256sum <two files>; git diff --binary <base> <head> | sha256sum",
+      "exit": 0,
+      "result": "Clean exact HEAD; two-file delta and all author bindings matched."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/h TMPDIR=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/cache /home/kali/.hermes/cache/scratch/dn-lk9_awuc/review_source.py",
+      "exit": 1,
+      "result": "Exact-source test_image_install: 18 tests PASS in 0.413s with unittest OK. After that completed suite, supplemental factory failed its own exact-string assertion due to dedented indentation; no supplemental case executed in this command. Preserve this runner failure, not a product defect or an exit0 claim."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/h TMPDIR=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c <inspect dedented public test's timeout/build-count lines>",
+      "exit": 0,
+      "result": "Localized the factory-only indentation error; no source changes or effects."
+    },
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/h TMPDIR=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/dn-lk9_awuc/cache /home/kali/.hermes/cache/scratch/dn-lk9_awuc/supplemental.py",
+      "exit": 0,
+      "result": "One supplemental public-caller test PASS in 0.259s, with success/replay plus old-endpoint and old-daemon negatives, and native-build-timeout/persistent-intent/no-rebuild branch. Uses exact product source and in-memory variation of the existing synthetic Engine test, not a product mutant or Docker execution."
+    },
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; sha256sum cli/src/omnis_cli/compose.py cli/tests/test_image_install.py; git diff --check",
+      "exit": 0,
+      "result": "Clean, same HEAD and both source hashes; no product/doc/skill/index edits."
+    }
+  ],
+  "limits": [
+    "Docker process count zero, including no optional Docker client --version/context show probe. Public Docker CLI 20/28 helper-default rationale remains author's source-reviewed evidence; this review does not certify installed client helper behavior.",
+    "No daemon/build/pull/info, PostgreSQL, native OCI, provider/account/target/inference/browser or external network effects; no personal config, environment values, auth/session/log or protected HTML/ponytail reads/hashes.",
+    "SOURCE tests use synthetic release/native payloads and Engine output; they are not real installed wheel/OCI or immutable rebuilt-artifact proof.",
+    "ControlRuntime.run is distinct and unchanged; its existing explicit --config is not credited as evidence for installer isolation, nor is installer proof transferred into runtime behavior.",
+    "No new artifact rebuild, canonical gate, integration acceptance or physical settlement/absence proof. No auto-retry authorized. Old approvals retain only unchanged scopes.",
+    "No review blocking finding from style or universal failure-matrix completeness. Abrupt process death may retain anonymous owned scratch state; it is not adopted on retry."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/dn-lk9_awuc/review_source.py",
+    "/home/kali/.hermes/cache/scratch/dn-lk9_awuc/supplemental.py",
+    "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-docker-config-norm.json"
+  ],
+  "owned_scratch": "/home/kali/.hermes/cache/scratch/dn-lk9_awuc",
+  "commits": [],
+  "tools_limits": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "handoff": "Parent adjudicates complementary reviews, rebuilds only CLI/new bundle, verifies artifact identity, and separately authorizes/owns fresh installed QA. P4a-minim/G04a/G02-live/canonical remain unclosed; no new attempt is launched or approved by this SOURCE verdict."
+}

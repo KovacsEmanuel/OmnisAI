@@ -1,7 +1,7 @@
 ---
 name: omnis-release-ops
 description: "Use when packaging or releasing an Omnis slice."
-version: 0.1.14
+version: 0.1.15
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -29,6 +29,8 @@ Read stack baseline and rejected dependencies; inspect current manifests/locks a
 
 ## Pitfalls
 Host Playwright/Chromium validation is not certification of the planned executor version. Docker tags can move. Git rollback does not restore DB or secrets. Documentation readiness is not runtime readiness.
+
+- Bind Docker installer children to explicit private client state, not merely a cleared environment: dropping HOME can restore an NSS/personal-home lookup. Check the exact installed subprocess argv/environment through discovery, both builds and readback. For anonymous Docker clients, an empty auths map can trigger default credential-helper discovery; verify the selected CLI's ContainsAuth semantics and use a finite nonempty anonymous auth entry with private HOME/DOCKER_CONFIG and --config. Keep generated state outside sealed/build inputs, retain ambient-override refusals, and distinguish client-directory cleanup from uncertain daemon/build settlement.
 
 - Compare the complete strict service expectation with the installed Compose renderer before the first create. Presence matters: a rendered `entrypoint: null` is not an absent key in dictionary equality. Declare only the intended null default explicitly in the finite producer, preserve denial of alternative entrypoints/commands and unknown fields, and pass the whole actual validator read-only. Do not dump rendered environments containing DSNs, generalize away differences or spend a physical attempt on a template double alone.
 - Check ownership and traversal of every image ancestor of a mapped private bind, not just the bind root. A current-UID `0700` provider directory can still be refused beneath a different non-root image-owned `/state`. Prefer a root-owned, traversable immutable ancestor while retaining private child ownership, non-root execution and the unchanged ancestor guard; reseal the Dockerfile/bundle and verify the actual installed consumer rather than weakening path validation.

@@ -350,10 +350,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                 not cleanup
                 and not driver_pending
                 and not lock_probe_pending
-                and (
-                    settings_browser is None
-                    or (not runtime.uncertain and runtime.family_drained)
-                )
+                and (settings_browser is None or (not runtime.uncertain and runtime.family_drained))
                 and os.path.lexists(root / "startup.json")
             ):
                 record = json.loads((root / "startup.json").read_text())

@@ -29,7 +29,7 @@ export function ProviderSettings() {
   });
   const observed = !receipt ? status.data : receipt.status !== 'PENDING' ? receipt : status.data && (!operation || status.data.operation_id === operation) ? status.data : receipt;
   useEffect(() => {
-    if (observed?.status !== 'PENDING' || sending) return;
+    if (observed?.status !== 'PENDING') return;
     const limit = observed.oauth && observed.oauth !== 'NONE' ? 900000 : 30000;
     const timer = setTimeout(() => setUiExpired(true), Math.max(0, limit - (Date.now() - started.current)));
     return () => clearTimeout(timer);

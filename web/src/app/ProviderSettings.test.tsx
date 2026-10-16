@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -40,8 +40,12 @@ it('hides reload challenge on failed GET and recovers current without Connect re
 });
 
 it('hides reload challenge at the finite UI validity limit even without a refetch', async () => {
-  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => {
+  let holdRecovery = false;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
+    if (holdRecovery) return new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    });
     return Response.json({ operation_id: '11111111-1111-4111-8111-111111111111', status: 'PENDING', selection: null,
       configured: false, authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false,
       oauth: 'CHALLENGE', challenge: { code: 'TEST-CODE', url: 'https://auth.openai.com/codex/device' } });
@@ -52,6 +56,8 @@ it('hides reload challenge at the finite UI validity limit even without a refetc
       <MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
     await act(async () => { await vi.advanceTimersByTimeAsync(10); });
     expect(screen.getByText('TEST-CODE')).toBeInTheDocument();
+    holdRecovery = true;
+    fireEvent.click(screen.getByRole('button', { name: 'Recover exact operation' }));
     await act(async () => { await vi.advanceTimersByTimeAsync(900001); });
     expect(screen.queryByText('TEST-CODE')).not.toBeInTheDocument();
   } finally { vi.useRealTimers(); }

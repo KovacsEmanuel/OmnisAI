@@ -21,18 +21,30 @@ from .native_preparation_contract import loads
 def saved_selection(config: object) -> dict[str, object] | None:
     if type(config) is not dict:
         raise ValueError("Invalid native config")
-    model = config.get("model")
-    if model is None:
-        if set(config) - {"_config_version"}:
-            raise ValueError("Foreign config without selection")
+    if not config:
         return None
+    # Pinned config.py _canonicalize_config/save_config(strip_defaults=False)
+    # adds no metadata/defaults to this exact sparse shape. In particular it
+    # does not add _config_version; do not adopt arbitrary preexisting metadata.
+    if set(config) != {"model", "agent", "auth"}:
+        raise ValueError("Foreign native config fields")
+    model = config["model"]
     agent, auth = config.get("agent"), config.get("auth")
     if (
         type(model) is not dict
         or set(model) != {"provider", "default"}
         or type(agent) is not dict
         or type(auth) is not dict
+        or set(agent) != {"reasoning_effort", "reasoning_overrides"}
+        or set(auth) != {"adopt_external_logins"}
         or auth.get("adopt_external_logins") is not False
+        or type(agent.get("reasoning_overrides")) is not dict
+        or any(type(value) is not str for value in model.values())
+        or type(agent.get("reasoning_effort")) is not str
+        or any(
+            type(key) is not str or type(value) is not str
+            for key, value in agent["reasoning_overrides"].items()
+        )
         or agent.get("reasoning_overrides") != {"gpt-6.1-sol": "xhigh"}
     ):
         raise ValueError("Foreign or incomplete native config")

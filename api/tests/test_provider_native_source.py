@@ -1,8 +1,80 @@
 """SOURCE: finite native config projection and exact private request mapping."""
 
+import importlib
+from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+
+EXPECTED = {
+    "model": {"provider": "openai-codex", "default": "gpt-6.1-sol"},
+    "agent": {"reasoning_effort": "xhigh", "reasoning_overrides": {"gpt-6.1-sol": "xhigh"}},
+    "auth": {"adopt_external_logins": False},
+}
+
+
+@pytest.mark.parametrize(
+    "section,key,value",
+    [
+        (None, "fallback_model", {"provider": "openrouter"}),
+        (None, "providers", {"openai-codex": {"base_url": "https://synthetic.invalid"}}),
+        (None, "delegation", {"provider": "openrouter"}),
+        (None, "auxiliary", {"vision": {"provider": "openrouter"}}),
+        ("agent", "extra", "foreign"),
+        ("auth", "extra", "foreign"),
+        ("auth", "adopt_external_logins", 0),
+        ("agent", "reasoning_overrides", {"gpt-6.1-sol": "xhigh", "other": "low"}),
+        (None, "_config_version", True),
+        (None, "_config_version", 1.0),
+        (None, "_config_version", 1),
+    ],
+)
+def test_complete_native_config_refused_before_writer(
+    monkeypatch: pytest.MonkeyPatch, section: str | None, key: str, value: object
+) -> None:
+    from omnis_hermes import management_server
+    from omnis_hermes.management_contract import SELECTION
+
+    stored: dict[str, object] = deepcopy(EXPECTED)
+    writes = 0
+
+    def read() -> dict[str, object]:
+        return deepcopy(stored)
+
+    def save(config: dict[str, object], *, strip_defaults: bool, merge_existing: bool) -> None:
+        nonlocal writes
+        assert strip_defaults is False and merge_existing is True
+        writes += 1
+        stored.update(deepcopy(config))
+
+    native = SimpleNamespace(require_readable_config_before_write=read, save_config=save)
+    real_import = importlib.import_module
+    monkeypatch.setattr(
+        importlib,
+        "import_module",
+        lambda name: native if name == "hermes_cli.config" else real_import(name),
+    )
+    assert management_server.config_operation("GET", None) == SELECTION
+    assert management_server.config_operation("PUT", {"config": EXPECTED}) == {"ok": True}
+    assert writes == 1
+    target = stored if section is None else stored[section]
+    assert isinstance(target, dict)
+    target[key] = value
+    before = deepcopy(stored)
+    for method in ("GET", "PUT"):
+        with pytest.raises(ValueError):
+            management_server.config_operation(method, {"config": EXPECTED})
+    assert stored == before and writes == 1
+    stored.clear()
+    assert management_server.config_operation("GET", None) is None
+    assert management_server.config_operation("PUT", {"config": EXPECTED}) == {"ok": True}
+    assert management_server.config_operation("GET", None) == SELECTION
+    assert writes == 2
+    stored.clear()
+    monkeypatch.setattr(native, "save_config", lambda *a, **k: None)
+    with pytest.raises(ValueError, match="readback mismatch"):
+        management_server.config_operation("PUT", {"config": EXPECTED})
 
 
 @pytest.mark.asyncio

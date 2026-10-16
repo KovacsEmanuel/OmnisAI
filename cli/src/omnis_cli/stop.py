@@ -33,6 +33,7 @@ from .start import (
     _owned_record,
     _pgdata_receipt,
     _ready_record,
+    auth_listener,
     check_runtime_ipc,
     database_identity,
     native_fields,
@@ -325,6 +326,8 @@ def _emergency_drain(
             if process_identity(pid) != identity:
                 raise StartError("FORWARDER_IDENTITY_MISMATCH", 4)
             listener_owned(identity, port, _integer(record, "listener_inode"))
+            if record.get("format") == 4 and auth_listener(root, identity) != record["auth"]:
+                raise StartError("AUTH_IDENTITY_MISMATCH", 4)
             remaining(runtime.deadline)
             signal.pidfd_send_signal(fd, signal.SIGTERM)
             if not select.select([fd], [], [], remaining(runtime.deadline, 25))[0]:

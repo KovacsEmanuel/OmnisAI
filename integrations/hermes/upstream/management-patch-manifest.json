@@ -1,11 +1,15 @@
 {
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
-  "policy": "MANAGEMENT_CONFIG_ONLY",
+  "policy": "MANAGEMENT_CONFIG_LOCAL_AUTH",
   "files": {
     "hermes_cli/main.py": {
       "original_sha256": "5f24d7022c1c5213d9d3fcec8b4c21280cc2778e23c7d339d157ced8223c3f74",
       "patched_sha256": "9af28bd6b3daffcc1df2ae6cf345f17372356b3146cd8cac4be964c91d18d77d"
+    },
+    "hermes_cli/auth.py": {
+      "original_sha256": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+      "patched_sha256": "32e64e69bbde8bdc8005e9cd1faa7620d21390d8e25397ef2da1374f7c17bbc5"
     }
   }
 }

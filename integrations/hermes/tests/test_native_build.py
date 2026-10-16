@@ -41,6 +41,53 @@ def run_node(node, namespace):
 
 
 class NativeInertSeam(unittest.TestCase):
+    @unittest.skipUnless((SOURCE / "hermes_cli/auth.py").is_file(), "full pinned source required")
+    def test_managed_auth_import_does_not_discover_plugins(self):
+        tree = ast.parse((SOURCE / "hermes_cli/auth.py").read_text())
+        node = next(
+            n
+            for n in tree.body
+            if isinstance(n, (ast.Expr, ast.If))
+            and "sync_plugin_provider_registry()" in ast.unparse(n)
+        )
+        calls = []
+        ns = {"os": os, "sync_plugin_provider_registry": lambda: calls.append("discover")}
+        with patch.dict(os.environ, {"HERMES_OMNIS_MANAGEMENT": "1"}, clear=True):
+            run_node(node, ns)
+        self.assertEqual(calls, [])
+        with patch.dict(os.environ, {}, clear=True):
+            run_node(node, ns)
+        self.assertEqual(calls, ["discover"])
+
+    @unittest.skipUnless((SOURCE / "hermes_cli/auth.py").is_file(), "full pinned source required")
+    def test_managed_auth_corruption_does_not_backup_log_or_claim_absence(self):
+        effects = []
+        node = function("hermes_cli/auth.py", "_load_auth_store")
+        node.returns = None
+        for arg in node.args.args:
+            arg.annotation = None
+        path = types.SimpleNamespace(
+            exists=lambda: True,
+            read_text=lambda **kw: "{broken",
+            with_suffix=lambda suffix: "synthetic-corrupt-copy",
+        )
+        ns = {
+            "os": os,
+            "json": json,
+            "shutil": types.SimpleNamespace(copy2=lambda *a: effects.append("backup")),
+            "logger": types.SimpleNamespace(warning=lambda *a, **kw: effects.append("log")),
+            "_empty_auth_store": lambda: {},
+        }
+        run_node(node, ns)
+        with patch.dict(os.environ, {"HERMES_OMNIS_MANAGEMENT": "1"}, clear=True):
+            with self.assertRaises(ValueError):
+                ns["_load_auth_store"](path)
+        self.assertEqual(effects, [])
+        # Nonmanaged stock behavior is intentionally unchanged.
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(ns["_load_auth_store"](path), {})
+        self.assertEqual(effects, ["backup", "log"])
+
     def test_startup_prefix_has_no_background_or_catalog_effects(self):
         effects = []
 

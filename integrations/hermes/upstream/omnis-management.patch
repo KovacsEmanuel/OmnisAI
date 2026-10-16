@@ -16,3 +16,35 @@
  # hermes_bootstrap must be the very first import — it sets up UTF-8 stdio on
  # Windows (no-op on POSIX). Guarded: after a ``git pull`` / interrupted
  # ``hermes update`` the editable install's ``.pth`` may not list it yet; crashing
+--- a/hermes_cli/auth.py
++++ b/hermes_cli/auth.py
+@@ -263,7 +263,8 @@
+ from hermes_cli.auth_plugin_providers import (  # noqa: E402
+     get_plugin_oauth_auth_status, registry_lookup as _registry_lookup, sync_plugin_provider_registry)
+
+-sync_plugin_provider_registry()
++if os.environ.get("HERMES_OMNIS_MANAGEMENT") != "1":
++    sync_plugin_provider_registry()
+
+
+ def get_anthropic_key() -> str:
+@@ -674,6 +675,8 @@
+             auth_file, exc_info=True)
+         raise
+     except Exception as exc:
++        if os.environ.get("HERMES_OMNIS_MANAGEMENT") == "1":
++            raise ValueError("Managed auth store unreadable") from None
+         # Genuine corruption: unparseable JSON or non-UTF-8 bytes. Preserve a copy, but never
+         # advertise a backup that was not written.
+         corrupt_path = auth_file.with_suffix(".json.corrupt")
+@@ -691,6 +694,10 @@
+             corrupt_path)
+         return _empty_auth_store()
+
++    if os.environ.get("HERMES_OMNIS_MANAGEMENT") == "1" and not (
++        type(raw) is dict and type(raw.get("providers")) is dict
++    ):
++        raise ValueError("Managed auth store invalid")
+     if isinstance(raw, dict) and (
+         isinstance(raw.get("providers"), dict) or isinstance(raw.get("credential_pool"), dict)):
+         raw.setdefault("providers", {})

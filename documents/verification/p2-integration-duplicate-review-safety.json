@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "role": "independent_read_only_safety_concurrency_reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Exact-source safety/concurrency review of duplicate/conflict tests and their existing product callchain; suitable for parent adjudication before first separate PG QA. Not integration acceptance or PostgreSQL PASS.",
+  "findings": [],
+  "blocking_findings_count": 0,
+  "snapshot": {
+    "head": "548dd8dfd04e7d468d606a01dd9a926d04c0500c",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "status": " M api/tests/test_model_admission.py\n M api/tests/test_model_admission_pg.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "staged_paths": [],
+    "manifest": [
+      {
+        "path": "api/tests/test_model_admission.py",
+        "sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3",
+        "base_sha256": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+        "unchanged": false
+      },
+      {
+        "path": "api/tests/test_model_admission_pg.py",
+        "sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210",
+        "base_sha256": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+        "unchanged": false
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "base_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_protocol.py",
+        "sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "base_sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_dispatch.py",
+        "sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "base_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_projection.py",
+        "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "base_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "base_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/policy/budgets.py",
+        "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "base_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "base_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "base_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "base_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "base_sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "base_sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/core/db.py",
+        "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "base_sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "base_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget.py",
+        "sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "base_sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget_pg.py",
+        "sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "base_sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/conftest.py",
+        "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "base_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_projection.py",
+        "sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "base_sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_ready_model_configuration.py",
+        "sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "base_sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_preparation.py",
+        "sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "base_sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_records.py",
+        "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "base_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_journey.py",
+        "sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "base_sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "unchanged": true
+      },
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "base_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "unchanged": true
+      },
+      {
+        "path": "Makefile",
+        "sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "base_sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "unchanged": true
+      }
+    ],
+    "manifest_count": 25,
+    "diff_sha256": "20ec88b731790d690f86d2422697898b05c8b5c2c056477e369599a073ec70e6",
+    "author_report_sha256": "5dd2b406777311e1ac9d5a81f5b205e7e2c99d1c9ae68d87d9b275787cb50fe4"
+  },
+  "contract": {
+    "source": "documents/verification/p2-integration-b06cm.md:3-35 (CURRENT, Contract activ, D1-D3)",
+    "acceptance_row": "Same owner/protocol_id concurrent duplicate converges to original descriptor/dispatch with one reserve/send; valid changed output_tokens 63 versus 64 yields exact COMMAND_CONFLICT, no extra write/send; committed-receipt replay is receive-only.",
+    "consumer": "NativeTaskCommand -> control_task/LocalControl -> NativeTaskOwner -> domain.readback -> model_protocol.replay/reserve -> managed_store command receipt -> budgets -> real UDS synthetic NO_MODEL peer.",
+    "risk_and_decision": "Detect a duplicate effect, false lock-overlap oracle, overwritten request digest, forged intermediate success or unsafe cleanup. Scoped approval permits parent to consider first fresh PG QA only after the complementary normative review and preflight.",
+    "changed_paths": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "product_unchanged": true,
+    "authority_read_interpretation": "SOURCE both initial replay misses legitimately performs two pre-T0 runtime_authority reads; one reserve and one send, not a global one-authority-call guarantee."
+  },
+  "analysis": [
+    {
+      "topic": "Actual callchain and original lock identity",
+      "status": "STATIC_APPROVED_PG_NOT_RUN",
+      "refs": [
+        "api/tests/test_model_admission_pg.py:575-622",
+        "api/tests/test_model_admission_pg.py:635-667",
+        "api/tests/test_model_admission_pg.py:812-862",
+        "api/src/omnis/supervisor/native_tasks.py:100-169,300-338",
+        "api/src/omnis/modules/runs/managed_admission.py:1238-1246",
+        "api/src/omnis/modules/tasks/managed_store.py:12-13",
+        "api/src/omnis/modules/settings/candidate_store.py:29-32"
+      ],
+      "reason": "First native_preparation_commit delegates real product transaction, pauses after reserve and immutable command receipt SQL writes and before actual commit, records backend PID and five-record T0 delta. Second LocalControl callback directly awaits owner.handle in the same task; its domain.readback wrapper identifies the actual managed_store.lock connection before delegating the real advisory lock. pg_stat_activity requires the exact second PID, the exact original blocker via pg_blocking_pids, and Lock wait; pg_stat_clear_snapshot refresh precedes every poll. Both tasks must remain pending and second lock unacquired before release. This is not a query-text guess or a fabricated protocol.replay waiter."
+    },
+    {
+      "topic": "Both initial misses and double-effect prevention",
+      "status": "STATIC_AND_FOCUSED_SOURCE_PASS",
+      "refs": [
+        "api/tests/test_model_admission.py:636-769",
+        "api/src/omnis/supervisor/native_tasks.py:117-170",
+        "api/src/omnis/modules/runs/model_protocol.py:52-149",
+        "api/src/omnis/modules/tasks/managed_store.py:206-255"
+      ],
+      "reason": "SOURCE wrapper delegates actual replay and asserts both first per-handler results are None before releasing either. Test doubles explicitly serialize T0; second waits for first committed records, and winner remains before A until duplicate/conflict has returned. Second replay inside T0 prevents another reserve after both initial misses. Actual managed command replay compares canonical request digest and action before returning refs, or raises exact COMMAND_CONFLICT. Forced schedule asserts initial_misses=2, authority awaits=2, reserve=1, no wire before release, and final one frame."
+    },
+    {
+      "topic": "No hidden writes, original receipt and intermediate reply",
+      "status": "SOURCE_PASS_PG_AUTHORED_NOT_RUN",
+      "refs": [
+        "api/tests/test_model_admission.py:713-758,1061-1118",
+        "api/tests/test_model_admission_pg.py:718-745,824-862,934-994"
+      ],
+      "reason": "Duplicate must return RESERVED/UNKNOWN while the winner is still before A, not invented SETTLED. PG independent observer must see the exact pre-T0 seven-table snapshot during the pause; after second completes it must equal captured committed T0 rows with all neighbours unchanged and no frame/SENT. Final oracle counts exactly eight added envelope kinds, checks command_id/operation/original canonical request digest/result refs, descriptor/dispatch/reservation links, SENT sequence1 and SETTLED sequence2, and unchanged prior records. Final duplicate refs/request_id match winner. Valid changed request after settlement also refuses exactly, and original replay plus fresh-engine reader leave snapshot and counters unchanged."
+    },
+    {
+      "topic": "Post-receipt replay without new authority or send",
+      "status": "STATIC_AND_SOURCE_PASS_PG_NOT_RUN",
+      "refs": [
+        "api/tests/test_model_admission.py:739-758",
+        "api/tests/test_model_admission_pg.py:959-994",
+        "api/src/omnis/supervisor/native_tasks.py:117-147"
+      ],
+      "reason": "Initial receipt replay precedes runtime_authority and T0. SOURCE changes authority and T0 to fail on unexpected calls, then checks original replay and conflict plus record-byte equality, reserve1/frame1. PG delegates counted authority/reserve and retains count1 across conflict/replay/readback; the one-authority count is specific to its schedule, where initial domain.readback waits until T0 commits."
+    },
+    {
+      "topic": "Finite waits, cancellation and resource ownership",
+      "status": "STATIC_SCOPED_APPROVED_WITH_RUNTIME_LIMITS",
+      "refs": [
+        "api/tests/test_model_admission.py:759-769",
+        "api/tests/test_model_admission_pg.py:604-622,829-869",
+        "api/src/omnis/supervisor/native_tasks.py:100-107,170-211,451-458,737-740",
+        "api/src/omnis/transport/local_control.py:117-135,243-299",
+        "api/src/omnis/supervisor/runtime_client.py:349-373,661-667",
+        "api/tests/test_native_task_client.py:80-95",
+        "api/tests/test_model_admission_pg.py:463-479,500-504"
+      ],
+      "reason": "Both new finally blocks open all test gates first, cancel pending owned client tasks and gather them; control_task has outer4s and writer-close0.2s bounds. Enclosing LocalControl owns and cancels server tasks; server dispatch has4s and close1s bounds. PG test pauses each have1.5s fuses, waiter coroutine0.75s, awaited result2s, DB connect/statement2s; SOURCE gates0.75s. Runtime close0.5s and peer settlement1s are reused, then exact private temporary roots exit. First heartbeat is stopped and awaited before baseline; existing finally disposes engine. Product T0/A/B remains unchanged; A retires frozen output before unlocking on BaseException and accounting cleanup remains within original deadline, with no resend. No new task/process/DB owner is introduced.",
+      "qualification": "gather itself has no separate timeout; completion relies on the inspected bounded callees and existing runner family deadline. The synchronous PG observer cannot be preempted by asyncio timeout during execute: 0.75s is a coroutine polling budget, not a hard total wall-clock I/O bound. No new cancellation-stress or PG failure injection was run; first QA must preserve uncertainty and exact owner cleanup if settlement is missing."
+    },
+    {
+      "topic": "Stop regression preservation and secrets",
+      "status": "STATIC_APPROVED",
+      "refs": [
+        "api/tests/test_model_admission_pg.py:557-622,687-691,788-794,870-942,998-1023"
+      ],
+      "reason": "Existing base consumer and nominal/stop_first/send_first test entrypoints are AST-identical to HEAD. Shared helper additions that change behavior are guarded by concurrent; no Stop/caps/grant/TTL/product deadline changes. Full frames stay in memory of the existing synthetic peer; new helper checks producer envelopes and opaque digests rather than serializing a full RPC frame. Reports contain no DSN, capability, request body, raw log or traceback. Private pytest logs still require restricted access because assertion/traceback formatting is not a secret sanitizer."
+    }
+  ],
+  "verification": {
+    "independent_source": {
+      "status": "PASS_SOURCE_SCOPED",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/pytest",
+        "-q",
+        "--tb=line"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "environment_controls": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/tmp",
+        "ambient_environment": "Only PATH, HOME, LANG retained; no ambient database/provider variables passed"
+      },
+      "timeout_seconds": 40,
+      "exit": 0,
+      "tests_passed": 2,
+      "pytest_seconds": 2.74,
+      "elapsed_seconds": 3.431,
+      "timed_out": false,
+      "log": "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/source-focused.log",
+      "log_sha256": "59e343ffe54618f75f4cda823fa55a7177ae6a73236414442169d45f8300e5f1",
+      "log_mode": "0600",
+      "owned_ipc_tmp_children_after_exit": 0,
+      "limit": "Storage/authority/native identity doubles, real public private-control/UDS, actual replay/reserve/ledger logic; not PostgreSQL, installed native, provider inference or physical crash evidence."
+    },
+    "author_evidence_readback": {
+      "report": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/report.json",
+      "sha256": "5dd2b406777311e1ac9d5a81f5b205e7e2c99d1c9ae68d87d9b275787cb50fe4",
+      "full_source": "60 passed in 37.35s; reported exit0",
+      "focused_source": "2 passed in 2.80s; reported exit0",
+      "quality": "Ruff, format and mypy final outputs successful; reported exit0",
+      "collection": "76 tests collected in 0.44s; reported exit0; not PG execution",
+      "validation": "All six relevant original logs SHA-matched author manifest and modes0600; only allowlisted success/count lines read out. Not reexecution of author full suite or quality."
+    },
+    "integrity": "25 unique manifest entries and base hashes independently matched; 2 changed tests, 23 unchanged files; exact diff SHA matched before and after focused execution; existing PG test entrypoints AST-identical; git diff --check exit0; staged paths empty.",
+    "postgresql": "NOT_RUN",
+    "canonical": "NOT_RUN",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "first_pg_qa_preconditions": [
+    "Parent adjudicates this exact snapshot together with complementary independent normative review; any edits require affected checks and focused re-review.",
+    "Perform existing no-effect argv/choice/source/library/pin/access preflight and collection for target test-model-admission-pg; ops/run_test_db_gate.py --check is effectful, not dry-run.",
+    "Use only one newly owned private attested PostgreSQL/UDS fixture through existing runner, full affected target including nominal/stop_first/send_first; no existing cluster/profile adoption and no removal of regressions.",
+    "Retain original caps/grants/TTL and product deadlines. Required observed evidence: exact waiter/backend/blocker, uncommitted/after-second/settled census, individual replies, original digest/refs, one reserve/send and no replay authority. Timeout or missing overlap is FAIL/NOT_RUN, not static PASS.",
+    "Use private directory0700/logs0600 and a finite runner family deadline under the existing owner. Never display raw pytest logs, DSNs, capabilities or full frames; inspect only reason/test/exit/count/settlement allowlists.",
+    "Read back original owner cleanup/family settlement before claiming success or fixture clearance. Preserve cluster data/logs/image; per-test DB cleanup only by existing attested fixture. Retain failure/uncertainty on incomplete cleanup, no blind retry or deadline widening.",
+    "No provider/model, target, installed/native, batch2, Settings, canonical, r1/profile/global or push scope is admitted by this review."
+  ],
+  "limits": [
+    "No PostgreSQL/OCI/canonical execution; all PG overlap/census assertions are authored and statically reviewed, not observed here.",
+    "Focused independent SOURCE2PASS only; author60PASS and quality are verified existing evidence, not fresh independent reruns.",
+    "No integration acceptance, commit, stage or repository file edits. Protected HTML content was never read, hashed, edited, staged or deleted; only its preexisting untracked name appeared in required git status.",
+    "No universal concurrency/cancellation or durability proof; physical crash/ACK loss and installed native/live remain NOT_RUN.",
+    "Scope is duplicate/conflict at existing DATA/admission consumer; caps/VALIDATION/UNKNOWN breadth and phase closure remain outside scope."
+  ],
+  "parent_status_delta": {
+    "current_slice": "Duplicate/conflict SOURCE tests implemented; this safety/concurrency review APPROVED_SCOPED and SOURCE2PASS independent; PG NOT_RUN, integration IN_REVIEW.",
+    "existing_first_vertical": "ACCEPTED_SCOPED unchanged; do not reopen its separate historical72PASS acceptance.",
+    "global_gate": "DATA/B06c/B06m/P2-inert remain not closed.",
+    "projection_discrepancy": "README.md CURRENT and implementation-status.md:13 still describe duplicate/conflict as unauthorized/unstarted; active contract and direct delegation authorize this slice. Parent should reconcile status on its eventual scoped handoff, not treat stale projections as authority or PG acceptance."
+  },
+  "artifacts_created": [
+    "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/report.json",
+    "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/source-focused.log",
+    "/home/kali/.hermes/cache/scratch/dc-safe-e7qfaben/pytest"
+  ],
+  "repository_files_modified_by_reviewer": [],
+  "issues_encountered": "No blocking defect found in scoped current bytes. Two read-only lookup path typos returned not-found; corrected to api/src/... without execution effects. No failed test or blocked mandatory review step.",
+  "workflow_update": "No new pitfall requiring skill edit; existing review/API skills already cover exact lock-wait identity, statistics refresh, private logs and bounded caller cleanup. Shared repository/skills left read-only."
+}

@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "role": "independent_normative_read_only_reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "Aprob snapshotul test-only pentru contractul activ duplicate/conflict la nivel de review normativ SOURCE/oracle PG. Nu acord PASS de execuție PostgreSQL și nu închid integrarea.",
+  "scope": {
+    "repository": "/home/kali/OmnisAI",
+    "contract": "documents/verification/p2-integration-b06cm.md:3-35 (CURRENT / Contract activ / D1-D3)",
+    "changed_files": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "product_changed": false,
+    "previous_product_acceptance": "75c6fab, reusable only within the previous scoped acceptance; inspected product paths are byte-unchanged through HEAD and worktree.",
+    "exclusions": [
+      "PG/OCI execution",
+      "remaining §4 breadth",
+      "caps/VALIDATION/UNKNOWN expansion",
+      "canonical",
+      "Settings",
+      "installed native",
+      "provider/model/target",
+      "batch2",
+      "r1/global/profile changes",
+      "commit/stage/push",
+      "protected HTML content"
+    ]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Same owner/protocol_id identical concurrent commands converge to original refs with one reservation and at most one send; valid different payload refuses COMMAND_CONFLICT without additional durable writes/send; committed replay is receive-only.",
+    "consumer": "NativeTaskCommand -> control_task/LocalControl -> NativeTaskOwner -> model_protocol.replay/reserve -> managed_store.command_replay/command_complete -> budgets -> real UDS NO_MODEL",
+    "risk": "A race can duplicate reserve/send, overwrite the original request digest, fabricate SETTLED for an unfinished request, or hide collateral persistence changes behind counts.",
+    "decision": "Static review may admit the existing PG target after complementary safety review and no-effect preflight; actual PG overlap/persistence acceptance remains NOT_RUN until that separate QA succeeds."
+  },
+  "snapshot": {
+    "head": "548dd8dfd04e7d468d606a01dd9a926d04c0500c",
+    "git_status": "## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_model_admission.py\n M api/tests/test_model_admission_pg.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "manifest_count": 25,
+    "manifest": [
+      {
+        "path": "api/tests/test_model_admission.py",
+        "sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3",
+        "base_sha256": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+        "unchanged": false
+      },
+      {
+        "path": "api/tests/test_model_admission_pg.py",
+        "sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210",
+        "base_sha256": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+        "unchanged": false
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "base_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_protocol.py",
+        "sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "base_sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_dispatch.py",
+        "sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "base_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_projection.py",
+        "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "base_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "base_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/policy/budgets.py",
+        "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "base_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "base_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "base_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "base_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "base_sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "base_sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/core/db.py",
+        "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "base_sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "base_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget.py",
+        "sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "base_sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget_pg.py",
+        "sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "base_sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/conftest.py",
+        "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "base_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_projection.py",
+        "sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "base_sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_ready_model_configuration.py",
+        "sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "base_sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_preparation.py",
+        "sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "base_sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_records.py",
+        "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "base_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_journey.py",
+        "sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "base_sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "unchanged": true
+      },
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "base_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "unchanged": true
+      },
+      {
+        "path": "Makefile",
+        "sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "base_sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "unchanged": true
+      }
+    ],
+    "all_current_and_base_hashes_verified": true,
+    "rechecked_before_report": true,
+    "author_report": {
+      "path": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/report.json",
+      "sha256": "5dd2b406777311e1ac9d5a81f5b205e7e2c99d1c9ae68d87d9b275787cb50fe4",
+      "read_fields": [
+        "contract",
+        "executed_source",
+        "pg",
+        "quality",
+        "limits",
+        "snapshot.manifest"
+      ]
+    },
+    "staged_changes": false,
+    "diff_check_exit": 0,
+    "protected_html": "Preexisting untracked filename visible only in required git status. No content read/hash/edit/stage/delete."
+  },
+  "findings": [],
+  "acceptance_matrix": [
+    {
+      "criterion": "Concurrent identical commands and valid conflict use the same public private-control consumer",
+      "disposition": "SATISFIED_SOURCE_AND_AUTHORED_PG",
+      "test_locations": [
+        "api/tests/test_model_admission.py:701-744",
+        "api/tests/test_model_admission_pg.py:812-862",
+        "api/tests/test_model_admission_pg.py:955-968"
+      ],
+      "producer_locations": [
+        "api/src/omnis/modules/instance/schemas.py:119-136",
+        "api/src/omnis/supervisor/native_tasks.py:100-169",
+        "api/src/omnis/transport/local_control.py:152-158"
+      ],
+      "reason": "The second command retains owner/protocol_id/action and differs only in output_tokens 63 versus 64 for the negative. Both are DTO-valid; positive 64 proves this configuration admits the ceiling and 63 is within it. Exact public COMMAND_CONFLICT is preserved, not a parser or generic TASK_REJECTED denial. No new opcode, owner or fake model response."
+    },
+    {
+      "criterion": "Both initial replay reads miss in SOURCE, then the losing T0 rechecks",
+      "disposition": "SATISFIED_SOURCE_ONLY",
+      "test_locations": [
+        "api/tests/test_model_admission.py:654-699",
+        "api/tests/test_model_admission.py:715-760"
+      ],
+      "producer_locations": [
+        "api/src/omnis/supervisor/native_tasks.py:117-147"
+      ],
+      "reason": "Delegated replay executes before each barrier and asserts None twice. The first caller's T0 is serialized; the loser reaches the actual second replay. One reserve and no send while the loser returns RESERVED/UNKNOWN or COMMAND_CONFLICT are asserted. Two pre-T0 runtime_authority reads are explicitly counted and legitimate; no universal exactly-one-authority claim. Transaction/SQL/authority seams remain doubles."
+    },
+    {
+      "criterion": "Real PG lock overlap before reserve/receipt commit",
+      "disposition": "ORACLE_APPROVED_EXECUTION_NOT_RUN",
+      "test_locations": [
+        "api/tests/test_model_admission_pg.py:575-615",
+        "api/tests/test_model_admission_pg.py:635-663",
+        "api/tests/test_model_admission_pg.py:821-845"
+      ],
+      "producer_locations": [
+        "api/src/omnis/supervisor/native_tasks.py:137-169",
+        "api/src/omnis/supervisor/native_tasks.py:300-304",
+        "api/src/omnis/modules/runs/managed_admission.py:1238-1246",
+        "api/src/omnis/modules/tasks/managed_store.py:12-13",
+        "api/src/omnis/modules/settings/candidate_store.py:29-32"
+      ],
+      "reason": "First fence delegates the actual transaction and pauses after product SQL but before its context exits/commits. T0 asserts five exact new kinds. The actual second LocalControl task is tracked at domain.readback -> managed_store.lock; its own connection backend PID is captured before the real advisory lock. pg_blocking_pids must identify the exact first backend and wait_event_type Lock; pg_stat_clear_snapshot avoids stale statistics. No inference from query text or merely scheduled coroutines."
+    },
+    {
+      "criterion": "Original request digest and all identity refs remain bound to the first request",
+      "disposition": "SATISFIED_SOURCE_AND_AUTHORED_PG",
+      "test_locations": [
+        "api/tests/test_model_admission.py:1061-1114",
+        "api/tests/test_model_admission_pg.py:943-968"
+      ],
+      "producer_locations": [
+        "api/src/omnis/modules/runs/model_protocol.py:52-63",
+        "api/src/omnis/modules/runs/model_protocol.py:81-149",
+        "api/src/omnis/modules/tasks/managed_store.py:184-255"
+      ],
+      "reason": "Oracle hashes the original validated model_dump canonical request, matching the actual command_complete producer, not the conflict payload. It compares the sole command receipt command_id/operation/result_refs, full descriptor/dispatch refs, dispatch->descriptor/reservation refs, SENT/usage/protocol receipt->dispatch refs, request IDs and original requested/admitted caps. Duplicate replies share exact original descriptor/dispatch/request_id. Full row equality afterward protects the original receipt from replacement."
+    },
+    {
+      "criterion": "Complete persistent census rather than count-only proof",
+      "disposition": "ORACLE_APPROVED_EXECUTION_NOT_RUN",
+      "test_locations": [
+        "api/tests/test_model_admission_pg.py:588-607",
+        "api/tests/test_model_admission_pg.py:718-745",
+        "api/tests/test_model_admission_pg.py:824-858",
+        "api/tests/test_model_admission_pg.py:943-993"
+      ],
+      "producer_locations": [
+        "api/src/omnis/modules/runs/model_protocol.py:66-149",
+        "api/src/omnis/modules/runs/model_protocol.py:289-335",
+        "api/src/omnis/policy/budgets.py:245-340",
+        "api/src/omnis/policy/budgets.py:413-495",
+        "api/src/omnis/modules/runs/model_dispatch.py:460-504"
+      ],
+      "reason": "All rows and columns are retained via sorted to_jsonb for managed_record/managed_run/managed_task/managed_inbox/managed_mission_revision/catalog_record/catalog_command. Before commit the independent observer must see baseline only. After commit the winner waits before A while the second finishes; the observed database must equal the exact in-T0 snapshot, with no frame/write observation. Final census preserves all original managed rows and every neighboring table, and requires exactly eight new envelopes: budget, descriptor, reservation, dispatch, command receipt, SENT, usage, protocol receipt. Existing approval/projection/configuration receipt are reused. Actual instance/lease/fence paths only read/lock; heartbeat is joined before baseline, so their exclusion is not an omitted product write table for these cases."
+    },
+    {
+      "criterion": "SENT visibility before write, truthful state and no duplicate effect",
+      "disposition": "SATISFIED_SOURCE_AND_AUTHORED_PG",
+      "test_locations": [
+        "api/tests/test_model_admission.py:724-760",
+        "api/tests/test_model_admission.py:838-857",
+        "api/tests/test_model_admission_pg.py:762-785",
+        "api/tests/test_model_admission_pg.py:847-862",
+        "api/tests/test_model_admission_pg.py:933-942"
+      ],
+      "producer_locations": [
+        "api/src/omnis/supervisor/native_tasks.py:170-212",
+        "api/src/omnis/modules/runs/model_protocol.py:269-335",
+        "api/src/omnis/modules/runs/model_protocol.py:394-487"
+      ],
+      "reason": "Intermediate duplicate is exactly RESERVED/UNKNOWN while the winner is held before A, not invented SETTLED. Original observer C checks committed SENT/request/body/frame/caps against retained descriptor before delegating the original writer.write. After the real cold ACK, sole send settles KNOWN with protocol_calls=1, model_calls=0, output_tokens=0. No inference or live-token enforcement is claimed."
+    },
+    {
+      "criterion": "Conflict, replay and final durable reader are receive-only",
+      "disposition": "SATISFIED_SOURCE_AND_AUTHORED_PG",
+      "test_locations": [
+        "api/tests/test_model_admission.py:745-760",
+        "api/tests/test_model_admission.py:1046-1051",
+        "api/tests/test_model_admission_pg.py:958-993"
+      ],
+      "producer_locations": [
+        "api/src/omnis/supervisor/native_tasks.py:117-125",
+        "api/src/omnis/modules/runs/model_protocol.py:152-266",
+        "api/src/omnis/modules/runs/model_protocol.py:394-487"
+      ],
+      "reason": "SOURCE forbids new runtime authority/fence entry after the receipt and checks graph/send/reserve stability. PG counters delegate actual methods and remain one for this observed ordering; full seven-table snapshots are unchanged after exact conflict, original public replay and reader on a fresh engine. Fresh engine is not a process or server restart claim."
+    },
+    {
+      "criterion": "D1-D3 and scope preservation",
+      "disposition": "SATISFIED_SCOPED",
+      "test_locations": [
+        "api/tests/test_model_admission_pg.py:996-1023",
+        "api/tests/test_model_admission.py:1117-1124"
+      ],
+      "producer_locations": [
+        "api/src/omnis/modules/instance/service.py:131-214",
+        "api/src/omnis/modules/runs/model_protocol.py:29-37"
+      ],
+      "reason": "Only two test files change; source product, schema, caps, grant/TTL/deadlines, ledger, runner and native Host are unchanged. Existing nominal/Stop-first/send-first target cases remain. Test pause fuses do not widen production grants. No product defect was observed and the active contract explicitly does not require artificial RED. Previous 72-target QA and reviewed fixes retain only their old scope."
+    }
+  ],
+  "evidence": {
+    "reviewer_executed": {
+      "source_tests": false,
+      "pg": false,
+      "quality_rerun": false,
+      "source_probe_decision": "Not needed: no concrete suspected defect that a new SOURCE run would adjudicate; reused exact-snapshot author results and privately parsed their existing final summary lines.",
+      "git_diff_check_exit": 0,
+      "snapshot_sha_checks": 25,
+      "current_base_all_match": true
+    },
+    "author_executed_source": {
+      "full": {
+        "passed": 60,
+        "seconds": 37.35,
+        "exit": 0,
+        "log_sha256": "ee158c2e1cb2dee532ad909e65ee5f33059cf6a5cd0f9c0e1f8517cfc3b8d023"
+      },
+      "focused": {
+        "passed": 2,
+        "seconds": 2.8,
+        "exit": 0,
+        "log_sha256": "63ff8e87b81f77183150f0cc103cb26233bf4d032c96af822c1c6bb9ea915c06"
+      },
+      "independently_read_log_summaries": true,
+      "log_modes": "0600",
+      "exit_codes_source": "author report; not independently rerun"
+    },
+    "author_quality": {
+      "ruff_exit": 0,
+      "format_exit": 0,
+      "mypy_exit": 0,
+      "collection_exit": 0,
+      "attribution": "reported by author, not independently rerun"
+    },
+    "pg": {
+      "status": "AUTHORED_COLLECTED_NOT_RUN",
+      "collected_target_count": 76,
+      "source_nodes": 60,
+      "pg_nodes": 16,
+      "actual_lock_overlap_observed_by_this_reviewer": false
+    },
+    "prior_qa": {
+      "status": "REUSED_UNCHANGED_SCOPE_ONLY",
+      "target_passed": 72,
+      "source_nodes": 58,
+      "pg_nodes": 14,
+      "seconds": 143.4,
+      "exit": 0,
+      "does_not_certify_new_duplicate_cases": true
+    }
+  },
+  "limits": [
+    "APPROVED_SCOPED is normative code/oracle review, not runtime PG PASS or final integration acceptance.",
+    "SOURCE storage/transaction/native identity/authority are explicitly synthetic; real UDS and actual owner/replay/reserve/ledger/reader functions do not establish PostgreSQL durability.",
+    "PG lock/census/counters are authored assertions only until independently executed on the fresh authorized fixture.",
+    "Seven-table census covers durable rows of this slice, not physical WAL/SQL-attempt/no-op-write auditing or universal database immutability.",
+    "Fresh-engine readback is not process/PG restart, physical crash, ACK-loss or power-loss proof.",
+    "No installed native, provider/model/SDK execution, target/r1/profile/global mutation, batch2 rerun, canonical, Settings or push.",
+    "No raw DSN, capability, full RPC frame or private traceback was emitted or included in this report.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Complementary safety reviewer is separate; this report does not impersonate that verdict.",
+    "README/current implementation-status still show historical STOP/HANDOFF wording. The newer active registry and explicit user mandate govern this slice; parent should reconcile affected projections at authorized close without rerunning old gates."
+  ],
+  "handoff": {
+    "repo_files_created_or_modified": [],
+    "scratch_files_created": [
+      "/home/kali/.hermes/cache/scratch/dup-norm-g0ymbkhj/report.json"
+    ],
+    "commit_stage_push": false,
+    "issues_encountered": "No concrete blocking normative finding. One read offset exceeded managed_store file length; corrected by targeted read, no effects.",
+    "next_step": "Parent adjudicates both complementary exact-snapshot reviews, then no-effect preflight and independent authorized fresh PG/UDS target. Preserve NOT_RUN until actual result and exact cleanup readback; no implicit next slice.",
+    "proposed_status_delta": {
+      "current_slice": "AICI duplicate/conflict: test implementation complete, SOURCE PASS_RECORDED, normative review APPROVED_SCOPED, PG NOT_RUN",
+      "product": "unchanged at accepted first-vertical scope",
+      "global": "DATA/B06c/B06m/P2-inert remain NOT_CLOSED; canonical/Settings/live not run"
+    }
+  }
+}

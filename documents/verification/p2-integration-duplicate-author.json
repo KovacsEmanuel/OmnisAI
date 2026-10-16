@@ -1,0 +1,729 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_SOURCE_PASS_PG_AUTHORED_COLLECTED_NOT_RUN_REVIEW_REQUIRED",
+  "acceptance": "NOT_CLAIMED; parent owns two independent reviews, fresh PG QA and integration",
+  "snapshot": {
+    "base": "548dd8dfd04e7d468d606a01dd9a926d04c0500c",
+    "head": "548dd8dfd04e7d468d606a01dd9a926d04c0500c",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "status": "M api/tests/test_model_admission.py\n M api/tests/test_model_admission_pg.py\n?? documents/Omnis_Notite_Originale.html",
+    "diff_paths": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "staged_paths": [],
+    "diff_sha256": "20ec88b731790d690f86d2422697898b05c8b5c2c056477e369599a073ec70e6",
+    "diff_check_exit": 0,
+    "manifest": [
+      {
+        "path": "api/tests/test_model_admission.py",
+        "sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3",
+        "base_sha256": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+        "unchanged": false
+      },
+      {
+        "path": "api/tests/test_model_admission_pg.py",
+        "sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210",
+        "base_sha256": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+        "unchanged": false
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "base_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_protocol.py",
+        "sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "base_sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_dispatch.py",
+        "sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "base_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_projection.py",
+        "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "base_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "base_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/policy/budgets.py",
+        "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "base_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "base_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "base_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "base_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "base_sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "base_sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/core/db.py",
+        "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "base_sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "base_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget.py",
+        "sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "base_sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget_pg.py",
+        "sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "base_sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/conftest.py",
+        "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "base_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_projection.py",
+        "sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "base_sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_ready_model_configuration.py",
+        "sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "base_sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_preparation.py",
+        "sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "base_sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_records.py",
+        "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "base_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_journey.py",
+        "sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "base_sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "unchanged": true
+      },
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "base_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "unchanged": true
+      },
+      {
+        "path": "Makefile",
+        "sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "base_sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "unchanged": true
+      }
+    ],
+    "checks": [
+      {
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source",
+          "-q",
+          "--tb=line"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/source-initial.log",
+        "log_sha256": "180b3ac06eb548a8fe67c3af219244b2bbc40cac34e70e3b07c0fb54d4ea2535",
+        "log_mode": "0o600",
+        "summary": [
+          "2 passed in 2.65s"
+        ]
+      },
+      {
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/format.log",
+        "log_sha256": "96a977f329ec3c59092d40e041a019b49dcf03ca04055e177aa0ccb8c27234df",
+        "log_mode": "0o600",
+        "summary": [
+          "2 files reformatted"
+        ]
+      },
+      {
+        "name": "ruff",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/ruff.log",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "log_mode": "0o600",
+        "summary": [
+          "All checks passed!"
+        ]
+      },
+      {
+        "name": "format-check",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/format-check.log",
+        "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "log_mode": "0o600",
+        "summary": [
+          "2 files already formatted"
+        ]
+      },
+      {
+        "name": "mypy",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "api/pyproject.toml",
+          "--cache-dir",
+          "/home/kali/.hermes/cache/scratch/dup-2pppsifg/mypy",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/mypy.log",
+        "log_sha256": "86db1a5db3ee210f5bc73f1bc8cd81a605c51450f8fca382bf5da0434409bed8",
+        "log_mode": "0o600",
+        "summary": [
+          "Found 1 error in 1 file (checked 2 source files)"
+        ]
+      },
+      {
+        "name": "collect",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py",
+          "api/tests/test_model_budget.py",
+          "api/tests/test_model_budget_pg.py",
+          "--collect-only",
+          "-q",
+          "--tb=line"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/collect.log",
+        "log_sha256": "1ada906b84f8f5bc2d87188bf357a4545e1c34f5866c6253fbaa162d7fdf8abe",
+        "log_mode": "0o600",
+        "summary": [
+          "76 tests collected in 0.43s"
+        ]
+      },
+      {
+        "name": "ruff-final",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/ruff-final.log",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "log_mode": "0o600",
+        "summary": [
+          "All checks passed!"
+        ]
+      },
+      {
+        "name": "format-final",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/format-final.log",
+        "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "log_mode": "0o600",
+        "summary": [
+          "2 files already formatted"
+        ]
+      },
+      {
+        "name": "mypy-final",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "api/pyproject.toml",
+          "--cache-dir",
+          "/home/kali/.hermes/cache/scratch/dup-2pppsifg/mypy",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/mypy-final.log",
+        "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+        "log_mode": "0o600",
+        "summary": [
+          "Success: no issues found in 2 source files"
+        ]
+      },
+      {
+        "name": "collect-final",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_admission_pg.py",
+          "api/tests/test_model_budget.py",
+          "api/tests/test_model_budget_pg.py",
+          "--collect-only",
+          "-q",
+          "--tb=line"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/collect-final.log",
+        "log_sha256": "7cb2028cd5d65554e5900504e5a3ce9aab86408d03c9eea19bf722940ad139bf",
+        "log_mode": "0o600",
+        "summary": [
+          "76 tests collected in 0.44s"
+        ]
+      },
+      {
+        "name": "source-focused-final",
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source",
+          "-q",
+          "--tb=line"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/source-focused-final.log",
+        "log_sha256": "63ff8e87b81f77183150f0cc103cb26233bf4d032c96af822c1c6bb9ea915c06",
+        "log_mode": "0o600",
+        "summary": [
+          "2 passed in 2.80s"
+        ]
+      },
+      {
+        "command": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "api/tests/test_model_admission.py",
+          "api/tests/test_model_budget.py",
+          "-q",
+          "--tb=line"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/source-final.log",
+        "log_sha256": "ee158c2e1cb2dee532ad909e65ee5f33059cf6a5cd0f9c0e1f8517cfc3b8d023",
+        "log_mode": "0o600",
+        "summary": [
+          "60 passed in 37.35s"
+        ]
+      }
+    ],
+    "collected_nodes": [
+      "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+      "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+      "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[duplicate]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[conflict]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+      "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+      "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+      "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+      "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+      "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+      "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+      "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+      "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+      "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+      "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+      "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "collected_count": 76,
+    "source_collected_count": 60,
+    "pg_collected_count": 16,
+    "new_pg_nodes": [
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]"
+    ],
+    "all_pg_nodes": [
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "unchanged_existing_pg_test_ast": {
+      "test_pg_explicit_decision_projection_owner_rollback_replay_and_stop": true,
+      "test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback": true
+    },
+    "scratch_mode": "0o700",
+    "python": "3.13.15"
+  },
+  "contract": {
+    "registry": "documents/verification/p2-integration-b06cm.md CURRENT / Contract activ — duplicate concurente și conflict / D1-D3",
+    "owned_files": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "product_modified": false,
+    "stage_commit_push": false,
+    "outcome": "Concurrent identical requests converge on original descriptor/dispatch refs; valid output_tokens=63 vs 64 with same protocol_id refuses exact COMMAND_CONFLICT, no additional writes/send. Existing receipt replay is receive-only."
+  },
+  "executed_source": {
+    "full_source": {
+      "count": 60,
+      "passed": 60,
+      "exit": 0,
+      "seconds": 37.35,
+      "files": [
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_budget.py"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/source-final.log",
+      "scope": "SOURCE doubles for storage/transactions/authority/native identity; actual public control, owner, real UDS, replay/reserve/ledger, serializer/cold receipt/readback. Not PostgreSQL or installed native."
+    },
+    "focused_final": {
+      "count": 2,
+      "passed": 2,
+      "exit": 0,
+      "seconds": 2.8,
+      "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/source-focused-final.log"
+    },
+    "initial_new_cases": {
+      "count": 2,
+      "passed": 2,
+      "exit": 0,
+      "seconds": 2.65
+    },
+    "authority_observation": {
+      "per_case_initial_misses": 2,
+      "per_case_runtime_authority_awaits_before_T0": 2,
+      "per_case_reserve_calls": 1,
+      "per_case_wire_frames": 1,
+      "existing_receipt_replay_new_authority": 0,
+      "existing_receipt_replay_new_reservation": 0,
+      "existing_receipt_replay_new_wire_frames": 0,
+      "note": "2 authority reads are legitimate short pre-T0 checks under forced both-miss SOURCE scheduling, not duplicate effect. No global exactly-one-authority promise."
+    },
+    "results": "duplicate RESERVED/UNKNOWN while winner paused after T0; final SETTLED/KNOWN protocol_calls=1 model_calls=0 output_tokens=0; conflict exact COMMAND_CONFLICT; original request_digest preserved; exact record delta and no record changes on conflict/replay.",
+    "tdd": "No product defect reproduced; tests immediately passed existing behavior, as allowed by active contract. No artificial RED or product edit."
+  },
+  "pg": {
+    "status": "AUTHORED_COLLECTED_NOT_RUN",
+    "target": "test-model-admission-pg",
+    "nodes": [
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]"
+    ],
+    "full_target_count": 76,
+    "source_count": 60,
+    "pg_count": 16,
+    "existing_three_cases": "nominal, stop_first, send_first retained; existing test entrypoints AST-identical, shared helper new effects guarded by concurrent bool.",
+    "lock_oracle": "First actual control_task T0 paused inside delegated native_preparation_commit AFTER product reserve+immutable command receipt SQL writes and BEFORE real commit. Capture original backend PID. Second actual control_task identified by LocalControl callback task. Its actual domain.readback enters managed_store.lock; record same connection PID before delegating real lock. Observe exact second PID blocked by exact original backend using pg_blocking_pids + wait_event_type=Lock, refresh pg_stat snapshot; no query text assumption. Only then release T0.",
+    "write_oracle": "Independent observer cannot see T0 writes before commit. After T0 commit hold winner before A until second finishes; compare all census rows exactly to captured T0 row snapshot, assert zero frame/SENT, then release A. Original C-before-writer.write observer checks committed SENT/body/frame/request identity, delegated transport. Final exact record delta, conflict + replay snapshots, fresh-engine reader.",
+    "authored_counts_not_observed": {
+      "runtime_authority": 1,
+      "reserve": 1,
+      "wire_frames": 1,
+      "descriptor": 1,
+      "reservation": 1,
+      "dispatch": 1,
+      "command_receipt": 1,
+      "SENT": 1,
+      "usage": 1,
+      "protocol_receipt": 1
+    },
+    "schema": "0013_mission_revisions; unchanged schema and migrations; collection does not attest live schema.",
+    "census": {
+      "tables": [
+        "managed_record",
+        "managed_run",
+        "managed_task",
+        "managed_inbox",
+        "managed_mission_revision",
+        "catalog_record",
+        "catalog_command"
+      ],
+      "mutated_table_for_protocol": "managed_record",
+      "comparison": "complete sorted to_jsonb rows before/precommit/after-second/settled/conflict/replay/fresh-reader; exact count and correlations of added envelopes; all prior rows unchanged.",
+      "new_record_counts": {
+        "model-budget": 1,
+        "model-dispatch-owner": 1,
+        "model-reservation": 1,
+        "model-dispatch": 1,
+        "contract-input-command": 1,
+        "model-dispatch-transition": 1,
+        "model-usage-receipt": 1,
+        "model-protocol-receipt": 1
+      },
+      "reused_existing_records": {
+        "model-data-approval": 1,
+        "model-projection": 1,
+        "model-configuration-receipt": 1
+      },
+      "authority_tables": "InstanceControl/lease/fence are read/locked, not mutated in these two protocol cases; heartbeat stops before baseline. No Stop command inside new cases; old Stop cases unchanged."
+    },
+    "budgets": {
+      "pg_waiter_observer_seconds": 0.75,
+      "owner_seconds": 4,
+      "protocol_wall_seconds": 3,
+      "DB_statement_seconds": 2,
+      "connect_seconds": 2,
+      "precommit_test_pause_fuse_seconds": 1.5,
+      "postcommit_test_pause_fuse_seconds": 1.5,
+      "product_grants_caps_TTL_unchanged": true
+    }
+  },
+  "quality": {
+    "ruff_final_exit": 0,
+    "format_final_exit": 0,
+    "mypy_final_exit": 0,
+    "checked_files": 2,
+    "diff_check_exit": 0,
+    "collection_exit": 0
+  },
+  "failed_attempts": [
+    {
+      "kind": "mypy",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/dup-2pppsifg/mypy.log",
+      "diagnostic": "Task[dict[str, object]] inferred for newly added cleanup loop variable task conflicted with existing mixed send/stop Task[object] loop at old branch. Renamed only new loop variable pending; mypy final exit0, no behavioral change."
+    },
+    {
+      "kind": "patch_validation",
+      "count": 2,
+      "effect": "No files modified by rejected calls; ambiguous hunk context narrowed before successful patch."
+    }
+  ],
+  "limits": [
+    "PG/OCI NOT_RUN by instruction; no live overlap or PG counters claimed.",
+    "No installed native, provider/model, SDK execution, target, r1/profile/global mutation, batch2/H03 rerun, canonical or push.",
+    "SOURCE forced both-miss path models transaction serialization with asyncio lock; not durability/SQL proof.",
+    "No new owner, store, runner, dependency or framework. Reused existing consumer/qualification/config/peer helpers.",
+    "No protected HTML content read/hash/edit/stage/delete. Its preexisting untracked name was observed in required git status only.",
+    "No user-visible raw traceback, DSN, capability or full frame emitted. Raw pytest outputs retained only under private scratch.",
+    "No staged/committed changes; parent must review and commit."
+  ],
+  "next_mandatory_reviews": [
+    "Independent normative review on exact manifest: active contract D1-D3, persistence/digest/ref/readback/census, old cases preserved.",
+    "Independent safety/concurrency review on same manifest: actual lock placement/backend correlation, source both-miss gate, authority counts, failure/cancel cleanup and finite deadlines.",
+    "After both reviews and any minimal repairs: existing runner no-effect preflight, one parent-authorized fresh private PG/UDS QA through unchanged full test-model-admission-pg target; parent verifies results and exact cleanup. Do not run canonical or batch2."
+  ],
+  "parent_status_delta": "AICI duplicate/conflict: authored tests + SOURCE PASS / PG collected NOT_RUN / NOT_REVIEWED. Rest DATA/B06c/B06m/P2-inert still open. Existing README/map STOP prose is stale versus active registry; parent owns reconciliation, not this child.",
+  "workflow_note": "Existing skills already require observing actual product lock overlap, separating SOURCE doubles from PG, and refusing widened grants. Concrete readback-before-replay lock stage and legitimate two short authority checks are preserved in test comments and this report; no out-of-scope skill file edits."
+}

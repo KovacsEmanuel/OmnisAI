@@ -51,12 +51,20 @@ Același `image.json` format 2 leagă ambele imagini de release/proiect/daemon;
 receipturile control-only format 1 rămân distincte. Limitele releaseului rămân
 2 MiB/fișier și 8 MiB cumulat.
 
-**Această prerechizită nu livrează încă Settings instalat:** startupul profilului
-nou refuză explicit `NATIVE_LIFECYCLE_REQUIRED` înainte de Docker. Al patrulea
-serviciu, provider home și extensia completă Stop/atestare/restart trebuie livrate
-împreună înainte de eliminarea refuzului. Nu folosiți mediul nativ pregătit la boot,
-nu adoptați o instalare veche și nu construiți/porniți imagini înaintea reviewului și
-admiterii QA. SOURCE și wheel-ul CLI nu reprezintă probe native/PG/browser.
+**Candidatul SOURCE include acum lifecycle-ul cu patru roluri**, selectat exclusiv
+prin release/image receipt `p4a-settings-offline`: CLI-ul aplică template-ul JSON
+finit din wheel peste Compose-ul sigilat, fără profile/config ambiental. Ordinea
+este DB/schemă → RuntimeHost → supervisorul cu un singur RuntimeClient → API → OPEN.
+RuntimeHost este PID1 direct, fără rețea/ports, cu rootfs read-only și numai bindurile
+private `native-ipc` → `/runtime` și `provider` → `/state/provider`. API nu le montează.
+Provider home este păstrat, cu identitatea fizică verificată la reuse/Stop/restart;
+nu se copiază profile personale. Managementul pornește numai prin Settings explicit.
+Startup format 3 și inventarul/completion Stop v2 sunt distincte de formele control-only;
+Stop păstrează DB barrier/drain/FINALIZE/grant și ordinea
+forwarder → API → supervisor → runtime → DB → network → IPC. Rezultatele incerte nu
+publică STOPPED. **Reviewurile complementare și QA instalată rămân necesare**;
+SOURCE/doubles și wheel-ul CLI nu sunt probe native/PG/browser și nu autorizează
+adopția instalărilor vechi, OAuth, inferență sau trafic către ținte.
 
 ## Contractul startului
 

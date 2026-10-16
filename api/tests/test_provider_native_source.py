@@ -78,6 +78,33 @@ def test_complete_native_config_refused_before_writer(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("ack", [{"ok": 1}, {"ok": 1.0}, {"ok": True, "extra": False}])
+async def test_native_ack_requires_exact_true(monkeypatch: pytest.MonkeyPatch, ack: object) -> None:
+    from omnis_hermes import management_http
+    from omnis_hermes.management_contract import SELECTION
+
+    reply: object = {"ok": True}
+    reads = 0
+
+    async def request(
+        port: int, token: str, method: str, path: str, payload: dict[str, object] | None = None
+    ) -> object:
+        nonlocal reads
+        if method == "PUT":
+            return reply
+        reads += 1
+        return dict(SELECTION)
+
+    monkeypatch.setattr(management_http, "request", request)
+    assert await management_http.configure(1, "synthetic", "save", SELECTION) == SELECTION
+    assert reads == 1
+    reply = ack
+    with pytest.raises(ValueError, match="Unconfirmed native save"):
+        await management_http.configure(1, "synthetic", "save", SELECTION)
+    assert reads == 1
+
+
+@pytest.mark.asyncio
 async def test_native_request_is_allowlisted_and_readback_not_http_ok(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

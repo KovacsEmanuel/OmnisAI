@@ -72,7 +72,7 @@ async def configure(
                 }
             },
         )
-        if result != {"ok": True}:
+        if type(result) is not dict or set(result) != {"ok"} or result["ok"] is not True:
             raise ValueError("Unconfirmed native save")
     elif action != "read":
         raise ValueError("Invalid action")

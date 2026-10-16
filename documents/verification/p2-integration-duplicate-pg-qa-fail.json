@@ -1,0 +1,1537 @@
+{
+  "schema_version": 1,
+  "report_id": "p2-integration-duplicate-independent-pg-qa-original",
+  "status": "BLOCKED_QA",
+  "created_at_utc": "2026-10-16T04:17:44.280248+00:00",
+  "scope": "One fresh existing test-model-admission-pg invocation; no implementation, no final integration or slice closure.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Duplicate concurrent same protocol_id converges; valid changed payload refuses exact COMMAND_CONFLICT without second writes/send; replay/fresh-engine readback unchanged. Preserve nominal and both Stop order regressions.",
+    "consumer": "NativeTaskCommand -> control_task / LocalControl -> NativeTaskOwner -> model_protocol / managed_store -> PostgreSQL -> real UDS synthetic NO_MODEL peer",
+    "risk": "Duplicate reservation/frame, request_digest overwrite, unobserved concurrency or unsafe teardown.",
+    "decision": "New duplicate/conflict runtime acceptance BLOCKED: both new nodes and two Stop ordering regressions failed. Parent localizes and owns any fix/authorization; no retry by QA."
+  },
+  "repository": {
+    "cwd": "/home/kali/OmnisAI",
+    "entry_head": "c7acbf05f0f2011fb1111c8e38b475944c328d8b",
+    "tested_head": "87c01c304347c58d1560c0024aa2636744051e3e",
+    "final_head": "87c01c304347c58d1560c0024aa2636744051e3e",
+    "parent_concurrent_commit": "87c01c3 documents-only review preservation, no manifest source drift",
+    "product_base": "75c6fab",
+    "test_commit": "c7acbf0",
+    "source_manifest_count": 25,
+    "source_manifest_before": [
+      {
+        "path": "api/tests/test_model_admission.py",
+        "sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3",
+        "base_sha256": "3aebe5a2d8077cac0801aead23472950ea1313dd4d895b26bdad6b63f61966aa",
+        "unchanged": false
+      },
+      {
+        "path": "api/tests/test_model_admission_pg.py",
+        "sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210",
+        "base_sha256": "5d1e0df158d17e23bc145be76f64ebd8c0520284c111533204dde5e101b3aed3",
+        "unchanged": false
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "base_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_protocol.py",
+        "sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "base_sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_dispatch.py",
+        "sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "base_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_projection.py",
+        "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "base_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "base_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/policy/budgets.py",
+        "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "base_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "base_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "base_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "base_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "base_sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "base_sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "unchanged": true
+      },
+      {
+        "path": "api/src/omnis/core/db.py",
+        "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "base_sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "base_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget.py",
+        "sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "base_sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_budget_pg.py",
+        "sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "base_sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/conftest.py",
+        "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "base_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_model_projection.py",
+        "sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "base_sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_ready_model_configuration.py",
+        "sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "base_sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/test_native_preparation.py",
+        "sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "base_sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_records.py",
+        "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "base_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "unchanged": true
+      },
+      {
+        "path": "api/tests/fixtures/c03_journey.py",
+        "sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "base_sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "unchanged": true
+      },
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "base_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "unchanged": true
+      },
+      {
+        "path": "Makefile",
+        "sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "base_sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "unchanged": true
+      }
+    ],
+    "source_manifest_after": [
+      {
+        "path": "api/tests/test_model_admission.py",
+        "sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3",
+        "expected_sha256": "5656424ebe3890b46f850845bca2a98caf09573a350df52c84bcc9d73dcb7da3"
+      },
+      {
+        "path": "api/tests/test_model_admission_pg.py",
+        "sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210",
+        "expected_sha256": "c1fdd0de6a1a2ce7c65c9b788b02609f5d6dacd6405431a5550203f90f56a210"
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a",
+        "expected_sha256": "5882e3fe73c202221636ef925be73c7e8fe34a109c208c5461bacb2a5f34e77a"
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_protocol.py",
+        "sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+        "expected_sha256": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d"
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_dispatch.py",
+        "sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231",
+        "expected_sha256": "1d402d327993f857400285cf8f9a71230460144a129c809618aba22d98d3e231"
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_projection.py",
+        "sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688",
+        "expected_sha256": "68abcd5908136b293c766aa9679753677c662351842b5c0fb867abfb7f80f688"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+        "expected_sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c"
+      },
+      {
+        "path": "api/src/omnis/policy/budgets.py",
+        "sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+        "expected_sha256": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1"
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+        "expected_sha256": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218"
+      },
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+        "expected_sha256": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba"
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+        "expected_sha256": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f"
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+        "expected_sha256": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a"
+      },
+      {
+        "path": "api/src/omnis/modules/runs/managed_admission.py",
+        "sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+        "expected_sha256": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9"
+      },
+      {
+        "path": "api/src/omnis/core/db.py",
+        "sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+        "expected_sha256": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277"
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+        "expected_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5"
+      },
+      {
+        "path": "api/tests/test_model_budget.py",
+        "sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+        "expected_sha256": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8"
+      },
+      {
+        "path": "api/tests/test_model_budget_pg.py",
+        "sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+        "expected_sha256": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb"
+      },
+      {
+        "path": "api/tests/conftest.py",
+        "sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+        "expected_sha256": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b"
+      },
+      {
+        "path": "api/tests/test_model_projection.py",
+        "sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c",
+        "expected_sha256": "06ada3c977e56f248d38c9c780e6102a1aebe418a0535f9258dc3e10a806980c"
+      },
+      {
+        "path": "api/tests/test_ready_model_configuration.py",
+        "sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+        "expected_sha256": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4"
+      },
+      {
+        "path": "api/tests/test_native_preparation.py",
+        "sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+        "expected_sha256": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c"
+      },
+      {
+        "path": "api/tests/fixtures/c03_records.py",
+        "sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+        "expected_sha256": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7"
+      },
+      {
+        "path": "api/tests/fixtures/c03_journey.py",
+        "sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+        "expected_sha256": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799"
+      },
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+        "expected_sha256": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad"
+      },
+      {
+        "path": "Makefile",
+        "sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+        "expected_sha256": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48"
+      }
+    ],
+    "source_hashes_unchanged": true,
+    "runner_support_after": [
+      {
+        "path": "ops/run_test_db_gate.py",
+        "sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+        "expected_sha256": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032"
+      },
+      {
+        "path": "ops/compose.test.yaml",
+        "sha256": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+        "expected_sha256": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e"
+      }
+    ],
+    "repository_files_changed_by_child": [],
+    "staged_or_committed_by_child": false,
+    "protected_html": "Name seen only in git status; never read, hashed, edited, staged or deleted.",
+    "final_status": "Only preexisting untracked documents/Omnis_Notite_Originale.html; tracked/index clean."
+  },
+  "preflight": {
+    "status": "PASS",
+    "report": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/preflight.json",
+    "sha256": "e6b5c98b2aa7960b2006f8f11d618ac19ed5bf30f4040f88457dea234c7f5870",
+    "grammar": "--help and source choices; --check identified as effectful. No new harness/wrapper/owner.",
+    "versions": {
+      "api": "3.13.15",
+      "cli": "3.13.15",
+      "uv": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "node": "v24.21.0",
+      "npm": "11.19.0",
+      "compose": "2.32.4-3",
+      "psql": "psql (PostgreSQL) 18.3 (Debian 18.3-1+b1)"
+    },
+    "access": {
+      "uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "python": "3.13.15",
+      "endpoint": "unix:///run/docker.sock",
+      "daemon_exit": 0,
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "image_exit": 0,
+      "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64",
+      "binaries": {
+        "docker": "/usr/bin/docker",
+        "psql": "/usr/bin/psql",
+        "make": "/usr/bin/make",
+        "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+        "npm": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/npm"
+      },
+      "libraries": {
+        "psycopg": "3.3.6",
+        "SQLAlchemy": "2.0.54",
+        "pytest": "9.1.1",
+        "pytest-asyncio": "1.4.0",
+        "alembic": "1.20.0",
+        "pydantic": "2.13.5",
+        "jsonschema": "4.26.0"
+      }
+    },
+    "source_libraries": {
+      "imports": {
+        "fixtures.c03_records": "/home/kali/OmnisAI/api/tests/fixtures/c03_records.py",
+        "fixtures.c03_journey": "/home/kali/OmnisAI/api/tests/fixtures/c03_journey.py",
+        "fixtures.b06b_publication.consumer": "/home/kali/OmnisAI/api/tests/fixtures/b06b_publication/consumer.py",
+        "fixtures.b06b_pure_probe.consumer": "/home/kali/OmnisAI/api/tests/fixtures/b06b_pure_probe/consumer.py",
+        "omnis_hermes.model_admission": "/home/kali/OmnisAI/integrations/hermes/src/omnis_hermes/model_admission.py",
+        "test_model_admission_pg": "/home/kali/OmnisAI/api/tests/test_model_admission_pg.py",
+        "test_native_task_client": "/home/kali/OmnisAI/api/tests/test_native_task_client.py",
+        "psycopg": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/psycopg/__init__.py",
+        "sqlalchemy": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages/sqlalchemy/__init__.py"
+      },
+      "fixture_inputs": [
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/SKILL.md",
+          "regular": true,
+          "readable": true,
+          "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/omnis.yaml",
+          "regular": true,
+          "readable": true,
+          "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/NOTICE.md",
+          "regular": true,
+          "readable": true,
+          "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/references/methodology.md",
+          "regular": true,
+          "readable": true,
+          "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/procedures/map-records.yaml",
+          "regular": true,
+          "readable": true,
+          "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/records.schema.json",
+          "regular": true,
+          "readable": true,
+          "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/operations.schema.json",
+          "regular": true,
+          "readable": true,
+          "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/surface_map.schema.json",
+          "regular": true,
+          "readable": true,
+          "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f"
+        },
+        {
+          "path": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/empty.schema.json",
+          "regular": true,
+          "readable": true,
+          "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590"
+        },
+        {
+          "path": "/home/kali/OmnisAI/profiles/records-mapping-contract.yaml",
+          "regular": true,
+          "readable": true,
+          "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd"
+        }
+      ]
+    },
+    "collection_count": 76,
+    "source_nodes": 60,
+    "pg_nodes": 16,
+    "nodes_equal_author": true,
+    "reviews": [
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-integration-duplicate-author.json",
+        "sha256": "5dd2b406777311e1ac9d5a81f5b205e7e2c99d1c9ae68d87d9b275787cb50fe4",
+        "status": "FROZEN_SOURCE_PASS_PG_AUTHORED_COLLECTED_NOT_RUN_REVIEW_REQUIRED"
+      },
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-integration-duplicate-review-norm.json",
+        "sha256": "2b68f8ac0c0adec57e733f4181094817f9cd66bb5c4a034d434374698eb10bc3",
+        "status": "APPROVED_SCOPED"
+      },
+      {
+        "path": "/home/kali/OmnisAI/documents/verification/p2-integration-duplicate-review-safety.json",
+        "sha256": "eb0dd38e242958193a2b911daefdbd2a3d3466bda3a925914fd64075d1049b2a",
+        "status": "APPROVED_SCOPED"
+      }
+    ],
+    "author_prior_source": "60 PASS / 37.35s, quality exit0 reused on matching bytes; not substituted for this new runtime result.",
+    "native_pin_or_export_required": false,
+    "operator_profiles_read_or_used": false,
+    "outer_root_mode": "0o700",
+    "pg_uds_path_bytes": 86
+  },
+  "execution": {
+    "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "environment": {
+      "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+      "HOME": "/home/kali",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/duq-23wuwuif"
+    },
+    "environment_policy": "env -i; umask077; outer log0600 created with noclobber; no inherited overrides",
+    "effectful_attempts": 1,
+    "standalone_test_attempts": 0,
+    "target_changed": false,
+    "timeout_seconds": 600,
+    "terminal_background": true,
+    "notify_requested": true,
+    "process_session_id": "proc_81b417e6203b",
+    "runner_pid": 389476,
+    "process_manage_readback": {
+      "action": "wait",
+      "status": "exited",
+      "exit_code": 2,
+      "completion_reason": "exited",
+      "termination_source": ""
+    },
+    "outer_exit_code": 2,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "gate_receipt_strict_schema_valid": true,
+    "make_pytest_command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py -q --tb=line",
+    "make_pytest_command_verified_in_original_log": true,
+    "collection_all_nodes": [
+      "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+      "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+      "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[duplicate]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[conflict]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+      "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+      "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+      "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+      "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+      "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+      "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+      "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+      "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+      "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+      "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+      "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "results": {
+      "collected": 76,
+      "passed": 72,
+      "failed": 4,
+      "skipped": 0,
+      "deselected": 0,
+      "errors": 0,
+      "duration_seconds": "195.45",
+      "source_passed": 60,
+      "pg_passed": 12,
+      "pg_failed": 4,
+      "node_results": [
+        {
+          "node": "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[duplicate]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[conflict]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+          "boundary": "PostgreSQL",
+          "status": "FAIL"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+          "boundary": "PostgreSQL",
+          "status": "FAIL"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+          "boundary": "PostgreSQL",
+          "status": "FAIL"
+        },
+        {
+          "node": "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+          "boundary": "PostgreSQL",
+          "status": "FAIL"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+          "boundary": "SOURCE",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        },
+        {
+          "node": "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied",
+          "boundary": "PostgreSQL",
+          "status": "PASS"
+        }
+      ],
+      "node_result_semantics": "Failure nodes directly parsed; remaining PASS statuses follow full unchanged selector, exact 76 collection and 72passed/4failed summary, not a verbose per-node log.",
+      "failures": [
+        {
+          "node": "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+          "exception_type": "TimeoutError",
+          "public_reason": "NOT_OBSERVED",
+          "inner_cause": "UNKNOWN"
+        },
+        {
+          "node": "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+          "exception_type": "TimeoutError",
+          "public_reason": "NOT_OBSERVED",
+          "inner_cause": "UNKNOWN"
+        },
+        {
+          "node": "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+          "exception_type": "TimeoutError",
+          "public_reason": "NOT_OBSERVED",
+          "inner_cause": "UNKNOWN"
+        },
+        {
+          "node": "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+          "exception_type": "TimeoutError",
+          "public_reason": "NOT_OBSERVED",
+          "inner_cause": "UNKNOWN"
+        }
+      ],
+      "exception_locations": [
+        {
+          "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/timeouts.py",
+          "line": 117,
+          "exception_type": "TimeoutError"
+        },
+        {
+          "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/timeouts.py",
+          "line": 117,
+          "exception_type": "TimeoutError"
+        },
+        {
+          "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/timeouts.py",
+          "line": 117,
+          "exception_type": "TimeoutError"
+        },
+        {
+          "file": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/timeouts.py",
+          "line": 117,
+          "exception_type": "TimeoutError"
+        }
+      ],
+      "failure_localization_boundary": "Original --tb=line exposes asyncio/timeouts.py:117 only; no caller frames/inner public reason. No attribution to specific wait loop, product defect, scheduler or harness from this evidence."
+    }
+  },
+  "scenarios": {
+    "duplicate_concurrent": "FAIL TimeoutError; real PG overlap/census/single-send acceptance NOT_ESTABLISHED for this node.",
+    "conflict_concurrent": "FAIL TimeoutError; COMMAND_CONFLICT/census/single-send acceptance NOT_ESTABLISHED for this node.",
+    "stop_first": "FAIL TimeoutError; preserve prior historical PASS at its snapshot, no transfer here.",
+    "send_first": "FAIL TimeoutError; preserve prior historical PASS at its snapshot, no transfer here.",
+    "nominal": "PASS via existing test node, including committed SENT-before-write, finite NO_MODEL settlement and post-Stop/fresh-engine readback assertions.",
+    "source_both_initial_replay_miss": "Both duplicate/conflict SOURCE nodes passed in this full target, including two legitimate authority reads. This is not PG concurrency evidence.",
+    "authority_read_distinction": "PG new schedule expects one authority read because second blocks at actual domain.readback/managed lock; SOURCE both-miss expects two. PG failing nodes receive no terminal counter credit."
+  },
+  "resources": {
+    "outer_root": "/home/kali/.hermes/cache/scratch/duq-23wuwuif",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c",
+    "manifest_public_fields": {
+      "container_id": "972115c300d04ce1ecea199b2fb7c43abc5ae37d83a4252300f7d05b328a061c",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-5e1147178fa34c40a674ff5483f2059d",
+      "root": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c",
+      "schema_version": 1,
+      "system_identifier": "7697113576886243358"
+    },
+    "manifest_path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/fixture.json",
+    "manifest_sha256": "45d7b8b6cea4fd5df65a95b4c4232020538e484a4c17196e82153a7d51166999",
+    "live_attestation": {
+      "manifest": {
+        "container_id": "972115c300d04ce1ecea199b2fb7c43abc5ae37d83a4252300f7d05b328a061c",
+        "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "docker_endpoint": "unix:///run/docker.sock",
+        "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "project": "omnis-p01-5e1147178fa34c40a674ff5483f2059d",
+        "root": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c",
+        "schema_version": 1,
+        "system_identifier": "7697113576886243358"
+      },
+      "manifest_sha256": "45d7b8b6cea4fd5df65a95b4c4232020538e484a4c17196e82153a7d51166999",
+      "attestation_exit": 0,
+      "container": {
+        "id": "972115c300d04ce1ecea199b2fb7c43abc5ae37d83a4252300f7d05b328a061c",
+        "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "pid": 389960,
+        "running": true,
+        "project": "omnis-p01-5e1147178fa34c40a674ff5483f2059d",
+        "network_mode": "none",
+        "ports": {},
+        "networks": [
+          "none"
+        ],
+        "binds": [
+          {
+            "type": "bind",
+            "source": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/password",
+            "destination": "/run/omnis-db-password",
+            "rw": false
+          },
+          {
+            "type": "bind",
+            "source": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data",
+            "destination": "/var/lib/postgresql",
+            "rw": true
+          },
+          {
+            "type": "bind",
+            "source": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/socket",
+            "destination": "/var/run/postgresql",
+            "rw": true
+          }
+        ]
+      },
+      "paths": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o700",
+          "device": 2049,
+          "inode": 10639745,
+          "size": 4096,
+          "kind": "directory"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o700",
+          "device": 2049,
+          "inode": 10639749,
+          "size": 4096,
+          "kind": "directory"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/global/pg_control",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10639781,
+          "size": 8192,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/socket/.s.PGSQL.5432",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10640748,
+          "size": 0,
+          "kind": "socket"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/socket/.s.PGSQL.5432.lock",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10640747,
+          "size": 68,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/postmaster.pid",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10640062,
+          "size": 98,
+          "kind": "regular"
+        }
+      ],
+      "kernel_uds_matches": 0,
+      "container_process": {
+        "pid": 389960,
+        "starttime": "13679263",
+        "state": "S",
+        "ppid": 389936
+      },
+      "runner_process": {
+        "pid": 389476,
+        "starttime": "13678981",
+        "state": "S",
+        "ppid": 7825
+      },
+      "phase": "After fixture attestation while full existing gate is active; no extra test/SQL workload."
+    },
+    "gate_log": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log",
+    "receipt": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log.result.json",
+    "outer_log": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/outer.log",
+    "pgdata": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker",
+    "private_recovery_password_handle": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/password",
+    "private_recovery_password_value_read_or_exported_by_qa": false
+  },
+  "cleanup": {
+    "status": "VERIFIED_SCOPED",
+    "strict_family_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "existing_owner_markers_verified": {
+      "intent": true,
+      "created": true,
+      "exit2": true,
+      "cleanup": true,
+      "retained": true
+    },
+    "order": "Existing runner receives strict gate family-drained result before exact attested CID stop/rm; no manual teardown or retry.",
+    "independent_readback": {
+      "cid": "972115c300d04ce1ecea199b2fb7c43abc5ae37d83a4252300f7d05b328a061c",
+      "project": "omnis-p01-5e1147178fa34c40a674ff5483f2059d",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "daemon_unchanged": true,
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "image_retained": true,
+      "cid_inspect_exit": 1,
+      "cid_exact_no_such_object": true,
+      "cid_list_exit": 0,
+      "cid_listing_empty": true,
+      "project_list_exit": 0,
+      "project_containers_empty": true,
+      "project_network_exit": 0,
+      "project_networks_empty": true,
+      "paths_absent": {
+        "socket/.s.PGSQL.5432": true,
+        "socket/.s.PGSQL.5432.lock": true,
+        "data/18/docker/postmaster.pid": true
+      },
+      "kernel_root_uds_count": 0,
+      "kernel_scan_scope": "Host /proc/net/unix raw bytes for exact private outer root; live PG container has its own network namespace, whose pinned process is separately checked absent.",
+      "retained": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o700",
+          "device": 2049,
+          "inode": 10639744,
+          "size": 4096,
+          "kind": "directory"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o700",
+          "device": 2049,
+          "inode": 10639745,
+          "size": 4096,
+          "kind": "directory"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o700",
+          "device": 2049,
+          "inode": 10639749,
+          "size": 4096,
+          "kind": "directory"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/global/pg_control",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10639781,
+          "size": 8192,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/PG_VERSION",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10639774,
+          "size": 3,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/password",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10639747,
+          "size": 65,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/fixture.json",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10640750,
+          "size": 470,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10641056,
+          "size": 2226,
+          "kind": "regular"
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log.result.json",
+          "uid": 1000,
+          "gid": 1000,
+          "mode": "0o600",
+          "device": 2049,
+          "inode": 10640144,
+          "size": 56,
+          "kind": "regular"
+        }
+      ],
+      "pg_version": "18",
+      "stable_data_identities": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data",
+          "same_device_inode_uid_mode": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker",
+          "same_device_inode_uid_mode": true
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/global/pg_control",
+          "same_device_inode_uid_mode": true
+        }
+      ],
+      "pinned_processes": [
+        {
+          "pid": 389476,
+          "starttime_before": "13678981",
+          "absent": true
+        },
+        {
+          "pid": 389960,
+          "starttime_before": "13679263",
+          "absent": true
+        }
+      ],
+      "process_root_scan": {
+        "same_uid_only": true,
+        "observer_ancestry_excluded": [
+          1,
+          4221,
+          4262,
+          5531,
+          7817,
+          7825,
+          388695
+        ],
+        "scanned_count": 123,
+        "root_matches": [],
+        "permission_failures_by_channel": {
+          "environ": 5,
+          "cwd": 5,
+          "fd": 5
+        },
+        "vanished_during_scan": 0,
+        "limit": "No universal process census; private-root correlation supplements strict owner drain and exact pinned PID/starttime readback."
+      },
+      "offline_pg_control": {
+        "exit": 0,
+        "fields": {
+          "pg_control version number": "1800",
+          "Catalog version number": "202506291",
+          "Database system identifier": "7697113576886243358",
+          "Database cluster state": "shut down"
+        },
+        "system_identifier_matches": true
+      },
+      "no_additional_cleanup_effects": true,
+      "per_test_data": "Existing conftest CREATE/DROP lifecycle; no test-row retention claim. Cluster PGDATA retained, not test databases."
+    },
+    "no_owned_background_family_left": "Strict original family_drained=true + exact runner/postgres identities absent + exact CID/project/UDS absent. Supplemental same-UID scan is permission-limited, not a global absence claim.",
+    "preservation": "Cluster PGDATA/control/system identifier, private logs/recovery material and image retained. Per-test UUID databases are DROP by existing conftest; no retention of test rows claimed.",
+    "historical_or_foreign_resources_mutated": false
+  },
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/preflight.json",
+      "sha256": "e6b5c98b2aa7960b2006f8f11d618ac19ed5bf30f4040f88457dea234c7f5870",
+      "bytes": 25027,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/runner-help.log",
+      "sha256": "1a7d2956e80a7dc7a55ed4c3bfc1a7f8fb9843f7eb8e414e42024a06ff6af3df",
+      "bytes": 1172,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/access-pins.log",
+      "sha256": "7fb1f69dfdd6cd1500ecb9841143f02aaf56eba455bff55d1ba48a802eeb0668",
+      "bytes": 733,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/collect.log",
+      "sha256": "400f6f6573fb87541e2c18455ed6422bf0557b83a314ad3520b471fc1f203a04",
+      "bytes": 7380,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/source-libraries-inputs.log",
+      "sha256": "266b5f6d193a3004a58ac204d95829af58592dfa65ac71f52cba1a0584f44d9a",
+      "bytes": 2908,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/publication-help.log",
+      "sha256": "7dbab8017a6aa4b68076cca51a7b4ef372e62858810f6f9b835bfb17124e8010",
+      "bytes": 294,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/versions.log",
+      "sha256": "8f97a1a39a290b2e264afb676deea47c132b359e922830047e45a377e0747320",
+      "bytes": 198,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/live-attestation.log",
+      "sha256": "8b6973b60fe641aa2ca4a04e21d756d320bf99a354b971bc77a62aa72c426f5f",
+      "bytes": 303,
+      "mode": "0o664",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/live-readback.json",
+      "sha256": "b5829a35e8ddb143c3977ea04a3d1519b2ac79064ff3d37151e32ac5dca6ba17",
+      "bytes": 3621,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/execution-sanitized.json",
+      "sha256": "d18c922be488d6b7f9c6782480acc60111ae18b9cdf802e4066a1ca838e5a9ea",
+      "bytes": 2707,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/cleanup-readback.json",
+      "sha256": "b27cd8e2cd5858eb3e80176fc904f0e4bff9c1bb6e8b3d0b10201ffb1d1952d3",
+      "bytes": 5022,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/outer.log",
+      "sha256": "9449cf05eef43d0a0824c0224d5e033e7a75bb0d359a55563021969d3c632ab4",
+      "bytes": 881,
+      "mode": "0o600",
+      "sensitivity": "PRIVATE_RAW_DO_NOT_DUMP"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/fixture.json",
+      "sha256": "45d7b8b6cea4fd5df65a95b4c4232020538e484a4c17196e82153a7d51166999",
+      "bytes": 470,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log",
+      "sha256": "bde9be01682bdd1628afba2867036b7778d2e56573ac77c6d4b85095a46a4964",
+      "bytes": 2226,
+      "mode": "0o600",
+      "sensitivity": "PRIVATE_RAW_DO_NOT_DUMP"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "mode": "0o600",
+      "sensitivity": "public_metadata_or_source_preflight"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/PG_VERSION",
+      "sha256": "7ee29791fc17e986b97128845622b077fb45e349fdb80523fac9dba879b4ad60",
+      "bytes": 3,
+      "mode": "0o600",
+      "sensitivity": "private_cluster_data"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/duq-23wuwuif/db-5f192bc7111b4c0c/data/18/docker/global/pg_control",
+      "sha256": "0efe8c05eba39e273c6f2a2e0e3135f2d05400655b81083d91d812690fcadda9",
+      "bytes": 8192,
+      "mode": "0o600",
+      "sensitivity": "private_cluster_data"
+    }
+  ],
+  "issues_encountered": [
+    {
+      "id": "QA-PG-TIMEOUTS",
+      "severity": "BLOCKER",
+      "detail": "One authorized invocation produced 4 TimeoutError failures, including both new duplicate/conflict cases and two existing Stop order cases. No retry, deadline/cap/grant extension, source change or instrumentation added."
+    },
+    {
+      "id": "QA-READBACK-SYNTAX",
+      "severity": "OBSERVER_ONLY",
+      "detail": "First live readback code cell failed compile with unclosed-dict SyntaxError before any tool call or readback executed; corrected read-only once on the same running fixture. No extra effectful attempt."
+    },
+    {
+      "id": "QA-PROC-ACCESS",
+      "severity": "LIMITATION",
+      "detail": "Supplemental same-UID /proc scan: 5 permission refusals per environ/cwd/fd channel; cmdline accessible. Counts retained, no escalation/kills. Exact owned pins and strict drain verified independently."
+    },
+    {
+      "id": "QA-TERMINAL-ZLE",
+      "severity": "NON_BLOCKING_TERMINAL_DIAGNOSTIC",
+      "detail": "Tracked terminal reported two shell diagnostics: cannot change option zle. Existing runner did execute and returned its own exact gate receipt and result; diagnostics are not substituted as failure cause."
+    }
+  ],
+  "failed_readers": [
+    {
+      "reader": "first live-readback cell",
+      "exception_type": "SyntaxError",
+      "effect": "No code executed; corrected same-fixture read-only readback succeeded"
+    },
+    {
+      "reader": "supplemental /proc environ/cwd/fd",
+      "exception_type": "PermissionError",
+      "counts_by_channel": {
+        "environ": 5,
+        "cwd": 5,
+        "fd": 5
+      },
+      "disposition": "Explicit limit retained; no universal census claim"
+    }
+  ],
+  "evidence_boundaries": [
+    "PostgreSQL18.6 private no-network container and real control/runtime UDS; native identity/preparation/peer are declared synthetic, no installed Hermes or inference.",
+    "Passed SOURCE60 and PG12 do not promote failed newcases or full-target acceptance.",
+    "No physical crash, power-loss, ACK-loss, universal concurrency, native restart or provider/SDK/live claim.",
+    "Seven-table census/refs/row immutability for newcases remain authored assertions not established by failing nodes; no exported full RPC frame, capability, DSN or raw traceback.",
+    "No model/provider/target/r1/profile/global/push, batch2, Settings or canonical run. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "proposed_parent_status_delta": {
+    "current_slice": "BLOCKED_QA after one fresh full-target attempt; original failure retained.",
+    "code": "Only two authored tests changed in c7acbf0; product75c6fab untouched by this QA.",
+    "review": "Both prior exact-snapshot reviews APPROVED_SCOPED remain review evidence, not runtime PASS.",
+    "global": "DATA/B06c/B06m/P2-inert NOT_CLOSED; no scope expansion.",
+    "next": "Parent preserves report byte-exact, adjudicates and localizes TimeoutError before any separately authorized fix/retry. Child STOP."
+  },
+  "workflow_note": "Reused existing review-qa/api-data/lifecycle procedures. No new reusable workflow or missing skill step discovered; no repository/skill edits authorized or made."
+}

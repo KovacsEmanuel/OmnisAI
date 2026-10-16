@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "status": "PASS_LOCAL_RECORDED_FINAL_CANONICAL",
+  "phase_decision": "P2_INERT_CLOSED_SCOPED",
+  "command": "make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "session_id": "proc_c7089d9d0beb",
+  "outer_exit": 0,
+  "receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "original_macro_seconds": 3600,
+  "process_uptime_seconds": 3363,
+  "snapshot": {
+    "launched_head": "f3f94bef6078c3d317dadf05aedf24c074409bc7",
+    "readback_head": "9e8cfe0828ee0d5055ac2f6c2ebb3628c5ea679d",
+    "source_hashes": {
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+      "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+      "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+      "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+      "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+      "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+      "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "api/tests/test_contract_method_pg.py": "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "9c07b83264095dc30b169d27e6083cdd537c0fcd01b05d837cf5b444afb63a9f",
+      "api/tests/test_model_admission_pg.py": "1875b48681ca68eab0145189b0e9dee846855cb7e8a9f5746de85068aa08828e",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+      "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+      "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "303d8113ac97cf9652d4823b642566ae932784faf781406e47a9fd86c5d2b0c1",
+      "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+      "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "web/package.json": "ccdfdbab18121bdcc345950200cdabde8713d2f2c6863a5a062f862ddf10d95a",
+      "web/package-lock.json": "c914906596b6e52d0b9f6ddda1bc602269c4fe47d923933fffebe0982a9eb131",
+      "api/uv.lock": "8a75e42cb70aa5149dc221c48fcb18fe74b95ff84d4395f597235563ec1314db",
+      "cli/uv.lock": "78d9d05d74cf80b7e8d02dfd776579f7160fbb29f39743a4b0392fbe246662a8"
+    },
+    "source_mismatches": [],
+    "head_and_index_unchanged": false,
+    "concurrent_committed_delta": {
+      "commit": "9e8cfe0828ee0d5055ac2f6c2ebb3628c5ea679d",
+      "files": [
+        ".hermes/skills/omnis-delivery/SKILL.md"
+      ],
+      "disposition": "Separate development skill-only commit; no product/test/runner/manifest/acceptance bytes changed. Preserve it; no full-gate rerun for this unrelated instructional delta."
+    },
+    "untracked_not_read_or_hashed": [
+      "documents/Omnis_Notite_Originale.html",
+      "tools/development/ponytail.json"
+    ]
+  },
+  "components": {
+    "documentation": {
+      "passed": 75,
+      "seconds": 2.474
+    },
+    "development_unittest": {
+      "passed": 48,
+      "seconds": 9.793
+    },
+    "api": {
+      "passed": 2465,
+      "skipped": 62,
+      "seconds": 2882.91
+    },
+    "migrations": {
+      "passed": 23,
+      "seconds": 68.0
+    },
+    "api_wheel": "PASS real wheel import/factory in serial gate",
+    "web": {
+      "test_files": 10,
+      "tests_passed": 82,
+      "contracts_lint_typecheck_build_audit": "PASS serial gate"
+    },
+    "e2e": {
+      "passed": 9,
+      "seconds": 91.38,
+      "boundary": "real local browser/API/private PostgreSQL"
+    },
+    "cli_source": {
+      "passed": 287,
+      "seconds": 71.568
+    },
+    "cli_wheel": {
+      "passed": 287,
+      "seconds": 70.935
+    },
+    "cli_live_status": {
+      "passed": 1,
+      "seconds": 3.25
+    },
+    "release_integration": {
+      "passed": 61,
+      "seconds": 19.155
+    },
+    "runtime_source": {
+      "passed": 422,
+      "seconds": 20.7
+    },
+    "runtime_ast": {
+      "passed": 6,
+      "seconds": 0.059
+    },
+    "quality": "Pinned Ruff/mypy/lock/pip checks and registry audits completed in unchanged serial full gate; no check/skip alias altered"
+  },
+  "cleanup": {
+    "resources": [
+      {
+        "target": "primary_pg_cid",
+        "cid": "429708f79f122d0882ff3d7a7e6274d5aae0fb2403c0680ddcf046a7c5e04139",
+        "absent": true
+      },
+      {
+        "target": "primary_project_containers",
+        "empty": true
+      },
+      {
+        "target": "primary_project_networks",
+        "empty": true
+      },
+      {
+        "target": "daemon",
+        "same": true
+      },
+      {
+        "target": "pg_image",
+        "same": true
+      }
+    ],
+    "original_directories": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/db-fb4c784e647843fe",
+        "dev": 2049,
+        "inode": 9051077,
+        "uid": 1000,
+        "mode": "0o700",
+        "identity_same": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/db-fb4c784e647843fe/data",
+        "dev": 2049,
+        "inode": 9051078,
+        "uid": 1000,
+        "mode": "0o700",
+        "identity_same": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/db-fb4c784e647843fe/socket",
+        "dev": 2049,
+        "inode": 9051079,
+        "uid": 1000,
+        "mode": "0o3775",
+        "identity_same": true
+      }
+    ],
+    "pinned_processes": [
+      {
+        "pid": 1146627,
+        "ppid": 7825,
+        "start_ticks": 17254725,
+        "pgrp": 1146627,
+        "sid": 1146627,
+        "pid_absent": true
+      },
+      {
+        "pid": 1146826,
+        "ppid": 1146627,
+        "start_ticks": 17254847,
+        "pgrp": 1146627,
+        "sid": 1146627,
+        "pid_absent": true
+      },
+      {
+        "pid": 1146827,
+        "ppid": 1146826,
+        "start_ticks": 17254847,
+        "pgrp": 1146627,
+        "sid": 1146627,
+        "pid_absent": true
+      },
+      {
+        "pid": 1147517,
+        "ppid": 1146827,
+        "start_ticks": 17256049,
+        "pgrp": 1146627,
+        "sid": 1146627,
+        "pid_absent": true
+      },
+      {
+        "pid": 1147518,
+        "ppid": 1147517,
+        "start_ticks": 17256057,
+        "pgrp": 1147518,
+        "sid": 1147518,
+        "pid_absent": true
+      },
+      {
+        "pid": 1148270,
+        "ppid": 1147518,
+        "start_ticks": 17257973,
+        "pgrp": 1147518,
+        "sid": 1147518,
+        "pid_absent": true
+      },
+      {
+        "pid": 1148322,
+        "ppid": 1148270,
+        "start_ticks": 17258004,
+        "pgrp": 1147518,
+        "sid": 1147518,
+        "pid_absent": true
+      }
+    ],
+    "kernel_root_socket_matches": 0,
+    "same_uid_cwd_root_matches": [],
+    "unreadable_proc_entries": 5,
+    "retained_socket_paths": [
+      "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/s2i-mhj0yloj/s/omnis/http/api.sock"
+    ],
+    "retained_socket_disposition": "Deliberate NoDocker negative from cli/integration/start_oracle_probe.py:103-146, exercised by test_installed_start_failure_controls.py:17-28 (ok in canonical). Preserves FAIL/UNCERTAIN receipt after pinned forwarder rescue; no kernel listener. Not an active service or real DB cleanup failure. No deletion and no rewriting its receipt.",
+    "data": "Original primary PGDATA root dev/inode/uid/mode unchanged; per-test DB DROP by suite. State/logs/archive/images retained; no global host cleanup claim."
+  },
+  "preflight": {
+    "schema_version": 1,
+    "head": "f3f94bef6078c3d317dadf05aedf24c074409bc7",
+    "root": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3",
+    "command": "make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+    "source_hashes": {
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+      "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+      "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+      "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+      "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+      "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+      "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "api/tests/test_contract_method_pg.py": "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "9c07b83264095dc30b169d27e6083cdd537c0fcd01b05d837cf5b444afb63a9f",
+      "api/tests/test_model_admission_pg.py": "1875b48681ca68eab0145189b0e9dee846855cb7e8a9f5746de85068aa08828e",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+      "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+      "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "303d8113ac97cf9652d4823b642566ae932784faf781406e47a9fd86c5d2b0c1",
+      "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+      "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "web/package.json": "ccdfdbab18121bdcc345950200cdabde8713d2f2c6863a5a062f862ddf10d95a",
+      "web/package-lock.json": "c914906596b6e52d0b9f6ddda1bc602269c4fe47d923933fffebe0982a9eb131",
+      "api/uv.lock": "8a75e42cb70aa5149dc221c48fcb18fe74b95ff84d4395f597235563ec1314db",
+      "cli/uv.lock": "78d9d05d74cf80b7e8d02dfd776579f7160fbb29f39743a4b0392fbe246662a8"
+    },
+    "tracked_index_sha256": "f2767f589cac56e09408b8b4856e7e8f9952c3b3a22bdf427e04c53dad744828",
+    "previous_preflight_reused": "/home/kali/.hermes/cache/scratch/cp3-6j5owjl8/preflight.json",
+    "preflight": {
+      "runner": "Unchanged existing Makefile check -> run_test_db_gate --check/check-components, effectful; full default3600s unchanged",
+      "dependencies": "Same pinned Node24.21.0/npm11.19.0/uv0.12.19/Python3.13.15 manifests and21Nodepackages/API+CLI pip-check evidence reused; no dependency edits; executable paths access checked",
+      "producer_oracle": "Unchanged real private PostgreSQL owner, strict typed drain receipt, pytest canonical exact component dependencies; no partial alias or skip edits",
+      "cleanup_owner": "Existing DB/family owner; parent exact manifests/CIDs/project/network/socket/PID identities readback; preserve original PGDATA; per-test DBsDROP",
+      "safety": "env-i; no native/model/provider/target/r1/global flags; only canonical public registry audits and isolated API/browser/DB consumers",
+      "protected_untracked_HTML": "Not read, hashed, staged or modified"
+    },
+    "admission": "Reviewed observer3e58ace and one installed guard-exception PASS/exit0/drained; composed inert evidence accepted f3f94be. Full default3600s gate now admitted; no separate unaffected acceptances.",
+    "no_effect_checks": {
+      "tools_current_pinned": true,
+      "native_pg_images_current_pinned": true,
+      "API_reader_origin_current": true,
+      "source_pin_exists": true,
+      "source_libraries_exists": true,
+      "web_node_modules_exists": true
+    },
+    "default_macro_seconds": 3600,
+    "owned_before": {
+      "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "pg_image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+    },
+    "status": "PASS_STATIC_PREFLIGHT",
+    "previous_failed_preflight": "/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/preflight.json",
+    "source_restore": {
+      "scope": "Original source prerequisite only; no build/import/native execution",
+      "before": "SOURCE_PIN_MISSING; no canonical/PG started",
+      "after": "All15208 regular source files exactly match original hash-attested tar; no symlinks",
+      "git_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "archive": "/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar",
+      "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "source": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+      "rollback": "Remove only this newly restored export/archive after dependent probes settle; no deletion or DB rollback now.",
+      "prior_attested_procedure": "documents/verification/p2-bound-predicates-evidence/preconditions-source-prerequisite-restored.json"
+    }
+  },
+  "evidence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/outer.log",
+      "bytes": 987,
+      "sha256": "2d2c9c44b00fe727e7a8e6ca50f7cbd21942aa6d9c5e161902348d232791cb66",
+      "pytest": [],
+      "unittest": [],
+      "failed_nodes": [],
+      "known_completed_markers": {
+        "test-migrations": false,
+        "check-api-wheel": false,
+        "test-e2e": false,
+        "check-runtime": false,
+        "check-release-install": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cp5-98ek3bu3/db-fb4c784e647843fe/gate.log",
+      "bytes": 163304,
+      "sha256": "d1efae421251b7ad2b8512a67aef8a9b9c8c7b29dfb89b99252f68230dd0ba22",
+      "pytest": [
+        "2465 passed, 62 skipped in 2882.91s",
+        "23 passed in 68.00s",
+        "10 passed",
+        "82 passed",
+        "9 passed in 91.38s",
+        "1 passed in 3.25s",
+        "422 passed in 20.70s"
+      ],
+      "unittest": [
+        "Ran 75 tests in 2.474s",
+        "Ran 48 tests in 9.793s",
+        "Ran 287 tests in 71.568s",
+        "Ran 287 tests in 70.935s",
+        "Ran 61 tests in 19.155s",
+        "Ran 6 tests in 0.059s"
+      ],
+      "failed_nodes": [],
+      "known_completed_markers": {
+        "test-migrations": false,
+        "check-api-wheel": false,
+        "test-e2e": false,
+        "check-runtime": false,
+        "check-release-install": false
+      },
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "strict_receipt": true
+    }
+  ],
+  "acceptance_basis": {
+    "criteria": "documents/Omnis_Implementation_Plan.md \u00a77.1 exact eight; behavior evidence in p2-integration-b06cm.md, final snapshot row supplied by this gate",
+    "reviews": [
+      "p2-h04-budget-review-norm.json",
+      "p2-h04-budget-review-safety.json"
+    ],
+    "affected_installed_qa": "p2-h04-budget-installed-qa.json:1PASS32.83s/exit0/drained, explicit budget4.496297901s, guard after binding/worker, zero read/PURE/final/no retry",
+    "reused": "Unchanged SOURCE child-lineage/False + prior installed inventory/wrong-root; batch2/H03/history/qualification/AdmissionQA129 retained. No separate unaffected reacceptance."
+  },
+  "limits": [
+    "Only P2-inert/G02-inert scoped closure, not P2-live/G02-live or entire assessment-ready product.",
+    "Historical pre-READY c2 cause remains UNKNOWN; new successful budget is not its retrospective cause or universal cold-start guarantee.",
+    "Child-lineage installed old FAIL and guardFalse installed NOT_RUN remain; composition is not five installed passes or live compression.",
+    "P4a-minim is next but NOT_STARTED; provider/turn/config/purpose and live compression/inventory require their own authorization and gates before P3.",
+    "Original canonical FAIL and handoff-interrupted attempt preserved. Missing source prerequisite caught before DB/gate, restored exact original Git archive; not a product fix.",
+    "No inference/provider/target/r1/profile/global/push effects. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

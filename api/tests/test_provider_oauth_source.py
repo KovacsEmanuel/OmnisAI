@@ -223,7 +223,7 @@ async def test_stop_lifeline_revokes_at_real_http_cleanup(tmp_path: Path) -> Non
     import os
     from unittest.mock import patch
 
-    from httpcore import Origin, Request
+    from httpcore import NetworkStream, Origin, Request
     from httpcore._sync.http11 import HTTP11Connection
     from omnis_hermes import management_http, runtime_host
     from omnis_hermes.management_oauth import FixedClient, NativeOAuth
@@ -238,7 +238,7 @@ async def test_stop_lifeline_revokes_at_real_http_cleanup(tmp_path: Path) -> Non
     owner.expires_ns = host.deadline_ns
     writes: list[bytes] = []
 
-    class Stream:
+    class Stream(NetworkStream):
         def write(self, data: bytes, timeout: object = None) -> None:
             writes.append(data)
 
@@ -297,17 +297,19 @@ async def test_stop_lifeline_revokes_at_real_http_cleanup(tmp_path: Path) -> Non
         send()
         assert sum(bool(x) for x in writes) == 1
         writes.clear()
-        with patch.object(management_http.asyncio, "open_connection", connect):
-            host.settings_task = asyncio.create_task(
-                management_http.request(
-                    1,
-                    "synthetic",
-                    "POST",
-                    "/api/auth/codex/flow/status",
-                    {},
-                    dispatch_guard=lambda: None,
-                )
+
+        async def pending_request() -> None:
+            await management_http.request(
+                1,
+                "synthetic",
+                "POST",
+                "/api/auth/codex/flow/status",
+                {},
+                dispatch_guard=lambda: None,
             )
+
+        with patch.object(asyncio, "open_connection", connect):
+            host.settings_task = asyncio.create_task(pending_request())
             await asyncio.wait_for(sent.wait(), 1)
             stopper = asyncio.create_task(host.stop())
             try:
@@ -401,6 +403,40 @@ def test_lifeline_missing_wrong_mode_identity_and_eof_fail_closed(tmp_path: Path
     finally:
         host._revoke_management_lifeline()
         os.close(reader)
+
+
+def test_typed_presend_denial_does_not_mask_postheader_uncertainty() -> None:
+    from omnis_hermes.management_oauth import AuthAdmissionDenied, FixedClient
+
+    denied = False
+
+    def guard() -> None:
+        if denied:
+            raise AuthAdmissionDenied("synthetic revoked owner")
+
+    with FixedClient(guard) as client:
+        denied = True
+        with pytest.raises(AuthAdmissionDenied):
+            client.trace("http11.send_request_headers.started", {})
+        denied = False
+        client.trace("http11.send_request_headers.started", {})
+        denied = True
+        with pytest.raises(ValueError) as error:
+            client.trace("http11.send_request_body.started", {})
+        assert not isinstance(error.value, AuthAdmissionDenied)
+
+
+@pytest.mark.asyncio
+async def test_management_spawn_failure_closes_lifeline(tmp_path: Path) -> None:
+    from omnis_hermes.runtime_host import RuntimeHost, TestLaunch
+
+    host = RuntimeHost(tmp_path, _test_management=TestLaunch((str(tmp_path / "absent"),), tmp_path))
+    host.state = "MANAGEMENT"
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+    with pytest.raises(OSError):
+        await host._settings_native("read", None)
+    assert host.management_lifeline_write is None
+    assert host.process is None
 
 
 def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(

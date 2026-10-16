@@ -66,11 +66,15 @@ class NativeInertSeam(unittest.TestCase):
                 native._profile_scope = lambda _: contextlib.nullcontext()
                 native._codex_cancelled = lambda *args: False
                 native._codex_exchange_tokens = lambda *args: {}
-                native._codex_poll_authorization = lambda *args: (
+                native._codex_poll_authorization = lambda *args, native=native, case=case: (
                     native._CANCELLED if case == "ordinary_cancel" else {}
                 )
 
-                def request(_httpx):
+                host = RuntimeHost(Path("unused"))
+                reader = host._open_management_lifeline()
+                owner = NativeOAuth.from_owner_fd(reader)
+
+                def request(_httpx, entered=entered, release=release, case=case, owner=owner):
                     entered.set()
                     assert release.wait(2)
                     if case == "guard_denial":
@@ -84,9 +88,6 @@ class NativeInertSeam(unittest.TestCase):
                     function("hermes_cli/web_routers/oauth.py", "_codex_full_login_worker"),
                     native.__dict__,
                 )
-                host = RuntimeHost(Path("unused"))
-                reader = host._open_management_lifeline()
-                owner = NativeOAuth.from_owner_fd(reader)
                 lease = {
                     "operation_id": str(uuid4()),
                     "boot": str(uuid4()),
@@ -96,14 +97,14 @@ class NativeInertSeam(unittest.TestCase):
                 }
                 auth = types.ModuleType("hermes_cli.auth")
                 saves = []
-                auth._save_codex_tokens = lambda tokens: saves.append(True)
+                auth._save_codex_tokens = lambda tokens, saves=saves: saves.append(True)
                 original = importlib.import_module
                 try:
                     with (
                         patch.object(
                             importlib,
                             "import_module",
-                            lambda name: (
+                            lambda name, native=native, original=original: (
                                 native if name == "hermes_cli.web_routers.oauth" else original(name)
                             ),
                         ),

@@ -90,7 +90,7 @@ def test_emergency_auth_identity_before_any_signal():
             _ready_record(record)
             signals = []
 
-            def sink(fd, sig):
+            def sink(fd, sig, signals=signals):
                 signals.append(int(sig))
                 raise SignalBoundary()
 
@@ -119,20 +119,8 @@ class SettingsTopologyTest(ProductAttestationTest):
             self.root / "startup.json",
             {
                 "format": 3,
-                "provider_identity": [
-                    info.st_dev,
-                    info.st_ino,
-                    info.st_uid,
-                    info.st_gid,
-                    0o700,
-                ],
-                "runtime_dir_identity": [
-                    ipc.st_dev,
-                    ipc.st_ino,
-                    ipc.st_uid,
-                    ipc.st_gid,
-                    0o700,
-                ],
+                "provider_identity": [info.st_dev, info.st_ino, info.st_uid, info.st_gid, 0o700],
+                "runtime_dir_identity": [ipc.st_dev, ipc.st_ino, ipc.st_uid, ipc.st_gid, 0o700],
             },
         )
 
@@ -150,8 +138,7 @@ class SettingsTopologyTest(ProductAttestationTest):
             )
             self.assertEqual(inventory["version"], 3)
             self.assertEqual(
-                [x["role"] for x in inventory["containers"]],
-                ["api", "supervisor", "runtime", "db"],
+                [x["role"] for x in inventory["containers"]], ["api", "supervisor", "runtime", "db"]
             )
             validate_inventory(inventory, fixture.record)
             from unittest.mock import patch
@@ -180,12 +167,8 @@ class SettingsTopologyTest(ProductAttestationTest):
                     lock_fds=locks,
                     guard_fds=guards,
                 )
-            verify_stop_completion(
-                fixture.runtime, fixture.root, fixture.control, fixture.record
-            )
-            completed = completed_receipt(
-                receipt_path(fixture.root, fixture.record), grant
-            )
+            verify_stop_completion(fixture.runtime, fixture.root, fixture.control, fixture.record)
+            completed = completed_receipt(receipt_path(fixture.root, fixture.record), grant)
             self.assertEqual(completed["version"], 3)
             self.assertEqual(
                 [x["stage"] for x in completed["completed"]],
@@ -223,11 +206,7 @@ class SettingsTopologyTest(ProductAttestationTest):
                 fixture.record,
             )
             restart = prepare_restart(
-                fixture.runtime,
-                fixture.root,
-                fixture.control,
-                fixture.record,
-                str(uuid4()),
+                fixture.runtime, fixture.root, fixture.control, fixture.record, str(uuid4())
             )
             self.assertEqual(restart["request"]["grant"]["inventory"]["version"], 3)
             self.assertFalse((fixture.root / "native-ipc/auth-egress.sock").exists())
@@ -238,12 +217,7 @@ class SettingsTopologyTest(ProductAttestationTest):
     def test_native_inventory_and_control_exact_frame_budgets(self):
         from omnis_cli.control import _stop_binding, _stop_grant
         from omnis_cli.stop_owner import prepare_stop_inventory
-        from omnis_cli.stop_receipt import (
-            encoded,
-            fingerprint,
-            validate_grant,
-            validate_inventory,
-        )
+        from omnis_cli.stop_receipt import encoded, fingerprint, validate_grant, validate_inventory
         from stop_owner_fixture import Fixture
 
         fixture = Fixture(native=True, auth=True)
@@ -297,41 +271,27 @@ class SettingsTopologyTest(ProductAttestationTest):
             validate_inventory(maximum, record)
             validate_grant(grant, record, maximum)
             command = {
-                k: v
-                for k, v in grant.items()
-                if k not in {"version", "state", "owner_uuid"}
+                k: v for k, v in grant.items() if k not in {"version", "state", "owner_uuid"}
             }
             command["op"] = "arm_stop"
             _stop_binding(command)
             frame = (
-                json.dumps(
-                    {"version": 1, "capability": "0" * 64, "command": command}
-                ).encode()
+                json.dumps({"version": 1, "capability": "0" * 64, "command": command}).encode()
                 + b"\n"
             )
             self.assertLessEqual(len(frame), 4096)
             self.assertLessEqual(len(encoded(maximum)), 2900)
-            print(
-                "AUTH_PRODUCER_SIZES",
-                len(encoded(maximum)),
-                len(encoded(grant)),
-                len(frame),
-            )
+            print("AUTH_PRODUCER_SIZES", len(encoded(maximum)), len(encoded(grant)), len(frame))
             reply_frame = (
                 json.dumps(
-                    {
-                        "ok": True,
-                        "correlation_id": record["stop_command"],
-                        "grant": grant,
-                    }
+                    {"ok": True, "correlation_id": record["stop_command"], "grant": grant}
                 ).encode()
                 + b"\n"
             )
             self.assertLessEqual(len(reply_frame), 4096)
             print("AUTH_REPLY_FRAME_BYTES", len(reply_frame))
             _stop_grant(
-                {"ok": True, "correlation_id": record["stop_command"], "grant": grant},
-                command,
+                {"ok": True, "correlation_id": record["stop_command"], "grant": grant}, command
             )
             # Exact inventory cap, using its existing variable-width ticks field;
             # no new extension field, codec or larger protocol limit.
@@ -384,11 +344,7 @@ class SettingsTopologyTest(ProductAttestationTest):
         (directory / "runtime.lock").touch(mode=0o600)
         write_record(
             directory / "runtime.boot",
-            {
-                "version": 1,
-                "boot": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-                "capability": "a" * 64,
-            },
+            {"version": 1, "boot": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "capability": "a" * 64},
         )
         sock = socket.socket(socket.AF_UNIX)
         sock.bind(str(directory / "runtime.sock"))
@@ -401,11 +357,7 @@ class SettingsTopologyTest(ProductAttestationTest):
         (directory / "runtime.boot").unlink()
         write_record(
             directory / "runtime.boot",
-            {
-                "version": 1,
-                "boot": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-                "capability": "b" * 64,
-            },
+            {"version": 1, "boot": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "capability": "b" * 64},
         )
         self.assertTrue(cleanup_startup_ipc(self.root, self.control, native=True))
         self.assertTrue((directory / "runtime.sock").exists())
@@ -426,22 +378,14 @@ class SettingsTopologyTest(ProductAttestationTest):
                 fixture = Fixture(native=True)
                 try:
                     if fault == "provider":
-                        (fixture.root / "provider").rename(
-                            fixture.root / "retained-provider"
-                        )
+                        (fixture.root / "provider").rename(fixture.root / "retained-provider")
                         (fixture.root / "provider").mkdir(mode=0o700)
                         with self.assertRaises(StartError):
                             prepare_stop_inventory(
-                                fixture.runtime,
-                                fixture.root,
-                                fixture.control,
-                                fixture.record,
+                                fixture.runtime, fixture.root, fixture.control, fixture.record
                             )
                         self.assertFalse(
-                            any(
-                                r.startswith(("POST", "DELETE"))
-                                for r in fixture.requests
-                            )
+                            any(r.startswith(("POST", "DELETE")) for r in fixture.requests)
                         )
                         continue
                     inventory = prepare_stop_inventory(
@@ -471,10 +415,7 @@ class SettingsTopologyTest(ProductAttestationTest):
                             )
                     with self.assertRaises(StartError):
                         verify_stop_completion(
-                            fixture.runtime,
-                            fixture.root,
-                            fixture.control,
-                            fixture.record,
+                            fixture.runtime, fixture.root, fixture.control, fixture.record
                         )
                     self.assertIn(fixture.ids["db"], fixture.items)
                     self.assertIn(fixture.ids["runtime"], fixture.items)
@@ -511,14 +452,7 @@ class SettingsTopologyTest(ProductAttestationTest):
                 self.runtime.compose.return_value.stdout = json.dumps(bad)
                 with self.assertRaisesRegex(StartError, "^COMPOSE_RUNTIME_INVALID$"):
                     validate_config(self.runtime, self.env)
-        for mutation in (
-            "network_mode",
-            "init",
-            "image",
-            "volumes",
-            "environment",
-            "command",
-        ):
+        for mutation in ("network_mode", "init", "image", "volumes", "environment", "command"):
             bad = deepcopy(config)
             bad["services"]["runtime"][mutation] = {
                 "network_mode": "host",
@@ -541,10 +475,7 @@ class SettingsTopologyTest(ProductAttestationTest):
             "-m",
             "omnis_hermes.runtime_host",
         ]
-        native["Config"]["Env"] = [
-            "PATH=/synthetic/image/bin",
-            "OMNIS_RUNTIME_DIR=/runtime",
-        ]
+        native["Config"]["Env"] = ["PATH=/synthetic/image/bin", "OMNIS_RUNTIME_DIR=/runtime"]
         native["Image"] = self.runtime.receipt.runtime_image_id
         native["HostConfig"]["NetworkMode"] = "none"
         native["NetworkSettings"]["Networks"] = {"none": {"NetworkID": "3" * 64}}
@@ -571,10 +502,7 @@ class SettingsTopologyTest(ProductAttestationTest):
             )
         )
         self.assertEqual(
-            self.runtime.attest(
-                self.cid, "runtime", self.root, self.control, self.port
-            ),
-            native,
+            self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port), native
         )
         valid = deepcopy(native)
         for section, key, value in (
@@ -584,17 +512,11 @@ class SettingsTopologyTest(ProductAttestationTest):
             ("Config", "User", "0:0"),
             ("Config", "Cmd", ["sleep", "99"]),
             ("Config", "Env", ["OMNIS_DATABASE_URL=forbidden"]),
-            (
-                "NetworkSettings",
-                "Networks",
-                {self.runtime.receipt.project + "_control": {}},
-            ),
+            ("NetworkSettings", "Networks", {self.runtime.receipt.project + "_control": {}}),
         ):
             native[section][key] = value
             with self.assertRaises(StartError):
-                self.runtime.attest(
-                    self.cid, "runtime", self.root, self.control, self.port
-                )
+                self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port)
             native = deepcopy(valid)
         native["Image"] = self.runtime.receipt.image_id
         with self.assertRaises(StartError):

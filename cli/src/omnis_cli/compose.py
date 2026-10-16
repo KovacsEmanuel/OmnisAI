@@ -40,19 +40,31 @@ class ImageReceipt:
 def _run(
     *args: str, cwd: Path, timeout: int = 15, host: str | None = None
 ) -> subprocess.CompletedProcess[str]:
-    command = ["docker"]
-    if host is not None:
-        command.extend(["--host", host])
-    command.extend(args)
-    return subprocess.run(
-        command,
-        cwd=cwd,
-        env={"PATH": os.environ.get("PATH", "")},
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        check=False,
-    )
+    # Both callers use a private installation parent: releases/ for the sealed
+    # bundle, omnis/ for staged native inputs. Never put client state in either
+    # build context, nor read/adopt the operator's Docker configuration.
+    private_dir(cwd.parent)
+    with tempfile.TemporaryDirectory(prefix=".docker-client-", dir=cwd.parent) as name:
+        config = Path(name)
+        fd = os.open(config / "config.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w") as output:
+            # Docker LoadDefaultConfigFile auto-detects a credential helper if
+            # ContainsAuth is false. A nonempty auths map disables that discovery
+            # without supplying credentials (docker/cli config{,file}, v20/v28).
+            output.write('{"auths":{"https://index.docker.io/v1/":{}}}\n')
+        command = ["docker", "--config", name]
+        if host is not None:
+            command.extend(["--host", host])
+        command.extend(args)
+        return subprocess.run(
+            command,
+            cwd=cwd,
+            env={"PATH": os.environ.get("PATH", ""), "HOME": name, "DOCKER_CONFIG": name},
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
 
 
 def _one_image(output: str) -> dict[str, object]:
@@ -289,7 +301,9 @@ def _preflight(bundle: Path) -> str:
     if any(key.startswith("DOCKER_") for key in os.environ):
         raise ImageInstallError("Ambient Docker overrides are forbidden")
     context = _run("context", "show", cwd=bundle)
-    if context.returncode or not context.stdout.strip():
+    # Fresh client state has only Docker's built-in local default context.
+    # Never adopt a personal/rootless/remote context or fall back from one.
+    if context.returncode or context.stdout.strip() != "default":
         raise ImageInstallError("Local Docker context unavailable")
     endpoint = _run(
         "context",

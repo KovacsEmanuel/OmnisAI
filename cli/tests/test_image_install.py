@@ -1,5 +1,6 @@
 """Explicit image install must refuse missing/invalid releases before Docker."""
 
+import hashlib
 import json
 import os
 import socket
@@ -233,11 +234,14 @@ class ImageInstallTest(unittest.TestCase):
                 link.symlink_to(socket_path)
                 with self.assertRaises(compose.ImageInstallError):
                     compose._checked_socket(f"unix://{link}")
-                with patch.dict(os.environ, {"DOCKER_CONTEXT": "foreign"}):
-                    with patch.object(compose, "_run") as command:
-                        with self.assertRaises(compose.ImageInstallError):
-                            compose._preflight(scratch)
-                    command.assert_not_called()
+                for key in ("DOCKER_CONTEXT", "DOCKER_CONFIG"):
+                    with patch.dict(os.environ, {key: str(scratch)}):
+                        with patch.object(compose, "_run") as command:
+                            with self.assertRaisesRegex(
+                                compose.ImageInstallError, "Ambient Docker overrides are forbidden"
+                            ):
+                                compose._preflight(scratch)
+                        command.assert_not_called()
 
     def test_daemon_identity_changes_after_image_readback_are_refused(self):
         import omnis_cli.compose as compose
@@ -306,14 +310,250 @@ class ImageInstallTest(unittest.TestCase):
     def test_docker_command_uses_verified_endpoint_in_argv(self):
         import omnis_cli.compose as compose
 
-        with patch.object(compose.subprocess, "run") as command:
-            compose._run(
-                "image", "inspect", "sha256:owned", cwd=Path("/"), host="unix:///owned/docker.sock"
-            )
-        self.assertEqual(
-            command.call_args.args[0][:4],
-            ["docker", "--host", "unix:///owned/docker.sock", "image"],
-        )
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            home = root / "caller-home"
+            home.mkdir(mode=0o700)
+            for leaf in ("bundle", "native-staged"):
+                cwd = root / leaf
+                cwd.mkdir(mode=0o700)
+                for failure in (None, OSError("spawn"), subprocess.TimeoutExpired("docker", 15)):
+                    configs = []
+
+                    def command(argv, *, state=(configs, cwd, failure), **kwargs):
+                        configs, cwd, failure = state
+                        self.assertEqual(argv[:2], ["docker", "--config"])
+                        config = Path(argv[2])
+                        configs.append(config)
+                        self.assertEqual(config.parent, root)
+                        self.assertFalse(config.is_relative_to(cwd))
+                        self.assertEqual(config.stat().st_mode & 0o777, 0o700)
+                        self.assertEqual((config / "config.json").stat().st_mode & 0o777, 0o600)
+                        self.assertEqual(
+                            json.loads((config / "config.json").read_bytes()),
+                            {"auths": {"https://index.docker.io/v1/": {}}},
+                        )
+                        self.assertEqual(
+                            kwargs["env"],
+                            {
+                                "PATH": "/usr/bin:/bin",
+                                "HOME": str(config),
+                                "DOCKER_CONFIG": str(config),
+                            },
+                        )
+                        self.assertEqual(
+                            argv[3:],
+                            [
+                                "--host",
+                                "unix:///owned/docker.sock",
+                                "image",
+                                "inspect",
+                                "sha256:owned",
+                            ],
+                        )
+                        self.assertEqual(kwargs["cwd"], cwd)
+                        self.assertEqual(kwargs["timeout"], 15)
+                        if failure is not None:
+                            raise failure
+                        return subprocess.CompletedProcess(argv, 0, "[]", "")
+
+                    with (
+                        self.subTest(cwd=leaf, failure=type(failure).__name__),
+                        patch.dict(
+                            os.environ,
+                            {
+                                "HOME": str(home),
+                                "PATH": "/usr/bin:/bin",
+                                "HTTPS_PROXY": "synthetic",
+                            },
+                            clear=True,
+                        ),
+                        patch.object(compose.subprocess, "run", side_effect=command),
+                    ):
+                        if failure is None:
+                            compose._run(
+                                "image",
+                                "inspect",
+                                "sha256:owned",
+                                cwd=cwd,
+                                host="unix:///owned/docker.sock",
+                            )
+                        else:
+                            with self.assertRaises(type(failure)):
+                                compose._run(
+                                    "image",
+                                    "inspect",
+                                    "sha256:owned",
+                                    cwd=cwd,
+                                    host="unix:///owned/docker.sock",
+                                )
+                        self.assertEqual(len(configs), 1)
+                        self.assertFalse(configs[0].exists())
+                        self.assertEqual(list(cwd.iterdir()), [])
+                        self.assertEqual(list(home.iterdir()), [])
+
+    def test_isolated_preflight_refuses_nondefault_context(self):
+        import omnis_cli.compose as compose
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            with (
+                patch.dict(os.environ, {}, clear=True),
+                patch.object(
+                    compose, "_run", return_value=subprocess.CompletedProcess([], 0, "rootless\n")
+                ) as command,
+                patch.object(compose, "_checked_socket", return_value="unix:///synthetic"),
+            ):
+                with self.assertRaisesRegex(ImageInstallError, "Local Docker context unavailable"):
+                    compose._preflight(Path(name))
+            self.assertEqual(command.call_count, 1)
+
+    def test_public_native_install_uses_anonymous_client_and_preserves_uncertainty(self):
+        """SOURCE only: normal CLI chain, synthetic Engine at subprocess.run."""
+        import io
+
+        import omnis_cli.compose as compose
+        from omnis_cli.main import main
+        from omnis_cli.release import _manifest, install_release
+        from test_install import InstallTest
+
+        for timeout in (False, True):
+            with self.subTest(timeout=timeout):
+                fixture = InstallTest()
+                fixture.setUp()
+                self.addCleanup(fixture.doCleanups)
+                context = fixture.native_bundle()
+                bundle = install_release(fixture.bundle, fixture.data_home)
+                original = _manifest(bundle)
+                configs, calls, built = [], [], {}
+                sock = fixture.root / "d.sock"
+                host = f"unix://{sock}"
+
+                def engine(argv, *, state=(configs, calls, built, bundle, host, timeout), **kwargs):
+                    configs, calls, built, bundle, host, timeout = state
+                    self.assertEqual(argv[:2], ["docker", "--config"])
+                    config = Path(argv[2])
+                    configs.append(config)
+                    cwd = kwargs["cwd"]
+                    self.assertEqual(config.parent, cwd.parent)
+                    self.assertFalse(config.is_relative_to(bundle))
+                    self.assertFalse(config.is_relative_to(cwd))
+                    self.assertEqual(
+                        json.loads((config / "config.json").read_bytes()),
+                        {"auths": {"https://index.docker.io/v1/": {}}},
+                    )
+                    self.assertEqual(
+                        kwargs["env"],
+                        {
+                            "PATH": "/usr/bin:/bin",
+                            "HOME": str(config),
+                            "DOCKER_CONFIG": str(config),
+                        },
+                    )
+                    args = argv[3:]
+                    if args[:1] == ["context"]:
+                        calls.append(tuple(args[:2]))
+                        output = "default" if args[1] == "show" else host
+                    else:
+                        self.assertEqual(args[:2], ["--host", host])
+                        args = args[2:]
+                        calls.append(tuple(args[:2]))
+                        if args[0] == "info":
+                            output = "daemon-identity"
+                        elif args[:2] == ["image", "inspect"]:
+                            tag = args[2]
+                            if tag == compose._BASE:
+                                item = {
+                                    "Architecture": "amd64",
+                                    "RepoDigests": [
+                                        compose._BASE.replace(":3.13.15-slim-bookworm", "")
+                                    ],
+                                }
+                            elif tag in built:
+                                item = built[tag]
+                            else:
+                                return subprocess.CompletedProcess(argv, 1, "", "No such image")
+                            output = json.dumps([item])
+                        else:
+                            self.assertEqual(args[0], "build")
+                            self.assertEqual(kwargs["timeout"], 300)
+                            if timeout:
+                                raise subprocess.TimeoutExpired(argv, 300)
+                            tag = args[args.index("-t") + 1]
+                            labels = dict(
+                                args[i + 1].split("=", 1)
+                                for i, arg in enumerate(args)
+                                if arg == "--label"
+                            )
+                            native = "runtime" in tag
+                            built[tag] = {
+                                "Id": "sha256:" + ("d" if native else "c") * 64,
+                                "Architecture": "amd64",
+                                "Os": "linux",
+                                "Config": {
+                                    "User": "65532:65532",
+                                    "Labels": labels,
+                                    "Cmd": [
+                                        "/opt/hermes/venv/bin/python",
+                                        "-I",
+                                        "-m",
+                                        "omnis_hermes.runtime_host",
+                                    ]
+                                    if native
+                                    else [],
+                                },
+                            }
+                            output = ""
+                    return subprocess.CompletedProcess(argv, 0, output, "")
+
+                with (
+                    socket.socket(socket.AF_UNIX) as listener,
+                    patch.dict(
+                        os.environ,
+                        {
+                            "PATH": "/usr/bin:/bin",
+                            "HOME": str(fixture.root),
+                            "XDG_DATA_HOME": str(fixture.data_home),
+                        },
+                        clear=True,
+                    ),
+                    patch.object(compose.subprocess, "run", side_effect=engine),
+                    patch("sys.stdout", new=io.StringIO()),
+                    patch("sys.stderr", new=io.StringIO()),
+                ):
+                    listener.bind(str(sock))
+                    self.assertEqual(
+                        main(["install-image", "--runtime-context", str(context)]),
+                        2 if timeout else 0,
+                    )
+                    if timeout:
+                        self.assertTrue(
+                            (fixture.data_home / "omnis/image-installing.json").is_file()
+                        )
+                        self.assertFalse((fixture.data_home / "omnis/image.json").exists())
+                        before = calls.count(("build", "--platform"))
+                        self.assertEqual(
+                            main(["install-image", "--runtime-context", str(context)]), 2
+                        )
+                        self.assertEqual(calls.count(("build", "--platform")), before)
+                    else:
+                        receipt = compose._record(
+                            fixture.data_home / "omnis/image.json",
+                            hashlib.sha256(original[0]).hexdigest(),
+                            complete=True,
+                        )
+                        assert receipt is not None
+                        self.assertEqual(receipt.docker_host, host)
+                        self.assertEqual(receipt.runtime_image_id, "sha256:" + "d" * 64)
+                        self.assertEqual(len(built), 2)
+                        self.assertEqual(
+                            main(["install-image", "--runtime-context", str(context)]), 0
+                        )
+                        self.assertEqual(calls.count(("build", "--platform")), 2)
+                self.assertEqual(_manifest(bundle), original)
+                self.assertTrue(configs)
+                self.assertTrue(all(not config.exists() for config in configs))
+                self.assertIn(("context", "show"), calls)
+                self.assertIn(("context", "inspect"), calls)
 
     def test_image_build_and_readback_use_the_preflight_endpoint(self):
         import omnis_cli.compose as compose

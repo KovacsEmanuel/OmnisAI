@@ -663,12 +663,23 @@ async def test_managed_graph_verification_resolves_both_revisions(
 @pytest.mark.parametrize("state", ["complete", "incomplete", "unknown"])
 def test_exact_pre_m2_checker_receive_only_reconstructs_supported_states(state: str) -> None:
     from omnis.modules.tasks import method_checker_identity as identity
-    from test_contract_method_checks import native_case
+    from test_contract_method_checks import native_case, obj, rebind_mutation
 
     case = native_case(
         predicates=True,
         return_predicate="normalize-records" if state == "incomplete" else "build-surface-map",
     )
+    # Retain the required-only done_when shape shared by current and singleton
+    # composers; the helper's explicit historical-pin path includes optional rows.
+    bundle = case.prompt_bundle
+    obj(bundle["payload"])["composer_revision"] = (
+        "1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338"
+    )
+    bundle["digest"] = sha256(
+        canonical({k: v for k, v in bundle.items() if k != "digest"})
+    ).hexdigest()
+    obj(case.brief["payload"])["prompt_bundle_ref"] = records.reference(bundle)
+    rebind_mutation(case)
     if state == "unknown":
         case.schemas = {}
     old = {

@@ -46,7 +46,8 @@ from .lifecycle import (
     write_record,
 )
 from .release import _RELEASE, _put
-from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime
+from .start_runtime import (POSTGRES, SAFE_PATH, ControlRuntime, check_native_paths,
+                            private_identity, settings_overlay)
 
 EXPECTED_SCHEMA = "0013_mission_revisions"
 READY_FIELDS = {
@@ -128,6 +129,10 @@ def environment(runtime: ControlRuntime, root: Path, control: Path, port: int) -
 def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
     config = mapping(json.loads(runtime.compose(env, "config", "--format", "json").stdout))
     services = mapping(config.get("services"))
+    if runtime.native:
+        expected_runtime = mapping(settings_overlay(runtime, env)["services"])["runtime"]
+        if services.pop("runtime", None) != expected_runtime:
+            raise StartError("COMPOSE_RUNTIME_INVALID")
     networks = mapping(config.get("networks"))
     if (
         set(config) != {"name", "services", "networks", "secrets"}
@@ -254,6 +259,10 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                         "target": "/run/omnis-http",
                     }
                 )
+        if role == "supervisor" and runtime.native:
+            expected_environment["OMNIS_RUNTIME_DIR"] = "/runtime"
+            expected_mounts.append({"type": "bind", "source": f"{env['OMNIS_STATE_ROOT']}/native-ipc",
+                                    "target": "/runtime"})
         mounts = service.get("volumes")
         if (
             not isinstance(mounts, list)
@@ -309,7 +318,7 @@ def service_ids(runtime: ControlRuntime, root: Path, control: Path, port: int) -
             raise StartError("DUPLICATE_SERVICE", 3)
         runtime.attest(ident, role, root, control, port)
         result[role] = ident
-    runtime.network(set(result.values()))
+    runtime.network({cid for role, cid in result.items() if role != "runtime"})
     return result
 
 

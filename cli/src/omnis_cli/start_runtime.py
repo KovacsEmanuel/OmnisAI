@@ -12,6 +12,7 @@ drainage or daemon completion.
 """
 
 import hashlib
+import json
 import os
 import platform
 import re
@@ -31,6 +32,46 @@ POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
 )
 SAFE_PATH = "/usr/bin:/bin"
+RUNTIME_COMMAND = ("/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host")
+
+
+def private_identity(path: Path) -> list[int]:
+    private_dir(path)
+    info = path.lstat()
+    if stat.S_IMODE(info.st_mode) != 0o700 or info.st_gid != os.getgid():
+        raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
+    return [info.st_dev, info.st_ino, info.st_uid, info.st_gid, 0o700]
+
+
+def check_native_paths(root: Path, record: dict[str, object] | None = None) -> None:
+    if record is None:
+        record = read_record(root / "startup.json")
+    if (type(record.get("format")) is not int or record["format"] != 3
+        or private_identity(root / "provider") != record.get("provider_identity")
+        or private_identity(root / "native-ipc") != record.get("runtime_dir_identity")):
+        raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
+
+
+def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str, object]:
+    """Finite installed-wheel template, selected only by the sealed image profile."""
+    root = Path(env["OMNIS_STATE_ROOT"])
+    check_native_paths(root)
+    ipc = {"type": "bind", "source": str(root / "native-ipc"), "target": "/runtime"}
+    return {"services": {
+        "supervisor": {"environment": {"OMNIS_RUNTIME_DIR": "/runtime"}, "volumes": [ipc]},
+        "runtime": {
+            "image": runtime.receipt.runtime_image_id,
+            "pull_policy": "never", "platform": "linux/amd64", "restart": "no",
+            "labels": {"org.omnis.start-attempt": runtime.attempt},
+            "command": list(RUNTIME_COMMAND),
+            "user": f"{os.getuid()}:{os.getgid()}",
+            "read_only": True, "cap_drop": ["ALL"],
+            "security_opt": ["no-new-privileges:true"], "network_mode": "none",
+            "environment": {"OMNIS_RUNTIME_DIR": "/runtime"},
+            "volumes": [ipc, {"type": "bind", "source": str(root / "provider"),
+                              "target": "/state/provider"}],
+        },
+    }}
 
 
 def _network_identity(
@@ -303,9 +344,14 @@ class ControlRuntime:
             raise StartError("CONTAINER_ID_INVALID", 3)
         return rows
 
+    @property
+    def native(self) -> bool:
+        return getattr(self.receipt, "profile", None) == "p4a-settings-offline"
+
     def compose(
         self, env: dict[str, str], *args: str, effect: bool = False
     ) -> subprocess.CompletedProcess[str]:
+        overlay = settings_overlay(self, env) if self.native else None
         return self.run(
             "compose",
             "--project-name",
@@ -316,10 +362,12 @@ class ControlRuntime:
             "/dev/null",
             "-f",
             str(self.release / "ops/compose.yaml"),
+            *(["-f", "-"] if overlay is not None else []),
             *args,
             env=env,
             cap=45,
             effect=effect,
+            stdin=json.dumps(overlay).encode() if overlay is not None else None,
         )
 
     def network(self, allowed: set[str]) -> str | None:
@@ -341,6 +389,8 @@ class ControlRuntime:
         if self.attempt is None or labels.get("org.omnis.start-attempt") != self.attempt:
             raise StartError("ATTEMPT_IDENTITY_MISMATCH", 4)
         mounts = item.get("Mounts")
+        if self.native:
+            check_native_paths(root)
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
         actual: set[tuple[object, object, object, object]] = set()
@@ -365,9 +415,17 @@ class ControlRuntime:
             expected = {("bind", str(control), "/run/omnis-control", role == "supervisor")}
             if role == "api":
                 expected.add(("bind", str(root / "http"), "/run/omnis-http", True))
+            elif self.native:
+                expected.add(("bind", str(root / "native-ipc"), "/runtime", True))
+        elif role == "runtime" and self.native:
+            expected = {
+                ("bind", str(root / "native-ipc"), "/runtime", True),
+                ("bind", str(root / "provider"), "/state/provider", True),
+            }
         elif role not in {"migrate", "reconcile"}:
             raise StartError("CONTAINER_ROLE_INVALID", 3)
         expected_command = {
+            "runtime": list(RUNTIME_COMMAND),
             "db": ["postgres"],
             "api": ["python", "-I", "-m", "omnis.serve"],
             "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
@@ -376,13 +434,15 @@ class ControlRuntime:
         }[role]
         state = mapping(item.get("State"))
         networks = mapping(net.get("Networks"))
-        network_name = self.receipt.project + "_control"
+        network_name = "none" if role == "runtime" else self.receipt.project + "_control"
+        image_id = (self.pg_image if role == "db" else
+                    self.receipt.runtime_image_id if role == "runtime" else self.receipt.image_id)
         exited = state.get("Status") == "exited" and state.get("Running") is False
         if (
             item.get("Id") != ident
             or labels.get("com.docker.compose.project") != self.receipt.project
             or labels.get("com.docker.compose.service") != role
-            or item.get("Image") != (self.pg_image if role == "db" else self.receipt.image_id)
+            or item.get("Image") != image_id
             or config.get("Cmd") != expected_command
             or (
                 config.get("Entrypoint") != ["docker-entrypoint.sh"]
@@ -396,7 +456,8 @@ class ControlRuntime:
                 net.get("Ports") is not None
                 and any(value not in (None, []) for value in mapping(net["Ports"]).values())
             )
-            or host.get("NetworkMode") != f"{self.receipt.project}_control"
+            or host.get("NetworkMode") != network_name
+            or (role == "runtime" and host.get("Init") not in (None, False))
             or (set(networks) != {network_name} and not (exited and networks == {}))
             or host.get("PidMode") not in (None, "")
             or host.get("IpcMode") != "private"
@@ -415,8 +476,14 @@ class ControlRuntime:
             or len(mounts) != len(expected)
         ):
             raise StartError("CONTAINER_IDENTITY_MISMATCH", 3)
-        network_id = self.network(set(self.ids()))
-        if networks:
+        control_ids = set(self.ids())
+        if self.native:
+            for cid in list(control_ids):
+                candidate = self.inspect("container", cid)
+                if candidate is not None and mapping(mapping(candidate.get("Config")).get("Labels")).get("com.docker.compose.service") == "runtime":
+                    control_ids.remove(cid)
+        network_id = self.network(control_ids)
+        if networks and role != "runtime":
             endpoint = mapping(networks[network_name])
             # Created/exited endpoints can have no allocated NetworkID. In that
             # case bind the exact requested name/NetworkMode to the attested
@@ -454,7 +521,6 @@ class ControlRuntime:
             or host.get("SecurityOpt") != ["no-new-privileges:true"]
         ):
             raise StartError("CONTROL_CONFINEMENT_MISMATCH", 3)
-        image_id = self.pg_image if role == "db" else self.receipt.image_id
         image = self.inspect("image", image_id)
         if image is None or image.get("Id") != image_id:
             raise StartError("IMAGE_IDENTITY_MISMATCH", 4)
@@ -491,6 +557,8 @@ class ControlRuntime:
                 POSTGRES_PASSWORD_FILE="/run/secrets/db_password",
                 POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256",
             )
+        elif role == "runtime":
+            expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
         else:
             password = private_file(root / "db-password", limit=64).strip()
             if not re.fullmatch(r"[0-9a-f]{48}", password):
@@ -507,6 +575,8 @@ class ControlRuntime:
                 expected_env["OMNIS_CONTROL_DIR"] = "/run/omnis-control"
             if role == "api":
                 expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
+        if role == "supervisor" and self.native:
+            expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
         if actual_env != expected_env:
             raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
         if role == "reconcile" and (

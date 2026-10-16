@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "report_id": "P2-TIMING-ORACLE-FRESH-PG-QA",
+  "status": "FAIL_INFORMATIVE",
+  "acceptance": "BLOCKED_QA; parent adjudication required; no P2 closure",
+  "requirement_consumer_risk_decision": "Existing complete target exercises NativeTaskCommand/control_task -> LocalControl -> NativeTaskOwner -> actual private PG admission/ledger and synthetic NO_MODEL UDS peer. Preserve all product deadlines and assertions; return true first failure rather than a premature observer cancellation. One fresh attempt only.",
+  "snapshot": {
+    "head_at_entry": "e87a8de80d9f654b903e1d45ae44a1ce0030145b",
+    "head_at_preflight": "2c0d24028bb562bac192f95a2f7a65f1e87ca65e",
+    "head_after": "2c0d24028bb562bac192f95a2f7a65f1e87ca65e",
+    "production_baseline": "75c6fab",
+    "production_unchanged": true,
+    "test_sha256": {
+      "api/tests/test_model_admission.py": "aa122a18f7e6dd8cce243cd0fc291def30a5c04d3d483ee7c7351becd27f5344",
+      "api/tests/test_model_admission_pg.py": "98ba1d003778af7d7573d9b3155d5a49ce3a4047c667310449cd854ca74830ba"
+    },
+    "input_source_count": 30,
+    "library_input_count": 26,
+    "all_before_after_inputs_unchanged": true,
+    "parent_concurrent_commit": "2c0d240: integration register plus three reviewed JSON reports only; no affected source changes",
+    "git_status_after": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+    "git_diff_check_exit": 0,
+    "leaf_repository_edits": [],
+    "leaf_stage_commit_push": false,
+    "protected_HTML": "Not read, hashed, edited, staged or deleted"
+  },
+  "preflight": {
+    "status": "PASS_NO_EFFECT_PREFLIGHT",
+    "proof": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/preflight.json",
+      "sha256": "83dc2127dc27314a36d4dc247342840cec7015372999f93e0cdb40d494235c9a"
+    },
+    "source_access": "UID1000; readable exact source/library inputs; new canonical scratch0700; no native export required; no prewarm or DB effect",
+    "runner_help": {
+      "exit": 0,
+      "sha256": "a8674c50bbff7a20cd63d37c6fa36383a61e464cc2127a40e24aa84781268890",
+      "target_present": true
+    },
+    "target": "test-model-admission-pg",
+    "full_selector": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py",
+      "api/tests/test_model_budget.py",
+      "api/tests/test_model_budget_pg.py"
+    ],
+    "collection": {
+      "per_file": {
+        "tests/test_model_admission.py": 56,
+        "tests/test_model_admission_pg.py": 6,
+        "tests/test_model_budget.py": 23,
+        "tests/test_model_budget_pg.py": 10
+      },
+      "pg": 16,
+      "required_nodes_present": true,
+      "source": 79,
+      "total": 95
+    },
+    "reuse": "Exact author report and logs read back:79 SOURCE PASS; quality exits0;95 unique collected nodes. Source/runner/Makefile/library bytes rechecked before and after; no redundant suite rerun. Full fresh target executes all95.",
+    "toolchain": [
+      {
+        "argv": [
+          "api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import platform;print(platform.python_version())"
+        ],
+        "exit": 0,
+        "result": "3.13.15"
+      },
+      {
+        "argv": [
+          "cli/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import platform;print(platform.python_version())"
+        ],
+        "exit": 0,
+        "result": "3.13.15"
+      },
+      {
+        "argv": [
+          "/home/kali/.local/share/omnis-toolchains/bin/uv",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+      },
+      {
+        "argv": [
+          "node",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "v24.21.0"
+      },
+      {
+        "argv": [
+          "npm",
+          "--version"
+        ],
+        "exit": 0,
+        "result": "11.19.0"
+      }
+    ],
+    "docker": {
+      "context": "default",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "endpoint": "unix:///run/docker.sock",
+      "image": "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650",
+      "image_identity": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64",
+      "socket": {
+        "dev": 25,
+        "inode": 2279,
+        "mode": "0o660",
+        "uid": 0
+      }
+    },
+    "author": {
+      "path": "/home/kali/OmnisAI/documents/verification/p2-integration-timing-oracle-author.json",
+      "sha256": "446de799a477367c51a30941fb6a02e018c7def2c9faa7341a4f12d6bca937d7"
+    },
+    "review_sha256": {
+      "documents/verification/p2-integration-timing-oracle-review-norm.json": "08f93439a9a8d49fba72bbf95182be12386b3e35a0d6f0033c88d79cda3778d9",
+      "documents/verification/p2-integration-timing-oracle-review-safety.json": "2f42b3cc221dc7f8611a000c365227aa88f874e4b25f37b43d8688f12ef4388d"
+    }
+  },
+  "execution": {
+    "attempts": 1,
+    "retries": 0,
+    "exact_command": "umask 077; exec env -i PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin HOME=/home/kali TMPDIR=/home/kali/.hermes/cache/scratch/tq-4d8a7y28 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-admission-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600 > /home/kali/.hermes/cache/scratch/tq-4d8a7y28/outer.log 2>&1",
+    "environment": {
+      "HOME": "/home/kali",
+      "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28"
+    },
+    "umask": "077",
+    "timeout_seconds": 600,
+    "session_id": "proc_3fdfef3183fd",
+    "session_pid": 435964,
+    "background_requested": true,
+    "notify_requested": true,
+    "notification_limit": "Subagent launch returned notify_on_complete=false; exact-session process_manage wait obtained final exit. First wait window clamped to180 seconds, not gate timeout.",
+    "session_readback": {
+      "status": "exited",
+      "exit_code": 2,
+      "completion_reason": "exited",
+      "termination_source": ""
+    },
+    "gate_exit": 2,
+    "original_receipt": {
+      "code": 2,
+      "family_drained": true,
+      "schema_version": 1
+    },
+    "original_receipt_path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/gate.log.result.json",
+    "original_receipt_exact_schema_and_types_verified": true,
+    "test_counts": {
+      "collected": 95,
+      "deselected": 0,
+      "errors": 0,
+      "failed": 1,
+      "passed": 94,
+      "pg_failed": 1,
+      "pg_passed": 15,
+      "skipped": 0,
+      "source_failed": 0,
+      "source_passed": 79
+    },
+    "duration_seconds": 217.06,
+    "failed_node_ids": [
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]"
+    ],
+    "failed_ids_verified_against_full_collection": true,
+    "collection_id_mapping": "Collection emitted tests/; actual FAILED emitted api/tests/. Compared both explicit repo-relative forms, preserved literal FAILED ID."
+  },
+  "diagnostics": {
+    "PG": [
+      {
+        "await_site": "join_sender",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 2,
+        "markers": {
+          "received": true,
+          "reserved": true,
+          "second_lock_acquired": true,
+          "second_lock_entered": true,
+          "stop_locked": false,
+          "t0_ready": true
+        },
+        "order": "duplicate",
+        "owner_entered": 2,
+        "readiness_completed": 2,
+        "readiness_elapsed_ms": 40,
+        "readiness_entered": 2,
+        "scope": "PG",
+        "tasks": {
+          "second": {
+            "state": "RETURNED"
+          },
+          "sender": {
+            "reason": null,
+            "state": "FAILED",
+            "type": "TimeoutError"
+          }
+        }
+      }
+    ],
+    "PG_count": 1,
+    "SOURCE_CONTROL_count": 9,
+    "unknown_scope_count": 0
+  },
+  "interpretation": {
+    "observed": "Only duplicate fails, at join_sender. First sender is already FAILED with exact TimeoutError; second sender RETURNED. t0_ready/reserved/received and second lock entered/acquired are true. Owner/fence/readiness counters are2; readiness_completed2, last readiness elapsed40ms.",
+    "error_provenance": "Direct await of original control_task failed; no replacement/per-phase observer timeout wraps this join. This is an actual bounded sender failure, not the old1/1.5/2s premature cancellation. Product4s control deadline and original0.2s close allowance remain unchanged.",
+    "root_cause": "UNKNOWN why the first sender did not complete successfully within its original consumer budget. Counters/markers localize progress but do not prove the inner cause, final write timing or a product defect.",
+    "passing_cases": "The other94 collected nodes passed, including conflict, nominal, stop_first and send_first. This does not retroactively pass old failures or certify unexecuted post-failure duplicate assertions.",
+    "historical_failures_preserved": {
+      "p2-integration-duplicate-pg-qa-fail.json": {
+        "mode": "0o664",
+        "path": "documents/verification/p2-integration-duplicate-pg-qa-fail.json",
+        "sha256": "7ab6f1305087afa885a0c3aa59e8e8b713fd9864f422962988c7679bd5d98bc4"
+      },
+      "p2-integration-first-error-pg-qa.json": {
+        "mode": "0o664",
+        "path": "documents/verification/p2-integration-first-error-pg-qa.json",
+        "sha256": "82dc1eae8793a79384a7ad1c03742fcbc230724f50af9ace668a8dd80b4519f3"
+      }
+    },
+    "next_parent": "Adjudicate this exact true sender TimeoutError at duplicate/join_sender against the existing send/reply/cleanup path. No leaf retry or code change; preserve original failure before any further causal remediation."
+  },
+  "cleanup": {
+    "owner": "Unchanged ops/run_test_db_gate.py; leaf read-only after execution",
+    "manifest": {
+      "container_id": "a417422708fa6dd3d659d1c01b024116418c81d530132ea4849eed064f98350f",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-e7bd696d4db94d119c73c5acbb846690",
+      "root": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1",
+      "schema_version": 1,
+      "system_identifier": "7697152227840208926"
+    },
+    "manifest_file": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/fixture.json",
+      "sha256": "b4377b6fe7628544b382959168cc0f1221d72a04093a3ca4718837be34cfe979"
+    },
+    "live_identity_proof": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/live-identities.json",
+      "sha256": "3b02817c25f1e7140266f86d0c4d5d12395ad572a517908c25cbc7ed66ec2ddd"
+    },
+    "runner": {
+      "pgid": 435964,
+      "pid": 435964,
+      "ppid": 7825,
+      "sid": 435964,
+      "starttime": 14579063,
+      "state": "S",
+      "uid": 1000
+    },
+    "postgres": {
+      "pgid": 436439,
+      "pid": 436439,
+      "ppid": 436415,
+      "sid": 436439,
+      "starttime": 14579222,
+      "state": "S",
+      "uid": 1000
+    },
+    "pinned_process_count": 13,
+    "process_readback": [
+      {
+        "pid": 435964,
+        "starttime": 14579063,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436439,
+        "starttime": 14579222,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436575,
+        "starttime": 14579368,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436576,
+        "starttime": 14579368,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436577,
+        "starttime": 14579368,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436578,
+        "starttime": 14579368,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436579,
+        "starttime": 14579368,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436581,
+        "starttime": 14579369,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436582,
+        "starttime": 14579369,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436583,
+        "starttime": 14579369,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436756,
+        "starttime": 14579485,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436757,
+        "starttime": 14579492,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 436759,
+        "starttime": 14579493,
+        "status": "ABSENT"
+      }
+    ],
+    "runner_cleanup_fields": {
+      "absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false
+    },
+    "independent_readback": {
+      "status": "PASS_EXACT_OWNED_CLEANUP_READBACK",
+      "endpoint_identity_unchanged": true,
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "endpoint": "unix:///run/docker.sock",
+      "image_identity": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64",
+      "container_inspect_exit": 1,
+      "container_absent": true,
+      "container_id_filter_empty": true,
+      "project_containers": [],
+      "project_networks": [],
+      "absent_paths": {
+        "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/data/18/docker/postmaster.pid": true,
+        "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/socket/.s.PGSQL.5432": true,
+        "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/socket/.s.PGSQL.5432.lock": true
+      },
+      "kernel_uds_prefix": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28",
+      "kernel_uds_matches": 0,
+      "kernel_read_mode": "bytes",
+      "owned_group_members": [],
+      "same_uid_proc_permission_errors": 0,
+      "owned_pid_proc_locks": 0,
+      "retained_metadata": [
+        {
+          "dev": 2049,
+          "inode": 10499759,
+          "mode": "0o700",
+          "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1",
+          "uid": 1000
+        },
+        {
+          "dev": 2049,
+          "inode": 10499760,
+          "mode": "0o700",
+          "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/data",
+          "uid": 1000
+        },
+        {
+          "dev": 2049,
+          "inode": 10499764,
+          "mode": "0o700",
+          "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/data/18/docker",
+          "uid": 1000
+        },
+        {
+          "dev": 2049,
+          "inode": 10499761,
+          "mode": "0o3775",
+          "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/socket",
+          "uid": 1000
+        }
+      ],
+      "pgdata_retained": true,
+      "database_rows_retained": "NOT_CLAIMED: original conftest drops per-test databases; retained cluster is not retained per-test rows",
+      "cleanup_effects_by_leaf": 0,
+      "foreign_adoption_or_rescue": false
+    },
+    "proof": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/cleanup-readback.json",
+      "sha256": "4e8f28e31336567763df7b8dccf7911874f875767e29354e9ec89cc2a80bfc16"
+    },
+    "private_modes": "Original outer/gate logs, manifest, original receipt, password and sanitized evidence verified0600; scratch0700. Private password contents never read by leaf.",
+    "retained": "Exact PGDATA directories unchanged dev/inode/UID/mode; PG_VERSION18 and global/pg_control retained. Per-test databases dropped by original conftest, not claimed retained. No manual rescue or foreign adoption."
+  },
+  "artifacts": {
+    "gate_log": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/gate.log",
+      "sha256": "1228927d0a5e43593fbf04ceebc1e0d5c58eefc99441996fc79a0d1d6667b262"
+    },
+    "gate_receipt": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+    },
+    "manifest": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1/fixture.json",
+      "sha256": "b4377b6fe7628544b382959168cc0f1221d72a04093a3ca4718837be34cfe979"
+    },
+    "outer_log": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/outer.log",
+      "sha256": "d00b059b952ce5704fb65d8eaa264ee3f0437eb4af46b36ddf45dfa7145addb3"
+    },
+    "cleanup-readback.json": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/cleanup-readback.json",
+      "sha256": "4e8f28e31336567763df7b8dccf7911874f875767e29354e9ec89cc2a80bfc16"
+    },
+    "live-identities.json": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/live-identities.json",
+      "sha256": "3b02817c25f1e7140266f86d0c4d5d12395ad572a517908c25cbc7ed66ec2ddd"
+    },
+    "preflight.json": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/preflight.json",
+      "sha256": "83dc2127dc27314a36d4dc247342840cec7015372999f93e0cdb40d494235c9a"
+    },
+    "result-sanitized.json": {
+      "mode": "0o600",
+      "path": "/home/kali/.hermes/cache/scratch/tq-4d8a7y28/result-sanitized.json",
+      "sha256": "085acacd6c8c444170baccdd207f8f5eaff4e8957ce79cbbb1874a906928fc91"
+    }
+  },
+  "issues_encountered": [
+    "Read-only log parser first refused because its marker-key allowlist omitted second_lock_acquired. Read the producer, corrected only the in-memory parser to the exact six keys, and reparsed unchanged retained logs.",
+    "Read-only failed-ID parser initially expected tests/ while actual gate summary used api/tests/. Explicitly mapped repository-relative prefixes to the verified collection and preserved the original FAILED identifier. No test/consumer retry or edits resulted.",
+    "Background terminal surfaced two shell zle option warnings; gate executed and original receipt plus exact final session verified exit2."
+  ],
+  "limits": [
+    "SOURCE host/owner with real PostgreSQL and UDS; synthetic native identities/preparation/peer. No native runtime/provider/model/target inference or traffic.",
+    "No canonical/global/r1/profile/Settings/batch2/push actions, installation or resource adoption. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No third harness/owner, deadlines/grants/TTL/caps/assertions changes; no repository file or skill edits. Parent owns any evidence commit and product/P2 acceptance."
+  ],
+  "status_delta_for_parent": {
+    "test_fix": "IMPLEMENTED; two exact-snapshot APPROVED_SCOPED reviews retained",
+    "QA": "FAIL_INFORMATIVE 94PASS/1FAIL, actual sender TimeoutError",
+    "P2": "NOT_CLOSED",
+    "next": "Parent cause adjudication; no leaf retry"
+  }
+}

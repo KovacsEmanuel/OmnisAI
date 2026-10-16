@@ -626,7 +626,7 @@ def test_invalidation_empty_refuses_native_initialization_before_uuid_or_access(
     monkeypatch.setattr(method, "run_handler", forbidden)
     with pytest.raises(ValueError, match="^PROCEDURE_INVALIDATED$"):
         native.initialize_contract(
-            child, native.ContractAdmission(parent, canonical(case.stage)), {}
+            child, native.ContractAdmission(parent, canonical(case.stage), 0), {}
         )
     assert attempts == []
     assert child.__dict__ == {}

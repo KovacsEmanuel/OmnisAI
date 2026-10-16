@@ -14,6 +14,51 @@ from omnis.supervisor.runtime_client import RuntimeClient
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("entered", [False, True])
+async def test_stop_finalizes_prestart_and_running_receipt(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, entered: bool
+) -> None:
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    host = RuntimeHost(ipc_directory)
+    started = asyncio.Event()
+    calls = 0
+
+    async def native(action: str, value: object) -> None:
+        nonlocal calls
+        calls += 1
+        started.set()
+        await asyncio.Event().wait()
+
+    monkeypatch.setattr(host, "_settings_native", native)
+    async with host:
+        client = RuntimeClient(ipc_directory, generation=0, epoch=1)
+        await client.connect()
+        try:
+            identity = str(uuid4())
+            body: dict[str, object] = {
+                "payload": {"operation_id": identity, "action": "read", "selection": None},
+                "generation": 0,
+                "epoch": 1,
+                "deadline_ns": time.monotonic_ns() + 4_000_000_000,
+            }
+            assert host._settings_start(body)["status"] == "PENDING"
+            if entered:
+                await asyncio.wait_for(started.wait(), 1)
+            # No yield before this call in the prestart cut.
+            await host.stop()
+            assert host.settings_task is not None and host.settings_task.done()
+            assert host.snapshot()["drained"] is True
+            expected = "INDETERMINATE" if entered else "UNAVAILABLE"
+            assert (await client.settings_status(identity))["status"] == expected
+            assert (await client.settings_status(identity))["status"] == expected
+            assert host._settings_start(body)["status"] == expected
+            assert calls == int(entered)
+        finally:
+            await client.close()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("cut", ["stop", "expiry", "lost_readback", "busy", "expired_idle"])
 async def test_settings_stop_expiry_busy_and_lost_readback(
     ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str

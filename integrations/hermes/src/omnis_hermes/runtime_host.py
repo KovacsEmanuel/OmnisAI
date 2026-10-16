@@ -829,6 +829,18 @@ class RuntimeHost:
                 self.state = "STOPPING"
                 self.settings_task.cancel()
                 await asyncio.gather(self.settings_task, return_exceptions=True)
+            if self.settings_result is not None and self.settings_result["status"] == "PENDING":
+                # A task cancelled before its first turn never enters the worker's
+                # try/except. Settle it here; an entered worker retains its own
+                # indeterminate result, never a fabricated successful readback.
+                status = (
+                    "UNAVAILABLE"
+                    if self.settings_task is not None and self.settings_task.cancelled()
+                    else "INDETERMINATE"
+                )
+                self.settings_result = settings.view(
+                    settings.identity(self.settings_result["operation_id"]), status
+                )
             if self.process is None:
                 if self.settings_command is not None:
                     self.state = "STOPPED"

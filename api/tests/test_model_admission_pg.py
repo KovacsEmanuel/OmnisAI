@@ -44,6 +44,7 @@ from test_managed_contract import stage
 from test_model_admission import (
     assert_protocol_budget_accounting,
     assert_protocol_budget_records,
+    assert_protocol_failure_records,
     assert_protocol_records,
     protocol_configuration,
     wait_protocol_marker,
@@ -264,6 +265,7 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
     capsys: pytest.CaptureFixture[str],
     protocol_mode: bool = False,
     protocol_order: str = "nominal",
+    protocol_logs: pytest.LogCaptureFixture | None = None,
 ) -> None:
     monkeypatch.syspath_prepend(
         str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
@@ -666,6 +668,7 @@ async def test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
                 monkeypatch,
                 protocol_order,
                 capsys,
+                protocol_logs,
             )
             return
         done.set()
@@ -705,6 +708,7 @@ async def protocol_pg_consumer(
     monkeypatch: pytest.MonkeyPatch,
     order: str,
     capsys: pytest.CaptureFixture[str],
+    logs: pytest.LogCaptureFixture | None = None,
 ) -> None:
     """Actual SQL + both UDS; only retained native identity is a synthetic seed.
 
@@ -737,7 +741,11 @@ async def protocol_pg_consumer(
         "data_approval": decision,
         "provider_config_ref": ready["provider_config_ref"],
         "protocol_id": str(uuid4()),
-        "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+        "protocol_caps": {
+            "calls": 1,
+            "output_tokens": 64,
+            "wall_seconds": 1 if order == "timeout" else 3,
+        },
     }
     command = NativeTaskCommand.model_validate(command_value)
     wire: list[dict[str, object]] = []
@@ -748,6 +756,9 @@ async def protocol_pg_consumer(
     fence_count, blocker_pid = 0, 0
     concurrent = order in {"duplicate", "conflict"}
     admission_case = order in {"budget", "budget_conflict", "deadline_b"}
+    failure_case = order in {"eof", "timeout", "cancel", "invalid_ack", "late_stop", "data_denials"}
+    settle_entered, release_settle = asyncio.Event(), asyncio.Event()
+    timeout_produced = asyncio.Event()
     protocol_errors: list[str] = []
     frozen_values: list[FrozenPreflight] = []
     a_pid = 0
@@ -996,18 +1007,38 @@ async def protocol_pg_consumer(
     )
     if concurrent:
         monkeypatch.setattr(managed_store, "lock", observed_lock)
-    if concurrent or admission_case:
+    if concurrent or admission_case or failure_case:
         monkeypatch.setattr(service, "runtime_authority", observed_authority)
+
+    if order == "late_stop":
+        actual_settle = model_protocol.settle
+
+        async def late_settle(
+            conn: AsyncConnection,
+            dispatch: ModelDispatch,
+            value: NativeTaskCommand,
+            refs: dict[str, object],
+            result: object,
+        ) -> dict[str, object]:
+            # A has unlocked; T2 has not acquired managed/budget locks yet.
+            settle_entered.set()
+            await release_settle.wait()
+            return await actual_settle(conn, dispatch, value, refs, result)
+
+        monkeypatch.setattr(model_protocol, "settle", late_settle)
 
     def cold(payload: dict[str, object]) -> dict[str, object]:
         body = mapping(mapping(payload["binding"])["payload"])
-        return mapping(
+        result = mapping(
             adapter.cold_preflight(
                 payload,
                 native_root_id=body["native_root_id"],
                 native_entries=body["entries"],
                 source_configuration=protocol_configuration(payload),
             )
+        )
+        return (
+            {**result, "extra": "SYNTHETIC_PRIVATE_ACK_ERROR"} if order == "invalid_ack" else result
         )
 
     dsn = database_url.render_as_string(hide_password=False)
@@ -1044,9 +1075,14 @@ async def protocol_pg_consumer(
                     "catalog_record",
                     "catalog_command",
                 )
+                + (
+                    ("instance_control", "supervisor_lease", "instance_command")
+                    if failure_case
+                    else ()
+                )
             }
 
-        before = census() if concurrent or admission_case else {}
+        before = census() if concurrent or admission_case or failure_case else {}
         settled: dict[str, list[object]] = {}
         baseline_records = [
             mapping(mapping(r)["envelope"]) for r in before.get("managed_record", [])
@@ -1060,10 +1096,26 @@ async def protocol_pg_consumer(
                 result=cold,
                 runtime_boot=owner.runtime.boot,
                 observed=received,
+                reply=order != "eof",
+                failure=order if order in {"timeout", "cancel"} else None,
                 hold=release_ack if order == "send_first" else None,
             ) as runtime:
                 assert runtime.epoch == owner.epoch
                 owner.runtime = runtime
+                if order == "timeout":
+                    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+                    actual_exchange = runtime.exchange_frozen
+
+                    async def timeout_exchange(frozen: FrozenPreflight) -> dict[str, object]:
+                        try:
+                            return await actual_exchange(frozen)
+                        except RuntimeUnavailable as error:
+                            if type(error.__context__) is TimeoutError and received.is_set():
+                                timeout_produced.set()
+                            raise
+
+                    monkeypatch.setattr(runtime, "exchange_frozen", timeout_exchange)
                 writer = runtime.writer
                 assert writer is not None
                 actual_write = writer.write
@@ -1100,7 +1152,7 @@ async def protocol_pg_consumer(
                     owner.owner,
                     owner.epoch,
                     native_task=observed_handle,
-                ):
+                ) as control:
 
                     async def measured_control(
                         value: dict[str, object], caller: ProtocolCaller
@@ -1124,6 +1176,289 @@ async def protocol_pg_consumer(
                                     return int(waiting[0][0])
                                 await asyncio.sleep(0.01)
 
+                    if failure_case:
+                        from omnis.policy import budgets
+
+                        public_errors: list[str] = []
+
+                        def private_channels(reply: dict[str, object]) -> None:
+                            assert logs is not None
+                            captured = capsys.readouterr()
+                            public = (
+                                json.dumps(reply)
+                                + json.dumps(public_errors)
+                                + captured.out
+                                + captured.err
+                                + logs.text
+                            ).encode()
+                            if any(
+                                marker in public
+                                for marker in (
+                                    b"SYNTHETIC_PRIVATE_I1",
+                                    b"SYNTHETIC_PRIVATE_ACK_ERROR",
+                                    runtime.capability.encode(),
+                                    control.capability.encode(),
+                                    dsn.encode(),
+                                    (url.password or "").encode(),
+                                )
+                                if marker
+                            ):
+                                raise AssertionError("private admission sentinel escaped")
+
+                        try:
+                            if order == "data_denials":
+                                # Separate never-launched context; no positive grant
+                                # is consumed by this finite pre-reserve bookkeeping.
+                                bad_approval = {
+                                    **decision,
+                                    "decision_id": str(uuid4()),
+                                    "approved_text_digests": ["0" * 64],
+                                }
+                                controls: dict[str, dict[str, object]] = {
+                                    "DATA": {"data_approval": bad_approval},
+                                    "owner": {"owner_id": str(uuid4())},
+                                    "config": {
+                                        "provider_config_ref": {
+                                            **mapping(ready["provider_config_ref"]),
+                                            "id": str(uuid4()),
+                                        }
+                                    },
+                                    "projection": {
+                                        "data_approval": {
+                                            **bad_approval,
+                                            "composition_ref": {
+                                                **mapping(decision["composition_ref"]),
+                                                "digest": "0" * 64,
+                                            },
+                                        }
+                                    },
+                                    "ref": {
+                                        "manifest_ref": {
+                                            **mapping(lifecycle["manifest_ref"]),
+                                            "id": str(uuid4()),
+                                        }
+                                    },
+                                    "digest": {
+                                        "provider_config_ref": {
+                                            **mapping(ready["provider_config_ref"]),
+                                            "digest": "0" * 64,
+                                        }
+                                    },
+                                }
+                                for label, change in controls.items():
+                                    await service.heartbeat(owner.owner, owner.epoch)
+                                    prior = census()
+                                    await_site = "pre_reserve_" + label
+                                    with pytest.raises(CatalogError) as denied_data:
+                                        await control_task(root, {**command_value, **change})
+                                    public_errors.append(str(denied_data.value))
+                                    assert denied_data.value.reason == (
+                                        "COMMAND_CONFLICT" if label == "ref" else "TASK_REJECTED"
+                                    )
+                                    if census() != prior:
+                                        raise AssertionError("private admission census changed")
+                                    assert reserve_calls == 0 and not wire and not observations
+                                private_channels({})
+                                return
+                            await service.heartbeat(owner.owner, owner.epoch)
+                            before = census()
+                            started = monotonic()
+                            sender = asyncio.create_task(measured_control(command_value, "sender"))
+                            send_tasks.append(sender)
+                            stopped: dict[str, list[object]] = {}
+                            if order == "cancel":
+                                await_site = "cancel_after_peer_read"
+                                await wait_protocol_marker(received, sender)
+                                handlers = [
+                                    t for t in timing.handlers if isinstance(t, asyncio.Task)
+                                ]
+                                assert len(handlers) == 1 and not handlers[0].done()
+                                handlers[0].cancel()  # actual owner, not only its client
+                            elif order == "late_stop":
+                                await_site = "t2_before_stop"
+                                await wait_protocol_marker(settle_entered, sender)
+                                at_t2 = census()
+                                assert len(wire) == len(observations) == 1
+                                assert not any(
+                                    mapping(mapping(r)["envelope"])["kind"]
+                                    in {"model-protocol-receipt", "model-usage-receipt"}
+                                    for r in at_t2["managed_record"]
+                                )
+                                await_site = "stop_commit_before_t2"
+                                stop_id = uuid4()
+                                assert (
+                                    await service.shutdown(
+                                        stop_id,
+                                        command.expected_generation,
+                                        owner.owner,
+                                        owner.epoch,
+                                    )
+                                    == command.expected_generation + 1
+                                )
+                                stopped = census()
+                                if stopped["managed_record"] != at_t2["managed_record"]:
+                                    raise AssertionError("private admission census changed")
+                                instance = mapping(stopped["instance_control"][0])
+                                assert instance["generation"] == command.expected_generation + 1
+                                assert instance["admission_open"] is False
+                                assert instance["shutdown_command_id"] == str(stop_id)
+                                assert (
+                                    len(stopped["instance_command"])
+                                    == len(at_t2["instance_command"]) + 1
+                                )
+                                if stopped["supervisor_lease"] != at_t2["supervisor_lease"]:
+                                    raise AssertionError("private admission census changed")
+                                assert authority_calls == reserve_calls == 1
+                                release_settle.set()
+                            await_site = "failure_or_late_join"
+                            if order == "late_stop":
+                                reply = await sender
+                            else:
+                                with pytest.raises(CatalogError) as denied:
+                                    await sender
+                                public_errors.append(str(denied.value))
+                                assert denied.value.reason == (
+                                    "TASK_REJECTED"
+                                    if order in {"invalid_ack", "cancel"}
+                                    else "TASK_INDETERMINATE"
+                                )
+                                if order == "timeout":
+                                    assert timeout_produced.is_set(), (
+                                        "inner post-write timeout absent"
+                                    )
+                                assert runtime.reader is None and runtime.writer is None
+                                reply = await control_task(root, command_value)
+                            assert monotonic() - started < 4.25  # observation, not a grant
+                            accounting = mapping(reply["protocol_accounting"])
+                            settled = census()
+                            graph = [
+                                mapping(mapping(r)["envelope"]) for r in settled["managed_record"]
+                            ]
+                            if order == "late_stop":
+                                assert_protocol_records(
+                                    graph, baseline_ids, command_value, accounting
+                                )
+                                assert_protocol_budget_accounting(
+                                    accounting, command_value, "PREPARE"
+                                )
+                            else:
+                                assert_protocol_failure_records(
+                                    graph, baseline_ids, command_value, accounting
+                                )
+                            if [
+                                r
+                                for r in settled["managed_record"]
+                                if str(mapping(r)["id"]) in baseline_ids
+                            ] != before["managed_record"]:
+                                raise AssertionError("private admission census changed")
+                            comparison = stopped if order == "late_stop" else before
+                            if {k: v for k, v in settled.items() if k != "managed_record"} != {
+                                k: v for k, v in comparison.items() if k != "managed_record"
+                            }:
+                                raise AssertionError("private admission census changed")
+                            assert (
+                                authority_calls
+                                == reserve_calls
+                                == len(wire)
+                                == len(observations)
+                                == 1
+                            )
+                            reader_engine = database_engine(dsn)
+                            try:
+                                fresh = ModelDispatch(
+                                    ManagedAdmission(reader_engine, owner.domain.root)
+                                )
+                                async with reader_engine.begin() as conn:
+                                    refs = await model_protocol.replay(conn, command)
+                                    assert refs is not None
+                                    assert (
+                                        await model_protocol.readback(conn, fresh, command, refs)
+                                        == accounting
+                                    )
+                                    state = await budgets.readback(
+                                        conn, command.owner_id, refs["dispatch_ref"]
+                                    )
+                                    assert state["charged_calls"] == 1
+                                    assert state["charged_output_tokens"] == (
+                                        0 if order == "late_stop" else 64
+                                    )
+                            finally:
+                                await reader_engine.dispose()
+                            assert (await control_task(root, command_value))[
+                                "protocol_accounting"
+                            ] == accounting
+                            with pytest.raises(CatalogError) as denied:
+                                await control_task(
+                                    root,
+                                    {
+                                        **command_value,
+                                        "protocol_caps": {
+                                            "calls": 1,
+                                            "output_tokens": 63,
+                                            "wall_seconds": mapping(command_value["protocol_caps"])[
+                                                "wall_seconds"
+                                            ],
+                                        },
+                                    },
+                                )
+                            assert denied.value.reason == "COMMAND_CONFLICT"
+                            if census() != settled:
+                                raise AssertionError("private admission census changed")
+                            assert authority_calls == reserve_calls == len(wire) == 1
+                            public_errors.append(str(denied.value))
+                            private_channels(reply)
+                            if b"SYNTHETIC_PRIVATE_I1" in adapter.validate_preflight(
+                                mapping(wire[0]["payload"])
+                            ):
+                                raise AssertionError("private admission sentinel escaped")
+                            if order == "late_stop":
+                                original = next(
+                                    r for r in graph if r["kind"] == "model-protocol-receipt"
+                                )
+                                descriptor = next(
+                                    r for r in graph if r["kind"] == "model-dispatch-owner"
+                                )
+                                forged = records.envelope(
+                                    "model-protocol-receipt",
+                                    {
+                                        **mapping(original["payload"]),
+                                        "extra": "SYNTHETIC_PRIVATE_ACK_ERROR",
+                                    },
+                                )
+                                async with owner.domain.engine.begin() as conn:
+                                    await managed_store.put(
+                                        conn,
+                                        command.owner_id,
+                                        str(mapping(descriptor["payload"])["run_id"]),
+                                        forged,
+                                    )
+                                poisoned = census()
+                                assert (
+                                    len(poisoned["managed_record"])
+                                    == len(settled["managed_record"]) + 1
+                                )
+                                if {k: v for k, v in poisoned.items() if k != "managed_record"} != {
+                                    k: v for k, v in settled.items() if k != "managed_record"
+                                }:
+                                    raise AssertionError("private admission census changed")
+                                with pytest.raises(CatalogError) as denied_receipt:
+                                    await control_task(root, command_value)
+                                assert denied_receipt.value.reason == "TASK_REJECTED"
+                                public_errors.append(str(denied_receipt.value))
+                                private_channels(reply)
+                                if census() != poisoned:
+                                    raise AssertionError("private admission census changed")
+                                assert authority_calls == reserve_calls == len(wire) == 1
+                            return
+                        except BaseException as error:
+                            observe(error)
+                            raise
+                        finally:
+                            release_settle.set()
+                            for pending in send_tasks:
+                                if not pending.done():
+                                    pending.cancel()
+                            await asyncio.gather(*send_tasks, return_exceptions=True)
                     if admission_case:
                         from time import monotonic_ns
 
@@ -1687,6 +2022,29 @@ async def protocol_pg_consumer(
                     if concurrent:
                         assert census() == settled
                         assert authority_calls == reserve_calls == len(wire) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "order", ["eof", "timeout", "cancel", "invalid_ack", "late_stop", "data_denials"]
+)
+async def test_pg_protocol_failure_late_accounting_and_data(
+    migrated_database_url: URL,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    caplog: pytest.LogCaptureFixture,
+    order: str,
+) -> None:
+    await test_pg_explicit_decision_projection_owner_rollback_replay_and_stop(
+        migrated_database_url,
+        tmp_path,
+        monkeypatch,
+        capsys,
+        protocol_mode=True,
+        protocol_order=order,
+        protocol_logs=caplog,
+    )
 
 
 @pytest.mark.asyncio

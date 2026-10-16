@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "reviewer_role": "independent_normative_read_only",
+  "verdict": "CHANGES_REQUESTED_TEST_ORACLE",
+  "qa128_admission": "HOLD_FOR_FOCUSED_ORACLE_FIX_AND_REREVIEW",
+  "product_t2_review": "PRESERVED_NOT_REOPENED",
+  "scope": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+    "base": "bc38c98d9d7828f783cbe7916858bca16bee719d",
+    "unchanged_product_commit": "35efc3f",
+    "delta_paths": [
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "delta_sha256": "d9208b134848946cb3894faebf70034507be467cdb7b69e054f967e139d5ff00",
+    "author_manifest_sha256": "e7853cde212b6c57789c71acc087f0f8a0db14364b14f5284314ed2570189a1e",
+    "author_manifest_files": 46,
+    "additional_relevant_files": 3,
+    "initial_dirty_paths": 5,
+    "new_pg_cases": [
+      "eof",
+      "timeout",
+      "cancel",
+      "invalid_ack",
+      "late_stop",
+      "data_denials"
+    ],
+    "excluded": "Unchanged T2 approval, other historical Admission cases, H04/H05, global recertification and safety complementary review."
+  },
+  "requirements": [
+    "documents/Omnis_Implementation_Plan.md:268-281",
+    "documents/verification/p2-next-session-implementation.md:31-36",
+    "documents/verification/p2-integration-b06cm.md:112-136",
+    "CONTRIBUTING.md:61-65"
+  ],
+  "findings": [
+    {
+      "id": "NORM-ADMISSION-FAILURE-01",
+      "severity": "MEDIUM",
+      "blocking": "QA preflight oracle, not a T2 product finding",
+      "file": "api/tests/test_model_admission_pg.py",
+      "lines": [
+        1286,
+        1300
+      ],
+      "related_lines": [
+        744,
+        1095
+      ],
+      "title": "Timeout case assumes the inner exchange timeout wins the original four-second owner/control deadline.",
+      "actual": "New timeout order holds the real peer silent, requests wall_seconds=3 and accepts only CatalogError(TASK_INDETERMINATE). The real producer can instead propagate TimeoutError after an actual write when otherwise-admitted pre-send work consumes over one second. The new test then exits before the conservative ledger/replay oracle. No PG execution was performed and this is not a claim that its current cold PG sample has already failed.",
+      "producer": "native_tasks.py:99-107 retains the owner deadline and normalizes RuntimeUnavailable only. local_control.py:252-281 retains its independent four-second timeout. control_task at native_tasks.py:457 has its own original four-second timeout. The first expiring outer timeout need not be the runtime RuntimeUnavailable path.",
+      "reproducer": {
+        "environment": "Absolute main API interpreter -I -B; cwd frozen worktree; explicit worktree api/src + api/tests + integrations/hermes/src imports. No PG env/connection. In-memory monkeypatch only.",
+        "consumer": "test_qualified_projection_reaches_cold_admission_without_model_reservation(..., protocol_mode=True, protocol_failure=\"timeout\")",
+        "injection": "Delegate ModelDispatch.read_configuration unchanged except await asyncio.sleep(1.25) once when its immediate caller is NativeTaskOwner._model_protocol. This is below the existing two-second DB budget, not a wider product deadline. Observe the unchanged real peer_client request list.",
+        "result": {
+          "protocol_delays": 1,
+          "actual_peer_frames": 1,
+          "outcome": "RAISED",
+          "actual_exception": "TimeoutError",
+          "reason": null
+        },
+        "evidence": "timeout-pre-send-control.json",
+        "control": "Unmodified affected SOURCE six variants passed. A first timing control delayed a pre-protocol configuration read instead, returned normally and is retained as timeout-timing-control.json; it was not credited as the targeted reproduction."
+      },
+      "remedy": "Keep T2/product limits unchanged. Make this test unambiguously exercise its intended post-write inner runtime timeout, e.g. a smaller allowed per-command wall cap for this order with matching expected caps, and observe that the intended timeout producer wins before joining. Alternatively define a separate exact outer-timeout expectation while still requiring the same post-write SENT/UNKNOWN/no-refund/replay/no-resend assertions. Do not broadly accept arbitrary failures or increase deadlines. Rerun affected SOURCE and focused review; then parent runs the single full128 PG target."
+    }
+  ],
+  "checks": [
+    {
+      "name": "snapshot_identity",
+      "exit": 0,
+      "result": "All 46 author manifest files plus 3 relevant files match; all three product files byte-equal git show 35efc3f:path; before/after 49 hashes identical."
+    },
+    {
+      "name": "delta_reverse_apply",
+      "command": [
+        "git",
+        "apply",
+        "--reverse",
+        "--check",
+        "/home/kali/.hermes/cache/scratch/p2-admission-failure-evidence-20261016/delta-from-t2.patch"
+      ],
+      "exit": 0,
+      "limit": "No apply/write performed."
+    },
+    {
+      "name": "source_affected",
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "-q",
+        "--tb=line",
+        "-k",
+        "protocol_data_reserve_sent_transport_settlement_source"
+      ],
+      "exit": 0,
+      "passed": 6,
+      "deselected": 74,
+      "elapsed_seconds": 8.2,
+      "limit": "Real existing owner/cold validator/UDS; SOURCE SQL/storage/lease/identity doubles, not persistent PG."
+    },
+    {
+      "name": "new_failure_oracle_positive_negative",
+      "exit": 0,
+      "positive": "Authentic existing EOF SOURCE consumer reached the new assertion and was accepted. Captured graph, baseline, command and accounting then reused without invented success material.",
+      "negatives": {
+        "invented_zero_output": "REJECTED",
+        "refund_state": "REJECTED",
+        "missing_reservation": "REJECTED",
+        "extra_usage_receipt": "REJECTED",
+        "wrong_request_digest": "REJECTED",
+        "caps_mismatch": "REJECTED"
+      },
+      "limit": "Finite in-memory controls on the exact newly added assertion; not PG integration or new guard framework."
+    },
+    {
+      "name": "timeout_precise_producer_control",
+      "exit": 0,
+      "result": "Counterexample observed: one actual peer frame then TimeoutError, not expected CatalogError. Probe catches and reports sanitized type only; exit0 is successful reproduction, not a passing product assertion."
+    },
+    {
+      "name": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "author_source_and_collection",
+      "observed_via": "Hash-matching author report and exact test delta, not independently rerun full suite",
+      "source_reported_pass": 103,
+      "collection_only_total": 128,
+      "collection_only_source": 103,
+      "collection_only_pg": 25,
+      "new_pg_not_run": 6,
+      "limit": "Collection is not PG PASS; quality checks are author-reported scoped evidence, not independently rerun here."
+    }
+  ],
+  "normative_dispositions": {
+    "sent_unknown": "New exact six-kind ledger oracle refuses usage/settlement/refund records, retains null observed output/cost and charged reservation. Four real peer faults follow actual write/read; fresh reader and duplicate/conflict paths have no further authority/reserve/send.",
+    "send_observer": "Existing PG writer observer delegates original bytes only after a separate autocommit observer sees correlated SENT and checks exact frame/body SHA, body bytes and caps. Unchanged seam reused, not mocked writer success.",
+    "late_stop": "New seam pauses T2 before qualified managed/budget locks, after A exit. Actual shutdown return/commit and generation+1/admission_closed/command readback precede release. Settlement, fresh read, public duplicate/conflict remain receive-only. No new grant allowed by counters. This is authored static ordering, not executed PG evidence.",
+    "data_denials": "Six otherwise well-formed NativeTaskCommand mutations: DATA digest approval, owner, unavailable config ID, composition pin digest, manifest ID, provider-config pin digest. Public reason mapping follows actual producers: only manifest mismatch preserves COMMAND_CONFLICT, others normalize TASK_REJECTED. Heartbeat is explicit outside each prior census; no reserve/write expected. Projection pin mismatch precedes invalid text classification. No claim these cover every possible body-digest attack.",
+    "receipt": "A valid settled positive is followed by deliberately untrusted second receipt through managed_store. Duplicate count triggers MODEL_RECEIPT_CONFLICT and public TASK_REJECTED; unchanged poisoned census and no new grant/reserve/send asserted. This is not a proof that the extra-field schema branch is reached, because the duplicate guard fires first; mandate receipt refusal is nevertheless represented.",
+    "census": "Full sorted to_jsonb rows of managed_record, managed_run, managed_task, managed_inbox, managed_mission_revision, catalog_record, catalog_command, instance_control, supervisor_lease, instance_command. Matches affected write footprint: protocol managed_record; heartbeat supervisor_lease outside comparison; shutdown instance_control + instance_command. Baseline rows and neighbours preserved, Stop changes compared separately. Not a universal database inventory.",
+    "sentinel": "Added bounded input/result/error/stdout/stderr/caplog checks inspect real public values without raw diagnostic assertion operands. Native ACK poison and extra receipt carry the result marker; original input marker excluded from validated projection. Dedicated PG sentinel checks remain NOT_RUN. No claim of all runtime log channels or native/model confidentiality.",
+    "unchanged_t2": "Three changed-from-base product files are byte-identical to approved main35efc3f; no reopened product finding or requested product edit."
+  },
+  "limits": [
+    "No PG, Docker, OCI, native agents, provider/model/target/network activity. No fixture adopted or created in PG.",
+    "No repo edits, stage, commit, protected HTML reads/hashes, profile/global/skills changes. Only reviewer-owned scratch artifacts created; all logs/reports restricted to0600.",
+    "Safety review is complementary and separate. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Original QA108 105PASS/3FAIL remains OPEN, including budget cause UNKNOWN. No claim that this review or SOURCE closes it.",
+    "First full128 QA and six new PG cases NOT_RUN; parent owns acceptance/integration and exact resource lifecycle.",
+    "No generalized helper or verifier framework created; reproductions run inline, in memory, using existing consumer.",
+    "A mistyped read-only lookup under modules/tasks/managed_admission.py returned missing-path; corrected to modules/runs. No writes or functional conclusion from that failed lookup."
+  ],
+  "handoff_status": {
+    "current_slice": "Admission test delta AICI / CHANGES_REQUESTED_TEST_ORACLE",
+    "proof": "Affected SOURCE6 PASS; finite oracle positive+6negative controls PASS; timeout edge reproduced; PG NOT_RUN",
+    "product": "T2 approved scope preserved; no new product defect asserted",
+    "next": "Parent adjudicates finite timeout oracle finding; minimal test-only fix, affected proof/focused review, then single QA128."
+  },
+  "manifest_before": {
+    "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+    "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+    "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+    "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+    "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+    "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+    "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+    "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+    "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+    "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+    "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+    "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+    "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+    "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+    "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+    "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+    "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+    "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+    "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+    "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+    "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+    "api/tests/test_model_admission.py": "949e016e7d50a6c7b087090f424a963fde398e1c0e23a64e5f0bec8ff9544507",
+    "api/tests/test_model_admission_pg.py": "3e57c585cc67ecc22e028be884b26149ac87c5f7623dbfcf1c210b10ffa114ac",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+    "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+    "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+    "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+    "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+    "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+    "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+    "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+    "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+    "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+    "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+    "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+    "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+    "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+    "AGENTS.md": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+    "CONTRIBUTING.md": "f4944134a126e1ad8c29ae5cecd730b991e4126fe36f9feed4e8096a784edea2",
+    "documents/verification/p2-next-session-implementation.md": "b43b3a92ea781b5219f833b7e74ff9363ff0cd4f4ed4dd9d0f97de878d5f8379"
+  },
+  "manifest_after": {
+    "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+    "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+    "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+    "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+    "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+    "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+    "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+    "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+    "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+    "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+    "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+    "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+    "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+    "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+    "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+    "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+    "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+    "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+    "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+    "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+    "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+    "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+    "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+    "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+    "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+    "api/tests/test_model_admission.py": "949e016e7d50a6c7b087090f424a963fde398e1c0e23a64e5f0bec8ff9544507",
+    "api/tests/test_model_admission_pg.py": "3e57c585cc67ecc22e028be884b26149ac87c5f7623dbfcf1c210b10ffa114ac",
+    "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+    "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+    "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+    "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+    "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+    "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+    "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+    "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+    "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+    "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+    "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+    "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+    "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+    "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+    "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+    "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+    "AGENTS.md": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+    "CONTRIBUTING.md": "f4944134a126e1ad8c29ae5cecd730b991e4126fe36f9feed4e8096a784edea2",
+    "documents/verification/p2-next-session-implementation.md": "b43b3a92ea781b5219f833b7e74ff9363ff0cd4f4ed4dd9d0f97de878d5f8379"
+  },
+  "manifest_canonical_sha256_before": "d54530ed83a92ed70c6fc2ba445cb119536c3c962878716236759b0a22fe24a1",
+  "manifest_canonical_sha256_after": "d54530ed83a92ed70c6fc2ba445cb119536c3c962878716236759b0a22fe24a1",
+  "artifacts": {
+    "integrity-before.json": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/integrity-before.json",
+      "sha256": "2d53594c3b723bd95839085571fe513271b8bedcab88236a876ca3521cf0e661",
+      "mode": "0o600"
+    },
+    "timeout-pre-send-control.log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/timeout-pre-send-control.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    "timeout-pre-send-control.json": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/timeout-pre-send-control.json",
+      "sha256": "74f35fec20b917d28e676d44108d4eee212893c0897bdd1f900a3cc4b6d4172b",
+      "mode": "0o600"
+    },
+    "source-failure.log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/source-failure.log",
+      "sha256": "70720653c1e549548460b1163713c5c7b4c0413ff15cb032e8a729a60f42a465",
+      "mode": "0o600"
+    },
+    "oracle-controls.log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/oracle-controls.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    "timeout-timing-control.json": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/timeout-timing-control.json",
+      "sha256": "d93650826d4e8e7b19f334c85003bd29335cfee8cf9d34062cc40fb32127f358",
+      "mode": "0o600"
+    },
+    "integrity-after.json": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/integrity-after.json",
+      "sha256": "9d880f105f4372aa4b506f992b7da078407e7cc7c74e9e473bd66704ca19ac79",
+      "mode": "0o600"
+    },
+    "timeout-timing-control.log": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/timeout-timing-control.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    "oracle-controls.json": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-norm-review-20261016/oracle-controls.json",
+      "sha256": "c893f6c81545fca367e9a54e8fe8da4485455c5acf286f8f8dbfe4f00882761d",
+      "mode": "0o600"
+    }
+  }
+}

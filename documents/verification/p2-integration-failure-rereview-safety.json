@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "review_id": "ADMISSION129-SAFETY-F01-F02-REREVIEW-20261016",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused independent safety re-review of ADM128-SAFETY-F01/F02 repairs and affected failure/lateStop/DATA/poison-receipt call sites in the two Admission test files. SOURCE/report-channel evidence only; not PG/native acceptance or integration approval.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Preserve strict complete-row refusal and SENT/UNKNOWN/no-refund/no-resend while keeping private input, error, runtime/control capability and fixture DSN/password out of pytest line diagnostics.",
+    "consumer": "Exact nested private_channels, eight census comparisons, existing Protocol failure observer, real SOURCE NativeTaskOwner/LocalControl/RuntimeClient paths; PG branches statically reviewed only.",
+    "risk": "Rewritten assert operands or an incomplete checker can disclose private data even when the test refuses. A sanitation repair must not replace full equality with counts/filtering or turn an unknown outcome into success.",
+    "decision": "F01/F02 are closed within the SOURCE safety scope on the frozen hashes below. Preserve prior static product assessment and all PG/native UNKNOWN/NOT_RUN limits. Parent adjudicates complementary review and any later fresh full129 QA."
+  },
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+    "base": "bc38c98d9d7828f783cbe7916858bca16bee719d",
+    "main_head_observed": "12be37e40c755dd2f87f8ff60cf0659cd8714155",
+    "files": {
+      "api/tests/test_model_admission.py": "9c07b83264095dc30b169d27e6083cdd537c0fcd01b05d837cf5b444afb63a9f",
+      "api/tests/test_model_admission_pg.py": "1875b48681ca68eab0145189b0e9dee846855cb7e8a9f5746de85068aa08828e"
+    },
+    "author_directory": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016",
+    "author_manifest_sha256": "463c06c4d33a2e389ab5df2951052424a830ed0006afd943d6ba214d2c75286a",
+    "author_report_sha256": "b1f78aeca3ca6eb8f22aa7bc8c3685e0407098a81f63a7b7a6bebba85c9b551b",
+    "source_archive_sha256": "2e2f2d7f4c54580d82902eae379bef6331fb4d257ea2df806d41cafc3e8f3acc",
+    "repair_delta_sha256": "6061878313184a9d290415117c13ecbfe6ba8aa6817ef5592a1229a3b3e27901",
+    "t2_delta_sha256": "988b041d70ac0769dfcdcf9f13c8418384f28c7a174cce67bb5cc3f0a6c3f524",
+    "manifest_files_verified": 46,
+    "archive_files_verified": 46,
+    "additional_relevant_files_verified": 3,
+    "manifest_mismatches": [],
+    "archive_mismatches": [],
+    "author_artifact_mismatches": [],
+    "changed_during_review": [],
+    "product_equal_main35efc3f": {
+      "api/src/omnis/modules/runs/model_dispatch.py": true,
+      "api/src/omnis/modules/runs/model_protocol.py": true,
+      "api/src/omnis/supervisor/native_tasks.py": true
+    }
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "ADM128-SAFETY-F01",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "file": "api/tests/test_model_admission_pg.py",
+      "lines": [1258, 1299, 1309, 1348, 1355, 1405, 1440, 1449],
+      "evidence": "All eight formerly rewritten equality operands are AST-identical to the preserved Admission128 source. Only equality/assert becomes inequality/constant raise; no new row filtering, count replacement or omitted comparison. Complete census retains ten tables. Each exact current comparison was executed with equal and unequal synthetic full rows on the real pinned pytest --tb=line channel. Eight equal controls pass; eight unequal controls fail only with private admission census changed; no private values appear.",
+      "call_sites": "DATA refusal, Stop-before-T2 managed rows and lease, retained-baseline rows, non-record neighbors, conflict replay, poison non-record neighbors and final post-private_channels poisoned census. The after-checker/poison branch is explicitly covered, not assumed safe from an earlier checker call.",
+      "red_retained": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/report.json and author repair red artifacts; no old failed log overwritten"
+    },
+    {
+      "id": "ADM128-SAFETY-F02",
+      "status": "CLOSED_SOURCE_SCOPED",
+      "file": "api/tests/test_model_admission_pg.py",
+      "lines": [1184, 1194, 1199, 1200, 1201, 1202, 1206],
+      "evidence": "Exact checker closes over the actual runtime.capability and yielded LocalControl capability, rendered fixture DSN and validated decoded password, in addition to both original sentinels. Nonempty exact markers are tested without including private operands in an assert. Independent controls cover six synthetic private values on each of reply nested unknown field, public_errors, captured stdout, captured stderr and logs; all 30 refuse with the same constant diagnostic. Five empty-channel positives pass. A separate top-level unknown-field marker also refuses. No private values appear in actual line-report bytes.",
+      "report_observer": "Nine existing SOURCE observation controls ran on the real line-report channel. Unknown CatalogError reason and unknown exception class become OTHER without formatting private exception content; the synthetic diagnostic marker is absent from stdout. Original cancellation/primary exception behavior remains asserted.",
+      "limits": "Finite exact test-owned value detection, not a generic redactor or a claim to recognize arbitrary transformed secrets. No --showlocals/--showargs certification."
+    }
+  ],
+  "preserved_criterion_dispositions": [
+    {
+      "criterion": "EOF/timeout/cancel/invalid ACK after real write -> SENT/UNKNOWN; no refund/resend",
+      "status": "APPROVED_STATIC_SCOPED_SOURCE_CONFIRMED_PG_NOT_RUN",
+      "evidence": "Six SOURCE transport outcomes pass, including real owner/UDS timeout production. Full immutable record-kind/ref/request accounting, null usage and original UNKNOWN are retained. Static PG checks still require committed SENT before actual write and peer receipt."
+    },
+    {
+      "criterion": "Late Stop before accounting; DATA pre-reserve refusal; receive-only poison receipt refusal",
+      "status": "PRIOR_STATIC_ASSESSMENT_PRESERVED_PG_NOT_RUN",
+      "evidence": "Only exact census diagnostic forms changed. Stop barrier/order, admission closed and generation checks, six DATA/owner/config/projection/ref/digest refusals, duplicate/conflict no-effect counters and untrusted duplicate receipt rejection are unchanged. Poison control remains duplicate/extra-receipt refusal, not proof that its extra-field validator was reached."
+    },
+    {
+      "criterion": "Timeout producer and immutable bounds",
+      "status": "SOURCE_CONFIRMED_STATIC_PG_NOT_RUN_COMPLEMENTARY_NORMATIVE_REVIEW_REQUIRED",
+      "evidence": "Timeout-only request wall1 is consistent in SOURCE/PG command, requested/admitted accounting and conflict mutation. SOURCE wrapper requires RuntimeUnavailable context exactly TimeoutError after a 1.25s immediate-caller configuration delay. PG requires real peer receipt plus that same inner timeout event before crediting the public denial. No generic catch, changed authority, outer4s/control4s/grant4.5s/UDS3.2s/DB2s/macro600 extension. This report does not independently adjudicate the separate normative finding."
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_exact_guards_and_checker_report_controls",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml /home/kali/.hermes/cache/scratch/p2-admission129-safety-rereview-20261016/test_exact_guards.py -q --tb=line",
+      "exit": 1,
+      "expected_exit": 1,
+      "result": "39 intentional sanitized refusals, 13 positive controls, 1 pytest warning; control oracle PASS. Eight census and 31 checker constant failures, no private report values.",
+      "seconds": 0.47
+    },
+    {
+      "name": "focused_source",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py -q --tb=line -k 'private_failure_channel_source or transport_settlement_source or failure_observation_before_cleanup_on_line_channel'",
+      "exit": 0,
+      "result": "16 passed, 65 deselected in 9.38s; nine actual SOURCE_CONTROL failure records, unknown reason/type OTHER and no private/unknown synthetic diagnostic marker in terminal bytes.",
+      "seconds": 10.63
+    },
+    {
+      "name": "collection",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py --collect-only -q",
+      "exit": 0,
+      "counts": {"total": 129, "source": 104, "pg": 25, "new_pg_not_run": 6},
+      "seconds": 2.38
+    },
+    {"name": "repair_delta_reverse_apply", "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from128.patch", "exit": 0},
+    {"name": "t2_delta_reverse_apply", "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from-t2.patch", "exit": 0},
+    {"name": "git_diff_check", "command": "git diff --check", "exit": 0}
+  ],
+  "execution": {
+    "test_cwd": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+    "environment": {"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-admission129-safety-rereview-20261016/tmp"},
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": ["-I", "-B"],
+    "source_execution_only": true,
+    "logs_mode": "0600",
+    "scratch_directory_mode": "0700"
+  },
+  "artifacts": {
+    "manifest-before.json": "9aa1a59834a845f9bef69e1c5672af031fbb3a4e32378794a6d4a8d031d76c5c",
+    "manifest-after.json": "f8fe44386d8b0c49f1f2ad97280b332a0a1820407f99fead61f6e92374b0ab32",
+    "ast-census.json": "8e53cadf1fc1325db77bf302d7bb597d1499b976d4e5851408d2493a5de08b3c",
+    "probe.py": "a6ae5bfaeed87a295bd48451124b43bf58e10adecd011de22e51e7cdbadeac75",
+    "test_exact_guards.py": "1c58b19789a27c316ac0ce1fdf6a59eb1ff397b5798627554c8618a8f093027e",
+    "checks.json": "1f7b4295d5311b1f158a326794117427d5c2132b0256dd5aad2632fb5e879e29",
+    "exact-channel-controls.log": "68bf3c0f411371c548739f78a549c2590b583b37d6c9b2ad079b8136b85077e5",
+    "focused-source.log": "81810d12cd5c41361f4b80fc228f3602162f27c762edf50886865c1c490af3c1",
+    "collection.log": "bb0b3a8580f6a1d8fbc4e5b8a72a43c36639560b3ff18b93c271fe1b2718ede5",
+    "collection.json": "9f6e0dd640fb81b065dfa332e965f4a383e18ed8f92ab349f98f6ef93cade2a0"
+  },
+  "limits": [
+    "No PG, Docker/OCI, actual native runtime, provider/model, target/network, r1/global or canonical gate executed. All25 PG tests, including six new orders, remain NOT_RUN here.",
+    "Author104 SOURCE /63.32s and quality exit0 artifacts were hash-verified, not independently rerun wholesale. This reviewer independently ran16 affected SOURCE cases and52 finite synthetic report controls.",
+    "Preserve original QA108 failure, its budget cause UNKNOWN and H04 actual pre-READY blocker/cause UNKNOWN. H04 is separate, untouched and not waived by this verdict.",
+    "No T2/P0/H04 re-audit, product edits, stage, commit, protected HTML access, skills/profile changes or source modifications. Preexisting five dirty worktree paths remain unchanged.",
+    "SOURCE control failures are expected negative evidence, not failing PG scenarios or disclosure of real credentials. Raw private artifacts were not returned to the conversation.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Parent owns final adjudication/integration/commits and one fresh final129 target only after all blocking findings clear. SOURCE is not promoted to PG."
+  ],
+  "handoff": {
+    "repository_files_modified": [],
+    "scratch_directory": "/home/kali/.hermes/cache/scratch/p2-admission129-safety-rereview-20261016",
+    "next": "Parent verifies report hashes, adjudicates complementary normative review, then schedules the single admitted final129 QA. No separate rerun of unchanged T2/P0/H04.",
+    "status": {"AICI_Admission129_safety": "APPROVED_SCOPED", "T2": "UNCHANGED_PRIOR_SCOPED_REVIEW", "PG129": "NOT_RUN", "H04": "BLOCKED_PRE_READY_CAUSE_UNKNOWN", "P2_G02": "NOT_CLOSED", "canonical_final": "NOT_RUN", "P4a_live": "NOT_DELIVERED_SEPARATE_AUTHORITY"}
+  }
+}

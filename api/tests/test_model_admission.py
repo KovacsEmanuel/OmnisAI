@@ -633,10 +633,11 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                     "protocol_caps": {
                         "calls": 1,
                         "output_tokens": 64,
-                        "wall_seconds": 1 if backpressure else 3,
+                        "wall_seconds": 1 if backpressure or protocol_failure == "timeout" else 3,
                     },
                 }
                 entered = 0
+                failure_baseline = {str(r["id"]) for r in graph}
 
                 @asynccontextmanager
                 async def protocol_fence(*args: object) -> AsyncIterator[AsyncConnection]:
@@ -1075,6 +1076,10 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                 if protocol_failure != "before_sent" and not backpressure:
                     assert drained.is_set()
                 accounting = mapping(reply["protocol_accounting"])
+                if protocol_failure in {"eof", "timeout", "cancel", "invalid_ack"}:
+                    assert_protocol_failure_records(
+                        graph, failure_baseline, protocol_command, accounting
+                    )
                 assert accounting["state"] == (
                     "SETTLED"
                     if protocol_failure is None
@@ -1295,6 +1300,156 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     assert not {"native-turn"} & {str(r["kind"]) for r in graph}
 
 
+def test_protocol_private_failure_channel_source(tmp_path: Path) -> None:
+    """Exact finite PG guards on real pytest line reports; synthetic values only."""
+    import ast
+    import os
+    import subprocess
+    import sys
+
+    source = Path(__file__).with_name("test_model_admission_pg.py")
+    tree = ast.parse(source.read_text())
+    checker = next(
+        n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "private_channels"
+    )
+    comparison = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, (ast.Assert, ast.If))
+        and isinstance(n.test, ast.Compare)
+        and ast.unparse(n.test.left) == "census()"
+        and [ast.unparse(v) for v in n.test.comparators] == ["prior"]
+    )
+    probe = tmp_path / "test_private_channel.py"
+    probe.write_text(
+        "import json\nfrom types import SimpleNamespace\n"
+        "logs = SimpleNamespace(text='')\n"
+        "capsys = SimpleNamespace(readouterr=lambda: SimpleNamespace(out='', err=''))\n"
+        "public_errors = []\n"
+        "runtime = SimpleNamespace(capability='b' * 64)\n"
+        "control = SimpleNamespace(capability='c' * 64)\n"
+        "dsn = 'postgresql+psycopg://owned:SYNTHETIC_DSN_PASSWORD@private/owned'\n"
+        "url = SimpleNamespace(password='SYNTHETIC_DSN_PASSWORD')\n"
+        "private_values = ('SYNTHETIC_PRIVATE_I1', 'SYNTHETIC_PRIVATE_ACK_ERROR', "
+        "runtime.capability, control.capability, dsn, url.password)\n"
+        "prior = {'managed_record': [{'private': private_values[0], 'revision': 1}]}\n"
+        "def census():\n"
+        "    return {'managed_record': [{'private': private_values[0], 'revision': 2}]}\n"
+        + ast.unparse(checker)
+        + "\ndef test_empty():\n    private_channels({})\n    prior = census()\n"
+        + "\n".join("    " + line for line in ast.unparse(comparison).splitlines())
+        + "\n"
+        + "def test_census():\n"
+        + "\n".join("    " + line for line in ast.unparse(comparison).splitlines())
+        + "\n"
+        + "\n".join(
+            f"def test_private_{i}():\n    logs.text = private_values[{i}]\n    private_channels({{}})\n"
+            for i in range(6)
+        )
+    )
+    probe.chmod(0o600)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-B",
+            "-m",
+            "pytest",
+            "-p",
+            "no:cacheprovider",
+            "-c",
+            str(Path(__file__).parents[1] / "pyproject.toml"),
+            str(probe),
+            "-q",
+            "--tb=line",
+        ],
+        env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=15,
+        check=False,
+    )
+    if any(
+        marker in result.stdout
+        for marker in (
+            b"SYNTHETIC_PRIVATE_I1",
+            b"SYNTHETIC_PRIVATE_ACK_ERROR",
+            b"b" * 64,
+            b"c" * 64,
+            b"SYNTHETIC_DSN_PASSWORD",
+        )
+    ):
+        raise AssertionError("private admission report escaped")
+    report_lines = [line for line in result.stdout.splitlines() if not line.startswith(b"FAILED")]
+    if (
+        result.returncode != 1
+        or b"7 failed, 1 passed" not in result.stdout
+        or sum(
+            line.endswith(b": AssertionError: private admission sentinel escaped")
+            for line in report_lines
+        )
+        != 6
+        or sum(
+            line.endswith(b": AssertionError: private admission census changed")
+            for line in report_lines
+        )
+        != 1
+    ):
+        raise AssertionError("private admission report control mismatch")
+
+
+def assert_protocol_failure_records(
+    graph: list[dict[str, object]],
+    baseline_ids: set[str],
+    command: dict[str, object],
+    accounting: dict[str, object],
+) -> None:
+    """Same SOURCE/PG oracle: uncertain send is neither usage nor refund."""
+    from collections import Counter
+
+    added = [r for r in graph if str(r["id"]) not in baseline_ids]
+    assert Counter(str(r["kind"]) for r in added) == {
+        "model-budget": 1,
+        "model-dispatch-owner": 1,
+        "model-reservation": 1,
+        "model-dispatch": 1,
+        "contract-input-command": 1,
+        "model-dispatch-transition": 1,
+    }
+    assert accounting["state"] == "SENT" and accounting["usage_state"] == "UNKNOWN"
+    assert accounting["protocol_calls"] == 1 and accounting["model_calls"] == 0
+    assert accounting["requested_caps"] == accounting["admitted_caps"] == command["protocol_caps"]
+    assert all(
+        accounting[k] is None
+        for k in ("output_tokens", "cost_observed", "cost_estimate", "provider_receipt_ref")
+    )
+    by_kind = {str(r["kind"]): r for r in added}
+    descriptor = by_kind["model-dispatch-owner"]
+    dispatch = by_kind["model-dispatch"]
+    assert accounting["descriptor_ref"] == records.reference(descriptor)
+    assert accounting["dispatch_ref"] == records.reference(dispatch)
+    assert mapping(dispatch["payload"])["dispatch_owner_ref"] == records.reference(descriptor)
+    assert mapping(dispatch["payload"])["reservation_ref"] == records.reference(
+        by_kind["model-reservation"]
+    )
+    transition = mapping(by_kind["model-dispatch-transition"]["payload"])
+    assert (transition["state"], transition["sequence"]) == ("SENT", 1)
+    assert transition["dispatch_ref"] == accounting["dispatch_ref"]
+    receipt = mapping(by_kind["contract-input-command"]["payload"])
+    assert receipt["command_id"] == command["protocol_id"]
+    assert receipt["operation"] == command["action"]
+    assert (
+        receipt["request_digest"]
+        == sha256(
+            canonical(NativeTaskCommand.model_validate(command).model_dump(mode="json"))
+        ).hexdigest()
+    )
+    assert receipt["result_refs"] == {
+        "descriptor_ref": accounting["descriptor_ref"],
+        "dispatch_ref": accounting["dispatch_ref"],
+    }
+
+
 def assert_protocol_records(
     graph: list[dict[str, object]],
     baseline_ids: set[str],
@@ -1509,12 +1664,58 @@ async def test_protocol_data_reserve_sent_transport_settlement_source(
     monkeypatch: pytest.MonkeyPatch,
     failure: str | None,
 ) -> None:
+    import inspect
+
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from omnis.supervisor.runtime_client import FrozenPreflight, RuntimeClient, RuntimeUnavailable
+
+    delayed = produced = 0
+    original_read = ModelDispatch.read_configuration
+    original_exchange = RuntimeClient.exchange_frozen
+
+    async def read(
+        self: ModelDispatch,
+        conn: AsyncConnection,
+        owner: str,
+        manifest_ref: object,
+        provider_config_ref: object,
+        authority: dict[str, object],
+    ) -> dict[str, object]:
+        nonlocal delayed
+        frame = inspect.currentframe()
+        if (
+            failure == "timeout"
+            and frame is not None
+            and frame.f_back is not None
+            and frame.f_back.f_code is NativeTaskOwner._model_protocol.__code__
+        ):
+            delayed += 1
+            await asyncio.sleep(1.25)  # Below DB2; the original outer deadline stays 4s.
+        return await original_read(self, conn, owner, manifest_ref, provider_config_ref, authority)
+
+    async def exchange(self: RuntimeClient, frozen: FrozenPreflight) -> dict[str, object]:
+        nonlocal produced
+        if failure == "timeout":
+            assert frozen.wall_seconds == 1
+        try:
+            return await original_exchange(self, frozen)
+        except RuntimeUnavailable as error:
+            if failure == "timeout":
+                assert type(error.__context__) is TimeoutError
+                produced += 1
+            raise
+
+    if failure == "timeout":
+        monkeypatch.setattr(ModelDispatch, "read_configuration", read)
+        monkeypatch.setattr(RuntimeClient, "exchange_frozen", exchange)
     await test_qualified_projection_reaches_cold_admission_without_model_reservation(
         tmp_path,
         monkeypatch,
         protocol_mode=True,
         protocol_failure=failure,
     )
+    if failure == "timeout":
+        assert delayed == produced == 1
 
 
 @pytest.mark.asyncio

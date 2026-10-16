@@ -1,0 +1,579 @@
+{
+  "artifacts": {
+    "checks-final.json": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/checks-final.json",
+      "sha256": "59542604346cf8fbc2c1b8d3f506cd437ca441798dfd80314b13e90b37d1e6bd"
+    },
+    "checks-initial.json": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/checks-initial.json",
+      "sha256": "6921acac0e6005e3a5e596abc140a41a7a36e18e808affe257424fc7ab3d47b9"
+    },
+    "collection-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/collection-final.log",
+      "sha256": "182184c7ed9e964f07a9c816b4a16600d75c3bfdb4de92ad3f4e8a579f074da3"
+    },
+    "delta-from-t2.patch": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from-t2.patch",
+      "sha256": "988b041d70ac0769dfcdcf9f13c8418384f28c7a174cce67bb5cc3f0a6c3f524"
+    },
+    "delta-from128.patch": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from128.patch",
+      "sha256": "6061878313184a9d290415117c13ecbfe6ba8aa6817ef5592a1229a3b3e27901"
+    },
+    "diff-check-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/diff-check-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "focused-green.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/focused-green.log",
+      "sha256": "d6cd01747f95ab6130dd023c48977140e9102023405cba3c91817d319d9095ac"
+    },
+    "format-apply.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/format-apply.log",
+      "sha256": "96a977f329ec3c59092d40e041a019b49dcf03ca04055e177aa0ccb8c27234df"
+    },
+    "format-final-apply.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/format-final-apply.log",
+      "sha256": "10869b88a75066aa23546ef1f95fcd4678c3fb92a56ed46ef91688052b67976a"
+    },
+    "format-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/format-final.log",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    "freeze_report.py": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/freeze_report.py",
+      "sha256": "e1e24a019d656d9547421cedb41ad191eda57fe9b6640dc70d166aa90e7f3914"
+    },
+    "manifest.json": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/manifest.json",
+      "sha256": "463c06c4d33a2e389ab5df2951052424a830ed0006afd943d6ba214d2c75286a"
+    },
+    "mypy-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/mypy-final.log",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    "mypy.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/mypy.log",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    "red-f02.json": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/red-f02.json",
+      "sha256": "5bfa08c67edaf68f79bd21e0ac7f72da5d39044c61525fc341e05d242daad35c"
+    },
+    "red-f02.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/red-f02.log",
+      "sha256": "54223a1662d46663a51b0758f02d58518e4a73937e90dbea190cf2043720f247"
+    },
+    "red.json": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/red.json",
+      "sha256": "f4d4beee86a164f87a5e9459827055decf2f8ce306da4c664ec3926e6095005b"
+    },
+    "red.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/red.log",
+      "sha256": "f071762e0a773ca0e27806ea791257d6a3492a13ba812a86b790962141dd3b9f"
+    },
+    "ruff-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "ruff.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "source-final.log": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/source-final.log",
+      "sha256": "81ece4eb72fd7ac5a5d348d897e257f85ba258eeb604bc9ac7ac19277b808629"
+    },
+    "source-snapshot.tar.gz": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/source-snapshot.tar.gz",
+      "sha256": "2e2f2d7f4c54580d82902eae379bef6331fb4d257ea2df806d41cafc3e8f3acc"
+    },
+    "test_f02_baseline.py": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/test_f02_baseline.py",
+      "sha256": "469c64fffa88a4fcd24d5448e078cb30c21993f8d2c8fb65355d0c40646294f2"
+    },
+    "test_model_admission.py.before": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/test_model_admission.py.before",
+      "sha256": "949e016e7d50a6c7b087090f424a963fde398e1c0e23a64e5f0bec8ff9544507"
+    },
+    "test_model_admission_pg.py.before": {
+      "mode": "0600",
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/test_model_admission_pg.py.before",
+      "sha256": "3e57c585cc67ecc22e028be884b26149ac87c5f7623dbfcf1c210b10ffa114ac"
+    }
+  },
+  "base": "bc38c98d9d7828f783cbe7916858bca16bee719d",
+  "checks": [
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_budget.py",
+        "-q",
+        "--tb=line"
+      ],
+      "exit": 0,
+      "name": "source-final",
+      "seconds": 64.48,
+      "summary": [
+        "104 passed in 63.32s (0:01:03)"
+      ]
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py",
+        "api/tests/test_model_budget.py",
+        "api/tests/test_model_budget_pg.py",
+        "--collect-only",
+        "-q"
+      ],
+      "exit": 0,
+      "name": "collection-final",
+      "seconds": 2.53,
+      "summary": [
+        "129 tests collected in 1.30s"
+      ]
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "ruff-final",
+      "seconds": 0.12,
+      "summary": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "format-final",
+      "seconds": 0.12,
+      "summary": [
+        "2 files already formatted"
+      ]
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/mypy-cache",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "mypy-final",
+      "seconds": 12.17,
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ]
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "name": "diff-check-final",
+      "seconds": 0.03,
+      "summary": []
+    }
+  ],
+  "collection": {
+    "new_pg": 6,
+    "nodes": [
+      "tests/test_model_admission.py::test_private_control_accepts_explicit_data_decision_not_model_authority",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[expected_epoch-True]",
+      "tests/test_model_admission.py::test_model_preflight_refuses_numeric_aliases[schema_version-True]",
+      "tests/test_model_admission.py::test_data_decision_cannot_be_attached_to_cold_release",
+      "tests/test_model_admission.py::test_qualified_projection_reaches_cold_admission_without_model_reservation",
+      "tests/test_model_admission.py::test_protocol_private_failure_channel_source",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[budget]",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[budget_conflict]",
+      "tests/test_model_admission.py::test_protocol_caps_validation_immutable_budget_and_deadline_source[deadline_b]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[output_tokens-65]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[calls-2]",
+      "tests/test_model_admission.py::test_protocol_caps_dto_refuses_before_control_io[wall_seconds-4]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[duplicate]",
+      "tests/test_model_admission.py::test_protocol_concurrent_initial_replay_misses_source[conflict]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[None]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[eof]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[invalid_ack]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[timeout]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[cancel]",
+      "tests/test_model_admission.py::test_protocol_data_reserve_sent_transport_settlement_source[before_sent]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[timeout]",
+      "tests/test_model_admission.py::test_protocol_backpressure_retires_before_owner_a_exit[cancel]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[receipt_extra]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_receipt_extra[descriptor_version]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_tokens]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_identity]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_observed]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_cost_estimate]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_usage_contradiction[usage_provider_receipt]",
+      "tests/test_model_admission.py::test_protocol_replay_rejects_resealed_configuration_contradiction",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[db_error]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[stall]",
+      "tests/test_model_admission.py::test_protocol_cancel_preserves_primary_and_bounds_cleanup[expired]",
+      "tests/test_model_admission.py::test_protocol_command_reaches_owner_not_receive_fallback",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[32]",
+      "tests/test_model_admission.py::test_protocol_command_maximum_control_frame[33]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change0]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change1]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change2]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change3]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change4]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change5]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change6]",
+      "tests/test_model_admission.py::test_protocol_command_rejects_untrusted_expansion[change7]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[slow_marker]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[deadline_before]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[deadline_after]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[failed]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[cancelled]",
+      "tests/test_model_admission.py::test_protocol_marker_observes_bounded_control_completion[returned]",
+      "tests/test_model_admission.py::test_protocol_marker_preserves_failure_and_owns_only_its_waiter[simultaneous_failure]",
+      "tests/test_model_admission.py::test_protocol_marker_preserves_failure_and_owns_only_its_waiter[observer_cancel]",
+      "tests/test_model_admission.py::test_protocol_budget_observer_tracks_fourth_command_failure",
+      "tests/test_model_admission.py::test_protocol_phase_timing_delegates_without_task_or_error_changes",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[nominal]",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[duplicate]",
+      "tests/test_model_admission.py::test_protocol_phase_timing_existing_source_consumer[conflict]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[context-settle]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[context-persist_configuration]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[context-readback]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[schema-settle]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[schema-persist_configuration]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[schema-readback]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[receipt-settle]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[receipt-persist_configuration]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[receipt-readback]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[eligibility-settle]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[eligibility-persist_configuration]",
+      "tests/test_model_admission.py::test_protocol_t2_strict_wrappers_source[eligibility-readback]",
+      "tests/test_model_admission.py::test_protocol_t2_commit_failure_never_returns_success_source",
+      "tests/test_model_admission.py::test_protocol_join_uses_existing_control_deadline[duplicate]",
+      "tests/test_model_admission.py::test_protocol_join_uses_existing_control_deadline[conflict]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[failed-expected0]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[pending-expected1]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[pg_waiter-expected2]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[cancelled-expected3]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[primary_cancelled-expected4]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[join_timeout-expected5]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[returned-expected6]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[unknown_reason-expected7]",
+      "tests/test_model_admission.py::test_protocol_failure_observation_before_cleanup_on_line_channel[unknown_type-expected8]",
+      "tests/test_model_admission_pg.py::test_pg_explicit_decision_projection_owner_rollback_replay_and_stop",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[eof]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[timeout]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[cancel]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[invalid_ack]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[late_stop]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[data_denials]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget_conflict]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[deadline_b]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[nominal]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[stop_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[conflict]",
+      "tests/test_model_budget.py::test_exact_dispatch_contract_and_trusted_purpose",
+      "tests/test_model_budget.py::test_projection_payload_digest_is_not_the_envelope_digest",
+      "tests/test_model_budget.py::test_append_only_lifecycle_and_conservative_capacity",
+      "tests/test_model_budget.py::test_all_storage_operations_refuse_unstarted_real_connection",
+      "tests/test_model_budget.py::test_usage_validation_rejects_aliases_and_cost_conflation",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-True]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[REPEATABLE READ-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[SERIALIZABLE-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[AUTOCOMMIT-False]",
+      "tests/test_model_budget.py::test_transaction_mode_rejects_nontransactional_or_stale_snapshots[READ COMMITTED-0]",
+      "tests/test_model_budget.py::test_receipt_identity_cannot_reconcile_two_dispatches",
+      "tests/test_model_budget.py::test_deadline_is_rechecked_and_unsupported_jobs_remain_denied",
+      "tests/test_model_budget.py::test_pg_restart_reader_program_compiles_without_running",
+      "tests/test_model_budget.py::test_usage_optional_costs_and_overrun_remain_explicit",
+      "tests/test_model_budget.py::test_settle_checks_receipt_identity_across_owner_runs",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[None-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation1-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation2-execution-selection]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-provider-config]",
+      "tests/test_model_budget.py::test_catalog_resolution_validates_persisted_envelope[mutation3-execution-selection]",
+      "tests/test_model_budget_pg.py::test_pg_immutable_history_replay_restart_and_ownership",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[capacity]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[duplicate]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[conflict]",
+      "tests/test_model_budget_pg.py::test_pg_overlapping_transactions_are_serialized[release-send]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[AUTOCOMMIT]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[REPEATABLE READ]",
+      "tests/test_model_budget_pg.py::test_pg_unsafe_isolation_is_refused[SERIALIZABLE]",
+      "tests/test_model_budget_pg.py::test_pg_absent_foreign_scope_and_reference_pins_deny",
+      "tests/test_model_budget_pg.py::test_pg_receipt_reuse_between_same_owner_runs_denied"
+    ],
+    "pg": 25,
+    "source": 104,
+    "total": 129
+  },
+  "findings": [
+    {
+      "fix": "All eight newly added full census/row comparisons preserve exact operands and use if !=: raise constant. No row filtering/count substitution; AST operands independently matched.",
+      "green": "source-final exit0 includes real nested pytest reports: exact equal census accepted; unequal synthetic marker census refuses with constant diagnostic, no operand output",
+      "id": "ADM128-SAFETY-F01",
+      "red": "red.json: exit1, private admission report escaped; exact old census assert under actual pytest line reporter"
+    },
+    {
+      "fix": "Existing finite checker adds runtime.capability, actual LocalControl capability, fixture DSN and decoded fixture password; no generic sanitizer or product changes.",
+      "green": "source-final exit0 includes empty acceptance and six distinct marker/capability/DSN/password failures on actual checker and actual pytest line report; no private value in report bytes",
+      "id": "ADM128-SAFETY-F02",
+      "red": "red-f02.json: exit1 intentional; preserved reviewed checker accepts exact synthetic runtime/control capability, DSN and password, with empty/ordinary marker controls"
+    },
+    {
+      "fix": "Timeout-only per-command wall1 consistently in SOURCE/PG command, accounting caps and conflict mutation; PG event requires real peer read plus inner RuntimeUnavailable/TimeoutError before joining. All original product deadlines unchanged.",
+      "green": "source-final exit0 includes same real owner/UDS counterexample at wall1; observed RuntimeUnavailable context exactly TimeoutError before public TASK_INDETERMINATE; actual peer frame, SENT/UNKNOWN, null usage, charged reservation, duplicate/conflict no-resend remain mandatory",
+      "id": "NORM-ADMISSION-FAILURE-01",
+      "red": "red.json: exit1 with actual outer TimeoutError after exact immediate-caller 1.25s configuration delay, original wall3"
+    }
+  ],
+  "genuine_findings": 3,
+  "initial_checks": [
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "format-apply",
+      "seconds": 0.12
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "-q",
+        "--tb=line",
+        "-k",
+        "private_failure_channel_source or transport_settlement_source"
+      ],
+      "exit": 1,
+      "name": "focused-green",
+      "seconds": 8.6
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "ruff",
+      "seconds": 0.12
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/mypy-cache",
+        "api/tests/test_model_admission.py",
+        "api/tests/test_model_admission_pg.py"
+      ],
+      "exit": 0,
+      "name": "mypy",
+      "seconds": 10.81
+    }
+  ],
+  "initial_control_issue": "First GREEN had 6 transport PASS and one report-count failure: pytest prints each sanitized error twice. Repaired exact line-report classification without raw assertion operands; final full SOURCE rerun passed.",
+  "initial_dirty_paths": 5,
+  "limits": [
+    "No PG, Docker/OCI, native process, provider/model, target/network, r1/global, stage, commit or protected HTML access.",
+    "25 PG and all six new PG orders NOT_RUN; parent single full target is now 129 collected (128 prior + one regression).",
+    "Original wall/control4s, grant4.5s, UDS3.2s, DB2s and macro600 not increased; timeout request is smaller1s only.",
+    "Original QA108 failure and budget cause UNKNOWN preserved; SOURCE does not close persistent/native acceptance.",
+    "H04 untouched; independent focused two reviews and parent fresh full PG remain required.",
+    "No generic redactor/framework, breadth expansion, production edits, main/original T2 modifications, skills or profile changes.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; parent owns integration and commits."
+  ],
+  "owned_paths": [
+    "api/tests/test_model_admission.py",
+    "api/tests/test_model_admission_pg.py"
+  ],
+  "product_main35efc3f_unchanged": {
+    "api/src/omnis/modules/runs/model_dispatch.py": true,
+    "api/src/omnis/modules/runs/model_protocol.py": true,
+    "api/src/omnis/supervisor/native_tasks.py": true
+  },
+  "red": {
+    "command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "api/pyproject.toml",
+      "api/tests/test_model_admission.py",
+      "-q",
+      "--tb=line",
+      "-k",
+      "private_failure_channel_source or (transport_settlement_source and timeout)"
+    ],
+    "exit": 1,
+    "seconds": 6.49
+  },
+  "red_f02": {
+    "command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016/api/pyproject.toml",
+      "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/test_f02_baseline.py",
+      "-q",
+      "--tb=line"
+    ],
+    "exit": 1,
+    "limit": "Preserved reviewed checker, empty/two marker controls, four synthetic secret negatives; actual pytest line channel, no PG."
+  },
+  "repair_cycle": 1,
+  "schema_version": 1,
+  "snapshot": {
+    "archive": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/source-snapshot.tar.gz",
+    "archive_hash_readback": true,
+    "census_operands_preserved": 8,
+    "delta_from128": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from128.patch",
+    "delta_from_t2": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/delta-from-t2.patch",
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-admission128-repair-20261016/manifest.json",
+    "manifest_count": 46,
+    "reverse_apply_checks": 0,
+    "unchanged_from128": 44
+  },
+  "status": "REPAIRED_SOURCE_QUALITY_GREEN_FROZEN_PENDING_FOCUSED_REVIEWS_AND_PG",
+  "status_readback": [
+    "## work/p2-admission-failure-20261016",
+    " M api/src/omnis/modules/runs/model_dispatch.py",
+    " M api/src/omnis/modules/runs/model_protocol.py",
+    " M api/src/omnis/supervisor/native_tasks.py",
+    " M api/tests/test_model_admission.py",
+    " M api/tests/test_model_admission_pg.py"
+  ],
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016"
+}

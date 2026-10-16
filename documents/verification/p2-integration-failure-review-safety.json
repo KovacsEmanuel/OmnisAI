@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "review_id": "ADMISSION128-SAFETY-INPUT-FAILURE-20261016",
+  "verdict": "CHANGES_REQUESTED_SCOPED",
+  "scope": "Finite delta from T2 in the two Admission test files only. Product T2 approval is not reopened. This is an independent test-safety review, not PG/native acceptance.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+    "base": "bc38c98d9d7828f783cbe7916858bca16bee719d",
+    "delta_patch": "/home/kali/.hermes/cache/scratch/p2-admission-failure-evidence-20261016/delta-from-t2.patch",
+    "delta_sha256": "d9208b134848946cb3894faebf70034507be467cdb7b69e054f967e139d5ff00",
+    "files": {
+      "api/tests/test_model_admission.py": "949e016e7d50a6c7b087090f424a963fde398e1c0e23a64e5f0bec8ff9544507",
+      "api/tests/test_model_admission_pg.py": "3e57c585cc67ecc22e028be884b26149ac87c5f7623dbfcf1c210b10ffa114ac"
+    },
+    "before_manifest": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/manifest-before.json",
+    "after_manifest": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/manifest-after.json",
+    "before_after_sha256": "394debbf13de996bc57bdbbd68b1bfa6824c934f8db142aaf731669f05b5b7ee",
+    "verified_files": 46,
+    "manifest_mismatches": [],
+    "changed_during_review": [],
+    "product_files_hash_match_main": {
+      "api/src/omnis/modules/runs/model_dispatch.py": true,
+      "api/src/omnis/modules/runs/model_protocol.py": true,
+      "api/src/omnis/supervisor/native_tasks.py": true
+    },
+    "author_artifact_hash_mismatches": [],
+    "author_report_sha256": "b00481ca25cf8aed4ef6162748fa0e3cb5db311ab3fb349879dcea0088f65933"
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Plan 7.1 DATA/Admission and current mandate section 4; D1-D3 accounting/receipt/secret boundaries.",
+    "consumer": "Existing NativeTaskOwner, LocalControl/control_task, cold_preflight producer, RuntimeClient UDS, persistent PG test variations (not executed here).",
+    "risk": "False UNKNOWN/refund or cancellation proof; late accounting accidentally authorizing work; wrong refusal frontier; sensitive test failures or silently accepted secret-bearing diagnostics.",
+    "decision": "Retain prior T2 product review; request finite test-only diagnostic sanitation fixes before the parent adjudicates fresh PG QA. No product redesign or new harness owner."
+  },
+  "findings": [
+    {
+      "id": "ADM128-SAFETY-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "kind": "CONFIRMED_TEST_FAILURE_CHANNEL_DISCLOSURE",
+      "file": "api/tests/test_model_admission_pg.py",
+      "line": 1234,
+      "related_lines": [1284, 1317, 1323, 1370, 1412],
+      "title": "New raw census equality assertions can expose the private input through pytest --tb=line",
+      "detail": "The new failure cases compare complete JSONB row dictionaries directly in pytest assert operands. Rows retain the input sentinel created by the real setup. If a census comparison fails, assertion rewriting formats the actual values after private_channels has been skipped or has already returned; the sanitized P2_PROTOCOL_FAILURE line does not sanitize pytest's independent failure report. In the poison path, the last raw equality also runs after private_channels. Thus a test can correctly fail while emitting the very private input its oracle promises not to expose.",
+      "reproducer": {
+        "artifact": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/test_safety_delta_probe.py",
+        "test": "test_added_census_assertion_failure_channel",
+        "method": "SOURCE-only minimal reproduction of the exact newly added assert census() == prior expression with unequal synthetic census rows containing the original input marker; actual pinned pytest line reporter, no PG.",
+        "result": "Expected failing assertion; pytest exit 1 and SYNTHETIC_PRIVATE_I1 present in captured line-report bytes.",
+        "log": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/failure-channel-probes-final.log"
+      },
+      "violated_requirement": "Mandate sentinel input/result/error/log and CONTRIBUTING failure diagnostics without raw private data; review skill requires private bytes outside rewritten assertion operands.",
+      "minimal_fix": "Keep exact complete-row equality, but branch on inequality and raise only a constant sanitized failure reason. Do this for the added full-census/raw-data assertion operands; retain private snapshots if needed. Add an unequal private-marker negative through the actual pytest line-report channel and require failure without marker output.",
+      "limits": "Confirmed formatting/disclosure mechanism on synthetic rows, not a claim that the unexecuted PG scenario has failed or leaked a real credential. No unchanged product defect is asserted."
+    },
+    {
+      "id": "ADM128-SAFETY-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "kind": "CONFIRMED_SANITATION_ORACLE_BLIND_SPOT",
+      "file": "api/tests/test_model_admission_pg.py",
+      "line": 1175,
+      "related_lines": [1178, 1179, 1182],
+      "title": "The new private_channels guard accepts capability/DSN-bearing diagnostics",
+      "detail": "The checker searches only SYNTHETIC_PRIVATE_I1 and SYNTHETIC_PRIVATE_ACK_ERROR. The actual runtime capability and database URL are not checked. A diagnostic containing the known test capability or a DSN/password without either of those two markers is accepted. This is an evidence gap in the test oracle, not an observed production leak.",
+      "reproducer": {
+        "artifact": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/test_safety_delta_probe.py",
+        "test": "test_actual_private_channels_capability_and_dsn_blind_spot",
+        "method": "AST-load the exact private_channels function from the reviewed file with its closure seams. Supply logs.text containing the peer's synthetic capability shape and a separate synthetic password-bearing DSN. It returns normally. No DB credentials are loaded.",
+        "positive_negative_controls": "The same actual function accepts empty output and rejects each of its two intended marker strings with the constant sanitized AssertionError.",
+        "result": "Blind-spot and ordinary-marker control tests both pass, confirming the unwanted acceptance and the checker's intended-marker sensitivity."
+      },
+      "violated_requirement": "Explicit review criterion capability/DSN sanitation and D3: capability-bearing frames are neither persisted nor logged; failure diagnostic handling must not be certified by two unrelated markers alone.",
+      "minimal_fix": "Extend the finite guard with the exact test-owned runtime/control capability and DSN/password values already available in the fixture, without exposing those values in assertion operands. Exercise empty acceptance and capability/DSN-marker refusal on the same checker/report channel. Do not introduce a generic sanitizer framework or alter product authority.",
+      "limits": "An isolated SOURCE helper control establishes only oracle incompleteness; no PG/native test or real secret leak was executed."
+    }
+  ],
+  "criterion_disposition": [
+    {
+      "criterion": "EOF/timeout/cancel/invalid ACK after real write -> SENT/UNKNOWN, no refund/resend",
+      "status": "APPROVED_STATIC_SCOPED_SOURCE_CONFIRMED_PG_NOT_RUN",
+      "evidence": "PG write observer reads committed SENT on an independent connection before delegating actual writer.write; peer reads exact frame. Cancel is issued only after received and targets the real owner handler. Four fault orders use the existing peer failure producer, not an injected UNKNOWN context. Six-kind ledger oracle rejects settlement/refund extras, binds command/descriptor/dispatch; charged output stays 64 in fresh readback. SOURCE focused faults pass."
+    },
+    {
+      "criterion": "Late Stop commits before T2 accounting; no new grant/send/wake/duplicate writes",
+      "status": "APPROVED_STATIC_SCOPED_PG_NOT_RUN",
+      "evidence": "late_settle delegates real T2 only after observed settle entry and completed service.shutdown. It reads committed incremented generation, admission_open=false, command ID and unchanged managed rows before release. Full settlement/replay/fresh readback and exact authority/reserve/wire counters constrain receive-only behavior. The setup remains a synthetic native identity seed, explicitly not native execution."
+    },
+    {
+      "criterion": "DATA/owner/config/projection/ref/digest before reserve",
+      "status": "APPROVED_STATIC_SCOPED_PG_NOT_RUN_WITH_SANITATION_FINDINGS",
+      "evidence": "Separate parametrized fixture context is never protocol-launched; six finite controls use actual control_task. The context/qualified configuration/decision are real producers. Each joined command compares census and requires zero reserve/wire/observations. Ref conflict is COMMAND_CONFLICT; other internal refusals normalize to TASK_REJECTED on this public channel. Heartbeats occur before each comparison, not silently within a no-write interval."
+    },
+    {
+      "criterion": "Untrusted extra receipt stored and rejected through same public receive-only consumer",
+      "status": "APPROVED_STATIC_SCOPED_PG_NOT_RUN",
+      "evidence": "late_stop stores a separately identified, explicitly untrusted duplicate envelope via managed_store after authentic settlement. Duplicate count refuses in model_protocol.readback before any forged receipt can be accepted. This case proves duplicate/extra receipt refusal, not that the extra-field validator itself was reached; existing SOURCE extra-field controls remain separately scoped."
+    },
+    {
+      "criterion": "Cancellation primary exception, bounded cleanup/finalizers",
+      "status": "APPROVED_STATIC_SCOPED_SOURCE_CONFIRMED_PG_NOT_RUN",
+      "evidence": "Three existing SOURCE cancellation cleanup cases plus the six transport settlement cases were executed. PG new cancel checks actual owner cancellation after peer read, sanitized public EOF classification, retired runtime, conservative durable ledger and no resend. New finalizer releases the T2 barrier, cancels/joins test-owned sender tasks; existing LocalControl and peer context finalizers handle their actual owner/client task cleanup."
+    },
+    {
+      "criterion": "Finite failure schema/reasons/exits and census",
+      "status": "APPROVED_STATIC_SCOPED_EXCEPT_SANITATION",
+      "evidence": "report_protocol_failure retains exact allowlisted error types/reasons and finite trusted phase/site names. New orders use named sites and do not manufacture successful UNKNOWN. Census covers complete sorted managed_record, managed_run, managed_task, managed_inbox, managed_mission_revision, catalog_record, catalog_command, instance_control, supervisor_lease, instance_command. Stop and deliberate poison writes are separately characterized."
+    },
+    {
+      "criterion": "Sentinel input/result/error/log, capability/DSN sanitation",
+      "status": "CHANGES_REQUESTED",
+      "evidence": "Normal input/result/error markers are present on the intended producer paths; raw census failures bypass the no-private-data claim and the finite guard misses capability/DSN diagnostics. See F01/F02."
+    },
+    {
+      "criterion": "Budgets/deadlines/product scope unchanged",
+      "status": "VERIFIED_STATIC_HASH_SCOPED",
+      "evidence": "Delta has only the two test paths. Product T2 hashes equal main. No changes to calls2/output128/validation64, wall/control4s, grant4.5s, UDS3.2s or DB2s; 4.25s is an observation assertion, not a production extension."
+    }
+  ],
+  "checks": [
+    {
+      "name": "snapshot_and_artifact_hashes",
+      "exit": 0,
+      "result": "46/46 author manifest files match, all author artifact hashes match, 3/3 T2 product files equal main; all 46 source hashes unchanged before/after review."
+    },
+    {
+      "name": "focused_source",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_budget.py -k 'transport_settlement_source or cancel_preserves_primary' -q --tb=line",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+      "environment": {"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+      "exit": 0,
+      "result": "9 passed, 94 deselected in 20.87s",
+      "log_sha256": "9247ab7160939985f41f21badf61179909885e39e65dd7f58e343b71df9bbe98"
+    },
+    {
+      "name": "independent_collection",
+      "exit": 0,
+      "result": {"total": 128, "source": 103, "pg": 25, "new_pg": 6},
+      "exact_command_and_nodes": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/collect.json",
+      "log_sha256": "25ba0b3d8990f56b5bd9a489950832f9af4e369aace2d2b51f6fbe9eb0ec5008"
+    },
+    {
+      "name": "finite_failure_channel_controls",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml /home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016/test_safety_delta_probe.py -q --tb=line",
+      "environment": {"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+      "exit": 1,
+      "result": "1 failed, 2 passed, 1 warning in 0.05s; intentional F01 assertion failure discloses synthetic input marker; exact private_channels blind-spot and ordinary-marker controls return as described.",
+      "log_sha256": "c9f9c9fa95b1be63db7a3ad29c186ed3ef331076997abe94023fa10dd2a0243a",
+      "probe_sha256": "37fb01988f353b4a4b93a2fb6ffb92bff12a35aa5bf9895363b9cd121dade966"
+    },
+    {"name": "delta_reverse_apply_check", "exit": 0},
+    {"name": "git_diff_check", "exit": 0},
+    {
+      "name": "initial_source_invocation",
+      "exit": 1,
+      "result": "Before collection, explicit pytest_asyncio.plugin collided with ambient entrypoint autoload. No tests ran; corrected only PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and retained this attempt here. No product failure inferred."
+    }
+  ],
+  "limits": [
+    "No PG, Docker/OCI, native process, provider/model, target/network or global gate run; all 25 PG tests, including six new orders, remain NOT_RUN here.",
+    "Author's full 103 SOURCE / 71.44s and quality exit0 artifacts were hash-verified, not independently rerun wholesale. Reviewer reran only nine relevant SOURCE cases and collection.",
+    "First QA108 105PASS/3FAIL and budget cause UNKNOWN remain preserved. No claim that reduced T2 work guarantees timing or closes those historical failures.",
+    "Finite probe tests use synthetic secrets only. F01 reproduces the exact new assertion form and actual pytest reporter; F02 loads the exact nested checker AST. Neither is represented as a PG/native execution.",
+    "No repository files, protected HTML, product, harness owner, gate, stage or commit changed. Scratch evidence only. No skill/global status changes under this read-only contract.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Parent owns reproduction/adjudication, complementary normative review, integration and any later fresh bounded PG gate."
+  ],
+  "handoff": {
+    "next": "Parent adjudicates F01/F02; minimal test-only sanitized equality and finite capability/DSN guard controls, affected SOURCE and focused re-review, then one admitted full128 PG target after both independent reviews. Do not run QA122 separately or reopen unchanged T2 product.",
+    "status": {"AICI_Admission128_test_delta": "CHANGES_REQUESTED_SCOPED", "T2_product": "UNCHANGED_PRIOR_REVIEW_REUSED", "PG128": "NOT_RUN", "P2_inert_G02": "NOT_CLOSED", "canonical_final": "NOT_RUN", "P4a_minim_live": "NOT_DELIVERED_SEPARATE_AUTHORITY"},
+    "repository_files_modified": [],
+    "scratch_directory": "/home/kali/.hermes/cache/scratch/p2-admission128-safety-review-20261016"
+  }
+}

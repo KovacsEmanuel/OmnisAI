@@ -63,7 +63,15 @@ class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
             bad = (*good[:4], (address, 443))
             with self.subTest(address=address), self.assertRaises(ValueError):
                 validate([good, bad])
-        for address in ("::1", "::ffff:8.8.8.8", "fe80::1", "ff02::1", "2001:db8::1"):
+        for address in (
+            "::1",
+            "::ffff:8.8.8.8",
+            "fe80::1",
+            "ff02::1",
+            "2001:db8::1",
+            "fec0::1",
+            "2606:4700:4700::1111%eth0",
+        ):
             with self.subTest(address=address), self.assertRaises(ValueError):
                 validate(
                     [

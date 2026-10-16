@@ -227,6 +227,10 @@ def auth_addresses(rows: list[AuthAddress]) -> list[AuthAddress]:
         ):
             raise ValueError("Invalid auth sockaddr")
         ip = ipaddress.ip_address(address[0])
+        try:
+            socket.inet_pton(family, address[0])
+        except OSError:
+            raise ValueError("Auth sockaddr is not numeric") from None
         if (
             ip.version != (4 if family == socket.AF_INET else 6)
             or not ip.is_global
@@ -236,7 +240,7 @@ def auth_addresses(rows: list[AuthAddress]) -> list[AuthAddress]:
             or ip.is_link_local
             or ip.is_unspecified
             or isinstance(ip, ipaddress.IPv6Address)
-            and (ip.ipv4_mapped is not None or address[2:] != (0, 0))
+            and (ip.ipv4_mapped is not None or ip.is_site_local or address[2:] != (0, 0))
         ):
             raise ValueError("Non-global auth DNS answer")
     return rows

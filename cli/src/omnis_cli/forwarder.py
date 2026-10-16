@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import ipaddress
 import logging
 import os
 import signal
@@ -9,6 +10,7 @@ import socket
 import stat
 import struct
 import sys
+import threading
 from pathlib import Path
 from uuid import UUID
 
@@ -18,6 +20,9 @@ from .lifecycle import process_identity, read_record, write_record
 _MAX_REQUEST_BYTES = 2 * 1024 * 1024
 # One trusted asset can be 2 MiB; keep room for headers and successive responses.
 _MAX_RESPONSE_BYTES = 16 * 1024 * 1024
+AuthAddress = tuple[
+    int, int, int, str, tuple[str, int] | tuple[str, int, int, int] | tuple[int, bytes]
+]
 
 
 class ForwarderListener:
@@ -34,6 +39,12 @@ class ForwarderListener:
         self._clients = clients
         self._closing = closing
         self._uncertain = uncertain
+        self._resolver: threading.Thread | None = None
+        self.auth_identity: dict[str, object] | None = None
+
+    @property
+    def resolver_alive(self) -> bool:
+        return self._resolver is not None and self._resolver.is_alive()
 
     @property
     def sockets(self) -> tuple[socket.socket, ...]:
@@ -57,6 +68,8 @@ class ForwarderListener:
             if pending:
                 raise TimeoutError("Private clients did not drain")
         await asyncio.wait_for(self._server.wait_closed(), timeout=2)
+        if self.resolver_alive:
+            raise ValueError("Auth resolver drainage unverified")
         if self._uncertain is not None and self._uncertain.is_set():
             raise ValueError("Private transport drainage unverified")
 
@@ -196,12 +209,178 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
     return ForwarderListener(listener, clients, closing, uncertain)
 
 
-async def run(directory: Path, port: int, *, stop_attempt: str | None = None) -> None:
+def auth_addresses(rows: list[AuthAddress]) -> list[AuthAddress]:
+    """Reject the entire answer on any non-global or ambiguous sockaddr."""
+    if not rows:
+        raise ValueError("Empty auth DNS answer")
+    for family, kind, protocol, _canon, address in rows:
+        if (
+            family not in (socket.AF_INET, socket.AF_INET6)
+            or kind != socket.SOCK_STREAM
+            or protocol != socket.IPPROTO_TCP
+        ):
+            raise ValueError("Invalid auth DNS answer")
+        if (
+            len(address) != (2 if family == socket.AF_INET else 4)
+            or address[1] != 443
+            or not isinstance(address[0], str)
+        ):
+            raise ValueError("Invalid auth sockaddr")
+        ip = ipaddress.ip_address(address[0])
+        if (
+            ip.version != (4 if family == socket.AF_INET else 6)
+            or not ip.is_global
+            or ip.is_multicast
+            or ip.is_reserved
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_unspecified
+            or isinstance(ip, ipaddress.IPv6Address)
+            and (ip.ipv4_mapped is not None or address[2:] != (0, 0))
+        ):
+            raise ValueError("Non-global auth DNS answer")
+    return rows
+
+
+async def start_auth_forwarder(directory: Path) -> ForwarderListener:
+    """Private raw TLS relay; fixed TCB client enforces the OAuth L7 contract.
+
+    No DNS at startup. A cancelled resolver is not killed: its result is revoked,
+    its daemon thread remains owned, and drain refuses while it is outstanding.
+    """
+    private_dir(directory)
+    path = directory / "auth-egress.sock"
+    if os.path.lexists(path):
+        raise ValueError("Auth socket already exists")
+    closing, uncertain = asyncio.Event(), asyncio.Event()
+    clients: set[asyncio.Task[None]] = set()
+    owner: ForwarderListener
+
+    async def handle(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        if closing.is_set() or clients or owner.resolver_alive:
+            writer.transport.abort()
+            return
+        task = asyncio.current_task()
+        assert task is not None
+        clients.add(task)
+        upstream: asyncio.StreamWriter | None = None
+        raw: socket.socket | None = None
+        try:
+            peer = writer.get_extra_info("socket")
+            if (
+                peer is None
+                or struct.unpack("3i", peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))[
+                    1
+                ]
+                != os.getuid()
+            ):
+                raise ValueError("Wrong auth peer UID")
+            async with asyncio.timeout(15):
+                result: list[AuthAddress] = []
+                done = threading.Event()
+
+                def resolve() -> None:
+                    try:
+                        result.extend(
+                            socket.getaddrinfo(
+                                "auth.openai.com",
+                                443,
+                                type=socket.SOCK_STREAM,
+                                proto=socket.IPPROTO_TCP,
+                            )
+                        )
+                    except OSError:
+                        pass  # Empty result is a refusal, never fallback.
+                    finally:
+                        done.set()
+
+                owner._resolver = threading.Thread(
+                    target=resolve, daemon=True, name="omnis-auth-dns"
+                )
+                owner._resolver.start()
+                async with asyncio.timeout(2):
+                    while not done.is_set():
+                        await asyncio.sleep(0.01)
+                if closing.is_set():
+                    raise ValueError("Auth relay closed")
+                family, kind, protocol, _canon, address = auth_addresses(result)[0]
+                raw = socket.socket(family, kind, protocol)
+                raw.setblocking(False)
+                # Numeric sockaddr was validated above: no second lookup/fallback.
+                await asyncio.wait_for(asyncio.get_running_loop().sock_connect(raw, address), 2)
+                remote, upstream = await asyncio.open_connection(sock=raw)
+                raw = None  # Stream owns it now.
+                copies = (
+                    asyncio.create_task(_copy(reader, upstream, limit=_MAX_REQUEST_BYTES)),
+                    asyncio.create_task(_copy(remote, writer, limit=_MAX_REQUEST_BYTES)),
+                )
+                try:
+                    await asyncio.gather(*copies)
+                finally:
+                    for copy in copies:
+                        copy.cancel()
+                    await asyncio.gather(*copies, return_exceptions=True)
+        except (OSError, ValueError, TimeoutError):
+            pass  # No addresses, provider response or challenge in logs.
+        finally:
+            if raw is not None:
+                raw.close()
+            for channel in (upstream, writer):
+                if channel is not None:
+                    channel.transport.abort()
+                    try:
+                        await asyncio.wait_for(asyncio.shield(channel.wait_closed()), 1)
+                    except (TimeoutError, asyncio.CancelledError):
+                        uncertain.set()
+                    except OSError:
+                        pass  # connection_lost with an error still closed.
+            clients.discard(task)
+
+    raw_listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        raw_listener.bind(str(path))
+        path.chmod(0o600)
+        raw_listener.listen(1)
+        raw_listener.setblocking(False)
+        server = await asyncio.start_unix_server(
+            handle, sock=raw_listener, start_serving=False, cleanup_socket=False
+        )
+        owner = ForwarderListener(server, clients, closing, uncertain)
+        info = path.lstat()
+        owner.auth_identity = {
+            "socket": [info.st_dev, info.st_ino],
+            "listener": os.fstat(raw_listener.fileno()).st_ino,
+        }
+        await server.start_serving()
+        return owner
+    except BaseException:
+        raw_listener.close()
+        # Path is retained for locked startup cleanup, never stale adoption.
+        raise
+
+
+async def run(
+    directory: Path,
+    port: int,
+    *,
+    stop_attempt: str | None = None,
+    auth_directory: Path | None = None,
+) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("Explicit local port required")
     if stop_attempt is not None and str(UUID(stop_attempt)) != stop_attempt:
         raise ValueError("Invalid Stop attempt")
     listener = await start_forwarder(directory, port=port)
+    auth = None
+    try:
+        if auth_directory is not None:
+            if auth_directory != directory.parent / "native-ipc" or stop_attempt is None:
+                raise ValueError("Invalid auth directory")
+            auth = await start_auth_forwarder(auth_directory)
+    except BaseException:
+        listener.close()
+        await listener.wait_closed()
+        raise
     identity = process_identity(os.getpid()) if stop_attempt is not None else None
     inode = os.fstat(listener.sockets[0].fileno()).st_ino
     stopped = asyncio.Event()
@@ -213,8 +392,15 @@ async def run(directory: Path, port: int, *, stop_attempt: str | None = None) ->
         await stopped.wait()
     finally:
         listener.close()
+        if auth is not None:
+            auth.close()
         try:
-            await asyncio.wait_for(listener.wait_closed(), timeout=20)
+            await asyncio.wait_for(
+                asyncio.gather(
+                    listener.wait_closed(), *([auth.wait_closed()] if auth is not None else [])
+                ),
+                timeout=20,
+            )
             # A fixed private Stop intent is optional for ordinary startup cleanup.
             # Never publish evidence before listener, copy tasks and transports drain.
             if stop_attempt is not None:
@@ -228,11 +414,12 @@ async def run(directory: Path, port: int, *, stop_attempt: str | None = None) ->
                         or str(UUID(command)) != command
                         or intent
                         != {
-                            "version": 1,
+                            "version": 2 if auth is not None else 1,
                             "attempt": stop_attempt,
                             "command_id": command,
                             "forwarder": identity,
                             "listener_inode": inode,
+                            **({"auth": auth.auth_identity} if auth is not None else {}),
                         }
                     ):
                         raise ValueError("Stop drain identity changed")
@@ -251,9 +438,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--socket-dir", type=Path, required=True)
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--stop-attempt")
+    parser.add_argument("--auth-directory", type=Path)
     args = parser.parse_args(argv)
     try:
-        asyncio.run(run(args.socket_dir, args.port, stop_attempt=args.stop_attempt))
+        asyncio.run(
+            run(
+                args.socket_dir,
+                args.port,
+                stop_attempt=args.stop_attempt,
+                auth_directory=args.auth_directory,
+            )
+        )
     except (OSError, ValueError, TimeoutError):
         print("FORWARDER_UNAVAILABLE", file=sys.stderr)
         return 3

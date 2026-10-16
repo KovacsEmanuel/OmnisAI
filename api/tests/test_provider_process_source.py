@@ -2,6 +2,7 @@
 
 import asyncio
 import inspect
+import os
 import re
 import stat
 import sys
@@ -122,7 +123,7 @@ async def test_image_provider_ancestor_through_settings(
     monkeypatch.setattr(Path, "resolve", lambda self: self)
     monkeypatch.setattr(Path, "mkdir", lambda *a, **k: None)
     monkeypatch.setattr(Path, "lstat", lstat)
-    monkeypatch.setattr(runtime_host.os, "getuid", lambda: uid)
+    monkeypatch.setattr(os, "getuid", lambda: uid)
     monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
     monkeypatch.setattr(runtime_host, "configure", configure)
     monkeypatch.setattr(

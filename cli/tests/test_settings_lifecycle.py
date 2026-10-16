@@ -54,9 +54,7 @@ def test_emergency_auth_identity_before_any_signal():
             },
         )
         for leaf in ("runtime.sock", "auth-egress.sock"):
-            sock = stack.enter_context(
-                socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            )
+            sock = stack.enter_context(socket.socket(socket.AF_UNIX, socket.SOCK_STREAM))
             sock.bind(str(native / leaf))
             (native / leaf).chmod(0o600)
             sock.listen()

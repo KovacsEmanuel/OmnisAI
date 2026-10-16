@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "review_id": "P2-FIRST-ERROR-FOCUSED-REVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent read-only review of the two-file test-only diagnostic delta and its affected callers; admission of one fresh informative PG attempt, not product acceptance.",
+  "base_head": "9176ea361cfe4da19465a8ec42e481c47bebf9d9",
+  "files": {
+    "api/tests/test_model_admission.py": "09c447cafc572b9b0e91a81a64c8497296a486fba525c0c61d3cb97b8c31967a",
+    "api/tests/test_model_admission_pg.py": "db2c31a3d36b55136b41e716c041dc4aa1a66bc061f4763404e111f0b5e5e2f3"
+  },
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/report.json",
+    "sha256": "a736c68391e01c96711b2f440a44f122fa2678f1fd6af6b2a42f33cc2c712082",
+    "read_fields": ["files", "implementation", "commands", "limits"]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Retain the first escaping failure observation before test cleanup without changing existing outcome, assertions, deadlines or effects.",
+    "consumer": "Existing stop_first/send_first and duplicate/conflict branches in protocol_pg_consumer, emitted on the existing pytest --tb=line terminal channel.",
+    "risk": "A marker timeout can conceal a completed sender failure; finally then cancels/gathers tasks. Unsafe formatting can disclose private values; guessed await labels can mislocalize the failure.",
+    "decision": "The delta is sufficient to admit the next bounded informative PG run on these exact bytes. No concrete diagnostic blocker was found. The historical failure and its unknown cause remain unchanged."
+  },
+  "findings": [],
+  "minimal_fix": null,
+  "review_results": {
+    "fidelity": {
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "api/tests/test_model_admission_pg.py:671-680 delegates the original core readiness_reason exactly once per invocation, preserving its return/exception and timeout; 770-775 delegates owner.handle. Neither wrapper prewarms, caches, skips or alters authority. Core readiness_reason remains unchanged at api/src/omnis/core/db.py:71-78."
+    },
+    "primary_exception_and_cleanup": {
+      "status": "PASS_STATIC_AND_REUSED_SOURCE_SCOPED",
+      "evidence": "The synchronous observation at pg.py:1003-1005 and 1057-1059 precedes the original finally blocks and is followed by bare raise. No await/task creation is added to the observation. done/cancelled are checked before Task.exception; results and exception text are never consumed for output. Existing SOURCE controls check primary exception identity, including cancellation. Independent AST comparison found no original assertion, timeout call or finally block missing/changed."
+    },
+    "output_safety": {
+      "status": "PASS_STATIC_AND_REUSED_SOURCE_SCOPED",
+      "evidence": "pg.py:47-128 emits static type labels, exact public CatalogError reasons or exact ControlCode values, finite local labels, booleans/counters and elapsed milliseconds. Unknown types/reasons become OTHER. No str/repr of exceptions, task results, traceback, DSN, capability, frame or payload is emitted. capsys.disabled covers only the sanitized line. Nine SOURCE_CONTROL records were independently parsed from the existing final stdout log; exact top-level schema and synthetic-marker absence were confirmed."
+    },
+    "await_site": {
+      "status": "PASS_STATIC_SCOPED",
+      "evidence": "pg.py:956-1066 sets the label immediately before the affected marker waits, second-lock wait, PG waiter loops, task joins and poststop replay. duplicate_pg_waiter is distinct from second_lock_entered. No deadline or wait predicate was changed.",
+      "interpretation": "await_site is the last-entered test wait/phase, not a traceback location or proof of causation. An assertion following a completed await retains that label. Readiness counts are aggregate and elapsed is for the latest invocation, not per-task correlation."
+    }
+  },
+  "verification": {
+    "reviewer_executed": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff -- api/tests/test_model_admission.py api/tests/test_model_admission_pg.py", "exit": 0},
+      {"command": "git diff --check; git diff --cached --stat", "exit": 0, "staged_changes": false},
+      {"command": "sha256sum of the exact two test files and author report, at entry and completion", "exit": 0, "unchanged": true},
+      {"command": "python3 -I -B read-only AST comparison against git show HEAD:<file>", "exit": 0, "results": {
+        "api/tests/test_model_admission.py": {"original_assertions": 91, "missing_assertions": 0, "missing_timeout_calls": 0, "original_finally_blocks": 6, "changed_or_missing_finally_blocks": 0},
+        "api/tests/test_model_admission_pg.py": {"original_assertions": 93, "missing_assertions": 0, "missing_timeout_calls": 0, "original_finally_blocks": 6, "changed_or_missing_finally_blocks": 0}
+      }},
+      {"command": "python3 -I -B private parse of the author's final SOURCE stdout; allowlisted aggregate output only", "exit": 0, "diagnostic_records": 9, "all_scope_source_control": true, "exact_top_level_fields": true, "synthetic_marker_absent": true, "task_states": {"FAILED": 3, "PENDING": 3, "CANCELLED": 2, "RETURNED": 1}}
+    ],
+    "reused_not_rerun": {
+      "source": "69 passed in 40.37s; author command exit 0, independently confirmed final stdout summary and nine diagnostic records",
+      "source_log_path": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/source-final.log",
+      "source_log_sha256": "87dc5e97a05a0243992b6fe26bacd62d3afab40491f45d792df62e291b9c6481",
+      "quality": "Author report: Ruff check/format and mypy exit 0 on these files; not independently rerun",
+      "collection": "Author report: 85 collected, 69 SOURCE and 16 PG; not independently rerun"
+    },
+    "additional_source_execution": "NOT_RUN: no concrete suspected defect required a new reproducer",
+    "pg_execution": "NOT_RUN_BY_REVIEWER"
+  },
+  "first_pg_admission": {
+    "decision": "ADMIT_ONE_FRESH_BOUNDED_INFORMATIVE_ATTEMPT",
+    "conditions": [
+      "Parent confirms both file hashes above are still exact; changes to them require focused delta adjudication, not transfer of this approval.",
+      "Use the existing test-model-admission-pg target and owner/cleanup contract after its existing no-effect argv/collection/source/access prerequisites; retain all target regressions and original grants/caps/timeouts.",
+      "Use a new authorized private PG/UDS fixture, never the retired failed fixture; private logs mode 0600, bounded family settlement and exact resource readback, retained cluster data under the established contract.",
+      "Parse only allowlisted P2_PROTOCOL_FAILURE records and distinguish scope=PG from the nine scope=SOURCE_CONTROL records. Do not publish raw pytest logs, exception messages/tracebacks, DSNs, frames or capabilities.",
+      "On failure retain the original outcome and pre-cleanup diagnostic. Pending or incomplete readiness localizes a boundary only; do not infer a root cause, widen deadlines, or blindly retry. Fix only a demonstrated cause."
+    ]
+  },
+  "limits": [
+    "Review is diagnostic-delta/call-site only. Earlier complementary concurrency reviews remain at their unchanged scope; no product-wide re-audit or new agent was performed.",
+    "The historical 72PASS/4FAIL QA remains FAIL with cause UNKNOWN. Relative marker/readiness budgets are a hypothesis, not an established cause.",
+    "SOURCE pg_waiter is synthetic, not a database lock observation. Actual PG wrapper behavior, timing and lock observations require the admitted real run.",
+    "Only the two existing exception regions are observed; nominal, earlier setup and later post-cleanup assertions are not newly instrumented.",
+    "The diagnostic sink assumes the functioning existing pytest output/capture channel; output-sink failure and deliberate --showlocals/--showargs modes are not certified.",
+    "No PG, OCI, native runtime, provider/model/target, canonical suite, r1/global/profile access, staging, commit or push was performed.",
+    "Repository stayed read-only. Protected documents/Omnis_Notite_Originale.html was not read, hashed, edited, staged or deleted. Only this requested scratch report was created.",
+    "CURRENT in p2-integration-b06cm.md governs; older STOP/HANDOFF_ONLY text in README/status is stale. Parent owns scoped status reconciliation.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No new workflow or skill edit was necessary in this read-only review."
+  ],
+  "status_delta": {
+    "diagnostic_implementation": "IMPLEMENTED_UNCOMMITTED_BY_AUTHOR",
+    "diagnostic_review": "APPROVED_SCOPED_ON_EXACT_TWO_HASHES",
+    "diagnostic_proof": "REUSED_SOURCE_PASS; PG_NOT_RUN",
+    "duplicate_conflict_product_acceptance": "BLOCKED_QA_PENDING_INFORMATIVE_RUN",
+    "p2_inert": "NOT_CLOSED",
+    "next_action": "Parent admits the existing bounded fresh PG target; no additional helper-review handoff required."
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "status": "PASS_SOURCE_SCOPED_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "baseline_head": "490903a4f86d6c8f9c72840097d17ad401ec35ef",
+  "observed_head_at_freeze": "9176ea361cfe4da19465a8ec42e481c47bebf9d9",
+  "scope": "Test-only first-failure observation for the existing stop_first/send_first/duplicate/conflict PG scenarios; no product fix or attribution of the historical cause.",
+  "files": {
+    "api/tests/test_model_admission.py": {
+      "sha256": "09c447cafc572b9b0e91a81a64c8497296a486fba525c0c61d3cb97b8c31967a",
+      "original_assertions_preserved": 91,
+      "original_wait_for_timeout_calls_unchanged": true
+    },
+    "api/tests/test_model_admission_pg.py": {
+      "sha256": "db2c31a3d36b55136b41e716c041dc4aa1a66bc061f4763404e111f0b5e5e2f3",
+      "original_assertions_preserved": 93,
+      "original_wait_for_timeout_calls_unchanged": true
+    }
+  },
+  "diff": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/change.diff",
+    "sha256": "5bc2ae64d7151ab3702322fdc80dc870c5346e64c7537de4a0c2838a74189568",
+    "insertions": 283,
+    "deletions": 5
+  },
+  "implementation": [
+    "Both existing exception branches snapshot synchronously before their original finally blocks; bare re-raise, existing assertions, cleanup, wait calls and timeout values retained.",
+    "Finite last-entered await_site includes readiness markers, second-lock entry, both PG waiter loops, both task joins and post-Stop replay. It is not a traceback or proof that an assertion following that await was caused by the await.",
+    "Existing owner wrapper counts entry in all scenarios; fence_count means entry/attempt, not lock acquisition. Test-only LocalControl readiness wrapper delegates the original readiness_reason without skip/cache/prewarm and records entry/completion counts plus latest readiness monotonic elapsed milliseconds.",
+    "Completed tasks report static exception type labels and only allowlisted public CatalogError reasons or exact ControlCode values. Unknown type/reason becomes OTHER; pending/cancelled/returned states never invent exceptions and no result/messages/args/frames/stacks/DSNs are formatted.",
+    "Only the sanitized P2_PROTOCOL_FAILURE JSON line is emitted under capsys.disabled(), so the unchanged pytest --tb=line gate sees it. SOURCE controls are explicitly scope=SOURCE_CONTROL, distinct from real scope=PG records."
+  ],
+  "commands": [
+    {
+      "phase": "RED",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py -k failure_observation -q --tb=line",
+      "exit": 1,
+      "result": "6 failed, 37 deselected in 0.45s",
+      "reason": "first-error observation missing before cleanup",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/red.log"
+    },
+    {
+      "phase": "initial GREEN",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py -k failure_observation -q --tb=line",
+      "exit": 0,
+      "result": "6 passed, 37 deselected in 0.40s",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/green.log"
+    },
+    {
+      "phase": "final SOURCE",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_budget.py -q --tb=line",
+      "exit": 0,
+      "result": "69 passed in 40.37s",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/source-final.log"
+    },
+    {
+      "phase": "final quality",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+      "exit": 0,
+      "result": "All checks passed!",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/ruff-check.log"
+    },
+    {
+      "phase": "final quality",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+      "exit": 0,
+      "result": "2 files already formatted",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/ruff-format.log"
+    },
+    {
+      "phase": "final quality",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir=/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/mypy api/tests/test_model_admission.py api/tests/test_model_admission_pg.py",
+      "exit": 0,
+      "result": "Success: no issues found in 2 source files",
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/mypy.log"
+    },
+    {
+      "phase": "collection only",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py api/tests/test_model_admission_pg.py api/tests/test_model_budget.py api/tests/test_model_budget_pg.py --collect-only -q",
+      "exit": 0,
+      "result": "85 tests collected in 0.54s",
+      "source_nodes": 69,
+      "pg_nodes": 16,
+      "log": "/home/kali/.hermes/cache/scratch/p2-first-error-IRbXJG/collect.log"
+    },
+    {
+      "phase": "diff check",
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "actual_line_channel": {
+    "count": 9,
+    "records": [
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "reason": "CONTROL_UNAVAILABLE",
+            "state": "FAILED",
+            "type": "CatalogError"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "PENDING"
+          }
+        }
+      },
+      {
+        "await_site": "duplicate_pg_waiter",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 1,
+        "markers": {
+          "t0_ready": true
+        },
+        "order": "duplicate",
+        "owner_entered": 1,
+        "readiness_completed": 1,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "PENDING"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "CANCELLED"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "CancelledError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "PENDING"
+          }
+        }
+      },
+      {
+        "await_site": "join_sender",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "CANCELLED"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "state": "RETURNED"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "reason": "OTHER",
+            "state": "FAILED",
+            "type": "CatalogError"
+          }
+        }
+      },
+      {
+        "await_site": "t0_ready",
+        "error": {
+          "reason": null,
+          "type": "TimeoutError"
+        },
+        "fence_entered": 0,
+        "markers": {
+          "t0_ready": false
+        },
+        "order": "duplicate",
+        "owner_entered": 0,
+        "readiness_completed": 0,
+        "readiness_elapsed_ms": 0,
+        "readiness_entered": 1,
+        "scope": "SOURCE_CONTROL",
+        "tasks": {
+          "sender": {
+            "reason": null,
+            "state": "FAILED",
+            "type": "OTHER"
+          }
+        }
+      }
+    ],
+    "verification": "Parsed actual final pytest stdout; exact task-state sequence and PG-waiter/join/cancellation fields matched; every record SOURCE_CONTROL; synthetic marker absent from the entire output; RED output had no diagnostic.",
+    "source_cases": [
+      "done failure before marker",
+      "pending before marker",
+      "pending lock-observer timeout after marker",
+      "task cancelled",
+      "primary cancellation preserved",
+      "join timeout cancelled task",
+      "task returned",
+      "unknown public reason",
+      "unknown exception class whose __str__ must not run"
+    ]
+  },
+  "log_sha256": {
+    "red.log": "be490e8accdd3ae8777bc7e3f4d52febc033b3db37e691d2292f07e87a182097",
+    "green.log": "77a66c9380bc76b1affca0fdf0f8e8775e355de857c22932aa210d8ec78894c7",
+    "source-final.log": "87dc5e97a05a0243992b6fe26bacd62d3afab40491f45d792df62e291b9c6481",
+    "collect.log": "86ecc975b56f0d1cf4dde43591ba53ae185401c62979904969cd2cb4e01a039f",
+    "ruff-check.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff-format.log": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+    "mypy.log": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+  },
+  "issues": [
+    "Historical PG cause remains UNKNOWN. Readiness latency is a hypothesis, not proven by SOURCE.",
+    "An exploratory read of a private pytest class failed with ImportError; no changes or effects. The implemented channel uses the public capsys fixture instead.",
+    "One multi-hunk patch was rejected atomically for ambiguous context; reapplied with exact context. A no-change patch made no write.",
+    "First targeted mypy run flagged non-exported local_control.readiness_reason access. The wrapper now imports the same original core.db function explicitly; final strict mypy passes."
+  ],
+  "limits": {
+    "pg_execution": "NOT_RUN_BY_AUTHOR",
+    "readiness_wrapper_pg_execution": "NOT_RUN; static wrapper integration and collection only; SOURCE supplies explicit synthetic progress states",
+    "oci_native_provider_target": "NOT_RUN",
+    "independent_review": "NOT_REVIEWED; parent to review exact two-file snapshot before admitting PG",
+    "canonical_and_p2_closure": "NOT_RUN_NOT_CLOSED",
+    "commit_stage_push": "NOT_PERFORMED",
+    "runner_makefile_product_schema_caps_timeouts": "UNCHANGED",
+    "existing_retired_fixture": "NOT_ACCESSED_OR_REUSED",
+    "historical_effectful_pg_failures": 1,
+    "new_cause_probe_pg_attempts": 0,
+    "preexisting_untracked_html": "UNTOUCHED"
+  },
+  "next": "Independent focused review on these exact two hashes; parent may then admit fresh owned PG QA through the existing runner. Parse only scope=PG for real failure attribution, then continue diagnosis/fix under the current P2-inert mandate.",
+  "procedure_lesson_for_parent": "Keep the first-failure snapshot synchronous and pre-finally, and prove the exact real pytest output channel: ordinary captured prints can disappear under --tb=line. Distinguish SOURCE_CONTROL diagnostics from PG to avoid counting synthetic controls as real failures. No skill file edited outside the two-file scope."
+}

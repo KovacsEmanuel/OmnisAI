@@ -17,7 +17,7 @@ from omnis.modules.settings.catalog_schema import canonical
 from omnis.modules.tasks import managed_composition, managed_store
 from omnis.modules.tasks import managed_contract as contract
 from omnis.modules.tasks.managed_contract import mapping, record, ref, sequence
-from omnis.policy.model_projection import POLICY_DIGEST, SyntheticApproval, reject
+from omnis.policy.model_projection import POLICY_DIGEST, SyntheticApproval, projection_input, reject
 
 
 class ModelProjections:
@@ -56,6 +56,9 @@ class ModelProjections:
         # invented preflight or a local dictionary standing in for persistence.
         await self.managed._verify_graph(connection, owner, run, graph)
         stage = managed_composition.stage_payload(manifest, graph)
+        # Stage supports method-execution v4; model projection does not.
+        if mapping(manifest["payload"]).get("composition_version") == 4:
+            raise reject()
         entries = [
             mapping(e)
             for e in sequence(mapping(manifest["payload"])["entries"])
@@ -68,7 +71,10 @@ class ModelProjections:
         ]
         if len(entries) != 1 or len(compositions) != 1:
             raise reject()
-        composition = managed_composition.validate(compositions[0], entries[0], manifest)
+        # stage_payload already validated this exact composition against its
+        # entry and manifest. Apply DATA policy now, before any further await;
+        # no validation result is retained across producer calls or transactions.
+        model_input = projection_input(compositions[0], approval)
         brief = await managed_store.get(connection, owner, run, entries[0]["brief_ref"])
         body = mapping(brief["payload"])
         header = mapping(body["header"])
@@ -84,7 +90,6 @@ class ModelProjections:
         run_body = mapping(run_record["payload"])
         if header["run_id"] != run or run_body["selection_ref"] != body["execution_selection_ref"]:
             raise reject()
-        model_input = managed_composition.project_model_input(composition, approval)
         payload: dict[str, object] = {
             "version": 1,
             "owner_id": owner,

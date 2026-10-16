@@ -204,6 +204,23 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
         approved_text_digests=text_digests(composition),
         known_secrets=(),
     )
+    # Independent strict public path fixes the expected bytes before observing
+    # the service. The census is a work-bound regression, not a latency oracle.
+    expected_input = canonical(managed_composition.project_model_input(composition, approval))
+    validate = Mock(wraps=managed_composition.validate)
+    monkeypatch.setattr(managed_composition, "validate", validate)
+    expected_refs = [
+        mapping(e)["composition_ref"] for e in sequence(mapping(launch["payload"])["entries"])
+    ]
+
+    def assert_one_validation_per_entry() -> None:
+        assert [records.reference(c.args[0]) for c in validate.call_args_list] == expected_refs
+        for call, entry in zip(
+            validate.call_args_list, sequence(mapping(launch["payload"])["entries"]), strict=True
+        ):
+            assert call.args[1:] == (entry, launch)
+        validate.reset_mock()
+
     managed = ManagedAdmission(Mock(spec=AsyncEngine))
     connection = AsyncMock(spec=AsyncConnection)
     verify_graph = AsyncMock()
@@ -243,6 +260,8 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
                 approval,
             )
         )
+        assert canonical(mapping(projected["payload"])["model_input"]) == expected_input
+        assert_one_validation_per_entry()
         inserts = [
             call
             for call in connection.execute.call_args_list
@@ -258,6 +277,7 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
             await service.read(connection, owner, run_id, records.reference(projected), approval)
         )
         assert read == projected
+        assert_one_validation_per_entry()
         # Actual independent adapter serialization, not a regex over a dict.
         monkeypatch.syspath_prepend(
             str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
@@ -295,6 +315,7 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
             approval,
         )
         assert again == projected
+        assert_one_validation_per_entry()
         assert (
             len(
                 [
@@ -305,6 +326,6 @@ def test_persistent_producer_uses_exact_managed_owner_and_readback(
             )
             == 1
         )
-        verify_graph.assert_awaited()
+        assert verify_graph.await_count == 3
 
     asyncio.run(exercise())

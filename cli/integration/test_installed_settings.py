@@ -144,6 +144,7 @@ class InstalledSettingsTest(unittest.TestCase):
             "cli-unknown",
             "browser-failure",
             "cleanup-failure",
+            "engine-unknown",
         ):
             self._stop_scenario(scenario)
 
@@ -160,6 +161,8 @@ class InstalledSettingsTest(unittest.TestCase):
             runtime = SimpleNamespace(
                 receipt=SimpleNamespace(image_id="image"),
                 native=True,
+                uncertain=False,
+                family_drained=True,
                 release=base,
                 psql=lambda *args: "7",
             )
@@ -267,7 +270,9 @@ class InstalledSettingsTest(unittest.TestCase):
                 if scenario == "browser-unknown":
                     raise pair.ObserverUncertain("synthetic unsettled browser")
                 kw["on_joined"]()
-                if scenario in {"browser-failure", "cleanup-failure"}:
+                if scenario in {"browser-failure", "cleanup-failure", "engine-unknown"}:
+                    if scenario == "engine-unknown":
+                        runtime.family_drained = False
                     events.append("browser-failure")
                     raise AssertionError("primary browser failure")
 
@@ -303,7 +308,7 @@ class InstalledSettingsTest(unittest.TestCase):
                     if scenario == "legacy"
                     else dict.fromkeys(("node", "cache", "playwright"), str(base))
                 )
-                if scenario in {"browser-failure", "cleanup-failure"}:
+                if scenario in {"browser-failure", "cleanup-failure", "engine-unknown"}:
                     with self.assertRaisesRegex(AssertionError, "primary browser failure"):
                         stop.run_installed_stop(
                             base,
@@ -313,7 +318,7 @@ class InstalledSettingsTest(unittest.TestCase):
                         )
                     self.assertEqual(
                         probes[-1],
-                        ("FAIL", "UNCERTAIN" if scenario == "cleanup-failure" else "VERIFIED"),
+                        ("FAIL", "VERIFIED" if scenario == "browser-failure" else "UNCERTAIN"),
                     )
                     self.assertNotIn("teardown", events)
                 elif scenario.endswith("unknown"):

@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent normative/product reviewer; safety review not read",
+  "verdict": "CHANGES_REQUESTED",
+  "decision": "Do not admit this complete SOURCE candidate to first installed challenge/cancel QA until the two findings are adjudicated and minimally repaired/reviewed. This is not an integration verdict or a claim that installed QA is required before SOURCE review.",
+  "snapshot": {
+    "base": "a66c5cf2bdb53280dd42ef962259dae4fbe4c30d",
+    "head": "16dbaafed90cf4af15d99b0ef16e36bbdfb91acd",
+    "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "git_status": "clean work/o4-pr4lhcmr",
+    "git_diff_check_exit": 0,
+    "changed_file_count": 42,
+    "all_42_author_hashes_independently_matched": true,
+    "frozen_file_hashes": [
+      {
+        "path": "api/src/omnis/modules/settings/provider_models.py",
+        "sha256": "20fe531b466ce434cfbd471957d09f4d7970b3420a96f71a13471fb522bbdfda"
+      },
+      {
+        "path": "api/src/omnis/modules/settings/provider_routes.py",
+        "sha256": "c29d29157bda7598b935e8088a0a93592d4ca696ded8c9135c05f6a93bc85cde"
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "6c8443d8788faefa8b81d845112fed8dc371001ed0212a4288fdee7e94f09216"
+      },
+      {
+        "path": "api/tests/test_provider_dispatch_source.py",
+        "sha256": "59fb001191a006cdeb9c4f29086b2ea9327265776ba960216e18f63e1e78cff4"
+      },
+      {
+        "path": "api/tests/test_provider_native_source.py",
+        "sha256": "54de8ff327b584dda3b0a25c2ea70d3523d0d6ec5df2fdd57bfa58b58e414b7a"
+      },
+      {
+        "path": "api/tests/test_provider_oauth_source.py",
+        "sha256": "a0ee1e533fe874bdd2e162adf8924c8322c694a10b791bf494f043d16dff1ef8"
+      },
+      {
+        "path": "api/tests/test_provider_settings_api_source.py",
+        "sha256": "08c63d544b859178b42819f1bebc03a813679fa21b756e54c9246dd22a0700ed"
+      },
+      {
+        "path": "cli/integration/installed_browser.mjs",
+        "sha256": "785ae7b0f79327d539b752ebb11d135cd241950cd315bd4e512bed66b38eb688"
+      },
+      {
+        "path": "cli/integration/installed_pair_open.py",
+        "sha256": "e7f698bd98798c6e920dac234208a493e13357905831a6936b3f95e666818329"
+      },
+      {
+        "path": "cli/integration/installed_start.py",
+        "sha256": "5c1d2ab7ffdd1e66c4081de063582b4e20310260a3fa82b4a74e4a3239e26ce0"
+      },
+      {
+        "path": "cli/integration/installed_stop.py",
+        "sha256": "fecff37e1cb5180d37d19dccd697a0623076124170a373515758a6de4f0e9e53"
+      },
+      {
+        "path": "cli/integration/test_installed_browser.mjs",
+        "sha256": "097d2f8aa5de805a8e64df1b4720d1d8c61cacebc7eb04020f8e543603713963"
+      },
+      {
+        "path": "cli/src/omnis_cli/compose.py",
+        "sha256": "5fa77c5ae219eee1f63da118f7391e8abdb8e02fce8b42aa725a75813fc6fc3a"
+      },
+      {
+        "path": "cli/src/omnis_cli/forwarder.py",
+        "sha256": "42a0b8425c7a570f11768a64707893d93eb541103f73d4d5871f7d0d9bbf4b0a"
+      },
+      {
+        "path": "cli/src/omnis_cli/lifecycle.py",
+        "sha256": "2b3b08b97d09da2a0f5a5a408044757e4b7dd145665b2a227752dec4aae84562"
+      },
+      {
+        "path": "cli/src/omnis_cli/release.py",
+        "sha256": "4a021c83a318dd206c838899a012a1ba786748e8b74ff45ce4714c0841eaeadc"
+      },
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "sha256": "5346a4a5c7e5c44b0296fd89607f21c0de39fb7dcc49a8b241797d6b43f49a4a"
+      },
+      {
+        "path": "cli/src/omnis_cli/start_runtime.py",
+        "sha256": "9c4985c41c24a36e57a80f93b74938deda52b4b14c635da119f8ea8c4fbffa81"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop.py",
+        "sha256": "380d07fb15197807d93ab6a5bf968c095c866997b3edbf7a767c7c599966243f"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_owner.py",
+        "sha256": "d03016f16372fad2ab79fee002128dadb716bdb465ab428f7176207771988443"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop_receipt.py",
+        "sha256": "73c52f9f594d2f5d9038e9ff0436b43986a580c46a77fee5ea070fee02dab75f"
+      },
+      {
+        "path": "cli/tests/stop_owner_fixture.py",
+        "sha256": "b2281c2460e7efc5c545395a706f606f3d6c6dce9ba808999f4a8537ece5908b"
+      },
+      {
+        "path": "cli/tests/test_auth_forwarder.py",
+        "sha256": "998de6636584c628e98ee5d27b86cebae0fb498f82bf5516223035e2c1c00344"
+      },
+      {
+        "path": "cli/tests/test_image_install.py",
+        "sha256": "4a8a28fe0031919b64dc919c808c0516bef0c8e074fad656c424f6117a53d16a"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "sha256": "421e2f7b8985cc693ef5c8818a4ed1a1518a60481e4a520ea21443f7773929fb"
+      },
+      {
+        "path": "contracts/omnis.openapi.json",
+        "sha256": "acc97fe9a48e9ab2c07e38d05d0f279fbc2bb6a9c14849f07f286fbc0bfe112a"
+      },
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "5d07a77a907451aef7305d025b78e9295d65b4d6c56ef5f50bf69c5e2d3f0310"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_auth.py",
+        "sha256": "14510773ad948b96080bcf32456754b045c46e8d47a98df5e7e034338688f0d3"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_contract.py",
+        "sha256": "c68d97a7b55968f7bdccb857308126017b2c094355e878bb4ea278672545beaa"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_http.py",
+        "sha256": "5568a03c779c388a61653e5047ef0005203d478cfeef9f42c50a4d2e98b2270b"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_oauth.py",
+        "sha256": "37dbaf3281b547da3219a0da1b3ab9998bcafcb82e6e9833820255afa681269c"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_server.py",
+        "sha256": "d69fdd43e9a8ae82b3e6810703c37307c92c6bbab232c0dbf185f977fd254725"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "77b93127f2d71c15c540f81712e1f6faf02d05fd45d165d7107d876bd7fc4862"
+      },
+      {
+        "path": "integrations/hermes/tests/test_native_build.py",
+        "sha256": "fce092f244aaa33eb5e2530225efb0e9a8b3acc0792a2040abaaf5a9d052b18b"
+      },
+      {
+        "path": "integrations/hermes/upstream/management-patch-manifest.json",
+        "sha256": "2c5a33a66706eb87b9adbc4902b061994b9e16d449613bdd22dc6795965acf2c"
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-management.patch",
+        "sha256": "d1c1775e33cff654b1ec28013dc2746b637d837b5bedf2c424b184650649de72"
+      },
+      {
+        "path": "ops/build_control_bundle.py",
+        "sha256": "708e36bfc8e7c98faa3ef6f5de5cd4af4a8c611fb289ff69520680929af32e94"
+      },
+      {
+        "path": "web/src/app/ProviderSettings.test.tsx",
+        "sha256": "8cd72fdbd8a16fb5ee320d467681a1835438a06d8d5458e6f185b4ad172f6886"
+      },
+      {
+        "path": "web/src/features/engagement/ProviderSettings.tsx",
+        "sha256": "4fc21f4585d749dff1a50a68db5249fafffce8946f01e78563e0ec6a0f5a8a05"
+      },
+      {
+        "path": "web/src/shared/api/client.ts",
+        "sha256": "2f9997361f47239a7a20db8f239e5f2b7f50d11d5eb6c5af45d3a2984c70feb1"
+      },
+      {
+        "path": "web/src/shared/api/generated.ts",
+        "sha256": "c7cba2a415ab8bf7a76b1813bd0246fa0d75e832f0a9936e91feac6b1f95a33c"
+      },
+      {
+        "path": "web/src/shared/api/providers.ts",
+        "sha256": "030dec46c6b3933ee0aa870471245504a08aa1f69a5021c3e99a47bec9ba5065"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "OAUTH-NORM-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "location": "web/src/features/engagement/ProviderSettings.tsx:23-35,73-76",
+      "requirement": "Reload must recover the one existing OAuth operation without replay; failed/unknown observations must not keep presenting a challenge as current. p4a-minim.md:107,111; frontend error/stale/unknown state contract.",
+      "caller": "Real ProviderSettings through App, BrowserSession and React Query; reload-equivalent fresh mount GET operations/current, then failed status refetch.",
+      "cause": "On reload receipt remains null. unknown includes status.isError only when receipt?.status === PENDING; retained current-query PENDING/CHALLENGE data therefore remains visible after CONTROL_UNAVAILABLE/503.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/on-8xoiyF/web/src/app/OAuthReloadReview.test.tsx",
+      "observed": "Positive fresh/current read displays synthetic challenge with zero PUTs. The subsequent real query state is error, reads >= 2, still zero PUTs, but <code>TEST-CODE</code> remains. Assertion requiring its absence fails. Existing three ProviderSettings tests pass in the same invocation.",
+      "evidence": "/home/kali/.hermes/cache/scratch/on-8xoiyF/ui-tests.txt",
+      "exit": 1,
+      "risk": "Operator is still invited to approve a stale challenge while native status/authority is unknown, notably after reload. No account access or inference was performed; no claim of a secret disclosure to an unauthorized user.",
+      "minimal_fix": "Treat status failure on reload/current as unknown too, suppress stale challenge, keep the exact operation/current recovery without a new Connect. Add this error-after-current-read regression beside the existing connect/cancel test."
+    },
+    {
+      "id": "OAUTH-NORM-F02",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "location": "cli/src/omnis_cli/stop.py:264-305,308-329",
+      "requirement": "New dual-listener profile must validate both auth filesystem [dev,ino] and kernel listener identity at Stop/recovery interfaces, not only at normal status/normal Stop. p4a-minim.md:99,103,109 and delegated acceptance contract.",
+      "caller": "_emergency_inventory -> _emergency_drain on a format4 READY receipt; used by emergency recovery after control unavailability.",
+      "cause": "Emergency preflight checks runtime IPC and typed auth fields but never compares auth_listener(root, forwarder) with record[auth]. Before SIGTERM, _emergency_drain checks only the old TCP listener. Normal verify_running and prepare_stop_inventory have the missing comparison.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/on-8xoiyF/repro_recovery.py",
+      "observed": "Matching positive and two otherwise same-schema negative receipts (wrong filesystem inode; wrong kernel inode) all pass _ready_record and _emergency_inventory and attempt signal 15. Real auth_listener comparison is true only for positive, false for both negatives. Signal sink intercepted before any real signal; final expected-denial assertion fails with MISMATCHED_AUTH_REACHED_STOP_SIGNAL.",
+      "evidence": "/home/kali/.hermes/cache/scratch/on-8xoiyF/recovery-repro.txt",
+      "exit": 1,
+      "risk": "Emergency destructive lifecycle processing begins despite detected-by-existing-reader auth-channel drift. This is NOT a demonstrated foreign-process kill or false STOPPED: exact forwarder PID identity still matches, and later cleanup can refuse. It is the missing pre-effect dual-channel validation promised for this new profile.",
+      "minimal_fix": "Reuse the current auth_listener comparison for format4 on emergency preflight/live-forwarder path before the first signal. Keep historical formats and the already-dead-forwarder absence path explicit. Test matching and each identity mismatch on this same emergency consumer."
+    }
+  ],
+  "requirement_caller_risk_decisions": [
+    {
+      "requirement": "Normal explicit Connect/current status/Cancel with same owner",
+      "caller": "paired UI -> provider_routes -> LocalControl -> RuntimeClient -> RuntimeHost -> management_server -> NativeOAuth -> pinned _codex_full_login_worker",
+      "decision": "Implemented SOURCE; no OAuth rewrite. Single retained worker/session, profile None, local status reads do not issue another start. Happy path tests passed; reload error F01 blocks complete acceptance."
+    },
+    {
+      "requirement": "Read/logout honest persistence and readiness",
+      "caller": "management_auth.local_auth and native resolve_codex_runtime_credentials(read_only=True)/clear_provider_auth",
+      "decision": "Finite projection LOCAL_PRESENT/LOCAL_EXPIRED/LOCAL_UNKNOWN/ABSENT, no claim of provider verification/reachability/inference. Logout clear then missing-grant readback; active execution/pending writer explicitly BUSY/refused. gpt-6.1-sol/xhigh and adopt_external_logins=false preserved. Corrupt-store managed overlay refuses recovery writes; actual native probe not independently rerun."
+    },
+    {
+      "requirement": "Native authority and settled cancel/Stop",
+      "caller": "RuntimeHost lease/watchdog/dispatch_guard and NativeOAuth.guard/profile_scope/revoke",
+      "decision": "Reasonable SOURCE interface review: same boot/generation/epoch, <=5s owner grant, 900s session vs existing2s exchange/30s local operations; cancellation does not delete already-saved grant and terminal projection waits for worker no longer alive. Stop signal revokes native context and Host owns process drain. Detailed races/secret/URL matrix delegated to independent safety reviewer, not silently certified here."
+    },
+    {
+      "requirement": "Composed provider confinement",
+      "caller": "FixedClient HTTPX fixed three POST paths over UDS + fixed numeric global-unicast relay",
+      "decision": "Matches approved TCB direction in source; no extra owner/service/mount/raw tools introduced. Relay alone is not encrypted L7 enforcement and does not isolate arbitrary raw-TLS malicious code within TCB. TLS/live DNS/provider path NOT_RUN; not a demand for MITM/P3."
+    },
+    {
+      "requirement": "Full installed lifecycle/profile/versioning",
+      "caller": "release/compose/start/start_runtime/status/stop_owner/stop_receipt/lifecycle",
+      "decision": "New p4a-codex-auth profile and startup4/inventory-completion3/forwarder-intent-drain2 wired; same four roles, runtime network none, existing two binds, same forwarder owns both channels. Normal status/Stop compare auth identities; no stale-auth adoption. Emergency F02 remains."
+    },
+    {
+      "requirement": "Bounds and historical forms",
+      "caller": "test_settings_lifecycle producer, validators and versioned readers",
+      "decision": "Reviewed actual producer test and serializer shape, not an independent physical run. Author measured inventory2889/2900, grant3366/3600, request3541/4096, reply3588/4096; exact inventory2900 accepted/2901 refused, on-disk16384 unchanged. Formats2/3 and historical inventory1/2 retained distinctly. Do not promote author counts into reviewer execution."
+    },
+    {
+      "requirement": "Immutable prepared-native distribution",
+      "caller": "pin/management patch/manifest -> prepare producer -> later native build/inject -> bundle/image",
+      "decision": "Pinned ee5ee84a345204a3b1d6ef6ba1ab747e602867b9; actual prepared oauth.py/main.py/auth.py hashes match management manifest. Native worker/helpers retained with managed-only import/profile/log/client narrowing. Offline reapply/build is author evidence, not rerun; final native runtime build/adapter injection and fresh auth-profile seal remain genuine prerequisites, no old-image substitution."
+    },
+    {
+      "requirement": "First installed consumer must do real challenge/reload/cancel/restart",
+      "caller": "existing run_installed_stop settings_visit -> installed_browser.mjs settings-auth/settings-auth-readback",
+      "decision": "SOURCE journey actually clicks Connect, observes challenge existence/fixed URL without code text/screenshot, reloads without PUT, same-id Cancel, terminal challenge absence, normal Stop, fresh Start/current NONE without replay and final Stop. It does not autoapprove an account. Exact installed artifact/UID/mount/source prerequisites remain NOT_RUN until fresh build/install, not established by argv parse alone."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/on-8xoiyF/home PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/on-8xoiyF/t PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/on-8xoiyF/pyc -c <explicit worktree api/src + integrations/hermes/src; assert imported origins; pytest.main>",
+      "pytest_argv": [
+        "-c",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/api/pyproject.toml",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "api/tests/test_provider_oauth_source.py",
+        "api/tests/test_provider_native_source.py",
+        "api/tests/test_provider_settings_api_source.py",
+        "-q",
+        "--tb=short"
+      ],
+      "result": "31 passed in1.70s",
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/on-8xoiyF/source-tests.txt",
+      "scope": "SOURCE ASGI/private UDS, synthetic native/HTTPX; no PG, native worker process or provider"
+    },
+    {
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/on-8xoiyF/home TMPDIR=/home/kali/.hermes/cache/scratch/on-8xoiyF/t PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config vitest.config.ts src/app/ProviderSettings.test.tsx src/app/OAuthReloadReview.test.tsx --maxWorkers=1",
+      "cwd": "/home/kali/.hermes/cache/scratch/on-8xoiyF/web",
+      "result": "3 existing tests PASS, new regression FAIL; F01 confirmed",
+      "exit": 1,
+      "output": "/home/kali/.hermes/cache/scratch/on-8xoiyF/ui-tests.txt",
+      "scope": "jsdom + synthetic fetch, copied product sources verified byte-identical, not browser QA; cache scope deviation below"
+    },
+    {
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/on-8xoiyF/home PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/on-8xoiyF/t /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/on-8xoiyF/pyc /home/kali/.hermes/cache/scratch/on-8xoiyF/repro_recovery.py",
+      "result": "Both mismatched identities reach intercepted SIGTERM boundary, positive reaches same boundary; F02 confirmed",
+      "exit": 1,
+      "output": "/home/kali/.hermes/cache/scratch/on-8xoiyF/recovery-repro.txt",
+      "scope": "Real local sockets/typed receipt/identity checks, synthetic Engine, all signaling intercepted; no Docker/PG/native/container effects"
+    },
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --check a66c5cf..16dbaaf; SHA256 all42 author paths plus prepared-native3; compare copied web source7",
+      "exit": 0,
+      "result": "Frozen head clean;42/42 hashes match; prepared management files3/3 match; copied relevant web source7/7 byte-equal"
+    }
+  ],
+  "reviewed_paths_scope": {
+    "substantive_source_and_callers": [
+      "api/src/omnis/modules/settings/provider_models.py",
+      "api/src/omnis/modules/settings/provider_routes.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "web/src/features/engagement/ProviderSettings.tsx",
+      "web/src/shared/api/providers.ts",
+      "integrations/hermes/src/omnis_hermes/management_auth.py",
+      "integrations/hermes/src/omnis_hermes/management_contract.py",
+      "integrations/hermes/src/omnis_hermes/management_http.py",
+      "integrations/hermes/src/omnis_hermes/management_oauth.py",
+      "integrations/hermes/src/omnis_hermes/management_server.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "integrations/hermes/upstream/omnis-management.patch",
+      "cli/src/omnis_cli/forwarder.py",
+      "cli/src/omnis_cli/lifecycle.py",
+      "cli/src/omnis_cli/start.py",
+      "cli/src/omnis_cli/start_runtime.py",
+      "cli/src/omnis_cli/stop.py",
+      "cli/src/omnis_cli/stop_owner.py",
+      "cli/src/omnis_cli/stop_receipt.py",
+      "cli/src/omnis_cli/compose.py",
+      "cli/src/omnis_cli/release.py",
+      "ops/build_control_bundle.py",
+      "cli/integration/installed_browser.mjs",
+      "cli/integration/installed_stop.py",
+      "cli/integration/installed_start.py",
+      "cli/integration/installed_pair_open.py"
+    ],
+    "tests_inspected_or_run": [
+      "api/tests/test_provider_oauth_source.py",
+      "api/tests/test_provider_native_source.py",
+      "api/tests/test_provider_settings_api_source.py",
+      "web/src/app/ProviderSettings.test.tsx",
+      "cli/tests/test_settings_lifecycle.py",
+      "cli/tests/stop_owner_fixture.py"
+    ],
+    "additional_context": [
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "README.md current",
+      "documents/verification/p4a-minim.md final section",
+      "documents/verification/implementation-status.md current",
+      "documents/Omnis_MVP_Architecture.md sections3/5",
+      "documents/Omnis_Implementation_Plan.md section8",
+      "web/src/features/bootstrap/BrowserSession.tsx",
+      "web/src/features/bootstrap/useBrowserSession.ts",
+      "cli/tests/test_stop.py",
+      "api/tests/conftest.py",
+      "prepared-continued/source/hermes_cli/web_routers/oauth.py"
+    ],
+    "note": "All42 frozen-file hashes are listed above; hash verification of generated artifacts/other tests is not a claim of line-by-line semantic review of every historical test."
+  },
+  "prepared_management_hashes": {
+    "hermes_cli/web_routers/oauth.py": "f24142234ba90516ef94499a052ee3d0b111976f5e07ece1ac9ca00a1c317290",
+    "hermes_cli/main.py": "9af28bd6b3daffcc1df2ae6cf345f17372356b3146cd8cac4be964c91d18d77d",
+    "hermes_cli/auth.py": "32e64e69bbde8bdc8005e9cd1faa7620d21390d8e25397ef2da1374f7c17bbc5"
+  },
+  "preserved_limits": [
+    "Unchanged offline Settings3926649/f8d4a7c acceptance reused, not rerun.",
+    "Author172 SOURCE passes preceded final Stop edit; author82 and33 lifecycle after last edits retained as attributed evidence only.",
+    "Two unchanged web failures at default concurrency remain cause UNKNOWN; author85 with maxWorkers2 is bounded-worker evidence, not canonical PASS.",
+    "Earlier source fixture180s timeout/profile mismatch remains without certified family receipt despite reported final zero census. This review does not erase it or certify its cleanup. No cleanup false-PASS reproducer was exercised in this review.",
+    "No full canonical/historical suite, no installed native OCI, PostgreSQL, browser launch, live TLS/provider DNS, account approval, logout of real account, inference or target traffic.",
+    "Auth actual native worker proof from author was SCRIPTED HTTPX wire, not TLS/live.",
+    "Argv binding is not actual installed/current artifact/source/mount/UID access proof. Fresh native build/injection/bundle/image and parent registration are still required.",
+    "Reticle NOT_INTEGRATED/NOT_RUN; Chisel BLOCKED_NO_GO; no new visual approval.",
+    "Independent safety verdict unread; this report does not pre-adjudicate complementary findings or grant account/inference/P4a closure."
+  ],
+  "execution_scope_incident": {
+    "status": "NOT_PASS_SCOPE_FOR_UI_TEST_CACHE",
+    "detail": "The reviewer created a dependency symlink only in own scratch web tree. Vitest nevertheless wrote its result cache through that symlink into the main checkout dependency cache. This violates the requested own-scratch-only write boundary; product source hashes remain unchanged.",
+    "exact_modified_external_file": "/home/kali/OmnisAI/web/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json",
+    "observed": "Exact file contains this run ProviderSettings duration497.0083319999999 and OAuthReloadReview duration98.24136499999997/failed true alongside preexisting historical rows.",
+    "disposition": "Preserved untouched after discovery; no deletion/rollback of preexisting cache, no claim of clean read-only execution. Parent notified. Findings are still backed by actual isolated jsdom execution on byte-identical source, not by cache results alone.",
+    "lesson_for_parent": "For scratch Vite/Vitest review copies, configure cacheDir explicitly inside owned scratch BEFORE using shared node_modules, or use a complete private dependency copy; a scratch-only node_modules symlink is not a write boundary."
+  },
+  "created_or_modified": {
+    "own_scratch": "/home/kali/.hermes/cache/scratch/on-8xoiyF",
+    "own_artifacts": [
+      "source-tests.txt",
+      "ui-tests.txt",
+      "recovery-repro.txt",
+      "repro_recovery.py",
+      "web source/config/test copies",
+      "web/src/app/OAuthReloadReview.test.tsx",
+      "web/node_modules symlink",
+      "private home/tmp/cache directories"
+    ],
+    "repository_source_edits": false,
+    "commits": false,
+    "external_cache_modified": "see execution_scope_incident"
+  },
+  "cleanup": {
+    "python_reproducer_sockets": "closed by ExitStack; temporary fixture removed by existing fixture context",
+    "real_signals_sent": 0,
+    "provider_dns_contact": false,
+    "docker_pg_native_browser_effects": false,
+    "own_unsettled_resource_family": "none created; foreground test commands completed; no separate certified family receipt claimed",
+    "forbidden_original_html_ponytail": "not read/hashed/modified",
+    "personal_config_auth_sessions_logs": "not read",
+    "report_final": true
+  },
+  "proposed_status_delta": "AICI OAuth full SOURCE candidate CHANGES_REQUESTED(F01,F02); no integration. Preserve offline Settings ACCEPTED_SCOPED and P2-inert CLOSED_SCOPED. Installed QA/native TLS/account/live/canonical remain NOT_RUN; STOP before P3."
+}

@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_INCOMPLETE_SCOPE",
+  "requested_complete": false,
+  "frozen_head": "69bbff3a448cc205af509fdf738ac64bb7ad31b8",
+  "base": "a66c5cf2bdb53280dd42ef962259dae4fbe4c30d",
+  "branch": "work/o4-pr4lhcmr",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "commits": [
+    "bcb7b35ae5e1375f8eb32ba283413157ca71669b fix(runtime): keep managed native auth reads inert on corruption",
+    "69bbff3a448cc205af509fdf738ac64bb7ad31b8 feat(settings): read local Codex grants and confirm native logout"
+  ],
+  "changed_file_count": 18,
+  "files": [
+    {
+      "path": "api/src/omnis/modules/settings/provider_models.py",
+      "bytes": 3182,
+      "sha256": "f8924b1c63cb37f1948bde1d4248e691454e2775ef8e6cbb3c03e8bfb024fb32"
+    },
+    {
+      "path": "api/tests/test_provider_dispatch_source.py",
+      "bytes": 10463,
+      "sha256": "59fb001191a006cdeb9c4f29086b2ea9327265776ba960216e18f63e1e78cff4"
+    },
+    {
+      "path": "api/tests/test_provider_native_source.py",
+      "bytes": 9584,
+      "sha256": "54de8ff327b584dda3b0a25c2ea70d3523d0d6ec5df2fdd57bfa58b58e414b7a"
+    },
+    {
+      "path": "api/tests/test_provider_settings_api_source.py",
+      "bytes": 10559,
+      "sha256": "08c63d544b859178b42819f1bebc03a813679fa21b756e54c9246dd22a0700ed"
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "bytes": 69854,
+      "sha256": "c007aecd082bc5f01fb4e07071e7efccd28b8cca187f2b8b987a8ace1b35f4bd"
+    },
+    {
+      "path": "integrations/hermes/pin.json",
+      "bytes": 1571,
+      "sha256": "73a6bf41487640c42211da5e51bb08352eab995400c426dfe4941790040717e3"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_auth.py",
+      "bytes": 2895,
+      "sha256": "14510773ad948b96080bcf32456754b045c46e8d47a98df5e7e034338688f0d3"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_contract.py",
+      "bytes": 2110,
+      "sha256": "b3677358955a030a05a93c5490ceea9550423fd403ffed3c25a4c8ee5106251d"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_http.py",
+      "bytes": 4639,
+      "sha256": "ad5fa094079936e1843c594130325a602ff94572b36e8cba17b668bde6e694fd"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_server.py",
+      "bytes": 8011,
+      "sha256": "9d166324d280edbd7f8720b5dfabe0eeac6b1cee65adb4d61ab8ff283c5357f4"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "bytes": 49389,
+      "sha256": "4c8ac9ddd66b70161b1809c580ee82fa479800e7edf97a2b20dbfdb0052c0693"
+    },
+    {
+      "path": "integrations/hermes/tests/test_native_build.py",
+      "bytes": 10556,
+      "sha256": "fce092f244aaa33eb5e2530225efb0e9a8b3acc0792a2040abaaf5a9d052b18b"
+    },
+    {
+      "path": "integrations/hermes/upstream/management-patch-manifest.json",
+      "bytes": 586,
+      "sha256": "cf78b10333f53a04261f2e62b2febeced13041e52dacafb54334558607850359"
+    },
+    {
+      "path": "integrations/hermes/upstream/omnis-management.patch",
+      "bytes": 2038,
+      "sha256": "4eb4dcff9d45b25c14c6a3ea945bc38c6ec7b64a8d04fa85de7a4cee867f8681"
+    },
+    {
+      "path": "web/src/app/ProviderSettings.test.tsx",
+      "bytes": 4029,
+      "sha256": "7bb47caa2e6a6e022abadd371cb4174af21ee70375538aac42da379c7c3b300b"
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "bytes": 6302,
+      "sha256": "58d45d2f1de851e54a41a301b7c630f97f838b95d5ecdaead2e5fc6f324756ec"
+    },
+    {
+      "path": "web/src/shared/api/generated.ts",
+      "bytes": 56513,
+      "sha256": "f256cb0e4a5b5a47777424db9120a36402c9c5806d682b4544dc8d9523b09301"
+    },
+    {
+      "path": "web/src/shared/api/providers.ts",
+      "bytes": 2061,
+      "sha256": "782419ca5533c6eb77e9c7bc67ad1b053e09a3df38edbdcdb11f569803f51d6f"
+    }
+  ],
+  "diff": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/author-oauth.diff",
+  "implemented": [
+    "Existing Settings UI -> paired/no-store API -> same LocalControl/RuntimeClient -> RuntimeHost -> private management child: explicit local Codex grant read and native local logout/readback.",
+    "Read uses resolve_codex_runtime_credentials(read_only=True); logout uses clear_provider_auth(\"openai-codex\"). Fixed private home, no browser-selected profile, no shadow credential store.",
+    "Local absent/present/expired/unknown projections; authenticated provider verification and reachable remain NOT_VERIFIED, inference_ready remains false.",
+    "Existing operation retention, execution/management exclusion, pre-send Stop/fence/deadline checks and process-family drain remain in force. Active execution refuses Settings/logout rather than deleting beneath it.",
+    "Minimal native auth.py overlay disables import-time plugin discovery and refuses corrupt/invalid managed auth stores before stock backup/recovery. Unmanaged controls retain stock behavior."
+  ],
+  "not_implemented": [
+    "Connect/challenge/status/cancel native OAuth worker session adapter and secure challenge UI.",
+    "Fixed auth-only HTTPX UDS/TLS transport and same-forwarder auth relay/DNS worker.",
+    "p4a-codex-auth release/image profile, dual listener identities, startup format4, inventory/completion v3, forwarder intent/drain v2 and exact socket crash/Stop cleanup.",
+    "Existing installed journey extension for Connect -> challenge -> Cancel/settlement -> Stop -> fresh Start without replay -> Stop."
+  ],
+  "blockers": [
+    {
+      "id": "AUTHOR-FULL-OAUTH-INCOMPLETE",
+      "kind": "implementation/bounded-authoring-budget",
+      "detail": "The complete admitted Connect-first vertical was not completed. A working SOURCE local-auth read/logout subset is frozen, not an OAuth completion or a substitute acceptance. Egress/lifecycle and async worker must be implemented before the requested first installed journey."
+    },
+    {
+      "id": "AUTH-REVIEW-QA-NOT-RUN",
+      "kind": "authorization/review boundary",
+      "detail": "Independent complementary reviews and installed QA are not run; parent owns integration and all effects. No account connection is possible in this candidate."
+    }
+  ],
+  "verification_environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+    "uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "common_environment": {
+      "PATH": "/usr/bin:/bin (Node commands explicitly prepend the pinned Node bin)",
+      "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/home",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/t",
+      "ambient": "env -i; pytest plugin autoload disabled"
+    },
+    "source_path_rule": "Python -I -B test launcher explicitly prepends api/src and integrations/hermes/src; pytest -c api/pyproject.toml.",
+    "dependency_links": "Author-created links to pinned main web/node_modules and tools/development/anti-slop/node_modules; no install/update. Both exact symlinks removed before freeze.",
+    "wheel_cache": "Offline uv builds reused /home/kali/.hermes/cache/scratch/p4i-72e9e2c1/control/prepared/uv-cache; no dependency resolution/download online."
+  },
+  "red": [
+    {
+      "command": "python -I -B [explicit source-path pytest launcher] -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_provider_settings_api_source.py -q --tb=short",
+      "exit": 1,
+      "result": "2 failed, 1 passed: auth_read/logout actual public route returned 422 instead of 200",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-api-red.txt"
+    },
+    {
+      "command": "python -I -B [explicit source-path pytest launcher] -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_provider_native_source.py -q --tb=short -k local_auth",
+      "exit": 1,
+      "result": "4 failed: native auth_operation absent",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-native-red.txt"
+    },
+    {
+      "command": "HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned python -I -B integrations/hermes/tests/test_native_build.py NativeInertSeam.test_managed_auth_import_does_not_discover_plugins -v",
+      "exit": 1,
+      "result": "stock native import prefix invoked plugin discovery",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-import-red.txt"
+    },
+    {
+      "command": "HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned python -I -B integrations/hermes/tests/test_native_build.py NativeInertSeam.test_managed_auth_corruption_does_not_backup_log_or_claim_absence -v",
+      "exit": 1,
+      "result": "stock _load_auth_store did not refuse corruption (backup/log/empty-store recovery path)",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-store-red.txt"
+    },
+    {
+      "command": "npm --prefix web test -- src/app/ProviderSettings.test.tsx",
+      "exit": 1,
+      "result": "1 failed, 1 passed: Read local Codex grant control absent",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-web-red.txt"
+    }
+  ],
+  "green": [
+    {
+      "command": "python -I -B [explicit source-path pytest launcher] -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_source.py api/tests/test_provider_settings_denials.py api/tests/test_provider_native_source.py api/tests/test_provider_dispatch_source.py integrations/hermes/tests/test_host.py -q --tb=short",
+      "exit": 0,
+      "result": "74 passed in 8.86s",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-final-source.txt",
+      "boundary": "SOURCE: real ASGI/control UDS/Host and HTTP bytes to synthetic UDS peer; DB/native HTTP peer doubles and local synthetic process family, not installed native boot."
+    },
+    {
+      "command": "HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/source python -I -B integrations/hermes/tests/test_native_build.py -v",
+      "exit": 0,
+      "result": "8 SOURCE AST tests passed",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/native-overlay-green.txt"
+    },
+    {
+      "command": "Isolated prepared/native-venv/bin/python -I -B, exact current auth.py source path, direct _save_codex_tokens -> resolve(read_only=True) -> clear_provider_auth -> absence -> corrupt-store read",
+      "exit": 0,
+      "result": "Synthetic private store; unchanged bytes/census on read and corrupt read; zero socket.connect/getaddrinfo/subprocess/os.system audit events; dashboard absent",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/native-helpers-green.txt",
+      "boundary": "Actual pinned native helpers, no native boot/worker/provider/account. Audit guard is SOURCE observation, not OS confinement."
+    },
+    {
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "84 tests passed",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-web-final.txt"
+    },
+    {
+      "command": "python -I -B -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src api/src/omnis/modules/settings/provider_models.py api/tests/test_provider_native_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_dispatch_source.py",
+      "exit": 0,
+      "result": "23 source files, no issues",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-mypy.txt"
+    },
+    {
+      "command": "python -I -B -m ruff check --config api/pyproject.toml [nine explicitly changed Python source/test files]; ruff format same files",
+      "exit": 0,
+      "result": "All checks passed; formatting applied before final SOURCE/mypy checks"
+    },
+    {
+      "command": "make test-contracts API_PY=/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "exit": 0,
+      "result": "OpenAPI drift, generated TS drift, 6 tooling tests, tsc passed; subsequent lint failure was missing tooling dependency link",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-web-build.txt"
+    },
+    {
+      "command": "make lint-web build-web API_PY=/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "exit": 0,
+      "result": "0 warnings/errors; contracts/design/typecheck/Vite build/4-file manifest passed",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-web-build-repaired.txt"
+    },
+    {
+      "command": "python -I -B ops/prepare_hermes_runtime.py --source-archive /home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar --output /home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared",
+      "exit": 0,
+      "result": "Real source/metadata producer; original archive hash, overlay order/check/apply and exact manifests validated. No --build/native start.",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepare-source.txt"
+    },
+    {
+      "command": "uv-0.12.19 build --wheel --offline --python /home/kali/OmnisAI/api/.venv/bin/python3.13 --out-dir /home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/wheels integrations/hermes; same command with api",
+      "exit": 0,
+      "result": "Adapter/API wheels built offline; all Python archive members matched current source bytes"
+    }
+  ],
+  "preserved_failures": [
+    {
+      "command": "git diff --check before first overlay commit",
+      "exit": 2,
+      "detail": "New unified-patch blank context lines triggered trailing-whitespace check; corrected only new section framing, resealed hash and reapplied exact producer successfully."
+    },
+    {
+      "command": "make test-contracts lint-web build-web ...",
+      "exit": 2,
+      "detail": "Contract/typecheck passed; lint failed ERR_MODULE_NOT_FOUND tsx in worktree anti-slop. Exact pinned dependency link supplied, lint/build then passed.",
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/auth-web-build.txt"
+    },
+    {
+      "command": "prepared/build-venv/bin/python -I -B -c import uv_build ...",
+      "exit": 1,
+      "detail": "uv_build module absent in that build interpreter; no installation attempted. Pinned uv offline build succeeded instead."
+    }
+  ],
+  "sizing": {
+    "settings_producer_sizes": [
+      {
+        "action": "read",
+        "command": 88,
+        "control_dto": 170,
+        "full_frame": 275
+      },
+      {
+        "action": "save",
+        "command": 150,
+        "control_dto": 232,
+        "full_frame": 337
+      },
+      {
+        "action": "auth_read",
+        "command": 93,
+        "control_dto": 175,
+        "full_frame": 280
+      },
+      {
+        "action": "logout",
+        "command": 90,
+        "control_dto": 172,
+        "full_frame": 277
+      }
+    ],
+    "max_reply_frame": 336,
+    "limits_unchanged": {
+      "dto": 3600,
+      "control_frame": 4096
+    },
+    "wheels": [
+      {
+        "name": "omnis_hermes-0.1.0-py3-none-any.whl",
+        "bytes": 70907,
+        "sha256": "7cc106ad0813ac95c2471c6b4a20dbdb63d2c5339657b0d7e257c634ab36b1c7",
+        "python_files_exact": 19
+      },
+      {
+        "name": "omnis_api-0.1.0-py3-none-any.whl",
+        "bytes": 265369,
+        "sha256": "f894e8bfcde4ab19cb193aef8ebe0a2d7b2fa1f1c5cab46628f6baca578ffb41",
+        "python_files_exact": 91
+      }
+    ],
+    "native_prepare_original_files": 15208,
+    "dual_listener_final_producer_sizing": "NOT_RUN: dual-listener implementation absent",
+    "max_max_plus_one": "Final real public API and private control tests accept 4096-byte padded frames and refuse 4097 before any extra writer; finite new auth action/view shapes measured through ProviderCommand/SettingsControl/ControlRequest/_Reply producers.",
+    "stop_inventory": "NOT_RUN for proposed v3/f4: producer is not implemented. Parent proposed 2889/2900 inventory and 3541/4096 envelope are prerequisites, not credited as author final-producer proof.",
+    "other_caps": "No budget/cap increases; runtime frame65536, on-disk16384 and READY128 unchanged."
+  },
+  "native_distribution": {
+    "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "management_patch": "4eb4dcff9d45b25c14c6a3ea945bc38c6ec7b64a8d04fa85de7a4cee867f8681",
+    "management_manifest": "cf78b10333f53a04261f2e62b2febeced13041e52dacafb54334558607850359",
+    "auth_original": "1565d014485f1316e9ed0cf213fa6049c8db3bf6f449b15bfe675219734396b1",
+    "auth_patched": "32e64e69bbde8bdc8005e9cd1faa7620d21390d8e25397ef2da1374f7c17bbc5",
+    "unchanged": "Original main.py management hunk and patched hash unchanged; inert and managed overlays unchanged.",
+    "prepared_source": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared",
+    "remaining": "Native dependency/runtime-source build manifest, adapter injection, release bundle/image and installed artifact are NOT_RUN. Earlier prepared native distribution must not be presented as this candidate."
+  },
+  "first_qa": {
+    "status": "NOT_ADMISSIBLE_IN_THIS_CANDIDATE",
+    "argv": null,
+    "reason": "No p4a-codex-auth profile or Connect/challenge/cancel journey exists yet; an exact runnable OAuth QA argv cannot truthfully be supplied.",
+    "consumer": "Extend only cli/integration/installed_stop.py::run_installed_stop and installed_browser.mjs; preserve existing browser180s bound.",
+    "prerequisites": [
+      "Finish missing product worker/egress/lifecycle producer and same-channel SOURCE denials/settlement",
+      "Run final producer max/max+1 with actual Stop inventory/full envelope",
+      "Rebuild final exact native/adapter/release distribution",
+      "Two independent complementary exact-snapshot reviews",
+      "Parent registers fresh roots/identities/rollback before any installed effects"
+    ],
+    "journey": "Connect -> native challenge -> Cancel/settlement -> Stop/readback both channels -> explicit fresh Start without auth replay -> Stop. Operator approval/readback remains later separate stage."
+  },
+  "effects": {
+    "provider_dns_or_provider_contact": false,
+    "account_connected": false,
+    "inference": false,
+    "target_contact": false,
+    "physical_docker_or_native_oci_or_pg_or_browser_qa": false,
+    "native_boot": false,
+    "native_source_helpers": "Executed only with synthetic credentials in private author home; no real OAuth worker/network.",
+    "personal_env_auth_config_sessions_logs_read": false,
+    "protected_paths_read_hashed_modified": false,
+    "main_tracked_files_modified_or_committed": false,
+    "push": false,
+    "cleanup": "Synthetic SOURCE process tests verify family drained; author-created dependency symlinks removed; worktree clean; build/source fixtures retained under control.",
+    "offline_settings_installed_proof": "3926649/f8d4a7c reused at unchanged scope, not rerun or recertified."
+  },
+  "review": "NOT_REVIEWED; parent integration/adjudication pending; no APPROVED/phase-closed claim",
+  "freeze": "No product/report edits after this frozen report; no successor implementation begun."
+}

@@ -1,7 +1,7 @@
 ---
 name: omnis-hermes-runtime
 description: "Use when integrating Omnis with native Hermes."
-version: 0.1.9
+version: 0.1.10
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -30,6 +30,9 @@ Load the `hermes-agent` skill and relevant official documentation; read architec
 
 ## Pitfalls
 Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundary. A simulated RPC peer is not the real runtime; an installed skill is not a validated investigator. Keep the development MCP tools out of the assessment runtime.
+
+- Prove cross-process authority revocation before the first cancellation/transport-finalizer await. A genuine HTTPcore trace veto can still read a stale native lease after the Host enters STOPPING; queuing SIGTERM does not prove its handler already ran. Exercise an otherwise-valid native send at that cleanup cut and preserve the admitted control, rather than obtaining denial from a missing new bootstrap prerequisite.
+- Preserve the native terminal cause when cancellation or expiry overlaps transport failure. Joining a worker proves local settlement, not the outcome of a possibly sent request. Keep ambiguous errors INDETERMINATE, known pre-send cancellations distinct, and positively completed saves visible after Cancel; cancellation is neither logout nor upstream revocation.
 
 - Attest live mounted state from the running container's mount namespace, not a Docker archive copy: `docker cp` may miss tmpfs contents. Use a finite, isolated installed-interpreter observer restricted to the exact synthetic paths; require unchanged file hashes and exact boolean marker absence, join the observer before family/drain checks, and retain a sensitive positive/negative control. Static installed source files can still be archive-attested separately.
 - Renew actual stock-client authority immediately after successful launch, before blocking postlaunch census/observation; do not rely on a periodic task that has not yielded or extend the product grant to accommodate the harness. Register and checkpoint partial launch/renew/family evidence before an observer can refuse. A later successful run does not establish the cause of an older signal exit or reconcile its uncertainty.

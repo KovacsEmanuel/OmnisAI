@@ -1,0 +1,145 @@
+{
+  "snapshot": "16dbaafed90cf4af15d99b0ef16e36bbdfb91acd",
+  "base": "a66c5cf2bdb53280dd42ef962259dae4fbe4c30d",
+  "verdict": "CHANGES_REQUESTED_NOT_ADMITTED_INSTALLED",
+  "author_bindings_matched": 42,
+  "unique_findings": 4,
+  "reproductions": [
+    {
+      "finding": "OAUTH-SAFETY-F01",
+      "reproducer_exit": 0,
+      "observed": {
+        "stop_cut": {
+          "host_state_at_send": "STOPPING",
+          "native_post_after_stop": {
+            "denied": false,
+            "nonempty_writes": 1
+          },
+          "no_socket_io": true,
+          "process_signal_not_exercised": true,
+          "source_cut": "actual management_http.request writer.wait_closed before RuntimeHost.stop signal block"
+        },
+        "trace_controls": {
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "positive": {
+            "denied": false,
+            "nonempty_writes": 1
+          },
+          "revoked_negative": {
+            "denied": true,
+            "nonempty_writes": 0
+          }
+        }
+      },
+      "stdout": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F01.out",
+      "stderr": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F01.err",
+      "disposition": "OPEN_CONFIRMED_SOURCE_BLOCKER"
+    },
+    {
+      "finding": "OAUTH-SAFETY-F02",
+      "reproducer_exit": 0,
+      "observed": {
+        "without_cancel": {
+          "native_status": "error",
+          "projection": "INDETERMINATE",
+          "worker_settled": true,
+          "sessions_left": 0
+        },
+        "cancel_overlaps_lost_reply": {
+          "native_status": "error",
+          "projection": "CANCELLED",
+          "worker_settled": true,
+          "sessions_left": 0
+        },
+        "boundary": "Exact prepared native worker AST + actual NativeOAuth; HTTP response-loss seam only; no store/network"
+      },
+      "stdout": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F02.out",
+      "stderr": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F02.err",
+      "disposition": "OPEN_CONFIRMED_SOURCE_BLOCKER"
+    },
+    {
+      "finding": "OAUTH-SAFETY-F03=OAUTH-NORM-F01",
+      "reproducer_exit": 0,
+      "observed": {
+        "positive": {
+          "code_nodes": 1,
+          "unknown": false
+        },
+        "terminal": {
+          "code_nodes": 0,
+          "unknown": false
+        },
+        "reload_poll_error": {
+          "code_nodes": 1,
+          "unknown": false
+        },
+        "command_poll_error": {
+          "code_nodes": 0,
+          "unknown": true
+        },
+        "session_error": {
+          "code_nodes": 0,
+          "unknown": false
+        },
+        "real_query_error_retains_data": true,
+        "boundary": "actual TS component transpiled in memory; hook state seams; real QueryClient; no DOM/browser"
+      },
+      "stdout": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F03_OAUTH-NORM-F01.out",
+      "stderr": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-SAFETY-F03_OAUTH-NORM-F01.err",
+      "disposition": "OPEN_CONFIRMED_SOURCE_BLOCKER"
+    },
+    {
+      "finding": "OAUTH-NORM-F02",
+      "reproducer_exit": 1,
+      "observed": {
+        "boundary": "SOURCE real receipt/paths/listener ownership; synthetic Engine and intercepted signal, no real signal or container effect",
+        "rows": [
+          {
+            "case": "matching",
+            "actual_auth_identity_matches": true,
+            "schema": "accepted",
+            "emergency_inventory": "accepted",
+            "first_signal_attempts": [
+              15
+            ]
+          },
+          {
+            "case": "wrong_filesystem_inode",
+            "actual_auth_identity_matches": false,
+            "schema": "accepted",
+            "emergency_inventory": "accepted",
+            "first_signal_attempts": [
+              15
+            ]
+          },
+          {
+            "case": "wrong_kernel_inode",
+            "actual_auth_identity_matches": false,
+            "schema": "accepted",
+            "emergency_inventory": "accepted",
+            "first_signal_attempts": [
+              15
+            ]
+          }
+        ]
+      },
+      "stdout": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-NORM-F02.out",
+      "stderr": "/home/kali/.hermes/cache/scratch/or-zij0ge34/OAUTH-NORM-F02.err",
+      "disposition": "OPEN_CONFIRMED_SOURCE_BLOCKER"
+    }
+  ],
+  "scope": "Parent executed original bounded reviewer scripts, actual source consumer with declared synthetic seams; no provider/account/native boot/browser/Docker/PG/inference/target and no real signals. Reproducer exit0 confirms a bug, not product PASS.",
+  "repair_admission": "Same sole-author worktree, four independent minimal RED/GREEN fixes then focused complementary re-review. F01 needs actual cross-process revocation before cleanup yield; merely queueing SIGTERM is not acknowledged revocation. Existing owner may use a minimal private inherited lifeline if no existing primitive suffices, without new owner/service/mount/receipt limits.",
+  "retained_incidents": [
+    "Reviewer Vitest wrote the exact main node_modules cache named in review-oauth-norm; preserved, no rollback or clean-read-only claim. Parent UI reproduction used in-memory TypeScript/QueryClient, not Vitest.",
+    "Prior author SOURCE timeout has no original family receipt; later zero census does not erase it.",
+    "Prior two default-concurrency web failures have unknown cause; maxWorkers2 PASS is not canonical."
+  ],
+  "phase_limits": [
+    "P4a-minim overall IN_PROGRESS/NOT_ACCEPTED",
+    "Offline Settings accepted at its original scope",
+    "Installed auth challenge/cancel and operator approval not run",
+    "P2-live and final canonical not run; STOP before P3"
+  ]
+}

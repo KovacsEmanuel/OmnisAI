@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "role": "independent_safety_reviewer",
+  "verdict": "CHANGES_REQUESTED",
+  "decision": "Do not admit the first installed native challenge -> Cancel probe until the concrete new-consumer findings below are adjudicated and fixed/re-reviewed.",
+  "head": "16dbaafed90cf4af15d99b0ef16e36bbdfb91acd",
+  "base": "a66c5cf2bdb53280dd42ef962259dae4fbe4c30d",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "scratch": "/home/kali/.hermes/cache/scratch/osr-l07qkncw",
+  "native_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+  "prepared_native_oauth": {
+    "path": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared-continued/source/hermes_cli/web_routers/oauth.py",
+    "sha256": "f24142234ba90516ef94499a052ee3d0b111976f5e07ece1ac9ca00a1c317290"
+  },
+  "scope": "Read-only SOURCE review of new native OAuth authority, HTTPX/httpcore pre-send veto, cancellation/save ordering and uncertainty, fixed provider relay and dual-listener drain, secret-bearing projections, and the existing installed journey's new oracle. Not comprehensive P4a acceptance, integration, packaging acceptance, physical QA or live account authentication.",
+  "independence": {
+    "author_reports_read": [
+      "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/author-oauth.json",
+      "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/author-oauth-continued.json"
+    ],
+    "normative_reviewer_report_read": false,
+    "product_writes": false,
+    "commits": false
+  },
+  "snapshot_verification": {
+    "changed_files_hashed": 42,
+    "unique_paths": 42,
+    "author_manifest_mismatches": [],
+    "manifest": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/author-oauth-continued.json#/files",
+    "head_readback_matches": true,
+    "git_status_short_after_checks": "",
+    "protected_paths_read_or_hashed": false,
+    "note": "All 42 exact candidate bindings were independently compared with the author manifest; hashing is not a claim of equally deep review of all 42 files. Focused reviewed hashes are enumerated below."
+  },
+  "findings": [
+    {
+      "id": "OAUTH-SAFETY-F01",
+      "severity": "HIGH",
+      "title": "Host Stop yields before revoking the native pre-send authority",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:947-986",
+        "integrations/hermes/src/omnis_hermes/management_http.py:65-68",
+        "integrations/hermes/src/omnis_hermes/management_oauth.py:145-157",
+        "integrations/hermes/src/omnis_hermes/management_server.py:206-211"
+      ],
+      "mechanism": "RuntimeHost.stop changes state to STOPPING, cancels settings_task and awaits its settlement before sending SIGTERM to the native child. An in-progress management_http.request enters its existing writer.wait_closed cleanup await (up to 0.2s). Meanwhile the native worker has its separate, still-valid deadline and cancellation flag. FixedClient's genuine pre-header trace calls NativeOAuth.guard, which cannot see Host STOPPING. The recently added signal revocation is later in the sequence, so it does not close this legal pre-send window.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/osr-l07qkncw/probe.py",
+      "actual_result": {
+        "host_state_at_send": "STOPPING",
+        "native_post_after_stop": {"denied": false, "nonempty_writes": 1},
+        "revoked_positive_control": {"denied": true, "nonempty_writes": 0},
+        "ordinary_positive_control": {"denied": false, "nonempty_writes": 1}
+      },
+      "reproducer_boundary": "Actual Host.stop and actual management_http.request cancellation/finally ordering; synthetic reader/writer pauses at the real cleanup await. Actual NativeOAuth.guard and real HTTPcore1.0.9 HTTP11Connection consume the request against an in-memory stream. Native context fields are synthetic valid live authority, no child process or signal is sent, no provider or socket traffic. This proves the source ordering window, not an installed signal-race frequency.",
+      "violated_requirement": "p4a-minim.md:107 Stop/expiry close admission before drainage; active review requires actual provider pre-send authority, not a still-live old native grant after the Host stops.",
+      "minimal_fix": "Make native authority revocation precede the first yielding cancellation/transport-cleanup step on Stop, using the existing owner/channel and fail-closed pre-send barrier. Do not rely solely on the later SIGTERM handler or on lease expiration. Retain uncertain in-flight effects and drain before another writer. Add the actual cancellation-finalizer cut with an otherwise-valid native send, plus the same-channel admitted control.",
+      "status": "OPEN_SOURCE_REPRODUCED"
+    },
+    {
+      "id": "OAUTH-SAFETY-F02",
+      "severity": "HIGH",
+      "title": "Cancel overwrites native transport uncertainty with successful CANCELLED",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/management_oauth.py:233-245",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:382-399",
+        "prepared native hermes_cli/web_routers/oauth.py:328-334"
+      ],
+      "mechanism": "When Cancel overlaps an uncertain native request, the native worker catches the transport exception and records status=error. NativeOAuth.operate ignores that status if cancelled is true: its terminal precedence becomes CANCELLED (or EXPIRED), not INDETERMINATE. Host then takes the successful terminal/readback branch and publishes CONFIRMED rather than the management_failed/indeterminate path. Joining the worker proves local settlement, not the outcome of a potentially sent request.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/osr-l07qkncw/ambiguity-probe.py",
+      "actual_result": {
+        "without_cancel": {"native_status": "error", "projection": "INDETERMINATE", "worker_settled": true, "sessions_left": 0},
+        "cancel_overlaps_lost_reply": {"native_status": "error", "projection": "CANCELLED", "worker_settled": true, "sessions_left": 0}
+      },
+      "reproducer_boundary": "Exact AST of prepared pinned _codex_full_login_worker with actual NativeOAuth; only the request helper is replaced by a gated HTTPX ReadError seam. Both controls execute the native catch/status producer. No real HTTP send/store/account effects and no claim of a remote response loss experiment.",
+      "violated_requirement": "p4a-minim.md:107 transport/lost-response uncertainty -> INDETERMINATE, no optimistic replay; cancellation and worker drainage must not claim a known remote outcome.",
+      "minimal_fix": "Preserve a native error/ambiguous-effect terminal cause ahead of cancellation/expiry when projecting a settled worker. Only a known no-uncertain-effect cancellation should become CANCELLED. Retain SAVED precedence for a positively completed save, and keep cancellation distinct from logout/absence. Test cancel overlapping a lost response and the ordinary cancelled-before-effect control.",
+      "status": "OPEN_SOURCE_REPRODUCED"
+    },
+    {
+      "id": "OAUTH-SAFETY-F03",
+      "severity": "MEDIUM",
+      "title": "Reloaded challenge remains visible after current-operation polling fails",
+      "locations": [
+        "web/src/features/engagement/ProviderSettings.tsx:23-35",
+        "web/src/features/engagement/ProviderSettings.tsx:73-76"
+      ],
+      "mechanism": "After reload, receipt is null and the challenge comes from status.data. TanStack Query retains successful data on a failed refetch. The unknown predicate only handles status.isError when receipt?.status is PENDING, so the reload/current path keeps showing the old code/link as pending after a CONTROL_UNAVAILABLE or invalid-response error while the browser session remains valid. Terminal/expired status can no longer be confirmed; the polling time limit itself also does not erase the retained projection.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/osr-l07qkncw/ui-probe.cjs",
+      "actual_result": {
+        "real_query_error_retains_data": true,
+        "positive": {"code_nodes": 1, "unknown": false},
+        "terminal": {"code_nodes": 0, "unknown": false},
+        "reload_poll_error": {"code_nodes": 1, "unknown": false},
+        "command_poll_error": {"code_nodes": 0, "unknown": true},
+        "session_error": {"code_nodes": 0, "unknown": false}
+      },
+      "reproducer_boundary": "Actual candidate TSX transpiled in memory with TypeScript; React/query/session hook-state seams, actual QueryClient success->failed-refetch behavior. No mounted DOM or browser; assertion counts the actual returned code elements without printing challenge text.",
+      "violated_requirement": "Secure current/reload projection must not continue displaying an old challenge once its current validity cannot be established; terminal/uncertain UI must clear the code rather than leaving a stale live-looking flow.",
+      "minimal_fix": "Treat current-operation status errors as unknown regardless of whether a local command receipt exists; suppress/clear secret-bearing cached challenge on error, authority/session loss and the finite UI validity limit. Add a reload-first CHALLENGE -> failed GET control with no new Connect, alongside normal terminal clearing.",
+      "status": "OPEN_SOURCE_REPRODUCED"
+    }
+  ],
+  "positive_review_observations": [
+    "HTTPcore1.0.9 Trace.__enter__ invokes the synchronous extension without swallowing ValueError. Real HTTP11Connection positive/revoked controls show one nonempty write versus zero. The trace hook is a real veto, not merely observational; F01 is stale authority propagation, not an ineffective hook.",
+    "FixedClient restricts POST to the three exact HTTPS URLs, rejects caller headers except exact Content-Type, and rejects arbitrary extensions/proxy/transport/redirect seams. HTTPTransport uses the fixed private UDS, trust_env=False and retries=0; default TLS certificate/hostname verification is not disabled. No TLS/UDS integration was executed here.",
+    "Managed native overlay reduces start/exchange attempts to one and stops transient polling errors rather than retaining stock six-blip retries. Ordinary pending polling remains finite and is distinct from replaying an uncertain request.",
+    "Native cancellation and token save use the same upstream session lock; source order includes the managed profile_scope guard before native save, and approved status has SAVED precedence over a later cancel. Full native save-race execution was not independently rerun; original author evidence is not promoted into this review's test count.",
+    "SOURCE controls show one retained operation across repeated status reads, no 64-slot consumption per poll, native handle retained before worker start, cancel holds active exclusivity until settlement, and terminal projection clears session data.",
+    "Relay validates the entire DNS answer, rejects scoped/site-local/mapped/private/non-global forms, selects one numeric sockaddr and has no second DNS/fallback. SOURCE tests show inert startup, exactly one DNS invocation, mixed-answer refusal before connect and outstanding resolver refusal at drain.",
+    "Both forwarder listeners close before their shared20s wait. Unsettled DNS/transport prevents DRAINED receipt. Auth identity is attached to the same forwarder, startupformat4/inventory3/intent-drain2 remain separate from historical forms, and exact socket identity/kernel ownership is checked before cleanup. Physical Stop/crash behavior remains NOT_RUN.",
+    "Local credential read uses read_only=True and the managed corruption overlay refuses recovery instead of backup/heal. Logout uses the native clear helper and requires absence readback. No new secret store or inference-ready claim was found in this scope.",
+    "The installed journey avoids reading the visible challenge text or taking a screenshot during a challenge; its top-level catch emits a fixed failure marker. It is still only an inspected future runner, not executed installed evidence."
+  ],
+  "executions": [
+    {
+      "id": "existing-source-controls",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/osr-l07qkncw PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/osr-l07qkncw PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/osr-l07qkncw/pc -c 'import sys;sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/api/src\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/integrations/hermes/src\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/cli/src\"];import pytest;sys.exit(pytest.main([\"-c\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/api/pyproject.toml\",\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/api/tests/test_provider_oauth_source.py\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/cli/tests/test_auth_forwarder.py\",\"-q\",\"--tb=no\"]))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/osr-l07qkncw",
+      "timeout_seconds": 60,
+      "exit": 0,
+      "result": "12 passed, 14 subtests passed in 1.03s",
+      "limit": "SOURCE only; local UDS and scripted DNS/connect/native worker seams, no provider traffic."
+    },
+    {
+      "id": "actual-httpcore-veto-and-host-stop-cut",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/osr-l07qkncw PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/osr-l07qkncw /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/osr-l07qkncw/pc /home/kali/.hermes/cache/scratch/osr-l07qkncw/probe.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/osr-l07qkncw",
+      "timeout_seconds": 20,
+      "exit": 0,
+      "result": "Reproducer assertions passed: actual trace veto works; native guard still permits a header at the Host STOPPING cleanup cut.",
+      "sha256": "10228250cd78f93b50b9fd3cba132426f3edfc4de3f0124db922b8d3a4ed6636"
+    },
+    {
+      "id": "cancel-overlap-uncertainty",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/osr-l07qkncw PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/osr-l07qkncw /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/osr-l07qkncw/pc /home/kali/.hermes/cache/scratch/osr-l07qkncw/ambiguity-probe.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/osr-l07qkncw",
+      "timeout_seconds": 20,
+      "exit": 0,
+      "result": "Reproducer assertions passed: identical native error becomes INDETERMINATE without cancellation, CANCELLED with overlapping cancellation; both worker threads joined and native registries empty.",
+      "sha256": "6864043a8e973e34f3e320d18dead25b3105e77744e4f0c04ac4aa14e7391b5b"
+    },
+    {
+      "id": "reload-error-projection",
+      "command": "env -i HOME=/home/kali/.hermes/cache/scratch/osr-l07qkncw PATH=/usr/bin:/bin /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node /home/kali/.hermes/cache/scratch/osr-l07qkncw/ui-probe.cjs",
+      "cwd": "/home/kali/.hermes/cache/scratch/osr-l07qkncw",
+      "timeout_seconds": 20,
+      "exit": 0,
+      "result": "Reproducer assertions passed across ordinary pending, terminal, reload polling failure, command polling failure and expired-session states. Reload failure alone retained a visible code with unknown=false.",
+      "sha256": "db1adc303b02505ecdc2a7352a29be1b7af54287a77fb84cf9fe6d6c5a2f1a98"
+    }
+  ],
+  "reviewed_hashes": {
+    "integrations/hermes/src/omnis_hermes/management_oauth.py": "37dbaf3281b547da3219a0da1b3ab9998bcafcb82e6e9833820255afa681269c",
+    "integrations/hermes/src/omnis_hermes/management_server.py": "d69fdd43e9a8ae82b3e6810703c37307c92c6bbab232c0dbf185f977fd254725",
+    "integrations/hermes/src/omnis_hermes/management_http.py": "5568a03c779c388a61653e5047ef0005203d478cfeef9f42c50a4d2e98b2270b",
+    "integrations/hermes/src/omnis_hermes/management_auth.py": "14510773ad948b96080bcf32456754b045c46e8d47a98df5e7e034338688f0d3",
+    "integrations/hermes/src/omnis_hermes/management_contract.py": "c68d97a7b55968f7bdccb857308126017b2c094355e878bb4ea278672545beaa",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "77b93127f2d71c15c540f81712e1f6faf02d05fd45d165d7107d876bd7fc4862",
+    "integrations/hermes/upstream/omnis-management.patch": "d1c1775e33cff654b1ec28013dc2746b637d837b5bedf2c424b184650649de72",
+    "api/src/omnis/supervisor/runtime_client.py": "6c8443d8788faefa8b81d845112fed8dc371001ed0212a4288fdee7e94f09216",
+    "api/src/omnis/modules/settings/provider_models.py": "20fe531b466ce434cfbd471957d09f4d7970b3420a96f71a13471fb522bbdfda",
+    "api/src/omnis/modules/settings/provider_routes.py": "c29d29157bda7598b935e8088a0a93592d4ca696ded8c9135c05f6a93bc85cde",
+    "api/tests/test_provider_oauth_source.py": "a0ee1e533fe874bdd2e162adf8924c8322c694a10b791bf494f043d16dff1ef8",
+    "cli/src/omnis_cli/forwarder.py": "42a0b8425c7a570f11768a64707893d93eb541103f73d4d5871f7d0d9bbf4b0a",
+    "cli/src/omnis_cli/lifecycle.py": "2b3b08b97d09da2a0f5a5a408044757e4b7dd145665b2a227752dec4aae84562",
+    "cli/src/omnis_cli/start.py": "5346a4a5c7e5c44b0296fd89607f21c0de39fb7dcc49a8b241797d6b43f49a4a",
+    "cli/src/omnis_cli/start_runtime.py": "9c4985c41c24a36e57a80f93b74938deda52b4b14c635da119f8ea8c4fbffa81",
+    "cli/src/omnis_cli/stop.py": "380d07fb15197807d93ab6a5bf968c095c866997b3edbf7a767c7c599966243f",
+    "cli/src/omnis_cli/stop_owner.py": "d03016f16372fad2ab79fee002128dadb716bdb465ab428f7176207771988443",
+    "cli/src/omnis_cli/stop_receipt.py": "73c52f9f594d2f5d9038e9ff0436b43986a580c46a77fee5ea070fee02dab75f",
+    "cli/src/omnis_cli/compose.py": "5fa77c5ae219eee1f63da118f7391e8abdb8e02fce8b42aa725a75813fc6fc3a",
+    "cli/src/omnis_cli/release.py": "4a021c83a318dd206c838899a012a1ba786748e8b74ff45ce4714c0841eaeadc",
+    "cli/tests/test_auth_forwarder.py": "998de6636584c628e98ee5d27b86cebae0fb498f82bf5516223035e2c1c00344",
+    "cli/integration/installed_browser.mjs": "785ae7b0f79327d539b752ebb11d135cd241950cd315bd4e512bed66b38eb688",
+    "ops/build_control_bundle.py": "708e36bfc8e7c98faa3ef6f5de5cd4af4a8c611fb289ff69520680929af32e94",
+    "web/src/features/engagement/ProviderSettings.tsx": "4fc21f4585d749dff1a50a68db5249fafffce8946f01e78563e0ec6a0f5a8a05",
+    "web/src/app/ProviderSettings.test.tsx": "8cd72fdbd8a16fb5ee320d467681a1835438a06d8d5458e6f185b4ad172f6886"
+  },
+  "not_run": [
+    "Installed native/OCI and fresh profile lifecycle QA",
+    "Real provider DNS/TCP/TLS or account challenge/approval",
+    "TLS handshake over auth UDS and live provider response",
+    "PostgreSQL, browser, mounted React DOM and canonical make check",
+    "Physical signal/save/Stop crash cuts and installed dual-listener receipt",
+    "Actual native credential save-lock overlap independently rerun by this reviewer",
+    "Target traffic, inference, existing operator profile access"
+  ],
+  "preserved_failures_and_limits": [
+    "Author's 180s timed-out SOURCE fixture remains historically UNKNOWN: final zero process census does not supply its missing original family-drain receipt.",
+    "Two unchanged full-web default-worker failures retain unknown cause; 85 pass with maxWorkers=2 is not a canonical full gate.",
+    "Author native-worker evidence used SCRIPTED HTTPX, not TLS/live provider effects. Offline Settings proof 3926649/f8d4a7c is reused unchanged, not re-certified here.",
+    "Reviewer Node preflight initially failed MODULE_NOT_FOUND for esbuild (exit1,20s limit); no install or repository change. The present TypeScript dependency supplied in-memory transpilation instead.",
+    "Reproducer exit0 means the assertions demonstrating defects passed; it is not a product PASS or fixed result.",
+    "No universal absence-of-gaps or arbitrary-TCB-compromise protection is claimed. Fixed TCP relay alone is not Host/path confinement."
+  ],
+  "cleanup": {
+    "source_tests_returned_normally": true,
+    "reproducer_worker_threads_joined": true,
+    "synthetic_native_sessions_empty": true,
+    "created_external_services_or_process_families": false,
+    "local_fixture_sockets": "Existing SOURCE tests own temporary UDS fixtures and close/remove them; test process returned exit0.",
+    "retained_files": [
+      "/home/kali/.hermes/cache/scratch/osr-l07qkncw/probe.py",
+      "/home/kali/.hermes/cache/scratch/osr-l07qkncw/ambiguity-probe.py",
+      "/home/kali/.hermes/cache/scratch/osr-l07qkncw/ui-probe.cjs",
+      "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-oauth-safety.json"
+    ],
+    "repo_clean": true,
+    "personal_credential_config_env_session_log_reads": false,
+    "protected_document_reads_hashes_writes": false
+  },
+  "tooling": {"Reticle": "NOT_APPLICABLE_SOURCE_REVIEW", "Chisel": "BLOCKED_NO_GO"},
+  "lessons_for_parent_skill_update": [
+    "Exercise the real transport trace context, not only a mock invoking the callback: a genuine veto and freshness of the authority it reads are separate properties.",
+    "Test terminal-cause precedence under overlapping cancellation: local settlement/cancel cannot erase a native producer's ambiguous-effect error.",
+    "Test reload/current-operation projections separately from post-command projections; cached query data survives failed refetch and a local-receipt conditional can leave challenge data visible."
+  ],
+  "next": "Parent reproduces/adjudicates F01-F03, performs minimal fixes with same-channel controls, then requests focused re-review on changed exact bytes before any installed challenge/cancel effect. No product, skills or status map edits made by this read-only reviewer."
+}

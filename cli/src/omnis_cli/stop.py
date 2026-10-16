@@ -114,7 +114,8 @@ def _listener_absent(record: dict[str, object]) -> None:
     if record.get("format") == 4:
         auth = mapping(record["auth"])
         if any(
-            len(fields := row.split()) >= 7 and fields[6] == str(auth["listener"]).encode()
+            len(unix_fields := row.split()) >= 7
+            and unix_fields[6] == str(auth["listener"]).encode()
             for row in Path("/proc/net/unix").read_bytes().splitlines()[1:]
         ):
             raise StartError("STOP_READBACK_UNCERTAIN", 4)

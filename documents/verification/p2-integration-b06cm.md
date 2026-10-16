@@ -71,6 +71,12 @@ Inspecția părintelui localizează o redundanță concretă în `ModelProjectio
 
 Parent readback: `proc_2d9a6326b924` exited2, receipt strict/code2/drained;5recorduriPG/68spans și sumarul real corespund originalului. Daemon/imagine identice, CID `a486c0d49f516bdc81ed9020dfac91c0fb0099d6632a5e34c0f147640ea984d7`, proiect `omnis-p01-639a174aa22440bca551a3664e6655b6`, rețele/UDS/locks/postmaster și13PID-uri fixate absente. Date cu dev/inode/uid/mode originale păstrate în `/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/db-77e77466e437413d`; nicio relansare/curățare/adopție. Toate FAIL-urile anterioare rămân; mandatul activ continuă pe remediul demonstrat, nu încă o predare de diagnostic.
 
+### Review optimizare — eligibilitate inline-v4 de conservat
+
+[Autorul](p2-integration-projection-reuse-author.json) a redus validările directe3→1 per _produce, cu exact bytes și revalidare nouă la read/replay;171SOURCE PASS72.41s/quality3exit0, compiler/evaluator/executor pins neschimbate. Două reviews [normativ](p2-integration-projection-reuse-review-norm.json)/[safety](p2-integration-projection-reuse-review-safety.json) pe16SHA sunt **CHANGES_REQUESTED** pentru aceeași constatare MEDIUM, aliasuri **NORM-PROJECTION-F01 / REUSE-SEC-F01**. Validarea stage cu manifest4 activează method_execution, dar wrapperul standalone anterior deducea3 și refuza; validările nu sunt echivalente pe această formă inline-v4.
+
+Părintele a executat copia byte-exact a reproducerului normativ în `prv4-parent-vhyc94qj`: v3 înainte/după ACCEPTED,1INSERT și payload identic; inline-v4 valid la stage, wrapperul public și producerul original refuză MODEL_PROJECTION_REJECTED/0INSERT, candidatul admite1INSERT. Exit0 înseamnă comparație executată, nu PASS de produs; SQL/_verify_graph doubles, fără PG/leak/live. Remediu admis minimal: refuz explicit composition_version4 înainte de projection_input, păstrând reutilizarea intra-apel și toate guardurile. Unicul dezvoltator adaugă regresia valid-inline-v4 și controlul v3, apoi re-review focalizat; nicio QA PG pe candidatul neaprobat. Rapoartele originale sunt versionate byte-exact; nu se extinde v4 sub pretext de optimizare și nu se mărește deadline-ul.
+
 ### D1 — descriptor contabil finit, fără native-turn fabricat
 
 - Se alege varianta minimă: payloadul exact `task_model_preflight` v2/v3 și validatorul/receiptul cold existente, fără opcode/overlay/Host nou și fără promovarea implicită a batch2 v4 în model-preflight. `FinalModelRequest` și schema nativă rămân neschimbate; `native_turn=None` nu este admis acolo.

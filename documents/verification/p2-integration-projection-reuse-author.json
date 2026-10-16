@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_VERIFIED_READY_FOR_TWO_REVIEWS",
+  "acceptance": "NOT_ACCEPTED_PG; historical real-PG duplicate deadline FAIL retained",
+  "base": "cb0b66a1df3b104ac62bccf38f0619b781221d6f",
+  "workdir": "/home/kali/OmnisAI",
+  "owned_modified_files": [
+    "api/src/omnis/modules/runs/model_projection.py",
+    "api/tests/test_model_projection.py",
+    "api/tests/test_model_projection_storage.py"
+  ],
+  "changes": [
+    "_produce consumes only the composition already fully validated by stage_payload in the same invocation.",
+    "Apply existing strict DATA projection_input immediately after exact entry/composition selection, before any later await.",
+    "Remove only the repeated same-entry/manifest validate and public-wrapper revalidation; no cache, bypass flag, trusted-record framework, schema/Host/ledger/configuration change.",
+    "Public managed_composition.project_model_input stays strict and byte-unchanged; all owner/run/binding/ref/cardinality/brief/selection and _verify_graph calls remain.",
+    "Regression test counts the real wrapped validator and compares exact canonical model input to the independent strict public path, then readback and replay without a second insert.",
+    "Thirteen actual-service positive/deny/restored controls cover owner/run, binding/composition digest, bool revision, resealed entry goal, duplicate/poisoned composition, selection, qualification, unclassified/known-secret text and resealed stored projection; no writes on refusal."
+  ],
+  "minimal_product_diff": {
+    "insertions": 5,
+    "deletions": 3,
+    "path": "api/src/omnis/modules/runs/model_projection.py"
+  },
+  "red_green": {
+    "property": "Explicit redundant-work bound, not a functional-failure or wall-time assertion.",
+    "red": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short",
+      "exit": 1,
+      "failed": 1,
+      "duration_seconds": 0.49,
+      "reason": "Real same-composition validator census has 3 entries; expected 1; exact projected-byte assertion already passed.",
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/red.txt"
+    },
+    "green": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short",
+      "exit": 0,
+      "passed": 1,
+      "duration_seconds": 0.49,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/green.txt"
+    },
+    "actual_counts": {
+      "initial_produce_before": 3,
+      "initial_produce_after": 1,
+      "readback_produce_after": 1,
+      "replay_produce_after": 1,
+      "verify_graph_awaits_after_three_successful_calls": 3
+    },
+    "limits": "SQL and _verify_graph are explicit doubles in SOURCE tests. Count excludes setup/public-wrapper baseline and any work internal to real durable qualification. No PG savings or 4-second acceptance inferred."
+  },
+  "verification": [
+    {
+      "name": "initial affected projection tests",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_storage.py api/tests/test_model_projection_denials.py -q --tb=short",
+      "exit": 0,
+      "passed": 66,
+      "duration_seconds": 11.42,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/projection-tests.txt",
+      "note": "Before formatting-only test correction."
+    },
+    {
+      "name": "final no-effect collection",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_storage.py api/tests/test_model_projection_denials.py api/tests/test_managed_composition.py api/tests/test_model_admission.py api/tests/test_model_context.py api/tests/test_model_configuration.py api/tests/test_model_preflight_control.py --collect-only -q",
+      "exit": 0,
+      "collected": 171,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/collect.txt"
+    },
+    {
+      "name": "final affected SOURCE regressions",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_storage.py api/tests/test_model_projection_denials.py api/tests/test_managed_composition.py api/tests/test_model_admission.py api/tests/test_model_context.py api/tests/test_model_configuration.py api/tests/test_model_preflight_control.py -q --tb=short",
+      "exit": 0,
+      "passed": 171,
+      "duration_seconds": 72.41,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/regressions.txt",
+      "note": "After last source/test edit; includes existing nominal/duplicate/conflict source consumer and unchanged timing instrumentation."
+    },
+    {
+      "name": "final Ruff",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/ruff.txt"
+    },
+    {
+      "name": "final format",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/format.txt"
+    },
+    {
+      "name": "final strict mypy",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+      "exit": 0,
+      "files": 3,
+      "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/mypy.txt"
+    },
+    {
+      "name": "diff whitespace/index status",
+      "command": "git diff --check && git status --short --branch && git diff --numstat && git diff --cached --stat",
+      "exit": 0,
+      "index_empty": true
+    }
+  ],
+  "fingerprint": {
+    "before_edit_checked": true,
+    "producer_in_existing_behavior_or_executor_closure": false,
+    "closures_changed": false,
+    "compiler": "sha256:7958c3676989ca829d80ceac99284118ad6b08af7994f0e43211a8b06ad8733b",
+    "evaluator": "sha256:47fddea827616d5fe1779e653c71e487d072b9c11ccde3d4598bc2ec8715b6d9",
+    "executor": "sha256:8a2772da2182682eee14e275bf84529939e4575d418bccd3d42a66d59e026e9e",
+    "identities_unchanged_after_edit": true,
+    "interpretation": "No closure exclusions or pins changed; exact successful model-input bytes match the unchanged public wrapper. No retained receipts rewritten."
+  },
+  "snapshot": {
+    "manifest": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/snapshot.json",
+    "manifest_sha256": "422853c2c7fc23bc7b445701b273904e49f5f0dda071718aa8465576b621d17f",
+    "file_count": 16,
+    "source_test_hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_projection.py": "4d3e5b63361cc20815a389f1690aab23781f0b80c828d9d63fa109fdc1a37048",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "904accd460317e2ad7ad9c385912ded3d81eee77120dff46e2e76eed7376774f",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9"
+    },
+    "diff": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/review.patch",
+    "diff_sha256": "70eb73309a365cd50eefb1c5da871fa4a04daa92123bece8e56b7273177a663f",
+    "before": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/before.json",
+    "before_sha256": "69ed96b6a5f0ce7adbc0e7081c23f942442bca757f8d0fb725a21fd63455db83",
+    "log_sha256": {
+      "collect.txt": "d530a8aa8cb652280d83f1797061fd9cec60202841ce4b45aa851ffec86a5172",
+      "format.txt": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "green.txt": "b336bfbb42d8a55315e2f7350d4a6528e0fd95453f81c1e21f96f9ae7c5d2932",
+      "mypy-initial.txt": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+      "mypy.txt": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+      "projection-tests.txt": "ac148464de123b0485b5e44d97021416c7e78e6ff484c2c0a352e3c48386d228",
+      "red.txt": "b6c92b0950347812e0be7e03f85c1fe0378bb4436f631158f4a3bd13c8bdb8b2",
+      "regressions.txt": "4806837fff204d369532c151e2ae9b2bb5315b3a40e26a8ea06d268b6944f02a",
+      "ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  "review": {
+    "status": "NOT_RUN_BY_AUTHOR; exact snapshot provided for parent dispatch",
+    "required": [
+      "Normative/order/persistence/readback: stage_payload full validation suffices for selected exact entry; emitted bytes/ref/approval identity unchanged; full durable qualification preserved.",
+      "Security/concurrency/input/failure/simplicity: no await between stage validation and DATA projection, no cross-call cache/bypass; strict untrusted public wrapper, refusals and no-write/readback controls retained."
+    ]
+  },
+  "remaining_pg_oracle": {
+    "status": "NOT_RUN_PER_SCOPE; wait for both independent complementary reviews",
+    "prior_report": "/home/kali/.hermes/cache/scratch/ptq-e9wcy9u5/report.json",
+    "prior_report_sha256": "dd0c961e5f6a1bee4a3a19b1f34b77891d65d9356515b070b8ff898774a7f05e",
+    "prior_observed": {
+      "collected": 99,
+      "passed": 98,
+      "failed": 1,
+      "duration_seconds": 215.16
+    },
+    "failed_node": "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+    "acceptance": "Fresh owned attested real-PG existing consumer, same 4-second product deadline and original duplicate/conflict, no-second-send, settlement/readback, ledger single-consumption, qualification and cleanup assertions. Preserve timing observers/QA controls. Parent selects bounded existing runner after reviews; no widening limits.",
+    "causality_limit": "Demonstrated redundant product work on measured expensive qualification boundary; not an exclusive historical timeout cause or a prediction that PG must now pass."
+  },
+  "issues": [
+    {
+      "kind": "FORMAT_CHECK",
+      "initial_exit": 1,
+      "resolution": "Only wrapped the new long test call; final Ruff/format/mypy and affected tests pass."
+    },
+    {
+      "kind": "SNAPSHOT_DISCOVERY",
+      "initial_exit": 1,
+      "resolution": "Optional snapshot inventory named nonexistent runs/model_admission.py; removed after file discovery. No source/product writes or tests altered; snapshot generated successfully."
+    }
+  ],
+  "limits": [
+    "No PostgreSQL/OCI/native/provider/model/target effects executed.",
+    "No commit, stage, push, profile/global changes, protected HTML read/hash/edit, instrumentation removal or persist_configuration optimization.",
+    "Existing untracked documents/Omnis_Notite_Originale.html preserved without reading or hashing.",
+    "SOURCE evidence and review readiness do not close DATA/B06c/B06m/G02/P2; canonical/live NOT_RUN.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "proposed_skill_note_for_parent": "For an intra-call validation optimization, count the real full validator separately from functional byte equality; retain revalidation on every read/replay and compute from the exact stage result before yielding. Do not use SOURCE timing as a PG deadline proof."
+}

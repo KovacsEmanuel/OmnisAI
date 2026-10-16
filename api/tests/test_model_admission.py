@@ -1,5 +1,6 @@
 """Bounded control/admission SOURCE tests; never native or persistent-PG proof."""
 
+import asyncio
 import importlib
 import importlib.util
 from hashlib import sha256
@@ -20,6 +21,21 @@ from omnis.modules.tasks.managed_contract import mapping, sequence
 from omnis.policy import budgets
 from omnis.policy.model_projection import SyntheticApproval, projection_input
 from test_model_projection import source_graph, text_digests
+
+
+async def wait_protocol_marker(
+    marker: asyncio.Event, sender: asyncio.Task[dict[str, object]]
+) -> None:
+    """Race the marker against control_task's own deadline, never reset its budget."""
+    waiter = asyncio.create_task(marker.wait())
+    try:
+        await asyncio.wait({waiter, sender}, return_when=asyncio.FIRST_COMPLETED)
+        if sender.done():
+            sender.result()  # Preserve the actual failure/cancellation, even if both are ready.
+        assert marker.is_set(), "bounded control completed before protocol marker"
+    finally:
+        waiter.cancel()
+        await asyncio.gather(waiter, return_exceptions=True)
 
 
 def preflight_command() -> dict[str, object]:
@@ -718,10 +734,10 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                         await asyncio.wait_for(both_missed.wait(), 0.75)
                         if protocol_case == "conflict":
                             with pytest.raises(CatalogError) as denied:
-                                await asyncio.wait_for(second, 1)
+                                await second
                             assert denied.value.reason == "COMMAND_CONFLICT"
                         else:
-                            duplicate = await asyncio.wait_for(second, 1)
+                            duplicate = await second
                             duplicate_accounting = mapping(duplicate["protocol_accounting"])
                             assert duplicate_accounting["state"] == "RESERVED"
                             assert duplicate_accounting["usage_state"] == "UNKNOWN"
@@ -734,7 +750,7 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                             == baseline
                         )
                         second_finished.set()
-                        reply = await asyncio.wait_for(first, 2)
+                        reply = await first  # control_task retains its original 4s deadline.
                         first_accounting = mapping(reply["protocol_accounting"])
                         if protocol_case == "duplicate":
                             for key in ("descriptor_ref", "dispatch_ref", "request_id"):
@@ -1279,6 +1295,166 @@ def test_protocol_command_rejects_untrusted_expansion(change: dict[str, object])
     }
     with pytest.raises(ValueError):
         NativeTaskCommand.model_validate(value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "case",
+    ["slow_marker", "deadline_before", "deadline_after", "failed", "cancelled", "returned"],
+)
+async def test_protocol_marker_observes_bounded_control_completion(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    """Real control_task/UDS/4s timeout; only readiness and task work are SOURCE seams."""
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.supervisor.native_tasks import control_task
+    from omnis.transport.local_control import LocalControl
+    from test_native_task_control import task_command
+
+    marker, entered, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+    monkeypatch.setattr(
+        "omnis.transport.local_control.readiness_reason", AsyncMock(return_value=None)
+    )
+
+    async def handle(value: NativeTaskCommand) -> dict[str, object]:
+        entered.set()
+        if case == "failed":
+            raise CatalogError("COMMAND_CONFLICT")
+        if case in {"slow_marker", "deadline_after"}:
+            await asyncio.sleep(2.1)  # Past all old 1/1.5/2s observer caps, inside control's 4s.
+            marker.set()
+        if case != "returned":
+            await release.wait()
+        return {
+            "ok": True,
+            "manifest_ref": value.manifest_ref,
+            "binding_ref": records.reference(records.envelope("runtime-binding", {})),
+            "task_status": "BOUND",
+        }
+
+    service = InstanceService(Mock(spec=AsyncEngine))
+    async with LocalControl(ipc_directory, service, uuid4(), 1, native_task=handle) as local:
+        started = asyncio.get_running_loop().time()
+        sender = asyncio.create_task(control_task(ipc_directory, task_command()))
+        try:
+            # Rescue fuse only: never grants a new budget to the marker or join.
+            async with asyncio.timeout_at(started + 4.25):
+                await entered.wait()
+                if case == "cancelled":
+                    sender.cancel()
+                tasks_before = asyncio.all_tasks()
+                if case == "slow_marker":
+                    await wait_protocol_marker(marker, sender)
+                    assert not sender.done() and marker.is_set()
+                    release.set()
+                    assert (await sender)["task_status"] == "BOUND"
+                    assert 2.1 <= asyncio.get_running_loop().time() - started < 4
+                elif case.startswith("deadline"):
+                    with pytest.raises(TimeoutError):
+                        await wait_protocol_marker(marker, sender)
+                        await sender
+                    assert sender.done() and not sender.cancelled()
+                    assert type(sender.exception()) is TimeoutError
+                    assert 4 <= asyncio.get_running_loop().time() - started < 4.25
+                    assert marker.is_set() is (case == "deadline_after")
+                elif case == "failed":
+                    with pytest.raises(CatalogError) as denied:
+                        await wait_protocol_marker(marker, sender)
+                    assert denied.value is sender.exception()
+                    assert denied.value.reason == "COMMAND_CONFLICT"
+                elif case == "cancelled":
+                    with pytest.raises(asyncio.CancelledError):
+                        await wait_protocol_marker(marker, sender)
+                    assert sender.cancelled()
+                else:
+                    with pytest.raises(AssertionError, match="completed before protocol marker"):
+                        await wait_protocol_marker(marker, sender)
+                    assert sender.done() and sender.exception() is None
+                assert not (asyncio.all_tasks() - tasks_before)  # No orphan marker waiter.
+        finally:
+            release.set()
+            if not sender.done():
+                sender.cancel()
+            await asyncio.gather(sender, return_exceptions=True)
+    assert not local.clients
+    assert not (ipc_directory / "control.sock").exists()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["simultaneous_failure", "observer_cancel"])
+async def test_protocol_marker_preserves_failure_and_owns_only_its_waiter(case: str) -> None:
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    before = asyncio.all_tasks()
+    marker, entered = asyncio.Event(), asyncio.Event()
+    primary = CatalogError("COMMAND_CONFLICT")
+
+    async def send() -> dict[str, object]:
+        async with asyncio.timeout(4):
+            entered.set()
+            if case == "simultaneous_failure":
+                marker.set()
+                raise primary
+            await asyncio.Event().wait()
+        raise AssertionError("unreachable")
+
+    sender = asyncio.create_task(send())
+    observer: asyncio.Task[None] | None = None
+    try:
+        await entered.wait()
+        if case == "simultaneous_failure":
+            assert sender.done() and marker.is_set()
+            with pytest.raises(CatalogError) as caught:
+                await wait_protocol_marker(marker, sender)
+            assert caught.value is primary
+        else:
+            observer = asyncio.create_task(wait_protocol_marker(marker, sender))
+            await asyncio.sleep(0)  # Enter the helper before cancelling its observation.
+            observer.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await observer
+            assert not sender.done()  # Caller, not the observer, owns command cancellation.
+    finally:
+        tasks = [sender] if observer is None else [sender, observer]
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+    assert asyncio.all_tasks() == before
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["duplicate", "conflict"])
+async def test_protocol_join_uses_existing_control_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    """The real public SOURCE consumer's first join must allow its bounded reply."""
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+
+    original = NativeTaskOwner.handle
+    calls = 0
+    delayed = False
+
+    async def slow_reply(self: NativeTaskOwner, value: NativeTaskCommand) -> dict[str, object]:
+        nonlocal calls, delayed
+        selected = value.action == "model_protocol_prepare"
+        if selected:
+            calls += 1
+        first = selected and calls == 1
+        reply = await original(self, value)
+        if first:
+            # Still inside the real LocalControl/control_task deadlines. Never
+            # delay the second reply needed to release the original T0 pause.
+            await asyncio.sleep(2.1)
+            delayed = True
+        return reply
+
+    monkeypatch.setattr(NativeTaskOwner, "handle", slow_reply)
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True, protocol_case=case
+    )
+    assert delayed
 
 
 @pytest.mark.asyncio

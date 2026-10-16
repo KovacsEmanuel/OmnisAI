@@ -38,7 +38,11 @@ from omnis.policy.model_projection import SyntheticApproval, projection_input
 from omnis.supervisor.native_tasks import NativeTaskOwner
 from omnis.supervisor.runtime_client import RuntimeClient
 from test_managed_contract import stage
-from test_model_admission import assert_protocol_records, protocol_configuration
+from test_model_admission import (
+    assert_protocol_records,
+    protocol_configuration,
+    wait_protocol_marker,
+)
 from test_model_projection import text_digests
 from test_native_preparation import command, worker_fixture
 from test_ready_model_configuration import configuration
@@ -957,7 +961,7 @@ async def protocol_pg_consumer(
                             sender = asyncio.create_task(control_task(root, command_value))
                             send_tasks.append(sender)
                             await_site = "t0_ready"
-                            await asyncio.wait_for(t0_ready.wait(), 1.5)
+                            await wait_protocol_marker(t0_ready, sender)
                             # A separate connection cannot see any of T0's writes.
                             assert census() == before and not wire and not observations
                             second = asyncio.create_task(control_task(root, other_value))
@@ -985,10 +989,10 @@ async def protocol_pg_consumer(
                             await_site = "join_second"
                             if order == "conflict":
                                 with pytest.raises(CatalogError) as denied:
-                                    await asyncio.wait_for(second, 2)
+                                    await second
                                 assert denied.value.reason == "COMMAND_CONFLICT"
                             else:
-                                duplicate = await asyncio.wait_for(second, 2)
+                                duplicate = await second
                                 duplicate_accounting = mapping(duplicate["protocol_accounting"])
                                 assert duplicate_accounting["state"] == "RESERVED"
                                 assert duplicate_accounting["usage_state"] == "UNKNOWN"
@@ -997,7 +1001,8 @@ async def protocol_pg_consumer(
                             assert not wire and not observations and not sender.done()
                             second_finished.set()
                             await_site = "join_sender"
-                            reply = await asyncio.wait_for(sender, 2)
+                            # Original control deadline, not a new phase budget.
+                            reply = await sender
                             assert second_lock_acquired.is_set()
                             assert authority_calls == reserve_calls == 1
                         except BaseException as error:
@@ -1018,10 +1023,10 @@ async def protocol_pg_consumer(
                             send_tasks.append(sender)
                             if order == "stop_first":
                                 await_site = "reserved"
-                                await asyncio.wait_for(reserved.wait(), 1)
+                                await wait_protocol_marker(reserved, sender)
                             else:
                                 await_site = "received"
-                                await asyncio.wait_for(received.wait(), 1.5)
+                                await wait_protocol_marker(received, sender)
                                 assert len(observations) == 1  # committed SENT before real write
                             stopper = asyncio.create_task(
                                 service.shutdown(
@@ -1043,13 +1048,13 @@ async def protocol_pg_consumer(
                                 await asyncio.wait_for(stopper, 1)
                                 await_site = "join_sender"
                                 with pytest.raises(CatalogError):
-                                    await asyncio.wait_for(sender, 1)
+                                    await sender
                             else:
                                 # Stop is actually blocked on A until the finite exchange ends.
                                 assert not stopper.done()
                                 release_ack.set()
                                 await_site = "join_sender"
-                                await asyncio.wait_for(sender, 2)
+                                await sender
                                 await_site = "join_stopper"
                                 await asyncio.wait_for(stopper, 1)
                             await_site = "poststop_replay"

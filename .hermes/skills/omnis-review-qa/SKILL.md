@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.38
+version: 0.1.39
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -138,6 +138,12 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - Revoke an incomplete multi-submit batch before releasing its original registry lock; an outer exception handler leaves a legal worker-access window. Prepare the full result set before publication and roll back interrupted publication under the same reader lock. Challenge the first unlocked cut through public result/status as well as batch readback; UNKNOWN registry state alone does not erase a previously published successful result. Preserve running futures and never equate revocation with drain.
 - Require successful early-return branches to reach the shared strict observation gate after cleanup. Exercise the actual return/finally path with valid evidence and caught-forbidden/unknown-row negatives; assertions placed after finally are skipped by return. Preserve an already propagating failure/cancellation and the existing task-count checks rather than inventing a separate permissive oracle.
 - Inspect the runner implementation before treating a flag as no-effect preflight. In `ops/run_test_db_gate.py`, `--check` provisions a private DB and runs the gate; use its grammar/`--help`, collection and static prerequisites for no-effect discovery. A familiar flag name is not evidence of dry-run semantics.
+
+## Installed reader and fixture admission
+
+- Treat Python `-B` as write suppression, not a ban on loading existing bytecode. For an exact installed source closure, refuse unknown executable package caches before the first API import and again in each later fresh reader. Challenge an `UNCHECKED_HASH` cache added both before origin and after a successful origin; preserve the unknown bytes instead of deleting them for green. Keep trusted dependency/startup seams explicit rather than claiming a universal runtime audit.
+- Compare the physical pytest `--basetemp` argument with the actual private `TMPDIR` before provisioning PostgreSQL/native resources. A selector can pin a global scratch basename that is outside a nested private TMPDIR. Configure only a fresh owned resource path through the existing selection seam; preserve the failed attempt and membership guard, without reusing the old basename or widening authority.
+- Check a ZIP mutation factory's compressed output against the outer byte cap before crediting a member/aggregate negative. A newer valid wheel near the cap can make the factory fail before the targeted guard. Preserve that failure; if the resource guard is byte/AST-unchanged, narrow its controls to their original attested producer while testing the new real positive separately. Report the composed scope, not a fictitious one-command broad green, and do not raise the cap or add another verifier.
 
 ## Verification
 All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

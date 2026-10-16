@@ -244,6 +244,7 @@ class RuntimeClient:
         self.lock = asyncio.Lock()
         self.recovery_lock = asyncio.Lock()
         self.bootstrap_inventory: BootstrapInventory | None = None
+        self._initial_management_bind = True
 
     async def connect(self) -> None:
         private_directory(self.directory)
@@ -408,162 +409,194 @@ class RuntimeClient:
         ):
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
-            if self.reader is None or self.writer is None:
-                raise RuntimeUnavailable("Runtime disconnected")
-            if _frozen is not None:
-                self.validate_frozen(_frozen)
-                correlation = _frozen.request_id
-                timeout = min(
-                    3.2,
-                    _frozen.wall_seconds,
-                    (_frozen.deadline_ns - time.monotonic_ns()) / 1_000_000_000,
-                )
-                frame = _frozen.frame
-            else:
-                correlation = str(uuid4())
-                request: dict[str, object] = {
-                    "version": 1,
-                    "id": correlation,
-                    "boot": self.boot,
-                    "capability": self.capability,
-                    "generation": self.generation,
-                    "epoch": self.epoch,
-                    "op": op,
-                }
-                if authority is not None:
-                    if (authority.generation, authority.epoch) != (self.generation, self.epoch):
-                        raise RuntimeUnavailable("Runtime authority mismatch")
-                    request["deadline_ns"] = authority.deadline_ns
-                if op in {"task_receive", "settings", "settings_status"}:
-                    request["payload"] = payload
-                    if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
-                        raise RuntimeUnavailable("Runtime receive limit")
-                timeout = 2.0
-                if op in MANAGED_OPERATIONS and authority is not None:
-                    request["payload"] = payload
-                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                    if remaining <= 0:
-                        raise RuntimeUnavailable("Expired runtime authority")
-                    timeout = min(3.2, remaining)
-                    if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
-                        raise RuntimeUnavailable("Runtime managed-task limit")
-                if op == "prepare" and authority is not None:
-                    from omnis.modules.runs.native_preparation_models import (
-                        LIMITS,
-                        validate_bundle,
-                    )
-
-                    if payload is None or set(payload) != {"bundle_ref", "bundle"}:
-                        raise RuntimeUnavailable("Runtime payload denied")
-                    validate_bundle(payload["bundle_ref"], payload["bundle"])
-                    request["payload"] = payload
-                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                    if remaining <= 0:
-                        raise RuntimeUnavailable("Expired runtime authority")
-                    # Explicit preparation-only budget; ordinary exchanges and launch unchanged.
-                    timeout = min(3.2, remaining)
-                    if (
-                        len(json.dumps(request, separators=(",", ":")).encode()) + 1
-                        > LIMITS["max_runtime_request_bytes"]
-                    ):
-                        raise RuntimeUnavailable("Runtime preparation limit")
-                if op == "launch" and authority is not None:
-                    remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
-                    if remaining <= 0:
-                        raise RuntimeUnavailable("Expired runtime authority")
-                    timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
-                frame = json.dumps(request, separators=(",", ":")).encode() + b"\n"
-            try:
-                async with asyncio.timeout(timeout):
-                    self.writer.write(frame)
-                    await self.writer.drain()
-                    response = _object(await self.reader.readuntil(b"\n"))
-                    if response.get("id") != correlation or response.get("boot") != self.boot:
-                        raise RuntimeUnavailable("Runtime correlation mismatch")
-                    if response.get("ok") is not True:
-                        raise RuntimeUnavailable("Runtime refused")
-                    state = response.get("state")
-                    if not isinstance(state, str) or state not in {
-                        "IDLE",
-                        "STARTING",
-                        "MANAGEMENT",
-                        "READY",
-                        "STOPPING",
-                        "STOPPED",
-                        "UNCERTAIN",
-                    }:
-                        raise RuntimeUnavailable("Invalid runtime state")
-                    if (
-                        response.get("assessment_ready") is not False
-                        or type(response.get("drained")) is not bool
-                    ):
-                        raise RuntimeUnavailable("Invalid runtime readiness")
-                    for key in ("generation", "epoch"):
-                        if type(response.get(key)) is not int:
-                            raise RuntimeUnavailable("Invalid runtime fence")
-                    if state == "IDLE":
-                        if (response["generation"], response["epoch"]) != (0, 0):
-                            raise RuntimeUnavailable("Invalid idle runtime")
-                    elif (response["generation"], response["epoch"]) != (
-                        self.generation,
-                        self.epoch,
-                    ):
-                        raise RuntimeUnavailable("Runtime stale fence")
-                    if response["drained"] != (state in {"IDLE", "STOPPED"}):
-                        raise RuntimeUnavailable("Invalid runtime drain")
-                    if "bootstrap_inventory" not in response:
-                        raise RuntimeUnavailable("Missing bootstrap inventory")
-                    inventory = response["bootstrap_inventory"]
-                    if inventory is None:
-                        if state == "READY" or (
-                            state == "STOPPED" and self.bootstrap_inventory is not None
-                        ):
-                            raise RuntimeUnavailable("Missing ready bootstrap inventory")
-                    else:
-                        if state == "IDLE":
-                            raise RuntimeUnavailable("Inventory before native ready")
-                        validated = validate_bootstrap_inventory(inventory)
-                        if (
-                            self.bootstrap_inventory is not None
-                            and validated != self.bootstrap_inventory
-                        ):
-                            raise RuntimeUnavailable("Changed bootstrap inventory")
-                        self.bootstrap_inventory = validated
-                        response["bootstrap_inventory"] = validated
-                    if op == "prepare":
-                        from omnis.modules.runs.native_preparation_models import validate_worker
-
-                        if (
-                            state != "READY"
-                            or payload is None
-                            or authority is None
-                            or time.monotonic_ns() >= authority.deadline_ns
-                        ):
-                            raise RuntimeUnavailable("Runtime preparation fence")
-                        response["preparation"] = validate_worker(
-                            response.get("preparation"), payload["bundle_ref"], payload["bundle"]
-                        )
-                    if op in MANAGED_OPERATIONS:
-                        if (
-                            state != "READY"
-                            or authority is None
-                            or time.monotonic_ns() >= authority.deadline_ns
-                            or not isinstance(response.get("managed"), dict)
-                        ):
-                            raise RuntimeUnavailable("Runtime managed-task fence")
-                    return response
-            except (
-                OSError,
-                ValueError,
-                TimeoutError,
-                asyncio.IncompleteReadError,
-                asyncio.LimitOverrunError,
+            if (
+                op == "settings"
+                and authority is not None
+                and authority.generation != self.generation
             ):
-                if _frozen is not None:
-                    self.retire_frozen()
+                if (
+                    not self._initial_management_bind
+                    or authority.epoch != self.epoch
+                    or authority.generation != self.generation + 1
+                ):
+                    raise RuntimeUnavailable("Runtime authority mismatch")
+                # Keep the same boot/stream, and serialize observation + bind + send
+                # against every other operation, including Stop. Never hold this
+                # lock while obtaining DB authority (quiesce holds DB -> runtime).
+                observed = await self._exchange_locked("status")
+                if observed["state"] != "IDLE":
+                    raise RuntimeUnavailable("Fresh idle runtime required")
+                if time.monotonic_ns() >= authority.deadline_ns:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                self.generation = authority.generation
+            if op not in {"status", "settings_status", "task_receive"}:
+                self._initial_management_bind = False
+            return await self._exchange_locked(op, authority, payload, _frozen=_frozen)
+
+    async def _exchange_locked(
+        self,
+        op: str,
+        authority: "RuntimeAuthority | None" = None,
+        payload: dict[str, object] | None = None,
+        *,
+        _frozen: FrozenPreflight | None = None,
+    ) -> dict[str, object]:
+        if self.reader is None or self.writer is None:
+            raise RuntimeUnavailable("Runtime disconnected")
+        if _frozen is not None:
+            self.validate_frozen(_frozen)
+            correlation = _frozen.request_id
+            timeout = min(
+                3.2,
+                _frozen.wall_seconds,
+                (_frozen.deadline_ns - time.monotonic_ns()) / 1_000_000_000,
+            )
+            frame = _frozen.frame
+        else:
+            correlation = str(uuid4())
+            request: dict[str, object] = {
+                "version": 1,
+                "id": correlation,
+                "boot": self.boot,
+                "capability": self.capability,
+                "generation": self.generation,
+                "epoch": self.epoch,
+                "op": op,
+            }
+            if authority is not None:
+                if (authority.generation, authority.epoch) != (self.generation, self.epoch):
+                    raise RuntimeUnavailable("Runtime authority mismatch")
+                request["deadline_ns"] = authority.deadline_ns
+            if op in {"task_receive", "settings", "settings_status"}:
+                request["payload"] = payload
+                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                    raise RuntimeUnavailable("Runtime receive limit")
+            timeout = 2.0
+            if op in MANAGED_OPERATIONS and authority is not None:
+                request["payload"] = payload
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                timeout = min(3.2, remaining)
+                if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
+                    raise RuntimeUnavailable("Runtime managed-task limit")
+            if op == "prepare" and authority is not None:
+                from omnis.modules.runs.native_preparation_models import (
+                    LIMITS,
+                    validate_bundle,
+                )
+
+                if payload is None or set(payload) != {"bundle_ref", "bundle"}:
+                    raise RuntimeUnavailable("Runtime payload denied")
+                validate_bundle(payload["bundle_ref"], payload["bundle"])
+                request["payload"] = payload
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                # Explicit preparation-only budget; ordinary exchanges and launch unchanged.
+                timeout = min(3.2, remaining)
+                if (
+                    len(json.dumps(request, separators=(",", ":")).encode()) + 1
+                    > LIMITS["max_runtime_request_bytes"]
+                ):
+                    raise RuntimeUnavailable("Runtime preparation limit")
+            if op == "launch" and authority is not None:
+                remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
+                if remaining <= 0:
+                    raise RuntimeUnavailable("Expired runtime authority")
+                timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
+            frame = json.dumps(request, separators=(",", ":")).encode() + b"\n"
+        try:
+            async with asyncio.timeout(timeout):
+                self.writer.write(frame)
+                await self.writer.drain()
+                response = _object(await self.reader.readuntil(b"\n"))
+                if response.get("id") != correlation or response.get("boot") != self.boot:
+                    raise RuntimeUnavailable("Runtime correlation mismatch")
+                if response.get("ok") is not True:
+                    raise RuntimeUnavailable("Runtime refused")
+                state = response.get("state")
+                if not isinstance(state, str) or state not in {
+                    "IDLE",
+                    "STARTING",
+                    "MANAGEMENT",
+                    "READY",
+                    "STOPPING",
+                    "STOPPED",
+                    "UNCERTAIN",
+                }:
+                    raise RuntimeUnavailable("Invalid runtime state")
+                if (
+                    response.get("assessment_ready") is not False
+                    or type(response.get("drained")) is not bool
+                ):
+                    raise RuntimeUnavailable("Invalid runtime readiness")
+                for key in ("generation", "epoch"):
+                    if type(response.get(key)) is not int:
+                        raise RuntimeUnavailable("Invalid runtime fence")
+                if state == "IDLE":
+                    if (response["generation"], response["epoch"]) != (0, 0):
+                        raise RuntimeUnavailable("Invalid idle runtime")
+                elif (response["generation"], response["epoch"]) != (
+                    self.generation,
+                    self.epoch,
+                ):
+                    raise RuntimeUnavailable("Runtime stale fence")
+                if response["drained"] != (state in {"IDLE", "STOPPED"}):
+                    raise RuntimeUnavailable("Invalid runtime drain")
+                if "bootstrap_inventory" not in response:
+                    raise RuntimeUnavailable("Missing bootstrap inventory")
+                inventory = response["bootstrap_inventory"]
+                if inventory is None:
+                    if state == "READY" or (
+                        state == "STOPPED" and self.bootstrap_inventory is not None
+                    ):
+                        raise RuntimeUnavailable("Missing ready bootstrap inventory")
                 else:
-                    await self.close()
-                raise RuntimeUnavailable("Runtime exchange unavailable") from None
+                    if state == "IDLE":
+                        raise RuntimeUnavailable("Inventory before native ready")
+                    validated = validate_bootstrap_inventory(inventory)
+                    if (
+                        self.bootstrap_inventory is not None
+                        and validated != self.bootstrap_inventory
+                    ):
+                        raise RuntimeUnavailable("Changed bootstrap inventory")
+                    self.bootstrap_inventory = validated
+                    response["bootstrap_inventory"] = validated
+                if op == "prepare":
+                    from omnis.modules.runs.native_preparation_models import validate_worker
+
+                    if (
+                        state != "READY"
+                        or payload is None
+                        or authority is None
+                        or time.monotonic_ns() >= authority.deadline_ns
+                    ):
+                        raise RuntimeUnavailable("Runtime preparation fence")
+                    response["preparation"] = validate_worker(
+                        response.get("preparation"), payload["bundle_ref"], payload["bundle"]
+                    )
+                if op in MANAGED_OPERATIONS:
+                    if (
+                        state != "READY"
+                        or authority is None
+                        or time.monotonic_ns() >= authority.deadline_ns
+                        or not isinstance(response.get("managed"), dict)
+                    ):
+                        raise RuntimeUnavailable("Runtime managed-task fence")
+                return response
+        except (
+            OSError,
+            ValueError,
+            TimeoutError,
+            asyncio.IncompleteReadError,
+            asyncio.LimitOverrunError,
+        ):
+            if _frozen is not None:
+                self.retire_frozen()
+            else:
+                await self.close()
+            raise RuntimeUnavailable("Runtime exchange unavailable") from None
 
     async def prepare(
         self,
@@ -653,9 +686,25 @@ class RuntimeClient:
         from omnis.modules.settings.provider_models import ProviderCommand, ProviderView
 
         command = ProviderCommand.model_validate(payload)
-        authority = await service.runtime_authority(
-            owner, self.epoch, self.generation, management=True
-        )
+        from omnis.modules.instance.domain import ControlCode, ControlConflict
+
+        try:
+            authority = await service.runtime_authority(
+                owner, self.epoch, self.generation, management=True
+            )
+        except ControlConflict as exc:
+            if exc.code != ControlCode.GENERATION_CONFLICT or not self._initial_management_bind:
+                raise
+            current = await service.owned_status(owner, self.epoch)
+            if (
+                not current.admission_open
+                or current.shutdown_command_id is not None
+                or current.generation != self.generation + 1
+            ):
+                raise RuntimeUnavailable("Initial OPEN generation required") from None
+            authority = await service.runtime_authority(
+                owner, self.epoch, current.generation, management=True
+            )
         try:
             response = await self._exchange("settings", authority, command.model_dump(mode="json"))
             result = ProviderView.model_validate(response.get("settings"))
@@ -716,6 +765,7 @@ class RuntimeClient:
             return False
 
     async def close(self) -> None:
+        self._initial_management_bind = False
         writer, self.writer = self.writer, None
         self.reader = None
         if writer is not None:

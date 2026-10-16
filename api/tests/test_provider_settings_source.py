@@ -3,12 +3,15 @@
 import asyncio
 import time
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
 
-from omnis.supervisor.runtime_client import RuntimeClient
+from omnis.modules.instance.domain import ControlCode, ControlConflict
+from omnis.modules.instance.service import RuntimeAuthority
+from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
 
 @pytest.mark.asyncio
@@ -68,5 +71,95 @@ async def test_settings_management_retains_exact_selection_without_ready_invento
             assert result["reachable"] == "NOT_VERIFIED"
             assert result["inference_ready"] is False
             assert (await client.status())["assessment_ready"] is False
+        finally:
+            await client.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "cut", ["open", "stopped", "uncertain", "active", "jump", "closed", "owner", "race"]
+)
+async def test_first_settings_binds_only_current_open_idle_generation(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str
+) -> None:
+    """Installed ordering, real Host/UDS, explicit SOURCE DB-authority double."""
+    monkeypatch.syspath_prepend(
+        str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+    )
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    host = RuntimeHost(ipc_directory)
+    calls: list[str] = []
+
+    async def native(action: str, selection: object) -> dict[str, object]:
+        calls.append(action)
+        return {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
+
+    monkeypatch.setattr(host, "_settings_native", native)
+    owner = uuid4()
+    current = 12 if cut == "jump" else 11
+    service = Mock()
+    service.owned_status = AsyncMock(
+        return_value=SimpleNamespace(
+            generation=current, admission_open=cut != "closed", shutdown_command_id=None
+        )
+    )
+    seen: list[int] = []
+
+    async def grant(
+        who: object, epoch: int, generation: int, *, management: bool
+    ) -> RuntimeAuthority:
+        assert who == owner and epoch == 7 and management is True
+        seen.append(generation)
+        if cut == "owner":
+            raise ControlConflict(ControlCode.LEASE_LOST)
+        if generation != current:
+            raise ControlConflict(ControlCode.GENERATION_CONFLICT)
+        if cut == "race":
+            await client.drain()  # Stop wins before binding: never resurrect Host.
+        return RuntimeAuthority(current, 7, time.monotonic_ns() + 4_000_000_000)
+
+    service.runtime_authority = AsyncMock(side_effect=grant)
+    async with host:
+        client = RuntimeClient(ipc_directory, generation=10, epoch=7)
+        await client.connect()
+        boot, writer = client.boot, client.writer
+        try:
+            if cut == "stopped":
+                assert await client.drain()
+            elif cut == "uncertain":
+                host.state = "UNCERTAIN"
+                host.generation, host.epoch = 10, 7
+            elif cut == "active":
+                host.state = "MANAGEMENT"
+                host.generation, host.epoch = 10, 7
+                host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+            command: dict[str, object] = {
+                "operation_id": str(uuid4()),
+                "action": "read",
+                "selection": None,
+            }
+            if cut == "open":
+                result = await client.settings(service, owner, command)
+                assert result["status"] == "PENDING"
+                assert client.generation == 11 and host.generation == 11
+                assert client.boot == boot and client.writer is writer
+                async with asyncio.timeout(1):
+                    while (await client.settings_status(str(command["operation_id"])))[
+                        "status"
+                    ] == "PENDING":
+                        await asyncio.sleep(0.001)
+                assert calls == ["read"]
+                assert seen == [10, 11]
+                # A subsequent OPEN-like change cannot rebind an active writer.
+                current = 12
+                with pytest.raises((ControlConflict, RuntimeUnavailable)):
+                    await client.settings(service, owner, command)
+                assert client.generation == 11
+            else:
+                with pytest.raises((ControlConflict, RuntimeUnavailable)):
+                    await client.settings(service, owner, command)
+                assert client.generation == 10
+                assert calls == []
         finally:
             await client.close()

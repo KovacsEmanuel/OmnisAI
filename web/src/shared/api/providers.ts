@@ -7,7 +7,10 @@ export const requestedSelection = { provider: 'openai-codex', model: 'gpt-6.1-so
 export function decodeProvider(value: unknown, operationId: string): ProviderView {
   if (!isRecord(value) || Object.keys(value).length !== 7 || value.operation_id !== operationId || !isUuid(operationId) ||
     !['PENDING', 'CONFIRMED', 'INDETERMINATE', 'BUSY', 'UNAVAILABLE'].includes(String(value.status)) ||
-    value.authenticated !== 'NOT_VERIFIED' || value.reachable !== 'NOT_VERIFIED' || value.inference_ready !== false) throw new ApiError('INVALID_RESPONSE');
+    value.reachable !== 'NOT_VERIFIED' || value.inference_ready !== false) throw new ApiError('INVALID_RESPONSE');
+  const authenticated = value.authenticated;
+  if (authenticated !== 'NOT_VERIFIED' && authenticated !== 'ABSENT' && authenticated !== 'LOCAL_PRESENT' && authenticated !== 'LOCAL_EXPIRED' && authenticated !== 'LOCAL_UNKNOWN') throw new ApiError('INVALID_RESPONSE');
+  if (value.status !== 'CONFIRMED' && authenticated !== 'NOT_VERIFIED') throw new ApiError('INVALID_RESPONSE');
   const selected = value.selection;
   if (selected !== null && (!isRecord(selected) || Object.keys(selected).length !== 3 ||
     selected.provider !== requestedSelection.provider || selected.model !== requestedSelection.model || selected.effort !== requestedSelection.effort)) throw new ApiError('INVALID_RESPONSE');
@@ -15,5 +18,5 @@ export function decodeProvider(value: unknown, operationId: string): ProviderVie
   const status = value.status;
   if (status !== 'PENDING' && status !== 'CONFIRMED' && status !== 'INDETERMINATE' && status !== 'BUSY' && status !== 'UNAVAILABLE') throw new ApiError('INVALID_RESPONSE');
   return { operation_id: operationId, status, selection: selected === null ? null : requestedSelection,
-    configured: value.configured, authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false };
+    configured: value.configured, authenticated, reachable: 'NOT_VERIFIED', inference_ready: false };
 }

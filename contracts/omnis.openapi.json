@@ -1059,7 +1059,9 @@
           "action": {
             "enum": [
               "read",
-              "save"
+              "save",
+              "auth_read",
+              "logout"
             ],
             "title": "Action",
             "type": "string"
@@ -1118,7 +1120,13 @@
         "additionalProperties": false,
         "properties": {
           "authenticated": {
-            "const": "NOT_VERIFIED",
+            "enum": [
+              "NOT_VERIFIED",
+              "ABSENT",
+              "LOCAL_PRESENT",
+              "LOCAL_EXPIRED",
+              "LOCAL_UNKNOWN"
+            ],
             "title": "Authenticated",
             "type": "string"
           },

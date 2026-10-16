@@ -16,7 +16,7 @@ class ProviderSelection(BaseModel):
 class ProviderCommand(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     operation_id: str
-    action: Literal["read", "save"]
+    action: Literal["read", "save", "auth_read", "logout"]
     selection: ProviderSelection | None
 
     @model_validator(mode="after")
@@ -36,7 +36,9 @@ class ProviderView(BaseModel):
     status: Literal["PENDING", "CONFIRMED", "INDETERMINATE", "BUSY", "UNAVAILABLE"]
     selection: ProviderSelection | None
     configured: bool
-    authenticated: Literal["NOT_VERIFIED"]
+    authenticated: Literal[
+        "NOT_VERIFIED", "ABSENT", "LOCAL_PRESENT", "LOCAL_EXPIRED", "LOCAL_UNKNOWN"
+    ]
     reachable: Literal["NOT_VERIFIED"]
     inference_ready: Literal[False]
 
@@ -55,6 +57,8 @@ class ProviderView(BaseModel):
             raise ValueError("Invalid configuration readiness")
         if self.status != "CONFIRMED" and self.selection is not None:
             raise ValueError("Unconfirmed configuration")
+        if self.status != "CONFIRMED" and self.authenticated != "NOT_VERIFIED":
+            raise ValueError("Unconfirmed local authentication")
         if len(self.model_dump_json().encode()) > 4096:
             raise ValueError("Settings response too large")
         return self

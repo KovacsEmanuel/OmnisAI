@@ -291,7 +291,14 @@ class RuntimeHost:
                 result = await self._settings_native(action, payload["selection"])
                 if self.state != "MANAGEMENT" or time.monotonic_ns() >= self.deadline_ns:
                     raise ValueError("Settings authority expired")
-                self.settings_result = settings.view(operation_id, "CONFIRMED", result)
+                if action in {"auth_read", "logout"}:
+                    if type(result) is not dict or set(result) != {"selection", "authenticated"}:
+                        raise ValueError("Invalid local authentication readback")
+                    self.settings_result = settings.view(
+                        operation_id, "CONFIRMED", result["selection"], result["authenticated"]
+                    )
+                else:
+                    self.settings_result = settings.view(operation_id, "CONFIRMED", result)
         except (
             ValueError,
             OSError,

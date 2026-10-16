@@ -90,6 +90,16 @@ def config_operation(method: str, payload: object) -> object:
     return saved_selection(existing)
 
 
+def auth_operation(method: str) -> dict[str, object]:
+    from .management_auth import local_auth, private_home
+
+    private_home()
+    selected = config_operation("GET", None)
+    if selected != SELECTION:
+        raise ValueError("Explicit private configuration required")
+    return {"selection": selected, "authenticated": local_auth(method)}
+
+
 def main() -> int:
     if (
         sys.argv[1:] != ["serve", "--isolated", "--host", "127.0.0.1", "--port", "0"]
@@ -144,6 +154,22 @@ def main() -> int:
             return JSONResponse(value)
         except (ValueError, OSError):
             return JSONResponse({"error": "CONFIG_UNAVAILABLE"}, status_code=409)
+
+    @app.api_route("/api/auth/codex", methods=["GET", "DELETE"])
+    async def authentication(request: Request) -> JSONResponse:
+        if request.url.query:
+            return JSONResponse({"error": "DENIED"}, status_code=400)
+        async for chunk in request.stream():
+            if chunk:
+                return JSONResponse({"error": "DENIED"}, status_code=400)
+        try:
+            # The same exclusive writer lock as config, inside the same child
+            # owned and drained by RuntimeHost. Execution mode refuses Settings.
+            async with lock:
+                value = await asyncio.to_thread(auth_operation, request.method)
+            return JSONResponse(value, headers={"Cache-Control": "no-store"})
+        except (ValueError, OSError):
+            return JSONResponse({"error": "AUTH_UNAVAILABLE"}, status_code=409)
 
     with socket.socket() as listener:
         listener.bind(("127.0.0.1", 0))

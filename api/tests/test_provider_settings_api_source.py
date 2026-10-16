@@ -21,8 +21,9 @@ from omnis.transport.local_control import LocalControl
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("auth_action", [None, "auth_read", "logout"])
 async def test_public_settings_same_owner_save_readback_and_boundaries(
-    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, auth_action: str | None
 ) -> None:
     monkeypatch.syspath_prepend(
         str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
@@ -46,9 +47,16 @@ async def test_public_settings_same_owner_save_readback_and_boundaries(
     host = RuntimeHost(runtime_dir)
     stored: dict[str, object] | None = None
     writes = 0
+    auth_calls: list[str] = []
 
     async def native(action: str, selection: object) -> dict[str, object] | None:
         nonlocal stored, writes
+        if action in {"auth_read", "logout"}:
+            auth_calls.append(action)
+            return {
+                "selection": stored,
+                "authenticated": "ABSENT" if action == "logout" else "LOCAL_PRESENT",
+            }
         if action == "save":
             assert type(selection) is dict
             stored = selection
@@ -177,5 +185,33 @@ async def test_public_settings_same_owner_save_readback_and_boundaries(
                             writer.close()
                             await writer.wait_closed()
                     assert writes == 1
+                    if auth_action is not None:
+                        auth_id = str(uuid4())
+                        auth_payload = {
+                            "operation_id": auth_id,
+                            "action": auth_action,
+                            "selection": None,
+                        }
+                        start = await http.put(path, json=auth_payload, headers=headers)
+                        assert start.status_code == 200
+                        async with asyncio.timeout(1):
+                            while True:
+                                auth_result = await http.get(path + "/operations/" + auth_id)
+                                if auth_result.json()["status"] != "PENDING":
+                                    break
+                                await asyncio.sleep(0.001)
+                        assert auth_result.json()["status"] == "CONFIRMED"
+                        assert auth_result.json()["authenticated"] == (
+                            "ABSENT" if auth_action == "logout" else "LOCAL_PRESENT"
+                        )
+                        assert auth_result.json()["selection"] == selected
+                        assert auth_result.json()["reachable"] == "NOT_VERIFIED"
+                        assert auth_result.json()["inference_ready"] is False
+                        assert auth_result.headers["cache-control"] == "no-store"
+                        assert (
+                            await http.put(path, json=auth_payload, headers=headers)
+                        ).json() == auth_result.json()
+                        assert auth_calls == [auth_action]
+                        assert writes == 1
         finally:
             await client.close()

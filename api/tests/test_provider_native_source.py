@@ -15,6 +15,77 @@ EXPECTED = {
 }
 
 
+@pytest.mark.parametrize("state", ["ABSENT", "LOCAL_PRESENT", "LOCAL_EXPIRED", "LOCAL_UNKNOWN"])
+def test_native_local_auth_projection_and_logout_readback(
+    monkeypatch: pytest.MonkeyPatch, state: str
+) -> None:
+    from omnis_hermes import management_server
+
+    assert hasattr(management_server, "auth_operation"), "native auth consumer missing"
+    calls: list[str] = []
+    cleared = False
+
+    class MissingAuth(Exception):
+        code = "codex_auth_missing"
+
+    def resolve(*, read_only: bool) -> dict[str, object]:
+        assert read_only is True
+        calls.append("read")
+        if cleared or state == "ABSENT":
+            raise MissingAuth("synthetic-private-error-must-not-escape")
+        return {"api_key": "synthetic-private-token-must-not-escape"}
+
+    def clear(provider: str) -> bool:
+        nonlocal cleared
+        assert provider == "openai-codex"
+        calls.append("clear")
+        cleared = True
+        return True
+
+    native = SimpleNamespace(resolve_codex_runtime_credentials=resolve, clear_provider_auth=clear)
+    constants = SimpleNamespace(
+        _decode_jwt_claims=lambda _: {
+            "exp": 1
+            if state == "LOCAL_EXPIRED"
+            else 9999999999
+            if state == "LOCAL_PRESENT"
+            else None
+        }
+    )
+    config = SimpleNamespace(
+        require_readable_config_before_write=lambda: deepcopy(EXPECTED),
+        save_config=lambda *a, **k: None,
+    )
+    real_import = importlib.import_module
+    modules = {
+        "hermes_cli.auth": native,
+        "hermes_cli.auth_constants": constants,
+        "hermes_cli.config": config,
+    }
+    monkeypatch.setattr(
+        importlib,
+        "import_module",
+        lambda name: modules[name] if name in modules else real_import(name),
+    )
+    monkeypatch.setenv("HERMES_OMNIS_MANAGEMENT", "1")
+    monkeypatch.setenv("HERMES_HOME", "/state/provider")
+    monkeypatch.setenv("HOME", "/state/provider/os-home")
+    monkeypatch.setenv("CODEX_HOME", "/state/provider/codex")
+    result = management_server.auth_operation("GET")
+    assert result == {
+        "selection": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"},
+        "authenticated": state,
+    }
+    assert calls == ["read"]
+    result = management_server.auth_operation("DELETE")
+    assert result["authenticated"] == "ABSENT"
+    assert calls == ["read", "clear", "read"]
+    monkeypatch.setenv("HERMES_HOME", "/foreign")
+    with pytest.raises(ValueError):
+        management_server.auth_operation("DELETE")
+    assert calls == ["read", "clear", "read"]
+
+
 @pytest.mark.parametrize(
     "section,key,value",
     [

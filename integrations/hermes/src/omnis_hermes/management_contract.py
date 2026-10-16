@@ -24,7 +24,7 @@ def command(value: object) -> dict[str, object]:
     if type(value) is not dict or set(value) != {"operation_id", "action", "selection"}:
         raise ValueError("Invalid settings command")
     identity(value["operation_id"])
-    if value["action"] not in ("read", "save"):
+    if value["action"] not in ("read", "save", "auth_read", "logout"):
         raise ValueError("Invalid settings action")
     selected = selection(value["selection"])
     if (value["action"] == "save") != (selected is not None):
@@ -32,14 +32,31 @@ def command(value: object) -> dict[str, object]:
     return value
 
 
-def view(operation_id: str, status: str, selected: object = None) -> dict[str, object]:
+def auth_state(value: object) -> str:
+    if type(value) is not str or value not in {
+        "NOT_VERIFIED",
+        "ABSENT",
+        "LOCAL_PRESENT",
+        "LOCAL_EXPIRED",
+        "LOCAL_UNKNOWN",
+    }:
+        raise ValueError("Invalid local authentication state")
+    return value
+
+
+def view(
+    operation_id: str, status: str, selected: object = None, authenticated: object = "NOT_VERIFIED"
+) -> dict[str, object]:
     checked = selection(selected)
+    authenticated = auth_state(authenticated)
+    if status != "CONFIRMED" and authenticated != "NOT_VERIFIED":
+        raise ValueError("Unconfirmed local authentication")
     return {
         "operation_id": identity(operation_id),
         "status": status,
         "selection": checked,
         "configured": status == "CONFIRMED" and checked is not None,
-        "authenticated": "NOT_VERIFIED",
+        "authenticated": authenticated,
         "reachable": "NOT_VERIFIED",
         "inference_ready": False,
     }

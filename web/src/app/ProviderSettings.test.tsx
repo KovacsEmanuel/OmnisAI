@@ -5,6 +5,34 @@ import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { App } from './App';
 
+it('reads a local grant and logs out once without claiming provider readiness', async () => {
+  const actions: string[] = [];
+  const selected = { provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' };
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
+    if (init?.method === 'PUT') {
+      const body = JSON.parse(String(init.body));
+      actions.push(body.action);
+      return Response.json({ operation_id: body.operation_id, status: 'CONFIRMED', selection: selected,
+        configured: true, authenticated: body.action === 'auth_read' ? 'LOCAL_PRESENT' : body.action === 'logout' ? 'ABSENT' : 'NOT_VERIFIED',
+        reachable: 'NOT_VERIFIED', inference_ready: false });
+    }
+    throw new TypeError('Unexpected synthetic endpoint');
+  }));
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Read native configuration' }));
+  await user.click(await screen.findByRole('button', { name: 'Read local Codex grant' }));
+  await screen.findByText('Local grant: present — not provider-verified');
+  expect(screen.getByText('Provider reachable: not verified')).toBeInTheDocument();
+  expect(screen.getByText('Inference ready: no')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Log out of Codex locally' }));
+  await screen.findByText('Local grant: absent — native readback');
+  expect(actions).toEqual(['read', 'auth_read', 'logout']);
+  expect(screen.getByRole('button', { name: 'Log out of Codex locally' })).toBeDisabled();
+});
+
 it('saves exact requested selection and keeps lost responses unconfirmed without retry', async () => {
   const writes: unknown[] = [];
   let lose = false;
@@ -27,7 +55,7 @@ it('saves exact requested selection and keeps lost responses unconfirmed without
   await waitFor(() => expect(screen.getByRole('button', { name: 'Save selection' })).toBeEnabled());
   lose = true;
   await user.click(screen.getByRole('button', { name: 'Save selection' }));
-  await screen.findByText('Outcome unknown. Do not repeat Save; recover the exact operation.');
+  await screen.findByText('Outcome unknown. Do not repeat this action; recover the exact operation.');
   expect(writes).toEqual([{ provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' }]);
   expect(screen.getByRole('button', { name: 'Save selection' })).toBeDisabled();
   expect(screen.getByText('Inference ready: no')).toBeInTheDocument();

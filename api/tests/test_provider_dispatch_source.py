@@ -24,8 +24,9 @@ from omnis.supervisor.runtime_client import RuntimeClient
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("cut", ["valid", "expired", "stop", "stopping", "fence", "health_expired"])
+@pytest.mark.parametrize("action", ["save", "logout"])
 async def test_settings_checks_authority_after_connect_before_bytes(
-    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str, action: str
 ) -> None:
     home = ipc_directory / "m"
     home.mkdir(mode=0o700)
@@ -63,6 +64,8 @@ async def test_settings_checks_authority_after_connect_before_bytes(
             value: object = (
                 {"status": "ok", "mode": "management-only"}
                 if path == "/api/health"
+                else {"selection": dict(SELECTION), "authenticated": "ABSENT"}
+                if path == "/api/auth/codex"
                 else {"ok": True}
                 if method == "PUT"
                 else dict(SELECTION)
@@ -140,8 +143,8 @@ async def test_settings_checks_authority_after_connect_before_bytes(
                         uuid4(),
                         {
                             "operation_id": identity,
-                            "action": "save",
-                            "selection": dict(SELECTION),
+                            "action": action,
+                            "selection": dict(SELECTION) if action == "save" else None,
                         },
                     )
                 )["status"] == "PENDING"
@@ -153,8 +156,9 @@ async def test_settings_checks_authority_after_connect_before_bytes(
                     "CONFIRMED" if cut == "valid" else "INDETERMINATE"
                 )
                 await asyncio.sleep(0.01)  # Let the real peer observe bytes or EOF.
-                assert methods.count("PUT") == int(cut == "valid")
-                assert methods == (["GET", "PUT", "GET"] if cut == "valid" else ["GET"])
+                assert methods.count("PUT" if action == "save" else "DELETE") == int(cut == "valid")
+                expected = ["GET", "PUT", "GET"] if action == "save" else ["GET", "DELETE"]
+                assert methods == (expected if cut == "valid" else ["GET"])
                 if stop_task is not None:
                     await asyncio.wait_for(stop_task, 1)
             finally:
@@ -172,8 +176,9 @@ async def test_settings_checks_authority_after_connect_before_bytes(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("cut", ["stop", "expiry"])
+@pytest.mark.parametrize("action", ["save", "logout"])
 async def test_sent_save_stays_indeterminate_until_owned_process_drains(
-    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, cut: str, action: str
 ) -> None:
     home = ipc_directory / "m"
     home.mkdir(mode=0o700)
@@ -222,8 +227,8 @@ async def test_sent_save_stays_indeterminate_until_owned_process_drains(
                     uuid4(),
                     {
                         "operation_id": identity,
-                        "action": "save",
-                        "selection": dict(SELECTION),
+                        "action": action,
+                        "selection": dict(SELECTION) if action == "save" else None,
                     },
                 )
                 await asyncio.wait_for(sent.wait(), 1)

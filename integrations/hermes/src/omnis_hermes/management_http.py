@@ -5,7 +5,7 @@ import json
 from collections.abc import Callable
 from contextlib import suppress
 
-from .management_contract import selection
+from .management_contract import auth_state, selection
 from .native_preparation_contract import loads
 
 
@@ -19,8 +19,14 @@ async def request(
     dispatch_guard: Callable[[], None],
 ) -> object:
     if (
-        method not in {"GET", "PUT"}
-        or path not in {"/api/health", "/api/config", "/api/config?include_defaults=false"}
+        (method, path)
+        not in {
+            ("GET", "/api/health"),
+            ("GET", "/api/config?include_defaults=false"),
+            ("PUT", "/api/config"),
+            ("GET", "/api/auth/codex"),
+            ("DELETE", "/api/auth/codex"),
+        }
         or type(port) is not int
         or not 1 <= port <= 65535
     ):
@@ -68,6 +74,22 @@ async def configure(
     dispatch_guard: Callable[[], None],
 ) -> dict[str, object] | None:
     checked = selection(selected)
+    if action in {"auth_read", "logout"}:
+        if checked is not None:
+            raise ValueError("Authentication selection denied")
+        value = await request(
+            port,
+            token,
+            "DELETE" if action == "logout" else "GET",
+            "/api/auth/codex",
+            dispatch_guard=dispatch_guard,
+        )
+        if type(value) is not dict or set(value) != {"selection", "authenticated"}:
+            raise ValueError("Invalid authentication readback")
+        state = auth_state(value["authenticated"])
+        if state == "NOT_VERIFIED" or (action == "logout" and state != "ABSENT"):
+            raise ValueError("Unconfirmed authentication readback")
+        return {"selection": selection(value["selection"]), "authenticated": state}
     if action == "save":
         if checked is None:
             raise ValueError("Missing selection")

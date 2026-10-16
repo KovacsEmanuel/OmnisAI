@@ -620,7 +620,7 @@ export interface components {
              * Action
              * @enum {string}
              */
-            action: "read" | "save";
+            action: "read" | "save" | "auth_read" | "logout";
             /** Operation Id */
             operation_id: string;
             selection: components["schemas"]["ProviderSelection"] | null;
@@ -647,9 +647,9 @@ export interface components {
         ProviderView: {
             /**
              * Authenticated
-             * @constant
+             * @enum {string}
              */
-            authenticated: "NOT_VERIFIED";
+            authenticated: "NOT_VERIFIED" | "ABSENT" | "LOCAL_PRESENT" | "LOCAL_EXPIRED" | "LOCAL_UNKNOWN";
             /** Configured */
             configured: boolean;
             /**

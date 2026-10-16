@@ -1,0 +1,451 @@
+{
+  "scope": "INSTALLED_SETTINGS_CODEX_CHALLENGE_CANCEL_STOP_RESTART_SCOPED",
+  "verdict": "PASS_SCOPED",
+  "head": "805deba89545feaa1cae180f2fb247568ac69014",
+  "attempts": 1,
+  "root": "/home/kali/.hermes/cache/scratch/oc-alnp2dll",
+  "execution": {
+    "session": "proc_7922f46e650e",
+    "argv": [
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/cli/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,json,time,hashlib,os,traceback\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/oc-alnp2dll\")\nsource=Path(\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/cli/integration\")\nassert hashlib.sha256((root/\"d/omnis/image.json\").read_bytes()).hexdigest()==\"d757fb3b4597030d238ed90580c31c6ec42b1b9d1dc9e2045f79077becaf167b\"\nassert hashlib.sha256((source/\"installed_stop.py\").read_bytes()).hexdigest()==\"fecff37e1cb5180d37d19dccd697a0623076124170a373515758a6de4f0e9e53\"\nsys.path.insert(0,str(source))\nfrom installed_stop import run_installed_stop\ndata=Path(\"/home/kali/.hermes/cache/scratch/oc-alnp2dll/d\")\nbegan=time.monotonic()\nresult={\"argv\":sys.orig_argv,\"started_unix\":time.time(),\"state\":\"RUNNING\",\"attempt\":1}\noutput=root/\"qa-execution.json\"\nwith output.open(\"x\") as stream: json.dump(result,stream,indent=2)\nexit_code=0\ntry:\n    run_installed_stop(data,json.loads((data/\"omnis/image.json\").read_text()),\"/home/kali/.hermes/cache/scratch/oc-alnp2dll/cli/bin/omnis\",settings_browser={\"node\":\"/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node\",\"cache\":\"/home/kali/.cache/ms-playwright\",\"playwright\":\"/home/kali/OmnisAI/web/node_modules/@playwright/test/index.mjs\"})\nexcept BaseException as exc:\n    exit_code=1\n    result[\"exception_class\"]=type(exc).__name__\n    result[\"frames\"]=[{\"file\":Path(frame.filename).name,\"function\":frame.name,\"line\":frame.lineno} for frame in traceback.extract_tb(exc.__traceback__)[-8:]]\n    traceback.print_exc()\nfinally:\n    result.update(state=\"EXITED\",exit=exit_code,elapsed_seconds=round(time.monotonic()-began,3),ended_unix=time.time())\n    output.write_text(json.dumps(result,indent=2)+\"\\n\")\nraise SystemExit(exit_code)"
+    ],
+    "started_unix": 1792187234.3622594,
+    "state": "EXITED",
+    "attempt": 1,
+    "exit": 0,
+    "elapsed_seconds": 162.205,
+    "ended_unix": 1792187396.5673509,
+    "metadata_path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/qa-execution.json",
+    "metadata_sha256": "628a9b2760e17fec16347a058cbbc05db8f2b0ee846e346e35fd0ee3dc69eb14",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/h",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t",
+      "XDG_DATA_HOME": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/d",
+      "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/c"
+    },
+    "cwd": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/cwd",
+    "joined": true
+  },
+  "first_failure": null,
+  "observations": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "journey": "native Settings save/readback; one Connect; genuine challenge visible; reload same operation; Cancel same operation settled; Stop; fresh Start read-only retained configuration/no OAuth replay; Stop",
+    "evidence": "unchanged existing browser assertions and both successful browser manifests, final PASS/VERIFIED after observer finalization",
+    "connect_commands": 1,
+    "cancel_commands": 1,
+    "restart_read_commands": 1,
+    "inference_ready": false,
+    "config_port_negative": "CONFIG_PORT_CONFLICT",
+    "stop_lock_negative": "LIFECYCLE_BUSY",
+    "queued_start_during_stop": "INSTANCE_SHUTTING_DOWN",
+    "sentinel_after_restart": 7,
+    "browser_denials": [
+      "UNAUTHENTICATED",
+      "INVALID_CSRF",
+      "INVALID_ORIGIN",
+      "INVALID_HOST"
+    ]
+  },
+  "code_bindings": {
+    "artifact_readback": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/artifacts-private-docker/readback.json",
+    "artifact_readback_sha256": "fef2190ae367b7bc220ae666692015e424e735f875e678d96cb51c99f1dc0986",
+    "source_bindings_verified": 43,
+    "runner_bindings": {
+      "cli/integration/installed_browser.mjs": "785ae7b0f79327d539b752ebb11d135cd241950cd315bd4e512bed66b38eb688",
+      "cli/integration/installed_pair_open.py": "e7f698bd98798c6e920dac234208a493e13357905831a6936b3f95e666818329",
+      "cli/integration/installed_start.py": "5c1d2ab7ffdd1e66c4081de063582b4e20310260a3fa82b4a74e4a3239e26ce0",
+      "cli/integration/installed_stop.py": "fecff37e1cb5180d37d19dccd697a0623076124170a373515758a6de4f0e9e53"
+    },
+    "release_sha256": "41dacdaf3540f1c1d9712628ed12f2b678db2029b01945c7ebfe2516398ee590",
+    "cli_wheel_sha256": "936e0e2109b61b43361afa84ed3b2b555e507d47fb8559ec8d1efc757e076fac"
+  },
+  "probe": {
+    "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/probe-receipt.json",
+    "sha256": "77af15f5b2a3e6d55718626eacb1d071c9df051a42a50dc1ca19aef7f9a3a922",
+    "probe": "PASS",
+    "cleanup": "VERIFIED",
+    "phase": "STOPPED",
+    "original_observer_finalized": "runner finally requires family_drained and not uncertain and no driver/lock pending before VERIFIED"
+  },
+  "stop_receipts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/stop-3108db25-9e3b-4386-828c-bc1ae083267a.json",
+      "sha256": "e714015a88b6ca0939637c59b614caa32437f912e34166bf734c656dba5d32c2",
+      "version": 3,
+      "state": "COMPLETED",
+      "pending": null,
+      "generation": 2,
+      "instance_id": "7f87ab8f-3d11-448a-b245-38dd1c5b48a9",
+      "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+      "completed": [
+        {
+          "stage": "forwarder",
+          "ack": "DRAINED"
+        },
+        {
+          "stage": "api.stop",
+          "ack": 204
+        },
+        {
+          "stage": "api.rm",
+          "ack": 204
+        },
+        {
+          "stage": "supervisor.stop",
+          "ack": 204
+        },
+        {
+          "stage": "supervisor.rm",
+          "ack": 204
+        },
+        {
+          "stage": "runtime.stop",
+          "ack": 204
+        },
+        {
+          "stage": "runtime.rm",
+          "ack": 204
+        },
+        {
+          "stage": "db.stop",
+          "ack": 204
+        },
+        {
+          "stage": "db.rm",
+          "ack": 204
+        },
+        {
+          "stage": "network.rm",
+          "ack": 204
+        },
+        {
+          "stage": "ipc",
+          "ack": "DRAINED"
+        }
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/stop-dd9056ea-f123-436f-a63f-815194f080b2.json",
+      "sha256": "edc0368418e4804ee19700a05089135033f9fcc7ad55cccba34830ac8d5802b3",
+      "version": 3,
+      "state": "COMPLETED",
+      "pending": null,
+      "generation": 4,
+      "instance_id": "7f87ab8f-3d11-448a-b245-38dd1c5b48a9",
+      "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+      "completed": [
+        {
+          "stage": "forwarder",
+          "ack": "DRAINED"
+        },
+        {
+          "stage": "api.stop",
+          "ack": 204
+        },
+        {
+          "stage": "api.rm",
+          "ack": 204
+        },
+        {
+          "stage": "supervisor.stop",
+          "ack": 204
+        },
+        {
+          "stage": "supervisor.rm",
+          "ack": 204
+        },
+        {
+          "stage": "runtime.stop",
+          "ack": 204
+        },
+        {
+          "stage": "runtime.rm",
+          "ack": 204
+        },
+        {
+          "stage": "db.stop",
+          "ack": 204
+        },
+        {
+          "stage": "db.rm",
+          "ack": 204
+        },
+        {
+          "stage": "network.rm",
+          "ack": 204
+        },
+        {
+          "stage": "ipc",
+          "ack": "DRAINED"
+        }
+      ]
+    }
+  ],
+  "dual_drain_receipts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/stop-forwarder-81448179-4f63-4681-a64d-d40ec05977bd-drained.json",
+      "sha256": "fd84b6f481b890e347132f0bace3cc9a3d4933f90d543d1eff8e4540750b8404",
+      "version": 2,
+      "drained": true,
+      "api_and_auth": "both awaited before publication by unchanged forwarder.run"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/stop-forwarder-b194e079-1747-4134-bd9e-0b0d0f144ef8-drained.json",
+      "sha256": "152b1f23aa569f172e6aff55775ac970b7ec06746c1cea0ea7dd935097604c0d",
+      "version": 2,
+      "drained": true,
+      "api_and_auth": "both awaited before publication by unchanged forwarder.run"
+    }
+  ],
+  "browser_manifests": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth.json",
+      "sha256": "ff8c31a6a332551e2e4262624afa196404881f3b2d277e06cf70a957ed2b8545",
+      "manifest_sha256": "8fcde2254bb90d7b5458b1785620e34d246e6bc8abafc9ee3f7586346e24d97a",
+      "paired": true,
+      "exact_selection": true,
+      "fresh_operations": true,
+      "denials": true,
+      "configured": true,
+      "authenticated": "NOT_VERIFIED",
+      "reachable": "NOT_VERIFIED",
+      "inference_ready": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth-readback.json",
+      "sha256": "ff8c31a6a332551e2e4262624afa196404881f3b2d277e06cf70a957ed2b8545",
+      "manifest_sha256": "8fcde2254bb90d7b5458b1785620e34d246e6bc8abafc9ee3f7586346e24d97a",
+      "paired": true,
+      "exact_selection": true,
+      "fresh_operations": true,
+      "denials": true,
+      "configured": true,
+      "authenticated": "NOT_VERIFIED",
+      "reachable": "NOT_VERIFIED",
+      "inference_ready": false
+    }
+  ],
+  "cleanup_readback": {
+    "method": "installed childless StopEngine read-only GET; exact source-validated receipts; proc identity/listener/socket readback",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "daemon_checked_before_after": true,
+    "project": "omnis-local-9076948a894d472c83db21eedc615568",
+    "containers": [
+      {
+        "role": "api",
+        "id": "5ff2483e574aa6043d30dfbefef9ae6bb3e9b93804983d6a42ee098c9a5b8e72",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "http": 404
+      },
+      {
+        "role": "supervisor",
+        "id": "c737976448af116f3239a336f9267257323321ebde8a120c8db118d1cdab58f2",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "http": 404
+      },
+      {
+        "role": "runtime",
+        "id": "396363fc1895540629fddf01c968d2148e5223590ebfdd316a1f760fdff68943",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "http": 404
+      },
+      {
+        "role": "db",
+        "id": "9c6fba49d534722a56eb540650303b929e2b112a7cb1ef2a4d7954b70da0f76a",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "http": 404
+      },
+      {
+        "role": "api",
+        "id": "ea25d9d85cf404b9d30e8aafea9eb043a7a7db3a06fe19c27327c813b4bfece8",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "http": 404
+      },
+      {
+        "role": "supervisor",
+        "id": "18b6b70f6a07a9b4caf4f2f923fabc9fa5cbc238d00f7427f2fa2dac1de971f5",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "http": 404
+      },
+      {
+        "role": "runtime",
+        "id": "e919a65b0fdde4f60f27471d1b023eb21acc65a1980c6691070b08c8aa575aa0",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "http": 404
+      },
+      {
+        "role": "db",
+        "id": "ce053db8e68b0d6fdff25ebdc39b9d436acd52be72322a7b3cc94473d87016e8",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "http": 404
+      }
+    ],
+    "networks": [
+      {
+        "id": "08407efac73bc56efb449eb3eb538958786ad6962404fb8d07d88533462bc0ad",
+        "http": 404
+      },
+      {
+        "id": "957babbe2ff00ca82a314e3dd7510748e722aae2f3eb2e78a7f9eb2d7be45c3f",
+        "http": 404
+      }
+    ],
+    "owned_container_count": 8,
+    "owned_network_count": 2,
+    "project_containers_remaining": 0,
+    "project_networks_remaining": 0,
+    "process_identities": [
+      {
+        "role": "owner",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "pid": 1613829,
+        "start_ticks": "20018463",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      },
+      {
+        "role": "launcher",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "pid": 1610118,
+        "start_ticks": "20017600",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      },
+      {
+        "role": "forwarder",
+        "attempt": "81448179-4f63-4681-a64d-d40ec05977bd",
+        "pid": 1603147,
+        "start_ticks": "20013236",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      },
+      {
+        "role": "owner",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "pid": 1627945,
+        "start_ticks": "20027829",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      },
+      {
+        "role": "launcher",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "pid": 1624518,
+        "start_ticks": "20027011",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      },
+      {
+        "role": "forwarder",
+        "attempt": "b194e079-1747-4134-bd9e-0b0d0f144ef8",
+        "pid": 1619223,
+        "start_ticks": "20025390",
+        "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+        "identity_absent": true
+      }
+    ],
+    "socket_paths_absent": [
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/http/api.sock",
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/r/omnis/control.sock",
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/r/omnis/control.cap",
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/native-ipc/runtime.sock",
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/native-ipc/runtime.boot",
+      "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/native-ipc/auth-egress.sock"
+    ],
+    "own_unix_paths_absent": true,
+    "api_tcp_and_auth_unix_listeners_absent": true,
+    "port": 51875,
+    "unreconciled_marker_absent": true,
+    "readback_children_created": 0
+  },
+  "retained": {
+    "images": [
+      {
+        "role": "control_image",
+        "id": "sha256:692ad1e259e0d52633eebfebcb8f2a84e4dde62dfc01042e968cdd944450b512",
+        "tag": "omnis-control-9076948a894d472c83db21eedc615568:0.1.0",
+        "retained": true
+      },
+      {
+        "role": "runtime_image",
+        "id": "sha256:8abaf94273a66d5b845d55669c2999d42d101552aaf31b45d165cf5b22bea599",
+        "tag": "omnis-runtime-9076948a894d472c83db21eedc615568:0.1.0",
+        "retained": true
+      }
+    ],
+    "image_receipt": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/d/omnis/image.json",
+    "image_receipt_sha256": "d757fb3b4597030d238ed90580c31c6ec42b1b9d1dc9e2045f79077becaf167b",
+    "data_root": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis",
+    "postgres_path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/postgres",
+    "provider_path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/s/omnis/provider",
+    "same_pgdata_identity": [
+      2049,
+      8924071
+    ],
+    "same_provider_identity": [
+      2049,
+      8924065,
+      1000,
+      1000,
+      448
+    ],
+    "same_pg_system_id": "7697385570107990059",
+    "private_stdout": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/qa-run.stdout.private",
+    "private_stderr": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/qa-run.stderr.private",
+    "private_logs_read": false
+  },
+  "visual": {
+    "screens": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth-desktop.png",
+        "sha256": "3c39a0bfd5dbc1344037ec6f32b18f5c4277813cbf58bce25a8e68d4fc83858f"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth-mobile.png",
+        "sha256": "df0017d4bd32d5fb78dbb224dd83f942010d90e3ec5d7261ccef2652187a6f4e"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth-readback-desktop.png",
+        "sha256": "24fb7a7f065a2c07edc1395d7d510cb65eac2df2ce094df8664171782f9e0749"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/oc-alnp2dll/t/s4-mmdati7f/screens/settings-auth-readback-mobile.png",
+        "sha256": "23ed28cd605381d2db0ace5ce323656cf80115246caab9a21f683e532bca44fa"
+      }
+    ],
+    "reviewed": 4,
+    "desktop": "no visible clipping/overlap; configuration distinct from authentication and readiness",
+    "mobile": "full-page screenshots show skip-link obscuring paragraph; possible capture stitching/focus artifact, live defect NOT_PROVEN",
+    "secrets_visible": false,
+    "live_viewport_hittest": "NOT_RUN; no additional journey"
+  },
+  "limits": [
+    "No account approval/device-code entry, model/inference or target action authorized or executed by this journey.",
+    "NoIO claims bounded to source/topology and observed consumer, not global OS proof.",
+    "Local Cancel does not establish upstream revocation.",
+    "No account-login/model-ready/G04a/G02-live/whole-P4a/canonical/integration claim.",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO."
+  ],
+  "issues": [
+    "Post-run receipt-only readback command had one SyntaxError/exit1 before execution; corrected read-only command exit0. No product replay.",
+    "Launcher used requested consumer arguments plus top-level timing/hash checks and private exception capture; no runner override/source edits. Exact shorter body clarification arrived after launch."
+  ],
+  "not_run": [
+    "account approval",
+    "inference/model endpoint",
+    "target/P3",
+    "canonical",
+    "G04a",
+    "G02-live",
+    "live mobile hit-test"
+  ],
+  "repository_changes": false,
+  "readback_unix": 1792187525.556022
+}

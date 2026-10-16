@@ -1,0 +1,131 @@
+{
+  "verdict": "ACCEPTED_INSTALLED_NATIVE_CHALLENGE_CANCEL_SCOPED",
+  "tested_head": "805deba89545feaa1cae180f2fb247568ac69014",
+  "integrated_product_head": "828dd330e9e31e01b52a9b95119255995bb3ffb3",
+  "integration_commits": [
+    {
+      "source": "bcb7b35ae5e1375f8eb32ba283413157ca71669b",
+      "integrated": "b21e4e09ef6ba29945306b75491f8fe4ef3414e0"
+    },
+    {
+      "source": "69bbff3a448cc205af509fdf738ac64bb7ad31b8",
+      "integrated": "35cbee3a312318e82d583e8b9f72350fff3ea473"
+    },
+    {
+      "source": "683161ea9635ba7a4652b720214a1db2c4a3639f",
+      "integrated": "1ffbe6db849cdb1aba43364af1ac066ee15392f5"
+    },
+    {
+      "source": "392593e34c024ce7c969fbdb04b18982309d6af7",
+      "integrated": "4a36764d6ea22e4bd044c0b6fa07bbc1e8115278"
+    },
+    {
+      "source": "d1d7966cc1c097f5d78183b45d6ab79a364f6957",
+      "integrated": "4fd3f9860dde19e07f039a5c5a7267d673f5135e"
+    },
+    {
+      "source": "7039463dcf3c9315be426536a716a0dc8e13411e",
+      "integrated": "e2daf2c2aeb74fb5ef4df044a765da86c562337d"
+    },
+    {
+      "source": "16dbaafed90cf4af15d99b0ef16e36bbdfb91acd",
+      "integrated": "a9f1c87e00d8eecdf9f0dcdd32ed4df535c4d524"
+    },
+    {
+      "source": "0666ad923a0cac2d20248bd0bacf5dafee1cbc85",
+      "integrated": "fd401028277891aa27e5656237305a2043b92424"
+    },
+    {
+      "source": "76451b7728986ae877e73a438ae829664a1cd94a",
+      "integrated": "4398ae1b7e45823d1a9a2b345e028de7ae0879a3"
+    },
+    {
+      "source": "0d4002af8f47f3c17070b741fb565bd75c9966c8",
+      "integrated": "84718a426e60a03369e92af1b818d6edf5870ea9"
+    },
+    {
+      "source": "26b6e774a1d471e31f4623c3657744e5208b4d7e",
+      "integrated": "7741e1687a7d60fdcdb6b56ee5c0536127326518"
+    },
+    {
+      "source": "30614b1910eb1b973f36039dcfe98e6eb192efb3",
+      "integrated": "e9fab26b3b88080f37782c7407ab7e216f25f87e"
+    },
+    {
+      "source": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503",
+      "integrated": "fb44f2676b971e73305e08f39f1e5fb258c691a1"
+    },
+    {
+      "source": "5188c87b61d1851ba98555d36822ad250626ceda",
+      "integrated": "cacabc8a2fc23631311a7d4cddc4fe7562633fac"
+    },
+    {
+      "source": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+      "integrated": "325add178b9a72d32f9f50e7041cac255d3cda36"
+    },
+    {
+      "source": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+      "integrated": "b4fb2d1c0a7f423e921765220445d2c08937ab71"
+    },
+    {
+      "source": "805deba89545feaa1cae180f2fb247568ac69014",
+      "integrated": "828dd330e9e31e01b52a9b95119255995bb3ffb3"
+    }
+  ],
+  "integration_commit_count": 17,
+  "reviewed_tested_integrated_bindings_exact": 43,
+  "source_drift": [],
+  "real_execution": {
+    "session": "proc_7922f46e650e",
+    "exit": 0,
+    "seconds": 162.205,
+    "attempts": 1,
+    "journey": "native Settings save/readback; one Connect; genuine challenge visible; reload same operation; Cancel same operation settled; Stop; fresh Start read-only retained configuration/no OAuth replay; Stop",
+    "typed_probe": "PASS/VERIFIED",
+    "account_approved": false,
+    "model_calls": 0
+  },
+  "qa_report_sha256": "cd8978cd0c6ddf2af0db09e74016d7bb233671ad4497c9a4858c2e2ae0ee32a4",
+  "parent_readback": {
+    "method": "Installed StopEngine exact target GET plus existing completed_receipt validator; no lifecycle replay",
+    "same_daemon": true,
+    "exact_container_HTTP404": 8,
+    "exact_network_HTTP404": 2,
+    "stop_completed_receipts": 2,
+    "dual_drain_receipts": 2,
+    "same_process_identities_absent": 6,
+    "own_IPC_and_listeners_absent": true,
+    "retained_provider_PG_identity_same": true,
+    "images_retained": 2,
+    "auth_json_exists": false,
+    "credential_free_config_sha256": "baf5ec9a2eaaedcd3a7f65eeea80bf91310520bebb25fb7b3b7a8879af6930c0",
+    "normal_installed_status": {
+      "exit": 0,
+      "state": "STOPPED",
+      "generation": 4,
+      "admission_open": false,
+      "dashboard_ready": false,
+      "assessment_ready": false
+    }
+  },
+  "integrated_checks": {
+    "scope": "Current main-checkout import origins; affected SOURCE, not canonical",
+    "passed": 31,
+    "subtests_passed": 8,
+    "seconds": 1.81,
+    "exit": 0,
+    "log": "/home/kali/.hermes/cache/scratch/oi-0dywhc0w/integrated-source.log"
+  },
+  "visual": {
+    "desktop": "Parent inspected actual screenshot: readable configured/local grant/readiness distinctions; no obvious clipping or visible code",
+    "mobile": "Parent inspected actual full-page screenshot: skip-link obstructs paragraph, live defect/stitching distinction INCONCLUSIVE; no extra run or aesthetic approval"
+  },
+  "remaining": [
+    "P4a-minim PARTIAL: operator account approval/readback, readonly published catalog/dependency readiness and full requested/effective qualification not accepted",
+    "P2-live NOT_RUN: legitimate native config/turn/purpose/ExecutionSelection and Responses pre-send DATA/ledger/caps/live H03-H08 remain",
+    "Phase2/G04a/G02-live NOT_CLOSED; final canonical NOT_RUN; STOP before P3",
+    "No persistent operator deployment or change to r1; current owned QA instance STOPPED",
+    "History, images/data/private logs retained; scratch artifacts may expire and must be checked before reuse"
+  ],
+  "continuation_boundary": "Recoverable pause after a long implementation/review/QA session; no successor feature or account connection started. The continuing mandate is not declared complete."
+}

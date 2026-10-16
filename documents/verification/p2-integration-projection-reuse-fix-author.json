@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_VERIFIED_PENDING_FOCUSED_REVIEW",
+  "acceptance": "NOT_ACCEPTED_PG; no deadline or global P2 closure",
+  "repository": {
+    "path": "/home/kali/OmnisAI",
+    "start_head": "f43a814aadf795159636a10e5294985de41e8dfc",
+    "final_head": "4c6c830e374871a67532694f6cc7c39ff3f5771c",
+    "parent_head_advance": "Documentation-only review retention; no source/test drift beyond the two files changed here.",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "owned_dirty_files": [
+      "api/src/omnis/modules/runs/model_projection.py",
+      "api/tests/test_model_projection.py",
+      "api/tests/test_model_projection_storage.py"
+    ],
+    "changed_in_this_fix": [
+      "api/src/omnis/modules/runs/model_projection.py",
+      "api/tests/test_model_projection_storage.py"
+    ],
+    "index_empty": true,
+    "commit_stage_push": "NOT_PERFORMED",
+    "protected_html": "NOT_READ_HASHED_OR_EDITED"
+  },
+  "contract": "Preserve pre-optimization ModelProjections.prepare eligibility and no-write refusal; retain exact supported-v3 payload/readback/replay and same-invocation 3-to-1 direct validation. Source only; parent owns review/PG/integration.",
+  "change": {
+    "product": "Three-line cheap composition_version=4 guard immediately after real stage_payload; before projection_input, without adding heavy validation, cache, expansion, pins or bypass. Existing validation sequence retained.",
+    "regression": "New two-case actual-service test constructs real method_execution=True material, expands/reseals inline-v4 exactly as the provided reproducer, and retains compact-v4. Real stage acceptance and strict public-wrapper refusal precede service refusal; zero INSERT and one _verify_graph double await asserted.",
+    "strict_type": "manifest came from validate_manifest, which calls integer at managed_contract.py:1752 with exact type(value) is int (1693). Direct genuine-manifest smoke confirms True/False/4.0/string-4 denial; no bool/numeric coercion introduced."
+  },
+  "findings": [
+    {
+      "id": "NORM-PROJECTION-F01",
+      "severity": "MEDIUM",
+      "alias_of": null,
+      "disposition": "CLOSED_SOURCE_PENDINGREVIEW",
+      "original_review": "/home/kali/.hermes/cache/scratch/projection-norm-review-f43a814/report.json",
+      "original_review_sha256": "844fba67e2e27cec4f3d07c38cc89ecf11b9a2c7908dd9603dc96abd09fbb262",
+      "evidence": "before-differential + RED inline-v4 DID NOT RAISE; after-differential same-stage valid denial with zero INSERT; two-case regression GREEN.",
+      "acceptance_limit": "Author fix closure only; independent focused re-review and parent adjudication still pending."
+    },
+    {
+      "id": "REUSE-SEC-F01",
+      "severity": "MEDIUM",
+      "alias_of": "NORM-PROJECTION-F01",
+      "disposition": "CLOSED_SOURCE_PENDINGREVIEW",
+      "original_review": "/home/kali/.hermes/cache/scratch/projection-reuse-security-Pv2kG5/report.json",
+      "original_review_sha256": "a25a139338656922f0aa1ad2ca5d539db8f04025694d7000d5c9df09e319aa44",
+      "evidence": "before-differential + RED inline-v4 DID NOT RAISE; after-differential same-stage valid denial with zero INSERT; two-case regression GREEN.",
+      "acceptance_limit": "Author fix closure only; independent focused re-review and parent adjudication still pending."
+    }
+  ],
+  "reproducer": {
+    "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/repro_inline_v4.py",
+    "sha256": "d206173c09340387408f45a59c57cbeb3ad4c8b4177508a8b019520f2c74a142",
+    "source": "Exact byte copy of parent-provided repro, including original f43a814 implementation comparison.",
+    "before": {
+      "scope": "SOURCE; real stage/composition/policy/service, SQL and _verify_graph doubles; no PG/native/provider",
+      "v3_control": {
+        "stage": "ACCEPTED",
+        "public_wrapper": "ACCEPTED",
+        "old": {
+          "outcome": "ACCEPTED",
+          "insert_calls": 1,
+          "verify_graph_awaits": 1
+        },
+        "candidate": {
+          "outcome": "ACCEPTED",
+          "insert_calls": 1,
+          "verify_graph_awaits": 1
+        },
+        "identical_projection_payload": true
+      },
+      "inline_v4": {
+        "stage": "ACCEPTED",
+        "public_wrapper": "MODEL_PROJECTION_REJECTED",
+        "old": {
+          "outcome": "MODEL_PROJECTION_REJECTED",
+          "insert_calls": 0,
+          "verify_graph_awaits": 1
+        },
+        "candidate": {
+          "outcome": "ACCEPTED",
+          "insert_calls": 1,
+          "verify_graph_awaits": 1
+        }
+      }
+    },
+    "after": {
+      "scope": "SOURCE; real stage/composition/policy/service, SQL and _verify_graph doubles; no PG/native/provider",
+      "v3_control": {
+        "stage": "ACCEPTED",
+        "public_wrapper": "ACCEPTED",
+        "old": {
+          "outcome": "ACCEPTED",
+          "insert_calls": 1,
+          "verify_graph_awaits": 1
+        },
+        "candidate": {
+          "outcome": "ACCEPTED",
+          "insert_calls": 1,
+          "verify_graph_awaits": 1
+        },
+        "identical_projection_payload": true
+      },
+      "inline_v4": {
+        "stage": "ACCEPTED",
+        "public_wrapper": "MODEL_PROJECTION_REJECTED",
+        "old": {
+          "outcome": "MODEL_PROJECTION_REJECTED",
+          "insert_calls": 0,
+          "verify_graph_awaits": 1
+        },
+        "candidate": {
+          "outcome": "MODEL_PROJECTION_REJECTED",
+          "insert_calls": 0,
+          "verify_graph_awaits": 1
+        }
+      }
+    }
+  },
+  "red_green": {
+    "red": {
+      "exit": 1,
+      "failed": 1,
+      "passed": 1,
+      "seconds": 0.85,
+      "reason": "Inline-v4 stage and public wrapper assertions passed, then actual prepare DID NOT RAISE CatalogError. Compact-v4 refusal passed.",
+      "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/red.txt"
+    },
+    "green": {
+      "exit": 0,
+      "passed": 3,
+      "seconds": 1.02,
+      "cases": "Inline-v4 and compact-v4 refusal plus supported-v3 direct-validation/readback/replay positive."
+    },
+    "work_bound": {
+      "original_optimization_red": {
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short",
+        "exit": 1,
+        "failed": 1,
+        "duration_seconds": 0.49,
+        "reason": "Real same-composition validator census has 3 entries; expected 1; exact projected-byte assertion already passed.",
+        "log": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/red.txt"
+      },
+      "original_red_sha256": "b6c92b0950347812e0be7e03f85c1fe0378bb4436f631158f4a3bd13c8bdb8b2",
+      "before_initial_produce": 3,
+      "current_initial_produce": 1,
+      "current_readback_produce": 1,
+      "current_replay_produce": 1,
+      "verify_graph_awaits_for_three_calls": 3,
+      "limits": "Counts are direct wrapped composer validation with SQL/_verify_graph doubles; exclude work inside real durable qualification and are not PG savings or latency proof."
+    }
+  },
+  "verification": {
+    "after_last_source_test_edit": true,
+    "affected_collected": 128,
+    "affected_passed": 128,
+    "affected_seconds": 59.61,
+    "affected_exit": 0,
+    "quality": "Ruff, format, strict mypy over all three dirty files exit0",
+    "commands": [
+      {
+        "name": "before-differential",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/repro_inline_v4.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/before-differential.txt",
+        "sha256": "0c65b0e90c0fc379fa2decf051e8235db74999c5839cc10a2d3cd70e9c6cb16b"
+      },
+      {
+        "name": "red",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_storage.py::test_service_preserves_v4_projection_ineligibility -q --tb=short",
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/red.txt",
+        "sha256": "f0f24bba75b14ab04d2833b22bba37c30640649f97ede3337a281fb5757cdf0e"
+      },
+      {
+        "name": "green",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_storage.py::test_service_preserves_v4_projection_ineligibility api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/green.txt",
+        "sha256": "d2a6a030c14b06247b2496f0d6742a7c472d841e152e19413fc05201a9fe8b1d"
+      },
+      {
+        "name": "ruff",
+        "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "name": "format",
+        "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/format.txt",
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      },
+      {
+        "name": "mypy",
+        "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/mypy.txt",
+        "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+      },
+      {
+        "name": "collect-affected",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_storage.py api/tests/test_model_projection_denials.py api/tests/test_model_admission.py --collect-only -q",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/collect-affected.txt",
+        "sha256": "f2a0cbad8c18c8908d7e153c025737bcc86f49ae1bd3f874faa8b30e370e1b9d"
+      },
+      {
+        "name": "affected",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection.py api/tests/test_model_projection_storage.py api/tests/test_model_projection_denials.py api/tests/test_model_admission.py -q --tb=short",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/affected.txt",
+        "sha256": "2b019279a8b355c4bad6ac06a5a33105f43259240ef8c4662b1e48f39180d3cb"
+      },
+      {
+        "name": "after-differential",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/repro_inline_v4.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/after-differential.txt",
+        "sha256": "9229a6428dc7d5c2fe7c9f958a427b9198bbaf5f28cf8fd2d3d413cf2979615a"
+      },
+      {
+        "name": "final-git",
+        "command": "git diff --check && git status --short --branch && git diff --numstat && git diff --cached --stat && git rev-parse HEAD && git show --stat --oneline HEAD",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/final-git.txt",
+        "sha256": "ade062da089467eb3d03b8682a9e9fb5463b402d04370ae85fcc2293f312b273"
+      },
+      {
+        "name": "strict-manifest-types",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys, tempfile\nfrom pathlib import Path\nsys.path[:0] = [\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\"]\nfrom test_model_projection import source_graph\nfrom omnis.modules.tasks import managed_contract as contract\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom copy import deepcopy\n_, _, manifest, _ = source_graph(Path(tempfile.mkdtemp(prefix=\"strict-\", dir=\"/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq\")))\nassert contract.validate_manifest(manifest) == manifest\nassert type(manifest[\"payload\"][\"composition_version\"]) is int\nfor value in [True, False, 4.0, \"4\"]:\n    body = deepcopy(manifest[\"payload\"])\n    body[\"composition_version\"] = value\n    changed = records.envelope(\"launch-manifest\", body)\n    try:\n        contract.validate_manifest(changed)\n    except CatalogError as error:\n        assert error.reason == \"MANAGED_REJECTED\"\n    else:\n        raise AssertionError(\"invalid composition-version type accepted\")\nprint(\"valid integer manifest accepted; four resealed non-integer composition_version values rejected\")\n'",
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/strict-manifest-types.txt",
+        "sha256": "325546e629bc4a8d300f05fadc207ce9a697e4f78a8ce12a665aac130ffa065c"
+      },
+      {
+        "name": "save-diff",
+        "command": "git diff -- api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py > /home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/review.patch",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/save-diff.txt",
+        "sha256": "8a937260326da3921b24e05791dd82c1fd15cc01b272da0ed5bca89fbcd8c252"
+      },
+      {
+        "name": "strict-manifest-types-corrected",
+        "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys, tempfile\nfrom pathlib import Path\nsys.path[:0] = [\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\"]\nfrom test_model_projection import source_graph\nfrom omnis.modules.tasks import managed_contract as contract\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom copy import deepcopy\n_, _, manifest, _ = source_graph(Path(tempfile.mkdtemp(prefix=\"strict-\", dir=\"/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq\")))\nassert contract.validate_manifest(manifest) == manifest\nassert type(manifest[\"payload\"][\"composition_version\"]) is int\nfor value, wanted in [(True, \"MANAGED_REJECTED\"), (False, \"MANAGED_REJECTED\"), (4.0, \"INVALID_TYPE\"), (\"4\", \"MANAGED_REJECTED\")]:\n    body = deepcopy(manifest[\"payload\"])\n    body[\"composition_version\"] = value\n    changed = records.envelope(\"launch-manifest\", body)\n    try:\n        contract.validate_manifest(changed)\n    except CatalogError as error:\n        assert error.reason == wanted\n    else:\n        raise AssertionError(\"invalid composition-version type accepted\")\nprint(\"valid integer manifest accepted; four resealed non-integer composition_version values rejected\")\n'",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/strict-manifest-types-corrected.txt",
+        "sha256": "d1107070a377b2b82ff0a95ecc54cef09b429c4b6d94582a6392e4437c80bd1c"
+      },
+      {
+        "name": "diff-byte-identity",
+        "command": "git diff -- api/src/omnis/modules/runs/model_projection.py api/tests/test_model_projection.py api/tests/test_model_projection_storage.py | sha256sum",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/diff-byte-identity.txt",
+        "sha256": "9aed9d97585c1bf9e3b687e9f0661186bb47849746c413dab6e720e5e52cf2d0"
+      }
+    ],
+    "unchanged_prior_evidence": {
+      "report": "/home/kali/.hermes/cache/scratch/projection-reuse-q_ucd599/report.json",
+      "sha256": "2b8d913daac9ff987e748721601203a2e8d89dd965bc4c357988bfd77b0fa70f",
+      "source_passed": 171,
+      "source_seconds": 72.41,
+      "log_sha256": "4806837fff204d369532c151e2ae9b2bb5315b3a40e26a8ea06d268b6944f02a",
+      "scope": "Previous full candidate suite retained, not rerun or claimed freshly passing in full; current affected 128 covers projection/storage/denials/admission. Composer/context/configuration/preflight files unchanged."
+    }
+  },
+  "snapshot": {
+    "manifest": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/snapshot.json",
+    "manifest_sha256": "2872d0eb38febd2a1452b53b65fae2f2c23c082283fc4cb775790a11b7b47a99",
+    "file_count": 16,
+    "source_test_hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9"
+    },
+    "patch": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/review.patch",
+    "patch_sha256": "8a937260326da3921b24e05791dd82c1fd15cc01b272da0ed5bca89fbcd8c252",
+    "patch_bytes": 17916,
+    "before_manifest": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/before.json",
+    "before_manifest_sha256": "a5befeefa696694fad0b29729d2c2805686fd397a3901a2b70ea92d7777e6bab",
+    "unchanged_from_review_file_count": 14
+  },
+  "issues_retained": [
+    {
+      "issue": "DIRECT_PROBE_ORACLE",
+      "exit": 1,
+      "detail": "Initial extra type smoke expected MANAGED_REJECTED for all values; genuine float 4.0 was already refused earlier as INVALID_TYPE by bounded(record). No malformed type was accepted. Corrected only expected exact reason for float; corrected smoke exit0, no product/test change."
+    },
+    {
+      "issue": "DIFF_CAPTURE",
+      "detail": "Initial review.patch output redirected again to save-diff.txt, leaving empty patch. Exact complete captured git diff was written to review.patch; live git diff SHA comparison matched including final LF. No source change."
+    },
+    {
+      "issue": "EDITOR_IMPORT_RESOLUTION",
+      "detail": "Scratch unchanged repro copy showed static unresolved import diagnostics; actual pinned api/.venv Python 3.13.15 execution passed both runs."
+    }
+  ],
+  "remaining": {
+    "review": "Two complementary focused re-reviews on this exact snapshot, parent owned.",
+    "pg": "NOT_RUN; retain historical 98PASS/1FAIL duplicate timeout and same 4-second contract. No deadline widening or exclusive-cause claim.",
+    "global": "DATA/B06c/B06m/G02/P2-inert NOT_CLOSED; no canonical/live acceptance.",
+    "next": "Parent adjudicates focused reviews before existing bounded fresh PG consumer."
+  },
+  "limits": [
+    "Real producer/compiler/composition/policy and service SOURCE; SQL and _verify_graph are explicit doubles, not durable qualification.",
+    "No PostgreSQL/OCI/native Host/model/provider/target/account/r1/global/profile access or effects.",
+    "No protected HTML access, stage, commit, push, schema/authority/pin/deadline change; full candidate left uncommitted for parent.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "skill_note_for_parent": "Before substituting already-validated material for a strict wrapper, compare version eligibility under both argument contexts. Manifest-aware and standalone validation can accept different languages; preserve unsupported-version refusal with a cheap guard and genuine stage-valid negative, not only call-count or positive byte-equality tests. No skill file edited outside the assigned three-file scope."
+}

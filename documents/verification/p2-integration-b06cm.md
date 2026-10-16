@@ -77,6 +77,12 @@ Parent readback: `proc_2d9a6326b924` exited2, receipt strict/code2/drained;5reco
 
 Părintele a executat copia byte-exact a reproducerului normativ în `prv4-parent-vhyc94qj`: v3 înainte/după ACCEPTED,1INSERT și payload identic; inline-v4 valid la stage, wrapperul public și producerul original refuză MODEL_PROJECTION_REJECTED/0INSERT, candidatul admite1INSERT. Exit0 înseamnă comparație executată, nu PASS de produs; SQL/_verify_graph doubles, fără PG/leak/live. Remediu admis minimal: refuz explicit composition_version4 înainte de projection_input, păstrând reutilizarea intra-apel și toate guardurile. Unicul dezvoltator adaugă regresia valid-inline-v4 și controlul v3, apoi re-review focalizat; nicio QA PG pe candidatul neaprobat. Rapoartele originale sunt versionate byte-exact; nu se extinde v4 sub pretext de optimizare și nu se mărește deadline-ul.
 
+### Optimizare integrată — findings închise SOURCE, QA reală în curs
+
+`4ed765c` integrează remediul complet: reutilizare intra-apel și refuz explicit v4 după stage complet, înainte de DATA. [Autor fix](p2-integration-projection-reuse-fix-author.json) SHA `14ae19ed6609171feccfe0ae5b8507331944b423908f0af77d107fb7e5be45a1`: inline-v4 RED1FAIL/compact1PASS→GREEN3, v3 byte-identic, zeroINSERT pe refuz,128affectedSOURCE59.61s/quality3exit0 după ultima editare. Cele14fișiere neafectate și pinurile rămân identice; strictul integer de manifest precede comparația, fără alias bool/float/string.
+
+Re-review [normativ](p2-integration-projection-reuse-rereview-norm.json) SHA `50bf0790965766a822fd47648010703054fbcdeaf5b72c61402917ccaf00a839` și [safety](p2-integration-projection-reuse-rereview-safety.json) SHA `0a1ffc73710f972cb9d92a4b091fd29bcf97481f7ead3e867712c93c20a303e4` sunt APPROVED_SCOPED, fiecare3teste SOURCE independente trecute. Părintele închide aliasurile NORM-PROJECTION-F01/REUSE-SEC-F01 numai pe snapshotul16SHA final exact. Rapoartele originale sunt păstrate byte-exact; refuzul v4 și work-bound3→1 nu sunt deadline PG PASS. QA fresh pe targetul99 complet, cu aceleași pause-fuses și limita4s, este admisă după commit și în curs; mandatul continuă după rezultat.
+
 ### D1 — descriptor contabil finit, fără native-turn fabricat
 
 - Se alege varianta minimă: payloadul exact `task_model_preflight` v2/v3 și validatorul/receiptul cold existente, fără opcode/overlay/Host nou și fără promovarea implicită a batch2 v4 în model-preflight. `FinalModelRequest` și schema nativă rămân neschimbate; `native_turn=None` nu este admis acolo.

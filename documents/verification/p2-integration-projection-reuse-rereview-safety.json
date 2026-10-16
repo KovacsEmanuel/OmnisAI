@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "review_id": "projection-v4-safety-focused-rereview",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Read-only SOURCE safety re-review of REUSE-SEC-F01 / NORM-PROJECTION-F01: new three-line v4 eligibility guard, genuine inline/compact-v4 regression, typed manifest prerequisite, same-call reuse and affected prepare/read/replay paths. Not a whole-product audit or integration acceptance.",
+  "repository": {
+    "path": "/home/kali/OmnisAI",
+    "head_before_and_after": "4c6c830e374871a67532694f6cc7c39ff3f5771c",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "preexisting_dirty_files": ["api/src/omnis/modules/runs/model_projection.py", "api/tests/test_model_projection.py", "api/tests/test_model_projection_storage.py"],
+    "preexisting_protected_untracked_not_accessed": "documents/Omnis_Notite_Originale.html",
+    "reviewer_repo_writes": 0,
+    "stage_commit_push": "NOT_PERFORMED",
+    "index_empty": true,
+    "git_diff_check_exit": 0,
+    "integration_decision": "PARENT_OWNED"
+  },
+  "snapshot": {
+    "file_count": 16,
+    "all_match_before_and_after_tests": true,
+    "changed_since_original_review": ["api/src/omnis/modules/runs/model_projection.py", "api/tests/test_model_projection_storage.py"],
+    "unchanged_since_original_review_count": 14,
+    "author_report": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/report.json",
+    "author_report_sha256": "14ae19ed6609171feccfe0ae5b8507331944b423908f0af77d107fb7e5be45a1",
+    "source_test_hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9"
+    }
+  },
+  "finding_dispositions": [
+    {
+      "id": "REUSE-SEC-F01",
+      "alias_of": "NORM-PROJECTION-F01",
+      "original_severity": "MEDIUM",
+      "original_verdict": "CHANGES_REQUESTED",
+      "original_report": "documents/verification/p2-integration-projection-reuse-review-safety.json",
+      "original_report_sha256": "a25a139338656922f0aa1ad2ca5d539db8f04025694d7000d5c9df09e319aa44",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "reason": "The exact validated manifest's composition_version=4 now rejects at model_projection.py:59-61 after genuine stage validation and before projection_input, replay lookup, envelope creation or put. Both real BuildSource method_execution variants pass real stage validation then reject through public wrapper and actual service with MODEL_PROJECTION_REJECTED and zero INSERT calls. Supported-v3 exact-byte/read/replay positive passes independently. No implicit v4 support is granted; parent adjudication and PG acceptance are separate."
+    }
+  ],
+  "new_findings": [],
+  "requirement_code_evidence": [
+    {
+      "criterion": "Authentic inline/compact-v4 denial, not stale digest or malformed fixture",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "test_model_projection_storage.py::test_service_preserves_v4_projection_ineligibility builds method_execution=True using BuildSource, expands/reseals inline material or keeps compact material, reseals matching manifest and creates matching binding. Real stage_payload returns that exact composition before public-wrapper/service denial. Both independent cases pass; each observes one stage call, one _verify_graph double await, zero INSERT."
+    },
+    {
+      "criterion": "No type alias at version guard",
+      "result": "RETAINED_STATIC_AND_AUTHOR_PROBE",
+      "evidence": "_produce:48-50 calls validate_manifest before the guard. managed_contract.py:1739-1752 validates composition_version via integer, whose type(value) is int check is at 1692-1694. record:1716-1727 and exact:1698-1706 canonicalize into fresh trees; bounds/type checks reject rather than coerce. True/False/string-4 cannot pass integer; float-4.0 is rejected earlier by bounded validation. Corrected author type smoke hash verified; reviewer did not add or execute another type harness."
+    },
+    {
+      "criterion": "No guard, cache or validate/use regression from fix",
+      "result": "NO_NEW_DEFECT_FOUND_SCOPED",
+      "evidence": "New product delta is a synchronous deny-only guard. Existing owner/ref/state/binding/_verify_graph/stage checks precede it; one-entry/exact-composition selection and DATA policy remain afterward without an intervening await. No state field, cache, bypass, new await, grant, timeout, exception handler or public-wrapper change. prepare and read still call _produce before returning retained data. Existing prior security review on unchanged paths is retained within scope, not repeated as a new broad audit."
+    },
+    {
+      "criterion": "Supported v3 and same-invocation reuse preserved",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Independent positive compares model_input bytes against strict unchanged wrapper; prepare/read/replay each observe exactly one direct composition validation, identical retained record, total one INSERT and three _verify_graph double awaits. Public adapter serialization and extra_body negative also remain passing within this existing positive. Counts exclude real durable qualification internals and do not prove latency."
+    }
+  ],
+  "verification": {
+    "decision": "F01 eligibility preservation -> ModelProjections.prepare/read/replay -> detect accepted v4 or blanket refusal/stale reuse -> approve SOURCE only if authentic negatives and supported positive pass on frozen bytes.",
+    "preflight": "Inspected existing SOURCE tests, source_graph and conftest; selected tests use tmp_path/monkeypatch with explicit SQL/_verify_graph doubles, no autouse PG fixture. Plugin autoload and pytest cache disabled; -I -B prevents import bytecode writes. Collect-only selected exactly three cases.",
+    "independent_focused": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_storage.py::test_service_preserves_v4_projection_ineligibility api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short --basetemp /home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/pytest",
+      "invocation_note": "Executed equivalent argv through subprocess.run with explicit environment adjustments, cwd /home/kali/OmnisAI and timeout=30s. Same argv plus --collect-only ran first.",
+      "collect_exit": 0,
+      "collected": 3,
+      "exit": 0,
+      "passed": 3,
+      "seconds": 1.04,
+      "log": "/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/focused.txt",
+      "log_sha256": "649825ff3f2d47110fe81ef64865a16ab498e6f3f318b83469364c16a1c91225"
+    },
+    "retained_author_evidence": {
+      "log_hashes_checked": ["red", "green", "affected", "ruff", "format", "mypy", "strict-manifest-types", "strict-manifest-types-corrected"],
+      "all_match": true,
+      "red": "1 failed, 1 passed in 0.85s; inline-v4 acceptance reproduced before guard",
+      "green": "3 passed in 1.02s",
+      "affected": "128 passed in 59.61s; not rerun here",
+      "quality": "Ruff, format, strict mypy logs confirm PASS; not rerun here",
+      "type_probe_failure_retained": "Initial extra smoke expected wrong error for float 4.0 and failed; corrected expectation INVALID_TYPE passes. No accepted malformed value or product change was hidden.",
+      "previous_171": "Historical unchanged-source evidence only; not rerun or promoted as a fresh full-suite PASS."
+    }
+  },
+  "files_created": ["/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/report.json", "/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/collect.txt", "/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/focused.txt", "/home/kali/.hermes/cache/scratch/projection-v4-safety-rereview-hhb6mbh8/pytest/ (owned synthetic fixture files)"],
+  "issues_encountered": ["Provided docs/verification report path did not exist; filesystem search found documents/verification/p2-integration-projection-reuse-review-safety.json, whose actual SHA matches the original report. No product/test execution failure in this re-review."],
+  "limits": [
+    "SOURCE service/producer/composition/policy evidence only; SQL and persistent _verify_graph qualification are doubles. Zero INSERT means observed SQL calls, not a real PostgreSQL table census.",
+    "No PG/OCI/native Host/model/provider/target/r1/global-profile/browser effects. No stage/commit/push or protected HTML access.",
+    "No 128/171/full canonical rerun, broad product audit, wall-time benefit, concurrency or durable-qualification certification.",
+    "Original historical PG FAIL/timeout and same four-second contract remain unchanged; exclusive cause and live fix acceptance are not inferred.",
+    "DATA/B06c/B06m/G02/P2-inert remain NOT_CLOSED. Complementary normative review, integration and any further authorized QA belong to parent.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "status_delta_for_parent": {
+    "AICI_projection_fix": {"code": "IMPLEMENTED_UNCOMMITTED", "proof": "3_INDEPENDENT_SOURCE_PASS", "review": "APPROVED_SCOPED", "next": "Parent combines normative review and adjudicates exact snapshot"},
+    "PG_duplicate_deadline": {"proof": "HISTORICAL_FAIL; FRESH_NOT_RUN", "review": "NOT_ACCEPTED_HERE"},
+    "P2_inert_global": {"code": "PARTIAL", "proof": "NOT_CLOSED", "review": "NOT_PROMOTED"}
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "review_id": "PROJECTION-INTRACALL-NORM-F01-REREVIEW-4C6C830",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused normative re-review of NORM-PROJECTION-F01 explicit v4 eligibility guard and real valid-inline/compact-v4 regression. Reuses the original normative review for unchanged scope; not a new general audit.",
+  "workdir": "/home/kali/OmnisAI",
+  "snapshot": {
+    "head": "4c6c830e374871a67532694f6cc7c39ff3f5771c",
+    "file_count": 16,
+    "all_exact_before_and_after_focused_execution": true,
+    "source_test_hashes": {
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "52c08c1c8cadda235cf9d4038438ecd80bfebdd14b0cdf46379d2223e4947b5d",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9"
+    },
+    "unchanged_from_original_review_file_count": 14,
+    "changed_from_original_review": [
+      "api/src/omnis/modules/runs/model_projection.py",
+      "api/tests/test_model_projection_storage.py"
+    ],
+    "index_empty": true,
+    "git_status": "## checkpoint/p2-batch2-pause-20261015\n M api/src/omnis/modules/runs/model_projection.py\n M api/tests/test_model_projection.py\n M api/tests/test_model_projection_storage.py\n?? documents/Omnis_Notite_Originale.html\n",
+    "author_report": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/report.json",
+    "author_report_sha256": "14ae19ed6609171feccfe0ae5b8507331944b423908f0af77d107fb7e5be45a1"
+  },
+  "prior_review": {
+    "path": "/home/kali/OmnisAI/documents/verification/p2-integration-projection-reuse-review-norm.json",
+    "sha256": "844fba67e2e27cec4f3d07c38cc89ecf11b9a2c7908dd9603dc96abd09fbb262",
+    "verdict": "CHANGES_REQUESTED",
+    "disposition": "Original sole normative blocker closed by this exact delta. Unchanged original requirement assessments retain their original SOURCE/scoped limits; this is not a full re-audit."
+  },
+  "findings": [],
+  "dispositions": [
+    {
+      "id": "NORM-PROJECTION-F01",
+      "severity": "MEDIUM",
+      "disposition": "CLOSED_SCOPED",
+      "reason": "The explicit integer-v4 refusal follows real stage_payload and precedes direct projection_input. Genuine stage-valid inline-v4 now rejects MODEL_PROJECTION_REJECTED with zero INSERT; compact-v4 remains denied. Supported-v3 direct-validation census, byte equality, read and replay remain passing.",
+      "locations": [
+        "api/src/omnis/modules/runs/model_projection.py:48-77",
+        "api/tests/test_model_projection_storage.py:193-288"
+      ]
+    },
+    {
+      "id": "REUSE-SEC-F01",
+      "alias_of": "NORM-PROJECTION-F01",
+      "disposition": "SAME_SCENARIO_CLOSED_BY_NORMATIVE_FIX_REVIEW",
+      "limit": "Alias identified by the active register and author report. This does not replace the separately owned complementary safety re-review or parent adjudication."
+    }
+  ],
+  "requirement_matrix": [
+    {
+      "requirement": "Preserve eligibility; do not promote v4 under optimization",
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "model_projection.py:58-61 retains full stage validation, then denies manifest composition_version=4 before policy projection. Manifest was checked at lines48-50; managed_contract.validate_manifest:1752 calls integer:1692-1695, requiring exact int type and range1..4. No Python bool/float equality bypass or unknown-version expansion is introduced."
+    },
+    {
+      "requirement": "Preserve complete validation, intra-call reuse and public untrusted wrapper",
+      "assessment": "PRESERVED",
+      "evidence": "stage_payload:777-838 still validates the exact manifest, composition/entry and retained materials. Supported values keep direct projection_input with no additional await, cache or bypass flag. Public managed_composition.project_model_input:841-848 and all other original reviewed product files are byte-unchanged."
+    },
+    {
+      "requirement": "A real valid-inline-v4 negative at the service boundary",
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "Regression constructs BuildSource(method_execution=True), genuine CONTRACT records, expands/reseals composition and manifest, creates strict binding, proves real stage acceptance and public-wrapper refusal, then observes service refusal, one stage call/graph await and no INSERT. SQL and graph qualification are explicit doubles."
+    },
+    {
+      "requirement": "Supported optimization remains useful; replay/read preserve provenance",
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "Independent existing v3 test passes expected canonical model_input equality, one direct validation per entry on prepare/read/replay, three _verify_graph awaits, and one INSERT total. Full old/current projection payload equality is retained author differential evidence, not independently rerun here."
+    }
+  ],
+  "evidence": {
+    "independent_focused": {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_projection_storage.py::test_service_preserves_v4_projection_ineligibility api/tests/test_model_projection.py::test_persistent_producer_uses_exact_managed_owner_and_readback -q --tb=short --basetemp=/home/kali/.hermes/cache/scratch/projection-v4-norm-rereview-c7a711d988",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 0.99,
+      "log": "/home/kali/.hermes/cache/scratch/projection-v4-norm-rereview-c7a711d988/focused.txt",
+      "execution_count": 1
+    },
+    "retained_red_green": {
+      "red": "Read and hash-verified: inline-v4 DID NOT RAISE; 1 failed/1 passed in0.85s, recorded exit1.",
+      "green": "Read and hash-verified:3 passed in1.02s, recorded exit0."
+    },
+    "retained_differential": "Read and hash-verified after-differential: valid v3 accepted old/current with one INSERT and entire projection payload identical; stage-valid inline-v4 denied by wrapper and old/current with zero INSERT. Not rerun by reviewer.",
+    "retained_affected": "Read and hash-verified author final affected log:128 passed in59.61s, recorded exit0 after last edit. Original171 SOURCE evidence remains historical at its unchanged scope, not freshly rerun in full.",
+    "quality": "Three author quality logs hash-verified; report records Ruff/format/strict mypy exit0. Not rerun by reviewer.",
+    "retained_evidence_hashes": {
+      "red": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/red.txt",
+        "sha256": "f0f24bba75b14ab04d2833b22bba37c30640649f97ede3337a281fb5757cdf0e",
+        "matches": true
+      },
+      "green": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/green.txt",
+        "sha256": "d2a6a030c14b06247b2496f0d6742a7c472d841e152e19413fc05201a9fe8b1d",
+        "matches": true
+      },
+      "ruff": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "matches": true
+      },
+      "format": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/format.txt",
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "matches": true
+      },
+      "mypy": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/mypy.txt",
+        "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+        "matches": true
+      },
+      "affected": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/affected.txt",
+        "sha256": "2b019279a8b355c4bad6ac06a5a33105f43259240ef8c4662b1e48f39180d3cb",
+        "matches": true
+      },
+      "after-differential": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/after-differential.txt",
+        "sha256": "9229a6428dc7d5c2fe7c9f958a427b9198bbaf5f28cf8fd2d3d413cf2979615a",
+        "matches": true
+      },
+      "strict-manifest-types-corrected": {
+        "path": "/home/kali/.hermes/cache/scratch/projection-v4-fix-n81wheeq/strict-manifest-types-corrected.txt",
+        "sha256": "d1107070a377b2b82ff0a95ecc54cef09b429c4b6d94582a6392e4437c80bd1c",
+        "matches": true
+      }
+    },
+    "repository": "git diff --check exit0; HEAD and16 source/test hashes exact after focused execution; index empty and original three tracked edits/untracked protected HTML preserved."
+  },
+  "issues_retained": [
+    "Author strict-manifest-types smoke initially expected MANAGED_REJECTED for4.0 but upstream rejects INVALID_TYPE; original failed log remains. Corrected expectation is recorded exit0 and hash-verified. No product change or weakened type predicate required.",
+    "README/status CURRENT wording is older than the active slice register and task mandate. No status-map edit or global conclusion is made by this read-only reviewer."
+  ],
+  "limits": [
+    "SOURCE only: SQL and _verify_graph doubles; no durable PG qualification. Direct validation count excludes validations inside real _verify_graph and proves neither latency nor historical timeout cause.",
+    "No PostgreSQL, OCI, Host/native, provider/model, target, account, r1/global/profile effects; no protected HTML read/hash/edit; no repository edits, stage, commit or push.",
+    "No full canonical suite, general P2 audit, fresh full171 suite, profiling, new approval of live authority or guarantee of deadline success.",
+    "Historical PG98PASS/1FAIL duplicate timeout remains unresolved by this review; DATA/B06c/B06m/G02/P2 remain NOT_CLOSED.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Parent retains integration and durable recording responsibility."
+  ],
+  "files_created": {
+    "scratch_report": "/home/kali/.hermes/cache/scratch/projection-v4-norm-rereview-c7a711d988/report.json",
+    "focused_log": "/home/kali/.hermes/cache/scratch/projection-v4-norm-rereview-c7a711d988/focused.txt",
+    "synthetic_pytest_seed_root": "/home/kali/.hermes/cache/scratch/projection-v4-norm-rereview-c7a711d988"
+  },
+  "status_delta_for_parent": {
+    "current": "AICI: guard implemented/uncommitted; focused SOURCE3PASS; normative APPROVED_SCOPED on exact16hashes.",
+    "next": "Adjudicate this and the separate complementary review, then continue the existing admitted bounded real-PG QA without changing its deadline or pauses.",
+    "global": "No P2 closure or runtime/performance PASS inferred; unrelated accepted foundations unchanged."
+  },
+  "proposed_skill_note_for_parent": "Retain the original review lesson: full validation in one manifest/version context need not imply acceptance by a context-free wrapper. Preserve the existing eligibility boundary explicitly and prove it using valid positive/negative inputs at the same consumer. No skill edit in this read-only review."
+}

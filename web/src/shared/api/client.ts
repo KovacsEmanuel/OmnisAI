@@ -4,10 +4,12 @@ import { decodeHealth, decodeInstance } from './decoders';
 import { decodeProjection, decodeSelectedDraft, isDashboardCursor } from './projections';
 import { decodeRevision } from './drafts';
 import type { Draft } from './drafts';
+import { decodeProvider } from './providers';
+import type { ProviderCommand } from './providers';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -39,6 +41,20 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async providerCommand(payload: ProviderCommand, csrf: string, signal?: AbortSignal) {
+    const response = await request('/api/v1/settings/provider', { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProvider(value, payload.operation_id);
+  },
+  async providerOperation(id: string, signal?: AbortSignal) {
+    if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/settings/provider/operations/${id}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProvider(value, id);
+  },
   async draft(id: string, signal?: AbortSignal) {
     if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/engagements/${id}`, {}, signal);

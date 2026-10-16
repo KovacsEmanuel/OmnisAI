@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "review_role": "independent security/lifecycle/concurrency SOURCE reviewer",
+  "verdict": "CHANGES_REQUESTED",
+  "integration_acceptance": false,
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+    "base": "11dc3d389c72ebf903b3a0a045d8da28bdb167e6",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first.json",
+    "manifest_sha256": "bfd059653cb95ff4484d09939d96e446206a5fd71a03d8b4d04cd2242e26af37",
+    "snapshot_sha256": "0d60ff59eb297bcae46b28ef55e9b3ec17272121d7f10fbe849a6aee0c5aafd1",
+    "diff_sha256": "4f9d14b7ce4d5935d5fe8e42d770354e9d2c8bf8d0c4f17cfbd56dd3ae3858f4",
+    "file_count": 28,
+    "independent_hash_check_before_and_after": "28/28 match author manifest; no product/test edits",
+    "native_source": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "native_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "native_source_use": "static reads only; no native import or execution"
+  },
+  "acceptance_row": "Settings UI -> authenticated public API -> LocalControl -> same RuntimeClient -> asynchronous RuntimeHost management -> native config save/readback. This report assesses SOURCE safety, not installed/UI/PG acceptance.",
+  "findings": [
+    {
+      "id": "SAFETY-FIRST-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Management can initiate its config PUT after its authority deadline",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:292-302",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:384-394",
+        "integrations/hermes/src/omnis_hermes/management_http.py:59-79",
+        "integrations/hermes/src/omnis_hermes/management_server.py:129-132"
+      ],
+      "exact_input_or_timing": "Valid save command for openai-codex/gpt-6.1-sol/xhigh with a current generation=0, epoch=1 grant. Management startup/health completion crosses the absolute deadline before the next watchdog turn. _settings_native then invokes configure and PUT without checking state/deadline. _settings_run checks authority only after configure returns.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py:60 test_expired_grant_reaches_physical_write_after_health[True]",
+      "expected": "A config mutation not yet sent must be refused when authority has expired. Retiring the operation as INDETERMINATE after the mutation is not a pre-effect fence.",
+      "actual": "Real source Host/RuntimeClient UDS and an owned inert child reach the mocked native PUT endpoint after monotonic_ns >= deadline_ns. That endpoint physically writes an owned marker file once. The operation is then INDETERMINATE. The identical [False] control writes before the deadline and is CONFIRMED. Both children are reaped.",
+      "proof_boundary": "Native HTTP/config are doubles. The negative deliberately holds the synthetic health completion synchronously until the real grant expires, exposing the scheduling window before the watchdog executes; it does not mutate the clock, deadline, watchdog or product code. This demonstrates missing dispatch fencing, not an installed native filesystem write or a measured PG Stop overlap.",
+      "minimum_remedy": "Revalidate management state/current generation/epoch/deadline immediately before each new effectful dispatch after awaits. Carry revocable authority through the native save/commit boundary if the contract prohibits local writes after revocation; an asynchronous watchdog and a post-result check alone cannot establish that stronger guarantee. Add the same positive/expired control and a pending-save Stop/expiry commit-cut regression without extending grants/deadlines."
+    },
+    {
+      "id": "SAFETY-FIRST-F02",
+      "severity": "HIGH",
+      "blocking": true,
+      "title": "Foreign config is accepted and preserved once the three selected values match",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/management_server.py:21-45",
+        "integrations/hermes/src/omnis_hermes/management_server.py:57-78"
+      ],
+      "native_static_anchor": "hermes_cli/config.py at pinned ee5ee84:2422-2461; merge_existing deep-merges omitted raw sections at 2445-2447",
+      "exact_input_or_timing": "Existing config contains the exact model/provider, reasoning_effort=xhigh, reasoning_overrides={'gpt-6.1-sol':'xhigh'}, auth.adopt_external_logins=false, plus fallback_model={'provider':'openrouter','model':'foreign-model'}, auxiliary.vision with a foreign provider/model/base_url, and extra keys in agent/auth. All values are synthetic.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py:29 test_foreign_config_is_accepted_and_preserved",
+      "expected": "Refuse unsupported/foreign configuration before mutation; do not present a narrow approved readback while retaining unapproved fallback, auxiliary or auth/config sections.",
+      "actual": "saved_selection accepts the foreign config, GET returns the exact selected triple, PUT returns {'ok':true}, and a disk-backed native-writer double with the pinned merge_existing semantics preserves every foreign field. The public projection hides the unsupported data. A minimal exact allowed configuration is accepted on the same projection.",
+      "proof_boundary": "Executed adapter projection/config_operation; the native module import is replaced by a declared disk-backed double. Native broad merge behavior was independently read statically, not executed. No actual personal configuration or credentials were accessed; no claim of observed provider fallback execution.",
+      "minimum_remedy": "Validate the complete allowed raw configuration shape and exact scalar types before save and after readback, including all top-level and nested fields and any narrowly enumerated canonical fields actually added by the pinned writer. Reject unknown/fallback/aux/auth sections rather than silently preserving or stripping them. Keep the native store as the owner; do not add a second config store or weaken merge safety for unrelated native callers."
+    },
+    {
+      "id": "SAFETY-FIRST-F03",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "title": "Stop before the scheduled worker starts leaves a permanently PENDING receipt",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:283-285",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:288-313",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:824-835",
+        "web/src/features/engagement/ProviderSettings.tsx:24-30",
+        "web/src/features/engagement/ProviderSettings.tsx:68-70"
+      ],
+      "exact_input_or_timing": "Admit a valid read command via _settings_start, then execute stop before the newly created settings_task gets its first event-loop turn.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py:125 test_prestart_cancellation_retains_pending",
+      "expected": "Stop/drain must publish a terminal not-executed/unavailable/indeterminate operation receipt even when cancellation occurs before the worker's try/except has run.",
+      "actual": "settings_task is done and cancelled; Host state is STOPPED and drained=true, but settings_result remains PENDING. settings_status returns that retained PENDING forever. UI keeps the pending state and disables a fresh read/save; exact-operation recovery cannot change this terminal task's receipt.",
+      "proof_boundary": "Deterministic direct SOURCE owner scheduling cut. No subprocess is started and no native operation occurs. Actual UDS arrival scheduling for this exact prestart ordering was not separately exercised.",
+      "minimum_remedy": "Finalize every admitted operation in the owner's stop/finalization path (or a completion callback), including tasks cancelled before entry. Do not rely only on the coroutine's cancellation handler. Preserve no-resend semantics and test prestart and already-running cancellation separately."
+    },
+    {
+      "id": "SAFETY-FIRST-F04",
+      "severity": "LOW",
+      "blocking": false,
+      "title": "Native save ACK accepts numeric 1 as boolean true",
+      "locations": ["integrations/hermes/src/omnis_hermes/management_http.py:75-76"],
+      "exact_input_or_timing": "Native PUT reply is JSON {'ok':1}; subsequent GET returns the exact requested selection.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py:140 test_numeric_native_ack_is_accepted",
+      "expected": "Reject noncanonical acknowledgement scalar types.",
+      "actual": "Python dict equality treats 1 as True; configure accepts the malformed ACK and returns success after readback.",
+      "proof_boundary": "SOURCE decoder with mocked native endpoint. Exact GET readback remains required, so this does not independently prove a false configuration value or inference readiness.",
+      "minimum_remedy": "Require exact dict field set {'ok'} and result['ok'] is True. Add 1/1.0/unknown-field negatives while preserving the canonical positive."
+    }
+  ],
+  "verification": {
+    "environment": {
+      "python": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+      "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+      "HOME_and_TMPDIR": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp",
+      "environment_policy": "env -i; explicit PATH/HOME/TMPDIR, plus NODE_ENV=test for Vitest",
+      "imports": "Explicit worktree api/src and integrations/hermes/src; both package origins asserted before pytest",
+      "pytest_config": "api/pyproject.toml; -p no:cacheprovider; scratch basetemp; --tb=no"
+    },
+    "reproducer_file": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py",
+    "reproducer_sha256": "f8b9ee04495fd015c47df6407bbe799b435d9c2b285903c7786ef4ebef4d60af",
+    "final_reproducer_command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp TMPDIR=/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert str(omnis.__file__).startswith(str(r)); assert str(omnis_hermes.__file__).startswith(str(r)); raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"--basetemp\",\"/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/pytest3\",\"-q\",\"-s\",\"--tb=no\",\"/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py\"]))'",
+    "runs": [
+      {
+        "kind": "SOURCE preflight collect-only",
+        "exit_code": 0,
+        "collected": 15,
+        "scope": "Initial four reviewer cases and affected author provider settings denial/process/API/native-source tests; no DB/native prerequisites"
+      },
+      {
+        "kind": "Initial SOURCE execution",
+        "exit_code": 1,
+        "passed": 14,
+        "failed": 1,
+        "duration_seconds": 1.13,
+        "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/source-results.log",
+        "scope": "All 11 affected author cases passed; three reviewer defect confirmations passed. Reviewer expiry fixture failed with OSError because its pytest-generated UDS path exceeded Linux AF_UNIX path capacity (128 characters). No product fix was made; only the owned reviewer socket directory was shortened to a private TMPDIR child. Original failed log retained.",
+        "author_files": [
+          "api/tests/test_provider_settings_denials.py",
+          "api/tests/test_provider_process_source.py",
+          "api/tests/test_provider_settings_api_source.py",
+          "api/tests/test_provider_native_source.py"
+        ]
+      },
+      {
+        "kind": "Corrected reviewer SOURCE reproductions",
+        "exit_code": 0,
+        "passed": 4,
+        "duration_seconds": 0.72,
+        "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/reproducer-results.log"
+      },
+      {
+        "kind": "Final reviewer SOURCE reproductions including same-channel unexpired positive",
+        "exit_code": 0,
+        "passed": 5,
+        "duration_seconds": 1.0,
+        "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/reproducer-final.log",
+        "sanitized_output": [
+          "FOREIGN_CONFIG_ACCEPTED_AND_PRESERVED fallback_model auxiliary agent_extra auth_extra",
+          "EXPIRED_GRANT_PHYSICAL_WRITE False ; result CONFIRMED ; writes 1",
+          "OWNED_CHILD_REAPED true; namespace_drain UNCERTAIN_SOURCE",
+          "EXPIRED_GRANT_PHYSICAL_WRITE True ; result INDETERMINATE ; writes 1",
+          "OWNED_CHILD_REAPED true; namespace_drain UNCERTAIN_SOURCE",
+          "PRESTART_CANCEL state STOPPED; drained true; operation PENDING",
+          "NONBOOLEAN_NATIVE_ACK accepted ok=1"
+        ],
+        "interpretation": "These tests assert that defects are reproducible. Their exit0 is NOT a product safety PASS."
+      },
+      {
+        "kind": "Affected UI component SOURCE test",
+        "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node web/node_modules/vitest/vitest.mjs run --root web src/app/ProviderSettings.test.tsx",
+        "exit_code": 0,
+        "passed": 1,
+        "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/web-results.log",
+        "boundary": "jsdom, mocked fetch; exact selection/lost response/no automatic resend. Not browser or integrated UI/API/PG evidence."
+      },
+      {
+        "kind": "Read-only diff/hash check",
+        "command": "git diff --check; hashlib comparison of every author-first.json file",
+        "exit_code": 0,
+        "matched_files": 28,
+        "mismatches": []
+      }
+    ]
+  },
+  "positive_observations": [
+    "Provider mutations use authenticated public routes and existing LocalControl, then the supervisor's same RuntimeClient. Tested public session/CSRF denials and unchanged 4096/4097 public/control byte limits passed with explicit auth/DB doubles.",
+    "Host state separates MANAGEMENT from READY; actual management producer has null bootstrap_inventory and never sets assessment_ready/inference_ready. Save does not claim authentication or model compatibility.",
+    "Management-vs-execution state checks and single active settings task exist; author busy/execution-denial/Stop/expiry/expired-idle and cancelled-exchange cases passed. These do not prove PG overlapping transactions or the missing sink fence.",
+    "Management launch supplies an explicit isolated environment rather than copying ambient variables. Owned inert-child environment and stop/reap test passed; no personal data was used.",
+    "Lost replies do not automatically resend mutations; exact-operation receive-only status is separate from new settings authority. Bounded retained operation receipts are distinct from new native execution.",
+    "Existing 3600 command, 4096 local-control and 65536 runtime frame limits were not increased; existing authority deadlines/grants were not extended. The reviewer expiry fixture uses a shorter grant only."
+  ],
+  "limits_and_deferred": [
+    "SOURCE only. No installed native import/boot, OCI, database, OAuth, provider, target or external network effects. Native filesystem save/readback/restart remains NOT_RUN.",
+    "No real browser QA; component test and static async-auth inspection do not certify click/keyboard/reload/layout behavior. Prestart pending receipt creates a concrete source-level UI recovery consequence, not a claimed browser reproduction.",
+    "No real PostgreSQL overlap/Stop/lease transaction proof. Source authority/auth doubles must not be credited as that proof.",
+    "No namespace/PID1 drain certification. Real owned source children were joined; outside PID1, product UNCERTAIN is preserved rather than changed into STOPPED acceptance.",
+    "Native broad-handler reuse architecture decision belongs to the complementary normative review. This report does not approve the new narrow server as architectural reuse, nor demand the deferred OAuth/catalog/P2-live increments.",
+    "Dedicated /state/provider mount/UID wiring and normal installed launch are known later prerequisites; CaseSlot B05 remains unchanged. Their absence is not reported here as a newly reproduced source security defect.",
+    "Full canonical gates, P4a acceptance, P2-live and integration acceptance remain NOT_RUN/NOT_CLOSED. Reticle NOT_INTEGRATED for this source-only UI review; Chisel BLOCKED_NO_GO.",
+    "No protected original HTML, ponytail.json, personal configs/env/auth/logs or other profiles were read or changed. No product/tests/skills/status-map edits or commits were made."
+  ],
+  "artifacts_and_cleanup": {
+    "created": [
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/review-first-safety.json",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/test_safety_review.py",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/source-results.log",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/reproducer-results.log",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/reproducer-final.log",
+      "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/safety-review-tmp/web-results.log"
+    ],
+    "retained": "Private synthetic pytest roots/config JSON/late-write markers/FIFO fixtures and short socket directories under the reviewer TMPDIR. No live fixture child/listener retained; Host contexts removed their owned boot/socket identities. No private receipt contents were dumped.",
+    "product_modified": false,
+    "commits": [],
+    "parent_action": "Reproduce/adjudicate F01-F03 on these exact bytes, remediate minimally with RED/GREEN, then request focused complementary re-review before admitting installed native/UI QA. F04 is a lower-severity strictness correction."
+  }
+}

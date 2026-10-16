@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_CANDIDATE_NOT_ACCEPTED",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+  "branch": "work/p4a-169c9470b2",
+  "base": "11dc3d389c72ebf903b3a0a045d8da28bdb167e6",
+  "files": [
+    {
+      "path": "api/src/omnis/api.py",
+      "sha256": "cb90cb1fc128124ac06a34e9da4b1bbb101978c4e57daeefa067dc220e90aa36",
+      "bytes": 7161,
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "3d67a8aac20aed61aeabfd24ef2e14235a5d19ec584e244b424052d6072102df",
+      "bytes": 8162,
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "3cac2dc0e0b64efcd744ca9d55d9cc86cdbfee88f00ac30a4584b12ff0fad8ad",
+      "bytes": 40135,
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_models.py",
+      "sha256": "9624ba90a58dfc79e169e58880c8a743b1a3b7e3a99175a21da7cb99c858e266",
+      "bytes": 2939,
+      "new": true
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_routes.py",
+      "sha256": "1a884b589175864787285e7818933abfe1c2c401acadf237ea3026985ebac631",
+      "bytes": 3993,
+      "new": true
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "6659412dc28e55e65a6d98ed7724dab90964636a410cd5ddd019cfc7bbc72cc9",
+      "bytes": 9079,
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "4a793b3944dc1d7f79fcb3a33e4c700c7111173ac0acc66b08d17985df6b9dba",
+      "bytes": 30050,
+      "new": false
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "2d29eb3e4048296f06d8c85898652c79e0035dd97af6e7d0095dca2ed263fdab",
+      "bytes": 12792,
+      "new": false
+    },
+    {
+      "path": "api/tests/test_provider_native_source.py",
+      "sha256": "4cc742a3312fcf71a9e0b9cda4bb8b733f1456e70e4cdd56b45b9443ea2ab3ef",
+      "bytes": 2574,
+      "new": true
+    },
+    {
+      "path": "api/tests/test_provider_process_source.py",
+      "sha256": "b0bd40311aa6dc35346398757daabf16a1e997dbd1def7a4e987d955f6825223",
+      "bytes": 3083,
+      "new": true
+    },
+    {
+      "path": "api/tests/test_provider_settings_api_source.py",
+      "sha256": "4ea880f706820252fb568b65faf4a3e3c1c2c7af71a10fac27a4228e61a495c1",
+      "bytes": 8515,
+      "new": true
+    },
+    {
+      "path": "api/tests/test_provider_settings_denials.py",
+      "sha256": "3d229e6f499dc269eafb95880da9cf904bca1446fcbe3cc3b9582b91d6c88ec1",
+      "bytes": 6071,
+      "new": true
+    },
+    {
+      "path": "api/tests/test_provider_settings_source.py",
+      "sha256": "6aeee72fa2ec7b95cd4f328525a6dd964028449d2564dfd9202da50a8b7133fa",
+      "bytes": 2782,
+      "new": true
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "15e27142891885a6b7c70921a699dd015724ad5d51aaff8edec56b3e78d9488f",
+      "bytes": 69657,
+      "new": false
+    },
+    {
+      "path": "integrations/hermes/pin.json",
+      "sha256": "b147540221cc0aa857f0f99d0b90f0d0569d43bad29c49813a870bbda9899914",
+      "bytes": 1571,
+      "new": false
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_contract.py",
+      "sha256": "b5077f484ff46614471d41fa0d957c029c0927ee7edade10982b3126f91b28cd",
+      "bytes": 1577,
+      "new": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_http.py",
+      "sha256": "245a5f310662d6d24bb4834f143f14be132f659034d79c36ec0364cf70acc888",
+      "bytes": 3224,
+      "new": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/management_server.py",
+      "sha256": "0067a4dbefb9dc1f3c9b5d6fb62a8e34f1f1d9cd7c4055e30a09c64e9e7e0d3e",
+      "bytes": 6131,
+      "new": true
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "d435f2b6b7f6a17629128ded444d315253e0541e688e6f675ca297680f59c30b",
+      "bytes": 47384,
+      "new": false
+    },
+    {
+      "path": "integrations/hermes/upstream/management-patch-manifest.json",
+      "sha256": "ac851aa505fde8f44ac56561902ee7175747e03f57e3b58cf8465d37883cf149",
+      "bytes": 361,
+      "new": true
+    },
+    {
+      "path": "integrations/hermes/upstream/omnis-management.patch",
+      "sha256": "04ed4d993503213dc74633dc8aa78b8acdf18d036e58d9b1e2932439ca96a008",
+      "bytes": 737,
+      "new": true
+    },
+    {
+      "path": "ops/prepare_hermes_runtime.py",
+      "sha256": "a81408342f96e7a42a1fa7d2de2b6395ff291b3d43fc76369285e2aad56aa9a7",
+      "bytes": 17490,
+      "new": false
+    },
+    {
+      "path": "web/src/app/ProviderSettings.test.tsx",
+      "sha256": "5e5339d4168946cb3053152b9c4d8e180abb0dac4153ad204f7097441ad9423d",
+      "bytes": 2127,
+      "new": true
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "sha256": "e2191336564c178b59a814dc8caba67bfb1ef004435b07bc6945dc0d1a2a9bbd",
+      "bytes": 5318,
+      "new": true
+    },
+    {
+      "path": "web/src/features/engagement/Settings.tsx",
+      "sha256": "3b85bede8b661bfa1ce10077858ba5302eedae42ff3cda9677b1a3653237d707",
+      "bytes": 738,
+      "new": false
+    },
+    {
+      "path": "web/src/shared/api/client.ts",
+      "sha256": "63a0b811cd95a250bcfccc5f80b638b1b03a487df261407e6db7a44537af3528",
+      "bytes": 6352,
+      "new": false
+    },
+    {
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "35eff3e764487f2844f4d1e20577e3341575327637408c83480469ce1ba45caf",
+      "bytes": 56418,
+      "new": false
+    },
+    {
+      "path": "web/src/shared/api/providers.ts",
+      "sha256": "ef8b2f439bc5e8b9c479320552b414a633a99941313cfd9766b350619ed635f6",
+      "bytes": 1741,
+      "new": true
+    }
+  ],
+  "file_count": 28,
+  "snapshot_sha256": "0d60ff59eb297bcae46b28ef55e9b3ec17272121d7f10fbe849a6aee0c5aafd1",
+  "diff_path": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first.diff",
+  "diff_sha256": "4f9d14b7ce4d5935d5fe8e42d770354e9d2c8bf8d0c4f17cfbd56dd3ae3858f4",
+  "diff_bytes": 108985,
+  "author_commits": [],
+  "integration_claim": false,
+  "writes_frozen_after_this_report": true,
+  "implemented": [
+    "Settings Providers exact openai-codex / gpt-6.1-sol / xhigh selection, explicit Read then Save, pending and exact-operation recovery, no mutation retry.",
+    "Bounded typed public routes through existing LocalBoundary session/CSRF and existing supervisor LocalControl/RuntimeClient connection.",
+    "Asynchronous management operation on RuntimeHost, separate MANAGEMENT state and null bootstrap inventory; grant renewal stays on the owner loop, Stop/expiry/EOF/cancel retire the operation and process.",
+    "Private loopback config-only management adapter with canonical serve argv, private session token, isolated environment/root, native save_config + strict native disk readback, no Omnis persistence duplicate.",
+    "Separately pinned nine-line native main.py early management boot delta; existing inert/managed overlays and CaseSlot were not edited."
+  ],
+  "proof_boundary": "SOURCE only. ASGI and real authenticated UDS/owned inert subprocesses; PG authority/auth and native config effects are explicit test doubles. No installed native import/boot, DB, browser or network probe.",
+  "verification_environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/tmp",
+    "dependency_policy": "Existing pinned dependencies read-only; owned copies of web/anti-slop node_modules in this worktree; no install/network."
+  },
+  "red": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_settings_source.py -q",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "typed Settings consumer missing",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_settings_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py -q",
+      "exit_code": 1,
+      "failed_tests": 2,
+      "reason": "duplicate JSON accepted and numeric false coerced",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-denials.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_native_source.py -q",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "foreign ambient auth accepted without a selection",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-native-projection.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_process_source.py -q",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "management source subprocess seam absent",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-process.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_settings_denials.py::test_cancelled_settings_exchange_retires_stream_without_resend -q",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "cancelled real UDS exchange retained its writer",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-cancel.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_settings_denials.py::test_settings_stop_expiry_busy_and_lost_readback[expired_idle] -q",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "new settings operation revived an expired management grant",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-expired-idle.log"
+    },
+    {
+      "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node web/node_modules/vitest/vitest.mjs run --root web src/app/ProviderSettings.test.tsx",
+      "exit_code": 1,
+      "failed_tests": 1,
+      "reason": "Providers UI action absent",
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/red-web.log"
+    }
+  ],
+  "green": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; from pathlib import Path; root=Path.cwd(); sys.path[:0]=[str(root/\"api/src\"),str(root/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert str(omnis.__file__).startswith(str(root)); assert str(omnis_hermes.__file__).startswith(str(root)); print(\"SOURCE_ORIGINS_WORKTREE_CONFIRMED\"); raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', 'api/tests/test_provider_settings_source.py', 'api/tests/test_provider_settings_api_source.py', 'api/tests/test_provider_settings_denials.py', 'api/tests/test_provider_native_source.py', 'api/tests/test_provider_process_source.py', 'api/tests/test_runtime_supervisor.py', 'integrations/hermes/tests/test_host.py', 'integrations/hermes/tests/test_client.py', '-q']))"
+      ],
+      "exit_code": 0,
+      "passed": 35,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/source-frozen.log",
+      "imports": "Both api and adapter asserted to originate in assigned worktree"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml api/src integrations/hermes/src api/tests/test_provider*.py",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/ruff-frozen.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/src integrations/hermes/src api/tests/test_provider*.py",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/format-frozen.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src integrations/hermes/src api/tests/test_provider*.py",
+      "exit_code": 0,
+      "checked_files": 114,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/mypy-frozen.log"
+    },
+    {
+      "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node web/node_modules/vitest/vitest.mjs run --root web",
+      "exit_code": 0,
+      "passed": 83,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/web-tests-final.log"
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node web/scripts/lint.mjs",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/web-lint-final.log"
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/lib/node_modules/npm/bin/npm-cli.js --prefix web run build",
+      "exit_code": 0,
+      "includes": [
+        "TypeScript",
+        "OpenAPI TS drift",
+        "design drift",
+        "Vite build",
+        "trusted manifest"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/web-build-final.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B scripts/export_contracts.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "operation": "runpy.run_path(ops/prepare_hermes_runtime.py)[apply_management_overlay](owned copy of exact pinned main.py), git apply --check/apply, SHA validation, compile only",
+      "exit_code": 0,
+      "private_log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/overlay-final.log"
+    }
+  ],
+  "limits_verified": {
+    "public_HTTP_body_bytes": [
+      4096,
+      4097
+    ],
+    "private_control_frame_bytes": [
+      4096,
+      4097
+    ],
+    "positive_and_negative": "same authenticated public route / real LocalControl UDS; cap+1 refuses with 413 / INVALID_REQUEST before mutation",
+    "actual_fixed_DTO_sizes": {
+      "public_command_bytes": 150,
+      "private_command_bytes": 232,
+      "private_frame_bytes": 337,
+      "public_readback_bytes": 255
+    },
+    "private_command_budget": 3600,
+    "control_frame_budget": 4096,
+    "existing_runtime_frame_and_timeouts": "unchanged; operation runs asynchronously outside exchanges"
+  },
+  "preserved_attempts": [
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/green-regressions.log",
+      "exit_code": 2,
+      "classification": "SOURCE harness collection failure: relative -o pythonpath resolved against api config directory and imported wrong tree. Replaced by explicit worktree sys.path with assertions; no tests executed in failed collection."
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/green-web.log",
+      "exit_code": 1,
+      "classification": "Product decoder expected 8 instead of actual 7 producer fields; corrected after inspecting ProviderView fields."
+    },
+    {
+      "log": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/mypy-final.log",
+      "exit_code": 1,
+      "classification": "Two test-only typing defects corrected without weakened runtime assertions; final strict mypy clean."
+    }
+  ],
+  "not_run": {
+    "native_installed": "NOT_RUN",
+    "native_config_persistence_and_restart": "NOT_RUN",
+    "PostgreSQL": "NOT_RUN",
+    "browser_QA": "NOT_RUN",
+    "OAuth": "NOT_RUN",
+    "provider_reachability": "NOT_RUN",
+    "inference": "NOT_RUN",
+    "target_http_0_0_0_0_5000": "NOT_RUN",
+    "OCI_build": "NOT_RUN",
+    "canonical_gate": "NOT_RUN",
+    "independent_reviews": "NOT_REVIEWED"
+  },
+  "known_blockers_and_review_decisions": [
+    "Normal installed CLI/control compose has no OMNIS_RUNTIME wiring; parent owns the next installed-path prerequisite. This source candidate is not normal-launch acceptance.",
+    "Management-only boot uses a narrow adapter server at the native /api/config URLs and reuses native save_config/strict disk reader, NOT the original broad web_routers.config_env handler functions. Original GET strips provider and broad serve boot has unrelated effects. Parent architecture review must explicitly adjudicate this implementation against the required native API reuse before native admission; if original handler reuse is mandatory this seam needs revision.",
+    "New fixed /state/provider is a separate management-only policy root. It preserves B05 CaseSlot rather than relaxing its hash policy. Installed volume/UID permission and eventual live execution use of this one store need parent QA/policy wiring; no live run integration is claimed.",
+    "Exact model and xhigh native compatibility remain UNKNOWN. Saving/readback is not authenticated/reachable/inference_ready, and no downgrade or fallback exists.",
+    "Operation receipts are memory-only and bounded to the same Host; after Host restart the operator must explicitly read current native config. Historical operation success is not reconstructed from a new Host.",
+    "Private native HTTP and native config helper execution/restart are not exercised here; SOURCE request mapping and allowed projection tests are not native PASS.",
+    "OAuth/catalog and P2-live are not implemented by this increment; STOP before P3 remains in force."
+  ],
+  "proposed_reviews": [
+    {
+      "scope": "Exact snapshot: acceptance/architecture/persistence/readback",
+      "focus": [
+        "native management-only API reuse decision",
+        "single settings store and immediate reader",
+        "readiness axes versus compatibility",
+        "normal installed launch prerequisite",
+        "no extra Omnis durable record or migration"
+      ]
+    },
+    {
+      "scope": "Exact snapshot: security/lifecycle/concurrency/failure",
+      "focus": [
+        "generation/epoch/capability and same connected RuntimeClient",
+        "exclusive management/execution",
+        "independent renewal while task awaits",
+        "Stop/expiry including expired-idle restart denial",
+        "cancellation/lost responses/no mutation retry",
+        "strict bounded input/output and no personal environment adoption",
+        "native patch provenance and unchanged inert overlays"
+      ]
+    }
+  ],
+  "protected_and_ownership": "No writes to main, protected original HTML, ponytail.json, canonical docs, status registry, other profiles, or skill/tooling source. No commit, delegation, integration or acceptance claim.",
+  "cleanup": "SOURCE UDS contexts and owned inert subprocess were closed/reaped by tests; source process test intentionally retains UNCERTAIN outside PID1 rather than claiming namespace drain. Owned dependency copies and private logs/diff are retained."
+}

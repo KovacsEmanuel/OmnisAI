@@ -39,6 +39,7 @@ from omnis.modules.instance.schemas import (
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.settings.provider_models import SettingsControl
 from omnis.security.sessions import PairingConflict
 
 
@@ -66,6 +67,7 @@ class LocalControl:
     ) -> None:
         self.native_prepare = native_prepare
         self.native_task = native_task
+        self.settings: Callable[[SettingsControl], Awaitable[dict[str, object]]] | None = None
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -141,10 +143,18 @@ class LocalControl:
         | LifecycleCommand
         | ArmStopCommand
         | NativePrepareCommand
-        | NativeTaskCommand,
+        | NativeTaskCommand
+        | SettingsControl,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, SettingsControl):
+            if self.settings is None:
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+            try:
+                return {"ok": True, "settings": await self.settings(command)}
+            except (OSError, ValueError, TimeoutError):
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
         if isinstance(command, NativeTaskCommand):
             if self.native_task is None:
                 return {"ok": False, "error": "TASK_UNAVAILABLE"}

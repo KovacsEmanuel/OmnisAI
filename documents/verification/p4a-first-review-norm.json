@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "review_id": "P4A-FIRST-NORM",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent normative/order/persistence/readback/native-reuse review of the frozen first local Settings configuration increment; SOURCE only. Not integration, installed native QA, P4a acceptance, OAuth, catalog or P2-live acceptance.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+    "base_head": "11dc3d389c72ebf903b3a0a045d8da28bdb167e6",
+    "branch": "work/p4a-169c9470b2",
+    "author_manifest": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/author-first.json",
+    "author_manifest_sha256": "bfd059653cb95ff4484d09939d96e446206a5fd71a03d8b4d04cd2242e26af37",
+    "author_snapshot_sha256": "0d60ff59eb297bcae46b28ef55e9b3ec17272121d7f10fbe849a6aee0c5aafd1",
+    "diff_sha256": "4f9d14b7ce4d5935d5fe8e42d770354e9d2c8bf8d0c4f17cfbd56dd3ae3858f4",
+    "independent_binding_result": "All 28 manifest file SHA256 values matched twice. Actual tracked-diff plus untracked path set equals the manifest exactly; 28 paths, zero mismatches. Hash verification covers the inventory, not a claim of substantive review of every line.",
+    "reviewed_changed_paths": [
+      "api/src/omnis/api.py",
+      "api/src/omnis/modules/instance/schemas.py",
+      "api/src/omnis/modules/instance/service.py",
+      "api/src/omnis/modules/settings/provider_models.py",
+      "api/src/omnis/modules/settings/provider_routes.py",
+      "api/src/omnis/supervisor/__main__.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/src/omnis/transport/local_control.py",
+      "api/tests/test_provider_native_source.py",
+      "api/tests/test_provider_process_source.py",
+      "api/tests/test_provider_settings_api_source.py",
+      "api/tests/test_provider_settings_source.py",
+      "integrations/hermes/pin.json",
+      "integrations/hermes/src/omnis_hermes/management_contract.py",
+      "integrations/hermes/src/omnis_hermes/management_http.py",
+      "integrations/hermes/src/omnis_hermes/management_server.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "integrations/hermes/upstream/management-patch-manifest.json",
+      "integrations/hermes/upstream/omnis-management.patch",
+      "ops/prepare_hermes_runtime.py",
+      "web/src/app/ProviderSettings.test.tsx",
+      "web/src/features/engagement/ProviderSettings.tsx",
+      "web/src/features/engagement/Settings.tsx",
+      "web/src/shared/api/client.ts",
+      "web/src/shared/api/providers.ts"
+    ],
+    "hash_only_not_substantively_reviewed": [
+      "api/tests/test_provider_settings_denials.py",
+      "contracts/omnis.openapi.json",
+      "web/src/shared/api/generated.ts"
+    ],
+    "native_source": {
+      "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+      "declared_exact_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "verification_limit": "Read-only supplied pinned export. Independently matched main.py to the management overlay original hash and hashed the native files used as evidence; did not rehash the entire upstream archive or import/boot native.",
+      "bindings": {
+        "hermes_cli/main.py": "5f24d7022c1c5213d9d3fcec8b4c21280cc2778e23c7d339d157ced8223c3f74",
+        "hermes_cli/config.py": "854c01bd0e7564dc8e1ff59774993ad2769d1b26ffe6a52a11d91dab5693ff14",
+        "hermes_cli/config_home.py": "85f5e604e745a7b74688b4ae2c930af96f228e661b8100cefd561f2640618e74",
+        "hermes_cli/config_defaults.py": "2af916849856bfa39b4903c660301f968a4cec87410cd7023c89ee7b3f3fdc68",
+        "hermes_cli/web_server.py": "dd095ecfe0a8a1dcc9148c170e96efd8eb9a5ce9a3de68d905f0d61024b144a0",
+        "hermes_cli/web_routers/config_env.py": "6c76aa71d85d9e424d79a62e7331b68685f1f99f1ce1367ddcf3aecf0a21d98d",
+        "hermes_cli/web_server_config.py": "02ca12ce0ca241ee41e839a0388cbd88618b986e6e8a460b6699e0b125e16ae9"
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "P4A-NORM-F01",
+      "severity": "MEDIUM",
+      "blocking_for_scoped_source_acceptance": true,
+      "title": "Foreign configuration is accepted and retained as soon as the expected selection exists",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/management_server.py:21-45",
+        "integrations/hermes/src/omnis_hermes/management_server.py:57-75"
+      ],
+      "canonical_requirement": [
+        "documents/verification/p4a-minim.md:38 explicitly requires invalid/foreign-config refusal for this first increment",
+        "documents/verification/p4a-minim.md:13 requires the exact requested provider/model/effort without silent fallback",
+        "documents/Omnis_MVP_Architecture.md:219 permits only approved provider store/config in the product runtime slot"
+      ],
+      "description": "saved_selection checks the top-level inventory only when model is absent. With the expected model, agent reasoning fields and auth.adopt_external_logins=false present, extra top-level provider routing, fallback_model or delegation settings are ignored. GET projects the clean requested triple; PUT passes the same guard and merge_existing=True preserves those extra settings. This is a current foreign-config refusal defect, not a claim that inference occurred or that the UI falsely claims effective compatibility. The finite empty/exact-owned store policy is already enforced for the no-selection case but disappears after selection exists.",
+      "reproducer": {
+        "command": "TMPDIR=/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/n-mjx1sbbh /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/norm-source-probe.py",
+        "setup": "Use the exact expected native model/agent/auth mapping from config_operation and add, one at a time: fallback_model={provider:openrouter,model:synthetic-foreign}; providers={openai-codex:{base_url:https://synthetic.invalid}}; delegation={provider:openrouter,model:synthetic-foreign}. No URL is contacted. Inject this mapping through the native read double; use the exact pinned pure _merge_partial_save/_deep_merge source for the save double.",
+        "observed": "All three foreign variants: GET returned the expected selection; PUT returned {ok:true}; foreign fields remained unchanged. Empty Save->readback passed, a no-op save against empty storage was refused, and foreign auth without selection was refused on the same function boundary.",
+        "exit_code": 0,
+        "exit_meaning": "The reproducer asserted and confirmed the defect; not a product PASS.",
+        "proof_boundary": "SOURCE only. Exact candidate config_operation/saved_selection executed. Native module and disk IO replaced; only two pure native merge functions were AST-extracted and executed. No native imports, file persistence, network, DB or provider execution. Native save_config lines2445-2447 statically confirm use of these merge semantics."
+      },
+      "minimum_remedy": "Validate the complete finite stored configuration policy before both projection and save. Reject unapproved routing/fallback/delegation and other unknown sections/fields rather than silently preserving them. Permit only the exact owned sparse shapes plus explicitly audited harmless native metadata/default fields needed at this pin; do not remove native persistence or claim model compatibility. Add the existing valid empty/saved controls and these foreign extras to the config-operation tests, require zero writer calls on refusal, then focused re-review. If broader preexisting configs are intentionally supported, define their explicit native semantics rather than adopting arbitrary keys."
+    }
+  ],
+  "architecture_adjudication": {
+    "decision": "The management-only adaptation is justified in principle for this finite increment; stock-handler identity is not itself a blocker. Current bytes still require F01 correction and complementary safety review before admission to native QA. Parent adjudication remains necessary.",
+    "actual_reuse": "The adapter does not invoke stock config_env GET/PUT handlers. It creates a restricted FastAPI app under the early patched native serve entrypoint and calls the genuine hermes_cli.config require_readable_config_before_write/save_config functions. This is native persistence reuse, not stock management HTTP handler reuse. It must be described that way.",
+    "why_not_demand_stock_router": [
+      "Pinned web_server._lifespan lines153-203 reconciles SessionDB, warms gateway and starts hosted rooms; lines233-261 start reaper/selftest/archive/local-runtime/free-tier bootstrap. Suppressing only one startup task would not make the ordinary server a config-only consumer.",
+      "Pinned config_env.get_config lines81-92 applies _normalize_config_for_web even with include_defaults=false; web_server_config lines518-530 flatten model dict to model.default and discard provider identity. Its response cannot alone attest the exact stored provider requested here.",
+      "Pinned update_config lines118-157 relies on profile scope and late-bound web-server state/lock. Reusing that handler while replacing its dependencies and GET semantics is not demonstrably smaller than the finite adapter over the shared native writer/strict reader."
+    ],
+    "minimum_boundary": "Keep the fixed serve argv/token/home, one RuntimeHost-owned child, existing owner/RuntimeClient, finite config commands and native persistence. Do not grow this into a general REST proxy, copied config engine, duplicated OAuth implementation, another supervisor or separate durable Settings store. Future OAuth/model/catalog operations must be assessed against their existing native implementations, not assumed approved by this config-only decision.",
+    "evidence_not_claimed": "No installed boot/import-effect census, native HTTP exchange, native disk save or restart has been executed by this reviewer. The patch hash/original file identity is verified, but patch reapply/build is not independently rerun."
+  },
+  "contract_assessment": [
+    {
+      "requirement": "Order P2-inert -> P4a-minim -> P2-live, STOP before P3",
+      "result": "COMPLIANT_SCOPED",
+      "evidence": "Candidate only adds local Settings selection/readback; no OAuth/provider call/live dispatch/target path. Mandatory exact literals are openai-codex / gpt-6.1-sol / xhigh."
+    },
+    {
+      "requirement": "Single supervisor RuntimeClient owner -> RuntimeHost",
+      "result": "COMPLIANT_SOURCE_PATH",
+      "evidence": "supervisor/__main__.py:123-136 closure uses the preexisting connected runtime object; LocalControl handler delegates to it. Host settings work is separate from READY execution; no second runtime owner or DB Settings table added. Safety/lifecycle race coverage belongs to the complementary review."
+    },
+    {
+      "requirement": "Actual native API signature and stored provider/effort integrity",
+      "result": "SUPPORTED_SOURCE_WITH_F01",
+      "evidence": "Pinned config.py:1997-2029 strict fresh disk mapping reader; save_config:2422-2464 supports strip_defaults and merge_existing exactly. Candidate passes strip_defaults=false so explicit values remain in sparse storage. Native canonicalizer:1759-1859 preserves this exact model/default/provider and agent shape. Pinned official configuration docs:1884-1923 describe literal model-key reasoning_overrides. No evidence of gpt-6.1-sol/xhigh provider compatibility is inferred."
+    },
+    {
+      "requirement": "Save acknowledgement is insufficient without independent readback",
+      "result": "COMPLIANT_SOURCE_ALGORITHM",
+      "evidence": "config_operation:74-76 reads native storage after writer; management_http:75-82 requires acknowledgement then separate GET equality. SOURCE no-op writer against empty state is refused. Both are still unexecuted against actual native disk/HTTP."
+    },
+    {
+      "requirement": "Configured/authenticated/reachable/inference_ready separated",
+      "result": "COMPLIANT_SOURCE",
+      "evidence": "ProviderView and management_contract.view keep authenticated/reachable NOT_VERIFIED and inference_ready=false. UI explicitly calls the triple requested and compatibility unverified. CONFIRMED means matching stored selection only, not live/effective selection."
+    },
+    {
+      "requirement": "Persistence and fresh-process restart/reload",
+      "result": "NOT_RUN_NATIVE; NOT_ACCEPTED",
+      "evidence": "The proposed storage is native config.yaml under fixed /state/provider, not an Omnis duplicate. Receipts are Host-memory-only. A new read after Host restart must read that same retained native store; matching home path alone does not establish persistent volume identity or restart durability. No real native restart or browser reload was authorized/executed here."
+    },
+    {
+      "requirement": "Normal installed first consumer can execute Settings",
+      "result": "BLOCKED_KNOWN_PREREQUISITE",
+      "evidence": "ops/compose.control.yaml:27-49 sets only database/control env for supervisor; no runtime service/channel. cli/src/omnis_cli/start.py:232-266 requires that exact environment/mount set. supervisor/__main__.py:26,73-76,123 installs Settings only if runtime is configured, otherwise LocalControl:150-152 returns CONTROL_UNAVAILABLE. Therefore merely building/installing this snapshot cannot deliver normal omnis web Save. This is independently confirmed static evidence, not a new demand to implement all P4a in this review.",
+      "smallest_next_step": "Parent must separately wire the existing runtime owner/artifact/private channel and durable owned provider root through normal installed launch/attestation/Stop, without adopting r1/personal state; then bounded installed native/API/DB/browser Save->readback->restart QA. Do not bypass exact launch attestation through an ad hoc environment or substitute the source test handler."
+    },
+    {
+      "requirement": "Single eventual provider store shared with approved execution policy",
+      "result": "DEFERRED_EXPLICIT_INTEGRATION_BLOCKER",
+      "evidence": "Management uses /state/provider; current inert execution uses /state/active and B05 CaseSlot. No live path consumes the new store yet. Preserving B05 rather than weakening its credential-free hash is correct for this increment, but the future live execution policy must use the one approved native store/frozen run configuration, not copy OAuth grants into concurrent homes. No live/frozen-run acceptance is granted."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat",
+      "workdir": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/work",
+      "exit_code": 0,
+      "result": "HEAD/base and changed/new inventory match the declared candidate."
+    },
+    {
+      "command": "python3 -I -B -c 'import hashlib,json,pathlib,subprocess; c=pathlib.Path(\"/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control\"); m=json.loads((c/\"author-first.json\").read_text()); w=pathlib.Path(m[\"worktree\"]); tracked=subprocess.check_output([\"git\",\"diff\",\"--name-only\"],cwd=w,text=True).splitlines(); new=subprocess.check_output([\"git\",\"ls-files\",\"--others\",\"--exclude-standard\"],cwd=w,text=True).splitlines(); paths={r[\"path\"] for r in m[\"files\"]}; mismatches=[r[\"path\"] for r in m[\"files\"] if hashlib.sha256((w/r[\"path\"]).read_bytes()).hexdigest()!=r[\"sha256\"]]; p=pathlib.Path(\"/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned\"); pm=json.loads((w/\"integrations/hermes/upstream/management-patch-manifest.json\").read_text()); original=hashlib.sha256((p/\"hermes_cli/main.py\").read_bytes()).hexdigest(); print(json.dumps({\"manifest_count\":len(paths),\"actual_changed_count\":len(set(tracked+new)),\"set_equal\":paths==set(tracked+new),\"mismatches\":mismatches,\"native_main_sha256\":original,\"native_main_matches_manifest\":original==pm[\"files\"][\"hermes_cli/main.py\"][\"original_sha256\"],\"native_evidence_bindings\":{n:hashlib.sha256((p/n).read_bytes()).hexdigest() for n in [\"hermes_cli/config.py\",\"hermes_cli/config_home.py\",\"hermes_cli/config_defaults.py\",\"hermes_cli/web_server.py\",\"hermes_cli/web_routers/config_env.py\",\"hermes_cli/web_server_config.py\"]}}));'",
+      "exit_code": 0,
+      "result": "28/28 hashes match; actual changed/untracked set equal; diff SHA matches; native main.py matches overlay original SHA."
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c",
+        "import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes,pytest; assert str(omnis.__file__).startswith(str(r)); assert str(omnis_hermes.__file__).startswith(str(r)); raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"no:cacheprovider\",\"api/tests/test_provider_native_source.py\",\"api/tests/test_provider_settings_source.py\",\"api/tests/test_provider_settings_api_source.py\",\"-q\",\"--tb=no\"]))"
+      ],
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/n-mjx1sbbh",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/n-mjx1sbbh",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_asyncio.plugin"
+      },
+      "exit_code": 0,
+      "result": "4 passed in 0.69s",
+      "private_output": "/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/n-mjx1sbbh/source-private.txt",
+      "limit": "SOURCE; real ASGI and private UDS transport, simulated DB/session authority and native config. No native or PG proof."
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/n-mjx1sbbh /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p4a-169c9470b2/control/norm-source-probe.py",
+      "exit_code": 0,
+      "result": "Six finite SOURCE cases asserted: valid empty save/readback; no-storage save refused; three foreign extra sections accepted and preserved; foreign no-selection auth refused. Final version uses exact pure native merge source.",
+      "limit": "No real native import/save/restart. Initial version used a shallow in-memory merge; final rerun uses the exact pinned pure merge functions and retains the same finding."
+    },
+    {
+      "command": "git diff --check && git diff --cached --stat",
+      "exit_code": 0,
+      "result": "No whitespace error; no staged changes."
+    }
+  ],
+  "scope_limits": [
+    "Read relevant AGENTS.md/CONTRIBUTING.md, README/current status, architecture section5, plan section8 and p4a-minim contract. Loaded omnis-review-qa, omnis-hermes-runtime, omnis-api-data, omnis-project-status and hermes-agent/configuration reference. Current project status prose still labels P4a NOT_STARTED; active mandate and p4a-minim register supersede that stale status for this task. Parent owns reconciliation, not this read-only reviewer.",
+    "No files in the frozen worktree were modified; no commits. Created only the requested control report, a finite SOURCE reproducer, and private test TMPDIR/output under control.",
+    "No protected original HTML or ponytail.json read; no personal configuration/auth/env/session/log content read.",
+    "No native module import/boot, native config file writes, Docker, PostgreSQL, public network, OAuth, model or target traffic. Official configuration documentation was read from the supplied pinned native source tree, not fetched over the prohibited network.",
+    "No full/canonical suite rerun. No browser QA, visual/accessibility approval, wheel/OCI build or real installed-path execution.",
+    "Complementary reviewer owns auth/input/concurrency/lifecycle/cleanup. This report does not certify those properties; its passing UDS test is only scoped evidence. Native strict-reader RuntimeError and complete import-effect/sanitized error behavior remain for that review and later installed observation.",
+    "Reticle NOT_APPLICABLE to this SOURCE/static review; Chisel BLOCKED_NO_GO and unused.",
+    "Operation receipt history after Host restart is deliberately not reconstructed. Native disk configuration persistence still requires real installed restart/readback on an owned durable root.",
+    "OAuth, catalog selection, actual requested/effective compatibility, immutable live run configuration and P2-live remain unimplemented/unaccepted by this increment; STOP before P3 is preserved."
+  ],
+  "handoff": {
+    "immediate_action": "Parent reproduce/adjudicate P4A-NORM-F01; minimal foreign-config guard correction plus targeted tests/re-review on new hashes. Adjudicate the explicitly bounded native management adaptation with the complementary safety report.",
+    "next_product_boundary": "Installed-path prerequisite, then the first real bounded native/UI/API/DB Save->readback/reload/restart proof, before accumulating OAuth/catalog breadth. No source approval alone closes the first vertical.",
+    "integration_claim": false,
+    "qa_acceptance_claim": false
+  }
+}

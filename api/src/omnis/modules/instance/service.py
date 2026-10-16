@@ -151,7 +151,13 @@ class InstanceService:
             await self._stop_fence(connection)
 
     async def runtime_authority(
-        self, owner: UUID, epoch: int, generation: int, *, inert_probe: bool = False
+        self,
+        owner: UUID,
+        epoch: int,
+        generation: int,
+        *,
+        inert_probe: bool = False,
+        management: bool = False,
     ) -> RuntimeAuthority:
         """Short absolute grant from CURRENT DB authority; never heartbeat or OPEN.
 
@@ -164,6 +170,8 @@ class InstanceService:
             or type(epoch) is not int
             or not 1 <= epoch <= 2**63 - 1
             or type(inert_probe) is not bool
+            or type(management) is not bool
+            or (management and inert_probe)
         ):
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         async with self._locked() as (connection, instance, lease):
@@ -171,7 +179,7 @@ class InstanceService:
             await self._stop_fence(connection)
             self._require_generation(instance, generation)
             if instance.shutdown_command_id is not None or (
-                not instance.admission_open and not inert_probe
+                not instance.admission_open and not (inert_probe or management)
             ):
                 raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
             started = time.monotonic_ns()

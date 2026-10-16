@@ -119,7 +119,22 @@ async def run() -> None:
             epoch,
             native_prepare=preparation.prepare if preparation is not None else None,
             native_task=task_owner.handle if task_owner is not None else None,
-        ):
+        ) as control:
+            if runtime is not None and probe is None:
+                from omnis.modules.settings.provider_models import SettingsControl
+
+                settings_runtime = runtime
+
+                async def settings_command(command: SettingsControl) -> dict[str, object]:
+                    assert epoch is not None
+                    await service.owned_status(owner, epoch)
+                    if command.command is None:
+                        return await settings_runtime.settings_status(command.operation_id)
+                    return await settings_runtime.settings(
+                        service, owner, command.command.model_dump(mode="json")
+                    )
+
+                control.settings = settings_command
             await service.quiesce(owner, epoch)
             print("SUPERVISOR_READY", flush=True)
             while not stop.is_set():
@@ -134,6 +149,8 @@ async def run() -> None:
                         runtime_state = (await runtime.status())["state"]
                         if runtime_state == "READY":
                             await runtime.renew(service, owner)
+                        elif runtime_state == "MANAGEMENT":
+                            await runtime.renew(service, owner, management=True)
                         elif probe == "1":
                             observed = await service.owned_status(owner, epoch)
                             if (

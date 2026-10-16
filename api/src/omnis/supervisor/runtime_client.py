@@ -382,15 +382,30 @@ class RuntimeClient:
     ) -> dict[str, object]:
         if (
             op
-            not in {"launch", "status", "renew", "stop", "prepare", "task_receive"}
+            not in {
+                "launch",
+                "status",
+                "renew",
+                "stop",
+                "prepare",
+                "task_receive",
+                "settings",
+                "settings_status",
+            }
             | MANAGED_OPERATIONS
         ):
             raise RuntimeUnavailable("Runtime operation denied")
-        if (op in {"prepare", "task_receive"} or op in MANAGED_OPERATIONS) != (payload is not None):
+        if (
+            op in {"prepare", "task_receive", "settings", "settings_status"}
+            or op in MANAGED_OPERATIONS
+        ) != (payload is not None):
             raise RuntimeUnavailable("Runtime payload denied")
         if op == "task_receive" and authority is not None:
             raise RuntimeUnavailable("Receive-only authority denied")
-        if op in {"launch", "renew", "prepare"} | MANAGED_OPERATIONS and authority is None:
+        if (
+            op in {"launch", "renew", "prepare", "settings"} | MANAGED_OPERATIONS
+            and authority is None
+        ):
             raise RuntimeUnavailable("Runtime authority missing")
         async with self.lock:
             if self.reader is None or self.writer is None:
@@ -419,7 +434,7 @@ class RuntimeClient:
                     if (authority.generation, authority.epoch) != (self.generation, self.epoch):
                         raise RuntimeUnavailable("Runtime authority mismatch")
                     request["deadline_ns"] = authority.deadline_ns
-                if op == "task_receive":
+                if op in {"task_receive", "settings", "settings_status"}:
                     request["payload"] = payload
                     if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
                         raise RuntimeUnavailable("Runtime receive limit")
@@ -471,6 +486,7 @@ class RuntimeClient:
                     if not isinstance(state, str) or state not in {
                         "IDLE",
                         "STARTING",
+                        "MANAGEMENT",
                         "READY",
                         "STOPPING",
                         "STOPPED",
@@ -631,6 +647,40 @@ class RuntimeClient:
                 await self.close()
                 raise
 
+    async def settings(
+        self, service: "InstanceService", owner: UUID, payload: dict[str, object]
+    ) -> dict[str, object]:
+        from omnis.modules.settings.provider_models import ProviderCommand, ProviderView
+
+        command = ProviderCommand.model_validate(payload)
+        authority = await service.runtime_authority(
+            owner, self.epoch, self.generation, management=True
+        )
+        try:
+            response = await self._exchange("settings", authority, command.model_dump(mode="json"))
+            result = ProviderView.model_validate(response.get("settings"))
+            if result.operation_id != command.operation_id:
+                raise RuntimeUnavailable("Settings correlation mismatch")
+            return result.model_dump(mode="json")
+        except BaseException:
+            await self.close()
+            raise
+
+    async def settings_status(self, operation_id: str) -> dict[str, object]:
+        from omnis.modules.settings.provider_models import ProviderView
+
+        try:
+            response = await self._exchange(
+                "settings_status", payload={"operation_id": operation_id}
+            )
+            result = ProviderView.model_validate(response.get("settings"))
+            if result.operation_id != operation_id:
+                raise RuntimeUnavailable("Settings correlation mismatch")
+            return result.model_dump(mode="json")
+        except BaseException:
+            await self.close()
+            raise
+
     async def status(self) -> dict[str, object]:
         return await self._exchange("status")
 
@@ -640,11 +690,18 @@ class RuntimeClient:
         )
         return await self._exchange("launch", authority)
 
-    async def renew(self, service: "InstanceService", owner: UUID) -> dict[str, object]:
+    async def renew(
+        self, service: "InstanceService", owner: UUID, *, management: bool = False
+    ) -> dict[str, object]:
         try:
-            authority = await service.runtime_authority(
-                owner, self.epoch, self.generation, inert_probe=True
-            )
+            if management:
+                authority = await service.runtime_authority(
+                    owner, self.epoch, self.generation, management=True
+                )
+            else:
+                authority = await service.runtime_authority(
+                    owner, self.epoch, self.generation, inert_probe=True
+                )
             return await self._exchange("renew", authority)
         except BaseException:
             await self.close()

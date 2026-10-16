@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
+from omnis.modules.settings.provider_models import SettingsControl
 
 
 class InstanceView(BaseModel):
@@ -198,6 +199,7 @@ class ControlRequest(StrictBody):
         | LifecycleCommand
         | ArmStopCommand
         | NativePrepareCommand
-        | NativeTaskCommand,
+        | NativeTaskCommand
+        | SettingsControl,
         Field(discriminator="op"),
     ]

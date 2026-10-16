@@ -19,7 +19,9 @@ from typing import Self, cast
 from uuid import UUID, uuid4
 
 from . import managed_admission_contract as managed
+from . import management_contract as settings
 from . import private_paths
+from .management_http import configure, request
 from .native_preparation_contract import (
     LIMITS,
     canonical,
@@ -51,7 +53,11 @@ NATIVE_ENV = {
     "HERMES_DISABLE_LAZY_INSTALLS": "1",
     "HERMES_SKIP_NODE_BOOTSTRAP": "1",
 }
-OPS = frozenset({"launch", "status", "renew", "stop", "prepare", "task_receive"}) | managed.OPS
+OPS = (
+    frozenset({"launch", "status", "renew", "stop", "prepare", "task_receive"})
+    | managed.OPS
+    | settings.OPS
+)
 PREPARATION_COMMAND = (
     "/opt/hermes/venv/bin/python",
     "-I",
@@ -88,11 +94,13 @@ class RuntimeHost:
         peer_uid: int | None = None,
         _test_launch: TestLaunch | None = None,
         _test_preparation: TestPreparation | None = None,
+        _test_management: TestLaunch | None = None,
     ):
         self.directory = directory
         self.peer_uid = os.getuid() if peer_uid is None else peer_uid
         self.launch_spec = _test_launch
         self.preparation_spec = _test_preparation
+        self.management_spec = _test_management
         self.preparation_process: asyncio.subprocess.Process | None = None
         self.preparation_task: asyncio.Task[dict[str, object]] | None = None
         self.preparation_root: tuple[Path, tuple[int, int]] | None = None
@@ -112,7 +120,10 @@ class RuntimeHost:
         self.state = "IDLE"
         # Only the fixed entrypoint as PID1 may certify whole-namespace drain.
         self.namespace_owned = (
-            os.getpid() == 1 and _test_launch is None and _test_preparation is None
+            os.getpid() == 1
+            and _test_launch is None
+            and _test_preparation is None
+            and _test_management is None
         )
         self.stop_lock = asyncio.Lock()
         self.command_lock = asyncio.Lock()
@@ -120,6 +131,14 @@ class RuntimeHost:
         # Receive-only retention survives native drain, not Host restart. Never
         # evict a terminal result to make room for an unrecoverable execution.
         self.managed_finals: dict[str, bytes] = {}
+        self.settings_task: asyncio.Task[None] | None = None
+        self.settings_command: dict[str, object] | None = None
+        self.settings_seen: set[str] = set()
+        self.settings_result: dict[str, object] | None = None
+        self.management_token = secrets.token_hex(32)
+        self.management_port: int | None = None
+        self.management_failed = False
+        self.management_output: list[asyncio.Task[None]] = []
 
     async def __aenter__(self) -> Self:
         private_paths.directory(self.directory)
@@ -229,6 +248,150 @@ class RuntimeHost:
         except BaseException:
             await self.stop()
             raise
+
+    def _settings_start(self, body: dict[str, object]) -> dict[str, object]:
+        payload = settings.command(body["payload"])
+        operation_id = settings.identity(payload["operation_id"])
+        if self.settings_command == payload and self.settings_result is not None:
+            return self.settings_result
+        if operation_id in self.settings_seen:
+            return settings.view(operation_id, "UNAVAILABLE")
+        if len(self.settings_seen) >= 64:
+            return settings.view(operation_id, "BUSY")
+        if self.state == "MANAGEMENT" and time.monotonic_ns() >= self.deadline_ns:
+            return settings.view(operation_id, "BUSY")
+        if (
+            self.management_failed
+            or self.state not in {"IDLE", "MANAGEMENT"}
+            or (self.settings_task is not None and not self.settings_task.done())
+        ):
+            return settings.view(operation_id, "BUSY")
+        if (
+            self.settings_command is not None
+            and self.settings_command["operation_id"] == operation_id
+        ):
+            return settings.view(operation_id, "BUSY")
+        self.deadline_ns = self._grant(body)
+        generation, epoch = body["generation"], body["epoch"]
+        assert type(generation) is int and type(epoch) is int
+        self.generation, self.epoch = generation, epoch
+        self.state = "MANAGEMENT"
+        self.settings_command = payload
+        self.settings_seen.add(operation_id)
+        self.settings_result = settings.view(operation_id, "PENDING")
+        self.settings_task = asyncio.create_task(self._settings_run(payload))
+        return self.settings_result
+
+    async def _settings_run(self, payload: dict[str, object]) -> None:
+        operation_id = settings.identity(payload["operation_id"])
+        try:
+            async with asyncio.timeout(30):
+                action = payload["action"]
+                assert isinstance(action, str)
+                result = await self._settings_native(action, payload["selection"])
+                if self.state != "MANAGEMENT" or time.monotonic_ns() >= self.deadline_ns:
+                    raise ValueError("Settings authority expired")
+                self.settings_result = settings.view(operation_id, "CONFIRMED", result)
+        except (
+            ValueError,
+            OSError,
+            TimeoutError,
+            asyncio.IncompleteReadError,
+            asyncio.LimitOverrunError,
+            asyncio.CancelledError,
+        ):
+            self.settings_result = settings.view(operation_id, "INDETERMINATE")
+            self.management_failed = True
+
+    async def _settings_native(self, action: str, selected: object) -> dict[str, object] | None:
+        if self.process is None:
+            root = (
+                Path("/state/provider")
+                if self.management_spec is None
+                else self.management_spec.cwd
+            )
+            root.mkdir(mode=0o700, exist_ok=True)
+            private_paths.directory(root)
+            environment = {
+                "PATH": NATIVE_ENV["PATH"],
+                "LANG": "C.UTF-8",
+                "HERMES_OMNIS_MANAGEMENT": "1",
+                "HERMES_HOME": str(root),
+                "HERMES_DASHBOARD_SESSION_TOKEN": self.management_token,
+                "HERMES_DISABLE_LAZY_INSTALLS": "1",
+                "HERMES_SKIP_NODE_BOOTSTRAP": "1",
+            }
+            for key, leaf in (
+                ("HOME", "os-home"),
+                ("CODEX_HOME", "codex"),
+                ("XDG_CONFIG_HOME", "xdg-config"),
+                ("XDG_CACHE_HOME", "xdg-cache"),
+                ("XDG_STATE_HOME", "xdg-state"),
+                ("XDG_DATA_HOME", "xdg-data"),
+                ("TMPDIR", "tmp"),
+            ):
+                path = root / leaf
+                path.mkdir(mode=0o700, exist_ok=True)
+                private_paths.directory(path)
+                environment[key] = str(path)
+            command = (
+                (
+                    "/opt/hermes/venv/bin/python",
+                    "-I",
+                    "-B",
+                    "-m",
+                    "hermes_cli.main",
+                    "serve",
+                    "--isolated",
+                    "--host",
+                    "127.0.0.1",
+                    "--port",
+                    "0",
+                )
+                if self.management_spec is None
+                else self.management_spec.command
+            )
+            spawn = asyncio.create_task(
+                asyncio.create_subprocess_exec(
+                    *command,
+                    cwd=root,
+                    env=environment,
+                    stdin=asyncio.subprocess.DEVNULL,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    start_new_session=True,
+                    limit=8192,
+                )
+            )
+            try:
+                self.process = await asyncio.shield(spawn)
+            except asyncio.CancelledError:
+                self.process = await spawn
+                raise
+            assert self.process.stdout is not None and self.process.stderr is not None
+
+            async def discard(stream: asyncio.StreamReader) -> None:
+                total = 0
+                while chunk := await stream.read(4096):
+                    total += len(chunk)
+                    if total > 65536:
+                        raise ValueError("Management output limit")
+
+            self.management_output.append(asyncio.create_task(discard(self.process.stderr)))
+            raw = await self.process.stdout.readuntil(b"\n")
+            prefix = b"HERMES_BACKEND_READY port="
+            if not raw.startswith(prefix) or not raw[len(prefix) : -1].isdigit():
+                raise ValueError("Invalid management readiness")
+            self.management_port = int(raw[len(prefix) : -1])
+            self.management_output.append(asyncio.create_task(discard(self.process.stdout)))
+            if await request(self.management_port, self.management_token, "GET", "/api/health") != {
+                "status": "ok",
+                "mode": "management-only",
+            }:
+                raise ValueError("Invalid management health")
+        if self.management_port is None or self.process.returncode is not None:
+            raise ValueError("Management unavailable")
+        return await configure(self.management_port, self.management_token, action, selected)
 
     def _preparation_ready(self) -> None:
         if (
@@ -618,9 +781,19 @@ class RuntimeHost:
     async def _watch(self) -> None:
         while True:
             await asyncio.sleep(0.025)
-            if self.state in {"STARTING", "READY"} and (
+            if self.state in {"STARTING", "READY", "MANAGEMENT"} and (
                 time.monotonic_ns() >= self.deadline_ns
                 or (self.peer is not None and self.peer.failure is not None)
+                or self.management_failed
+                or (
+                    self.state == "MANAGEMENT"
+                    and self.process is not None
+                    and self.process.returncode is not None
+                )
+                or any(
+                    task.done() and not task.cancelled() and task.exception() is not None
+                    for task in self.management_output
+                )
             ):
                 await self.stop()
 
@@ -650,7 +823,15 @@ class RuntimeHost:
 
     async def stop(self) -> None:
         async with self.stop_lock:
-            if self.process is None or self.state == "STOPPED":
+            if self.state == "STOPPED":
+                return
+            if self.settings_task is not None and not self.settings_task.done():
+                self.state = "STOPPING"
+                self.settings_task.cancel()
+                await asyncio.gather(self.settings_task, return_exceptions=True)
+            if self.process is None:
+                if self.settings_command is not None:
+                    self.state = "STOPPED"
                 return
             uncertain = self.state == "UNCERTAIN"
             if uncertain and self.process.returncode is not None and self.preparation_task is None:
@@ -681,6 +862,9 @@ class RuntimeHost:
                         signal.pidfd_send_signal(fd, signal.SIGKILL)
                 if self.peer is not None:
                     await self.peer.close()
+                for output in self.management_output:
+                    output.cancel()
+                await asyncio.gather(*self.management_output, return_exceptions=True)
                 with suppress(TimeoutError):
                     await asyncio.wait_for(self.process.wait(), 0.5)
                 # PID1 adopts orphans in its dedicated namespace; reap exact owned IDs.
@@ -708,9 +892,9 @@ class RuntimeHost:
         if type(body.get("op")) is not str:
             raise ValueError("Invalid operation type")
         expected = {"version", "id", "boot", "capability", "generation", "epoch", "op"}
-        if body.get("op") in {"launch", "renew", "prepare"} | managed.OPS:
+        if body.get("op") in {"launch", "renew", "prepare", "settings"} | managed.OPS:
             expected.add("deadline_ns")
-        if body.get("op") in {"prepare", "task_receive"} | managed.OPS:
+        if body.get("op") in {"prepare", "task_receive"} | managed.OPS | settings.OPS:
             expected.add("payload")
         if set(body) != expected or type(body["version"]) is not int or body["version"] != 1:
             raise ValueError("Invalid IPC fields")
@@ -730,6 +914,13 @@ class RuntimeHost:
             raise ValueError("Invalid fence")
         if self.epoch and (body["generation"], body["epoch"]) != (self.generation, self.epoch):
             raise ValueError("Stale fence")
+        if body["op"] == "settings":
+            settings.command(body["payload"])
+        if body["op"] == "settings_status":
+            payload = body["payload"]
+            if type(payload) is not dict or set(payload) != {"operation_id"}:
+                raise ValueError("Invalid settings status")
+            settings.identity(payload["operation_id"])
         if body["op"] == "prepare":
             validate_payload(body["payload"])
             if len(canonical(body)) + 1 > LIMITS["max_runtime_request_bytes"]:
@@ -777,10 +968,14 @@ class RuntimeHost:
                     async with self.command_lock:
                         preparation = None
                         managed_result = None
+                        settings_result = None
                         if body["op"] == "launch":
                             await self._launch(body)
                         elif body["op"] == "renew":
-                            if self.state != "READY" or time.monotonic_ns() >= self.deadline_ns:
+                            if (
+                                self.state not in {"READY", "MANAGEMENT"}
+                                or time.monotonic_ns() >= self.deadline_ns
+                            ):
                                 raise ValueError("Expired authority")
                             self.deadline_ns = self._grant(body)
                         elif body["op"] == "prepare":
@@ -789,9 +984,25 @@ class RuntimeHost:
                             managed_result = self._receive_managed(body["payload"])
                         elif body["op"] in managed.OPS:
                             managed_result = await self._managed_connected(body, reader)
+                        elif body["op"] == "settings":
+                            settings_result = self._settings_start(body)
                         elif body["op"] == "stop":
                             await self.stop()
                         response = {"ok": True, "id": correlation, **self.snapshot()}
+                        if body["op"] in settings.OPS:
+                            payload = body["payload"]
+                            assert isinstance(payload, dict)
+                            operation_id = settings.identity(payload["operation_id"])
+                            response["settings"] = (
+                                settings_result
+                                if settings_result is not None
+                                else (
+                                    self.settings_result
+                                    if self.settings_result is not None
+                                    and self.settings_result["operation_id"] == operation_id
+                                    else settings.view(operation_id, "UNAVAILABLE")
+                                )
+                            )
                         if preparation is not None:
                             response["preparation"] = preparation
                         if managed_result is not None:

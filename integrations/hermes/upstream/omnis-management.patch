@@ -1,0 +1,18 @@
+--- a/hermes_cli/main.py
++++ b/hermes_cli/main.py
+@@ -8,6 +8,15 @@
+     hermes <cmd> --help        # Per-command help
+ """
+ 
++# Omnis management is an explicit, fixed-command policy, not inert execution.
++# Enter before recovery/discovery/dashboard imports can start unrelated work.
++import os as _omnis_os
++
++if _omnis_os.environ.get("HERMES_OMNIS_MANAGEMENT") == "1":
++    from omnis_hermes.management_server import main as _omnis_management_main
++
++    raise SystemExit(_omnis_management_main())
++
+ # hermes_bootstrap must be the very first import — it sets up UTF-8 stdio on
+ # Windows (no-op on POSIX). Guarded: after a ``git pull`` / interrupted
+ # ``hermes update`` the editable install's ``.pth`` may not list it yet; crashing

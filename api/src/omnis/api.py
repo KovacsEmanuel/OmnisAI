@@ -21,6 +21,7 @@ from omnis.modules.engagements.routes import dashboard_router
 from omnis.modules.engagements.routes import router as engagement_router
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.settings.provider_routes import router as provider_router
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
 from omnis.security.routes import router as session_router
 
@@ -62,6 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(session_router)
     app.include_router(engagement_router)
     app.include_router(dashboard_router)
+    app.include_router(provider_router)
 
     @app.exception_handler(RequestValidationError)
     async def invalid_input(request: Request, exc: RequestValidationError) -> JSONResponse:

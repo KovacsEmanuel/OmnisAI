@@ -1,0 +1,24 @@
+{
+  "status": "FINDINGS_REPRODUCED_NOT_PRODUCT_PASS",
+  "scope": "SOURCE only; original reproductions; native config/auth/DB are doubles, real UDS and owned inert children in safety controls",
+  "snapshot_manifest": "p4a-first-author.json",
+  "parent_root": "/home/kali/.hermes/cache/scratch/p4pr-xp9p6z_d",
+  "norm": {
+    "exit": 0,
+    "log_sha256": "af1b19b78d6ae04f4da64f0cd4e6240ba3f91ecd25b56415ffd3627f6c14eef4",
+    "finding": "P4A-NORM-F01 aliases SAFETY-FIRST-F02; foreign fallback/providers/delegation accepted and preserved"
+  },
+  "safety": {
+    "exit": 0,
+    "passed_defect_controls": 5,
+    "seconds": 1.02,
+    "log_sha256": "aeab529ff4d88633d788364b578665f005f8a5310f1dc487957abf19cc732805",
+    "findings": [
+      "SAFETY-FIRST-F01 expired-grant PUT reaches physical marker sink",
+      "SAFETY-FIRST-F02 foreign config accepted/preserved",
+      "SAFETY-FIRST-F03 Stop before task entry retains PENDING",
+      "SAFETY-FIRST-F04 numeric ACK accepted"
+    ]
+  },
+  "cleanup": "Existing reproducers join owned source children and close Host contexts; namespace drain remains UNCERTAIN_SOURCE, no installed/PG cleanup claim."
+}

@@ -6,7 +6,7 @@ Bază verificată: `a4367422ea84f67904451f1c8308c3a5991c08f3`, după checkpointu
 
 Operatorul a autorizat implementarea **P4a-minim, apoi P2-live**, un singur autor, reviewuri independente și QA pe consumerul real; **STOP înainte de P3**. P2-inert/G02-inert rămâne CLOSED_SCOPED la [dovezile sale](p2-integration-b06cm.md); probele neafectate se reutilizează, fără recertificare istorică. Acest registru nu este un plan concurent cu planul §7–8/§19.
 
-**Stare inițială:** P4a-minim IN_PROGRESS/discovery încheiată; implementare și probe noi NOT_RUN, review nou NOT_REVIEWED. P2-live/faza2 integrală NOT_CLOSED. Analiza statică nu închide vreo poartă de produs.
+**CURRENT:** primul increment local Settings este candidat SOURCE, **CHANGES_REQUESTED / NOT_ACCEPTED**, păstrat numai pe worktree-ul `work/p4a-169c9470b2`; nu este integrat în principal. P4a-minim IN_PROGRESS, native/PG/browser NOT_RUN. P2-live/faza2 integrală NOT_CLOSED. Analiza statică și testele SOURCE nu închid vreo poartă live.
 
 ## Autorizare pentru probele viitoare
 
@@ -42,3 +42,16 @@ Operatorul a autorizat implementarea **P4a-minim, apoi P2-live**, un singur auto
 ## Dovezi
 
 Discovery read-only pe baza indicată; APIs/limite inspectate în source-ul upstream fixat `ee5ee84a345204a3b1d6ef6ba1ab747e602867b9`. Python API3.13.15 și uv0.12.19 sunt disponibile. Node/npm ambientale nu sunt pinurile proiectului; se folosesc executabilele din toolchainul privat Node24.21.0. Nu s-au pornit DB/servicii/native/OAuth/model/target în discovery.
+
+### Primul candidat și reviewurile — remedii înainte de native
+
+[Autorul](p4a-first-author.json) fixează28fișiere; părintele a comparat toate hashurile și întreg inventarul schimbat.35SOURCE/83web și Ruff/mypy/build/contracte au output real, nu QA instalată. [Review normativ](p4a-first-review-norm.json) și [safety](p4a-first-review-safety.json) sunt CHANGES_REQUESTED pe același snapshot. [Reproducerea părintelui](p4a-first-parent-repro.json) confirmă constatările cu controalele originale, fără native/PG/provider; exit0 al reproducerelor înseamnă defect confirmat, nu PASS de produs.
+
+| Finding | Decizie curentă |
+|---|---|
+| SAFETY-FIRST-F01/HIGH | OPEN: PUT poate începe după grant expirat. Refuz înainte de dispatchul efectiv, inclusiv după await-uri; un Save deja trimis rămâne in-flight/UNKNOWN până la readback/drain, nu atomicitate DB/filesystem inventată. Stop nu este confirmat înainte de drenarea writerului local. |
+| P4A-NORM-F01 = SAFETY-FIRST-F02/HIGH | OPEN: configurația cu selecția corectă poate păstra fallback/aux/providers/delegation sau câmpuri agent/auth străine. Validare finit/exact înainte de readback/save; zero writer pe refuz. |
+| SAFETY-FIRST-F03/MEDIUM | OPEN: anularea înainte de prima intrare în worker lasă receipt PENDING deși taskul s-a terminat. Finalizare în owner, fără resend. |
+| SAFETY-FIRST-F04/LOW | OPEN, inclus în remediul mic: ACK numeric1 nu este boolean true; validare strictă și regresii. |
+
+**Adjudecare arhitecturală a părintelui:** acceptăm numai ca direcție a acestui increment adaptorul management-only finit care folosește readerul strict și `save_config` native. Nu pretindem reutilizarea handlerelor HTTP `config_env`: GET stock elimină providerul, iar bootul stock lansează servicii auxiliare. Nu adăugăm alt motor de config, store sau supervisor; păstrăm pinul/entrypointul/ownerul și patchul minimal auditat. Această decizie nu aprobă codul cu findings și nu autorizează reimplementarea OAuth; următorul increment trebuie să refolosească fluxul nativ real. CLI/Compose normal încă nu montează/conectează RuntimeHost și `/state/provider`; această prerechizită trebuie implementată și verificată pentru livrarea utilizabilă, nu ocolită cu un demo.

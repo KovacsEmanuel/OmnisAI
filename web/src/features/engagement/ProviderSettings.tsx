@@ -14,6 +14,7 @@ export function ProviderSettings() {
   const [operation, setOperation] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
+  const [uiExpired, setUiExpired] = useState(false);
   const controller = useRef<AbortController | null>(null);
   const started = useRef(Date.now());
   useEffect(() => () => controller.current?.abort(), []);
@@ -22,15 +23,21 @@ export function ProviderSettings() {
   }, [transition, session.isError, session.data]);
   const status = useQuery({ queryKey: ['private', 'provider-operation', operation],
     queryFn: ({ signal }) => readPrivate(() => api.providerOperation(operation ?? 'current', signal), signal),
-    enabled: !sending && (!receipt || receipt.status === 'PENDING') && !uncertain && transition === 'idle' && !!session.data && !session.isError,
+    enabled: !sending && (!receipt || receipt.status === 'PENDING') && !uncertain && !uiExpired && transition === 'idle' && !!session.data && !session.isError,
     retry: false, networkMode: 'always', gcTime: 0,
     refetchInterval: query => query.state.data?.status === 'PENDING' && Date.now() - started.current < (query.state.data.oauth && query.state.data.oauth !== 'NONE' ? 900000 : 30000) ? 500 : false,
   });
-  const observed = !receipt ? status.data : receipt.status !== 'PENDING' ? receipt : status.data?.operation_id === operation ? status.data : receipt;
+  const observed = !receipt ? status.data : receipt.status !== 'PENDING' ? receipt : status.data && (!operation || status.data.operation_id === operation) ? status.data : receipt;
+  useEffect(() => {
+    if (observed?.status !== 'PENDING' || sending) return;
+    const limit = observed.oauth && observed.oauth !== 'NONE' ? 900000 : 30000;
+    const timer = setTimeout(() => setUiExpired(true), Math.max(0, limit - (Date.now() - started.current)));
+    return () => clearTimeout(timer);
+  }, [observed?.operation_id, observed?.status, observed?.oauth, sending]);
   useEffect(() => {
     if (receipt && receipt.status !== 'PENDING') queryClient.removeQueries({ queryKey: ['private', 'provider-operation'] });
   }, [receipt, queryClient]);
-  const unknown = uncertain || (receipt?.status === 'PENDING' && status.isError) || observed?.status === 'INDETERMINATE' || observed?.status === 'UNAVAILABLE';
+  const unknown = uncertain || uiExpired || ((!receipt || receipt.status === 'PENDING') && status.isError) || observed?.status === 'INDETERMINATE' || observed?.status === 'UNAVAILABLE';
   const pending = sending || observed?.status === 'PENDING';
   const authReady = !!session.data && !session.isError && transition === 'idle';
 
@@ -40,7 +47,7 @@ export function ProviderSettings() {
     if (!id) return;
     const abort = new AbortController();
     controller.current?.abort(); controller.current = abort;
-    setOperation(id); setReceipt(null); setUncertain(false); setSending(true); started.current = Date.now();
+    setOperation(id); setReceipt(null); setUncertain(false); setUiExpired(false); setSending(true); started.current = Date.now();
     try {
       const value = await readPrivate(() => api.providerCommand({ operation_id: id, action,
         selection: action === 'save' ? requestedSelection : null }, session.data!.csrf_token, abort.signal), abort.signal);
@@ -54,7 +61,10 @@ export function ProviderSettings() {
     setSending(true);
     try {
       const value = await readPrivate(() => api.providerOperation(operation ?? 'current', abort.signal), abort.signal);
-      if (!abort.signal.aborted) { setReceipt(value); setUncertain(false); }
+      if (!abort.signal.aborted) {
+        queryClient.setQueryData(['private', 'provider-operation', operation], value);
+        started.current = Date.now(); setUiExpired(false); setReceipt(value); setUncertain(false);
+      }
     } catch { if (!abort.signal.aborted) setUncertain(true); }
     finally { if (!abort.signal.aborted) setSending(false); }
   }

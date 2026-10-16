@@ -1,9 +1,61 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { App } from './App';
+
+it('hides reload challenge on failed GET and recovers current without Connect replay', async () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  let fail = false;
+  let terminal = false;
+  const reads: string[] = [];
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
+    if (init?.method === 'PUT') { writes++; throw new Error('Unexpected write'); }
+    reads.push(String(input));
+    if (fail) return Response.json({ error: { code: 'CONTROL_UNAVAILABLE' } }, { status: 503 });
+    return Response.json({ operation_id: id, status: terminal ? 'CONFIRMED' : 'PENDING',
+      selection: null, configured: false, authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED',
+      inference_ready: false, oauth: terminal ? 'CANCELLED' : 'CHALLENGE',
+      challenge: terminal ? null : { code: 'TEST-CODE', url: 'https://auth.openai.com/codex/device' } });
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
+  await screen.findByText('TEST-CODE');
+  fail = true;
+  await client.refetchQueries({ queryKey: ['private', 'provider-operation'] });
+  await waitFor(() => expect(screen.queryByText('TEST-CODE')).not.toBeInTheDocument());
+  expect(screen.getByText('Outcome unknown. Do not repeat this action; recover the exact operation.')).toBeInTheDocument();
+  fail = false;
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: 'Recover exact operation' }));
+  await screen.findByText('TEST-CODE');
+  terminal = true;
+  await client.refetchQueries({ queryKey: ['private', 'provider-operation'] });
+  await waitFor(() => expect(screen.queryByText('TEST-CODE')).not.toBeInTheDocument());
+  expect(writes).toBe(0);
+  expect(new Set(reads)).toEqual(new Set(['/health/ready', '/api/v1/settings/provider/operations/current']));
+});
+
+it('hides reload challenge at the finite UI validity limit even without a refetch', async () => {
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => {
+    if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
+    return Response.json({ operation_id: '11111111-1111-4111-8111-111111111111', status: 'PENDING', selection: null,
+      configured: false, authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED', inference_ready: false,
+      oauth: 'CHALLENGE', challenge: { code: 'TEST-CODE', url: 'https://auth.openai.com/codex/device' } });
+  }));
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+  try {
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
+    await act(async () => { await vi.advanceTimersByTimeAsync(10); });
+    expect(screen.getByText('TEST-CODE')).toBeInTheDocument();
+    await act(async () => { await vi.advanceTimersByTimeAsync(900001); });
+    expect(screen.queryByText('TEST-CODE')).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); }
+});
 
 it('connects once, displays only fixed challenge, cancels same operation and clears code', async () => {
   const actions: string[] = [];

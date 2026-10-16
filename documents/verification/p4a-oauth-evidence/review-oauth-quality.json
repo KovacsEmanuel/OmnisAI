@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "role": "independent_readonly_focused_quality_reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "decision_ro": "Delta finală de două fișiere este exclusiv quality: binding bytes Unix redenumit și formatare/newline în test. Niciun blocker nou în acest delta; fără schimbare de predicat, autoritate, cleanup sau oracle. Gate-urile CLI afectate sunt degajate scoped, nu canonical integral ori acceptare installed/P4a.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "base_sha": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503",
+    "head_sha": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+    "commits": ["5188c87b61d1851ba98555d36822ad250626ceda", "f25ff6aa485fb8d0b70754e47492d879d53ad0b1"],
+    "delta_count": 2,
+    "delta_hashes": [
+      {"path": "cli/src/omnis_cli/stop.py", "sha256": "216db88b6d4ca756de8d40f3751fdff9af5c4fa624c9e13e6072270a8070c709"},
+      {"path": "cli/tests/test_settings_lifecycle.py", "sha256": "a6e18850ae40442b26b984cb921285bed91549b939d7c7eb9de790e0afc46d19"}
+    ],
+    "git_status_before": "clean",
+    "git_status_after": "clean",
+    "head_after_matches": true,
+    "working_bytes_equal_head_blobs": true,
+    "author_two_hashes_match": true
+  },
+  "acceptance_row": "Mandatory CLI quality -> current SOURCE Stop listener readback and lifecycle test -> accidental bytes/text binding, predicate or oracle change -> focused quality clearance before parent artifact/physical QA, without reopening unchanged OAuth review.",
+  "findings": [],
+  "independent_source_proof": {
+    "actual_diff": "git diff confirms exactly two paths: one Unix comprehension store/load rename plus wrapping; socket constructor wrapping and EOF newline only in test.",
+    "test_ast_unchanged": true,
+    "test_ast_method": "Compare complete ast.dump(ast.parse(bytes), include_attributes=False) from git base blob and current exact HEAD bytes.",
+    "stop_module_alpha_equivalent": true,
+    "stop_ast_method": "Require exactly two unix_fields Name nodes, Store and Load, both inside _listener_absent's generator, absent in base; normalize only these two nodes to fields and require equality of the COMPLETE stop.py AST.",
+    "binding_analysis": "Walrus captures the enclosing function variable, not a generator-local assignment. In the old version its bytes binding is unobserved after any(): every later fields load is inside the TCP loop after fields = row.split() overwrites it with text. Verified assignment-before-use structure, all fields occurrences confined to generator/TCP loop, no return/yield or locals/vars/eval/exec observer. New unix_fields is isolated from TCP fields. Runtime locals names differ intentionally, not Stop semantics.",
+    "surroundings_reviewed": "Imports and _listener_absent through the next validation routine; actual changed test fixture and complete test AST. No catch, cast, ignore, Any, fixture/oracle, dependency or authorization changes.",
+    "same_consumer_regression": {
+      "count": 10,
+      "result": "PASS",
+      "cases": ["empty", "unix_present", "unix_other", "unix_short", "tcp_port", "tcp_inode", "tcp6_port", "tcp_nonlisten", "legacy_skips_unix", "invalid_inode"],
+      "method": "Actual current-worktree omnis_cli.stop import with asserted __file__; baseline function compiled from its Git AST using unchanged current dependencies. Both run identical synthetic proc rows, exact reason/code and ordered Path read calls compared. Positive absence and negative live-listener controls share the same consumer.",
+      "limits": "Path reads substituted in memory; no real proc listener, socket, signal, process cleanup or installed runtime certification. Git/tool subprocesses only."
+    }
+  },
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "environment_prefix": "env -i HOME=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/quality-review-private/home PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/quality-review-private/tmp",
+    "python_prefix": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/quality-review-private/pycache",
+    "checks_after_prefixes": [
+      {"command": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-quality-probe.py", "exit_code": 0, "result": "AST and exact-source assertions PASS; 10 same-consumer controls PASS"},
+      {"command": "-m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/quality-review-private/mypy cli/src", "exit_code": 0, "result": "Success: no issues found in 22 source files", "limit": "Same actual CLI source/config/no-incremental scope as Makefile; human diagnostic output, not --output=json. No MYPYPATH override."},
+      {"command": "-m ruff check --no-cache --config api/pyproject.toml --no-fix cli/src/omnis_cli/stop.py cli/tests/test_settings_lifecycle.py", "exit_code": 0, "result": "All checks passed!"},
+      {"command": "-m ruff format --no-cache --config api/pyproject.toml --check cli/src/omnis_cli/stop.py cli/tests/test_settings_lifecycle.py", "exit_code": 0, "result": "2 files already formatted"}
+    ],
+    "git_checks": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat c935834971dfe9c1d0b9909e85c83f5ed2dbc503 f25ff6aa485fb8d0b70754e47492d879d53ad0b1; git diff c935834971dfe9c1d0b9909e85c83f5ed2dbc503 f25ff6aa485fb8d0b70754e47492d879d53ad0b1; git log --oneline c935834971dfe9c1d0b9909e85c83f5ed2dbc503..f25ff6aa485fb8d0b70754e47492d879d53ad0b1", "exit_code": 0},
+      {"command": "git diff --check c935834971dfe9c1d0b9909e85c83f5ed2dbc503 f25ff6aa485fb8d0b70754e47492d879d53ad0b1; git status --short --branch; git rev-parse HEAD", "exit_code": 0}
+    ]
+  },
+  "existing_evidence_carried_not_rerun": {
+    "author_report": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/author-oauth-quality.json",
+    "gate_results": "Author records final canonical JSON-mode mypy 22 modules PASS, Ruff check PASS, format 68 files PASS, and 46 tests plus 430 subtests PASS after last edit. Independently matched both final source hashes and Makefile command scopes; 46/430 and 68-file breadth are retained author evidence, not reviewer re-execution.",
+    "mandatory_red": "Parent mandatory preflight oq-vt93jr1h: three Stop mypy errors and lifecycle-test formatting failure retained as genuine RED, not waived as preexisting. Author also preserves first unsuccessful EOF formatting attempt. No failed evidence overwritten or promoted retroactively.",
+    "complementary_reviews": [
+      {"report": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/rereview-oauth-norm.json", "snapshot": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503", "verdict": "APPROVED_SCOPED", "carry": "Unchanged normative source scope and original finding dispositions only; no new cumulative audit."},
+      {"report": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/rereview-oauth-safety.json", "snapshot": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503", "verdict": "APPROVED_SCOPED", "carry": "Unchanged safety source scope and original finding dispositions only; no new effect/physical/installed claim."}
+    ],
+    "carry_basis": "Git delta is confined to these two paths; full test AST identical and Stop full module alpha-equivalent with binding checked and bounded same-consumer positives/negatives. Therefore previous normative/safety approvals and AST/local SOURCE evidence remain only within their unchanged original boundaries. This review newly approves the changed quality bytes, not the 42-file OAuth scope afresh.",
+    "native_build": "Outside this delta; parent reports completed native build. Not touched, rebuilt or independently recertified here."
+  },
+  "effects_and_files": {
+    "source_doc_skill_writes": false,
+    "commits": false,
+    "new_files": ["/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-quality-probe.py", "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/review-oauth-quality.json"],
+    "owned_cache_root": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/quality-review-private",
+    "boundaries": "No provider/DNS/account/target/inference/OCI/PostgreSQL/browser or native-build actions. No protected HTML/ponytail/personal environment/config/auth/log inspection. Source imports use explicit current worktree; bytecode disabled and private prefix. No foreign cleanup."
+  },
+  "limits_next": {
+    "full_canonical": "NOT_RUN",
+    "physical_qa": "NOT_RUN",
+    "installed_or_distribution_acceptance": "NOT_CLAIMED; changed CLI artifact requires parent's exact build/readback and subsequent admitted QA",
+    "integration": "NOT_CLAIMED; parent owns adjudication and integration",
+    "p4a_global": "NOT_CLOSED by this review",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "next": "Parent may use scoped quality clearance alongside the carried complementary SOURCE approvals; finish artifact identity verification and separately bounded physical QA. No new source fixes requested."
+  }
+}

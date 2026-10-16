@@ -1,0 +1,72 @@
+{
+  "status": "PASS_SOURCE_QUALITY_SCOPED_FROZEN",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "base": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+  "head": "d6243644a8a69e621b5b1d7306f5cef417d13cd5",
+  "worktree_clean": true,
+  "file": "api/tests/test_provider_process_source.py",
+  "sha256": "6e6969a179b785d22163b7d70c3fa560301661f8032b64c1b43bcfa889910734",
+  "delta": "Add import os; replace runtime_host.os with os in the same getuid monkeypatch. No product changes.",
+  "original_red": "/home/kali/.hermes/cache/scratch/ap-7gllh4b8/api-mypy.log",
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "Q": "/home/kali/.hermes/cache/scratch/aq-QgU7mt",
+    "prefix": "env -i PATH=/usr/bin:/bin HOME=$Q/home TMPDIR=$Q/tmp XDG_CACHE_HOME=$Q/cache /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=$Q/pycache",
+    "pytest_prefix": "env -i PATH=/usr/bin:/bin HOME=$Q/home TMPDIR=$Q/tmp XDG_CACHE_HOME=$Q/cache PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -X pycache_prefix=$Q/pycache",
+    "MYPYPATH": "absent",
+    "umask": "077",
+    "checks": [
+      {
+        "prefix": "prefix",
+        "arguments": "-m mypy --config-file api/pyproject.toml --no-incremental --cache-dir $Q/mypy api/src api/tests",
+        "exit": 0,
+        "result": "Success: no issues found in 240 source files",
+        "log": "mypy.log"
+      },
+      {
+        "prefix": "prefix",
+        "arguments": "-m ruff check --config api/pyproject.toml --no-fix --no-cache api/tests/test_provider_process_source.py",
+        "exit": 0,
+        "result": "All checks passed!",
+        "log": "ruff-canonical.log"
+      },
+      {
+        "prefix": "prefix",
+        "arguments": "-m ruff format --config api/pyproject.toml --check --no-cache api/tests/test_provider_process_source.py",
+        "exit": 0,
+        "result": "1 file already formatted",
+        "log": "format-canonical.log"
+      },
+      {
+        "prefix": "pytest_prefix",
+        "arguments": "-c 'import sys; sys.path[:0] = [\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/api/src\", \"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))' -p pytest_asyncio.plugin -p no:cacheprovider -q --tb=short --basetemp $Q/tmp/p api/tests/test_provider_process_source.py",
+        "exit": 0,
+        "result": "7 passed in 0.76s",
+        "log": "pytest.log"
+      }
+    ],
+    "preserved_initial_invocations": [
+      {
+        "prefix": "prefix",
+        "arguments": "-m ruff check --no-cache api/tests/test_provider_process_source.py",
+        "exit": 1,
+        "log": "ruff.log",
+        "reason": "Auto-discovery classified imports differently; reran actual Makefile explicit config without changing the file."
+      },
+      {
+        "prefix": "prefix",
+        "arguments": "-m ruff format --check --no-cache api/tests/test_provider_process_source.py",
+        "exit": 0,
+        "log": "format.log"
+      }
+    ]
+  },
+  "main_ref_observed_at_final_readback": "d372295a5fa592e16443944b8ace4fdc0c3f1d18",
+  "main_ref_note": "Differs from delegated context's 7a07ea9. No main writes performed; initial main ref was not read, so this report does not attribute the discrepancy.",
+  "limits": [
+    "SOURCE tests only: owned inert child, fake HTTP and native configuration; seven passing cases include six image/current/foreign-parent read/save controls.",
+    "No Docker, PostgreSQL, native OCI, provider, DNS, account, inference, target, browser or artifact rebuild invoked.",
+    "Existing reports and original failure retained; no source, docs, skills, node, wheel, native or release edits.",
+    "Independent single-file review and final actual product QA remain pending with parent."
+  ]
+}

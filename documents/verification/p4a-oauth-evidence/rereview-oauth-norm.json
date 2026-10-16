@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "reviewer": "Independent focused normative re-review; new safety report not read",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "SOURCE normative closure of OAUTH-NORM-F01 (= OAUTH-SAFETY-F03), OAUTH-NORM-F02 and changed bootstrap/distribution compatibility. Not installed QA, integration, safety-review adjudication or whole P4a acceptance.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "head": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503",
+    "repair_base": "16dbaafed90cf4af15d99b0ef16e36bbdfb91acd",
+    "cumulative_base": "a66c5cf2bdb53280dd42ef962259dae4fbe4c30d",
+    "delta_count": 12,
+    "delta_hashes": [
+      {
+        "path": "api/tests/test_provider_oauth_source.py",
+        "sha256": "95f0d685ecb4673b1129321d8ee0bee4d53e51f95b7cd27868be8220c752545b"
+      },
+      {
+        "path": "cli/src/omnis_cli/stop.py",
+        "sha256": "d0735d606cdc3129c8df4df80da5c680c8bc2a8a03eb8aa9667ca321fc5e1e0a"
+      },
+      {
+        "path": "cli/tests/test_settings_lifecycle.py",
+        "sha256": "bac80237f7cf611be393a319a843e6f644dce91a1f931b5a6e91b0b4ceff4adf"
+      },
+      {
+        "path": "integrations/hermes/pin.json",
+        "sha256": "b31a69438a2c76e4f3f98cbb524ece25ae611387aa6c9b47ecee8545e3efdb05"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_oauth.py",
+        "sha256": "a0052cbcf74ec042bf6d93d701e6b24b34e465ec88671b26aedb6f6a00218bea"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_server.py",
+        "sha256": "f60bf3147dcd02530600b19ba7556ec4bcf0fdedac190a1a6787ed81a1a86dd7"
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "9c0f1a5bce1086fdeeddadf00d5e6ff40e0d457d364cf7b4572cd8ddd5acd15a"
+      },
+      {
+        "path": "integrations/hermes/tests/test_native_build.py",
+        "sha256": "d2d422cafe869617d1d3106b29fa043e755582abde41282302457128cf23210e"
+      },
+      {
+        "path": "integrations/hermes/upstream/management-patch-manifest.json",
+        "sha256": "8a00b91756cb3c16491fe7f5e47feadf7798db1f7753706ea49d48ad5b78521f"
+      },
+      {
+        "path": "integrations/hermes/upstream/omnis-management.patch",
+        "sha256": "0aef4f608a96e0b9e922316dde89b603c93e0e876b6b0216140c58982d97f9d1"
+      },
+      {
+        "path": "web/src/app/ProviderSettings.test.tsx",
+        "sha256": "a1b3bab7b2bab5c6d820404aee1a00e8b2a155ef2aacb05f40afc7baa2e4e979"
+      },
+      {
+        "path": "web/src/features/engagement/ProviderSettings.tsx",
+        "sha256": "521cae49e374bf899661d0429b188f5c7aa61a9af7c5abe5a619b031b249361f"
+      }
+    ],
+    "final_git_status": "clean",
+    "git_diff_check_exit": 0,
+    "cumulative_scope": "Original normative report 42-file scope reused for unchanged bytes; no historical re-audit or invented cumulative execution."
+  },
+  "findings": [],
+  "original_findings_disposition": [
+    {
+      "id": "OAUTH-NORM-F01",
+      "alias": "OAUTH-SAFETY-F03",
+      "disposition": "CLOSED_SCOPED",
+      "locations": [
+        "web/src/features/engagement/ProviderSettings.tsx:24-40,58-69,83-95"
+      ],
+      "reproducer": "Original OAuthReloadReview.test.tsx copied unmodified beside current product sources; real App/BrowserSession/QueryClient in jsdom. Initial valid challenge observed, zero PUTs, failed current GET changes query to error and hides challenge with unknown output. Exit0.",
+      "additional_evidence": "Five current ProviderSettings tests passed in same invocation: same-current recovery without Connect, terminal clears, independently expiring timer while recovery held, same-ID Cancel, read/logout/save controls. Existing authReady and session-abort gates inspected; no new session-loss browser execution claimed.",
+      "decision": "No surviving concrete stale-challenge/recovery gap in this reviewed change."
+    },
+    {
+      "id": "OAUTH-NORM-F02",
+      "disposition": "CLOSED_SCOPED",
+      "locations": [
+        "cli/src/omnis_cli/stop.py:321-337",
+        "cli/src/omnis_cli/stop.py:112-127"
+      ],
+      "reproducer": "Original independent emergency fixture adapted only to record sanitized StartError rather than abort on expected denial; same valid format4 schema, real private TCP/UDS identity, synthetic Engine, intercepted signal. Matching positive reaches SIGTERM sink; wrong filesystem inode and wrong kernel inode both AUTH_IDENTITY_MISMATCH, zero signals. Exit0.",
+      "additional_evidence": "Committed emergency regression separately passes. Live-forwarder comparison follows pidfd/process/TCP checks and precedes first signal. ProcessLookupError branch still explicitly calls _listener_absent; formats2/3 bypass only new format4 auth comparison. Historical/absent branches source-inspected, not freshly exercised end-to-end.",
+      "decision": "Original pre-effect dual-listener blocker closed; no claim of real foreign-process kill proof or physical emergency teardown."
+    }
+  ],
+  "changed_cross_layer_compatibility": [
+    {
+      "boundary": "RuntimeHost spawn -> patched hermes_cli.main -> management_server -> NativeOAuth",
+      "disposition": "SOURCE_COMPATIBLE",
+      "detail": "Host writes identity bootstrap before spawn; stdin is read FD, close_fds=True, pipe ends O_CLOEXEC/O_NONBLOCK, parent retains only writer and closes reader in finally. main routes to management_server before ordinary bootstrap/discovery, with no intermediate stdin consumer. Server validates exact fixed serve argv/private home and consumes NativeOAuth.from_owner_fd(0) before listen/READY; stdin contract is now mandatory for offline config as well as OAuth. Production read/save/auth consumers all use this same _settings_native spawn, so no DEVNULL offline production caller remains. Synthetic TestLaunch scripts do not certify full native boot.",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:400-422,424-549",
+        "integrations/hermes/src/omnis_hermes/management_server.py:104-125,203-232",
+        "prepared-repair/source/hermes_cli/main.py:11-18"
+      ]
+    },
+    {
+      "boundary": "Lifeline revocation and native terminal classification",
+      "disposition": "SOURCE_INSPECTED_COMPLEMENTARY_SAFETY_SEPARATE",
+      "detail": "FIFO UID0600/read-only/nonblock/dev-inode validation and EOF refusal retain lease/fence guards. Host closes sole writer before first Stop lock/await, failure and context-exit awaits; child writer not inherited. Native error precedes cancel/expiry and SAVED remains first. Managed-only catch recognizes typed AuthAdmissionDenied; post-header typed denial converted to uncertain ValueError. Current SOURCE checks and nine exact native AST tests exercised. Detailed SAFETY-F01/F02 physical/crossprocess adjudication belongs to complementary reviewer; no borrowed verdict."
+    },
+    {
+      "boundary": "Management patch / manifest / pin / wheel / installed bundle lineage",
+      "disposition": "PASS_OFFLINE_DISTRIBUTION_SCOPED",
+      "detail": "All three prepared management files match manifest; reverse patch reaches exact original hashes, git apply --check and reapply exit0, patched hashes/compile exact. main.py and auth.py unchanged from original reviewed artifact; oauth.py catch changed. Adapter and CLI wheel full Python-member sets byte-match current source (20/22). Existing bundle producer compares current pin and all overlay maps; native closure checks ordered original->patched lineage and injected adapter. Whole native build/injection and new sealed auth-profile image remain prerequisites, not credited from these wheels.",
+      "management_files": [
+        {
+          "path": "hermes_cli/web_routers/oauth.py",
+          "sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7"
+        },
+        {
+          "path": "hermes_cli/main.py",
+          "sha256": "9af28bd6b3daffcc1df2ae6cf345f17372356b3146cd8cac4be964c91d18d77d"
+        },
+        {
+          "path": "hermes_cli/auth.py",
+          "sha256": "32e64e69bbde8bdc8005e9cd1faa7620d21390d8e25397ef2da1374f7c17bbc5"
+        }
+      ],
+      "wheels": [
+        {
+          "path": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/wheels-repair/omnis_hermes-0.1.0-py3-none-any.whl",
+          "sha256": "24e50cc00a74444653176d2619cda7ea78f2d26927d1480f88b224a3b5550761",
+          "exact_python_members": 20
+        },
+        {
+          "path": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/wheels-repair/omnis_cli-0.1.0-py3-none-any.whl",
+          "sha256": "b35d766a8c06aa3ce370716ff135e6675d99d22a6afe5ff00b6df021991bbd99",
+          "exact_python_members": 22
+        }
+      ]
+    },
+    {
+      "boundary": "Confinement direction",
+      "disposition": "UNCHANGED_REVIEW_REUSED",
+      "detail": "Fixed native client plus numeric fixed-destination TCP relay is accepted composed TCB direction, not raw-TLS compromised-TCB or relay Host/path L7 claim. No P3/MITM re-review and no new owner/service/path/mount/receipt."
+    }
+  ],
+  "executed_checks": [
+    {
+      "name": "source",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-X",
+        "pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pyc",
+        "-c",
+        "import sys;sys.path[:0]=['cli/src','cli/tests','api/src','integrations/hermes/src'];import omnis_hermes.runtime_host as h;import omnis_cli.stop as s;assert all(m.__file__.startswith('/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/') for m in (h,s));import pytest;sys.exit(pytest.main(['-c','api/pyproject.toml','-p','pytest_asyncio.plugin','-p','no:cacheprovider','api/tests/test_provider_oauth_source.py','api/tests/test_provider_native_source.py','api/tests/test_provider_settings_api_source.py','cli/tests/test_settings_lifecycle.py','-q','--tb=short','--basetemp', '/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pytest']))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 1,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/source.txt"
+    },
+    {
+      "name": "native-ast",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-X",
+        "pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pyc",
+        "-c",
+        "import sys,runpy;sys.path.insert(0,'integrations/hermes/src');sys.argv=['test_native_build.py','-v'];runpy.run_path('integrations/hermes/tests/test_native_build.py',run_name='__main__')"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "HERMES_NATIVE_SOURCE": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/prepared-repair/source"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/native-ast.txt"
+    },
+    {
+      "name": "original-emergency",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-X",
+        "pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pyc",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/repro_recovery.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 1,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/original-emergency.txt"
+    },
+    {
+      "name": "ui",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+        "/home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/web/review.config.mjs",
+        "--configLoader",
+        "runner",
+        "src/app/ProviderSettings.test.tsx",
+        "src/app/OAuthReloadReview.test.tsx",
+        "--maxWorkers=1"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/web",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/t",
+        "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin",
+        "NODE_ENV": "test"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/ui.txt"
+    },
+    {
+      "name": "emergency-short",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-X",
+        "pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pyc",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/repro_recovery.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/emergency-short.txt"
+    },
+    {
+      "name": "targeted-emergency",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-X",
+        "pycache_prefix=/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/pyc",
+        "-c",
+        "import sys;sys.path[:0]=['cli/src','cli/tests'];import omnis_cli.stop as s;assert s.__file__.startswith('/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/');import pytest;sys.exit(pytest.main(['-c','api/pyproject.toml','-p','no:cacheprovider','cli/tests/test_settings_lifecycle.py::test_emergency_auth_identity_before_any_signal','-q','--tb=short']))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/targeted-emergency.txt"
+    },
+    {
+      "name": "overlay-reverse",
+      "argv": [
+        "git",
+        "apply",
+        "--reverse",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/integrations/hermes/upstream/omnis-management.patch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay-reverse.txt"
+    },
+    {
+      "name": "overlay-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/integrations/hermes/upstream/omnis-management.patch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay-check.txt"
+    },
+    {
+      "name": "overlay-apply",
+      "argv": [
+        "git",
+        "apply",
+        "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/integrations/hermes/upstream/omnis-management.patch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay",
+      "environment": {
+        "HOME": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/home",
+        "PATH": "/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "output": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/overlay-apply.txt"
+    }
+  ],
+  "results_summary": {
+    "ui": "6 passed (5 current + 1 unmodified original regression), exit0; jsdom not browser",
+    "native_ast": "9 tests, no skip, exit0; exact prepared source, scripted seams",
+    "emergency": "Original positive + filesystem/kernel negatives exit0; committed regression 1 passed/exit0",
+    "initial_mixed_source": "55 passed, 341 subtests, 3 failed, exit1; preserved, not promoted to suite PASS",
+    "distribution": "3-file exact original/reapply/patched identity; 20 adapter and22 CLI Python members exact"
+  },
+  "preserved_failures_and_limits": [
+    "First reviewer TMPDIR was too long for emergency auth AF_UNIX path. Original emergency failed before behavioral boundary. Corrected only private fixture root using fresh short owned TMPDIR; original failure retained.",
+    "Same initial mixed SOURCE invocation had two forwarder READY fixture assertions. Those broad lifecycle fixtures were not rerun; their internal cause was not separately observed. No full source-suite PASS claimed.",
+    "Initial fixture helper children use -I without -B; this was noticed on inspection after execution. Exact cli source __pycache__ mtime audit found no writes in the invocation window; no pre-run full cache census, so no universal no-write claim. No cache restored/deleted. All directly invoked reviewer interpreters used -I/-B and private pycache_prefix.",
+    "Targeted emergency pytest omitted asyncio plugin because synchronous test only; passed with one unknown asyncio_mode config warning, retained.",
+    "Author additional CLI mypy three _listener_absent errors reproduced at baseline are retained as attributed failure, not waived canonical; not rerun here.",
+    "Original 180s SOURCE timeout/drain uncertainty and two default-concurrency full-web failures remain UNKNOWN. No retrospective cleanup/canonical PASS."
+  ],
+  "NOT_RUN": [
+    "Whole native management bootstrap with new stdin lifeline",
+    "Full rebuilt/injected native runtime, fresh sealed bundle/image, installed OCI",
+    "PostgreSQL or browser QA; account/provider/DNS/TLS/inference/target traffic",
+    "Real provider reply loss, physical owner crash, real-account save/logout",
+    "Full canonical or historical suites",
+    "Detailed complementary SAFETY-F01/F02 disposition"
+  ],
+  "toolchain": {
+    "python": "Python 3.13.15",
+    "node": "v24.21.0"
+  },
+  "execution_boundaries": {
+    "own_root": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview",
+    "private_short_TMPDIR": "/home/kali/.hermes/cache/scratch/nrn-8s1408ef",
+    "foreign_vitest_cache_unchanged": true,
+    "foreign_vitest_cache_sha256": "944b5436d8f24fdd914add4cee13825ca9ef5d852d40f7f5376ae8a3d28ead41",
+    "web_cacheDir": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/control/norm-rereview/vite-cache",
+    "configLoader": "runner",
+    "source_copies": "Web src/tests/config copied into owned root; no dependency links in reviewed tree; shared dependency link only in owned web copy",
+    "possible_fixture_child_cache_writes": [],
+    "repository_source_edits": false,
+    "commits": false,
+    "personal_env_config_auth_sessions_logs_read": false,
+    "protected_html_ponytail_read_or_hashed": false,
+    "docker_pg_native_oci_browser_launched": false,
+    "synthetic_source_local_sockets_processes": true,
+    "full_family_cleanup_certificate_claimed": false,
+    "reticle": "NOT_INTEGRATED/NOT_RUN",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "decision_for_parent": "Original normative blockers closed on exact c935834. This review does not block the next already-planned fresh artifact preparation/installed challenge-Cancel QA on normative grounds; complementary safety verdict, parent adjudication and effect registration still required. No installed/native boot before approval, no integration or account approval from this report.",
+  "proposed_status_delta": "AICI OAuth SOURCE repairs normative APPROVED_SCOPED. Settings offline and P2-inert unchanged ACCEPTED/CLOSED_SCOPED. P4a/G04a/G02-live/canonical remain open; STOP before P3.",
+  "report_final": true
+}

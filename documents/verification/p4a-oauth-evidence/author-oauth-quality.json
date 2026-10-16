@@ -1,0 +1,73 @@
+{
+  "status": "QUALITY_FIXED_SCOPED_PENDING_PARENT_REVIEW",
+  "worktree": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+  "base_sha": "c935834971dfe9c1d0b9909e85c83f5ed2dbc503",
+  "frozen_sha": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1",
+  "commits": [
+    {"sha": "5188c87b61d1851ba98555d36822ad250626ceda", "change": "Rename only Unix bytes comprehension binding to unix_fields; TCP text fields and Stop predicates unchanged."},
+    {"sha": "f25ff6aa485fb8d0b70754e47492d879d53ad0b1", "change": "Test-only socket constructor wrapping and missing final newline; AST equivalent."}
+  ],
+  "files_sha256": {
+    "cli/src/omnis_cli/stop.py": "216db88b6d4ca756de8d40f3751fdff9af5c4fa624c9e13e6072270a8070c709",
+    "cli/tests/test_settings_lifecycle.py": "a6e18850ae40442b26b984cb921285bed91549b939d7c7eb9de790e0afc46d19"
+  },
+  "contract": {
+    "requirement_consumer_risk_decision": "Mandatory Makefile CLI quality -> source CLI Stop and existing lifecycle regressions -> bytes/text typing collision or accidental guard/test change -> remove only these quality blockers before parent review/build/physical QA.",
+    "allowed_files": ["cli/src/omnis_cli/stop.py", "cli/tests/test_settings_lifecycle.py"],
+    "behavior": "No cast, ignore, Any, predicate, test oracle, fixture or dependency changes.",
+    "rollback": "Revert the respective independent commit and rerun affected quality/regressions. No persistent product-state changes."
+  },
+  "red": [
+    {"log": "/home/kali/.hermes/cache/scratch/oq-vt93jr1h/cli-mypy.log", "origin": "Parent reproduced before this assignment; read directly before edit", "result": "3 errors in stop.py lines 123-125, checked 22 source files"},
+    {"log": "/home/kali/.hermes/cache/scratch/oq-vt93jr1h/cli-format.log", "origin": "Parent reproduced before this assignment; read directly before edit", "result": "Only test_settings_lifecycle.py unformatted; 67 other files formatted"}
+  ],
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_usage": "Existing interpreter/dependencies only; source/test paths explicitly point into the owned worktree. No main source edits.",
+    "versions": {"mypy": "2.3.1", "pytest": "9.1.1", "ruff": "0.16.9"},
+    "scratch": "/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ",
+    "quality_environment": "env -i HOME=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/home PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/tmp",
+    "tests_additional_environment": "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/config XDG_STATE_HOME=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/state PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "mypypath": "UNSET",
+    "checks": [
+      {"command_after_environment": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/pycache -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/mypy cli/src", "exit_code": 0, "result": "Success: no issues found in 22 source files", "log": "mypy-green.log"},
+      {"command_after_environment": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/pycache -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/mypy-final --output=json cli/src", "exit_code": 0, "result": "Final committed snapshot; canonical Makefile diagnostic mode", "log": "mypy-final-green.jsonl"},
+      {"command_after_environment": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check cli/src cli/tests", "exit_code": 0, "result": "68 files already formatted", "log": "format-final-green.log"},
+      {"command_after_environment": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests", "exit_code": 0, "log": "ruff-final-green.log"},
+      {"command_after_environment": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -X pycache_prefix=/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/pycache -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/cli/src\",\"/home/kali/.hermes/cache/scratch/o4-pr4lhcmr/work/cli/tests\"]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"cli/tests/test_stop.py\",\"cli/tests/test_settings_lifecycle.py\",\"-q\"]))'", "exit_code": 0, "result": "46 passed, 430 subtests passed in 3.56s; after last edit", "log": "stop-postformat-green.log"},
+      {"command": "git diff --check", "exit_code": 0},
+      {"command": "git status --short --branch; git diff c935834971dfe9c1d0b9909e85c83f5ed2dbc503 --stat", "exit_code": 0, "result": "Clean worktree; exactly two allowed files changed"}
+    ]
+  },
+  "format_ast_equivalence": {
+    "method": "ast.dump(ast.parse(bytes), include_attributes=False) before from git HEAD at source-only commit versus final test bytes",
+    "equivalent": true,
+    "before_source_sha256": "bac80237f7cf611be393a319a843e6f644dce91a1f931b5a6e91b0b4ceff4adf",
+    "after_source_sha256": "a6e18850ae40442b26b984cb921285bed91549b939d7c7eb9de790e0afc46d19",
+    "before_ast_sha256": "8a65c76077f0facb629be3888b29ca156a52f437904e2b4220b632402497b66c",
+    "after_ast_sha256": "8a65c76077f0facb629be3888b29ca156a52f437904e2b4220b632402497b66c",
+    "log": "/home/kali/.hermes/cache/scratch/qc-ahdGZrQQ/format-final-ast.json"
+  },
+  "issues_preserved": [
+    "Owned worktree has no api/.venv or cli/.venv; used existing main API interpreter for tools only with isolated environment and explicit owned source paths.",
+    "First regression execution passed 46 tests/430 subtests but warned about asyncio_mode with plugin autoload disabled. Subsequent executions explicitly loaded pytest_asyncio.plugin; final run has no warning.",
+    "First formatting patch corrected constructor but left absent EOF newline; format-green.log records exit 1. Readback established missing newline, not extra trailing blank line. Second V4A patch added final newline; final format and regressions pass."
+  ],
+  "effects_and_cleanup": {
+    "scope": "Existing SOURCE tests with bounded private local sockets/process fixtures only; no new harness, provider/DNS/account/model/target/installed/OCI/PostgreSQL/browser effects.",
+    "fixture_cleanup": "Existing fixture cleanup completed with successful tests; final owned TMPDIR recursive readback is empty. No manual foreign signals or cleanup.",
+    "independent_process_family_attestation": "NOT_RUN; no universal process-drain claim",
+    "previous_reports": "Preserved unchanged",
+    "main": "Not edited or committed"
+  },
+  "limits_next": {
+    "cli_wheel": "NOT_RUN within bounded repair budget; previous wheel is stale for stop.py. Parent must offline rebuild and read back exact 22 source module bytes before physical QA.",
+    "api_native_wheels": "UNCHANGED; no rebuild",
+    "other_parent_quality": "Unchanged runtime/release checks reused; not rerun or newly certified here",
+    "review": "Parent to obtain one independent focused review of exact two-file delta; unchanged complementary approvals retained only in original scope",
+    "physical_qa": "NOT_RUN",
+    "full_canonical_gate": "NOT_RUN; these are exact mandatory affected CLI quality commands plus scoped regressions, not make check",
+    "acceptance_integration": "No source acceptance or integration claim"
+  }
+}

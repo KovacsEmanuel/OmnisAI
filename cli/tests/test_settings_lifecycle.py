@@ -323,11 +323,21 @@ class SettingsTopologyTest(ProductAttestationTest):
         )
         # Synthetic inspect producer already includes the native supervisor bind.
         config["services"]["runtime"] = overlay["services"]["runtime"]
+        # Compose 2.32.4 renders this explicit null even when omitted by the
+        # producer. SOURCE regression; real installed renderer is checked separately.
+        config["services"]["runtime"]["entrypoint"] = None
         self.runtime.compose = Mock(
             return_value=subprocess.CompletedProcess([], 0, json.dumps(config), "")
         )
         validate_config(self.runtime, self.env)
-        for mutation in ("network_mode", "init", "image", "volumes", "environment"):
+        for entrypoint in ("/bin/sh", ["/bin/sh"], False, []):
+            with self.subTest(entrypoint=entrypoint):
+                bad = deepcopy(config)
+                bad["services"]["runtime"]["entrypoint"] = entrypoint
+                self.runtime.compose.return_value.stdout = json.dumps(bad)
+                with self.assertRaisesRegex(StartError, "^COMPOSE_RUNTIME_INVALID$"):
+                    validate_config(self.runtime, self.env)
+        for mutation in ("network_mode", "init", "image", "volumes", "environment", "command"):
             bad = deepcopy(config)
             bad["services"]["runtime"][mutation] = {
                 "network_mode": "host",
@@ -335,9 +345,10 @@ class SettingsTopologyTest(ProductAttestationTest):
                 "image": self.runtime.receipt.image_id,
                 "volumes": [],
                 "environment": {"OMNIS_DATABASE_URL": "forbidden"},
+                "command": ["sleep", "99"],
             }[mutation]
             self.runtime.compose.return_value.stdout = json.dumps(bad)
-            with self.assertRaises(StartError):
+            with self.assertRaisesRegex(StartError, "^COMPOSE_RUNTIME_INVALID$"):
                 validate_config(self.runtime, self.env)
         item = self.item("supervisor")
 

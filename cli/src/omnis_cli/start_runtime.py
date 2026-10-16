@@ -87,6 +87,7 @@ def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str
                 "platform": "linux/amd64",
                 "restart": "no",
                 "labels": {"org.omnis.start-attempt": runtime.attempt},
+                "entrypoint": None,  # Match Compose's rendered default; image is attested separately.
                 "command": list(RUNTIME_COMMAND),
                 "user": f"{os.getuid()}:{os.getgid()}",
                 "read_only": True,

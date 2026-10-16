@@ -180,6 +180,15 @@ def cleanup_startup_ipc(
                 ):
                     raise StartError("UNSAFE_IPC_LOCK", 4)
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if stem == "runtime":
+                    from .start import runtime_ipc
+                    from .start_runtime import check_native_paths
+
+                    record = read_record(root / "startup.json")
+                    check_native_paths(root, record)
+                    pinned = record.get("runtime_ipc")
+                    if pinned is not None and runtime_ipc(root) != pinned:
+                        raise StartError("IPC_REPLACED", 4)
                 if os.path.lexists(path):
                     identity = socket_identity(path)
                     if expected is not None and identity != expected.get(stem):

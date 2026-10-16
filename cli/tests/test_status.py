@@ -118,6 +118,7 @@ class StatusTest(unittest.TestCase):
         journal = self.state / "startup.json"
         write_record(journal, record)
         installed = SimpleNamespace(
+            native=False,
             receipt=SimpleNamespace(
                 project=record["project"],
                 image_id=record["image_id"],

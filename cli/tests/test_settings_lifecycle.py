@@ -94,6 +94,27 @@ class SettingsTopologyTest(ProductAttestationTest):
             self.assertTrue((fixture.root / "provider").is_dir())
             self.assertLessEqual(len(encoded(inventory)), 2900)
             self.assertLessEqual(len(encoded(grant)), 3600)
+            from uuid import uuid4
+
+            from omnis_cli.restart import prepare_restart
+            from omnis_cli.stop import _publish_stopped
+            from omnis_cli.stop_owner import _view
+
+            # Continue on the same synthetic Engine transport, never Docker CLI.
+            fixture.runtime = _view(fixture.runtime)
+            original_provider = fixture.record["provider_identity"]
+            _publish_stopped(
+                fixture.runtime,
+                fixture.root,
+                fixture.control,
+                fixture.root / "startup.json",
+                fixture.record,
+            )
+            restart = prepare_restart(
+                fixture.runtime, fixture.root, fixture.control, fixture.record, str(uuid4())
+            )
+            self.assertEqual(restart["request"]["grant"]["inventory"]["version"], 2)
+            self.assertEqual(fixture.record["provider_identity"], original_provider)
         finally:
             fixture.close()
 
@@ -173,6 +194,59 @@ class SettingsTopologyTest(ProductAttestationTest):
                 validate_inventory(maximum, record)
         finally:
             fixture.close()
+
+    def test_runtime_boot_digest_binds_raw_bytes(self):
+        from omnis_cli.start import runtime_ipc
+        from stop_owner_fixture import Fixture
+
+        fixture = Fixture(native=True)
+        try:
+            before = runtime_ipc(fixture.root)
+            path = fixture.root / "native-ipc/runtime.boot"
+            path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+            self.assertNotEqual(runtime_ipc(fixture.root)["digest"], before["digest"])
+        finally:
+            fixture.close()
+
+    def test_runtime_wait_uses_published_socket_before_boot_metadata(self):
+        from omnis_cli.start import runtime_ipc
+
+        self.native()
+        directory = self.root / "native-ipc"
+        (directory / "runtime.lock").touch(mode=0o600)
+        (directory / "runtime.boot").touch(mode=0o600)  # Host still publishing.
+        with self.assertRaises(FileNotFoundError):
+            runtime_ipc(self.root)
+
+    def test_cleanup_refuses_changed_native_boot_before_unlink(self):
+        import socket
+
+        from omnis_cli.lifecycle import cleanup_startup_ipc
+        from omnis_cli.start import runtime_ipc
+
+        self.native()
+        directory = self.root / "native-ipc"
+        (directory / "runtime.lock").touch(mode=0o600)
+        write_record(
+            directory / "runtime.boot",
+            {"version": 1, "boot": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "capability": "a" * 64},
+        )
+        sock = socket.socket(socket.AF_UNIX)
+        sock.bind(str(directory / "runtime.sock"))
+        (directory / "runtime.sock").chmod(0o600)
+        sock.close()
+        expected = runtime_ipc(self.root)
+        record = json.loads((self.root / "startup.json").read_text())
+        record["runtime_ipc"] = expected
+        write_record(self.root / "startup.json", record, replace=True)
+        (directory / "runtime.boot").unlink()
+        write_record(
+            directory / "runtime.boot",
+            {"version": 1, "boot": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "capability": "b" * 64},
+        )
+        self.assertTrue(cleanup_startup_ipc(self.root, self.control, native=True))
+        self.assertTrue((directory / "runtime.sock").exists())
+        self.assertTrue((directory / "runtime.boot").exists())
 
     def test_native_stop_denies_replacement_lost_ack_and_nondrain(self):
         from unittest.mock import patch
@@ -304,6 +378,36 @@ class SettingsTopologyTest(ProductAttestationTest):
         self.assertEqual(
             self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port), native
         )
+        valid = deepcopy(native)
+        for section, key, value in (
+            ("HostConfig", "Init", True),
+            ("HostConfig", "NetworkMode", "host"),
+            ("HostConfig", "ReadonlyRootfs", False),
+            ("Config", "User", "0:0"),
+            ("Config", "Cmd", ["sleep", "99"]),
+            ("Config", "Env", ["OMNIS_DATABASE_URL=forbidden"]),
+            ("NetworkSettings", "Networks", {self.runtime.receipt.project + "_control": {}}),
+        ):
+            native[section][key] = value
+            with self.assertRaises(StartError):
+                self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port)
+            native = deepcopy(valid)
+        native["Image"] = self.runtime.receipt.image_id
+        with self.assertRaises(StartError):
+            self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port)
+        native = deepcopy(valid)
+        native["Mounts"].append(
+            {
+                "Type": "bind",
+                "Source": str(self.control),
+                "Destination": "/control",
+                "RW": True,
+                "Propagation": "rprivate",
+            }
+        )
+        with self.assertRaises(StartError):
+            self.runtime.attest(self.cid, "runtime", self.root, self.control, self.port)
+        native = deepcopy(valid)
         (self.root / "provider").rename(self.root / "old-provider")
         (self.root / "provider").mkdir(mode=0o700)
         with self.assertRaises(StartError):

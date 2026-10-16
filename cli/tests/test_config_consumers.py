@@ -106,7 +106,7 @@ class ConfigConsumersTest(unittest.TestCase):
                 with (
                     patch.object(start.time, "monotonic", return_value=100),
                     patch.object(
-                        start, "ControlRuntime", return_value=SimpleNamespace()
+                        start, "ControlRuntime", return_value=SimpleNamespace(native=False)
                     ) as constructor,
                     patch.object(
                         start, "preflight_port", side_effect=StartError("PORT_OBSERVED", 3)

@@ -123,11 +123,14 @@ def runtime_ipc(root: Path) -> dict[str, object]:
     import hashlib
 
     from .instance import unique_pairs
+    from .release import _bytes
 
     directory = root / "native-ipc"
     private_dir(directory)
-    raw = private_file(directory / "runtime.boot", limit=1024)
-    metadata = mapping(json.loads(raw, object_pairs_hook=unique_pairs))
+    endpoint = socket_identity(directory / "runtime.sock")
+    private_file(directory / "runtime.boot", limit=1024)
+    raw = _bytes(directory / "runtime.boot", limit=1024)
+    metadata = mapping(json.loads(raw.decode("utf-8"), object_pairs_hook=unique_pairs))
     if (
         set(metadata) != {"version", "boot", "capability"}
         or type(metadata["version"]) is not int
@@ -140,11 +143,11 @@ def runtime_ipc(root: Path) -> dict[str, object]:
     private_file(directory / "runtime.lock", limit=1024)
     lock, boot = (directory / "runtime.lock").lstat(), (directory / "runtime.boot").lstat()
     return {
-        "socket": socket_identity(directory / "runtime.sock"),
+        "socket": endpoint,
         "lock": [lock.st_dev, lock.st_ino],
         "file": [boot.st_dev, boot.st_ino],
         "boot": metadata["boot"],
-        "digest": hashlib.sha256(raw.encode()).hexdigest(),
+        "digest": hashlib.sha256(raw).hexdigest(),
     }
 
 

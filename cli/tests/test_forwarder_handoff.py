@@ -144,7 +144,8 @@ class ForwarderHandoffTest(unittest.TestCase):
                 network=lambda _: None,
             )
 
-            def fixture_ipc_cleanup(*args):
+            def fixture_ipc_cleanup(*args, native=False):
+                self.assertIs(native, False)
                 self.api.close()
                 (self.root / "http/api.sock").unlink()
                 return []

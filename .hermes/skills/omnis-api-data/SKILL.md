@@ -1,7 +1,7 @@
 ---
 name: omnis-api-data
 description: "Use when building Omnis API and persistence."
-version: 0.1.27
+version: 0.1.28
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -82,6 +82,8 @@ Do not swallow exceptions, retry uncertain external effects as if they were safe
 ## Optional consumers and cross-runtime admission
 
 For a specialized settlement reader over the shared ledger, correlate the exact retained usage and configuration receipts with the specialized producer contract before projecting constants. A general ledger KNOWN state and independently valid cold receipt do not prove cross-record agreement. Challenge resealed token/receipt-identity/configuration contradictions through the same receive-only reader, retain valid and restored positives, and require no writes, grant or redispatch on refusal.
+
+Before reusing validated material to remove repeated work, compare eligibility under every original validator context: manifest-aware validation and a standalone wrapper may infer different versions. Reuse only the exact full-stage result within the same call, before yielding; retain explicit unsupported-version refusal and strict public wrappers. Pair a genuine stage-valid negative with byte-identical supported positives, and count validations separately from correctness. SOURCE work reduction is not a real PostgreSQL deadline proof.
 
 When authoring a fixture, account for defensive container copies: `managed_contract.mapping` returns a new dict, so reassign changed requirement rows into the authored payload before serializing. When sharing resolved schema refs across YAML sections, deepcopy the new section rather than retaining aliases to the old section; the real parser rejects YAML anchors/aliases. Confirm the intended serialized declaration reaches the targeted RED guard before changing product code.
 

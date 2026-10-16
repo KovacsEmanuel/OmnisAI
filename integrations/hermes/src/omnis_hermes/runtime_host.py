@@ -304,6 +304,20 @@ class RuntimeHost:
             self.management_failed = True
 
     async def _settings_native(self, action: str, selected: object) -> dict[str, object] | None:
+        fence = (self.generation, self.epoch)
+
+        def dispatch_guard() -> None:
+            # Trusted owner state, not a caller-provided grant/boolean. Renewal
+            # may advance the existing deadline, never change this fence.
+            if (
+                self.state != "MANAGEMENT"
+                or self.management_failed
+                or (self.generation, self.epoch) != fence
+                or time.monotonic_ns() >= self.deadline_ns
+            ):
+                raise ValueError("Settings authority expired")
+
+        dispatch_guard()
         if self.process is None:
             root = (
                 Path("/state/provider")
@@ -384,14 +398,29 @@ class RuntimeHost:
                 raise ValueError("Invalid management readiness")
             self.management_port = int(raw[len(prefix) : -1])
             self.management_output.append(asyncio.create_task(discard(self.process.stdout)))
-            if await request(self.management_port, self.management_token, "GET", "/api/health") != {
+            if await request(
+                self.management_port,
+                self.management_token,
+                "GET",
+                "/api/health",
+                dispatch_guard=dispatch_guard,
+            ) != {
                 "status": "ok",
                 "mode": "management-only",
             }:
                 raise ValueError("Invalid management health")
         if self.management_port is None or self.process.returncode is not None:
             raise ValueError("Management unavailable")
-        return await configure(self.management_port, self.management_token, action, selected)
+        dispatch_guard()
+        result = await configure(
+            self.management_port,
+            self.management_token,
+            action,
+            selected,
+            dispatch_guard=dispatch_guard,
+        )
+        dispatch_guard()
+        return result
 
     def _preparation_ready(self) -> None:
         if (

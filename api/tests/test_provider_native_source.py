@@ -1,6 +1,7 @@
 """SOURCE: finite native config projection and exact private request mapping."""
 
 import importlib
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
@@ -87,20 +88,34 @@ async def test_native_ack_requires_exact_true(monkeypatch: pytest.MonkeyPatch, a
     reads = 0
 
     async def request(
-        port: int, token: str, method: str, path: str, payload: dict[str, object] | None = None
+        port: int,
+        token: str,
+        method: str,
+        path: str,
+        payload: dict[str, object] | None = None,
+        *,
+        dispatch_guard: Callable[[], None],
     ) -> object:
         nonlocal reads
+        dispatch_guard()
         if method == "PUT":
             return reply
         reads += 1
         return dict(SELECTION)
 
     monkeypatch.setattr(management_http, "request", request)
-    assert await management_http.configure(1, "synthetic", "save", SELECTION) == SELECTION
+    assert (
+        await management_http.configure(
+            1, "synthetic", "save", SELECTION, dispatch_guard=lambda: None
+        )
+        == SELECTION
+    )
     assert reads == 1
     reply = ack
     with pytest.raises(ValueError, match="Unconfirmed native save"):
-        await management_http.configure(1, "synthetic", "save", SELECTION)
+        await management_http.configure(
+            1, "synthetic", "save", SELECTION, dispatch_guard=lambda: None
+        )
     assert reads == 1
 
 
@@ -118,15 +133,27 @@ async def test_native_request_is_allowlisted_and_readback_not_http_ok(
     missing = False
 
     async def request(
-        port: int, token: str, method: str, path: str, payload: dict[str, object] | None = None
+        port: int,
+        token: str,
+        method: str,
+        path: str,
+        payload: dict[str, object] | None = None,
+        *,
+        dispatch_guard: Callable[[], None],
     ) -> object:
+        dispatch_guard()
         requests.append((method, path, payload))
         if method == "PUT":
             return {"ok": True}
         return None if missing else selected
 
     monkeypatch.setattr(management_http, "request", request)
-    assert await management_http.configure(1, "synthetic", "save", selected) == selected
+    assert (
+        await management_http.configure(
+            1, "synthetic", "save", selected, dispatch_guard=lambda: None
+        )
+        == selected
+    )
     assert requests == [
         (
             "PUT",
@@ -146,7 +173,9 @@ async def test_native_request_is_allowlisted_and_readback_not_http_ok(
     ]
     missing = True
     with pytest.raises(ValueError, match="readback mismatch"):
-        await management_http.configure(1, "synthetic", "save", selected)
+        await management_http.configure(
+            1, "synthetic", "save", selected, dispatch_guard=lambda: None
+        )
     assert len(requests) == 4  # No retry after an acknowledged write with missing readback.
 
 

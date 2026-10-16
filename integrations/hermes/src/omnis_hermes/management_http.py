@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+from collections.abc import Callable
 from contextlib import suppress
 
 from .management_contract import selection
@@ -9,7 +10,13 @@ from .native_preparation_contract import loads
 
 
 async def request(
-    port: int, token: str, method: str, path: str, payload: dict[str, object] | None = None
+    port: int,
+    token: str,
+    method: str,
+    path: str,
+    payload: dict[str, object] | None = None,
+    *,
+    dispatch_guard: Callable[[], None],
 ) -> object:
     if (
         method not in {"GET", "PUT"}
@@ -22,6 +29,9 @@ async def request(
     async with asyncio.timeout(2):
         reader, writer = await asyncio.open_connection("127.0.0.1", port, limit=8192)
         try:
+            # Owner-owned synchronous check AFTER connect. No yielding gap from
+            # current state/fence/deadline admission to queuing these bytes.
+            dispatch_guard()
             writer.write(
                 (
                     f"{method} {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\n"
@@ -50,7 +60,12 @@ async def request(
 
 
 async def configure(
-    port: int, token: str, action: str, selected: object
+    port: int,
+    token: str,
+    action: str,
+    selected: object,
+    *,
+    dispatch_guard: Callable[[], None],
 ) -> dict[str, object] | None:
     checked = selection(selected)
     if action == "save":
@@ -71,12 +86,15 @@ async def configure(
                     "auth": {"adopt_external_logins": False},
                 }
             },
+            dispatch_guard=dispatch_guard,
         )
         if type(result) is not dict or set(result) != {"ok"} or result["ok"] is not True:
             raise ValueError("Unconfirmed native save")
     elif action != "read":
         raise ValueError("Invalid action")
-    value = await request(port, token, "GET", "/api/config?include_defaults=false")
+    value = await request(
+        port, token, "GET", "/api/config?include_defaults=false", dispatch_guard=dispatch_guard
+    )
     result = selection(value)
     if action == "save" and result != checked:
         raise ValueError("Native readback mismatch")

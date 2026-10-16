@@ -1,0 +1,99 @@
+{
+  "report_type": "independent_focused_review",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "ADMIT_NEXT_BOUNDED_PG_DIAGNOSTIC_PROBE",
+  "product_acceptance": false,
+  "scope": "Finite phase timing delta in the two existing admission tests; fidelity, sender/second/QA-pause attribution, safe output and unchanged results/deadlines. Not a P2 re-audit.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head": "1aacd2e2cd65592b366569f57be4fb8b46bf5335",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "files": {
+      "api/tests/test_model_admission.py": "308477530b8a9cc5e0d9789a0b2d96e0b2f283c06c6ca51b5f5e58e8d9112025",
+      "api/tests/test_model_admission_pg.py": "d575e42b347508c45f735be0d79c17d6b9e5e4bc9930686fcaf9c859142d4877"
+    },
+    "hashes_rechecked_after_tests": true,
+    "tracked_dirty_paths": ["api/tests/test_model_admission.py", "api/tests/test_model_admission_pg.py"],
+    "diff": {"insertions": 317, "deletions": 29},
+    "product_paths_unchanged_from_75c6fab": ["api/src", "integrations/hermes/src"],
+    "protected_html": "Preexisting untracked name observed in git status only; no content read, hash or edit."
+  },
+  "findings": [],
+  "criteria": [
+    {
+      "criterion": "Fidelity and bounded storage",
+      "result": "PASS_SCOPED",
+      "locations": ["api/tests/test_model_admission_pg.py:53-137", "api/tests/test_model_admission.py:1428-1474"],
+      "evidence": "Eleven literal phase names, two callers, at most 64 spans. Monotonic entry/elapsed integer milliseconds; pending snapshot uses one common current time. Direct await delegates exactly once in the original task, returns the identical object and re-raises the identical exception. BaseException includes cancellation as RAISED. No added observer task, timer or await. Untracked readers do not add spans. Capacity failure is explicit, not truncation."
+    },
+    {
+      "criterion": "Sender/second and QA attribution",
+      "result": "PASS_SOURCE_AND_STATIC_PG_WIRING",
+      "locations": ["api/tests/test_model_admission_pg.py:765-782", "api/tests/test_model_admission_pg.py:824-954", "api/tests/test_model_admission_pg.py:1062-1138"],
+      "evidence": "Explicit client labels; owner request order is pinned because second is launched only after sender T0 marker. Per-handler task mapping is removed in finally. Nonconcurrent cases track one command; duplicate/conflict track two. qa.t0_locked contains the existing in-transaction QA queries/census and release wait; qa.before_a contains the existing post-commit second-finished wait. These are separate spans inside sender owner wall time. protocol.reserve ends before T0 QA pause. Later replay/readers are excluded. SOURCE output independently confirms three sender qualification calls for each case, one second qualification only for duplicate and none for conflict."
+    },
+    {
+      "criterion": "Safe same-channel failure/success diagnostics",
+      "result": "PASS_SCOPED",
+      "locations": ["api/tests/test_model_admission_pg.py:140-224", "api/tests/test_model_admission_pg.py:1141-1156", "api/tests/test_model_admission_pg.py:1199-1223", "api/tests/test_model_admission.py:1580-1708"],
+      "evidence": "Timing emits only caller, phase, entered_ms, elapsed_ms and outcome; no arguments, results, exception messages, paths, DSNs or identities. Existing error-type/reason allowlist remains. Snapshot is taken in except before release/cancel/gather cleanup and original raise remains. Independently parsed 3 SOURCE_CONTROL timing records and 9 SOURCE_CONTROL failure records from actual --tb=line output. Synthetic secret marker absent; pending/returned/failed/cancelled and unknown type/reason controls passed. PG success timing is emitted before later assertions and is explicitly not a final verdict."
+    },
+    {
+      "criterion": "No weakened oracle or renewed deadlines",
+      "result": "PASS_STATIC_AND_TARGETED_SOURCE",
+      "locations": ["api/tests/test_model_admission_pg.py:692-1343", "api/src/omnis/supervisor/native_tasks.py:100-107", "api/src/omnis/supervisor/native_tasks.py:451-458"],
+      "evidence": "AST comparison with HEAD found identical multisets of all 50 assertions and all 9 timeout/wait_for expressions in protocol_pg_consumer; create_task call count remains 4. Original 4-second product owner/public-control budgets and direct sender/second joins are unchanged. PG/client calls retain their original awaits; nominal adds observation and bare re-raise only. Product paths have no diff from 75c6fab."
+    }
+  ],
+  "execution": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_admission.py -k 'phase_timing or failure_observation' -q --tb=line",
+    "cwd": "/home/kali/OmnisAI",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/p2rv-l5c5nmut/home",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p2rv-l5c5nmut/tmp",
+      "LANG": "C.UTF-8",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "ambient_environment_inherited": false,
+    "timeout_seconds": 60,
+    "exit_code": 0,
+    "passed": 13,
+    "deselected": 47,
+    "pytest_seconds": 4.04,
+    "wall_seconds": 4.786,
+    "log": "/home/kali/.hermes/cache/scratch/p2rv-l5c5nmut/source-tests.log",
+    "metadata": "/home/kali/.hermes/cache/scratch/p2rv-l5c5nmut/execution.json",
+    "parsed_evidence": "/home/kali/.hermes/cache/scratch/p2rv-l5c5nmut/evidence.json",
+    "additional_checks": [
+      {"command": "git diff --check", "exit_code": 0},
+      {"command": "git diff --name-only 75c6fab -- api/src integrations/hermes/src", "exit_code": 0, "output": "empty"},
+      {"command": "sha256sum api/tests/test_model_admission.py api/tests/test_model_admission_pg.py", "exit_code": 0, "result": "Both match the delegated snapshot; independently rechecked after tests."},
+      {"method": "Read-only Python ast comparison of protocol_pg_consumer against git show HEAD:api/tests/test_model_admission_pg.py, plus JSON parsing of actual output; complete invocation retained in tool transcript.", "exit_code": 0, "result": "50/50 assertion multiset unchanged; 9 deadline expressions unchanged; 4/4 create_task calls; 12 parsed SOURCE_CONTROL records."}
+    ]
+  },
+  "limits": [
+    "No PG, OCI, native model/provider or target execution; no operator profile, r1, global configuration, push, staging or commit.",
+    "SOURCE controls replace storage/graph/domain-readback seams. They prove delegation and diagnostic behavior, not real PG phase latency or the cause of the previous public sender TimeoutError.",
+    "Wall spans include scheduler/lock waits and observer overhead. Nested/overlapping phases must not be summed; absence of a phase means it was not observed, not zero cost. Millisecond truncation can yield zero for short phases.",
+    "PG-only phase wrappers and QA-pause boundaries were inspected statically, not exercised against a database in this review. Actual PG timing is the next admitted evidence step.",
+    "The unchanged deadline-join tests, full SOURCE/PG suite, lint/type checks and canonical gate were not rerun by this reviewer. Parent-provided author results are not relabeled as independent execution.",
+    "The previous duplicate PG failure remains unresolved. A timing line is neither final test PASS nor product acceptance; P2 remains NOT_CLOSED."
+  ],
+  "admission_conditions": [
+    "Parent compares both exact hashes before the next already-authorized bounded PG diagnostic run and retains the existing runner/resource preflight and cleanup contract.",
+    "Keep original deadlines, grant/caps, waiter/census assertions and failure preservation. Use the new finite observations to localize the duplicate failure; no blind retry or fabricated causal attribution.",
+    "Parent adjudicates results and continues the active P2-inert mandate; this report is not a new helper-handoff or phase-closure checkpoint."
+  ],
+  "artifacts_and_changes": {
+    "repository_modified_by_reviewer": false,
+    "created_under_private_scratch": ["review.json", "execution.json", "evidence.json", "source-tests.log", "home/", "tmp/"],
+    "issues_encountered": []
+  },
+  "status_delta": {
+    "diagnostic_review": "APPROVED_SCOPED",
+    "independent_source_evidence": "13_PASS",
+    "next_pg_diagnostic": "ADMITTED_NOT_RUN_BY_REVIEWER",
+    "product_p2": "NOT_CLOSED_UNCHANGED"
+  }
+}

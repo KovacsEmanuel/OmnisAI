@@ -57,6 +57,12 @@ Două reviewuri focalizate [normativ](p2-integration-timing-oracle-review-norm.j
 
 Părinte a confirmat exact sesiunea `proc_3fdfef3183fd` exited2, receipt strict/code2/drained, un diagnostic scope=PG separat de9SOURCE_CONTROL și sumarul real. CID `a417422708fa6dd3d659d1c01b024116418c81d530132ea4849eed064f98350f`, proiect `omnis-p01-e7bd696d4db94d119c73c5acbb846690`, rețele/UDS/lock/postmaster și13identități PID absente; daemon/imagine identice, PGDATA dev/inode/uid/mode păstrate în `/home/kali/.hermes/cache/scratch/tq-4d8a7y28/db-4c45eb06ad3e43d1`. Fără cleanup/retry/fixture reuse; bazele per-test DROP nu sunt declarate păstrate. Mandatul continuă pe cauza deadline-ului duplicate, nu se închide la acest raport.
 
+### Frontieră duplicate — măsurare de faze revizuită
+
+`0a99edf` adaugă numai în cele două teste măsurarea primelor două comenzi, maximum64spans/11nume finite, directoriginalawait în același task: control/owner/domain.readback/replay/reserve/mark_sent/settle/readback/qualified și separat qa.t0_locked/qa.before_a. Snapshotul de eroare precedă cleanupul; același canal sanitizat pe succes dă contraste nominal/conflict, dar nu un verdict PASS înaintea aserțiunilor finale. Fără argumente/rezultate/mesaje/privateframes, taskuri/timere/deadlineuri noi; wall spans imbricate nu se însumează.
+
+[Review focalizat original](p2-integration-phase-timing-review.json), SHA256 `af35b541823e7bf3f94c4c6b0a760e8f51c9d8f945e3a523cc29929ca81b8e2e`, APPROVED_SCOPED pe2SHA; independent13SOURCE PASS4.04s/exit0 și comparație AST50aserțiuni/9expresii deadline/create_task4 păstrate. Autorul a raportat23affectedSOURCE/quality0 și99noduri colectate, fără PG. Profilarea SOURCE a identificat încă o qualified pentru second la duplicate față de conflict, dar storage/_verify_graph sunt doubles și cProfile introduce overhead: nu dovedește cauza PG. Următoarea QA fresh admisă măsoară exact diferența între timp de produs și pauzele testului; nu se livrează o optimizare/cache pe presupunere și mandatul continuă.
+
 ### D1 — descriptor contabil finit, fără native-turn fabricat
 
 - Se alege varianta minimă: payloadul exact `task_model_preflight` v2/v3 și validatorul/receiptul cold existente, fără opcode/overlay/Host nou și fără promovarea implicită a batch2 v4 în model-preflight. `FinalModelRequest` și schema nativă rămân neschimbate; `native_turn=None` nu este admis acolo.

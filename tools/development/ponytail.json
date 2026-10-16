@@ -1,0 +1,157 @@
+{
+  "purpose": "Native Ponytail integration for the Hermes development agent, not the Omnis assessment runtime.",
+  "source": "https://github.com/DietrichGebert/ponytail",
+  "revision": "6f1c2bfff0c837d268929a7c4e490918eb4fab29",
+  "version": "5.3.1",
+  "license": "MIT",
+  "profile": "default",
+  "scope": "Active Hermes profile; affects its future coding sessions, not only Omnis.",
+  "plugin_directory": "$HERMES_HOME/plugins/ponytail",
+  "before": {
+    "installed": false,
+    "enabled": false,
+    "disabled": false
+  },
+  "desired_after": {
+    "installed": true,
+    "enabled": true,
+    "disabled": false,
+    "default_mode": "full"
+  },
+  "installation_command": "hermes plugins install DietrichGebert/ponytail --ref 6f1c2bfff0c837d268929a7c4e490918eb4fab29 --enable",
+  "state": "INSTALLED_ENABLED_NATIVE_VERIFIED_NEXT_SESSION",
+  "rollback": [
+    "hermes plugins disable ponytail",
+    "Restart Hermes to retire already-loaded callbacks.",
+    "hermes plugins remove ponytail"
+  ],
+  "preserve": [
+    "Other profiles and plugins",
+    "Model/provider and security configuration",
+    "Project AGENTS.md",
+    "Omnis runtime, DB and existing HTML"
+  ],
+  "limits": [
+    "Git revert does not undo profile installation.",
+    "A current open session is not restarted or credited as activated by this record.",
+    "Installed-copy proof uses real host registration, skill serving and turn-context collection under Doctor isolation, with owned CLI queues; not a live model response or full interactive TUI journey.",
+    "Mode is process-local; shared gateway sessions can affect each other. No gateway access policy was changed.",
+    "The active TUI was not restarted; restart Hermes before relying on its native commands and automatic injection.",
+    "No guarantees of measured Omnis time/cost savings or future agent compliance.",
+    "The earlier manual Ponytail adaptation is reverted from omnis-delivery to avoid two competing rulesets."
+  ],
+  "after": {
+    "installed": true,
+    "enabled": true,
+    "disabled": false,
+    "default_mode": "full",
+    "allow_tool_override": false,
+    "source_modified": false
+  },
+  "attempts": [
+    {
+      "exit_code": 1,
+      "scanner_verdict": "CAUTION",
+      "findings": 137,
+      "high": 2,
+      "override_used": false,
+      "config_unchanged": true,
+      "plugin_not_published": true
+    },
+    {
+      "command": "hermes plugins install DietrichGebert/ponytail --ref 6f1c2bfff0c837d268929a7c4e490918eb4fab29 --enable --force",
+      "exit_code": 1,
+      "override_authorized_by_user": true,
+      "failure": "plugin.json declares an unsupported or missing Agent Plugins schema",
+      "plugin_not_published": true
+    }
+  ],
+  "actual_installation": {
+    "method": "Manual native fallback documented in INSTALL.md, only after the exact schema failure and explicit user trust decision.",
+    "commands": [
+      "git clone --depth 1 --no-checkout https://github.com/DietrichGebert/ponytail.git \"$HERMES_HOME/plugins/ponytail\"",
+      "git -C \"$HERMES_HOME/plugins/ponytail\" checkout --detach 6f1c2bfff0c837d268929a7c4e490918eb4fab29",
+      "hermes plugins enable ponytail --no-allow-tool-override"
+    ],
+    "exit_code": 0,
+    "node_dependencies_installed": false,
+    "hermes_updated": false,
+    "scanner_disabled": false,
+    "runtime": "Hermes v0.21.5+8513.gc905fad, source c905fad2418d4293fb65f9b04ea88d98bc55a664"
+  },
+  "review": {
+    "verdict": "APPROVED_SCOPED",
+    "id": "deleg_5d3a2bc8 / sa-0-7d10f0a0",
+    "scope": "Original native adapter, six skills, source API compatibility and two HIGH scanner matches; not an audit of every file or all 137 findings.",
+    "scanner_high_disposition": "Both reported SKIP_DIR regexes; not egress operations and not reached by the native Python adapter."
+  },
+  "source_sha256": {
+    "__init__.py": "f8ebbc5d26601369adab013506dc6797e6eb07643de91bece0df299be9836903",
+    "plugin.yaml": "11269e82b36a5666ad7fef386f55f8ec991941e15a2e33f765656ab87de61597",
+    "plugin.json": "6efc6b6c8e6e33625f9a27574f27a4d453179bcf534b09c430b00814ecbc98f3",
+    "skills/ponytail/SKILL.md": "9badd22a32e19cb884e46dfa8d3aae82bb81dfa5484105b8b4f0262df823a509",
+    "skills/ponytail-audit/SKILL.md": "2b3223a02c386d1263e1b08343cb8eb3a53e444cdafb1d79e26c8ec2a8fcad28",
+    "skills/ponytail-debt/SKILL.md": "b5ec2762f6ba8c4af9ea7173aa6c9f91b88655a25e43f9de0264f6ce8722b25f",
+    "skills/ponytail-gain/SKILL.md": "231034a896d6762e4b5c8468287083422c56b499119976ec9f76821f7d083090",
+    "skills/ponytail-help/SKILL.md": "7fb330460bd0efe935dcae72ff2c0e14e5366542b5f04ff2f2a05c7b58366386",
+    "skills/ponytail-review/SKILL.md": "33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e"
+  },
+  "verification": {
+    "source_tests": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 node --test tests/hermes-plugin.test.js",
+      "workdir": "Ponytail source at the recorded revision",
+      "passed": 14,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "doctor": {
+      "command": "hermes plugins doctor ponytail --ci",
+      "exit_code": 0,
+      "tools": 0,
+      "hooks": 2
+    },
+    "native_consumer": {
+      "verdict": "PASS_INSTALLED_COPY_NATIVE_HOOK_SCOPED",
+      "skills_loaded": 6,
+      "commands_exercised": 6,
+      "hooks_registered": 2,
+      "default_mode": "full",
+      "mode_off_and_restore": "PASS",
+      "retained_api_content_deduplication": "PASS",
+      "classic_cli_idle_and_running_queues": "PASS_WITH_OWNED_QUEUES",
+      "real_consumer": "agent.turn_context._collect_pre_llm_call_context",
+      "boundary": "Doctor-isolated copy of installed bytes; real host registry, skill loader and turn-context consumer.",
+      "llm_requests": 0,
+      "active_tui_restart": "NOT_RUN",
+      "ink_tui_command_dispatch": "NOT_RUN"
+    },
+    "fresh_profile_skills": {
+      "fresh_profile_skill_discovery": "PASS",
+      "skills": [
+        "ponytail:ponytail",
+        "ponytail:ponytail-audit",
+        "ponytail:ponytail-debt",
+        "ponytail:ponytail-gain",
+        "ponytail:ponytail-help",
+        "ponytail:ponytail-review"
+      ],
+      "count": 6
+    },
+    "config_readback": {
+      "changed_sections": [
+        "plugins"
+      ],
+      "other_config_unchanged": true,
+      "other_plugin_entries_unchanged": true,
+      "ponytail_enabled": true,
+      "allow_tool_override": false
+    },
+    "installed_tree": {
+      "revision_matches": true,
+      "worktree_clean": true,
+      "reviewed_file_hashes_match": 9
+    },
+    "current_session_skill_view": "NOT_FOUND before restart; the running process has cached plugin discovery.",
+    "cli_skills_list": "Does not enumerate plugin-provided skills on this installed Hermes; fresh tools.skills_tool.skills_list does."
+  }
+}

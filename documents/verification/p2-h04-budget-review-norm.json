@@ -1,0 +1,83 @@
+{
+  "report_id": "H04-BUDGET-REVIEW-NORM-20261016",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent normative/functional review of the ready_timeout observer delta and the proposed minimal H04 inert evidence composition. SOURCE execution only; not installed QA or phase closure.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base_and_head": "dc05e35303872e5c0a1abe7a7254ee26e6af07e0",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "committed": false,
+    "files": {
+      "api/tests/test_contract_method_pg.py": "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "303d8113ac97cf9652d4823b642566ae932784faf781406e47a9fd86c5d2b0c1"
+    },
+    "matched_requested_freeze": true,
+    "index_diff_empty": true,
+    "concurrent_unowned_change": "documents/verification/p2-integration-b06cm.md appeared modified at final status. Not read, edited or included in this verdict. HEAD unchanged.",
+    "protected_html": "Preexisting untracked documents/Omnis_Notite_Originale.html was not read, hashed or modified."
+  },
+  "findings": [],
+  "observer_review": [
+    {
+      "locations": ["integrations/hermes/src/omnis_hermes/runtime_host.py:211-225", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:441-452", "api/tests/test_contract_method_pg.py:5203-5234"],
+      "conclusion": "Host computes remaining after spawn and passes it explicitly to the real NativePeer.handshake. Local PY_START observes the exact handshake code identity, verifies its actual frame, reads ready_timeout before the function body and exception normalization, and records ENTER. It does not infer the budget from self.timeout or elapsed time. Foreign and cloned code are rejected before frame access."
+    },
+    {
+      "locations": ["api/tests/test_contract_method_pg.py:5182-5197", "api/tests/test_contract_method_pg.py:5283-5385", "api/tests/test_contract_method_pg.py:5041-5100"],
+      "conclusion": "Producer and decoder retain the exact numeric value without rounding or coercion, allowing exact int/float in (0,5]. Bool, NaN, infinities, zero, negative, over-limit and nonnumeric inputs fail closed as incomplete. ENTER has ready_timeout_s rather than exception; unknown fields and wrong methods refuse. Historical exception-only rows and explicit None remain readable, but neither is a measured READY budget. Root cause remains UNKNOWN."
+    },
+    {
+      "locations": ["api/tests/test_contract_method_pg.py:5196-5217", "api/tests/test_contract_method_pg.py:5240-5279", "api/tests/test_contract_method_pg.py:11467-11486"],
+      "conclusion": "Observation failure does not replace product exceptions or cancellation. Independent local/global disable and callback unregister attempts preserve primary failure identity and incomplete evidence. On a successful primary path diagnostic failure still refuses acceptance. Event32/byte8192 bounds and private file checks are unchanged. No product deadline, authority grant, normalization, artifact, reader or safety oracle was changed."
+    },
+    {
+      "locations": ["api/tests/test_contract_method_pg.py:6355-6402", "api/tests/test_contract_method_pg.py:6409-6435", "api/tests/test_contract_method_pg.py:2565-2640", "api/tests/test_contract_method_pg.py:5756-5770"],
+      "conclusion": "The actual installed attachment generator embeds the current HOST_LAUNCH_DIAGNOSTIC, not a separate old helper. STOCK_SITE binds host to the hash-verified real __main__ module at main entry and instantiates this diagnostic before main executes. SOURCE controls exercised real-main identity binding, finalization, attachment generation/compilation and opt-in. This is source/call-site verification of the real installed mechanism, not execution of installed sitecustomize in OCI; that remains the next authorized QA."
+    }
+  ],
+  "minimal_h04_composition": {
+    "decision": "SUFFICIENT_SCOPED_INERT_FRONTIER_IF_NEW_INTEGRATED_GUARD_EXCEPTION_PASSES",
+    "norm": "documents/Omnis_Implementation_Plan.md:268-283, especially binding/inventory row277 and final-snapshot row281",
+    "reuse": [
+      "documents/verification/p2-h04-installed-qa-partial.json: inventory positive has authentic root/child identities, read1/PURE2/result and explicit inert inventory; wrong-root negative has zero read/PURE/result. Preserve both at their original scope.",
+      "Unchanged SOURCE child-lineage and False/exception controls: integrations/hermes/tests/contract_method_native_probe.py:433-552 and existing H04 source observer. Do not relabel child-lineage or guard-False as installed passes.",
+      "documents/verification/p2-bound-predicates-evidence/batch2-fixes-author.json records the existing 17-test singleton SOURCE coverage. Current lifecycle SHA9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72 and probe SHA993a1c1ee6e3967a12743fc771ebcc15369931ca46b2a12cb0872918febe2918 match that report exactly. H04_NATIVE, test_h04_actual_source_observer, require_h04_observation, batch2_installed_entry and STOCK_SITE are AST-identical to the adjudicated HEAD base."
+    ],
+    "reason": "Wrong-child refusal is an earlier _start_contract identity guard (subagent_lifecycle.py:457-468); False and exception diverge in immediate refusal but converge on the same latched post-binding failure path. Binding is set at472 before execution, and _release_contract/_fail_contract_locked at489-549 retain indeterminate/failed, clear results and prohibit retry. rpc_dispatch.py:22-31 normalizes both native exceptions to the same denied public RPC. Therefore one new integrated post-binding guard-exception denial supplies the missing installed failure frontier without requiring every unchanged SOURCE permutation to be repeated in OCI.",
+    "required_new_qa_readback": [
+      "Only fresh h04-guard-exception, existing selector/owner/oracle and original deadlines; parent-bound exact reviewed SHA and fresh basetemp inside private TMPDIR.",
+      "Actual Host ENTER must contain an explicit finite numeric ready_timeout_s; OBSERVED alone, legacy missing ENTER or None must not be cited as a measured budget.",
+      "Existing native oracle must reach the guard after committed binding and observe run_contract1, read0/PURE0, failed/indeterminate/closed child, no usable result/receipt/approval, rather than accepting a pre-READY refusal.",
+      "Existing integrated domain oracle at api/tests/test_contract_method_pg.py:9397-9456 must retain TASK_INDETERMINATE, empty results/checks/inbox, unchanged replay/reconcile census and no retry effects, followed by strict settled observation and original cleanup/fence readback."
+    ],
+    "not_claimed": "Not H04 all five installed cases PASS, not H05 LLM compression or model-facing inventory, not live admission, and not closure of all P2 rows. Prior child-lineage pre-READY FAIL/UNKNOWN and False installed NOT_RUN remain explicit. Canonical remains required after successful adjudicated QA on final bytes."
+  },
+  "execution": {
+    "requirement_consumer_risk_decision": "Effective Host handshake budget -> existing diagnostic producer/decoder and installed attachment -> missing/wrong budget or changed primary failure -> approve exact observer delta for the separately authorized single integrated QA, or request changes.",
+    "python_resolved": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "scratch": "/home/kali/.hermes/cache/scratch/h04-budget-review-norm-tgWk3O",
+    "environment": "umask077; fresh TMPDIR above; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; unset PYTHONPATH PYTHONHOME MYPYPATH PYTEST_ADDOPTS PYTEST_PLUGINS",
+    "command": "api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py::test_host_launch_filtered_source api/tests/test_contract_method_pg.py::test_startup_primary_exception_classes api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer api/tests/test_contract_method_pg.py::test_launch_early_import_markers_and_mounted_failure api/tests/test_contract_method_pg.py::test_batch2_installed_entry_uses_existing_constructor api/tests/test_contract_method_pg.py::test_h04_installed_attachment_is_finite_and_opt_in api/tests/test_contract_method_pg.py::test_stock_site_roles_no_setup_for_unknown api/tests/test_contract_method_pg.py::test_stock_site_binds_real_main_once_without_package_import api/tests/test_contract_method_pg.py::test_h04_selector_is_closed_before_effects -q --tb=line --basetemp=/home/kali/.hermes/cache/scratch/h04-budget-review-norm-tgWk3O/pytest",
+    "exit": 0,
+    "passed": 53,
+    "seconds": 5.11,
+    "log": "source.log",
+    "log_mode": "0600",
+    "log_sha256": "0b60331683e64d2bcc7d8e9b9b21b2460e8fa639216dadd1d73dbdfa01d33b28",
+    "diff_check_exit": 0,
+    "red_green_readback": "Privately parsed author logs using only fixed summary/assertion-marker fields: red.log1failed1.53s with frame_audits AssertionError; green.log10passed3.28s; final-source.log48passed5.21s; final-selector.log5passed1.66s. All0600. RED not independently rerun; current GREEN independently rerun above.",
+    "red_log_sha256": "12e4ef13ee6ef70c4c836aaed0e08ea7a7f12d8e61606910c5aadd3bd0c5a5ec"
+  },
+  "limits": {
+    "PG_native_OCI_provider_model_browser_build_canonical": "NOT_RUN",
+    "whole_test_file": "NOT_RUN; exact SOURCE node selection only",
+    "root_cause": "UNKNOWN; no retrospective attribution of old failure",
+    "source_test_count_is_product_acceptance": false,
+    "product_writes_stage_commit": false,
+    "report_only": "/home/kali/.hermes/cache/scratch/h04-budget-review-norm-20261016.json",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "status_map": "Existing ANALYSIS_ONLY headlines are stale relative to the explicit current authorization; reviewer did not edit the map. Parent owns status reconciliation and integration.",
+    "P2_G02": "NOT_CLOSED"
+  }
+}

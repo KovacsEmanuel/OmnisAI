@@ -4801,6 +4801,16 @@ def test_batch2_installed_entry_uses_existing_constructor(
         "unregister-cancel",
         "disable-no-primary",
         "enter-cleanup",
+        "local-disable-primary",
+        "entry-unregister-cancel",
+        "budget-bool",
+        "budget-nan",
+        "budget-inf",
+        "budget-zero",
+        "budget-negative",
+        "budget-over",
+        "budget-string",
+        "budget-list",
     ],
 )
 def test_host_launch_filtered_source(tmp_path: Path, fault: str) -> None:
@@ -4831,11 +4841,17 @@ async def readuntil(separator):
     raise BrokenPipeError('PRIVATE_HOST_SENTINEL')
 async def exercise():
     await foreign()
-    peer = SimpleNamespace(timeout=0.001, ready=asyncio.get_running_loop().create_future())
-    try:
-        await host.NativePeer.handshake(peer)
-    except ValueError:
-        pass
+    budgets = {'budget-bool': True, 'budget-nan': float('nan'), 'budget-inf': float('inf'),
+               'budget-zero': 0, 'budget-negative': -0.1, 'budget-over': 5.0001,
+               'budget-string': 'PRIVATE_HOST_SENTINEL', 'budget-list': []}
+    for kwargs in ({}, {'ready_timeout': budgets.get(sys.argv[2], 0.0012345)}):
+        peer = SimpleNamespace(timeout=0.001, ready=asyncio.get_running_loop().create_future())
+        try:
+            await host.NativePeer.handshake(peer, **kwargs)
+        except ValueError as error:
+            invalid = bool(kwargs) and sys.argv[2] in budgets
+            assert type(error) is ProtocolError
+            assert error.args == ('Invalid startup deadline' if invalid else 'Native ready deadline',)
     await host.NativePeer._read(SimpleNamespace(
         process=SimpleNamespace(stdout=SimpleNamespace(readuntil=readuntil)), _fail=lambda: None))
     try:
@@ -4873,10 +4889,12 @@ if sys.argv[2] == 'claim-race':
                 sys.monitoring.set_events(tool, 0)
                 sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, None)
                 sys.monitoring.free_tool_id(tool)
-elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary', 'enter-cleanup'}:
+elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary', 'enter-cleanup',
+                    'local-disable-primary', 'entry-unregister-cancel'}:
     mode = sys.argv[2]
-    primary = asyncio.CancelledError() if mode == 'unregister-cancel' else ValueError()
+    primary = asyncio.CancelledError() if mode.endswith('cancel') else ValueError()
     original_set = sys.monitoring.set_events
+    original_local = sys.monitoring.set_local_events
     original_register = sys.monitoring.register_callback
     original_free = sys.monitoring.free_tool_id
     cleanup = []
@@ -4886,7 +4904,7 @@ elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary
     def set_events(tool, events):
         if events == 0:
             cleanup.append('disable')
-            if mode != 'unregister-cancel':
+            if mode in {'disable-primary', 'disable-no-primary', 'enter-cleanup'}:
                 raise OSError('PRIVATE_HOST_SENTINEL')
         return original_set(tool, events)
     def register(tool, event, callback):
@@ -4894,14 +4912,23 @@ elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary
             cleanup.append(event)
             if mode == 'unregister-cancel' and event == sys.monitoring.events.RAISE:
                 raise OSError('PRIVATE_HOST_SENTINEL')
+            if mode == 'entry-unregister-cancel' and event == sys.monitoring.events.PY_START:
+                raise OSError('PRIVATE_HOST_SENTINEL')
         elif mode == 'enter-cleanup':
             owned.append(tool)
             raise primary
         return original_register(tool, event, callback)
+    def local_events(tool, code, events):
+        if events == 0:
+            cleanup.append('local-disable')
+            if mode == 'local-disable-primary':
+                raise OSError('PRIVATE_HOST_SENTINEL')
+        return original_local(tool, code, events)
     def free(tool):
         cleanup.append('free')
         return original_free(tool)
     sys.monitoring.set_events = set_events
+    sys.monitoring.set_local_events = local_events
     sys.monitoring.register_callback = register
     sys.monitoring.free_tool_id = free
     caught = None
@@ -4922,7 +4949,8 @@ elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary
                 pass
             else:
                 raise AssertionError('owned FD leaked')
-        assert cleanup == ['disable', sys.monitoring.events.RAISE, sys.monitoring.events.EXCEPTION_HANDLED, 'free']
+        assert cleanup == ['disable', 'local-disable', sys.monitoring.events.PY_START,
+                           sys.monitoring.events.RAISE, sys.monitoring.events.EXCEPTION_HANDLED, 'free']
         if mode == 'disable-no-primary':
             assert type(caught) is RuntimeError
         else:
@@ -4930,12 +4958,15 @@ elif sys.argv[2] in {'disable-primary', 'unregister-cancel', 'disable-no-primary
         assert json.loads(open(sys.argv[3]).read())['state'] == 'INCOMPLETE'
     finally:
         sys.monitoring.set_events = original_set
+        sys.monitoring.set_local_events = original_local
         sys.monitoring.register_callback = original_register
         sys.monitoring.free_tool_id = original_free
         # Exact test-owned rescue only, after the assertions (including RED).
         for tool in owned:
             if sys.monitoring.get_tool(tool) == 'batch2-host-launch':
                 original_set(tool, 0)
+                original_local(tool, host.NativePeer.handshake.__code__, 0)
+                original_register(tool, sys.monitoring.events.PY_START, None)
                 original_register(tool, sys.monitoring.events.RAISE, None)
                 original_register(tool, sys.monitoring.events.EXCEPTION_HANDLED, None)
                 original_free(tool)
@@ -4966,6 +4997,13 @@ else:
         except ValueError:
             pass
         assert observer.events == []
+        clone = FunctionType(host.NativePeer.handshake.__code__.replace(), host.NativePeer.handshake.__globals__)
+        try:
+            asyncio.run(clone(SimpleNamespace(timeout=0), ready_timeout=True))
+        except ValueError:
+            pass
+        observer.entered(clone.__code__, 0)
+        assert observer.events == [] and frame_audits == 0
         if sys.argv[2] == 'closed-fd':
             os.close(observer.fd)
             observer.fd = -1
@@ -5000,7 +5038,10 @@ print(json.dumps({'frame_audits': frame_audits}))
     )
     require_empty_stderr(result.stderr)
     assert result.returncode == 0
-    assert json.loads(result.stdout) == {"frame_audits": 0}
+    targeted = fault in {"none", "closed-fd", "event-limit", "byte-limit"} or fault.startswith(
+        "budget-"
+    )
+    assert json.loads(result.stdout) == {"frame_audits": 4 if targeted else 0}
     decoded = host_launch_checkpoint(evidence)
     assert decoded["root_cause"] == "UNKNOWN"
     assert decoded["status"] == ("OBSERVED" if fault == "none" else "INCOMPLETE")
@@ -5015,14 +5056,19 @@ print(json.dumps({'frame_audits': frame_audits}))
             "NativePeer._read",
             "NativePeer.handshake",
         }
-        assert {r["event"] for r in rows} == {"RAISE", "HANDLED"}
-        assert {r["exception"] for r in rows} >= {
+        assert {r["event"] for r in rows} == {"ENTER", "RAISE", "HANDLED"}
+        entered = [r for r in rows if r["event"] == "ENTER"]
+        assert [r["ready_timeout_s"] for r in entered] == [None, 0.0012345]
+        assert all(r["method"] == "NativePeer.handshake" for r in entered)
+        assert rows[0] is entered[0]  # Before the real wait/exception normalization.
+        assert {r["exception"] for r in rows if r["event"] != "ENTER"} >= {
             "TimeoutError",
             "BrokenPipeError",
             "ProtocolError",
         }
         for row in rows:
-            assert set(row) == {"method", "event", "exception", "offset", "line", "elapsed_ms"}
+            field = "ready_timeout_s" if row["event"] == "ENTER" else "exception"
+            assert set(row) == {"method", "event", field, "offset", "line", "elapsed_ms"}
         raw = evidence.read_bytes()
         for mutation in (
             b"{}",
@@ -5035,6 +5081,23 @@ print(json.dumps({'frame_audits': frame_audits}))
             invalid = host_launch_checkpoint(evidence)
             assert invalid["status"] == "INCOMPLETE" and invalid["events"] == []
             assert b"PRIVATE_HOST_SENTINEL" not in canonical(invalid)
+        budget: object
+        for budget in (True, float("nan"), float("inf"), 0, -1, 5.0001, "SENTINEL", []):
+            damaged = json.loads(raw)
+            damaged["events"][0]["ready_timeout_s"] = budget
+            evidence.write_text(json.dumps(damaged) + "\n")
+            assert host_launch_checkpoint(evidence)["events"] == []
+        for field, value in (("method", "NativePeer._read"), ("exception", "OTHER")):
+            damaged = json.loads(raw)
+            damaged["events"][0][field] = value
+            evidence.write_text(json.dumps(damaged) + "\n")
+            assert host_launch_checkpoint(evidence)["events"] == []
+        # Retain strict historical decoding without manufacturing a budget.
+        historical = json.loads(raw)
+        historical["events"] = [r for r in historical["events"] if r["event"] != "ENTER"]
+        evidence.write_text(json.dumps(historical) + "\n")
+        legacy = host_launch_checkpoint(evidence)
+        assert legacy["status"] == "OBSERVED" and legacy["events"] == historical["events"]
 
 
 @pytest.mark.parametrize(
@@ -5071,7 +5134,8 @@ def test_startup_primary_exception_classes(
     assert b"PRIVATE_STARTUP_SENTINEL" not in path.read_bytes()
 
 
-# Installed QA only: global exception delivery, exact identity rejection first.
+# Installed QA only: local handshake entry plus global exception delivery.
+# Historical exception-only rows never measure a missing entry budget.
 # This does not register local RAISE or claim native-filter cost equivalence.
 HOST_LAUNCH_DIAGNOSTIC = r"""
 import asyncio, dis, json, os, stat, sys, threading, time
@@ -5118,9 +5182,16 @@ class HostLaunchDiagnostic:
                 if (len(self.events) >= self.event_limit or
                     any(type(v) is not int or not 0 <= v <= 10**12 for v in (offset, line, elapsed))):
                     raise RuntimeError("Host diagnostic limit")
-                self.events.append({"method": method, "event": event,
-                    "exception": next((name for cls, name in self.classes if type(error) is cls), "OTHER"),
-                    "offset": offset, "line": line, "elapsed_ms": elapsed})
+                row = {"method": method, "event": event,
+                       "offset": offset, "line": line, "elapsed_ms": elapsed}
+                if event == "ENTER":
+                    if method != "NativePeer.handshake" or (error is not None and
+                        (type(error) not in (int, float) or not 0 < error <= 5)):
+                        raise RuntimeError("Host diagnostic budget refused")
+                    row["ready_timeout_s"] = error  # None is implicit, NOT a measured budget.
+                else:
+                    row["exception"] = next((name for cls, name in self.classes if type(error) is cls), "OTHER")
+                self.events.append(row)
                 self.save("ACTIVE")
         except BaseException:
             self.failed = True  # Never replace the product exception or cancellation.
@@ -5129,6 +5200,21 @@ class HostLaunchDiagnostic:
         return self.record(code, offset, error, "RAISE")
     def handled(self, code, offset, error):
         return self.record(code, offset, error, "HANDLED")
+    def entered(self, code, offset):
+        if code is not self.targets[2][0]:
+            return None  # Reject foreign code BEFORE any frame/locals access.
+        try:
+            frame = sys._getframe(1)
+            try:
+                if frame.f_code is not code:
+                    raise RuntimeError("Host diagnostic frame refused")
+                budget = frame.f_locals["ready_timeout"]
+            finally:
+                del frame
+            self.record(code, offset, budget, "ENTER")
+        except BaseException:
+            self.failed = True  # Do not replace the original product failure.
+        return None
     def __enter__(self):
         try:
             self.fd = os.open('/state/host-launch-diagnostic.json',
@@ -5141,7 +5227,9 @@ class HostLaunchDiagnostic:
             self.tool = candidate  # Cleanup authority starts only after a successful claim.
             sys.monitoring.register_callback(self.tool, sys.monitoring.events.RAISE, self.raised)
             sys.monitoring.register_callback(self.tool, sys.monitoring.events.EXCEPTION_HANDLED, self.handled)
+            sys.monitoring.register_callback(self.tool, sys.monitoring.events.PY_START, self.entered)
             self.save("ACTIVE")
+            sys.monitoring.set_local_events(self.tool, self.targets[2][0], sys.monitoring.events.PY_START)
             sys.monitoring.set_events(self.tool,
                 sys.monitoring.events.RAISE | sys.monitoring.events.EXCEPTION_HANDLED)
             return self
@@ -5156,6 +5244,8 @@ class HostLaunchDiagnostic:
                 tool = self.tool
                 for cleanup in (
                     lambda: sys.monitoring.set_events(tool, 0),
+                    lambda: sys.monitoring.set_local_events(tool, self.targets[2][0], 0),
+                    lambda: sys.monitoring.register_callback(tool, sys.monitoring.events.PY_START, None),
                     lambda: sys.monitoring.register_callback(tool, sys.monitoring.events.RAISE, None),
                     lambda: sys.monitoring.register_callback(tool, sys.monitoring.events.EXCEPTION_HANDLED, None),
                     lambda: sys.monitoring.free_tool_id(tool),
@@ -5191,7 +5281,7 @@ class HostLaunchDiagnostic:
 
 
 def host_launch_checkpoint(path: Path) -> dict[str, object]:
-    """Bounded private snapshot; event observation is never fatal-cause attribution."""
+    """Bounded snapshot; legacy rows/implicit None do not measure a READY budget."""
     invalid: dict[str, object] = {"status": "INCOMPLETE", "root_cause": "UNKNOWN", "events": []}
     try:
         fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
@@ -5237,29 +5327,47 @@ def host_launch_checkpoint(path: Path) -> dict[str, object]:
             return invalid
         previous = 0
         for row in value["events"]:
+            if type(row) is not dict or type(row.get("event")) is not str:
+                return invalid
+            entered = row["event"] == "ENTER"
+            field = "ready_timeout_s" if entered else "exception"
             if (
-                type(row) is not dict
-                or set(row) != {"method", "event", "exception", "offset", "line", "elapsed_ms"}
+                set(row) != {"method", "event", field, "offset", "line", "elapsed_ms"}
                 or type(row["method"]) is not str
                 or row["method"]
                 not in {"RuntimeHost._launch", "NativePeer._read", "NativePeer.handshake"}
                 or type(row["event"]) is not str
-                or row["event"] not in {"RAISE", "HANDLED"}
-                or type(row["exception"]) is not str
-                or row["exception"]
-                not in {
-                    "TimeoutError",
-                    "BrokenPipeError",
-                    "ConnectionResetError",
-                    "OSError",
-                    "ValueError",
-                    "PermissionError",
-                    "ProtocolError",
-                    "IncompleteReadError",
-                    "LimitOverrunError",
-                    "CancelledError",
-                    "OTHER",
-                }
+                or row["event"] not in {"ENTER", "RAISE", "HANDLED"}
+                or (
+                    entered
+                    and (
+                        row["method"] != "NativePeer.handshake"
+                        or (
+                            row[field] is not None
+                            and (type(row[field]) not in (int, float) or not 0 < row[field] <= 5)
+                        )
+                    )
+                )
+                or (
+                    not entered
+                    and (
+                        type(row[field]) is not str
+                        or row[field]
+                        not in {
+                            "TimeoutError",
+                            "BrokenPipeError",
+                            "ConnectionResetError",
+                            "OSError",
+                            "ValueError",
+                            "PermissionError",
+                            "ProtocolError",
+                            "IncompleteReadError",
+                            "LimitOverrunError",
+                            "CancelledError",
+                            "OTHER",
+                        }
+                    )
+                )
                 or any(
                     launch_observation_counter(row[k]) is None
                     for k in ("offset", "line", "elapsed_ms")

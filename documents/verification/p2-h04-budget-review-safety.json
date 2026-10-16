@@ -1,0 +1,81 @@
+{
+  "review": "H04_HANDSHAKE_OBSERVATION_INDEPENDENT_SAFETY",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Static safety review of the frozen numeric handshake observation and existing SOURCE controls; not installed QA, product acceptance or phase closure.",
+  "base_head": "dc05e35303872e5c0a1abe7a7254ee26e6af07e0",
+  "workdir": "/home/kali/OmnisAI",
+  "files": {
+    "api/tests/test_contract_method_pg.py": "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "303d8113ac97cf9652d4823b642566ae932784faf781406e47a9fd86c5d2b0c1"
+  },
+  "unchanged_product_context": {
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "verified_equal_to_base": true
+  },
+  "findings": [],
+  "blocking_reproducer": null,
+  "minimal_remedy": null,
+  "checks": [
+    {
+      "requirement": "Code identity before frame access; no raw secret capture",
+      "location": "api/tests/test_contract_method_pg.py:5171-5217",
+      "result": "PASS_STATIC",
+      "evidence": "RAISE/HANDLED reject nonidentical code before inspecting exception type or source fields. ENTER rejects anything but the exact bound handshake code before sys._getframe; verifies f_code, reads only ready_timeout, deletes frame, and records no locals dictionary. Exact numeric type/bounds validation occurs before serialization; invalid objects and arbitrary exception messages/args/tracebacks, payloads and environment are not serialized. Existing foreign coroutine/cloned code controls assert zero frame audits before real target entries."
+    },
+    {
+      "requirement": "Actual entry value, numeric bounds and explicit unknown",
+      "location": "api/tests/test_contract_method_pg.py:4842-4854,5052-5100,5187-5193,5203-5234; integrations/hermes/src/omnis_hermes/runtime_protocol.py:441-452",
+      "result": "PASS_STATIC",
+      "evidence": "Local PY_START observes the genuine NativePeer.handshake before startup_budget assignment/exception normalization. Both producer and decoder accept only exact int/float in (0,5] or None; bool, subclasses, NaN, infinity, zero, negatives, >5 and nonnumeric values fail closed. None is retained, not replaced with self.timeout. Real SOURCE entry controls use explicit 0.0012345 distinct from self.timeout=0.001 and an implicit None entry, with the product ProtocolError reason preserved. Historical exception-only rows remain readable but provide no measured budget."
+    },
+    {
+      "requirement": "Bounded exact decoder and aggregate evidence",
+      "location": "api/tests/test_contract_method_pg.py:5157-5197,5283-5385; duplicate/counter helpers:1958-1966",
+      "result": "PASS_STATIC",
+      "evidence": "The unchanged lock encloses event-count check, append and full snapshot write. Aggregate snapshot remains capped at 32 events/8192 bytes; failures become INCOMPLETE, never additional authority. Decoder requires exact field sets/types, ENTER only for handshake, valid numeric value, allowed exception classes, bounded monotonic counters, and rejects duplicate JSON fields. Reader retains owned regular single-link mode0600/no-follow/nonblocking bounded read and before/after identity checks. No malformed raw evidence is echoed by the decoder."
+    },
+    {
+      "requirement": "Independent cleanup, exception/cancellation preservation and foreign registration",
+      "location": "api/tests/test_contract_method_pg.py:4861-4987,5218-5279,11467-11507",
+      "result": "PASS_STATIC",
+      "evidence": "Cleanup authority begins after successful use_tool_id, not candidate discovery. Each global-disable/local-PY_START-disable/PY_START-unregister/RAISE-unregister/HANDLED-unregister/free attempt is independent and ownership-checked; foreign-name takeover stops mutations. FD finalization runs independently. Cleanup failures mark INCOMPLETE and do not replace an existing BaseException, including cancellation; without a primary error they raise sanitized RuntimeError. Existing SOURCE controls cover busy/claim-race and local-disable/entry-unregister failures, exact primary identity, attempted cleanup sequence and closed owned FD. Installed finalizer retains uncertainty on missing/malformed evidence and preserves an already propagating primary failure."
+    },
+    {
+      "requirement": "No expanded grants or effects",
+      "location": "reviewed two-file diff; h03-process-fixed-pg-selection.py:49-50; batch2_installed_entry:6409-6447",
+      "result": "PASS_STATIC",
+      "evidence": "Only observation, its SOURCE controls and source pin change. H04_REVIEWED remains None. No deadline/grant, product Host/protocol, installed artifact, reader, default basetemp or authorization expansion appears in this diff. The existing immutable installed attachment composes the reviewed diagnostic; it was not executed by this reviewer."
+    }
+  ],
+  "evidence": {
+    "independent_runtime_controls": "NOT_RUN: no concrete new safety risk requiring reproduction found; did not duplicate the author's SOURCE suite or the normative reviewer's work.",
+    "author_report": "/home/kali/.hermes/cache/scratch/h04-budget-author-20261016.json",
+    "author_report_sha256": "986352edd80030cfba4770a889bc1103bf0a529e9899533578cdd38266670283",
+    "author_log_readback": {
+      "directory": "/home/kali/.hermes/cache/scratch/h04-budget-author-fb9RUF",
+      "method": "Private parse with only exact summary allowlist, ownership/mode and hashes emitted; no raw traceback/log dump.",
+      "all_read_logs_owned_mode0600": true,
+      "final-source.log": {"summary": "48 passed in 5.21s", "sha256": "74fe3a5d3244aaf8767427de2dfe7fdbb82d8b47e54a722cb24dacb80879fb66"},
+      "final-selector.log": {"summary": "5 passed in 1.66s", "sha256": "ceacb1836e51c06572c4b3587e18a749cec284e577d75429dad21ae9afadcb09"},
+      "ruff-final.log": {"summary": "All checks passed!", "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"},
+      "mypy-final.log": {"summary": "Success: no issues found in 2 source files", "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"}
+    },
+    "reviewer_execution": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --name-only", "exit": 0},
+      {"command": "sha256sum api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py; git diff -- api/tests/test_contract_method_pg.py documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py", "exit": 0},
+      {"command": "api/.venv/bin/python -I -B -c <read-only author-log summary/hash and git-show base comparison>", "exit": 0, "python": "3.13.15", "python_realpath": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13"},
+      {"command": "git diff --check", "exit": 0}
+    ]
+  },
+  "limits": [
+    "Safety approval is scoped to the exact hashes, not a new SOURCE execution or installed/native observation.",
+    "Cleanup fault handling proves finite independent attempts and conservative incomplete evidence, not guaranteed physical cleanup when the underlying cleanup primitives fail.",
+    "Monitoring ownership is cooperative same-process tool-ID/name ownership, not protection against hostile in-process code controlling sys.monitoring.",
+    "No measured installed ready_timeout or root cause is claimed; root cause remains UNKNOWN. OBSERVED historical rows or None must not be promoted to a numeric budget.",
+    "PG, OCI/native, provider/network/model, DB, browser, build and canonical were NOT_RUN. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No repository edits, staging or commits. Concurrent non-owned modification of documents/verification/p2-integration-b06cm.md appeared during review and was not read, altered or included in approval.",
+    "Protected documents/Omnis_Notite_Originale.html was not read or hashed. No profiles/global state, grants or resources were changed."
+  ],
+  "handoff": "Parent must compare these exact bytes with the complementary normative review and adjudicate before the separately authorized single fresh installed h04-guard-exception attempt. This report opens no gate by itself. P2/G02/integration remain NOT_CLOSED."
+}

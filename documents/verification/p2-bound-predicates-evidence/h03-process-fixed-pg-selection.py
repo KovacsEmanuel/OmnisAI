@@ -46,7 +46,7 @@ H04_CASES = (
     "h04-guard-false",
     "h04-guard-exception",
 )
-H04_SOURCE_SHA = "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9"
+H04_SOURCE_SHA = "6b1ec3f800b33f53af4f0b5b29f8f9eb0d8ef6deae6e3c6e7237fa49b3190886"
 H04_REVIEWED: str | None = None
 # Parent binds BOTH only after Admission API bytes are frozen and API-only
 # build/origin readback completed. Never reuse/overwrite the batch2 reader.

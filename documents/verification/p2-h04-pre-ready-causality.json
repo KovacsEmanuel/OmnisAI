@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "scope": "READ_ONLY_EXISTING_H04_CHILD_LINEAGE_PRE_READY_FAILURE",
+  "verdict": "BLOCKED_CAUSE_UNKNOWN",
+  "root_cause": "UNKNOWN",
+  "demonstrated_observer_defect": false,
+  "demonstrated_child_lineage_product_defect": false,
+  "repo": "/home/kali/OmnisAI",
+  "head": "b4135c5f2f3113f083f7f614d3bdbdc328a30b23",
+  "frozen_inputs": {
+    "api/tests/test_contract_method_pg.py": "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9",
+    "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "98dc9bcd564576db936011a410ae3551a682e8a1d3bc430fc613051fedda6ab7",
+    "native_artifact": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/native-artifact.json",
+    "source_root": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/context/runtime-source",
+    "server_sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+    "rpc_dispatch_sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027",
+    "entry_sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c",
+    "runtime_host_sha256": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+    "runtime_protocol_sha256": "8ef80a1fe6004e5925da02f798e7274eb975707f53eabba03b9eb0d96791d6f8",
+    "source_identity_check": "server/rpc_dispatch/entry hashes match artifact public_inventory and all three retained context/runtime-source, reapply, prepared/source copies; repository Host/protocol hashes match artifact public_inventory. No live image or daemon access performed."
+  },
+  "comparative_evidence": {
+    "case_base_template": "/home/kali/.hermes/cache/scratch/h4q2-c0xcc087/{case}/pytest/test_contract_method_real_nati0",
+    "paths_resolved": true,
+    "same_native_bootstrap_sha256": "22ea6d0955d115a5d156ed39f32ba24d3ef1a72cd4a46f1979dd59575093052d",
+    "observer_sha256": {
+      "c0": "ae95bea18b8a4fe1dbdaa3a3460e078cee97721460d4870a93fb57e8e1633df5",
+      "c1": "c436917a6cdfb1bddb6f26adcdb82ec4272576e59e0023a31146e9760f0b6b31",
+      "c2": "bc44d73bcecdee5e9b1cfaebc404e434bd6d7d9e058abe19639babe343276470"
+    },
+    "observer_exact_comparison": "Parsed only the native_core string literal; replaced exactly one h04_case assignment value with H04_CASE and preserved all other literal content, branch comparisons, and outer file bytes. All three normalized files identical.",
+    "observer_case_assignment_only_normalized_sha256": "38296d5e5791acc13918c4970fc611a103cf97e32bef936214de79a975d974c8",
+    "first_19_phase_rows_same_status_edge_count_audit_calls": true,
+    "first_19_phase_rows_fingerprint": "f59d01775b13be9dab22bb6b58ed93a0480976190d2080354528430ca19a1c81",
+    "producer_execution": "Executed only AST-extracted existing pure decoder functions and their existing fixture mapping/sequence dependencies, not module import or native code; launch_bootstrap_diagnostic inspected original full channel including unknown-field checks, host_launch_checkpoint enforced original file/schema checks.",
+    "cases": [
+      {
+        "case": "c0",
+        "h04_case": "h04-inventory",
+        "proof_status": "PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED",
+        "observation_rows": 63,
+        "phase_events": 25,
+        "split_handlers_enter_ms": 3188,
+        "rpc_dispatch_enter_and_end_ms": 3225,
+        "split_handlers_end_ms": 3523,
+        "ready_write_end_ms": 3653,
+        "last_phase_audit_ms": 18,
+        "last_phase_audit_calls": 36957,
+        "pre_ready_complete": true,
+        "h04_fault_rows": 1,
+        "h04_inventory_rows": 2,
+        "real_run_contract_rows": 1,
+        "read_rows": 1,
+        "pure_rows": 2
+      },
+      {
+        "case": "c1",
+        "h04_case": "h04-root-lineage",
+        "proof_status": "PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED",
+        "observation_rows": 45,
+        "phase_events": 25,
+        "split_handlers_enter_ms": 2406,
+        "rpc_dispatch_enter_and_end_ms": 2430,
+        "split_handlers_end_ms": 2660,
+        "ready_write_end_ms": 2723,
+        "last_phase_audit_ms": 16,
+        "last_phase_audit_calls": 36957,
+        "pre_ready_complete": true,
+        "h04_fault_rows": 1,
+        "h04_inventory_rows": 2,
+        "real_run_contract_rows": 0,
+        "read_rows": 0,
+        "pure_rows": 0
+      },
+      {
+        "case": "c2",
+        "h04_case": "h04-child-lineage",
+        "proof_status": "UNCERTAIN",
+        "resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+        "observation_rows": 20,
+        "phase_events": 19,
+        "split_handlers_enter_ms": 4202,
+        "rpc_dispatch_enter_and_end_ms": 4235,
+        "split_handlers_end_observed": false,
+        "entry_main_observed": false,
+        "ready_write_observed": false,
+        "last_phase_audit_ms": 24,
+        "last_phase_audit_calls": 27084,
+        "pre_ready_complete": false,
+        "h04_fault_rows": 0,
+        "h04_inventory_rows": 0,
+        "real_run_contract_rows": 0,
+        "read_rows": 0,
+        "pure_rows": 0,
+        "forbidden_effect_rows": 0,
+        "bootstrap_exception_rows": 0,
+        "host_handshake_cancelled_error_ms": 8017,
+        "host_launch_timeout_error_ms": 8018,
+        "host_reader_incomplete_read_after_timeout_ms": 8034
+      }
+    ],
+    "decoder_limits": "All native projections retain INCOMPLETE/MISSING_PHASE_COMPLETION. c0/c1 pre_ready_complete=true with only the three permitted long-lived frames pending; c2 pre_ready_complete=false with five frames pending. All three Host projections OBSERVED/root_cause UNKNOWN. Observer READY is not gateway.ready."
+  },
+  "localized_boundary": {
+    "last_completed_phase": "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+    "last_completed_native_elapsed_ms": 4235,
+    "enclosing_uncompleted_phase": "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+    "source": "context/runtime-source/tui_gateway/server.py:3363-3386",
+    "meaning": "The grouped split-handler import statement began and rpc_dispatch module execution completed. The observer did not record reaching the following registration loop. It does not identify a particular subsequent module, import lock, syscall, callback, or scheduling interval.",
+    "not_the_fault_injection": "api/tests/test_contract_method_pg.py:5716-5750 performs inventory after stage returns and mutates child.session_id only at SubagentLifecycleService.release call. Neither stage/inventory/fault nor entry.main/READY was observed in c2. This run did not exercise the child-lineage denial criterion.",
+    "rpc_dispatch_scope": "context/runtime-source/tui_gateway/rpc_dispatch.py:1-107 has a module import and function definitions; managed dispatch import at line 28 is inside a request handler, not this completed module import. The label MANAGED_RPC_DISPATCH_MODULE_BEGIN does not demonstrate managed admission execution."
+  },
+  "finite_causal_chain": [
+    "Observed: c2 NativePeer.handshake raises CancelledError at runtime_protocol.py:450 while awaiting ready.",
+    "Observed: RuntimeHost._launch propagates cancellation at runtime_host.py:225; its enclosing asyncio.timeout at line 224 produces TimeoutError at Host diagnostic elapsed 8018ms.",
+    "Source: runtime_host.py:229-231 stops the native owner and rethrows; runtime_host.py:799-805 normalizes TimeoutError to a runtime denial.",
+    "Source: api/src/omnis/supervisor/runtime_client.py:539-550 normalizes exchange failures to RuntimeUnavailable. The private proof records Runtime exchange unavailable and Runtime refused.",
+    "Observed: reader IncompleteReadError occurs only after the launch timeout; it cannot by itself establish the initiating cause.",
+    "Unknown: why the split-handler import region failed to finish before the original authority deadline. No direct observer defect or exclusive CPU/load/cache/prewarm explanation is demonstrated."
+  ],
+  "important_clock_limit": "8017/8018ms are relative to HostLaunchDiagnostic construction, not duration of _launch or native bootstrap. Native elapsed_ms uses a separate origin. runtime_host.py:194-199 accepts only a future authority deadline no more than 5 seconds away; runtime_protocol.py:441-450 similarly caps startup_budget at 5 seconds. Therefore these records do not prove an 8-second native cold-start budget or support subtracting the two clocks.",
+  "observer_assessment": {
+    "source": "api/tests/test_contract_method_pg.py:119-146,174-197 and generated qa-sitecustomize.py native_core decoded lines 317-379",
+    "findings": [
+      "Uses sys.monitoring with immutable code filters before frame access, not sys.setprofile; the previously known unrestricted profile/frame audit mechanism is not present in these bytes.",
+      "The same observer, apart from the single case assignment, reached READY on both preceding controls.",
+      "c2's observed phase/audit-call prefix matches the controls exactly while elapsed counters differ; this supports shared traversed boundaries, not an attribution of the remaining stall.",
+      "audit_ms measures cumulative timed_audit bodies up to recorded checkpoints, not total monitoring overhead, import work, waiting, or scheduling. It cannot exclude observer cost or establish its causal sufficiency.",
+      "No retained bootstrap-exception/forbidden-effect row in c2 is not proof that every possible exception or native effect was absent; the process was retired before completion."
+    ]
+  },
+  "settlement": {
+    "preserve_status": "UNCERTAIN",
+    "preserve_resource_cleanup": "NOT_SETTLED_DB_RETAINED",
+    "source_reason": "api/tests/test_contract_method_pg.py:11283-11286 sets cleanup_failed/unsettled on the primary failure; lines 11385-11397 retain uncertainty even when later exact resource absence is observed.",
+    "external_resource_readback": "Not repeated by this diagnostic. Parent-provided retirement readback remains separate evidence; do not relabel the failed proof as settled PASS."
+  },
+  "decision": {
+    "h04_inventory": "RETAIN_SCOPED_PASS",
+    "h04_root_lineage": "RETAIN_SCOPED_PASS",
+    "h04_child_lineage": "BLOCKED_PRE_READY_CAUSE_UNKNOWN_NOT_EXERCISED",
+    "h04_guard_false": "NOT_RUN",
+    "h04_guard_exception": "NOT_RUN",
+    "next": "Keep the H04 acceptance gate blocked and preserve this finite boundary. No source change, wider deadline, retry, prewarm, instrumentation, or third harness cycle is justified by the present evidence; any future action requires a separately admitted concrete causal hypothesis/control through the existing consumer."
+  },
+  "side_effects": {
+    "repository_writes": false,
+    "native_pg_oci_provider_model_network_calls": false,
+    "retry_or_new_harness_or_instrumentation": false,
+    "protected_html_read_or_hash": false,
+    "commit_or_stage": false,
+    "only_created_file": "/home/kali/.hermes/cache/scratch/h4q2-c0xcc087/h04-pre-ready-readonly-causality.json",
+    "concurrent_untracked_file_seen_not_touched": "documents/verification/p2-h04-installed-qa-partial.json"
+  },
+  "diagnostic_execution_notes": "A first pure-decoder extraction stopped at missing fixture mapping; corrected by extracting the original mapping/sequence definitions. A static artifact query incorrectly treated integer inventory counts as collections and stopped after already successful decoder output; corrected by reading public_inventory. These read-only diagnostic errors did not execute product code or alter evidence. No private raw receipt, stderr, exception traceback, environment or capability was emitted."
+}

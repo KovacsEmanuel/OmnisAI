@@ -738,7 +738,10 @@ class RuntimeClient:
                 "settings_status", payload={"operation_id": operation_id}
             )
             result = ProviderView.model_validate(response.get("settings"))
-            if result.operation_id != operation_id:
+            if (
+                result.operation_id != operation_id
+                and operation_id != "00000000-0000-0000-0000-000000000000"
+            ):
                 raise RuntimeUnavailable("Settings correlation mismatch")
             return result.model_dump(mode="json")
         except BaseException:

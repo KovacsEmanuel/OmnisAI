@@ -555,6 +555,16 @@ export interface components {
             /** Workflow Profile Ref */
             workflow_profile_ref: null;
         };
+        /** OAuthChallenge */
+        OAuthChallenge: {
+            /** Code */
+            code: string;
+            /**
+             * Url
+             * @constant
+             */
+            url: "https://auth.openai.com/codex/device";
+        };
         /** ObjectiveConstraint */
         ObjectiveConstraint: {
             /**
@@ -620,7 +630,7 @@ export interface components {
              * Action
              * @enum {string}
              */
-            action: "read" | "save" | "auth_read" | "logout";
+            action: "read" | "save" | "auth_read" | "logout" | "connect" | "cancel";
             /** Operation Id */
             operation_id: string;
             selection: components["schemas"]["ProviderSelection"] | null;
@@ -650,6 +660,7 @@ export interface components {
              * @enum {string}
              */
             authenticated: "NOT_VERIFIED" | "ABSENT" | "LOCAL_PRESENT" | "LOCAL_EXPIRED" | "LOCAL_UNKNOWN";
+            challenge?: components["schemas"]["OAuthChallenge"] | null;
             /** Configured */
             configured: boolean;
             /**
@@ -657,6 +668,12 @@ export interface components {
              * @constant
              */
             inference_ready: false;
+            /**
+             * Oauth
+             * @default NONE
+             * @enum {string}
+             */
+            oauth: "NONE" | "STARTING" | "CHALLENGE" | "CANCELLING" | "CANCELLED" | "EXPIRED" | "SAVED" | "INDETERMINATE";
             /** Operation Id */
             operation_id: string;
             /**

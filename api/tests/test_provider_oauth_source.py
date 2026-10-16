@@ -1,0 +1,271 @@
+"""SOURCE tests of trusted fixed OAuth client and worker ownership; no provider IO."""
+
+import importlib
+import threading
+import time
+from collections.abc import Callable
+from pathlib import Path
+from uuid import uuid4
+
+import httpx
+import pytest
+
+
+@pytest.mark.asyncio
+async def test_host_connect_poll_cancel_uses_one_slot_and_current_read(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import asyncio
+    from unittest.mock import AsyncMock, Mock
+
+    from omnis_hermes import runtime_host
+    from omnis_hermes.management_contract import SELECTION
+
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    host = runtime_host.RuntimeHost(ipc_directory)
+    host.management_port = 1
+
+    async def native(action: str, selected: object) -> dict[str, object]:
+        return (
+            dict(SELECTION)
+            if action == "read"
+            else {"selection": dict(SELECTION), "authenticated": "ABSENT"}
+        )
+
+    monkeypatch.setattr(host, "_settings_native", native)
+    calls: list[str] = []
+
+    async def endpoint(
+        port: int,
+        token: str,
+        method: str,
+        path: str,
+        payload: dict[str, object],
+        *,
+        dispatch_guard: Callable[[], None],
+    ) -> dict[str, object]:
+        dispatch_guard()
+        assert payload["boot"] == host.boot
+        assert payload["deadline_ns"] == host.deadline_ns
+        action = path.rsplit("/", 1)[1]
+        calls.append(action)
+        return (
+            {"oauth": "CANCELLED", "challenge": None}
+            if action == "cancel"
+            else {
+                "oauth": "CHALLENGE",
+                "challenge": {"code": "ABCD-EFGH", "url": "https://auth.openai.com/codex/device"},
+            }
+        )
+
+    monkeypatch.setattr(runtime_host, "request", endpoint)
+    service = Mock(
+        runtime_authority=AsyncMock(
+            side_effect=lambda *a, **k: RuntimeAuthority(0, 1, time.monotonic_ns() + 4_000_000_000)
+        )
+    )
+    async with host:
+        client = RuntimeClient(ipc_directory, generation=0, epoch=1)
+        await client.connect()
+        try:
+            operation = str(uuid4())
+            body: dict[str, object] = {
+                "operation_id": operation,
+                "action": "connect",
+                "selection": None,
+            }
+            assert (await client.settings(service, uuid4(), body))["status"] == "PENDING"
+            for _ in range(100):
+                result = await client.settings_status(operation)
+                if result["oauth"] == "CHALLENGE":
+                    break
+                await asyncio.sleep(0.005)
+            assert result["oauth"] == "CHALLENGE"
+            assert (await client.settings_status("00000000-0000-0000-0000-000000000000"))[
+                "operation_id"
+            ] == operation
+            for _ in range(70):
+                assert (await client.settings_status(operation))["status"] == "PENDING"
+            assert len(host.settings_seen) == 1
+            assert (
+                await client.settings(
+                    service,
+                    uuid4(),
+                    {
+                        **body,
+                        "operation_id": str(uuid4()),
+                        "action": "save",
+                        "selection": dict(SELECTION),
+                    },
+                )
+            )["status"] == "BUSY"
+            await client.settings(service, uuid4(), {**body, "action": "cancel"})
+            async with asyncio.timeout(2):
+                while (result := await client.settings_status(operation))["status"] == "PENDING":
+                    await asyncio.sleep(0.01)
+            assert result["oauth"] == "CANCELLED" and result["challenge"] is None
+            assert calls.count("connect") == 1 and len(host.settings_seen) == 1
+        finally:
+            await client.close()
+
+
+def test_connect_contract_is_finite_and_terminal_projection_clears_challenge() -> None:
+    from omnis_hermes.management_contract import command, view
+
+    from omnis.modules.settings.provider_models import ProviderCommand, ProviderView
+
+    operation = str(uuid4())
+    for action in ("connect", "cancel"):
+        body = ProviderCommand.model_validate(
+            {"operation_id": operation, "action": action, "selection": None}
+        )
+        assert command(body.model_dump())["action"] == action
+    challenge = {"code": "ABCD-EFGH", "url": "https://auth.openai.com/codex/device"}
+    pending = view(operation, "PENDING", oauth="CHALLENGE", challenge=challenge)
+    assert ProviderView.model_validate(pending).oauth == "CHALLENGE"
+    with pytest.raises(ValueError):
+        view(operation, "CONFIRMED", oauth="CANCELLED", challenge=challenge)
+
+
+def test_fixed_client_refuses_redirects_host_extensions_before_transport() -> None:
+    from omnis_hermes import management_oauth
+
+    sent: list[httpx.Request] = []
+
+    def send(request: httpx.Request) -> httpx.Response:
+        sent.append(request)
+        return httpx.Response(200, json={"ok": True})
+
+    # Synthetic transport replaces only the HTTPX wire constructor, never product policy.
+    from unittest.mock import patch
+
+    with patch.object(httpx, "HTTPTransport", return_value=httpx.MockTransport(send)):
+        client = management_oauth.FixedClient(lambda: None)
+        with client:
+            assert (
+                client.post(
+                    "https://auth.openai.com/api/accounts/deviceauth/usercode",
+                    json={"client_id": "synthetic"},
+                    headers={"Content-Type": "application/json"},
+                ).status_code
+                == 200
+            )
+            for url, kwargs in (
+                ("https://example.invalid/oauth/token", {}),
+                ("http://auth.openai.com/oauth/token", {}),
+                ("https://auth.openai.com/v1/responses", {}),
+                ("https://auth.openai.com/oauth/token?x=1", {}),
+                ("https://auth.openai.com/oauth/token", {"headers": {"Host": "example.invalid"}}),
+                ("https://auth.openai.com/oauth/token", {"extensions": {"sni_hostname": "evil"}}),
+                ("https://auth.openai.com/oauth/token", {"follow_redirects": True}),
+            ):
+                with pytest.raises(ValueError):
+                    client.post(url, **kwargs)
+        assert len(sent) == 1
+
+
+@pytest.mark.parametrize(
+    "size,redirect", [(1024 * 1024, False), (1024 * 1024 + 1, False), (0, True)]
+)
+def test_fixed_client_decoded_body_limit_and_redirect(size: int, redirect: bool) -> None:
+    from unittest.mock import patch
+
+    from omnis_hermes.management_oauth import FixedClient
+
+    def response(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            302 if redirect else 200,
+            content=b"x" * size,
+            headers={"Location": "https://example.invalid"} if redirect else {},
+        )
+
+    with (
+        patch.object(httpx, "HTTPTransport", return_value=httpx.MockTransport(response)),
+        FixedClient(lambda: None) as client,
+    ):
+        if redirect or size > 1024 * 1024:
+            with pytest.raises(ValueError):
+                client.post("https://auth.openai.com/oauth/token")
+        else:
+            assert len(client.post("https://auth.openai.com/oauth/token").content) == size
+
+
+def test_fixed_client_post_tls_trace_rechecks_current_authority() -> None:
+    from unittest.mock import patch
+
+    from omnis_hermes.management_oauth import FixedClient
+
+    expired = False
+
+    def guard() -> None:
+        if expired:
+            raise ValueError("Expired owner")
+
+    def wire(request: httpx.Request) -> httpx.Response:
+        nonlocal expired
+        expired = True  # A synchronous transport cut after the HTTPX request hook.
+        request.extensions["trace"]("http11.send_request_headers.started", {})
+        raise AssertionError("Expired authority reached HTTP headers")
+
+    with (
+        patch.object(httpx, "HTTPTransport", return_value=httpx.MockTransport(wire)),
+        FixedClient(guard) as client,
+    ):
+        with pytest.raises(ValueError, match="Expired owner"):
+            client.post("https://auth.openai.com/oauth/token")
+
+
+def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from omnis_hermes import management_oauth
+
+    entered, release = threading.Event(), threading.Event()
+    sessions: dict[str, dict[str, object]] = {}
+    lock = threading.RLock()
+
+    def worker(sid: str) -> None:
+        assert sid in sessions
+        entered.set()
+        release.wait(2)
+
+    from types import SimpleNamespace
+
+    native = SimpleNamespace(
+        _oauth_sessions=sessions, _oauth_sessions_lock=lock, _codex_full_login_worker=worker
+    )
+    original = importlib.import_module
+    monkeypatch.setattr(
+        importlib,
+        "import_module",
+        lambda name: native if name == "hermes_cli.web_routers.oauth" else original(name),
+    )
+    owner = management_oauth.NativeOAuth()
+    assert hasattr(owner, "revoke"), "Native Stop fence missing"
+    lease = {
+        "operation_id": str(uuid4()),
+        "boot": str(uuid4()),
+        "generation": 1,
+        "epoch": 1,
+        "deadline_ns": time.monotonic_ns() + 1_000_000_000,
+    }
+    try:
+        assert owner.operate("connect", lease)["oauth"] == "STARTING"
+        assert entered.wait(1)
+        owner.revoke()
+        with pytest.raises(ValueError, match="expired"):
+            owner.guard()
+        assert owner.operate("cancel", lease)["oauth"] == "CANCELLING"
+        with pytest.raises(ValueError):
+            owner.operate("connect", {**lease, "operation_id": str(uuid4())})
+        release.set()
+        assert owner.thread is not None
+        owner.thread.join(1)
+        assert owner.operate("status", lease)["oauth"] == "CANCELLED"
+        assert len(sessions) == 0
+    finally:
+        release.set()
+        if owner.thread:
+            owner.thread.join(2)

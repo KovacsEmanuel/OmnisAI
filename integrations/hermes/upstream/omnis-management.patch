@@ -48,3 +48,96 @@
      if isinstance(raw, dict) and (
          isinstance(raw.get("providers"), dict) or isinstance(raw.get("credential_pool"), dict)):
          raw.setdefault("providers", {})
+--- a/hermes_cli/web_routers/oauth.py
++++ b/hermes_cli/web_routers/oauth.py
+@@ -17,17 +17,26 @@
+ from fastapi import APIRouter, HTTPException, Request
+
+ from hermes_cli.web_deps import LateState, late
+-from hermes_cli.web_server_oauth import (
+-    _external_process_cli_command, _oauth_profile_name, _oauth_sessions, _oauth_sessions_lock, _truncate_token,
+-)
++_omnis_managed = os.environ.get("HERMES_OMNIS_MANAGEMENT") == "1"
++if _omnis_managed:
++    _oauth_sessions = {}
++    _oauth_sessions_lock = threading.RLock()
++else:
++    from hermes_cli.web_server_oauth import (
++        _external_process_cli_command, _oauth_profile_name, _oauth_sessions, _oauth_sessions_lock, _truncate_token,
++    )
+ from hermes_cli.web_models import OAuthSubmitBody
+-from hermes_cli.web_routers._common import scoped_to_thread
++if not _omnis_managed:
++    from hermes_cli.web_routers._common import scoped_to_thread
+
+ _log = logging.getLogger("hermes_cli.web_server")
+ router = APIRouter()
+
+ # Late-bound so a test's monkeypatch on the owning module wins at call time.
+ _profile_scope = late("_profile_scope", "hermes_cli.web_server_profiles")
++if _omnis_managed:
++    from omnis_hermes.management_oauth import profile_scope as _profile_scope
++    _log.disabled = True  # Never retain native session IDs/provider errors in logs.
+ _require_token = late("_require_token")
+ _resolve_profile_dir = late("_resolve_profile_dir", "hermes_cli.web_server_profiles")
+ _OAUTH_PROVIDER_CATALOG = LateState("_OAUTH_PROVIDER_CATALOG", "hermes_cli.web_server_oauth")
+@@ -49,6 +58,8 @@
+
+ def _http_response_error_detail(resp: Any) -> str:
+     """Best-effort extraction of a short provider error detail."""
++    if _omnis_managed:
++        return "AUTH_UNAVAILABLE"
+     try:
+         payload = resp.json()
+     except Exception:
+@@ -156,6 +167,9 @@
+     The helpers take the ``httpx`` module as a parameter (tests inject a scripted one), so the
+     dashboard builds its own client here and only shares the response hook, not the client factory.
+     """
++    if _omnis_managed:
++        from omnis_hermes.management_oauth import client_factory
++        return client_factory()
+     from hermes_cli.auth_codex import _cap_codex_response_body
+
+     return httpx.Client(timeout=httpx.Timeout(15.0), event_hooks={"response": [_cap_codex_response_body]})
+@@ -170,7 +184,7 @@
+     """
+     from hermes_cli.auth_codex import _is_transient_transport_error
+
+-    attempt, attempts = 1, 3
++    attempt, attempts = 1, 1 if _omnis_managed else 3
+     while True:
+         try:
+             with _codex_client(httpx) as client:
+@@ -193,6 +207,13 @@
+     if resp.status_code != 200:
+         raise RuntimeError(_codex_device_code_start_error(resp))
+     device_data = resp.json()
++    if _omnis_managed and (
++        type(device_data) is not dict
++        or type(device_data.get("interval", 5)) not in (int, str)
++        or not str(device_data.get("interval", 5)).isdecimal()
++        or not 3 <= int(device_data.get("interval", 5)) <= 10
++    ):
++        raise ValueError("Invalid auth poll interval")
+     device_data["interval"] = max(3, int(device_data.get("interval", "5")))
+     if not device_data.get("user_code") or not device_data.get("device_auth_id"):
+         raise RuntimeError("device-code response missing user_code or device_auth_id")
+@@ -218,7 +239,7 @@
+                 poll = client.post(
+                     f"{_CODEX_ISSUER}/api/accounts/deviceauth/token", json=payload, headers=_JSON_HEADERS)
+             except Exception as exc:
+-                if not _is_transient_transport_error(exc):
++                if _omnis_managed or not _is_transient_transport_error(exc):
+                     raise
+                 consecutive_blips += 1
+                 if consecutive_blips >= max_consecutive_blips:
+@@ -310,7 +331,7 @@
+             s = _oauth_sessions.get(session_id)
+             if s:
+                 s["status"] = "error"
+-                s["error_message"] = str(e)
++                s["error_message"] = "AUTH_INDETERMINATE" if _omnis_managed else str(e)
+
+
+ _OMIT: Any = object()

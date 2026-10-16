@@ -1,5 +1,6 @@
 """Private, credential-free Settings protocol, independent of native execution."""
 
+import re
 from uuid import UUID
 
 SELECTION = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
@@ -24,7 +25,7 @@ def command(value: object) -> dict[str, object]:
     if type(value) is not dict or set(value) != {"operation_id", "action", "selection"}:
         raise ValueError("Invalid settings command")
     identity(value["operation_id"])
-    if value["action"] not in ("read", "save", "auth_read", "logout"):
+    if value["action"] not in ("read", "save", "auth_read", "logout", "connect", "cancel"):
         raise ValueError("Invalid settings action")
     selected = selection(value["selection"])
     if (value["action"] == "save") != (selected is not None):
@@ -45,8 +46,37 @@ def auth_state(value: object) -> str:
 
 
 def view(
-    operation_id: str, status: str, selected: object = None, authenticated: object = "NOT_VERIFIED"
+    operation_id: str,
+    status: str,
+    selected: object = None,
+    authenticated: object = "NOT_VERIFIED",
+    *,
+    oauth: str = "NONE",
+    challenge: object = None,
 ) -> dict[str, object]:
+    if oauth not in {
+        "NONE",
+        "STARTING",
+        "CHALLENGE",
+        "CANCELLING",
+        "CANCELLED",
+        "EXPIRED",
+        "SAVED",
+        "INDETERMINATE",
+    }:
+        raise ValueError("Invalid OAuth state")
+    if oauth == "CHALLENGE":
+        if (
+            status != "PENDING"
+            or type(challenge) is not dict
+            or set(challenge) != {"code", "url"}
+            or type(challenge["code"]) is not str
+            or re.fullmatch(r"[A-Z0-9-]{4,32}", challenge["code"]) is None
+            or challenge["url"] != "https://auth.openai.com/codex/device"
+        ):
+            raise ValueError("Invalid OAuth challenge")
+    elif challenge is not None:
+        raise ValueError("Terminal challenge denied")
     checked = selection(selected)
     authenticated = auth_state(authenticated)
     if status != "CONFIRMED" and authenticated != "NOT_VERIFIED":
@@ -59,4 +89,6 @@ def view(
         "authenticated": authenticated,
         "reachable": "NOT_VERIFIED",
         "inference_ready": False,
+        "oauth": oauth,
+        "challenge": challenge,
     }

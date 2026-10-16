@@ -925,6 +925,27 @@
         "type": "object",
         "x-max-canonical-payload-bytes": 1000000
       },
+      "OAuthChallenge": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "pattern": "^[A-Z0-9-]{4,32}$",
+            "title": "Code",
+            "type": "string"
+          },
+          "url": {
+            "const": "https://auth.openai.com/codex/device",
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "url"
+        ],
+        "title": "OAuthChallenge",
+        "type": "object"
+      },
       "ObjectiveConstraint": {
         "additionalProperties": false,
         "properties": {
@@ -1061,7 +1082,9 @@
               "read",
               "save",
               "auth_read",
-              "logout"
+              "logout",
+              "connect",
+              "cancel"
             ],
             "title": "Action",
             "type": "string"
@@ -1130,6 +1153,16 @@
             "title": "Authenticated",
             "type": "string"
           },
+          "challenge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OAuthChallenge"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "configured": {
             "title": "Configured",
             "type": "boolean"
@@ -1138,6 +1171,21 @@
             "const": false,
             "title": "Inference Ready",
             "type": "boolean"
+          },
+          "oauth": {
+            "default": "NONE",
+            "enum": [
+              "NONE",
+              "STARTING",
+              "CHALLENGE",
+              "CANCELLING",
+              "CANCELLED",
+              "EXPIRED",
+              "SAVED",
+              "INDETERMINATE"
+            ],
+            "title": "Oauth",
+            "type": "string"
           },
           "operation_id": {
             "title": "Operation Id",

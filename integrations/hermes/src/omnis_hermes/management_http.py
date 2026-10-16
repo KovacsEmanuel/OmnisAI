@@ -26,6 +26,9 @@ async def request(
             ("PUT", "/api/config"),
             ("GET", "/api/auth/codex"),
             ("DELETE", "/api/auth/codex"),
+            ("POST", "/api/auth/codex/flow/connect"),
+            ("POST", "/api/auth/codex/flow/status"),
+            ("POST", "/api/auth/codex/flow/cancel"),
         }
         or type(port) is not int
         or not 1 <= port <= 65535

@@ -49,10 +49,14 @@ export const api = {
     return decodeProvider(value, payload.operation_id);
   },
   async providerOperation(id: string, signal?: AbortSignal) {
-    if (!isUuid(id)) throw new ApiError('INVALID_INPUT');
+    if (!isUuid(id) && id !== 'current') throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/settings/provider/operations/${id}`, {}, signal);
     const value = await body(response);
     if (!response.ok) throw decodeError(value);
+    if (id === 'current') {
+      if (!isRecord(value) || typeof value.operation_id !== 'string') throw new ApiError('INVALID_RESPONSE');
+      return decodeProvider(value, value.operation_id);
+    }
     return decodeProvider(value, id);
   },
   async draft(id: string, signal?: AbortSignal) {

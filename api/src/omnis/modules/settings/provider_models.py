@@ -3,7 +3,7 @@
 from typing import Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ProviderSelection(BaseModel):
@@ -16,7 +16,7 @@ class ProviderSelection(BaseModel):
 class ProviderCommand(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     operation_id: str
-    action: Literal["read", "save", "auth_read", "logout"]
+    action: Literal["read", "save", "auth_read", "logout", "connect", "cancel"]
     selection: ProviderSelection | None
 
     @model_validator(mode="after")
@@ -30,6 +30,12 @@ class ProviderCommand(BaseModel):
         return self
 
 
+class OAuthChallenge(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    code: str = Field(pattern=r"^[A-Z0-9-]{4,32}$")
+    url: Literal["https://auth.openai.com/codex/device"]
+
+
 class ProviderView(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     operation_id: str
@@ -41,6 +47,17 @@ class ProviderView(BaseModel):
     ]
     reachable: Literal["NOT_VERIFIED"]
     inference_ready: Literal[False]
+    oauth: Literal[
+        "NONE",
+        "STARTING",
+        "CHALLENGE",
+        "CANCELLING",
+        "CANCELLED",
+        "EXPIRED",
+        "SAVED",
+        "INDETERMINATE",
+    ] = "NONE"
+    challenge: OAuthChallenge | None = None
 
     @field_validator("inference_ready", mode="before")
     @classmethod
@@ -55,6 +72,10 @@ class ProviderView(BaseModel):
             raise ValueError("Invalid operation identity")
         if self.configured != (self.status == "CONFIRMED" and self.selection is not None):
             raise ValueError("Invalid configuration readiness")
+        if (self.oauth == "CHALLENGE") != (self.challenge is not None) or (
+            self.challenge is not None and self.status != "PENDING"
+        ):
+            raise ValueError("Invalid OAuth projection")
         if self.status != "CONFIRMED" and self.selection is not None:
             raise ValueError("Unconfirmed configuration")
         if self.status != "CONFIRMED" and self.authenticated != "NOT_VERIFIED":

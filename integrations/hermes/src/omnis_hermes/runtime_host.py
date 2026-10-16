@@ -135,6 +135,7 @@ class RuntimeHost:
         self.settings_command: dict[str, object] | None = None
         self.settings_seen: set[str] = set()
         self.settings_result: dict[str, object] | None = None
+        self.oauth_cancel = False
         self.management_token = secrets.token_hex(32)
         self.management_port: int | None = None
         self.management_failed = False
@@ -252,6 +253,20 @@ class RuntimeHost:
     def _settings_start(self, body: dict[str, object]) -> dict[str, object]:
         payload = settings.command(body["payload"])
         operation_id = settings.identity(payload["operation_id"])
+        if payload["action"] == "cancel":
+            self._grant(body)
+            if (
+                self.state != "MANAGEMENT"
+                or time.monotonic_ns() >= self.deadline_ns
+                or self.settings_command is None
+                or self.settings_command["operation_id"] != operation_id
+                or self.settings_command["action"] != "connect"
+            ):
+                return settings.view(operation_id, "UNAVAILABLE")
+            self.oauth_cancel = True
+            if self.settings_result is not None and self.settings_result["status"] == "PENDING":
+                self.settings_result = settings.view(operation_id, "PENDING", oauth="CANCELLING")
+            return self.settings_result or settings.view(operation_id, "UNAVAILABLE")
         if self.settings_command == payload and self.settings_result is not None:
             return self.settings_result
         if operation_id in self.settings_seen:
@@ -277,6 +292,7 @@ class RuntimeHost:
         self.generation, self.epoch = generation, epoch
         self.state = "MANAGEMENT"
         self.settings_command = payload
+        self.oauth_cancel = False
         self.settings_seen.add(operation_id)
         self.settings_result = settings.view(operation_id, "PENDING")
         self.settings_task = asyncio.create_task(self._settings_run(payload))
@@ -285,6 +301,13 @@ class RuntimeHost:
     async def _settings_run(self, payload: dict[str, object]) -> None:
         operation_id = settings.identity(payload["operation_id"])
         try:
+            if payload["action"] == "connect":
+                async with asyncio.timeout(30):
+                    selected = await self._settings_native("read", None)
+                    if selected != settings.SELECTION:
+                        raise ValueError("Explicit selection required")
+                await self._oauth_flow(operation_id)
+                return
             async with asyncio.timeout(30):
                 action = payload["action"]
                 assert isinstance(action, str)
@@ -309,6 +332,70 @@ class RuntimeHost:
         ):
             self.settings_result = settings.view(operation_id, "INDETERMINATE")
             self.management_failed = True
+
+    async def _oauth_flow(self, operation_id: str) -> None:
+        fence = (self.generation, self.epoch)
+
+        def guard() -> None:
+            if (
+                self.state != "MANAGEMENT"
+                or self.management_failed
+                or (self.generation, self.epoch) != fence
+                or time.monotonic_ns() >= self.deadline_ns
+            ):
+                raise ValueError("Auth authority expired")
+
+        action = "connect"
+        async with asyncio.timeout(900):
+            while True:
+                guard()
+                if self.management_port is None:
+                    raise ValueError("Management unavailable")
+                value = await request(
+                    self.management_port,
+                    self.management_token,
+                    "POST",
+                    "/api/auth/codex/flow/" + action,
+                    {
+                        "operation_id": operation_id,
+                        "boot": self.boot,
+                        "generation": fence[0],
+                        "epoch": fence[1],
+                        "deadline_ns": self.deadline_ns,
+                    },
+                    dispatch_guard=guard,
+                )
+                guard()
+                if (
+                    type(value) is not dict
+                    or set(value) != {"oauth", "challenge"}
+                    or type(value["oauth"]) is not str
+                ):
+                    raise ValueError("Invalid OAuth result")
+                oauth = value["oauth"]
+                pending = oauth in {"STARTING", "CHALLENGE", "CANCELLING"}
+                if pending:
+                    self.settings_result = settings.view(
+                        operation_id, "PENDING", oauth=oauth, challenge=value["challenge"]
+                    )
+                elif oauth == "INDETERMINATE":
+                    raise ValueError("Auth transport uncertain")
+                elif oauth in {"SAVED", "CANCELLED", "EXPIRED"}:
+                    readback = await self._settings_native("auth_read", None)
+                    if type(readback) is not dict:
+                        raise ValueError("Auth readback unavailable")
+                    self.settings_result = settings.view(
+                        operation_id,
+                        "CONFIRMED",
+                        readback["selection"],
+                        readback["authenticated"],
+                        oauth=oauth,
+                    )
+                    return
+                else:
+                    raise ValueError("Invalid OAuth state")
+                await asyncio.sleep(0.25)
+                action = "cancel" if self.oauth_cancel else "status"
 
     async def _settings_native(self, action: str, selected: object) -> dict[str, object] | None:
         fence = (self.generation, self.epoch)
@@ -1047,7 +1134,10 @@ class RuntimeHost:
                                 else (
                                     self.settings_result
                                     if self.settings_result is not None
-                                    and self.settings_result["operation_id"] == operation_id
+                                    and (
+                                        self.settings_result["operation_id"] == operation_id
+                                        or operation_id == "00000000-0000-0000-0000-000000000000"
+                                    )
                                     else settings.view(operation_id, "UNAVAILABLE")
                                 )
                             )

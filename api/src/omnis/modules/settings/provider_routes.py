@@ -54,7 +54,10 @@ async def settings_exchange(command: SettingsControl) -> ProviderView:
             if len(raw) > 4096:
                 raise ValueError("Settings response limit")
             result = _Reply.model_validate_json(raw).settings
-            if result.operation_id != command.operation_id:
+            if (
+                result.operation_id != command.operation_id
+                and command.operation_id != "00000000-0000-0000-0000-000000000000"
+            ):
                 raise ValueError("Settings response mismatch")
             return result
         finally:
@@ -98,6 +101,8 @@ async def configure(body: ProviderCommand, request: Request) -> ProviderView | J
 )
 async def operation(operation_id: str) -> ProviderView | JSONResponse:
     try:
+        if operation_id == "current":
+            operation_id = "00000000-0000-0000-0000-000000000000"
         command = SettingsControl(op="settings", command=None, operation_id=operation_id)
     except ValueError:
         return error_response("INVALID_INPUT", 422)

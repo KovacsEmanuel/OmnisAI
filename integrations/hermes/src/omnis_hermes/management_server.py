@@ -13,6 +13,7 @@ import os
 import socket
 import sys
 from collections.abc import Awaitable, Callable
+from types import FrameType
 
 from .management_contract import SELECTION, selection
 from .native_preparation_contract import loads
@@ -116,6 +117,9 @@ def main() -> int:
 
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     lock = asyncio.Lock()
+    from .management_oauth import NativeOAuth
+
+    oauth = NativeOAuth()
 
     @app.middleware("http")
     async def boundary(
@@ -150,6 +154,8 @@ def main() -> int:
         try:
             payload = loads(bytes(body), 4096) if body else None
             async with lock:
+                if request.method == "PUT" and oauth.active:
+                    raise ValueError("Auth writer pending")
                 value = await asyncio.to_thread(config_operation, request.method, payload)
             return JSONResponse(value)
         except (ValueError, OSError):
@@ -166,7 +172,27 @@ def main() -> int:
             # The same exclusive writer lock as config, inside the same child
             # owned and drained by RuntimeHost. Execution mode refuses Settings.
             async with lock:
+                if oauth.active:
+                    raise ValueError("Auth writer pending")
                 value = await asyncio.to_thread(auth_operation, request.method)
+            return JSONResponse(value, headers={"Cache-Control": "no-store"})
+        except (ValueError, OSError):
+            return JSONResponse({"error": "AUTH_UNAVAILABLE"}, status_code=409)
+
+    @app.post("/api/auth/codex/flow/{action}")
+    async def flow(action: str, request: Request) -> JSONResponse:
+        if request.url.query or action not in {"connect", "status", "cancel"}:
+            return JSONResponse({"error": "DENIED"}, status_code=400)
+        body = bytearray()
+        async for chunk in request.stream():
+            body.extend(chunk)
+            if len(body) > 4096:
+                return JSONResponse({"error": "LIMIT"}, status_code=413)
+        try:
+            async with lock:
+                if action == "connect" and config_operation("GET", None) != SELECTION:
+                    raise ValueError("Explicit selection required")
+                value = oauth.operate(action, loads(bytes(body), 4096))
             return JSONResponse(value, headers={"Cache-Control": "no-store"})
         except (ValueError, OSError):
             return JSONResponse({"error": "AUTH_UNAVAILABLE"}, status_code=409)
@@ -176,7 +202,15 @@ def main() -> int:
         port = listener.getsockname()[1]
         listener.listen(4)
         listener.setblocking(False)
-        server = uvicorn.Server(uvicorn.Config(app, log_config=None, access_log=False))
+
+        class ManagementServer(uvicorn.Server):
+            def handle_exit(self, sig: int, frame: FrameType | None) -> None:
+                # Revoke in the native process at Stop signal delivery, before
+                # shutdown yields; pre-send/save guards read this same context.
+                oauth.revoke()
+                super().handle_exit(sig, frame)
+
+        server = ManagementServer(uvicorn.Config(app, log_config=None, access_log=False))
 
         async def serve() -> None:
             task = asyncio.create_task(server.serve(sockets=[listener]))

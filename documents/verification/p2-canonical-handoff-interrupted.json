@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "kind": "CANONICAL_INTERRUPTED_FOR_USER_FRESH_SESSION_HANDOFF",
+  "tested_head": "62948d00b80a9c7baa281f0b0e09468b2cf01cef",
+  "command": "make check UV=/home/kali/.local/share/omnis-toolchains/bin/uv",
+  "session_id": "proc_3e34f85b4fed",
+  "scratch_root": "/home/kali/.hermes/cache/scratch/cp3-6j5owjl8",
+  "outer_make_exit": 2,
+  "strict_family_receipt": {
+    "schema_version": 1,
+    "code": 130,
+    "family_drained": true
+  },
+  "classification": "INTERRUPTED_BY_HANDOFF_NOT_PRODUCT_FAILURE_NOT_FULL_CANONICAL_PASS",
+  "stop_request": {
+    "schema_version": 1,
+    "reason": "USER_FRESH_SESSION_HANDOFF_NOT_PRODUCT_FAILURE",
+    "utc": "2026-10-16T12:31:03.017968+00:00",
+    "pid": 840127,
+    "start_ticks": 16373193,
+    "signal": "SIGTERM_TO_EXISTING_GATE_OWNER_HANDLER",
+    "resources": "Existing family owner must drain and cleanup; no direct Docker/process-family kill or data deletion",
+    "next": "Read strict receipt and exact resource absence before handoff"
+  },
+  "completed_components": {
+    "documentation": "75PASS/1.549s",
+    "development_unittest": "48PASS/9.093s",
+    "api": {
+      "status": "PASS_SCOPED",
+      "passed": 2455,
+      "skipped": 62,
+      "seconds": 2969.29,
+      "exit_evidence": "API pytest successful summary followed by test-migrations command in the serial existing Makefile; not an independently captured API exit receipt."
+    }
+  },
+  "remaining_components": {
+    "migrations": "STARTED_BUT_INTERRUPTED; no final verdict",
+    "api_wheel_web_e2e_cli_release_runtime": "NOT_RUN in this attempt; no historical PASS transferred",
+    "full_canonical": "NOT_COMPLETED"
+  },
+  "cleanup": {
+    "resources": [
+      {
+        "container_id": "fce61eb2ef125edf3558c27bb21200a75fc371e0811248a99dc45dc6b329d6d6",
+        "project": "omnis-p01-031a7d416b6b4a30905ecb28d73b213e",
+        "cid_absent": true,
+        "project_container_empty": true,
+        "project_network_empty": true,
+        "daemon_same": true,
+        "image_same": true,
+        "directories": [
+          {
+            "path": "/home/kali/.hermes/cache/scratch/cp3-6j5owjl8/db-b9ecbd30ec284b2b",
+            "dev": 2049,
+            "inode": 9629087,
+            "uid": 1000,
+            "mode": "0o700",
+            "identity_same": true
+          },
+          {
+            "path": "/home/kali/.hermes/cache/scratch/cp3-6j5owjl8/db-b9ecbd30ec284b2b/data",
+            "dev": 2049,
+            "inode": 9629088,
+            "uid": 1000,
+            "mode": "0o700",
+            "identity_same": true
+          },
+          {
+            "path": "/home/kali/.hermes/cache/scratch/cp3-6j5owjl8/db-b9ecbd30ec284b2b/socket",
+            "dev": 2049,
+            "inode": 9629089,
+            "uid": 1000,
+            "mode": "0o3775",
+            "identity_same": true
+          }
+        ]
+      }
+    ],
+    "pinned_processes": [
+      {
+        "pid": 839927,
+        "start_ticks": 16373129,
+        "ppid": 7825,
+        "pgrp": 839927,
+        "sid": 839927,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 840126,
+        "start_ticks": 16373193,
+        "ppid": 839927,
+        "pgrp": 839927,
+        "sid": 839927,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 840127,
+        "start_ticks": 16373193,
+        "ppid": 840126,
+        "pgrp": 839927,
+        "sid": 839927,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 840407,
+        "start_ticks": 16373276,
+        "ppid": 840384,
+        "pgrp": 840407,
+        "sid": 840407,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 840722,
+        "start_ticks": 16373531,
+        "ppid": 840127,
+        "pgrp": 839927,
+        "sid": 839927,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 840723,
+        "start_ticks": 16373538,
+        "ppid": 840722,
+        "pgrp": 840723,
+        "sid": 840723,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 841608,
+        "start_ticks": 16376742,
+        "ppid": 840723,
+        "pgrp": 840723,
+        "sid": 840723,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 842269,
+        "start_ticks": 16381408,
+        "ppid": 841608,
+        "pgrp": 840723,
+        "sid": 840723,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 842275,
+        "start_ticks": 16381430,
+        "ppid": 7825,
+        "pgrp": 842275,
+        "sid": 842275,
+        "state": "PID_ABSENT"
+      },
+      {
+        "pid": 842277,
+        "start_ticks": 16381431,
+        "ppid": 842275,
+        "pgrp": 842275,
+        "sid": 842275,
+        "state": "PID_ABSENT"
+      }
+    ],
+    "remaining_sockets": [],
+    "kernel_root_socket_matches": 0,
+    "head_same": true,
+    "index_same": true,
+    "source_mismatches": [],
+    "gate_log_sha256": "778253bf6e98852570991cd5c0d7dcbcea6776e7da5b6e85e3b3b2b14f0113bd"
+  },
+  "snapshot": {
+    "source_hashes": {
+      "Makefile": "f505a9dd624e1ddb9f70fca4867486f1423cfe106385d9604e1907df8fd1cc48",
+      "api/pyproject.toml": "6cec4ef3e23656d09d732ff64001d5a538713a4d8ad4e9fbb324807d5ae12bad",
+      "api/src/omnis/core/db.py": "c71e67072e62369483edede8ef9a4a6a546cfe681f824691221593578cd3f277",
+      "api/src/omnis/modules/instance/domain.py": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f",
+      "api/src/omnis/modules/instance/schemas.py": "98cdba607fdca59155948ac3fc5b32d3b160304eb851bb8f5ea9393a5e897aba",
+      "api/src/omnis/modules/instance/service.py": "991bb3a91002b7b3713e0839e72cd01b66004d3e1cb23738986ca0880c27b218",
+      "api/src/omnis/modules/runs/managed_admission.py": "a262ac55e4aedad04428a3b5e532a45604057703fc4db9e837fcf9dabaf755f9",
+      "api/src/omnis/modules/runs/model_dispatch.py": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b",
+      "api/src/omnis/modules/runs/model_projection.py": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7",
+      "api/src/omnis/modules/runs/model_protocol.py": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b",
+      "api/src/omnis/modules/tasks/managed_composition.py": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "api/src/omnis/policy/budgets.py": "87740e4df8149758dfc2e2f277c31d543b973f7d873169e6b3789d9e620e92f1",
+      "api/src/omnis/policy/model_projection.py": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7",
+      "api/src/omnis/supervisor/native_tasks.py": "4959449aa795a8e1521e274f3be1d51942ba60b987a5afd8442e4a5c10bf9e0e",
+      "api/src/omnis/supervisor/runtime_client.py": "867e55e3f7689232daa9e0788428c39b1fac146541c92b83fa8129dcebd6a99f",
+      "api/src/omnis/transport/control_probe.py": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d",
+      "api/src/omnis/transport/local_control.py": "9ea5fb9b0e3402b0b520ead0e6f04de8e88b17847e5b1a20a11aaf1c68b33f2a",
+      "api/tests/conftest.py": "91dea38234f7071a7a6239b296379c07b19c432e0c993ba1f9ad4517ccdace5b",
+      "api/tests/fixtures/b06b_publication/consumer.py": "c7a2db26d924fd39b414b5771a1d77017b63a33c5b1b168e2f8eeba3142f1ae9",
+      "api/tests/fixtures/b06b_pure_probe/consumer.py": "2a738d8010db6a46810b4949ae80f9b9ce89d4e0626ac76a32884af0083a8c86",
+      "api/tests/fixtures/c03_journey.py": "a16034447fc3a468ceb47a3ca2d7804fb69703cd08013292311217edfd97c799",
+      "api/tests/fixtures/c03_records.py": "f5b6016569c9d71c6c58880fe84126fdfdbc2c29ab1475a8e9ed3219544a3ee7",
+      "api/tests/test_managed_composition.py": "1e6d5221fbcac2528495f0a3aa5b3608c34494af80d0a6eb18ece31a9a5f3bbd",
+      "api/tests/test_model_admission.py": "9c07b83264095dc30b169d27e6083cdd537c0fcd01b05d837cf5b444afb63a9f",
+      "api/tests/test_model_admission_pg.py": "1875b48681ca68eab0145189b0e9dee846855cb7e8a9f5746de85068aa08828e",
+      "api/tests/test_model_budget.py": "dc3bd53ab1a71de8ace084c33a8ba51c1fb254dcfe34079ed8a958f815184fa8",
+      "api/tests/test_model_budget_pg.py": "65e896c3f0feed2a287a0188daa1c811b6b36626377f82ed3dc35d87eca21cfb",
+      "api/tests/test_model_configuration.py": "a5ab5856169fddbdf10b24cccef57396758d425ab65a4e070774fc1d7d818b92",
+      "api/tests/test_model_context.py": "7f63d4122c63439d22e7e0d5f0fa25b4c1353fcf99ac9584f1510de15dcfac7f",
+      "api/tests/test_model_preflight_control.py": "09d3b11762916a1917f214296dbb42cd8cc6ada706365ebb406803ccfba8327b",
+      "api/tests/test_model_projection.py": "88b7888968de21c525adf0f077378123af5461e1b70d274ca1deffb2a0d30d88",
+      "api/tests/test_model_projection_denials.py": "a941935e90f7a3eee55dfd0b3467ac7e02b8dca2fadc73de280cfdcfc793b014",
+      "api/tests/test_model_projection_storage.py": "84d43d949baac6f6b029331181072c93e98d889376c7dc4eb195e23b4cab5bfe",
+      "api/tests/test_native_preparation.py": "2906fb3d3368fbfc7276144c1d33291fb897288946b2461406806f2f9bdbfb0c",
+      "api/tests/test_native_task_client.py": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "api/tests/test_python_quality.py": "185e85be00cc0e2624f7c9b2f9424de3d3d46b05d2d0f06b4c56b3bd2559870c",
+      "api/tests/test_ready_model_configuration.py": "796238c4d5d03348579d3b898282c10a5534fda4669dcea469ac73969f1d22c4",
+      "integrations/hermes/src/omnis_hermes/model_admission.py": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+      "integrations/hermes/src/omnis_hermes/model_projection.py": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "d9da534e096150e837de7f1eee199b1a126cc7598296add8b947dfd8eae61fe8",
+      "integrations/hermes/upstream/managed-source/agent/cold_admission.py": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72",
+      "ops/compose.test.yaml": "88a496df47496a5e079d6f173a07049e123c8cf2758d363b3abe00f8c58ebc4e",
+      "ops/run_test_db_gate.py": "08789593609595457bbfacff7b4fc5b23174472befbfa983be24d2561c444032",
+      "api/tests/test_contract_method_pg.py": "44a4b8e6bc26d10e44c924896a10e83dbcbbd3bb172f1ca12fa5114fd4a7b5c9",
+      "documents/verification/p2-bound-predicates-evidence/h03-process-fixed-pg-selection.py": "98dc9bcd564576db936011a410ae3551a682e8a1d3bc430fc613051fedda6ab7",
+      "api/tests/test_c10_bound_predicates.py": "4643b558bd3b6593010746eec9e03817e098210507f3e33796f4582d9b3019f0",
+      "api/tests/test_mission_revisions.py": "acde8c5f63f346d97f09b1d0050868fd452f5af8bf495535fc0ce0f717ccff98"
+    },
+    "tracked_index_entries": 1281,
+    "tracked_index_sha256": "676c1e1dd9f05768cfcbc201ffad69d34ee54e7538e0ae34d36797bcbb2dd796",
+    "main_product_native_unchanged_since": "8acfd93; later changes only reviewed test fixtures and evidence/status",
+    "protected_untracked_HTML": "Not read/hashed/edited/staged/deleted"
+  },
+  "preserved_acceptance": {
+    "admission": "129PASS408.44s on35c7cd5; accepted scoped in8acfd93",
+    "source_repairs": "c048808/327fd26, independent APPROVED_SCOPED and parent4PASS0.64s; first canonicalFAIL remains historical",
+    "h04": "inventory/root-lineage2PASS; child pre-READYFAIL causeUNKNOWN; guardFalse/exceptionNOT_RUN; originalUNCERTAIN not retroactively cleared"
+  },
+  "data_retention": "Original PGDATA directories retained by exact device/inode/UID/mode. Per-test DROP is not asserted for the interrupted migration; no operator data adopted or deleted.",
+  "owned_worktrees": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/h04-work-42ef34fc",
+      "head": "69975638559780ddb644e84fb7c791cfb786898f",
+      "clean": true,
+      "role": "Frozen recovery input only; no active writer or new integration mandate."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-final-20261016",
+      "head": "2149dbc309cb0815e81bd3d38a5a7dbd4a187989",
+      "clean": true,
+      "role": "Frozen recovery input only; no active writer or new integration mandate."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-admission-failure-20261016",
+      "head": "cc766d6f39e175fd6a6007a7983cdd17670d7b64",
+      "clean": true,
+      "role": "Frozen recovery input only; no active writer or new integration mandate."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "head": "7f1095340c908f6949a1c4a3e3fd8ce6afe220d9",
+      "clean": true,
+      "role": "Frozen recovery input only; no active writer or new integration mandate."
+    }
+  ],
+  "active_owned_code_writers": 0,
+  "next_mandate": "ANALYSIS_ONLY: necessity/evidence audit, raw-log-safe diagnosis and Git regression/revert assessment before any code/test/native rerun; implementation/revert needs user approval."
+}

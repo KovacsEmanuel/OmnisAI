@@ -30,6 +30,8 @@ RUN printf '/opt/hermes/source\n' > /opt/hermes/venv/lib/python3.13/site-package
  && test "${RUNTIME_UID}" -gt 0 && test "${RUNTIME_GID}" -gt 0 \
  && chmod -R a+rX /opt/hermes \
  && mkdir -p /runtime /state/work /state/os-home /state/active /state/codex /state/tmp /state/managed-empty /state/xdg/config /state/xdg/cache /state/xdg/state /state/xdg/data \
- && chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime /state
+ && chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime /state \
+ && chown 0:0 /state \
+ && chmod 0755 /state
 USER ${RUNTIME_UID}:${RUNTIME_GID}
 CMD ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"]

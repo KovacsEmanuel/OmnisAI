@@ -2,14 +2,16 @@
 
 import asyncio
 import inspect
+import re
+import stat
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
-
 from omnis.modules.instance.service import RuntimeAuthority
 from omnis.supervisor.runtime_client import RuntimeClient
 
@@ -78,3 +80,71 @@ async def test_management_process_is_owned_by_existing_stop_and_environment(
             assert not host._owned_pids()
         finally:
             await client.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("action", ["read", "save"])
+@pytest.mark.parametrize("parent", ["image", "current", "foreign"])
+async def test_image_provider_ancestor_through_settings(
+    monkeypatch: pytest.MonkeyPatch, action: str, parent: str
+) -> None:
+    """Image metadata seam, actual guard/coroutine; no OCI/native execution."""
+    from omnis_hermes import runtime_host
+
+    dockerfile = (Path(__file__).resolve().parents[2] / "ops/Dockerfile.hermes").read_text()
+    default = re.search(r"ARG RUNTIME_UID=(\d+)", dockerfile)
+    assert default is not None
+    # Follow the shipped /state chowns in order, not an assumed fixture owner.
+    owners = re.findall(r'chown (?:-R )?"?([^\s"]+)"? (?:/runtime )?/state(?:\s|$)', dockerfile)
+    assert owners
+    image_uid = int(owners[-1].split(":")[0].replace("${RUNTIME_UID}", default[1]))
+    uid = 1000
+    parent_uid = image_uid if parent == "image" else uid if parent == "current" else 65532
+    selected = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
+    host = runtime_host.RuntimeHost(Path("/unopened-source-fixture"))
+    host.state, host.generation, host.epoch = "MANAGEMENT", 1, 1
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+
+    def lstat(path: Path) -> SimpleNamespace:
+        private = path == Path("/state/provider") or Path("/state/provider") in path.parents
+        return SimpleNamespace(
+            st_mode=stat.S_IFDIR | (0o700 if private else 0o755),
+            st_uid=uid if private else parent_uid if path == Path("/state") else 0,
+        )
+
+    stdout, stderr = asyncio.StreamReader(), asyncio.StreamReader()
+    stdout.feed_data(b"HERMES_BACKEND_READY port=12345\n")
+    stdout.feed_eof()
+    stderr.feed_eof()
+    spawn = AsyncMock(return_value=SimpleNamespace(stdout=stdout, stderr=stderr, returncode=None))
+    configure = AsyncMock(return_value=selected if action == "save" else None)
+    monkeypatch.setattr(Path, "resolve", lambda self: self)
+    monkeypatch.setattr(Path, "mkdir", lambda *a, **k: None)
+    monkeypatch.setattr(Path, "lstat", lstat)
+    monkeypatch.setattr(runtime_host.os, "getuid", lambda: uid)
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
+    monkeypatch.setattr(runtime_host, "configure", configure)
+    monkeypatch.setattr(
+        runtime_host, "request", AsyncMock(return_value={"status": "ok", "mode": "management-only"})
+    )
+    try:
+        await host._settings_run(
+            {
+                "operation_id": str(uuid4()),
+                "action": action,
+                "selection": selected if action == "save" else None,
+            }
+        )
+        assert host.settings_result is not None
+        assert host.settings_result["status"] == (
+            "INDETERMINATE" if parent == "foreign" else "CONFIRMED"
+        )
+        assert host.management_failed is (parent == "foreign")
+        assert spawn.await_count == configure.await_count == (0 if parent == "foreign" else 1)
+        if parent == "image":
+            assert image_uid == 0
+            assert "&& chmod 0755 /state" in dockerfile
+            assert 'chown -R "${RUNTIME_UID}:${RUNTIME_GID}" /runtime /state' in dockerfile
+            assert "USER ${RUNTIME_UID}:${RUNTIME_GID}" in dockerfile
+    finally:
+        await asyncio.gather(*host.management_output)

@@ -465,8 +465,6 @@ class ModelDispatch:
         result: object,
     ) -> dict[str, object]:
         """Private owner holds Instance→lease→Stop; commit/read actual RPC observation."""
-        from omnis.policy.model_configuration import configuration_payload
-
         payload = mapping(prepared["payload"])
         run = uuid_string(payload["run_id"])
         current = await self.read(
@@ -479,6 +477,20 @@ class ModelDispatch:
         )
         if canonical(current) != canonical(prepared):
             raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+        return await self._persist_configuration(connection, owner, current, result)
+
+    async def _persist_configuration(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        current: dict[str, object],
+        result: object,
+    ) -> dict[str, object]:
+        """Only after identical read/equality qualification in this caller transaction."""
+        from omnis.policy.model_configuration import configuration_payload
+
+        payload = mapping(current["payload"])
+        run = uuid_string(payload["run_id"])
         accepted = self.accept_preflight(result, current)
         expected = configuration_payload(
             mapping(current["payload"]), accepted["source_configuration"]

@@ -63,6 +63,7 @@ ProtocolPhase = Literal[
     "protocol.settle",
     "protocol.readback",
     "protocol.qualified",
+    "dispatch.read",
     "qa.t0_locked",
     "qa.before_a",
 ]

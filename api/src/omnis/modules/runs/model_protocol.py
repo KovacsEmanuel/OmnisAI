@@ -292,10 +292,12 @@ async def settle(
     command: NativeTaskCommand,
     references: dict[str, object],
     result: object,
-) -> None:
+) -> dict[str, object]:
     body, _ = await qualified(conn, consumer, command, references)
     prepared = mapping(body["prepared"])
-    accepted = await consumer.persist_configuration(conn, command.owner_id, prepared, result)
+    # qualified just performed the same read and canonical equality in this T2.
+    # No retained token/cache or public validation bypass crosses this call.
+    accepted = await consumer._persist_configuration(conn, command.owner_id, prepared, result)
     run = text(body["run_id"])
     receipt_payload = {
         "provenance": PROVENANCE,
@@ -333,6 +335,8 @@ async def settle(
             "cost_estimate": None,
         },
     )
+    state = await budgets.readback(conn, command.owner_id, references["dispatch_ref"])
+    return await _readback(conn, consumer, command, references, body, state)
 
 
 def validate_readback(value: object, command: NativeTaskCommand) -> dict[str, object]:
@@ -398,6 +402,18 @@ async def readback(
     references: dict[str, object],
 ) -> dict[str, object]:
     body, state = await qualified(conn, consumer, command, references)
+    return await _readback(conn, consumer, command, references, body, state)
+
+
+async def _readback(
+    conn: AsyncConnection,
+    consumer: ModelDispatch,
+    command: NativeTaskCommand,
+    references: dict[str, object],
+    body: dict[str, object],
+    state: dict[str, object],
+) -> dict[str, object]:
+    """Receipt/usage/schema checks after qualification within this same call/T2."""
     graph = await store.graph(conn, command.owner_id, text(body["run_id"]))
     receipts = [
         r

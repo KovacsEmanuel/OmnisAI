@@ -1959,12 +1959,16 @@ async def test_protocol_phase_timing_existing_source_consumer(
     monkeypatch.setattr(
         model_protocol, "qualified", timing.delegate("protocol.qualified", model_protocol.qualified)
     )
+    monkeypatch.setattr(ModelDispatch, "read", timing.delegate("dispatch.read", ModelDispatch.read))
     await test_qualified_projection_reaches_cold_admission_without_model_reservation(
         tmp_path, monkeypatch, protocol_mode=True, protocol_case=None if case == "nominal" else case
     )
     rows = timing.snapshot()
+    reads = [r for r in rows if r["phase"] == "dispatch.read"]
+    assert len([r for r in reads if r["caller"] == "sender"]) == 3
+    assert len([r for r in reads if r["caller"] == "second"]) == int(case == "duplicate")
     qualified = [r for r in rows if r["phase"] == "protocol.qualified"]
-    assert len(qualified) == (4 if case == "duplicate" else 3)
+    assert len(qualified) == (3 if case == "duplicate" else 2)
     assert all(r["outcome"] == "RETURNED" and r["elapsed_ms"] > 0 for r in qualified)
     assert owner_count == control_count == limit and not timing.handlers
     assert [r["caller"] for r in qualified].count("second") == int(case == "duplicate")
@@ -1981,6 +1985,178 @@ async def test_protocol_phase_timing_existing_source_consumer(
             ),
             flush=True,
         )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("boundary", ["settle", "persist_configuration", "readback"])
+@pytest.mark.parametrize("fault", ["context", "schema", "receipt", "eligibility"])
+async def test_protocol_t2_strict_wrappers_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, boundary: str, fault: str
+) -> None:
+    """Real SOURCE owner/UDS; challenge each public wrapper in the same T2 call."""
+    from dataclasses import replace
+
+    from omnis.modules.runs import model_protocol
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    original_settle = model_protocol.settle
+    challenged = 0
+
+    async def settle(
+        conn: AsyncConnection,
+        consumer: ModelDispatch,
+        command: NativeTaskCommand,
+        references: dict[str, object],
+        result: object,
+    ) -> object:
+        nonlocal challenged
+        body, _ = await model_protocol.qualified(conn, consumer, command, references)
+        prepared = mapping(body["prepared"])
+        before = canonical(await managed_store.graph(conn, command.owner_id, str(body["run_id"])))
+        original_context = consumer._context
+        original_get = managed_store.get
+
+        async def context(
+            connection: AsyncConnection,
+            owner: str,
+            run: str,
+            binding: dict[str, object],
+            manifest: dict[str, object],
+            projection: dict[str, object],
+        ) -> dict[str, object]:
+            original_source = consumer.projections.managed._source
+
+            async def source(
+                connection: AsyncConnection,
+                owner: str,
+                request: dict[str, object],
+                *,
+                preparation_ref: dict[str, object],
+            ) -> BuildSource:
+                return replace(
+                    await original_source(
+                        connection, owner, request, preparation_ref=preparation_ref
+                    ),
+                    role="VALIDATOR",
+                )
+
+            with monkeypatch.context() as local:
+                local.setattr(consumer.projections.managed, "_source", source)
+                return await original_context(connection, owner, run, binding, manifest, projection)
+
+        async def get(
+            connection: AsyncConnection, owner: str, run: str, pin: object
+        ) -> dict[str, object]:
+            item = await original_get(connection, owner, run, pin)
+            if item["kind"] == "model-data-approval" and fault in {"schema", "receipt"}:
+                return records.envelope(
+                    "model-data-approval",
+                    {
+                        **mapping(item["payload"]),
+                        **({"version": True} if fault == "schema" else {"policy_digest": "0" * 64}),
+                    },
+                )
+            return item
+
+        with monkeypatch.context() as mutation:
+            if fault == "context":
+                mutation.setattr(consumer, "_context", context)
+            elif fault == "eligibility":
+                # Challenge the actual manifest lookup with a resealed unsupported
+                # version; refusal may precede or occur at the stage eligibility guard.
+                async def unsupported(
+                    connection: AsyncConnection, owner: str, run: str, pin: object
+                ) -> dict[str, object]:
+                    item = await original_get(connection, owner, run, pin)
+                    if item["kind"] == "launch-manifest":
+                        return records.envelope(
+                            "launch-manifest",
+                            {**mapping(item["payload"]), "composition_version": 4},
+                        )
+                    return item
+
+                mutation.setattr(managed_store, "get", unsupported)
+            else:
+                mutation.setattr(managed_store, "get", get)
+            with pytest.raises(CatalogError):
+                if boundary == "settle":
+                    await original_settle(conn, consumer, command, references, result)
+                elif boundary == "persist_configuration":
+                    await consumer.persist_configuration(conn, command.owner_id, prepared, result)
+                else:
+                    await model_protocol.readback(conn, consumer, command, references)
+        assert (
+            canonical(await managed_store.graph(conn, command.owner_id, str(body["run_id"])))
+            == before
+        )
+        challenged += 1
+        return await original_settle(conn, consumer, command, references, result)
+
+    monkeypatch.setattr(model_protocol, "settle", settle)
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, protocol_mode=True
+    )
+    assert challenged == 1
+
+
+@pytest.mark.asyncio
+async def test_protocol_t2_commit_failure_never_returns_success_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real owner/control UDS; SOURCE transaction-exit failure, not PG rollback proof."""
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+
+    from sqlalchemy.exc import SQLAlchemyError
+
+    from omnis.modules.runs import model_protocol
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+
+    original_handle, original_settle = NativeTaskOwner.handle, model_protocol.settle
+    settled = failed_commit = returned = False
+
+    async def settle(
+        conn: AsyncConnection,
+        consumer: ModelDispatch,
+        command: NativeTaskCommand,
+        references: dict[str, object],
+        result: object,
+    ) -> object:
+        nonlocal settled
+        answer = await original_settle(conn, consumer, command, references, result)
+        settled = True
+        return answer
+
+    async def handle(self: NativeTaskOwner, command: NativeTaskCommand) -> dict[str, object]:
+        nonlocal returned
+        if command.action != "model_protocol_prepare":
+            return await original_handle(self, command)
+        original_begin = self.domain.engine.begin
+
+        @asynccontextmanager
+        async def begin() -> AsyncIterator[AsyncConnection]:
+            nonlocal failed_commit
+            async with original_begin() as conn:
+                yield conn
+                if settled:
+                    failed_commit = True
+                    raise SQLAlchemyError("SYNTHETIC_COMMIT_FAILURE")
+
+        with monkeypatch.context() as local:
+            local.setattr(self.domain.engine, "begin", begin)
+            answer = await original_handle(self, command)
+        returned = True
+        return answer
+
+    monkeypatch.setattr(model_protocol, "settle", settle)
+    monkeypatch.setattr(NativeTaskOwner, "handle", handle)
+    with pytest.raises(CatalogError, match="CONTROL_UNAVAILABLE"):
+        await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+            tmp_path, monkeypatch, protocol_mode=True
+        )
+    assert settled and failed_commit and not returned
 
 
 @pytest.mark.asyncio

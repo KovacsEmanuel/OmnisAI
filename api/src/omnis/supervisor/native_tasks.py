@@ -206,9 +206,8 @@ class NativeTaskOwner:
             raise
         # T2 is receive-only; Stop may already have committed. No new grant.
         async with self.domain.engine.begin() as conn:
-            await protocol.settle(conn, consumer, command, references, result)
-        async with self.domain.engine.begin() as conn:
-            accounting = await protocol.readback(conn, consumer, command, references)
+            accounting = await protocol.settle(conn, consumer, command, references, result)
+        # The fully checked accounting leaves T2 only after successful COMMIT.
         return {**self._reply(command, binding, "BLOCKED"), "protocol_accounting": accounting}
 
     async def _model_configuration(self, command: NativeTaskCommand) -> dict[str, object]:

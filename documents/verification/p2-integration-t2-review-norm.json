@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "report_id": "ADMISSION-T2-NORMATIVE-FROZEN46-20261016",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent read-only normative review of Admission T2 remedy plus finite observer delta. SOURCE approval only; not PG acceptance or integration.",
+  "reviewed_snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-admission-final-20261016",
+    "base": "f4b990feb975f07194273bde600be90f78107535",
+    "head_after": "f4b990feb975f07194273bde600be90f78107535",
+    "manifest_path": "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/manifest.json",
+    "manifest_sha256": "6b8f87a239945629f21f4f570e5cc5ca23142c84077d3b74fdc58b849f0fb913",
+    "files_verified_before": 46,
+    "files_verified_after": 46,
+    "manifest_mismatches_before": [],
+    "manifest_mismatches_after": [],
+    "changed_exact": [
+      "api/src/omnis/modules/runs/model_dispatch.py",
+      "api/src/omnis/modules/runs/model_protocol.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/tests/test_model_admission.py",
+      "api/tests/test_model_admission_pg.py"
+    ],
+    "changed_paths_match_declared": true,
+    "full_diff_sha256": "e4be2728102a1fb856845bf302f74845c7862265535fc1049cfe4c1b169583eb",
+    "product_delta_sha256": "b52900d70ed8d99ac7e274ed2683d420fd39269fabc6a2fc8216c81cec4068a8",
+    "snapshot_sha256": "469e95b066b5c62e50ba7ce73b673b0406e0b5ecc7adc0fa12120128a9078c1f",
+    "artifact_matches_before": {
+      "full_diff_sha256": true,
+      "product_delta_sha256": true,
+      "snapshot_sha256": true
+    },
+    "full_diff_matches_after": true,
+    "staged_paths_after": [],
+    "before_handle": "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-review-before.json",
+    "after_handle": "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-review-after.json"
+  },
+  "findings": [],
+  "finding_schema": {
+    "required_on_any_finding": [
+      "id",
+      "severity",
+      "file",
+      "line",
+      "reproducer",
+      "violated_contract",
+      "remedy"
+    ],
+    "empty_means": "No confirmed blocking defect found in this frozen scoped delta; not universal absence of defects."
+  },
+  "normative_checks": [
+    {
+      "id": "T2-QUALIFICATION",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/runs/model_protocol.py:296-300",
+        "api/src/omnis/modules/runs/model_protocol.py:219-266",
+        "api/src/omnis/modules/runs/model_dispatch.py:604-684"
+      ],
+      "contract": "D1/D3 and plan §7.1 Admission: revalidate actual descriptor, qualified source/config/context and command binding on settlement.",
+      "assessment": "settle still invokes unchanged qualified on its own current connection. qualified performs unchanged current read, canonical equality with descriptor prepared bytes, exact body/digest, admitted caps, configuration and dispatch/context/authority correlations. Its prepared mapping can then be reused only for this tail in the same call/T2; no reusable token, trusted flag or transaction/command cache introduced."
+    },
+    {
+      "id": "STRICT-PUBLIC-WRAPPERS",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/runs/model_dispatch.py:460-516",
+        "api/src/omnis/modules/runs/model_protocol.py:398-405"
+      ],
+      "contract": "Standalone persist_configuration and readback must requalify, not trust a retained prepared dictionary.",
+      "assessment": "Public persist_configuration retains read/equality before delegating. Private _persist_configuration has only two product call sites: that wrapper and settle immediately after qualified. Public protocol.readback retains qualified, then identical readback checks. Twelve same-channel SOURCE mutation/restoration controls exercise settle/persist_configuration/readback × context/schema/approval-receipt/unsupported manifest."
+    },
+    {
+      "id": "RECEIPT-USAGE-STATE",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/modules/runs/model_protocol.py:301-339",
+        "api/src/omnis/modules/runs/model_protocol.py:408-503",
+        "api/src/omnis/modules/runs/model_dispatch.py:494-516"
+      ],
+      "contract": "D2: exact durable receipt and ledger accounting; no invented model/provider success.",
+      "assessment": "Configuration receipt is written/reused only under exact equality then fetched by exact owned Ref. Protocol receipt equality/conflict checks and budgets.settle remain. settle obtains fresh budgets.readback after settlement, not the pre-settlement state, then runs the exact old readback tail: exact usage identity and zero output, one protocol receipt, strict envelope/schema, request/body/frame/caps, accepted cold observation and exact configuration receipt. KNOWN is protocol-only, model_calls=0, native_turn=None, costs/provider receipt null. Standalone replay remains receive-only."
+    },
+    {
+      "id": "COMMIT-PUBLICATION",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "code": [
+        "api/src/omnis/supervisor/native_tasks.py:207-211",
+        "api/tests/test_model_admission.py:2160"
+      ],
+      "contract": "Do not publish successful accounting if T2 COMMIT fails.",
+      "assessment": "NativeTaskOwner holds returned accounting locally inside engine.begin and constructs its reply only after successful context exit. A commit/exit failure propagates, not a success. The new SOURCE commit-exit fault reaches settlement then yields CONTROL_UNAVAILABLE with no successful owner return. This is not actual PostgreSQL COMMIT/rollback evidence; the removed extra transaction was redundant qualification, not an independent post-commit durability proof."
+    },
+    {
+      "id": "UNTOUCHED-ORDER-STOP-CAPS",
+      "status": "UNCHANGED_REVIEWED_DELTA_ONLY",
+      "code": [
+        "api/src/omnis/supervisor/native_tasks.py:118-206",
+        "api/src/omnis/modules/runs/model_protocol.py:269-286"
+      ],
+      "contract": "D3: same owner → reserve COMMIT T0 → durable SENT COMMIT B → frozen synthetic UDS under A; T2 post-Stop receive-only.",
+      "assessment": "No delta in T0/A/B, grant/frozen-frame/send fences, failed-send conservative cleanup, mark_sent or reserve. T2 still takes only managed/budget paths and does not request runtime authority/send/new grant. Owner/control4s, grant≤4.5s, exchange≤3.2s and per-request cap, DB waits2s and NO_MODEL accounting semantics unchanged. No reapproval claimed for unrelated qualification/history/H03/batch2/P0/P1."
+    },
+    {
+      "id": "FINITE-OBSERVER",
+      "status": "APPROVED_SOURCE_SCOPED",
+      "code": [
+        "api/tests/test_model_admission_pg.py:89-139",
+        "api/tests/test_model_admission_pg.py:922-936",
+        "api/tests/test_model_admission_pg.py:1105-1109",
+        "api/tests/test_model_admission_pg.py:1211-1229",
+        "api/tests/test_model_admission.py:1789"
+      ],
+      "contract": "No false GREEN from observing only the first budget command; preserve exact errors, finite storage, timers and caller behavior.",
+      "assessment": "Admission cases now register all finite command handlers and route the later accepts/exhaustion commands through the same measured control. Racing caller attribution remains sender/second only for its intended second caller. The unmodified 64-span fail-closed cap, same-task delegation, BaseException rethrow/RAISED classification and sanitized allowlisted snapshots remain. Exact extracted-wrapper SOURCE control proves the fourth original TimeoutError is rethrown by identity and both owner/control rows are RAISED after three positives; no raw exception bytes in rows. New dispatch.read phase only supports validation-work census; no product deadline widened or success assertions weakened."
+    }
+  ],
+  "executed_checks": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_admission.py",
+        "-k",
+        "phase_timing_existing_source_consumer or t2_strict_wrappers or t2_commit_failure or budget_observer_tracks_fourth_command_failure or replay_rejects_resealed",
+        "-q",
+        "--tb=no"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-admission-final-20261016",
+      "exit": 0,
+      "timeout_s": 110,
+      "timed_out": false,
+      "elapsed_seconds": 20.701,
+      "summary": [
+        "25 passed, 55 deselected in 19.83s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-source-review.log",
+      "log_sha256": "ba311e8a850cd78a2016e1053ce51f9a03d39c9a54abc1b563edcdcfd6a46969",
+      "static_unchanged": {
+        "api/src/omnis/modules/runs/model_protocol.py:reserve": true,
+        "api/src/omnis/modules/runs/model_protocol.py:qualified": true,
+        "api/src/omnis/modules/runs/model_protocol.py:mark_sent": true,
+        "api/src/omnis/modules/runs/model_protocol.py:validate_readback": true,
+        "api/src/omnis/modules/runs/model_dispatch.py:read": true,
+        "api/src/omnis/modules/runs/model_dispatch.py:_context": true,
+        "api/src/omnis/modules/runs/model_dispatch.py:accept_preflight": true,
+        "api/src/omnis/modules/runs/model_dispatch.py:_approval": true,
+        "api/src/omnis/modules/runs/model_dispatch.py:read_configuration": true,
+        "readback_check_tail_exact_ast": true
+      },
+      "scope": "SOURCE doubles and test-owned synthetic UDS only; no PG/provider/native process/network effects"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-admission-final-20261016",
+      "exit": 0,
+      "scope": "whitespace only"
+    },
+    {
+      "check": "46 SHA256 values before and after plus base/diff/artifact identity",
+      "exit": 0,
+      "scope": "identity, not runtime correctness"
+    }
+  ],
+  "source_work_reduction": {
+    "validated_by_independent_selected_tests": true,
+    "winning_sender_dispatch_read": 3,
+    "prior_author_red_sender_dispatch_read": 5,
+    "winning_sender_protocol_qualified": 2,
+    "duplicate_second_qualified": 1,
+    "scope": "SOURCE call census only; not a PG timing guarantee"
+  },
+  "historical_pg": {
+    "status": "ORIGINAL_FAIL_PRESERVED; REMEDY_PG_NOT_RUN",
+    "report": "/home/kali/OmnisAI/documents/verification/p2-integration-caps-pg-qa-fail.json",
+    "report_sha256": "bca87570d14f539ab98116fd9caf5251a0385aedd24c0d9ea3736207533deb29",
+    "recorded_original": {
+      "elapsed_seconds": 369.09,
+      "exit": 2,
+      "failed": 3,
+      "failed_nodes": [
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget]",
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]"
+      ],
+      "family_drained": true,
+      "owner": "parent QA proc_30065b667b07",
+      "passed": 105,
+      "rerun_by_this_author": false,
+      "sanitized_report": "/home/kali/.hermes/cache/scratch/p2qa108-0bdv2ly2/sanitized-result.json",
+      "sanitized_sha256": "efc309cd8ea1780ef035947a45f3b68d84f432a2200973dc3aaacfb2876737ec"
+    },
+    "readback_results_allowlist": {
+      "failed_nodes": [
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_caps_validation_immutable_budget_and_deadline[budget]",
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_sent_committed_before_exact_write_and_poststop_readback[send_first]",
+        "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]"
+      ]
+    },
+    "disposition": "send_first and duplicate were localized after settlement in final qualified readback. Budget internal cause remains UNKNOWN because the earlier observer tracked only the first command. SOURCE work reduction and observer repair do not prove any of the three PG failures fixed."
+  },
+  "limits": {
+    "PG": "NOT_RUN_EXPLICITLY_PROHIBITED; no PASS claimed",
+    "native_process_provider_model_target_network": "NOT_RUN; only test-owned synthetic AF_UNIX SOURCE sockets exercised",
+    "canonical": "NOT_RUN; P2/G02/B06b/B06c/B06m NOT_CLOSED",
+    "physical_durability_commit_failure": "NOT_RUN; transaction-exit SOURCE double only",
+    "unsupported_manifest_control": "Refusal may occur before stage eligibility; not stage-valid-v4 proof",
+    "author_broad_checks": "231 SOURCE, 13 quality, Ruff/mypy and 122 collection are author-recorded; not independently rerun here",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "protected_HTML": "NOT_READ_NOT_HASHED_NOT_MODIFIED",
+    "other_profiles_global_r1": "NOT_TOUCHED",
+    "no_changes_to_repository": true,
+    "no_stage_no_commit": true,
+    "parent_adjudicates_integration_and_real_QA": true
+  },
+  "metadata_note": "All 46 files were independently verified. The supplemental unchanged_from_observer_count=40 was not used as an inventory oracle; prior observer manifest path was unavailable, so that historical subtotal is not independently certified. Exactly five tracked changes and the complete current manifest were verified instead.",
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-review-before.json",
+    "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-review-after.json",
+    "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-source-review.log",
+    "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-source-checks.json",
+    "/home/kali/.hermes/cache/scratch/p2-admission-t2-evidence-20261016/normative-review.json"
+  ],
+  "modified_product_files": [],
+  "next_action": "Parent adjudicates this and complementary safety review on identical bytes, then executes only the separately authorized real-consumer QA. Preserve original three FAIL results and UNKNOWN budget cause until measured otherwise."
+}

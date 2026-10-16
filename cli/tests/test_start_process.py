@@ -703,6 +703,7 @@ class StartupProcessTest(unittest.TestCase):
                     else:
                         peer.close()
                     runtime = SimpleNamespace(
+                        native=False,
                         ids=lambda: [],
                         network=lambda allowed: None,
                         uncertain=False,

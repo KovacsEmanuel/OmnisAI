@@ -13,6 +13,116 @@ from omnis_cli.main import main
 
 
 class StartTest(unittest.TestCase):
+    def test_native_normal_start_orders_runtime_before_owner_and_open(self):
+        import importlib
+        import socket
+        import subprocess
+        import time
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from uuid import uuid4
+
+        from omnis_cli.lifecycle import process_identity, read_record, write_record
+
+        start = importlib.import_module("omnis_cli.start")
+        (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
+        root = self.root / "state/omnis"
+        identity = str(uuid4())
+        ids = {
+            role: c * 64
+            for role, c in zip(("db", "runtime", "supervisor", "api"), "abcd", strict=True)
+        }
+        runtime = Mock(
+            native=True,
+            receipt=SimpleNamespace(
+                project="omnis-local-" + "a" * 32,
+                image_id="sha256:" + "b" * 64,
+                runtime_image_id="sha256:" + "e" * 64,
+                docker_id="synthetic-daemon",
+            ),
+            digest="c" * 64,
+            host="unix:///run/docker.sock",
+            deadline=time.monotonic() + 30,
+        )
+        runtime.ids.return_value = []
+        runtime.inspect.return_value = None
+        runtime.psql.return_value = "12345"
+        runtime.wait_container.return_value = {"ExitCode": 0}
+        runtime.attest.return_value = {"State": {"Running": True}}
+        events = []
+        sockets = []
+        self.addCleanup(lambda: [sock.close() for sock in sockets])
+
+        def run(*args, **kwargs):
+            if args[0] == "start":
+                role = next((role for role, cid in ids.items() if cid == args[1]), "migration")
+                events.append(role)
+                if role == "runtime":
+                    for stem, directory in (
+                        ("runtime", root / "native-ipc"),
+                        ("control", self.root / "ipc/omnis"),
+                        ("api", root / "http"),
+                    ):
+                        (directory / f"{stem}.lock").touch(mode=0o600)
+                        sock = socket.socket(socket.AF_UNIX)
+                        sock.bind(str(directory / f"{stem}.sock"))
+                        (directory / f"{stem}.sock").chmod(0o600)
+                        sockets.append(sock)
+                    write_record(
+                        root / "native-ipc/runtime.boot",
+                        {"version": 1, "boot": str(uuid4()), "capability": "a" * 64},
+                    )
+            return subprocess.CompletedProcess([], 0, "migration-id", "")
+
+        runtime.run.side_effect = run
+        current = {
+            "admission_open": False,
+            "generation": 0,
+            "shutdown_command_id": None,
+            "supervisor_epoch": 1,
+        }
+
+        def opening(control, command, **kwargs):
+            self.assertEqual(command["op"], "open")
+            self.assertEqual(events, ["db", "migration", "runtime", "supervisor", "api"])
+            record = read_record(root / "startup.json")
+            self.assertEqual(record["format"], 3)
+            self.assertIsNotNone(record["runtime_ipc"])
+            current.update(admission_open=True, generation=1)
+            events.append("open")
+            return current
+
+        with (
+            patch.object(start, "ControlRuntime", return_value=runtime),
+            patch.object(start, "preflight_port"),
+            patch.object(start, "validate_config"),
+            patch.object(
+                start,
+                "service_ids",
+                side_effect=[
+                    {"db": ids["db"]},
+                    {k: v for k, v in ids.items() if k in {"db", "runtime"}},
+                    ids,
+                    ids,
+                ],
+            ),
+            patch.object(start, "database_identity", return_value=("12345", identity)),
+            patch.object(start, "api_process", return_value=4242),
+            patch.object(start, "wait_dashboard", return_value=current),
+            patch.object(start, "dashboard", return_value=current),
+            patch.object(
+                start,
+                "launch_forwarder",
+                return_value=(None, -1, process_identity(os.getpid()), 123),
+            ),
+            patch.object(start, "listener_owned"),
+            patch.object(start, "request", side_effect=opening),
+        ):
+            code, result = start.start_result(None)
+        self.assertEqual((code, result["state"]), (0, "READY"), result)
+        self.assertEqual(events[-1], "open")
+        self.assertEqual(read_record(root / "startup.json")["phase"], "READY")
+
     def test_fresh_pgdata_identity_is_durable_before_first_mount(self):
         """The first Compose create must see the original, fsynced bind-root identity."""
         import importlib
@@ -230,6 +340,7 @@ class StartTest(unittest.TestCase):
         start = importlib.import_module("omnis_cli.start")
         (self.root / "data/omnis").mkdir(parents=True, mode=0o700)
         runtime = types.SimpleNamespace(
+            native=False,
             receipt=types.SimpleNamespace(
                 project="omnis-local-" + "a" * 32,
                 image_id="sha256:" + "b" * 64,

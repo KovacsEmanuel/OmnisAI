@@ -31,17 +31,23 @@ from .lifecycle import (
     socket_identity,
 )
 from .release import _installed_pointer, _manifest
-from .start import _bound_instance, _check_pgdata
-from .start_runtime import POSTGRES, SAFE_PATH, ControlRuntime, _network_identity
+from .start import _bound_instance, _check_pgdata, check_runtime_ipc, native_fields, service_roles
+from .start_runtime import (
+    POSTGRES,
+    SAFE_PATH,
+    ControlRuntime,
+    _network_identity,
+    attest_runtime_image,
+)
 from .stop import _stopping_record
 from .stop_engine import StopEngine, identifier
 from .stop_receipt import (
-    STAGES,
     completed_receipt,
     encoded,
     fingerprint,
     persist,
     receipt_path,
+    stages,
     validate_grant,
     validate_inventory,
 )
@@ -117,6 +123,10 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
     runtime.deadline, runtime.uncertain, runtime.family_drained = deadline, False, True
     engine = StopEngine(runtime.host, receipt.docker_id, deadline)
     engine.check_daemon()
+    if ("native/source-manifest.json" in runtime.files) != runtime.native:
+        raise StartError("IMAGE_PROFILE_MISMATCH", 4)
+    if runtime.native:
+        attest_runtime_image(engine.image(str(receipt.runtime_image_id)), receipt, runtime.digest)
     item = engine.container(str(mapping(record["containers"])["db"]))
     if item is None:
         raise StartError("STOP_CONTAINER_ABSENT_WITHOUT_ACK", 4)
@@ -225,13 +235,13 @@ def prepare_stop_inventory(
     ids = mapping(record["containers"])
     if set(view.ids()) != set(ids.values()):
         raise StartError("STOP_CONTAINER_DRIFT", 4)
-    network_id = view.network(set(cast(list[str], list(ids.values()))))
+    network_id = view.network({str(cid) for role, cid in ids.items() if role != "runtime"})
     if network_id is None:
         raise StartError("STOP_NETWORK_DRIFT", 4)
     network = view.engine.network(network_id)
     assert network is not None
     containers = []
-    for role in ("api", "supervisor", "db"):
+    for role in service_roles(record):
         cid = str(ids[role])
         item = view.attest(cid, role, root, control, int(str(record["port"])))
         state = mapping(item.get("State"))
@@ -242,7 +252,10 @@ def prepare_stop_inventory(
         ):
             raise StartError("STOP_CONTAINER_NOT_RUNNING", 4)
         nets = mapping(mapping(item.get("NetworkSettings")).get("Networks"))
-        if mapping(nets.get(view.receipt.project + "_control")).get("NetworkID") != network_id:
+        if (
+            role != "runtime"
+            and mapping(nets.get(view.receipt.project + "_control")).get("NetworkID") != network_id
+        ):
             raise StartError("STOP_NETWORK_DRIFT", 4)
         containers.append(
             {
@@ -261,8 +274,9 @@ def prepare_stop_inventory(
     api, ctl = socket_identity(root / "http/api.sock"), socket_identity(control / "control.sock")
     if api != record["api_socket"] or ctl != record["control_socket"]:
         raise StartError("STOP_IPC_DRIFT", 4)
+    check_runtime_ipc(root, record)
     inventory: dict[str, object] = {
-        "version": 1,
+        "version": 2 if native_fields(record) else 1,
         "release": runtime.digest,
         "project": runtime.receipt.project,
         "attempt": record["attempt"],
@@ -285,6 +299,13 @@ def prepare_stop_inventory(
             "cap_digest": fingerprint(private_file(control / "control.cap", limit=64)),
         },
     }
+    if native_fields(record):
+        inventory.update(
+            provider=record["provider_identity"],
+            runtime_dir=record["runtime_dir_identity"],
+            runtime_ipc=record["runtime_ipc"],
+        )
+    validate_inventory(inventory, record)
     # Leave room for the fixed arm-stop command and correlated 4096-byte reply.
     if len(encoded(inventory)) > 2900:
         raise StartError("STOP_INVENTORY_FRAME_LIMIT", 4)
@@ -358,7 +379,7 @@ def _listener_absent(record: dict[str, object]) -> None:
 
 
 def _ipc_absent(root: Path, control: Path, inventory: dict[str, object]) -> None:
-    _ipc_progress(root, control, inventory, {"api", "supervisor"})
+    _ipc_progress(root, control, inventory, {"api", "supervisor", "runtime"})
 
 
 def _ipc_progress(
@@ -366,11 +387,23 @@ def _ipc_progress(
 ) -> None:
     # Existing service locks serialize legitimate writers; no pathname cleanup.
     expected = mapping(inventory["ipc"])
+    native = inventory.get("version") == 2
+    if native:
+        ipc = mapping(inventory["runtime_ipc"])
+        expected.update(runtime=ipc["socket"], runtime_lock=ipc["lock"])
+        from .start_runtime import private_identity
+
+        if (
+            private_identity(root / "provider") != inventory["provider"]
+            or private_identity(root / "native-ipc") != inventory["runtime_dir"]
+        ):
+            raise StartError("STOP_IPC_DRIFT", 4)
     fds: list[int] = []
     try:
         for directory, stem, role in (
             (root / "http", "api", "api"),
             (control, "control", "supervisor"),
+            *(((root / "native-ipc", "runtime", "runtime"),) if native else ()),
         ):
             path = directory / f"{stem}.lock"
             if _file_identity(path) != expected[f"{stem}_lock"]:
@@ -385,12 +418,19 @@ def _ipc_progress(
                     != expected["cap_digest"]
                 ):
                     raise StartError("STOP_IPC_DRIFT", 4)
+                if stem == "runtime":
+                    from .start import runtime_ipc
+
+                    if runtime_ipc(root) != inventory["runtime_ipc"]:
+                        raise StartError("STOP_IPC_DRIFT", 4)
                 continue
             fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK)
             fds.append(fd)  # Includes cleanup if the second acquisition fails.
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            if os.path.lexists(sock) or (
-                stem == "control" and os.path.lexists(control / "control.cap")
+            if (
+                os.path.lexists(sock)
+                or (stem == "control" and os.path.lexists(control / "control.cap"))
+                or (stem == "runtime" and os.path.lexists(root / "native-ipc/runtime.boot"))
             ):
                 raise StartError("STOP_IPC_REMAINS", 4)
     finally:
@@ -531,7 +571,13 @@ def _execute(
     network = mapping(inventory["network"])
     for pinned in containers:
         role, cid = str(pinned["role"]), str(pinned["id"])
-        if set(view.ids()) != remaining_ids or view.network(remaining_ids) != network["id"]:
+        if (
+            set(view.ids()) != remaining_ids
+            or view.network(
+                remaining_ids - {str(row["id"]) for row in containers if row["role"] == "runtime"}
+            )
+            != network["id"]
+        ):
             raise StartError("STOP_RESOURCE_DRIFT", 4)
         item = view.attest(cid, role, root, control, int(str(record["port"])))
         if _container_fingerprint(item) != pinned["config"] or _incarnation(item) != pinned["run"]:
@@ -583,7 +629,7 @@ def _execute(
     _ipc_absent(root, control, inventory)
     _listener_absent(record)
     complete("ipc", "DRAINED", inventory["ipc"])
-    if [entry["stage"] for entry in completed] != list(STAGES):
+    if [entry["stage"] for entry in completed] != list(stages(inventory)):
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
     receipt.update(state="COMPLETED", pending=None)
     persist(path, receipt, replace=True)
@@ -618,8 +664,8 @@ def verify_stop_completion(
     rows = inventory.get("containers")
     if (
         not isinstance(rows, list)
-        or len(rows) != 3
-        or mapping(rows[2]).get("image") != runtime.pg_image
+        or len(rows) != len(service_roles(record))
+        or mapping(rows[-1]).get("image") != runtime.pg_image
     ):
         raise StartError("STOP_INVENTORY_DRIFT", 4)
     if {str(mapping(row).get("role")): mapping(row).get("id") for row in rows} != record[
@@ -696,7 +742,7 @@ def run_stop_owner(
     if os.path.lexists(path):
         raise StartError("STOP_OWNER_REPLAY_REFUSED", 4)
     receipt: dict[str, object] = {
-        "version": 1,
+        "version": inventory["version"],
         "grant": grant,
         "owner": None,
         "launcher": _process_stamp(process_identity(os.getpid())),
@@ -843,7 +889,7 @@ def _entry(channel_fd: int, data_fd: int, state_fd: int) -> int:
         path = receipt_path(root, record)
         receipt = read_record(path)
         expected = {
-            "version": 1,
+            "version": inventory["version"],
             "grant": grant,
             "owner": None,
             "launcher": _process_stamp(process_identity(pid)),

@@ -33,8 +33,11 @@ from .start import (
     _owned_record,
     _pgdata_receipt,
     _ready_record,
+    check_runtime_ipc,
     database_identity,
+    native_fields,
     service_ids,
+    service_roles,
     verify_running,
 )
 from .start import _publish_forwarder as _defer_guard_interrupts
@@ -42,6 +45,10 @@ from .start_runtime import ControlRuntime
 from .stop_receipt import receipt_path, validate_grant
 
 STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
+
+
+def stop_stages(record: dict[str, object]) -> tuple[str, ...]:
+    return ("forwarder", *service_roles(record), "network", "ipc")
 
 
 def _integer(record: dict[str, object], key: str) -> int:
@@ -53,7 +60,7 @@ def _integer(record: dict[str, object], key: str) -> int:
 
 def _containers(record: dict[str, object]) -> dict[str, str]:
     value = record.get("containers")
-    if not isinstance(value, dict) or set(value) != {"db", "api", "supervisor"}:
+    if not isinstance(value, dict) or set(value) != set(service_roles(record)):
         raise StartError("RECOVERY_REQUIRED", 4)
     if any(not isinstance(cid, str) for cid in value.values()):
         raise StartError("RECOVERY_REQUIRED", 4)
@@ -71,6 +78,11 @@ def _expected_sockets(record: dict[str, object]) -> dict[str, list[int]]:
         ):
             raise StartError("RECOVERY_REQUIRED", 4)
         result[stem] = value
+    if native_fields(record):
+        value = mapping(record["runtime_ipc"])["socket"]
+        if not isinstance(value, list):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        result["runtime"] = value
     return result
 
 
@@ -113,7 +125,7 @@ def _stopping_record(record: dict[str, object]) -> None:
     completed = record.get("teardown_completed")
     finalized = record.get("finalized_generation")
     if (
-        set(record) != STOP_FIELDS
+        set(record) != STOP_FIELDS | native_fields(record)
         or type(record.get("phase")) is not str
         or record["phase"] not in {"STOPPING", "STOPPED"}
         or record.get("stop_generation") is not None
@@ -121,13 +133,13 @@ def _stopping_record(record: dict[str, object]) -> None:
         or finalized is not None
         and type(finalized) is not int
         or not isinstance(completed, list)
-        or completed != list(STOP_STAGES[: len(completed)])
+        or completed != list(stop_stages(record)[: len(completed)])
         or finalized is not None
         and finalized != record.get("stop_generation")
         or completed
         and finalized is None
         or record.get("phase") == "STOPPED"
-        and (finalized is None or completed != list(STOP_STAGES))
+        and (finalized is None or completed != list(stop_stages(record)))
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     for key in ("attempt", "stop_command", "finalize_command"):
@@ -193,7 +205,16 @@ def readback_stopped(
     for cid in _containers(record).values():
         if runtime.inspect("container", cid) is not None:
             raise StartError("STOP_READBACK_UNCERTAIN", 4)
-    for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+    for path in (
+        root / "http/api.sock",
+        control / "control.sock",
+        control / "control.cap",
+        *(
+            (root / "native-ipc/runtime.sock", root / "native-ipc/runtime.boot")
+            if native_fields(record)
+            else ()
+        ),
+    ):
         if os.path.lexists(path):
             raise StartError("STOP_READBACK_UNCERTAIN", 4)
     _listener_absent(record)
@@ -226,6 +247,7 @@ def _running_for_stop(
         or socket_identity(control / "control.sock") != record["control_socket"]
     ):
         raise StartError("IPC_IDENTITY_MISMATCH", 4)
+    check_runtime_ipc(root, record)
     current = request(control, {"op": "status"}, deadline=runtime.deadline)
     if current["instance_id"] != instance.instance_id or current["assessment_ready"] is not False:
         raise StartError("INSTANCE_CONTROL_MISMATCH", 4)
@@ -244,9 +266,10 @@ def _emergency_inventory(
     elif record.get("phase") == "FORWARDING":
         command = record.get("open_command")
         if (
-            set(record) != READY_FIELDS - {"generation", "supervisor_epoch"}
+            set(record)
+            != (READY_FIELDS | native_fields(record)) - {"generation", "supervisor_epoch"}
             or type(record.get("format")) is not int
-            or record["format"] != 2
+            or record["format"] not in (2, 3)
             or not isinstance(command, str)
         ):
             raise StartError("RECOVERY_REQUIRED", 4)
@@ -264,13 +287,14 @@ def _emergency_inventory(
     _bound_instance(runtime, root, control, record)
     port = _integer(record, "port")
     runtime.attempt = attempt
+    check_runtime_ipc(root, record)
     _expected_sockets(record)
     ids = _containers(record)
     if set(runtime.ids()) != set(ids.values()):
         raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
     for role, cid in ids.items():
         runtime.attest(cid, role, root, control, port)
-    if runtime.network(set(ids.values())) is None:
+    if runtime.network({cid for role, cid in ids.items() if role != "runtime"}) is None:
         raise StartError("NETWORK_IDENTITY_MISMATCH", 4)
 
 
@@ -301,7 +325,7 @@ def _emergency_drain(
                 raise StartError("FORWARDER_STOP_UNCERTAIN", 4)
         finally:
             os.close(fd)
-    for role in ("api", "supervisor", "db"):
+    for role in service_roles(record):
         cid = ids[role]
         if role == "db" and (runtime.uncertain or not runtime.family_drained):
             raise StartError("DATABASE_RETAINED_UNCERTAIN_WRITERS", 4)
@@ -325,10 +349,21 @@ def _emergency_drain(
     if (
         runtime.uncertain
         or not runtime.family_drained
-        or cleanup_startup_ipc(root, control, expected=_expected_sockets(record))
+        or cleanup_startup_ipc(
+            root, control, expected=_expected_sockets(record), native=bool(native_fields(record))
+        )
     ):
         raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
-    for path in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
+    for path in (
+        root / "http/api.sock",
+        control / "control.sock",
+        control / "control.cap",
+        *(
+            (root / "native-ipc/runtime.sock", root / "native-ipc/runtime.boot")
+            if native_fields(record)
+            else ()
+        ),
+    ):
         if os.path.lexists(path):
             raise StartError("STOP_READBACK_UNCERTAIN", 4)
     _listener_absent(record)
@@ -376,9 +411,9 @@ def _emergency_stop(
 
 def _complete_stage(path: Path, record: dict[str, object], stage: str) -> None:
     completed = record.get("teardown_completed")
-    if not isinstance(completed, list) or len(completed) >= len(STOP_STAGES):
+    if not isinstance(completed, list) or len(completed) >= len(stop_stages(record)):
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-    if STOP_STAGES[len(completed)] != stage:
+    if stop_stages(record)[len(completed)] != stage:
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
     record["teardown_completed"] = [*completed, stage]
     write_record(path, record, replace=True)
@@ -439,7 +474,7 @@ def _resume_owned(
     completed = record["teardown_completed"]
     if not isinstance(completed, list):
         raise StartError("RECOVERY_REQUIRED", 4)
-    for role in ("api", "supervisor", "db"):
+    for role in service_roles(record):
         cid = ids[role]
         item = runtime.inspect("container", cid)
         if role in completed:
@@ -495,7 +530,7 @@ def _resume_owned(
         _listener_absent(record)
         _complete_stage(path, record, "forwarder")
 
-    for role in ("api", "supervisor", "db"):
+    for role in service_roles(record):
         if role in completed:
             continue
         cid = ids[role]
@@ -530,7 +565,9 @@ def _resume_owned(
     if runtime.uncertain or not runtime.family_drained:
         raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
     if "ipc" not in completed:
-        if cleanup_startup_ipc(root, control, expected=_expected_sockets(record)):
+        if cleanup_startup_ipc(
+            root, control, expected=_expected_sockets(record), native=bool(native_fields(record))
+        ):
             raise StartError("STOP_CLEANUP_UNCERTAIN", 4)
         _complete_stage(path, record, "ipc")
     for candidate in (root / "http/api.sock", control / "control.sock", control / "control.cap"):
@@ -546,7 +583,7 @@ def _publish_stopped(
 
     _check_pgdata(root, record)
     verify_stop_completion(runtime, root, control, record)
-    record["teardown_completed"] = list(STOP_STAGES)
+    record["teardown_completed"] = list(stop_stages(record))
     record["phase"] = "STOPPED"
     write_record(path, record, replace=True)
     if read_record(path) != record:

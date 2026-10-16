@@ -46,8 +46,14 @@ from .lifecycle import (
     write_record,
 )
 from .release import _RELEASE, _put
-from .start_runtime import (POSTGRES, SAFE_PATH, ControlRuntime, check_native_paths,
-                            private_identity, settings_overlay)
+from .start_runtime import (
+    POSTGRES,
+    SAFE_PATH,
+    ControlRuntime,
+    check_native_paths,
+    private_identity,
+    settings_overlay,
+)
 
 EXPECTED_SCHEMA = "0013_mission_revisions"
 READY_FIELDS = {
@@ -97,6 +103,56 @@ START_FIELDS = {
 }
 
 
+NATIVE_FIELDS = {"runtime_image_id", "provider_identity", "runtime_dir_identity", "runtime_ipc"}
+
+
+def native_fields(record: dict[str, object]) -> set[str]:
+    return NATIVE_FIELDS if type(record.get("format")) is int and record["format"] == 3 else set()
+
+
+def service_roles(record: dict[str, object]) -> tuple[str, ...]:
+    return (
+        ("api", "supervisor", "runtime", "db")
+        if native_fields(record)
+        else ("api", "supervisor", "db")
+    )
+
+
+def runtime_ipc(root: Path) -> dict[str, object]:
+    """Observe boot files only. A second RuntimeClient would retire the real owner."""
+    import hashlib
+
+    from .instance import unique_pairs
+
+    directory = root / "native-ipc"
+    private_dir(directory)
+    raw = private_file(directory / "runtime.boot", limit=1024)
+    metadata = mapping(json.loads(raw, object_pairs_hook=unique_pairs))
+    if (
+        set(metadata) != {"version", "boot", "capability"}
+        or type(metadata["version"]) is not int
+        or metadata["version"] != 1
+        or not _receipt_uuid(metadata["boot"])
+        or type(metadata["capability"]) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", str(metadata["capability"])) is None
+    ):
+        raise StartError("RUNTIME_BOOT_INVALID", 4)
+    private_file(directory / "runtime.lock", limit=1024)
+    lock, boot = (directory / "runtime.lock").lstat(), (directory / "runtime.boot").lstat()
+    return {
+        "socket": socket_identity(directory / "runtime.sock"),
+        "lock": [lock.st_dev, lock.st_ino],
+        "file": [boot.st_dev, boot.st_ino],
+        "boot": metadata["boot"],
+        "digest": hashlib.sha256(raw.encode()).hexdigest(),
+    }
+
+
+def check_runtime_ipc(root: Path, record: dict[str, object]) -> None:
+    if native_fields(record) and runtime_ipc(root) != record["runtime_ipc"]:
+        raise StartError("RUNTIME_IPC_CHANGED", 4)
+
+
 def preflight_port(port: int) -> None:
     if type(port) is not int or not 1024 <= port <= 65535:
         raise StartError("PORT_INVALID")
@@ -129,7 +185,7 @@ def environment(runtime: ControlRuntime, root: Path, control: Path, port: int) -
 def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
     config = mapping(json.loads(runtime.compose(env, "config", "--format", "json").stdout))
     services = mapping(config.get("services"))
-    if runtime.native:
+    if runtime.native is True:
         expected_runtime = mapping(settings_overlay(runtime, env)["services"])["runtime"]
         if services.pop("runtime", None) != expected_runtime:
             raise StartError("COMPOSE_RUNTIME_INVALID")
@@ -259,10 +315,15 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                         "target": "/run/omnis-http",
                     }
                 )
-        if role == "supervisor" and runtime.native:
+        if role == "supervisor" and runtime.native is True:
             expected_environment["OMNIS_RUNTIME_DIR"] = "/runtime"
-            expected_mounts.append({"type": "bind", "source": f"{env['OMNIS_STATE_ROOT']}/native-ipc",
-                                    "target": "/runtime"})
+            expected_mounts.append(
+                {
+                    "type": "bind",
+                    "source": f"{env['OMNIS_STATE_ROOT']}/native-ipc",
+                    "target": "/runtime",
+                }
+            )
         mounts = service.get("volumes")
         if (
             not isinstance(mounts, list)
@@ -564,7 +625,12 @@ def cleanup_attempt(
         except (OSError, ValueError, subprocess.SubprocessError):
             problems.append("identity")
             drained = False
-    for ident, role in sorted(roles.items(), key=lambda pair: pair[1] == "db"):
+    for ident, role in sorted(
+        roles.items(),
+        key=lambda pair: ("api", "supervisor", "runtime", "migrate", "reconcile", "db").index(
+            pair[1]
+        ),
+    ):
         if role == "db" and (not drained or runtime.uncertain or not runtime.family_drained):
             problems.append("database retained under uncertain writers")
             continue
@@ -596,11 +662,16 @@ def cleanup_attempt(
     except (OSError, ValueError, subprocess.SubprocessError):
         problems.append("network readback")
     if not problems and not runtime.uncertain and runtime.family_drained:
-        problems.extend(cleanup_startup_ipc(root, control))
+        problems.extend(cleanup_startup_ipc(root, control, native=runtime.native is True))
     for path in (
         root / "http/api.sock",
         control / "control.sock",
         control / "control.cap",
+        *(
+            (root / "native-ipc/runtime.sock", root / "native-ipc/runtime.boot")
+            if runtime.native is True
+            else ()
+        ),
     ):
         if os.path.lexists(path):
             problems.append("IPC retained")  # Never unlink an uncertain/stale peer.
@@ -673,12 +744,12 @@ def _owned_record(record: dict[str, object]) -> None:
         or not Path(control).is_absolute()
         or not _receipt_int(record.get("port"), 1024, 65535)
         or type(containers) is not dict
-        or set(containers) != {"db", "api", "supervisor"}
+        or set(containers) != set(service_roles(record))
         or any(
             type(cid) is not str or re.fullmatch(r"[0-9a-f]{64}", cid) is None
             for cid in containers.values()
         )
-        or len(set(containers.values())) != 3
+        or len(set(containers.values())) != len(service_roles(record))
         or type(forwarder) is not dict
         or set(forwarder) != {"pid", "start_ticks", "boot_id", "executable", "argv"}
         or not _receipt_int(forwarder["pid"], 2)
@@ -733,9 +804,9 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
     if (
         type(phase) is not str
         or phase not in fields
-        or set(record) not in fields[phase]
+        or set(record) not in tuple(value | native_fields(record) for value in fields[phase])
         or type(record.get("format")) is not int
-        or record["format"] != 2
+        or record["format"] not in (2, 3)
         or type(value) is not list
         or len(value) != 2
         or any(type(part) is not int or part < 0 for part in value)
@@ -749,20 +820,49 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
         )
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
+    if native_fields(record):
+        for key in ("provider_identity", "runtime_dir_identity"):
+            identity = record.get(key)
+            if (
+                type(identity) is not list
+                or len(identity) != 5
+                or any(type(v) is not int or v < 0 for v in identity)
+                or identity[1] == 0
+                or identity[2:] != [os.getuid(), os.getgid(), 0o700]
+            ):
+                raise StartError("RECOVERY_REQUIRED", 4)
+        if (
+            not isinstance(record.get("runtime_image_id"), str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", str(record["runtime_image_id"])) is None
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
+        if phase in {"READY", "FORWARDING", "STOPPING", "STOPPED"}:
+            ipc = record.get("runtime_ipc")
+            if (
+                type(ipc) is not dict
+                or set(ipc) != {"socket", "lock", "file", "boot", "digest"}
+                or any(not _socket_receipt(ipc[key]) for key in ("socket", "lock", "file"))
+                or not _receipt_uuid(ipc["boot"])
+                or type(ipc["digest"]) is not str
+                or re.fullmatch(r"[0-9a-f]{64}", ipc["digest"]) is None
+            ):
+                raise StartError("RECOVERY_REQUIRED", 4)
     return value
 
 
 def _check_pgdata(root: Path, record: dict[str, object]) -> None:
+    if native_fields(record):
+        check_native_paths(root, record)
     if _pgdata_identity(root) != _pgdata_receipt(record):
         raise StartError("RECOVERY_REQUIRED", 4)
 
 
 def _ready_record(record: dict[str, object]) -> None:
     if (
-        set(record) != READY_FIELDS
+        set(record) != READY_FIELDS | native_fields(record)
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
-        or record["format"] != 2
+        or record["format"] not in (2, 3)
         or type(record.get("generation")) is not int
         or type(record.get("supervisor_epoch")) is not int
         or type(record.get("containers")) is not dict
@@ -782,6 +882,10 @@ def _bound_instance(
     _pgdata_receipt(record)
     _owned_record(record)
     instance = load_instance(root)
+    if bool(native_fields(record)) != (runtime.native is True) or (
+        native_fields(record) and record["runtime_image_id"] != runtime.receipt.runtime_image_id
+    ):
+        raise StartError("IMAGE_PROFILE_MISMATCH", 4)
     if (
         record["project"] != instance.project
         or instance.project != runtime.receipt.project
@@ -816,7 +920,7 @@ def verify_running(
     if record.get("phase") != "READY" or record.get("port") != port:
         raise StartError("RECOVERY_REQUIRED", 4)
     ids = service_ids(runtime, root, control, port)
-    if set(ids) != {"db", "api", "supervisor"} or ids != record.get("containers"):
+    if set(ids) != set(service_roles(record)) or ids != record.get("containers"):
         raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
     if database_identity(runtime, ids["db"]) != (
         record.get("system_id"),
@@ -835,6 +939,7 @@ def verify_running(
         raise StartError("FORWARDER_RECORD_INVALID", 4)
 
     def route_owned() -> None:
+        check_runtime_ipc(root, record)
         listener_owned(identity, port, inode)
         if socket_identity(root / "http/api.sock") != record.get("api_socket") or socket_identity(
             control / "control.sock"
@@ -938,6 +1043,8 @@ def start_instance(
             raise StartError("PRIVATE_PATH_INVALID")
     if root == control or root in control.parents and control != root / "runtime-ipc":
         raise StartError("IPC_LAYOUT_INVALID")
+    if runtime.native is True and len(os.fsencode(root / "native-ipc/runtime.sock")) >= 108:
+        raise StartError("PRIVATE_PATH_INVALID")
     data_root = data_home / "omnis"
     if root == data_root or root in data_root.parents or data_root in root.parents:
         raise StartError("PRIVATE_PATH_OVERLAP")
@@ -965,7 +1072,10 @@ def start_instance(
             else:
                 return verify_running(runtime, root, control, record, selected)
         if restarting is None and (
-            os.path.lexists(root / "instance.json") or os.path.lexists(root / "postgres")
+            os.path.lexists(root / "instance.json")
+            or os.path.lexists(root / "postgres")
+            or os.path.lexists(root / "provider")
+            or os.path.lexists(root / "native-ipc")
         ):
             raise StartError("UNOWNED_STATE_RECOVERY_REQUIRED", 4)
         if restarting is None:
@@ -980,10 +1090,20 @@ def start_instance(
             or runtime.inspect("network", f"{runtime.receipt.project}_control") is not None
         ):
             raise StartError("PREEXISTING_RESOURCES_REFUSED", 4)
-        for path in (control, root / "http"):
+        for path in (
+            control,
+            root / "http",
+            *((root / "native-ipc",) if runtime.native is True else ()),
+        ):
             if os.path.lexists(path):
                 private_dir(path)
-                allowed = {"control.lock"} if path == control else {"api.lock"}
+                allowed = (
+                    {"control.lock"}
+                    if path == control
+                    else {"runtime.lock"}
+                    if path == root / "native-ipc"
+                    else {"api.lock"}
+                )
                 if any(item.name not in allowed for item in path.iterdir()):
                     raise StartError("PREEXISTING_IPC_REFUSED", 4)
         if restarting is not None:
@@ -1010,6 +1130,17 @@ def start_instance(
             "containers": {},
             "pgdata_identity": restarting["pgdata_identity"] if restarting is not None else None,
         }
+        if runtime.native is True:
+            if restarting is None:
+                ensure_private(root / "provider")
+                ensure_private(root / "native-ipc")
+            record.update(
+                format=3,
+                runtime_image_id=runtime.receipt.runtime_image_id,
+                provider_identity=private_identity(root / "provider"),
+                runtime_dir_identity=private_identity(root / "native-ipc"),
+                runtime_ipc=None,
+            )
         restart_intent = None
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
@@ -1118,6 +1249,33 @@ def start_instance(
                 raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
             if restart_intent is not None:
                 reconcile_database(runtime, root, control, record, restart_intent, env)
+            if runtime.native is True:
+                check_native_paths(root, record)
+                runtime.compose(
+                    env,
+                    "create",
+                    "--no-recreate",
+                    "--no-build",
+                    "--pull",
+                    "never",
+                    "runtime",
+                    effect=True,
+                )
+                ids = service_ids(runtime, root, control, selected)
+                if set(ids) != {"db", "runtime"}:
+                    raise StartError("SERVICE_SET_MISMATCH", 3)
+                record["containers"] = ids
+                write_record(journal, record, replace=True)
+                runtime.run("start", ids["runtime"], effect=True)
+                until = min(deadline, time.monotonic() + 15)
+                while True:
+                    try:
+                        record["runtime_ipc"] = runtime_ipc(root)
+                        break
+                    except FileNotFoundError:
+                        remaining(until)
+                        time.sleep(0.05)
+                runtime.attest(ids["runtime"], "runtime", root, control, selected)
             record.update(phase="SERVICES", instance_id=identity)
             write_record(journal, record, replace=True)
             runtime.compose(
@@ -1132,11 +1290,15 @@ def start_instance(
                 effect=True,
             )
             ids = service_ids(runtime, root, control, selected)
-            if set(ids) != {"db", "supervisor", "api"}:
+            if set(ids) != set(service_roles(record)):
                 raise StartError("SERVICE_SET_MISMATCH", 3)
             record["containers"] = ids
             write_record(journal, record, replace=True)
-            runtime.run("start", ids["supervisor"], ids["api"], effect=True)
+            if runtime.native is True:
+                runtime.run("start", ids["supervisor"], effect=True)
+                runtime.run("start", ids["api"], effect=True)
+            else:
+                runtime.run("start", ids["supervisor"], ids["api"], effect=True)
             api_pid = api_process(runtime, ids["api"], root, control, selected)
             # VERIFYING is the HTTP/control wait, after the last Docker attestation.
             record["phase"] = "VERIFYING"

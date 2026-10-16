@@ -33,6 +33,7 @@ class ReadyJournalTest(unittest.TestCase):
             identity, "0.1.0", "0013_mission_revisions", project, f"http://127.0.0.1:{self.port}"
         )
         self.runtime = SimpleNamespace(
+            native=False,
             digest="b" * 64,
             host="unix:///run/docker.sock",
             receipt=SimpleNamespace(

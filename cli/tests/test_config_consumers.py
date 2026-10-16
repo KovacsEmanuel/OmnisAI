@@ -41,6 +41,7 @@ class ConfigConsumersTest(unittest.TestCase):
         self.write_config("startup_timeout_seconds=30\ncleanup_timeout_seconds=31")
         for index, (flags, allowance) in enumerate((([], 31), (["--cleanup-timeout", "40"], 40))):
             runtime = SimpleNamespace(
+                native=False,
                 receipt=SimpleNamespace(
                     project="omnis-local-" + "a" * 32,
                     image_id="sha256:" + "b" * 64,

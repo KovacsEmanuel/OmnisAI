@@ -2,6 +2,7 @@
 
 import asyncio
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
@@ -12,6 +13,124 @@ import pytest
 from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.service import RuntimeAuthority
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
+
+
+@pytest.mark.asyncio
+async def test_normal_supervisor_settings_after_open_uses_its_single_client(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Normal entry wiring + real adapter UDS; DB and native save are SOURCE doubles."""
+    from contextlib import asynccontextmanager
+
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    from omnis.modules.settings.provider_models import SettingsControl
+    from omnis.supervisor import __main__ as consumer
+
+    service = Mock()
+    engine = Mock(dispose=AsyncMock())
+    generation = 0
+    service.acquire = AsyncMock(return_value=1)
+    service.release = AsyncMock()
+    service.heartbeat = AsyncMock()
+    service.owned_status = AsyncMock(
+        side_effect=lambda *a: SimpleNamespace(
+            generation=generation, admission_open=generation == 1, shutdown_command_id=None
+        )
+    )
+
+    async def grant(
+        owner: object, epoch: int, current: int, *, management: bool
+    ) -> RuntimeAuthority:
+        if current != generation:
+            raise ControlConflict(ControlCode.GENERATION_CONFLICT)
+        return RuntimeAuthority(current, epoch, time.monotonic_ns() + 4_000_000_000)
+
+    service.runtime_authority = AsyncMock(side_effect=grant)
+    ready = asyncio.Event()
+    closed = asyncio.Event()
+    ctl = SimpleNamespace(settings=None)
+
+    @asynccontextmanager
+    async def control(*args: object, **kwargs: object) -> AsyncIterator[SimpleNamespace]:
+        assert kwargs == {"native_prepare": None, "native_task": None}
+        try:
+            yield ctl
+        finally:
+            closed.set()
+
+    async def quiesce(*args: object) -> None:
+        ready.set()
+
+    service.quiesce = AsyncMock(side_effect=quiesce)
+    host = RuntimeHost(ipc_directory)
+    selected = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
+    native = AsyncMock(return_value=selected)
+    monkeypatch.setattr(host, "_settings_native", native)
+    monkeypatch.setattr(consumer, "database_engine", lambda _: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda _: service)
+    monkeypatch.setattr(consumer, "LocalControl", control)
+    clients: list[RuntimeClient] = []
+
+    def client(directory: Path, *, generation: int, epoch: int) -> RuntimeClient:
+        value = RuntimeClient(directory, generation=generation, epoch=epoch)
+        clients.append(value)
+        return value
+
+    monkeypatch.setattr(consumer, "RuntimeClient", client)
+    for key in (
+        "OMNIS_RUNTIME_INERT_PROBE",
+        "OMNIS_RUNTIME_CASE_ID",
+        "OMNIS_RUNTIME_STATE_ROOT",
+        "OMNIS_NATIVE_PREPARATION_CATALOG_ROOT",
+        "OMNIS_MANAGED_TASKS",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", "synthetic")
+    monkeypatch.setenv("OMNIS_CONTROL_DIR", str(ipc_directory / "unused-control"))
+    monkeypatch.setenv("OMNIS_RUNTIME_DIR", str(ipc_directory))
+    async with host:
+        task = asyncio.create_task(consumer.run())
+        try:
+            await asyncio.wait_for(ready.wait(), 1)
+            assert len(clients) == 1 and clients[0].generation == 0
+            assert host.state == "IDLE"
+            native.assert_not_awaited()
+            generation = 1  # SOURCE DB OPEN commit, not a client-authorized generation.
+            operation_id = str(uuid4())
+            command = SettingsControl.model_validate(
+                {
+                    "op": "settings",
+                    "operation_id": operation_id,
+                    "command": {
+                        "operation_id": operation_id,
+                        "action": "save",
+                        "selection": selected,
+                    },
+                }
+            )
+            result = await ctl.settings(command)
+            assert result["status"] == "PENDING"
+            async with asyncio.timeout(1):
+                while result["status"] == "PENDING":
+                    await asyncio.sleep(0.001)
+                    result = await ctl.settings(
+                        SettingsControl.model_validate(
+                            {"op": "settings", "operation_id": operation_id, "command": None}
+                        )
+                    )
+            assert result["selection"] == selected and result["status"] == "CONFIRMED"
+            assert clients[0].generation == host.generation == 1
+            assert service.runtime_drain == clients[0].drain
+        finally:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        assert closed.is_set()
+        service.release.assert_awaited_once()
 
 
 @pytest.mark.asyncio

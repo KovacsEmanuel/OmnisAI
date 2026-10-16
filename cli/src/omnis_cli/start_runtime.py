@@ -35,6 +35,24 @@ SAFE_PATH = "/usr/bin:/bin"
 RUNTIME_COMMAND = ("/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host")
 
 
+def attest_runtime_image(image: dict[str, object], receipt: ImageReceipt, digest: str) -> None:
+    config = mapping(image.get("Config"))
+    labels = mapping(config.get("Labels"))
+    if (
+        image.get("Id") != receipt.runtime_image_id
+        or image.get("Architecture") != "amd64"
+        or image.get("Os") != "linux"
+        or config.get("User") != "65532:65532"
+        or config.get("Entrypoint") not in (None, [])
+        or config.get("Cmd") != list(RUNTIME_COMMAND)
+        or labels.get("org.omnis.project") != receipt.project
+        or labels.get("org.omnis.bundle_sha256") != digest
+        or labels.get("org.omnis.profile") != "p4a-settings-offline"
+        or labels.get("org.omnis.image-role") != "runtime"
+    ):
+        raise StartError("RUNTIME_IMAGE_IDENTITY_MISMATCH", 4)
+
+
 def private_identity(path: Path) -> list[int]:
     private_dir(path)
     info = path.lstat()
@@ -46,9 +64,12 @@ def private_identity(path: Path) -> list[int]:
 def check_native_paths(root: Path, record: dict[str, object] | None = None) -> None:
     if record is None:
         record = read_record(root / "startup.json")
-    if (type(record.get("format")) is not int or record["format"] != 3
+    if (
+        type(record.get("format")) is not int
+        or record["format"] != 3
         or private_identity(root / "provider") != record.get("provider_identity")
-        or private_identity(root / "native-ipc") != record.get("runtime_dir_identity")):
+        or private_identity(root / "native-ipc") != record.get("runtime_dir_identity")
+    ):
         raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
 
 
@@ -57,21 +78,29 @@ def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str
     root = Path(env["OMNIS_STATE_ROOT"])
     check_native_paths(root)
     ipc = {"type": "bind", "source": str(root / "native-ipc"), "target": "/runtime"}
-    return {"services": {
-        "supervisor": {"environment": {"OMNIS_RUNTIME_DIR": "/runtime"}, "volumes": [ipc]},
-        "runtime": {
-            "image": runtime.receipt.runtime_image_id,
-            "pull_policy": "never", "platform": "linux/amd64", "restart": "no",
-            "labels": {"org.omnis.start-attempt": runtime.attempt},
-            "command": list(RUNTIME_COMMAND),
-            "user": f"{os.getuid()}:{os.getgid()}",
-            "read_only": True, "cap_drop": ["ALL"],
-            "security_opt": ["no-new-privileges:true"], "network_mode": "none",
-            "environment": {"OMNIS_RUNTIME_DIR": "/runtime"},
-            "volumes": [ipc, {"type": "bind", "source": str(root / "provider"),
-                              "target": "/state/provider"}],
-        },
-    }}
+    return {
+        "services": {
+            "supervisor": {"environment": {"OMNIS_RUNTIME_DIR": "/runtime"}, "volumes": [ipc]},
+            "runtime": {
+                "image": runtime.receipt.runtime_image_id,
+                "pull_policy": "never",
+                "platform": "linux/amd64",
+                "restart": "no",
+                "labels": {"org.omnis.start-attempt": runtime.attempt},
+                "command": list(RUNTIME_COMMAND),
+                "user": f"{os.getuid()}:{os.getgid()}",
+                "read_only": True,
+                "cap_drop": ["ALL"],
+                "security_opt": ["no-new-privileges:true"],
+                "network_mode": "none",
+                "environment": {"OMNIS_RUNTIME_DIR": "/runtime"},
+                "volumes": [
+                    ipc,
+                    {"type": "bind", "source": str(root / "provider"), "target": "/state/provider"},
+                ],
+            },
+        }
+    }
 
 
 def _network_identity(
@@ -117,10 +146,8 @@ class ControlRuntime:
         self.receipt: ImageReceipt = receipt
         if ("native/source-manifest.json" in self.files) != (receipt.profile is not None):
             raise StartError("IMAGE_PROFILE_MISMATCH")
-        # Artifact admission does not silently reinterpret the three-service
-        # lifecycle. The finite native topology must be installed as one unit.
-        if receipt.profile is not None:
-            raise StartError("NATIVE_LIFECYCLE_REQUIRED")
+        # The finite profile below selects both the four-role template and its
+        # independently installed runtime image. No ambient configuration opts in.
         if (
             platform.system() != "Linux"
             or platform.machine() != "x86_64"
@@ -155,6 +182,16 @@ class ControlRuntime:
             or labels.get("org.omnis.bundle_sha256") != self.digest
         ):
             raise StartError("IMAGE_IDENTITY_MISMATCH")
+        if self.native:
+            native_image = self.inspect("image", str(receipt.runtime_image_id))
+            native_tag = self.inspect("image", str(receipt.runtime_tag))
+            if (
+                native_image is None
+                or native_tag is None
+                or native_tag.get("Id") != receipt.runtime_image_id
+            ):
+                raise StartError("RUNTIME_IMAGE_REQUIRED")
+            attest_runtime_image(native_image, receipt, self.digest)
         tagged = self.inspect("image", receipt.tag)
         if tagged is None or tagged.get("Id") != receipt.image_id:
             raise StartError("IMAGE_RECEIPT_MISMATCH")
@@ -435,8 +472,13 @@ class ControlRuntime:
         state = mapping(item.get("State"))
         networks = mapping(net.get("Networks"))
         network_name = "none" if role == "runtime" else self.receipt.project + "_control"
-        image_id = (self.pg_image if role == "db" else
-                    self.receipt.runtime_image_id if role == "runtime" else self.receipt.image_id)
+        image_id = (
+            self.pg_image
+            if role == "db"
+            else self.receipt.runtime_image_id
+            if role == "runtime"
+            else self.receipt.image_id
+        )
         exited = state.get("Status") == "exited" and state.get("Running") is False
         if (
             item.get("Id") != ident
@@ -457,7 +499,9 @@ class ControlRuntime:
                 and any(value not in (None, []) for value in mapping(net["Ports"]).values())
             )
             or host.get("NetworkMode") != network_name
-            or (role == "runtime" and host.get("Init") not in (None, False))
+            or (
+                role == "runtime" and host.get("Init") is not None and host.get("Init") is not False
+            )
             or (set(networks) != {network_name} and not (exited and networks == {}))
             or host.get("PidMode") not in (None, "")
             or host.get("IpcMode") != "private"
@@ -480,7 +524,13 @@ class ControlRuntime:
         if self.native:
             for cid in list(control_ids):
                 candidate = self.inspect("container", cid)
-                if candidate is not None and mapping(mapping(candidate.get("Config")).get("Labels")).get("com.docker.compose.service") == "runtime":
+                if (
+                    candidate is not None
+                    and mapping(mapping(candidate.get("Config")).get("Labels")).get(
+                        "com.docker.compose.service"
+                    )
+                    == "runtime"
+                ):
                     control_ids.remove(cid)
         network_id = self.network(control_ids)
         if networks and role != "runtime":
@@ -521,6 +571,8 @@ class ControlRuntime:
             or host.get("SecurityOpt") != ["no-new-privileges:true"]
         ):
             raise StartError("CONTROL_CONFINEMENT_MISMATCH", 3)
+        if not isinstance(image_id, str):
+            raise StartError("IMAGE_IDENTITY_MISMATCH", 4)
         image = self.inspect("image", image_id)
         if image is None or image.get("Id") != image_id:
             raise StartError("IMAGE_IDENTITY_MISMATCH", 4)

@@ -58,6 +58,7 @@ class StartBoundaryTest(unittest.TestCase):
         active = peak = 0
         guard = threading.Lock()
         runtime = SimpleNamespace(
+            native=False,
             receipt=SimpleNamespace(
                 project="omnis-local-" + "a" * 32,
                 image_id="sha256:" + "b" * 64,

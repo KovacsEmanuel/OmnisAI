@@ -9,8 +9,13 @@ ROLES = ("db", "api", "supervisor", "migrate", "reconcile")
 
 def image_item(runtime, role):
     db = role == "db"
+    native = role == "runtime"
     return {
-        "Id": runtime.pg_image if db else runtime.receipt.image_id,
+        "Id": runtime.pg_image
+        if db
+        else runtime.receipt.runtime_image_id
+        if native
+        else runtime.receipt.image_id,
         "Os": "linux",
         "Architecture": "amd64",
         "RepoDigests": [POSTGRES.replace(":18.6-bookworm", "")] if db else [],
@@ -38,6 +43,8 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
             POSTGRES_PASSWORD_FILE="/run/secrets/db_password",
             POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256",
         )
+    elif role == "runtime":
+        env["OMNIS_RUNTIME_DIR"] = "/runtime"
     else:
         env["OMNIS_DATABASE_URL"] = "postgresql+psycopg://omnis:" + "a" * 48 + "@db:5432/omnis"
         if role in {"migrate", "reconcile"}:
@@ -46,6 +53,8 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
             env["OMNIS_CONTROL_DIR"] = "/run/omnis-control"
         if role == "api":
             env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
+    if role == "supervisor" and getattr(runtime.receipt, "profile", None):
+        env["OMNIS_RUNTIME_DIR"] = "/runtime"
     mounts = []
     if db:
         mounts = [
@@ -56,6 +65,13 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
         mounts = [(str(control), "/run/omnis-control", role == "supervisor")]
         if role == "api":
             mounts.append((str(root / "http"), "/run/omnis-http", True))
+        elif getattr(runtime.receipt, "profile", None):
+            mounts.append((str(root / "native-ipc"), "/runtime", True))
+    elif role == "runtime":
+        mounts = [
+            (str(root / "native-ipc"), "/runtime", True),
+            (str(root / "provider"), "/state/provider", True),
+        ]
     name = runtime.receipt.project + "-" + role + ("-1" if role in ROLES[:3] else "")
     return {
         "Id": cid,
@@ -63,6 +79,7 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
         "Image": image["Id"],
         "Config": {
             "Cmd": {
+                "runtime": ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"],
                 "db": ["postgres"],
                 "api": ["python", "-I", "-m", "omnis.serve"],
                 "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
@@ -88,7 +105,7 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
             "Privileged": False,
             "PublishAllPorts": False,
             "PortBindings": {},
-            "NetworkMode": runtime.receipt.project + "_control",
+            "NetworkMode": "none" if role == "runtime" else runtime.receipt.project + "_control",
             "PidMode": "",
             "IpcMode": "private",
             "CapAdd": None,
@@ -103,7 +120,9 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
         },
         "NetworkSettings": {
             "Ports": {"5432/tcp": None} if db else {},
-            "Networks": {
+            "Networks": {"none": {"NetworkID": "2" * 64}}
+            if role == "runtime"
+            else {
                 runtime.receipt.project + "_control": {
                     "NetworkID": "1" * 64,
                     "Aliases": [name, role] if role in ROLES[:3] else None,

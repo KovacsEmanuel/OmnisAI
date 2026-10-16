@@ -144,7 +144,7 @@ def listener_owned(identity: dict[str, object], port: int, inode: int) -> None:
 
 
 def cleanup_startup_ipc(
-    root: Path, control: Path, *, expected: dict[str, list[int]] | None = None
+    root: Path, control: Path, *, expected: dict[str, list[int]] | None = None, native: bool = False
 ) -> list[str]:
     """Only after this fresh attempt's containers and daemon operations are settled.
 
@@ -152,9 +152,19 @@ def cleanup_startup_ipc(
     connection. Never delete lock files, signal metadata PIDs, or touch a live peer.
     """
     problems = []
-    for directory, stem in ((root / "http", "api"), (control, "control")):
+    for directory, stem in (
+        (root / "http", "api"),
+        (control, "control"),
+        *(((root / "native-ipc", "runtime"),) if native else ()),
+    ):
         path = directory / f"{stem}.sock"
-        cap = directory / "control.cap" if stem == "control" else None
+        cap = (
+            directory / "control.cap"
+            if stem == "control"
+            else directory / "runtime.boot"
+            if stem == "runtime"
+            else None
+        )
         if not os.path.lexists(path) and not (cap and os.path.lexists(cap)):
             continue
         try:
@@ -188,7 +198,9 @@ def cleanup_startup_ipc(
                     path.unlink()
                 if cap is not None and os.path.lexists(cap):
                     before = cap.lstat()
-                    private_file(cap, limit=64)  # Also admits our interrupted/empty private write.
+                    private_file(
+                        cap, limit=1024 if stem == "runtime" else 64
+                    )  # Interrupted private write.
                     after = cap.lstat()
                     if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
                         raise StartError("IPC_REPLACED", 4)

@@ -16,7 +16,9 @@ class CleanupFaultTest(unittest.TestCase):
     def attempt(self, fault):
         resources = {"api": True, "supervisor": True, "db": True}
         effects = []
-        runtime = SimpleNamespace(uncertain=False, family_drained=True, network=lambda _: None)
+        runtime = SimpleNamespace(
+            native=False, uncertain=False, family_drained=True, network=lambda _: None
+        )
 
         def inventory():
             if fault == "inventory":

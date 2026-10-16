@@ -73,13 +73,59 @@ class ImageInstallTest(unittest.TestCase):
             ),
             receipt,
         )
-        from omnis_cli.lifecycle import StartError
-        from omnis_cli.start_runtime import ControlRuntime
+        import time
 
-        with patch.object(ControlRuntime, "run") as effect:
-            with self.assertRaisesRegex(StartError, "NATIVE_LIFECYCLE_REQUIRED"):
-                ControlRuntime(fixture.data_home, 100)
-        effect.assert_not_called()
+        from omnis_cli.start_runtime import POSTGRES, ControlRuntime
+
+        images = {
+            receipt.image_id: {
+                "Id": receipt.image_id,
+                "Architecture": "amd64",
+                "Os": "linux",
+                "Config": {
+                    "User": "65532:65532",
+                    "Cmd": ["python", "-I", "-m", "omnis.serve"],
+                    "Labels": {
+                        "org.omnis.project": receipt.project,
+                        "org.omnis.bundle_sha256": receipt.manifest_sha256,
+                    },
+                },
+            },
+            receipt.runtime_image_id: {
+                "Id": receipt.runtime_image_id,
+                "Architecture": "amd64",
+                "Os": "linux",
+                "Config": {
+                    "User": "65532:65532",
+                    "Cmd": ["/opt/hermes/venv/bin/python", "-I", "-m", "omnis_hermes.runtime_host"],
+                    "Labels": {
+                        "org.omnis.project": receipt.project,
+                        "org.omnis.bundle_sha256": receipt.manifest_sha256,
+                        "org.omnis.profile": receipt.profile,
+                        "org.omnis.image-role": "runtime",
+                    },
+                },
+            },
+            POSTGRES: {
+                "Id": "sha256:" + "f" * 64,
+                "Architecture": "amd64",
+                "Os": "linux",
+                "RepoDigests": [POSTGRES.replace(":18.6-bookworm", "")],
+            },
+        }
+        images[receipt.tag] = images[receipt.image_id]
+        images[receipt.runtime_tag] = images[receipt.runtime_image_id]
+        with (
+            patch("omnis_cli.start_runtime._checked_socket", return_value=receipt.docker_host),
+            patch.object(ControlRuntime, "check_daemon"),
+            patch.object(ControlRuntime, "inspect", side_effect=lambda kind, ident: images[ident]),
+            patch.object(
+                ControlRuntime, "run", return_value=subprocess.CompletedProcess([], 0, "2.32.4")
+            ) as command,
+        ):
+            runtime = ControlRuntime(fixture.data_home, time.monotonic() + 5)
+            self.assertTrue(runtime.native)
+            self.assertFalse(any(call.kwargs.get("effect") for call in command.call_args_list))
 
     def test_native_missing_or_wrong_context_refuses_before_docker(self):
         import omnis_cli.compose as compose

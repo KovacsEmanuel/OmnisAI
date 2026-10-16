@@ -21,6 +21,14 @@ STAGES = (
 )
 
 
+def stages(inventory: dict[str, object]) -> tuple[str, ...]:
+    return (
+        (*STAGES[:5], "runtime.stop", "runtime.rm", *STAGES[5:])
+        if inventory.get("version") == 2
+        else STAGES
+    )
+
+
 def discrete(value: object, depth: int = 0) -> None:
     if depth > 12:
         raise StartError("STOP_RECORD_INVALID", 4)
@@ -90,21 +98,27 @@ def validate_grant(
 
 
 def validate_inventory(inventory: dict[str, object], record: dict[str, object]) -> None:
-    if set(inventory) != {
-        "version",
-        "release",
-        "project",
-        "attempt",
-        "pgdata",
-        "system_id",
-        "containers",
-        "network",
-        "forwarder",
-        "ipc",
-    }:
+    from .start import native_fields, service_roles
+
+    native = bool(native_fields(record))
+    if set(inventory) != (
+        {
+            "version",
+            "release",
+            "project",
+            "attempt",
+            "pgdata",
+            "system_id",
+            "containers",
+            "network",
+            "forwarder",
+            "ipc",
+        }
+        | ({"provider", "runtime_dir", "runtime_ipc"} if native else set())
+    ):
         raise StartError("STOP_INVENTORY_INVALID", 4)
     for key, expected in (
-        ("version", 1),
+        ("version", 2 if native else 1),
         ("release", record["release_digest"]),
         ("project", record["project"]),
         ("attempt", record["attempt"]),
@@ -117,11 +131,20 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
     def digest(value: object) -> bool:
         return type(value) is str and re.fullmatch(r"[0-9a-f]{64}", value) is not None
 
+    if native and any(
+        encoded(inventory[key]) != encoded(record[field])
+        for key, field in (
+            ("provider", "provider_identity"),
+            ("runtime_dir", "runtime_dir_identity"),
+            ("runtime_ipc", "runtime_ipc"),
+        )
+    ):
+        raise StartError("STOP_INVENTORY_INVALID", 4)
     containers = inventory["containers"]
     ids = mapping(record["containers"])
-    if type(containers) is not list or len(containers) != 3:
+    if type(containers) is not list or len(containers) != len(service_roles(record)):
         raise StartError("STOP_INVENTORY_INVALID", 4)
-    for role, row in zip(("api", "supervisor", "db"), containers, strict=True):
+    for role, row in zip(service_roles(record), containers, strict=True):
         if (
             type(row) is not dict
             or set(row) != {"role", "id", "image", "config", "run"}
@@ -130,7 +153,7 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
             or type(row["image"]) is not str
             or re.fullmatch(r"sha256:[0-9a-f]{64}", row["image"]) is None
             or role != "db"
-            and row["image"] != record["image_id"]
+            and row["image"] != record["runtime_image_id" if role == "runtime" else "image_id"]
             or not digest(row["config"])
             or not digest(row["run"])
         ):
@@ -195,7 +218,8 @@ def completed_receipt(path: Path, grant: dict[str, object]) -> dict[str, object]
     if (
         set(value) != {"version", "grant", "owner", "launcher", "state", "pending", "completed"}
         or type(value["version"]) is not int
-        or value["version"] != 1
+        or value["version"] not in (1, 2)
+        or value["version"] != mapping(grant["inventory"])["version"]
         or encoded(value["grant"]) != encoded(grant)
         or value["state"] != "COMPLETED"
         or value["pending"] is not None
@@ -213,10 +237,11 @@ def completed_receipt(path: Path, grant: dict[str, object]) -> dict[str, object]
         ):
             raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
         uuid(owner["boot_id"])
+    expected_stages = stages(mapping(grant["inventory"]))
     steps = value["completed"]
-    if type(steps) is not list or len(steps) != len(STAGES):
+    if type(steps) is not list or len(steps) != len(expected_stages):
         raise StartError("STOP_RECEIPT_UNVERIFIED", 4)
-    for stage, entry in zip(STAGES, steps, strict=True):
+    for stage, entry in zip(expected_stages, steps, strict=True):
         expected_ack: object = 204 if stage not in {"forwarder", "ipc"} else "DRAINED"
         if (
             type(entry) is not dict

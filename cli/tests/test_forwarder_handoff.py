@@ -137,6 +137,7 @@ class ForwarderHandoffTest(unittest.TestCase):
             self.assertIsNotNone(owned_process, "Post-spawn failure lost cleanup ownership")
             self.assertIs(owned_process, self.children[0][0])
             runtime = SimpleNamespace(
+                native=False,
                 uncertain=False,
                 family_drained=True,
                 ids=lambda: [],

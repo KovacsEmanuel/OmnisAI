@@ -98,6 +98,7 @@ def private_stop_fixture() -> Iterator[
             "teardown_completed": ["forwarder", "api", "supervisor", "db", "network", "ipc"],
         }
         runtime = SimpleNamespace(
+            native=False,
             receipt=SimpleNamespace(
                 project=project, image_id=record["image_id"], docker_id=record["docker_id"]
             ),

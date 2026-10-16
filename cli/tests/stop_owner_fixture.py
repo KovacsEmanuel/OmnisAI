@@ -75,7 +75,8 @@ class Fixture:
             stack.callback(os.close, state_guard)
             yield (data_fd, state_fd), (data_guard, state_guard)
 
-    def __init__(self):
+    def __init__(self, *, native=False):
+        self.native = native
         self.temp = tempfile.TemporaryDirectory(prefix="s4o-", dir=os.environ["TMPDIR"])
         self.base = Path(self.temp.name)
         self.root, self.data = self.base / "s", self.base / "d"
@@ -107,6 +108,22 @@ class Fixture:
         self.ids = {
             role: char * 64 for role, char in zip(("api", "supervisor", "db"), "abc", strict=True)
         }
+        if native:
+            self.ids["runtime"] = "4" * 64
+            for name in ("provider", "native-ipc"):
+                (self.root / name).mkdir(mode=0o700)
+            directory = self.root / "native-ipc"
+            (directory / "runtime.lock").touch(mode=0o600)
+            sock = socket.socket(socket.AF_UNIX)
+            sock.bind(str(directory / "runtime.sock"))
+            (directory / "runtime.sock").chmod(0o600)
+            sock.listen()
+            self.sockets["runtime"] = sock
+            write_record(
+                directory / "runtime.boot",
+                {"version": 1, "boot": str(uuid4()), "capability": "a" * 64},
+            )
+        self.runtime_image = "sha256:" + "5" * 64
         self.network_id = "d" * 64
         self.image, self.pg_image = "sha256:" + "e" * 64, "sha256:" + "f" * 64
         self.port_sock = socket.socket()
@@ -162,7 +179,7 @@ class Fixture:
                 "com.docker.compose.project": self.project,
                 "org.omnis.start-attempt": self.attempt,
             },
-            "Containers": {cid: {} for cid in self.ids.values()},
+            "Containers": {cid: {} for role, cid in self.ids.items() if role != "runtime"},
         }
         release = self.data / "omnis/releases/0.1.0"
         release.mkdir(parents=True, mode=0o700)
@@ -180,8 +197,23 @@ class Fixture:
             "platform": "linux/amd64",
             "files": files,
         }
+        if native:
+            fixture_class = runpy.run_path(str(Path(__file__).with_name("test_install.py")))[
+                "InstallTest"
+            ]
+            fixture_class.native_bundle(
+                SimpleNamespace(
+                    root=self.base,
+                    bundle=release,
+                    manifest=manifest,
+                    write_manifest=lambda: (release / "release.json").write_text(
+                        json.dumps(manifest)
+                    ),
+                )
+            )
         (release / "release.json").write_text(json.dumps(manifest))
         digest = hashlib.sha256((release / "release.json").read_bytes()).hexdigest()
+        self.digest = digest
         self.peer = socket.socket(socket.AF_UNIX)
         self.peer.bind(str(self.base / "e"))
         self.peer.listen()
@@ -203,6 +235,17 @@ class Fixture:
             digest,
             "unix://" + str(self.base / "e"),
             "synthetic-stop-daemon",
+            **(
+                {
+                    "profile": "p4a-settings-offline",
+                    "runtime_image_id": self.runtime_image,
+                    "runtime_tag": "omnis-runtime-"
+                    + self.project.removeprefix("omnis-local-")
+                    + ":0.1.0",
+                }
+                if native
+                else {}
+            ),
         )
         _put_record(self.data / "omnis/image.json", receipt, complete=True)
         write_record(self.data / "omnis/installed.json", {"format": 1, "release": "0.1.0"})
@@ -253,20 +296,37 @@ class Fixture:
             "finalized_generation": 2,
             "teardown_completed": [],
         }
+        if native:
+            from omnis_cli.start import runtime_ipc
+            from omnis_cli.start_runtime import private_identity
+
+            self.record.update(
+                format=3,
+                runtime_image_id=self.runtime_image,
+                provider_identity=private_identity(self.root / "provider"),
+                runtime_dir_identity=private_identity(self.root / "native-ipc"),
+                runtime_ipc=runtime_ipc(self.root),
+            )
         write_record(self.root / "startup.json", self.record)
         self.runtime = _load_runtime(self.data, self.record, time.monotonic() + 15)
 
     def item(self, role, cid, pid):
         runtime = SimpleNamespace(
-            receipt=SimpleNamespace(project=self.project, image_id=self.image),
+            receipt=SimpleNamespace(
+                project=self.project,
+                image_id=self.image,
+                profile="p4a-settings-offline" if self.native else None,
+                runtime_image_id=self.runtime_image,
+            ),
             pg_image=self.pg_image,
             attempt=self.attempt,
         )
         item = container_item(runtime, role, cid, self.root, self.control, self.port)
         item["State"].update(Paused=False, Restarting=False, Pid=pid)
-        item["NetworkSettings"]["Networks"][self.project + "_control"]["NetworkID"] = (
-            self.network_id
-        )
+        if role != "runtime":
+            item["NetworkSettings"]["Networks"][self.project + "_control"]["NetworkID"] = (
+                self.network_id
+            )
         return item
 
     def response(self, method, target):
@@ -276,11 +336,37 @@ class Fixture:
                 return 200, {"ID": "synthetic-stop-daemon"}
             if path.startswith("/images/"):
                 runtime = SimpleNamespace(
-                    receipt=SimpleNamespace(image_id=self.image), pg_image=self.pg_image
+                    receipt=SimpleNamespace(
+                        image_id=self.image, runtime_image_id=self.runtime_image
+                    ),
+                    pg_image=self.pg_image,
                 )
                 ident = unquote(path.split("/")[2])
-                assert ident in (self.pg_image, self.image)
-                return 200, image_item(runtime, "db" if ident == self.pg_image else "api")
+                assert ident in (self.pg_image, self.image, self.runtime_image)
+                image = image_item(
+                    runtime,
+                    "db"
+                    if ident == self.pg_image
+                    else "runtime"
+                    if ident == self.runtime_image
+                    else "api",
+                )
+                if ident == self.runtime_image:
+                    image["Config"].update(
+                        Cmd=[
+                            "/opt/hermes/venv/bin/python",
+                            "-I",
+                            "-m",
+                            "omnis_hermes.runtime_host",
+                        ],
+                        Labels={
+                            "org.omnis.project": self.project,
+                            "org.omnis.bundle_sha256": self.digest,
+                            "org.omnis.profile": "p4a-settings-offline",
+                            "org.omnis.image-role": "runtime",
+                        },
+                    )
+                return 200, image
             if path == "/containers/json":
                 return 200, [{"Id": cid} for cid in self.items]
             if path == "/networks":
@@ -312,13 +398,21 @@ class Fixture:
                     "Status": "exited",
                     "Error": "",
                 }
-                self.network_item["Containers"].pop(cid)
+                self.network_item["Containers"].pop(cid, None)
                 if not self.retain_ipc:
-                    stem = {"api": "api", "supervisor": "control"}.get(role)
+                    stem = {"api": "api", "supervisor": "control", "runtime": "runtime"}.get(role)
                     if stem:
                         self.sockets[stem].close()
-                        directory = self.root / "http" if stem == "api" else self.control
+                        directory = (
+                            self.root / "http"
+                            if stem == "api"
+                            else self.root / "native-ipc"
+                            if stem == "runtime"
+                            else self.control
+                        )
                         (directory / f"{stem}.sock").unlink()
+                        if stem == "runtime":
+                            (directory / "runtime.boot").unlink()
                         if stem == "control":
                             (directory / "control.cap").unlink()
             return (0, {}) if self.lost_ack else (204, {})

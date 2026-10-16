@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "kind": "INDEPENDENT_READ_ONLY_SOURCE_FIXTURE_REVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+  "base": "8acfd93a513e50f202df61028c0fdc5e77d8cc26",
+  "head": "8acfd93a513e50f202df61028c0fdc5e77d8cc26",
+  "integration": "NOT_INTEGRATED_PARENT_ADJUDICATION_REQUIRED",
+  "requirement_consumer_risk_decision": [
+    {
+      "requirement": "Restore invalidation-before-effect regression",
+      "consumer": "agent.contract_execution.initialize_contract -> method.assignment",
+      "risk": "Fixture TypeError before PROCEDURE_INVALIDATED guard",
+      "decision": "Supply valid singleton index 0; keep exact refusal, zero UUID/access attempts and empty child state"
+    },
+    {
+      "requirement": "Exact pre-M2 receive-only reconstruction COMPLETE/INCOMPLETE/UNKNOWN and no new admission/wrong pair",
+      "consumer": "Case.check -> method_checks.check_execution -> method_checker_identity.verify",
+      "risk": "Current composer + historical checker gives identity UNKNOWN, masking intended status frontier",
+      "decision": "Reseal synthetic retained graph to the allowlisted singleton composer; preserve all existing assertions and real consumer; no historical-producer or installed-runtime claim"
+    }
+  ],
+  "snapshot": {
+    "files": [
+      {
+        "path": "api/tests/test_c10_bound_predicates.py",
+        "sha256_before": "4643b558bd3b6593010746eec9e03817e098210507f3e33796f4582d9b3019f0",
+        "sha256_after": "4643b558bd3b6593010746eec9e03817e098210507f3e33796f4582d9b3019f0"
+      },
+      {
+        "path": "api/tests/test_mission_revisions.py",
+        "sha256_before": "acde8c5f63f346d97f09b1d0050868fd452f5af8bf495535fc0ce0f717ccff98",
+        "sha256_after": "acde8c5f63f346d97f09b1d0050868fd452f5af8bf495535fc0ce0f717ccff98"
+      }
+    ],
+    "patch_sha256": "103be49bdd724af0ea62374e70478f40b44e5c056b0f10290f52ef248275d1c7",
+    "author_report_path": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/report.json",
+    "author_report_sha256": "b8e8176a78472fc5da805c3935a06de299d967de97cd215daee37d3f848fe026",
+    "tracked_delta_exactly_two_test_files": true,
+    "staged_delta_empty": true,
+    "untracked_worktree_empty": true,
+    "git_diff_check_exit": 0,
+    "main_product_difference": "git diff base..b8a628a includes only canonical-fail JSON and register Markdown; no product delta"
+  },
+  "findings": [],
+  "original_findings_disposition": [
+    {
+      "id": "P2-CANONICAL-SOURCE-01",
+      "disposition": "CLOSED_SOURCE_FIXTURE_SCOPED",
+      "location": "api/tests/test_c10_bound_predicates.py:629",
+      "basis": "ContractAdmission requires batch_index (contract_execution.py:20-24); 0 passes trusted-index guard (:82-84) so assignment invalidation now executes before uuid4 (:87-88) and child update (:96). Unchanged PROCEDURE_INVALIDATED/attempts==[]/child.__dict__=={} passed independently."
+    },
+    {
+      "id": "P2-CANONICAL-SOURCE-02",
+      "disposition": "CLOSED_SOURCE_FIXTURE_SCOPED",
+      "location": "api/tests/test_mission_revisions.py:668-700",
+      "basis": "MISSION_REVISION_HISTORICAL exact digest/pin map (method_checker_identity.py:81-84,128-143). Singleton and current require the same required-only done_when (prompt_bundle.py:680-689). Explicit composer_pin helper instead includes optional rows (test_contract_method_checks.py:285-291): helper mismatch, not a demonstrated product incompatibility. obj preserves identity; bundle digest/ref and existing rebind_mutation update retained reference/digest chain. Case.check and all status/denial assertions unchanged."
+    }
+  ],
+  "historical_boundary_adjudication": {
+    "satisfies": "Yes for the stated SOURCE consumer regression: structurally valid retained-shaped graph, exact identity pair, three statuses and denial gates through unchanged consumer. Current and singleton required-only shapes are explicitly equal in real validator. No validator bypass or product/helper edit introduced.",
+    "not_proven": "The receipts were produced now on synthetic current native state and then resealed, including binding/receipt references and digests. They are not authentic bytes emitted by the historical producer, not installed historical provenance, not runtime restart or retained installed authentication.",
+    "product_incompatibility": "No demonstrated incompatibility is hidden by this delta: direct old-pin generation fails because the helper supplies optional done_when contrary to the singleton validator. Genuine historical-producer interoperability remains outside scope/unproven.",
+    "oracle_strength": "No expected status, regex, assertions or Case.check behavior weakened. Independent UNKNOWN reason is METHOD_SCHEMA_UNAVAILABLE, not identity unavailability; wrong modern/retained pairs are METHOD_CHECKER_UNAVAILABLE on same consumer.",
+    "claim_discipline": "Author report explicitly labels SOURCE synthetic-state / retained reseal; this review approval is limited to that boundary, not historical execution or global green."
+  },
+  "executions": [
+    {
+      "name": "origins",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib,json; r=pathlib.Path.cwd().resolve(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\",\"integrations/hermes/tests\",\"integrations/hermes/upstream/managed-source\")]; import test_contract_method_checks as h; import test_contract_method as f; import agent.contract_execution as n; import omnis_hermes.contract_method as m; import omnis.modules.tasks.method_checks as c; mods=[h,f,n,m,c]; origins={x.__name__:str(pathlib.Path(x.__file__).resolve()) for x in mods}; assert h.ROOT==r; assert all(pathlib.Path(p).is_relative_to(r) for p in origins.values()); assert sys.dont_write_bytecode; print(json.dumps(origins,sort_keys=True))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.728,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-independent-review-20261016/origins.log",
+      "sha256": "92c96ef610038b4b8f3dd9c26ac625245c1f94e251883b50136c249b7c7c7dec"
+    },
+    {
+      "name": "focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 1.607,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-independent-review-20261016/focus4.log",
+      "sha256": "29705242d4ebbb03a855581a17470390cbdf7bd12a62507d9e95d6b3f2be6268"
+    },
+    {
+      "name": "independent-controls",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pathlib,json,copy\nfrom hashlib import sha256\nr=pathlib.Path.cwd().resolve()\nsys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\",\"integrations/hermes/tests\",\"integrations/hermes/upstream/managed-source\")]\nimport test_contract_method_checks as h\nfrom omnis.modules.tasks import method_checker_identity as identity\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.settings.catalog_schema import canonical\nfrom omnis.modules.settings.catalog_models import CatalogError\nassert h.ROOT==r and sys.dont_write_bytecode\nfor m in (h,identity,records):\n assert pathlib.Path(m.__file__).resolve().is_relative_to(r)\nPIN=\"1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338\"\nDIGEST=\"833b5690ada0c2669114dc7fc3755300d96116b773f9eb0c412fba024fac8fd9\"\ndef seal(case,pin):\n b=case.prompt_bundle\n h.obj(b[\"payload\"])[\"composer_revision\"]=pin\n b[\"digest\"]=sha256(canonical({k:v for k,v in b.items() if k!=\"digest\"})).hexdigest()\n h.obj(case.brief[\"payload\"])[\"prompt_bundle_ref\"]=records.reference(b)\n h.rebind_mutation(case)\ndef historical(case):\n case.checker=records.envelope(\"method-checker\",{**identity.descriptor(),\"code_digest\":DIGEST})\nresults=[]\nfor state in (\"complete\",\"incomplete\",\"unknown\"):\n case=h.native_case(predicates=True,return_predicate=\"normalize-records\" if state==\"incomplete\" else \"build-surface-map\")\n if state==\"unknown\": case.schemas={}\n expected=state.upper()\n assert h.obj(case.check()[\"payload\"])[\"status\"]==expected\n before=[copy.deepcopy(h.obj(x[\"payload\"]).get(\"value\")) for x in h.rows(case.execution[\"records\"]) if h.obj(x)[\"kind\"]==\"contract-artifact\"]\n seal(case,PIN); historical(case)\n received=h.obj(case.check(receive_only=True)[\"payload\"])\n assert received[\"status\"]==expected\n if state==\"unknown\": assert str(received[\"reason\"]).startswith(\"METHOD_SCHEMA_UNAVAILABLE;\")\n after=[copy.deepcopy(h.obj(x[\"payload\"]).get(\"value\")) for x in h.rows(case.execution[\"records\"]) if h.obj(x)[\"kind\"]==\"contract-artifact\"]\n assert before==after\n denied=h.obj(case.check(receive_only=False)[\"payload\"])\n assert denied[\"status\"]==\"UNKNOWN\" and str(denied[\"reason\"]).startswith(\"METHOD_CHECKER_UNAVAILABLE;\")\n results.append({\"control\":state,\"receive_only_status\":received[\"status\"],\"reason\":received[\"reason\"],\"new_admission_consumer_status\":denied[\"status\"],\"artifact_values_preserved\":True})\ncase=h.native_case(predicates=True)\nmodern=h.obj(case.prompt_bundle[\"payload\"])[\"composer_revision\"]\nfor label,pin in ((\"modern\",modern),(\"wrong_retained\",\"c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36\")):\n seal(case,pin)\n case.checker=records.envelope(\"method-checker\",identity.descriptor())\n assert h.obj(case.check(receive_only=True)[\"payload\"])[\"status\"]==\"COMPLETE\"\n historical(case)\n denied=h.obj(case.check(receive_only=True)[\"payload\"])\n assert denied[\"status\"]==\"UNKNOWN\" and str(denied[\"reason\"]).startswith(\"METHOD_CHECKER_UNAVAILABLE;\")\n results.append({\"control\":label,\"current_checker\":\"COMPLETE\",\"historical_checker\":denied[\"status\"],\"reason\":denied[\"reason\"]})\nseal(case,PIN)\nassert identity.verify(case.checker,pin=PIN,receive_only=True,zero_predicates=False)==case.checker\nfor label,pin,receive in ((\"new_admission\",PIN,False),(\"zero_pin\",\"0\"*64,True)):\n try: identity.verify(case.checker,pin=pin,receive_only=receive,zero_predicates=False)\n except CatalogError as e: assert e.reason==\"METHOD_CHECKER_UNAVAILABLE\"; results.append({\"control\":label,\"refusal\":e.reason})\n else: raise AssertionError(\"historical identity incorrectly admitted\")\nprint(json.dumps({\"boundary\":\"SOURCE_SYNTHETIC_RETAINED_RESEAL_NOT_HISTORICAL_PROVENANCE\",\"controls\":results},indent=2))\n"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 1.122,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-independent-review-20261016/independent-controls.log",
+      "sha256": "0162850b87b5a4e6079e2761682385e9f4c0c2b293b190a3f846a86d3c28e8b7"
+    }
+  ],
+  "independent_controls": {
+    "boundary": "SOURCE_SYNTHETIC_RETAINED_RESEAL_NOT_HISTORICAL_PROVENANCE",
+    "controls": [
+      {
+        "control": "complete",
+        "receive_only_status": "COMPLETE",
+        "reason": "Exact bound CONTRACT/PURE receipts and published requirements checked.",
+        "new_admission_consumer_status": "UNKNOWN",
+        "artifact_values_preserved": true
+      },
+      {
+        "control": "incomplete",
+        "receive_only_status": "INCOMPLETE",
+        "reason": "Qualified early return; missing done predicates remain unexecuted.",
+        "new_admission_consumer_status": "UNKNOWN",
+        "artifact_values_preserved": true
+      },
+      {
+        "control": "unknown",
+        "receive_only_status": "UNKNOWN",
+        "reason": "METHOD_SCHEMA_UNAVAILABLE; retained receipts do not establish schema eligibility.",
+        "new_admission_consumer_status": "UNKNOWN",
+        "artifact_values_preserved": true
+      },
+      {
+        "control": "modern",
+        "current_checker": "COMPLETE",
+        "historical_checker": "UNKNOWN",
+        "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility."
+      },
+      {
+        "control": "wrong_retained",
+        "current_checker": "COMPLETE",
+        "historical_checker": "UNKNOWN",
+        "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility."
+      },
+      {
+        "control": "new_admission",
+        "refusal": "METHOD_CHECKER_UNAVAILABLE"
+      },
+      {
+        "control": "zero_pin",
+        "refusal": "METHOD_CHECKER_UNAVAILABLE"
+      }
+    ]
+  },
+  "reused_author_evidence": [
+    {
+      "name": "verified-green-focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 1.571,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-green-focus4.log",
+      "log_sha256": "ad93ad5dcc6a38cb4eac6dd2fa748c41e27a22235cdeb90fe9c9f1e3fa299296",
+      "summary": [
+        "4 passed in 0.91s"
+      ],
+      "counts": {
+        "passed": 4
+      }
+    },
+    {
+      "name": "verified-green-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 21.676,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-green-two-source-files.log",
+      "log_sha256": "3f1a6761c2f5d77c4105c31e3af6832391c5a342221688bdd1783793fa283e51",
+      "summary": [
+        "222 passed in 20.91s"
+      ],
+      "counts": {
+        "passed": 222
+      }
+    },
+    {
+      "name": "verified-ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "verified-ruff-format-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.048,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-ruff-format-check.log",
+      "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "summary": [],
+      "counts": {}
+    },
+    {
+      "name": "verified-mypy-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 8.004,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-mypy-two-source-files.log",
+      "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ],
+      "counts": {}
+    }
+  ],
+  "original_canonical": {
+    "source": "b8a628a55eecb02ce9f4f7412678f75e970aa2f0:documents/verification/p2-integration-canonical-fail.json",
+    "sha256": "b231ecfe8a2c12b2efc81773043ed73b00284c46f926593bab40b54991103da3",
+    "findings": [
+      {
+        "id": "P2-CANONICAL-SOURCE-01",
+        "file": "api/tests/test_c10_bound_predicates.py:629",
+        "observation": "ContractAdmission fixture omits required batch_index; TypeError precedes intended PROCEDURE_INVALIDATED assertion.",
+        "disposition": "FIX_IN_PROGRESS_TEST_ONLY; retain pre-effect no-UUID/access/child-state assertions"
+      },
+      {
+        "id": "P2-CANONICAL-SOURCE-02",
+        "file": "api/tests/test_mission_revisions.py:668-680",
+        "observation": "Two historical receive-only positive states return UNKNOWN with default-current native_case fixture; old checker requires exact historical composer pair.",
+        "disposition": "FIX_IN_PROGRESS_TEST_ONLY; hypothesis exact composer_pin needs author confirmation; retain COMPLETE/INCOMPLETE/UNKNOWN/new-admission/wrong-pin controls"
+      }
+    ],
+    "retained_status": "FAIL; no rerun and no retroactive promotion"
+  },
+  "boundaries": {
+    "PG": "NOT_RUN",
+    "native_OCI": "NOT_RUN",
+    "model_inference_provider": "NOT_RUN",
+    "network_target": "NOT_RUN",
+    "canonical_rerun": "NOT_RUN_FORBIDDEN",
+    "H04": "BLOCKED_PRE_READY_UNKNOWN; no probe/retry/green",
+    "QA129": "UNCHANGED_SCOPED_APPROVAL; NOT_RERUN",
+    "P2_global": "NOT_CLOSED_NOT_GREEN",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "bytecode": "-I -B",
+    "pytest_plugin_autoload": "disabled; only pytest_asyncio.plugin; cacheprovider disabled",
+    "effects": "Only own private scratch JSON/log artifacts; no product/test/document/skill edits; no stage/commit/push",
+    "confinement_limit": "Source fixture and explicit environment/argv scope, not a claim of OS-syscall sandbox attestation"
+  },
+  "issues_encountered": [],
+  "next_action": "Parent adjudicates exact hashes and integrates only this two-file patch; retain canonical FAIL and H04 blocker. No full green inferred."
+}

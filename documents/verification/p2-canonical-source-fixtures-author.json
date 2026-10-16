@@ -1,0 +1,633 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_FIXED_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+  "branch": "work/p2-canonical-source-fix-20261016",
+  "base": "8acfd93a513e50f202df61028c0fdc5e77d8cc26",
+  "head": "8acfd93a513e50f202df61028c0fdc5e77d8cc26",
+  "scope": {
+    "requirement": "Repair three canonical SOURCE fixture failures without product or assertion changes",
+    "consumer": [
+      "agent.contract_execution.initialize_contract",
+      "omnis.modules.tasks.method_checks.check_execution"
+    ],
+    "risk": "Fixtures fail before intended pre-effect refusal or exact historical receive-only validation",
+    "decision": "Only supply required singleton batch index and exact retained composer pin",
+    "allowed_files": [
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_mission_revisions.py"
+    ],
+    "non_goals": [
+      "PG",
+      "native OCI",
+      "inference",
+      "providers",
+      "accounts",
+      "network",
+      "canonical rerun",
+      "QA129",
+      "H04 retry"
+    ],
+    "budget_seconds": 600,
+    "review": "Independent exact-byte review by parent after frozen handoff",
+    "rollback": "Parent discards only this two-file patch; no external resources provisioned"
+  },
+  "files": [
+    {
+      "path": "api/tests/test_c10_bound_predicates.py",
+      "before_sha256": "b391dcacdce341ead58a14b823057ef59eca8b376f7541eda719424e16914a43",
+      "after_sha256": "4643b558bd3b6593010746eec9e03817e098210507f3e33796f4582d9b3019f0"
+    },
+    {
+      "path": "api/tests/test_mission_revisions.py",
+      "before_sha256": "e9d826fc51017406dc80ad169c50ed89ce02c20463fd345783f848306bf14066",
+      "after_sha256": "acde8c5f63f346d97f09b1d0050868fd452f5af8bf495535fc0ce0f717ccff98"
+    }
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/source-fixtures.patch",
+    "sha256": "103be49bdd724af0ea62374e70478f40b44e5c056b0f10290f52ef248275d1c7",
+    "final_lf": true,
+    "diff": "diff --git a/api/tests/test_c10_bound_predicates.py b/api/tests/test_c10_bound_predicates.py\nindex 403aa50..21f1119 100644\n--- a/api/tests/test_c10_bound_predicates.py\n+++ b/api/tests/test_c10_bound_predicates.py\n@@ -626,7 +626,7 @@ def test_invalidation_empty_refuses_native_initialization_before_uuid_or_access(\n     monkeypatch.setattr(method, \"run_handler\", forbidden)\n     with pytest.raises(ValueError, match=\"^PROCEDURE_INVALIDATED$\"):\n         native.initialize_contract(\n-            child, native.ContractAdmission(parent, canonical(case.stage)), {}\n+            child, native.ContractAdmission(parent, canonical(case.stage), 0), {}\n         )\n     assert attempts == []\n     assert child.__dict__ == {}\ndiff --git a/api/tests/test_mission_revisions.py b/api/tests/test_mission_revisions.py\nindex aca9c02..49f157c 100644\n--- a/api/tests/test_mission_revisions.py\n+++ b/api/tests/test_mission_revisions.py\n@@ -663,12 +663,23 @@ async def test_managed_graph_verification_resolves_both_revisions(\n @pytest.mark.parametrize(\"state\", [\"complete\", \"incomplete\", \"unknown\"])\n def test_exact_pre_m2_checker_receive_only_reconstructs_supported_states(state: str) -> None:\n     from omnis.modules.tasks import method_checker_identity as identity\n-    from test_contract_method_checks import native_case\n+    from test_contract_method_checks import native_case, obj, rebind_mutation\n \n     case = native_case(\n         predicates=True,\n         return_predicate=\"normalize-records\" if state == \"incomplete\" else \"build-surface-map\",\n     )\n+    # Retain the required-only done_when shape shared by current and singleton\n+    # composers; the helper's explicit historical-pin path includes optional rows.\n+    bundle = case.prompt_bundle\n+    obj(bundle[\"payload\"])[\"composer_revision\"] = (\n+        \"1042abaf48dae5e14a7fee5c879b68fb57313f7e53698a43becf5a57e7a52338\"\n+    )\n+    bundle[\"digest\"] = sha256(\n+        canonical({k: v for k, v in bundle.items() if k != \"digest\"})\n+    ).hexdigest()\n+    obj(case.brief[\"payload\"])[\"prompt_bundle_ref\"] = records.reference(bundle)\n+    rebind_mutation(case)\n     if state == \"unknown\":\n         case.schemas = {}\n     old = {\n"
+  },
+  "causes": [
+    {
+      "failure": "invalidation pre-effect fixture",
+      "proven_by": "red-focus4.log: TypeError missing batch_index; ContractAdmission required field and initialize_contract validates index before method.assignment/uuid",
+      "fix": "Supply legitimate singleton batch index 0",
+      "unchanged_oracles": [
+        "PROCEDURE_INVALIDATED",
+        "attempts == []",
+        "child.__dict__ == {}"
+      ]
+    },
+    {
+      "failure": "pre-M2 COMPLETE/INCOMPLETE fixtures",
+      "proven_by": "Exact historical checker only pairs with 1042abaf...; modern/wrong composer control yields UNKNOWN/METHOD_CHECKER_UNAVAILABLE while current checker yields COMPLETE",
+      "fix": "Retain native-produced SOURCE receipts and required-only done_when, reseal the retained bundle with exact historical pin and existing rebind_mutation; no identity or Case.check edits",
+      "unchanged_oracles": [
+        "COMPLETE",
+        "INCOMPLETE",
+        "UNKNOWN",
+        "no-new-admission refusal",
+        "wrong-pin refusal"
+      ]
+    }
+  ],
+  "attempts_preserved": [
+    {
+      "name": "direct-composer-pin",
+      "result": "FAIL: 3 historical-state setups rejected Invalid prompt composition; helper explicit pin includes optional done_when whereas singleton validator requires required-only done_when",
+      "logs": [
+        "green-focus4.log",
+        "green-two-source-files.log"
+      ]
+    },
+    {
+      "name": "local-retained-reseal-first",
+      "result": "FAIL: contract.mapping returns dict(value), so mutation did not persist; narrowed root cause at managed_contract.py:1673-1676. Final uses existing obj identity-preserving helper. Ruff formatting also corrected via V4A.",
+      "logs": [
+        "final-green-focus4.log",
+        "final-green-two-source-files.log",
+        "final-ruff-format-check.log"
+      ]
+    }
+  ],
+  "executions": [
+    {
+      "name": "import-root-preflight",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys, pathlib, json; root=pathlib.Path.cwd().resolve(); sys.path[:0]=[str(root/'api/src'),str(root/'api/tests'),str(root/'integrations/hermes/src'),str(root/'integrations/hermes/upstream/managed-source')]; import test_contract_method_checks as helper; import omnis.modules.tasks.method_checker_identity as identity; import agent.contract_execution as native; import omnis_hermes.contract_method as method; modules=[helper,identity,native,method]; assert helper.ROOT==root; origins={m.__name__:str(pathlib.Path(m.__file__).resolve()) for m in modules}; assert all(pathlib.Path(p).is_relative_to(root) for p in origins.values()); print(json.dumps({'root':str(root),'origins':origins,'dont_write_bytecode':sys.dont_write_bytecode}))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.718,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/import-root-preflight.log",
+      "log_sha256": "41dbe34e1fef247577747dc75e01db4e0eca7dc01d90de92776efc967786383a",
+      "summary": [],
+      "counts": {}
+    },
+    {
+      "name": "red-focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 1.766,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/red-focus4.log",
+      "log_sha256": "212e68d9cae459921a074d32112c83cdbcaf1be7432823d67dd2aa85138bcab3",
+      "summary": [
+        "3 failed, 1 passed in 0.96s"
+      ],
+      "counts": {
+        "failed": 3,
+        "passed": 1
+      }
+    },
+    {
+      "name": "green-focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 1.868,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/green-focus4.log",
+      "log_sha256": "50c98ac90e4a920e139711173bee8bf668d0ccde21328c3e1b0dbc3bfe9309fa",
+      "summary": [
+        "3 failed, 1 passed in 1.05s"
+      ],
+      "counts": {
+        "failed": 3,
+        "passed": 1
+      }
+    },
+    {
+      "name": "green-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 22.097,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/green-two-source-files.log",
+      "log_sha256": "be523824339c03aaaddccb37dc6daf6727cb5b7bf5794a01a44b3da91703389d",
+      "summary": [
+        "3 failed, 219 passed in 21.35s"
+      ],
+      "counts": {
+        "failed": 3,
+        "passed": 219
+      }
+    },
+    {
+      "name": "ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "ruff-format-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.055,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/ruff-format-check.log",
+      "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "summary": [],
+      "counts": {}
+    },
+    {
+      "name": "mypy-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 8.627,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/mypy-two-source-files.log",
+      "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "final-green-focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 1.511,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/final-green-focus4.log",
+      "log_sha256": "19d0975e82d7709e0182e8dc0862bd6a3d219fc05fa926fbafb219febf92cd59",
+      "summary": [
+        "2 failed, 2 passed in 0.89s"
+      ],
+      "counts": {
+        "failed": 2,
+        "passed": 2
+      }
+    },
+    {
+      "name": "final-green-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 21.489,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/final-green-two-source-files.log",
+      "log_sha256": "8c70c59b7854b4a7bce5693f7d980e56a537b0b8504e2f0ec55d4046064c6ff6",
+      "summary": [
+        "2 failed, 220 passed in 20.83s"
+      ],
+      "counts": {
+        "failed": 2,
+        "passed": 220
+      }
+    },
+    {
+      "name": "final-ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.062,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/final-ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "final-ruff-format-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 1,
+      "duration_seconds": 0.055,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/final-ruff-format-check.log",
+      "log_sha256": "4e38481bfc00684129c5113c7aaae3fbc92d78aeed14715462fec0c7c7027742",
+      "summary": [
+        "1 file would be reformatted, 1 file already formatted"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "final-mypy-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 8.047,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/final-mypy-two-source-files.log",
+      "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "verified-green-focus4",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py::test_invalidation_empty_refuses_native_initialization_before_uuid_or_access",
+        "api/tests/test_mission_revisions.py::test_exact_pre_m2_checker_receive_only_reconstructs_supported_states",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 1.571,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-green-focus4.log",
+      "log_sha256": "ad93ad5dcc6a38cb4eac6dd2fa748c41e27a22235cdeb90fe9c9f1e3fa299296",
+      "summary": [
+        "4 passed in 0.91s"
+      ],
+      "counts": {
+        "passed": 4
+      }
+    },
+    {
+      "name": "verified-green-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 21.676,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-green-two-source-files.log",
+      "log_sha256": "3f1a6761c2f5d77c4105c31e3af6832391c5a342221688bdd1783793fa283e51",
+      "summary": [
+        "222 passed in 20.91s"
+      ],
+      "counts": {
+        "passed": 222
+      }
+    },
+    {
+      "name": "verified-ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.077,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "summary": [
+        "All checks passed!"
+      ],
+      "counts": {}
+    },
+    {
+      "name": "verified-ruff-format-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--no-cache",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 0.048,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-ruff-format-check.log",
+      "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "summary": [],
+      "counts": {}
+    },
+    {
+      "name": "verified-mypy-two-source-files",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "api/tests/test_c10_bound_predicates.py",
+        "api/tests/test_mission_revisions.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-canonical-source-fix-20261016",
+      "exit_code": 0,
+      "duration_seconds": 8.004,
+      "log": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/verified-mypy-two-source-files.log",
+      "log_sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "summary": [
+        "Success: no issues found in 2 source files"
+      ],
+      "counts": {}
+    }
+  ],
+  "direct_controls": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/finalize.py"
+    ],
+    "exit_code": 0,
+    "path": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/controls.json",
+    "sha256": "d89ba7592a19f3efb00bbe389ae637505f697ce8d514b87f762eb37f4c26f413",
+    "results": [
+      {
+        "control": "modern",
+        "composer_pin": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+        "current_checker_status": "COMPLETE",
+        "historical_checker_status": "UNKNOWN",
+        "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility.",
+        "identity_refusal": "METHOD_CHECKER_UNAVAILABLE"
+      },
+      {
+        "control": "wrong-retained-composer",
+        "composer_pin": "c16e5e4c09eb302d52c4efb5df979a3669950d75a47fc61f9e00df37b3a70b36",
+        "current_checker_status": "COMPLETE",
+        "historical_checker_status": "UNKNOWN",
+        "reason": "METHOD_CHECKER_UNAVAILABLE; retained receipts do not establish eligibility.",
+        "identity_refusal": "METHOD_CHECKER_UNAVAILABLE"
+      },
+      {
+        "control": "exact-pair-identity",
+        "receive_only_exact_pair": "ACCEPTED",
+        "new_admission": "METHOD_CHECKER_UNAVAILABLE",
+        "zero_pin": "METHOD_CHECKER_UNAVAILABLE"
+      }
+    ]
+  },
+  "integrity": {
+    "head_unchanged": true,
+    "index_unchanged": true,
+    "changed_tracked_files": [
+      "api/tests/test_c10_bound_predicates.py",
+      "api/tests/test_mission_revisions.py"
+    ],
+    "tracked_files_compared": 1278,
+    "all_other_tracked_bytes_unchanged": true,
+    "product_native_files_compared": 119,
+    "product_native_unchanged": true,
+    "product_native_manifest": "/home/kali/.hermes/cache/scratch/p2-source-fix-evidence-20261016/unchanged-product-manifest.json",
+    "product_native_manifest_sha256": "75392e110438a34c3e2b2f53309defa098704642e605f582d0ad608420d0181f",
+    "diff_check_exit": 0,
+    "untracked_in_worktree": [],
+    "bytecode_disabled": true,
+    "pytest_cache_disabled": true,
+    "mypy_cache_dir": "/dev/null",
+    "ruff_no_cache": true,
+    "PG_fixture_environment_removed_without_printing": true
+  },
+  "limitations": {
+    "boundary": "SOURCE on synthetic state / retained test resealing; not installed historical-native provenance or PG/native runtime QA",
+    "integration": "NOT_INTEGRATED; no stage/commit/push",
+    "independent_review": "PENDING_PARENT_DISPATCH",
+    "canonical": "NOT_RUN (explicitly forbidden); historical first canonical FAIL retained",
+    "H04": "BLOCKED_PRE_READY_UNKNOWN; no retry/remedy",
+    "QA129": "NOT_RERUN",
+    "PG_native_OCI_inference_providers_accounts_network": "NOT_RUN",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO",
+    "skills": "NOT_MODIFIED: explicit two-file write boundary"
+  },
+  "next_action": "Parent reviews exact frozen two-file hashes/diff independently, adjudicates and integrates; no global PASS claim."
+}

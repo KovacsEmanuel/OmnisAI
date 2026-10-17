@@ -1,0 +1,303 @@
+{
+  "status": "SOURCE_PASS_NEW_REAL_CONSUMER_WRITTEN_COLLECTED_ONLY_NOT_QA_READY",
+  "worktree": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/work",
+  "frozen_product_snapshot": "c0103731e04a9c7fc410b2a456b83706c70e89ac",
+  "head": "7faf20a43a5e041e35d1eac377c80c444ab4e9f5",
+  "git_status": "## work/mt-59nspv7q",
+  "commits": [
+    "b31dd92",
+    "7faf20a43a5e041e35d1eac377c80c444ab4e9f5"
+  ],
+  "files_sha256": {
+    "api/tests/test_contract_method_pg.py": "e8984d5460ea3a5ae529d28b1737a4dc9c382034a123bd15755876b539152e7b",
+    "api/tests/test_model_test_prepare_source.py": "99e0dcf6245a1bdd89daf1bc41d89f69464e091bfe680395fc46601252c1b8db",
+    "Makefile": "4efabe2d5d1570a76c465f1872f9390b2c926dc3294f2d467263954b949cec75",
+    "ops/run_test_db_gate.py": "72f7858e60d1101c3f51180fa80e3a7d45a296edd29a83c94ff859a8d992445f"
+  },
+  "frozen_product_diff": "NONE",
+  "verification": [
+    {
+      "name": "source-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; import pytest; raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_model_test_prepare_source.py', '-q', '--tb=short', '--basetemp=/home/kali/.hermes/cache/scratch/mt-59nspv7q/source-prereq9']))"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/source-final-final9.log",
+      "log_sha256": "c493e119a62d3ed3506f0d5ce859f8a3898b34f0027e868cf9805c297919b26a"
+    },
+    {
+      "name": "collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; import pytest; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]\",\"--collect-only\",\"-q\"]))"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/collect-final9.log",
+      "log_sha256": "f739298c31cc09d3ae49a92a00225817cbd63f6552cb945ddfd0197fd73454ed"
+    },
+    {
+      "name": "mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/mypy",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/mt-59nspv7q/mypy-qa6",
+        "--config-file",
+        "api/pyproject.toml",
+        "api/tests/test_model_test_prepare_source.py",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/mypy-final9.log",
+      "log_sha256": "3acbe2a8bfce91030ffb869dba2461af1381bb7ddf3e83ed63f18396db2f4913",
+      "errors_by_file": {
+        "api/tests/test_owned_model_initialization.py": 8,
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": 41,
+        "integrations/hermes/src/omnis_hermes/runtime_host.py": 7
+      }
+    },
+    {
+      "name": "ruff-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff",
+        "check",
+        "--no-cache",
+        "--no-fix",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_model_test_prepare_source.py",
+        "api/tests/test_contract_method_pg.py",
+        "ops/run_test_db_gate.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/ruff-final-final9.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "format-final",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff",
+        "format",
+        "--no-cache",
+        "--check",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_model_test_prepare_source.py",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/format-final-final9.log",
+      "log_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/diff-check-final9.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "unsafe-flags",
+      "argv": [
+        "make",
+        "-n",
+        "test-model-test-prepare-native-pg"
+      ],
+      "exit": 2,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/unsafe-flags.log",
+      "log_sha256": "0610f7eb36b1707af1e03d274d382de9df9dfe4a83f4bdd397d1ea8d8f201080"
+    },
+    {
+      "name": "fixture-denial",
+      "argv": [
+        "make",
+        "test-model-test-prepare-native-pg"
+      ],
+      "exit": 2,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/fixture-denial.log",
+      "log_sha256": "92801a02928ec11a920dd37a279022b6a215b03270e3e0d9f46dea854fa098e8"
+    },
+    {
+      "name": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/runner-help.log",
+      "log_sha256": "153f5e45892ae0c2691519297b93385af5ad2124d34e91418474d4bf0ef53c57"
+    }
+  ],
+  "source_result": {
+    "passed": 18,
+    "exit": 0,
+    "elapsed_seconds": 3.32,
+    "new_scenario_collected": 1,
+    "new_scenario_executed": 0
+  },
+  "quality": {
+    "ruff": "PASS",
+    "format": "PASS",
+    "diff_check": "PASS",
+    "mypy": "FAIL_UNTOUCHED_FROZEN_FILES",
+    "owned_test_errors": 0,
+    "untouched_errors": {
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": 41,
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": 7,
+      "api/tests/test_owned_model_initialization.py": 8
+    }
+  },
+  "new_scenario": {
+    "selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+    "path": "existing owner/fixture, installed stock RuntimeHost PID1/private namespace, fixed native management entry, existing RuntimeClient Settings save/status, LocalControl/NativeTaskOwner, actual ModelTest.prepare/dispatch, independent PG read before original exchange, native child/binder park, durable observation, same-caller replay, existing fresh installed reader STATUS, original five-table census and strict finally",
+    "settings": "real MANAGEMENT save/readback CONFIRMED via RuntimeClient; no fake saved store or authenticated label; root /state/provider fresh under original owned container state",
+    "negatives_written_not_run": [
+      "wrong saved Settings operation ID",
+      "wrong owner",
+      "changed manifest digest"
+    ],
+    "settlement": "shared original family/DB/Docker owner; require exact native model child.close completion only when held future.done and closed flag true, not Stop ACK or timeout",
+    "model_calls": "EXPECTED_ZERO_NOT_NATIVE_OBSERVED",
+    "inference": "HOLD",
+    "account": "NOT_VERIFIED",
+    "table_delta_expected_not_observed": {
+      "records": 11,
+      "runs": 1,
+      "tasks": 1,
+      "revision2": 0,
+      "inbox": 0
+    },
+    "no_rerun_expected_not_observed": [
+      "one CREATE",
+      "no second worker",
+      "unchanged original NO_MODEL graph bytes",
+      "replay/cold reader exact census/observation bytes"
+    ]
+  },
+  "boundaries": {
+    "actual_producer_positive": "Actual compile/capture/preparation/_source/original one-task _build then actual ModelTest.prepare+dispatch. Authored retained YAML comment4838 ASCII chars and objective suffix X gives canonical aggregate32768 including context, seven records, material bundle. Storage/publication remain explicit SOURCE doubles.",
+    "max_plus_one": "Independently resealed negative changes only fresh snapshot.created_by by one byte at envelope seam; actual ModelTest.prepare gets32769 and original MODEL_TEST_LIMIT; no persistent graph/SQL write/native send/reservation. The only execute is exact SELECT pg_advisory_xact_lock(hashtextextended(:key, 0)).",
+    "native_call": "Actual NativePeer.call accepts32768 producer, serializes native integer correlation2**63-1; rejects32769 before correlation allocation/queue. Mock reply only; no native subprocess.",
+    "wire": "Actual RuntimeClient._exchange_locked writer boundary and NativePeer._enqueue/encode at65536 accepted;65537 exact original managed/frame reason and writer/queue0. Wire padding is serializer-only mutation, NOT legitimate v5 positive.",
+    "unicode": "Real producer with authored Unicode/quotes/backslash objective and retained comments passes native validator and actual envelope encoders. UUID/ref/digest exact types retained; bool revisions and malformed Settings operation identities refused.",
+    "correlation_limits": "RuntimeClient UUID correlation36, boot36, capability64 and signed-PG fence/deadline2**63-1 used. Native integer2**63-1 tested; NativePeer.next_id has no declared universal maximum, so this is a tested layout, not proof for arbitrary integer width.",
+    "control_3600_4096": "Finite Settings and NativeTaskCommand DTOs/operation/ref types are exercised at their actual normal layout. Exact legitimate MAX3600/MAX4096 and broader package/ref layouts NOT_PROVEN: current fixed finite DTO fields do not provide arbitrary positive padding. No invented padded JSON is presented as real producer positive."
+  },
+  "blocked_contracts": [
+    {
+      "id": "CLOSED_ADMISSION_REPLAY",
+      "evidence": "test_retained_replay_after_shutdown_is_blocked_by_existing_fence PASS as current-behaviour test; actual InstanceService.native_preparation_commit denies INSTANCE_SHUTTING_DOWN before receipt read when shutdown_command_id exists; NativeTaskOwner._model_test_prepare enters that fence before replay. Acceptance after shutdown remains RED/BLOCKED, not granted.",
+      "minimal_product_proposal": "Parent adjudication: if after-shutdown receive-only replay is required, authenticate and qualify exact retained request/context/observation before any new-work fence, refusing missing/pending/conflicting data without runtime authority/CREATE. No product edit made."
+    },
+    {
+      "id": "DISTRIBUTION_REQUIRED",
+      "evidence": "Existing old Settings QA cannot attest current frozen source. New scenario requires merged current inert+managed+management overlay/native+adapter inventory43 and current installed API reader closure before any PG/OCI effect."
+    },
+    {
+      "id": "NATIVE_CLOSE_JOIN_NOT_OBSERVED",
+      "evidence": "New strict finally explicitly requires authentic child.close + held future joined. No native execution. Static RPC owner retains _SERVICE/_model_test_batches; no explicit preparation shutdown hook was found in the inspected RPC owner. This is an open cleanup risk, NOT a confirmed runtime RED.",
+      "minimal_product_proposal": "Parent inspect/review existing native EOF/Stop owner reachability to close all retained model-test child records and bound/join each future. Do not accept process death or Stop ACK as the close/join proof."
+    },
+    {
+      "id": "FULL_MYPY_FROZEN",
+      "evidence": "Full targeted mypy exits1 with56 errors only in three unchanged frozen files; not edited while product reviewers run."
+    }
+  ],
+  "native_artifact_prerequisites": {
+    "inventory_file": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/model-prepare-artifact-closure.json",
+    "inventory_sha256": "47ecd5d117587a18c2ab2fc54afdde417109e7ce6e82c7231d93e58e5d0e1c70",
+    "inventory_count": 43,
+    "native_source_count": 23,
+    "adapter_count": 20,
+    "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "producer": "ops/prepare_hermes_runtime.py (prepare -> apply_inert_overlay -> apply_managed_overlay -> apply_management_overlay -> build_native -> inject_adapter)",
+    "producer_argv_template_not_admitted": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "ops/prepare_hermes_runtime.py",
+      "--source-archive",
+      "<owned SHA-verified source archive>",
+      "--output",
+      "<fresh owned distribution root>",
+      "--build",
+      "--python",
+      "<pinned Python3.13.15>",
+      "--uv",
+      "<parent-selected pinned uv>",
+      "--adapter-wheel",
+      "<fresh current adapter wheel>",
+      "--adapter-sha256",
+      "<actual wheel SHA>"
+    ],
+    "oci_producer": "ops/Dockerfile.hermes; input runtime-source/, wheelhouse/, requirements-native.txt, requirements-artifacts.txt, LICENSE.hermes, source-manifest.json, build-manifest.json; fixed stock CMD /opt/hermes/venv/bin/python -I -m omnis_hermes.runtime_host",
+    "settings_native_argv": [
+      "/opt/hermes/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "hermes_cli.main",
+      "serve",
+      "--isolated",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "0"
+    ],
+    "noeffects": "No build/install/OCI/native/PG/SDK/server/browser/provider/network/account/target invocation was performed. Current installed artifact identities/readability are NOT_ATTESTED here; parent must select/produce exact artifact closure and hash-bound independent reviews first."
+  },
+  "first_exact_qa_selector_argv_not_executed": [
+    "/home/kali/OmnisAI/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "ops/run_test_db_gate.py",
+    "--check",
+    "--target",
+    "test-model-test-prepare-native-pg",
+    "--timeout-seconds",
+    "180"
+  ],
+  "qa_admission_environment_required": [
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED=<current test_contract_method_pg.py SHA after independent review>",
+    "OMNIS_BATCH2_INPUT_REVIEWED=<same current SHA>",
+    "OMNIS_BATCH2_ARTIFACT + _ARTIFACT_SHA=<new current43-file installed native distribution evidence>",
+    "OMNIS_BATCH2_API_PREREQUISITES + _API_PREREQUISITES_SHA=<current installed API reader evidence>",
+    "parent-pinned toolchain/private HOME/TMPDIR; no inherited profiles/credentials"
+  ],
+  "resource_cleanup_owner": "Existing ops/run_test_db_gate.py family + dedicated disposable PG fixture/fence; existing contract_method_pg owner attests/drains/removes only registered exact CID and joins process family before DB fixture cleanup. Dedicated fresh /state/provider lies inside that owned state. This author created no external runtime resources. SOURCE roots and private logs retained under /home/kali/.hermes/cache/scratch/mt-59nspv7q",
+  "private_failure_output_allowlist": [
+    "test selector",
+    "exit/status/reason",
+    "counts/sizes",
+    "hashes/file paths",
+    "cleanup/drain booleans",
+    "public boot/task/run IDs only if needed; NEVER capability/token/DSN/credential/raw PG/native stderr"
+  ],
+  "preserved_failures": [
+    "First18000-char authored comment hit earlier PREPARATION_REJECTED document limit, not v5 size guard.",
+    "Existing two-task source helper hit CONTEXT_OVERFLOW before v5 max. Reused actual one-task _build on same fixture; no new producer/harness or higher cap.",
+    "Initial no-SQL oracle counted legitimate advisory SELECT; corrected to exact SELECT-only assertion plus exact graph bytes/write0, preserving MODEL_TEST_LIMIT.",
+    "mapping() returns a copy: initial revision-bool mutation did not alter payload; corrected test reassignment, not product.",
+    "Owned mypy variable name collision fixed in disjoint test only; last run has zero owned-file errors. Frozen56 remain."
+  ],
+  "limits": [
+    "No new real consumer execution before parent reviews/admission",
+    "No integration/native-ready claim",
+    "No backend model compatibility or authentication from Settings DATA",
+    "No legitimate control MAX3600/MAX4096 or universal broader-layout/id-width proof",
+    "No skill/global/status-map writes outside the four allowed repo files; parent owns adjudication/integration/status and any procedural skill update"
+  ]
+}

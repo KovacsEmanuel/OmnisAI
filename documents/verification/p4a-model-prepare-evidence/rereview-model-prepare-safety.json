@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "review_kind": "FOCUSED_INDEPENDENT_SAFETY_REREVIEW_SOURCE_ONLY",
+  "verdict": "CHANGES_REQUESTED",
+  "base_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "previous_review_head": "c0103731e04a9c7fc410b2a456b83706c70e89ac",
+  "head": "4717f2b1d5393fcc0ff126205df19549c970342c",
+  "worktree": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+  "author_report_sha256": "9e67d46b2701deb2b4bcd116c7ed1cee414f58a75dfb07b388a9133e2e8a9763",
+  "snapshot_file_count": 27,
+  "files_sha256": {
+    "Makefile": "f3bba334369a0c5c034b73f1c2f040830ad8f51a1293882fda6241c2a69ef47f",
+    "api/src/omnis/modules/instance/schemas.py": "899de8ae82e661da6ea769d4be21c860e72d624bd74203023c16b9f4513b0116",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "f2344dcc752736fdde052b786c3c58cdbc1ea681fe5ce2e1d387d664ad2357f7",
+    "api/src/omnis/supervisor/native_tasks.py": "e2ad0526d0615bb17699428cf0e84acd1cd02fd03189df34c93b7e9b14c348ee",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_pg.py": "30636f803c223de759a7f87714bc4721d342305384308b0f3a0514c868d92e75",
+    "api/tests/test_contract_method_producer.py": "4990bcc806a98b4aa69171aaf44de9a170fa72d83713e30cac486894f655b18c",
+    "api/tests/test_model_preflight_control.py": "8ad2ddd9474d69aa5b4ac65d89654b271117937e30574bb5477b078eb053a5a8",
+    "api/tests/test_model_test_prepare_source.py": "aa50a410ada6c45d0e8d2193f29c0c0eede25611b7f899bf77c03f3e0da5d392",
+    "api/tests/test_owned_model_initialization.py": "3fc73bd99479c058631d5c25260c1027c1a61e8cc8dac0589584c2116a9ede81",
+    "integrations/hermes/pin.json": "e32aaf110afe72914544bc0a3df9932723bb7ba519de9c91c8be0a29b2dcca85",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "d9656017a54fdb95c54d402011ce351d7dd0db04b24896cfb1903df7fd0858e8",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "fa2f420e452677f4a3c3804a961f4c83ea8b613e8080d68c639f36794bcd023e",
+    "integrations/hermes/tests/test_managed_build.py": "49a94330e3ce7c0f6e1e3da88b35a6f8ad4063d4fee8cfab7296ba33cfe837c3",
+    "integrations/hermes/tests/test_model_prepare_lifecycle.py": "4b770c9f49ef7c6978d19804537f223df776d83ec5e88df1dabf63c7b134a355",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "ba987a721203427744ffa3f0c4c77a74618130651500985b00b44abcf5c8b80e",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "3cc1b1451d010350d43672b405c60b79572dd2a55d7f0cc8306df72bea2d318e",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "b093b4fc1683ceb269b89a46fe49a1b3e814fe8aaed3599492d000bfdbd3397d",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "ba1a2bd611996b12438134156dd498cb3c93da9d5ddec6c766ca99af19a64dbf",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1c42cde7074a862bb4f1a78ab6ffea2cfecc354eb0e886d7c8262d0d48128fd9",
+    "integrations/hermes/upstream/managed-source/tui_gateway/entry.py": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f",
+    "integrations/hermes/upstream/omnis-managed.patch": "7b168467208ead6efb4b73b12f7de906fbe745d0e148712ea8516fe1377504ff",
+    "ops/run_test_db_gate.py": "72f7858e60d1101c3f51180fa80e3a7d45a296edd29a83c94ff859a8d992445f"
+  },
+  "snapshot_verified_before_and_after": true,
+  "git_clean": true,
+  "scope": "Re-review focalizat al remedierilor F01–F04, ownership EOF/Stop/close/join, readback compact/istoric și delte QA/pin/typing. SOURCE/AST exclusiv; nu acceptare native/PG sau inferență.",
+  "scope_map": {
+    "callers": [
+      "RuntimeHost._managed/_launch/_settings_native/stop",
+      "managed_admission_rpc._initialize/close_preparations",
+      "SubagentLifecycleService.prepare_model_test/close_model_tests",
+      "AIAgent.close",
+      "entry.main -> handle_spurious_eof -> _log_exit; SIGTERM -> _log_signal",
+      "NativeTaskOwner -> ModelTest.completed/dispatch -> control_task reader"
+    ],
+    "tests_fixtures_config": [
+      "test_model_prepare_lifecycle.py SOURCE fixture",
+      "test_model_test_prepare_source.py și test_owned_model_initialization.py",
+      "test_contract_method_pg.py [model-test-prepare], reader/observer/shared finally",
+      "Makefile și ops/run_test_db_gate.py selector",
+      "managed-source/managed patch/manifest/pin; distribuție fresh necesară"
+    ],
+    "non_goals": "Nu modific cod/teste/config, nu creez pool/owner, nu lărgesc NO_MODEL, nu execut native/PG/build/install/SDK/OCI/provider/cont/ținte."
+  },
+  "original_dispositions": [
+    {
+      "id": "SAFETY-MTP-01",
+      "disposition": "PARTIAL_FIX_STILL_OPEN",
+      "blocking": true,
+      "evidence": "GRANT-RECHECK",
+      "detail": "bool, expired și +4.8s sunt acum refuzate înainte de read/Stop/launch pe același consumer, iar pozitivul trece. Lipsește recheckul deadlineului cererii după await _settings_native și înainte de Stop; reproducerul nou de mai jos păstrează valid grantul MANAGEMENT existent."
+    },
+    {
+      "id": "SAFETY-MTP-02",
+      "disposition": "CLOSED_SOURCE_ORIGINAL_REPRO",
+      "blocking": false,
+      "evidence": "LIFECYCLE-13",
+      "detail": "Guard sub RLock existent, înainte de marker/constructor; include alte records active, CLOSED+future unfinished rămâne busy, aceeași identitate se reia, closed+done permite următorul ID. Noul cut F05 privește join ownership, nu reintroduce vechiul multi-child repro."
+    },
+    {
+      "id": "SAFETY-MTP-03",
+      "disposition": "CLOSED_SOURCE_ORIGINAL_REPRO",
+      "blocking": false,
+      "evidence": "LIFECYCLE-13",
+      "detail": "Replayul live compară exact obiectul resolver original și tuple root native/session plus child native/session, reapelează configuration_snapshot/observe_model_test sub lock. Root replacement și mutațiile de IDs refuză. Readbackul istoric API rămâne receive-only separat."
+    },
+    {
+      "id": "SAFETY-MTP-04",
+      "disposition": "CLOSED_SOURCE_ORIGINAL_REPRO",
+      "blocking": false,
+      "evidence": "LIFECYCLE-13",
+      "detail": "marker.child este reținut imediat după constructor; cutul _capability pre-record închide copilul și păstrează aceeași instanță BaseException. Nu afirm thread leak la acel cut original. F05 este alt cut, după submit."
+    },
+    {
+      "id": "NATIVE_CLOSE_JOIN_OWNERSHIP",
+      "disposition": "PARTIAL_IMPLEMENTATION_NEW_BLOCKERS_F05_F06",
+      "blocking": true,
+      "detail": "Hookul real entry EOF/signal ajunge prin modulul deja încărcat la service.close_model_tests, nu numai la atexit/server sessions. Revocă toate Events înainte de primul close, blochează CREATE și guardul nu atinge service cold obișnuit. Nu închide însă corect cutul post-submit și nu transportă incertitudinea joinului la Host. Native runtime proof NOT_RUN."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SAFETY-MTP-01",
+      "severity": "HIGH",
+      "blocking": true,
+      "file_line": "integrations/hermes/src/omnis_hermes/runtime_host.py:564-566,600-610;424-436",
+      "title": "Grantul este valid la intrare, dar poate expira în readback înaintea Stopului management.",
+      "repro": "GRANT-RECHECK: now=10e9, grantul MANAGEMENT existent=14e9, deadline cerere=10.1e9. Readbackul avansează clockul la10.2e9, încă valid pentru guardul MANAGEMENT. _managed execută management_stop, golește peer/process și trece IDLE; abia _launch->_grant refuză Invalid authority deadline. Pozitivul identic cu grant3s trece; bool/expired/+4.8s au events=[].",
+      "observed": {
+        "outcome": "Invalid authority deadline",
+        "events": [
+          "saved_read",
+          "management_stop"
+        ],
+        "state": "IDLE",
+        "request_deadline_ns": 10100000000,
+        "readback_completion_ns": 10200000000,
+        "still_valid_management_deadline_ns": 14000000000
+      },
+      "impact": "Efectul management Stop se produce pentru o cerere expirată. Nu afirm provider send sau bypass de capability; refuzul ulterior nu anulează handofful produs.",
+      "minimal_fix": "Reverifică exact deadlineul original și fence/starea relevantă după awaitul readback și înainte de primul Stop; păstrează recheckurile înainte de launch/call, fără grant nou sau prelungire. Adaugă același pozitiv și negativ cu request expirat, dar MANAGEMENT încă valid.",
+      "evidence_command": "GRANT-RECHECK"
+    },
+    {
+      "id": "SAFETY-MTP-05",
+      "severity": "HIGH",
+      "blocking": true,
+      "file_line": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:330-331,345-348,351-364; integrations/hermes/upstream/managed-source/run_agent.py:1045-1049",
+      "title": "Cutul după record.future și înainte de child._model_test_future permite close owner cu future încă neîncheiat.",
+      "repro": "POST-SUBMIT-CUT: sys.settrace injectează aceeași instanță BaseException la linia331, după ce _EXECUTOR.submit a publicat Future în record.future. Worker real bounded în fixture; nu există child._model_test_future. Handlerul de eșec setează closed prin close fără să aștepte Future. Aplic AIAgent.close AST real aceluiași child și apelez close_model_tests real: revine fără eroare deși record.future.done()==False. Finalizatorul separat eliberează/reunește workerul; zero threaduri proprii rămase.",
+      "observed": {
+        "caught_exact_primary": true,
+        "closed": true,
+        "record_has_future": true,
+        "child_has_future": false,
+        "future_done_after_owner_close": false,
+        "owner_close_returned_success": true,
+        "remaining_owned_threads_after_test_finalizer": 0
+      },
+      "impact": "Două sloturi pentru același Future diverg la întrerupere. Slotul de admitere rămâne conservator busy prin record.future, dar noua cale EOF/Stop close/join poate raporta succes fără join. Nu este demonstrat un proces/provider/socket scăpat.",
+      "minimal_fix": "Folosește Future deja reținut în record ca adevăr pentru join și la cleanupul de eșec și în close_model_tests, inclusiv dacă handofful în child nu a terminat. Revocă înainte de wait, păstrează primary BaseException, iar join absent/eșuat rămâne incert. Nu adăuga executor/owner. Regresie la cutul exact, fără join efectuat numai de finalizatorul testului.",
+      "evidence_command": "POST-SUBMIT-CUT"
+    },
+    {
+      "id": "SAFETY-MTP-06",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "file_line": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:357-364; integrations/hermes/upstream/managed-source/tui_gateway/entry.py:127-131,174-177; integrations/hermes/src/omnis_hermes/runtime_host.py:1058-1106",
+      "title": "Incertitudinea joinului nativ nu ajunge la latchul Host; killul familiei poate masca lipsa close/join.",
+      "repro": "STOP-UNCERTAINTY: execut metoda reală close_model_tests cu un child.close care refuză joinul prin TimeoutError; metoda revocă și ridică Native preparation drain uncertain. În același probe execut RuntimeHost.stop AST real, înlocuind numai procesele/signalele/FDurile cu doubles: livrarea TERM observă acel refuz, KILL simulat face familia absentă, Host încheie STOPPED. Variabila uncertain a Host depinde numai de starea anterioară și nu poate observa eroarea native. Zero semnale OS/procese reale.",
+      "observed": {
+        "events": [
+          "native_close_attempt",
+          "Native preparation drain uncertain",
+          "synthetic_kill"
+        ],
+        "native_revoked": true,
+        "native_stopping": true,
+        "host_final_state": "STOPPED",
+        "real_os_signals": 0
+      },
+      "impact": "Predicatul real Host certifică numai absența fizică după kill, nu close/future.done cerut pentru noua pregătire. Nu afirm că familia supraviețuiește killului sau că acesta ar acorda inferență; findingul este pierderea incertitudinii/atribuirea de drain în noul contract.",
+      "minimal_fix": "Pentru pregătirea retained, păstrează distinct incertitudinea close/join în ownerul/transportul existent. Fără probă autentică de close+Future.done, un kill sau un ACK nu trebuie să transforme eșecul în cleanup verificat; păstrează UNCERTAIN și posibilitatea escaladării. Testează pozitivul și refuzul joinului prin aceeași cale Host, fără protocol/owner paralel ori timeout mărit.",
+      "evidence_command": "STOP-UNCERTAINTY",
+      "limit": "Predicat SOURCE cu efecte OS substituite, nu o execuție native/EOF/Stop și nu o măsurătoare de scheduling. Hookul de signal/EOF și ordinea catchurilor au fost citite; integrarea live rămâne NOT_RUN."
+    }
+  ],
+  "positive_checks": {
+    "grant_initial_boundary": "Tip int exact, neexpirat și <=4.5s este acum controlat la intrarea _managed înainte de saved_read/Stop/launch. deadlineul pozitiv original este păstrat; nu este adăugat alt grant.",
+    "lifecycle": "13 teste SOURCE actuale PASS, inclusiv unheld/unjoined slot, other active registry child, replay root/session/native pin, cutul constructor, EOF/Stop prefix, guard ordinary cold și join uncertain în service. RLock/executor/owner existente, fără pool nou.",
+    "native_prefix_reused": "Dovada PREFIX anterioară rămâne numai pentru agent_init/conversation_loop/turn_context/run_agent byte-identice c010373 în scope-ul prefixului; nu s-a făcut vreun fix de deadlock. Constructor/builder/NO_MODEL nu sunt reauditate generic și nu devin native PASS.",
+    "terminal_guard": "Nicio lărgire observată a vechilor NO_MODEL sau a inferenței; actual.close special precede cleanup warm; markerul constructor-owned rămâne scopul special.",
+    "historical_reader": "ModelTest.completed revalidează DTO/full original command digest, owner/preparation/source-manifest/settings context și owned refs, apoi dispatch(False)/qualify/accept; nu cere Settings/grant/launch/write. Pending/missing revine la fenceul curent. HOLD/NOT_VERIFIED/effective=None rămân; statusul retained nu acordă autoritate curentă ori inference_ready.",
+    "compact_reply": "DTO are numai refs/UUIDs și statusuri fixe; reader exact fields/types/kinds/revision1, ID/owner/manifest binding, HOLD și NOT_VERIFIED. Autorul a măsurat894bytes cu correlation/LF și a executat MAX4096/MAX+1 serializer-only; am inspectat consumerul și controalele, nu am rerulat producerul care scrie fixture-uri.",
+    "authority_assessment": "Nu am identificat escaladare nouă din wrong-owner/request/reseal/stale-ref pe noul receive-only path; command_replay compară digestul cererii originale complete, store.owned/get verifică refurile deținute. Nu echivalez asta cu mutații PG efectiv executate."
+  },
+  "frozen_qa_assessment": {
+    "status": "SOURCE_REVIEWED_NATIVE_QA_NOT_RUN",
+    "actual_consumer": "Selectorul existent [model-test-prepare] leagă Settings save/readback și management handoff de producer/commit/read independent, v5 native, constructor/conversation/builder/bind observation, native-turn persist/replay/cold-reader, old NO_MODEL exact și census/read-only postStop.",
+    "cleanup_oracle": "Ramura model_prepare din shared finally este executată și la return timpuriu și cere close ENTERED+COMPLETED o dată; observerul close verifică closed Event și Future.done, nu numai existența callbackului. require_native_observation refuză forbidden/unknown rows. Acesta este un oracle proiectat, nu dovada executării lui native.",
+    "limits": "Proba SOURCE a hookului execută doar prefixul _log_exit/_log_signal, nu main EOF sau livrarea OS a unui signal. Workerii SOURCE sunt reali, child/schema/root sunt doubles explicite. F05/F06 rămân în afara pozitivelor actuale.",
+    "artifact": "43 fișiere native+adapter și API reader current NOT_BUILT/NOT_ATTESTED/NOT_ADMITTED, nu runtime FAIL. Vechiul artifact closure nu se transferă pe noul pin.",
+    "needed_before_live": "Remedii minimale și re-review pe snapshot exact; apoi distribuție current/reapply/build/UID1000 readability și installed API reader, followed by existing authorized finite PG/native gate. Fără prewarm/grant extension/adoptare cont."
+  },
+  "pin_and_type_delta": {
+    "manifest_files": 17,
+    "original_hashes_unchanged": 16,
+    "old_patch_sections_unchanged": 14,
+    "changed_old_sections": [
+      "agent/managed_admission_rpc.py",
+      "agent/subagent_lifecycle.py"
+    ],
+    "new_section": "tui_gateway/entry.py",
+    "entry_vs_post_inert": {
+      "added_lines": 8,
+      "deleted_lines": 0,
+      "original_sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c",
+      "patched_sha256": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f"
+    },
+    "patch_sha256": "7b168467208ead6efb4b73b12f7de906fbe745d0e148712ea8516fe1377504ff",
+    "manifest_sha256": "ba987a721203427744ffa3f0c4c77a74618130651500985b00b44abcf5c8b80e",
+    "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "independent_verification": "2 build-provenance SOURCE tests PASS; toate17 hashes patched/pin/manifest concordă;16original hashes și14patch sections comparate cu c010373; originalul nou entry exact inert-source. Nu am executat reapply/build sau citit/hashuit arhiva în acest re-review read-only.",
+    "author_reapply_receipt": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/seal-fixes-result.json: 17 files/reapply_exact=true, aceleași patch SHA; citit ca dovadă autor, nu rerulare independentă.",
+    "strict_typing": "Inspectate deltele product/API/adapter: niciun Any/type:ignore/noqa nou în cele4 module product afectate verificate; no casts-to-Any/global ignore/catch menit să ascundă type error. Validările de tip adăugate înaintea casturilor păstrează limitele stricte. Native vendor nu este promovat implicit la mypy strict.",
+    "author_checks_not_rerun": "Autor:113API+25adapter SOURCE PASS; mypy32entrypoints0; Ruff0/296format0. Sunt raportate, nu revendicate drept execuție a reviewerului. Full API-wide mypy rămâne1 eroare preexistentă neafectată în test_e2e_cleanup.py:107."
+  },
+  "commands": [
+    {
+      "id": "LIFECYCLE-13",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml -o 'pythonpath=src ../integrations/hermes/src' integrations/hermes/tests/test_model_prepare_lifecycle.py -q --tb=short",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "exit_code": 0,
+      "output": "13 passed, 1 warning in 1.40s",
+      "limits": "SOURCE AST/explicit doubles, Events/threads/executor reale bounded, fără native import; finalizator închide/reunește toate threadurile SOURCE."
+    },
+    {
+      "id": "PIN-2",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml -o 'pythonpath=src ../integrations/hermes/src' integrations/hermes/tests/test_managed_build.py -q --tb=short",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "exit_code": 0,
+      "output": "2 passed, 1 warning in 0.04s",
+      "limits": "Pure source pin/builder identity, nu reapply/build/install."
+    },
+    {
+      "id": "GRANT-RECHECK",
+      "argv_prefix": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import ast,pathlib,types,asyncio,json\nr=pathlib.Path.cwd()\nt=ast.parse((r/\"integrations/hermes/src/omnis_hermes/runtime_host.py\").read_text())\ncls=next(n for n in t.body if isinstance(n,ast.ClassDef) and n.name==\"RuntimeHost\")\ncls.name=\"Host\"; cls.bases=[]\ncls.body=[n for n in cls.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in {\"_managed\",\"_grant\",\"_launch\",\"_preparation_ready\"}]\ntree=ast.fix_missing_locations(ast.Module(body=[ast.ImportFrom(module=\"__future__\",names=[ast.alias(name=\"annotations\")],level=0),cls],type_ignores=[]))\nclock=[10_000_000_000]; events=[]\nclass Peer:\n failure=None\n def __init__(self,*a,**k): pass\n async def handshake(self,**k): events.append(\"handshake\"); return {}\n async def call(self,*a,**k): events.append(\"native_call\"); return {\"SOURCE\":True}\nasync def create(*a,**k): events.append(\"allocation\"); return types.SimpleNamespace(returncode=None)\ng={\"asyncio\":types.SimpleNamespace(create_subprocess_exec=create,subprocess=asyncio.subprocess,timeout=asyncio.timeout),\"time\":types.SimpleNamespace(monotonic_ns=lambda:clock[0]),\"cast\":lambda _,x:x,\"managed\":types.SimpleNamespace(PROTOCOL_V5=\"v5\",RPC={\"task_model_initialize\":\"SOURCE\"},validate_model_prepare=lambda p:p,validate_stage=lambda p:p,validate_release=lambda p:p,validate_status=lambda p:p,validate_model_preflight=lambda p:p,validate_initialization=lambda p:p,validate_initialization_result=lambda r,p:r),\"settings\":types.SimpleNamespace(SELECTION={\"model\":\"SOURCE\"}),\"NATIVE_COMMAND\":(\"NEVER_EXECUTED\",),\"NATIVE_CWD\":\"SOURCE\",\"NATIVE_ENV\":{},\"MAX_FRAME\":65536,\"NativePeer\":Peer}\nexec(compile(tree,\"frozen-host\",\"exec\"),g)\nasync def case(kind):\n events.clear(); clock[0]=10_000_000_000\n h=g[\"Host\"](); h.boot=\"SOURCE\"; h.epoch=1; h.generation=0; h.state=\"MANAGEMENT\"; h.deadline_ns=14_000_000_000\n h.settings_result={\"status\":\"CONFIRMED\",\"operation_id\":\"SOURCE\",\"selection\":g[\"settings\"].SELECTION}\n h.settings_task=types.SimpleNamespace(done=lambda:True); h.launch_spec=None\n async def read(*a):\n  events.append(\"saved_read\"); clock[0]=10_200_000_000 if kind==\"wait-expired\" else 10_000_000_000\n  assert clock[0]<h.deadline_ns\n  return g[\"settings\"].SELECTION\n async def stop(): events.append(\"management_stop\"); h.state=\"STOPPED\"\n h._settings_native=read; h.stop=stop\n d={\"positive\":13_000_000_000,\"bool\":True,\"expired\":9_000_000_000,\"over-managed\":14_800_000_000,\"wait-expired\":10_100_000_000}[kind]\n p={\"protocol\":\"v5\",\"mode\":\"CREATE\",\"context\":{\"payload\":{\"runtime_boot\":\"SOURCE\",\"settings_operation_id\":\"SOURCE\",\"authority\":{\"epoch\":1,\"generation\":0}}}}\n try: await h._managed({\"deadline_ns\":d,\"payload\":p,\"epoch\":1,\"generation\":0,\"op\":\"task_model_initialize\"}); out=\"accepted\"\n except ValueError as e: out=str(e)\n return {\"case\":kind,\"outcome\":out,\"events\":list(events),\"original_deadline\":d,\"retained_deadline\":h.deadline_ns,\"state\":h.state}\nasync def main(): print(json.dumps([await case(k) for k in [\"positive\",\"bool\",\"expired\",\"over-managed\",\"wait-expired\"]]))\nasyncio.run(main())",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "timeout_seconds": 10,
+      "exit_code": 0,
+      "observed": "positive accepted; bool/expired/+4.8s zero events; wait-expired saved_read→management_stop→denial, IDLE",
+      "limits": "Metode Host reale AST; clock, schema, Settings/Stop/process/NativePeer explicit doubles. Niciun efect real. Reproducerul final asigură că MANAGEMENT rămâne valid la completarea readbackului."
+    },
+    {
+      "id": "POST-SUBMIT-CUT",
+      "argv_prefix": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import ast,pathlib,runpy,pytest,sys,json,threading\np=pathlib.Path(\"integrations/hermes/tests/test_model_prepare_lifecycle.py\").resolve()\nn=runpy.run_path(str(p)); m=pytest.MonkeyPatch(); fixture=n[\"lifecycle\"].__wrapped__(m); x=next(fixture)\nclass Cut(BaseException): pass\nprimary=Cut(\"SOURCE post-submit cut\")\ndef trace(frame,event,arg):\n if event==\"line\" and frame.f_code.co_name==\"prepare_model_test\" and frame.f_lineno==331 and frame.f_locals[\"record\"].future is not None:\n  raise primary\n return trace\ntry:\n sys.settrace(trace)\n try: x.service.prepare_model_test(x.payload())\n except Cut as e: assert e is primary\n finally: sys.settrace(None)\n child=x.children[0]; record=next(iter(x.registry.records.values()))\n actualclose=next(f for c in ast.parse((n[\"ROOT\"]/\"run_agent.py\").read_text()).body if isinstance(c,ast.ClassDef) and c.name==\"AIAgent\" for f in c.body if isinstance(f,ast.FunctionDef) and f.name==\"close\")\n scope={}; exec(compile(ast.fix_missing_locations(ast.Module(body=[actualclose],type_ignores=[])),\"SOURCE-real-close\",\"exec\"),scope)\n child._model_test_preparation=object(); child.close=scope[\"close\"].__get__(child)\n x.service.close_model_tests()\n print(json.dumps({\"caught_exact_primary\":True,\"closed\":child._model_test_closed.is_set(),\"record_has_future\":record.future is not None,\"child_has_future\":child._model_test_future is not None,\"future_done_after_owner_close\":record.future.done(),\"owner_close_returned_success\":True}))\nfinally:\n x.release.set()\n try: next(fixture)\n except StopIteration: pass\n m.undo(); print(json.dumps({\"remaining_owned_threads\":sum(t.name.startswith(\"mtp-SOURCE\") for t in threading.enumerate())}))",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "timeout_seconds": 15,
+      "exit_code": 0,
+      "observed": {
+        "closed": true,
+        "record_has_future": true,
+        "child_has_future": false,
+        "future_done_after_owner_close": false,
+        "owner_close_returned_success": true,
+        "remaining_owned_threads": 0
+      },
+      "limits": "Metode reale service și AIAgent.close AST, injectare trace la cut exact; child/schema/conversation/record fixture doubles, worker/Future/Events reale. Joinul din finalizator nu este creditat produsului."
+    },
+    {
+      "id": "STOP-UNCERTAINTY",
+      "argv_prefix": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import ast,pathlib,types,asyncio,threading,contextlib,signal,json\nr=pathlib.Path.cwd(); root=r/\"integrations/hermes/upstream/managed-source\"\nht=ast.parse((r/\"integrations/hermes/src/omnis_hermes/runtime_host.py\").read_text())\nhc=next(c for c in ht.body if isinstance(c,ast.ClassDef) and c.name==\"RuntimeHost\")\nstop=next(f for f in hc.body if isinstance(f,ast.AsyncFunctionDef) and f.name==\"stop\")\nsc=next(c for c in ast.parse((root/\"agent/subagent_lifecycle.py\").read_text()).body if isinstance(c,ast.ClassDef) and c.name==\"SubagentLifecycleService\")\nclose=next(f for f in sc.body if isinstance(f,ast.FunctionDef) and f.name==\"close_model_tests\")\nscope={\"_REGISTRY\":types.SimpleNamespace(lock=threading.RLock())}\nexec(compile(ast.fix_missing_locations(ast.Module(body=[close],type_ignores=[])),\"SOURCE-service\",\"exec\"),scope)\nevents=[]\ndef bad_join(): events.append(\"native_close_attempt\"); raise TimeoutError(\"SOURCE unjoined\")\nchild=types.SimpleNamespace(_model_test_closed=threading.Event(),close=bad_join)\nservice=types.SimpleNamespace(_model_test_batches={\"SOURCE\":{\"child\":child}})\nservice.close_model_tests=scope[\"close_model_tests\"].__get__(service)\nprocess=types.SimpleNamespace(pid=123456789,returncode=None)\nasync def wait(): return process.returncode\nprocess.wait=wait\nclass OS:\n def pidfd_open(self,p): return 500\n def killpg(self,*a):\n  try: service.close_model_tests()\n  except ValueError as e: events.append(str(e))\n def close(self,*a): pass\nclass Signal:\n SIGTERM=signal.SIGTERM; SIGKILL=signal.SIGKILL\n def pidfd_send_signal(self,fd,s):\n  if s==self.SIGKILL: events.append(\"synthetic_kill\"); process.returncode=-9\ng={\"asyncio\":asyncio,\"os\":OS(),\"signal\":Signal(),\"suppress\":contextlib.suppress}\nexec(compile(ast.fix_missing_locations(ast.Module(body=[ast.ImportFrom(module=\"__future__\",names=[ast.alias(name=\"annotations\")],level=0),stop],type_ignores=[])),\"SOURCE-real-host-stop\",\"exec\"),g)\nasync def main():\n h=types.SimpleNamespace(state=\"READY\",stop_lock=asyncio.Lock(),_revoke_management_lifeline=lambda:None,settings_task=None,settings_result=None,process=process,preparation_task=None,preparation_process=None,preparation_root=None,namespace_owned=True,peer=None,management_output=[],_owned_pids=lambda:{process.pid} if process.returncode is None else set())\n await g[\"stop\"](h)\n print(json.dumps({\"events\":events,\"native_revoked\":child._model_test_closed.is_set(),\"native_stopping\":service._model_test_stopping,\"host_final_state\":h.state,\"real_os_signals\":0}))\nasyncio.run(main())",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "timeout_seconds": 10,
+      "exit_code": 0,
+      "observed": {
+        "events": [
+          "native_close_attempt",
+          "Native preparation drain uncertain",
+          "synthetic_kill"
+        ],
+        "native_revoked": true,
+        "native_stopping": true,
+        "host_final_state": "STOPPED",
+        "real_os_signals": 0
+      },
+      "limits": "Service.close_model_tests și Host.stop AST reale; native close timeout și fiecare proces/signal/FD substituite. Acesta demonstrează predicatul/absența propagării, nu runtime native ori scheduling."
+    },
+    {
+      "id": "INTEGRITY",
+      "command": "git status --short --branch; git diff --stat; git rev-parse HEAD; git show --stat --oneline HEAD; git diff --check; python -I -B: hashlib inventory27 comparat cu author-model-prepare-fixes.json înainte și după; patch-section/pin/post-inert-entry identity comparisons",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-fixes",
+      "exit_code": 0,
+      "observed": "HEAD4717f2b exact, detached clean,27/27 SHA egale înainte/după;16old originals/14old sections unchanged;8entry additions/0deletions; zero added Any/type:ignore/noqa în cele4module product inspectate."
+    }
+  ],
+  "failed_or_limited_attempts": [
+    {
+      "id": "INITIAL-EXPIRY-PROBE",
+      "exit_code": 0,
+      "status": "INSUFFICIENT_CONTROL_SUPERSEDED",
+      "detail": "Prima variantă a avansat clockul peste ambele deadlineuri; a observat Stop dar nu modela guardul real _settings_native, deci nu este folosită pentru concluzie. GRANT-RECHECK corectat ține MANAGEMENT valid și expiră numai cererea; același defect confirmat."
+    },
+    {
+      "id": "PYTEST-WARNING",
+      "status": "NON_PRODUCT_WARNING",
+      "detail": "Ambele invocări pytest sync SOURCE: asyncio_mode unknown deoarece pluginul async nu este încărcat în scope-ul strict sync. Testele au rulat13, respectiv2; exit0, fără skip sau weakened oracle."
+    }
+  ],
+  "acceptance": {
+    "source_review": "CHANGES_REQUESTED",
+    "code": "PARTIAL_FIXES_COMMITTED_CANDIDATE_NOT_INTEGRATED",
+    "proof": "SOURCE_TARGETED_ONLY",
+    "native_EOF_Stop_close_join": "NOT_RUN",
+    "actual_current_native_PG_QA": "NOT_RUN",
+    "SDK_provider_network_account": "NOT_RUN",
+    "provider_account": "NOT_VERIFIED",
+    "inference": "HOLD_NO_CALLS",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "P3": "NOT_STARTED",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "writes": [
+    "/home/kali/.hermes/cache/scratch/mt-59nspv7q/rereview-model-prepare-safety.json"
+  ],
+  "safety_limits": [
+    "Numai raportul acesta creat/modificat. Nicio editare produs/worktree, skill/status-map ori instalare/build/cache intenționat.",
+    "Niciun native/PG/SDK/OCI/provider/network/account/server/target/build/install; niciun subprocess nativ ori semnal OS în probes. Git și pytest SOURCE sunt comenzile locale explicite.",
+    "Python -I -B, pytest cacheprovider dezactivat; importurile/adaptoarele sursă doar din frozen roots explicite, dependențe din API .venv existent. Nu a fost importat upstream runtime.",
+    "Nu am citit/hashuit/copiat protected HTML sau ponytail JSON; fără profiles/global/r1/P0/P3/push/adopție de resurse.",
+    "Toți workerii mtp-SOURCE bounded au cleanup/join de finalizator, zero rămași. Nu confund această salvare cu close/join efectuat de produs la cutul F05.",
+    "Native QA și distribuția fresh absente sunt NOT_RUN/NOT_BUILT, nu FAIL runtime inventat. Nicio aprobare live, inference_ready sau model efectiv dedus din metadata/requested."
+  ],
+  "next_action": "Părintele reproduce/adjudecă F01 noul cut, F05 și F06; autorul remediază minimal pe ownerul existent, RED→GREEN în același consumer, apoi re-review delta exactă. Nu bloca arbitrar din artifact missing și nu consuma native/PG până la remediile de siguranță și distribuția current admise.",
+  "lesson_for_parent_skill_only": "Future reținut într-un record nu poate fi dublat într-un child și presupus atomic; cleanupul trebuie să join-uiască sursa autoritativă inclusiv la cutul dintre asignări. O familie absentă după kill nu certifică retroactiv close/future.done. Fără skill write în mandatul read-only.",
+  "reproduce_from_report": "Pentru fiecare command cu python_source: subprocess.run(command[argv_prefix]+[command[python_source]], cwd=command[cwd], timeout=command[timeout_seconds]); fără fișier/harness nou. Rulează numai SOURCE, nu extinde la native/PG."
+}

@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "review_kind": "INDEPENDENT_SAFETY_READONLY_PREPARATION",
+  "verdict": "CHANGES_REQUESTED",
+  "base_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "head": "c0103731e04a9c7fc410b2a456b83706c70e89ac",
+  "worktree": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review",
+  "author_report_sha256": "c4e2c41a97f94a5ea63f3ca45a8e89b34b8bf8b9eb61d84a3ce12f05213112d4",
+  "files_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "f9a52439bbbe2eee197622f90c779666746da2f9d15581c3ae799e3d23c9301b",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "fcdaf8c7816d3f4c97b96a2c2c69b01fd00ea50b9f122561a98beb167e839580",
+    "api/src/omnis/supervisor/native_tasks.py": "1d94546680c5d95e006b8149bc6cdc392b2be39fb3fa529d6af334af9114467a",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_producer.py": "25a85cc5f71be9af2c6bc144fcaa89746df25385171f802b57e67e4b21690615",
+    "api/tests/test_owned_model_initialization.py": "79192dae8103cac5c040a8ce99aa51483179b6234c16d6036aba2b96a2f47c9e",
+    "integrations/hermes/pin.json": "aed9e049459eea995fd833c2e704efe89eda509275da5f1ed376bce603fdea9f",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "afb40769baedc5c8af38df8b6da67b19e61da63ae503a6ba11542a024823ec9c",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "0799b43f96e8909d251894b5078605a18f90cbc6a680366c5e3ecb7cc9155336",
+    "integrations/hermes/tests/test_managed_build.py": "234002ccf9c17e748a280aeffa915d79aaab4dfed5dbcae662f1a1ddff7578fc",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "7571118d9eae3712fcec2679a62257ccc43abc23e2e8877c65ae1fc952e482da",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "3cc1b1451d010350d43672b405c60b79572dd2a55d7f0cc8306df72bea2d318e",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "630135397bcd46b1049e0db28e249a16bdd510a14cdba591901a23808a159c29",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "efee1831eec09ed98489be4c20c3b5753a6164b13ce6ae183f8b07f56fcc1598",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1c42cde7074a862bb4f1a78ab6ffea2cfecc354eb0e886d7c8262d0d48128fd9",
+    "integrations/hermes/upstream/omnis-managed.patch": "e542846562a30c5a660062528ddabc189fa226b7e884adc236a268457c25b1a1"
+  },
+  "snapshot_file_count": 20,
+  "snapshot_verified_before_and_after": true,
+  "scope": "Pregătire exclusiv; autoritate/input strict, prefix nativ real prin AST, lock/worker, handoff management și limite Stop. Nu aprobă produsul native/PG sau inferența.",
+  "requirements_read": [
+    "AGENTS.md furnizat",
+    "README.md CURRENT",
+    "CONTRIBUTING.md, execuție orientată spre produs",
+    "documents/verification/p4a-minim.md CURRENT și contractul de pregătire",
+    "documents/verification/implementation-status.md CURRENT",
+    "documents/Omnis_MVP_Architecture.md §5.2, §6 Stop, §9.9"
+  ],
+  "findings": [
+    {
+      "id": "SAFETY-MTP-01",
+      "severity": "HIGH",
+      "blocking": true,
+      "file_line": "integrations/hermes/src/omnis_hermes/runtime_host.py:575-590;626-628",
+      "title": "Grantul cererii se validează după read/Stop management și poate fi refuzat abia după alocarea noului nativ.",
+      "repro": "Comanda HOST-GRANT: același consumer _managed/_launch/_grant. Pozitiv +4s ajunge native_call; deadline_ns=True produce saved_read→management_stop, apoi Invalid authority deadline și IDLE. +4.8s produce saved_read→management_stop→allocation_attempt→handshake, apoi Invalid managed grant și READY. _validate:1093-1137 nu validează deadline_ns, deci nu există un refuz wire anterior care ar elimina aceste cazuri.",
+      "impact": "O cerere privată autentificată dar invalidă poate închide familia MANAGEMENT; un grant invalid pentru managed poate porni un nou proces înainte de refuz. Nu este afirmat un bypass al capability sau o trimitere provider. Bucla watchdog ulterioară nu anulează efectul deja produs.",
+      "minimal_fix": "Validează tipul și fereastra managed <=4.5s înainte de orice read/handoff/Stop/alocare, folosind aceeași valoare deadline fără extindere. Păstrează recheckurile de expirare și revocare→drain; nu muta ACK înaintea barierei. Testează zero read/Stop/launch pentru grant invalid și pozitivul pe același consumer.",
+      "evidence_command": "HOST-GRANT"
+    },
+    {
+      "id": "SAFETY-MTP-02",
+      "severity": "HIGH",
+      "blocking": true,
+      "file_line": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:282-311; api/src/omnis/modules/runs/model_test.py:102-105,149-156,217-238",
+      "title": "Identități preparation distincte pot păstra simultan mai mulți copii/worker-i activi, deși plafonul curent este unul.",
+      "repro": "Comanda LIFECYCLE: două apeluri CREATE cu preparation_id distinct pe același service/root întorc TURN_BOUND_PRE_CLIENT_HOLD; două futures rulează și ambele records rămân PENDING. Guardul este numai len(_model_test_batches)>=32. Producerul API acceptă identități noi, creează managed-run nou și nu marchează sursa ca lansată; nu există aici un slot comun activ care să respingă a doua pregătire.",
+      "impact": "Workerul held nu este quiescent doar fiindcă record.state este PENDING. Se pot consuma executor slots în paralel și se încalcă maximum-un-copil al feliei, fără niciun apel model. Proba folosește doubles de child/validator; constatarea este control-flow-ul real al serviciului, nu lansare native/PG demonstrată.",
+      "minimal_fix": "Sub lockul existent, refuză o pregătire distinctă cât timp copilul anterior este activ/held sau cleanupul este incert. Nu elibera slotul din simpla observație sau CLOSED fără join; păstrează replayul aceleiași identități și terminal denial. Leagă predicatul owner/native de capul curent, fără pool/owner nou.",
+      "evidence_command": "LIFECYCLE"
+    },
+    {
+      "id": "SAFETY-MTP-03",
+      "severity": "MEDIUM",
+      "blocking": false,
+      "file_line": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:261-276",
+      "title": "Replayul live nu revalidează obiectul/rootul constructor-owned original.",
+      "repro": "LIFECYCLE schimbă resolverul într-un root diferit cu același session_id: STATUS întoarce identitatea rootului vechi, fără niciun configuration_snapshot în ramura replay. Comparația copil._parent_session_id cu prior.parent.session_id nu verifică resolverul curent sau native/session IDs fixate ale părintelui.",
+      "impact": "Defect al contractului public al serviciului pentru un resolver dinamic; dispatcherul fix folosește lambda:_ROOT și nu am demonstrat o înlocuire a lui _ROOT printr-un input wire normal. Nu îl folosesc singur drept blocker de reachability pentru dispatcherul fix și nu pretind o escaladare remote.",
+      "minimal_fix": "Reverifică același obiect parent și IDs/native cold configuration fixate sub registry lock înainte de a credita o observație held/live. Un readback terminal istoric poate fi separat receive-only; nu transforma istoricul în autoritate nouă.",
+      "evidence_command": "LIFECYCLE"
+    },
+    {
+      "id": "SAFETY-MTP-04",
+      "severity": "LOW",
+      "blocking": false,
+      "file_line": "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py:289-299,318-321",
+      "title": "O întrerupere după constructor, înainte de record, ocolește child.close().",
+      "repro": "LIFECYCLE injectează un BaseException exact la _capability după construirea child. Excepția originală este păstrată, marker.record rămâne None, iar copilul nou nu este închis de produs. Finalizatorul probei l-a închis separat.",
+      "impact": "În implementarea actuală constructorul de pregătire este inert și la acest cut nu există încă future; proba NU demonstrează un thread/socket scăpat. Este o lacună concretă în obligația de cleanup a fiecărui child pe BaseException, nu o dovadă de efect provider.",
+      "minimal_fix": "Reține copilul într-un slot local/marker imediat după constructor și închide acel obiect la orice eșec, inclusiv înainte de publicarea recordului. Nu pierde eroarea primară și nu considera revocarea drept drain.",
+      "evidence_command": "LIFECYCLE"
+    }
+  ],
+  "positive_checks": {
+    "native_prefix": "AST executat din constructorul AIAgent real frozen, __getattribute__, configure_model_test/observe_model_test, run_conversation, build_turn_context, _bind_turn_identity, close; note_turn_start original fixat a fost executat. Carrierul și generatorul de session ID au fost doubles; niciun modul upstream importat.",
+    "native_prefix_result": {
+      "bind_reached": true,
+      "note_turn_start_reached": true,
+      "held_same_worker": true,
+      "registry_lock_held_during_ready": true,
+      "client_none": true,
+      "calls_exact_int_zero": true,
+      "identity_negative_denied": true,
+      "close_while_lock_held_joined": true,
+      "remaining_owned_threads": 0
+    },
+    "lock_hypothesis": "Nu confirm deadlockul sugerat. note_turn_start nu ia _REGISTRY.lock. Pentru acest constructor _persist_disabled=True evită inclusiv _INFLIGHT_TURNS_LOCK; ready și close/future.result au încheiat bounded cu lockul reviewului ținut. Nu este native runtime PASS.",
+    "terminal_denial": "Delta model_terminal adaugă noul marker constructor-owned în is_inert_model_context; vechile sink guards nu sunt slăbite în diff. Prefixul special se oprește la bind/closed.wait înainte de client/API. Nu am executat integral toate public/free-function/prewarm/stream/fallback controls.",
+    "material_provenance": "ManagedAdmission._source are doar extensia BuildSource.preparation_bundle: readerele cold/publication anterioare nu sunt înlocuite. ModelTest reapelează source/load_probe și refuză dependencies; nu am găsit în această deltă relaxarea pinurilor de material/publication.",
+    "overlay": "16 SHA patched manifest concordante. turn_context original SHA 85f857dc3c317366d918516bc8b37a022f1020b34da0c3966a31bd289b2942e1 din arhiva cu SHA f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80; diff real numai 16 linii de prefix, nu 1329 linii de logică nouă. Nu am rulat reapply/build."
+  },
+  "input_and_authority_assessment": {
+    "closed": "Command DTO cere UUIDs, interzice config/approval/protocol caps și limitează 3600 bytes. Host leagă boot/epoch/generation și saved Settings; native validează v5 înainte de import/alocare. Noul mod nu este warm upgrade, account rămâne NOT_VERIFIED, requested nu este effective.",
+    "not_equivalent": "API model_test.qualify este mult mai slab decât validate_model_prepare nativ: nu impune complet protocol/mode/context keys/authority/owner/material și corelații nested. Producerul actual construiește acele valori prin readerele existente, deci nu raportez simpla apelare helperului cu arbitrar ca exploit al NativeTaskOwner. Universal MAX/MAX+1, Unicode/escaping și dovada tuturor refuzurilor înainte de persistent intent nu sunt probate.",
+    "stop": "Algoritmul Stop/revocare→drain existent nu a fost rescris. Handofful cere STOPPED și nu relaxează namespace_owned/TestLaunch. Probe fizice de familie, entrypoint allowlist/physical identities și noul consumer PG/native rămân NOT_RUN; F01 privește ordinea validării inputului înainte de handoff, nu mutarea barierei Stop."
+  },
+  "commands": [
+    {
+      "id": "HOST-GRANT",
+      "argv_prefix": [
+        "python3",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import pathlib,ast,types,asyncio,time,json; p=pathlib.Path(\"integrations/hermes/src/omnis_hermes/runtime_host.py\");t=ast.parse(p.read_text());native=next(n for n in t.body if isinstance(n,ast.ClassDef) and n.name==\"RuntimeHost\"); names={\"_managed\",\"_launch\",\"_grant\",\"_preparation_ready\"}; cls=ast.ClassDef(name=\"Host\",bases=[],keywords=[],decorator_list=[],body=[n for n in native.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in names]);tree=ast.fix_missing_locations(ast.Module(body=[ast.ImportFrom(module=\"__future__\",names=[ast.alias(name=\"annotations\")],level=0),cls],type_ignores=[]));events=[]\nclass Peer:\n failure=None\n def __init__(self,*a,**kw):pass\n async def handshake(self,**kw):events.append(\"handshake\");return {}\n async def call(self,*a,**kw):events.append(\"native_call\");return {\"SOURCE_REPLY\":True}\nasync def create(*a,**kw):events.append(\"allocation_attempt\");return types.SimpleNamespace(returncode=None)\nproxy=types.SimpleNamespace(create_subprocess_exec=create,subprocess=asyncio.subprocess,timeout=asyncio.timeout)\nmanaged=types.SimpleNamespace(PROTOCOL_V5=\"v5\",RPC={\"task_model_initialize\":\"SOURCE-RPC\"},validate_model_prepare=lambda p:p,validate_stage=lambda p:p,validate_release=lambda p:p,validate_status=lambda p:p,validate_model_preflight=lambda p:p,validate_initialization=lambda p:p,validate_initialization_result=lambda o,p:o)\ng={\"asyncio\":proxy,\"time\":time,\"cast\":lambda t,x:x,\"managed\":managed,\"settings\":types.SimpleNamespace(SELECTION={\"provider\":\"openai-codex\"}),\"NATIVE_COMMAND\":(\"SOURCE-NEVER-EXECUTED\",),\"NATIVE_CWD\":\"SOURCE\",\"NATIVE_ENV\":{},\"NativePeer\":Peer,\"MAX_FRAME\":65536};exec(compile(tree,\"frozen-runtime-host\",\"exec\"),g)\nasync def case(deadline):\n events.clear();s=g[\"Host\"]();s.boot=\"SOURCE-boot\";s.epoch=1;s.generation=0;s.state=\"MANAGEMENT\";s.deadline_ns=time.monotonic_ns()+4_000_000_000;s.settings_result={\"status\":\"CONFIRMED\",\"operation_id\":\"SOURCE-op\",\"selection\":g[\"settings\"].SELECTION};s.settings_task=types.SimpleNamespace(done=lambda:True);s.launch_spec=None;s.settings_command={};s.peer=None;s.process=None\n async def read(*a):events.append(\"saved_read\");return g[\"settings\"].SELECTION\n async def stop():events.append(\"management_stop\");s.state=\"STOPPED\"\n s._settings_native=read;s.stop=stop;body={\"op\":\"task_model_initialize\",\"epoch\":1,\"generation\":0,\"deadline_ns\":deadline,\"payload\":{\"protocol\":\"v5\",\"mode\":\"CREATE\",\"context\":{\"payload\":{\"runtime_boot\":s.boot,\"authority\":{\"epoch\":1,\"generation\":0},\"settings_operation_id\":\"SOURCE-op\"}}}}\n try:await s._managed(body);outcome=\"accepted\"\n except ValueError as e:outcome=str(e)\n return {\"outcome\":outcome,\"events\":list(events),\"state\":s.state}\nasync def main():\n result={\"boundary\":\"Frozen actual _managed/_launch/_grant/readiness AST; validator/Settings/Stop/process/NativePeer seams; zero real effects\"};result[\"positive\"]=await case(time.monotonic_ns()+4_000_000_000);result[\"bad_type\"]=await case(True);result[\"over_managed_grant\"]=await case(time.monotonic_ns()+4_800_000_000);print(json.dumps(result,sort_keys=True))\nasyncio.run(main())",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review",
+      "timeout_seconds": 15,
+      "exit_code": 0,
+      "observed": {
+        "positive": {
+          "outcome": "accepted",
+          "events": [
+            "saved_read",
+            "management_stop",
+            "allocation_attempt",
+            "handshake",
+            "native_call"
+          ],
+          "state": "READY"
+        },
+        "bad_type": {
+          "outcome": "Invalid authority deadline",
+          "events": [
+            "saved_read",
+            "management_stop"
+          ],
+          "state": "IDLE"
+        },
+        "over_managed_grant": {
+          "outcome": "Invalid managed grant",
+          "events": [
+            "saved_read",
+            "management_stop",
+            "allocation_attempt",
+            "handshake"
+          ],
+          "state": "READY"
+        }
+      },
+      "limits": "AST real al consumerului; schema v5/Settings/Stop/process/NativePeer doubles; fără subprocess/native/socket/efect real."
+    },
+    {
+      "id": "LIFECYCLE",
+      "argv_prefix": [
+        "python3",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import ast,pathlib,sys,types,threading,time,json,uuid,concurrent.futures; base=pathlib.Path(\".\")\ndef mod(name,**values):\n m=types.ModuleType(name); m.__dict__.update(values); sys.modules[name]=m; return m\ndef fn(path,name): return next(n for n in ast.walk(ast.parse((base/path).read_text())) if isinstance(n,ast.FunctionDef) and n.name==name)\nmod(\"agent\"); mod(\"omnis_hermes\")\nclass Child:\n created=[]\n def __init__(self,**kw):\n  self._subagent_id=str(uuid.uuid4()); self.session_id=\"SOURCE-\"+str(uuid.uuid4()); self._model_test_closed=threading.Event(); self._model_test_ready=threading.Event(); self._model_test_failure=None; self._model_test_turn=None; self._model_test_future=None; Child.created.append(self)\n def close(self):\n  self._model_test_closed.set()\n  if self._model_test_future is not None:self._model_test_future.result(timeout=1)\ndef conversation(child,text,task_id):\n child._model_test_turn={\"task_id\":task_id,\"turn_id\":\"SOURCE-turn\"}; child._model_test_ready.set(); child._model_test_closed.wait(4)\ndef result(p,**kw):return {\"status\":\"UNKNOWN\" if kw.get(\"native_turn\") is None else \"TURN_BOUND_PRE_CLIENT_HOLD\",**kw}\nchecks=[]; mod(\"run_agent\",AIAgent=Child); mod(\"agent.agent_init\",observe_model_test=lambda c:None); mod(\"agent.cold_admission\",configuration_snapshot=lambda p:checks.append(id(p))); mod(\"agent.conversation_loop\",run_conversation=conversation); mod(\"omnis_hermes.managed_admission_contract\",ModelTestPreparation=lambda b:b,canonical=lambda p:json.dumps(p,sort_keys=True).encode(),preparation_result=result,validate_model_prepare=lambda p:p)\nclass Rec:\n def __init__(self,*args,agent): self.agent=agent; self.state=args[1]; self.future=None\nclass Handle:\n def __init__(self,*args):self.subagent_id=args[1]\nregistry=types.SimpleNamespace(lock=threading.RLock(),records={}); pool=concurrent.futures.ThreadPoolExecutor(max_workers=3,thread_name_prefix=\"review-SOURCE\")\ng={\"_REGISTRY\":registry,\"_EXECUTOR\":pool,\"_Record\":Rec,\"SubagentHandle\":Handle,\"SubagentState\":types.SimpleNamespace(PENDING=\"PENDING\"),\"time\":time,\"PUBLIC_CONTRACT_VERSION\":1}\nn=ast.ClassDef(name=\"Service\",bases=[],keywords=[],decorator_list=[],body=[fn(\"integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py\",\"prepare_model_test\")]); tree=ast.fix_missing_locations(ast.Module(body=[n],type_ignores=[])); exec(compile(tree,\"frozen-subagent_lifecycle.py\",\"exec\"),g)\nparent=types.SimpleNamespace(session_id=\"SOURCE-parent\",_subagent_id=str(uuid.uuid4()),_parent_session_id=None); current=[parent]; s=g[\"Service\"](); s._parent_agent_resolver=lambda:current[0]; s._model_test_batches={}; s._capability=lambda *a:\"SOURCE-capability\"\ndef payload():return {\"mode\":\"CREATE\",\"context\":{\"payload\":{\"preparation_id\":str(uuid.uuid4()),\"task_id\":str(uuid.uuid4())}},\"records\":[{\"kind\":\"prompt-composition\",\"payload\":{\"text\":\"synthetic\"}}]}\nout={\"boundary\":\"Real frozen prepare_model_test AST; explicit validator/child/root/conversation/record doubles; real bounded threads\"}\ntry:\n p=payload(); one=s.prepare_model_test(p); two=s.prepare_model_test(payload()); out[\"parallel\"]={\"statuses\":[one[\"status\"],two[\"status\"]],\"held_running_workers\":sum(not c._model_test_future.done() for c in Child.created),\"states\":[r.state for r in registry.records.values()]}\n current[0]=types.SimpleNamespace(session_id=parent.session_id,_subagent_id=str(uuid.uuid4()),_parent_session_id=None); previous=len(checks); replay=s.prepare_model_test({**p,\"mode\":\"STATUS\"}); out[\"root_replay\"]={\"original_root_credited\":replay[\"native_root_id\"]==parent._subagent_id,\"different_resolver_root\":current[0]._subagent_id!=parent._subagent_id,\"root_validation_calls\":len(checks)-previous}\n class Cut(BaseException):pass\n def cut(*a):raise Cut()\n s._capability=cut; caught=False\n try:s.prepare_model_test(payload())\n except Cut:caught=True\n out[\"post_constructor_cut\"]={\"caught_exact_baseexception\":caught,\"new_child_closed_by_product\":Child.created[-1]._model_test_closed.is_set(),\"marker_record_is_none\":list(s._model_test_batches.values())[-1][\"record\"] is None}\nfinally:\n for c in Child.created:c.close()\n pool.shutdown(wait=True,cancel_futures=True)\nout[\"cleanup\"]={\"children\":len(Child.created),\"all_closed\":all(c._model_test_closed.is_set() for c in Child.created),\"all_workers_joined\":all(c._model_test_future is None or c._model_test_future.done() for c in Child.created),\"remaining_owned_threads\":sum(t.name.startswith(\"review-SOURCE\") for t in threading.enumerate())}; print(json.dumps(out,sort_keys=True))",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review",
+      "timeout_seconds": 15,
+      "exit_code": 0,
+      "observed": {
+        "parallel": {
+          "held_running_workers": 2,
+          "states": [
+            "PENDING",
+            "PENDING"
+          ],
+          "statuses": [
+            "TURN_BOUND_PRE_CLIENT_HOLD",
+            "TURN_BOUND_PRE_CLIENT_HOLD"
+          ]
+        },
+        "root_replay": {
+          "different_resolver_root": true,
+          "original_root_credited": true,
+          "root_validation_calls": 0
+        },
+        "post_constructor_cut": {
+          "caught_exact_baseexception": true,
+          "new_child_closed_by_product": false,
+          "marker_record_is_none": true
+        },
+        "cleanup": {
+          "children": 3,
+          "all_closed": true,
+          "all_workers_joined": true,
+          "remaining_owned_threads": 0
+        }
+      },
+      "limits": "AST real prepare_model_test; child/carrier/validator/root/record/conversation doubles explicite; ThreadPool și Events reale, worker fuse 4s, join1s, finalizer pentru toate obiectele."
+    },
+    {
+      "id": "PREFIX",
+      "argv_prefix": [
+        "python3",
+        "-I",
+        "-B",
+        "-c"
+      ],
+      "python_source": "import pathlib,ast,sys,types,json,uuid,time,threading,datetime,concurrent.futures,tarfile,hashlib; r=pathlib.Path(\".\")\ndef get(p,n):\n t=ast.parse((r/p).read_text()); t=next(c for c in t.body if isinstance(c,ast.ClassDef) and c.name==\"AIAgent\") if p.endswith(\"run_agent.py\") else t; return next(f for f in ast.walk(t) if isinstance(f,ast.FunctionDef) and f.name==n)\ndef run(nodes,g):\n m=ast.fix_missing_locations(ast.Module(body=[ast.ImportFrom(module=\"__future__\",names=[ast.alias(name=\"annotations\")],level=0),*nodes],type_ignores=[])); exec(compile(m,\"frozen-source-prefix\",\"exec\"),g)\ndef mod(n,**kw): m=types.ModuleType(n); m.__dict__.update(kw); sys.modules[n]=m\nmod(\"agent\");mod(\"omnis_hermes\")\nclass Carrier:\n def __init__(self,raw):self.raw=raw\n def payload(self):return json.loads(self.raw)\nmod(\"omnis_hermes.managed_admission_contract\",ModelTestPreparation=Carrier)\ng={\"threading\":threading,\"datetime\":datetime.datetime,\"new_session_id\":lambda d:\"SOURCE-session-\"+str(uuid.uuid4())}\nrun([get(\"integrations/hermes/upstream/managed-source/agent/agent_init.py\",n) for n in [\"configure_model_test\",\"observe_model_test\"]],g); mod(\"agent.agent_init\",configure_model_test=g[\"configure_model_test\"],observe_model_test=g[\"observe_model_test\"])\ni=get(\"integrations/hermes/upstream/managed-source/run_agent.py\",\"__init__\"); g.update({n.id:None for d in [*i.args.defaults,*[d for d in i.args.kw_defaults if d is not None]] for n in ast.walk(d) if isinstance(n,ast.Name)});g[\"sys\"]=sys\nrun([ast.ClassDef(name=\"AIAgent\",bases=[],keywords=[],decorator_list=[],body=[i,get(\"integrations/hermes/upstream/managed-source/run_agent.py\",\"__getattribute__\"),get(\"integrations/hermes/upstream/managed-source/run_agent.py\",\"close\")])],g)\na=pathlib.Path(\"/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar\");assert hashlib.sha256(a.read_bytes()).hexdigest()==\"f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80\"\nwith tarfile.open(a) as t:s=t.extractfile(\"agent/agent_runtime_helpers.py\").read().decode()\nh={\"time\":time};run([next(f for f in ast.parse(s).body if isinstance(f,ast.FunctionDef) and f.name==\"note_turn_start\")],h);mod(\"agent.agent_runtime_helpers\",note_turn_start=h[\"note_turn_start\"]);mod(\"omnis_hermes.model_terminal\",is_inert_model_context=lambda a:True,terminal_result=lambda:None)\ng[\"uuid\"]=uuid;run([get(\"integrations/hermes/upstream/managed-source/agent/turn_context.py\",n) for n in [\"_bind_turn_identity\",\"build_turn_context\"]]+[get(\"integrations/hermes/upstream/managed-source/agent/conversation_loop.py\",\"run_conversation\")],g)\np={\"context\":{\"payload\":{\"task_id\":str(uuid.uuid4()),\"requested\":{\"provider\":\"openai-codex\",\"model\":\"gpt-6.1-sol\",\"effort\":\"xhigh\"}}},\"records\":[{\"kind\":\"prompt-composition\",\"payload\":{\"text\":\"synthetic\"}}]};child=g[\"AIAgent\"](model_test_preparation=Carrier(json.dumps(p).encode())); lock=threading.RLock(); pool=concurrent.futures.ThreadPoolExecutor(max_workers=1,thread_name_prefix=\"review-prefix\");out={\"boundary\":\"actual frozen AST native constructor/getter/conversation/builder/bind/close and pinned stock note_turn_start; carrier/session-id doubles; no native imports\"}\ndef worker():\n try:g[\"run_conversation\"](child,\"synthetic\",task_id=p[\"context\"][\"payload\"][\"task_id\"])\n except ValueError:child._model_test_failure=\"closed\"\ntry:\n with lock:\n  child._model_test_future=pool.submit(worker);assert child._model_test_ready.wait(1);out.update({\"bind_reached\":child._current_turn_id==child._model_test_turn[\"turn_id\"],\"note_turn_start_reached\":child._inflight_turn_id==child._current_turn_id,\"held_same_worker\":not child._model_test_future.done(),\"registry_lock_held_during_ready\":True,\"client_none\":child.client is None,\"calls_exact_int_zero\":type(child._api_call_count) is int and child._api_call_count==0});g[\"observe_model_test\"](child);old=child.session_id;child.session_id=\"mutated\";denied=False\n  try:g[\"observe_model_test\"](child)\n  except ValueError:denied=True\n  child.session_id=old;out[\"identity_negative_denied\"]=denied;child.close();out[\"close_while_lock_held_joined\"]=child._model_test_future.done()\nfinally:\n child.close();pool.shutdown(wait=True,cancel_futures=True)\nout[\"remaining_owned_threads\"]=sum(t.name.startswith(\"review-prefix\") for t in threading.enumerate());print(json.dumps(out,sort_keys=True))",
+      "cwd": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review",
+      "exit_code": 0,
+      "timeout_seconds": 15,
+      "observed": {
+        "bind_reached": true,
+        "note_turn_start_reached": true,
+        "held_same_worker": true,
+        "registry_lock_held_during_ready": true,
+        "client_none": true,
+        "calls_exact_int_zero": true,
+        "identity_negative_denied": true,
+        "close_while_lock_held_joined": true,
+        "remaining_owned_threads": 0
+      },
+      "limits": "AST real, carrier/session-id și module shells doubles, lock RLock local de același tip (nu registry nativ importat); niciun modul upstream importat. Nu este native QA."
+    },
+    {
+      "id": "INTEGRITY",
+      "command": "git status --short --branch && git diff --stat && git rev-parse HEAD && git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "observed": "HEAD detached c010373, fără modificări; inventarul de 20 SHA a fost comparat prin hashlib înainte și după. Diff turn_context comparat in-memory cu arhiva originală fixată; 16 overlay hashes egale."
+    }
+  ],
+  "failed_probe_attempts": [
+    {
+      "exit_code": 1,
+      "effect": "Niciun worker lansat",
+      "reason": "Prima extragere AST a ales un alt __init__ din run_agent.py: unexpected keyword model_test_preparation. Nu este defect de produs."
+    },
+    {
+      "exit_code": 1,
+      "effect": "Nicio clasă AIAgent creată/niciun worker lansat",
+      "reason": "A doua extragere AST a înlocuit accidental numele sys din defaultul sys.maxsize cu None; AttributeError la definirea clasei. Nu este defect de produs."
+    }
+  ],
+  "acceptance": {
+    "source_review": "CHANGES_REQUESTED",
+    "new_source_QA": "PARTIAL, probes scoped de mai sus",
+    "actual_new_native_PG_QA": "NOT_RUN",
+    "universal_v5_MAX_MAX_PLUS_ONE": "NOT_RUN",
+    "native_inference": "NOT_RUN",
+    "provider_account": "NOT_VERIFIED",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "writes": [
+    "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review-model-prepare-safety.json"
+  ],
+  "safety_limits": [
+    "Nicio editare produs/worktree; nicio instalare/cache Python/build/PG/OCI/upstream import/SDK/network/server/provider/target/cont.",
+    "Folosite numai sursele frozen review și citire in-memory a celor două funcții stock necesare din arhiva originală hash-matching; nu sursa autorului aflată în lucru.",
+    "Nu am citit/hashuit/copiat HTML-ul protejat ori ponytail.json; fără profile/r1/P0/P3/global/push.",
+    "Toți workerii SOURCE au fost închiși și join-uiți; zero threaduri proprii rămase.",
+    "Nu am modificat skilluri sau harta proiectului: mandat read-only, părintele deține adjudecarea/integrările."
+  ],
+  "next_action": "Părintele reproduce și adjudecă F01/F02, autorul remediază minimal și adaugă controale pe consumerul existent, apoi re-review focalizat și QA reală nouă după prerechizitele legitime. Lipsa QA este NOT_RUN, nu un blocker extern inventat.",
+  "reproduce_from_report": "În cwd=worktree, execută subprocess.run(command['argv_prefix']+[command['python_source']], cwd=command['cwd'], timeout=command['timeout_seconds']) pentru HOST-GRANT, LIFECYCLE ori PREFIX; nu este necesar un fișier/harness nou. Comenzile sunt read-only SOURCE; nu le extinde la native/PG."
+}

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "verdict": "NOT_IMPLEMENTED_BOUNDED_AUTHOR_HANDOFF",
+  "completion": "The requested model-test preparation vertical was NOT implemented. No product code, repository test, pin, manifest, distribution metadata or project-status document was modified. This is a failed implementation assignment with a SOURCE baseline, not product completion or a review-ready candidate.",
+  "base_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "head_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "worktree": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/work",
+  "branch": "work/mt-59nspv7q",
+  "commits": [],
+  "owned_product_paths": [],
+  "dirty_paths": [],
+  "scope_reached": "Read actual owner/control DTO, ManagedAdmission/ModelDispatch/selection/snapshot/preparation producer and readers, existing SOURCE producer, RuntimeClient/Host/NativePeer registries, indexed SubagentLifecycleService, owned-core constructor and conversation entry, and exact pinned turn_context.py. Executed the existing real B06 SOURCE producer and native adapter's pure stage validator, never the upstream native runtime. Wrote and observed an explicitly conceptual failing SOURCE producer-to-private-command baseline in scratch only.",
+  "non_goals_preserved": [
+    "No old NO_MODEL/cold/core/CONTRACT denial widened; no source records rewritten.",
+    "No native/SDK/client/provider/target/DB/OCI/service/server/build/install processes or network calls.",
+    "No accounts/OAuth/credentials/personal configuration/environment inspection; no r1/P0/P3, global/profile, shared-main, other-agent, push, amend or rewrite actions.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were not read, hashed, copied or modified.",
+    "No artificial turn, synthetic SDK client, warm upgrade, effective-capability or backend availability claim.",
+    "Stop ordering remains durable revocation/fence before awaiting drain; the rejected remote-ACK-first design was not implemented."
+  ],
+  "source_red": {
+    "path": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/source_prepare_baseline.py",
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/mt-59nspv7q/source_prepare_baseline.py",
+    "workdir": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/work",
+    "first_exit": 1,
+    "final_exit": 1,
+    "final_tests": 1,
+    "final_failures": 1,
+    "final_seconds": 4.887,
+    "failure": "AssertionError: MODEL_TEST_PREPARE private owner command absent; exact errors=[(('action',), 'literal_error')]",
+    "meaning": "Real B06 material/compile/selection/preparation/source/build/stage production succeeds with publication/storage boundary doubles, but the desired new private command does not exist. This is only the earliest conceptual RED; it does not test an implemented v5 consumer or native constructor/turn/persistence. No GREEN product implementation followed."
+  },
+  "source_legacy_controls": {
+    "command": "env -i HOME=/home/kali/.hermes/cache/scratch/mt-59nspv7q PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/mt-59nspv7q PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = [\"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/api/src\", \"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/api/tests\", \"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_owned_model_initialization.py::test_private_owner_commits_source_and_intent_before_core_handoff_then_replays_readonly\", \"api/tests/test_owned_model_initialization.py::test_uncertain_initialization_replays_status_without_another_create\", \"api/tests/test_owned_model_initialization.py::test_owner_refuses_unavailable_configuration_refs_before_initialization_intent\", \"-q\", \"--basetemp=/home/kali/.hermes/cache/scratch/mt-59nspv7q/legacy-source\"]))'",
+    "exit": 0,
+    "passed": 7,
+    "seconds": 0.45,
+    "boundary": "SOURCE owner/store/native-observation doubles only, no PostgreSQL/socket/native process. Positive owned-source/commit/readback and uncertain STATUS replay plus five invalid refs remain intact on unchanged product bytes."
+  },
+  "actual_producer_measurements": {
+    "artifact": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/producer-baseline.json",
+    "producer": "api/tests/test_contract_method_producer.py::batch2_source -> NativePreparation.build -> ManagedAdmission._source/_build -> BuildSource.build -> managed_composition.stage_payload; fresh source capture/compile, publication/storage doubles",
+    "reader": "omnis_hermes.managed_admission_contract.validate_stage for every accepted single-child sample; no native agent imported or constructed",
+    "b06_two_child_v4": {"graph_bytes": 47621, "preparation_bundle_bytes": 14828, "stage_canonical_bytes": 32503, "host_stage_frame_bytes": 32766, "native_rpc_stage_frame_bytes": 32606, "record_count": 25},
+    "b06_single_child_cold_v3_empty_records": {"graph_bytes": 48557, "stage_canonical_bytes": 22923},
+    "single_child_real_input_growth_controls": [
+      {"character": "a", "last_accepted_records": 26, "value_bytes": 7293, "stage_canonical_bytes": 30462, "native_rpc_frame_bytes": 30565, "first_rejected_records": 27, "reason": "CASE_INPUT_LIMIT"},
+      {"character": "é", "last_accepted_records": 14, "value_bytes": 7279, "stage_canonical_bytes": 30328, "native_rpc_frame_bytes": 43815, "first_rejected_records": 15, "reason": "CASE_INPUT_LIMIT"},
+      {"character": "界", "last_accepted_records": 9, "value_bytes": 6835, "stage_canonical_bytes": 29834, "native_rpc_frame_bytes": 36390, "first_rejected_records": 10, "reason": "CASE_INPUT_LIMIT"},
+      {"character": "\"", "last_accepted_records": 9, "value_bytes": 4684, "stage_canonical_bytes": 31985, "native_rpc_frame_bytes": 32088, "first_rejected_records": 10, "reason": "CONTEXT_OVERFLOW"}
+    ],
+    "limits": "These are observed existing producer samples and first-refused record counts, not exact universal MAX/MAX+1 bytes and not a v5 serializer. Wire measurements use actual runtime_protocol.encode with JSON escaping and complete host/native request envelopes; no socket transmission. New v5 aggregate maxima remain unresolved and must be measured on its actual producer before writes/allocation. Canonical UTF-8 and escaped wire lengths differ substantially; no caps were raised."
+  },
+  "concrete_unresolved_interface": {
+    "name": "Fresh model-test selection versus immutable existing document-preparation lineage",
+    "producer_guard": "api/src/omnis/modules/runs/native_preparation.py:245-258 calls PublicationCatalog.load_probe and demands selected == selection_payload(...) before building material. retained():132-143 demands original selection resolution NO_MODEL. read_receipt():180-185 demands receipt.selection_ref == bundle.selection_ref.",
+    "managed_reader_guard": "api/src/omnis/modules/runs/managed_admission.py:155-188 re-resolves through PureProbe._selection and the original receipt, then demands bundle.selection_ref == request.selection_ref. PublicationCatalog.load_probe():283 compares the run snapshot exactly with cold snapshot_payload(publication).",
+    "consequence": "Passing a new MODEL_TEST_PREPARE selection through these existing readers cannot work unchanged, and relaxing them would violate preservation of the old NO_MODEL branches. Merely adding the DTO/RPC enum or codex_responses to old configuration is not the requested vertical.",
+    "narrow_alternative": "Implement a v5-qualified reader in the explicitly allowed same-owner modules/runs/model_test.py: resolve the existing receipt under its ORIGINAL cold selection solely as material provenance; independently validate the new immutable snapshot/ExecutionSelection/configuration and correlate publication/profile/package/material refs with that original source. Do not make the old preparation receipt attest the new selection or promote old cold objects. Otherwise request narrowly expanded production ownership for the existing NativePreparation reader/contract before editing it. No new store/table/owner is needed.",
+    "status": "NOT_RESOLVED_BY_THIS_AUTHOR",
+    "external_blocker_claim": false,
+    "honesty": "This is an implementation seam/choice that I did not finish within the bounded author assignment, not proof that the authorized vertical is impossible, not an account-permission blocker, and not a newly discovered backend refusal."
+  },
+  "native_prefix_source_observation": {
+    "pin_file": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/agent/turn_context.py",
+    "binding": "Stock build_turn_context calls _bind_turn_identity at lines1031-1034. _bind_turn_identity:544-556 generates real task/turn IDs and calls note_turn_start; no SDK client is needed by that binding function itself.",
+    "required_guards_not_written": "The genuine path still needs a fresh constructor-owned mode, early conversation wrapper branch before native_turn_images/fast/env refresh, and preparation-only build_turn_context handling before compaction import/stdio/recovery/restore/publish/MCP followed by a hard hold immediately after stock binding. It must retain that worker/object rather than rerun the conversation. Existing OwnedInitialization/core and cold guards remain unchanged.",
+    "provenance_limit": "Read exact pinned source path named by the parent; did not reattest the whole original archive, modify the overlay, or import/execute native source."
+  },
+  "remaining_acceptance": [
+    "New private action and actual same-owner orchestration, not a metadata/helper-only branch.",
+    "Exclusive MANAGEMENT drain -> execution preparation, actual Settings/native saved-config readback and immutable source receipt without credential inspection.",
+    "New persisted managed-run/snapshot/ExecutionSelection/task-attempt/Brief/composition; original root/indexed fresh child binding.",
+    "Strict v5 source/config/provenance validation at all transport and native allocation gates; immutable auxiliary/fallback disabled.",
+    "Fresh native constructor-owned preparation mode and authentic run_conversation/build_turn_context identity; same worker retained, pre-client HOLD.",
+    "Durable ref-bound constructor configuration/native-turn/readback, receive-only uncertain replay and negatives before allocation.",
+    "Exact actual v5 MAX/MAX+1/Unicode/escaping/ref/wire measurement before persistence/allocation, native overlay/manifest/distribution reseal, granular GREEN commits.",
+    "Two complementary independent exact-snapshot reviews before parent-owned first native QA."
+  ],
+  "next_qa": {
+    "admissible_now": false,
+    "reason": "No implemented preparation candidate and no model-test-prepare scenario exists in the existing owner test. Do not run the old owned-initialization scenario and relabel it model preparation.",
+    "existing_owner": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox",
+    "existing_selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]",
+    "existing_runner_argv_template_do_not_execute": "env -i HOME=<FRESH_OWNED_ROOT>/home PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=<FRESH_OWNED_ROOT> /home/kali/OmnisAI/api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-owned-initialization-native-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "needed_before_effect": "Extend that existing owner's parameter with the implemented v5 prepare scenario, wire its existing runner target/choice without a new harness, collect exact selector and parse actual argv. Freeze product/test SHA, obtain two complementary reviews, then parent admits one distinct attempt with no prewarm/retry/grant extension.",
+    "private_failure_allowlist": ["sanitized operation/status/reason", "exact ref/digest equality and record counts", "constructor/turn boundary event labels and counts", "client-is-None and integer API-count-zero checks", "owner-owned boot/epoch/generation association result", "family exit/drained/cleanup receipts"],
+    "excluded_logs": "No raw configuration/home/environment/auth/headers/token/model payload/private traceback dumps.",
+    "cleanup_plan": "Reuse existing owner's strict finally observation checks, stop lease renewal, drain original RuntimeClient/Host, join held preparation worker by existing lifecycle, retire exact runtime/control endpoints, then existing family runner cleanup and parent independent exact-resource readback. Retain data/logs/receipts, classify incomplete drain/ack as UNCERTAIN. No real resources were allocated in this assignment."
+  },
+  "scratch_artifacts": [
+    {"path": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/source_prepare_baseline.py", "sha256": "b82b3e4861471afe12b31bf1b062f9a195a61fb8ac4e99e1e7d90aa9b875f05a"},
+    {"path": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/producer-baseline.json", "sha256": "94d06b3c07c60f0cde658e98d6c2d643c70691d3d3fe1fabae0c2da2330a1424"}
+  ],
+  "final_git_verification": {"status_porcelain": "", "head_matches_base": true, "diff_check_exit": 0, "rollback": "No product commit or external-state rollback exists. Scratch fixtures/probe retained for parent; no deletion/adoption required."},
+  "review": "NOT_REQUESTED_NO_PRODUCT_CANDIDATE",
+  "global_status": {"P4a_minim": "PARTIAL_UNCHANGED", "P2_live": "NOT_RUN", "phase2": "NOT_CLOSED", "P3": "NOT_STARTED", "Reticle": "NOT_APPLICABLE", "Chisel": "NO_GO"}
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "review_id": "MODEL-PREPARE-NORM-c010373",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent READONLY normative review: producer/schema/order/persistence/readback/native-turn provenance/declared limits. SOURCE/AST/stdlib only; no native QA.",
+  "base_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "head": "c0103731e04a9c7fc410b2a456b83706c70e89ac",
+  "frozen_checkout": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/review",
+  "changed_path_count": 20,
+  "files_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "f9a52439bbbe2eee197622f90c779666746da2f9d15581c3ae799e3d23c9301b",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "fcdaf8c7816d3f4c97b96a2c2c69b01fd00ea50b9f122561a98beb167e839580",
+    "api/src/omnis/supervisor/native_tasks.py": "1d94546680c5d95e006b8149bc6cdc392b2be39fb3fa529d6af334af9114467a",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_producer.py": "25a85cc5f71be9af2c6bc144fcaa89746df25385171f802b57e67e4b21690615",
+    "api/tests/test_owned_model_initialization.py": "79192dae8103cac5c040a8ce99aa51483179b6234c16d6036aba2b96a2f47c9e",
+    "integrations/hermes/pin.json": "aed9e049459eea995fd833c2e704efe89eda509275da5f1ed376bce603fdea9f",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "afb40769baedc5c8af38df8b6da67b19e61da63ae503a6ba11542a024823ec9c",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "0799b43f96e8909d251894b5078605a18f90cbc6a680366c5e3ecb7cc9155336",
+    "integrations/hermes/tests/test_managed_build.py": "234002ccf9c17e748a280aeffa915d79aaab4dfed5dbcae662f1a1ddff7578fc",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "7571118d9eae3712fcec2679a62257ccc43abc23e2e8877c65ae1fc952e482da",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "3cc1b1451d010350d43672b405c60b79572dd2a55d7f0cc8306df72bea2d318e",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "630135397bcd46b1049e0db28e249a16bdd510a14cdba591901a23808a159c29",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "efee1831eec09ed98489be4c20c3b5753a6164b13ce6ae183f8b07f56fcc1598",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1c42cde7074a862bb4f1a78ab6ffea2cfecc354eb0e886d7c8262d0d48128fd9",
+    "integrations/hermes/upstream/omnis-managed.patch": "e542846562a30c5a660062528ddabc189fa226b7e884adc236a268457c25b1a1"
+  },
+  "author_continued_report_sha256": "c4e2c41a97f94a5ea63f3ca45a8e89b34b8bf8b9eb61d84a3ce12f05213112d4",
+  "parent_attested_original_author_report_sha256": "c4e2c41a97f94a5ea63f3ca45a8e89b34b8bf8b9eb61d84a3ce12f05213112d4",
+  "original_author_sha_scope": "Original author report hash supplied/attested by parent, not independently re-read here.",
+  "integration": "NOT_INTEGRATED / NOT_ACCEPTED; frozen detached checkout remained clean. No main/mutable author worktree read for review.",
+  "findings": [
+    {
+      "id": "MODEL-PREPARE-NORM-F01",
+      "severity": "MEDIUM",
+      "file": "api/src/omnis/supervisor/native_tasks.py",
+      "line": 281,
+      "end_line": 285,
+      "title": "Noul reply de preparare depășește contractul de 4096 bytes chiar în forma obișnuită.",
+      "requirement": "Contractul delegat și p4a-minim: request privat <=3600 bytes, frame/reply control <=4096; limitele nu se măresc ca substitut pentru o proiecție bounded.",
+      "evidence": "Constructorul real AST al contextului și metoda reală NativeTaskOwner._model_test_prepare, cu refs sintetic valide și observație SOURCE, produc context payload 3192 bytes și reply LocalControl json.dumps + newline 5084 bytes. Un singur package, epoch1/generation0, UUID-uri standard, session/turn de lungime normală. Nu este nevoie de MAX/Unicode pentru a depăși 4096.",
+      "repro": "Execută source_controls.command din acest raport. Controlul deschis întoarce observația existentă fără native; serializează exact ca LocalControl._handle: json.dumps(answer).encode()+b\"\\n\" după adăugarea correlation_id. Assert size>4096.",
+      "impact": "Consumerul curent control_task acceptă efectiv până la NATIVE_TASK_REPLY_MAX_BYTES=65536 (limită preexistentă), deci aceasta NU este o afirmație că readerul actual refuză replyul de5084. Este încălcarea concretă a contractului de4KiB cerut pentru noua comandă; SOURCE testul autorului ocolește control_task/LocalControl și nu o verifică.",
+      "minimal_fix": "Proiectează replyul la refs/statusuri bounded și păstrează contextul/observația în store; adaptează validatorul control_task și readerul necesar fără a transfera authority prin DTO. Probează serializerul real inclusiv correlation_id la max/max+1; nu ridica plafonul contractual.",
+      "related_locations": [
+        "api/src/omnis/transport/local_control.py:298-300",
+        "api/src/omnis/supervisor/native_tasks.py:30-32",
+        "api/src/omnis/supervisor/native_tasks.py:544-560"
+      ],
+      "status": "OPEN_SOURCE_CONFIRMED"
+    },
+    {
+      "id": "MODEL-PREPARE-NORM-F02",
+      "severity": "MEDIUM",
+      "file": "api/src/omnis/supervisor/native_tasks.py",
+      "line": 257,
+      "end_line": 266,
+      "title": "Readbackul unui rezultat deja durabil rămâne condiționat de admiterea pentru lucru nou.",
+      "requirement": "Readback/replay deja complet trebuie să fie receive-only după Stop/closed admission; păstrează fence-ul durabil înainte de await/drain pentru orice lucru nou. Este și gapul declarat explicit în raportul autorului, nu o lipsă generică de QA.",
+      "evidence": "_model_test_prepare intră în native_preparation_commit înainte de lookup-ul command_replay/dispatch al observației existente. InstanceService.native_preparation_commit cere generation curent și shutdown_command_id is None (service.py:143-149). După Stop, un replay complet este refuzat înainte de citirea observației. Controlul SOURCE al metodei reale cu context+observație deja disponibile produce INSTANCE_SHUTTING_DOWN și0apeluri readback/0native.",
+      "repro": "source_controls.command: controlul deschis citește observația existentă; același consumer cu fence-ul în starea post-Stop produce ControlConflict(INSTANCE_SHUTTING_DOWN) înainte de consumer.prepare/dispatch. Refuzul concret al serviciului este verificat prin lectura codului, nu prin DB/Stop real.",
+      "impact": "Persistarea există, dar callerul privat nou nu poate citi prin propria comandă rezultatul complet după Stop. Schimbarea generației poate refuza și mai devreme; nu afirmăm că trebuie admis un STATUS nativ sau un CREATE post-Stop.",
+      "minimal_fix": "Separă întâi lookup/readback read-only al receiptului complet, cu aceleași verificări owner/request/ref, de ramura CREATE/STATUS care cere authority curentă. Rezultatul deja comis trebuie să se citească fără grant/Settings/native; lipsa lui păstrează refuzul/incertitudinea. Nu muta Stop după ACK remote și nu relaxa native_preparation_commit.",
+      "related_locations": [
+        "api/src/omnis/modules/runs/model_test.py:100-103",
+        "api/src/omnis/modules/runs/model_test.py:235-263",
+        "api/src/omnis/modules/instance/service.py:143-149"
+      ],
+      "status": "OPEN_KNOWN_GAP_SOURCE_CONFIRMED"
+    }
+  ],
+  "positive_scoped_observations": [
+    "Producerul nou reutilizează NativeTaskOwner/control_task și același RuntimeClient.managed/task_model_initialize; nu introduce tabel ori owner/launcher paralel.",
+    "Prepare creează snapshot/selection/config/run/task/brief/composition/context fresh; originalul NO_MODEL și bundleul rămân provenance, nu sunt promovate la effective model. Exact openai-codex/gpt-6.1-sol/xhigh, effective=null, NOT_VERIFIED/HOLD, fără fallback/account/inference claim.",
+    "Ordinea SQL inspectată respectă FK-ul managed_run.run_id și manifest_id către managed_record: put run+manifest precede INSERT managed_run, toate celelalte records și brief precede INSERT managed_task QUEUED. Schema0011 și alterările0012/0013 nu cer coloane suplimentare omise de INSERT-urile noi. Compatibilitate SOURCE, nu execuție PG.",
+    "Intenția context+contract-input-command este comisă înaintea RuntimeClient.managed; replay incomplet selectează STATUS, nu încă un CREATE. Persistarea observației este într-o tranzacție ulterioară, cu get/ref/digest readback.",
+    "Host v5 cere settings_result CONFIRMED pentru exact operation/selection și re-read nativ înainte de drenarea MANAGEMENT; cere STOPPED, apoi lansează prin _launch existent. Boot/epoch/generation și deadline sunt reverificate; nu este revendicat PASS pentru procesul real.",
+    "Native lifecycle creează un AIAgent nou constructor-owned, îl indexează în registry înainte de worker; workerul intră în run_conversation -> build_turn_context -> _bind_turn_identity stock, apoi rămâne parcat. Observe_model_test citește câmpurile reale ale agentului, clientNone/APIcountint0/inventar gol/identitatea constructorului, nu numai un ref transmis. Aceasta este trasare SOURCE, nu dovadă native.",
+    "Native turn_context are numai ramura nouă de16linii peste stock: eliminarea ei restabilește AST-ul complet original. _bind_turn_identity este AST-identic cu originalul atestat din manifest.",
+    "Patchul managed trece git apply --check --reverse; toate16fișierele sunt reconstruite in-memory spre hashurile originale/post-inert, reaplicate byte-exact și comparate cu hashurile manifestului. Pin/manifest/patch sunt coerente.",
+    "Cele12intrări BEHAVIOR_FILES și6intrări EXECUTOR_FILES pentru compiler/evaluator/publication/PURE sunt byte-identice cu baza. Schimbarea BuildSource este în afara acestor closure-uri declarate. Nu se transferă vechi PASS la v5 și nu se revendică publicare calificată reală din fixture-urile care dublează load_probe."
+  ],
+  "source_controls": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast,json,sys,asyncio\nfrom pathlib import Path\nfrom types import SimpleNamespace as NS\nfrom uuid import uuid4\nfrom contextlib import asynccontextmanager\nfrom unittest.mock import AsyncMock,patch\nr=Path.cwd(); sys.path.insert(0,str(r/'\"'\"'api/src'\"'\"'))\nfrom omnis.modules.settings import candidate_store as records\nfrom omnis.modules.runs import model_test\nfrom omnis.modules.tasks.managed_contract import ref\nfrom omnis.supervisor.native_tasks import NativeTaskOwner\nfrom omnis.modules.settings.catalog_models import CatalogError\nfrom omnis.modules.instance.domain import ControlConflict,ControlCode\nE=lambda k:records.envelope(k,{})\nsource=NS(preparation_ref=records.reference(E('\"'\"'native-preparation-receipt'\"'\"')), selection=E('\"'\"'execution-selection'\"'\"'), procedure_ref=records.reference(E('\"'\"'procedure'\"'\"')))\nrun,owner,task_id,attempt_id,identity,boot=[str(uuid4()) for _ in range(6)]\nrequest={'\"'\"'manifest_ref'\"'\"':records.reference(E('\"'\"'launch-manifest'\"'\"')),'\"'\"'settings_operation_id'\"'\"':str(uuid4()),'\"'\"'authority'\"'\"':{'\"'\"'instance_id'\"'\"':str(uuid4()),'\"'\"'owner'\"'\"':str(uuid4()),'\"'\"'epoch'\"'\"':1,'\"'\"'generation'\"'\"':0},'\"'\"'runtime_boot'\"'\"':boot}\nscope=dict(records=records,ref=ref,PURPOSE=model_test.PURPOSE,REQUESTED=model_test.REQUESTED,owner=owner,run=run,task_id=task_id,attempt_id=attempt_id,identity=identity,request=request,manifest_ref=request['\"'\"'manifest_ref'\"'\"'],source=source,selected={'\"'\"'selected_package_refs'\"'\"':[records.reference(E('\"'\"'package'\"'\"'))]},material={'\"'\"'material_digest'\"'\"':'\"'\"'a'\"'\"'*64,'\"'\"'resolved_index_digest'\"'\"':'\"'\"'b'\"'\"'*64})\nscope.update({k:E(kind) for k,kind in [('\"'\"'manifest'\"'\"','\"'\"'launch-manifest'\"'\"'),('\"'\"'fresh_run'\"'\"','\"'\"'managed-run'\"'\"'),('\"'\"'brief'\"'\"','\"'\"'task-brief'\"'\"'),('\"'\"'composition'\"'\"','\"'\"'prompt-composition'\"'\"'),('\"'\"'fresh_snapshot'\"'\"','\"'\"'run-snapshot'\"'\"'),('\"'\"'selection'\"'\"','\"'\"'execution-selection'\"'\"'),('\"'\"'configuration'\"'\"','\"'\"'provider-config'\"'\"')]})\ntree=ast.parse((r/'\"'\"'api/src/omnis/modules/runs/model_test.py'\"'\"').read_bytes())\nprep=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='\"'\"'prepare'\"'\"')\nexpr=next(n.value for n in prep.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='\"'\"'context'\"'\"' for t in n.targets))\ncontext=eval(compile(ast.Expression(expr),'\"'\"'actual-context-producer'\"'\"','\"'\"'eval'\"'\"'),scope)\nc=context['\"'\"'payload'\"'\"']; observation=records.envelope('\"'\"'native-turn'\"'\"',{'\"'\"'protocol'\"'\"':'\"'\"'omnis-managed-admission-v5'\"'\"','\"'\"'context_ref'\"'\"':records.reference(context),'\"'\"'runtime_boot'\"'\"':boot,'\"'\"'authority'\"'\"':c['\"'\"'authority'\"'\"'],'\"'\"'status'\"'\"':'\"'\"'TURN_BOUND_PRE_CLIENT_HOLD'\"'\"','\"'\"'native_root_id'\"'\"':str(uuid4()),'\"'\"'native_child_id'\"'\"':str(uuid4()),'\"'\"'native_session_id'\"'\"':'\"'\"'20261017-000000-abcdef'\"'\"','\"'\"'native_turn'\"'\"':{'\"'\"'task_id'\"'\"':task_id,'\"'\"'turn_id'\"'\"':'\"'\"'20261017-000000-abcdef:'\"'\"'+task_id+'\"'\"':12345678'\"'\"'},'\"'\"'observed_configuration_ref'\"'\"':c['\"'\"'provider_config_ref'\"'\"'],'\"'\"'client_status'\"'\"':'\"'\"'DEFERRED_NO_CREDENTIAL'\"'\"','\"'\"'model_calls'\"'\"':0,'\"'\"'inference_status'\"'\"':'\"'\"'HOLD'\"'\"','\"'\"'account_status'\"'\"':'\"'\"'NOT_VERIFIED'\"'\"'})\nconsumer=NS(prepare=AsyncMock(return_value=(context,False)),dispatch=AsyncMock(return_value=({},observation)))\nentered=[]\n@asynccontextmanager\nasync def open_fence(*args):\n    entered.append('\"'\"'fence'\"'\"'); yield None\n@asynccontextmanager\nasync def stopped_fence(*args):\n    entered.append('\"'\"'fence-denied'\"'\"'); raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN); yield None\nhandler=object.__new__(NativeTaskOwner)\nhandler.domain=None; handler.owner=owner; handler.epoch=1; handler.runtime=NS(boot=boot); handler._instance=AsyncMock()\ncommand=NS(instance_id=request['\"'\"'authority'\"'\"']['\"'\"'instance_id'\"'\"'],expected_generation=0,owner_id=owner,manifest_ref=request['\"'\"'manifest_ref'\"'\"'],initialization_id=identity,settings_operation_id=request['\"'\"'settings_operation_id'\"'\"'])\nasync def check():\n    with patch.object(model_test,'\"'\"'ModelTest'\"'\"',return_value=consumer):\n        handler.service=NS(native_preparation_commit=open_fence)\n        answer=await handler._model_test_prepare(command)\n        answer['\"'\"'correlation_id'\"'\"']=str(uuid4())\n        size=len(json.dumps(answer).encode())+1\n        assert size>4096\n        print(json.dumps({'\"'\"'case'\"'\"':'\"'\"'reply_limit'\"'\"','\"'\"'context_payload_bytes'\"'\"':len(json.dumps(c).encode()),'\"'\"'LocalControl_json_dumps_reply_bytes'\"'\"':size,'\"'\"'required_cap'\"'\"':4096,'\"'\"'actual_reader_cap'\"'\"':65536,'\"'\"'result'\"'\"':'\"'\"'CONTRACT_EXCEEDED'\"'\"'}))\n        consumer.prepare.reset_mock(); consumer.dispatch.reset_mock(); handler._instance.reset_mock()\n        handler.service=NS(native_preparation_commit=stopped_fence)\n        try: await handler._model_test_prepare(command)\n        except ControlConflict as e:\n            assert e.code==ControlCode.INSTANCE_SHUTTING_DOWN\n            consumer.prepare.assert_not_awaited(); consumer.dispatch.assert_not_awaited()\n            print(json.dumps({'\"'\"'case'\"'\"':'\"'\"'completed_replay_after_Stop'\"'\"','\"'\"'same_persisted_context_and_observation_available'\"'\"':True,'\"'\"'denial'\"'\"':e.code.value,'\"'\"'readback_calls'\"'\"':consumer.dispatch.await_count,'\"'\"'runtime_calls'\"'\"':0,'\"'\"'result'\"'\"':'\"'\"'READBACK_BLOCKED_BEFORE_LOOKUP'\"'\"'}))\n        else: raise AssertionError('\"'\"'closed replay unexpectedly accepted'\"'\"')\nasyncio.run(check())\n'",
+    "exit": 0,
+    "output": "{\"case\": \"reply_limit\", \"context_payload_bytes\": 3192, \"LocalControl_json_dumps_reply_bytes\": 5084, \"required_cap\": 4096, \"actual_reader_cap\": 65536, \"result\": \"CONTRACT_EXCEEDED\"}\n{\"case\": \"completed_replay_after_Stop\", \"same_persisted_context_and_observation_available\": true, \"denial\": \"INSTANCE_SHUTTING_DOWN\", \"readback_calls\": 0, \"runtime_calls\": 0, \"result\": \"READBACK_BLOCKED_BEFORE_LOOKUP\"}",
+    "limits": "Metoda reală owner și expresia reală constructor; store/Settings/native observație și fence sunt doubles. Nu sunt sesiune nativă, PG sau Stop real."
+  },
+  "integrity_controls": {
+    "command": "git apply --check --reverse --directory=integrations/hermes/upstream/managed-source integrations/hermes/upstream/omnis-managed.patch && /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast,hashlib,json,re,subprocess\nfrom pathlib import Path\nr=Path.cwd(); u=r/'\"'\"'integrations/hermes/upstream'\"'\"'\nm=json.loads((u/'\"'\"'managed-patch-manifest.json'\"'\"').read_text()); pin=json.loads((r/'\"'\"'integrations/hermes/pin.json'\"'\"').read_text()); H=lambda b:hashlib.sha256(b).hexdigest()\nassert pin['\"'\"'managed_patch_manifest_sha256'\"'\"']==H((u/'\"'\"'managed-patch-manifest.json'\"'\"').read_bytes())\nraw=(u/'\"'\"'omnis-managed.patch'\"'\"').read_bytes(); assert pin['\"'\"'managed_patch_sha256'\"'\"']==m['\"'\"'patch_sha256'\"'\"']==H(raw)\nlines=raw.decode().splitlines(keepends=True); sections={}; i=0\nwhile i<len(lines):\n    if not lines[i].startswith('\"'\"'--- '\"'\"'): i+=1; continue\n    oldname=lines[i][4:].strip(); name=lines[i+1][4:].strip()[2:]; i+=2; hunks=[]\n    while i<len(lines) and not lines[i].startswith('\"'\"'--- '\"'\"'):\n        if not lines[i].startswith('\"'\"'@@ '\"'\"'): i+=1; continue\n        hit=re.match(r'\"'\"'@@ -(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@'\"'\"',lines[i]); assert hit,lines[i]\n        a,ac,b,bc=hit.groups(); i+=1; body=[]; oldleft=int(ac or 1); newleft=int(bc or 1)\n        while oldleft or newleft:\n            line=lines[i]; i+=1\n            if line=='\"'\"'\\n'\"'\"': line='\"'\"' \\n'\"'\"'\n            assert line[0] in '\"'\"' +-'\"'\"'\n            body.append(line)\n            oldleft-=line[0]!='\"'\"'+'\"'\"'; newleft-=line[0]!='\"'\"'-'\"'\"'\n            assert oldleft>=0 and newleft>=0\n        if i<len(lines) and lines[i].startswith('\"'\"'\\\\ No newline at end of file'\"'\"'):\n            body[-1]=body[-1].removesuffix('\"'\"'\\n'\"'\"'); i+=1\n        hunks.append((int(a),int(b),body))\n    sections[name]=hunks\nassert set(sections)==set(m['\"'\"'files'\"'\"'])\noriginals={}\nfor name,hunks in sections.items():\n    post=(u/'\"'\"'managed-source'\"'\"'/name).read_text().splitlines(keepends=True)\n    assert H('\"'\"''\"'\"'.join(post).encode())==m['\"'\"'files'\"'\"'][name]['\"'\"'patched_sha256'\"'\"']\n    pre=post[:]\n    for a,b,body in reversed(hunks):\n        before=[line[1:] for line in body if line[0]!='\"'\"'+'\"'\"']; after=[line[1:] for line in body if line[0]!='\"'\"'-'\"'\"']\n        positions=[i for i in range(len(pre)-len(after)+1) if pre[i:i+len(after)]==after]; assert len(positions)==1,(name,len(positions)); pos=positions[0]\n        pre[pos:pos+len(after)]=before\n    expect=m['\"'\"'files'\"'\"'][name]['\"'\"'original_sha256'\"'\"']; assert (not pre if expect is None else H('\"'\"''\"'\"'.join(pre).encode())==expect),name\n    originals[name]='\"'\"''\"'\"'.join(pre)\n    applied=pre[:]\n    for a,b,body in reversed(hunks):\n        before=[line[1:] for line in body if line[0]!='\"'\"'+'\"'\"']; after=[line[1:] for line in body if line[0]!='\"'\"'-'\"'\"']\n        positions=([0] if not before else [i for i in range(len(applied)-len(before)+1) if applied[i:i+len(before)]==before]); assert len(positions)==1,(name,len(positions)); pos=positions[0]\n        applied[pos:pos+len(before)]=after\n    assert applied==post,name\nstock=ast.parse(originals['\"'\"'agent/turn_context.py'\"'\"']); final=ast.parse((u/'\"'\"'managed-source/agent/turn_context.py'\"'\"').read_bytes())\noldbind=next(n for n in stock.body if isinstance(n,ast.FunctionDef) and n.name=='\"'\"'_bind_turn_identity'\"'\"'); newbind=next(n for n in final.body if isinstance(n,ast.FunctionDef) and n.name=='\"'\"'_bind_turn_identity'\"'\"'); assert ast.dump(oldbind)==ast.dump(newbind)\n# Remove exactly the new branch and demand the complete stock module AST back.\nbuilder=next(n for n in final.body if isinstance(n,ast.FunctionDef) and n.name=='\"'\"'build_turn_context'\"'\"'); branch=builder.body.pop(1)\nassert isinstance(branch,ast.If) and '\"'\"'_model_test_preparation'\"'\"' in ast.unparse(branch)\nassert ast.dump(stock)==ast.dump(final)\n# Execute only the existing no-effect AST test, not pytest/session fixtures.\np=r/'\"'\"'api/tests/test_owned_model_initialization.py'\"'\"'; tree=ast.parse(p.read_bytes()); test=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='\"'\"'test_model_test_native_source_parks_actual_builder_before_stock_effects'\"'\"'); ns={'\"'\"'Path'\"'\"':Path,'\"'\"'__file__'\"'\"':str(p)}; exec(compile(ast.Module(body=[test],type_ignores=[]),str(p),'\"'\"'exec'\"'\"'),ns); ns[test.name]()\nprint(json.dumps({'\"'\"'patch_reverse_hash_and_forward_byte_exact'\"'\"':len(sections),'\"'\"'stock_turn_context_restored_after_removing_only_new_branch'\"'\"':True,'\"'\"'stock_bind_turn_identity_AST_identical'\"'\"':True,'\"'\"'new_preparation_branch_lines'\"'\"':branch.end_lineno-branch.lineno+1,'\"'\"'existing_AST_test'\"'\"':'\"'\"'PASS'\"'\"','\"'\"'no_native_imports'\"'\"':True}))\n'",
+    "exit": 0,
+    "output": "{\"patch_reverse_hash_and_forward_byte_exact\": 16, \"stock_turn_context_restored_after_removing_only_new_branch\": true, \"stock_bind_turn_identity_AST_identical\": true, \"new_preparation_branch_lines\": 16, \"existing_AST_test\": \"PASS\", \"no_native_imports\": true}",
+    "limits": "Reversare/reaplicare in-memory legate la SHA originale declarate, plus git reverse --check fără scriere; nu build sau arhivă upstream originală reextrasă."
+  },
+  "closure_controls": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast,json,subprocess,hashlib\nfrom pathlib import Path\nr=Path.cwd();base='\"'\"'cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18'\"'\"';root='\"'\"'api/src/omnis/modules/'\"'\"'\nresults={}\nfor path,label in [('\"'\"'settings/candidate_catalog.py'\"'\"','\"'\"'BEHAVIOR_FILES'\"'\"'),('\"'\"'runs/pure_probe.py'\"'\"','\"'\"'EXECUTOR_FILES'\"'\"')]:\n    text=(r/root/path).read_text(); tree=ast.parse(text)\n    files=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==label for t in n.targets))\n    changed=[name for name in files if subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+root+name])!=(r/root/name).read_bytes()]\n    assert not changed\n    results[label]={'\"'\"'files'\"'\"':len(files),'\"'\"'changed'\"'\"':changed}\nprint(json.dumps({'\"'\"'compiler_evaluator_publication_probe_input_closures'\"'\"':results,'\"'\"'note'\"'\"':'\"'\"'managed_admission BuildSource edit is outside these declared hash closures; no legacy publication PASS transferred'\"'\"'}))\n'",
+    "exit": 0,
+    "output": "{\"compiler_evaluator_publication_probe_input_closures\": {\"BEHAVIOR_FILES\": {\"files\": 12, \"changed\": []}, \"EXECUTOR_FILES\": {\"files\": 6, \"changed\": []}}, \"note\": \"managed_admission BuildSource edit is outside these declared hash closures; no legacy publication PASS transferred\"}"
+  },
+  "snapshot_control": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,subprocess,hashlib,json; r=pathlib.Path.cwd(); a=json.loads((r.parent/'\"'\"'author-model-prepare-continued.json'\"'\"').read_text()); paths=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--name-only'\"'\"',a['\"'\"'base_commit'\"'\"'],a['\"'\"'head'\"'\"']],text=True).splitlines(); got={p:hashlib.sha256((r/p).read_bytes()).hexdigest() for p in paths}; assert got==a['\"'\"'files_sha256'\"'\"']; print(json.dumps({'\"'\"'head'\"'\"':subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],text=True).strip(),'\"'\"'files_sha256'\"'\"':got,'\"'\"'author_continued_report_sha256'\"'\"':hashlib.sha256((r.parent/'\"'\"'author-model-prepare-continued.json'\"'\"').read_bytes()).hexdigest()}))'",
+    "exit": 0,
+    "result": "HEAD c010373,20paths/SHA exact author inventory; git status clean and diff --check exit0."
+  },
+  "failed_review_probe_attempts": [
+    {
+      "exit": 1,
+      "scope": "Primul inline AST reply probe",
+      "cause": "Namespace-ul sintetizat omitea helperul ref; NameError. Corectat în source_controls; nu defect de produs."
+    },
+    {
+      "exits": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "scope": "Parser in-memory de integritate al reviewerului",
+      "cause": "Framing unificat existent folosește linii context goale fără prefix și offseturi tolerant-git. Încercările au eșuat în parser, fără scrieri; parserul finit final consumă exact old/new hunk counts. Nu au fost builduri/QA/native attempts și nu sunt findings de produs."
+    }
+  ],
+  "explicit_limits": [
+    "No native imports/SDK/provider/account/network/PG/OCI/build/server or installed QA executed. Existing3SOURCE+2pin tests are author evidence only; independent execution here is the existing no-effect AST test and listed inline controls.",
+    "Universal v5 MAX/MAX+1 and Unicode-escaping closure remain NOT_RUN, as author already states; not filed as another generic finding. F01 is the measured ordinary reply contract breach, not missing test coverage.",
+    "Physical managed_run/task rows remain unbound/QUEUED in this increment; native-turn is the retained mapping observation. No later ledger/binding/readiness/inference consumer is certified by this review.",
+    "Cross-process concurrency, Stop cuts, grant/lease expiry races, PID/starttime/resource attestation and native same-worker/turn live readback remain for complementary safety review and authorized native QA.",
+    "No protected HTML or tools/development/ponytail.json read/hash/copy, no mutable author tree read, no global/profile/r1/P0/P3/push/new-agent/harness changes. Only this absolute report file is written.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Skills/status map not modified under readonly delegation."
+  ],
+  "status_delta": {
+    "candidate": "PARTIAL / NOT_ACCEPTED",
+    "proof": "SOURCE_SCOPED + author3SOURCE/2pin; real consumer NOT_RUN",
+    "review": "CHANGES_REQUESTED",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "P3": "NOT_STARTED",
+    "next": "Parent adjudicates F01/F02; sole author fixes minimally and completes admitted QA/boundaries; focused complementary re-review on fresh exact bytes before native attempt."
+  }
+}

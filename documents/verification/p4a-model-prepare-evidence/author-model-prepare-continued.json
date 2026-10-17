@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "verdict": "IMPLEMENTED_SOURCE_CANDIDATE_PARTIAL_ACCEPTANCE_NOT_NATIVE_QA_READY",
+  "base_commit": "cb891c4ab0d9b2b5204dd9e7e0a6f067f37b6d18",
+  "worktree": "/home/kali/.hermes/cache/scratch/mt-59nspv7q/work",
+  "branch": "work/mt-59nspv7q",
+  "commits": [
+    "c0103731e04a9c7fc410b2a456b83706c70e89ac fix: retain constructor identity in prepared native observation",
+    "cf822b7cfb06e27b2ddda179505db42b89daac48 feat: park fresh indexed model preparation child at native turn binding",
+    "5da8acadbc7adbef5c27e5a6625ff4a816e92e04 feat: own immutable model preparation context separately from cold material"
+  ],
+  "files_sha256": {
+    "api/src/omnis/modules/instance/schemas.py": "f9a52439bbbe2eee197622f90c779666746da2f9d15581c3ae799e3d23c9301b",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "fcdaf8c7816d3f4c97b96a2c2c69b01fd00ea50b9f122561a98beb167e839580",
+    "api/src/omnis/supervisor/native_tasks.py": "1d94546680c5d95e006b8149bc6cdc392b2be39fb3fa529d6af334af9114467a",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_producer.py": "25a85cc5f71be9af2c6bc144fcaa89746df25385171f802b57e67e4b21690615",
+    "api/tests/test_owned_model_initialization.py": "79192dae8103cac5c040a8ce99aa51483179b6234c16d6036aba2b96a2f47c9e",
+    "integrations/hermes/pin.json": "aed9e049459eea995fd833c2e704efe89eda509275da5f1ed376bce603fdea9f",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "afb40769baedc5c8af38df8b6da67b19e61da63ae503a6ba11542a024823ec9c",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "0799b43f96e8909d251894b5078605a18f90cbc6a680366c5e3ecb7cc9155336",
+    "integrations/hermes/tests/test_managed_build.py": "234002ccf9c17e748a280aeffa915d79aaab4dfed5dbcae662f1a1ddff7578fc",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "7571118d9eae3712fcec2679a62257ccc43abc23e2e8877c65ae1fc952e482da",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "3cc1b1451d010350d43672b405c60b79572dd2a55d7f0cc8306df72bea2d318e",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "630135397bcd46b1049e0db28e249a16bdd510a14cdba591901a23808a159c29",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "efee1831eec09ed98489be4c20c3b5753a6164b13ce6ae183f8b07f56fcc1598",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1c42cde7074a862bb4f1a78ab6ffea2cfecc354eb0e886d7c8262d0d48128fd9",
+    "integrations/hermes/upstream/omnis-managed.patch": "e542846562a30c5a660062528ddabc189fa226b7e884adc236a268457c25b1a1"
+  },
+  "head": "c0103731e04a9c7fc410b2a456b83706c70e89ac",
+  "proposed_selector_present": false,
+  "runner_prefix_only": {
+    "attest": null,
+    "check": true,
+    "gate_command": null,
+    "gate_log": null,
+    "gate_result": null,
+    "probe_only": false,
+    "target": "test-owned-initialization-native-pg",
+    "timeout_seconds": 600,
+    "uv": "/home/kali/.local/share/omnis-toolchains/bin/uv"
+  },
+  "status": "",
+  "implementation": [
+    "Private NativeTaskOwner model_test_prepare -> original cold material reader -> fresh immutable qualified snapshot/selection/provider-config/context -> new managed-run/managed-task/brief/composition/manifest in the existing store -> committed CREATE/STATUS intent -> existing initialization RPC v5 -> indexed native lifecycle child -> authentic native run_conversation/build_turn_context/_bind_turn_identity -> held same worker -> native-turn observation persistence/read-only completed replay.",
+    "Original NO_MODEL readers are unchanged. BuildSource adds the already validated original bundle so the new reader and native validator reuse the existing material validator, rather than a second catalog implementation.",
+    "Host requires retained confirmed Settings selection and re-reads actual saved native config before draining the original MANAGEMENT family. It refuses uncertain drain, stale fences, arbitrary configuration, aliases/fallback/auxiliary/Fast and any account/inference approval.",
+    "All model sinks retain terminal denial for the new constructor-owned mode, including when the inert environment flag is absent. No release-to-API or Responses/ledger/Stop algorithm change exists.",
+    "Native patch resealed only six affected sections; all16 overlay files reapply byte-exact against original/post-inert attested inputs. No original archive upgrade or old receipt rewriting."
+  ],
+  "proof": {
+    "boundary": "SOURCE_REAL_PRODUCER_WITH_STORAGE_PUBLICATION_SETTINGS_NATIVE_REPLY_DOUBLES_PLUS_AST_ONLY",
+    "final_source_command": "env -i HOME=/home/kali/.hermes/cache/scratch/mt-59nspv7q PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/mt-59nspv7q PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = [\"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/api/src\", \"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/api/tests\", \"/home/kali/.hermes/cache/scratch/mt-59nspv7q/work/integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_owned_model_initialization.py::test_model_test_prepare_owns_fresh_qualified_context_and_holds\", \"api/tests/test_owned_model_initialization.py::test_model_test_native_source_parks_actual_builder_before_stock_effects\", \"-q\", \"--basetemp=/home/kali/.hermes/cache/scratch/mt-59nspv7q/prepare-source\"]))'",
+    "final_source": {
+      "output": "...                                                                      [100%]\n3 passed in 1.21s",
+      "exit_code": 0,
+      "error": null
+    },
+    "final_source_cases": 3,
+    "managed_pin_tests": {
+      "selector": "integrations/hermes/tests/test_managed_build.py",
+      "passed": 2,
+      "exit": 0,
+      "seconds": 0.04,
+      "after_final_reseal": true
+    },
+    "quality": {
+      "mypy": "5 changed API source files: Success no issues, exit0",
+      "ruff": "7 changed API source/test files, --config api/pyproject.toml: All checks passed, exit0",
+      "git_diff_check": 0
+    },
+    "red_green": [
+      {
+        "phase": "private immutable preparation",
+        "red": "absent action/settings_operation_id, 1FAIL exit1",
+        "green": "1PASS exit0, 0.80s",
+        "commit": "5da8acadbc7adbef5c27e5a6625ff4a816e92e04"
+      },
+      {
+        "phase": "prepared owner/native path",
+        "red": "missing preparation_status KeyError, exit1",
+        "green": "3SOURCE PASS1.27s + 2pin PASS0.04s, exit0",
+        "commit": "cf822b7cfb06e27b2ddda179505db42b89daac48"
+      },
+      {
+        "phase": "constructor identity correction",
+        "red": "AST missing _model_test_identity assertion, 1FAIL exit1",
+        "green": "same AST1PASS0.44s + pin2PASS0.04s, exit0",
+        "commit": "c0103731e04a9c7fc410b2a456b83706c70e89ac"
+      }
+    ],
+    "failures_preserved": [
+      "Combined API/integration pytest collection: duplicate test_managed_composition basename selected the wrong module; separate existing suites pass.",
+      "Intermediate validator return-shape and syntax faults corrected before GREEN commits.",
+      "Initial ruff without component config reported unrelated baseline diagnostics; component-config changed API ruff/mypy pass."
+    ],
+    "native": "NOT_RUN_BY_AUTHORIZATION",
+    "PG": "NOT_RUN_BY_AUTHORIZATION",
+    "SDK_client_provider_network_auth": "NOT_RUN_BY_AUTHORIZATION",
+    "universal_v5_MAX_MAX_PLUS_ONE": "NOT_COMPLETED; actual producer payload/escaped host/native envelope bounds are checked before persistence and allocation, but current SOURCE sample is not universal MAX proof."
+  },
+  "next_qa": {
+    "admissible_now": false,
+    "reason": "The existing contract_method_pg owner has no model-test-prepare scenario. Its current owned-initialization path launches READY directly at line9532 and does not supply native Settings MANAGEMENT save/read/drain. The requested new-mode QA scenario and exact MAX/MAX+1/Unicode boundary coverage remain implementation work; do not relabel the old scenario or loosen namespace_owned/Settings guards.",
+    "existing_owner": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox",
+    "proposed_selector_NOT_IMPLEMENTED": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+    "existing_selector_NOT_PREPARATION_PROOF": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]",
+    "existing_runner_argv_template_DO_NOT_EXECUTE": [
+      "env",
+      "-i",
+      "HOME=<FRESH_OWNED_ROOT>/home",
+      "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin",
+      "TMPDIR=<FRESH_OWNED_ROOT>",
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "ops/run_test_db_gate.py",
+      "--check",
+      "--target",
+      "test-owned-initialization-native-pg",
+      "--uv",
+      "/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "--timeout-seconds",
+      "600"
+    ],
+    "preflight": "Only the AST-extracted existing argparse prefix was executed and parsed successfully; main/effectful runner tail, Docker/PG/native/build were not run. Existing target parses but is not the new-mode selector.",
+    "private_failure_allowlist": [
+      "sanitized operation/status/reason",
+      "ref/digest equality, record counts and bounded byte counts",
+      "constructor/builder/binding event labels and counts",
+      "client-is-None and exact integer API-count-zero",
+      "owned boot/epoch/generation/root/child association checks",
+      "family exit/drained/exact-resource cleanup receipts"
+    ],
+    "cleanup": "Stop lease renewal; preserve durable fence-before-drain ordering; close/join the held same child worker via existing lifecycle; drain original RuntimeClient/Host and exact management/preparation families; existing family-runner cleanup and independent exact resource readback. Keep data/logs/receipts. Incomplete ACK/drain is UNCERTAIN. No such resources were allocated by this author."
+  },
+  "open_work": [
+    "Implement the new scenario in the existing real consumer without introducing a runner/config store or using a fabricated authenticated Settings source.",
+    "Complete exact v5 serializer MAX/MAX+1, Unicode/escaping and negative-before-persistence/allocation coverage.",
+    "Review and exercise receive-only replay under closed admission/Stop: current owner still enters native_preparation_commit before returning completed readback, so post-Stop replay is not established.",
+    "Two complementary parent-owned exact-snapshot reviews, then one authorized genuine native/PG preparation attempt; no old PASS transfer."
+  ],
+  "ownership_scope_notes": [
+    "No other worktree/shared-main/profile/r1/P0/P3/global writes; no push/amend/rewrite/other agent.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were never read, hashed, copied or modified.",
+    "Project status/skills were not edited because outside delegated write scope; parent owns integration/status update.",
+    "This is concrete continued implementation, not full acceptance or an external-blocker claim. QA and boundary coverage remain incomplete."
+  ],
+  "rollback": "Inspect dependent commits, then git revert c0103731e04a9c7fc410b2a456b83706c70e89ac cf822b7cfb06e27b2ddda179505db42b89daac48 5da8acadbc7adbef5c27e5a6625ff4a816e92e04; rerun affected SOURCE/pin tests. No external resources/configuration/data were changed.",
+  "global_status": {
+    "P4a_minim": "PARTIAL; prepared-consumer SOURCE candidate, NOT_ACCEPTED",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "P3": "NOT_STARTED",
+    "review": "NOT_REVIEWED",
+    "Chisel": "NO_GO",
+    "Reticle": "NOT_APPLICABLE"
+  }
+}

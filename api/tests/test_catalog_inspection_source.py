@@ -64,6 +64,7 @@ def fixture_rows() -> tuple[dict[str, object], dict[str, dict[str, object]]]:
 
     def sha(value: object) -> str:
         return sha256(canonical(value)).hexdigest()
+
     owner, group = str(uuid4()), str(uuid4())
     rows: dict[str, dict[str, object]] = {}
 
@@ -329,3 +330,19 @@ async def test_tampered_or_missing_records_refuse(attack: str) -> None:
         row["digest"] = digest = str(record["digest"])
     with pytest.raises(CatalogError):
         await inspect_publication(cast(AsyncConnection, Connection(head, rows)), identity, digest)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        {"kind": "schema", "id": str(uuid4()), "revision": True, "digest": "a" * 64},
+        {"files": [{"path": "profile.yaml", "sha256": "a" * 64, "size": 1, "unknown": True}]},
+    ],
+)
+def test_strict_nested_metadata_cannot_alias_integer_pins(value: object) -> None:
+    from omnis.modules.settings.catalog_inspection import metadata_tree
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    with pytest.raises(CatalogError):
+        metadata_tree({"duration_ns": value} if value is True else {"pin": value})

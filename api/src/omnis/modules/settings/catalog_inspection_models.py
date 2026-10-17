@@ -32,9 +32,10 @@ class CatalogPin(StrictDTO):
         "technique",
         "procedure",
         "schema",
-        "request",
+        "method",
+        "prompt",
+        "template",
         "overlay",
-        "reference",
         "asset",
     ]
     id: UUIDText

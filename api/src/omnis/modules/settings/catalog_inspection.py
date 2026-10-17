@@ -111,10 +111,11 @@ def pins(value: object, kind: str | None = None, minimum: int = 0) -> list[dict[
 
 
 def checked(row: dict[str, object]) -> dict[str, object]:
-    record = store.checked(row["envelope"])
-    bounded(record)
-    if len(canonical(record)) > 1048576:
+    bounded(row["envelope"])
+    if len(canonical(row["envelope"])) > 1048576:
         refuse()
+    record = store.checked(row["envelope"])
+    metadata_tree(record)
     integer(record["schema_version"], 1, 1)
     ref = pin(store.reference(record))
     if (
@@ -127,6 +128,81 @@ def checked(row: dict[str, object]) -> dict[str, object]:
     uuid_text(row["owner_id"])
     uuid_text(row["group_id"])
     return record
+
+
+def metadata_tree(value: object) -> None:
+    """Preserve JSON identity types before equality, even in retained subtrees."""
+    if isinstance(value, dict):
+        if {"kind", "id", "revision", "digest"} <= set(value) and "payload" not in value:
+            pin(value)
+        for key, child in value.items():
+            if key == "files":
+                if not isinstance(child, list) or not 1 <= len(child) <= 128:
+                    refuse()
+                names: set[str] = set()
+                for item in child:
+                    file = obj(item, {"path", "sha256", "size"})
+                    name, digest = file["path"], file["sha256"]
+                    if (
+                        type(name) is not str
+                        or len(name) > 4096
+                        or name.startswith("/")
+                        or "\\" in name
+                        or any(part in ("", ".", "..") for part in name.split("/"))
+                        or name in names
+                        or type(digest) is not str
+                        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                    ):
+                        refuse()
+                    names.add(name)
+                    integer(file["size"], 0, 1048576)
+            if key == "limits":
+                if not isinstance(child, dict) or set(child) not in (
+                    {"max_material_bytes", "dispatch_timeout_seconds"},
+                    {"max_input_bytes", "max_output_bytes", "dispatch_timeout_seconds"},
+                ):
+                    refuse()
+            if key in ("refs", "steps", "catalog_bindings"):
+                if not isinstance(child, list) or len(child) > 128:
+                    refuse()
+                fields = {
+                    "refs": {"package_key", "entity_kind", "key", "digest"},
+                    "steps": {"id", "handler", "input_schema_sha256", "output_schema_sha256"},
+                    "catalog_bindings": {"package_key", "entity_kind", "key", "ref"},
+                }[key]
+                for item in child:
+                    descriptor = obj(item, fields)
+                    for field, scalar in descriptor.items():
+                        if field == "ref":
+                            pin(scalar)
+                        elif field == "digest" or field.endswith("_sha256"):
+                            if (
+                                type(scalar) is not str
+                                or re.fullmatch(r"[0-9a-f]{64}", scalar) is None
+                            ):
+                                refuse()
+                        elif type(scalar) is not str or (
+                            not (field == "package_key" and scalar == "@profile")
+                            and re.fullmatch(r"[a-z][a-z0-9_.-]{0,127}", scalar) is None
+                        ):
+                            refuse()
+            if key in (
+                "size",
+                "duration_ns",
+                "max_input_bytes",
+                "max_output_bytes",
+                "max_material_bytes",
+                "dispatch_timeout_seconds",
+            ):
+                integer(child, 0)
+            if isinstance(child, str):
+                if "\x00" in child:
+                    refuse()
+                child.encode("utf-8")
+            metadata_tree(child)
+    elif isinstance(value, list):
+        for child in value:
+            metadata_tree(child)
 
 
 async def row_for(connection: AsyncConnection, identity: str) -> dict[str, object]:
@@ -210,7 +286,7 @@ async def published_page(connection: AsyncConnection, after: str | None) -> Cata
                 text(
                     "SELECT owner_id,profile_key,generation,draft_id,publication_id "
                     "FROM catalog_publication_head WHERE publication_id IS NOT NULL "
-                    "AND (:after IS NULL OR publication_id > CAST(:after AS uuid)) "
+                    "AND (CAST(:after AS uuid) IS NULL OR publication_id > CAST(:after AS uuid)) "
                     "ORDER BY publication_id LIMIT 21"
                 ),
                 {"after": after},
@@ -220,7 +296,7 @@ async def published_page(connection: AsyncConnection, after: str | None) -> Cata
         .all()
     )
     entries = []
-    for head in rows[:20]:
+    for head in rows:
         identity = uuid_text(head["publication_id"])
         row = await row_for(connection, identity)
         record = checked(row)
@@ -244,7 +320,9 @@ async def published_page(connection: AsyncConnection, after: str | None) -> Cata
         )
     more = len(rows) > 20
     return CatalogPage(
-        items=entries, has_more=more, next_after=entries[-1].publication_ref.id if more else None
+        items=entries[:20],
+        has_more=more,
+        next_after=entries[19].publication_ref.id if more else None,
     )
 
 

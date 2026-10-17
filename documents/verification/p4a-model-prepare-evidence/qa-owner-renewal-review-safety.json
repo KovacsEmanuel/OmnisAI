@@ -1,0 +1,133 @@
+{
+  "report_type": "INDEPENDENT_READ_ONLY_SAFETY_AND_PONYTAIL_FULL",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc",
+    "head": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "head_verified_at_entry_and_exit": true,
+    "tracked_worktree_clean": true,
+    "index_empty": true,
+    "preexisting_untracked_preserved_unread": ["documents/Omnis_Notite_Originale.html"],
+    "other_protected_path_unread": "tools/development/ponytail.json",
+    "two_file_diff_sha256": "b149ef546c012ce04bc9e74f4bcd0aafda68334fcf7edca35d8661a0ce693007"
+  },
+  "sha256": {
+    "api/tests/test_contract_method_pg.py": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+    "api/tests/test_model_test_prepare_source.py": "d814a9f2800d3f543d7adae784fdd5cc02af27c4e7846f16837ed14108d20607"
+  },
+  "author_report_sha256": "b60d2be8f80a320e03acb47f3f4cfeadc77b4417aa35e57c31fbb467aeaf0d64",
+  "what_this_change_does": "The existing QA heartbeat coroutine now renews the same connected RuntimeClient in READY or MANAGEMENT, like the stock supervisor. This keeps a held model preparation alive during offline readback without changing the product authority producer, request grant, expiry, Stop or acceptance oracles.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Maintain legitimate original-owner Host authority while held work and cold readers are intentionally active; preserve expiry, Stop, fencing and failure uncertainty.",
+    "consumer": "Existing test-model-test-prepare-native-pg consumer, maintain_owner inside test_contract_method_real_native_pg_owner_receipts_check_inbox.",
+    "risk": "DB heartbeat alone does not renew the Host deadline; legitimate expiry can close preparation and append observer rows during strict no-rerun comparison. Conversely renewal must not resurrect an expired/stopped Host or extend an in-flight managed operation.",
+    "decision": "Whether the parent may admit one bounded fresh original consumer after complementary review and no-effect prerequisites, not whether native preparation or P4a has passed."
+  },
+  "scope": {
+    "behavioral_change": "api/tests/test_contract_method_pg.py:8784-8797, seven added renewal lines and a comment replacement only",
+    "regression_change": "api/tests/test_model_test_prepare_source.py:25-223, twelve parameterized SOURCE controls",
+    "connected_code_read": [
+      "api/src/omnis/supervisor/__main__.py:140-174",
+      "api/src/omnis/supervisor/runtime_client.py:377-616,760-801",
+      "api/src/omnis/modules/instance/service.py:153-195,273-288",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:150-206,227-264,562-679,1028-1045,1071-1173,1175-1318",
+      "integrations/hermes/src/omnis_hermes/runtime_protocol.py:387-440",
+      "api/tests/test_contract_method_pg.py:6412-6457,8735-8799,9691-9959,12229-12328"
+    ],
+    "documents_read": ["AGENTS.md", "CONTRIBUTING.md", "README.md CURRENT", "documents/verification/implementation-status.md CURRENT and relevant rows", "documents/verification/p4a-minim.md CURRENT and QA-owner remedy", "versioned qa-owner-renewal author/source-results/baseline-red JSON"],
+    "review_methods": ["Exact Git diff and connected-code inspection", "Full Ponytail review instructions", "Independent current/Git byte and SHA comparison", "Programmatic evidence parsing and exact QA-file reverse-delta equality"],
+    "expected_load": "One local disposable QA owner, one connected runtime and held preparation; not a new multi-tenant or general supervisor design."
+  },
+  "findings": [],
+  "blocking_findings_count": 0,
+  "review_assessment": [
+    {
+      "area": "Authority and trust boundary",
+      "result": "No blocking defect found in the changed caller.",
+      "evidence": "The added branch uses the existing runtime object only when model_prepare and writer are present. RuntimeClient.renew obtains CURRENT service authority, with inert_probe=True for READY and management=True for MANAGEMENT. InstanceService still checks owner, epoch, generation, Stop fence and shutdown under DB locks; the grant remains capped at 4.5 seconds and lease heartbeat at 5 seconds. No synthetic grant, new owner, reconnect or retry was added."
+    },
+    {
+      "area": "Concurrency and in-flight requests",
+      "result": "Existing serialization and fixed request budget remain intact.",
+      "evidence": "status and renew use RuntimeClient.lock and the original stream; Host dispatch uses command_lock. Authority lookup remains outside the client lock, preserving the documented DB-to-runtime lock order. Background status/renew cannot overtake a managed exchange on this client. Host._managed captures its own request deadline; this patch does not refresh it. A state change between status and renew is revalidated at Host renewal; expired or non-READY/non-MANAGEMENT state refuses. This is source reasoning, not newly executed overlapping-transaction evidence."
+    },
+    {
+      "area": "Stop, expiry and cancellation",
+      "result": "No bypass or resurrection introduced.",
+      "evidence": "Host renewal refuses when its existing deadline has expired, including before watchdog dispatch, and rejects STOPPING/STOPPED/UNCERTAIN. Stop revokes the management lifeline and, for held preparation, sets STOPPING before its first await; CLOSE is attempted once under stop_lock with uncertainty latched before transport. The QA success path sets done and joins heartbeat before service.shutdown; finally also sets done and observes heartbeat failure before retirement. No shield or cancellation catch was added to maintain_owner. Existing renew closes the client on BaseException and re-raises."
+    },
+    {
+      "area": "Failure and cleanup",
+      "result": "Original fail-closed cleanup behavior is retained.",
+      "evidence": "A heartbeat/status/renew exception terminates the producer and is not suppressed into success. The outer finally records a heartbeat exception as cleanup_failed, then still attempts original Host retirement, exact resource readback, client/control close and engine disposal; unresolved effects retain the DB fence. New SOURCE cases close the RuntimeClient in finally, join Host clients/watchdog, and assert owned runtime.sock/runtime.boot absent. Their process and signal seams are mocked, so this is not native-process drain proof."
+    },
+    {
+      "area": "Regression and oracle integrity",
+      "result": "Controls distinguish the sufficient mechanism and do not weaken the consumer oracle.",
+      "evidence": "Tests extract the actual QA maintain_owner AST and stock tick, run real RuntimeClient/UDS/RuntimeHost watchdog and Stop/NativePeer.call/observer callback, and contrast heartbeat-only versus stock versus current QA in READY and MANAGEMENT. A controlled clock crosses the original 4.5-second grant; renewal preserves observation bytes and an unfinished synthetic Future, then intentional expiry or UDS Stop produces exactly two close rows. Done blocks a new producer invocation and post-close renew refuses. Independent byte comparison proved the entire QA file equals the base after reversing only the seven-line fix and comment replacement: nonmodel behavior, census, byte equality, eleven-record, replay and CLOSE/same-Future oracles are unchanged."
+    }
+  ],
+  "verification": {
+    "executed_by_this_reviewer": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat <base> <head>; git diff --stat; git diff --cached --stat", "exit": 0, "result": "Exact requested HEAD; clean tracked worktree and index; protected preexisting untracked file preserved."},
+      {"command": "git diff <base> <head> -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0, "result": "Only the declared renewal hunk and 201-line companion regression addition affect executable test behavior."},
+      {"command": "api/.venv/bin/python -I -B -c <read-only current/Git SHA and two-file diff digest comparison>", "exit": 0, "result": "Both test SHA values and the versioned author report SHA match the supplied snapshot; both test files equal their HEAD Git blobs."},
+      {"command": "git diff --check e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42", "exit": 0, "result": "No whitespace errors."},
+      {"command": "api/.venv/bin/python -I -B -c <parse versioned results and reverse only the exact QA delta>", "exit": 0, "result": "Baseline summary is 4 failed,8 passed in8.21s/exit1; final summary is115 passed in21.25s/exit0; quality exits all0; evidence hashes match current files; reverse-delta full-file equality true; HEAD unchanged. These are evidence readbacks, not new test executions."}
+    ],
+    "reused_hash_bound_evidence": {
+      "source_results": "documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-source-results.json",
+      "source_result": "115 passed in 21.25s, exit0 after final edit",
+      "baseline_red": "documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-baseline-red.json",
+      "baseline_result": "4 failed,8 passed in8.21s, exit1 against exact base caller; failures are the four QA cases, not stock/heartbeat controls",
+      "quality": "Ruff check0, format0, strict mypy0 on two files; recorded diff-check0",
+      "earlier_red": "Author records2failed4passed5.13s before editing QA caller; retained as provenance, not a separate reviewer execution.",
+      "parent_subset": "Provided context/versioned remedy records4QA controls PASS4.22s/exit0; not re-executed here."
+    },
+    "new_test_runs": 0,
+    "no_duplicate_suite_reason": "No concrete defect requiring another reproduction was found; existing final-edit test evidence is bound to the two verified current SHA values."
+  },
+  "ponytail": {
+    "level": "full",
+    "verdict": "Ship this SOURCE-scoped QA fix for conditional fresh-consumer admission only.",
+    "must_fix": [],
+    "should_fix": [],
+    "nice_to_have": [],
+    "lean_assessment": "The behavior change reuses stock status/renew rather than adding an owner, timer, helper, protocol or configuration. The companion regression has explicit delivery/process seams and tests the actual existing coroutine. No concrete deletion or refactor is needed for admission; line count alone is not a finding.",
+    "skipped": "General product audit, unchanged startup/API95/OCI43 rebuilds and repeated suites; no speculative framework or coverage expansion."
+  },
+  "verdict": "APPROVED_SOURCE_SCOPED_CONDITIONAL_FRESH_CONSUMER_ADMISSION",
+  "conditions": [
+    "Parent adjudicates this report with the complementary independent exact-snapshot review; this report alone is not integration acceptance.",
+    "Before the one fresh original consumer, verify existing Make/run_gate argv/choices and six explicit bindings, use the new reviewed QA SHA, and verify unchanged source/library/pin/UID readability and API95/OCI43 identities without prewarming or provisioning during preflight.",
+    "Use a fresh owned HOME/TMPDIR/PG fixture and basetemp physically inside TMPDIR, the original run_gate180 boundary and original resource owner/strict settlement. Do not adopt historical DBs or use runner --check as a no-effect check.",
+    "Run the existing consumer once for the unchanged post-cold census/native-byte equality, eleven-record census, replay and authentic same-Future CLOSE/join oracles. No new observer, no retry-for-green, no widened grant/cap/expiry/Stop, no native/provider effect by this reviewer.",
+    "On failure preserve exact sanitized diagnostics and uncertainty; do not infer the historical combined assertion operand or exclusive cause, and do not advance dependent live gates on SOURCE approval."
+  ],
+  "limits": [
+    "This is independent read-only SOURCE safety/concurrency/Ponytail review, not native PASS, P4a closure, G02-live or phase2 closure.",
+    "No PG, OCI, native child, provider, target, account, browser, OS-signal or actual native Future execution occurred in this review.",
+    "The regression's service/storage authority, bootstrap inventory, native process, signal, AIAgent child/frame and Future completion are explicit doubles. NativePeer.call validation/correlation is real, but _enqueue delivery and peer.close are substituted. Future.set_result and mocked returncode do not prove actual native close, cancellation or family drain.",
+    "The non-namespace-owned SOURCE Host correctly remains UNCERTAIN; no STOPPED certification is transferred from mocks.",
+    "SOURCE demonstrates one sufficient heartbeat-only expiry/observer-append mechanism, not which operand changed or the exclusive cause of historical FAIL9866; original after_tables/native_after were not retained.",
+    "Actual fresh post-cold equality, final11records, authentic native same-Future CLOSE/join and resource settlement remain pending consumer execution.",
+    "No adversarial new cancellation/overlap experiment or exhaustive state-space audit was run; unchanged paths were traced only as needed for the added caller.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Responses/auth/web/live/r1/global/push/P3 and historical recovery/adoption are outside scope."
+  ],
+  "status_delta_for_parent": {
+    "current_slice": "QA-owner renewal source review APPROVED_SCOPED by this reviewer; parent adjudication and complementary review remain separate.",
+    "P4a_minim": "PARTIAL; affected real-consumer proof pending",
+    "P2_inert": "Existing CLOSED_INERT_SCOPED unchanged",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "After all admission conditions, one fresh original consumer; no unrelated re-audit."
+  },
+  "writes": {
+    "repository_files_created_or_modified": [],
+    "report_only": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/review-safety.json",
+    "commits": [],
+    "external_effects": []
+  },
+  "issues_encountered": "No blocking code finding. One initial discovery used a nonexistent runtime/ path and returned no result; exact integrations/hermes path was then located. No effects, scope change or test rerun followed."
+}

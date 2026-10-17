@@ -1,0 +1,166 @@
+{
+  "report_id": "QA-OWNER-RENEWAL-NORM-FC8254E",
+  "role": "Independent read-only normative/order/persistence/readback review + Ponytail full",
+  "what_this_change_does": "What this change does: The existing model-test preparation QA owner now renews the connected Host in READY or MANAGEMENT, as the stock supervisor already does. It keeps a legitimate held worker alive while the owner is active; it does not extend an in-flight managed request or replace intentional Stop/expiry.",
+  "snapshot": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42",
+  "base": "e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "sha256": {
+    "api/tests/test_contract_method_pg.py": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+    "api/tests/test_model_test_prepare_source.py": "d814a9f2800d3f543d7adae784fdd5cc02af27c4e7846f16837ed14108d20607"
+  },
+  "evidence_author_sha256": "b60d2be8f80a320e03acb47f3f4cfeadc77b4417aa35e57c31fbb467aeaf0d64",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "finding_groups": {
+    "must_fix": [],
+    "should_fix": [],
+    "nice_to_have": []
+  },
+  "contract_preserved": true,
+  "real_consumer_status": "NOT_RUN_ON_CHANGED_QA_CALLER",
+  "fresh_verification_decision": {
+    "decision": "JUSTIFIED_ONCE_AFTER_COMPLEMENTARY_REVIEW_AND_NO_EFFECT_PREFLIGHT",
+    "reason": "A concrete defect in the QA lifecycle is reproduced on the exact original maintain_owner AST, and the stock lifecycle is the same-channel positive control. The fix repairs that defect without weakening the failing post-cold equality. This is enough to justify one fresh acceptance run; it does not establish the historical exclusive cause or promise that the remaining acceptance criteria will pass.",
+    "conditions": [
+      "Parent adjudicates both independent complementary reports on this exact snapshot and these two source hashes; any blocking finding must be resolved first.",
+      "Use the existing original run_gate and test-model-test-prepare-native-pg target, unchanged 180-second owner budget and six explicit validated bindings. Both reviewed-test bindings must use b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5.",
+      "Perform no-effect argv/choices/collection and source/library/pin/readability/UID/path/reader/OCI identity checks before provisioning. The runner's --check is effectful, not a dry run.",
+      "Use a new owned root, HOME, TMPDIR-contained basetemp and PostgreSQL fixture. Reuse unchanged API95/OCI43 only after identity/access readback; no unnecessary rebuild, prewarm, historical DB adoption or extra observer/owner/framework.",
+      "Retain all strict denial reasons, census and native-byte equalities, exact eleven-record inventory, replay/cold-reader and correlated CLOSE/same-native-Future settlement oracles.",
+      "Stop and join the renewal task before intentional shutdown, retain the existing resource owner/cleanup and exact readback, preserve data and every failure/uncertainty. A new failure remains a blocker; no retry-until-green or grant/deadline increase."
+    ],
+    "not_authorized_by_this_report": [
+      "Reviewer-side PG/OCI/native/provider launch",
+      "Responses, account authentication, provider sends, live/web QA, P3, canonical gate, r1/global changes or push",
+      "Retrospective declaration that FAIL9866 was caused exclusively by Host expiry"
+    ]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Make the existing QA owner faithful to the stock supervisor lifecycle so an unrelated legitimate Host expiry does not invalidate a held-preparation cold-read/no-rerun check, while preserving Stop, authority and domain settlement.",
+    "consumer": "api/tests/test_contract_method_pg.py:8784-8797 maintain_owner in the existing model-test-prepare real consumer; RuntimeClient.status/renew and the stock supervisor tick are the connected callers.",
+    "risk": "DB heartbeat alone preserves the supervisor lease but leaves the Host deadline unchanged; watchdog Stop can append prepare-close observations during a cold-reader interval. Conversely, an invalid remedy could conceal Stop/expiry, regrant a pending managed request or weaken persistence/no-rerun assertions.",
+    "decision": "Accept the minimal SOURCE-only QA caller fix and admit one bounded fresh consumer after the remaining mandatory review/preflight gates. Do not promote SOURCE to native or phase acceptance."
+  },
+  "normative_matrix": [
+    {
+      "requirement": "Reuse one existing owner and the existing lifecycle, without product changes or a new harness.",
+      "code": ["api/tests/test_contract_method_pg.py:8784-8797", "api/src/omnis/supervisor/__main__.py:140-153", "api/tests/test_contract_method_pg.py:8102-8112"],
+      "assessment": "PASS_SOURCE",
+      "basis": "Only the model_prepare connected branch is added to the already-running heartbeat coroutine. READY uses runtime.renew(service, supervisor); MANAGEMENT uses management=True. PreparationPrerequisite inherits RuntimeClient and overrides only document prepare, so this is the real inherited transport/renew path. The product supervisor already performs the same state selection. There is no shared product bug requiring a wider fix."
+    },
+    {
+      "requirement": "Do not inflate authority, regrant a managed request in flight, reconnect, resend or resurrect an expired Host.",
+      "code": ["api/src/omnis/supervisor/runtime_client.py:377-443", "api/src/omnis/supervisor/runtime_client.py:639-673", "api/src/omnis/supervisor/runtime_client.py:760-784", "api/src/omnis/modules/instance/service.py:153-195", "integrations/hermes/src/omnis_hermes/runtime_host.py:1255-1267"],
+      "assessment": "PASS_SOURCE",
+      "basis": "Renew obtains current DB authority with unchanged owner/epoch/generation, stop fence and maximum original 4.5s deadline. RuntimeClient serializes exchanges on its existing lock; the status/renew work does not edit the managed request's authority or add a resend. Host renewal requires an already active READY/MANAGEMENT state and an unexpired old Host deadline. A state change or late grant can still fail closed. No renewed request can restore a STOPPING/STOPPED/UNCERTAIN or expired Host."
+    },
+    {
+      "requirement": "Preserve intentional Stop, expiry, conservative uncertainty and native settlement evidence.",
+      "code": ["api/tests/test_contract_method_pg.py:9923-9958", "api/tests/test_contract_method_pg.py:12229-12263", "integrations/hermes/src/omnis_hermes/runtime_host.py:1028-1045", "integrations/hermes/src/omnis_hermes/runtime_host.py:1071-1173", "api/tests/test_contract_method_pg.py:12370-12398"],
+      "assessment": "PASS_SOURCE_REAL_NATIVE_NOT_RUN",
+      "basis": "The explicit success path sets done and awaits heartbeat before service.shutdown; the finally path also sets done and joins renewal before resource retirement. Thus there is no renewal producer left racing the intentional shutdown frontier. Existing watchdog, synchronous revocation before awaits, one-shot context-bound CLOSE, drain and UNCERTAIN predicates are unchanged. The SOURCE controls preserve UNCERTAIN outside an owned native namespace rather than inventing STOPPED. Authentic native close/Future settlement remains an acceptance obligation."
+    },
+    {
+      "requirement": "Preserve commit-before-exchange, independent persistence readback, replay and exact census/native-byte oracles.",
+      "code": ["api/tests/test_contract_method_pg.py:9740-9795", "api/tests/test_contract_method_pg.py:9802-9836", "api/tests/test_contract_method_pg.py:9837-9915", "api/tests/test_contract_method_pg.py:9923-9958"],
+      "assessment": "PASS_SOURCE_REAL_CENSUS_NOT_RUN",
+      "basis": "Independent PG readback in committed_prepare remains before actual_exchange. Strict negative reasons, per-case census/byte checks, replay equality, the installed cold reader, unchanged old graph, the compound post-cold equality, exactly eleven new records and one run/task, unchanged revision2/inbox and receive-only post-Stop checks are untouched. A whole-module AST comparison is identical to the base after removing only the new renewal branch; no other QA executable oracle changed."
+    },
+    {
+      "requirement": "Demonstrate the QA defect and minimal remedy at the actual connected source seam, with honest doubles.",
+      "code": ["api/tests/test_model_test_prepare_source.py:25-222", "api/tests/test_contract_method_pg.py:6412-6457", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:419-440"],
+      "assessment": "PASS_REUSED_SOURCE_EVIDENCE",
+      "basis": "The twelve controls extract the actual maintain_owner AST and actual stock tick AST, exercise real RuntimeClient/UDS/Host watchdog/Stop/NativePeer.call and the existing observer callback, and cross the original deadline using a controlled clock. Heartbeat-only versus stock/current QA is the relevant positive/negative comparison. Authority/storage, bootstrap inventory, process/signals, SOURCE child/frame and manual Future delivery remain explicit doubles. These controls do not execute native AIAgent.close or prove native same-Future join."
+    },
+    {
+      "requirement": "Respect finite plan order, retained failures and proof boundaries.",
+      "code": ["CONTRIBUTING.md:42-65", "documents/Omnis_Implementation_Plan.md:268-283", "documents/Omnis_MVP_Architecture.md:147-164", "documents/verification/p4a-minim.md:146-150", "documents/verification/implementation-status.md:13"],
+      "assessment": "PASS_SCOPED_ADMISSION_ONLY",
+      "basis": "The fresh attempt is justified by a demonstrated caller defect after narrowing, not another diagnostic launch or a reset of the old QA-only cycle counter. Current notes retain the historical compound equality failure, unknown operand/exclusive cause, uncertain domain and unproven census/native close. P4a remains PARTIAL and P2-live/canonical remain NOT_RUN. Unaffected accepted startup/oracle components are not reopened."
+    }
+  ],
+  "ponytail": {
+    "mode": "full",
+    "assumed_load": "One local authorized operator and one owned, finite disposable QA consumer; no multi-tenant service/load claim.",
+    "review_order": ["correctness", "safety", "expected load", "tests", "speed", "minimality"],
+    "assessment": "The seven-line caller addition is the smallest complete fix for the demonstrated QA defect. It reuses the existing owner, runtime state and renew method; no abstraction, option, dependency, protocol or product change is needed. The companion test's parameterization covers the actual two states, three producers and two termination paths without production instrumentation. No concrete lean finding or smaller equally complete remedy was established.",
+    "verdict": "Ship the SOURCE-scoped QA fix; run the one real acceptance check only under the stated conditions."
+  },
+  "evidence_reviewed_not_rerun": [
+    {
+      "path": "documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-author.json",
+      "meaning": "Before QA edit: 2 failed, 4 passed in 5.13s. Preliminary fixture/selection failures are retained and not mislabeled product RED."
+    },
+    {
+      "path": "documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-baseline-red.json",
+      "exit": 1,
+      "meaning": "Final twelve controls against the exact base QA caller: 4 failed, 8 passed in 8.21s; QA cases fail the alive/unchanged-observation expectation while heartbeat-only and stock controls pass."
+    },
+    {
+      "path": "documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-source-results.json",
+      "exit": 0,
+      "meaning": "After last source edit: 115 passed in 21.25s; Ruff check/format and strict mypy on two files exit0. Source hashes match this reviewed snapshot. These overlapping tests are not summed with earlier or parent controls."
+    },
+    {
+      "path": "documents/verification/p4a-minim.md:150",
+      "meaning": "Parent four QA state/termination controls are recorded as 4 PASS in 4.22s. This reviewer did not rerun them or inspect private runtime logs."
+    }
+  ],
+  "reviewer_execution": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat BASE SNAPSHOT; git show --stat --oneline SNAPSHOT",
+      "exit": 0,
+      "result": "Exact requested HEAD; nine changed paths in the committed slice, no tracked worktree edits; only the known protected untracked HTML is listed, not opened."
+    },
+    {
+      "command": "git diff BASE SNAPSHOT -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py .hermes/skills/omnis-hermes-runtime/SKILL.md; git diff --check BASE SNAPSHOT; sha256sum <two test files> <versioned author report>",
+      "exit": 0,
+      "result": "Diff and hashes match the frozen scope; whitespace check passes."
+    },
+    {
+      "command": "git diff --exit-code SNAPSHOT -- api/src integrations/hermes/src ops Makefile api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0,
+      "result": "Connected implementation/test worktree bytes match the exact reviewed snapshot. The base-to-snapshot changed-file inventory contains no implementation/ops/Makefile paths."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c <read-only AST/hash/evidence JSON verification>",
+      "exit": 0,
+      "result": {
+        "head": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42",
+        "qa_ast_except_renewal_branch_unchanged": true,
+        "new_branch_line": 8788,
+        "evidence_json_parse": "All three versioned renewal reports parsed successfully",
+        "source_hash_bindings_match": true,
+        "reused_source_result": "115 passed in 21.25s; exit0"
+      }
+    }
+  ],
+  "limitations": [
+    "This is independent source/normative/Ponytail review, not a new dynamic test run or real-consumer PASS. Existing unchanged SOURCE evidence was reused deliberately; no speculative probe was needed.",
+    "No PG/OCI/native/provider process or target/account traffic was launched. No private PG/runtime logs, capability, environment dump, .env, protected HTML contents or tools/development/ponytail.json were accessed.",
+    "The controlled-clock SOURCE child is deliberately synthetic. Manual Future completion at the NativePeer delivery seam cannot certify real AIAgent.close, native same-Future settlement or native resource drain.",
+    "The historical failing post-cold predicate combined table census and native bytes. Missing original local baselines leave the divergent historical operand and exclusive cause UNKNOWN. The sufficient SOURCE mechanism is not retrospective proof.",
+    "Exact post-cold persistence census, eleven-record inventory and authentic correlated CLOSE/same-Future native settlement remain NOT_RUN on the changed QA caller. Physical historical cleanup is not domain settlement and old data is not adopted.",
+    "The complementary safety review and the parent's integration/admission decision are separate required gates. This report does not stand in for them.",
+    "API95/OCI43 were not rebuilt or live-attested by this reviewer; unchanged artifacts still need the parent's current no-effect identity/access readback before the single fresh run.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No ceremonial tooling load or general product audit was performed."
+  ],
+  "files_created": ["/home/kali/.hermes/cache/scratch/me-mc8lsiv_/review-norm.json"],
+  "repository_files_created_or_modified": [],
+  "commits_created": [],
+  "issues_encountered": [
+    "An initial read-only search used a nonexistent repository runtime directory and returned path-not-found; the review immediately used the actual api/src and integrations/hermes/src paths. No effects or execution followed that lookup."
+  ],
+  "proposed_parent_status_delta": {
+    "qa_owner_renewal_code": "IMPLEMENTED_SOURCE_SCOPED",
+    "qa_owner_renewal_norm_review": "APPROVED_SOURCE_SCOPED at fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42",
+    "real_consumer": "NOT_RUN_PENDING_COMPLEMENTARY_REVIEW_PREFLIGHT_ONE_FRESH_ATTEMPT",
+    "p4a_minim": "PARTIAL_NOT_CLOSED",
+    "p2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "historical_fail9866": "PRESERVED_OPERAND_AND_EXCLUSIVE_CAUSE_UNKNOWN"
+  },
+  "not_checked": "Nu am rulat PG/OCI/Hermes nativ/provider sau gate-ul real; nu am redeschis componentele acceptate neafectate.",
+  "risk_to_keep": "O verificare fresh este justificată, nu garantată verde: egalitatea post-cold, censusul și CLOSE/same-Future autentice pot încă eșua și trebuie păstrate ca blocker, fără retry orb."
+}

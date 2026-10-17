@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "review_id": "SYNC-PREPARE-STARTUP-SAFETY",
+  "verdict": "APPROVED_SCOPED_SOURCE",
+  "finding_ids": [],
+  "findings": [],
+  "blocking_findings": [],
+  "reviewer_role": "Independent read-only authority/concurrency/Stop/cancellation/failure/cleanup and Ponytail quality reviewer",
+  "language": "ro",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "8b670bd6c0998a2ca0421ff871fc948cc5d6bb60",
+    "head": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "tracked_worktree_diff": "EMPTY",
+    "index_diff": "EMPTY",
+    "preexisting_untracked": ["documents/Omnis_Notite_Originale.html"],
+    "protected_untracked_file_read_hashed_copied_modified": false,
+    "ponytail_json_read_or_modified": false,
+    "source_files": [
+      {"path": "api/src/omnis/modules/instance/schemas.py", "sha256": "358d93ab4fccd194fa46927e3353c33a3bc141c805016556735b9b3067641767"},
+      {"path": "api/src/omnis/supervisor/native_tasks.py", "sha256": "45c1ab8edad6a9c32fcc56c1c75f57182cdb9555c9b537f7f8a1c36eb61726fc"},
+      {"path": "api/src/omnis/supervisor/runtime_client.py", "sha256": "9707c04eb957dc98262a1c9db3b2131900d7222fa8d694ea95baf278b6b3cd72"},
+      {"path": "api/src/omnis/transport/local_control.py", "sha256": "42d61eb7a40e1c6eca1ac518cc635efc721f760fb1fdd2dc69cd7d5a015b2472"},
+      {"path": "api/tests/test_model_prepare_sync_source.py", "sha256": "8ab34111a4925b0c2c0044a987851146c4f234a2e9da18e2a4c7069521cf773a"},
+      {"path": "api/tests/test_native_task_client.py", "sha256": "91649a1278dd22746ffd8d52b86a7931d588b06ffa470ed48814866c62e41511"}
+    ],
+    "all_six_match_frozen_git_blobs": true,
+    "all_six_match_author_final_files": true
+  },
+  "acceptance": {
+    "requirement": "Pregatirea cold autorizata prin callerii existenti nu trebuie anulata prematur de asteptarile API, dar nu primeste autoritate suplimentara si nu pierde refuzul conservator la Stop, fencing, expiry sau pierderea canalului.",
+    "consumer": "control_task -> LocalControl._handle/_dispatch -> NativeTaskOwner.handle/_model_test_prepare -> RuntimeClient.managed/_exchange/_exchange_locked -> RuntimeHost._managed_connected/_managed/_launch -> NativePeer.handshake/call",
+    "risk": "Un timeout exterior mai scurt decat pregatirea legitima inchide UDS si anuleaza Hostul; o reparatie prea larga ar putea transforma timpul de cleanup in autoritate, ar putea masca un rezultat incert sau ar afecta Stop si operatiile surori.",
+    "decision": "Aprob numai schimbarea SOURCE sincron-minimala pe snapshotul indicat. Poate avansa la rebuild/reader afectat si, dupa adjudecarea ambelor reviewuri, la singura proba fresh deja admisa. Nu este native/live/phase2 PASS.",
+    "load_assumption": "Produs local-first, un singur operator si un owner RuntimeClient, cu concurenta existenta intre control handlers, heartbeat/status, Stop si watchdog; nu serviciu multi-tenant.",
+    "contract": "documents/verification/p4a-minim.md:126-128; CONTRIBUTING.md sectiunea Executie orientata spre produs; architecture sections 5 and 5.2; no unrelated historical CURRENT treated as a work queue"
+  },
+  "what_this_change_does": "What this change does: It gives only cold v5 CREATE a finite launch/refusal wait and aligns the three model_test_prepare callers. It keeps the original authority deadline, validation, Stop and conservative failure handling.",
+  "requirement_code_evidence_decisions": [
+    {
+      "area": "Finite waits, not new authority",
+      "code": ["api/src/omnis/modules/instance/schemas.py:11-12", "api/src/omnis/supervisor/native_tasks.py:100-110,524-532", "api/src/omnis/supervisor/runtime_client.py:484-499,596-603"],
+      "assessment": "14s este o anvelopa absoluta de asteptare a fiecarui caller relevant, nu un grant si nu o promisiune ca toate finalizatoarele se termina exact la 14s. Formula clientului este min(6, remaining+1), reutilizata din launch; cu grantul producerului de maximum4.5s asteptarea selectata este cel mult5.5s la intrarea exchange. remaining<=0 refuza inainte de write, iar un raspuns managed primit dupa deadline este in continuare refuzat.",
+      "evidence": "Final raw log version-affected.log: cold ajunge HANDSHAKE_COMPLETED/SOURCE_MODEL_REPLY/PERSISTED_SOURCE; cele patru controale de selectie pastreaza3.2 pentru STATUS, v3 CREATE si alta operatie.",
+      "decision": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "area": "Trust boundary and unauthenticated timeout",
+      "code": ["api/src/omnis/transport/local_control.py:254-298", "api/src/omnis/modules/instance/schemas.py:79-143,219-231"],
+      "assessment": "Reschedule este dupa SO_PEERCRED, citirea frame-ului bounded, decodarea stricta a intregului ControlRequest/NativeTaskCommand si compare_digest al capability. UID gresit, frame incomplet, schema invalida si capability gresita nu ajung la extensie. Deadline-ul este entry-relative started+14, nu now+14; parsingul nu reseteaza arbitrar bugetul. Nicio informatie de credential nu este adaugata in reply/log.",
+      "evidence": "Sursa finala si diff-ul exact; controalele SOURCE existente de schema/reader sunt incluse in selectia finala156. Nu pretind un nou test temporizat independent pentru fiecare refuz de autentificare.",
+      "decision": "PASS_SOURCE_SCOPED"
+    },
+    {
+      "area": "Current authority and durable fence",
+      "code": ["api/src/omnis/modules/instance/service.py:130-195,197-222,248-254", "api/src/omnis/supervisor/native_tasks.py:251-302", "api/tests/test_contract_method_pg.py:9733-9794"],
+      "assessment": "Producerul grantului ramane byte-identic: lock Instance->lease, Stop fence, generation si lease DB-clock, apoi min4.5s/lease remaining. Commitul intentului precede managed/grant/callback/exchange; persistarea observatiei foloseste din nou native_preparation_commit. Callbackul existent citeste independent dupa grant, deci timpul lui consuma acelasi deadline si nu poate crea alta autoritate. Nu se tine lockul DB de preparare pe durata IPC.",
+      "evidence": "Git diff pe service.py, test_contract_method_pg.py si integrations/hermes este gol intre baza si snapshot. Am citit producerul, post-write recheck si callbackul real; niciun PG nu a fost pornit/citit in acest review.",
+      "decision": "PRESERVED_SOURCE; real commit/readback proof remains at its original f879e6b scope"
+    },
+    {
+      "area": "Concurrency, locks and Stop",
+      "code": ["api/src/omnis/supervisor/runtime_client.py:413-443,786-801", "api/src/omnis/modules/instance/service.py:413-436", "api/src/omnis/supervisor/__main__.py:112-153", "integrations/hermes/src/omnis_hermes/runtime_host.py:573-707,1028-1045,1071-1173,1248-1318"],
+      "assessment": "Ownerul unic, lockul RuntimeClient si command_lock Host nu sunt inlocuite sau ocolite. Asteptarea CREATE poate tine mai mult lockul clientului, inclusiv fata de status/renew/drain; aceasta nu prelungește grantul deja emis. Quiesce ramane bounded2.5s si refuza SHUTDOWN_INCOMPLETE daca nu poate certifica drain; nicio noua cale nu fabrica STOPPED. Watchdogul independent si revocarea lifeline in Stop raman active. Host revalideaza identitatea/starea/deadline dupa Settings read, dupa management Stop si dupa launch; Stop/fencing in aceste ferestre nu poate fi reinterpretat ca autorizatie noua.",
+      "evidence": "New same-channel SOURCE stop/disconnect/expiry negatives all refuse TASK_INDETERMINATE without SOURCE_MODEL_REPLY/PERSISTED_SOURCE; existing test_model_prepare_host_checks_grant_before_handoff covers read-expired/read-stopped/read-fenced; existing correlated close/join tests retain UNCERTAIN on absent/wrong/timeout evidence.",
+      "decision": "NO_CONCRETE_NEW_STOP_OR_LOCK_BLOCKER; not a physical Stop/concurrent PG acceptance"
+    },
+    {
+      "area": "Cancellation and failure propagation",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:100-110,845-848", "api/src/omnis/transport/local_control.py:289-316", "api/src/omnis/supervisor/runtime_client.py:526-616,639-673,794-801", "integrations/hermes/src/omnis_hermes/runtime_host.py:234-264,767-781,1300-1318", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:442-480"],
+      "assessment": "Nu apare shield/catch gol/retry/reconnect/resend sau swallowed CancelledError in delta. Timeout/transport failure din exchange inchide streamul; managed inchide si la BaseException, apoi reridica. NativeTaskOwner normalizeaza RuntimeUnavailable la TASK_INDETERMINATE fara a transforma anularea externa in succes. EOF la Host cancels operation si aduna ambele taskuri; launch face Stop si reridica. Timerul mai larg permite observarea refuzului/cleanupului, nu acceptarea unui raspuns expirat.",
+      "evidence": "RED2 original:1445072239ns grant remaining; RED3 original:897499896ns grant remaining, PEER_FAILURE=False, real CLIENT_EXCHANGE_TIMEOUT si HANDSHAKE_CANCELLED. Current fast/cold au finalizare, iar disconnect are IncompleteReadError si HANDSHAKE_CANCELLED. Logurile originale au fost citite prin campuri allowlisted, fara reexecutie.",
+      "decision": "PASS_SOURCE_SCOPED; historical exclusive cancellation cause remains UNKNOWN"
+    },
+    {
+      "area": "Cleanup and uncertainty",
+      "code": ["api/tests/test_model_prepare_sync_source.py:185-250", "integrations/hermes/src/omnis_hermes/runtime_host.py:1071-1173", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:470-480"],
+      "assessment": "Cele cinci cazuri verifica join/absenta endpointurilor, clients goale, lock FD inchis si peer sintetic reaped. In teste management-no-process Stop si raspunsurile model/CLOSE sunt doubles explicite. Testul nu primeste credit pentru native-turn autentic ori Future comun terminat. Kill/absenta familiei nu inlocuiesc CLOSED_JOINED; latch-ul UNCERTAIN si incercarea unica de CLOSE raman in implementarea neschimbata.",
+      "evidence": "version-affected.log are exact5markeri OWNED_PEER_REAPED=True ENDPOINTS_ABSENT=True, unul pe caz; sursa asserturilor a fost citita. Domeniul instalat/namespace/DB si resursele istorice nu au fost adoptate ori reverificate.",
+      "decision": "PASS_SYNTHETIC_PROCESS_TRANSPORT_ONLY"
+    },
+    {
+      "area": "Sibling compatibility and fixture correction",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:104,531", "api/src/omnis/supervisor/runtime_client.py:489-497,651-661", "api/tests/test_native_task_client.py:262-271", "api/tests/test_model_prepare_sync_source.py:253-296"],
+      "assessment": "Numai actiunea model_test_prepare primeste14s, iar numai task_model_initialize/v5/CREATE primeste bugetul special de exchange. model_initialization v3, STATUS, stage/release/preflight/frozen si celelalte comenzi pastreaza bugetele vechi. v5 era deja global suportat de managed; schimbarea fixture-ului unknown la v6 corecteaza negativul in obiectivul lui original, fara a adauga suport task_stage/v5 sau a slabi assert_not_awaited si refuzul pre-authority.",
+      "evidence": "Diff-ul fixture-ului este exact un literal, celelalte asertiuni si product allowlist sunt neschimbate; raw version-client.log24PASS, version-affected.log156PASS.",
+      "decision": "PASS_SOURCE_SCOPED"
+    }
+  ],
+  "ponytail": {
+    "mode": "full",
+    "must_fix": [],
+    "should_fix": [],
+    "nice_to_have": [],
+    "assessment": "Cea mai mica solutie completa admisa: constanta comuna pentru trei calleri, doua selectii locale de deadline si ramura ingusta in client, fara dependinta/config/helper/owner nou. Testul mai lung foloseste producerii si peer fixture existente si declara doubles; acopera regresia verticala si refuzurile afectate, nu un framework paralel. Nu am o stergere concreta sau un refactor necesar care sa pastreze aceeasi proba la risc mai mic.",
+    "scoped_verdict": "Ship the SOURCE fix through the remaining existing gates; do not ship a native/live/phase2 claim."
+  },
+  "verification": {
+    "fresh_review_commands": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat 8b670bd6c0998a2ca0421ff871fc948cc5d6bb60 5ebfd02ecd1bdfb0f854018205227729f77cf7ef; git show --stat --oneline HEAD", "exit_code": 0, "result": "Requested HEAD, empty tracked/index diff; only preexisting protected untracked HTML."},
+      {"command": "git diff 8b670bd6c0998a2ca0421ff871fc948cc5d6bb60 5ebfd02ecd1bdfb0f854018205227729f77cf7ef -- <six explicitly named source/test paths>", "exit_code": 0, "result": "Exact behavioral and fixture delta reviewed, with connected definitions/callers."},
+      {"command": "git diff --check 8b670bd6c0998a2ca0421ff871fc948cc5d6bb60 5ebfd02ecd1bdfb0f854018205227729f77cf7ef", "exit_code": 0, "result": "No whitespace errors."},
+      {"command": "git diff --exit-code 5ebfd02ecd1bdfb0f854018205227729f77cf7ef -- <six explicitly named source/test paths>; python3 -I -B -c <read-only SHA256/frozen-blob/author-manifest comparison and allowlisted SOURCE log parsing>", "exit_code": 0, "result": "All six SHA256 and frozen blobs match author final_files; raw recorded outcomes and five cleanup markers confirmed."},
+      {"command": "git diff --name-only 8b670bd6c0998a2ca0421ff871fc948cc5d6bb60 5ebfd02ecd1bdfb0f854018205227729f77cf7ef -- integrations/hermes api/src/omnis/modules/instance/service.py api/tests/test_contract_method_pg.py", "exit_code": 0, "result": "Empty: grant producer, adapter/Host/native/pin and real PG callback unchanged."}
+    ],
+    "reused_exact_byte_evidence": [
+      {"report": "documents/verification/p4a-model-prepare-evidence/sync-startup-author.json", "checks": "RED real4s callers then RED3.2s exchange with valid grant; failures retained", "independently_rerun_by_this_reviewer": false},
+      {"report": "documents/verification/p4a-model-prepare-evidence/sync-startup-version-fixture-author.json", "raw_log": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-affected.log", "result": "156 passed in36.48s", "exit_code_recorded": 0, "independently_rerun_by_this_reviewer": false},
+      {"raw_log": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-client.log", "result": "24 passed in1.21s; overlapping subset, not added to156", "exit_code_recorded": 0},
+      {"raw_log": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-adapter.log", "result": "1 passed in2.68s, separate process; synthetic startup only", "exit_code_recorded": 0},
+      {"raw_logs": ["version-ruff.log", "version-format.log", "version-mypy.log"], "root": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel", "result": "All checks passed;6files formatted; strict mypy no issues in6source files", "exit_codes_recorded": [0, 0, 0]}
+    ],
+    "test_policy": "No new tests/reproducer were run: no concrete unresolved finding required another execution, and the exact-byte real-caller positives/negatives and original REDs were available. This review is independent source analysis and evidence readback, not an independent new156-test run.",
+    "count_integrity": "Current recorded156 stays separate from historical152. Earlier151PASS+1FAIL and UNKNOWN provenance of the difference remain disclosed; no exclusions or retroactive152PASS claim.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "not_checked_or_not_run": [
+    "PostgreSQL, OCI, installed native Hermes, provider/account/authentication/inference or target traffic",
+    "make test-model-test-prepare-native-pg / run_gate180; existing first real consumer was not run by this reviewer",
+    "New API wheel/current reader build or installed artifact acceptance",
+    "Physical Stop, actual native turn HOLD, replay/census, native CLOSE plus the same Future.done domain, crash/ACK-loss settlement",
+    "Real overlapping DB transactions, OS containment, universal boundedness under arbitrary cancellation-suppressing dependency code, or exhaustive scheduler interleavings",
+    "Canonical final gate, UI/aesthetics, live or phase2 closure",
+    "Protected HTML, tools/development/ponytail.json, .env, environment dumps, private PG tracebacks or runtime.boot/capability contents"
+  ],
+  "writes_and_side_effects": {
+    "repository_edits": [],
+    "staged_or_committed": false,
+    "services_or_process_fixtures_started": false,
+    "report_only": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/review-startup-safety.json",
+    "skills_modified": false,
+    "issue_encountered": "No new blocking issue. Known evidence boundaries and historical UNKNOWN/count discrepancy retained rather than resolved by another audit or rerun."
+  },
+  "handoff": {
+    "parent_decision_required": "Adjudicate this complete report with the complementary reviewer on the same six hashes. Approval does not transfer to changed bytes.",
+    "next_admitted_consumer": "After both reviews: rebuild/attest only affected API reader artifacts; then the already authorized single fresh existing make test-model-test-prepare-native-pg through run_gate180 and exactly six explicit bindings, without retries or wider authority.",
+    "status_rows": [
+      {"slice": "AICI synchronous cold prepare fix", "implementation": "IMPLEMENTED_COMMITTED_5ebfd02", "proof": "PASS_SOURCE_SCOPED_REUSED", "review": "APPROVED_SCOPED_SOURCE_THIS_REVIEW"},
+      {"slice": "P4a-minim", "implementation": "PARTIAL", "proof": "INSTALLED_MODEL_PREPARATION_NOT_PROVEN", "review": "PARENT_IN_REVIEW"},
+      {"slice": "P2-live", "implementation": "SEPARATE_GATE", "proof": "NOT_RUN", "review": "NOT_PROMOTED"},
+      {"slice": "phase2", "implementation": "NOT_CLOSED", "proof": "FINAL_CANONICAL_NOT_RUN", "review": "NO_CLOSURE_CLAIM"}
+    ],
+    "not_checked": "No native/PG/OCI/provider/live execution; synthetic SOURCE evidence cannot certify authentic HOLD/turn or native Future settlement.",
+    "remaining_risk": "Installed cold preparation may still refuse within the original grant. Preserve its actual failure/uncertainty if the single fresh consumer does not pass; do not enlarge grants, retry or attribute the old failure exclusively to timing."
+  }
+}

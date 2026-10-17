@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "report_id": "SYNC-STARTUP-NORM-5ebfd02",
+  "language": "ro",
+  "review_role": "independent_read_only_normative_order_persistence_readback_ponytail_full",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "finding_ids": [],
+  "findings": [],
+  "must_fix": [],
+  "should_fix": [],
+  "nice_to_have": [],
+  "What this change does:": "Înlătură două anulări premature independente din pregătirea sincronă rece: callerii model_test_prepare de 4s și exchange-ul v5 CREATE de 3.2s. Modifică numai așteptări finite, păstrând autoritatea originală, ordinea commit/readback/exchange/persist și refuzurile; corectează separat negativul de versiune devenit învechit.",
+  "decision": {
+    "source_acceptance": "Aprobat scoped pentru cele șase fișiere și bytes de mai jos. Nu am identificat un blocker concret de conformitate, ordine, persistență, readback sau minimizare în această deltă.",
+    "requirement": "O pregătire rece legitimă, care își termină partea runtime în grantul original, nu trebuie anulată doar pentru că include startup în același RPC sincron.",
+    "consumer": "control_task -> LocalControl._handle/_dispatch -> NativeTaskOwner.handle/_model_test_prepare -> ModelTest.prepare/dispatch -> RuntimeClient.managed/_exchange/_exchange_locked -> RuntimeHost._managed_connected/_managed/_launch -> NativePeer; apoi ModelTest.persist și readerul control_task.",
+    "risk": "Callerul de 4s sau exchange-ul de 3.2s poate închide canalul înaintea răspunsului legitim; remedierea greșită ar putea permite succes după expiry, schimba ordinea commitului ori ascunde un resend.",
+    "decision_changed_by_review": "Această aprobare permite adjudecarea SOURCE și continuarea porților existente, nu sărirea readerului API actualizat, a celui de-al doilea review sau a QA fresh. Un finding concret ar fi blocat acea admitere.",
+    "integration_authority": "Părintele integrează/adjudecă; reviewerul nu a editat cod, stage-uit sau comis.",
+    "native_or_phase_verdict": "NOT_RUN / NOT_CERTIFIED. P4a-minim rămâne PARTIAL, P2-live NOT_RUN și faza2 NOT_CLOSED."
+  },
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "8b670bd6c0998a2ca0421ff871fc948cc5d6bb60",
+    "head": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "head_confirmed_at_start_and_end": true,
+    "tracked_worktree_and_index_clean_at_start_and_end": true,
+    "preexisting_untracked": "documents/Omnis_Notite_Originale.html; doar numele din git status, fără citire/hash/copie/modificare.",
+    "commits_reviewed": [
+      "bccccce: fixture unknown protocol v5 -> v6",
+      "5ebfd02: bounded synchronous cold preparation waits"
+    ],
+    "files": [
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "358d93ab4fccd194fa46927e3353c33a3bc141c805016556735b9b3067641767",
+        "lines_reviewed_for_delta": "8-12",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "45c1ab8edad6a9c32fcc56c1c75f57182cdb9555c9b537f7f8a1c36eb61726fc",
+        "lines_reviewed_for_delta": "20,100-110,524-535",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "9707c04eb957dc98262a1c9db3b2131900d7222fa8d694ea95baf278b6b3cd72",
+        "lines_reviewed_for_delta": "483-499",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "42d61eb7a40e1c6eca1ac518cc635efc721f760fb1fdd2dc69cd7d5a015b2472",
+        "lines_reviewed_for_delta": "254-288",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      },
+      {
+        "path": "api/tests/test_model_prepare_sync_source.py",
+        "sha256": "8ab34111a4925b0c2c0044a987851146c4f234a2e9da18e2a4c7069521cf773a",
+        "lines_reviewed_for_delta": "1-296",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      },
+      {
+        "path": "api/tests/test_native_task_client.py",
+        "sha256": "91649a1278dd22746ffd8d52b86a7931d588b06ffa470ed48814866c62e41511",
+        "lines_reviewed_for_delta": "249-271",
+        "matches_frozen_HEAD_and_versioned_final_files": true
+      }
+    ]
+  },
+  "spec_compliance_before_quality": [
+    {
+      "requirement": "Excepție sincronă explicită, numai timeouturi de așteptare și callerii necesari.",
+      "normative_sources": [
+        "AGENTS.md:22-38",
+        "CONTRIBUTING.md:29-71",
+        "documents/verification/p4a-minim.md:9,126-128"
+      ],
+      "code": [
+        "api/src/omnis/modules/instance/schemas.py:11-12",
+        "api/src/omnis/supervisor/native_tasks.py:100-110,524-535",
+        "api/src/omnis/transport/local_control.py:263-288",
+        "api/src/omnis/supervisor/runtime_client.py:484-499"
+      ],
+      "assessment": "PASS_SOURCE: există o singură constantă de așteptare și selecții locale ale operației existente. Nu apar protocol PENDING/status nou, worker/owner, config, dependență, observer sau grant producer nou."
+    },
+    {
+      "requirement": "Callerii compleți trebuie să permită același cold prepare legitim; celelalte operații nu primesc creștere generală.",
+      "code": [
+        "api/src/omnis/supervisor/__main__.py:108-122",
+        "api/src/omnis/transport/local_control.py:140-169,254-288",
+        "api/src/omnis/supervisor/native_tasks.py:100-110,371-390,524-535",
+        "api/src/omnis/supervisor/runtime_client.py:484-524"
+      ],
+      "assessment": "PASS_SOURCE: supervisorul leagă callbackul real task_owner.handle; control_task, handlerul UDS și ownerul aleg 14s numai pentru model_test_prepare. RuntimeClient alege noua formulă numai pentru task_model_initialize + protocol v5 + CREATE. STATUS, v3 CREATE, task_stage, model_initialization, model_preflight și ceilalți sibling callers păstrează ramurile anterioare."
+    },
+    {
+      "requirement": "Grant max4.5s/lease5s, deadline-urile Host/NativePeer și succesul numai în grant rămân.",
+      "code": [
+        "api/src/omnis/modules/instance/service.py:153-195,256-279",
+        "api/src/omnis/supervisor/runtime_client.py:475-499,596-603,639-673",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:227-264,573-699",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:390-453"
+      ],
+      "assessment": "PASS_SOURCE: remaining este derivat din același deadline_ns, fără reobținere pentru aceeași cerere. +1s oferă doar timp de așteptare pentru refusal/drain; succesul managed încă cere READY, fence corect și monotonic_ns < authority.deadline_ns. Hostul reverifică request_live înainte/după drain și launch, iar RPC-ul nativ rămâne min(3.2s, remaining)."
+    },
+    {
+      "requirement": "Ordinea pregătirii și commit/readback/exchange/persist nu se schimbă.",
+      "code": [
+        "api/src/omnis/supervisor/native_tasks.py:251-302",
+        "api/src/omnis/modules/runs/model_test.py:179-440,442-507",
+        "api/tests/test_contract_method_pg.py:9733-9794"
+      ],
+      "assessment": "PASS_SOURCE: ModelTest.prepare produce contextul nou și receiptul, dispatch construiește payloadul, tranzacția native_preparation_commit se încheie înainte de managed/grant. Callbackul QA citește independent context/receipt/task înainte de actual_exchange. Persist rulează numai după răspunsul acceptat, într-o nouă tranzacție cu owner/Stop fence; reply-ul este emis după ieșirea din tranzacție. Nu s-au mutat callbackul, commitul, starea QUEUED sau normalizarea UUID deja acceptată."
+    },
+    {
+      "requirement": "Readback/replay rămân receive-only unde sunt deja complete; pending nu reexecută CREATE.",
+      "code": [
+        "api/src/omnis/modules/runs/model_test.py:129-177,206-211,442-507",
+        "api/src/omnis/supervisor/native_tasks.py:254-258,283-302,578-611",
+        "api/tests/test_contract_method_pg.py:9799-9866"
+      ],
+      "assessment": "PASS_SOURCE: completed folosește receiptul exact și observația reținută; dispatch(created=False) păstrează STATUS. Persist revalidează payloadul/contextul/rezultatul și priorul, apoi citește obiectul stocat. Readerul control_task păstrează exact fieldset, identitățile, ref-urile și HOLD/NOT_VERIFIED. Aceste metode sunt byte-identice cu baza; această lectură nu este un nou PASS PG/replay nativ."
+    },
+    {
+      "requirement": "Anulare/expiry/Stop/disconnect reale, fără shield/retry/reconnect/resend nou sau transformarea incertitudinii în succes.",
+      "code": [
+        "api/src/omnis/supervisor/runtime_client.py:605-616,639-673,794-801",
+        "api/src/omnis/supervisor/native_tasks.py:106-110",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:767-781,1028-1045,1071-1173",
+        "api/tests/test_model_prepare_sync_source.py:202-250"
+      ],
+      "assessment": "PASS_SOURCE: BaseException păstrează închiderea canalului în managed; EOF încă anulează operația Host în finally. Ramurile de expiry, Stop și disconnect nu persistă native-turn și nu răspund cu succes. Stop/fencing/CLOSE nu sunt modificate; un peer reaped sau socket absent nu este promovat în CLOSED_JOINED autentic."
+    },
+    {
+      "requirement": "Autentificarea/framingul intrării trebuie să păstreze bugetul inițial.",
+      "code": [
+        "api/src/omnis/transport/local_control.py:254-288",
+        "api/src/omnis/modules/instance/schemas.py:79-143",
+        "api/src/omnis/supervisor/native_tasks.py:528-555"
+      ],
+      "assessment": "PASS_SOURCE: handlerul începe cu started+4; peer UID, readuntil/frame4096, JSON/schema și capability preced reschedule. Deadline-ul extins este started+14, nu încă14 după autentificare. Numărul maxim de clienți și validările rămân neschimbate."
+    },
+    {
+      "requirement": "Fixture-ul necunoscut trebuie să rămână într-adevăr necunoscut, fără slăbirea oracle-ului.",
+      "code": [
+        "api/tests/test_native_task_client.py:261-271",
+        "api/src/omnis/supervisor/runtime_client.py:651-665"
+      ],
+      "assessment": "PASS_SOURCE: v5 este deja în allowlist-ul de bază, v6 nu este. Comparația byte-exact cu baza dovedește o singură înlocuire de literal în decorator; payload denied și assert_not_awaited sunt identice. Nu se adaugă semantică task_stage/v5 și nu se schimbă validatorul sau aserțiunile."
+    }
+  ],
+  "wait_envelope_adjudication": {
+    "runtime": "min(6.0, remaining+1.0) refolosește formula deja existentă pentru launch. Grantul actual cel mult4.5s înseamnă așteptare cel mult5.5s de la exchange, adesea mai mică după callback. Nu extinde grantul și nu permite un răspuns tardiv de succes.",
+    "outer": "14s=4+6+4 este o anvelopă globală conservatoare pentru lucru pre-exchange, startup/refusal și persistență/readback, comună celor trei calleri. Este justificată ca descompunere finită a așteptării întregii operații, nu ca trei noi granturi sau trei subdeadline-uri independente.",
+    "precision_limit": "Cele două componente4s sunt alocări de buget pornind de la vechiul caller, nu măsurători independente ale limitelor PG pre/post. Nu certific performanța nativă la14s sau faptul că14 este minimul numeric posibil. Contractul cere așteptare finită justificată, nu calibrare nativă inventată.",
+    "risk_decision": "Un apel autentificat model_test_prepare poate ocupa mai mult timp un slot control, dar rămâne finit și în limita existentă de clienți. Operațiile native și orice persistență nouă rămân sub grantul/fence-urile lor; pre-auth rămâne4s. Nu există un caz concret în deltă care să transforme acești timpi de așteptare în autoritate nouă.",
+    "smaller_complete_alternative": "Doar schimbarea clientului lasă callerii4s să anuleze; doar schimbarea callerilor lasă exchange3.2s să anuleze. Constanta comună evită trei copii divergente. Nu este necesar un helper, configurare sau protocol asincron."
+  },
+  "caller_and_dependency_inventory": {
+    "real_entrypoints": [
+      "api/src/omnis/supervisor/__main__.py:108-122 callbackul LocalControl real și :138-174 heartbeat/status/renew/drain",
+      "api/src/omnis/supervisor/native_tasks.py:524-611 transportul și readerul model_test_prepare; main cheamă același control_task",
+      "api/tests/test_contract_method_pg.py:9710-9794 Settings/readback + callback + consumerul real; :9799-9866 replay și cold-reader"
+    ],
+    "all_product_managed_callers": [
+      "native_tasks.py:85 _model_preflight -> task_model_preflight",
+      "native_tasks.py:292 _model_test_prepare -> task_model_initialize/v5",
+      "native_tasks.py:347 _model_initialization -> task_model_initialize/non-v5",
+      "native_tasks.py:437 stage -> task_stage",
+      "native_tasks.py:504 release -> task_release; :494 v4 folosește direct _exchange sub fence"
+    ],
+    "shared_client_siblings_traced": [
+      "freeze_preflight/exchange_frozen/retire_frozen",
+      "prepare și receive/task_receive",
+      "settings/settings_status/status",
+      "launch_inert/renew/drain/close"
+    ],
+    "producer_and_test_seams_read": [
+      "api/src/omnis/modules/runs/model_test.py:1-507",
+      "api/src/omnis/modules/instance/service.py:140-279",
+      "api/tests/test_model_test_prepare_source.py:25-127",
+      "api/tests/test_owned_model_initialization.py:33-148 SourceOwner",
+      "api/tests/test_native_task_control.py:15-108",
+      "integrations/hermes/tests/peer_fixture.py:13-19 slow_ready=2.1s"
+    ],
+    "unchanged_bytes_verified_against_base": [
+      "api/src/omnis/modules/runs/model_test.py",
+      "api/src/omnis/modules/instance/service.py",
+      "api/tests/test_contract_method_pg.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "Makefile"
+    ],
+    "config_exports_dependencies": "Niciun export, config, adapter/pin sau dependență nouă necesară. Doar distribuția API/reader este afectată de cele patru surse API; trebuie actualizată prin poarta existentă după adjudecare."
+  },
+  "evidence": {
+    "reuse_policy": "Nu am rerulat cele156 teste și nu am produs un nou peer/probe fără finding concret. Am reutilizat ieșirile versionate pe bytes confruntați direct cu snapshotul frozen.",
+    "reviewer_direct_execution": [
+      {
+        "command": "git status --short --branch; git rev-parse HEAD; git diff base head -- cele șase căi explicite; git log --oneline -5",
+        "exit_code": 0,
+        "result": "HEAD exact; tracked tree/index curate; delta celor șase fișiere citită."
+      },
+      {
+        "command": "api/.venv/bin/python -I -B -c '<stdlib: JSON final_files, SHA256 al celor șase căi explicite, git show HEAD:path, comparația fixture-ului cu baza și șase surse relevante neschimbate>'",
+        "exit_code": 0,
+        "python_version_observed": "3.13.15",
+        "result": "Toate cele șase SHA coincid cu final_files și bytes HEAD; fixture-ul diferă numai prin literalul v5->v6; cele șase surse relevante declarate neschimbate coincid cu baza. Fără import API/test, bytecode sau efecte runtime."
+      },
+      {
+        "command": "git diff --check 8b670bd6c0998a2ca0421ff871fc948cc5d6bb60 5ebfd02ecd1bdfb0f854018205227729f77cf7ef -- api/src/omnis/modules/instance/schemas.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/src/omnis/transport/local_control.py api/tests/test_model_prepare_sync_source.py api/tests/test_native_task_client.py",
+        "exit_code": 0,
+        "result": "Fără erori whitespace în delta scoped."
+      },
+      {
+        "command": "git status --short --branch; git rev-parse HEAD; git diff --name-only; git diff --cached --name-only",
+        "exit_code": 0,
+        "result": "Snapshotul și starea tracked/index sunt neschimbate la finalul lecturii."
+      }
+    ],
+    "versioned_author_evidence": [
+      {
+        "path": "documents/verification/p4a-model-prepare-evidence/sync-startup-author.json",
+        "reuse": "RED caller4s real, apoi RED client3.2s separat după alinierea callerilor; 132SOURCE finale și eșecurile originale păstrate.",
+        "limitations": "Raport original precommit, nu verdict native; hashes ale celor cinci fișiere coincid cu final_files/frozen."
+      },
+      {
+        "path": "documents/verification/p4a-model-prepare-evidence/sync-startup-version-fixture-author.json",
+        "reuse": "Toți selectorii înregistrați:156passed36.48s/exit0; client separat24passed1.21s/exit0; startup adapter separat1passed2.68s/exit0; Ruff/format/mypy strict pe6fișiere exit0.",
+        "collection": "156 colectate, exact aceiași selectori, fără excluderi; raportul păstrează comanda/argv și output_path pentru fiecare execuție.",
+        "limitations": "Raportul păstrează statusul istoric de autor necomis; aprobarea de față se leagă de bytes final_files confruntați, nu de eticheta istorică final_HEAD din raport."
+      }
+    ],
+    "parent_evidence_from_active_contract": "documents/verification/p4a-minim.md:128 consemnează9controale verticale PASS17.73s/exit0. Este dovadă a părintelui, nu o execuție revendicată de reviewer.",
+    "counts_not_added": "156,24,9 și celelalte seturi se suprapun; nu le însumez.",
+    "historical_count_disposition": "Vechiul151PASS+1FAIL=152 rămâne original. Current156 este colectat explicit; proveniența diferenței de4 rămâne UNKNOWN. Nu transfer vechile PASS și nu pretind că acea execuție istorică a avut156teste.",
+    "new_cases_scope": "5cazuri verticale fast/cold/expiry/Stop/disconnect și4controale de selecție timeout. Controlul de selecție oprește la writer cu Captured și este etichetat explicit ca frame sintetic, nu pozitiv de payload/admission."
+  },
+  "persistence_and_readback_limits": {
+    "source_real": [
+      "orchestrarea control_task/LocalControl/NativeTaskOwner",
+      "metodele reale ModelTest.prepare/dispatch/persist și validările lor",
+      "RuntimeClient și Host/_managed_connected/_launch/NativePeer pe UDS",
+      "handshake/capabilities și cleanup pentru procesul peer sintetic propriu"
+    ],
+    "explicit_doubles": [
+      "storage/commit/owner-fence/readiness în SourceOwner",
+      "grantul DB4500ms ori600ms pentru expiry",
+      "Settings status și saved-read1.2s",
+      "management absent și Stop fără proces în acea tranziție SOURCE",
+      "model preparation_result/native-turn și CLOSE replies",
+      "întârzieri SOURCE pregrant0.9s/callback0.4s/postexchange persist0.2s"
+    ],
+    "not_implied": "Aceste teste nu certifică tranzacții PG reale, constructor/turn Hermes autentic, Future.done/CLOSED_JOINED, namespace-owned Stop sau absența universală a efectelor. Callbackul PG real și succesul său istoric de commit/readback sunt păstrate fără redeschidere sau adopție a DB vechi.",
+    "historical_failure": "Cauza exclusivă a FAIL-ului installed istoric rămâne UNKNOWN; reproducerii arată mecanisme suficiente de anulare prematură, nu atribuire retrospectivă exclusivă."
+  },
+  "ponytail": {
+    "mode": "full",
+    "assessment": "Schimbare minimă completă pentru frontiera cerută: patru surse API, un test vertical care refolosește fixtures existente și o corecție independentă de literal. Fără abstracție nouă, framework, wrapper de produs, dependență sau breadth de input fără cerință.",
+    "why_not_one_line": "Există două clase independente de timeout dovedite prin RED; toate cele trei așteptări exterioare și exchange-ul interior trebuie ajustate, altfel rămâne o anulare prematură.",
+    "deletion_or_reuse_findings": [],
+    "new_tests": "296linii nu înseamnă un owner nou de produs: conectează codul existent, doubles explicite și cleanup-ul peerului;4cazuri mici izolează selecția pentru sibling callers. Nu am identificat o reducere concretă care păstrează aceleași oracole și ar trebui cerută înainte de prima QA reală.",
+    "skipped": "Nicio funcție nouă, opțiune, retry, async PENDING/status, observator suplimentar sau audit general."
+  },
+  "next_existing_gate": {
+    "target": "test-model-test-prepare-native-pg",
+    "consumer": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+    "runner": "run_gate existent, timeout180s, șase bindinguri explicite, reader API reconstruit/atestat și fixture fresh după adjudecarea ambelor reviewuri",
+    "reviewer_execution": "NOT_RUN; nu am executat targetul, runner --check, PG, OCI, Hermes sau provider.",
+    "unchanged_distribution": "OCI43/adapter/native neschimbate se pot reutiliza numai după identitatea cerută de contract; acest review nu face acea atestare.",
+    "required_outcome_not_prejudged": "O QA fresh trebuie să probeze ori să blocheze HOLD/tur autentic, replay/cold-reader, census și CLOSE+Future prin ownerul existent. Nu este presupus PASS."
+  },
+  "scope_and_safety": {
+    "repository_edits": [],
+    "created_files": [
+      "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/review-startup-norm.json"
+    ],
+    "stage_commit_push": false,
+    "protected_files": "HTML-ul original și tools/development/ponytail.json nu au fost citite/hashuite/copiate/modificate; nu s-a folosit archive Git broad.",
+    "secrets": "Fără env dump, .env, capability sau traceback PG privat; numai surse și dovezi sanitizate versionate.",
+    "external_effects": "Niciun PG/OCI/Hermes/provider/account/target, listener sau serviciu nou.",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "project_status_delta_proposed_to_parent": [
+    {
+      "scope": "AICI: remediu sincron + fixturefix pe5ebfd02",
+      "code": "IMPLEMENTED_COMMITTED",
+      "proof": "PASS_SOURCE_SCOPED_REUSED_EXACT_BYTES",
+      "review": "APPROVED_SOURCE_SCOPED_NORMATIVE; complementary review/adjudication owned by parent",
+      "next": "reader API actualizat și prima QA reală admisă, nu un nou harness"
+    },
+    {
+      "scope": "P4a-minim",
+      "code": "PARTIAL",
+      "proof": "native affected gate NOT_RUN in this review",
+      "review": "not globally approved",
+      "next": "porțile existente serial, păstrând FAIL/UNKNOWN/UNCERTAIN"
+    },
+    {
+      "scope": "P2-live / faza2",
+      "code": "NOT_CLOSED",
+      "proof": "NOT_RUN / remaining native/account/Responses/caps/UI/live/canonical obligations",
+      "review": "NOT_CERTIFIED",
+      "next": "continuare numai în mandat; fără P3/target/r1/global/push"
+    }
+  ],
+  "issues_encountered": [
+    "Un prim search cu glob compus nu a întors rezultate; contractul activ a fost apoi citit direct din căile exacte, fără a concluziona că lipsește.",
+    "Fișierul raportului cerut nu exista înaintea scrierii; nu a fost suprascris un raport preexistent."
+  ],
+  "Not checked:": "Nu am executat PG/native/OCI/provider/account/target, rebuild/install, QA180 sau canonicalul complet; nu am rerulat156 pe bytes neschimbați.",
+  "risk_user_must_know": "Aprobarea este SOURCE, nu native/P4a/phase2.14s este numai anvelopa de așteptare API; granturile nu cresc, iar următoarea QA reală poate rămâne BLOCKED fără să contrazică acest verdict scoped."
+}

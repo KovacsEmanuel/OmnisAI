@@ -1,0 +1,40 @@
+{
+  "snapshot": "2261918",
+  "scope": "Parent read-only verification; no product edits, provider, DB or native runtime",
+  "completed_checks": [
+    {"command": "Full affected API SOURCE test_model_test_prepare_source.py + test_model_budget.py + test_final_model_request.py with current worktree imports and pinned SDK", "exit": 0, "summary": "129 passed in 28.89s", "private_log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/parent-source-check.private.log"},
+    {"command": "Full cli/tests/test_auth_forwarder.py, real local UDS and controlled DNS/connect", "exit": 0, "summary": "5 passed, 14 subtests passed in 0.16s", "private_log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/parent-cli-check.private.log"},
+    {"command": "Ruff format --check on all17 changed non-upstream Python files", "exit": 0, "summary": "17 files already formatted"},
+    {"command": "Exact26 author inventory comparison and git diff --check", "exit": 0, "summary": "26 changed/26 declared/zero SHA or path mismatch"}
+  ],
+  "findings": [
+    {
+      "id": "PARENT-CODEX-NULL-OUTPUT-01",
+      "severity": "HIGH",
+      "path": "integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+      "requirement": "Retain real Codex provider terminal receipt/usage; use the actual pinned response shape, not a mock-only success",
+      "reproducer": "Execute the existing test_execution_owner_commits_reserve_and_sent_then_replays_without_send complete control with only its synthetic terminal response output field changed in-memory from [] to null. Same real owner/native function/SDK2.24 and HTTP double. The positive [] control passed in parent's129 full SOURCE tests. null completes upstream but terminal.output_text raises, caught as UNKNOWN. No repository mutation or provider request.",
+      "observed": {"state": "SENT", "usage_state": "UNKNOWN", "inference_status": "UNKNOWN"},
+      "command_exit": 0,
+      "minimal_fix_direction": "Use the pinned Codex event-assembly/normalization path or a minimal correctly bounded equivalent at this finite seam; preserve output_item.done content and terminal usage without assuming terminal.output is a list. Real compiled/native consumer still required. Same developer to reproduce RED/GREEN; no parent parallel fix.",
+      "limits": "Synthetic HTTP response shape, not observed live backend. Pinned auxiliary_client.py already documents Codex terminal.output null and its existing normalizer."
+    },
+    {
+      "id": "BASELINE-E2E-MYPY-107",
+      "severity": "CANONICAL_PREREQUISITE",
+      "path": "api/tests/test_e2e_cleanup.py",
+      "line": 107,
+      "reproducer": "Real make-typecheck-equivalent full mypy api/src api/tests on candidate and main/base, same strict settings, private cache. Both exit1 with the identical single call-arg diagnostic: missing monkeypatch in test_built_web_against_real_control_plane. Both test files byte-unchanged by candidate. Parent compared the complete JSON diagnostics for equality.",
+      "minimal_fix_direction": "Same assigned developer adds legitimate existing monkeypatch fixture to this wrapper call, reproduces focused regression RED/GREEN and strict full mypy, separate coherent commit. Do not ignore or weaken canonical gate."
+    },
+    {
+      "id": "MISSING-AFFECTED-NATIVE-CONSUMER-VARIANT",
+      "severity": "DELIVERY_PREREQUISITE",
+      "requirement": "A working vertical slice must include its real affected consumer, not only helpers",
+      "reproducer": "Author report first_existing_caller.runner explicitly says existing test-model-test-prepare-native-pg still HOLD-only; no real execution/control scenario or exact QA invocation delivered.",
+      "minimal_fix_direction": "Same developer extends existing consumer/runner selection only as necessary, including controlled real native+PG execution with transport fixture (no provider) and separately opt-in authenticated live call. Keep owners/cleanup, grants/framing/deadlines unchanged; no new harness. Two exact-snapshot complementary reviews before physical QA. Operator web account confirmation is separate and must precede provider inference."
+    }
+  ],
+  "implementation_authority": "Same developer only; parent integrates/adjudicates, no product authoring by parent.",
+  "independent_reviews": "Two complementary read-only reviewers currently inspect frozen2261918; no approval yet."
+}

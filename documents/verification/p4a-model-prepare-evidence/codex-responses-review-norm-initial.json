@@ -1,0 +1,43 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "snapshot": "2261918d52793afccd425ae9680ccdd27b380d2b",
+  "base": "10e44d946fd71cbaad5e6610ced282b5905272c4",
+  "scope": "Review independent read-only al celor 26 de fișiere: conformitate, proveniență nativă, reserve→SENT→send, persistență, replay/restart/Stop și distribuția patch-ului.",
+  "findings": [
+    {
+      "id": "NORM-CODEX-F01",
+      "severity": "MEDIUM",
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "line": 312,
+      "requirement": "Receipt-ul persistent trebuie să poată fi recitit după Stop/restart, fără admitere nouă sau resend.",
+      "reproducer": "_model_test_send intră în native_preparation_commit înainte să citească receipt-ul existent. Control SOURCE cu metoda reală InstanceService: instanță deschisă → SETTLED, receipt_reads=1, runtime_calls=0; shutdown_command_id prezent → INSTANCE_SHUTTING_DOWN, receipt_reads=0. După restart, actualizarea epoch/generation modifică și digestul comenzii salvat la model_test.py:555, provocând COMMAND_CONFLICT; păstrarea valorilor vechi eșuează la fencing.",
+      "remedy": "Adaugă pe consumatorul existent o cale autenticată de citire/replay a tentativei salvate, disponibilă după Stop și schimbarea generației. Păstrează verificările de integritate/ownership și poarta actuală exclusiv pentru rezervare/trimitere nouă."
+    },
+    {
+      "id": "NORM-CODEX-F02",
+      "severity": "HIGH",
+      "path": "integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+      "line": 263,
+      "requirement": "Deadline absolut local: maximum 300 s per cerere și limita rămasă din campania de 3600 s.",
+      "reproducer": "Trimite cu dispatch.deadline=acum+1s, menține granturile existente valide și lasă streamul fără evenimente peste 1s. Deadline-ul calculat la liniile 213–214 este verificat numai la callback-uri/evenimente; citirea blocantă are timeout fix 300s. Forwarder-ul are separat tot 300s, nu timpul rămas. Cererea poate rămâne activă local după expirarea campaniei. Reproducer stabilit static; cronometrare cu transport real NOT_RUN.",
+      "remedy": "Aplică deadline-ul absolut asupra întregului schimb și asupra citirilor streamului, inclusiv când nu sosesc evenimente. La expirare închide schimbul local prin mecanismul existent, păstrează SENT/UNKNOWN și nu pretinde anulare remote; fără mărirea granturilor sau retry."
+    }
+  ],
+  "checks": [
+    "Git: HEAD exact, checkout curat, exact 26 de fișiere; git diff --check base..candidate exit 0.",
+    "Citite AGENTS.md, CONTRIBUTING.md, procedurile locale relevante și contractul curent P4a/arhitectural.",
+    "Control API SOURCE prin /home/kali/OmnisAI/api/.venv/bin/python -I -B -c, checkout selectat explicit: replay deschis versus Stop, exit 0; DB/runtime substituite.",
+    "Control stdlib read-only: SHA arhivă/pin, manifest/patch, 17 perechi original/sursă oglindită și două surse de compilator pregătite identice, exit 0.",
+    "git apply --reverse --check --directory=integrations/hermes/upstream/managed-source integrations/hermes/upstream/omnis-managed.patch: exit 0."
+  ],
+  "limits": [
+    "AICI: Codex minim are defecte SOURCE; QA execuție NOT_RUN, P4a-minim PARTIAL, P2-live NOT_RUN, faza2 NOT_CLOSED.",
+    "Traseul de execuție este conectat în sursă, dar nu este certificat prin apel productiv. Testul SDK nou substituie compilatorul nativ și cititorul credentialelor.",
+    "Consumerul existent test-model-test-prepare-native-pg exercită numai HOLD. Extinderea lui pentru execuție și controale este necesară, dar nu înlocuiește remedierea celor două defecte.",
+    "Fără provider/ținte/DB/OCI/browser/native execution, instalări, subagenți, modificări, commituri sau raport scris. Fișierele interzise și credentialele nu au fost accesate.",
+    "Suitele raportate de autor/părinte nu au fost rerulate și nu constituie acceptare proprie. UDS nu a fost încercat.",
+    "MONITOR_SUBSCRIPTION este acceptat conform corecției operatorului; lipsa plafonului de output generat nu este finding. Caps numerice API rămân distincte.",
+    "Încercări auxiliare nereușite: heredoc refuzat de filesystem; presupunere greșită despre prefixul TAR și parser ad-hoc de context gol. Controalele finale directe au trecut; acestea nu sunt defecte de produs.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Niciun PASS de produs, installed sau canonical."
+  ]
+}

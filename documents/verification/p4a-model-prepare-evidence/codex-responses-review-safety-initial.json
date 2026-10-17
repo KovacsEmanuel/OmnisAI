@@ -1,0 +1,42 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "snapshot": "2261918d52793afccd425ae9680ccdd27b380d2b",
+  "base": "10e44d946fd71cbaad5e6610ced282b5905272c4",
+  "scope": "Review independent read-only al diferenței de exact 26 de fișiere, focalizat pe autorizare, concurență, DATA după transformări, Stop, failure și cleanup. Două defecte SOURCE; fără aprobare de produs.",
+  "findings": [
+    {
+      "id": "SAFETY-CODEX-01",
+      "severity": "P1",
+      "path": "integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+      "line": 270,
+      "requirement": "Deadline-ul local trebuie să limiteze întreaga cerere la maximum 300 s și la timpul rămas din campanie, inclusiv când I/O este blocat.",
+      "reproducer": "Admite un send autentic aproape de campaign_deadline, cu 1 s rămas, și menține lease-ul valid prin renewal. După intrarea în citirea răspunsului, providerul nu produce evenimente timp de 10 s. Guardul rulează înaintea citirii și după eveniment, dar nu în timpul blocării; timeout-ul HTTP este fix 300 s per operație. Controlul în memorie cu bucla AST exactă, SDK 2.24 și MockTransport a observat clientul deschis la timpul simulat 10/deadline 1, apoi refuzul abia după întoarcerea citirii. Limita totală de 300 s a forwarderului începe ulterior și nu cunoaște campaign_deadline.",
+      "remedy": "Impune deadline-ul total pe I/O-ul activ prin mecanismul owned existent, cu revocare/întrerupere și drenarea aceluiași Future. Folosește timpul rămas pentru operațiile de transport; un timeout de inactivitate sau guardul după eveniment nu sunt suficiente. Păstrează SENT/UNKNOWN și fără resend."
+    },
+    {
+      "id": "SAFETY-CODEX-02",
+      "severity": "P1",
+      "path": "integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+      "line": 217,
+      "requirement": "Frontiera fizică preheaders trebuie să refuze autoritatea expirată; existența writerului lifeline nu dovedește validitatea lease-ului Host.",
+      "reproducer": "După un SEND admis, întârzie conexiunea până imediat după expirarea lease-ului Host, înaintea următoarei verificări _watch, care rulează la 25 ms. Writerul pipe-ului este încă deschis, deadline-ul dispatchului este valid și copilul nu este CLOSED. Guardul verifică numai EOF-ul și deadline-ul dispatchului, astfel trace('http11.send_request_headers.started', {}) acceptă trimiterea. Controlul cu RuntimeHost._open_management_lifeline și NativeOAuth.from_owner_fd reale, plus nodurile AST guard/trace exacte, a produs EXPIRED_HOST_LEASE_PREHEADERS_ACCEPTED True 1. După revocarea writerului, controlul negativ a refuzat corect.",
+      "remedy": "Leagă verificarea fizică de o autoritate expirabilă produsă și actualizată de ownerul real al lease-ului, păstrând EOF-ul sincron pentru Stop. Refuzul preheaders trebuie să funcționeze și când watchdogul Host nu a primit încă un tur de execuție."
+    }
+  ],
+  "checks": [
+    "Git read-only: HEAD exact, diferență de 26 de fișiere, checkout curat; exit 0.",
+    "git diff --check base..candidate: exit 0.",
+    "python -I -B: parsare AST pentru toate cele 23 de fișiere Python schimbate; exit 0.",
+    "FiniteTlsTest.test_product_destinations_and_unknown_sni: 1 PASS, exit 0; SSL MemoryBIO, fără conexiuni.",
+    "Control preheaders SOURCE: lease Host expirat acceptat; EOF real refuzat; exit 0.",
+    "Control deadline SOURCE: buclă AST exactă + SDK 2.24/HTTPX MockTransport, ceas simulat; depășire reprodusă, exit 0."
+  ],
+  "limits": [
+    "Fără implementare, subagenți, commituri, raport scris sau modificări de sursă. Fișierele interzise și credentialele nu au fost citite.",
+    "Controalele AST folosesc stare construită și doubles; nu probează constructorul nativ, compilatorul complet, HTTP fizic sau integrarea produsului.",
+    "PG, UDS, native, provider/live, OCI, browser, installed și canonical: NOT_RUN. Rezultatele raportate de autor/părinte nu constituie aprobarea acestui review.",
+    "Consumerul existent test-model-test-prepare-native-pg verifică încă HOLD. Același developer trebuie să-l extindă pentru execuție și controale, după remedieri și re-review; lipsa probei este distinctă de cele două defecte SOURCE.",
+    "Outputul subscripției rămâne MONITOR_SUBSCRIPTION; lipsa unui cap de generated-output tokens nu este finding.",
+    "AICI: candidat implementat; probe SOURCE limitate; review CHANGES_REQUESTED; P4a-minim PARTIAL, P2-live NOT_RUN, faza2 NOT_CLOSED."
+  ]
+}

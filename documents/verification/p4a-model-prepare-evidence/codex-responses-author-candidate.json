@@ -1,0 +1,330 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_NOT_INTEGRATED_NOT_LIVE_ACCEPTED",
+  "base": "10e44d946fd71cbaad5e6610ced282b5905272c4",
+  "head": "10e44d946fd71cbaad5e6610ced282b5905272c4",
+  "branch": "work/cx-h1I9IKMg",
+  "commits_created": false,
+  "source_frozen": true,
+  "owned_inventory": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/modules/instance/schemas.py",
+      "sha256": "ed5861dae8a9107226f88bb4e9881674b76f3e8f4ca1da467aaaed03e43b2443"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/modules/runs/model_test.py",
+      "sha256": "98f9c3ab26c9fe624cdea24dd3cd5b4186dcff741510d13b060502b351b7af7b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/policy/budgets.py",
+      "sha256": "467963d569eae665d047a1aef4f8f3a4b843c817310f5697abf4acf5a13372ec"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/policy/model_dispatch_contract.py",
+      "sha256": "b83e7473ae62da655e7afa6884ca05fa26265e4f3e58644ffdbc025471636cf0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "e421ca4f6e2c479b62f0e67a41acbf21ec59b4ed7220b819a1f87ac7e571183f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "660677d6ab2f071e68ed013dc1d2c40ebdfde07f8940c7535b7a6497e5b5ebf5"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/transport/local_control.py",
+      "sha256": "caa3d78b1f8aa6b38a144ce0e9e669b98306cba54d20739714da18101b50b80b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests/test_model_budget.py",
+      "sha256": "2e73e52469d7eff88f54b65852e97492e6e1cd45d86458cd2753a1d5c2790d3c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests/test_model_test_prepare_source.py",
+      "sha256": "8f6d48c6cf9c80054daf5c39d777ba041783b756d2c02c0499c63aa63d48c8fe"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests/test_native_task_client.py",
+      "sha256": "b706aeb9682b6f258a97fbe894f78e1b21de6e5b220a3c082ce7c1c6ca658095"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/cli/src/omnis_cli/forwarder.py",
+      "sha256": "0bf498f0d49e63971b12b25eef5b5aeb0a41009f8a1be47cb48333a3097c4cf4"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/cli/tests/test_auth_forwarder.py",
+      "sha256": "a3ffdae98e059f8ab4aacf10152865a91ce23eabff41a4157d6daaf798d904fc"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/pin.json",
+      "sha256": "2b32077f8b02727aff6d21c85a95db93bc7ae77ba2a910dc5f7c579388b651a0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+      "sha256": "446316c1c5c47fe28e311d00658519d9d7628797950b04c0bcbcd7bfea70c5e4"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src/omnis_hermes/model_request.py",
+      "sha256": "f1053c68a12988d3f511c76f1a5734756a36acec489458badcf6b9b5562dffef"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src/omnis_hermes/model_terminal.py",
+      "sha256": "399e5d541ce626ab938af644dacca891a19576afde9c167118a7874ce260cdc3"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "604be95e62271e00451d60497e726d9c048a82f1111c3aa71f53845310647cfd"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/tests/test_model_prepare_lifecycle.py",
+      "sha256": "47d59528ccf4c8f0815925b5b921772d72eb78d21d278df41ee24f1e68faf53b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-patch-manifest.json",
+      "sha256": "0bb1dd51281a172dad7bba737e432e24356562734b101ec4721c4c4f34ff2f2d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/agent/agent_init.py",
+      "sha256": "2faaf6ae4857d4875f48ed009c5bb6dd779bbc78b1f320514ca53960fd7de14f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py",
+      "sha256": "d3403b00f6a0f0a7f070cfd130488df21c0cb8071b82907a78b6bef0107c9100"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py",
+      "sha256": "b5fff48093a1af71a91203bd28e44c9f2742141e508b3da2c5a64590d3155b29"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+      "sha256": "bd419afce1c849b2dbe5009d92c70802aaec8ab35500f0fbd251569bc4261ac7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/agent/turn_context.py",
+      "sha256": "043810cf95850ca53b9ff13750f5c9bdfea0b8dfa07546c2bbb420277bf4cc24"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/managed-source/run_agent.py",
+      "sha256": "a10678a0a00fbb7d489bd77f3e394ba0df551c65747defc2280b9f4200c81b13"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/upstream/omnis-managed.patch",
+      "sha256": "5bc809427edbc80b55290ca6a3de47c3b417becad25372e948ebc566172239d3"
+    }
+  ],
+  "snapshot_sha256": "f835eccdf5b553ba56f54192a78f9af72226c2a6e0cfafad89a318889abf0342",
+  "requirement_code_check": [
+    {
+      "requirement": "Fresh saved selection/context/native execution turn; old HOLD remains inert",
+      "code": [
+        "api/src/omnis/modules/runs/model_test.py",
+        "integrations/hermes/src/omnis_hermes/managed_admission_contract.py",
+        "integrations/hermes/upstream/managed-source/agent/agent_init.py",
+        "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py"
+      ],
+      "check": "new start SOURCE + existing preparation regressions"
+    },
+    {
+      "requirement": "Qualified exact synthetic DATA; no transformed fields, model/effort overrides, tools/raw/unclassified additions",
+      "code": [
+        "api/src/omnis/modules/runs/model_test.py",
+        "integrations/hermes/src/omnis_hermes/model_request.py"
+      ],
+      "check": "owner SOURCE and real SDK2.24 mock HTTP; transformed model/reasoning/tools/extra_body denied"
+    },
+    {
+      "requirement": "Existing ledger reserve commit then durable SENT commit before release; no resend/readback",
+      "code": [
+        "api/src/omnis/supervisor/native_tasks.py",
+        "api/src/omnis/modules/runs/model_test.py",
+        "api/src/omnis/policy/budgets.py"
+      ],
+      "check": "owner tests assert committed record/event visibility before native double; replay byte equality/no second physical headers"
+    },
+    {
+      "requirement": "Subscription output explicitly MONITOR_SUBSCRIPTION; numeric API behavior unchanged; calls/deadline bounded",
+      "code": [
+        "api/src/omnis/policy/model_dispatch_contract.py",
+        "api/src/omnis/policy/budgets.py",
+        "integrations/hermes/src/omnis_hermes/model_request.py"
+      ],
+      "check": "24 budget tests; call ceiling1; request300s; campaign3600s; unknown charged output retained as None"
+    },
+    {
+      "requirement": "Native pinned Responses producer, one SDK send, real receipt/observed usage persistence; no retry/fallback/refresh",
+      "code": [
+        "integrations/hermes/upstream/managed-source/agent/turn_api_request.py",
+        "api/src/omnis/modules/runs/model_test.py"
+      ],
+      "check": "actual native function AST + actual SDK over HTTP double; compiler and credential reader explicitly mocked; real provider NOT_RUN"
+    },
+    {
+      "requirement": "Stop physical preheader/lifeline; same-Future close/drain",
+      "code": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "integrations/hermes/upstream/managed-source/agent/turn_context.py",
+        "integrations/hermes/upstream/managed-source/run_agent.py"
+      ],
+      "check": "real synchronous pipe EOF before simulated httpcore header event; 39 existing native SOURCE controls; authentic execution Future native QA NOT_RUN"
+    },
+    {
+      "requirement": "Finite egress without arbitrary network/proxy",
+      "code": [
+        "cli/src/omnis_cli/forwarder.py"
+      ],
+      "check": "only exact auth.openai.com/chatgpt.com ClientHello SNI accepted; fixed L7 POST Responses native guard; TLS verification stays enabled; actual relay UDS blocked by sandbox"
+    }
+  ],
+  "checks": [
+    {
+      "phase": "RED budget",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_budget.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'subscription_monitor'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 1,
+      "count": "1 failed, 23 deselected",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/red-budget.log"
+    },
+    {
+      "phase": "GREEN budget",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_budget.py'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 0,
+      "count": "24 passed",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/green-budget-2.log"
+    },
+    {
+      "phase": "RED new context",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'execution_start_is_fresh'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 1,
+      "count": "1 failed, 78 deselected",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/red-start.log"
+    },
+    {
+      "phase": "GREEN complete SOURCE production",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/sdk'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'api/tests/test_model_budget.py'\"'\"', '\"'\"'api/tests/test_final_model_request.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'not qa_owner_preserves_host and not manifest_negative_uses_actual'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"']))'",
+      "exit": 0,
+      "count": "116 passed, 13 deselected",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/source-freeze.log",
+      "limit": "Storage, native constructor and native compiler doubles. Real pinned SDK2.24.0 over MockTransport; httpcore preheader event simulated, synchronous lifeline EOF real. Last later test-only change adds frame measurements; affected 3 controls rerun below."
+    },
+    {
+      "phase": "GREEN final measurement tests",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/sdk'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'execution_owner'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"']))'",
+      "exit": 0,
+      "count": "3 passed, 79 deselected",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/measurements-final.log"
+    },
+    {
+      "phase": "GREEN native SOURCE/overlay",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'asyncio'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'integrations/hermes/tests/test_model_prepare_lifecycle.py'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_build.py'\"'\"', '\"'\"'integrations/hermes/tests/test_model_terminal.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'not existing_private_rpc_close and not public_turn_denies_before_native_dependencies'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 0,
+      "count": "39 passed, 5 deselected",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/native-freeze.log",
+      "limit": "AST lifecycle SOURCE, not real AIAgent/native runtime."
+    },
+    {
+      "phase": "GREEN final overlay bytes",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/integrations/hermes/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'integrations/hermes/tests/test_managed_build.py'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 0,
+      "count": "2 passed",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/build-last.log"
+    },
+    {
+      "phase": "GREEN finite TLS parser/DNS policy",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/tmp PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/cli/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'cli/tests/test_auth_forwarder.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'FiniteTlsTest or full_dns_set'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 0,
+      "count": "2 passed, 3 deselected, 14 subtests passed",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/cli-no-network.log"
+    },
+    {
+      "phase": "strict mypy",
+      "command": "MYPYPATH=cli/src /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/cx-h1I9IKMg/mypy-cache api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/runs/model_test.py api/src/omnis/policy/budgets.py api/src/omnis/policy/model_dispatch_contract.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/src/omnis/transport/local_control.py api/tests/test_model_budget.py api/tests/test_model_test_prepare_source.py api/tests/test_native_task_client.py cli/src/omnis_cli/forwarder.py integrations/hermes/src/omnis_hermes/managed_admission_contract.py integrations/hermes/src/omnis_hermes/model_request.py integrations/hermes/src/omnis_hermes/model_terminal.py integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "exit": 0,
+      "count": "15 source files, no issues",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/mypy-last.log"
+    },
+    {
+      "phase": "Ruff",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --fix api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/runs/model_test.py api/src/omnis/policy/budgets.py api/src/omnis/policy/model_dispatch_contract.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/supervisor/runtime_client.py api/src/omnis/transport/local_control.py api/tests/test_model_budget.py api/tests/test_model_test_prepare_source.py api/tests/test_native_task_client.py cli/src/omnis_cli/forwarder.py cli/tests/test_auth_forwarder.py integrations/hermes/src/omnis_hermes/managed_admission_contract.py integrations/hermes/src/omnis_hermes/model_request.py integrations/hermes/src/omnis_hermes/model_terminal.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/tests/test_model_prepare_lifecycle.py",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/ruff-freeze.log"
+    },
+    {
+      "phase": "overlay original/reapply/inventory",
+      "command": "python -B /home/kali/.hermes/cache/scratch/cx-h1I9IKMg/seal.py",
+      "exit": 0,
+      "count": "17 exact managed destinations; six native files changed from base",
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/seal-last.log"
+    },
+    {
+      "phase": "diff whitespace",
+      "command": "git diff --check",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/diff-check.log"
+    }
+  ],
+  "complete_input_sizes": {
+    "measurement": "Actual complete SOURCE producer; conservative maximal-width identity/fence envelopes, no live send",
+    "start": {
+      "payload": 27590,
+      "native_frame": 27704,
+      "host_frame": 27909
+    },
+    "send": {
+      "payload": 6116,
+      "native_frame": 6230,
+      "host_frame": 6435
+    },
+    "limits": {
+      "payload": 32768,
+      "frames": 65536,
+      "private_command": 3600,
+      "control": 4096
+    }
+  },
+  "failed_attempts_and_limits": [
+    "First budget GREEN attempt:23pass/1fail because test mutated a defensive mapping copy; test assignment fixed without weakening bound.",
+    "First fresh-context GREEN rejected config run_id pointing to original graph; fresh backend run identity now allocated before configuration, hashes rebuilt before any persistence.",
+    "First owner settlement reached a missing SQL-result storage double; supplied empty SOURCE receipt-query result, actual ledger settle remains used.",
+    "SDK import absent in parent API venv. Four existing native wheels were extracted locally into owned scratch only after exact SHA membership in requirements-native.txt; no dependency manifests or global environment changed. sdk-inputs.json records hashes.",
+    "Native test path initially shadowed API test_native_preparation; delayed native test-loader path until authentic SOURCE producer loaded. No product workaround.",
+    "Broad SOURCE attempt source-first:13fail/113pass (private TMPDIR mode); corrected owned scratch mode0700. Later source-final:32fail/121pass, all failing UDS binds denied by sandbox; original failures retained.",
+    "Native broad no-network subset:38pass/2fail. Manifest patch_sha256 reseal omission fixed; unchanged pre-existing conversation_loop agent=None stock control raises AttributeError. Its file is byte unchanged from base; finding retained, not fixed opportunistically.",
+    "Receipt variable rename accidentally changed literal keys. source-no-network/source-no-network-final each1fail/115pass; fixed both keys and added actual strict reply validation at producer return. source-freeze116pass afterwards.",
+    "Unified-patch context blank-line framing initially triggered git diff whitespace diagnostics; normalized framing to original convention and reapplied exact17file inventory; final diff-check0.",
+    "Real overlapping PostgreSQL reservations, full native compiler/credential-reader confinement, actual HTTPcore socket preheaders, real native execution Future drain, OCI, canonical, browser/operator and provider effects NOT_RUN in author stage. Existing synchronization is reused; SOURCE doubles do not certify concurrency or native/live acceptance."
+  ],
+  "patch_order": [
+    {
+      "order": 1,
+      "scope": "Coherent execution slice: schema/private caller -> immutable execution producer -> ledger monitor -> native registry/Future -> finite Responses/egress -> tests/distribution"
+    },
+    {
+      "order": 2,
+      "scope": "Independent receipt literal-key repair retained as before-receipt-key.patch and before-final-distribution-fixes.patch; parent can review hunks separately, no author commits"
+    }
+  ],
+  "first_existing_caller": {
+    "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/work/api/src/omnis/supervisor/native_tasks.py",
+    "call": "await control_task(owned_private_control_directory, command)",
+    "actions": [
+      "model_test_start with saved Settings operation and fresh initialization_id",
+      "model_test_send with same initialization_id, fresh protocol_id and exact data_approval for returned composition_ref",
+      "same model_test_send is receipt/readback/RECEIVE only; never resend"
+    ],
+    "runner": "Existing test-model-test-prepare-native-pg currently covers HOLD only. Parent QA needs a bounded variant in that existing consumer for execution and operator web authentication; no new runner/harness was introduced.",
+    "prerequisites": [
+      "two independent exact-snapshot reviews and blocker resolution",
+      "existing builders must produce final API/runtime/CLI artifacts; exact pin/manifest/readability checks",
+      "fresh real qualified synthetic graph/material via existing publisher and managed owner; saved selection openai-codex/gpt-6.1-sol/xhigh",
+      "operator-confirmed dedicated account through existing Omnis web; LOCAL_PRESENT before management join/native launch",
+      "admitted existing real-consumer QA/canonical; retain UNKNOWN on uncertain send; no automatic retry or refresh"
+    ]
+  },
+  "protected_and_scope": {
+    "protected_files_read_copied_hashed_or_changed": false,
+    "personal_credentials_read": false,
+    "external_provider_or_target_traffic": false,
+    "git_commit_push_reset_stash": false,
+    "subagents": false,
+    "global_changes": false
+  },
+  "parent_next": "Review exact inventory; reproduce/adjudicate scoped blockers; implement only necessary existing consumer QA variant; authenticate via Omnis web after review and protections. No P3/phase2 closure inferred."
+}

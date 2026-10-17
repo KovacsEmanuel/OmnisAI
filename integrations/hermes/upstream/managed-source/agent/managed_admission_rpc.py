@@ -71,7 +71,7 @@ def _initialize(params):
 
 def close_preparations():
     with _LOCK:
-        if _SERVICE is not None:
+        if _SERVICE is not None and _SERVICE._model_test_batches:
             _SERVICE.close_model_tests()
 
 

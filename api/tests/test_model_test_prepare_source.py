@@ -1077,6 +1077,111 @@ async def test_model_prepare_manifest_negative_uses_actual_qa_oracle(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("wrong_reason", [None, "TASK_REJECTED", "PRIVATE_OWNER_REASON"])
+async def test_model_execute_budget_negative_uses_actual_qa_oracle(
+    tmp_path: Path, ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, wrong_reason: str | None
+) -> None:
+    """Real QA callback/loop and LocalControl/control_task UDS; owner/PG/SDK doubled."""
+    import ast
+    from collections.abc import Awaitable, Callable
+
+    import test_contract_method_pg as qa
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.supervisor.native_tasks import control_task
+    from omnis.transport import local_control
+
+    owner = SourceOwner(tmp_path, monkeypatch)
+    handler = owner.handler
+    handler.service.engine = handler.domain.engine
+    decision = {
+        "decision_id": str(uuid4()),
+        "composition_ref": {**records.reference(owner.manifest), "kind": "prompt-composition"},
+        "approved_text_digests": ["a" * 64],
+    }
+    request_send = {
+        **owner.base,
+        "action": "model_test_send",
+        "initialization_id": str(uuid4()),
+        "protocol_id": str(uuid4()),
+        "data_approval": decision,
+    }
+
+    async def deny(command: NativeTaskCommand) -> dict[str, object]:
+        reason = "COMMAND_CONFLICT"
+        if command.protocol_id != request_send["protocol_id"]:
+            reason = wrong_reason or "MODEL_BUDGET_EXHAUSTED"
+        raise CatalogError(reason)
+
+    handle = AsyncMock(side_effect=deny)
+    monkeypatch.setattr(handler, "handle", handle)
+    monkeypatch.setattr(local_control, "readiness_reason", AsyncMock(return_value=None))
+    proof: dict[str, object] = {}
+    scope: dict[str, object] = {
+        "NativeTaskCommand": NativeTaskCommand,
+        "CatalogError": CatalogError,
+        "owner": handler,
+        "checkpoint": lambda **fields: proof.update(fields),
+        "proof": proof,
+        "LocalControl": local_control.LocalControl,
+        "directory": ipc_directory,
+        "service": handler.service,
+        "supervisor": handler.owner,
+        "epoch": handler.epoch,
+        "applicability": "model-test-execute",
+        "model_execute": True,
+        "pytest": pytest,
+        "uuid4": uuid4,
+        "decision": decision,
+        "request_send": request_send,
+        "control_task": control_task,
+    }
+    tree = ast.parse(Path(qa.__file__).read_bytes())
+    callback = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "observe_native_task"
+    )
+    listener = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Call)
+        and isinstance(n.func, ast.Name)
+        and n.func.id == "LocalControl"
+        and any(k.arg == "native_task" for k in n.keywords)
+    )
+    loop = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.For) and "mt_execution_changes" in ast.unparse(n.target)
+    )
+    probe = cast(ast.AsyncFunctionDef, ast.parse("async def probe(): pass").body[0])
+    probe.body = [loop]
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[callback, probe], type_ignores=[])),
+            qa.__file__,
+            "exec",
+        ),
+        scope,
+    )
+    listener_instance = cast(
+        local_control.LocalControl,
+        eval(compile(ast.Expression(listener), qa.__file__, "eval"), scope),
+    )
+    invoke = cast(Callable[[], Awaitable[None]], scope["probe"])
+    async with listener_instance:
+        if wrong_reason is None:
+            await invoke()
+            assert handle.await_count == 2
+        else:
+            with pytest.raises(AssertionError, match="^MODEL_EXECUTION_OWNER_REASON_MISMATCH$"):
+                await invoke()
+            assert handle.await_count == 1
+            assert mapping(proof["public_owner_error"])["reason"] != "MODEL_BUDGET_EXHAUSTED"
+    assert "PRIVATE_OWNER_REASON" not in canonical(proof).decode()
+
+
+@pytest.mark.asyncio
 async def test_actual_v5_producer_limit_before_first_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

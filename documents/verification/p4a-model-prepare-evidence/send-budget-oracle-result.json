@@ -1,0 +1,27 @@
+{
+  "status": "FIX_READY_FOR_PARENT_REVIEW_SOURCE_ONLY",
+  "worktree_HEAD": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "input_snapshot": "cddb3baa8737252f273576b39326a21c872054f6",
+  "input_check": "Cele doua fisiere din worktree erau byte-identice cu cddb3ba la inceput. HEAD/worktree nu au fost mutate; diagnosticul precedent si developer-result.json au fost pastrate. Delta noua se inspecteaza fata de cddb3ba, nu fata de HEAD local.",
+  "files_sha256": {
+    "api/tests/test_contract_method_pg.py": "aa6e00480fc26a36753352a9bca8002cfe731dc913c5e5058436af10305be91e",
+    "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+  },
+  "fix": "Reutilizat observe_native_task pentru model_execute; allowlistul intern existent primeste strict MODEL_BUDGET_EXHAUSTED si COMMAND_CONFLICT. Bucla QA cere separat TASK_REJECTED public / MODEL_BUDGET_EXHAUSTED intern, respectiv COMMAND_CONFLICT public/intern. public_owner_error este eliminat din proof inaintea fiecarei cereri pentru a refuza dovezi stale. Nicio schimbare de produs sau de motive publice.",
+  "evidence": "SOURCE extrage si executa callbackul, selectia listenerului si intreaga bucla negativa QA prin LocalControl/control_task reale, pe UDS privat. Ownerul, stocarea PG/readiness si SDK sunt doubles. Cazul corect verifica ambele negative; TASK_REJECTED si PRIVATE_OWNER_REASON interne gresite produc acelasi refuz public TASK_REJECTED, dar sunt respinse exact prin MODEL_EXECUTION_OWNER_REASON_MISMATCH. Motivul privat nu apare in proof.",
+  "unchanged": "Census/no-rerun/readere/Stop, deadline/caps, validari si bytes SEND. Fara PG/native/OCI/provider/target/global/credentials operator, delegare, commit ori canonical; fisierele interzise neatinse.",
+  "command_aliases": {
+    "P": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+    "F": "api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py"
+  },
+  "checks": [
+    {"command": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k model_execute_budget_negative_uses_actual_qa_oracle -q -p no:cacheprovider --tb=short", "phase": "RED", "exit": 1, "failed": 3, "deselected": 124, "seconds": 2.73, "log": "budget-oracle-red.log", "finding": "Bucla reala QA asteapta MODEL_BUDGET_EXHAUSTED; canalul real returneaza TASK_REJECTED la linia10041"},
+    {"command": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k model_execute_budget_negative_uses_actual_qa_oracle -q -p no:cacheprovider --tb=short", "phase": "GREEN_FINAL", "exit": 0, "passed": 3, "deselected": 124, "seconds": 1.97, "log": "budget-oracle-green-final.log"},
+    {"command": "P -m ruff check --config api/pyproject.toml F", "exit": 0, "files": 2, "log": "budget-oracle-ruff.log"},
+    {"command": "P -m ruff format --config api/pyproject.toml --check F", "exit": 0, "files": 2, "log": "budget-oracle-format.log"},
+    {"command": "P -m mypy --config-file api/pyproject.toml F", "exit": 0, "files": 2, "log": "budget-oracle-mypy-final.log"},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "privacy": "Logurile budget-oracle-*.log sunt 0600. TMPDIR=../budget-tmp; XDG_CACHE_HOME=../budget-cache; Ruff/mypy cache sub acel root; shared venv read-only.",
+  "limits": "Review/integrate si QA reala fresh raman la parinte; aceasta trebuie sa observe motivul ownerului real, nu un double. Cauza istorica a esecului de la9944 ramane UNKNOWN. Noua proba sdq-fBHgOHPr nu a fost reinterpretata sau rerulata."
+}

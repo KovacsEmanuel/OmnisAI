@@ -1,0 +1,31 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Review independent READ-ONLY exclusiv delta oracle fata de cddb3baa8737252f273576b39326a21c872054f6; nu inchide faza. Diagnosticul anterior acceptat nu a fost reauditat.",
+  "hashes": {
+    "api/tests/test_contract_method_pg.py": "aa6e00480fc26a36753352a9bca8002cfe731dc913c5e5058436af10305be91e",
+    "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+  },
+  "hash_verification": "Ambele valori corespund la intrare si la verificarea finala; fisierele sursa nu au fost editate.",
+  "findings": [],
+  "analysis": [
+    "LocalControl._dispatch (api/src/omnis/transport/local_control.py:159-169) normalizeaza MODEL_BUDGET_EXHAUSTED la TASK_REJECTED; control_task (api/src/omnis/supervisor/native_tasks.py:636-649) pastreaza acest refuz public. COMMAND_CONFLICT ramane distinct.",
+    "Consumerul (api/tests/test_contract_method_pg.py:9553-9609,10036-10056) reutilizeaza observe_native_task/checkpoint si re-raise; cere simultan TASK_REJECTED public si MODEL_BUDGET_EXHAUSTED intern exact. A doua negativa cere COMMAND_CONFLICT pe ambele canale. proof.pop elimina dovada stale inaintea fiecarei cereri; motivul intern lipsa sau diferit nu trece.",
+    "SOURCE (api/tests/test_model_test_prepare_source.py:1079-1181) executa callbackul, selectia listenerului si bucla QA extrase din AST prin LocalControl/control_task reale. TASK_REJECTED si PRIVATE_OWNER_REASON interne produc aceeasi respingere publica, dar oracle le respinge cu MODEL_EXECUTION_OWNER_REASON_MISMATCH; motivul privat este proiectat, nu publicat in proof.",
+    "Delta nu schimba produsul/API-ul de erori, request/SEND bytes, deadline/caps/buget, census/no-rerun, citirile CLI, receipt/usage/text sau Stop/drain. Wrapperul pastreaza rezultatul si exceptia ownerului; ceilalti selectori raman pe callerul anterior."
+  ],
+  "checks": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p pytest_asyncio.plugin -p no:cacheprovider -q --tb=no api/tests/test_model_test_prepare_source.py -k model_execute_budget_negative_uses_actual_qa_oracle",
+      "exit": 0,
+      "result": "3 passed, 124 deselected in 2.09s",
+      "isolation": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; TMPDIR/cache private sub review-norm; log 0600; fara PG/native/provider",
+      "log": "/home/kali/.hermes/cache/scratch/p2-send-8McfiCAj/review-norm/focused-pytest.log"
+    },
+    {
+      "command": "git diff --check cddb3baa8737252f273576b39326a21c872054f6 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0
+    }
+  ],
+  "evidence_boundary": "../budget-oracle-result.json citit ca self-report RED3/GREEN3/quality0, nu ca dovada independenta a acelor rulari. QA sdq-fBHgOHPr ramane FAIL/ERROR istoric; nu a fost relansata sau reinterpretata.",
+  "limits": "Owner/PG/readiness/SDK sunt doubles in SOURCE. QA reala PG va verifica motivul intern dupa review; aici NOT_RUN, ca si suitele complete. Fara harness nou, instalari, delegare sau commit; fisierele interzise nu au fost citite/copiate/hashuite/modificate. Cauza vechiului esec initial SEND ramane UNKNOWN."
+}

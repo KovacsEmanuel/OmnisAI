@@ -9567,6 +9567,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         "LINEAGE_MISMATCH",
                         "MANAGED_REJECTED",
                         "TASK_REJECTED",
+                        "MODEL_BUDGET_EXHAUSTED",
+                        "COMMAND_CONFLICT",
                     }
                     checkpoint(
                         public_owner_error={
@@ -9603,7 +9605,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     supervisor,
                     epoch,
                     native_task=observe_native_task
-                    if applicability == "partial-requirement-prefix"
+                    if applicability == "partial-requirement-prefix" or model_execute
                     else owner.handle,
                 ).__aenter__()
 
@@ -10031,17 +10033,27 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         expected = {k: v for k, v in mt_result.items() if k != "correlation_id"}
                         for _ in range(2):
                             assert await restarted_cli("model-test-read", request_send) == expected
-                        for mt_execution_changes, reason in (
-                            ({"protocol_id": str(uuid4())}, "MODEL_BUDGET_EXHAUSTED"),
+                        for mt_execution_changes, public_reason, owner_reason in (
+                            (
+                                {"protocol_id": str(uuid4())},
+                                "TASK_REJECTED",
+                                "MODEL_BUDGET_EXHAUSTED",
+                            ),
                             (
                                 {"data_approval": {**decision, "decision_id": str(uuid4())}},
                                 "COMMAND_CONFLICT",
+                                "COMMAND_CONFLICT",
                             ),
                         ):
-                            with pytest.raises(CatalogError, match="^" + reason + "$"):
+                            proof.pop("public_owner_error", None)
+                            with pytest.raises(CatalogError, match="^" + public_reason + "$"):
                                 await control_task(
                                     directory, {**request_send, **mt_execution_changes}
                                 )
+                            assert proof.get("public_owner_error") == {
+                                "action": "model_test_send",
+                                "reason": owner_reason,
+                            }, "MODEL_EXECUTION_OWNER_REASON_MISMATCH"
                         assert (
                             await mission_census() == after_tables
                             and observation.read_bytes() == native_after

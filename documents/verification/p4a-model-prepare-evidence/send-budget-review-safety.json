@@ -1,0 +1,27 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Review independent READ-ONLY exclusiv delta oracle fata de cddb3baa8737252f273576b39326a21c872054f6; diagnosticul anterior acceptat este reutilizat, nu reauditat. Nu reprezinta inchidere de faza.",
+  "head": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "hashes": {
+    "api/tests/test_contract_method_pg.py": "aa6e00480fc26a36753352a9bca8002cfe731dc913c5e5058436af10305be91e",
+    "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+  },
+  "snapshot_verification": "Ambele SHA256 coincid cu valorile cerute la inceput si dupa regresie/review; HEAD si statusul celor doua fisiere modificate au ramas identice.",
+  "findings": [],
+  "assessment": [
+    "Consumer:9569-9581,9607-9609: wrapperul existent apeleaza acelasi owner.handle o singura data si reridica CatalogError; cauza retinuta este un str exact din allowlist finit sau UNCLASSIFIED_CATALOG_ERROR. Fara text de exceptie/payload privat si fara expunerea motivului intern in API.",
+    "Consumer:10036-10056: prima negativa cere TASK_REJECTED public SI MODEL_BUDGET_EXHAUSTED intern; a doua pastreaza COMMAND_CONFLICT separat pe ambele canale. proof.pop elimina dovada anterioara inaintea fiecarei cereri; lipsa callbackului sau motivul diferit nu satisface egalitatea exacta. Stale handling verificat prin inspectie, nu printr-un caz dinamic suplimentar.",
+    "LocalControl:159-169 normalizeaza bugetul la TASK_REJECTED; control_task:636-649 permite numai motivele publice. NativeTaskOwner._model_test_send:309-363 rezerva inainte de runtime.managed; ModelTest.reserve_execution:568-708 ajunge la budgets.reserve/require_capacity. Nu sunt schimbari de produs/autoritate, cereri suplimentare, retry ori modificari census/no-rerun/Stop/caps/deadline/bytes in delta."
+  ],
+  "checks": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p pytest_asyncio.plugin -p no:cacheprovider -q --tb=no api/tests/test_model_test_prepare_source.py -k model_execute_budget_negative_uses_actual_qa_oracle",
+      "environment": "env -i; PATH=/usr/bin:/bin; HOME=review-safety; TMPDIR=review-safety/tmp; XDG_CACHE_HOME=review-safety/cache; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; toate sub rootul scratch cerut, umask077",
+      "exit": 0,
+      "result": "3 passed, 124 deselected in 2.08s",
+      "reproducer": "Callbackul/listenerul/bucla QA reale prin LocalControl/control_task UDS reale: motivul corect trece ambele negative; TASK_REJECTED intern si PRIVATE_OWNER_REASON sunt respinse prin MODEL_EXECUTION_OWNER_REASON_MISMATCH. Markerul privat nu intra in proof. Owner/PG/SDK sunt doubles explicite."
+    },
+    {"command": "git diff --check cddb3baa8737252f273576b39326a21c872054f6 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "result": "fara erori raportate"}
+  ],
+  "limits": "budget-oracle-result.json este self-report, inclusiv RED3/GREEN3/quality0; nu sunt revendicate ca executii proprii. Fara suite complete, PG/native/OCI/provider/target/browser, credentiale, fisiere interzise, delegare, commit sau editari produs. QA PG reala ramane NOT_RUN aici si trebuie sa observe cauza interna reala. Cauza vechiului SEND ramane UNKNOWN; nicio atribuire retrospectiva."
+}

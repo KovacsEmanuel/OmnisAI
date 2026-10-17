@@ -1,0 +1,88 @@
+{
+  "status": "FAIL_FINAL_RETIREMENT_AFTER_COMPLETE_CONTROLLED_FUNCTIONAL_PATH",
+  "attempt": {
+    "status": "ORIGINAL_OWNER_RETURNED_REQUIRES_PRODUCT_AND_CLEANUP_READBACK",
+    "preflight": "PASS_EXISTING_PREREQUISITES_ARGV_COLLECT1_TOOLCHAIN_IMAGE_READABILITY",
+    "root": "/home/kali/.hermes/cache/scratch/bdq-DF1zOBIU",
+    "head": "c1348ceb422f8b7031d03b0acdc4d45950f4e071",
+    "attempts": 1,
+    "gate_invocations": 1,
+    "timeout_seconds": 180,
+    "pins": {
+      "OMNIS_BATCH2_NORMATIVE_REVIEWED": "aa6e00480fc26a36753352a9bca8002cfe731dc913c5e5058436af10305be91e",
+      "OMNIS_BATCH2_INPUT_REVIEWED": "aa6e00480fc26a36753352a9bca8002cfe731dc913c5e5058436af10305be91e",
+      "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/artifact-rr2.json",
+      "OMNIS_BATCH2_ARTIFACT_SHA": "014417e440bde8dff6cda15f248c9e0c6747042cdea15c0d887e0601fcc19ebf",
+      "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/api-rr2/reader.json",
+      "OMNIS_BATCH2_API_PREREQUISITES_SHA": "cb32bce5112c463107195dba0020d61bd5d2a11bbc764969ea76f0169a0c8f98"
+    },
+    "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+    "provider_live": false,
+    "reason_for_fresh_attempt": "Demonstrated public/internal budget oracle correction with exact internal cause retained; product/rr2 unchanged",
+    "inputs_count": 465,
+    "command": [
+      "make",
+      "--no-print-directory",
+      "test-model-test-execute-native-pg",
+      "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+    ],
+    "gate_log": "/home/kali/.hermes/cache/scratch/bdq-DF1zOBIU/t/db-ef6f90c2887c4648/gate.log",
+    "family_receipt": "/home/kali/.hermes/cache/scratch/bdq-DF1zOBIU/t/db-ef6f90c2887c4648/gate.log.result.json",
+    "exit_code": 2,
+    "elapsed_seconds": 40.684,
+    "inputs_unchanged": true
+  },
+  "family_receipt": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "pytest": {
+    "failed": 1,
+    "error": 1,
+    "seconds": 35.47
+  },
+  "functional_checkpoint": "CONTROLLED_HTTP_REAL_NATIVE_COMPILER_SDK_SYNTHETIC_AUTH_READER",
+  "send_count": 1,
+  "close_status": "CLOSED_JOINED",
+  "last_internal_denial": {
+    "action": "model_test_send",
+    "reason": "COMMAND_CONFLICT"
+  },
+  "accounting": {
+    "state": "SETTLED",
+    "usage_state": "KNOWN",
+    "output_tokens": 12,
+    "reasoning_tokens": 9,
+    "inference_status": "VERIFIED",
+    "output_policy": "MONITOR_SUBSCRIPTION"
+  },
+  "native_rows": 61,
+  "retained_effect_events": [
+    {
+      "test": "forbidden-effect",
+      "status": "subprocess.Popen",
+      "count": 1
+    },
+    {
+      "test": "model-test-http",
+      "status": "HEADERS",
+      "count": 1
+    }
+  ],
+  "history": "Both internal/public denials, census/no-rerun, Stop/CLOSED_JOINED and postStop readers passed. Finally failed cleanup; native log also has denied Popen attempt. Historical row has no argv, so SDK attribution is not retroactively proven.",
+  "cleanup": {
+    "domain": "NOT_SETTLED_DB_RETAINED",
+    "physical_readback": "exact CIDs/project/network/pinned Host/native absent; kernel root sockets0, db socket absent",
+    "db_cid": "60f70caea0268b471f199449f36686b5c2e7825477250a31875123fa086bfcac",
+    "native_cid": "1e0c46f135d95260d0fff754efd6f5a68a5bd68e3b590425d28d854c1473f9e4",
+    "pgdata_retained": {
+      "dev": 2049,
+      "ino": 9046152,
+      "uid": 1000,
+      "mode": "0700"
+    }
+  },
+  "scoped_findings": "SOURCE real UDS reproduces held-idle retirement failure. Cold pinned SDK metadata attempt uname-p independently reproduced and denied; SDK falls back to Unknown without request. Fixes preserve no subprocess execution and do not certify original exclusive cause.",
+  "limits": "No provider/account/inference live. FAIL/UNCERTAIN and data retained. No wider grants or new harness."
+}

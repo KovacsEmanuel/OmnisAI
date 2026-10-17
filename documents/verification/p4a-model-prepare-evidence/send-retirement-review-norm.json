@@ -1,0 +1,37 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "mode": "Independent READ-ONLY focused review; Ponytail full/review; no fallback/delegation",
+  "base": "c1348ceb422f8b7031d03b0acdc4d45950f4e071",
+  "head_unchanged": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "hash_verification": "Requested final files/patch matched before and after checks; same two modified files. Delta compared against base, not HEAD.",
+  "finalhashes": {
+    "api/tests/test_contract_method_pg.py": "75f4270cbac49d8aa49e19916cea3bcb008f9c3a29c138719fb20b77e7c2bbcd",
+    "api/tests/test_model_test_prepare_source.py": "aad6576445b255ac4d3b5590ddc2942f8424eb58808c4d5924747a9745c01a1f"
+  },
+  "phase1": {
+    "verdict": "APPROVED_SCOPED_INDEPENDENT_IPC_CHANGE",
+    "patch_sha256": "af286cc3a3fe7eb79df247f35c8ea75dc379a3988ac7a3765a796fe0901b07b2",
+    "verified_snapshot_hashes": {
+      "api/tests/test_contract_method_pg.py": "271b962723bd1bbb0fc5221f3834543495f1ace7252bf6974e3a33510fba7cd1",
+      "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+    },
+    "assessment": "Stands independently: close only the existing IPC after certified drain and context-bound CLOSED_JOINED, before offline cached readers. Existing retirement reconnects without launching native work. No dependency on phase2 code. Separate commit is justified; phase1 alone does not clear the old metadata-oracle blocker or establish native QA PASS.",
+    "verification": "Both phase1 streams reconstructed in memory from base+patch; SHA matched. Reverse applicability on final composition exit0. No source copies/edits. UDS controls exercised final composition, not separate phase1 native QA."
+  },
+  "assessment": {
+    "stop_no_rerun": "Preserved. Consumer lines10159-10191 retains drain/status/CLOSED_JOINED checks before close and cached public/CLI readers plus unchanged census. Original retire_host lines8940-8983 retains drain/readback, cleanup uncertainty and endpoint/process/lock checks. SOURCE regression uses real Host/client/UDS, original idle timeout, same boot/capability and invalid-drain refusal; offline readers/container/census and close evidence are doubles.",
+    "denied_only_metadata": "Preserved. Only model_execute generation qualifies exact executable uname and argv [uname,-p] with trusted module paths, ordered exact code objects and filenames in bounded stack. Original RuntimeError(Forbidden native effect) remains immediately after emission, before subprocess execution. Foreign caller, changed argv and HOLD remain forbidden. No permission/grant, SDK/platform/prewarm or product changes.",
+    "oracle": "Default/HOLD remains strict. Execute opt-in requires exactly one retained denied-sdk-metadata/UNAME_P/count1 row; absent/duplicate/count0 fail. Real final-return arm additionally requires HTTP HEADERS exactly1 and records denial count1. Model-execute early return does not reach the unrelated forbidden_native_attempts=0 checkpoint. This is explicit denied attempted I/O, not zero attempted I/O or readiness."
+  },
+  "findings": [],
+  "checks": {
+    "P": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+    "F": "api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+    "environment": "env -i; private HOME/TMPDIR/XDG_CACHE_HOME under review-norm; umask077; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "pytest": "P -m pytest -c api/pyproject.toml F -k 'settled_connection or offline_idle_channel_real_uds or cold_sdk_metadata or model_prepare_real_early_return_finally' -q -p pytest_asyncio.plugin -p no:cacheprovider --basetemp=<review-norm>/pytest --tb=short",
+    "pytest_result": "exit0: 20 passed, 537 deselected in 18.76s; scoped-controls.log",
+    "quality": "Ruff check --no-cache, Ruff format --check --no-cache, mypy --no-incremental/private cache, config api/pyproject.toml and F: each exit0. git diff --check against base exit0.",
+    "logs": "/home/kali/.hermes/cache/scratch/p2-send-8McfiCAj/review-norm; logs0600/directories0700"
+  },
+  "limits": "retirement-result.json treated as self-report. Prior Settings/diagnostic/budget acceptances reused. No old full suites, native/PG/OCI/provider/browser, installs, commits or new harness. Forbidden files/credentials/global config untouched. Historical denial without argv is not attributed; exclusive old cleanup cause remains UNKNOWN. No universal OS-confinement or live-readiness claim. Parent owns integration and real affected-consumer QA."
+}

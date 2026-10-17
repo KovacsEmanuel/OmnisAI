@@ -1,0 +1,39 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "READ-ONLY safety review against c1348ceb422f8b7031d03b0acdc4d45950f4e071, not HEAD. No native/live readiness claim.",
+  "finalhashes": {
+    "api/tests/test_contract_method_pg.py": "75f4270cbac49d8aa49e19916cea3bcb008f9c3a29c138719fb20b77e7c2bbcd",
+    "api/tests/test_model_test_prepare_source.py": "aad6576445b255ac4d3b5590ddc2942f8424eb58808c4d5924747a9745c01a1f"
+  },
+  "phase1": {
+    "verdict": "APPROVED_SCOPED_INDEPENDENT_OF_PHASE2",
+    "patch_sha256": "af286cc3a3fe7eb79df247f35c8ea75dc379a3988ac7a3765a796fe0901b07b2",
+    "reconstructed_hashes": {
+      "api/tests/test_contract_method_pg.py": "271b962723bd1bbb0fc5221f3834543495f1ace7252bf6974e3a33510fba7cd1",
+      "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+    },
+    "assessment": "Patch reconstructed in memory against the specified base; both phase1 hashes match. Companion remains unchanged. Consumer:10158-10174 joins heartbeat/shutdown, confirms drain and context-bound CLOSED_JOINED before closing IPC and invoking offline readers. RuntimeClient.close clears streams, not boot/capability. Existing retire_host:8940 reconnects and drains; endpoint/process/exit/lock and uncertainty gates remain. Extended SOURCE regression checks unchanged identity and invalid drain. This fix needs no SDK classifier changes.",
+    "evidence_limit": "Transport evidence reused as requested, not rerun. retirement-result.json is author self-report, not independent execution. SOURCE close certificate/readers/container operations are doubles; real native cleanup still needs parent QA. No exclusive historical cleanup cause inferred."
+  },
+  "safety": {
+    "audit": "Generated audit still unconditionally denies subprocess.Popen, socket.connect and os.system; matching metadata only changes the emitted category, then reaches the same RuntimeError before subprocess execution. No new permission, grant, product, SDK/platform edit or prewarm.",
+    "classifier": "Only model_execute installs classification. Exact str executable uname and list[str] argv [uname,-p], expected stdlib/SDK paths, ordered identity of three actual code objects and matching co_filename, bounded to 24 frames. Scoped real controls reject a direct foreign caller, changed argv through SDK/platform, and HOLD. This is in-process pinned-code evidence, not an adversarial Python sandbox proof.",
+    "disclosure": "New row contains only denied-sdk-metadata/UNAME_P/count1; no argv, paths, frames or exception text exported. Existing 4096-byte record, 256-event and 65536-byte channel caps remain.",
+    "oracle": "Default/HOLD decoder rejects the new row. Explicit execute opt-in requires exactly one count1 denial; missing, duplicate and count0 rejected. Existing finally additionally requires exactly one HTTP HEADERS record and rejects caught forbidden, unknown row and incomplete close. Checkpoint now retains denial count1, not zero attempted I/O."
+  },
+  "findings": [],
+  "checks": [
+    {
+      "command": "env -i [private HOME/TMPDIR/XDG_CACHE_HOME; PATH=/usr/bin:/bin; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1] /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k 'cold_sdk_metadata or model_prepare_real_early_return_finally' -p pytest_asyncio.plugin -p no:cacheprovider --basetemp=../review-safety/tmp/pytest-controls -q --tb=short",
+      "exit": 0,
+      "result": "12 passed, 123 deselected in 5.00s",
+      "log": "/home/kali/.hermes/cache/scratch/p2-send-8McfiCAj/review-safety/controls.log"
+    },
+    {
+      "command": "sha256sum both files and phase1 patch; in-memory phase1 reconstruction; git diff --check c1348ceb422f8b7031d03b0acdc4d45950f4e071 -- both files; git apply --reverse --check ../settled-ipc.patch",
+      "exit": 0,
+      "result": "Expected hashes match; phase1 reconstructs exactly and reverse-checks against final composition. Initial/final source hashes unchanged."
+    }
+  ],
+  "limits": "Prior Settings/diagnostic/budget-oracle acceptances reused. Historical bdq-DF1zOBIU failure and denied Popen row not retrospectively attributed without argv. No full suites/native/PG/OCI/provider/browser, installs, delegation, commits, new harness or source edits. Protected files, credentials and global configuration not read. Parent owns separate commits, integration and real QA."
+}

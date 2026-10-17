@@ -1563,8 +1563,105 @@ async def test_model_prepare_primary_error_before_real_finally(
     assert marker not in canonical(proof).decode()
 
 
+@pytest.mark.parametrize("case", ["sdk", "foreign", "argv", "hold"])
+def test_model_execute_cold_sdk_metadata_is_denied_and_qualified(tmp_path: Path, case: str) -> None:
+    """Real cold OpenAI/default_headers + generated audit; no request/native/exec."""
+    import ast
+    import subprocess
+    import sys
+
+    import test_contract_method_pg as qa
+
+    observer = ast.parse(
+        qa.batch2_native_observer(startup=False, model_prepare=True, model_execute=case != "hold")
+    )
+    audit = next(n for n in observer.body if isinstance(n, ast.FunctionDef) and n.name == "audit")
+    script = """
+import json, os, sys, platform, subprocess, openai
+from pathlib import Path
+assert openai.__version__ == "2.24.0"
+assert not platform._platform_cache
+libraries = Path(openai.__file__).parent.parent
+home = Path(sys.argv[1])
+allowed = (Path(sys.base_prefix), Path(sys.prefix), home)
+installed = False
+bootstrap_path = home / "unused.py"
+rows = []
+def emit(test, status, count=1):
+    rows.append({"test": test, "status": status, "count": count})
+"""
+    script += ast.unparse(audit) + "\nsys.addaudithook(audit)\n"
+    if case == "argv":
+        script += """
+original = subprocess.check_output
+def changed_argv(args, **kwargs):
+    return original(["uname", "-s"], **kwargs)
+subprocess.check_output = changed_argv
+"""
+    if case == "foreign":
+        script += """
+try:
+    subprocess.check_output(["uname", "-p"])
+except RuntimeError as error:
+    assert error.args == ("Forbidden native effect",)
+else:
+    raise AssertionError("SUBPROCESS_NOT_DENIED")
+"""
+    else:
+        script += """
+client = openai.OpenAI(api_key="SYNTHETIC", max_retries=0)
+assert client.default_headers["X-Stainless-OS"] == "Unknown"
+client.close()
+"""
+    script += "print(json.dumps(rows))\n"
+    result = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", script, str(tmp_path)],
+        capture_output=True,
+        timeout=15,
+        check=True,
+    )
+    rows = json.loads(result.stdout)
+    expected = {"test": "denied-sdk-metadata", "status": "UNAME_P", "count": 1}
+    assert rows == (
+        [expected]
+        if case == "sdk"
+        else [{"test": "forbidden-effect", "status": "subprocess.Popen", "count": 1}]
+    )
+    prefix = [{"test": "observer", "status": "READY", "count": 1}]
+    for phase in qa.BOOTSTRAP_PHASES:
+        for edge in ("ENTER", "END"):
+            prefix.append(
+                {
+                    "test": "bootstrap-phase",
+                    "status": phase,
+                    "count": 1,
+                    "edge": edge,
+                    "elapsed_ms": 0,
+                    "audit_ms": 0,
+                    "audit_calls": 0,
+                }
+            )
+    path = tmp_path / "sdk-observation.jsonl"
+    path.write_bytes(b"".join(canonical(row) + b"\n" for row in prefix + rows))
+    if case == "sdk":
+        assert qa.require_native_observation(path, model_execute=True)[-1] == expected
+        with pytest.raises(AssertionError):
+            qa.require_native_observation(path)
+        for invalid in ([], rows * 2, [{**expected, "count": 0}]):
+            path.write_bytes(b"".join(canonical(row) + b"\n" for row in prefix + invalid))
+            with pytest.raises(AssertionError, match="^SDK_METADATA_DENIAL_UNCONFIRMED"):
+                qa.require_native_observation(path, model_execute=True)
+        qa.batch2_installed_entry(tmp_path, model_prepare=True, model_execute=True)
+    else:
+        with pytest.raises(AssertionError):
+            qa.require_native_observation(path, model_execute=True)
+
+
 @pytest.mark.parametrize("fault", [None, "caught-forbidden", "unknown-row", "unjoined-close"])
-def test_model_prepare_real_early_return_finally(tmp_path: Path, fault: str | None) -> None:
+@pytest.mark.parametrize("model_execute", [False, True], ids=["hold", "execute"])
+def test_model_prepare_real_early_return_finally(
+    tmp_path: Path, fault: str | None, model_execute: bool
+) -> None:
     """Execute the original shared finally arm, not a parallel permissive oracle."""
     import ast
     import sys
@@ -1612,13 +1709,20 @@ def test_model_prepare_real_early_return_finally(tmp_path: Path, fault: str | No
         rows.append({"test": "forbidden-sink", "status": "MODEL_PREPARE_IDENTITY", "count": 1})
     if fault == "unknown-row":
         rows.append({"test": "UNKNOWN", "status": "UNKNOWN", "count": 1})
+    if model_execute:
+        rows.extend(
+            [
+                {"test": "denied-sdk-metadata", "status": "UNAME_P", "count": 1},
+                {"test": "model-test-http", "status": "HEADERS", "count": 1},
+            ]
+        )
     path = tmp_path / "observation.jsonl"
     path.write_bytes(b"".join(canonical(row) + b"\n" for row in rows))
     checkpoint = Mock()
     scope: dict[str, object] = {
         "sys": sys,
         "model_prepare": True,
-        "model_execute": False,
+        "model_execute": model_execute,
         "observation": path,
         "require_native_observation": owner.require_native_observation,
         "checkpoint": checkpoint,
@@ -1628,9 +1732,15 @@ def test_model_prepare_real_early_return_finally(tmp_path: Path, fault: str | No
     assert callable(invoke)
     if fault is None:
         assert invoke() == "EARLY"
-        checkpoint.assert_called_once_with(
-            status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE"
-        )
+        if model_execute:
+            checkpoint.assert_called_once_with(
+                status="PASS_MODEL_TEST_CONTROLLED_NATIVE_NOT_LIVE",
+                model_execute_denied_sdk_metadata_count=1,
+            )
+        else:
+            checkpoint.assert_called_once_with(
+                status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE"
+            )
     else:
         with pytest.raises(AssertionError):
             invoke()

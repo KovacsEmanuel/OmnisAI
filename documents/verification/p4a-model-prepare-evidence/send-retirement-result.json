@@ -1,0 +1,43 @@
+{
+  "status": "TWO_TEST_FIXES_READY_FOR_PARENT_REVIEW_NOT_NATIVE_QA",
+  "base_integrated": "c1348ceb422f8b7031d03b0acdc4d45950f4e071",
+  "worktree_HEAD": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "input": "Cele doua fisiere erau byte-identice cu c1348ce. HEAD nemutat; diff necomis, doar cele doua teste permise; rapoartele precedente pastrate.",
+  "phase1": {
+    "fix": "await runtime.close() dupa validarea drain/CLOSED_JOINED context-bound, inainte de readerele offline model_execute. retire_host existent reconecteaza acelasi Host. Extins testul UDS existent cu AST-ul tailului complet si readere offline simulate 2.7s peste idle real, fara schimbarea timerului.",
+    "red": "settled-ipc-red.log: exit1, 1FAIL+1PASS/4.27s; callerul model-execute valid ajunge la H03_RETIREMENT_NOT_SETTLED, negativul drain neconfirmat trece.",
+    "green": "settled-ipc-green.log: exit0,8PASS/15.85s (h03/batch2/model-execute, drain confirmat/neconfirmat, held-idle/released-same-boot); identitate/drain/retirement reale UDS.",
+    "quality": "settled-ipc-quality.log: Ruff/format/mypy fiecare exit0, doua fisiere; git diff --check exit0.",
+    "patch": "settled-ipc.patch",
+    "patch_sha256": "af286cc3a3fe7eb79df247f35c8ea75dc379a3988ac7a3765a796fe0901b07b2",
+    "patch_boundary": "Delta exacta fata de c1348ce, salvata INAINTE de faza2. git apply --reverse --check pe snapshotul ulterior: exit0; nu a modificat checkoutul.",
+    "sha256_after_phase1": {
+      "api/tests/test_contract_method_pg.py": "271b962723bd1bbb0fc5221f3834543495f1ace7252bf6974e3a33510fba7cd1",
+      "api/tests/test_model_test_prepare_source.py": "7b9c3efc88649a86df7b3fcafe09b8f704408c03e1da962a4060102fc31134a6"
+    },
+    "limits": "Host/RuntimeClient/UDS reale; CLOSED_JOINED este evidence SOURCE sintetica, readerele/census/operarea containerului sunt doubles. Nu demonstreaza cauza exclusiva a cleanupului istoric."
+  },
+  "phase2": {
+    "fix": "Auditul generat existent, numai model_execute: executable/argv exacte uname -p, origini stdlib/platform.py si libraries/openai/_base_client.py, identitate ordonata a trei code objects si co_filename pe maximum24frame-uri. Emite denied-sdk-metadata/UNAME_P, apoi ridica in continuare RuntimeError('Forbidden native effect') inainte de exec. Fara grant nou; celelalte denials raman forbidden.",
+    "oracle": "Decoderul ramane strict implicit/HOLD. Opt-in model_execute cere exact un record calificat count1; zero, duplicat sau count0 sunt refuzate. Consumerul finally existent verifica HTTP HEADERS exact1 si pastreaza model_execute_denied_sdk_metadata_count=1, nu zero attempted I/O.",
+    "red": "metadata-red.log: exit1,4FAIL/4.34s; SDK rece producea forbidden-effect/subprocess.Popen, nu recordul calificat; opt-in decoder absent.",
+    "green": "metadata-green-final.log: exit0,12PASS/5.61s. Python3.13/OpenAI2.24.0 real rece/default_headers continua cu X-Stainless-OS=Unknown. Exact uname-p din caller strain, argv uname-s sub stackul SDK/platform si HOLD raman forbidden; decoder pozitiv/negativ pe acelasi canal. Finally AST HOLD/execute cu refuzuri/close incomplet; generarea attachmentului real trece limita existenta.",
+    "interim_failure": "metadata-count-assert-fail.log:1FAIL+11PASS; regexul testului avea ancora finala incompatibila cu explicatia adaugata de pytest assert rewriting. Corectat doar matcherul mesajului; validarea produsului/oracolului nu a fost slabita.",
+    "quality": "metadata-quality-final.log: Ruff/format/mypy fiecare exit0 pe doua fisiere; git diff --check exit0.",
+    "limits": "Auditul real extras din generator ruleaza in copii Python SOURCE, fara native/run_agent/request/network/exec. Pozitivul nu modifica/prewarm platform/SDK. Numai negativul argv schimba check_output pentru a trimite uname-s prin stackul autentic. Fazele bootstrap din decoder sunt sintetice."
+  },
+  "commands": {
+    "P": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+    "F": "api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+    "phase1_RED": "P -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'settled_connection and model-execute' -q -p no:cacheprovider --tb=short",
+    "phase1_GREEN": "P -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py -k 'settled_connection or offline_idle_channel_real_uds' -q -p no:cacheprovider --tb=short",
+    "phase2_RED": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k cold_sdk_metadata -q -p no:cacheprovider --tb=short",
+    "phase2_GREEN": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k 'cold_sdk_metadata or model_prepare_real_early_return_finally' -q -p no:cacheprovider --tb=short",
+    "quality_each_phase": "P -m ruff check --config api/pyproject.toml F; P -m ruff format --check --config api/pyproject.toml F; P -m mypy --config-file api/pyproject.toml F"
+  },
+  "final_sha256": {
+    "api/tests/test_contract_method_pg.py": "75f4270cbac49d8aa49e19916cea3bcb008f9c3a29c138719fb20b77e7c2bbcd",
+    "api/tests/test_model_test_prepare_source.py": "aad6576445b255ac4d3b5590ddc2942f8424eb58808c4d5924747a9745c01a1f"
+  },
+  "privacy_and_history": "Loguri/patch private0600; TMPDIR ../ret-tmp, cache ../ret-cache; shared venv read-only. Fara commit/delegare/PG/native/OCI/provider/global sau citirea credentialelor/fisierelor interzise. FAILurile pastrate. Causa istorica9944 UNKNOWN; randul istoric fara argv nu este atribuit definitiv SDK-ului. Reviewuri/QA finala unica raman la parinte."
+}

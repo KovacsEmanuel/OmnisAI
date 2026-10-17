@@ -2879,7 +2879,7 @@ def test_batch2_observation_exact_fields() -> None:
         )
 
 
-def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
+def launch_bootstrap_diagnostic(raw: bytes, *, model_execute: bool = False) -> dict[str, object]:
     """Inspect the original bounded channel before projecting public fields.
 
     Missing/invalid rows are not zero attempts or proof of a root cause. Keep
@@ -2923,6 +2923,7 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
         "owned-rpc": {"ENTERED", "COMPLETED"},
         "owned-preclient": {"CLIENT_NONE_CALLS_ZERO"},
         "model-test-http": {"HEADERS"},
+        **({"denied-sdk-metadata": {"UNAME_P"}} if model_execute else {}),
         **{
             "prepare-" + name: {"ENTERED", "COMPLETED"}
             for name in (
@@ -3050,11 +3051,13 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
     }
 
 
-def require_native_observation(observation: Path) -> list[dict[str, object]]:
+def require_native_observation(
+    observation: Path, *, model_execute: bool = False
+) -> list[dict[str, object]]:
     """Shared strict bounded evidence gate, independent of task-count assertions."""
     with observation.open("rb") as stream:
         observation_raw = stream.read(OBSERVATION_BYTES + 1)
-    bootstrap_diagnostic = launch_bootstrap_diagnostic(observation_raw)
+    bootstrap_diagnostic = launch_bootstrap_diagnostic(observation_raw, model_execute=model_execute)
     assert set(sequence(bootstrap_diagnostic["issues"])) <= {"MISSING_PHASE_COMPLETION"}, (
         "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
     )
@@ -3062,6 +3065,10 @@ def require_native_observation(observation: Path) -> list[dict[str, object]]:
     rows = [mapping(json.loads(line)) for line in observation_raw.splitlines()]
     assert {"test": "observer", "status": "READY", "count": 1} in rows
     assert not any(str(row["test"]).startswith("forbidden-") for row in rows)
+    if model_execute:
+        assert [row for row in rows if row["test"] == "denied-sdk-metadata"] == [
+            {"test": "denied-sdk-metadata", "status": "UNAME_P", "count": 1}
+        ], "SDK_METADATA_DENIAL_UNCONFIRMED"
     return rows
 
 
@@ -6659,6 +6666,37 @@ def batch2_native_observer(
         core = core.replace(
             'name.endswith((".env", "auth.json", "credentials.json"))',
             '(name.endswith((".env", "auth.json", "credentials.json")) and Path(name) != Path("/state/provider/auth.json"))',
+        )
+        core = core.replace(
+            '        emit("forbidden-effect", event)',
+            """        metadata = False
+        if (event == "subprocess.Popen" and len(args) == 4 and type(args[0]) is str and args[0] == "uname"
+                and type(args[1]) is list and len(args[1]) == 2
+                and all(type(a) is str for a in args[1]) and args[1] == ["uname", "-p"]):
+            platform_module = sys.modules.get("platform")
+            sdk_module = sys.modules.get("openai._base_client")
+            if (platform_module is not None and sdk_module is not None
+                    and Path(platform_module.__file__) == Path(os.__file__).with_name("platform.py")
+                    and Path(sdk_module.__file__) == libraries / "openai/_base_client.py"):
+                codes = (platform_module._Processor.from_subprocess.__code__,
+                         platform_module.platform.__code__, sdk_module.get_platform.__code__)
+                frame, found = sys._getframe(1), 0
+                try:
+                    for _ in range(24):
+                        if frame is None:
+                            break
+                        if frame.f_code is codes[found]:
+                            found += 1
+                            if found == len(codes):
+                                metadata = (codes[0].co_filename == platform_module.__file__
+                                            and codes[1].co_filename == platform_module.__file__
+                                            and codes[2].co_filename == sdk_module.__file__)
+                                break
+                        frame = frame.f_back
+                finally:
+                    del frame
+        emit("denied-sdk-metadata" if metadata else "forbidden-effect",
+             "UNAME_P" if metadata else event)""",
         )
 
     return (
@@ -12802,7 +12840,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 )
                 checkpoint(status="PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED")
             if model_prepare and sys.exc_info()[0] is None:
-                rows = require_native_observation(observation)
+                rows = require_native_observation(observation, model_execute=model_execute)
                 for boundary in (
                     "configure_model_test",
                     "run_conversation",
@@ -12833,7 +12871,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     assert [r for r in rows if r["test"] == "model-test-http"] == [
                         {"test": "model-test-http", "status": "HEADERS", "count": 1}
                     ]
-                    checkpoint(status="PASS_MODEL_TEST_CONTROLLED_NATIVE_NOT_LIVE")
+                    checkpoint(
+                        status="PASS_MODEL_TEST_CONTROLLED_NATIVE_NOT_LIVE",
+                        model_execute_denied_sdk_metadata_count=len(
+                            [row for row in rows if row["test"] == "denied-sdk-metadata"]
+                        ),
+                    )
                 else:
                     checkpoint(status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE")
             if applicability == "owned-initialization" and sys.exc_info()[0] is None:

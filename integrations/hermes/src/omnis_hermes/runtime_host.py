@@ -561,6 +561,33 @@ class RuntimeHost:
 
     async def _managed(self, body: dict[str, object]) -> dict[str, object]:
         """Finite call on the existing owner/peer, never retry a lost native reply."""
+        payload = cast(dict[str, object], body["payload"])
+        if payload.get("protocol") == managed.PROTOCOL_V5:
+            managed.validate_model_prepare(payload)
+            context = cast(dict[str, object], payload["context"])["payload"]
+            if (context["runtime_boot"] != self.boot or context["authority"]["epoch"] != body["epoch"]
+                    or context["authority"]["generation"] != body["generation"]):
+                raise ValueError("Stale model preparation authority")
+            if (self.settings_result is None or self.settings_result["status"] != "CONFIRMED"
+                    or self.settings_result["operation_id"] != context["settings_operation_id"]
+                    or self.settings_result["selection"] != settings.SELECTION):
+                raise ValueError("Owned saved Settings readback required")
+            if self.state == "MANAGEMENT":
+                if payload["mode"] != "CREATE" or self.settings_task is None or not self.settings_task.done():
+                    raise ValueError("Management must settle before model preparation")
+                context = cast(dict[str, object], payload["context"])["payload"]
+                if (self.settings_result is None or self.settings_result["status"] != "CONFIRMED"
+                        or self.settings_result["operation_id"] != context["settings_operation_id"]
+                        or await self._settings_native("read", None) != settings.SELECTION):
+                    raise ValueError("Saved native Settings required")
+                # Revoke and certify the original management family before preparation.
+                await self.stop()
+                if self.state != "STOPPED":
+                    raise ValueError("Management drain uncertain")
+                self.process, self.peer = None, None
+                self.settings_command = None
+                self.state = "IDLE"
+                await self._launch(body)
         self._preparation_ready()
         operation = body["op"]
         assert isinstance(operation, str)
@@ -578,8 +605,10 @@ class RuntimeHost:
         ):
             raise ValueError("Managed result retention full")
         if operation == "task_model_initialize":
-            authority = cast(dict[str, object], payload["authority"])
-            if payload["runtime_boot"] != self.boot or (
+            binding = (cast(dict[str, object], payload["context"])["payload"]
+                       if payload.get("protocol") == managed.PROTOCOL_V5 else payload)
+            authority = cast(dict[str, object], binding["authority"])
+            if binding["runtime_boot"] != self.boot or (
                 authority["generation"],
                 authority["epoch"],
             ) != (self.generation, self.epoch):

@@ -33,6 +33,187 @@ RPC = {op: "omnis.managed." + op.removeprefix("task_") for op in OPS}
 MAX_BYTES = 32768
 
 
+PROTOCOL_V5 = "omnis-managed-admission-v5"
+MODEL_TEST_REQUESTED = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
+
+
+def validate_model_prepare(value: object) -> dict[str, object]:
+    """Separate DATA contract; the v1-v4 readers and their guards stay closed."""
+    bounded(value)
+    p = obj(value, {"protocol", "mode", "context", "records", "material"})
+    if p["protocol"] != PROTOCOL_V5 or p["mode"] not in ("CREATE", "STATUS"):
+        raise ValueError("Invalid model preparation")
+    context = envelope(p["context"], "model-test-context")
+    c = obj(context["payload"], {
+        "version", "purpose", "owner_id", "run_id", "manifest_ref", "settings_operation_id",
+        "authority", "runtime_boot", "preparation_id", "managed_run_ref", "task_id", "attempt_id",
+        "batch_index", "brief_ref", "composition_ref", "source_manifest_ref", "preparation_receipt_ref",
+        "original_selection_ref", "snapshot_ref", "selection_ref", "provider_config_ref", "procedure_ref",
+        "package_refs", "material_digest", "resolved_index_digest", "requested", "effective",
+        "account_status", "inference_status",
+    })
+    for field, kind in (("original_selection_ref", "execution-selection"),
+                        ("source_manifest_ref", "launch-manifest"),
+                        ("preparation_receipt_ref", "native-preparation-receipt"),
+                        ("procedure_ref", "procedure")):
+        reference(c[field], kind)
+    if type(c) is not dict or c.get("purpose") != "MODEL_TEST_PREPARE":
+        raise ValueError("Invalid preparation purpose")
+    _integer(c.get("version"), 5, 5)
+    _integer(c.get("batch_index"), 0, 0)
+    _authority(c.get("authority"))
+    for key in ("owner_id", "run_id", "preparation_id", "runtime_boot", "task_id", "attempt_id", "settings_operation_id"):
+        uuid(c.get(key))
+    if (c.get("requested") != MODEL_TEST_REQUESTED or c.get("effective") is not None
+            or c.get("account_status") != "NOT_VERIFIED" or c.get("inference_status") != "HOLD"):
+        raise ValueError("Preparation cannot assert account or inference authority")
+    rows = p["records"]
+    if type(rows) is not list or len(rows) != 7:
+        raise ValueError("Invalid preparation records")
+    kinds = {"managed_run_ref": "managed-run", "snapshot_ref": "run-snapshot",
+             "selection_ref": "execution-selection", "provider_config_ref": "provider-config",
+             "brief_ref": "task-brief", "composition_ref": "prompt-composition",
+             "manifest_ref": "launch-manifest"}
+    checked = {}
+    for field, kind in kinds.items():
+        pin = reference(c.get(field), kind)
+        matches = [envelope(r, kind) for r in rows if type(r) is dict and r.get("kind") == kind]
+        if len(matches) != 1 or ref(matches[0]) != pin:
+            raise ValueError("Preparation reference mismatch")
+        checked[field] = matches[0]["payload"]
+    s = checked["selection_ref"]
+    snapshot = checked["snapshot_ref"]
+    config = checked["provider_config_ref"]
+    reference(snapshot["profile_ref"], "profile")
+    if (snapshot["dependency_closure_refs"] != [] or snapshot["dependency_artifact_refs"] != []
+            or snapshot["assessment_selectable"] is not False or snapshot["effective"] is not None
+            or snapshot["resolution"] != "PREPARATION_ONLY"):
+        raise ValueError("Invalid preparation-only snapshot closure")
+    if (s.get("snapshot_ref") != c["snapshot_ref"] or s.get("purpose") != c["purpose"]
+            or s.get("requested") != MODEL_TEST_REQUESTED or s.get("effective") is not None
+            or s.get("resolution") != "PREPARATION_ONLY"
+            or s.get("selected_package_refs") != c.get("package_refs")
+            or snapshot.get("execution_purpose") != c["purpose"]
+            or snapshot.get("original_selection_ref") != c.get("original_selection_ref")
+            or snapshot.get("preparation_receipt_ref") != c.get("preparation_receipt_ref")):
+        raise ValueError("Invalid qualified selection/snapshot")
+    expected_config = {"version": 2, "owner_id": c["owner_id"], "run_id": c["run_id"],
+        "settings_operation_id": c["settings_operation_id"],
+        "provenance": "NATIVE_SETTINGS_SAVED_SELECTION_READBACK_V2",
+        "requested": MODEL_TEST_REQUESTED, "api_mode": "codex_responses",
+        "reasoning_config": {"enabled": True, "effort": "xhigh"},
+        "fallback": None, "auxiliary": False, "fast": False,
+        "account_status": "NOT_VERIFIED", "inference_status": "HOLD"}
+    if canonical(config) != canonical(expected_config) or len(canonical(config)) > 2048:
+        raise ValueError("Invalid qualified configuration")
+    from .native_preparation_contract import validate_payload
+
+    validate_payload(p["material"])
+    material = p["material"]["bundle"]["payload"]
+    if (material["selection_ref"] != c.get("original_selection_ref")
+            or material["snapshot_ref"] != snapshot.get("original_snapshot_ref")
+            or material["candidate_snapshot_ref"] != snapshot.get("snapshot_ref")):
+        raise ValueError("Original material lineage mismatch")
+    for key in ("material_digest", "resolved_index_digest"):
+        sha(c.get(key))
+        if c[key] != snapshot.get(key) or c[key] != material[key]:
+            raise ValueError("Material digest mismatch")
+    if material["publication_ref"] != snapshot.get("publication_ref"):
+        raise ValueError("Publication mismatch")
+    if sorted((x["package_ref"] for x in material["packages"]), key=canonical) != sorted(c["package_refs"], key=canonical):
+        raise ValueError("Package closure mismatch")
+    brief, composition, manifest = (checked[k] for k in ("brief_ref", "composition_ref", "manifest_ref"))
+    for key in ("run_id", "task_id", "attempt_id", "batch_index", "selection_ref"):
+        if brief.get(key) != c[key]:
+            raise ValueError("Brief identity mismatch")
+    if (brief.get("purpose") != c["purpose"] or brief.get("allowed_capability_ids") != []
+            or composition.get("purpose") != c["purpose"]
+            or composition.get("brief_ref") != c["brief_ref"]
+            or composition.get("preparation_receipt_ref") != c["preparation_receipt_ref"]
+            or composition.get("package_refs") != c["package_refs"]
+            or composition.get("text") != brief.get("objective")
+            or sha(composition.get("text_digest")) != digest(composition["text"].encode())):
+        raise ValueError("Composition mismatch")
+    expected_entry = {k: c[k] for k in ("batch_index", "task_id", "attempt_id", "brief_ref", "composition_ref")}
+    if (manifest != {"purpose": c["purpose"], "run_id": c["run_id"], "selection_ref": c["selection_ref"], "entries": [expected_entry]}
+            or checked["managed_run_ref"].get("selection_ref") != c["selection_ref"]
+            or c["managed_run_ref"]["id"] != c["run_id"]):
+        raise ValueError("Indexed manifest mismatch")
+    if len(canonical(p)) > MAX_BYTES:
+        raise ValueError("Preparation payload limit")
+    # Account for actual escaping and complete host/native envelopes before allocation.
+    import json
+    for frame in ({"jsonrpc": "2.0", "id": "f" * 36, "method": "omnis.managed.model_initialize", "params": p},
+                  {"version": 1, "id": "f" * 36, "boot": "f" * 36, "capability": "f" * 64,
+                   "generation": 2**63-1, "epoch": 2**63-1, "deadline_ns": 2**63-1,
+                   "op": "task_model_initialize", "payload": p}):
+        if len(json.dumps(frame, separators=(",", ":"), allow_nan=False).encode()) + 1 > 65536:
+            raise ValueError("Preparation wire limit")
+    return loads(canonical(p), MAX_BYTES)
+
+
+@dataclass(frozen=True, slots=True)
+class ModelTestPreparation:
+    raw: bytes
+
+    def payload(self):
+        if type(self.raw) is not bytes:
+            raise ValueError("Immutable preparation required")
+        p = validate_model_prepare(loads(self.raw, MAX_BYTES))
+        if p["mode"] != "CREATE" or canonical(p) != self.raw:
+            raise ValueError("Canonical preparation CREATE required")
+        return p
+
+    def __post_init__(self):
+        self.payload()
+
+
+def preparation_result(payload, *, native_root_id=None, native_child_id=None,
+                       native_session_id=None, native_turn=None):
+    p = validate_model_prepare(payload)
+    c = p["context"]["payload"]
+    result = {"protocol": PROTOCOL_V5, "context_ref": ref(p["context"]),
+              "runtime_boot": c["runtime_boot"], "authority": c["authority"],
+              "status": "UNKNOWN" if native_turn is None else "TURN_BOUND_PRE_CLIENT_HOLD",
+              "native_root_id": native_root_id, "native_child_id": native_child_id,
+              "native_session_id": native_session_id, "native_turn": native_turn,
+              "observed_configuration_ref": c["provider_config_ref"],
+              "client_status": "DEFERRED_NO_CREDENTIAL", "model_calls": 0,
+              "inference_status": "HOLD", "account_status": "NOT_VERIFIED"}
+    return validate_preparation_result(result, p)
+
+
+def validate_preparation_result(value, payload):
+    p = validate_model_prepare(payload)
+    v = obj(value, {"protocol", "context_ref", "runtime_boot", "authority", "status",
+                   "native_root_id", "native_child_id", "native_session_id", "native_turn",
+                   "observed_configuration_ref", "client_status", "model_calls",
+                   "inference_status", "account_status"})
+    c = p["context"]["payload"]
+    if (v["protocol"] != PROTOCOL_V5 or v["context_ref"] != ref(p["context"])
+            or canonical(v["authority"]) != canonical(c["authority"])
+            or v["runtime_boot"] != c["runtime_boot"]
+            or v["observed_configuration_ref"] != c["provider_config_ref"]
+            or v["inference_status"] != "HOLD" or v["account_status"] != "NOT_VERIFIED"
+            or v["client_status"] != "DEFERRED_NO_CREDENTIAL"):
+        raise ValueError("Invalid preparation observation bindings")
+    _integer(v["model_calls"], 0, 0)
+    if v["status"] == "UNKNOWN":
+        if any(v[k] is not None for k in ("native_root_id", "native_child_id", "native_session_id", "native_turn")):
+            raise ValueError("Unknown preparation has identities")
+    elif v["status"] == "TURN_BOUND_PRE_CLIENT_HOLD":
+        uuid(v["native_root_id"])
+        uuid(v["native_child_id"])
+        text(v["native_session_id"], 128)
+        turn = obj(v["native_turn"], {"task_id", "turn_id"})
+        if turn["task_id"] != c["task_id"]:
+            raise ValueError("Wrong preparation turn task")
+        text(turn["turn_id"], 256)
+    else:
+        raise ValueError("Invalid preparation status")
+    return loads(canonical(v), MAX_BYTES)
+
+
 def validate_model_preflight(value: object) -> bytes:
     from .model_admission import validate_preflight
 
@@ -576,6 +757,8 @@ def _configuration(value: object) -> dict[str, object]:
 
 def validate_initialization(value: object) -> dict[str, object]:
     """Validate DATA, not origin/dispatch authority. Private owner/Host grants remain required."""
+    if type(value) is dict and value.get("protocol") == PROTOCOL_V5:
+        return validate_model_prepare(value)
     _exact_data(value)
     value = wire(value, _INITIALIZATION_FIELDS)
     if value["protocol"] != PROTOCOL_V3 or value["mode"] not in ("CREATE", "STATUS"):
@@ -719,6 +902,8 @@ def initialization_result(
 
 
 def validate_initialization_result(value: object, payload: object) -> dict[str, object]:
+    if type(payload) is dict and payload.get("protocol") == PROTOCOL_V5:
+        return validate_preparation_result(value, payload)
     p = validate_initialization(payload)
     _exact_data(value)
     value = wire(

@@ -244,6 +244,82 @@ class SubagentLifecycleService:
     def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
         self._parent_agent_resolver = parent_agent_resolver
         self._cold_batches = {}
+        self._model_test_batches = {}
+
+    def prepare_model_test(self, payload):
+        from omnis_hermes.managed_admission_contract import (
+            ModelTestPreparation, canonical, preparation_result, validate_model_prepare,
+        )
+        from agent.agent_init import observe_model_test
+        from agent.cold_admission import configuration_snapshot
+
+        p = validate_model_prepare(payload)
+        c = p["context"]["payload"]
+        key = c["preparation_id"]
+        bound = canonical({k:v for k,v in p.items() if k != "mode"})
+        with _REGISTRY.lock:
+            prior = self._model_test_batches.get(key)
+            if prior is not None:
+                if prior["bound"] != bound:
+                    raise ValueError("Preparation replay conflict")
+                if prior["record"] is None:
+                    return preparation_result(p)
+                child = prior["record"].agent
+                if child._model_test_closed.is_set() or child._model_test_failure is not None:
+                    return preparation_result(p)
+                observe_model_test(child)
+                if not child._model_test_ready.is_set() or child._model_test_turn is None:
+                    return preparation_result(p)
+                return preparation_result(p, native_root_id=prior["parent"]._subagent_id,
+                    native_child_id=child._subagent_id, native_session_id=child.session_id,
+                    native_turn=child._model_test_turn)
+            if p["mode"] == "STATUS":
+                return preparation_result(p)
+            parent = self._parent_agent_resolver()
+            configuration_snapshot(parent)
+            if parent._parent_session_id is not None or len(self._model_test_batches) >= 32:
+                raise ValueError("Fresh native preparation root required")
+            # Retain failure before the constructor: uncertain CREATE is never repeated.
+            marker = {"bound": bound, "parent": parent, "record": None}
+            self._model_test_batches[key] = marker
+            try:
+                from run_agent import AIAgent
+                child = AIAgent(model_test_preparation=ModelTestPreparation(canonical(p)))
+                child._parent_session_id = parent.session_id
+                created = time.time()
+                handle = SubagentHandle(PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id,
+                    None, created, None, None, "leaf", 1,
+                    self._capability(child._subagent_id, parent.session_id, created))
+                record = _Record(handle, SubagentState.PENDING, created, agent=child)
+                marker["record"] = record
+                _REGISTRY.records[handle.subagent_id] = record
+                def conversation():
+                    try:
+                        from agent.conversation_loop import run_conversation
+                        composition = next(r for r in p["records"] if r["kind"] == "prompt-composition")
+                        run_conversation(child, composition["payload"]["text"], task_id=c["task_id"])
+                    except Exception:
+                        child._model_test_failure = "PREPARATION_STOPPED_OR_FAILED"
+                        child._model_test_ready.set()
+                record.future = _EXECUTOR.submit(conversation)
+                child._model_test_future = record.future
+                if not child._model_test_ready.wait(2):
+                    child.close()
+                    raise ValueError("Preparation turn binding timeout")
+                if child._model_test_failure is not None:
+                    raise ValueError("Preparation turn binding failed")
+                if self._parent_agent_resolver() is not parent:
+                    child.close()
+                    raise ValueError("Preparation root changed")
+                configuration_snapshot(parent)
+                observe_model_test(child)
+                return preparation_result(p, native_root_id=parent._subagent_id,
+                    native_child_id=child._subagent_id, native_session_id=child.session_id,
+                    native_turn=child._model_test_turn)
+            except BaseException:
+                if marker["record"] is not None:
+                    marker["record"].agent.close()
+                raise
 
     def stage(self, payload):
         """Create cold native identities, with no executor or conversation admission."""

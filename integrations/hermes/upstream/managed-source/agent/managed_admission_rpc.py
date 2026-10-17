@@ -28,6 +28,19 @@ def _initialize(params):
         OwnedInitialization, canonical, initialization_result, validate_initialization,
     )
     p = validate_initialization(params)  # before any native import/allocation
+    if p["protocol"] == "omnis-managed-admission-v5":
+        global _ROOT, _SERVICE
+        with _LOCK:
+            if _SERVICE is None:
+                if p["mode"] == "STATUS":
+                    from omnis_hermes.managed_admission_contract import preparation_result
+                    return preparation_result(p)
+                from run_agent import AIAgent
+                from agent.cold_admission import ColdAdmission
+                from agent.subagent_lifecycle import SubagentLifecycleService
+                _ROOT = AIAgent(cold_admission=ColdAdmission())
+                _SERVICE = SubagentLifecycleService(lambda: _ROOT)
+            return _SERVICE.prepare_model_test(p)
     key = p["initialization_id"]
     bound = canonical({k: v for k, v in p.items() if k != "mode"})
     with _LOCK:

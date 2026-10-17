@@ -37,6 +37,7 @@ def test_managed_patch_is_separate_and_exactly_pinned():
         "agent/chat_completion_helpers.py",
         "agent/chat_completion_nonstream.py",
         "agent/conversation_loop.py",
+        "agent/turn_context.py",
         "agent/turn_api_call.py",
         "agent/turn_api_error.py",
         "agent/turn_api_request.py",

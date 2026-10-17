@@ -2328,6 +2328,62 @@ class OwnedCore:
     session_start: datetime
 
 
+def configure_model_test(agent, carrier):
+    from uuid import uuid4
+    from omnis_hermes.managed_admission_contract import ModelTestPreparation
+
+    if type(carrier) is not ModelTestPreparation or agent.__dict__:
+        raise ValueError("Fresh qualified model preparation required")
+    payload = carrier.payload()
+    context = payload["context"]["payload"]
+    agent._model_test_preparation = carrier
+    agent._model_test_ready = threading.Event()
+    agent._model_test_closed = threading.Event()
+    agent._model_test_entered = False
+    agent._model_test_bound = False
+    agent._model_test_future = None
+    agent._model_test_failure = None
+    agent._model_test_turn = None
+    agent.session_start = datetime.now()
+    agent.session_id = new_session_id(agent.session_start)
+    agent._subagent_id = str(uuid4())
+    agent._parent_session_id = None
+    agent.provider = context["requested"]["provider"]
+    agent.model = context["requested"]["model"]
+    agent.reasoning_config = {"enabled": True, "effort": context["requested"]["effort"]}
+    agent.api_mode = "codex_responses"
+    agent.fallback_model = None
+    agent.auxiliary = agent.fast = False
+    agent.tools = agent.enabled_toolsets = ()
+    agent.client = None
+    agent._api_call_count = 0
+    agent._process_owner_task_ids = set()
+    agent._relay_pending_turn_id = None
+    agent._inflight_turn_id = None
+    agent._inflight_turn_started = 0.0
+    agent._persist_disabled = True
+
+
+def observe_model_test(agent):
+    from omnis_hermes.managed_admission_contract import ModelTestPreparation
+
+    carrier = agent.__dict__.get("_model_test_preparation")
+    if type(carrier) is not ModelTestPreparation:
+        raise ValueError("No constructor-owned preparation")
+    p = carrier.payload()
+    c = p["context"]["payload"]
+    if (agent._model_test_closed.is_set() or agent.client is not None
+            or type(agent._api_call_count) is not int or agent._api_call_count != 0
+            or type(agent.tools) is not tuple or len(agent.tools) != 0
+            or type(agent.enabled_toolsets) is not tuple or len(agent.enabled_toolsets) != 0
+            or agent.provider != c["requested"]["provider"] or agent.model != c["requested"]["model"]
+            or agent.reasoning_config != {"enabled": True, "effort": "xhigh"}
+            or agent.api_mode != "codex_responses" or agent.fallback_model is not None
+            or agent.auxiliary is not False or agent.fast is not False):
+        raise ValueError("Native preparation configuration changed")
+    return p
+
+
 def configure_owned_core(agent, carrier):
     from uuid import uuid4
     from omnis_hermes.managed_admission_contract import OwnedInitialization

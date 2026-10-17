@@ -72,7 +72,9 @@ class SourceOwner:
         monkeypatch.setattr(store, "graph", AsyncMock(side_effect=lambda *_a: list(self.graph)))
 
         async def get(c: object, owner: str, run: str, pin: object) -> dict[str, object]:
-            if owner != self.owner or run != self.run:
+            if owner != self.owner or (run != self.run and not any(
+                r["kind"] == "managed-run" and r["id"] == run for r in self.graph
+            )):
                 raise CatalogError("REF_UNAVAILABLE")
             matches = [r for r in self.graph if records.reference(r) == pin]
             if len(matches) != 1:
@@ -80,8 +82,12 @@ class SourceOwner:
             return record(deepcopy(matches[0]))
 
         async def put(c: object, owner: str, run: str, value: object) -> None:
-            assert owner == self.owner and run == self.run
-            self.graph.append(record(value))
+            item = record(value)
+            assert owner == self.owner
+            assert run == self.run or (item["kind"] == "managed-run" and item["id"] == run) or any(
+                r["kind"] == "managed-run" and r["id"] == run for r in self.graph
+            )
+            self.graph.append(item)
 
         async def receipt(c: object, owner: str, command: str) -> dict[str, object]:
             if owner != self.owner:
@@ -188,8 +194,9 @@ class SourceOwner:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("lost_reply", [False, True], ids=["prepared", "status-only-replay"])
 async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, lost_reply: bool
 ) -> None:
     from test_contract_method_producer import batch2_source
 
@@ -208,8 +215,15 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
         "binding": None, "results": [], "stage_started": False, "release_started": False,
     }))
     owner.handler.domain.root = tmp_path
-    # Boundary doubles only; BuildSource came from the real retained-material producer.
-    monkeypatch.setattr(owner.handler.domain, "_source", AsyncMock(return_value=source))
+    # Extend only the fixture's catalog storage seam; invoke the actual strict reader again.
+    catalog_get = records.get
+    async def catalog_read(connection, who, pin):
+        if pin == source.preparation_ref:
+            return "SOURCE-CATALOG-GROUP", records.envelope("native-preparation-receipt", {
+                "bundle_ref": records.reference(bundle),
+            })
+        return await catalog_get(connection, who, pin)
+    monkeypatch.setattr(records, "get", catalog_read)
     owner.runtime.settings_status = AsyncMock(return_value={
         "status": "CONFIRMED", "selection": {
             "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
@@ -219,7 +233,26 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
         **owner.base, "action": "model_test_prepare", "initialization_id": str(uuid4()),
         "settings_operation_id": str(uuid4()),
     })
+    async def prepared_double(service, lease, operation, payload):
+        from omnis_hermes.managed_admission_contract import preparation_result
+
+        assert owner.events[-1] == "commit"
+        assert operation == "task_model_initialize"
+        owner.payloads.append(deepcopy(payload))
+        if lost_reply and len(owner.payloads) == 1:
+            from omnis.supervisor.runtime_client import RuntimeUnavailable
+            raise RuntimeUnavailable("SOURCE lost preparation reply")
+        return preparation_result(payload, native_root_id=str(uuid4()),
+            native_child_id=str(uuid4()), native_session_id="SOURCE-SESSION-DOUBLE",
+            native_turn={"task_id": payload["context"]["payload"]["task_id"],
+                         "turn_id": "SOURCE-TURN-DOUBLE"})
+
+    owner.native.side_effect = prepared_double
+    if lost_reply:
+        with pytest.raises(CatalogError, match="TASK_INDETERMINATE"):
+            await owner.handler.handle(command)
     answer = await owner.handler.handle(command)
+    assert answer["preparation_status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
     assert answer["inference_status"] == "HOLD"
     assert answer["account_status"] == "NOT_VERIFIED"
     context = mapping(answer["model_test_context"])
@@ -231,10 +264,61 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     assert context["selection_ref"] != records.reference(source.selection)
     assert context["snapshot_ref"] != mapping(source.selection["payload"])["snapshot_ref"]
     before = canonical(owner.graph)
-    owner.native.assert_not_awaited()
+    assert owner.native.await_count == 1 + int(lost_reply)
     assert await owner.handler.handle(command) == answer
+    assert owner.native.await_count == 1 + int(lost_reply)
+    assert [p["mode"] for p in owner.payloads] == (["CREATE", "STATUS"] if lost_reply else ["CREATE"])
+    owner.runtime.settings_status.assert_awaited_once()
     assert canonical(owner.graph) == before
+    from omnis_hermes.managed_admission_contract import (
+        validate_initialization,
+        validate_preparation_result,
+    )
+    from omnis_hermes.runtime_protocol import encode
+    payload = owner.payloads[-1]
+    assert validate_initialization(payload) == payload
+    assert len(canonical(payload)) <= 32768
+    assert len(encode({"jsonrpc": "2.0", "id": str(uuid4()), "method": "omnis.managed.model_initialize", "params": payload})) <= 65536
+    for key, value in (("purpose", "CONTRACT_PROBE"), ("version", True),
+                       ("batch_index", True), ("effective", {"model": "fallback"}),
+                       ("account_status", "AUTHENTICATED"), ("task_id", str(uuid4()))):
+        bad = deepcopy(payload)
+        body = mapping(bad["context"])["payload"]
+        body[key] = value
+        bad["context"] = records.envelope("model-test-context", body)
+        with pytest.raises(ValueError):
+            validate_initialization(bad)
+    bad_result = deepcopy(mapping(answer["observation"])["payload"])
+    bad_result["model_calls"] = False
+    with pytest.raises(ValueError):
+        validate_preparation_result(bad_result, payload)
     owner.reserve.assert_not_awaited()
+
+
+def test_model_test_native_source_parks_actual_builder_before_stock_effects() -> None:
+    """AST-only: no native import, constructor, thread, SDK, socket or provider execution."""
+    import ast
+
+    root = Path(__file__).resolve().parents[2] / "integrations/hermes/upstream/managed-source"
+    loop = ast.parse((root / "agent/conversation_loop.py").read_bytes())
+    turn = next(n for n in loop.body if isinstance(n, ast.FunctionDef) and n.name == "run_conversation")
+    source = ast.unparse(turn)
+    assert source.index("_model_test_preparation") < source.index("native_turn_images")
+    assert "return build_turn_context(" in source
+    builder_tree = ast.parse((root / "agent/turn_context.py").read_bytes())
+    builder = next(n for n in builder_tree.body if isinstance(n, ast.FunctionDef) and n.name == "build_turn_context")
+    preparation = next(n for n in builder.body if isinstance(n, ast.If))
+    prefix = ast.unparse(preparation)
+    assert "_bind_turn_identity(" in prefix
+    assert prefix.index("_bind_turn_identity(") < prefix.index("_model_test_ready.set()") < prefix.index("_model_test_closed.wait()")
+    assert "raise ValueError" in prefix
+    assert "turn_context_compaction" not in prefix
+    assert "install_safe_stdio()" not in prefix
+    init = ast.parse((root / "agent/agent_init.py").read_bytes())
+    configure = next(n for n in init.body if isinstance(n, ast.FunctionDef) and n.name == "configure_model_test")
+    text = ast.unparse(configure)
+    assert "new_session_id(" in text and "agent.client = None" in text
+    assert "resolve_runtime" not in text and "config_operation" not in text
 
 
 @pytest.mark.asyncio

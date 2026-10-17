@@ -248,20 +248,40 @@ class NativeTaskOwner:
     async def _model_test_prepare(self, command: NativeTaskCommand) -> dict[str, object]:
         from omnis.modules.runs.model_test import ModelTest
 
-        saved = await self.runtime.settings_status(str(command.settings_operation_id))
-        async with self.service.native_preparation_commit(
-            self.owner, self.epoch, command.expected_generation
-        ) as conn:
-            await self._instance(conn, command)
-            context = await ModelTest(self.domain).prepare(
-                conn, command.owner_id, command.manifest_ref,
-                str(command.initialization_id), str(command.settings_operation_id), saved,
-                {"instance_id": command.instance_id, "owner": str(self.owner),
-                 "epoch": self.epoch, "generation": command.expected_generation},
-                str(self.runtime.boot),
-            )
+        consumer = ModelTest(self.domain)
+        authority = {"instance_id": command.instance_id, "owner": str(self.owner),
+                     "epoch": self.epoch, "generation": command.expected_generation}
+        saved = None
+        for attempt in range(2):
+            try:
+                async with self.service.native_preparation_commit(
+                    self.owner, self.epoch, command.expected_generation
+                ) as conn:
+                    await self._instance(conn, command)
+                    context, created = await consumer.prepare(
+                        conn, command.owner_id, command.manifest_ref,
+                        str(command.initialization_id), str(command.settings_operation_id), saved,
+                        authority, str(self.runtime.boot),
+                    )
+                    payload, observation = await consumer.dispatch(conn, command.owner_id, context, created)
+                break
+            except CatalogError as error:
+                if error.reason != "MODEL_TEST_SETTINGS_REQUIRED" or attempt:
+                    raise
+                saved = await self.runtime.settings_status(str(command.settings_operation_id))
+        if observation is None:
+            result = await self.runtime.managed(self.service, self.owner, "task_model_initialize", payload)
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                if mapping(context["payload"])["runtime_boot"] != self.runtime.boot:
+                    raise CatalogError("TASK_INDETERMINATE")
+                observation = await consumer.persist(conn, command.owner_id, payload, result)
         return {"ok": True, "model_test_context": context["payload"],
                 "context_ref": records.reference(context), "inference_status": "HOLD",
+                "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD",
+                "turn_ref": records.reference(observation), "observation": observation,
                 "account_status": "NOT_VERIFIED"}
 
     async def _model_initialization(self, command: NativeTaskCommand) -> dict[str, object]:
@@ -521,6 +541,23 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError(
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
+            if command.action == "model_test_prepare":
+                from omnis.modules.tasks.managed_contract import exact, integer, record
+
+                exact(reply, {"ok", "correlation_id", "model_test_context", "context_ref",
+                              "inference_status", "preparation_status", "turn_ref", "observation", "account_status"})
+                context = mapping(reply["model_test_context"])
+                observed = record(reply["observation"], "native-turn")
+                body = mapping(observed["payload"])
+                if (records.reference(observed) != reply["turn_ref"]
+                        or body["context_ref"] != reply["context_ref"]
+                        or mapping(body["native_turn"])["task_id"] != context["task_id"]
+                        or body["inference_status"] != reply["inference_status"] or reply["inference_status"] != "HOLD"
+                        or body["account_status"] != reply["account_status"] or reply["account_status"] != "NOT_VERIFIED"
+                        or body["status"] != reply["preparation_status"] or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"):
+                    raise CatalogError("TASK_REJECTED")
+                integer(body["model_calls"], 0, 0)
+                return reply
             if command.action == "model_initialization":
                 from hashlib import sha256
 

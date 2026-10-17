@@ -308,10 +308,20 @@ class AIAgent(
         capabilities: Dict[str, bool] | None = None, cwd: str | None = None,
         side_agent: bool = False, memory_manager=None,
         tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
-        cold_admission=None, owned_initialization=None, contract_admission=None,
+        cold_admission=None, owned_initialization=None, contract_admission=None, model_test_preparation=None,
     ):
         """Forwarder; trusted NO_MODEL opt-in stops before warm initialization."""
-        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization", "contract_admission")}
+        init_kwargs = {k: v for k, v in locals().items() if k not in ("self", "tool_delay", "cold_admission", "owned_initialization", "contract_admission", "model_test_preparation")}
+        if model_test_preparation is not None:
+            import inspect
+            from agent.agent_init import configure_model_test
+            if cold_admission is not None or owned_initialization is not None or contract_admission is not None or tool_delay is not None:
+                raise ValueError("Model preparation cannot carry other modes")
+            defaults = inspect.signature(type(self).__init__).parameters
+            if any(value != defaults[key].default for key, value in init_kwargs.items()):
+                raise ValueError("Model preparation cannot carry warm options")
+            configure_model_test(self, model_test_preparation)
+            return
         if contract_admission is not None:
             if cold_admission is not None or owned_initialization is not None or tool_delay is not None:
                 raise ValueError("CONTRACT admission cannot carry other modes")
@@ -345,6 +355,9 @@ class AIAgent(
 
     def __getattribute__(self, name):
         attributes = object.__getattribute__(self, "__dict__")
+        if attributes.get("_model_test_preparation") is not None:
+            if name not in attributes and name not in {"__dict__", "__class__", "__weakref__", "close"}:
+                raise ValueError("MODEL_TEST_PREPARE: native surface denied")
         if attributes.get("_contract_state") is not None:
             from agent.contract_execution import CONTRACT_READABLE
             if name not in CONTRACT_READABLE:
@@ -1029,6 +1042,12 @@ class AIAgent(
     def close(self) -> None:
         """Release every resource this agent holds (idempotent); each phase is guarded so one failure never
         blocks the rest."""
+        if self.__dict__.get("_model_test_preparation") is not None:
+            self._model_test_closed.set()
+            future = self.__dict__.get("_model_test_future")
+            if future is not None:
+                future.result(timeout=1)
+            return
         contract = self.__dict__.get("_contract_state")
         if contract is not None:
             contract.closed = True

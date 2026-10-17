@@ -94,6 +94,7 @@ class BuildSource:
     files: dict[str, bytes]
     manifest: Manifest
     preparation_bytes: int = 0
+    preparation_bundle: dict[str, object] | None = None
 
     def input_schema(self) -> tuple[dict[str, object], bytes, str]:
         source = self.procedure.input_schema_ref
@@ -241,6 +242,7 @@ class ManagedAdmission:
             files,
             manifest,
             len(canonical(prepared["bundle"])),
+            mapping(prepared["bundle"]),
         )
 
     async def _build(

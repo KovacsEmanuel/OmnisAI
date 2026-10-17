@@ -648,6 +648,7 @@ class RuntimeClient:
             "omnis-managed-admission-v2",
             "omnis-managed-admission-v3",
             "omnis-managed-admission-v4",
+            "omnis-managed-admission-v5",
         ):
             raise RuntimeUnavailable("Runtime payload denied")
         try:

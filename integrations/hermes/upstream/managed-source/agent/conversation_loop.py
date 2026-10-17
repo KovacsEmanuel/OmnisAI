@@ -1638,8 +1638,24 @@ def run_conversation(
     addresses, after every history rewrite including post-turn micro-compaction.
     """
     from omnis_hermes.model_terminal import is_inert_model_context, terminal_result
-    if is_inert_model_context(agent):
+    if is_inert_model_context(agent) and agent.__dict__.get("_model_test_preparation") is None:
         return terminal_result()
+    if agent.__dict__.get("_model_test_preparation") is not None:
+        from agent.agent_init import observe_model_test
+        p = observe_model_test(agent)
+        c = p["context"]["payload"]
+        if (agent._model_test_entered or task_id != c["task_id"]
+                or system_message is not None or conversation_history is not None
+                or any(v is not None for v in (stream_callback, persist_user_message, persist_user_timestamp,
+                    persist_user_display_kind, persist_user_display_metadata, persist_user_platform_id, moa_config, turn_author))):
+            raise ValueError("Preparation conversation is single-entry and source-bound")
+        composition = next(r for r in p["records"] if r["kind"] == "prompt-composition")
+        if user_message != composition["payload"]["text"]:
+            raise ValueError("Preparation conversation text mismatch")
+        agent._model_test_entered = True
+        return build_turn_context(agent, user_message, None, None, task_id, None, None,
+            restore_or_build_system_prompt=None, install_safe_stdio=None, sanitize_surrogates=None,
+            summarize_user_message_for_log=None, set_session_context=None, set_current_write_origin=None, ra=None)
     from agent.turn_context import export_current_turn_boundary
     from tools.vision_tools_history_budget import native_turn_images
 

@@ -20,6 +20,6 @@
   "runtime_inference_authorized": false,
   "management_patch_sha256": "0aef4f608a96e0b9e922316dde89b603c93e0e876b6b0216140c58982d97f9d1",
   "management_patch_manifest_sha256": "8a00b91756cb3c16491fe7f5e47feadf7798db1f7753706ea49d48ad5b78521f",
-  "managed_patch_sha256": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376",
-  "managed_patch_manifest_sha256": "a48c49d55208b917128b73d8d8b12bf1d51aab7346cea6a450ac028b392f7bd0"
+  "managed_patch_sha256": "8c7a541b74ec360d91a055854a098ddbf3cafb7bd1ce526c857c7e6503b6b423",
+  "managed_patch_manifest_sha256": "79db695b761a66c9fa6644eaff13a6aedffa645d435abc459cdeb0dc03479fb3"
 }

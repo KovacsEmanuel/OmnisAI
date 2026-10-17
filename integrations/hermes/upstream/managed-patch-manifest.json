@@ -22,15 +22,15 @@
     },
     "agent/conversation_loop.py": {
       "original_sha256": "e5ebc04d14026ba493e5b238e615ddc775807344a04eab40c907750522052b91",
-      "patched_sha256": "6ef365f3d9bf80bc24d63fbc32a003dcf2ce7709d27cd56b24a5a3d99889b402"
+      "patched_sha256": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd"
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
-      "patched_sha256": "415b83eb19d9fd29b3c82f1d040836add375533da95524d195d2c5bdbee080be"
+      "patched_sha256": "630135397bcd46b1049e0db28e249a16bdd510a14cdba591901a23808a159c29"
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "9cac0fbbb9b470f13fdc7c6ce8f8f7ae39812d6de9f59abf5e38d90f6f7a8e72"
+      "patched_sha256": "d3defbb9f0e6037e5130a7d8afe48f66ce78dd9bf78e2447cc03815fe8d604e0"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -50,7 +50,7 @@
     },
     "run_agent.py": {
       "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
-      "patched_sha256": "7a6fdae867c8eb288f92074ee0afd88a059ab274d5833f8bfd229da5ea5ee7c7"
+      "patched_sha256": "1c42cde7074a862bb4f1a78ab6ffea2cfecc354eb0e886d7c8262d0d48128fd9"
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
@@ -58,12 +58,16 @@
     },
     "agent/agent_init.py": {
       "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81",
-      "patched_sha256": "ed71718556ec7f6a742a7ba457626c90b02dc400ef6a987e31c5f5f3d21aad73"
+      "patched_sha256": "21a87701b4a840e708168297f6a81b9ac3dce01a1efde8c01694c8b5b3240312"
     },
     "agent/contract_execution.py": {
       "original_sha256": null,
       "patched_sha256": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc"
+    },
+    "agent/turn_context.py": {
+      "original_sha256": "85f857dc3c317366d918516bc8b37a022f1020b34da0c3966a31bd289b2942e1",
+      "patched_sha256": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb"
     }
   },
-  "patch_sha256": "de892b39dbba91e50d72203a78a12e098c26da295d45590de2573a40d6366376"
+  "patch_sha256": "8c7a541b74ec360d91a055854a098ddbf3cafb7bd1ce526c857c7e6503b6b423"
 }

@@ -200,7 +200,7 @@
             "type": "array"
           },
           "compiler_revision": {
-            "pattern": "^[0-9a-f]{64}$",
+            "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Compiler Revision",
             "type": "string"
           },
@@ -237,7 +237,7 @@
             "type": "string"
           },
           "evaluator_revision": {
-            "pattern": "^[0-9a-f]{64}$",
+            "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Evaluator Revision",
             "type": "string"
           },

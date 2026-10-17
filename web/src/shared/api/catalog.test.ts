@@ -5,7 +5,7 @@ import { inspectionFixture } from '../../../tests/catalog-fixtures';
 it('decodes only exact bounded non-authoritative metadata and refuses stale-green or extra fields', () => {
   const view = inspectionFixture(), ref = view.publication_ref;
   expect(decodeCatalogInspection(view, ref.id, ref.digest)).toEqual(view);
-  for (const bad of [{ ...view, runtime: 'READY' }, { ...view, assessment_selectable: true }, { ...view, extra: true }, { ...view, publication_ref: { ...ref, revision: true } }]) {
+  for (const bad of [{ ...view, compiler_revision: 'd'.repeat(64) }, { ...view, evaluator_revision: 'SHA256:' + 'e'.repeat(64) }, { ...view, runtime: 'READY' }, { ...view, assessment_selectable: true }, { ...view, extra: true }, { ...view, publication_ref: { ...ref, revision: true } }]) {
     expect(() => decodeCatalogInspection(bad, ref.id, ref.digest)).toThrow();
   }
   expect(() => decodeCatalogInspection(view, '33333333-3333-4333-8333-333333333333', ref.digest)).toThrow();

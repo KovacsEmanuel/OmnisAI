@@ -12,6 +12,7 @@ UUIDText = Annotated[
 ]
 Revision = Annotated[int, Field(ge=1, lt=2147483647)]
 Generation = Annotated[int, Field(ge=1, lt=2**63)]
+BehaviorRevision = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 
 
 class CatalogPin(StrictDTO):
@@ -80,8 +81,8 @@ class CatalogInspection(CatalogEntry):
     material_digest: Digest
     resolved_index_digest: Digest
     dependency_closure_digest: Digest
-    compiler_revision: Digest
-    evaluator_revision: Digest
+    compiler_revision: BehaviorRevision
+    evaluator_revision: BehaviorRevision
     requested: Preference
     review: Literal["RECORDED_STATIC_PASS"]
     static: Literal["RECORDED_STATIC_PASS"]

@@ -78,7 +78,9 @@ def fixture_rows() -> tuple[dict[str, object], dict[str, dict[str, object]]]:
         }
         return store.reference(record)
 
-    material, compiler, evaluator = "a" * 64, "b" * 64, "c" * 64
+    from omnis.modules.settings.candidate_catalog import COMPILER_REVISION, EVALUATOR_REVISION
+
+    material, compiler, evaluator = "a" * 64, COMPILER_REVISION, EVALUATOR_REVISION
     profile_ref = {"kind": "profile", "id": str(uuid4()), "revision": 1, "digest": "d" * 64}
     files = [{"path": "profile.yaml", "sha256": "e" * 64, "size": 25}]
     source = add(
@@ -346,3 +348,20 @@ def test_strict_nested_metadata_cannot_alias_integer_pins(value: object) -> None
 
     with pytest.raises(CatalogError):
         metadata_tree({"duration_ns": value} if value is True else {"pin": value})
+
+
+def test_behavior_revision_contract_preserves_real_producer_pins() -> None:
+    from pydantic import TypeAdapter, ValidationError
+
+    from omnis.modules.settings.candidate_catalog import COMPILER_REVISION, EVALUATOR_REVISION
+    from omnis.modules.settings.catalog_inspection_models import CatalogInspection
+
+    for field, value in (
+        ("compiler_revision", COMPILER_REVISION),
+        ("evaluator_revision", EVALUATOR_REVISION),
+    ):
+        adapter = TypeAdapter(CatalogInspection.model_fields[field].rebuild_annotation())
+        assert adapter.validate_python(value, strict=True) == value
+        for invalid in (value[7:], value.upper(), "sha256:" + "z" * 64, True):
+            with pytest.raises(ValidationError):
+                adapter.validate_python(invalid, strict=True)

@@ -29,11 +29,13 @@ export function decodeCatalogPage(value: unknown): CatalogPage {
 }
 const pinFields = ['profile_ref', 'snapshot_ref', 'technical_review_ref', 'static_evaluation_ref', 'pure_evaluation_ref', 'confirmation_ref'];
 const collectionFields = ['source_draft_refs', 'candidate_refs', 'dependency_closure_refs', 'dependency_artifact_refs'];
-const digestFields = ['material_digest', 'resolved_index_digest', 'dependency_closure_digest', 'compiler_revision', 'evaluator_revision'];
+const digestFields = ['material_digest', 'resolved_index_digest', 'dependency_closure_digest'];
+const revisionFields = ['compiler_revision', 'evaluator_revision'];
 function isInspection(value: unknown, id: string, sha: string): value is CatalogInspection {
-  if (!isRecord(value) || !exact(value, ['publication_ref', 'profile_key', 'generation', 'owner_id', ...pinFields, ...collectionFields, ...digestFields, 'requested', 'review', 'static', 'pure', 'dependency_metadata', 'material', 'runtime', 'benchmark', 'fixture', 'security', 'assessment_selectable', 'resolution'])) return false;
+  if (!isRecord(value) || !exact(value, ['publication_ref', 'profile_key', 'generation', 'owner_id', ...pinFields, ...collectionFields, ...digestFields, ...revisionFields, 'requested', 'review', 'static', 'pure', 'dependency_metadata', 'material', 'runtime', 'benchmark', 'fixture', 'security', 'assessment_selectable', 'resolution'])) return false;
   if (!isPin(value.publication_ref) || value.publication_ref.kind !== 'catalog-publication' || value.publication_ref.id !== id || value.publication_ref.digest !== sha || !key(value.profile_key) || !positive(value.generation) || typeof value.owner_id !== 'string' || !isUuid(value.owner_id)) return false;
   if (!pinFields.every(k => isPin(value[k])) || !collectionFields.every(k => isPins(value[k])) || !digestFields.every(k => digest(value[k]))) return false;
+  if (!revisionFields.every(k => typeof value[k] === 'string' && /^sha256:[0-9a-f]{64}$/.test(value[k]))) return false;
   const requested = value.requested;
   if (!isRecord(requested) || !exact(requested, ['model_key', 'effort', 'requirement', 'on_unavailable']) || (requested.model_key !== null && !key(requested.model_key)) || (requested.effort !== null && (typeof requested.effort !== 'string' || requested.effort.length > 4096)) || !['REQUIRED', 'PREFERRED'].includes(String(requested.requirement)) || !['BLOCK', 'USE_RUN_DEFAULT'].includes(String(requested.on_unavailable))) return false;
   return value.review === 'RECORDED_STATIC_PASS' && value.static === 'RECORDED_STATIC_PASS' && value.pure === 'RECORDED_PURE_PASS' && ['NO_EXTERNAL_DEPENDENCIES', 'NOT_VERIFIED'].includes(String(value.dependency_metadata)) && value.material === 'NOT_VERIFIED' && value.runtime === 'NOT_AVAILABLE' && value.benchmark === 'NOT_VERIFIED' && value.fixture === 'NOT_VERIFIED' && value.security === 'NOT_VERIFIED' && value.assessment_selectable === false && value.resolution === 'NO_MODEL';

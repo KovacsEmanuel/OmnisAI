@@ -1,0 +1,25 @@
+{
+  "scope": "SOURCE_SYNTHETIC_NOT_NATIVE_ACCEPTANCE",
+  "route": "client",
+  "peer": "normal",
+  "events": [
+    "SAVED_READ_ENTER",
+    "SAVED_READ_COMPLETED",
+    "STOP",
+    "HANDSHAKE_ENTER",
+    "HANDSHAKE_COMPLETED",
+    "SYNTHETIC_MODEL_REPLY",
+    "COMPLETED_SYNTHETIC",
+    "STOP",
+    "SYNTHETIC_MODEL_REPLY",
+    "STOP",
+    "STOP",
+    "STOP"
+  ],
+  "observation": {
+    "ready_budget_s": 3.28613586
+  },
+  "elapsed_ns": 1475996515,
+  "owned_process_reaped": true,
+  "owned_endpoints_absent": true
+}

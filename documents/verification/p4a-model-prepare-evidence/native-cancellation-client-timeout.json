@@ -1,0 +1,30 @@
+{
+  "scope": "SOURCE_SYNTHETIC_NOT_NATIVE_ACCEPTANCE",
+  "route": "client",
+  "peer": "slow_ready",
+  "events": [
+    "SAVED_READ_ENTER",
+    "SAVED_READ_COMPLETED",
+    "STOP",
+    "HANDSHAKE_ENTER",
+    "CLIENT_TIMEOUT",
+    "HANDSHAKE_CANCELLED",
+    "STOP",
+    "MANAGED_CANCELLED",
+    "MANAGED_OWNER_DISCONNECTED",
+    "STOP",
+    "STOP",
+    "STOP",
+    "STOP"
+  ],
+  "observation": {
+    "ready_budget_s": 3.287131988,
+    "primary": "RUNTIME_CLIENT_EXCHANGE_TIMEOUT",
+    "cancel_grant_remaining_ns": 1295755780,
+    "cancel_peer_failure": false,
+    "owner_eof": true
+  },
+  "elapsed_ns": 3427760961,
+  "owned_process_reaped": true,
+  "owned_endpoints_absent": true
+}

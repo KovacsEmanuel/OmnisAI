@@ -1,0 +1,32 @@
+{
+  "status": "ORIGINAL_OWNER_RETURNED_REQUIRES_PRODUCT_AND_CLEANUP_READBACK",
+  "attempts": 1,
+  "timeout_seconds": 180,
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l/reader.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "38774dd167b8da23480e8175545888855bc426c2b20817d79ad829afc98d811d"
+  },
+  "test_sha256": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4",
+  "product_review_snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+  "oracle_review_snapshot": "ecba036d61846d7f125dc0ba2c221af66f47e53a",
+  "head": "fe1efab0255e9f13d3bb61a06e0e0582c2e19bbe",
+  "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+  "selected_seam": "h03-process-fixed-pg-selection.py:253-265; same command/base copy plus six explicit pins/same log/same timeout",
+  "outer_owner_added": false,
+  "product_edits": false,
+  "gate_invocations": 1,
+  "command": [
+    "make",
+    "--no-print-directory",
+    "test-model-test-prepare-native-pg",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "gate_log": "/home/kali/.hermes/cache/scratch/m6-4qza930i/t/db-56838c1250a84e9f/gate.log",
+  "family_receipt": "/home/kali/.hermes/cache/scratch/m6-4qza930i/t/db-56838c1250a84e9f/gate.log.result.json",
+  "exit_code": 2,
+  "elapsed_seconds": 33.716
+}

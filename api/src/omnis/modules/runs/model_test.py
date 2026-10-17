@@ -791,6 +791,8 @@ class ModelTest:
         from omnis.modules.tasks.managed_contract import integer, text
         from omnis.policy import budgets
 
+        # Receive-only settlement shares the existing owner transaction lock.
+        await store.lock(connection, owner)
         run, _ = await store.owned(connection, owner, records.reference(attempt))
         a = mapping(attempt["payload"])
         graph = await store.graph(connection, owner, run)

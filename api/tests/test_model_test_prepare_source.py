@@ -1635,6 +1635,7 @@ async def test_execution_start_is_fresh_qualified_and_bounded_source(
         "terminal-unknown",
         "terminal-disagreement",
         "terminal-agrees",
+        "receipt-overlap",
     ],
 )
 async def test_execution_owner_commits_reserve_and_sent_then_replays_without_send(
@@ -1644,7 +1645,6 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
 ) -> None:
     """SOURCE owners/ledger/native function+real SDK; storage/constructor/compiler/HTTP are doubles."""
     import base64
-    import importlib.util
     import os
     import socket
     import threading
@@ -1763,15 +1763,14 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
 
         monkeypatch.setattr(compiler, "ResponsesApiTransport", CompilerDouble, raising=False)
         monkeypatch.setitem(__import__("sys").modules, "agent.transports.codex", compiler)
-        # Exact pure leaf from the prepared pin; no helper double in this SOURCE test.
-        pinned = Path(os.environ["HERMES_NATIVE_SOURCE"]) / "agent/codex_headers.py"
-        assert sha256(pinned.read_bytes()).hexdigest() == (
+        # Immutable stock Hermes leaf (Nous Research, MIT; integrations/hermes/upstream/LICENSE).
+        pinned = Path(__file__).resolve().parent / "fixtures/codex_headers.py.txt"
+        pinned_bytes = pinned.read_bytes()
+        assert sha256(pinned_bytes).hexdigest() == (
             "f294215fef55f229704cd3fc596ccb6840af126459f15a7ffd38f2c51ae62f6a"
         )
-        spec = importlib.util.spec_from_file_location("agent.codex_headers", pinned)
-        assert spec is not None and spec.loader is not None
-        headers_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(headers_module)
+        headers_module = ModuleType("agent.codex_headers")
+        exec(compile(pinned_bytes, str(pinned), "exec"), headers_module.__dict__)
         monkeypatch.setitem(__import__("sys").modules, "agent.codex_headers", headers_module)
         cli = ModuleType("hermes_cli")
         monkeypatch.setattr(cli, "__version__", "SOURCE_VERSION", raising=False)
@@ -1861,12 +1860,23 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
                 "content": [{"type": "output_text", "text": "Synthetic reply.", "annotations": []}],
             }
             prefix = ""
-            parser_cases = {"null", "reorder", "duplicate", "index-conflict",
-                            "identity-conflict", "terminal-unknown", "terminal-disagreement",
-                            "terminal-agrees"}
+            parser_cases = {
+                "null",
+                "reorder",
+                "duplicate",
+                "index-conflict",
+                "identity-conflict",
+                "terminal-unknown",
+                "terminal-disagreement",
+                "terminal-agrees",
+                "receipt-overlap",
+            }
             if outcome in parser_cases:
-                second = {**item, "id": "msg_second", "content": [
-                    {"type": "output_text", "text": " Second.", "annotations": []}]}
+                second = {
+                    **item,
+                    "id": "msg_second",
+                    "content": [{"type": "output_text", "text": " Second.", "annotations": []}],
+                }
                 done = {"type": "response.output_item.done", "output_index": 0, "item": item}
                 events = [done]
                 response["output"] = None
@@ -1884,8 +1894,10 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
                     response["output"] = [second]
                 elif outcome == "terminal-agrees":
                     response["output"] = [item]
-                prefix = "".join("event: response.output_item.done\ndata: "
-                                 + json.dumps(e) + "\n\n" for e in events)
+                prefix = "".join(
+                    "event: response.output_item.done\ndata: " + json.dumps(e) + "\n\n"
+                    for e in events
+                )
             if outcome in {"blocked", "trickle", "socket-detach"}:
                 from httpcore._backends.sync import SyncStream
 
@@ -2016,6 +2028,79 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
             os.close(reader)
         assert token not in json.dumps(child._model_test_result)
         retained["result"] = child._model_test_result
+        if outcome == "receipt-overlap":
+            import asyncio
+            from unittest.mock import Mock
+
+            attempt = next(r for r in owner.graph if r["kind"] == "model-test-attempt")
+            mutex = asyncio.Lock()
+            first_lock, second_lock = asyncio.Event(), asyncio.Event()
+            holders: set[object] = set()
+            arrivals: list[object] = []
+            graph_read = store.graph
+
+            async def graph_snapshot(
+                c: AsyncConnection, who: str, run: str
+            ) -> list[dict[str, object]]:
+                snapshot = await graph_read(c, who, run)
+                await asyncio.sleep(0)  # overlap the actual first receipt reads
+                return snapshot
+
+            async def owner_lock(c: AsyncConnection, who: str) -> None:
+                assert who == owner.owner
+                task = asyncio.current_task()
+                if task in holders:
+                    return
+                arrivals.append(task)
+                if len(arrivals) == 1:
+                    first_lock.set()
+                    await second_lock.wait()
+                else:
+                    second_lock.set()
+                await mutex.acquire()
+                holders.add(task)
+
+            async def settle_transaction(c: AsyncConnection, who: str) -> None:
+                await owner_lock(c, who)
+
+            async def execute(*args: object, **kw: object) -> object:
+                rows = Mock()
+                rows.scalars.return_value.all.return_value = [
+                    r for r in owner.graph if r["kind"] == "model-usage-receipt"
+                ]
+                return rows
+
+            async def receive() -> dict[str, object]:
+                connection = cast(AsyncConnection, Mock(spec=AsyncConnection))
+                cast(AsyncMock, connection.execute).side_effect = execute
+                try:
+                    return await consumer.execution_receipt(
+                        connection, owner.owner, attempt, child._model_test_result
+                    )
+                finally:
+                    task = asyncio.current_task()
+                    if task in holders:
+                        holders.remove(task)
+                        mutex.release()  # simulated transaction completion
+
+            with monkeypatch.context() as overlap:
+                overlap.setattr(store, "graph", graph_snapshot)
+                overlap.setattr(store, "lock", owner_lock)
+                overlap.setattr(budgets, "_transaction", settle_transaction)
+                overlap.setattr(conn, "execute", execute)
+                async with asyncio.timeout(2):
+                    readers = [asyncio.create_task(receive()) for _ in range(2)]
+                    answers = await asyncio.gather(*readers)
+                assert first_lock.is_set() and second_lock.is_set()
+                assert answers[0] == answers[1]
+                assert answers[0]["state"] == "SETTLED"
+                assert len([r for r in owner.graph if r["kind"] == "provider-receipt"]) == 1
+                assert len([r for r in owner.graph if r["kind"] == "model-usage-receipt"]) == 1
+                assert len(sends) == len(physical) == 1
+            # Keep real settlement replay on the outer serial/postStop controls.
+            cast(AsyncMock, conn.execute).return_value.scalars.return_value.all.side_effect = (
+                lambda: [r for r in owner.graph if r["kind"] == "model-usage-receipt"]
+            )
         if outcome == "complete-stop":
             from omnis.modules.instance.domain import ControlCode, ControlConflict
 
@@ -2062,20 +2147,27 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         }
     )
     result = await owner.handler.handle(send)
-    if outcome in {"complete", "null", "complete-stop", "missing-account", "malformed-token",
-                   "reorder", "terminal-agrees"}:
+    if outcome in {
+        "complete",
+        "null",
+        "complete-stop",
+        "missing-account",
+        "malformed-token",
+        "reorder",
+        "terminal-agrees",
+        "receipt-overlap",
+    }:
         assert (
             result["state"] == "SETTLED"
             and result["output_tokens"] == 12
             and result["reasoning_tokens"] == 9
         )
         assert result["inference_status"] == "VERIFIED" and result["cost_observed"] is None
-        if outcome in {"null", "reorder", "terminal-agrees"}:
+        if outcome in {"null", "reorder", "terminal-agrees", "receipt-overlap"}:
             receipt = next(r for r in owner.graph if r["kind"] == "provider-receipt")
-            assert (
-                mapping(mapping(receipt["payload"])["observed"])["output_text"]
-                == "Synthetic reply." + (" Second." if outcome == "reorder" else "")
-            )
+            assert mapping(mapping(receipt["payload"])["observed"])[
+                "output_text"
+            ] == "Synthetic reply." + (" Second." if outcome == "reorder" else "")
     else:
         assert result["state"] == "SENT" and result["usage_state"] == "UNKNOWN"
         assert result["output_tokens"] is None and result["provider_receipt_ref"] is None

@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "report_id": "P4A-CATALOG-INDEPENDENT-SECOND-ACTUAL-PG-BROWSER-F9D8B1E",
+  "role": "independent_reviewer_and_separately_scoped_QA_executor_not_developer",
+  "verdict": "PASS_SCOPED_REAL_PG_BROWSER_WITH_VISUAL_LIMITATION",
+  "parent_acceptance": "PENDING_PARENT_EXACT_READBACK_AND_ADJUDICATION_NOT_GATE_CLOSURE",
+  "head": "f9d8b1ea6238ea33a19784b4ed71ad85c336e83d",
+  "review": {
+    "verdict": "APPROVED_SCOPED",
+    "path": "/home/kali/.hermes/cache/scratch/cate2e-2/review-focus.json",
+    "sha256": "dce7bc8e632002d0f0f964126f341c27a4bb9ea7e7625f454fd8d44f93fe6d76",
+    "blocking_findings": []
+  },
+  "admission": {
+    "intent": "/home/kali/.hermes/cache/scratch/cate2e-2/intent.json",
+    "intent_sha256": "af4c180be25969e4dbf573471bd5266082901f5cd211cca3a54fabf5aec8b241",
+    "condition_satisfied_before_execution": true,
+    "fresh_attempt_in_this_delegation": 1,
+    "actual_product_attempt_number": 2,
+    "harness_only_repair_cycles_carried_forward": 1,
+    "no_retries": true,
+    "pre_effect_source19_and_producer13_match": true,
+    "root_initial_uid": 1000,
+    "root_initial_mode": "0700",
+    "root_initial_children": [
+      "home",
+      "intent.json"
+    ],
+    "home_has_no_user_browser_profiles": true,
+    "asset_link_count": 3
+  },
+  "execution": {
+    "cwd": "/home/kali/OmnisAI",
+    "umask": "077",
+    "env": {
+      "HOME": "/home/kali/.hermes/cache/scratch/cate2e-2/home",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/cate2e-2",
+      "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin"
+    },
+    "environment_mode": "env -i, no ambient browser/proxy/DB/Make/Python overrides",
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "ops/run_test_db_gate.py",
+      "--check",
+      "--target",
+      "test-catalog-settings-e2e",
+      "--uv",
+      "/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "--timeout-seconds",
+      "600"
+    ],
+    "session_id": "proc_03cb66326ce7",
+    "outer_pid_observed": 1715897,
+    "session_final_state": "exited",
+    "outer_exit": 0,
+    "exact_session_wait_readback": true,
+    "targeted_gate_exit": 0,
+    "strict_receipt": {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true,
+      "strict_exact_fields_types_checked": true
+    },
+    "pytest": {
+      "testname": "api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[catalog]",
+      "passed": 1,
+      "deselected": 0,
+      "seconds": 28.46
+    },
+    "original_owner": "Existing runner run_gate worker plus e2e_family/OwnedChildren/browser finalizers; no observer, launcher replacement, harness, manual DB or rescue added",
+    "no_probe_only": true,
+    "no_fixture_adoption": true
+  },
+  "environment_prerequisites": {
+    "uv": "0.12.19",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "API_and_CLI_python": "3.13.15",
+    "playwright": "1.63.0",
+    "chromium_revision": "1243",
+    "browser_version": "153.0.8010.12",
+    "api_library_pins_match": {
+      "pytest": "9.1.1",
+      "pytest-asyncio": "1.4.0",
+      "httpx": "0.28.1",
+      "psycopg": "3.3.6",
+      "pydantic": "2.13.5",
+      "SQLAlchemy": "2.0.54",
+      "uvicorn": "0.54.0",
+      "alembic": "1.20.0",
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3"
+    },
+    "full_chromium_lookup": "/home/kali/.hermes/cache/scratch/cate2e-2/home/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome",
+    "headless_lookup": "/home/kali/.hermes/cache/scratch/cate2e-2/home/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell",
+    "both_real_executables_available_under_exact_sanitized_HOME_before_PG": true,
+    "daemon_endpoint": "unix:///run/docker.sock",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "architecture": "amd64"
+  },
+  "public_fixture": {
+    "root": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f",
+    "manifest": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/fixture.json",
+    "project": "omnis-p01-710273447fd640daade0cd9f5dd34202",
+    "container_id": "177cc73094aab2c2c22f821dc69093e18639914ca2ff229b455835dbfbe78652",
+    "system_identifier": "7697546751015976990",
+    "network_mode": "none",
+    "postgres_version": "18.6"
+  },
+  "result": {
+    "scenario": "catalog",
+    "passed": true,
+    "browser": "153.0.8010.12",
+    "catalog": {
+      "publication_ref": {
+        "kind": "catalog-publication",
+        "id": "934486ec-7730-4c64-b63b-c004720288a3",
+        "revision": 1,
+        "digest": "ee850fb33e4f96ccf45058f16f5e647c6f0af42607c328f80ca6c63ddbac9d5f"
+      },
+      "package_key": "records-mapping-contract",
+      "wrongDigestRefused": true,
+      "recoveredSameIdentity": true,
+      "reloadSameIdentity": true,
+      "keyboardFocus": true,
+      "screenshots": [
+        "catalog-1440-viewport.png",
+        "catalog-1440-full.png",
+        "catalog-390-viewport.png",
+        "catalog-390-full.png"
+      ],
+      "expectedHttpNegatives": 1,
+      "requestFailures": 0
+    },
+    "requestCount": 36,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "secretChecks": true,
+    "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only",
+    "catalog_ledger_tables": [
+      "catalog_record",
+      "catalog_identity",
+      "catalog_reservation",
+      "catalog_command",
+      "catalog_publication_head"
+    ],
+    "catalog_get_census_unchanged": true,
+    "unpublished_d2_excluded": true,
+    "immutable_detail_after_d2": true,
+    "no_rerun_scope": "direct PG defining-module/alias guards, not HTTP process observation",
+    "server_log_secret_check": true,
+    "cleanup_verified": true
+  },
+  "result_checks": {
+    "exact_known_top_level_field_set": true,
+    "all_named_boolean_fields_true": true,
+    "final_result_written_only_after_original_teardown_branch": true,
+    "not_inferred_from_browser_prefix_or_return_code_alone": true
+  },
+  "network": {
+    "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-network.json",
+    "catalog_responses": 9,
+    "catalog_GET": 9,
+    "status200": 8,
+    "expected_digest_503": 1,
+    "request_failures": 0,
+    "external_browser_requests": 0,
+    "page_errors": 0,
+    "interpretation": "One deliberate well-formed wrong-digest503 is expected, not zero HTTP errors. No broad failure exemption applied."
+  },
+  "acceptance_evidence": {
+    "authentic_producer": "Existing C03 records-v3 real capture/review/freeze/STATIC+PURE, trusted PTY confirmation and Publish; no publication INSERT or synthetic receipt",
+    "exact_identity": "Paired built Skills detail equals producer-derived direct-PG view; UUID/digest/package/index rendered, same-identity reload and explicit recovery",
+    "negative": "Same browser well-formed wrong digest503/CONTROL_UNAVAILABLE, stale STATIC/PURE/package region hidden, original identity recovered by Inspect",
+    "read_only": "Full rows+xmin of all five catalog tables unchanged across direct PG/browser/HTTPX read intervals; intentional D2 capture gets a fresh baseline",
+    "D2": "After Node joins, separately paired HTTPX positive then legitimate same-owner D2 capture clears current head, current list empty, old exact immutable detail unchanged",
+    "focus": "Actual Tab from Inspect reaches Reload, exact2px/44px/viewport-bounds/no-overflow assertions pass at1440x1000 and390x844",
+    "no_rerun_limit": "Direct-PG defining-module and alias guards only, NOT an HTTP-process execution observer"
+  },
+  "cleanup_readback": {
+    "owner_settlement": "Exact tracked outer exit0, strict original worker receipt code0/family_drained=true; run_gate source waits worker then compares receipt code. Final result cleanup_verified=true.",
+    "Docker_GET_same_daemon_before_after": true,
+    "exact_CID_HTTP_status": 404,
+    "project_containers_HTTP_status": 200,
+    "project_containers": [],
+    "project_networks_HTTP_status": 200,
+    "project_networks": [],
+    "socket_paths_lstat_absent": [
+      "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/socket/.s.PGSQL.5432",
+      "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/socket/.s.PGSQL.5432.lock"
+    ],
+    "retained_image_HTTP_status": 200,
+    "retained_image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "data_retained": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/data",
+        "uid": 1000,
+        "mode": "0700",
+        "device": 2049,
+        "inode": 10541442
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/data/18/docker",
+        "uid": 1000,
+        "mode": "0700",
+        "device": 2049,
+        "inode": 10541496
+      }
+    ],
+    "PG_VERSION_path_metadata_only": "/home/kali/.hermes/cache/scratch/cate2e-2/db-cbc5a502c610403f/data/18/docker/PG_VERSION",
+    "outer_pid1715897_proc_absent": true,
+    "worker_PID": "NOT_OBSERVED separately; original worker completion evidenced by runner matching strict receipt after wait",
+    "API_supervisor_browser_PID_starttime_listener_ports": "NOT_OBSERVED; no universal process/port cleanup claim",
+    "control_socket_exact_original_path": "NOT_OBSERVED; no matching omnis-ipc-* directory remains below owned root",
+    "no_new_cleanup_or_rescue": true,
+    "data_and_logs_retained": true,
+    "browser_asset_symlinks_left_for_parent_retirement": [
+      "chromium-1243",
+      "chromium_headless_shell-1243",
+      "ffmpeg-1011"
+    ]
+  },
+  "screenshots": {
+    "artifacts": {
+      "catalog-1440-viewport.png": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-1440-viewport.png",
+        "sha256": "ff04013970ffa42dec3447564271a47e33b1708cd449c6ad3837e014ff69ffa3"
+      },
+      "catalog-1440-full.png": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-1440-full.png",
+        "sha256": "1b86bf1d2224766905a99c27e3f3d373aaca645e258a8ee68350cd75a28f904e"
+      },
+      "catalog-390-viewport.png": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-390-viewport.png",
+        "sha256": "37e4f894faae2129c4a81913e24013a792dd05578285ca317dcf879d255b4cc3"
+      },
+      "catalog-390-full.png": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-390-full.png",
+        "sha256": "8862704bb88859f46e0ebde82c422fce40c02061d47ab6c311e1d12c23f86237"
+      },
+      "catalog-wrong-digest.png": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-wrong-digest.png",
+        "sha256": "8804dc2a0d68c323e91f40c5f81b436394b90173ee1410036322801625dec6ba"
+      },
+      "result.json": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/result.json",
+        "sha256": "460f76a02f98487b3a34667da521942c913979afc30211525fb2b51e5248692f"
+      },
+      "catalog-network.json": {
+        "path": "/home/kali/.hermes/cache/scratch/cate2e-2/omnis-p03-e2e/catalog/catalog-network.json",
+        "sha256": "617d3d9bb797159fd01272fa281ed4fa18bf501029250206d84d903c738d52af"
+      }
+    },
+    "vision_inspected": [
+      "catalog-1440-viewport.png",
+      "catalog-1440-full.png",
+      "catalog-390-viewport.png",
+      "catalog-390-full.png"
+    ],
+    "desktop_pair": "Focused Reload ring fully visible/unclipped, surrounding exact identity/readiness caveats readable; no definite horizontal spill or obstruction visible.",
+    "mobile_viewport": "Focused Reload and its ring fully visible/unclipped; long refs wrap, no overlay covers Reload; viewport starts mid-document after focus scrolling.",
+    "mobile_fullpage": "Full-page image shows an apparent Skip to content strip across upper catalog introductory area, outside the focus-region evidence of the paired live viewport. Live occlusion/cause NOT_ESTABLISHED; retain composition versus live distinction, do not invent a product fix.",
+    "mobile_fullpage_live_occlusion_verdict": "INCONCLUSIVE",
+    "visual_acceptance": "NOT_GRANTED",
+    "physical_readiness": "NOT_VERIFIED; material/FIXTURE/BENCHMARK/SECURITY NOT_VERIFIED, runtime NOT_AVAILABLE, NO_MODEL, assessment_selectable false"
+  },
+  "source_binding": {
+    "manifest": "documents/verification/p4a-catalog-evidence/rereview-catalog-norm.json",
+    "source_count": 19,
+    "source19_sha256": {
+      "Makefile": "59d14c7a84f067446c9c7b85b62fb96d1497a85ee7ef822d5a63e6d6436acf3c",
+      "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+      "api/src/omnis/modules/settings/catalog_inspection.py": "51b0498640229c6949a2799c35b7f494e53930100e063bb5155a8d8fc453311f",
+      "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+      "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+      "api/tests/test_catalog_inspection_source.py": "79469496bccdf89833c8d7920cb6051a050b29e40597183f6ce32397c5c6d06d",
+      "api/tests/test_web_e2e.py": "ace163605a80c346ab7add4b378d73a3d10bb1a6f99d7169ff1819760f22cc72",
+      "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+      "ops/run_test_db_gate.py": "a2d32382b95ecf36c39fcc22c21170d1edbc672afef43dc0b26fab6750414b1f",
+      "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+      "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+      "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+      "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+      "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+      "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+      "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+      "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f",
+      "web/tests/e2e/catalog.mjs": "1a3dc3a4a56aee64cfd1fe816b4330f28a5dd0fddd16444f3052e355a68d55e8",
+      "web/tests/e2e/run.mjs": "33bf669fbf7c3a4aa7585fb0aa64f7ffc4bafcde1e2437e7830f8ddcbbf257b8"
+    },
+    "same_before_each_effect_and_after_settlement": true,
+    "only_changed_hash_since_original_review": "web/tests/e2e/catalog.mjs",
+    "other18_unchanged": true,
+    "producer13_sha256": {
+      "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+      "api/src/omnis/modules/settings/candidate_index.py": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2",
+      "api/src/omnis/modules/settings/candidate_material.py": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391",
+      "api/src/omnis/modules/settings/candidate_resolution.py": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc",
+      "api/src/omnis/modules/settings/candidate_store.py": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3",
+      "api/src/omnis/modules/settings/catalog_models.py": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a",
+      "api/src/omnis/modules/settings/catalog_publication.py": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c",
+      "api/src/omnis/modules/settings/catalog_schema.py": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b",
+      "api/src/omnis/modules/settings/publication_models.py": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5",
+      "api/src/omnis/modules/settings/skill_catalog.py": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb",
+      "api/src/omnis/modules/tasks/contract_case_input.py": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543",
+      "api/src/omnis/modules/tasks/managed_contract.py": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc",
+      "api/src/omnis/modules/tasks/module_registry.py": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2"
+    },
+    "producer13_unchanged": true
+  },
+  "preserved_failure": {
+    "path": "/home/kali/.hermes/cache/scratch/cate2e-1/qa-catalog.json",
+    "sha256": "9030cadf0c2f4b7db7ecf6bdc8ab3bf352c90581814165e06a99a166731c2a19",
+    "verdict": "FAIL",
+    "outer_exit": 2,
+    "family_drained": true,
+    "hash_rechecked_unchanged": true,
+    "historical_cause_not_exclusively_proven": true
+  },
+  "issues": [
+    {
+      "scope": "NO_RESOURCE_LOOKUP_ONLY",
+      "exit": 1,
+      "class": "CalledProcessError/MODULE_NOT_FOUND",
+      "reason": "Assumed old Playwright unbundled registry module path; actual installed coreBundle exports inspected and used instead."
+    },
+    {
+      "scope": "NO_RESOURCE_LOOKUP_ONLY",
+      "exit": 1,
+      "class": "TypeError",
+      "reason": "First bundled lookup addressed module rather than module.registry; corrected from actual exports, no browser launch."
+    },
+    {
+      "scope": "NO_RESOURCE_PREFLIGHT_ONLY",
+      "exit": 1,
+      "class": "AssertionError",
+      "reason": "Node lookup generated owned node-compile-cache under TMPDIR after initial freshness check; strict initial-child guard caught this. Cache was retained and explicitly accounted for, not erased. Initial root freshness remained observed before own preparation."
+    },
+    {
+      "scope": "TERMINAL_CHANNEL_ONLY",
+      "reason": "Tracked session readback contains two zle-option warnings; actual runner stdout/stderr stayed in private outer.log. Outer exit0 and strict receipt verified independently."
+    }
+  ],
+  "secrecy": {
+    "raw_gate_or_pytest_logs_dumped": false,
+    "private_stdout_dumped": false,
+    "credential_auth_password_files_read": false,
+    "allowlisted_private_log_parsing_only": true,
+    "private_log_count": 5,
+    "all_logs_mode0600": true,
+    "report_modes": "0600"
+  },
+  "scope_integrity": {
+    "tracked_source_edits": [],
+    "commits": [],
+    "push": false,
+    "HEAD_unchanged": true,
+    "preexisting_untracked_protected_HTML": "PATH_ONLY_FROM_GIT_STATUS_NOT_READ_HASHED_COPIED",
+    "no_install_download_global_profile_native_OAuth_model_provider_target_P3_effects": true,
+    "reticle": "NOT_INTEGRATED_NOT_EXECUTED",
+    "chisel": "BLOCKED_NO_GO_NOT_EXECUTED"
+  },
+  "status_handoff": {
+    "P4a_catalog": "real existing SOURCE-built PG/browser target PASS_SCOPED, pending parent acceptance",
+    "P4a_minim": "PARTIAL_NOT_CLOSED",
+    "canonical_final": "NOT_RUN_NOT_CLOSED",
+    "G04a_G02_live": "NOT_CLOSED",
+    "next": "Parent repeats exact receipt/resource/source readback and adjudicates this scoped catalog journey; no additional product attempt granted."
+  },
+  "reusable_lessons_for_authorized_parent_skill_update": [
+    "After pointer recovery, actual keyboard Tab from the verified native predecessor establishes focus-visible modality without weakening the ring/geometry oracle. CSS fixture evidence is not product acceptance.",
+    "Playwright1.63 bundled registry is coreBundle.registry.registry; inspect installed exports before lookup. Run Node lookup under restrictive umask too, since it may create an owned TMPDIR node-compile-cache. No project/global skill edit was permitted to this QA leaf."
+  ]
+}

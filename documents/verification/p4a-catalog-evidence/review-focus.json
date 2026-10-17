@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "report_id": "P4A-CATALOG-FOCUS-INDEPENDENT-F9D8B1E",
+  "role": "independent_focused_reviewer_separately_scoped_QA_executor_not_developer",
+  "verdict": "APPROVED_SCOPED",
+  "blocking_findings": [],
+  "reviewed_head": "f9d8b1ea6238ea33a19784b4ed71ad85c336e83d",
+  "reviewed_author_commit": "eaf742ef9a564d4b2ea0a2312d42a18eaa01fe4e",
+  "file": "web/tests/e2e/catalog.mjs",
+  "sha256": "1a3dc3a4a56aee64cfd1fe816b4330f28a5dd0fddd16444f3052e355a68d55e8",
+  "git_blob": "f1d70fa4aa8df38be0472a2e8c9d3c1477d4c64f",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Keyboard user reaches Reload with visible exact 2px focus, retaining 44px, bounds, overflow and existing network assertions.",
+    "consumer": "runCatalog viewport loop after pointer-based Inspect recovery.",
+    "risk": "Programmatic focus following pointer input does not establish keyboard modality; changing an oracle could hide a product defect.",
+    "decision": "Approve action-only correction to Inspect.focus followed by actual Tab. No assertion, product CSS, owner, deadline, network rule or result gate changes."
+  },
+  "review": [
+    "Actual HEAD delta is exactly three insertions and one deletion in lines118-120; original Reload.focus replaced by explanatory comment, Inspect.focus and real keyboard Tab.",
+    "Original caller first keyboard selection at lines59-69 already uses a real Shift+Tab and Enter. The later pointer Inspect recovery at lines107-114 explains the need to reestablish keyboard modality.",
+    "Actual CatalogSettings.tsx renders one native Inspect button in this fixture, no pagination buttons without has_more/after, then native Reload. Its single-step predecessor is genuine; exact toBeFocused fails if tab order changes.",
+    "Exact 2px, 44px minimum, viewport bounds, horizontal overflow, screenshot pairs and all response/failure/read-only assertions are unchanged.",
+    "Reviewed actual focus-repro.mjs extraction and retained RED/GREEN JSON. Same-browser pointer/programmatic focus yields active Reload but focusVisible=false, 3px/none; real Tab gives focusVisible=true, 2px/solid/focus color. Corrected source action and same-channel missing/zero-width-ring negatives pass at1440/390. Browser/context finalizers are recorded settled; no requests.",
+    "Fixture helper/hash, both JSON evidence hashes, actual CSS2 and all19 composite SOURCE plus unchanged producer13 hashes independently match. No browser fixture replay or full-verifier rerun."
+  ],
+  "evidence": {
+    "author": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/author-focus-fix.json",
+    "helper": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/focus-repro/focus-repro.mjs",
+    "helper_sha256": "01fd4d4601f7a712bffe1ff56c61075ab2d752f62c31ff52cea055c25e8d7d58",
+    "red": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/focus-repro/red.json",
+    "red_sha256": "96b4f15f6a294fb430f894816c4050be9d3f6fce34420685920f52fa437efa00",
+    "green": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/focus-repro/green.json",
+    "green_sha256": "88a507e10d661703603626e7b0110f5ddb6ce37951f97dd4ed92ab6b050066b6"
+  },
+  "binding": {
+    "manifest": "documents/verification/p4a-catalog-evidence/rereview-catalog-norm.json",
+    "source19_rule": "changed_paths_sha256 exactly, replacing only web/tests/e2e/catalog.mjs with this report sha256",
+    "all19_match": true,
+    "other18_unchanged": true,
+    "producer13_match": true,
+    "css2_match": true,
+    "tracked_worktree_changes": [],
+    "preexisting_untracked_protected_HTML": "PATH_ONLY_FROM_GIT_STATUS_NOT_READ_HASHED_COPIED"
+  },
+  "limits": [
+    "ORACLE_CSS_FIXTURE is not product PASS or exclusive historical-cause attribution. Original cate2e-1 FAIL remains.",
+    "Approval is scoped to action correction; unchanged prior SOURCE approvals are reused, not reaudit or final acceptance.",
+    "Stage2 still requires all parent intent/environment/source checks. This report alone does not admit execution.",
+    "No code edits, commits, installs, downloads, global/profile/protectedHTML/native/OAuth/model/provider/target/P3 effects."
+  ],
+  "harness_only_repair_cycles_carried_forward": 1,
+  "stage2_status_at_review": "NOT_RUN_CONDITIONAL_ON_PREREQUISITES"
+}

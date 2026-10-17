@@ -1,0 +1,78 @@
+{
+  "status": "ACCEPTED_PG_NATIVE_CONTROLLED_HTTP_SCOPED_NOT_LIVE",
+  "attempt": {
+    "status": "ORIGINAL_OWNER_RETURNED_REQUIRES_PRODUCT_AND_CLEANUP_READBACK",
+    "preflight": "PASS_EXISTING_PREREQUISITES_ARGV_COLLECT1_TOOLCHAIN_IMAGE_READABILITY",
+    "root": "/home/kali/.hermes/cache/scratch/rtq-bs43o748",
+    "head": "7a2ac5a006bc50e8d082a52e3281d162db8ce8c8",
+    "attempts": 1,
+    "gate_invocations": 1,
+    "timeout_seconds": 180,
+    "pins": {
+      "OMNIS_BATCH2_NORMATIVE_REVIEWED": "75f4270cbac49d8aa49e19916cea3bcb008f9c3a29c138719fb20b77e7c2bbcd",
+      "OMNIS_BATCH2_INPUT_REVIEWED": "75f4270cbac49d8aa49e19916cea3bcb008f9c3a29c138719fb20b77e7c2bbcd",
+      "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/artifact-rr2.json",
+      "OMNIS_BATCH2_ARTIFACT_SHA": "014417e440bde8dff6cda15f248c9e0c6747042cdea15c0d887e0601fcc19ebf",
+      "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/api-rr2/reader.json",
+      "OMNIS_BATCH2_API_PREREQUISITES_SHA": "cb32bce5112c463107195dba0020d61bd5d2a11bbc764969ea76f0169a0c8f98"
+    },
+    "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+    "provider_live": false,
+    "reason_for_fresh_attempt": "Reviewed settled IPC caller fix and strict qualification of already-denied SDK metadata; no permission/product/rr2 changes",
+    "inputs_count": 465,
+    "command": [
+      "make",
+      "--no-print-directory",
+      "test-model-test-execute-native-pg",
+      "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+    ],
+    "gate_log": "/home/kali/.hermes/cache/scratch/rtq-bs43o748/t/db-5e63dd8ce250427d/gate.log",
+    "family_receipt": "/home/kali/.hermes/cache/scratch/rtq-bs43o748/t/db-5e63dd8ce250427d/gate.log.result.json",
+    "exit_code": 0,
+    "elapsed_seconds": 40.531,
+    "inputs_unchanged": true
+  },
+  "family_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "pytest": {
+    "passed": 1,
+    "seconds": 35.72,
+    "exit_code": 0
+  },
+  "proof_status": "PASS_MODEL_TEST_CONTROLLED_NATIVE_NOT_LIVE",
+  "send_count": 1,
+  "close": "CLOSED_JOINED",
+  "retirement": "HOST_EXIT0_NATIVE_DRAIN_ENDPOINTS_ABSENT_LOCK_FREE",
+  "resource_cleanup": "EXACT_CID_ABSENT_ENDPOINTS_ABSENT_PROCESSES_JOINED_STATE_RETAINED",
+  "public_control_cleanup": "PASS",
+  "native_rows": 61,
+  "sdk_metadata_denied_count": 1,
+  "unexpected_forbidden_rows": 0,
+  "accounting": {
+    "state": "SETTLED",
+    "usage_state": "KNOWN",
+    "output_tokens": 12,
+    "reasoning_tokens": 9,
+    "inference_status": "VERIFIED",
+    "output_policy": "MONITOR_SUBSCRIPTION"
+  },
+  "accepted": "Settings save/auth read/start; authentic native child/turn/compiler/SDK with controlled HTTP; independent PG reserve/SENT; receipt/usage/readback; exact internal+public denials; no-resend/census; Stop context-bound CLOSED_JOINED; cached public/installed readback after Stop; original owner retirement/cleanup.",
+  "physical_readback": {
+    "same_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "db_cid_absent": "7b7107d25ca6057f2a09454c9a53e212a748c8c7bf1b20b38573182660a71833",
+    "native_cid_absent": "27b24443e8cebb1ed79d21655fa3bcbb2978cd8be8c9d7ed325434c3866b3d45",
+    "project_networks_empty": true,
+    "pinned_host_native_absent": true,
+    "kernel_and_db_socket_absent": true,
+    "pgdata_retained": {
+      "dev": 2049,
+      "ino": 9355566,
+      "uid": 1000,
+      "mode": "0700"
+    }
+  },
+  "limits": "Native bytes real, original source owner/preparation prerequisite seams explicit; HTTP response and auth are SYNTHETIC, not provider inference or real usage/billing. Metadata syscall attempt is denied and counted, not zero attempted I/O. No universal sandbox/no-gap claim. Historical FAIL/UNKNOWN not rewritten. Browser/live authentication and phase2 final canonical still NOT_RUN."
+}

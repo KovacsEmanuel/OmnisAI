@@ -592,6 +592,53 @@ async def test_retained_replay_after_shutdown_is_blocked_by_existing_fence(
 
 
 @pytest.mark.asyncio
+async def test_compact_reply_finite_largest_layout_and_strict_reader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+    from test_model_preflight_control import consume
+    from test_owned_model_initialization import test_model_test_prepare_owns_fresh_qualified_context_and_holds
+
+    captures: list[tuple[NativeTaskCommand, dict[str, object]]] = []
+    handle = NativeTaskOwner.handle
+    async def capture(self: NativeTaskOwner, command: NativeTaskCommand) -> dict[str, object]:
+        answer = await handle(self, command)
+        captures.append((command, answer))
+        return answer
+    with monkeypatch.context() as producer:
+        producer.setattr(NativeTaskOwner, "handle", capture)
+        await test_model_test_prepare_owns_fresh_qualified_context_and_holds(tmp_path, producer, False)
+    command, answer = captures[0]
+    response = {**answer, "correlation_id": str(uuid4())}
+    assert await consume(monkeypatch, command.model_dump(mode="json"), response) == response
+    # Every variable field in this finite success DTO is a canonical UUID or SHA;
+    # record refs are immutable revision1, kinds/statuses/keys are fixed ASCII.
+    maximum = deepcopy(response)
+    for field in ("owner_id", "initialization_id", "run_id", "correlation_id"):
+        maximum[field] = "ffffffff-ffff-ffff-ffff-ffffffffffff"
+    for field in ("context_ref", "turn_ref", "manifest_ref"):
+        maximum[field] = {**mapping(maximum[field]), "id": "ffffffff-ffff-ffff-ffff-ffffffffffff", "digest": "f" * 64}
+    size = len(json.dumps(maximum).encode()) + 1
+    assert size == len(json.dumps(response).encode()) + 1 < 3600 < 4096
+    largest_command = {**command.model_dump(mode="json"), "expected_epoch": 2**63-1,
+                       "expected_generation": 2**63-1}
+    assert len(canonical(NativeTaskCommand.model_validate(largest_command).model_dump(mode="json"))) <= 3600
+    assert len(json.dumps({"version": 1, "capability": "f"*64, "command": largest_command}).encode()) + 1 <= 4096
+    for field, value in (("kind", "launch-manifest"), ("id", True), ("digest", "g"*64),
+                         ("revision", True), ("revision", 2)):
+        bad = deepcopy(response)
+        bad["context_ref"] = {**mapping(bad["context_ref"]), field: value}
+        with pytest.raises(CatalogError):
+            await consume(monkeypatch, command.model_dump(mode="json"), bad)
+    for field, value in (("preparation_status", "READY"), ("inference_status", "READY"),
+                         ("initialization_id", str(uuid4())), ("owner_id", str(uuid4())),
+                         ("account_status", "VERIFIED")):
+        with pytest.raises(CatalogError):
+            await consume(monkeypatch, command.model_dump(mode="json"), {**response, field: value})
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("grant", ["good", "bool", "expired", "over-managed"])
 async def test_model_prepare_host_checks_grant_before_handoff(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grant: str

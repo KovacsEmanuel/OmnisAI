@@ -9777,8 +9777,17 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         await mission_census() == after_tables
                         and observation.read_bytes() == native_after
                     )
-                    mt_context = mapping(mt_answer["model_test_context"])
-                    mt_observed = mapping(mapping(mt_answer["observation"])["payload"])
+                    async with engine.connect() as independent:
+                        mt_context_record = await managed_store.get(
+                            independent, seed.owner, str(mt_answer["run_id"]), mt_answer["context_ref"]
+                        )
+                        mt_payload, mt_observation = await ModelTest(domain).dispatch(
+                            independent, seed.owner, mt_context_record, False
+                        )
+                    assert mt_observation is not None
+                    assert stored.reference(mt_observation) == mt_answer["turn_ref"]
+                    mt_context = mapping(mt_context_record["payload"])
+                    mt_observed = mapping(mt_observation["payload"])
                     assert mapping(mt_observed["native_turn"])["task_id"] == mt_context["task_id"]
                     assert (
                         mt_observed["model_calls"] == 0 and type(mt_observed["model_calls"]) is int
@@ -9796,7 +9805,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             "context_ref": mt_answer["context_ref"],
                         },
                     )
-                    assert mt_cold["observation"] == mt_answer["observation"]
+                    assert mt_cold["observation"] == mt_observation
                     assert mapping(mt_cold["payload"])["mode"] == "STATUS"
                     assert canonical(await domain.readback(back_request)) == mt_old_graph
                     assert (

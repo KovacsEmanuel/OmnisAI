@@ -278,11 +278,12 @@ class NativeTaskOwner:
                 if mapping(context["payload"])["runtime_boot"] != self.runtime.boot:
                     raise CatalogError("TASK_INDETERMINATE")
                 observation = await consumer.persist(conn, command.owner_id, payload, result)
-        return {"ok": True, "model_test_context": context["payload"],
-                "context_ref": records.reference(context), "inference_status": "HOLD",
+        return {"ok": True, "context_ref": records.reference(context),
+                "run_id": mapping(context["payload"])["run_id"],
+                "initialization_id": command.initialization_id, "owner_id": command.owner_id,
+                "manifest_ref": command.manifest_ref, "inference_status": "HOLD",
                 "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD",
-                "turn_ref": records.reference(observation), "observation": observation,
-                "account_status": "NOT_VERIFIED"}
+                "turn_ref": records.reference(observation), "account_status": "NOT_VERIFIED"}
 
     async def _model_initialization(self, command: NativeTaskCommand) -> dict[str, object]:
         from omnis.modules.runs.model_dispatch import ModelDispatch
@@ -542,21 +543,20 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
             if command.action == "model_test_prepare":
-                from omnis.modules.tasks.managed_contract import exact, integer, record
+                from omnis.modules.tasks.managed_contract import exact, integer
 
-                exact(reply, {"ok", "correlation_id", "model_test_context", "context_ref",
-                              "inference_status", "preparation_status", "turn_ref", "observation", "account_status"})
-                context = mapping(reply["model_test_context"])
-                observed = record(reply["observation"], "native-turn")
-                body = mapping(observed["payload"])
-                if (records.reference(observed) != reply["turn_ref"]
-                        or body["context_ref"] != reply["context_ref"]
-                        or mapping(body["native_turn"])["task_id"] != context["task_id"]
-                        or body["inference_status"] != reply["inference_status"] or reply["inference_status"] != "HOLD"
-                        or body["account_status"] != reply["account_status"] or reply["account_status"] != "NOT_VERIFIED"
-                        or body["status"] != reply["preparation_status"] or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"):
+                exact(reply, {"ok", "correlation_id", "context_ref", "run_id", "initialization_id",
+                              "owner_id", "manifest_ref", "inference_status", "preparation_status",
+                              "turn_ref", "account_status"})
+                integer(ref(reply["context_ref"], "model-test-context")["revision"], 1, 1)
+                integer(ref(reply["turn_ref"], "native-turn")["revision"], 1, 1)
+                uuid_string(reply["run_id"])
+                if (len(raw_reply) > 4096 or reply["initialization_id"] != command.initialization_id
+                        or reply["owner_id"] != command.owner_id
+                        or ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
+                        or reply["inference_status"] != "HOLD" or reply["account_status"] != "NOT_VERIFIED"
+                        or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"):
                     raise CatalogError("TASK_REJECTED")
-                integer(body["model_calls"], 0, 0)
                 return reply
             if command.action == "model_initialization":
                 from hashlib import sha256

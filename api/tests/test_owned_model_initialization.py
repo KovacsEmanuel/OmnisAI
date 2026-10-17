@@ -255,7 +255,9 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     assert answer["preparation_status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
     assert answer["inference_status"] == "HOLD"
     assert answer["account_status"] == "NOT_VERIFIED"
-    context = mapping(answer["model_test_context"])
+    import json
+    assert len(json.dumps({**answer, "correlation_id": str(uuid4())}).encode()) + 1 <= 4096
+    context = mapping(next(r for r in owner.graph if records.reference(r) == answer["context_ref"])["payload"])
     assert context["purpose"] == "MODEL_TEST_PREPARE"
     assert context["requested"] == {
         "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
@@ -288,7 +290,7 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
         bad["context"] = records.envelope("model-test-context", body)
         with pytest.raises(ValueError):
             validate_initialization(bad)
-    bad_result = deepcopy(mapping(answer["observation"])["payload"])
+    bad_result = deepcopy(mapping(next(r for r in owner.graph if records.reference(r) == answer["turn_ref"])["payload"]))
     bad_result["model_calls"] = False
     with pytest.raises(ValueError):
         validate_preparation_result(bad_result, payload)

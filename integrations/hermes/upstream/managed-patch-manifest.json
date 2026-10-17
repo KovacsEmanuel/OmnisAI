@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
   "applies_after": "omnis-inert.patch",
-  "scope": "Pinned cold/owned pre-client modes plus distinct constructor-owned CONTRACT/PURE v4; no provider/client/conversation/target authority",
+  "scope": "Pinned cold/owned modes and constructor-owned single synthetic Codex Responses execution; no target/tool or general provider authority",
   "files": {
     "agent/auxiliary_client.py": {
       "original_sha256": "e83807074f3577ac3980f43bfd578ffcc95efb591e38a9427d0e7d33ec7d8e4a",
@@ -26,11 +26,11 @@
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
-      "patched_sha256": "a6bc9920e8ed4449d6b7937cbb07b6a8cd19cb66689465f91c16a082750067c7"
+      "patched_sha256": "d3403b00f6a0f0a7f070cfd130488df21c0cb8071b82907a78b6bef0107c9100"
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "1743884d52b5dcb4ddf4b1a31aafc60944784bd280f46e28e92ca2f2bb3bfc16"
+      "patched_sha256": "b5fff48093a1af71a91203bd28e44c9f2742141e508b3da2c5a64590d3155b29"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -42,7 +42,7 @@
     },
     "agent/turn_api_request.py": {
       "original_sha256": "e31386cb83cf551026e4df9b589173b54bc913b36fc1a09942a520e68033b59e",
-      "patched_sha256": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a"
+      "patched_sha256": "bd419afce1c849b2dbe5009d92c70802aaec8ab35500f0fbd251569bc4261ac7"
     },
     "providers/__init__.py": {
       "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da",
@@ -50,7 +50,7 @@
     },
     "run_agent.py": {
       "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
-      "patched_sha256": "1a110734986ec28f6477b08aa31d2c5a741d22e661507ff537d1c1626b6c34e0"
+      "patched_sha256": "a10678a0a00fbb7d489bd77f3e394ba0df551c65747defc2280b9f4200c81b13"
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
@@ -58,7 +58,7 @@
     },
     "agent/agent_init.py": {
       "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81",
-      "patched_sha256": "510612768e857688a884d5fe04ea5412e3802c5b1ea5120f9768607224b42181"
+      "patched_sha256": "2faaf6ae4857d4875f48ed009c5bb6dd779bbc78b1f320514ca53960fd7de14f"
     },
     "agent/contract_execution.py": {
       "original_sha256": null,
@@ -66,12 +66,12 @@
     },
     "agent/turn_context.py": {
       "original_sha256": "85f857dc3c317366d918516bc8b37a022f1020b34da0c3966a31bd289b2942e1",
-      "patched_sha256": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb"
+      "patched_sha256": "043810cf95850ca53b9ff13750f5c9bdfea0b8dfa07546c2bbb420277bf4cc24"
     },
     "tui_gateway/entry.py": {
       "original_sha256": "e7844ede771f246e3f6c4bbdf246de0f62f727c49496af19a7aea4671976635c",
       "patched_sha256": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f"
     }
   },
-  "patch_sha256": "f7664cba1b7f58a9bd26e97ceb491b57ffa4d2bd88924edfef047e830b34ce04"
+  "patch_sha256": "5bc809427edbc80b55290ca6a3de47c3b417becad25372e948ebc566172239d3"
 }

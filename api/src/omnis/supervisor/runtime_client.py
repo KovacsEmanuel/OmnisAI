@@ -490,7 +490,8 @@ class RuntimeClient:
                 if (
                     op == "task_model_initialize"
                     and payload is not None
-                    and payload.get("protocol") == "omnis-managed-admission-v5"
+                    and payload.get("protocol")
+                    in ("omnis-managed-admission-v5", "omnis-managed-admission-v6")
                     and payload.get("mode") == "CREATE"
                 ):
                     # Cold Settings/drain/launch share this exchange; grant checks stay unchanged.
@@ -657,6 +658,7 @@ class RuntimeClient:
             "omnis-managed-admission-v3",
             "omnis-managed-admission-v4",
             "omnis-managed-admission-v5",
+            "omnis-managed-admission-v6",
         ):
             raise RuntimeUnavailable("Runtime payload denied")
         try:

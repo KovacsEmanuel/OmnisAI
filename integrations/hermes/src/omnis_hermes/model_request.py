@@ -15,7 +15,7 @@ from typing import Protocol, cast
 from .model_projection import FIELDS as PROJECTION_FIELDS
 from .model_projection import serialize_model_input
 from .model_terminal import ManagedModelTerminal
-from .native_preparation_contract import canonical, digest, loads, obj, reference, sha, uuid
+from .native_preparation_contract import canonical, digest, loads, obj, reference, sha, text, uuid
 from .prompt_bundle import integer
 
 MAX_BYTES = 32768
@@ -256,3 +256,224 @@ def final_sdk_guard(client: object, raw: object) -> Iterator[None]:
         yield
     finally:
         bound._prepare_request = original
+
+
+CODEX_URL = "https://chatgpt.com/backend-api/codex/responses"
+SYNTHETIC_INSTRUCTION = "Respond briefly to this synthetic model test. Use no tools."
+MONITOR = {
+    "calls": 1,
+    "output_tokens": None,
+    "wall_seconds": 300,
+    "output_policy": "MONITOR_SUBSCRIPTION",
+}
+EXECUTION_FIELDS = {
+    "protocol",
+    "mode",
+    "context_ref",
+    "binding",
+    "turn",
+    "projection",
+    "dispatch",
+    "sent",
+}
+
+
+def execution_packet(value: object) -> dict[str, object]:
+    """Finite DATA; the native registry supplies authority separately."""
+    from .managed_admission_contract import envelope, ref
+
+    p = obj(value, EXECUTION_FIELDS)
+    if p["protocol"] != "omnis-managed-admission-v6" or p["mode"] not in ("SEND", "RECEIVE"):
+        raise reject()
+    context = reference(p["context_ref"], "model-test-context")
+    binding = envelope(p["binding"], "runtime-binding")
+    turn = envelope(p["turn"], "native-turn")
+    projection = envelope(p["projection"], "model-projection")
+    dispatch = envelope(p["dispatch"], "model-dispatch")
+    sent = envelope(p["sent"], "model-dispatch-transition")
+    b = obj(
+        binding["payload"],
+        {
+            "version",
+            "context_ref",
+            "runtime_boot",
+            "authority",
+            "native_root_id",
+            "native_child_id",
+            "native_session_id",
+            "native_turn",
+        },
+    )
+    t = cast(dict[str, object], turn["payload"])
+    if (
+        b["version"] != 6
+        or b["context_ref"] != context
+        or any(
+            b[k] != t[k]
+            for k in (
+                "context_ref",
+                "runtime_boot",
+                "authority",
+                "native_root_id",
+                "native_child_id",
+                "native_session_id",
+                "native_turn",
+            )
+        )
+    ):
+        raise reject()
+    v = obj(
+        projection["payload"],
+        {
+            "version",
+            "owner_id",
+            "run_id",
+            "context_ref",
+            "composition_ref",
+            "binding_ref",
+            "selection_ref",
+            "model_input",
+            "approved_text_digests",
+            "projection_digest",
+            "output_policy",
+        },
+    )
+    if (
+        v["version"] != 2
+        or v["context_ref"] != context
+        or v["binding_ref"] != ref(binding)
+        or v["output_policy"] != "MONITOR_SUBSCRIPTION"
+    ):
+        raise reject()
+    uuid(v["owner_id"])
+    uuid(v["run_id"])
+    reference(v["composition_ref"], "prompt-composition")
+    reference(v["selection_ref"], "execution-selection")
+    model_input = obj(v["model_input"], {"messages", "tools"})
+    if (
+        model_input["tools"] != []
+        or type(model_input["messages"]) is not list
+        or len(model_input["messages"]) != 2
+    ):
+        raise reject()
+    texts = []
+    for raw, role in zip(model_input["messages"], ("system", "user"), strict=True):
+        message = obj(raw, {"role", "content"})
+        if message["role"] != role:
+            raise reject()
+        texts.append(text(message["content"], 8192))
+    if (
+        texts[0] != SYNTHETIC_INSTRUCTION
+        or v["approved_text_digests"] != sorted({digest(t.encode()) for t in texts})
+        or v["projection_digest"] != digest(canonical(model_input))
+    ):
+        raise reject()
+    d = obj(
+        dispatch["payload"],
+        {
+            "run_or_job_ref",
+            "dispatch_attempt_id",
+            "native_turn_ref",
+            "dispatch_owner_ref",
+            "purpose",
+            "provider_config_ref",
+            "model_id",
+            "execution_selection_ref",
+            "projection_ref",
+            "projection_digest",
+            "fencing_epoch",
+            "deadline",
+            "technical_caps",
+            "reservation_ref",
+            "usage_state",
+            "provider_receipt_ref",
+        },
+    )
+    if (
+        d["native_turn_ref"] != ref(turn)
+        or d["dispatch_owner_ref"] != ref(binding)
+        or d["purpose"] != "SETTINGS_TEST"
+        or d["model_id"] != "gpt-6.1-sol"
+        or d["execution_selection_ref"] != v["selection_ref"]
+        or d["projection_ref"] != ref(projection)
+        or d["projection_digest"] != v["projection_digest"]
+        or d["technical_caps"] != MONITOR
+        or d["usage_state"] != "UNKNOWN"
+        or d["provider_receipt_ref"] is not None
+    ):
+        raise reject()
+    caps = obj(d["technical_caps"], set(MONITOR))
+    integer(caps["calls"], 1, 1)
+    integer(caps["wall_seconds"], 300, 300)
+    reference(d["provider_config_ref"], "provider-config")
+    reference(d["reservation_ref"], "model-reservation")
+    integer(d["fencing_epoch"], 1, 2**63 - 1)
+    uuid(d["dispatch_attempt_id"])
+    if reference(d["run_or_job_ref"], "managed-run")["id"] != v["run_id"]:
+        raise reject()
+    e = obj(sent["payload"], {"dispatch_ref", "sequence", "state", "created_at"})
+    if (
+        e["dispatch_ref"] != ref(dispatch)
+        or type(e["sequence"]) is not int
+        or e["sequence"] != 1
+        or e["state"] != "SENT"
+    ):
+        raise reject()
+    if len(canonical(p)) > MAX_BYTES:
+        raise reject()
+    return cast(dict[str, object], loads(canonical(p), MAX_BYTES))
+
+
+@dataclass(frozen=True, slots=True)
+class CodexFinalRequest:
+    raw: bytes
+
+    def __post_init__(self) -> None:
+        if (
+            type(self.raw) is not bytes
+            or canonical(execution_packet(loads(self.raw, MAX_BYTES))) != self.raw
+        ):
+            raise reject()
+
+    def expected_body(self) -> dict[str, object]:
+        p = execution_packet(loads(self.raw, MAX_BYTES))
+        projection = cast(dict[str, object], cast(dict[str, object], p["projection"])["payload"])
+        model_input = cast(dict[str, object], projection["model_input"])
+        messages = cast(list[dict[str, object]], model_input["messages"])
+        instruction, objective = str(messages[0]["content"]), str(messages[1]["content"])
+        # Pin0.21.5 ResponsesApiTransport._content_cache_key, no session/history/tools.
+        cache = "pck_" + digest(("\0" + instruction + "\0").encode())[:24]
+        return {
+            "model": "gpt-6.1-sol",
+            "instructions": instruction,
+            "input": [{"role": "user", "content": [{"type": "input_text", "text": objective}]}],
+            "store": False,
+            "prompt_cache_key": cache,
+            "reasoning": {"effort": "xhigh", "summary": "auto"},
+            "include": [],
+            "stream": True,
+        }
+
+    def consume_native(self, value: object) -> dict[str, object]:
+        expected = self.expected_body()
+        body = {k: v for k, v in expected.items() if k != "stream"}
+        cache = str(body["prompt_cache_key"])
+        kwargs = {**body, "timeout": 300.0, "extra_headers": {"x-client-request-id": cache}}
+        actual = obj(value, set(kwargs))
+        if (
+            type(actual["timeout"]) is not float
+            or actual["timeout"] != 300.0
+            or canonical({k: v for k, v in actual.items() if k != "timeout"})
+            != canonical({k: v for k, v in kwargs.items() if k != "timeout"})
+        ):
+            raise reject()
+        return {**kwargs, "stream": True}
+
+    def validate_wire(self, raw: bytes) -> str:
+        if (
+            type(raw) is not bytes
+            or len(raw) > MAX_BYTES
+            or canonical(loads(raw, MAX_BYTES)) != canonical(self.expected_body())
+        ):
+            raise reject()
+        return digest(raw)

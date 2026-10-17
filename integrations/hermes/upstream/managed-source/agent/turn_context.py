@@ -1006,7 +1006,13 @@ def build_turn_context(
         )
         agent._model_test_turn = {"task_id": effective_task_id, "turn_id": turn_id}
         agent._model_test_ready.set()
-        # Retain this worker and object; this increment has no release-to-API path.
+        if agent._model_test_execution:
+            while not agent._model_test_closed.is_set():
+                if agent._model_test_release.wait(0.025):
+                    from agent.turn_api_request import run_model_test_request
+                    run_model_test_request(agent)
+                    break
+        # The same native Future remains owned until explicit close.
         agent._model_test_closed.wait()
         raise ValueError("Preparation stopped before client/API")
     from agent.turn_context_compaction import run_turn_start_compaction

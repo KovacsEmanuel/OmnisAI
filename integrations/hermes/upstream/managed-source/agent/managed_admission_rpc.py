@@ -28,9 +28,13 @@ def _initialize(params):
         OwnedInitialization, canonical, initialization_result, validate_initialization,
     )
     p = validate_initialization(params)  # before any native import/allocation
-    if p["protocol"] == "omnis-managed-admission-v5":
+    if p["protocol"] in ("omnis-managed-admission-v5", "omnis-managed-admission-v6"):
         global _ROOT, _SERVICE
         with _LOCK:
+            if p["mode"] in ("SEND", "RECEIVE"):
+                if _SERVICE is None:
+                    raise ValueError("No execution owner")
+                return _SERVICE.execute_model_test(p)
             if p["mode"] == "CLOSE":
                 if _SERVICE is None:
                     raise ValueError("No native preparation owner")

@@ -241,17 +241,30 @@ class RuntimeHost:
         self.state = "STARTING"
         command = NATIVE_COMMAND if self.launch_spec is None else self.launch_spec.command
         cwd = NATIVE_CWD if self.launch_spec is None else self.launch_spec.cwd
+        execution = (
+            type(body.get("payload")) is dict
+            and cast(dict[str, object], body["payload"]).get("protocol") == managed.PROTOCOL_V6
+        )
+        environment = dict(NATIVE_ENV)
+        lifeline = self._open_management_lifeline() if execution else None
+        if lifeline is not None:
+            environment["OMNIS_MODEL_LIFELINE_FD"] = str(lifeline)
+            environment["HERMES_HOME"] = "/state/provider"
         try:
             self.process = await asyncio.create_subprocess_exec(
                 *command,
                 cwd=cwd,
-                env=dict(NATIVE_ENV),
+                env=environment,
+                pass_fds=() if lifeline is None else (lifeline,),
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 start_new_session=True,
                 limit=MAX_FRAME,
             )
+            if lifeline is not None:
+                os.close(lifeline)
+                lifeline = None
             self.peer = NativePeer(self.process, timeout=0.8)
             remaining = (self.deadline_ns - time.monotonic_ns()) / 1_000_000_000
             async with asyncio.timeout(remaining):
@@ -262,6 +275,9 @@ class RuntimeHost:
         except BaseException:
             await self.stop()
             raise
+        finally:
+            if lifeline is not None:
+                os.close(lifeline)
 
     def _settings_start(self, body: dict[str, object]) -> dict[str, object]:
         payload = settings.command(body["payload"])
@@ -586,7 +602,9 @@ class RuntimeHost:
             ):
                 raise ValueError("Expired preparation request")
 
-        if payload.get("protocol") == managed.PROTOCOL_V5:
+        if payload.get("protocol") in (managed.PROTOCOL_V5, managed.PROTOCOL_V6) and payload.get(
+            "mode"
+        ) in ("CREATE", "STATUS"):
             managed.validate_model_prepare(payload)
             context = cast(
                 dict[str, object], cast(dict[str, object], payload["context"])["payload"]
@@ -621,6 +639,10 @@ class RuntimeHost:
                     or await self._settings_native("read", None) != settings.SELECTION
                 ):
                     raise ValueError("Saved native Settings required")
+                if payload["protocol"] == managed.PROTOCOL_V6:
+                    auth = await self._settings_native("auth_read", None)
+                    if type(auth) is not dict or auth.get("authenticated") != "LOCAL_PRESENT":
+                        raise ValueError("Operator web authentication required")
                 request_live("MANAGEMENT")
                 # Revoke and certify the original management family before preparation.
                 await self.stop()
@@ -648,10 +670,10 @@ class RuntimeHost:
             payload["ticket"] not in self.managed_finals and len(self.managed_finals) >= 32
         ):
             raise ValueError("Managed result retention full")
-        if operation == "task_model_initialize":
+        if operation == "task_model_initialize" and payload.get("mode") not in ("SEND", "RECEIVE"):
             binding = (
                 cast(dict[str, object], cast(dict[str, object], payload["context"])["payload"])
-                if payload.get("protocol") == managed.PROTOCOL_V5
+                if payload.get("protocol") in (managed.PROTOCOL_V5, managed.PROTOCOL_V6)
                 else payload
             )
             authority = cast(dict[str, object], binding["authority"])
@@ -670,6 +692,16 @@ class RuntimeHost:
                 authority["epoch"],
             ) != (self.generation, self.epoch):
                 raise ValueError("Stale managed authority")
+        if operation == "task_model_initialize" and payload.get("mode") in ("SEND", "RECEIVE"):
+            execution_binding = cast(
+                dict[str, object], cast(dict[str, object], payload["binding"])["payload"]
+            )
+            execution_authority = cast(dict[str, object], execution_binding["authority"])
+            if execution_binding["runtime_boot"] != self.boot or (
+                execution_authority["epoch"],
+                execution_authority["generation"],
+            ) != (self.epoch, self.generation):
+                raise ValueError("Stale execution authority")
         deadline = self._grant(body)
         if deadline > time.monotonic_ns() + 4_500_000_000:
             raise ValueError("Invalid managed grant")
@@ -678,11 +710,14 @@ class RuntimeHost:
         assert self.peer is not None
         async with asyncio.timeout(remaining):
             if operation == "task_model_initialize":
-                if payload.get("protocol") == managed.PROTOCOL_V5 and payload["mode"] == "CREATE":
+                if (
+                    payload.get("protocol") in (managed.PROTOCOL_V5, managed.PROTOCOL_V6)
+                    and payload["mode"] == "CREATE"
+                ):
                     close = canonical(
                         managed.validate_model_close(
                             {
-                                "protocol": managed.PROTOCOL_V5,
+                                "protocol": payload["protocol"],
                                 "mode": "CLOSE",
                                 "context_ref": managed.ref(
                                     cast(dict[str, object], payload["context"])

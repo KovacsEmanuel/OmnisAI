@@ -101,7 +101,11 @@ class NativeTaskOwner:
         command = NativeTaskCommand.model_validate(
             command.model_dump(mode="python", warnings=False)
         )
-        wait = MODEL_TEST_PREPARE_WAIT_SECONDS if command.action == "model_test_prepare" else 4
+        wait = (
+            MODEL_TEST_PREPARE_WAIT_SECONDS
+            if command.action in {"model_test_prepare", "model_test_start"}
+            else 4
+        )
         deadline = asyncio.get_running_loop().time() + wait
         async with asyncio.timeout_at(deadline):
             try:
@@ -301,6 +305,34 @@ class NativeTaskOwner:
                 observation = await consumer.persist(conn, command.owner_id, payload, result)
         return self._model_test_reply(command, context, observation)
 
+    async def _model_test_send(self, command: NativeTaskCommand) -> dict[str, object]:
+        from omnis.modules.runs.model_test import ModelTest
+
+        consumer = ModelTest(self.domain)
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            attempt, created = await consumer.reserve_execution(conn, command)
+            prior = await consumer.execution_receipt(conn, command.owner_id, attempt)
+        if prior["provider_receipt_ref"] is not None:
+            return prior
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            packet = await consumer.execution_packet(conn, command.owner_id, attempt, send=created)
+        if packet is None:
+            return prior
+        result = await self.runtime.managed(
+            self.service, self.owner, "task_model_initialize", packet
+        )
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            return await consumer.execution_receipt(conn, command.owner_id, attempt, result)
+
     def _model_test_reply(
         self, command: NativeTaskCommand, context: dict[str, object], observation: dict[str, object]
     ) -> dict[str, object]:
@@ -311,7 +343,12 @@ class NativeTaskOwner:
             "initialization_id": command.initialization_id,
             "owner_id": command.owner_id,
             "manifest_ref": command.manifest_ref,
-            "inference_status": "HOLD",
+            **(
+                {"composition_ref": mapping(context["payload"])["composition_ref"]}
+                if command.action == "model_test_start"
+                else {}
+            ),
+            "inference_status": "AWAITING_SEND" if command.action == "model_test_start" else "HOLD",
             "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD",
             "turn_ref": records.reference(observation),
             "account_status": "NOT_VERIFIED",
@@ -375,8 +412,10 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
-        if command.action == "model_test_prepare":
+        if command.action in {"model_test_prepare", "model_test_start"}:
             return await self._model_test_prepare(command)
+        if command.action == "model_test_send":
+            return await self._model_test_send(command)
         if command.action in {"model_configuration", "model_initialization"}:
             if (
                 back["binding"] is not None
@@ -528,7 +567,11 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
     command = NativeTaskCommand.model_validate(value)
     existing_private_root(directory)
     capability = _read_capability(directory)
-    wait = MODEL_TEST_PREPARE_WAIT_SECONDS if command.action == "model_test_prepare" else 4
+    wait = (
+        MODEL_TEST_PREPARE_WAIT_SECONDS
+        if command.action in {"model_test_prepare", "model_test_start"}
+        else 4
+    )
     async with asyncio.timeout(wait):
         reader, writer = await asyncio.open_unix_connection(
             directory / "control.sock", limit=NATIVE_TASK_REPLY_MAX_BYTES
@@ -575,7 +618,14 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                 raise CatalogError(
                     reason if type(reason) is str and reason in allowed else "TASK_UNAVAILABLE"
                 )
-            if command.action == "model_test_prepare":
+            if command.action == "model_test_send":
+                from omnis.modules.runs.model_test import validate_execution_readback
+
+                validate_execution_readback(
+                    {k: v for k, v in reply.items() if k != "correlation_id"}
+                )
+                return reply
+            if command.action in {"model_test_prepare", "model_test_start"}:
                 from omnis.modules.tasks.managed_contract import exact, integer
 
                 exact(
@@ -592,7 +642,8 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                         "preparation_status",
                         "turn_ref",
                         "account_status",
-                    },
+                    }
+                    | ({"composition_ref"} if command.action == "model_test_start" else set()),
                 )
                 integer(ref(reply["context_ref"], "model-test-context")["revision"], 1, 1)
                 integer(ref(reply["turn_ref"], "native-turn")["revision"], 1, 1)
@@ -603,7 +654,8 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
                     or reply["initialization_id"] != command.initialization_id
                     or reply["owner_id"] != command.owner_id
                     or ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
-                    or reply["inference_status"] != "HOLD"
+                    or reply["inference_status"]
+                    != ("AWAITING_SEND" if command.action == "model_test_start" else "HOLD")
                     or reply["account_status"] != "NOT_VERIFIED"
                     or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"
                 ):

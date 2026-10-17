@@ -306,7 +306,7 @@ class SubagentLifecycleService:
                     raise ValueError("Native child already active")
             # Retain failure before the constructor: uncertain CREATE is never repeated.
             marker = {"bound": bound, "parent": parent, "record": None, "child": None,
-                      "context_ref": ref(p["context"]),
+                      "context_ref": ref(p["context"]), "protocol": p["protocol"],
                       "root_identity": (parent._subagent_id, parent.session_id)}
             self._model_test_batches[key] = marker
             try:
@@ -352,6 +352,48 @@ class SubagentLifecycleService:
                         marker["child"].close()  # cleanup cannot replace the primary failure
                 raise
 
+    def execute_model_test(self, payload):
+        from omnis_hermes.model_request import execution_packet, CodexFinalRequest
+        from omnis_hermes.managed_admission_contract import canonical, ref, validate_execution_result
+        p = execution_packet(payload)
+        with _REGISTRY.lock:
+            batches = [b for b in self._model_test_batches.values() if b["context_ref"] == p["context_ref"]]
+            if len(batches) != 1 or getattr(self, "_model_test_stopping", False):
+                raise ValueError("Execution owner unavailable")
+            batch = batches[0]
+            child = batch["child"]
+            if child is None or not child._model_test_execution or child._model_test_closed.is_set():
+                raise ValueError("Not an execution child")
+            parent = self._parent_agent_resolver()
+            if parent is not batch["parent"] or (parent._subagent_id, parent.session_id) != batch["root_identity"] or (child._subagent_id, child.session_id) != batch["child_identity"]:
+                raise ValueError("Execution lineage changed")
+            c = child._model_test_preparation.payload()["context"]["payload"]
+            b, t, d, projection = (p[k]["payload"] for k in ("binding", "turn", "dispatch", "projection"))
+            if (b["native_root_id"] != parent._subagent_id or b["native_child_id"] != child._subagent_id
+                    or b["native_session_id"] != child.session_id or b["native_turn"] != child._model_test_turn
+                    or t["context_ref"] != ref(child._model_test_preparation.payload()["context"])
+                    or d["provider_config_ref"] != c["provider_config_ref"] or d["execution_selection_ref"] != c["selection_ref"]
+                    or d["fencing_epoch"] != c["authority"]["epoch"] or b["authority"] != c["authority"] or b["runtime_boot"] != c["runtime_boot"]
+                    or projection["selection_ref"] != c["selection_ref"] or projection["composition_ref"] != c["composition_ref"]
+                    or projection["owner_id"] != c["owner_id"] or projection["run_id"] != c["run_id"]):
+                raise ValueError("Execution binding changed")
+            composition = next(r for r in child._model_test_preparation.payload()["records"] if r["kind"] == "prompt-composition")
+            if projection["model_input"]["messages"][1]["content"] != composition["payload"]["text"]:
+                raise ValueError("Execution DATA changed")
+            bound = canonical({**p, "mode": "SEND"})
+            if child._model_test_dispatch is None:
+                if p["mode"] == "SEND":
+                    child._model_test_lifeline._owner_alive()
+                    child._model_test_dispatch = CodexFinalRequest(bound)
+                    child._model_test_release.set()
+            elif child._model_test_dispatch.raw != bound:
+                raise ValueError("Execution replay conflict")
+            value = child._model_test_result
+            if value is None:
+                value = {"protocol": p["protocol"], "context_ref": p["context_ref"],
+                    "dispatch_ref": ref(p["dispatch"]), "status": "PENDING" if child._model_test_dispatch is not None else "UNKNOWN", "receipt": None}
+            return validate_execution_result(value, p)
+
     def close_model_tests(self, context_ref=None):
         with _REGISTRY.lock:
             if context_ref is not None and not any(
@@ -377,7 +419,7 @@ class SubagentLifecycleService:
             raise ValueError("Native preparation drain uncertain")
         if context_ref is not None:
             # Receipt follows actual owner revocation and the single record Future.
-            return {"protocol": "omnis-managed-admission-v5", "mode": "CLOSE",
+            return {"protocol": next(b["protocol"] for b in self._model_test_batches.values() if b["context_ref"] == context_ref), "mode": "CLOSE",
                     "context_ref": context_ref, "status": "CLOSED_JOINED"}
 
     def stage(self, payload):

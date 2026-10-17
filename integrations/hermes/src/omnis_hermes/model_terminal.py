@@ -55,5 +55,22 @@ def require_model_authority(agent: object = None, *, final_request: object = Non
     # Explicit Omnis DATA never selects the stock warm route. There is no
     # authenticated turn/config admission producer yet; neither dropping the
     # inert env flag nor supplying native-turn-shaped refs provides one.
+    if final_request is not None:
+        from .managed_admission_contract import PROTOCOL_V6, ModelTestPreparation
+        from .model_request import CodexFinalRequest
+
+        state = getattr(agent, "__dict__", {})
+        carrier = state.get("_model_test_preparation")
+        if (
+            type(final_request) is CodexFinalRequest
+            and type(carrier) is ModelTestPreparation
+            and state.get("_model_test_execution") is True
+            and carrier.payload()["protocol"] == PROTOCOL_V6
+            and state.get("_model_test_dispatch") is final_request
+            and state.get("_model_test_bound") is True
+            and not state["_model_test_closed"].is_set()
+        ):
+            state["_model_test_lifeline"]._owner_alive()
+            return
     if final_request is not None or is_inert_model_context(agent):
         deny_model()

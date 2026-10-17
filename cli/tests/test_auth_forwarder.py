@@ -3,6 +3,7 @@
 import asyncio
 import os
 import socket
+import ssl
 import tempfile
 import threading
 import unittest
@@ -10,6 +11,18 @@ from pathlib import Path
 from unittest.mock import patch
 
 from omnis_cli import forwarder
+
+
+def hello(host="auth.openai.com"):
+    incoming, outgoing = ssl.MemoryBIO(), ssl.MemoryBIO()
+    connection = ssl.create_default_context().wrap_bio(
+        incoming, outgoing, server_side=False, server_hostname=host
+    )
+    try:
+        connection.do_handshake()
+    except ssl.SSLWantReadError:
+        pass
+    return outgoing.read()
 
 
 class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
@@ -33,6 +46,8 @@ class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
                     local = socket.socket(socket.AF_UNIX)
                     local.connect(str(root / "auth-egress.sock"))
                     reader, writer = await asyncio.open_unix_connection(sock=local)
+                    writer.write(hello())
+                    await writer.drain()
                     try:
                         self.assertEqual(await asyncio.wait_for(reader.read(), 3), b"")
                         self.assertEqual(dns.call_count, 1)
@@ -113,6 +128,8 @@ class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
                     listener.auth_identity["socket"], [path.stat().st_dev, path.stat().st_ino]
                 )
                 reader, writer = await asyncio.open_unix_connection(str(path))
+                writer.write(hello())
+                await writer.drain()
                 try:
                     for _ in range(100):
                         if entered.is_set():
@@ -149,3 +166,15 @@ class AuthRelayTest(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises((ValueError, OSError)):
                 await start(root)
             self.assertEqual(path.stat().st_ino, before)
+
+
+class FiniteTlsTest(unittest.TestCase):
+    def test_product_destinations_and_unknown_sni(self):
+        for host in ("auth.openai.com", "chatgpt.com"):
+            self.assertEqual(forwarder.tls_destination(hello(host)), host)
+        for host in ("example.com", "localhost", "chatgpt.com.example.com"):
+            with self.assertRaises(ValueError):
+                forwarder.tls_destination(hello(host))
+        for raw in (b"", b"CONNECT chatgpt.com:443\r\n", hello()[:-1]):
+            with self.assertRaises(ValueError):
+                forwarder.tls_destination(raw)

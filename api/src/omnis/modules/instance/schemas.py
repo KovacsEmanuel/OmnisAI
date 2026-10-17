@@ -92,6 +92,8 @@ class NativeTaskCommand(StrictBody):
         "model_configuration",
         "model_initialization",
         "model_test_prepare",
+        "model_test_start",
+        "model_test_send",
         "model_protocol_prepare",
         "model_protocol_validation",
     ]
@@ -122,7 +124,7 @@ class NativeTaskCommand(StrictBody):
     def model_preflight(self) -> Self:
         from omnis.modules.settings.catalog_schema import canonical
 
-        if self.action == "model_test_prepare":
+        if self.action in {"model_test_prepare", "model_test_start"}:
             from omnis.modules.settings.candidate_catalog import uuid_string
 
             self.initialization_id = uuid_string(self.initialization_id)
@@ -140,6 +142,26 @@ class NativeTaskCommand(StrictBody):
                 raise ValueError("Preparation consumes saved native Settings only")
             if len(canonical(self.model_dump(mode="json"))) > 3600:
                 raise ValueError("Preparation command too large")
+            return self
+        if self.action == "model_test_send":
+            from omnis.modules.runs.model_dispatch import data_decision
+            from omnis.modules.settings.candidate_catalog import uuid_string
+
+            self.initialization_id = uuid_string(self.initialization_id)
+            self.protocol_id = uuid_string(self.protocol_id)
+            self.data_approval = data_decision(self.data_approval)
+            if any(
+                v is not None
+                for v in (
+                    self.settings_operation_id,
+                    self.configuration,
+                    self.provider_config_ref,
+                    self.protocol_caps,
+                )
+            ):
+                raise ValueError("Execution consumes its own saved configuration")
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Execution command too large")
             return self
         if self.settings_operation_id is not None:
             raise ValueError("Settings reference only belongs to preparation")

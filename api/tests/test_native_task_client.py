@@ -259,7 +259,7 @@ async def test_arbitrary_operation_never_requests_authority(ipc_directory: Path)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("protocol", [None, True, [], "omnis-managed-admission-v6"])
+@pytest.mark.parametrize("protocol", [None, True, [], "omnis-managed-admission-v7"])
 async def test_unknown_managed_version_never_requests_authority(
     ipc_directory: Path, protocol: object
 ) -> None:

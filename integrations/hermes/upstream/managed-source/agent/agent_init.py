@@ -2337,6 +2337,14 @@ def configure_model_test(agent, carrier):
     payload = carrier.payload()
     context = payload["context"]["payload"]
     agent._model_test_preparation = carrier
+    agent._model_test_execution = context["version"] == 6
+    if agent._model_test_execution:
+        from omnis_hermes.management_oauth import NativeOAuth
+        agent._model_test_lifeline = NativeOAuth.from_owner_fd(int(os.environ["OMNIS_MODEL_LIFELINE_FD"]))
+        agent._model_test_release = threading.Event()
+        agent._model_test_dispatch = None
+        agent._model_test_result = None
+        agent._model_test_client = None
     agent._model_test_ready = threading.Event()
     agent._model_test_closed = threading.Event()
     agent._model_test_entered = False

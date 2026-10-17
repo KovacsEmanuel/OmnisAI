@@ -34,6 +34,7 @@ MAX_BYTES = 32768
 
 
 PROTOCOL_V5 = "omnis-managed-admission-v5"
+PROTOCOL_V6 = "omnis-managed-admission-v6"
 MODEL_TEST_REQUESTED = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
 
 
@@ -41,7 +42,7 @@ def validate_model_close(value: object) -> dict[str, object]:
     p = obj(value, {"protocol", "mode", "context_ref"})
     if (
         type(p["protocol"]) is not str
-        or p["protocol"] != PROTOCOL_V5
+        or p["protocol"] not in (PROTOCOL_V5, PROTOCOL_V6)
         or type(p["mode"]) is not str
         or p["mode"] != "CLOSE"
     ):
@@ -67,7 +68,8 @@ def validate_model_prepare(value: object) -> dict[str, object]:
     """Separate DATA contract; the v1-v4 readers and their guards stay closed."""
     bounded(value)
     p = obj(value, {"protocol", "mode", "context", "records", "material"})
-    if p["protocol"] != PROTOCOL_V5 or p["mode"] not in ("CREATE", "STATUS"):
+    execution = p["protocol"] == PROTOCOL_V6
+    if p["protocol"] not in (PROTOCOL_V5, PROTOCOL_V6) or p["mode"] not in ("CREATE", "STATUS"):
         raise ValueError("Invalid model preparation")
     context = envelope(p["context"], "model-test-context")
     c = obj(
@@ -102,8 +104,15 @@ def validate_model_prepare(value: object) -> dict[str, object]:
             "effective",
             "account_status",
             "inference_status",
-        },
+        }
+        | ({"campaign_deadline"} if execution else set()),
     )
+    if execution:
+        from datetime import datetime, timezone
+
+        deadline = datetime.fromisoformat(str(c["campaign_deadline"]))
+        if deadline.utcoffset() != timezone.utc.utcoffset(deadline):
+            raise ValueError("Invalid campaign deadline")
     for field, kind in (
         ("original_selection_ref", "execution-selection"),
         ("source_manifest_ref", "launch-manifest"),
@@ -111,9 +120,11 @@ def validate_model_prepare(value: object) -> dict[str, object]:
         ("procedure_ref", "procedure"),
     ):
         reference(c[field], kind)
-    if type(c) is not dict or c.get("purpose") != "MODEL_TEST_PREPARE":
+    if type(c) is not dict or c.get("purpose") != (
+        "SETTINGS_TEST" if execution else "MODEL_TEST_PREPARE"
+    ):
         raise ValueError("Invalid preparation purpose")
-    _integer(c.get("version"), 5, 5)
+    _integer(c.get("version"), 6 if execution else 5, 6 if execution else 5)
     _integer(c.get("batch_index"), 0, 0)
     _authority(c.get("authority"))
     for key in (
@@ -128,9 +139,9 @@ def validate_model_prepare(value: object) -> dict[str, object]:
         uuid(c.get(key))
     if (
         c.get("requested") != MODEL_TEST_REQUESTED
-        or c.get("effective") is not None
+        or (not execution and c.get("effective") is not None)
         or c.get("account_status") != "NOT_VERIFIED"
-        or c.get("inference_status") != "HOLD"
+        or c.get("inference_status") != ("AWAITING_SEND" if execution else "HOLD")
     ):
         raise ValueError("Preparation cannot assert account or inference authority")
     rows = p["records"]
@@ -155,6 +166,18 @@ def validate_model_prepare(value: object) -> dict[str, object]:
         if type(body) is not dict:
             raise ValueError("Invalid preparation record payload")
         checked[field] = cast(dict[str, object], body)
+    effective = (
+        {
+            "provider_config_ref": c["provider_config_ref"],
+            "model_id": "gpt-6.1-sol",
+            "effort": "xhigh",
+            "transport_config_ref": c["provider_config_ref"],
+        }
+        if execution
+        else None
+    )
+    if c["effective"] != effective:
+        raise ValueError("Invalid execution configuration")
     s = checked["selection_ref"]
     snapshot = checked["snapshot_ref"]
     config = checked["provider_config_ref"]
@@ -163,16 +186,16 @@ def validate_model_prepare(value: object) -> dict[str, object]:
         snapshot["dependency_closure_refs"] != []
         or snapshot["dependency_artifact_refs"] != []
         or snapshot["assessment_selectable"] is not False
-        or snapshot["effective"] is not None
-        or snapshot["resolution"] != "PREPARATION_ONLY"
+        or snapshot["effective"] != effective
+        or snapshot["resolution"] != ("EXACT" if execution else "PREPARATION_ONLY")
     ):
         raise ValueError("Invalid preparation-only snapshot closure")
     if (
         s.get("snapshot_ref") != c["snapshot_ref"]
         or s.get("purpose") != c["purpose"]
         or s.get("requested") != MODEL_TEST_REQUESTED
-        or s.get("effective") is not None
-        or s.get("resolution") != "PREPARATION_ONLY"
+        or s.get("effective") != effective
+        or s.get("resolution") != ("EXACT" if execution else "PREPARATION_ONLY")
         or s.get("selected_package_refs") != c.get("package_refs")
         or snapshot.get("execution_purpose") != c["purpose"]
         or snapshot.get("original_selection_ref") != c.get("original_selection_ref")
@@ -180,7 +203,7 @@ def validate_model_prepare(value: object) -> dict[str, object]:
     ):
         raise ValueError("Invalid qualified selection/snapshot")
     expected_config = {
-        "version": 2,
+        "version": 3 if execution else 2,
         "owner_id": c["owner_id"],
         "run_id": c["run_id"],
         "settings_operation_id": c["settings_operation_id"],
@@ -191,8 +214,9 @@ def validate_model_prepare(value: object) -> dict[str, object]:
         "fallback": None,
         "auxiliary": False,
         "fast": False,
+        **({"output_policy": "MONITOR_SUBSCRIPTION"} if execution else {}),
         "account_status": "NOT_VERIFIED",
-        "inference_status": "HOLD",
+        "inference_status": "AWAITING_SEND" if execution else "HOLD",
     }
     if canonical(config) != canonical(expected_config) or len(canonical(config)) > 2048:
         raise ValueError("Invalid qualified configuration")
@@ -308,7 +332,7 @@ def preparation_result(
     context = envelope(p["context"], "model-test-context")
     c = cast(dict[str, object], context["payload"])
     result = {
-        "protocol": PROTOCOL_V5,
+        "protocol": p["protocol"],
         "context_ref": ref(context),
         "runtime_boot": c["runtime_boot"],
         "authority": c["authority"],
@@ -320,7 +344,7 @@ def preparation_result(
         "observed_configuration_ref": c["provider_config_ref"],
         "client_status": "DEFERRED_NO_CREDENTIAL",
         "model_calls": 0,
-        "inference_status": "HOLD",
+        "inference_status": "AWAITING_SEND" if p["protocol"] == PROTOCOL_V6 else "HOLD",
         "account_status": "NOT_VERIFIED",
     }
     return validate_preparation_result(result, p)
@@ -350,12 +374,12 @@ def validate_preparation_result(value: object, payload: object) -> dict[str, obj
     context = envelope(p["context"], "model-test-context")
     c = cast(dict[str, object], context["payload"])
     if (
-        v["protocol"] != PROTOCOL_V5
+        v["protocol"] != p["protocol"]
         or v["context_ref"] != ref(context)
         or canonical(v["authority"]) != canonical(c["authority"])
         or v["runtime_boot"] != c["runtime_boot"]
         or v["observed_configuration_ref"] != c["provider_config_ref"]
-        or v["inference_status"] != "HOLD"
+        or v["inference_status"] != ("AWAITING_SEND" if p["protocol"] == PROTOCOL_V6 else "HOLD")
         or v["account_status"] != "NOT_VERIFIED"
         or v["client_status"] != "DEFERRED_NO_CREDENTIAL"
     ):
@@ -923,7 +947,11 @@ def _configuration(value: object) -> dict[str, object]:
 
 def validate_initialization(value: object) -> dict[str, object]:
     """Validate DATA, not origin/dispatch authority. Private owner/Host grants remain required."""
-    if type(value) is dict and value.get("protocol") == PROTOCOL_V5:
+    if type(value) is dict and value.get("protocol") in (PROTOCOL_V5, PROTOCOL_V6):
+        if value.get("protocol") == PROTOCOL_V6 and value.get("mode") in ("SEND", "RECEIVE"):
+            from .model_request import execution_packet
+
+            return execution_packet(value)
         if value.get("mode") == "CLOSE":
             return validate_model_close(value)
         return validate_model_prepare(value)
@@ -1070,7 +1098,9 @@ def initialization_result(
 
 
 def validate_initialization_result(value: object, payload: object) -> dict[str, object]:
-    if type(payload) is dict and payload.get("protocol") == PROTOCOL_V5:
+    if type(payload) is dict and payload.get("protocol") in (PROTOCOL_V5, PROTOCOL_V6):
+        if payload.get("mode") in ("SEND", "RECEIVE"):
+            return validate_execution_result(value, payload)
         return validate_preparation_result(value, payload)
     p = validate_initialization(payload)
     _exact_data(value)
@@ -1144,3 +1174,46 @@ def validate_initialization_result(value: object, payload: object) -> dict[str, 
     else:
         raise ValueError("Invalid initialization status")
     return cast(dict[str, object], loads(canonical(value), MAX_BYTES))
+
+
+def validate_execution_result(value: object, payload: object) -> dict[str, object]:
+    from .model_request import execution_packet
+
+    p = execution_packet(payload)
+    v = obj(value, {"protocol", "context_ref", "dispatch_ref", "status", "receipt"})
+    if (
+        v["protocol"] != PROTOCOL_V6
+        or v["context_ref"] != p["context_ref"]
+        or v["dispatch_ref"] != ref(cast(dict[str, object], p["dispatch"]))
+        or v["status"] not in ("PENDING", "COMPLETE", "UNKNOWN")
+    ):
+        raise ValueError("Invalid execution result")
+    if v["status"] == "COMPLETE":
+        receipt = obj(
+            v["receipt"],
+            {
+                "provider_response_id",
+                "model",
+                "effort",
+                "input_tokens",
+                "output_tokens",
+                "reasoning_tokens",
+                "status",
+                "output_text",
+                "wire_digest",
+            },
+        )
+        text(receipt["provider_response_id"], 256)
+        text(receipt["model"], 256)
+        for key in ("input_tokens", "output_tokens", "reasoning_tokens"):
+            if receipt[key] is not None:
+                _integer(receipt[key], 0, 2**63 - 1)
+        if receipt["effort"] is not None:
+            text(receipt["effort"], 32)
+        text(receipt["status"], 64)
+        if type(receipt["output_text"]) is not str or len(receipt["output_text"].encode()) > 8192:
+            raise ValueError("Invalid bounded output")
+        sha(receipt["wire_digest"])
+    elif v["receipt"] is not None:
+        raise ValueError("Nonterminal execution has receipt")
+    return cast(dict[str, object], loads(canonical(v), MAX_BYTES))

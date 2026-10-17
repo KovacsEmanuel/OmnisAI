@@ -88,11 +88,15 @@ def private_api_socket(directory: Path) -> Path:
 
 
 async def _copy(
-    source: asyncio.StreamReader, destination: asyncio.StreamWriter, *, limit: int
+    source: asyncio.StreamReader,
+    destination: asyncio.StreamWriter,
+    *,
+    limit: int,
+    idle_seconds: int = 10,
 ) -> None:
     total = 0
     while True:
-        data = await asyncio.wait_for(source.read(65536), timeout=10)
+        data = await asyncio.wait_for(source.read(65536), timeout=idle_seconds)
         if not data:
             break
         total += len(data)
@@ -246,6 +250,59 @@ def auth_addresses(rows: list[AuthAddress]) -> list[AuthAddress]:
     return rows
 
 
+def tls_destination(record: bytes) -> str:
+    """Only the two product-owned TLS names; no caller URL, CONNECT or proxy."""
+    if (
+        len(record) < 9
+        or record[0] != 22
+        or record[1:3] not in (b"\x03\x01", b"\x03\x03")
+        or int.from_bytes(record[3:5], "big") != len(record) - 5
+        or record[5] != 1
+        or int.from_bytes(record[6:9], "big") != len(record) - 9
+    ):
+        raise ValueError("Invalid finite TLS hello")
+    data, offset = record[9:], 34
+
+    def take(size: int) -> bytes:
+        nonlocal offset
+        if size < 0 or offset + size > len(data):
+            raise ValueError("Invalid TLS hello bounds")
+        result = data[offset : offset + size]
+        offset += size
+        return result
+
+    take(int.from_bytes(take(1), "big"))
+    take(int.from_bytes(take(2), "big"))
+    take(int.from_bytes(take(1), "big"))
+    extensions = take(int.from_bytes(take(2), "big"))
+    if offset != len(data):
+        raise ValueError("Invalid TLS hello tail")
+    names: list[str] = []
+    offset = 0
+    while offset < len(extensions):
+        if offset + 4 > len(extensions):
+            raise ValueError("Invalid TLS extension")
+        kind = int.from_bytes(extensions[offset : offset + 2], "big")
+        size = int.from_bytes(extensions[offset + 2 : offset + 4], "big")
+        offset += 4
+        value = extensions[offset : offset + size]
+        if len(value) != size:
+            raise ValueError("Invalid TLS extension size")
+        offset += size
+        if kind == 0:
+            if (
+                len(value) < 5
+                or int.from_bytes(value[:2], "big") != len(value) - 2
+                or value[2] != 0
+                or int.from_bytes(value[3:5], "big") != len(value) - 5
+            ):
+                raise ValueError("Invalid TLS name")
+            names.append(value[5:].decode("ascii"))
+    if len(names) != 1 or names[0] not in ("auth.openai.com", "chatgpt.com"):
+        raise ValueError("Finite TLS destination denied")
+    return names[0]
+
+
 async def start_auth_forwarder(directory: Path) -> ForwarderListener:
     """Private raw TLS relay; fixed TCB client enforces the OAuth L7 contract.
 
@@ -279,7 +336,14 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                 != os.getuid()
             ):
                 raise ValueError("Wrong auth peer UID")
-            async with asyncio.timeout(15):
+            async with asyncio.timeout(2):
+                header = await reader.readexactly(5)
+                size = int.from_bytes(header[3:5], "big")
+                if size > 8192:
+                    raise ValueError("TLS hello limit")
+                hello = header + await reader.readexactly(size)
+                destination = tls_destination(hello)
+            async with asyncio.timeout(300 if destination == "chatgpt.com" else 15):
                 result: list[AuthAddress] = []
                 done = threading.Event()
 
@@ -287,7 +351,7 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                     try:
                         result.extend(
                             socket.getaddrinfo(
-                                "auth.openai.com",
+                                destination,
                                 443,
                                 type=socket.SOCK_STREAM,
                                 proto=socket.IPPROTO_TCP,
@@ -314,9 +378,25 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                 await asyncio.wait_for(asyncio.get_running_loop().sock_connect(raw, address), 2)
                 remote, upstream = await asyncio.open_connection(sock=raw)
                 raw = None  # Stream owns it now.
+                upstream.write(hello)
+                await asyncio.wait_for(upstream.drain(), 2)
                 copies = (
-                    asyncio.create_task(_copy(reader, upstream, limit=_MAX_REQUEST_BYTES)),
-                    asyncio.create_task(_copy(remote, writer, limit=_MAX_REQUEST_BYTES)),
+                    asyncio.create_task(
+                        _copy(
+                            reader,
+                            upstream,
+                            limit=_MAX_REQUEST_BYTES,
+                            idle_seconds=300 if destination == "chatgpt.com" else 10,
+                        )
+                    ),
+                    asyncio.create_task(
+                        _copy(
+                            remote,
+                            writer,
+                            limit=_MAX_REQUEST_BYTES,
+                            idle_seconds=300 if destination == "chatgpt.com" else 10,
+                        )
+                    ),
                 )
                 try:
                     await asyncio.gather(*copies)
@@ -324,7 +404,7 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                     for copy in copies:
                         copy.cancel()
                     await asyncio.gather(*copies, return_exceptions=True)
-        except (OSError, ValueError, TimeoutError):
+        except (OSError, ValueError, TimeoutError, asyncio.IncompleteReadError):
             pass  # No addresses, provider response or challenge in logs.
         finally:
             if raw is not None:

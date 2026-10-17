@@ -123,6 +123,7 @@ def lifecycle(monkeypatch):
 
     def payload():
         return {
+            "protocol": contract.PROTOCOL_V5,
             "mode": "CREATE",
             "context": {"payload": {"preparation_id": str(uuid4()), "task_id": str(uuid4())}},
             "records": [{"kind": "prompt-composition", "payload": {"text": "synthetic"}}],

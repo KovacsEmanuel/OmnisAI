@@ -412,7 +412,7 @@
 
 --- /dev/null
 +++ b/agent/managed_admission_rpc.py
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,105 @@
 +"""Private RPC entry for the reviewed managed admission extension.
 +
 +Only reachable through the fixed inert native stdin peer. No tool registration,
@@ -443,9 +443,13 @@
 +        OwnedInitialization, canonical, initialization_result, validate_initialization,
 +    )
 +    p = validate_initialization(params)  # before any native import/allocation
-+    if p["protocol"] == "omnis-managed-admission-v5":
++    if p["protocol"] in ("omnis-managed-admission-v5", "omnis-managed-admission-v6"):
 +        global _ROOT, _SERVICE
 +        with _LOCK:
++            if p["mode"] in ("SEND", "RECEIVE"):
++                if _SERVICE is None:
++                    raise ValueError("No execution owner")
++                return _SERVICE.execute_model_test(p)
 +            if p["mode"] == "CLOSE":
 +                if _SERVICE is None:
 +                    raise ValueError("No native preparation owner")
@@ -537,7 +541,7 @@
      started_at: Optional[float] = None
      completed_at: Optional[float] = None
      result: Optional[SubagentResult] = None
-@@ -241,9 +244,449 @@
+@@ -241,9 +244,491 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -603,7 +607,7 @@
 +                    raise ValueError("Native child already active")
 +            # Retain failure before the constructor: uncertain CREATE is never repeated.
 +            marker = {"bound": bound, "parent": parent, "record": None, "child": None,
-+                      "context_ref": ref(p["context"]),
++                      "context_ref": ref(p["context"]), "protocol": p["protocol"],
 +                      "root_identity": (parent._subagent_id, parent.session_id)}
 +            self._model_test_batches[key] = marker
 +            try:
@@ -649,6 +653,48 @@
 +                        marker["child"].close()  # cleanup cannot replace the primary failure
 +                raise
 +
++    def execute_model_test(self, payload):
++        from omnis_hermes.model_request import execution_packet, CodexFinalRequest
++        from omnis_hermes.managed_admission_contract import canonical, ref, validate_execution_result
++        p = execution_packet(payload)
++        with _REGISTRY.lock:
++            batches = [b for b in self._model_test_batches.values() if b["context_ref"] == p["context_ref"]]
++            if len(batches) != 1 or getattr(self, "_model_test_stopping", False):
++                raise ValueError("Execution owner unavailable")
++            batch = batches[0]
++            child = batch["child"]
++            if child is None or not child._model_test_execution or child._model_test_closed.is_set():
++                raise ValueError("Not an execution child")
++            parent = self._parent_agent_resolver()
++            if parent is not batch["parent"] or (parent._subagent_id, parent.session_id) != batch["root_identity"] or (child._subagent_id, child.session_id) != batch["child_identity"]:
++                raise ValueError("Execution lineage changed")
++            c = child._model_test_preparation.payload()["context"]["payload"]
++            b, t, d, projection = (p[k]["payload"] for k in ("binding", "turn", "dispatch", "projection"))
++            if (b["native_root_id"] != parent._subagent_id or b["native_child_id"] != child._subagent_id
++                    or b["native_session_id"] != child.session_id or b["native_turn"] != child._model_test_turn
++                    or t["context_ref"] != ref(child._model_test_preparation.payload()["context"])
++                    or d["provider_config_ref"] != c["provider_config_ref"] or d["execution_selection_ref"] != c["selection_ref"]
++                    or d["fencing_epoch"] != c["authority"]["epoch"] or b["authority"] != c["authority"] or b["runtime_boot"] != c["runtime_boot"]
++                    or projection["selection_ref"] != c["selection_ref"] or projection["composition_ref"] != c["composition_ref"]
++                    or projection["owner_id"] != c["owner_id"] or projection["run_id"] != c["run_id"]):
++                raise ValueError("Execution binding changed")
++            composition = next(r for r in child._model_test_preparation.payload()["records"] if r["kind"] == "prompt-composition")
++            if projection["model_input"]["messages"][1]["content"] != composition["payload"]["text"]:
++                raise ValueError("Execution DATA changed")
++            bound = canonical({**p, "mode": "SEND"})
++            if child._model_test_dispatch is None:
++                if p["mode"] == "SEND":
++                    child._model_test_lifeline._owner_alive()
++                    child._model_test_dispatch = CodexFinalRequest(bound)
++                    child._model_test_release.set()
++            elif child._model_test_dispatch.raw != bound:
++                raise ValueError("Execution replay conflict")
++            value = child._model_test_result
++            if value is None:
++                value = {"protocol": p["protocol"], "context_ref": p["context_ref"],
++                    "dispatch_ref": ref(p["dispatch"]), "status": "PENDING" if child._model_test_dispatch is not None else "UNKNOWN", "receipt": None}
++            return validate_execution_result(value, p)
++
 +    def close_model_tests(self, context_ref=None):
 +        with _REGISTRY.lock:
 +            if context_ref is not None and not any(
@@ -674,7 +720,7 @@
 +            raise ValueError("Native preparation drain uncertain")
 +        if context_ref is not None:
 +            # Receipt follows actual owner revocation and the single record Future.
-+            return {"protocol": "omnis-managed-admission-v5", "mode": "CLOSE",
++            return {"protocol": next(b["protocol"] for b in self._model_test_batches.values() if b["context_ref"] == context_ref), "mode": "CLOSE",
 +                    "context_ref": context_ref, "status": "CLOSED_JOINED"}
 +
 +    def stage(self, payload):
@@ -1022,6 +1068,125 @@
      from agent.conversation_loop import (
          _moa_client_consumes_prepared_request, _redecorate_prompt_cache_for_provider,
      )
+@@ -181,3 +183,118 @@
+         "fallthrough", api_messages, _moa_prepared_request, tools_for_api, api_kwargs,
+         _original_api_kwargs, _llm_middleware_trace,
+     )
++
++
++def run_model_test_request(agent):
++    """One constructor-owned native Responses request, no stock retry/fallback loop."""
++    import os
++    import time
++    from datetime import datetime, timezone
++    import httpx
++    from openai import OpenAI
++    from omnis_hermes.model_request import CodexFinalRequest, CODEX_URL
++    from omnis_hermes.managed_admission_contract import canonical, ref
++    from omnis_hermes.native_preparation_contract import loads
++    from agent.transports.codex import ResponsesApiTransport
++
++    final = agent._model_test_dispatch
++    if type(final) is not CodexFinalRequest or not agent._model_test_execution:
++        raise ValueError("Constructor-owned execution required")
++    from omnis_hermes.model_terminal import require_model_authority
++    require_model_authority(agent, final_request=final)
++    p = loads(final.raw, 32768)
++    d = p["dispatch"]["payload"]
++    result = {"protocol": p["protocol"], "context_ref": p["context_ref"],
++        "dispatch_ref": ref(p["dispatch"]), "status": "UNKNOWN", "receipt": None}
++    physical = {"headers": 0, "request": None, "wire_digest": None}
++    expiry = datetime.fromisoformat(d["deadline"])
++    if expiry.utcoffset() != timezone.utc.utcoffset(expiry):
++        raise ValueError("Invalid execution deadline")
++    remaining = (expiry - datetime.now(timezone.utc)).total_seconds()
++    deadline = time.monotonic() + min(300.0, remaining)
++
++    def guard():
++        agent._model_test_lifeline._owner_alive()
++        if agent._model_test_closed.is_set() or time.monotonic() >= deadline:
++            raise ValueError("Execution authority revoked")
++        if agent._model_test_dispatch is not final or agent._api_call_count != 0:
++            raise ValueError("Execution authority changed")
++
++    def before_send(request):
++        guard()
++        if request.method != "POST" or str(request.url) != CODEX_URL or request.headers["host"] != "chatgpt.com":
++            raise ValueError("Finite Codex endpoint required")
++        physical["wire_digest"] = final.validate_wire(request.content)
++        physical["request"] = request
++        request.extensions["trace"] = trace
++
++    def trace(event, info):
++        if event.endswith(".started"):
++            guard()
++        if event.endswith(".send_request_headers.started"):
++            request = physical["request"]
++            if request is None or physical["headers"] != 0:
++                raise ValueError("Repeated physical request denied")
++            final.validate_wire(request.content)
++            physical["headers"] = 1
++
++    client = None
++    try:
++        guard()
++        if os.environ.get("HERMES_HOME") != "/state/provider":
++            raise ValueError("Dedicated product home required")
++        from hermes_cli.auth_codex import _read_codex_tokens, _codex_access_token_is_expiring
++        # Management family was joined before this native family. No refresh,
++        # external login adoption, credential pool, discovery, quota or aux calls.
++        tokens = _read_codex_tokens()["tokens"]
++        token = tokens["access_token"]
++        if _codex_access_token_is_expiring(token, 300):
++            raise ValueError("Operator authentication refresh required")
++        guard()
++        projection = p["projection"]["payload"]
++        kwargs = ResponsesApiTransport().build_kwargs(
++            model="gpt-6.1-sol", messages=projection["model_input"]["messages"], tools=[],
++            **{"provider": "openai-codex", "base_url": CODEX_URL.rsplit("/", 1)[0],
++                "is_codex_backend": True, "reasoning_config": {"enabled": True, "effort": "xhigh"},
++                "replay_encrypted_reasoning": False, "timeout": 300.0},
++        )
++        kwargs = final.consume_native(kwargs)  # after ALL native transformations
++        transport = httpx.HTTPTransport(uds="/runtime/auth-egress.sock", retries=0, trust_env=False)
++        http = httpx.Client(transport=transport, trust_env=False, follow_redirects=False,
++            timeout=300.0, event_hooks={"request": [before_send]})
++        client = OpenAI(api_key=token, base_url=CODEX_URL.rsplit("/", 1)[0], max_retries=0,
++            timeout=300.0, http_client=http)
++        agent._model_test_client = client
++        guard()
++        terminal = None
++        with client.responses.create(**kwargs) as stream:
++            for event in stream:
++                guard()
++                if event.type in ("response.completed", "response.incomplete", "response.failed"):
++                    if terminal is not None:
++                        raise ValueError("Duplicate terminal response")
++                    terminal = event.response
++        if terminal is None or physical["headers"] != 1:
++            raise ValueError("Provider outcome unknown")
++        usage = terminal.usage
++        output = terminal.output_text
++        if type(output) is not str or len(output.encode()) > 8192:
++            raise ValueError("Provider output requires reconciliation")
++        result["status"] = "COMPLETE"
++        result["receipt"] = {"provider_response_id": terminal.id, "model": terminal.model,
++            "effort": getattr(terminal.reasoning, "effort", None), "status": terminal.status,
++            "input_tokens": getattr(usage, "input_tokens", None),
++            "output_tokens": getattr(usage, "output_tokens", None),
++            "reasoning_tokens": getattr(getattr(usage, "output_tokens_details", None), "reasoning_tokens", None),
++            "output_text": output, "wire_digest": physical["wire_digest"]}
++    except Exception:
++        # SENT remains consumed even if this process cannot recover a receipt.
++        result = {**result, "status": "UNKNOWN", "receipt": None}
++    finally:
++        if client is not None:
++            try:
++                client.close()
++            except Exception:
++                result = {**result, "status": "UNKNOWN", "receipt": None}
++        agent._api_call_count = physical["headers"]
++        agent._model_test_result = result
 --- a/providers/__init__.py
 +++ b/providers/__init__.py
 @@ -160,6 +160,8 @@
@@ -1163,7 +1328,7 @@
 
      def _get_session_db_for_recall(self):
          """SessionDB for recall, opening the default state DB when no ``session_db`` was passed so the
-@@ -965,9 +1035,35 @@
+@@ -965,9 +1035,54 @@
          # from the cache and a rebuilt agent spawns its own child, so an unclosed one leaks for the gateway's life.
          _quietly(self._close_codex_session)
 
@@ -1176,12 +1341,31 @@
          blocks the rest."""
 +        if self.__dict__.get("_model_test_preparation") is not None:
 +            self._model_test_closed.set()
++            client = self.__dict__.get("_model_test_client")
++            uncertain = False
++            if client is not None:
++                try:
++                    client.close()
++                except Exception:
++                    uncertain = True
 +            record = self.__dict__.get("_model_test_record")
 +            future = record.future if record is not None else None
 +            if record is not None and record.model_test_submit_started and future is None:
 +                raise ValueError("Native preparation submission uncertain")
 +            if future is not None:
-+                future.result(timeout=1)
++                try:
++                    future.result(timeout=1)
++                except Exception:
++                    uncertain = True
++            lifeline = self.__dict__.get("_model_test_lifeline")
++            if lifeline is not None and lifeline.owner_fd is not None:
++                try:
++                    os.close(lifeline.owner_fd)
++                    lifeline.owner_fd = None
++                except OSError:
++                    uncertain = True
++            if uncertain:
++                raise ValueError("Native model-test cleanup uncertain")
 +            return
 +        contract = self.__dict__.get("_contract_state")
 +        if contract is not None:
@@ -1228,7 +1412,7 @@
  from datetime import datetime
  from types import SimpleNamespace
  from typing import Any, Callable, Dict, List, Optional
-@@ -2316,6 +2317,180 @@
+@@ -2316,6 +2317,188 @@
  )
 
 
@@ -1252,6 +1436,14 @@
 +    payload = carrier.payload()
 +    context = payload["context"]["payload"]
 +    agent._model_test_preparation = carrier
++    agent._model_test_execution = context["version"] == 6
++    if agent._model_test_execution:
++        from omnis_hermes.management_oauth import NativeOAuth
++        agent._model_test_lifeline = NativeOAuth.from_owner_fd(int(os.environ["OMNIS_MODEL_LIFELINE_FD"]))
++        agent._model_test_release = threading.Event()
++        agent._model_test_dispatch = None
++        agent._model_test_result = None
++        agent._model_test_client = None
 +    agent._model_test_ready = threading.Event()
 +    agent._model_test_closed = threading.Event()
 +    agent._model_test_entered = False
@@ -1409,7 +1601,7 @@
  def init_agent(
      agent, base_url: str = None, api_key: str = None, provider: str = None, api_mode: str = None,
      acp_command: str = None, acp_args: list[str] | None = None, command: str = None,
-@@ -2353,7 +2528,17 @@
+@@ -2353,7 +2536,17 @@
      requested_provider: str = None, capabilities: Optional[Dict[str, bool]] = None, cwd: Optional[str] = None,
      side_agent: bool = False, memory_manager=None,
      tool_result_metadata_callback: Optional[Callable[..., dict]] = None,
@@ -1749,7 +1941,7 @@
 +        raise
 --- a/agent/turn_context.py
 +++ b/agent/turn_context.py
-@@ -993,6 +993,22 @@
+@@ -993,6 +993,28 @@
      Order matters: the DB session row is created only AFTER the system prompt is built
      (else it persists system_prompt=NULL and costs a cache miss) and BEFORE preflight
      compression."""
@@ -1766,7 +1958,13 @@
 +        )
 +        agent._model_test_turn = {"task_id": effective_task_id, "turn_id": turn_id}
 +        agent._model_test_ready.set()
-+        # Retain this worker and object; this increment has no release-to-API path.
++        if agent._model_test_execution:
++            while not agent._model_test_closed.is_set():
++                if agent._model_test_release.wait(0.025):
++                    from agent.turn_api_request import run_model_test_request
++                    run_model_test_request(agent)
++                    break
++        # The same native Future remains owned until explicit close.
 +        agent._model_test_closed.wait()
 +        raise ValueError("Preparation stopped before client/API")
      from agent.turn_context_compaction import run_turn_start_compaction

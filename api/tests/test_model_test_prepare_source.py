@@ -1567,3 +1567,320 @@ async def test_model_prepare_stop_requires_correlated_close_join(
     if fault is not None:
         await host.stop()
         assert host.state == "UNCERTAIN" and effects.count("close") == 1
+
+
+@pytest.mark.asyncio
+async def test_execution_start_is_fresh_qualified_and_bounded_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from omnis_hermes.managed_admission_contract import validate_model_prepare
+
+    from omnis.modules.instance.schemas import NativeTaskCommand
+
+    owner, consumer, conn, manifest, authority = await prepared_source(tmp_path, monkeypatch)
+    command = NativeTaskCommand.model_validate(
+        {
+            **owner.base,
+            "owner_id": owner.owner,
+            "manifest_ref": manifest,
+            "action": "model_test_start",
+            "initialization_id": str(uuid4()),
+            "settings_operation_id": str(uuid4()),
+        }
+    )
+    before = canonical(owner.graph)
+    context, created = await consumer.prepare(
+        conn,
+        owner.owner,
+        manifest,
+        str(command.initialization_id),
+        str(command.settings_operation_id),
+        {"status": "CONFIRMED", "selection": REQUESTED},
+        authority,
+        str(owner.runtime.boot),
+        command,
+    )
+    payload, observation = await consumer.dispatch(conn, owner.owner, context, created)
+    assert observation is None and before == canonical(owner.graph[: len(json.loads(before))])
+    assert payload["protocol"] == "omnis-managed-admission-v6"
+    assert mapping(context["payload"])["purpose"] == "SETTINGS_TEST"
+    assert validate_model_prepare(payload) == payload
+    assert len(canonical(payload)) <= 32768
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("outcome", ["complete", "lost", "stop"])
+async def test_execution_owner_commits_reserve_and_sent_then_replays_without_send(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    outcome: str,
+) -> None:
+    """SOURCE owners/ledger/native function+real SDK; storage/constructor/compiler/HTTP are doubles."""
+    import os
+    import struct
+    import threading
+    from types import ModuleType, SimpleNamespace
+
+    import httpx
+
+    assert import_module("openai").__version__ == "2.24.0"  # existing native SDK, no network
+    from hashlib import sha256
+    from typing import Callable
+
+    from omnis_hermes.managed_admission_contract import preparation_result, validate_initialization
+    from omnis_hermes.management_oauth import NativeOAuth
+    from omnis_hermes.model_request import CodexFinalRequest
+    from omnis_hermes.model_terminal import ManagedModelTerminal
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.modules.tasks import managed_store as store
+    from omnis.policy import budgets
+
+    reserve = budgets.reserve
+    owner, consumer, conn, manifest, authority = await prepared_source(tmp_path, monkeypatch)
+    monkeypatch.syspath_prepend(
+        str(Path(__file__).resolve().parents[2] / "integrations/hermes/tests")
+    )
+    load = import_module("test_model_terminal").load
+
+    monkeypatch.setattr(budgets, "reserve", reserve)
+    cast(AsyncMock, conn.execute).return_value.scalars.return_value.all.return_value = []
+    groups: dict[str, str] = {str(r["id"]): owner.run for r in owner.graph}
+    original_put, original_get = store.put, store.get
+
+    async def put(c: AsyncConnection, who: str, run: str, item: dict[str, object]) -> None:
+        groups[str(item["id"])] = run
+        await original_put(c, who, run, item)
+
+    async def owned(c: AsyncConnection, who: str, pin: object) -> tuple[str, dict[str, object]]:
+        run = groups[str(mapping(pin)["id"])]
+        return run, await original_get(c, who, run, pin)
+
+    monkeypatch.setattr(store, "put", put)
+    monkeypatch.setattr(store, "owned", owned)
+    monkeypatch.setattr(
+        owner.runtime,
+        "settings_status",
+        AsyncMock(return_value={"status": "CONFIRMED", "selection": REQUESTED}),
+    )
+    monkeypatch.setattr(
+        owner.handler.domain, "readback", AsyncMock(return_value={"manifest_ref": manifest})
+    )
+    starts: list[dict[str, object]] = []
+    sends: list[dict[str, object]] = []
+    physical: list[str] = []
+    retained: dict[str, object] = {}
+
+    async def native(*args: object) -> dict[str, object]:
+        p = mapping(args[-1])
+        assert owner.events[-1] == "commit"
+        assert validate_initialization(p) == p
+        if p["mode"] == "CREATE":
+            starts.append(p)
+            return preparation_result(
+                p,
+                native_root_id=str(uuid4()),
+                native_child_id=str(uuid4()),
+                native_session_id="SOURCE_NATIVE_SESSION",
+                native_turn={
+                    "task_id": mapping(mapping(p["context"])["payload"])["task_id"],
+                    "turn_id": "SOURCE_TURN",
+                },
+            )
+        if p["mode"] == "RECEIVE":
+            return mapping(retained["result"])
+        assert p["mode"] == "SEND"
+        sends.append(p)
+        assert any(r["kind"] == "model-test-send" for r in owner.graph)
+        assert any(
+            r["kind"] == "model-dispatch-transition" and mapping(r["payload"])["state"] == "SENT"
+            for r in owner.graph
+        )
+        final = CodexFinalRequest(canonical(p))
+        body = final.expected_body()
+        kwargs = {k: v for k, v in body.items() if k != "stream"}
+        kwargs.update(
+            timeout=300.0, extra_headers={"x-client-request-id": body["prompt_cache_key"]}
+        )
+        assert final.consume_native(kwargs)["stream"] is True
+        for key, changed in (
+            ("model", "other"),
+            ("reasoning", {"effort": "high"}),
+            ("tools", []),
+            ("extra_body", {}),
+        ):
+            with pytest.raises((ManagedModelTerminal, ValueError)):
+                final.consume_native({**kwargs, key: changed})
+        compiler = ModuleType("agent.transports.codex")
+
+        class CompilerDouble:
+            def build_kwargs(self, **values: object) -> dict[str, object]:
+                assert values["model"] == "gpt-6.1-sol" and values["is_codex_backend"] is True
+                return kwargs
+
+        monkeypatch.setattr(compiler, "ResponsesApiTransport", CompilerDouble, raising=False)
+        monkeypatch.setitem(__import__("sys").modules, "agent.transports.codex", compiler)
+        auth = ModuleType("hermes_cli.auth_codex")
+        monkeypatch.setattr(
+            auth,
+            "_read_codex_tokens",
+            lambda: {"tokens": {"access_token": "SYNTHETIC_NOT_A_CREDENTIAL"}},
+            raising=False,
+        )
+        monkeypatch.setattr(
+            auth, "_codex_access_token_is_expiring", lambda *a: False, raising=False
+        )
+        monkeypatch.setitem(__import__("sys").modules, "hermes_cli.auth_codex", auth)
+        reader, writer = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+        os.fchmod(reader, 0o600)
+        info = os.fstat(reader)
+        os.write(writer, struct.pack("!QQ", info.st_dev, info.st_ino))
+        lifeline = NativeOAuth.from_owner_fd(reader)
+        host = RuntimeHost(tmp_path)
+        host.management_lifeline_write = writer
+
+        def transport(request: httpx.Request) -> httpx.Response:
+            final.validate_wire(request.content)
+            if outcome == "stop":
+                host._revoke_management_lifeline()  # real synchronous pipe EOF before simulated preheader
+            trace = cast(Callable[[str, dict[str, object]], None], request.extensions["trace"])
+            trace("http11.send_request_headers.started", {})
+            physical.append("headers")
+            if outcome == "lost":
+                raise httpx.ReadError("SOURCE_LOST_RESPONSE", request=request)
+            response = {
+                "id": "SOURCE_PROVIDER_RECEIPT",
+                "object": "response",
+                "created_at": 0,
+                "status": "completed",
+                "model": "gpt-6.1-sol",
+                "output": [],
+                "reasoning": {"effort": "xhigh", "summary": "auto"},
+                "usage": {
+                    "input_tokens": 15,
+                    "output_tokens": 12,
+                    "total_tokens": 27,
+                    "output_tokens_details": {"reasoning_tokens": 9},
+                },
+            }
+            event = {"type": "response.completed", "response": response}
+            return httpx.Response(
+                200,
+                headers={"content-type": "text/event-stream"},
+                text="event: response.completed\ndata: " + json.dumps(event) + "\n\n",
+            )
+
+        monkeypatch.setattr(httpx, "HTTPTransport", lambda **k: httpx.MockTransport(transport))
+        monkeypatch.setenv("HERMES_HOME", "/state/provider")
+        from omnis_hermes.managed_admission_contract import ModelTestPreparation
+
+        child = SimpleNamespace(
+            _model_test_dispatch=final,
+            _model_test_execution=True,
+            _model_test_preparation=ModelTestPreparation(canonical(starts[0])),
+            _model_test_bound=True,
+            _model_test_lifeline=lifeline,
+            _model_test_closed=threading.Event(),
+            _api_call_count=0,
+            _model_test_result=None,
+        )
+        function = load(
+            "turn_api_request.py", {"run_model_test_request"}, {}
+        ).run_model_test_request
+        try:
+            function(child)
+        finally:
+            host._revoke_management_lifeline()
+            os.close(reader)
+        retained["result"] = child._model_test_result
+        return mapping(retained["result"])
+
+    monkeypatch.setattr(owner.runtime, "managed", native)
+    start = NativeTaskCommand.model_validate(
+        {
+            **owner.base,
+            "owner_id": owner.owner,
+            "manifest_ref": manifest,
+            "action": "model_test_start",
+            "initialization_id": str(uuid4()),
+            "settings_operation_id": str(uuid4()),
+        }
+    )
+    ready = await owner.handler.handle(start)
+    assert ready["inference_status"] == "AWAITING_SEND"
+    composition = next(r for r in owner.graph if records.reference(r) == ready["composition_ref"])
+    decision = {
+        "decision_id": str(uuid4()),
+        "composition_ref": records.reference(composition),
+        "approved_text_digests": sorted(
+            sha256(t.encode()).hexdigest()
+            for t in (
+                "Respond briefly to this synthetic model test. Use no tools.",
+                str(mapping(composition["payload"])["text"]),
+            )
+        ),
+    }
+    send = NativeTaskCommand.model_validate(
+        {
+            **owner.base,
+            "owner_id": owner.owner,
+            "manifest_ref": manifest,
+            "action": "model_test_send",
+            "initialization_id": start.initialization_id,
+            "protocol_id": str(uuid4()),
+            "data_approval": decision,
+        }
+    )
+    result = await owner.handler.handle(send)
+    if outcome == "complete":
+        assert (
+            result["state"] == "SETTLED"
+            and result["output_tokens"] == 12
+            and result["reasoning_tokens"] == 9
+        )
+        assert result["inference_status"] == "VERIFIED" and result["cost_observed"] is None
+    else:
+        assert result["state"] == "SENT" and result["usage_state"] == "UNKNOWN"
+        assert result["output_tokens"] is None and result["provider_receipt_ref"] is None
+    before = canonical(owner.graph)
+    assert await owner.handler.handle(send) == result
+    assert len(starts) == len(sends) == 1 and canonical(owner.graph) == before
+    assert len(physical) == (0 if outcome == "stop" else 1)
+    from omnis_hermes.runtime_protocol import encode
+
+    measurements = {}
+    for name, data in (("start", starts[0]), ("send", sends[0])):
+        native_frame = encode(
+            {
+                "jsonrpc": "2.0",
+                "id": "f" * 36,
+                "method": "omnis.managed.model_initialize",
+                "params": data,
+            }
+        )
+        host_frame = encode(
+            {
+                "version": 1,
+                "id": "f" * 36,
+                "boot": "f" * 36,
+                "capability": "f" * 64,
+                "generation": 2**63 - 1,
+                "epoch": 2**63 - 1,
+                "deadline_ns": 2**63 - 1,
+                "op": "task_model_initialize",
+                "payload": data,
+            }
+        )
+        measurements[name] = {
+            "payload": len(canonical(data)),
+            "native_frame": len(native_frame),
+            "host_frame": len(host_frame),
+        }
+        assert (
+            len(canonical(data)) <= 32768
+            and len(native_frame) <= 65536
+            and len(host_frame) <= 65536
+        )
+    print("EXECUTION_INPUT_SIZES", json.dumps(measurements))

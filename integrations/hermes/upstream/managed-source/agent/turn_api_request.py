@@ -183,3 +183,118 @@ def build_api_request(
         "fallthrough", api_messages, _moa_prepared_request, tools_for_api, api_kwargs,
         _original_api_kwargs, _llm_middleware_trace,
     )
+
+
+def run_model_test_request(agent):
+    """One constructor-owned native Responses request, no stock retry/fallback loop."""
+    import os
+    import time
+    from datetime import datetime, timezone
+    import httpx
+    from openai import OpenAI
+    from omnis_hermes.model_request import CodexFinalRequest, CODEX_URL
+    from omnis_hermes.managed_admission_contract import canonical, ref
+    from omnis_hermes.native_preparation_contract import loads
+    from agent.transports.codex import ResponsesApiTransport
+
+    final = agent._model_test_dispatch
+    if type(final) is not CodexFinalRequest or not agent._model_test_execution:
+        raise ValueError("Constructor-owned execution required")
+    from omnis_hermes.model_terminal import require_model_authority
+    require_model_authority(agent, final_request=final)
+    p = loads(final.raw, 32768)
+    d = p["dispatch"]["payload"]
+    result = {"protocol": p["protocol"], "context_ref": p["context_ref"],
+        "dispatch_ref": ref(p["dispatch"]), "status": "UNKNOWN", "receipt": None}
+    physical = {"headers": 0, "request": None, "wire_digest": None}
+    expiry = datetime.fromisoformat(d["deadline"])
+    if expiry.utcoffset() != timezone.utc.utcoffset(expiry):
+        raise ValueError("Invalid execution deadline")
+    remaining = (expiry - datetime.now(timezone.utc)).total_seconds()
+    deadline = time.monotonic() + min(300.0, remaining)
+
+    def guard():
+        agent._model_test_lifeline._owner_alive()
+        if agent._model_test_closed.is_set() or time.monotonic() >= deadline:
+            raise ValueError("Execution authority revoked")
+        if agent._model_test_dispatch is not final or agent._api_call_count != 0:
+            raise ValueError("Execution authority changed")
+
+    def before_send(request):
+        guard()
+        if request.method != "POST" or str(request.url) != CODEX_URL or request.headers["host"] != "chatgpt.com":
+            raise ValueError("Finite Codex endpoint required")
+        physical["wire_digest"] = final.validate_wire(request.content)
+        physical["request"] = request
+        request.extensions["trace"] = trace
+
+    def trace(event, info):
+        if event.endswith(".started"):
+            guard()
+        if event.endswith(".send_request_headers.started"):
+            request = physical["request"]
+            if request is None or physical["headers"] != 0:
+                raise ValueError("Repeated physical request denied")
+            final.validate_wire(request.content)
+            physical["headers"] = 1
+
+    client = None
+    try:
+        guard()
+        if os.environ.get("HERMES_HOME") != "/state/provider":
+            raise ValueError("Dedicated product home required")
+        from hermes_cli.auth_codex import _read_codex_tokens, _codex_access_token_is_expiring
+        # Management family was joined before this native family. No refresh,
+        # external login adoption, credential pool, discovery, quota or aux calls.
+        tokens = _read_codex_tokens()["tokens"]
+        token = tokens["access_token"]
+        if _codex_access_token_is_expiring(token, 300):
+            raise ValueError("Operator authentication refresh required")
+        guard()
+        projection = p["projection"]["payload"]
+        kwargs = ResponsesApiTransport().build_kwargs(
+            model="gpt-6.1-sol", messages=projection["model_input"]["messages"], tools=[],
+            **{"provider": "openai-codex", "base_url": CODEX_URL.rsplit("/", 1)[0],
+                "is_codex_backend": True, "reasoning_config": {"enabled": True, "effort": "xhigh"},
+                "replay_encrypted_reasoning": False, "timeout": 300.0},
+        )
+        kwargs = final.consume_native(kwargs)  # after ALL native transformations
+        transport = httpx.HTTPTransport(uds="/runtime/auth-egress.sock", retries=0, trust_env=False)
+        http = httpx.Client(transport=transport, trust_env=False, follow_redirects=False,
+            timeout=300.0, event_hooks={"request": [before_send]})
+        client = OpenAI(api_key=token, base_url=CODEX_URL.rsplit("/", 1)[0], max_retries=0,
+            timeout=300.0, http_client=http)
+        agent._model_test_client = client
+        guard()
+        terminal = None
+        with client.responses.create(**kwargs) as stream:
+            for event in stream:
+                guard()
+                if event.type in ("response.completed", "response.incomplete", "response.failed"):
+                    if terminal is not None:
+                        raise ValueError("Duplicate terminal response")
+                    terminal = event.response
+        if terminal is None or physical["headers"] != 1:
+            raise ValueError("Provider outcome unknown")
+        usage = terminal.usage
+        output = terminal.output_text
+        if type(output) is not str or len(output.encode()) > 8192:
+            raise ValueError("Provider output requires reconciliation")
+        result["status"] = "COMPLETE"
+        result["receipt"] = {"provider_response_id": terminal.id, "model": terminal.model,
+            "effort": getattr(terminal.reasoning, "effort", None), "status": terminal.status,
+            "input_tokens": getattr(usage, "input_tokens", None),
+            "output_tokens": getattr(usage, "output_tokens", None),
+            "reasoning_tokens": getattr(getattr(usage, "output_tokens_details", None), "reasoning_tokens", None),
+            "output_text": output, "wire_digest": physical["wire_digest"]}
+    except Exception:
+        # SENT remains consumed even if this process cannot recover a receipt.
+        result = {**result, "status": "UNKNOWN", "receipt": None}
+    finally:
+        if client is not None:
+            try:
+                client.close()
+            except Exception:
+                result = {**result, "status": "UNKNOWN", "receipt": None}
+        agent._api_call_count = physical["headers"]
+        agent._model_test_result = result

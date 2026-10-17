@@ -22,9 +22,11 @@ from omnis.policy.model_dispatch_contract import (
     PURPOSES,
     REQUEST_FIELDS,
     decimal_string,
+    monitoring,
     require_live_deadline,
     scope_ref,
     utc,
+    validate_caps,
     validate_limits,
     validate_request,
 )
@@ -86,7 +88,7 @@ def reduce_history(
         raise CatalogError("MODEL_ALLOCATION_MISMATCH")
     state, usage_state = "RESERVED", "UNKNOWN"
     caps = mapping(req["technical_caps"])
-    tokens = integer(caps["output_tokens"], 1)
+    tokens = 0 if monitoring(caps) else integer(caps["output_tokens"], 1)
     observed = 0
     ordered = sorted(history, key=lambda h: integer(mapping(record(h)["payload"])["sequence"], 1))
     seen_receipts: set[str] = set()
@@ -138,6 +140,8 @@ def reduce_history(
         if state == "RELEASED"
         else observed
         if state == "SETTLED"
+        else None
+        if monitoring(caps) and usage_state == "UNKNOWN"
         else max(tokens, observed),
     }
 
@@ -148,11 +152,12 @@ def require_capacity(
     ceiling = validate_limits(limits)
     if purpose not in PURPOSES:
         raise CatalogError("MODEL_PURPOSE_MISMATCH")
-    requested = exact(caps, {"calls", "output_tokens", "wall_seconds"})
-    integer(requested["calls"], 1, 1)
-    integer(requested["output_tokens"], 1, 65536)
-    integer(requested["wall_seconds"], 1, 1200)
+    requested = validate_caps(caps)
+    if monitoring(ceiling) != monitoring(requested):
+        raise CatalogError("MODEL_CAP_INVALID")
     for name, charged in (("calls", "charged_calls"), ("output_tokens", "charged_output_tokens")):
+        if name == "output_tokens" and monitoring(ceiling):
+            continue
         total = sum(integer(s[charged], 0) for s in states)
         ordinary = sum(integer(s[charged], 0) for s in states if s["purpose"] != "VALIDATION")
         amount = integer(requested[name], 1)

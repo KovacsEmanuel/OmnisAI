@@ -1,6 +1,7 @@
 """Qualified preparation DATA over retained cold material; never model authority."""
 
 import json
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import uuid4
 
@@ -25,7 +26,12 @@ def qualify(value: object) -> dict[str, object]:
     """Recheck exact retained refs and real encoded bounds; no adapter dependency in API."""
     payload = exact(value, {"protocol", "mode", "context", "records", "material"})
     c = mapping(record(payload["context"], "model-test-context")["payload"])
-    if c["purpose"] != PURPOSE or c["requested"] != REQUESTED or c["effective"] is not None:
+    execution = payload["protocol"] == "omnis-managed-admission-v6"
+    if (
+        c["purpose"] != ("SETTINGS_TEST" if execution else PURPOSE)
+        or c["requested"] != REQUESTED
+        or (not execution and c["effective"] is not None)
+    ):
         raise CatalogError("MODEL_TEST_REJECTED")
     for field, kind in (
         ("managed_run_ref", "managed-run"),
@@ -104,7 +110,8 @@ def accept(result: object, payload: dict[str, object]) -> dict[str, object]:
         or v["runtime_boot"] != c["runtime_boot"]
         or v["observed_configuration_ref"] != c["provider_config_ref"]
         or v["client_status"] != "DEFERRED_NO_CREDENTIAL"
-        or v["inference_status"] != "HOLD"
+        or v["inference_status"]
+        != ("AWAITING_SEND" if payload["protocol"] == "omnis-managed-admission-v6" else "HOLD")
         or v["account_status"] != "NOT_VERIFIED"
     ):
         raise CatalogError("MODEL_TEST_REJECTED")
@@ -144,7 +151,7 @@ class ModelTest:
         if (
             body["owner_id"] != command.owner_id
             or body["command_id"] != command.initialization_id
-            or body["operation"] != "model_test_prepare"
+            or body["operation"] != command.action
         ):
             raise CatalogError("COMMAND_CONFLICT")
         references = exact(body["result_refs"], {"context_ref"})
@@ -170,7 +177,7 @@ class ModelTest:
             connection,
             command.owner_id,
             str(command.initialization_id),
-            "model_test_prepare",
+            command.action,
             request,
         )
         _, observation = await self.dispatch(connection, command.owner_id, context, False)
@@ -188,6 +195,8 @@ class ModelTest:
         runtime_boot: str,
         command: NativeTaskCommand,
     ) -> tuple[dict[str, object], bool]:
+        execution = command.action == "model_test_start"
+        purpose = "SETTINGS_TEST" if execution else PURPOSE
         await store.lock(connection, owner)
         identity, runtime_boot = uuid_string(identity), uuid_string(runtime_boot)
         state = await store.state(connection, owner, manifest=manifest_ref)
@@ -203,9 +212,7 @@ class ModelTest:
             "runtime_boot": runtime_boot,
             "command": command.model_dump(mode="json"),
         }
-        prior = await store.command_replay(
-            connection, owner, identity, "model_test_prepare", request
-        )
+        prior = await store.command_replay(connection, owner, identity, command.action, request)
         if prior is not None:
             _, context = await store.owned(connection, owner, prior["context_ref"])
             return context, False
@@ -241,16 +248,46 @@ class ModelTest:
             raise CatalogError("UNSUPPORTED_DEPENDENCY")
         if compiled.dependency_artifact_refs or compiled.dependency_closure_refs:
             raise CatalogError("UNSUPPORTED_DEPENDENCY")
+        fresh_run_id = str(uuid4())
+        configuration = records.envelope(
+            "provider-config",
+            {
+                "version": 3 if execution else 2,
+                "owner_id": owner,
+                "run_id": fresh_run_id,
+                "settings_operation_id": request["settings_operation_id"],
+                "provenance": "NATIVE_SETTINGS_SAVED_SELECTION_READBACK_V2",
+                "requested": REQUESTED,
+                "api_mode": "codex_responses",
+                "reasoning_config": {"enabled": True, "effort": "xhigh"},
+                "fallback": None,
+                "auxiliary": False,
+                "fast": False,
+                **({"output_policy": "MONITOR_SUBSCRIPTION"} if execution else {}),
+                "account_status": "NOT_VERIFIED",
+                "inference_status": "AWAITING_SEND" if execution else "HOLD",
+            },
+        )
+        effective = (
+            {
+                "provider_config_ref": records.reference(configuration),
+                "model_id": REQUESTED["model"],
+                "effort": REQUESTED["effort"],
+                "transport_config_ref": records.reference(configuration),
+            }
+            if execution
+            else None
+        )
         fresh_snapshot = records.envelope(
             "run-snapshot",
             {
                 **material,
-                "execution_purpose": PURPOSE,
+                "execution_purpose": purpose,
                 "original_snapshot_ref": records.reference(snapshot),
                 "original_selection_ref": records.reference(source.selection),
                 "preparation_receipt_ref": source.preparation_ref,
-                "resolution": "PREPARATION_ONLY",
-                "effective": None,
+                "resolution": "EXACT" if execution else "PREPARATION_ONLY",
+                "effective": effective,
                 "assessment_selectable": False,
             },
         )
@@ -259,29 +296,33 @@ class ModelTest:
             {
                 **selected,
                 "snapshot_ref": records.reference(fresh_snapshot),
-                "purpose": PURPOSE,
+                "purpose": purpose,
                 "requested": REQUESTED,
-                "effective": None,
-                "resolution": "PREPARATION_ONLY",
-                "reason": "ACCOUNT_NOT_VERIFIED",
+                "effective": effective,
+                "resolution": "EXACT" if execution else "PREPARATION_ONLY",
+                "reason": "NATIVE_CONFIGURATION_REQUIRED" if execution else "ACCOUNT_NOT_VERIFIED",
             },
         )
         fresh_run = records.envelope(
             "managed-run",
             {
-                "purpose": PURPOSE,
+                "purpose": purpose,
                 "owner_id": owner,
                 "snapshot_ref": records.reference(fresh_snapshot),
                 "selection_ref": records.reference(selection),
                 "source_manifest_ref": request["manifest_ref"],
             },
         )
-        run = str(fresh_run["id"])
+        fresh_run = {**fresh_run, "id": fresh_run_id}
+        fresh_run["digest"] = sha256(
+            canonical({k: v for k, v in fresh_run.items() if k != "digest"})
+        ).hexdigest()
+        run = fresh_run_id
         task_id, attempt_id = str(uuid4()), str(uuid4())
         brief = records.envelope(
             "task-brief",
             {
-                "purpose": PURPOSE,
+                "purpose": purpose,
                 "run_id": run,
                 "task_id": task_id,
                 "attempt_id": attempt_id,
@@ -295,7 +336,7 @@ class ModelTest:
         composition = records.envelope(
             "prompt-composition",
             {
-                "purpose": PURPOSE,
+                "purpose": purpose,
                 "brief_ref": records.reference(brief),
                 "preparation_receipt_ref": source.preparation_ref,
                 "package_refs": selected["selected_package_refs"],
@@ -306,7 +347,7 @@ class ModelTest:
         manifest = records.envelope(
             "launch-manifest",
             {
-                "purpose": PURPOSE,
+                "purpose": purpose,
                 "run_id": run,
                 "selection_ref": records.reference(selection),
                 "entries": [
@@ -320,29 +361,16 @@ class ModelTest:
                 ],
             },
         )
-        configuration = records.envelope(
-            "provider-config",
-            {
-                "version": 2,
-                "owner_id": owner,
-                "run_id": run,
-                "settings_operation_id": request["settings_operation_id"],
-                "provenance": "NATIVE_SETTINGS_SAVED_SELECTION_READBACK_V2",
-                "requested": REQUESTED,
-                "api_mode": "codex_responses",
-                "reasoning_config": {"enabled": True, "effort": "xhigh"},
-                "fallback": None,
-                "auxiliary": False,
-                "fast": False,
-                "account_status": "NOT_VERIFIED",
-                "inference_status": "HOLD",
-            },
-        )
         context = records.envelope(
             "model-test-context",
             {
-                "version": 5,
-                "purpose": PURPOSE,
+                "version": 6 if execution else 5,
+                **(
+                    {"campaign_deadline": (datetime.now(UTC) + timedelta(seconds=3600)).isoformat()}
+                    if execution
+                    else {}
+                ),
+                "purpose": purpose,
                 "owner_id": owner,
                 "run_id": run,
                 **{k: v for k, v in request.items() if k != "command"},
@@ -365,9 +393,9 @@ class ModelTest:
                 "material_digest": material["material_digest"],
                 "resolved_index_digest": material["resolved_index_digest"],
                 "requested": REQUESTED,
-                "effective": None,
+                "effective": effective,
                 "account_status": "NOT_VERIFIED",
-                "inference_status": "HOLD",
+                "inference_status": "AWAITING_SEND" if execution else "HOLD",
             },
         )
         produced = [
@@ -382,7 +410,7 @@ class ModelTest:
         ]
         material_bundle = record(source.preparation_bundle, "native-preparation-bundle")
         payload: dict[str, object] = {
-            "protocol": "omnis-managed-admission-v5",
+            "protocol": "omnis-managed-admission-v6" if execution else "omnis-managed-admission-v5",
             "mode": "CREATE",
             "context": context,
             "records": produced[:-1],
@@ -433,7 +461,7 @@ class ModelTest:
             owner,
             run,
             identity,
-            "model_test_prepare",
+            command.action,
             request,
             {"context_ref": records.reference(context)},
         )
@@ -464,8 +492,9 @@ class ModelTest:
         ]
         if len(materials) != 1:
             raise CatalogError("MODEL_TEST_REJECTED")
+        execution = c["version"] == 6
         payload: dict[str, object] = {
-            "protocol": "omnis-managed-admission-v5",
+            "protocol": "omnis-managed-admission-v6" if execution else "omnis-managed-admission-v5",
             "mode": "CREATE" if created else "STATUS",
             "context": context,
             "records": selected,
@@ -505,3 +534,386 @@ class ModelTest:
         run = str(mapping(context["payload"])["run_id"])
         await store.put(connection, owner, run, item)
         return await store.get(connection, owner, run, records.reference(item))
+
+    async def reserve_execution(
+        self,
+        connection: AsyncConnection,
+        command: NativeTaskCommand,
+    ) -> tuple[dict[str, object], bool]:
+        from datetime import UTC, datetime, timedelta
+
+        from omnis.modules.runs.model_dispatch import data_decision
+        from omnis.policy import budgets
+        from omnis.policy.model_projection import SyntheticApproval
+
+        await budgets._transaction(connection, command.owner_id)
+        prior = await store.command_replay(
+            connection,
+            command.owner_id,
+            str(command.protocol_id),
+            command.action,
+            command.model_dump(mode="json"),
+        )
+        if prior is not None:
+            _, attempt = await store.owned(connection, command.owner_id, prior["attempt_ref"])
+            return attempt, False
+        start = await store.command_receipt(
+            connection, command.owner_id, str(command.initialization_id)
+        )
+        start_body = mapping(record(start, "contract-input-command")["payload"])
+        if start_body["operation"] != "model_test_start":
+            raise CatalogError("MODEL_TEST_REJECTED")
+        _, context = await store.owned(
+            connection, command.owner_id, mapping(start_body["result_refs"])["context_ref"]
+        )
+        payload, turn = await self.dispatch(connection, command.owner_id, context, False)
+        c = mapping(context["payload"])
+        if c["version"] != 6 or c["source_manifest_ref"] != command.manifest_ref or turn is None:
+            raise CatalogError("MODEL_TEST_REJECTED")
+        run = str(c["run_id"])
+        composition = await store.get(connection, command.owner_id, run, c["composition_ref"])
+        decision = data_decision(command.data_approval)
+        if decision["composition_ref"] != records.reference(composition):
+            raise CatalogError("MODEL_DATA_DECISION_REJECTED")
+        approval = SyntheticApproval(
+            command.owner_id,
+            run,
+            canonical(records.reference(composition)),
+            frozenset(str(v) for v in sequence(decision["approved_text_digests"])),
+            (),
+        )
+        instruction = approval.classified(
+            "Respond briefly to this synthetic model test. Use no tools."
+        )
+        objective = approval.classified(mapping(composition["payload"])["text"])
+        if approval.approved_text_digests != frozenset(
+            sha256(v.encode()).hexdigest() for v in (instruction, objective)
+        ):
+            raise CatalogError("MODEL_DATA_DECISION_REJECTED")
+        t = mapping(turn["payload"])
+        binding = records.envelope(
+            "runtime-binding",
+            {
+                "version": 6,
+                **{
+                    k: t[k]
+                    for k in (
+                        "context_ref",
+                        "runtime_boot",
+                        "authority",
+                        "native_root_id",
+                        "native_child_id",
+                        "native_session_id",
+                        "native_turn",
+                    )
+                },
+            },
+        )
+        model_input = {
+            "messages": [
+                {"role": "system", "content": instruction},
+                {"role": "user", "content": objective},
+            ],
+            "tools": [],
+        }
+        projection = records.envelope(
+            "model-projection",
+            {
+                "version": 2,
+                "owner_id": command.owner_id,
+                "run_id": run,
+                "context_ref": records.reference(context),
+                "composition_ref": records.reference(composition),
+                "binding_ref": records.reference(binding),
+                "selection_ref": c["selection_ref"],
+                "model_input": model_input,
+                "approved_text_digests": sorted(approval.approved_text_digests),
+                "projection_digest": sha256(canonical(model_input)).hexdigest(),
+                "output_policy": "MONITOR_SUBSCRIPTION",
+            },
+        )
+        for item in (binding, projection):
+            await store.put(connection, command.owner_id, run, item)
+        budget = await budgets.create_budget(
+            connection,
+            command.owner_id,
+            c["managed_run_ref"],
+            {
+                "calls": 1,
+                "output_tokens": None,
+                "validation_calls": 0,
+                "validation_output_tokens": None,
+                "cost_limit": None,
+                "output_policy": "MONITOR_SUBSCRIPTION",
+            },
+        )
+        campaign = datetime.fromisoformat(str(c["campaign_deadline"]))
+        deadline = min(campaign, datetime.now(UTC) + timedelta(seconds=300))
+        dispatch = await budgets.reserve(
+            connection,
+            command.owner_id,
+            records.reference(budget),
+            {
+                "run_or_job_ref": c["managed_run_ref"],
+                "dispatch_attempt_id": command.protocol_id,
+                "native_turn_ref": records.reference(turn),
+                "dispatch_owner_ref": records.reference(binding),
+                "purpose": "SETTINGS_TEST",
+                "provider_config_ref": c["provider_config_ref"],
+                "model_id": "gpt-6.1-sol",
+                "execution_selection_ref": c["selection_ref"],
+                "projection_ref": records.reference(projection),
+                "projection_digest": mapping(projection["payload"])["projection_digest"],
+                "fencing_epoch": command.expected_epoch,
+                "deadline": deadline.isoformat(),
+                "technical_caps": {
+                    "calls": 1,
+                    "output_tokens": None,
+                    "wall_seconds": 300,
+                    "output_policy": "MONITOR_SUBSCRIPTION",
+                },
+            },
+            trusted_purpose="SETTINGS_TEST",
+            hermes=True,
+        )
+        attempt = records.envelope(
+            "model-test-attempt",
+            {
+                "context_ref": records.reference(context),
+                "binding_ref": records.reference(binding),
+                "projection_ref": records.reference(projection),
+                "turn_ref": records.reference(turn),
+                "dispatch_ref": records.reference(dispatch),
+            },
+        )
+        await store.put(connection, command.owner_id, run, attempt)
+        await store.command_complete(
+            connection,
+            command.owner_id,
+            run,
+            str(command.protocol_id),
+            command.action,
+            command.model_dump(mode="json"),
+            {"attempt_ref": records.reference(attempt)},
+        )
+        return attempt, True
+
+    async def execution_packet(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        attempt: dict[str, object],
+        *,
+        send: bool,
+    ) -> dict[str, object] | None:
+        from omnis.policy import budgets
+
+        run, stored = await store.owned(connection, owner, records.reference(attempt))
+        if canonical(stored) != canonical(attempt):
+            raise CatalogError("MODEL_TEST_REJECTED")
+        a = mapping(attempt["payload"])
+        graph = await store.graph(connection, owner, run)
+        packets = [
+            r
+            for r in graph
+            if r["kind"] == "model-test-send"
+            and mapping(r["payload"])["attempt_ref"] == records.reference(attempt)
+        ]
+        if packets:
+            if len(packets) != 1 or send:
+                raise CatalogError("MODEL_TEST_REJECTED")
+            return {**mapping(mapping(packets[0]["payload"])["packet"]), "mode": "RECEIVE"}
+        if not send:
+            return None
+        sent = await budgets.mark_sent(connection, owner, a["dispatch_ref"])
+        packet: dict[str, object] = {
+            "protocol": "omnis-managed-admission-v6",
+            "mode": "SEND",
+            "context_ref": a["context_ref"],
+            "sent": sent,
+        }
+        for key, field in (
+            ("binding", "binding_ref"),
+            ("turn", "turn_ref"),
+            ("projection", "projection_ref"),
+            ("dispatch", "dispatch_ref"),
+        ):
+            packet[key] = await store.get(connection, owner, run, a[field])
+        if len(canonical(packet)) > 32768:
+            raise CatalogError("MODEL_TEST_LIMIT")
+        await store.put(
+            connection,
+            owner,
+            run,
+            records.envelope(
+                "model-test-send", {"attempt_ref": records.reference(attempt), "packet": packet}
+            ),
+        )
+        return packet
+
+    async def execution_receipt(
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        attempt: dict[str, object],
+        result: object = None,
+    ) -> dict[str, object]:
+        from omnis.modules.tasks.managed_contract import integer, text
+        from omnis.policy import budgets
+
+        run, _ = await store.owned(connection, owner, records.reference(attempt))
+        a = mapping(attempt["payload"])
+        graph = await store.graph(connection, owner, run)
+        found = [
+            r
+            for r in graph
+            if r["kind"] == "provider-receipt"
+            and mapping(r["payload"])["attempt_ref"] == records.reference(attempt)
+        ]
+        if len(found) > 1:
+            raise CatalogError("MODEL_RECEIPT_CONFLICT")
+        receipt = found[0] if found else None
+        if result is not None:
+            v = exact(result, {"protocol", "context_ref", "dispatch_ref", "status", "receipt"})
+            if (
+                v["protocol"] != "omnis-managed-admission-v6"
+                or v["context_ref"] != a["context_ref"]
+                or v["dispatch_ref"] != a["dispatch_ref"]
+                or v["status"] not in ("PENDING", "COMPLETE", "UNKNOWN")
+            ):
+                raise CatalogError("MODEL_TEST_REJECTED")
+            if v["status"] == "COMPLETE":
+                observed = exact(
+                    v["receipt"],
+                    {
+                        "provider_response_id",
+                        "model",
+                        "effort",
+                        "input_tokens",
+                        "output_tokens",
+                        "reasoning_tokens",
+                        "status",
+                        "output_text",
+                        "wire_digest",
+                    },
+                )
+                for key in ("provider_response_id", "model", "status"):
+                    text(observed[key], 256)
+                if observed["effort"] is not None:
+                    text(observed["effort"], 32)
+                for key in ("input_tokens", "output_tokens", "reasoning_tokens"):
+                    if observed[key] is not None:
+                        integer(observed[key], 0)
+                if (
+                    type(observed["output_text"]) is not str
+                    or len(observed["output_text"].encode()) > 8192
+                ):
+                    raise CatalogError("MODEL_TEST_REJECTED")
+                from omnis.modules.runs.native_preparation_models import sha
+
+                sha(observed["wire_digest"])
+                body: dict[str, object] = {
+                    "attempt_ref": records.reference(attempt),
+                    "observed": observed,
+                }
+                if receipt is not None and canonical(receipt["payload"]) != canonical(body):
+                    raise CatalogError("MODEL_RECEIPT_CONFLICT")
+                if receipt is None:
+                    receipt = records.envelope("provider-receipt", body)
+                    await store.put(connection, owner, run, receipt)
+                output = observed["output_tokens"]
+                usage = (
+                    "UNKNOWN"
+                    if output is None
+                    else "KNOWN"
+                    if observed["status"] == "completed"
+                    else "PARTIAL"
+                )
+                await budgets.settle(
+                    connection,
+                    owner,
+                    a["dispatch_ref"],
+                    {
+                        "receipt_id": mapping(
+                            (await store.get(connection, owner, run, a["dispatch_ref"]))["payload"]
+                        )["dispatch_attempt_id"],
+                        "usage_state": usage,
+                        "output_tokens": output,
+                        "provider_receipt_ref": records.reference(receipt),
+                        "cost_observed": None,
+                        "cost_estimate": None,
+                    },
+                )
+            elif v["receipt"] is not None:
+                raise CatalogError("MODEL_TEST_REJECTED")
+        state = await budgets.readback(connection, owner, a["dispatch_ref"])
+        saved_observation = (
+            None if receipt is None else mapping(mapping(receipt["payload"])["observed"])
+        )
+        return validate_execution_readback(
+            {
+                "ok": True,
+                "attempt_ref": records.reference(attempt),
+                "dispatch_ref": a["dispatch_ref"],
+                "state": state["state"],
+                "usage_state": state["usage_state"],
+                "output_policy": "MONITOR_SUBSCRIPTION",
+                "output_tokens": None
+                if saved_observation is None
+                else saved_observation["output_tokens"],
+                "reasoning_tokens": None
+                if saved_observation is None
+                else saved_observation["reasoning_tokens"],
+                "provider_receipt_ref": None if receipt is None else records.reference(receipt),
+                "inference_status": "VERIFIED"
+                if saved_observation is not None
+                and saved_observation["model"] == "gpt-6.1-sol"
+                and saved_observation["effort"] == "xhigh"
+                and saved_observation["status"] == "completed"
+                else "UNKNOWN",
+                "cost_observed": None,
+                "cost_estimate": None,
+            }
+        )
+
+
+def validate_execution_readback(value: object) -> dict[str, object]:
+    from omnis.modules.tasks.managed_contract import integer
+
+    v = exact(
+        value,
+        {
+            "ok",
+            "attempt_ref",
+            "dispatch_ref",
+            "state",
+            "usage_state",
+            "output_policy",
+            "output_tokens",
+            "reasoning_tokens",
+            "provider_receipt_ref",
+            "inference_status",
+            "cost_observed",
+            "cost_estimate",
+        },
+    )
+    ref(v["attempt_ref"], "model-test-attempt")
+    ref(v["dispatch_ref"], "model-dispatch")
+    if (
+        v["ok"] is not True
+        or v["state"] not in ("RESERVED", "SENT", "SETTLED")
+        or v["usage_state"] not in ("UNKNOWN", "PARTIAL", "KNOWN")
+        or v["output_policy"] != "MONITOR_SUBSCRIPTION"
+        or v["inference_status"] not in ("UNKNOWN", "VERIFIED")
+        or v["cost_observed"] is not None
+        or v["cost_estimate"] is not None
+    ):
+        raise CatalogError("MODEL_TEST_REJECTED")
+    for key in ("output_tokens", "reasoning_tokens"):
+        if v[key] is not None:
+            integer(v[key], 0)
+    if v["provider_receipt_ref"] is not None:
+        ref(v["provider_receipt_ref"], "provider-receipt")
+    elif v["inference_status"] != "UNKNOWN" or v["usage_state"] != "UNKNOWN":
+        raise CatalogError("MODEL_TEST_REJECTED")
+    return v

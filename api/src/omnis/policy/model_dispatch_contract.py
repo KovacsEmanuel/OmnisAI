@@ -61,15 +61,44 @@ def utc(value: object) -> datetime:
     return result
 
 
-def validate_limits(value: object) -> dict[str, object]:
-    result = exact(
+def monitoring(value: object) -> bool:
+    return type(value) is dict and value.get("output_policy") == "MONITOR_SUBSCRIPTION"
+
+
+def validate_caps(value: object) -> dict[str, object]:
+    monitor = monitoring(value)
+    caps = exact(
         value,
-        {"calls", "output_tokens", "validation_calls", "validation_output_tokens", "cost_limit"},
+        {"calls", "output_tokens", "wall_seconds"} | ({"output_policy"} if monitor else set()),
     )
-    calls = integer(result["calls"], 1)
-    tokens = integer(result["output_tokens"], 1)
+    integer(caps["calls"], 1, 1)
+    integer(caps["wall_seconds"], 1, 300 if monitor else 1200)
+    if monitor:
+        if caps["output_tokens"] is not None:
+            raise CatalogError("MODEL_CAP_INVALID")
+    else:
+        integer(caps["output_tokens"], 1, 65536)
+    return caps
+
+
+def validate_limits(value: object) -> dict[str, object]:
+    fields = {
+        "calls",
+        "output_tokens",
+        "validation_calls",
+        "validation_output_tokens",
+        "cost_limit",
+    }
+    monitor = monitoring(value)
+    result = exact(value, fields | ({"output_policy"} if monitor else set()))
+    calls = integer(result["calls"], 1, 200 if monitor else 2**63 - 1)
     integer(result["validation_calls"], 0, calls)
-    integer(result["validation_output_tokens"], 0, tokens)
+    if monitor:
+        if result["output_tokens"] is not None or result["validation_output_tokens"] is not None:
+            raise CatalogError("MODEL_CAP_INVALID")
+    else:
+        tokens = integer(result["output_tokens"], 1)
+        integer(result["validation_output_tokens"], 0, tokens)
     if decimal_string(result["cost_limit"]) is not None:
         raise CatalogError("MODEL_FINANCIAL_LIMIT_BLOCKED")
     return result
@@ -105,10 +134,11 @@ def validate_request(
         raise CatalogError("MODEL_PROJECTION_MISMATCH")
     integer(result["fencing_epoch"], 1)
     utc(result["deadline"])
-    caps = exact(result["technical_caps"], {"calls", "output_tokens", "wall_seconds"})
-    integer(caps["calls"], 1, 1)
-    integer(caps["output_tokens"], 1, 65536)
-    integer(caps["wall_seconds"], 1, 1200)
+    caps = validate_caps(result["technical_caps"])
+    if monitoring(caps) and (
+        not hermes or purpose != "SETTINGS_TEST" or result["model_id"] != "gpt-6.1-sol"
+    ):
+        raise CatalogError("MODEL_CAP_INVALID")
     return result
 
 

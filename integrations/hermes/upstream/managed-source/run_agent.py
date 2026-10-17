@@ -1044,12 +1044,31 @@ class AIAgent(
         blocks the rest."""
         if self.__dict__.get("_model_test_preparation") is not None:
             self._model_test_closed.set()
+            client = self.__dict__.get("_model_test_client")
+            uncertain = False
+            if client is not None:
+                try:
+                    client.close()
+                except Exception:
+                    uncertain = True
             record = self.__dict__.get("_model_test_record")
             future = record.future if record is not None else None
             if record is not None and record.model_test_submit_started and future is None:
                 raise ValueError("Native preparation submission uncertain")
             if future is not None:
-                future.result(timeout=1)
+                try:
+                    future.result(timeout=1)
+                except Exception:
+                    uncertain = True
+            lifeline = self.__dict__.get("_model_test_lifeline")
+            if lifeline is not None and lifeline.owner_fd is not None:
+                try:
+                    os.close(lifeline.owner_fd)
+                    lifeline.owner_fd = None
+                except OSError:
+                    uncertain = True
+            if uncertain:
+                raise ValueError("Native model-test cleanup uncertain")
             return
         contract = self.__dict__.get("_contract_state")
         if contract is not None:

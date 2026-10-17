@@ -425,3 +425,58 @@ async def test_catalog_resolution_validates_persisted_envelope(
     else:
         with pytest.raises(CatalogError):
             await ledger._resolved(connection, owner, run, wanted)
+
+
+def subscription_limits() -> dict[str, object]:
+    return {
+        "calls": 1,
+        "output_tokens": None,
+        "validation_calls": 0,
+        "validation_output_tokens": None,
+        "cost_limit": None,
+        "output_policy": "MONITOR_SUBSCRIPTION",
+    }
+
+
+def subscription_request() -> dict[str, object]:
+    value = request()
+    value.update(purpose="SETTINGS_TEST", model_id="gpt-6.1-sol")
+    value["technical_caps"] = {
+        "calls": 1,
+        "output_tokens": None,
+        "wall_seconds": 300,
+        "output_policy": "MONITOR_SUBSCRIPTION",
+    }
+    return value
+
+
+def test_subscription_monitor_is_explicit_and_calls_remain_enforced() -> None:
+    value = subscription_request()
+    assert contract.validate_request(value, trusted_purpose="SETTINGS_TEST") == value
+    assert contract.validate_limits(subscription_limits()) == subscription_limits()
+    ledger.require_capacity(subscription_limits(), [], "SETTINGS_TEST", value["technical_caps"])
+    with pytest.raises(CatalogError, match="MODEL_BUDGET_EXHAUSTED"):
+        ledger.require_capacity(
+            subscription_limits(),
+            [
+                {
+                    "purpose": "SETTINGS_TEST",
+                    "charged_calls": 1,
+                    "charged_output_tokens": None,
+                }
+            ],
+            "SETTINGS_TEST",
+            value["technical_caps"],
+        )
+    for field, changed in (("model_id", "other"), ("purpose", "RECON")):
+        invalid = {**value, field: changed}
+        with pytest.raises(CatalogError):
+            contract.validate_request(invalid, trusted_purpose=str(invalid["purpose"]))
+    invalid = deepcopy(value)
+    invalid["technical_caps"] = {**mapping(invalid["technical_caps"]), "wall_seconds": 301}
+    with pytest.raises(CatalogError):
+        contract.validate_request(invalid, trusted_purpose="SETTINGS_TEST")
+    with pytest.raises(CatalogError):
+        contract.validate_request(
+            {**value, "native_turn_ref": None}, trusted_purpose="SETTINGS_TEST", hermes=False
+        )

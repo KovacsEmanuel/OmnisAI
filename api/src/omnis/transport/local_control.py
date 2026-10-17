@@ -280,10 +280,9 @@ class LocalControl:
                         ):
                             response = {"ok": False, "error": "CONTROL_DENIED"}
                         else:
-                            if (
-                                isinstance(body.command, NativeTaskCommand)
-                                and body.command.action == "model_test_prepare"
-                            ):
+                            if isinstance(
+                                body.command, NativeTaskCommand
+                            ) and body.command.action in {"model_test_prepare", "model_test_start"}:
                                 timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
                             response = await self._dispatch(body.command)
             except (

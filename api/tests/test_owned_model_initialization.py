@@ -321,6 +321,263 @@ async def test_native_source_binding_rejects_boolean_revision_before_python_equa
         adapter.validate_initialization(bad)
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mutation", ["missing", "foreign", "stale", "boolean", "digest"])
+async def test_owner_refuses_unavailable_configuration_refs_before_initialization_intent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str
+) -> None:
+    from pydantic import ValidationError
+
+    owner = SourceOwner(tmp_path, monkeypatch)
+    source_ref = await owner.produce()
+    mutations: dict[str, dict[str, object]] = {
+        "foreign": {"id": str(uuid4())},
+        "stale": {"revision": 2},
+        "boolean": {"revision": True},
+        "digest": {"digest": "0" * 64},
+        "missing": {},
+    }
+    bad: object = {**source_ref, **mutations[mutation]}
+    if mutation == "missing":
+        bad = None
+    before = canonical(owner.graph)
+    with pytest.raises((CatalogError, ValidationError)):
+        await owner.handler.handle(
+            NativeTaskCommand.model_validate(
+                {
+                    **owner.base,
+                    "action": "model_initialization",
+                    "provider_config_ref": bad,
+                    "initialization_id": str(uuid4()),
+                }
+            )
+        )
+    owner.native.assert_not_awaited()
+    owner.reserve.assert_not_awaited()
+    assert canonical(owner.graph) == before
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("gate", ["host", "peer"])
+async def test_owner_initialization_crosses_existing_transport_validators(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, gate: str
+) -> None:
+    """Real UDS/NativePeer framing; storage, process and native reply remain doubles."""
+    import asyncio
+    import importlib
+    import json
+    import socket
+    import sys
+    import time
+
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.policy.ready_model_configuration import validate_ready_source
+
+    monkeypatch.syspath_prepend(
+        str(Path(__file__).resolve().parents[2] / "integrations/hermes/src")
+    )
+    managed = importlib.import_module("omnis_hermes.managed_admission_contract")
+    wire = importlib.import_module("omnis_hermes.runtime_protocol")
+    host_type = importlib.import_module("omnis_hermes.runtime_host").RuntimeHost
+    if gate == "host":
+        # Qualify the actual producer at its existing configuration byte maximum.
+        qualified = configuration()
+        qualified.update(provider="p" * 256, model_id="m" * 256)
+        qualified["capabilities"] = {str(i) + "x" * 63: False for i in range(4)}
+        qualified["base_url"] = str(qualified["base_url"]) + "x" * (
+            2048 - len(canonical(qualified))
+        )
+        assert len(canonical(validate_ready_source(qualified))) == 2048
+        with pytest.raises(CatalogError):
+            validate_ready_source({**qualified, "base_url": str(qualified["base_url"]) + "x"})
+        monkeypatch.setattr(sys.modules[__name__], "configuration", lambda: deepcopy(qualified))
+    owner = SourceOwner(ipc_directory, monkeypatch)
+    source_ref = await owner.produce()
+    left, right = socket.socketpair()
+    reader, writer = await asyncio.open_connection(sock=left)
+    remote_reader, remote_writer = await asyncio.open_connection(sock=right)
+    process = Mock(spec=asyncio.subprocess.Process)
+    process.stdin, process.stdout = writer, reader
+    process.stderr = asyncio.StreamReader()
+    process.stderr.feed_eof()
+    process.returncode = None
+    peer = wire.NativePeer(process)
+    peer.bootstrap_inventory = {
+        "schema_version": 1,
+        "observation": "NATIVE_BOOTSTRAP",
+        "scope": "/state/active",
+        "registry": {
+            "status": "NOT_INITIALIZED",
+            "generation": None,
+            "count": None,
+            "entries": None,
+        },
+        "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+    }
+    frames: list[dict[str, object]] = []
+
+    async def native_reply() -> None:
+        frame = wire.decode(await remote_reader.readuntil(b"\n"))
+        assert frame["method"] == managed.RPC["task_model_initialize"]
+        result = await owner.native_double(
+            owner.handler.service, owner.lease, "task_model_initialize", frame["params"]
+        )
+        remote_writer.write(wire.encode({"jsonrpc": "2.0", "id": frame["id"], "result": result}))
+        await remote_writer.drain()
+
+    responding = asyncio.create_task(native_reply())
+    try:
+        async with host_type(ipc_directory) as host:
+            host.state, host.generation, host.epoch = "READY", 0, 1
+            host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+            host.process, host.peer = process, peer
+            owner.runtime.boot = host.boot
+            service = owner.handler.service
+            monkeypatch.setattr(
+                service,
+                "runtime_authority",
+                AsyncMock(
+                    side_effect=lambda *_a, **_k: RuntimeAuthority(
+                        generation=0, epoch=1, deadline_ns=time.monotonic_ns() + 3_000_000_000
+                    )
+                ),
+            )
+            validate = host._validate
+
+            def observe(body: object) -> dict[str, object]:
+                checked = mapping(validate(body))
+                frames.append(deepcopy(checked))
+                return checked
+
+            monkeypatch.setattr(host, "_validate", observe)
+            if gate == "host":
+                monkeypatch.setattr(
+                    owner.runtime, "managed", RuntimeClient.managed.__get__(owner.runtime)
+                )
+                await owner.runtime.connect()
+            else:
+
+                async def through_peer(
+                    service: InstanceService, lease: UUID, op: str, payload: dict[str, object]
+                ) -> dict[str, object]:
+                    return mapping(await peer.call(managed.RPC[op], payload, timeout=3.2))
+
+                monkeypatch.setattr(owner.runtime, "managed", through_peer)
+            try:
+                command = NativeTaskCommand.model_validate(
+                    {
+                        **owner.base,
+                        "action": "model_initialization",
+                        "provider_config_ref": source_ref,
+                        "initialization_id": str(uuid4()),
+                    }
+                )
+                answer = await owner.handler.handle(command)
+                assert answer["initialization_status"] == "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM"
+                assert answer["inference_status"] == "HOLD"
+                await responding
+                good = owner.payloads[0]
+                observation = mapping(mapping(answer["initialization_observation"])["payload"])
+                assert observation["model_calls"] == 0
+                assert observation["native_turn"] is None
+                assert observation["client_status"] == "DEFERRED_NO_CREDENTIAL"
+                assert await owner.handler.handle(command) == answer
+                assert [r["kind"] for r in owner.graph].count("native-initialization-intent") == 1
+                assert [r["kind"] for r in owner.graph].count(
+                    "native-initialization-observation"
+                ) == 1
+                owner.reserve.assert_not_awaited()
+                assert peer.next_id == 1 and not peer.pending
+                if gate == "host":
+                    frame = frames[-1]
+                    controller_bytes = json.dumps(frame, separators=(",", ":")).encode() + b"\n"
+                    native_bytes = wire.encode(
+                        {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": managed.RPC["task_model_initialize"],
+                            "params": good,
+                        }
+                    )
+                    assert len(canonical(good)) <= managed.MAX_BYTES == 32768
+                    assert len(controller_bytes) <= wire.MAX_FRAME == 65536
+                    print(
+                        "initialization_sizes",
+                        len(canonical(good)),
+                        len(controller_bytes),
+                        len(native_bytes),
+                    )
+                    # Generic frame max/max+1, not a claim of qualified DATA at 64 KiB.
+                    boundary = {"jsonrpc": "2.0", "id": 1, "result": ""}
+                    boundary["result"] = "x" * (wire.MAX_FRAME - len(wire.encode(boundary)))
+                    assert len(wire.encode(boundary)) == wire.MAX_FRAME
+                    assert wire.decode(wire.encode(boundary)) == boundary
+                    boundary["result"] = str(boundary["result"]) + "x"
+                    with pytest.raises(wire.ProtocolError, match="Frame limit"):
+                        wire.encode(boundary)
+                    with pytest.raises(wire.ProtocolError, match="Frame limit"):
+                        wire.decode(json.dumps(boundary, separators=(",", ":")).encode() + b"\n")
+                    for field, value in (
+                        ("provider_config", None),
+                        ("producer_receipt", None),
+                        ("owner_id", str(uuid4())),
+                        ("run_id", str(uuid4())),
+                        ("source_byte_digest", "0" * 64),
+                        ("initialization_data_digest", "0" * 64),
+                        ("intent_ref", {**mapping(good["intent_ref"]), "revision": True}),
+                        ("manifest_ref", {**mapping(good["manifest_ref"]), "revision": True}),
+                    ):
+                        bad = {**good, field: value}
+                        with pytest.raises(ValueError):
+                            validate({**frame, "payload": bad})
+                        with pytest.raises(ValueError):
+                            await peer.call(managed.RPC["task_model_initialize"], bad)
+                    for field in ("provider_config", "producer_receipt", "intent_ref"):
+                        bad = {k: v for k, v in good.items() if k != field}
+                        with pytest.raises(ValueError):
+                            validate({**frame, "payload": bad})
+                        with pytest.raises(ValueError):
+                            await peer.call(managed.RPC["task_model_initialize"], bad)
+                    for bad in (
+                        {**frame, "boot": str(uuid4())},
+                        {**frame, "epoch": 2},
+                        {**frame, "generation": 1},
+                        {**frame, "capability": "foreign"},
+                        {**frame, "epoch": True},
+                        {**frame, "generation": False},
+                    ):
+                        with pytest.raises(ValueError):
+                            validate(bad)
+                    with pytest.raises(ValueError, match="Stale initialization authority"):
+                        await host._managed(
+                            {**frame, "payload": {**good, "runtime_boot": str(uuid4())}}
+                        )
+                    for fence_field, fence_value in (("generation", 1), ("epoch", 2)):
+                        with monkeypatch.context() as stale:
+                            stale.setattr(host, fence_field, fence_value)
+                            with pytest.raises(ValueError, match="Stale initialization authority"):
+                                await host._managed(frame)
+                    for deadline in (
+                        True,
+                        time.monotonic_ns() - 1,
+                        time.monotonic_ns() + 4_600_000_000,
+                        time.monotonic_ns() + 5_100_000_000,
+                    ):
+                        with pytest.raises(ValueError):
+                            await host._managed({**frame, "deadline_ns": deadline})
+                    assert peer.next_id == 1 and not peer.pending and len(owner.payloads) == 1
+            finally:
+                # No process was launched; do not send synthetic PID/process-group signals.
+                host.process, host.peer = None, None
+                await owner.runtime.close()
+    finally:
+        responding.cancel()
+        await asyncio.gather(responding, return_exceptions=True)
+        await peer.close()
+        remote_writer.close()
+        await remote_writer.wait_closed()
+
+
 def test_owned_preclient_core_cannot_enter_public_turn_facade() -> None:
     """SOURCE getter body only; not native construction or turn proof."""
     import ast

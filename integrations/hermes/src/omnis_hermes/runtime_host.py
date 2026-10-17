@@ -1103,6 +1103,7 @@ class RuntimeHost:
                 "task_release": managed.validate_release,
                 "task_status": managed.validate_status,
                 "task_model_preflight": managed.validate_model_preflight,
+                "task_model_initialize": managed.validate_initialization,
             }[body["op"]](body["payload"])
         return body
 

@@ -1,0 +1,127 @@
+{
+  "snapshot": "1b4ea464a7d7337ad0c95e42ca965220a84f6e8c",
+  "base": "de8f450a62cdb698fb9e0c4bfdcd1f6f4752d34a",
+  "scope": {
+    "role": "Independent READ-ONLY, complementar authority/concurrency/Stop/cancellation/failure/cleanup",
+    "reviewed_delta": [
+      "README.md:3",
+      "documents/verification/implementation-status.md:13",
+      "documents/verification/p4a-minim.md:87-122",
+      ".hermes/skills/omnis-hermes-runtime/SKILL.md:64",
+      "documents/verification/p4a-model-prepare-evidence/native-cancellation-repro.py",
+      "documents/verification/p4a-model-prepare-evidence/native-cancellation-client-fast.json",
+      "documents/verification/p4a-model-prepare-evidence/native-cancellation-client-timeout.json",
+      "documents/verification/p4a-model-prepare-evidence/native-cancellation-host-control.json"
+    ],
+    "requirement_consumer_risk_decision": "Identificarea producerului anulării în RuntimeClient/Host pentru model_test_prepare; riscul este confundarea cleanupului ori expiry cu prima anulare și slăbirea authority pentru verde. Decizia permisă este acceptarea analizei și păstrarea BLOCKED_CONTRACT_DECISION, fără fix sau runtime PASS.",
+    "repository_changes_by_reviewer": false,
+    "effectful_launches_by_reviewer": false
+  },
+  "verdict": "APPROVED_SCOPED_ANALYSIS_ONLY",
+  "product_status": "BLOCKED_CONTRACT_DECISION",
+  "findings": [],
+  "conclusion": "Nu am identificat o constatare blocantă concretă în delta analizată. Reproducerul identifică un producer suficient timeout client -> închidere UDS -> EOF -> operation.cancel(), nu numai handlerul CancelledError. Separarea watchdogului de anularea directă este corectă; STOP și limitele declarate sunt justificate. Aprobarea nu acordă PASS de produs, QA nativă ori închidere de fază.",
+  "evidence": [
+    {
+      "id": "SNAPSHOT_AND_NON_CHANGE",
+      "type": "reviewer_executed_read_only_git",
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git diff --stat de8f450a62cdb698fb9e0c4bfdcd1f6f4752d34a 1b4ea464a7d7337ad0c95e42ca965220a84f6e8c",
+        "git diff --check de8f450a62cdb698fb9e0c4bfdcd1f6f4752d34a 1b4ea464a7d7337ad0c95e42ca965220a84f6e8c -- README.md documents/verification .hermes/skills/omnis-hermes-runtime/SKILL.md",
+        "git diff --exit-code de8f450a62cdb698fb9e0c4bfdcd1f6f4752d34a 1b4ea464a7d7337ad0c95e42ca965220a84f6e8c -- api/src api/tests integrations/hermes/src integrations/hermes/tests"
+      ],
+      "exit_code": 0,
+      "result": "HEAD exact; delta are numai cele 8 fișiere declarate. Sursele de produs și testele API/native existente sunt identice cu baza; niciun grant/timeout/Stop nu a fost modificat. Singura intrare untracked este HTML-ul protejat preexistent, neatins și necitit."
+    },
+    {
+      "id": "SUFFICIENT_CANCELLATION_PRODUCER",
+      "type": "source_trace_and_retained_controls",
+      "locations": [
+        "api/src/omnis/supervisor/runtime_client.py:445-608,786-793",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:234-264,573-699,767-781,1226-1318",
+        "documents/verification/p4a-model-prepare-evidence/native-cancellation-repro.py:97-154"
+      ],
+      "result": "Clientul real _exchange_locked folosește min(3.2s, grant remaining), prinde TimeoutError și închide streamul înainte de RuntimeUnavailable. Host monitorizează EOF în task separat; finally din _managed_connected anulează direct operația pending și adună ambele taskuri. Reproducerul nu injectează CancelledError: verifică TimeoutError în context și code-object-ul _exchange_locked, apoi EOF și ordinea evenimentelor. SourceOwner înlocuiește managed(), dar proba cheamă explicit _exchange real; nu creditează acel double ca transport real.",
+      "retained_timeout_observation": {
+        "primary": "RUNTIME_CLIENT_EXCHANGE_TIMEOUT",
+        "ordered_events": [
+          "CLIENT_TIMEOUT",
+          "HANDSHAKE_CANCELLED",
+          "MANAGED_CANCELLED",
+          "MANAGED_OWNER_DISCONNECTED"
+        ],
+        "owner_eof": true,
+        "cancel_peer_failure": false,
+        "cancel_grant_remaining_ns": 1295755780
+      }
+    },
+    {
+      "id": "WATCHDOG_IS_NOT_DIRECT_MANAGED_CANCEL",
+      "type": "source_review",
+      "locations": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:1028-1045,1071-1173",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:278-284,384-385,442-480"
+      ],
+      "result": "Watchdogul observă expiry/failure și cheamă Stop; Stop revocă lifeline înainte de await și anulează settings/preparation workers, nu taskul local _managed. În traseul demonstrat anularea directă vine de la operation.cancel(). Native EOF publică ProtocolError în ready/pending; peer.close anulează IO tasks, nu _managed. Cleanupul după anulare nu explică retroactiv prima anulare."
+    },
+    {
+      "id": "CONTROLS_AND_CLEANUP_SCOPE",
+      "type": "retained_evidence_consistency_checked_by_reviewer",
+      "command_kind": "python3 -I -B; JSON parsing and assertions only, no product imports or probe execution",
+      "exit_code": 0,
+      "control_count": 3,
+      "result": "JSON-urile păstrate au scope SOURCE_SYNTHETIC_NOT_NATIVE_ACCEPTANCE. Clientul rapid pe același UDS termină fără anulare; clientul lent prezintă timeout/EOF/cancel cu grant pozitiv; invocarea directă Host cu peer lent termină. Toate declară procesul propriu reaped și endpointurile absente. Aserțiunile sursei verifică acestea; __aexit__ adună clienții/watchdogul, _managed_connected adună operația și monitorul, iar Stop/peer.close adună IO-ul. TestLaunch nu dovedește namespace STOPPED și rezultatul nu este promovat la domain settlement.",
+      "retained_execution_claim": "Registrul consemnează 3 passed / 10.34s / exit 0 și păstrează setup failure-ul AF_UNIX 3 failed / 2.09s / exit 1. Reviewerul nu a reexecutat această probă."
+    },
+    {
+      "id": "AUTHORITY_AND_OUTER_CANCELLATION",
+      "type": "source_review",
+      "locations": [
+        "api/src/omnis/modules/instance/service.py:131-195",
+        "api/src/omnis/supervisor/native_tasks.py:100-109,250-301,523-609",
+        "api/src/omnis/transport/local_control.py:253-309",
+        "api/src/omnis/supervisor/runtime_client.py:631-665",
+        "api/tests/test_contract_method_pg.py:9733-9794"
+      ],
+      "result": "Commitul intenției precedă obținerea grantului; callbackul QA independent rulează după grant și înainte de exchange. Nu reînnoiește grantul. Bugetele exterioare de 4s includ tranzacțiile și callbackul și pot produce anulare mai devreme decât exchange. Grantul este limitat la min(4.5s, lease remaining), verificat sub owner/lease/Stop fence; heartbeatul nu extinde cererea în zbor. Eșecul după commit nu implică rollback sau zero writes. Mărirea exclusivă a limitei clientului nu rezolvă automat callerii exteriori; pending/handoff ar necesita un contract nou pentru authority, Stop și ownership."
+    },
+    {
+      "id": "HISTORICAL_ATTRIBUTION_REMAINS_UNKNOWN",
+      "type": "allowlisted_review_of_committed_sanitized_report",
+      "artifact": "documents/verification/p4a-model-prepare-evidence/qa-native-third-blocked.json",
+      "historical_snapshot": "f879e6b5e524a157adcfdb24a6da50455207f788",
+      "result": "Raportul păstrează gate exit 2, FAIL/ERROR, family_drained și proof UNCERTAIN. Commitul/readbackul independent înainte de exchange este autentic; primul timer/cancel API rămâne UNCLASSIFIED/UNKNOWN. Handshake CancelledError înainte de READY nu identifică singur timerul inițial. Delta nu pretinde cauza exclusivă istorică, nu compară t0 între procese și nu redeschide remediul UUID acceptat. HOLD/tur/replay/census/CLOSE+Future rămân neprobate."
+    },
+    {
+      "id": "STOP_DECISION_AND_STATUS",
+      "type": "contract_and_status_review",
+      "locations": [
+        "CONTRIBUTING.md:50-71",
+        "documents/Omnis_MVP_Architecture.md:158-162",
+        "documents/verification/p4a-minim.md:120-122",
+        "README.md:3",
+        "documents/verification/implementation-status.md:13"
+      ],
+      "result": "Oprirea este proporțională cu mecanismul demonstrat și mandatul care interzice extinderea limitelor/authority. Nu este necesară încă o tentativă reală pentru această explicație. Revoke/fence, drain și readback rămân distincte; nu sunt propuse shield/retry/prewarm sau READY sintetic. CURRENT păstrează PARTIAL/BLOCKED_CONTRACT_DECISION, P2-live NOT_RUN și faza2 NOT_CLOSED."
+    }
+  ],
+  "limitations": [
+    "Nu am executat reproducerul arhivat, testele PG/native, OCI, Hermes, provider, browser sau canonicalul. Nu am accesat endpointuri ori logs/receipts private.",
+    "Am reutilizat cele trei dovezi versionate și am verificat consistența lor prin parsare/asertări; aceasta nu este o nouă execuție independentă a probei.",
+    "Storage, authority, Settings readback, absența management process și răspunsurile model/CLOSE sunt doubles declarate. Proba demonstrează transportul/handshakeul unui peer sintetic, nu native turn, provider sau concurență PG reală.",
+    "Controlul direct Host ocolește și wire dispatch/owner monitoring, nu doar timerul clientului; este numai control downstream within-grant. Controlul rapid și negativul pe client/UDS susțin separat lanțul producerului.",
+    "Nu este demonstrată cauza exclusivă a execuției istorice. Anularea unui caller exterior poate converge la aceeași închidere/cancel; ordinea primului timer API nu a fost păstrată.",
+    "Proces reaped și socket/boot absente pentru fixture nu certifică namespace STOPPED, drenaj de produs ori reconcilierea domeniului istoric. Nu am adoptat, relansat sau modificat resurse istorice.",
+    "Nu se livrează remediu și nu se transferă aprobarea analizei la source/native/QA/phase PASS. Alegerea contractului finit, cu Stop/fencing/expiry/UNKNOWN păstrate, rămâne la autoritatea explicită a părintelui/operatorului.",
+    "Fișierele protejate nu au fost citite, copiate, hash-uite sau modificate; repo-ul nu a fost modificat. Singurul fișier creat de reviewer este acest raport scratch.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Niciun audit general sau verificator nou nu a fost introdus."
+  ],
+  "files_created_or_modified": [
+    "/home/kali/.hermes/cache/scratch/mtp-cancel-8vl5xa60/review-safety.json"
+  ],
+  "issues_encountered": [
+    "Un lookup inițial a folosit transport/runtime_client.py, care nu există; calea reală supervisor/runtime_client.py a fost apoi citită. Fără efecte sau impact asupra verdictului."
+  ]
+}

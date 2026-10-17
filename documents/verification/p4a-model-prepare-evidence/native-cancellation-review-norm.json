@@ -1,0 +1,91 @@
+{
+  "snapshot": "1b4ea464a7d7337ad0c95e42ca965220a84f6e8c",
+  "base": "de8f450a62cdb698fb9e0c4bfdcd1f6f4752d34a",
+  "scope": {
+    "role": "independent_read_only_normative_order_persistence_readback",
+    "requirement_consumer_risk_decision": "Prevenirea atribuirii false a anularii si a unui fix neautorizat la model-test-prepare; acceptarea exclusiv a concluziei de analiza sau solicitarea unei corectii concrete, niciodata QA/PASS de produs.",
+    "reviewed_delta": "README CURRENT, implementation-status CURRENT, p4a-minim CURRENT si sectiunea Anularea startupului, pitfall omnis-hermes-runtime, cele patru artefacte native-cancellation-*.",
+    "source_closure": "LocalControl -> NativeTaskOwner -> ModelTest prepare/dispatch/persist -> InstanceService runtime_authority -> RuntimeClient -> RuntimeHost/NativePeer; callback committed_prepare si sibling callers model_initialization/model_preflight/stage/release.",
+    "product_changes": false,
+    "candidate_status": "BLOCKED_CONTRACT_DECISION"
+  },
+  "verdict": "APPROVED_SCOPED",
+  "findings": [],
+  "evidence": [
+    {
+      "id": "NORM-ORDER",
+      "result": "Ordinea documentata este corecta: intent/context/receipt/task sunt comise inainte de runtime.managed; grantul DB precede callbackul QA; callbackul face readback pe conexiune independenta inainte de exchange original. Timeoutul exchange incepe ulterior callbackului, dar callerii de 4s includ aceste operatii.",
+      "sources": [
+        "api/src/omnis/supervisor/native_tasks.py:100-109,250-301,370-378,523-557",
+        "api/src/omnis/modules/instance/service.py:131-195,198-222",
+        "api/src/omnis/supervisor/runtime_client.py:483-522,631-665",
+        "api/tests/test_contract_method_pg.py:9733-9794"
+      ]
+    },
+    {
+      "id": "NORM-PERSISTENCE",
+      "result": "Anularea transportului nu implica rollback sau zero writes. ModelTest.prepare persista noul graf, taskul QUEUED si receiptul; observatia native-turn se persista separat numai dupa raspuns valid. Raportul sanitizat istoric confirma checkpointul independent, dar nu HOLD nativ, replay, census final sau CLOSE+Future. Registrul pastreaza corect aceasta distinctie.",
+      "sources": [
+        "api/src/omnis/modules/runs/model_test.py:398-440,442-507",
+        "api/src/omnis/supervisor/native_tasks.py:267-300",
+        "documents/verification/p4a-model-prepare-evidence/qa-native-third-blocked.json:66-104",
+        "documents/verification/p4a-minim.md:91,120"
+      ]
+    },
+    {
+      "id": "NORM-CANCELLATION-MECHANISM",
+      "result": "Mecanism suficient demonstrat SOURCE: exchange managed are min(3.2s, grant remaining), inchide UDS la TimeoutError, iar Host _managed_connected anuleaza explicit operatia pending la EOF. CREATE v5 in MANAGEMENT include readback Settings, management Stop/drain si cold launch/handshake in acelasi exchange. Reproducerul nu injecteaza CancelledError si executa aceste frontiere reale pentru un peer sintetic.",
+      "sources": [
+        "api/src/omnis/supervisor/runtime_client.py:483-489,519-522,597-608,786-793",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:234-264,589-634,767-781,1272-1273",
+        "documents/verification/p4a-model-prepare-evidence/native-cancellation-repro.py:25-26,45-79,97-154"
+      ],
+      "retained_controls": {
+        "client_fast": "Handshake si raspuns sintetic complet, fara anulare.",
+        "client_timeout": "RUNTIME_CLIENT_EXCHANGE_TIMEOUT -> CLIENT_TIMEOUT -> HANDSHAKE_CANCELLED -> MANAGED_CANCELLED -> MANAGED_OWNER_DISCONNECTED; owner_eof=true, cancel_peer_failure=false, cancel_grant_remaining_ns=1295755780.",
+        "host_control": "Acelasi scenariu lent termina handshakeul si raspunsul sintetic in grantul existent de 4.5s prin apel direct Host; acesta este control SOURCE, nu caller nou livrat.",
+        "artifacts": [
+          "documents/verification/p4a-model-prepare-evidence/native-cancellation-client-fast.json",
+          "documents/verification/p4a-model-prepare-evidence/native-cancellation-client-timeout.json",
+          "documents/verification/p4a-model-prepare-evidence/native-cancellation-host-control.json"
+        ]
+      }
+    },
+    {
+      "id": "NORM-HISTORICAL-ATTRIBUTION",
+      "result": "Limita UNKNOWN este necesara si corecta. QA f879e6b ramane 1FAIL+1ERROR/22.74s/exit2/drained, cu CancelledError in handshake inainte de READY. Raportul nu observa primul timeout/cancel API. Timeoutul exchange si anularea exterioara pot converge prin inchiderea aceluiasi canal; markerii native/Host nu au t0 comun demonstrat. Reproducerul actual nu dovedeste cauza exclusiva a executiei istorice.",
+      "sources": [
+        "documents/verification/p4a-model-prepare-evidence/qa-native-third-blocked.json:66-153",
+        "api/src/omnis/transport/local_control.py:253-309",
+        "api/src/omnis/supervisor/native_tasks.py:100-109",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:278-284,442-480",
+        "documents/verification/p4a-minim.md:95-104,120"
+      ]
+    },
+    {
+      "id": "NORM-MANDATE",
+      "result": "Oprirea la BLOCKED_CONTRACT_DECISION respecta mandatul: un timeout mai lung schimba limita si nu elimina singur bugetele exterioare de 4s; separarea startup/preparation modifica protocolul, ordinea si distributia autoritatii. Sibling callers impart timeoutul managed, dar cold launch implicit este ramura CREATE v5/MANAGEMENT; launch_inert foloseste deja alta operatie. Nu rezulta permisiune pentru retry, shield, prewarm sau largirea generala a timeouturilor. Nu este justificata o noua QA reala fara remediu admis.",
+      "sources": [
+        "api/src/omnis/supervisor/native_tasks.py:64-98,319-355,418-450,480-505",
+        "api/src/omnis/supervisor/runtime_client.py:512-516,755-759",
+        "documents/verification/p4a-minim.md:89,122",
+        "CONTRIBUTING.md:44-65",
+        "documents/Omnis_Implementation_Plan.md:93-112,137-138,174,291-293",
+        "documents/Omnis_MVP_Architecture.md:219-221,251"
+      ]
+    },
+    {
+      "id": "SNAPSHOT-INTEGRITY",
+      "result": "HEAD verificat la inceput si final: snapshotul cerut. Diff-ul bazei are numai cele 8 fisiere declarate; git diff --quiet base snapshot -- api integrations exit0 confirma produsul/testele API si integrarea neschimbate. git diff --check pe cele 8 cai exit0. Tracked working tree si index fara modificari; numai HTML-ul protejat preexistent este untracked, neatins.",
+      "executed": "Citiri delimitate si comenzi Git read-only; nu s-a relansat reproducerul sau vreun consumer."
+    }
+  ],
+  "limitations": [
+    "APPROVED_SCOPED se aplica exclusiv analizei si deciziei de oprire, nu implementarii unui fix, integrarii native sau QA/PASS de produs. P4a-minim ramane PARTIAL/BLOCKED_CONTRACT_DECISION; P2-live NOT_RUN; faza2 NOT_CLOSED.",
+    "Cele 3 rezultate SOURCE/synthetic existente au fost reutilizate si confruntate cu sursa, nu reexecutate independent. 3passed/10.34s/exit0 este rezultatul consemnat de autor, nu un nou rezultat al reviewerului.",
+    "Storage/grant, readback Settings de 1.2s, management absent si raspunsurile model/CLOSE sunt doubles. Nu se demonstreaza durata Hermes rece sau settlementul domeniului prin acest peer sintetic.",
+    "Nu au fost accesate loguri/receipts/env/capabilitati/credentiale private, DB/resurse vechi, endpointul interzis sau fisierele protejate. Nu au fost lansate PG/OCI/Hermes/provider si nu s-a redeschis remediul UUID12e58cf.",
+    "Verificarile documentare raportate de parinte nu au fost rerulate; canonicalul, HOLD/tur/replay/census/CLOSE+Future si cauza exclusiva istorica raman la limitarile existente. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Niciun fisier din repo modificat, niciun commit. Singurul artefact creat de acest review este JSON-ul scratch solicitat; adjudecarea/inregistrarea durabila revine parintelui."
+  ]
+}

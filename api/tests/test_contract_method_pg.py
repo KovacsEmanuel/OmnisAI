@@ -471,6 +471,23 @@ try:
             except AssertionError:
                 pass
         code = 0
+    elif sys.argv[3] == "model-test-read":
+        import asyncio
+        from omnis.core.db import database_engine
+        from omnis.modules.runs.model_test import ModelTest
+        from omnis.modules.tasks import managed_store
+        value = json.loads(Path(sys.argv[5]).read_bytes())
+        async def read_prepared():
+            engine = database_engine(os.environ["OMNIS_DATABASE_URL"])
+            try:
+                async with engine.connect() as connection:
+                    context = await managed_store.get(connection, value["owner_id"], value["run_id"], value["context_ref"])
+                    payload, observation = await ModelTest(module.ManagedAdmission(engine)).dispatch(connection, value["owner_id"], context, False)
+                return {"payload":payload,"observation":observation}
+            finally:
+                await engine.dispose()
+        print(json.dumps(asyncio.run(read_prepared()), separators=(",", ":")))
+        code = 0
     else:
         code = module.main(sys.argv[3:])
     emit("EXIT", str(code))
@@ -2898,6 +2915,16 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
         "observe_owned_core": {"ENTERED", "COMPLETED"},
         "owned-rpc": {"ENTERED", "COMPLETED"},
         "owned-preclient": {"CLIENT_NONE_CALLS_ZERO"},
+        **{
+            "prepare-" + name: {"ENTERED", "COMPLETED"}
+            for name in (
+                "configure_model_test",
+                "run_conversation",
+                "build_turn_context",
+                "_bind_turn_identity",
+                "close",
+            )
+        },
         "run_contract": {"REAL_AIAgent", "WRONG_TYPE"},
         "bound-predicates": {"SATISFIED", "GAP"},
         "_read_bound_input": {"ENTERED"},
@@ -6382,7 +6409,56 @@ def test_h04_selector_is_closed_before_effects(monkeypatch: pytest.MonkeyPatch, 
     assert denied.value.code == 2
 
 
-def batch2_native_observer(*, startup: bool, h04: str | None = None) -> str:
+MODEL_PREPARE_OBSERVER = r"""
+prepare_prefixes = {}
+def prepare_observe(frame, event):
+    name = frame.f_code.co_name
+    if name not in {"configure_model_test", "run_conversation", "build_turn_context", "_bind_turn_identity", "close"}:
+        return False
+    root = sys.modules.get("run_agent")
+    init = sys.modules.get("agent.agent_init")
+    contract = sys.modules.get("omnis_hermes.managed_admission_contract")
+    actual = frame.f_locals.get("self" if name == "close" else "agent")
+    state = object.__getattribute__(actual, "__dict__") if root is not None and type(actual) is root.AIAgent else {}
+    carrier = frame.f_locals.get("carrier") if name == "configure_model_test" else state.get("_model_test_preparation")
+    if name == "close" and carrier is None:
+        return False
+    module_name = {"configure_model_test":"agent.agent_init", "run_conversation":"agent.conversation_loop",
+        "build_turn_context":"agent.turn_context", "_bind_turn_identity":"agent.turn_context", "close":"run_agent"}[name]
+    module = sys.modules.get(module_name)
+    expected = root.AIAgent.close if name == "close" and root is not None else getattr(module, name, None)
+    valid = (root is not None and contract is not None and type(actual) is root.AIAgent
+        and type(carrier) is contract.ModelTestPreparation and expected is not None
+        and frame.f_code is expected.__code__ and frame.f_code.co_filename == str(managed / (module_name.replace(".", "/") + ".py")))
+    if name == "configure_model_test":
+        valid = valid and frame.f_back is not None and frame.f_back.f_code is root.AIAgent.__init__.__code__ and frame.f_back.f_locals.get("self") is actual and frame.f_back.f_locals.get("model_test_preparation") is carrier
+    elif name in {"run_conversation", "build_turn_context", "_bind_turn_identity"}:
+        caller = frame.f_back
+        if name == "run_conversation":
+            lifecycle = sys.modules.get("agent.subagent_lifecycle")
+            callers = [] if lifecycle is None else [c for c in lifecycle.SubagentLifecycleService.prepare_model_test.__code__.co_consts if type(c) is CodeType and c.co_name == "conversation"]
+        else:
+            caller_module, caller_name = (("agent.conversation_loop", "run_conversation") if name == "build_turn_context" else ("agent.turn_context", "build_turn_context"))
+            callers = [getattr(sys.modules[caller_module], caller_name).__code__]
+        valid = valid and caller is not None and any(caller.f_code is code for code in callers)
+        if name in {"run_conversation", "build_turn_context"}:
+            prepare_prefixes[frame.f_code] = 1658 if name == "run_conversation" else 1011
+    if not valid:
+        emit("forbidden-sink", "MODEL_PREPARE_IDENTITY")
+        raise RuntimeError("Forbidden native sink")
+    if name == "close" and event == "return":
+        future = state.get("_model_test_future")
+        if future is None or not future.done() or not state["_model_test_closed"].is_set():
+            emit("forbidden-sink", "MODEL_PREPARE_NOT_JOINED")
+            raise RuntimeError("Forbidden native sink")
+    emit("prepare-" + name, "ENTERED" if event == "call" else "COMPLETED")
+    return True
+"""
+
+
+def batch2_native_observer(
+    *, startup: bool, h04: str | None = None, model_prepare: bool = False
+) -> str:
     """Reuse the SOURCE observer, excluding its argv/env wrapper and manual runpy."""
     if h04 is not None and (h04 not in H04_CASES or startup):
         raise ValueError("H04_CASE_REFUSED")
@@ -6453,6 +6529,25 @@ def batch2_native_observer(*, startup: bool, h04: str | None = None) -> str:
                 + value
                 + ")\n",
             )
+    if model_prepare:
+        core = core.replace(
+            "def observe(frame, event, arg):",
+            MODEL_PREPARE_OBSERVER
+            + "\ndef observe(frame, event, arg):\n    if prepare_observe(frame, event):\n        return",
+        )
+        core = core.replace(
+            "observed = forbidden |",
+            'observed = {"configure_model_test", "build_turn_context", "_bind_turn_identity", "close"} | forbidden |',
+        )
+        core = core.replace("    key = phase_key(code)\n", "    key = phase_key(code)\n", 1)
+        core = core.replace(
+            '    observe(sys._getframe(1), "call", None)',
+            '    if code.co_name in {"run_conversation", "build_turn_context"}:\n        sys.monitoring.set_local_events(observer_id, code, sys.monitoring.events.LINE)\n    observe(sys._getframe(1), "call", None)',
+        )
+        core = core.replace(
+            "def monitor_line(code, line):",
+            'def monitor_line(code, line):\n    if code in prepare_prefixes:\n        if line > prepare_prefixes[code]:\n            emit("forbidden-sink", "MODEL_PREPARE_PREFIX")\n            raise RuntimeError("Forbidden native sink")\n        return',
+        )
     return (
         "import importlib.abc, importlib.util, json, os, runpy, sys, threading, time\n"
         "from pathlib import Path\n"
@@ -6583,7 +6678,7 @@ if qa_role is not None:
 
 
 def batch2_installed_entry(
-    root: Path, *, startup: bool = False, h04: str | None = None
+    root: Path, *, startup: bool = False, h04: str | None = None, model_prepare: bool = False
 ) -> tuple[list[str], list[str], dict[str, str]]:
     """One immutable attachment outside both RW roots; no command override."""
     script = (
@@ -6596,7 +6691,7 @@ def batch2_installed_entry(
         + "\nstartup = "
         + repr(startup)
         + "\nnative_core = "
-        + repr(batch2_native_observer(startup=startup, h04=h04))
+        + repr(batch2_native_observer(startup=startup, h04=h04, model_prepare=model_prepare))
         + "\nhost_diagnostic = "
         + repr(HOST_LAUNCH_DIAGNOSTIC)
         + "\nhost_stop = "
@@ -7468,7 +7563,9 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
         raise AssertionError("BATCH2_CURRENT_READER_REFUSED") from None
 
 
-def h03_prerequisites(*, current_only: bool = False) -> tuple[dict[str, object], Path]:
+def h03_prerequisites(
+    *, current_only: bool = False, model_prepare: bool = False
+) -> tuple[dict[str, object], Path]:
     """Static installed origin before acquiring the existing DB or OCI fixture."""
     digest = sha(Path(__file__).read_bytes())
     namespace = "OMNIS_BATCH2" if current_only else "OMNIS_H03"
@@ -7521,8 +7618,14 @@ def h03_prerequisites(*, current_only: bool = False) -> tuple[dict[str, object],
             expected["opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/" + path.name] = (
                 sha(path.read_bytes())
             )
+        if model_prepare:
+            management = mapping(
+                json.loads((upstream / "management-patch-manifest.json").read_bytes())
+            )
+            for name, hashes in mapping(management["files"]).items():
+                expected["opt/hermes/source/" + name] = str(mapping(hashes)["patched_sha256"])
         rows = [mapping(row) for row in sequence(plan["public_inventory"])]
-        if len(rows) != len(expected) or len(expected) != 34:
+        if len(rows) != len(expected) or (not model_prepare and len(expected) != 34):
             raise ValueError
         if {str(row["path"]): row["sha256"] for row in rows} != expected or any(
             row["match"] is not True for row in rows
@@ -7969,6 +8072,7 @@ class PreparationPrerequisite(RuntimeClient):
     [
         (False, False, False, False, False, None),
         (False, False, False, False, False, "owned-initialization"),
+        (False, False, False, False, False, "model-test-prepare"),
         (False, True, False, False, False, None),
         (False, True, False, True, False, None),
         (True, True, False, False, False, None),
@@ -7998,6 +8102,7 @@ class PreparationPrerequisite(RuntimeClient):
     ids=[
         "support-zero",
         "owned-initialization",
+        "model-test-prepare",
         "criteria-normal",
         "criteria-legacy717",
         "criteria-first-late-held",
@@ -8045,14 +8150,18 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
     startup = applicability == "batch2-startup-only"
     h04 = applicability if applicability in H04_CASES else None
-    installed_native = h03 or batch2 or startup or h04 is not None
+    model_prepare = applicability == "model-test-prepare"
+    installed_native = h03 or batch2 or startup or h04 is not None or model_prepare
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
     db_fence: dict[str, object] = {}
     if installed_native:
-        h03_plan, reader_python = h03_prerequisites(
-            current_only=batch2 or startup or h04 is not None
-        )
+        if model_prepare:
+            h03_plan, reader_python = h03_prerequisites(current_only=True, model_prepare=True)
+        else:
+            h03_plan, reader_python = h03_prerequisites(
+                current_only=batch2 or startup or h04 is not None
+            )
         db_fence = mapping(request.getfixturevalue("historical_database_fence"))
     else:
         assert PIN.is_dir() and (PIN / "run_agent.py").is_file(), "SOURCE_PIN_REQUIRED"
@@ -8077,6 +8186,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             "mission-consumer",
             "result-qualification",
             "owned-initialization",
+            "model-test-prepare",
         }
     ):
         import yaml
@@ -8189,7 +8299,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             "-B",
             "-c",
             batch2_reader_code(reader_python, RESTART_READER)
-            if reader_python is not None and (batch2 or startup or h04 is not None)
+            if reader_python is not None and (batch2 or startup or h04 is not None or model_prepare)
             else RESTART_READER,
             "INSTALLED" if installed_native else str(ROOT / "api/src"),
             str(audit),
@@ -8662,9 +8772,9 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 qa_native_argv: list[str] = []
                 qa_hashes: dict[str, str] = {}
                 qa_file = None
-                if batch2 or startup or h04 is not None:
+                if batch2 or startup or h04 is not None or model_prepare:
                     qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(
-                        tmp_path, startup=startup, h04=h04
+                        tmp_path, startup=startup, h04=h04, model_prepare=model_prepare
                     )
                     qa_file = tmp_path / "qa-sitecustomize.py"
                     observation = state_dir / "native-observation.jsonl"
@@ -9266,7 +9376,12 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 or batch2
                 or h04 is not None
                 or applicability
-                in {"mission-consumer", "result-qualification", "owned-initialization"}
+                in {
+                    "mission-consumer",
+                    "result-qualification",
+                    "owned-initialization",
+                    "model-test-prepare",
+                }
                 or (
                     applicability is not None
                     and applicability.startswith(("evidence-", "partial-requirement-"))
@@ -9528,6 +9643,215 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     preparation_capability,
                 ):
                     raise AssertionError("QA_PREPARATION_BOOT_CHANGED")
+                if model_prepare:
+                    from omnis.modules.runs.model_test import REQUESTED, ModelTest
+                    from omnis.modules.settings import candidate_store as stored
+                    from omnis.modules.tasks import managed_store
+
+                    assert public_control is not None
+                    back_request = seed.request(command_id=assignment["command_id"])
+                    mt_old_graph = canonical(await domain.readback(back_request))
+                    before_tables = mapping(json.loads(await mission_census()))
+                    settings_id = str(uuid4())
+                    saved = await runtime.settings(
+                        service,
+                        supervisor,
+                        {
+                            "operation_id": settings_id,
+                            "action": "save",
+                            "selection": REQUESTED,
+                        },
+                    )
+                    async with asyncio.timeout(3.2):
+                        while saved["status"] == "PENDING":
+                            await asyncio.sleep(0.01)
+                            saved = await runtime.settings_status(settings_id)
+                    assert saved["status"] == "CONFIRMED" and saved["selection"] == REQUESTED
+                    assert (
+                        saved["authenticated"] == "NOT_VERIFIED"
+                        and saved["inference_ready"] is False
+                    )
+                    assert (await runtime.status())["state"] == "MANAGEMENT"
+                    request_prepare = {
+                        **lifecycle,
+                        "action": "model_test_prepare",
+                        "settings_operation_id": settings_id,
+                        "initialization_id": str(uuid4()),
+                    }
+                    actual_exchange = runtime._exchange
+                    modes: list[object] = []
+
+                    async def committed_prepare(
+                        op: str,
+                        authority: RuntimeAuthority | None = None,
+                        payload: dict[str, object] | None = None,
+                    ) -> dict[str, object]:
+                        if op == "task_model_initialize":
+                            assert payload is not None and payload["mode"] == "CREATE"
+                            modes.append(payload["mode"])
+                            mt_context = mapping(mapping(payload["context"])["payload"])
+                            assert mt_context["run_id"] != prepared["run_id"]
+                            assert mt_context["authority"] == {
+                                "instance_id": str(status.instance_id),
+                                "owner": str(supervisor),
+                                "epoch": epoch,
+                                "generation": status.generation,
+                            }
+                            assert mt_context["runtime_boot"] == runtime.boot
+                            async with engine.connect() as independent:
+                                context = await managed_store.get(
+                                    independent,
+                                    seed.owner,
+                                    str(mt_context["run_id"]),
+                                    stored.reference(mapping(payload["context"])),
+                                )
+                                receipt = await managed_store.command_receipt(
+                                    independent,
+                                    seed.owner,
+                                    str(request_prepare["initialization_id"]),
+                                )
+                                dispatched, mt_observed = await ModelTest(domain).dispatch(
+                                    independent, seed.owner, context, True
+                                )
+                                task = (
+                                    (
+                                        await independent.execute(
+                                            sql(
+                                                "SELECT task_id,attempt_id,run_id,batch_index,state FROM managed_task WHERE task_id=:task"
+                                            ),
+                                            {"task": mt_context["task_id"]},
+                                        )
+                                    )
+                                    .mappings()
+                                    .one()
+                                )
+                            assert (
+                                task["run_id"] == mt_context["run_id"]
+                                and task["attempt_id"] == mt_context["attempt_id"]
+                                and task["batch_index"] == 0
+                                and task["state"] == "QUEUED"
+                            )
+                            assert mapping(receipt["payload"])["operation"] == "model_test_prepare"
+                            assert mt_observed is None and canonical(dispatched) == canonical(
+                                payload
+                            )
+                            checkpoint(
+                                model_prepare_commit="INDEPENDENT_PG_READ_BEFORE_ORIGINAL_EXCHANGE"
+                            )
+                        return await actual_exchange(op, authority, payload)
+
+                    with monkeypatch.context() as mt_patch:
+                        mt_patch.setattr(runtime, "_exchange", committed_prepare)
+                        mt_answer = await control_task(directory, request_prepare)
+                        native_process_receipt()
+                        require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
+                        after_tables = await mission_census()
+                        native_after = observation.read_bytes()
+                        mt_replay = await control_task(directory, request_prepare)
+                    assert modes == ["CREATE"]
+                    for mt_changed in (
+                        {"settings_operation_id": str(uuid4())},
+                        {"owner_id": str(uuid4())},
+                        {
+                            "manifest_ref": {
+                                **mapping(lifecycle["manifest_ref"]),
+                                "digest": "0" * 64,
+                            }
+                        },
+                    ):
+                        with pytest.raises(CatalogError, match="^TASK_REJECTED$"):
+                            await control_task(
+                                directory,
+                                {
+                                    **request_prepare,
+                                    "initialization_id": str(uuid4()),
+                                    **mt_changed,
+                                },
+                            )
+                        assert await mission_census() == after_tables
+                        assert observation.read_bytes() == native_after
+                    assert canonical(
+                        {k: v for k, v in mt_answer.items() if k != "correlation_id"}
+                    ) == canonical({k: v for k, v in mt_replay.items() if k != "correlation_id"})
+                    assert (
+                        await mission_census() == after_tables
+                        and observation.read_bytes() == native_after
+                    )
+                    mt_context = mapping(mt_answer["model_test_context"])
+                    mt_observed = mapping(mapping(mt_answer["observation"])["payload"])
+                    assert mapping(mt_observed["native_turn"])["task_id"] == mt_context["task_id"]
+                    assert (
+                        mt_observed["model_calls"] == 0 and type(mt_observed["model_calls"]) is int
+                    )
+                    assert mt_observed["client_status"] == "DEFERRED_NO_CREDENTIAL"
+                    assert (
+                        mt_answer["inference_status"] == "HOLD"
+                        and mt_answer["account_status"] == "NOT_VERIFIED"
+                    )
+                    mt_cold = await restarted_cli(
+                        "model-test-read",
+                        {
+                            "owner_id": seed.owner,
+                            "run_id": mt_context["run_id"],
+                            "context_ref": mt_answer["context_ref"],
+                        },
+                    )
+                    assert mt_cold["observation"] == mt_answer["observation"]
+                    assert mapping(mt_cold["payload"])["mode"] == "STATUS"
+                    assert canonical(await domain.readback(back_request)) == mt_old_graph
+                    assert (
+                        await mission_census() == after_tables
+                        and observation.read_bytes() == native_after
+                    )
+                    mt_after = mapping(json.loads(after_tables))
+                    for table, key in (("records", "id"), ("runs", "run_id"), ("tasks", "task_id")):
+                        mt_old = sequence(before_tables[table])
+                        mt_ids = {mapping(row)[key] for row in mt_old}
+                        assert canonical(
+                            [
+                                row
+                                for row in sequence(mt_after[table])
+                                if mapping(row)[key] in mt_ids
+                            ]
+                        ) == canonical(mt_old)
+                        assert len(sequence(mt_after[table])) - len(mt_old) == (
+                            11 if table == "records" else 1
+                        )
+                    assert (
+                        mt_after["revision2"] == before_tables["revision2"]
+                        and mt_after["inbox"] == before_tables["inbox"]
+                    )
+                    mt_added = [
+                        str(mapping(mapping(row)["envelope"])["kind"])
+                        for row in sequence(mt_after["records"])
+                        if mapping(row)["id"]
+                        not in {
+                            mapping(mt_old)["id"] for mt_old in sequence(before_tables["records"])
+                        }
+                    ]
+                    assert sorted(mt_added) == sorted(
+                        [
+                            "managed-run",
+                            "run-snapshot",
+                            "execution-selection",
+                            "provider-config",
+                            "task-brief",
+                            "prompt-composition",
+                            "launch-manifest",
+                            "model-test-context",
+                            "model-test-material",
+                            "contract-input-command",
+                            "native-turn",
+                        ]
+                    )
+                    checkpoint(
+                        model_prepare_replay="NO_SECOND_CREATE_OR_WORKER",
+                        model_calls=0,
+                        inference_status="HOLD",
+                        account_status="NOT_VERIFIED",
+                        model_prepare_cold="ACTUAL_DISPATCH_STATUS_NO_RUNTIME",
+                    )
+                    return  # The shared finally requires real close + joined held worker.
                 try:
                     ready = await runtime.launch_inert(service, supervisor)
                 except BaseException as error:
@@ -11926,6 +12250,35 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     require_native_observation(observation), h04, mapping(proof["h04_binding"])
                 )
                 checkpoint(status="PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED")
+            if model_prepare and sys.exc_info()[0] is None:
+                rows = require_native_observation(observation)
+                for boundary in (
+                    "configure_model_test",
+                    "run_conversation",
+                    "build_turn_context",
+                    "_bind_turn_identity",
+                    "close",
+                ):
+                    matched = [row for row in rows if row["test"] == "prepare-" + boundary]
+                    assert (
+                        matched.count(
+                            {"test": "prepare-" + boundary, "status": "ENTERED", "count": 1}
+                        )
+                        == 1
+                    )
+                    if boundary in {"configure_model_test", "_bind_turn_identity", "close"}:
+                        assert (
+                            matched.count(
+                                {"test": "prepare-" + boundary, "status": "COMPLETED", "count": 1}
+                            )
+                            == 1
+                        )
+                assert not any(
+                    row["test"]
+                    in {"run_contract", "_read_bound_input", "run_handler", "native-release"}
+                    for row in rows
+                )
+                checkpoint(status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE")
             if applicability == "owned-initialization" and sys.exc_info()[0] is None:
                 rows = require_native_observation(observation)
                 assert [r for r in rows if r["test"] == "owned-preclient"] == [

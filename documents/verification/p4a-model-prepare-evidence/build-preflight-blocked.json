@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "root": "/home/kali/.hermes/cache/scratch/mp-_i844ny7",
+  "status": "BUILD_BLOCKED",
+  "runtime_started": false,
+  "commands": [
+    {
+      "label": "uv-version",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/uv-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "node-version",
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/node-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "npm-version",
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/npm-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/runner-help.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+        "-q",
+        "--collect-only",
+        "--tb=no"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/collect.log",
+      "timeout_seconds": 60,
+      "exit_code": 0
+    },
+    {
+      "label": "adapter-build",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter-wheel"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter-build.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-build",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/source/api",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-build.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-lock-export",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "export",
+        "--offline",
+        "--locked",
+        "--no-config",
+        "--directory",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/source/api",
+        "--no-dev",
+        "--no-emit-project",
+        "--no-header",
+        "--no-annotate",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/requirements-api.txt"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-lock-export.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-venv",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "venv",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-venv.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-sync",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "sync",
+        "--offline",
+        "--no-config",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+        "--no-index",
+        "--find-links",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheelhouse",
+        "--only-binary",
+        ":all:",
+        "--require-hashes",
+        "--link-mode",
+        "copy",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/requirements-api.txt"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-sync.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-install",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-config",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+        "--no-deps",
+        "--no-index",
+        "--link-mode",
+        "copy",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-install.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-check",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "check",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-check.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    }
+  ],
+  "qa_attempts": 0,
+  "inverse": "Retain artifacts/data. Remove only registered stopped readback container and exact owned image tag after identity readback; never remove base images or foreign resources.",
+  "product_files_sha256": {
+    "Makefile": "f3bba334369a0c5c034b73f1c2f040830ad8f51a1293882fda6241c2a69ef47f",
+    "api/src/omnis/modules/instance/schemas.py": "899de8ae82e661da6ea769d4be21c860e72d624bd74203023c16b9f4513b0116",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "27ed6c44d7d2a74c933d2b8ef52bc0ef816412a49d37eb77f07a61dfa9cb4b12",
+    "api/src/omnis/supervisor/native_tasks.py": "f9c1cf301a7f6100158c79996eff530edeea2cb161a28e9cf330a9372b7dc3b8",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_pg.py": "c9ad1a3070ac57606361f1b529e8fbd4a0cbe294bc247131c0f988ce2ab14cd8",
+    "api/tests/test_contract_method_producer.py": "4990bcc806a98b4aa69171aaf44de9a170fa72d83713e30cac486894f655b18c",
+    "api/tests/test_model_preflight_control.py": "8ad2ddd9474d69aa5b4ac65d89654b271117937e30574bb5477b078eb053a5a8",
+    "api/tests/test_model_test_prepare_source.py": "dde71ef13d06d2448b8b10a205fa7a62033f2b19bf3bcb1b687b7e8133719346",
+    "api/tests/test_owned_model_initialization.py": "35b18b51c8c8df72b4414337c895ecfc1c057fa9e14fa80be063ea897a16b94d",
+    "integrations/hermes/pin.json": "764c1b1278fc9aaa49dbf288255d756574c0c39e36c08e580b222949d30dd0cb",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "5b8172c983ff519c9f3227b0209cb1e68930c6f097e95c0d686a7d21342129db",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "ce60b934e8b8424840e82e4b757bdf0ad357175c653bfa34d02a92fa37722cb8",
+    "integrations/hermes/tests/test_managed_build.py": "49a94330e3ce7c0f6e1e3da88b35a6f8ad4063d4fee8cfab7296ba33cfe837c3",
+    "integrations/hermes/tests/test_model_prepare_lifecycle.py": "cbc8d27a1866a32c376e4e484172a6e126cc8bef216ee3bec1a8d5e776237db3",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "1a9a144ee5f97b791a7d4d682fd025111ed12fe42be80fc3fd70309914816e12",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "510612768e857688a884d5fe04ea5412e3802c5b1ea5120f9768607224b42181",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "a6bc9920e8ed4449d6b7937cbb07b6a8cd19cb66689465f91c16a082750067c7",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "1743884d52b5dcb4ddf4b1a31aafc60944784bd280f46e28e92ca2f2bb3bfc16",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1a110734986ec28f6477b08aa31d2c5a741d22e661507ff537d1c1626b6c34e0",
+    "integrations/hermes/upstream/managed-source/tui_gateway/entry.py": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f",
+    "integrations/hermes/upstream/omnis-managed.patch": "f7664cba1b7f58a9bd26e97ceb491b57ffa4d2bd88924edfef047e830b34ce04",
+    "ops/run_test_db_gate.py": "72f7858e60d1101c3f51180fa80e3a7d45a296edd29a83c94ff859a8d992445f"
+  },
+  "head": "6a6e416c93290d248c652d59baf9ec0d24b0dad7",
+  "product_commit": "5e0a2df9bb88eb765797dbf83880cfd50f6993a8",
+  "test_sha256": "c9ad1a3070ac57606361f1b529e8fbd4a0cbe294bc247131c0f988ce2ab14cd8",
+  "reviews": {
+    "rereview2-model-prepare-norm.json": "5b7414fd5b8e4e626df874d50aea867f7c486fbb50f3fc721fa15b49f8d12ce5",
+    "rereview2-model-prepare-safety.json": "d44f347ba417816b22efe0e976aa509c02023dbbab2af9bc2d361e9d03269b4a"
+  },
+  "archive": {
+    "path": "/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar",
+    "sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9"
+  },
+  "environment": {
+    "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin",
+    "HOME": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/home",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/tmp",
+    "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/cache",
+    "UV_PYTHON_DOWNLOADS": "never",
+    "UV_PYTHON": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "XDG_DATA_HOME": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/data",
+    "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/config",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "SOURCE_DATE_EPOCH": "1790259137"
+  },
+  "prepare_intent": {
+    "output": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/prepared",
+    "producer": "/home/kali/OmnisAI/ops/prepare_hermes_runtime.py"
+  },
+  "prepare": "PASS",
+  "native_build": "PASS_ADAPTER_INJECTED",
+  "api_dependency_wheels": [
+    {
+      "url": "https://files.pythonhosted.org/packages/3f/27/78a89b55b0904d222183164e079b4ca56208e94eff1d35ad1f1ad5be9b06/alembic-1.20.0-py3-none-any.whl",
+      "hash": "sha256:77eb101048d95f982c0353e9233404889dcd7a6fc244c107836c0e2fc9cf7d9d",
+      "size": 268719,
+      "upload-time": "2026-09-11T19:09:12.88Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/3e/30/e900b21425a860e195f32e37657aa1f7c7f2b1bfb26f03ca209b90933c06/annotated_doc-0.0.5-py3-none-any.whl",
+      "hash": "sha256:117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101",
+      "size": 5302,
+      "upload-time": "2026-07-28T13:50:57.239Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl",
+      "hash": "sha256:f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0",
+      "size": 13427,
+      "upload-time": "2026-07-23T20:16:12.938Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl",
+      "hash": "sha256:6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101",
+      "size": 132079,
+      "upload-time": "2026-09-05T10:42:37.923Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl",
+      "hash": "sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "size": 67548,
+      "upload-time": "2026-03-19T14:22:23.645Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+      "hash": "sha256:255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+      "size": 125251,
+      "upload-time": "2026-08-26T13:33:12.928Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/cb/03/10388a42375ee7e4ac9b94eb2c5c569c8b5795e377e701c9ac3ad63de890/fastapi-0.141.1-py3-none-any.whl",
+      "hash": "sha256:bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3",
+      "size": 131954,
+      "upload-time": "2026-07-29T17:18:04.364Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/85/cb/ab0c123c514ed4e94c0dc9ee2e86362633e6b998cfc05de7fc9ac2eb9690/greenlet-3.5.6-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+      "hash": "sha256:f98e8215e172f567ce80eeaed9107fb4d32b6c44f26983d9b8334658136a205a",
+      "size": 623779,
+      "upload-time": "2026-09-14T14:36:01.104Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+      "hash": "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86",
+      "size": 37515,
+      "upload-time": "2025-04-24T03:35:24.344Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+      "hash": "sha256:ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c",
+      "size": 69583,
+      "upload-time": "2026-09-17T14:11:03.168Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/69/90/f63fb5873511e014207a475e2bb4e8b2e570d655b00ac19a9a0ca0a385ee/jsonschema-4.26.0-py3-none-any.whl",
+      "hash": "sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+      "size": 90630,
+      "upload-time": "2026-01-07T13:41:05.306Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8cedb3c1902296743db0bbc66608a0db2814f/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+      "hash": "sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+      "size": 18437,
+      "upload-time": "2025-09-08T01:34:57.871Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/6d/a0/053d6af3e8f871e0073b4a36732d9e65be77a72e5434c31b94f6af78a6bb/mako-1.4.3-py3-none-any.whl",
+      "hash": "sha256:723296007c870bfd6b3f0c3230dba7198096e5269297ebf5e4eff9e7ffa39d4f",
+      "size": 80164,
+      "upload-time": "2026-09-22T20:54:33.128Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/a9/21/9b05698b46f218fc0e118e1f8168395c65c8a2c750ae2bab54fc4bd4e0e8/markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "hash": "sha256:ccfcd093f13f0f0b7fdd0f198b90053bf7b2f02a3927a30e63f3ccc9df56b676",
+      "size": 22980,
+      "upload-time": "2025-09-27T18:36:45.385Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/4e/de/748bd7609c71cae5d737f0ba9192f19329f70180ecda8fff3cac02c5abe3/psycopg-3.3.6-py3-none-any.whl",
+      "hash": "sha256:a1db9f7148b06a28606767efaca51fa6f9398c5c0a3810519be69d7000bdb631",
+      "size": 215490,
+      "upload-time": "2026-09-18T13:15:29.374Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/de/b0/c6f8a0585a5dacbea74e130bcfc66629390e8f5bbc79d2a8e806e8952150/psycopg_binary-3.3.6-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "hash": "sha256:cec5ea900390897d0b46130f60bc2883bf19c314f9044235217c8be88b0ef269",
+      "size": 5237855,
+      "upload-time": "2026-09-18T13:19:31.257Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/eb/47/c95ffc2009878c7aac0c5e08528022dcb885933252a88b5f170058014464/pydantic-2.13.5-py3-none-any.whl",
+      "hash": "sha256:346a034f080da3755d8e9cb5e00e8b07de1d39e4f6e2c87d8ab7cafa0b269a73",
+      "size": 472589,
+      "upload-time": "2026-08-28T14:03:59.136Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/d3/f2/9e4de77a6271e07a76d2d58b11c091a979c191ed2939bf80067568b369d2/pydantic_core-2.46.5-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "hash": "sha256:6f7b393a8b3da82f5c1fc0751e6d01ac6c55b93c18226a60bdfba4a724efafd1",
+      "size": 2066633,
+      "upload-time": "2026-08-28T09:58:58.531Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/74/27/e5b8f34d02d9995b80abcef563ea1f8b56d20134d8f4e5e81733b1feceb2/pyyaml-6.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "hash": "sha256:0f29edc409a6392443abf94b9cf89ce99889a1dd5376d94316ae5145dfedd5d6",
+      "size": 801626,
+      "upload-time": "2025-09-25T21:32:28.878Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/2c/58/ca301544e1fa93ed4f80d724bf5b194f6e4b945841c5bfd555878eea9fcb/referencing-0.37.0-py3-none-any.whl",
+      "hash": "sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+      "size": 26766,
+      "upload-time": "2025-10-13T15:30:47.625Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/b7/de/f7192e12b21b9e9a68a6d0f249b4af3fdcdff8418be0767a627564afa1f1/rpds_py-0.30.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "hash": "sha256:9027da1ce107104c50c81383cae773ef5c24d296dd11c99e2629dbd7967a20c6",
+      "size": 394025,
+      "upload-time": "2025-11-30T20:22:50.196Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/84/26/bd327a1a6be223e438c98ac8faf299307d83797225a81f3b209607a9fd98/sqlalchemy-2.0.54-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "hash": "sha256:cad78d04254967bdbcccbed5e631d88fe4868530946ab0929aa45e9032849518",
+      "size": 3417562,
+      "upload-time": "2026-09-15T22:40:32.637Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/4e/d6/1ec1b290f9e0fb067899b61e1d37a30c923068bad260b216dbe37a7d2967/starlette-1.7.0-py3-none-any.whl",
+      "hash": "sha256:67f8e99895493dd2911a03f11314af6ceebeae4e704bb9f43dfc6a9db151c93e",
+      "size": 78980,
+      "upload-time": "2026-09-23T07:30:24.567Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+      "hash": "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+      "size": 45571,
+      "upload-time": "2026-07-02T08:40:04.659Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl",
+      "hash": "sha256:65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147",
+      "size": 14750,
+      "upload-time": "2026-08-12T12:37:24.648Z"
+    },
+    {
+      "url": "https://files.pythonhosted.org/packages/38/0c/b54a4fdd7f90a3af8b02ebc9ce6712c2c208b7926a2f7bad95c33ebbe943/uvicorn-0.54.0-py3-none-any.whl",
+      "hash": "sha256:505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf",
+      "size": 87427,
+      "upload-time": "2026-09-25T06:52:35.829Z"
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "reason": ""
+  }
+}

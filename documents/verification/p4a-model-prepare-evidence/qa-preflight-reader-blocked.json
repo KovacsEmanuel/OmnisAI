@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_BUILD_CURRENT_API_READER",
+  "outcome": "Existing native prepare/build/inject succeeded and current43 inputs match; private current API copy-mode install succeeds but current reader refuses its actual wheel; no OCI or real PG/native attempt admitted. No product repair performed.",
+  "requirement_consumer_risk_decision": "Saved Settings/context/snapshot/selection/native-turn HOLD and context-bound close+Future join through existing managed owner; current installed prerequisite prevents source-only false acceptance. Stop at actual consumer refusal.",
+  "root": "/home/kali/.hermes/cache/scratch/mp-_i844ny7",
+  "head": "6a6e416c93290d248c652d59baf9ec0d24b0dad7",
+  "product_commit": "5e0a2df9bb88eb765797dbf83880cfd50f6993a8",
+  "reviewed_snapshot": "864224fecf1c585291c78fcc6ad128a19dce8c05",
+  "snapshot_27_bytes_equal_reviewed": true,
+  "product_files_sha256": {
+    "Makefile": "f3bba334369a0c5c034b73f1c2f040830ad8f51a1293882fda6241c2a69ef47f",
+    "api/src/omnis/modules/instance/schemas.py": "899de8ae82e661da6ea769d4be21c860e72d624bd74203023c16b9f4513b0116",
+    "api/src/omnis/modules/runs/managed_admission.py": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494",
+    "api/src/omnis/modules/runs/model_test.py": "27ed6c44d7d2a74c933d2b8ef52bc0ef816412a49d37eb77f07a61dfa9cb4b12",
+    "api/src/omnis/supervisor/native_tasks.py": "f9c1cf301a7f6100158c79996eff530edeea2cb161a28e9cf330a9372b7dc3b8",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/tests/test_contract_method_pg.py": "c9ad1a3070ac57606361f1b529e8fbd4a0cbe294bc247131c0f988ce2ab14cd8",
+    "api/tests/test_contract_method_producer.py": "4990bcc806a98b4aa69171aaf44de9a170fa72d83713e30cac486894f655b18c",
+    "api/tests/test_model_preflight_control.py": "8ad2ddd9474d69aa5b4ac65d89654b271117937e30574bb5477b078eb053a5a8",
+    "api/tests/test_model_test_prepare_source.py": "dde71ef13d06d2448b8b10a205fa7a62033f2b19bf3bcb1b687b7e8133719346",
+    "api/tests/test_owned_model_initialization.py": "35b18b51c8c8df72b4414337c895ecfc1c057fa9e14fa80be063ea897a16b94d",
+    "integrations/hermes/pin.json": "764c1b1278fc9aaa49dbf288255d756574c0c39e36c08e580b222949d30dd0cb",
+    "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "5b8172c983ff519c9f3227b0209cb1e68930c6f097e95c0d686a7d21342129db",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "ce60b934e8b8424840e82e4b757bdf0ad357175c653bfa34d02a92fa37722cb8",
+    "integrations/hermes/tests/test_managed_build.py": "49a94330e3ce7c0f6e1e3da88b35a6f8ad4063d4fee8cfab7296ba33cfe837c3",
+    "integrations/hermes/tests/test_model_prepare_lifecycle.py": "cbc8d27a1866a32c376e4e484172a6e126cc8bef216ee3bec1a8d5e776237db3",
+    "integrations/hermes/upstream/managed-patch-manifest.json": "1a9a144ee5f97b791a7d4d682fd025111ed12fe42be80fc3fd70309914816e12",
+    "integrations/hermes/upstream/managed-source/agent/agent_init.py": "510612768e857688a884d5fe04ea5412e3802c5b1ea5120f9768607224b42181",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "a6bc9920e8ed4449d6b7937cbb07b6a8cd19cb66689465f91c16a082750067c7",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "1743884d52b5dcb4ddf4b1a31aafc60944784bd280f46e28e92ca2f2bb3bfc16",
+    "integrations/hermes/upstream/managed-source/agent/turn_context.py": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "1a110734986ec28f6477b08aa31d2c5a741d22e661507ff537d1c1626b6c34e0",
+    "integrations/hermes/upstream/managed-source/tui_gateway/entry.py": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f",
+    "integrations/hermes/upstream/omnis-managed.patch": "f7664cba1b7f58a9bd26e97ceb491b57ffa4d2bd88924edfef047e830b34ce04",
+    "ops/run_test_db_gate.py": "72f7858e60d1101c3f51180fa80e3a7d45a296edd29a83c94ff859a8d992445f"
+  },
+  "test_sha256": "c9ad1a3070ac57606361f1b529e8fbd4a0cbe294bc247131c0f988ce2ab14cd8",
+  "original_reviews": {
+    "rereview2-model-prepare-norm.json": "5b7414fd5b8e4e626df874d50aea867f7c486fbb50f3fc721fa15b49f8d12ce5",
+    "rereview2-model-prepare-safety.json": "d44f347ba417816b22efe0e976aa509c02023dbbab2af9bc2d361e9d03269b4a"
+  },
+  "artifact": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/native-inputs.json",
+    "sha256": "4aded4dd87df66a8c7814c27ae1f80a5c2457bbc3be438c01af928356c9b4d3a"
+  },
+  "reader": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-report.json",
+    "sha256": "9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9"
+  },
+  "QA": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/qa-report.json",
+    "sha256": "76b012683af20d8f49b101dfefd75cbe303bbae3e5a4edfc5aa0abc77b902d16"
+  },
+  "original_failed_build": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/build-report.json",
+    "sha256": "9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d",
+    "exit_code": 1
+  },
+  "commands": [
+    {
+      "label": "uv-version",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/uv-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "node-version",
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/node-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "npm-version",
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/npm-version.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/runner-help.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+        "-q",
+        "--collect-only",
+        "--tb=no"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/collect.log",
+      "timeout_seconds": 60,
+      "exit_code": 0
+    },
+    {
+      "label": "adapter-build",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter-wheel"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/adapter-build.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-build",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/source/api",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-build.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-lock-export",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "export",
+        "--offline",
+        "--locked",
+        "--no-config",
+        "--directory",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/source/api",
+        "--no-dev",
+        "--no-emit-project",
+        "--no-header",
+        "--no-annotate",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/requirements-api.txt"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-lock-export.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-venv",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "venv",
+        "--no-config",
+        "--no-python-downloads",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-venv.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-sync",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "sync",
+        "--offline",
+        "--no-config",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+        "--no-index",
+        "--find-links",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheelhouse",
+        "--only-binary",
+        ":all:",
+        "--require-hashes",
+        "--link-mode",
+        "copy",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/requirements-api.txt"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-sync.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-install",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-config",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+        "--no-deps",
+        "--no-index",
+        "--link-mode",
+        "copy",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-install.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    },
+    {
+      "label": "api-reader-check",
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "pip",
+        "check",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-reader-check.log",
+      "timeout_seconds": 300,
+      "exit_code": 0
+    }
+  ],
+  "native_producer_commands": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/prepared/commands.jsonl",
+    "sha256": "523f59e21a0b337efdf5473fbde9cb6563e703fff4314c70efc7ef13542a82c2",
+    "private_mode": "0600",
+    "command_count": 5,
+    "exit_codes": [0, 0, 0, 0, 0],
+    "dependency_wheels_verified": 67,
+    "prepared_native_source_files_verified": 3187,
+    "note": "Existing prepare/build_native/inject_adapter invocations and source manifest are retained; these five child commands supplement the twelve explicit driver commands above. No Docker or runtime launch."
+  },
+  "metrics": {
+    "wheel_bytes": 280593,
+    "wheel_limit": 262144,
+    "zip_members": 114,
+    "zip_members_limit": 128,
+    "max_member_bytes": 80828,
+    "max_member_limit": 131072,
+    "uncompressed_bytes": 1090231,
+    "uncompressed_limit": 1048576,
+    "API_module_count": 95
+  },
+  "cleanup": {
+    "CIDs": [],
+    "projects": [],
+    "runtime_sockets": [],
+    "boot_UUIDs": [],
+    "owned_service_processes": [],
+    "image_tags": [],
+    "settlement": "NO_DOCKER_PG_NATIVE_RESOURCES_CREATED; all12 finite build commands exited0; build-driver exited1 at pre-OCI reader limit assertion",
+    "data_retained": "/home/kali/.hermes/cache/scratch/mp-_i844ny7",
+    "inverse": "No service cleanup needed. Retain original failed reports/builds; eventual deletion of only this private scratch root requires explicit decision."
+  },
+  "repo_status_after": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html\n",
+  "protected_paths": "Protected HTML and tools/development/ponytail.json not read/hashed/copied/modified",
+  "limits": [
+    "Fresh installed OCI distribution, effective UID1000 inside-image access and readback NOT_RUN because stopped at build prerequisite blocker.",
+    "Current43 is prepared input identity, not PASS_STATIC_CURRENT_DISTRIBUTION or a runtime result.",
+    "Candidate descriptor is rejected and must not be supplied as admitted prerequisite.",
+    "No PG/native QA, inference, provider/account, SDK, r1/P0/global changes or push.",
+    "Existing reader wheel/ZIP caps unchanged; parent must adjudicate current schema vs real producer before a separately authorized new attempt.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "next_action": "Parent reproduce current built API wheel raw/ZIP bounds through existing batch2_current_reader; resolve source prerequisite contract under reviewed minimal product repair if appropriate. Do not blindly rerun gate or enlarge limits."
+}

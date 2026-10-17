@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "NOT_RUN_PREREQUISITE_BLOCKED",
+  "qa_attempts": 0,
+  "reason": "CURRENT_INSTALLED_API_READER_REFUSED_ACTUAL_WHEEL_SIZE_AND_ZIP_AGGREGATE_BOUNDS",
+  "timeout_seconds": 180,
+  "intended_original_producer_call": "prove_private_fixture('test-model-test-prepare-native-pg', '/home/kali/.local/share/omnis-toolchains/bin/uv', 180)",
+  "intended_make_argv": [
+    "make",
+    "--no-print-directory",
+    "test-model-test-prepare-native-pg",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "existing_seam": "Original run_gate retained; only explicit six pins added to copied base, same command/log/180. NOT_INVOKED because prerequisite refused.",
+  "pins_reviewed_test_sha256": "c9ad1a3070ac57606361f1b529e8fbd4a0cbe294bc247131c0f988ce2ab14cd8",
+  "PG_provisioned": false,
+  "native_process_launched": false,
+  "docker_commands_executed": 0,
+  "model_provider_account_traffic": "NONE",
+  "cleanup": {
+    "CIDs": [],
+    "projects": [],
+    "runtime_sockets": [],
+    "boot_UUIDs": [],
+    "owned_service_processes": [],
+    "image_tags": [],
+    "settlement": "NO_DOCKER_PG_NATIVE_RESOURCES_CREATED; all12 finite build commands exited0; build-driver exited1 at pre-OCI reader limit assertion",
+    "data_retained": "/home/kali/.hermes/cache/scratch/mp-_i844ny7",
+    "inverse": "No service cleanup needed. Retain original failed reports/builds; eventual deletion of only this private scratch root requires explicit decision."
+  }
+}

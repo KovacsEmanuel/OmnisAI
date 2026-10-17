@@ -6832,7 +6832,7 @@ def test_batch2_current_reader_actual_helper(
         if mutation == "nonregular-wheel":
             os.mkfifo(unsafe, 0o600)
         else:
-            unsafe.write_bytes(b" " * 262145)
+            unsafe.write_bytes(b" " * 327681)
         current["wheel"] = str(unsafe)
     if mutation in {"zip-member", "zip-aggregate"}:
         import zipfile
@@ -6848,7 +6848,7 @@ def test_batch2_current_reader_actual_helper(
                 )
         current["wheel"] = str(copied_wheel)
         current["wheel_sha256"] = sha(copied_wheel.read_bytes())
-        assert copied_wheel.stat().st_size <= 262144
+        assert copied_wheel.stat().st_size <= 327680
         original_zip_read = zipfile.ZipFile.read
 
         def zip_read_observed(
@@ -7078,6 +7078,15 @@ def test_batch2_actual_persisted_correspondence(mutation: str | None) -> None:
         "extra-installed",
         "missing-row",
         "duplicate-row",
+        "wheel-max",
+        "wheel-max-plus-one",
+        "aggregate-max",
+        "aggregate-max-plus-one",
+        "zip-count",
+        "zip-duplicate",
+        "bad-zip",
+        "descriptor-extra",
+        "current-extra",
         "stale-reader",
     ],
 )
@@ -7123,6 +7132,32 @@ def test_h04_current_reader_source_snapshot(
                 target.write_bytes(raw)
             wheel.writestr(name, raw)
             files.append({"path": "api/src/" + name, "sha256": sha(raw)})
+    if mutation in {"wheel-max", "wheel-max-plus-one"}:
+        target_size = 327680 + (mutation == "wheel-max-plus-one")
+        padding = target_size - wheel_path.stat().st_size
+        assert 0 <= padding <= 65535
+        with zipfile.ZipFile(wheel_path, "a") as wheel:
+            wheel.comment = b" " * padding
+        assert wheel_path.stat().st_size == target_size
+    elif mutation in {"aggregate-max", "aggregate-max-plus-one", "zip-count", "zip-duplicate"}:
+        with zipfile.ZipFile(wheel_path, "a", compression=zipfile.ZIP_DEFLATED) as wheel:
+            members = wheel.infolist()
+            if mutation.startswith("aggregate-"):
+                target_size = 1114112 + (mutation == "aggregate-max-plus-one")
+                padding = target_size - sum(m.file_size for m in members)
+                assert 0 <= padding <= 131072
+                wheel.writestr("bounded-control", b" " * padding)
+                assert sum(m.file_size for m in wheel.infolist()) == target_size
+            elif mutation == "zip-count":
+                for index in range(129 - len(members)):
+                    wheel.writestr(f"bounded-control-{index}", b"")
+                assert len(wheel.infolist()) == 129
+            else:
+                with pytest.warns(UserWarning, match="Duplicate name"):
+                    wheel.writestr(members[0].filename, wheel.read(members[0]))
+        assert wheel_path.stat().st_size <= 327680
+    elif mutation == "bad-zip":
+        wheel_path.write_bytes(b"not a ZIP")
     python = fixture / "reader/bin/python"
     python.parent.mkdir(parents=True)
     python.symlink_to(Path(sys.executable).resolve())
@@ -7142,7 +7177,11 @@ def test_h04_current_reader_source_snapshot(
         "root": str(fixture),
         "current": current,
     }
-    if mutation == "commit-type":
+    if mutation == "descriptor-extra":
+        descriptor["unlisted"] = True
+    elif mutation == "current-extra":
+        current["unlisted"] = True
+    elif mutation == "commit-type":
         current["commit"] = True
     elif mutation == "commit-format":
         current["commit"] = "not-a-commit"
@@ -7183,7 +7222,7 @@ def test_h04_current_reader_source_snapshot(
             "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json"
         )
         expected = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
-    if mutation is None:
+    if mutation in (None, "wheel-max", "aggregate-max"):
         assert batch2_current_reader(handle, expected_sha256=expected) == current
         assert len(calls) == 1
     else:
@@ -7457,10 +7496,10 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
             if name != "python" and path.resolve(strict=True) != path:
                 raise ValueError
         wheel_path, source = Path(str(current["wheel"])), Path(str(current["source"]))
-        # Existing finite QA bounds are unchanged for the new API-only reader.
+        # Explicit operator exception: smallest 64-KiB bounds covering the measured current wheel.
         # The pinned descriptor binds commit + inventory + wheel SHA together;
         # the legacy batch2 receipt remains a separate historical artifact.
-        wheel_raw = batch2_reader_material(wheel_path, 262144)
+        wheel_raw = batch2_reader_material(wheel_path, 327680)
         if sha(wheel_raw) != current["wheel_sha256"]:
             raise ValueError
         files = [mapping(row) for row in sequence(current["files"])]
@@ -7488,7 +7527,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
                 len(members) > 128
                 or len({m.filename for m in members}) != len(members)
                 or any(m.file_size > 131072 for m in members)
-                or sum(m.file_size for m in members) > 1048576
+                or sum(m.file_size for m in members) > 1114112
             ):
                 raise ValueError
             names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
@@ -7527,7 +7566,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
             + inspect.getsource(batch2_reader_material)
             + HISTORICAL_ORIGIN.replace(
                 "zipfile.ZipFile(wheel)",
-                "zipfile.ZipFile(BytesIO(batch2_reader_material(wheel, 262144)))",
+                "zipfile.ZipFile(BytesIO(batch2_reader_material(wheel, 327680)))",
             )
             .replace("actual.read_bytes()", "batch2_reader_material(actual, 131072)")
             .replace("expected.read_bytes()", "batch2_reader_material(expected, 131072)")
@@ -7535,7 +7574,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
                 "    for name in distribution.namelist():",
                 "    assert len(distribution.infolist()) <= 128\n"
                 "    assert all(m.file_size <= 131072 for m in distribution.infolist())\n"
-                "    assert sum(m.file_size for m in distribution.infolist()) <= 1048576\n"
+                "    assert sum(m.file_size for m in distribution.infolist()) <= 1114112\n"
                 "    for name in distribution.namelist():",
             )
         )

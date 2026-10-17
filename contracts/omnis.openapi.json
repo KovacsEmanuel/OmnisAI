@@ -152,6 +152,56 @@
         "title": "BusinessMatrixEntry",
         "type": "object"
       },
+      "CatalogBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_kind": {
+            "enum": [
+              "package",
+              "profile",
+              "technique",
+              "procedure",
+              "schema",
+              "method",
+              "prompt",
+              "template",
+              "overlay",
+              "asset"
+            ],
+            "title": "Entity Kind",
+            "type": "string"
+          },
+          "key": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "title": "Key",
+            "type": "string"
+          },
+          "package_key": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "const": "@profile",
+                "type": "string"
+              }
+            ],
+            "title": "Package Key"
+          },
+          "ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          }
+        },
+        "required": [
+          "package_key",
+          "entity_kind",
+          "key",
+          "ref"
+        ],
+        "title": "CatalogBinding",
+        "type": "object"
+      },
       "CatalogEntry": {
         "additionalProperties": false,
         "properties": {
@@ -197,6 +247,14 @@
             },
             "maxItems": 128,
             "title": "Candidate Refs",
+            "type": "array"
+          },
+          "catalog_bindings": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogBinding"
+            },
+            "maxItems": 128,
+            "title": "Catalog Bindings",
             "type": "array"
           },
           "compiler_revision": {
@@ -352,6 +410,7 @@
           "candidate_refs",
           "dependency_closure_refs",
           "dependency_artifact_refs",
+          "catalog_bindings",
           "material_digest",
           "resolved_index_digest",
           "dependency_closure_digest",

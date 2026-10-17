@@ -308,6 +308,19 @@ export interface components {
             /** Tenant */
             tenant: string;
         };
+        /** CatalogBinding */
+        CatalogBinding: {
+            /**
+             * Entity Kind
+             * @enum {string}
+             */
+            entity_kind: "package" | "profile" | "technique" | "procedure" | "schema" | "method" | "prompt" | "template" | "overlay" | "asset";
+            /** Key */
+            key: string;
+            /** Package Key */
+            package_key: string | "@profile";
+            ref: components["schemas"]["CatalogPin"];
+        };
         /** CatalogEntry */
         CatalogEntry: {
             /** Generation */
@@ -330,6 +343,8 @@ export interface components {
             benchmark: "NOT_VERIFIED";
             /** Candidate Refs */
             candidate_refs: components["schemas"]["CatalogPin"][];
+            /** Catalog Bindings */
+            catalog_bindings: components["schemas"]["CatalogBinding"][];
             /** Compiler Revision */
             compiler_revision: string;
             confirmation_ref: components["schemas"]["CatalogPin"];

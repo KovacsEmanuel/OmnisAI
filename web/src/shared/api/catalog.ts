@@ -4,6 +4,7 @@ import { ApiError, isRecord, isUuid } from './errors';
 export type CatalogPin = components['schemas']['CatalogPin'];
 export type CatalogPage = components['schemas']['CatalogPage'];
 export type CatalogInspection = components['schemas']['CatalogInspection'];
+type CatalogBinding = components['schemas']['CatalogBinding'];
 const kinds = ['source-draft', 'candidate-snapshot', 'technical-review', 'evaluation-receipt', 'operator-confirmation', 'catalog-publication', 'evaluation-input', 'contract-case-input', 'contract-case-records', 'contract-input-context', 'evaluation-admission', 'qualified-release', 'release-qualification', 'package', 'profile', 'technique', 'procedure', 'schema', 'method', 'prompt', 'template', 'overlay', 'asset'];
 const digest = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{64}$/.test(v);
 const key = (v: unknown): v is string => typeof v === 'string' && /^[a-z][a-z0-9_.-]{0,127}$/.test(v);
@@ -17,6 +18,23 @@ function isPin(value: unknown): value is CatalogPin {
 }
 function isPins(value: unknown): value is CatalogPin[] {
   return Array.isArray(value) && value.length <= 128 && value.every(isPin) && new Set(value.map(v => JSON.stringify(v))).size === value.length;
+}
+const entityKinds = ['package', 'profile', 'technique', 'procedure', 'schema', 'method', 'prompt', 'template', 'overlay', 'asset'];
+const pinToken = (pin: CatalogPin): string => `${pin.kind}/${pin.id}/${pin.revision}/${pin.digest}`;
+function isBinding(value: unknown): value is CatalogBinding {
+  return isRecord(value) && exact(value, ['package_key', 'entity_kind', 'key', 'ref']) &&
+    (key(value.package_key) || value.package_key === '@profile') && key(value.key) &&
+    entityKinds.includes(String(value.entity_kind)) && isPin(value.ref) && value.ref.kind === value.entity_kind &&
+    (value.package_key === '@profile') === (value.entity_kind === 'profile') &&
+    (value.entity_kind !== 'package' || value.package_key === value.key);
+}
+function isBindings(value: unknown, pins: CatalogPin[]): value is CatalogBinding[] {
+  if (!Array.isArray(value) || value.length > 128 || !value.every(isBinding)) return false;
+  const identities = value.map(v => `${v.package_key}/${v.entity_kind}/${v.key}`), refs = value.map(v => pinToken(v.ref));
+  return new Set(identities).size === value.length && new Set(refs).size === value.length &&
+    new Set(value.map(v => v.ref.id)).size === value.length &&
+    refs.every(ref => pins.some(pin => pinToken(pin) === ref)) &&
+    value.every(v => v.package_key === '@profile' || value.some(b => b.entity_kind === 'package' && b.package_key === v.package_key));
 }
 function isPage(value: unknown): value is CatalogPage {
   if (!isRecord(value) || !exact(value, ['items', 'has_more', 'next_after']) || !Array.isArray(value.items) || value.items.length > 20 || typeof value.has_more !== 'boolean') return false;
@@ -32,9 +50,10 @@ const collectionFields = ['source_draft_refs', 'candidate_refs', 'dependency_clo
 const digestFields = ['material_digest', 'resolved_index_digest', 'dependency_closure_digest'];
 const revisionFields = ['compiler_revision', 'evaluator_revision'];
 function isInspection(value: unknown, id: string, sha: string): value is CatalogInspection {
-  if (!isRecord(value) || !exact(value, ['publication_ref', 'profile_key', 'generation', 'owner_id', ...pinFields, ...collectionFields, ...digestFields, ...revisionFields, 'requested', 'review', 'static', 'pure', 'dependency_metadata', 'material', 'runtime', 'benchmark', 'fixture', 'security', 'assessment_selectable', 'resolution'])) return false;
+  if (!isRecord(value) || !exact(value, ['publication_ref', 'profile_key', 'generation', 'owner_id', ...pinFields, ...collectionFields, ...digestFields, ...revisionFields, 'catalog_bindings', 'requested', 'review', 'static', 'pure', 'dependency_metadata', 'material', 'runtime', 'benchmark', 'fixture', 'security', 'assessment_selectable', 'resolution'])) return false;
   if (!isPin(value.publication_ref) || value.publication_ref.kind !== 'catalog-publication' || value.publication_ref.id !== id || value.publication_ref.digest !== sha || !key(value.profile_key) || !positive(value.generation) || typeof value.owner_id !== 'string' || !isUuid(value.owner_id)) return false;
   if (!pinFields.every(k => isPin(value[k])) || !collectionFields.every(k => isPins(value[k])) || !digestFields.every(k => digest(value[k]))) return false;
+  if (!isPins(value.candidate_refs) || !isPins(value.dependency_closure_refs) || !isBindings(value.catalog_bindings, [...value.candidate_refs, ...value.dependency_closure_refs])) return false;
   if (!revisionFields.every(k => typeof value[k] === 'string' && /^sha256:[0-9a-f]{64}$/.test(value[k]))) return false;
   const requested = value.requested;
   if (!isRecord(requested) || !exact(requested, ['model_key', 'effort', 'requirement', 'on_unavailable']) || (requested.model_key !== null && !key(requested.model_key)) || (requested.effort !== null && (typeof requested.effort !== 'string' || requested.effort.length > 4096)) || !['REQUIRED', 'PREFERRED'].includes(String(requested.requirement)) || !['BLOCK', 'USE_RUN_DEFAULT'].includes(String(requested.on_unavailable))) return false;

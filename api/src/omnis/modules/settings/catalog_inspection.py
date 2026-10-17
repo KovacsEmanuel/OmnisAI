@@ -14,7 +14,13 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from . import candidate_store as store
-from .catalog_inspection_models import CatalogEntry, CatalogInspection, CatalogPage, CatalogPin
+from .catalog_inspection_models import (
+    CatalogBinding,
+    CatalogEntry,
+    CatalogInspection,
+    CatalogPage,
+    CatalogPin,
+)
 from .catalog_models import CatalogError, Preference
 from .catalog_schema import bounded, canonical
 
@@ -363,6 +369,114 @@ async def capture_input(
         refuse()
 
 
+def named_index(
+    body: dict[str, object],
+    index: dict[str, object],
+    sources: list[tuple[dict[str, object], dict[str, object]]],
+) -> list[CatalogBinding]:
+    """Project names only after joining the retained index to source identities."""
+    bindings = [
+        CatalogBinding.model_validate(item)
+        for item in cast(list[object], index["catalog_bindings"])
+    ]
+    candidates = pins(body["candidate_refs"])
+    closure = pins(body["dependency_closure_refs"])
+    if not bindings:
+        # Legacy empty index: do not invent names from current source/compiler.
+        if any(ref["kind"] != "profile" for ref in candidates) or any(
+            s["source_kind"] != "profile" for _, s in sources
+        ):
+            refuse()
+        return []
+    by_identity: dict[tuple[str, str, str], CatalogBinding] = {}
+    identities: set[str] = set()
+    for binding in bindings:
+        identity: tuple[str, str, str] = (binding.package_key, binding.entity_kind, binding.key)
+        if (
+            identity in by_identity
+            or binding.ref.id in identities
+            or binding.entity_kind != binding.ref.kind
+            or (binding.package_key == "@profile") != (binding.entity_kind == "profile")
+            or (binding.entity_kind == "package" and binding.key != binding.package_key)
+        ):
+            refuse()
+        by_identity[identity] = binding
+        identities.add(binding.ref.id)
+    for binding in bindings:
+        if (
+            binding.package_key != "@profile"
+            and (binding.package_key, "package", binding.package_key) not in by_identity
+        ):
+            refuse()
+    expected_local: set[bytes] = set()
+    namespaces: set[str] = set()
+    for source_ref, source in sources:
+        namespace = source.get("package_key", "@profile")
+        if type(namespace) is not str or namespace in namespaces:
+            refuse()
+        namespaces.add(namespace)
+        digest = source.get("package_digest", source_ref["digest"])
+        if source["source_kind"] == "package" and digest != sha(source["files"]):
+            refuse()
+        source_identities = source["identities"]
+        if not isinstance(source_identities, list) or not 1 <= len(source_identities) <= 128:
+            refuse()
+        seen: set[tuple[str, str, str]] = set()
+        for identity_value in source_identities:
+            if (
+                not isinstance(identity_value, list)
+                or len(identity_value) != 2
+                or not all(type(v) is str for v in identity_value)
+            ):
+                refuse()
+            identity = (namespace, identity_value[0], identity_value[1])
+            local_binding = by_identity.get(identity)
+            if local_binding is None or identity in seen:
+                refuse()
+            seen.add(identity)
+            ref = local_binding.ref.model_dump(mode="json")
+            if ref not in candidates or ref["digest"] != digest:
+                refuse()
+            expected_local.add(canonical(ref))
+    if expected_local != {canonical(ref) for ref in candidates}:
+        refuse()
+    for binding in bindings:
+        ref = binding.ref.model_dump(mode="json")
+        if binding.package_key in namespaces:
+            if canonical(ref) not in expected_local:
+                refuse()
+        else:
+            package = by_identity[(binding.package_key, "package", binding.package_key)]
+            if (
+                package.ref.model_dump(mode="json") not in closure
+                or binding.ref.digest != package.ref.digest
+            ):
+                refuse()
+    seen_refs: set[tuple[str, str, str]] = set()
+    for qualified in cast(list[dict[str, object]], index["refs"]):
+        identity = (
+            str(qualified["package_key"]),
+            str(qualified["entity_kind"]),
+            str(qualified["key"]),
+        )
+        selected_binding = by_identity.get(identity)
+        if (
+            identity in seen_refs
+            or selected_binding is None
+            or selected_binding.ref.digest != qualified["digest"]
+        ):
+            refuse()
+        seen_refs.add(identity)
+    # The producer retains ALL external release bindings, including unselected
+    # ones. Only exact candidate/closure pins are named in this projection; the
+    # remaining release material is unavailable, not implicitly verified.
+    return [
+        binding
+        for binding in bindings
+        if binding.ref.model_dump(mode="json") in candidates + closure
+    ]
+
+
 def publication(record: dict[str, object], owner: str) -> dict[str, object]:
     pin(store.reference(record), "catalog-publication")
     body = obj(record["payload"], PUBLICATION)
@@ -528,6 +642,7 @@ async def inspect_publication(
             refuse()
     sources = pins(body["source_draft_refs"], "source-draft", 1)
     profile_seen = False
+    source_bodies: list[tuple[dict[str, object], dict[str, object]]] = []
     for ref in sources:
         source = await retained(connection, ref, "source-draft", owner, group)
         source_kind = source.get("source_kind")
@@ -555,8 +670,10 @@ async def inspect_publication(
             if profile_seen or ref != body["draft_ref"] or source["key"] != body["profile_key"]:
                 refuse()
             profile_seen = True
+        source_bodies.append((ref, source))
     if not profile_seen:
         refuse()
+    bindings = named_index(body, index, source_bodies)
     confirmation = await retained(
         connection, body["confirmation_ref"], "operator-confirmation", owner, group
     )
@@ -678,6 +795,7 @@ async def inspect_publication(
             **{key: body[key] for key in fields},
             "publication_ref": store.reference(record),
             "owner_id": owner,
+            "catalog_bindings": bindings,
             "requested": requested,
             "review": "RECORDED_STATIC_PASS",
             "static": "RECORDED_STATIC_PASS",

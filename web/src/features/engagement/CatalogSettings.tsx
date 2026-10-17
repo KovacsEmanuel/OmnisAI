@@ -46,6 +46,15 @@ export function CatalogSettings() {
           <p>BENCHMARK: {view.benchmark} · FIXTURE: {view.fixture} · SECURITY: {view.security}</p>
           <p>Resolution: NO_MODEL · Assessment selectable: no</p>
           <p>Requested model: {view.requested.model_key ?? 'none'} · effort: {view.requested.effort ?? 'none'} · {view.requested.requirement} / {view.requested.on_unavailable}. Effective model: not available.</p>
+          <section aria-label="Named packages and index identities">
+            <h4>Named packages and index identities</h4>
+            {view.catalog_bindings.some(binding => binding.entity_kind === 'package') ? <ul>{view.catalog_bindings.filter(binding => binding.entity_kind === 'package').map(binding => <li key={binding.package_key}>
+              <h5>{binding.package_key}</h5><p><Pin value={binding.ref} /></p>
+              <ul>{view.catalog_bindings.filter(entity => entity.package_key === binding.package_key && entity.entity_kind !== 'package').map(entity => <li key={`${entity.entity_kind}/${entity.key}`}>
+                <span>{entity.entity_kind}: {entity.key}</span><p><Pin value={entity.ref} /></p>
+              </li>)}</ul>
+            </li>)}</ul> : <p>No named package metadata recorded.</p>}
+          </section>
           <dl>{(['material_digest', 'resolved_index_digest', 'dependency_closure_digest', 'compiler_revision', 'evaluator_revision'] as const).map(field => <div key={field}><dt>{field}</dt><dd><code>{view[field]}</code></dd></div>)}</dl>
           <ul>{[view.profile_ref, view.snapshot_ref, view.technical_review_ref, view.static_evaluation_ref, view.pure_evaluation_ref, view.confirmation_ref].map(pin => <li key={pin.id}><Pin value={pin} /></li>)}</ul>
           {(['source_draft_refs', 'candidate_refs', 'dependency_closure_refs', 'dependency_artifact_refs'] as const).map(field => <div key={field}><h4>{field}</h4>{view[field].length ? <ul>{view[field].map(pin => <li key={pin.id}><Pin value={pin} /></li>)}</ul> : <p>None recorded.</p>}</div>)}

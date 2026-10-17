@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -21,10 +21,16 @@ it('shows retained qualification separately from material/runtime and clears it 
     <MemoryRouter initialEntries={[`/settings/skills?publication=${ref.id}&digest=${ref.digest}`]}><App /></MemoryRouter></QueryClientProvider>);
   await screen.findByText(/Review: RECORDED_STATIC_PASS/);
   expect(screen.getByText(/Material: NOT_VERIFIED · Runtime: NOT_AVAILABLE/)).toBeInTheDocument();
+  const packages = screen.getByRole('region', { name: 'Named packages and index identities' });
+  expect(within(packages).getByText('contract-package')).toBeInTheDocument();
+  const pin = view.catalog_bindings[0]!.ref;
+  expect(within(packages).getByText(new RegExp(pin.id))).toHaveTextContent(`package · ${pin.id} · revision ${pin.revision}`);
+  expect(within(packages).getByText('procedure: map')).toBeInTheDocument();
   fail = true;
   await userEvent.setup().click(screen.getByRole('button', { name: 'Reload read-only catalog' }));
   await screen.findByText('Exact publication unavailable or unsupported. No readiness is confirmed.');
   expect(screen.queryByText(/Review: RECORDED_STATIC_PASS/)).not.toBeInTheDocument();
+  expect(screen.queryByRole('region', { name: 'Named packages and index identities' })).not.toBeInTheDocument();
 });
 
 it('lists published heads and keeps exact immutable selection in the reload URL without writes', async () => {

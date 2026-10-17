@@ -56,6 +56,24 @@ class CatalogPin(StrictDTO):
 Pins = Annotated[list[CatalogPin], Field(max_length=128)]
 
 
+class CatalogBinding(StrictDTO):
+    package_key: Key | Literal["@profile"]
+    entity_kind: Literal[
+        "package",
+        "profile",
+        "technique",
+        "procedure",
+        "schema",
+        "method",
+        "prompt",
+        "template",
+        "overlay",
+        "asset",
+    ]
+    key: Key
+    ref: CatalogPin
+
+
 class CatalogEntry(StrictDTO):
     publication_ref: CatalogPin
     profile_key: Key
@@ -80,6 +98,7 @@ class CatalogInspection(CatalogEntry):
     candidate_refs: Pins
     dependency_closure_refs: Pins
     dependency_artifact_refs: Pins
+    catalog_bindings: Annotated[list[CatalogBinding], Field(max_length=128)]
     material_digest: Digest
     resolved_index_digest: Digest
     dependency_closure_digest: Digest

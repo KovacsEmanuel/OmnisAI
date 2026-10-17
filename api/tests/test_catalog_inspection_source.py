@@ -62,6 +62,8 @@ async def test_authenticated_routes_are_read_only_and_bind_exact_digest(
 def fixture_rows(
     version: int = 1,
     mutate: Callable[[str, dict[str, object]], None] | None = None,
+    *,
+    extra_entities: int = 0,
 ) -> tuple[dict[str, object], dict[str, dict[str, object]]]:
     from hashlib import sha256
 
@@ -120,7 +122,23 @@ def fixture_rows(
     procedure = {"kind": "procedure", "id": str(uuid4()), "revision": 1, "digest": "f" * 64}
     schema = {"kind": "schema", "id": str(uuid4()), "revision": 1, "digest": "f" * 64}
     if version > 1:
-        package = {"kind": "package", "id": str(uuid4()), "revision": 1, "digest": "f" * 64}
+        profile_ref["digest"] = source["digest"]
+        package_digest = sha(files)
+        procedure["digest"] = schema["digest"] = package_digest
+        package = {"kind": "package", "id": str(uuid4()), "revision": 1, "digest": package_digest}
+        entities = [(package, "contract-package"), (procedure, "map"), (schema, "input")]
+        entities.extend(
+            (
+                {
+                    "kind": "asset",
+                    "id": str(uuid4()),
+                    "revision": 1,
+                    "digest": package_digest,
+                },
+                f"asset-{i}",
+            )
+            for i in range(extra_entities)
+        )
         sources.append(
             add(
                 "source-draft",
@@ -129,29 +147,32 @@ def fixture_rows(
                     "package_key": "contract-package",
                     "prefix": "packages/0",
                     "files": files,
-                    "package_digest": "f" * 64,
-                    "identities": [
-                        ["package", "contract-package"],
-                        ["procedure", "map"],
-                        ["schema", "input"],
-                    ],
+                    "package_digest": package_digest,
+                    "identities": [[ref["kind"], key] for ref, key in entities],
                     "created_by": owner,
                     "author_kind": "OPERATOR",
                     "material_digest": material,
                 },
             )
         )
-        candidates.extend([package, procedure, schema])
+        candidates.extend(ref for ref, _ in entities)
         index["catalog_bindings"] = [
             {"package_key": "contract-package", "entity_kind": ref["kind"], "key": key, "ref": ref}
-            for ref, key in ((package, "contract-package"), (procedure, "map"), (schema, "input"))
+            for ref, key in entities
+        ] + [
+            {
+                "package_key": "@profile",
+                "entity_kind": "profile",
+                "key": "contract-profile",
+                "ref": profile_ref,
+            }
         ]
         index["refs"] = [
             {
                 "package_key": "contract-package",
                 "entity_kind": "procedure",
                 "key": "map",
-                "digest": "f" * 64,
+                "digest": package_digest,
             }
         ]
     if mutate is not None:
@@ -615,6 +636,160 @@ async def test_static_and_pure_must_retain_the_same_exact_input(version: int) ->
         await inspect_publication(
             cast(AsyncConnection, Connection(head, rows)), identity, str(rows[identity]["digest"])
         )
+
+
+@pytest.mark.asyncio
+async def test_named_index_projection_preserves_retained_producer_fields() -> None:
+    from omnis.modules.settings.catalog_inspection import inspect_publication
+
+    head, rows = fixture_rows(3)
+    identity = str(head["publication_id"])
+    view = await inspect_publication(
+        cast(AsyncConnection, Connection(head, rows)), identity, str(rows[identity]["digest"])
+    )
+    review = cast(
+        dict[str, object],
+        next(r for r in rows.values() if r["kind"] == "technical-review")["envelope"],
+    )
+    index = cast(dict[str, object], cast(dict[str, object], review["payload"])["resolved_index"])
+    assert view.model_dump(mode="json").get("catalog_bindings") == index["catalog_bindings"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "package_key",
+        "kind",
+        "digest",
+        "missing_package",
+        "duplicate",
+        "aliased_id",
+        "extra",
+        "over_limit",
+        "unknown_kind",
+        "source_digest",
+        "source_identity",
+        "source_identity_extra",
+    ],
+)
+async def test_named_index_rejects_unbound_or_malformed_mapping(attack: str) -> None:
+    from omnis.modules.settings.catalog_inspection import READ_FAILURES, inspect_publication
+
+    def mutate(kind: str, body: dict[str, object]) -> None:
+        if kind == "source-draft" and body["source_kind"] == "package":
+            if attack == "source_digest":
+                body["package_digest"] = "b" * 64
+            elif attack == "source_identity":
+                body["identities"] = [["package", "different-key"]]
+            elif attack == "source_identity_extra":
+                body["identities"] = [["package", "contract-package", "extra"]]
+        if kind != "resolved-index":
+            return
+        bindings = cast(list[dict[str, object]], body["catalog_bindings"])
+        if attack == "package_key":
+            bindings[0]["package_key"] = "wrong-package"
+        elif attack == "kind":
+            bindings[0]["entity_kind"] = "schema"
+        elif attack == "digest":
+            bindings[0]["ref"] = {**cast(dict[str, object], bindings[0]["ref"]), "digest": "b" * 64}
+        elif attack == "missing_package":
+            del bindings[0]
+        elif attack == "duplicate":
+            bindings.append(copy.deepcopy(bindings[0]))
+        elif attack == "aliased_id":
+            cast(dict[str, object], bindings[1]["ref"])["id"] = cast(
+                dict[str, object], bindings[0]["ref"]
+            )["id"]
+        elif attack == "extra":
+            bindings[0]["extra"] = True
+        elif attack == "over_limit":
+            body["catalog_bindings"] = bindings * 33
+        elif attack == "unknown_kind":
+            bindings[0]["entity_kind"] = "unknown"
+
+    head, rows = fixture_rows(3, mutate)
+    identity = str(head["publication_id"])
+    with pytest.raises(READ_FAILURES):
+        await inspect_publication(
+            cast(AsyncConnection, Connection(head, rows)), identity, str(rows[identity]["digest"])
+        )
+
+
+@pytest.mark.asyncio
+async def test_named_index_accepts_128_exact_bindings_and_refuses_129() -> None:
+    from omnis.modules.settings.catalog_inspection import inspect_publication
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    for count in (128, 129):
+        head, rows = fixture_rows(3, extra_entities=count - 4)
+        identity = str(head["publication_id"])
+        db = cast(AsyncConnection, Connection(head, rows))
+        if count == 128:
+            view = await inspect_publication(db, identity, str(rows[identity]["digest"]))
+            assert len(view.catalog_bindings) == 128
+        else:
+            # The existing bounded-envelope guard refuses before projection.
+            with pytest.raises(CatalogError, match="^COUNT_LIMIT$"):
+                await inspect_publication(db, identity, str(rows[identity]["digest"]))
+
+
+def test_named_index_allows_retained_release_bindings_outside_selected_closure() -> None:
+    """Producer keeps ALL release bindings; closure contains selected refs only."""
+    from omnis.modules.settings.catalog_inspection import named_index
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    _, rows = fixture_rows(3)
+    records = [cast(dict[str, object], row["envelope"]) for row in rows.values()]
+    body = cast(
+        dict[str, object], next(r for r in records if r["kind"] == "catalog-publication")["payload"]
+    )
+    review = cast(
+        dict[str, object], next(r for r in records if r["kind"] == "technical-review")["payload"]
+    )
+    index = cast(dict[str, object], review["resolved_index"])
+    sources = [
+        (store.reference(r), cast(dict[str, object], r["payload"]))
+        for r in records
+        if r["kind"] == "source-draft"
+    ]
+    external = [
+        {
+            "package_key": "dependency",
+            "entity_kind": kind,
+            "key": key,
+            "ref": {
+                "kind": kind,
+                "id": str(uuid4()),
+                "revision": 1,
+                "digest": "c" * 64,
+            },
+        }
+        for kind, key in (
+            ("package", "dependency"),
+            ("procedure", "selected"),
+            ("schema", "unselected"),
+        )
+    ]
+    closure = [external[0]["ref"], external[1]["ref"]]
+    retained_index = {
+        **index,
+        "catalog_bindings": [*cast(list[object], index["catalog_bindings"]), *external],
+    }
+    retained_body = {**body, "dependency_closure_refs": closure}
+    projected = named_index(retained_body, retained_index, sources)
+    assert [b.model_dump(mode="json") for b in projected][-2:] == external[:2]
+    assert all(b.key != "unselected" for b in projected)
+    with pytest.raises(CatalogError, match="CATALOG_METADATA_UNAVAILABLE"):
+        named_index(
+            {**retained_body, "dependency_closure_refs": closure[1:]}, retained_index, sources
+        )
+    malformed = copy.deepcopy(retained_index)
+    cast(
+        dict[str, object], cast(list[dict[str, object]], malformed["catalog_bindings"])[-1]["ref"]
+    )["digest"] = "b" * 64
+    with pytest.raises(CatalogError, match="CATALOG_METADATA_UNAVAILABLE"):
+        named_index(retained_body, malformed, sources)
 
 
 def test_behavior_revision_contract_preserves_real_producer_pins() -> None:

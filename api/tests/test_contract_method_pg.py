@@ -9860,6 +9860,21 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         account_status="NOT_VERIFIED",
                         model_prepare_cold="ACTUAL_DISPATCH_STATUS_NO_RUNTIME",
                     )
+                    done.set()
+                    assert heartbeat is not None
+                    await heartbeat
+                    await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                    mt_stopped = await control_task(directory, request_prepare)
+                    assert canonical({k: v for k, v in mt_stopped.items() if k != "correlation_id"}) == canonical(
+                        {k: v for k, v in mt_answer.items() if k != "correlation_id"}
+                    )
+                    for mt_changes in ({"initialization_id": str(uuid4())},
+                                       {"settings_operation_id": str(uuid4())}):
+                        with pytest.raises(CatalogError):
+                            await control_task(directory, {**request_prepare, **mt_changes})
+                    assert await mission_census() == after_tables
+                    assert observation.read_bytes() == native_after
+                    checkpoint(model_prepare_closed_replay="RECEIVE_ONLY_ORIGINAL_COMMAND_NO_NATIVE_OR_WRITES")
                     return  # The shared finally requires real close + joined held worker.
                 try:
                     ready = await runtime.launch_inert(service, supervisor)

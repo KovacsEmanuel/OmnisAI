@@ -249,6 +249,10 @@ class NativeTaskOwner:
         from omnis.modules.runs.model_test import ModelTest
 
         consumer = ModelTest(self.domain)
+        async with self.domain.engine.begin() as conn:
+            completed = await consumer.completed(conn, command)
+        if completed is not None:
+            return self._model_test_reply(command, *completed)
         authority = {"instance_id": command.instance_id, "owner": str(self.owner),
                      "epoch": self.epoch, "generation": command.expected_generation}
         saved = None
@@ -261,7 +265,7 @@ class NativeTaskOwner:
                     context, created = await consumer.prepare(
                         conn, command.owner_id, command.manifest_ref,
                         str(command.initialization_id), str(command.settings_operation_id), saved,
-                        authority, str(self.runtime.boot),
+                        authority, str(self.runtime.boot), command,
                     )
                     payload, observation = await consumer.dispatch(conn, command.owner_id, context, created)
                 break
@@ -278,6 +282,11 @@ class NativeTaskOwner:
                 if mapping(context["payload"])["runtime_boot"] != self.runtime.boot:
                     raise CatalogError("TASK_INDETERMINATE")
                 observation = await consumer.persist(conn, command.owner_id, payload, result)
+        return self._model_test_reply(command, context, observation)
+
+    def _model_test_reply(
+        self, command: NativeTaskCommand, context: dict[str, object], observation: dict[str, object]
+    ) -> dict[str, object]:
         return {"ok": True, "context_ref": records.reference(context),
                 "run_id": mapping(context["payload"])["run_id"],
                 "initialization_id": command.initialization_id, "owner_id": command.owner_id,
@@ -343,7 +352,9 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
-        if command.action in {"model_configuration", "model_initialization", "model_test_prepare"}:
+        if command.action == "model_test_prepare":
+            return await self._model_test_prepare(command)
+        if command.action in {"model_configuration", "model_initialization"}:
             if (
                 back["binding"] is not None
                 or back["stage_started"]
@@ -351,8 +362,6 @@ class NativeTaskOwner:
                 or back["results"]
             ):
                 raise CatalogError("MODEL_CONFIGURATION_REJECTED")
-            if command.action == "model_test_prepare":
-                return await self._model_test_prepare(command)
             if command.action == "model_initialization":
                 return await self._model_initialization(command)
             return await self._model_configuration(command)

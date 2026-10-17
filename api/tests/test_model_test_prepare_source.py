@@ -97,15 +97,21 @@ async def produce(
     manifest: dict[str, object],
     authority: dict[str, object],
 ) -> dict[str, object]:
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    identity, settings_id = str(uuid4()), str(uuid4())
+    command = NativeTaskCommand.model_validate({**owner.base, "owner_id": owner.owner,
+        "manifest_ref": manifest, "action": "model_test_prepare", "initialization_id": identity,
+        "settings_operation_id": settings_id})
     context, created = await consumer.prepare(
         conn,
         owner.owner,
         manifest,
-        str(uuid4()),
-        str(uuid4()),
+        identity,
+        settings_id,
         {"status": "CONFIRMED", "selection": REQUESTED},
         authority,
         str(owner.runtime.boot),
+        command,
     )
     assert created
     payload, observation = await consumer.dispatch(conn, owner.owner, context, True)
@@ -559,10 +565,10 @@ def test_model_prepare_prefix_denies_before_stock_branch() -> None:
 
 
 @pytest.mark.asyncio
-async def test_retained_replay_after_shutdown_is_blocked_by_existing_fence(
+async def test_new_work_after_shutdown_is_blocked_by_existing_fence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Known scope gap: a saved observation does not bypass this current owner fence."""
+    """New/pending work still requires the unchanged current-authority fence."""
     from collections.abc import AsyncIterator
     from contextlib import asynccontextmanager
     from types import SimpleNamespace

@@ -7,6 +7,7 @@ from uuid import uuid4
 from sqlalchemy import text as sql
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs.managed_admission import ManagedAdmission
 from omnis.modules.runs.pure_probe import PureProbe
 from omnis.modules.settings import candidate_store as records
@@ -81,10 +82,40 @@ class ModelTest:
     def __init__(self, domain: ManagedAdmission) -> None:
         self.domain = domain
 
+    async def completed(
+        self, connection: AsyncConnection, command: NativeTaskCommand
+    ) -> tuple[dict[str, object], dict[str, object]] | None:
+        command = NativeTaskCommand.model_validate(command.model_dump(mode="json"))
+        try:
+            receipt = await store.command_receipt(connection, command.owner_id, str(command.initialization_id))
+        except CatalogError as error:
+            if error.reason == "REF_UNAVAILABLE":
+                return None
+            raise
+        body = mapping(record(receipt, "contract-input-command")["payload"])
+        if (body["owner_id"] != command.owner_id or body["command_id"] != command.initialization_id
+                or body["operation"] != "model_test_prepare"):
+            raise CatalogError("COMMAND_CONFLICT")
+        references = exact(body["result_refs"], {"context_ref"})
+        _, context = await store.owned(connection, command.owner_id, ref(references["context_ref"], "model-test-context"))
+        c = mapping(record(context, "model-test-context")["payload"])
+        request = {"manifest_ref": command.manifest_ref,
+                   "settings_operation_id": command.settings_operation_id,
+                   "authority": c["authority"], "runtime_boot": c["runtime_boot"],
+                   "command": command.model_dump(mode="json")}
+        if (c["owner_id"] != command.owner_id or c["preparation_id"] != command.initialization_id
+                or c["source_manifest_ref"] != command.manifest_ref
+                or c["settings_operation_id"] != command.settings_operation_id):
+            raise CatalogError("COMMAND_CONFLICT")
+        await store.command_replay(connection, command.owner_id, str(command.initialization_id),
+                                   "model_test_prepare", request)
+        _, observation = await self.dispatch(connection, command.owner_id, context, False)
+        return None if observation is None else (context, observation)
+
     async def prepare(
         self, connection: AsyncConnection, owner: str, manifest_ref: object,
         identity: str, settings_operation_id: str, settings: object,
-        authority: dict[str, object], runtime_boot: str,
+        authority: dict[str, object], runtime_boot: str, command: NativeTaskCommand,
     ) -> tuple[dict[str, object], bool]:
         await store.lock(connection, owner)
         identity, runtime_boot = uuid_string(identity), uuid_string(runtime_boot)
@@ -98,6 +129,7 @@ class ModelTest:
             "manifest_ref": ref(manifest_ref, "launch-manifest"),
             "settings_operation_id": uuid_string(settings_operation_id),
             "authority": authority, "runtime_boot": runtime_boot,
+            "command": command.model_dump(mode="json"),
         }
         prior = await store.command_replay(connection, owner, identity, "model_test_prepare", request)
         if prior is not None:
@@ -186,7 +218,7 @@ class ModelTest:
         })
         context = records.envelope("model-test-context", {
             "version": 5, "purpose": PURPOSE, "owner_id": owner, "run_id": run,
-            **request, "preparation_id": identity,
+            **{k: v for k, v in request.items() if k != "command"}, "preparation_id": identity,
             "manifest_ref": records.reference(manifest),
             "managed_run_ref": records.reference(fresh_run),
             "task_id": task_id, "attempt_id": attempt_id, "batch_index": 0,

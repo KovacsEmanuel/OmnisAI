@@ -121,6 +121,10 @@ class SourceOwner:
             yield conn
             self.events.append("commit")
 
+        @asynccontextmanager
+        async def read_transaction() -> AsyncIterator[AsyncConnection]:
+            yield conn
+        monkeypatch.setattr(domain.engine, "begin", read_transaction)
         service.native_preparation_commit = fence
         runtime = RuntimeClient(root, generation=0, epoch=1)
         runtime.boot = str(uuid4())  # SOURCE transport identity, never a native-positive claim.
@@ -295,6 +299,31 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     with pytest.raises(ValueError):
         validate_preparation_result(bad_result, payload)
     owner.reserve.assert_not_awaited()
+    # Complete immutable readback survives closed admission and a different boot.
+    from omnis.modules.instance.domain import ControlCode, ControlConflict
+    closed = Mock(side_effect=ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN))
+    monkeypatch.setattr(owner.handler.service, "native_preparation_commit", closed)
+    owner.runtime.boot = str(uuid4())
+    owner.runtime.settings_status.reset_mock()
+    count = owner.native.await_count
+    assert await owner.handler.handle(command) == answer
+    assert canonical(owner.graph) == before
+    assert owner.native.await_count == count
+    owner.runtime.settings_status.assert_not_awaited()
+    closed.assert_not_called()
+    for changes in ({"settings_operation_id": str(uuid4())}, {"expected_generation": 1},
+                    {"instance_id": str(uuid4())}):
+        with pytest.raises(CatalogError, match="COMMAND_CONFLICT"):
+            await owner.handler.handle(NativeTaskCommand.model_validate({**command.model_dump(mode="json"), **changes}))
+    # Missing/pending observations still need current authority, never another CREATE.
+    observation = next(r for r in owner.graph if records.reference(r) == answer["turn_ref"])
+    owner.graph.remove(observation)
+    for pending in (command, NativeTaskCommand.model_validate({**command.model_dump(mode="json"), "initialization_id": str(uuid4())})):
+        with pytest.raises(ControlConflict):
+            await owner.handler.handle(pending)
+    assert owner.native.await_count == count
+    owner.graph.append(observation)
+    assert canonical(owner.graph) == before
 
 
 def test_model_test_native_source_parks_actual_builder_before_stock_effects() -> None:

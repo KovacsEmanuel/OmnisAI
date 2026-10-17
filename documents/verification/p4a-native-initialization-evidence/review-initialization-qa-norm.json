@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "review_type": "INDEPENDENT_NORMATIVE_QA_DELTA_SOURCE_ONLY",
+  "verdict": "APPROVED_SCOPED",
+  "complete": true,
+  "summary": "Delta QA integrată este conformă scoped pentru o singură tentativă viitoare prin consumerul PG/native existent. Nu am identificat un defect normativ concret blocant în ordinea tranzacțiilor, schema/oracle-ul testului ori admiterea selectorului. Nu este PASS PG/native și nu certifică faptul că tentativa încape în deadline-urile reale.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "e02866ebd7a773aa6f1122b7809ba1264d0eec10",
+    "commit": "fcb8a89a5e1ded3e19c48d970b5176b96f5092de",
+    "files_sha256": {
+      "Makefile": "6f75d2570d8c6cf776155fcb239dbd5972a4bcd02c679b9ef80a138d6cbf89bf",
+      "api/tests/test_contract_method_pg.py": "98cee912f60440a5ffa38dccfafda276aa26ab29cc65674ae0db0f4020b7c2b6",
+      "ops/run_test_db_gate.py": "b64a839e627cca14b6193c65fafe88a314a836ffcb61aadbd7e8a156c5d87be6",
+      "tests/development/test_test_db_gate.py": "ce25503c67e28937c314a3a1b98132a3c3c7139f23bc52dfaeb30b4710323f55"
+    },
+    "identity": "Exact patru căi în diff; fiecare fișier este identic cu blobul commitului și cu SHA-ul final din raportul admission-fix. Cele trei fișiere ale remediului anterior au SHA-urile raportate și sunt byte-exact neschimbate față de bază.",
+    "tracked_state": "Curat înainte și după inspecție. HTML-ul original untracked preexistent a apărut numai ca metadată în git status; conținutul nu a fost accesat."
+  },
+  "admission": {
+    "requirement": "Producer owned READY DATA → aceeași referință întoarsă → intent/receipt durabile înaintea schimbului nativ original → observație pre-client autentică persistată → replay/cold read fără alt CREATE.",
+    "consumer": "Testul PG/native parametrizat existent, LocalControl/control_task → NativeTaskOwner → RuntimeClient real → Host/NativePeer → RPC._initialize → AIAgent owned pre-client.",
+    "risk": "Un test exclusiv helper poate ascunde lipsa commitului ori a constructorului autentic; un target dry-run poate fabrica un succes fără execuție.",
+    "decision": "Admisibil SOURCE pentru o singură tentativă bounded, numai după adjudecarea reviewului complementar și revalidarea prerechizitelor fresh de către părinte. Selectorul trebuie efectiv executat: un SKIP, exit0 fără dovadă ori cleanup incert nu reprezintă PASS.",
+    "selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]",
+    "preflight_reused": "Atestarea părintelui pentru inventarul original15208/source/library/access și TMPDIR-ul pregătit este context furnizat, nu o nouă atestare executată de reviewer. Părintele păstrează HOME sanitizat, PATH pinned, TMPDIR privat și oi absent înainte de efecte. --check al runnerului este effectful, nu dry-run."
+  },
+  "findings": [],
+  "finding_policy": "Nicio constatare concretă pe delta examinată; nu inventez ID/severitate/reproducer/remediu pentru domenii explicit NOT_RUN. Foreign negative are numai scope-ul declarat mai jos.",
+  "requirement_code_evidence": [
+    {
+      "requirement": "Un singur manifest fresh, producer și primul reader reale, nu DATA reconstruite manual.",
+      "locations": ["api/tests/test_contract_method_pg.py:9060-9098", "api/tests/test_contract_method_pg.py:9234-9285", "api/tests/test_contract_method_pg.py:9561-9593"],
+      "assessment": "Parametrul nou păstrează ownerul și pregătirea existente, nu intră în scenariile installed/OCI ori într-o altă metodă. Verifică binding absent/stage și release false/results goale; model_configuration folosește control_task autentic, cere READY/HOLD/HOLD și reutilizează exact provider_config_ref și initialization_data întoarse. Pregătirea documentelor rămâne double declarat."
+    },
+    {
+      "requirement": "Refuzuri pe același canal înaintea constructorului și fără scrieri.",
+      "locations": ["api/tests/test_contract_method_pg.py:9594-9630", "api/src/omnis/transport/local_control.py:158-168", "api/src/omnis/transport/local_control.py:253-281"],
+      "assessment": "Cele cinci schimbări sunt null/owner străin/revision2/revision bool/digest zero. Framingul inline păstrează schema/capability/socket-ul control_task și permite missing/bool să ajungă la validatorul serverului, fără refuz local prezentat ca IPC. Răspunsurile cer ok false și INVALID_REQUEST sau TASK_REJECTED, conforme normalizării publice existente; fiecare caz păstrează censusul complet și bytes observației native. Foreign este referința autentică originală prezentată sub owner străin: refuză la readback owner, nu izolează un al doilea manifest/source străin. Această limită este acceptată explicit, fără breadth nou."
+    },
+    {
+      "requirement": "Commit/readback independent înainte de schimbul real, fără substituirea transportului ori constructorului.",
+      "locations": ["api/tests/test_contract_method_pg.py:9632-9686", "api/src/omnis/supervisor/native_tasks.py:213-297", "api/src/omnis/modules/runs/model_dispatch.py:212-316"],
+      "assessment": "Wrapperul este pe instanța runtime originală și cere unicul op task_model_initialize/mode CREATE. Înainte de await original_exchange citește prin engine.connect separat sursa, receiptul producerului, intentul și receiptul initialization; compară envelope-urile reale, operațiile, intent_ref și provider_config_ref, plus DATA întoarse de producer. Contextul original de commit al ownerului este închis înainte de runtime.managed. Wrapperul delegă schimbul original, nu emite un răspuns nativ sintetic."
+    },
+    {
+      "requirement": "Constructorul și observația reală pre-client, nu numai helper counts.",
+      "locations": ["api/tests/test_contract_method_pg.py:255-305", "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:15-56", "integrations/hermes/upstream/managed-source/run_agent.py:329-339", "integrations/hermes/upstream/managed-source/agent/agent_init.py:2331-2429", "api/tests/test_contract_method_pg.py:9695-9725"],
+      "assessment": "Schema rezultatului și call stack-ul corespund surselor reale citite: _initialize→AIAgent.__init__→init_agent→configure_owned_core, prima observație din configure și a doua din _observed_result. Observerul cere tipurile exacte AIAgent/OwnedInitialization, code object/filename/caller reale și instanță goală la intrare; păstrează refuzul ramurii stock și înregistrează tentativa înainte de a ridica. La ambele observe return cere client None/status DEFERRED_NO_CREDENTIAL/API count int0. Răspunsul și observația durabilă cer status pre-client, HOLD, model_calls int0/native_turn null și configurația observată byte-equal cu DATA producerului. Nu am executat constructorul."
+    },
+    {
+      "requirement": "Persistență, replay, cold reader și census fără un al doilea CREATE sau ledger de model.",
+      "locations": ["api/tests/test_contract_method_pg.py:8178-8285", "api/tests/test_contract_method_pg.py:9161-9179", "api/tests/test_contract_method_pg.py:9684-9772"],
+      "assessment": "Replay-ul rămâne sub același wrapper: încă un schimb, chiar STATUS, ar încălca lista exactă [CREATE]. Răspunsurile sunt identice exceptând correlation_id, censusul și observația rămân byte-exact. Observația este recitită independent din PG. Censusul include toate rândurile din cele cinci tabele, păstrează rândurile vechi și celelalte patru tabele, admite exact provider-config, două command receipts, intent și observation; zero ledger model/native-turn. Readerul CLI fresh existent citește graful durabil și păstrează census/observație, cu guardurile sale existente împotriva rebuild/evaluator/runtime construction. Este cold SOURCE reader, nu restart Host ori reader installed."
+    },
+    {
+      "requirement": "Early return nu sare peste oracolul strict și cleanup.",
+      "locations": ["api/tests/test_contract_method_pg.py:3018-3030", "api/tests/test_contract_method_pg.py:9772", "api/tests/test_contract_method_pg.py:11788-11952"],
+      "assessment": "Inspecția și AST-ul confirmă return-ul în try-ul al cărui finally conține noua poartă. Host context se închide, heartbeat/clients/engine se închid, endpoints/familie se verifică înainte de creditul final. Pe return fără excepție, require_native_observation respinge missing/unknown/forbidden evidence înainte de numărătorile exacte: RPC/init/configure câte1 și observe/preclient câte2; fără metodă/read/PURE/release. Ramura nu promovează o excepție propagată la PASS; aserțiunile vechi de metodă de după finally nu au fost mutate ori slăbite. Aceasta este verificare de flux SOURCE, nu exercițiu dinamic nou al finalizerului."
+    },
+    {
+      "requirement": "Admitere finită și limite originale.",
+      "locations": ["Makefile:12-16", "Makefile:89-94", "ops/run_test_db_gate.py:1020-1091", "tests/development/test_test_db_gate.py:201-217", "api/tests/test_contract_method_pg.py:8625-8635", "api/tests/test_contract_method_pg.py:9554-9555", "api/src/omnis/supervisor/runtime_client.py:653-657", "integrations/hermes/src/omnis_hermes/runtime_host.py:551-607"],
+      "assessment": "Targetul nu are dependențe de suite istorice: setează opt-in-ul existent, apelează un singur selector și basetemp=$TMPDIR/oi, ascunde tracebackul privat. Runnerul adaugă numai choice-ul și reutilizează fixture/family lifecycle. Targetul este acum în guardul shared n/t/q/i; regresia existentă include noul target. DB heartbeat la0.5s întreține lease-ul real; launch/renew precedă configurarea. runtime.managed obține grant curent înaintea wrapperului de readback, Host cere încă vechiul READY deadline viu, apoi fixează grantul proaspăt. DB readbacks din wrapper consumă grantul, iar configurarea/cele cinci negative/censusurile consumă fereastra READY și idle IPC înainte de primul RPC. Nu există prewarm ori creștere TTL/grant/timeout; config2048/RPC32768/frame65536, RPC3.2s/grant4.5s rămân. Încadrarea efectivă și eventualul idle timeout rămân de observat la tentativa reală; nu sunt certificate de reviewul static."
+    }
+  ],
+  "evidence": {
+    "reviewer_executed": [
+      {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat base..head; git diff base..head pentru cele patru căi", "exit": 0, "result": "Snapshot și diff complet examinate; fără editări tracked."},
+      {"command": "sha256sum Makefile api/tests/test_contract_method_pg.py ops/run_test_db_gate.py tests/development/test_test_db_gate.py", "exit": 0, "result": "Cele patru SHA coincid cu raportul final al autorului."},
+      {"command": "api/.venv/bin/python -I -B -c <verificare inline hashlib/ast/git show, fără importuri de produs>", "exit": 0, "result": "PASS_EXACT_BYTES_AST_ONLY; exact4fișiere,3surse precedente neschimbate,5negative în loop,un selector,return și oracle în același try/finally; zero execuții native/PG/importuri produs."},
+      {"command": "git diff --check base..head -- cele patru căi; git status --short --branch", "exit": 0, "result": "Fără erori whitespace și fără modificări tracked."}
+    ],
+    "failed_review_command": {"exit": 2, "reason": "Prima variantă a comenzii inline AST a avut quoting shell invalid înainte de pornirea Python; corectată, apoi verificarea reală a trecut. Fără efecte de produs sau fișiere de probă."},
+    "reused_not_rerun": {
+      "unchanged_product_reviews": ["/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/review-initialization-norm.json", "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/review-initialization-safety.json"],
+      "author_reports": ["/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization-qa.json", "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization-admission-fix.json"],
+      "author_source_result": "72SOURCE PASS/exit0 și1unittest guard PASS/exit0 cu2subtests, raportate de autor, nu executate de reviewer. Identitatea bytes a fost verificată independent. Nu transfer make -n exit0 istoric drept dovadă de execuție."
+    }
+  },
+  "limits": [
+    "PG/native/OCI/SDK/provider/network/browser/accounts/target/inferență NOT_RUN. Nu există încă QA actuală a acestui selector și nu este aprobare live/compatibility, installed delivery ori închidere P2/canonical.",
+    "Review exclusiv delta și call-sites relevante, nu reaudit al celor trei fișiere de produs deja aprobate. Fără full suite, verifier/harness/owner nou ori probe de produs.",
+    "Singura scriere intenționată este acest raport scratch; fără cod/test/doc/skill/config/profil/global/r1/P0/push/P3. Niciun HTML protejat sau tools/development/ponytail.json citit/hashuit/copiat.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, neexecutate."
+  ],
+  "parent_handoff": "Poate adjudeca APPROVED_SCOPED pe exact commit și4SHA împreună cu reviewul complementar. Urmează numai tentativa fresh deja delimitată prin runnerul existent, cu preflight actual și cleanup/family readback obligatorii. Păstrează orice FAIL/UNKNOWN și limitele originale; fără retry orb ori deadline relief."
+}

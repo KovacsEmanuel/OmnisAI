@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "language": "ro",
+  "review": "independent-initialization-qa-safety",
+  "verdict": "APPROVED_SCOPED",
+  "repository": "/home/kali/OmnisAI",
+  "base": "e02866ebd7a773aa6f1122b7809ba1264d0eec10",
+  "head": "fcb8a89a5e1ded3e19c48d970b5176b96f5092de",
+  "head_unchanged_at_final_readback": true,
+  "scope": "Review read-only al celor patru fișiere QA integrate: excepția observerului pentru constructorul owned pre-client, refuzuri/census/replay, barierele de commit și cleanup existente, protecția outputului și admiterea unei singure probe fresh. Nu este PASS al consumerului PG/native și nu autorizează lansarea de către reviewer.",
+  "snapshot": [
+    {"path": "api/tests/test_contract_method_pg.py", "sha256": "98cee912f60440a5ffa38dccfafda276aa26ab29cc65674ae0db0f4020b7c2b6", "matches_frozen_blob_and_author": true},
+    {"path": "Makefile", "sha256": "6f75d2570d8c6cf776155fcb239dbd5972a4bcd02c679b9ef80a138d6cbf89bf", "matches_frozen_blob_and_author": true},
+    {"path": "ops/run_test_db_gate.py", "sha256": "b64a839e627cca14b6193c65fafe88a314a836ffcb61aadbd7e8a156c5d87be6", "matches_frozen_blob_and_author": true},
+    {"path": "tests/development/test_test_db_gate.py", "sha256": "ce25503c67e28937c314a3a1b98132a3c3c7139f23bc52dfaeb30b4710323f55", "matches_frozen_blob_and_author": true}
+  ],
+  "reused_unchanged_scope": {
+    "report": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/review-initialization-safety.json",
+    "verdict": "APPROVED_SCOPED",
+    "files_independently_rehashed_and_compared_to_current_HEAD": [
+      {"path": "api/tests/test_owned_model_initialization.py", "sha256": "383f273633036e5acc1240c45099dd0f57e1ea8a65d9480721924594131a3819"},
+      {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "sha256": "62633f35a8dd63e0f51e537f67a0956664da148b4ad9935604ccc033325954c2"},
+      {"path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py", "sha256": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed"}
+    ],
+    "limit": "Reutilizare exclusiv la scope-ul vechi; nu un audit nou al produsului sau o aprobare installed/native. Celălalt review normativ și inventarul/cherry-pickurile părintelui sunt context furnizat, nu probe executate de acest reviewer."
+  },
+  "blocking_findings": [],
+  "nonblocking_findings": [],
+  "finding_disposition": "Nu am demonstrat un blocker concret în delta admisă. Findingul cunoscut MAKEFLAGS=-n este remediat pe bytes curenți și verificat independent prin testul existent. Nu am cerut design, harness sau audit suplimentar.",
+  "reviewed_requirements": [
+    {
+      "requirement": "Excepție exactă, nu bypass cold/warm",
+      "locations": ["api/tests/test_contract_method_pg.py:167-170", "api/tests/test_contract_method_pg.py:234-305", "api/tests/test_contract_method_pg.py:335-379"],
+      "assessment": "init_agent rămâne în forbidden. Excepția verifică tipul exact run_agent.AIAgent, tipul exact OwnedInitialization, fișierul managed agent_init, identitatea code object, callerul real __init__, același carrier și frame-ul RPC._initialize; obiectul trebuie să aibă __dict__ gol la ENTER. configure_owned_core și observe_owned_core au identități/calleri proprii, iar fiecare RETURN observe cere client=None, DEFERRED_NO_CREDENTIAL și _api_call_count exact int0. Guardurile client/credential/turn/tool/effect nu au fost scoase. Refuzul se emite înainte de RuntimeError, inclusiv pentru non-agent fără __dict__."
+    },
+    {
+      "requirement": "Observerul corespunde surselor reale și structurii frame-urilor",
+      "locations": ["integrations/hermes/upstream/managed-source/run_agent.py:269-344", "integrations/hermes/upstream/managed-source/agent/agent_init.py:2331-2482", "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:15-56"],
+      "assessment": "Am citit sursele reale, nu numai controlul SimpleNamespace. Verificarea AST confirmă RPC._initialize→AIAgent(owned_initialization=OwnedInitialization(canonical(p)))→__init__(self,owned_initialization)→init_agent(agent,owned_initialization)→configure_owned_core(agent,carrier)→observe_owned_core(agent), plus al doilea observe din _observed_result(payload,agent). Aceste nume locale sunt cele folosite de observer. Ramura owned revine înainte de warm initialization; cold rămâne separat. Actualele frame-uri native nu au fost executate; trei teste existente sys.monitoring au exercitat frame-uri Python reale sintetice, inclusiv thread și excepții prinse repetat."
+    },
+    {
+      "requirement": "Fără fals succes din return timpuriu sau observație necunoscută/incompletă",
+      "locations": ["api/tests/test_contract_method_pg.py:2884-3029", "api/tests/test_contract_method_pg.py:9772", "api/tests/test_contract_method_pg.py:11788-11952"],
+      "assessment": "Gate-ul initialization este în finally, nu după el; returnul de la9772 nu îl sare. require_native_observation păstrează refuzul strict al unknown/missing fields, forbidden, byte/event caps și pre-READY incomplet. Excepția istorică pentru END lipsă la trei frame-uri long-lived nu este lărgită. Gate-ul aditiv cere exact1 RPC/constructor/configure,2 observe și2 client-none, fiecare ENTER/COMPLETED, fără read/PURE/release/run_contract. Am executat corpul exact AST al acestui gate într-un return/finally SOURCE: valid trece; forbidden, unknown, record neterminat, constructor-COMPLETED lipsă și run_handler suplimentar refuză înainte de checkpoint PASS. Cleanupul de resurse nu a fost simulat drept settlement: acea parte nu a fost executată în proba SOURCE."
+    },
+    {
+      "requirement": "Consumer existent, refuzuri pe același canal și persistență înaintea exchange",
+      "locations": ["api/tests/test_contract_method_pg.py:7950-7965", "api/tests/test_contract_method_pg.py:8304-8318", "api/tests/test_contract_method_pg.py:8724-8744", "api/tests/test_contract_method_pg.py:9161-9179", "api/tests/test_contract_method_pg.py:9233-9285", "api/tests/test_contract_method_pg.py:9561-9772"],
+      "assessment": "Scenariul păstrează LocalControl autentificat UDS, NativeTaskOwner, InstanceService/lease, RuntimeClient, RuntimeHost, NativePeer și RPC native. PreparationPrerequisite și TestLaunch sunt doubles declarate; installed_native este false pentru această variantă. Cele5 negative folosesc același socket/capability și ref autentic modificat: null, owner străin, revision2, bool revision și digest greșit; fiecare cere refuz și census/observație identice înaintea pozitivului. Limita foreign-owner este declarată: nu este un al doilea source străin independent. Callbackul deschide altă conexiune PG și citește source/producer/intent/command receipt înainte de a apela original_exchange; nu produce răspuns și nu emite grant. Replay cere CREATE exact o dată, rezultat identic fără correlation_id și zero delta nativ/census."
+    },
+    {
+      "requirement": "Census complet și statut pre-client fără credit de inferență",
+      "locations": ["api/tests/test_contract_method_pg.py:9126-9179", "api/tests/test_contract_method_pg.py:9690-9772", "api/tests/test_contract_method_pg.py:11929-11952"],
+      "assessment": "Censusul citește rândurile întregi ordonate ale celor5 tabele managed și verifică rândurile vechi neschimbate, exact5 tipuri de records noi, celelalte4 tabele identice. Cere zero ledger/model/native-turn, observație reală persistată și readback prin readerul cold existent fără alte observații/scrieri. Inference rămâne HOLD, client DEFERRED_NO_CREDENTIAL, model_calls exact int0, native_turn None și configurația observată egală DATA producerului. Eticheta PASS este explicit SOURCE_PG_NATIVE_PRECLIENT_SCOPED_NOT_INSTALLED_OR_INFERENCE, numai pentru viitoarea execuție reală reușită."
+    },
+    {
+      "requirement": "Cleanup real existent și limite finite neschimbate",
+      "locations": ["api/tests/test_contract_method_pg.py:9522-9555", "api/tests/test_contract_method_pg.py:11783-11914", "ops/run_test_db_gate.py:982-1013"],
+      "assessment": "Returnul părăsește mai întâi contextul Host, apoi finally-ul original drenează waiters/heartbeat, închide runtime/control, dispose engine și verifică exitul/familia/endpoints proprii înainte de gate. Excepțiile cleanup produc FAIL/UNCERTAIN, nu checkpoint PASS. Delta nu schimbă timeouts, lease, heartbeat, grant sau family owner. Runnerul păstrează cleanupul DB condiționat de familia proprie settled. Absența efectivă a resurselor și comportamentul la timeout nu au fost executate/certificate de reviewer."
+    },
+    {
+      "requirement": "Output privat și admitere unică fără dry-run green",
+      "locations": ["Makefile:11-17", "Makefile:89-94", "ops/run_test_db_gate.py:1027-1055", "tests/development/test_test_db_gate.py:201-218", "api/tests/test_contract_method_pg.py:8152-8170", "api/tests/test_contract_method_pg.py:8247-8285"],
+      "assessment": "Targetul nou are fixture obligatorie, opt-in explicit, selector unic, -I -B, autoload/cache off, --tb=no și basetemp sub TMPDIR. Protecția n/t/q/i existentă îl include; testul curent refuză MAKEFLAGS=-n atât pentru check cât și pentru targetul nou. Nicio aserțiune nouă nu compară stdout/stderr RPC brut sau capability/DSN; observațiile sunt finite, config/refs sunt fără credențiale și outputul readerului rămâne privat cu stderr refusal sanitizat. Nu certific opțiuni deliberate showlocals/showargs sau absența universală a secretelor. --check al runnerului este EFFECTFUL, nu preflight: nu l-am lansat. O singură tentativă fresh rămâne decizia părintelui după ambele reviews și prerequisite-uri, fără prewarm/retry/grant extension."
+    }
+  ],
+  "evidence_executed_independently": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat e02866ebd7a773aa6f1122b7809ba1264d0eec10 HEAD && git show --stat --oneline HEAD",
+      "workdir": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "HEAD exact;4 fișiere în delta QA; numai HTML-ul untracked preexistent, neatins."
+    },
+    {
+      "command": "git diff e02866ebd7a773aa6f1122b7809ba1264d0eec10 fcb8a89a5e1ded3e19c48d970b5176b96f5092de -- api/tests/test_contract_method_pg.py Makefile ops/run_test_db_gate.py tests/development/test_test_db_gate.py",
+      "exit_code": 0,
+      "result": "Diff integral citit, cu surrounding code relevant."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c '<hashlib SHA256 și git show pentru final_whole_qa_set_sha256 + unchanged_product_sha256 din author-initialization-admission-fix.json>' && git diff --check e02866ebd7a773aa6f1122b7809ba1264d0eec10 fcb8a89a5e1ded3e19c48d970b5176b96f5092de -- api/tests/test_contract_method_pg.py Makefile ops/run_test_db_gate.py tests/development/test_test_db_gate.py",
+      "exit_code": 0,
+      "result": "7 comparații byte/hash exacte cu autorul și bloburile frozen; diff-check fără diagnostice."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c '<runpy.run_path(api/tests/test_contract_method_pg.py); controale directe existente, gate AST actual și unittest MakeFlags>'",
+      "import_roots_explicit": ["/home/kali/OmnisAI/api/src", "/home/kali/OmnisAI/api/tests", "/home/kali/OmnisAI/integrations/hermes/src"],
+      "exit_code": 0,
+      "existing_test_calls": [
+        "test_owned_initialization_observer_exact_constructor_branch(mutation,boundary):21 combinații boundary=init_agent/configure_owned_core/observe_owned_core × mutation=None/stock/carrier-subclass/agent-subclass/not-agent/caller/filename",
+        "test_batch2_observation_exact_fields():PASS",
+        "test_restart_stderr_refusal_keeps_private_bytes_out_of_pytest_report():PASS",
+        "SafeTestDatabaseGateTests.test_full_check_cannot_become_a_dry_run_from_makeflags:1 test,2 subtests,OK,0.013s"
+      ],
+      "extracted_current_gate": "AST If exact11929-11952 executat în finally după return; Evidence.open returnează numai io.BytesIO în memorie. require_native_observation real nemodificat.",
+      "gate_controls": {"valid": "RETURNED_AFTER_GATE", "forbidden": "REFUSED", "unknown": "REFUSED", "incomplete": "REFUSED", "missing-constructor-complete": "REFUSED", "method-executed": "REFUSED"},
+      "limit": "Nu pytest PG, nu fișiere temporare, nu actual resource settlement. Extracția gate-ului demonstrează control flow/assertions, nu cleanup efectiv."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c '<ast.parse pentru run_agent.py,agent_init.py,managed_admission_rpc.py; assert call expressions/argument names exacte>' && git rev-parse HEAD && git status --short --branch && git diff --stat && git diff --cached --stat",
+      "exit_code": 0,
+      "result": "Lanțul real de calleri și numele locale corespund observerului. HEAD frozen, tracked diffs/staged diffs goale; numai HTML-ul preexistent. Sursele native nu au fost importate sau executate."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c '<explicit repo imports; runpy.run_path(api/tests/test_contract_method_pg.py); test_bootstrap_observer_filters_before_frame_audit(case) pentru forbidden,threaded-denied,repeated-denied>'",
+      "exit_code": 0,
+      "result": "3 controale SOURCE existente PASS cu frame-uri sys.monitoring reale sintetice; refuzurile prinse/repetate și threadul nu pierd attempt evidence. Fără import/constructor nativ."
+    }
+  ],
+  "author_evidence_reused_not_reexecuted": {
+    "reports": ["/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization-qa.json", "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization-admission-fix.json"],
+    "reported_source_suite": "72 SOURCE PASS, exit0; nu rerulat blanket și nu atribuit reviewerului.",
+    "admission_red_green": "Raportul păstrează vechiul make -n exit0 ca finding, apoi RED1/GREEN1 cu2subtests. Reviewerul a executat independent GREEN-ul pe snapshotul integrat.",
+    "native_pg": "NOT_RUN"
+  },
+  "limits": [
+    "Singura scriere a reviewerului este acest raport scratch. Fără editări/commit în repo ori skill, fără alt agent, harness persistent sau profil personal/global/r1/P0/P3/push.",
+    "Fără DB/PostgreSQL/native/OCI/SDK/provider/account/network/browser/target effects, build/install sau prewarm. Nu am executat --check/--probe-only ori targetul PG/native.",
+    "Nu am citit/hashuit/copiat HTML-ul protejat sau tools/development/ponytail.json și nu am deschis output/receipts/private DSN/capability ale QA.",
+    "Prepararea și Host TestLaunch sunt doubles declarate; nici installed distribution, namespace confinement ori STOPPED instalat nu sunt certificate.",
+    "Nu am verificat live rootul fresh oi-x6lvkcjg, existența basetemp, monturile sau prerequisite-urile finale; acestea rămân preflight/admitere ale părintelui imediat înaintea tentativei unice.",
+    "Fresh attempt propus: TMPDIR=/home/kali/.hermes/cache/scratch/oi-x6lvkcjg, selector [owned-initialization], timeout runner600. Nu este executat sau admis de acest raport singur; fără retry, prewarm sau extensie grant/deadline.",
+    "Responses/warm/ExecutionSelection/config-turn și no-effect proof viitoare nu sunt criterii ale acestei reparații. Nu redeschid acceptările vechi și nu închid canonical/G02-live/faza2.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO, neexecutate."
+  ],
+  "status_delta_proposed_to_parent": {"current_slice": "QA initialization SOURCE implementată; safety review APPROVED_SCOPED pe4SHA", "real_consumer_evidence": "PG/native NOT_RUN", "global": "P2-inert și catalog păstrează acceptările istorice scoped; P4a-minim PARTIAL; G02-live/faza2/canonical final neînchise", "next": "Adjudecare cu reviewul normativ pe același snapshot, preflight final fără efecte și numai apoi o singură tentativă fresh prin runnerul existent."}
+}

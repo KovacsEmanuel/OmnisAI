@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_CANDIDATE_SOURCE_PASS_PARENT_REVIEW_AND_NATIVE_PG_ADMISSION_PENDING",
+  "language": "ro",
+  "worktree": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work",
+  "branch": "work/ni-p8uy2_2q",
+  "base": "92ca39ec49319f2c69107ddfdad38d099bb4839c",
+  "commit": "0dd3ec9f5f645f68a6349fe91a7e55750c08e972",
+  "parent": "92ca39ec49319f2c69107ddfdad38d099bb4839c",
+  "frozen": true,
+  "git_status": "clean",
+  "main_head_readonly": "e02866ebd7a773aa6f1122b7809ba1264d0eec10",
+  "original_report": {
+    "path": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization.json",
+    "unchanged": true,
+    "sha256": "80467c55a46bd79ef7115b1e6f63bc4fcdad36b83f9ffabdcd865855ade5f0af",
+    "original_three_file_hashes_match_main_and_worktree": true
+  },
+  "intended_files": [
+    {"path": "api/tests/test_contract_method_pg.py", "sha256": "98cee912f60440a5ffa38dccfafda276aa26ab29cc65674ae0db0f4020b7c2b6"},
+    {"path": "Makefile", "sha256": "703631295c07d7745c942d8e5009252115d1849b237ae886203237c847c50151"},
+    {"path": "ops/run_test_db_gate.py", "sha256": "b64a839e627cca14b6193c65fafe88a314a836ffcb61aadbd7e8a156c5d87be6"}
+  ],
+  "contract": "Existing PG/native owner only: one fresh prepared/unprogressed manifest, same NativeTaskOwner and LocalControl/control_task configuration→returned source ref→initialization UUID. Independent PG reads of actual producer source/receipt and initialization intent/receipt precede original RuntimeClient._exchange; real Host/NativePeer/native RPC/AIAgent branch is retained. Durable observation readback, same-owner replay without exchange, cold existing reader and complete five-managed-table census. Original heartbeat, 3.2s operation and 4.5s grants unchanged. Strict shared native observation remains reachable in original finally on early scenario return. No product source changes.",
+  "scope_and_callers": {
+    "test": "Existing parametrized test_contract_method_real_native_pg_owner_receipts_check_inbox gains owned-initialization; no new owner/runner/framework/harness.",
+    "observer": "BOOTSTRAP keeps init_agent forbidden by default. Narrow branch verifies exact run_agent.AIAgent and OwnedInitialization types, real code-object identities, exact managed agent_init filename, constructor caller and RPC._initialize caller, same carrier and fresh empty agent at entry. configure_owned_core and observe_owned_core are separately observed with exact code/caller/type. Live client=None/DEFERRED_NO_CREDENTIAL/_api_call_count exact int0 are checked at observe return. Refused attempts emit forbidden-sink before denial, including a non-agent without __dict__.",
+    "shared_gate": "Finite owned-rpc/owned-initialization/configure/observe/preclient event categories admitted in existing decoder; no broad observer allowlist. Existing client/credential/stock/turn/effect sinks and observer caps remain. Finally requires exactly1 RPC/init/configure,2 observe calls,2 client-none checks,zero method/read/PURE/release.",
+    "admission": "One Make target selects only the existing owner parameter; one public runner choice reuses unchanged disposable fixture/family lifecycle. Full historical native target is not used.",
+    "risk": "Observer changes are shared with other scenarios; focused synthetic main/new-thread/repeated-denial/bootstrap/cap controls were exercised. Native timing and real PG/constructor behavior are NOT_RUN until parent reviews/admission. No schema/data mutation or live product caller changes."
+  },
+  "negative_controls_planned_not_executed": {
+    "channel": "Five malformed/unavailable requests use the same real LocalControl authenticated socket, capability and existing owner. Inline framing follows existing control_task; missing/bool must also reach server validation, since control_task correctly refuses them before IO. Positive and replay still use actual control_task.",
+    "cases": ["provider_config_ref=null", "authentic produced source ref presented under a foreign owner", "same ref revision2", "same ref revision=true", "same ref digest all-zero"],
+    "foreign_limit": "Foreign control is cross-owner use of the authentic sole produced source, denied at owner readback; it does not create a second foreign manifest/source or independently isolate store.get's foreign-source check under an otherwise-valid owner.",
+    "oracle": "No full-table census or native observation bytes change after each refusal, before the positive constructor. Server errors restricted to INVALID_REQUEST/TASK_REJECTED."
+  },
+  "positive_oracles_planned_not_executed": [
+    "Actual producer READY with initialization/inference HOLD; init consumes the returned ref and producer initialization_data verbatim, not hand-built DATA.",
+    "Independent engine connection reads source, producer receipt, intent and initialization command receipt before actual original exchange; receipt operation/result_refs and source/intent refs checked.",
+    "Exactly CREATE once at exchange; replay observation and refs byte-equal excluding transport correlation UUID; no extra exchange or native observation/write.",
+    "Observation exact status CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM, DEFERRED_NO_CREDENTIAL, inference HOLD, exact int0 model_calls/native_turn null; actual observed config equals producer DATA.",
+    "Observation read via independent PG connection and current existing cold restart reader. All five managed tables preserved except exact5 added immutable records: provider-config,2 command receipts,intent,observation.",
+    "Zero model-budget/reservation/dispatch/dispatch-transition/usage-receipt/native-turn records; no stage/release/method/read/PURE invocation."
+  ],
+  "evidence": {
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python (3.13.15)",
+    "import_policy": "-I -B, explicit worktree api/src,api/tests,integrations/hermes/src in sys.path; plugin autoload/cache off. No native source, SDK or credential import; synthetic observer controls only.",
+    "pytest_environment_prefix": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "pytest_python_prefix": "import pathlib,sys,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/'api/src'),str(r/'api/tests'),str(r/'integrations/hermes/src')]; raise SystemExit(pytest.main(ARGV))",
+    "red": {"log": "qa-red.log", "exit": 1, "failed": 1, "passed": 5, "deselected": 386, "selector": "-k owned_initialization_observer_exact_constructor_branch", "reason": "Legitimate exact owned-init branch denied by original observer"},
+    "non_agent_red": {"log": "qa-red-not-agent.log", "exit": 1, "failed": 1, "passed": 2, "deselected": 405, "reason": "Non-agent observe callback raised AttributeError before recording refusal; exact-type-first projection fixed it"},
+    "initial_green": {"log": "qa-green-observer.log", "exit": 0, "passed": 6},
+    "final_green": {
+      "log": "qa-green-final.log",
+      "exit": 0,
+      "passed": 72,
+      "deselected": 336,
+      "duration_seconds": 3.69,
+      "argv": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_contract_method_pg.py", "-k", "owned_initialization_observer or bootstrap_observer or launch_failure_diagnostic_bootstrap_evidence or batch2_observation_exact_fields", "-q", "--tb=short"]
+    },
+    "quality": [
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py ops/run_test_db_gate.py", "exit": 0},
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_contract_method_pg.py ops/run_test_db_gate.py", "exit": 0, "files": 2},
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/ni-p8uy2_2q/qa-mypy api/tests/test_contract_method_pg.py", "exit": 0},
+      {"command": "git diff --check; git diff --cached --check", "exit": 0}
+    ],
+    "intermediate_failures": "Test typing and reused function-local names corrected without ignores; one patch of formatted receipt assertion caused syntax error, immediately corrected. Explicit out-of-manifest mypy of ops/run_test_db_gate.py returns6 pre-existing errors at239,457,576,712,787,788; identical6 reproduced on git HEAD baseline in scratch, not fixed or suppressed.",
+    "collection_final": {"exit": 0, "count": 1, "duration_seconds": 1.02, "selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]", "flags": "--collect-only -q; no opt-in/fixtures/native"},
+    "make_dry_run": {"command": "make -n test-owned-initialization-native-pg API_PY=/home/kali/OmnisAI/api/.venv/bin/python", "exit": 0},
+    "parser_only": "Actual main parser received --check --target test-owned-initialization-native-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600; prove_private_fixture replaced only in this no-effect in-memory parser probe, observed exact tuple once/exit0. Never executed --check or --probe-only against provisioning.",
+    "review": "PARENT_PENDING; no independent review claim",
+    "native_pg_oci": "NOT_RUN_NOT_ADMITTED",
+    "full_canonical": "NOT_RUN_PARENT_OWNED"
+  },
+  "prerequisites_readonly": {
+    "euid": 1000,
+    "source_pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "source_archive": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/source-original.tar",
+    "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+    "archive_hash_equals_pin": true,
+    "stock_run_agent_equals_original_archive_member": true,
+    "source_overlay_adapter_library_paths_readable_ancestors_searchable": true,
+    "toolchain_observed": ["uv 0.12.19 (x86_64-unknown-linux-gnu)", "v24.21.0", "11.19.0", "API Python3.13.15", "CLI Python3.13.15"],
+    "toolchain_bin": "/home/kali/.local/share/omnis-toolchains/bin",
+    "main_venvs_used_readonly": true,
+    "worktree_venvs_not_required_for_source_checks": true,
+    "limits": "No full15208-file pin inventory or library import closure, no OCI mount/image/UID execution attestation. SOURCE/TestLaunch, not installed or namespace-owned STOPPED evidence. No installs/symlinks."
+  },
+  "one_future_qa_attempt_AFTER_PARENT_REVIEW_ONLY": {
+    "cwd_after_byte_exact_integration": "/home/kali/OmnisAI",
+    "selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]",
+    "prepared_tmpdir": "/home/kali/.hermes/cache/scratch/oi-x6lvkcjg",
+    "tmpdir_euid_owned_mode0700": true,
+    "basetemp": "/home/kali/.hermes/cache/scratch/oi-x6lvkcjg/oi",
+    "basetemp_verified_absent": true,
+    "runtime_socket_encoded_path_below108": true,
+    "argv": ["env", "-i", "HOME=/home/kali", "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin", "TMPDIR=/home/kali/.hermes/cache/scratch/oi-x6lvkcjg", "/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "ops/run_test_db_gate.py", "--check", "--target", "test-owned-initialization-native-pg", "--uv", "/home/kali/.local/share/omnis-toolchains/bin/uv", "--timeout-seconds", "600"],
+    "warning": "EFFECTFUL, NOT EXECUTED. Parent must first integrate exact3SHA, review final bytes, recheck fresh basetemp/membership and admit this single attempt; no retry/prewarm/deadline increase. Worktree absence of venv is not a product blocker.",
+    "owned_cleanup": "Existing runner owns fresh PG project/CID/fixture/password/socket and finite family; cleanup only exact owned identity after family_drained=true, otherwise retain DB/UNCERTAIN, always retain data/logs. Target does not run full historical suite, web/node build or install. Existing test owns fresh native home, original Host/native family, runtime/control sockets+capability+locks, heartbeat, engine and cold reader; original finally joins heartbeat/clients/processes, closes control, disposes engine, requires Host exit/family empty/endpoints absent, then shared strict observer gate. Synthetic preparation remains double. No existing DB/profile adopted.",
+    "failure_output_allowlist": ["selector", "exit", "phase", "allowlisted status/reason", "elapsed_ms", "boot UUID", "epoch/generation", "constructor count", "model_calls", "native_turn absent", "family_drained", "exact owned resource absence"],
+    "failure_output_forbidden": "No DSN/password/capability/raw RPC/private receipt or native stderr/exception repr/locals. Narrow Make uses --tb=no. Keep raw private artifacts0700/0600 under owned scratch; do not paste them."
+  },
+  "procedure_note_for_parent": "Keep constructor observer exception exact by type/code/caller and check real record layout; emit an attempted refusal before reading attributes that may not exist. Missing/bool DTO negatives need server-channel framing as control_task intentionally rejects pre-IO. Fresh short TMPDIR plus absent basetemp is a QA precondition, not timeout relief. No skill edits outside allowed paths.",
+  "rollback": "git revert 0dd3ec9f5f645f68a6349fe91a7e55750c08e972; rerun affected SOURCE checks. No external resource rollback: none started. Empty prepared scratch TMPDIR may be retained.",
+  "scope_preserved": "Only3 allowed tracked files in owned worktree; original55-line WIP preserved/finished. No shared-main writes, product/overlay edits, native/PG/OCI/SDK/provider/target effects, network/install/auth, personal/global/profiles/r1/P0/protected HTML/ponytail JSON reads/hash/copy, push or P3.",
+  "handoff": "Candidate implemented and committed, SOURCE PASS only. Parent continues exact-byte reviews→admission→one fresh actual PG/native QA→next slice. Do not claim product real-consumer PASS or overall completion from this report."
+}

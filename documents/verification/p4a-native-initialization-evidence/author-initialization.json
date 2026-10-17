@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_SOURCE_TRANSPORT_SCOPED_REVIEW_AND_REAL_CONSUMER_QA_PENDING",
+  "language": "ro",
+  "worktree": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work",
+  "branch": "work/ni-p8uy2_2q",
+  "base": "2c1f2f1a811eb4390d33d09baa300ec1542722fd",
+  "commit": "92ca39ec49319f2c69107ddfdad38d099bb4839c",
+  "parents": ["2c1f2f1a811eb4390d33d09baa300ec1542722fd"],
+  "frozen": true,
+  "git_status": "clean",
+  "intended_files": [
+    {"path": "api/tests/test_owned_model_initialization.py", "sha256": "383f273633036e5acc1240c45099dd0f57e1ea8a65d9480721924594131a3819"},
+    {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "sha256": "62633f35a8dd63e0f51e537f67a0956664da148b4ad9935604ccc033325954c2"},
+    {"path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py", "sha256": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed"}
+  ],
+  "change": {
+    "production_delta": "Exact doua intrari: managed.validate_initialization in RuntimeHost._validate si NativePeer.call. Acestea sunt numele reale la baza locala; nu exista validate_controller/_controller aici.",
+    "test_delta": "SourceOwner existent reutilizat in acelasi modul: 5 controale owner/ref pre-intent si 2 trasee parametrizate producer→transport. Fara import duplicat al helperului, framework, runner, handler, enum sau mod nou.",
+    "caller_trace_checked_before_edits": [
+      "NativeTaskOwner._handle → _model_initialization → ModelDispatch.prepare_initialization: intent/command receipt comise inainte de RuntimeClient.managed",
+      "RuntimeClient.managed → _exchange → _exchange_locked: aceeasi conexiune, authority obtinuta prin InstanceService, serializer JSON compact existent, fara retry",
+      "RuntimeHost._handle → _validate → _managed_connected → _managed: validator deja prezent in _managed, aceleasi boot/generation/epoch/grant/readiness checks",
+      "NativePeer.call → encode/_enqueue: validare inainte de corelatie/scriere",
+      "managed_admission_rpc.dispatch → _initialize → AIAgent(owned_initialization=OwnedInitialization(canonical(p))) → observe_owned_core → initialization_result: sursa citita, nu executata nativ"
+    ],
+    "semantics_unchanged": ["CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM", "DEFERRED_NO_CREDENTIAL", "inference_status=HOLD", "model_calls=0", "native_turn=null", "ChatCompletions-only qualified DATA; fara Codex/Responses/compatibilitate cont sau model"],
+    "parent_owned": ["integrare byte-exact", "doua reviewuri complementare pe snapshot", "admitere QA reala", "acceptare si registru"]
+  },
+  "evidence": {
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_version": "3.13.15",
+    "import_policy": "-I -B; sys.path explicit din worktree pentru api/src, api/tests, integrations/hermes/src; fara symlink venv sau instalari; cache pytest dezactivat, cache mypy in scratch",
+    "pytest_environment": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "pytest_python_prefix": "import pathlib,sys,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/'api/src'),str(r/'api/tests'),str(r/'integrations/hermes/src')]; raise SystemExit(pytest.main(ARGV))",
+    "red": {
+      "argv": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_owned_model_initialization.py", "-k", "crosses_existing_transport_validators", "-q", "--tb=short"],
+      "test_exit": 1,
+      "failed": 2,
+      "deselected": 8,
+      "reason": "Payload real produs de owner; maparile lipsa blocheaza Host si NativePeer. KeyError pentru operatia existenta; peer: omnis.managed.model_initialize. Nicio eroare inventata sau JSON init scris manual.",
+      "private_log": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/red.log"
+    },
+    "final_green": {
+      "argv": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_owned_model_initialization.py", "api/tests/test_ready_model_configuration.py", "integrations/hermes/tests/test_protocol.py", "integrations/hermes/tests/test_client.py", "integrations/hermes/tests/test_managed_native_source.py", "integrations/hermes/tests/test_host.py::test_ipc_invalid_types_are_sanitized_before_spawn", "integrations/hermes/tests/test_host.py::test_ipc_accepts_initial_zero_generation_but_not_stale_boot_or_fence", "integrations/hermes/tests/test_host.py::test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server", "-q", "--tb=no", "-s"],
+      "test_exit": 0,
+      "passed": 85,
+      "warnings": 0,
+      "duration_seconds": 2.49,
+      "private_log": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/green-final-verified.log"
+    },
+    "quality": [
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_protocol.py integrations/hermes/src/omnis_hermes/runtime_host.py", "exit": 0},
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_protocol.py integrations/hermes/src/omnis_hermes/runtime_host.py", "exit": 0, "files": 3},
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/ni-p8uy2_2q/mypy api/tests/test_owned_model_initialization.py integrations/hermes/src", "exit": 0, "source_files": 21},
+      {"command": "git diff --check", "exit": 0}
+    ],
+    "intermediate_failures": "Ruff format --diff a identificat doar formatting in testul nou. Mypy a identificat no-any-return, reutilizarea unei variabile cu tip incompatibil si unpack dict necalificat in test; toate remediate fara ignore/catch global si gate-urile rerulate dupa ultima editare.",
+    "positive": "NativeTaskOwner/ModelDispatch/store command code → RuntimeClient.managed real → UDS real → Host._validate/_managed real → NativePeer.call/encode real → socketpair cu raspuns native DOUBLE → persistare/readback SOURCE si replay fara IPC. Cazul peer izolat localizeaza separat a doua mapare lipsa.",
+    "negative": "Ref provider-config missing/foreign/stale/bool/digest refuza pre-intent si pre-native, graful ramane identic. Payload missing/invalid source/receipt, owner/run strain, digesturi modificate si bool refs refuza in cele doua validatoare inainte de alocarea corelatiei. Host refuza boot/capability/fence strain si tipuri bool, precum si inner boot/generation/epoch stale si grant bool/expirat/peste4.5s/peste5s; next_id ramane1 si observatia double unica.",
+    "qualification_limits": "Stocarea, fence/grant DB, procesul si raspunsul constructorului sunt doubles explicite. Nici PG durability, nici AIAgent real, native allocation real, credential access real, client sau inferenta nu sunt probate. Nu s-a pornit Hermes nativ/DB/OCI; subprocessurile regresiilor sunt peers sintetici existenti.",
+    "canonical": "NOT_RUN: make check are efecte DB; integrarea/faza apartin parintelui"
+  },
+  "wire_limits": {
+    "changed": false,
+    "configuration_max": 2048,
+    "configuration_max_positive": "Configuratie de exact2048 bytes calificata de validatorul existent, apoi consumata prin producerul real si traseul UDS; 2049 refuzat",
+    "qualified_payload_bytes": 6473,
+    "controller_frame_bytes_including_newline": 6752,
+    "native_rpc_frame_bytes_including_newline": 6550,
+    "serializers": "canonical pentru DATA; json.dumps(separators=(',', ':')).encode()+newline exact ca RuntimeClient pentru cadrul capturat de Host; NativePeer encode pentru RPC",
+    "managed_max_bytes": 32768,
+    "frame_max_bytes": 65536,
+    "frame_max_and_max_plus_one": "encode/decode generic accepta65536 si refuza65537; acest control nu sustine ca un payload de initialization de64KiB este calificat",
+    "pending_max": 32,
+    "queued_max_bytes": 1048576,
+    "reused_controls": "Regresiile sintetice existente test_protocol/test_client pentru malformed/oversize/saturation/correlation. Nu s-au modificat capurile; nu se revendica o noua proba exact-max a cozii de1MiB sau payload calificat la32KiB. Config limit2KiB si payloadul concret incap fara ajustari."
+  },
+  "real_consumer_qa_plan_only": {
+    "status": "NOT_RUN_NO_ADMISSION_EXISTING_INIT_SCENARIO_MISSING",
+    "acceptance_row": "Owned pre-client initialization prin ownerul original si PG durable/readback → RuntimeClient/Host/NativePeer → RPC._initialize/AIAgent real; fara credential/client/model/turn/target",
+    "existing_owner_test": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox",
+    "existing_collected_selector": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[support-zero]",
+    "collection": {"exit": 0, "count": 1, "flags": "--collect-only -q; acelasi interpreter si explicit worktree imports; fara opt-in, fixtures sau native"},
+    "existing_native_route": "test_contract_method_pg.py:8546 RuntimeHost(TestLaunch(...)) → 9055 NativeTaskOwner; LocalControl/control_task exista la9097/9206; RuntimeClient.managed → Host._managed → NativePeer → agent/managed_admission_rpc.dispatch/_initialize. Traseul SOURCE foloseste PG real si AIAgent real pentru metoda, dar nu action=model_initialization.",
+    "existing_native_argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "<test-owned bootstrap path>", "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned", "<current ROOT>/integrations/hermes/upstream/managed-source", "<current ROOT>/integrations/hermes/upstream/inert-source", "<current ROOT>/integrations/hermes/src", "/home/kali/.hermes/installs/87750418cc01d4b0/environments/c6fe66d0fd3a44a49cf44d34581c3c52/venv/lib/python3.14/site-packages", "<test-owned fresh home>", "<test-owned observation file>"],
+    "dynamic_argv_note": "bootstrap/home/observation sunt alocate de testul existent; substituentii de mai sus denumesc valorile dinamice, nu fisiere noi create de autor. TestLaunch nu certifica namespace-owned STOPPED/OCI.",
+    "existing_runner": "ops/run_test_db_gate.py:prove_private_fixture si proprietarul sau _run_owned_gate; Makefile:test-contract-method-native-pg (liniile89–91)",
+    "existing_make_argv_with_attested_fixture_only": ["make", "test-contract-method-native-pg", "API_PY=/home/kali/OmnisAI/api/.venv/bin/python"],
+    "existing_runner_python_argv_NOT_RUN": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import runpy,signal; r=runpy.run_path('ops/run_test_db_gate.py'); signal.signal(signal.SIGINT,r['_request_stop']); signal.signal(signal.SIGTERM,r['_request_stop']); raise SystemExit(r['prove_private_fixture']('test-contract-method-native-pg','/home/kali/.local/bin/uv',600))"],
+    "runner_warning": "Argv de mai sus identifica helperul existent, nu o admitere si nu o comanda gata de live: uv indicat are0.11.7 si ar refuza preflight. Targetul Make ruleaza toate scenariile, nu o initialization minima. Parserul public --target NU contine test-contract-method-native-pg, confirmat cu --help/exit0; nu inventa --check --target cu acest nume. --check NU este dry-run. Pentru o selectie minima trebuie decizie a parintelui pe delta in ownerul existent, nu un runner nou.",
+    "smallest_proposed_delta_NOT_IMPLEMENTED": [
+      "In acelasi test_contract_method_pg.py, adauga un caz finit al ownerului existent inainte de stage, pe manifest deja pregatit dar neprogresat. Pastreaza aceeasi instanta/supervisor/heartbeat/RuntimeClient si PG; activeaza LocalControl existent pentru acest caz.",
+      "Trimite NativeTaskCommand action=model_configuration, apoi model_initialization prin control_task existent cu provider_config_ref returnat si initialization_id UUID; nu apela RPC direct si nu fabrica DATA sau AIAgent. Nu folosi submit_task fara adaptare: presupune reply task_status si nu transporta campurile specifice initialization.",
+      "Observerul BOOTSTRAP existent interzice init_agent generic. Owned initialization il invoca legitim: necesita o exceptie stricta pentru ramura constructor-owned autentica, nu permitere globala. Observa _initialize/configure_owned_core/observe_owned_core si tipul real run_agent.AIAgent; mentine stock/client/credential/turn sinks interzise si jurnalizeaza tentativa inainte de raise. Acest delta QA necesita review; nu a fost implementat.",
+      "Verifica prin conexiune PG distincta ca provider-config si producer receipt exista inaintea init; intent si command receipt sunt comise inainte de apelul nativ; observation este comisa/readback dupa raspuns. Replay prin owner, apoi reader rece existent fara reexecutie; census exact al tabelelor afectate, zero native-turn/model-dispatch/reservation/inference si o singura initializare reala.",
+      "Pe acelasi canal privat: refs absente/straine/stale/bool/digest invalid si authority stale refuza inainte de constructor; counter nativ nu creste, fara scrieri suplimentare. Mentine positive aceleasi limite boot/epoch/generation/grant; nu creste TTL/timeouts pentru cold import. Returneaza prin finally comun si shared strict observation gate, nu scurtcircuit de succes.",
+      "Nu implementa cross-process harness sau alt target; parintele decide delta minima/selectorul si probeaza dupa reviews pe bytes integrati."
+    ],
+    "prerequisites_readonly_checked": {
+      "euid": 1000,
+      "source_pin_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "source_archive": "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/source-original.tar",
+      "source_archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "archive_hash_matches_pin_json": true,
+      "stock_run_agent_matches_archive": true,
+      "pin_run_agent_libraries_adapter_overlays_readable_and_ancestors_searchable": true,
+      "limits": "Nu s-a recalculat inventarul complet al celor15208 fisiere PIN si nici biblioteca import closure; necesare in preflightul real dupa reviews. Nu s-au importat run_agent sau bibliotecile Hermes.",
+      "worktree_api_venv": false,
+      "worktree_cli_venv": false,
+      "ambient_uv": "0.11.7",
+      "ambient_node": "v22.22.0",
+      "ambient_npm": "9.2.0",
+      "runner_required": "uv0.12.19 / nodev24.21.0 / npm11.19.0 / API+CLI Python3.13.15 la caile ROOT; nu au fost instalate sau create aliasuri"
+    },
+    "ownership_cleanup": "Runnerul existent detine fixture fresh PG/project/CID/socket/credential files si familia finite; cleanup numai exact identitati proprii dupa family_drained=true, altfel retine DB/UNCERTAIN. Testul detine home/runtime/control sockets/Host/native process, heartbeat si engine; finally existent opreste heartbeat, inchide runtime/control si dispose engine. SOURCE/TestLaunch nu acorda namespace-owned STOPPED; nu adopta resurse sau profiluri. Arhiva, bibliotecile si datele/logurile preexistente raman pastrate.",
+    "failure_output_allowlist": ["test selector", "exit", "status/reason allowlisted", "phase", "elapsed_ms", "boot UUID", "generation/epoch", "constructor count", "model_calls", "native_turn absent", "family_drained", "exact owned resource absence"],
+    "forbidden_failure_output": "Fara DSN/parole/capability, RPC brut, private receipt integral, repr exception/locals sau stdout/stderr nativ brut"
+  },
+  "scope_preservation": "Numai3 fisiere versionate in worktree; raport/loguri in scratch exterior repo. Fara shared checkout edits, push, global/profile/r1/P0, cont/OAuth, network/provider/target, native/DB/container/build/install sau P3. Documentul HTML original protejat nu a fost citit/hashuit/copiat.",
+  "rollback": "git revert 92ca39ec49319f2c69107ddfdad38d099bb4839c apoi verificarile afectate; fara rollback extern fiindca nu s-au pornit asemenea resurse",
+  "procedure_note_for_parent": "La repararea unei operatii existente, urmareste producatorul autentic si ambele registre de validatori, cu RED separat pe fiecare gate; o validare deja prezenta in _managed nu acopera _validate sau NativePeer.call. Nu am modificat skill-uri in afara listei de fisiere autorizate.",
+  "handoff": "Snapshot frozen pentru review/integration; implementare SOURCE+transport PASS scoped. Review independent PENDING; PG/native constructor QA NOT_RUN/BLOCKED_PREREQUISITES; P2 global/P3 neschimbate."
+}

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "review_type": "INDEPENDENT_NORMATIVE_READ_ONLY",
+  "language": "ro",
+  "verdict": "APPROVED_SCOPED",
+  "complete": true,
+  "summary": "Aprobat strict remediul existent de înregistrare a managed.validate_initialization la cele două frontiere de transport. Nu am identificat o abatere blocantă de ordine, persistență/readback sau delimitare a autorității în acest diff. Aceasta nu este acceptare PG/native, inferență, distribuție instalată ori închidere P2.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "2c1f2f1a811eb4390d33d09baa300ec1542722fd",
+    "commit": "e02866ebd7a773aa6f1122b7809ba1264d0eec10",
+    "parent": "2c1f2f1a811eb4390d33d09baa300ec1542722fd",
+    "author_commit": "92ca39ec49319f2c69107ddfdad38d099bb4839c",
+    "author_to_integrated_three_file_diff_exit": 0,
+    "current_files_equal_commit_blobs": true,
+    "author_report_hashes_equal_current_files": true,
+    "files": [
+      {"path": "api/tests/test_owned_model_initialization.py", "sha256": "383f273633036e5acc1240c45099dd0f57e1ea8a65d9480721924594131a3819"},
+      {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "sha256": "62633f35a8dd63e0f51e537f67a0956664da148b4ad9935604ccc033325954c2"},
+      {"path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py", "sha256": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed"}
+    ],
+    "diff": {"changed_files": 3, "insertions": 259, "production_insertions": 2, "production_other_changes": 0, "test_insertions": 257},
+    "worktree_before_and_after": "Nicio modificare tracked. Același fișier HTML original neversionat preexistent apare numai ca metadată în git status; nu i-am citit, hashuit sau copiat conținutul.",
+    "approval_transfer": "Valabil numai pentru commitul și cele trei SHA de mai sus. Testul modificat în alt worktree nu este inclus. Reviewul anterior întrerupt nu a fost tratat ca aprobare."
+  },
+  "admission": {
+    "requirement": "Operația owned pre-client initialization deja declarată trebuie să traverseze validatoarele reale RuntimeHost._validate și NativePeer.call fără KeyError, fără ocolirea validării ori autoritate model nouă.",
+    "consumer": "NativeTaskOwner existent → ModelDispatch → același RuntimeClient → RuntimeHost → NativePeer → managed_admission_rpc._initialize existent.",
+    "risk": "Registrul incomplet refuză înaintea constructorului chiar și payloadul legitim; un remediu prea larg ar putea admite DATA necalificate sau transforma pregătirea în inferență.",
+    "decision": "APPROVED_SCOPED permite integrarea remediului de transport și pregătirea QA reale bounded prin ownerul existent, nu declararea QA sau fazei drept PASS.",
+    "scope": "Read-only surse, contracte normative relevante și raportul autorului; AST și integritate byte-exact fără import de surse de produs/native. Singura scriere este acest raport scratch.",
+    "normative_sources": [
+      "README.md:97",
+      "CONTRIBUTING.md:50-71",
+      "documents/Omnis_Implementation_Plan.md:268-283",
+      "documents/Omnis_MVP_Architecture.md:299-311",
+      "documents/Omnis_MVP_Architecture.md:411-416",
+      "omnis-review-qa",
+      "omnis-hermes-runtime"
+    ]
+  },
+  "findings": [],
+  "finding_policy": "Nicio constatare concretă blocantă sau neblocantă pe diff. Nu inventez finding/reproducer/remediu pentru scope explicit neexecutat; limitele și obligațiile rămase sunt declarate separat. O constatare ar necesita id, severity, file:line, reproducer și minimum_remedy.",
+  "requirement_code_evidence": [
+    {
+      "id": "NORM-INIT-01",
+      "requirement": "Reutilizare minimă a validatorului existent la ambele frontiere.",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": ["integrations/hermes/src/omnis_hermes/runtime_host.py:1059-1108", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:387-440", "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:23-33"],
+      "evidence": "Diff-ul și comparația AST/bytes confirmă exact câte o intrare managed.validate_initialization în RuntimeHost._validate și NativePeer.call. Eliminarea acestor două linii reproduce byte-exact fișierele de producție de la bază. OPS/RPC/ALLOWED și implementarea _managed/_initialize existau; nu există handler, protocol, enum, bypass sau configurație nouă. Validarea NativePeer rămâne înainte de next_id/pending/_enqueue."
+    },
+    {
+      "id": "NORM-INIT-02",
+      "requirement": "Sursa owned și receiptul producătorului precedă intentul; intent/receipt comise înainte de IPC, rezultat verificat și citit înapoi înainte de succes.",
+      "status": "PASS_SOURCE_ORDER_ONLY",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:213-297", "api/src/omnis/modules/runs/model_dispatch.py:57-210", "api/src/omnis/modules/runs/model_dispatch.py:212-316", "api/src/omnis/modules/runs/model_dispatch.py:399-432"],
+      "evidence": "prepare_ready_configuration scrie provider-config, îl citește înapoi și completează receiptul. _model_configuration iese din primul context de commit înaintea readerului separat. prepare_initialization rezolvă sursa/receiptul owned, scrie și recitește intentul, apoi completează receiptul comenzii. _model_initialization iese din native_preparation_commit înainte de runtime.managed; persist_initialization revalidează aceleași surse/fences, validează observația, scrie și recitește envelope-ul, iar răspunsul părăsește contextul abia după commit. SourceOwner.native_double verifică evenimentul commit și existența sursei/receiptului/intentului înainte de răspuns. Fence-ul și stocarea testului sunt doubles, deci această ordine nu este probă de durabilitate PostgreSQL."
+    },
+    {
+      "id": "NORM-INIT-03",
+      "requirement": "Caller autentic și aceeași conexiune/owner până la ambele gate-uri, nu RPC direct prezentat ca probă a întregului traseu.",
+      "status": "PASS_TRACE_AND_TEST_DESIGN",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:248-288", "api/src/omnis/supervisor/runtime_client.py:377-491", "api/src/omnis/supervisor/runtime_client.py:631-664", "integrations/hermes/src/omnis_hermes/runtime_host.py:562-607", "integrations/hermes/src/omnis_hermes/runtime_host.py:675-689", "integrations/hermes/src/omnis_hermes/runtime_host.py:1110-1183", "api/tests/test_owned_model_initialization.py:362-490"],
+      "evidence": "Cazul gate=host restaurează metoda reală RuntimeClient.managed pe obiectul runtime al SourceOwner și apelează connect pe acesta. Payloadul este produs prin owner.produce și owner.handler.handle, nu construit manual ca un initialization JSON arbitrar. Host._handle execută _validate, verifică owner_writer, apoi _managed_connected/_managed; acesta apelează același peer.call, care execută al doilea registru înainte de scriere. native_reply citește și verifică metoda cadrului efectiv și răspunde pe socketpair. Răspunsul afirmat și peer.next_id==1/pending gol cer un schimb real, nu un test exclusiv negativ. Cazul gate=peer ocolește deliberat Host pentru localizarea izolată a celei de-a doua intrări; nu îl confund cu proba ambelor gate-uri. Procesul, readiness/bootstrap și răspunsul constructorului sunt substituite explicit."
+    },
+    {
+      "id": "NORM-INIT-04",
+      "requirement": "Strict source/ref/digest/type validation păstrată; DATA nu sunt autoritate.",
+      "status": "PASS_SOURCE_SCOPED",
+      "code": ["integrations/hermes/src/omnis_hermes/managed_admission_contract.py:481-658", "integrations/hermes/src/omnis_hermes/native_preparation_contract.py:78-129", "api/src/omnis/modules/runs/model_dispatch.py:149-209", "api/tests/test_owned_model_initialization.py:279-321", "api/tests/test_owned_model_initialization.py:326-357"],
+      "evidence": "Se reutilizează exact validatorul existent: tipuri native exacte înainte de canonicalizare, refs și revisions int fără bool, authority strict, envelope digest, owner/run/manifest/authority identice, provenance READY cu inference_authorized=False, receipt model_configuration și request digest/decision ID/result_ref corelate, DATA canonice egale sursei și ambele digests. Ownerul rezolvă și receiptul persistat, nu doar o etichetă READY din request. Noile controale ref lipsă/străin/stale/bool/digest cer refuz pre-intent și graf neschimbat. Mutările de payload sunt refuzate de ambele validatoare înaintea unei corelații noi. Nu s-a slăbit niciun helper."
+    },
+    {
+      "id": "NORM-INIT-05",
+      "requirement": "Boot/owner/grant/fence și limite finite rămân în calea obligatorie.",
+      "status": "PASS_SOURCE_AND_SCOPED_TRANSPORT_EVIDENCE",
+      "code": ["integrations/hermes/src/omnis_hermes/runtime_host.py:216-221", "integrations/hermes/src/omnis_hermes/runtime_host.py:551-607", "integrations/hermes/src/omnis_hermes/runtime_host.py:1059-1157", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:12-18", "integrations/hermes/src/omnis_hermes/runtime_protocol.py:387-440", "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:26-55"],
+      "evidence": "SO_PEERCRED și unicul owner_writer precedă dispatchul; validarea outer boot/capability/generation/epoch precedă _managed. _managed cere READY/live peer/process, inner runtime_boot și generation/epoch actuale, grant int neexpirat și maximum 4.5s; _grant are plafonul general 5s, RPC timeout rămâne <=3.2s. DATA <=32768, frame <=65536, pending<=32, coadă<=1048576 și registrul nativ<=32 rămân nemodificate. Testul host include config exact2048 și refuz2049, cadre max/max+1, authority stale/bool/expirată și next_id neschimbat la refuzuri. Nu există probă nouă de payload initialization calificat exact32KiB sau coadă exact1MiB; controlul generic64KiB nu este prezentat astfel."
+    },
+    {
+      "id": "NORM-INIT-06",
+      "requirement": "UNKNOWN/fără retry; replay/readback nu reconstruiesc agentul și nu acordă efecte.",
+      "status": "PASS_PRESERVATION_SOURCE_SCOPED",
+      "code": ["api/src/omnis/modules/runs/model_dispatch.py:260-316", "api/src/omnis/modules/runs/model_dispatch.py:374-397", "api/src/omnis/supervisor/native_tasks.py:271-297", "api/src/omnis/supervisor/runtime_client.py:631-690", "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:26-56", "api/tests/test_owned_model_initialization.py:190-253"],
+      "evidence": "Intentul nou produce CREATE; intentul existent fără observație produce numai STATUS. Observația persistată este validată și returnată fără apel managed. Native RPC reține un marker înaintea constructorului; STATUS absent și markerul fără agent/închis produc UNKNOWN fără import/construcție, iar replay conflict refuză. accept_initialization transformă UNKNOWN în TASK_INDETERMINATE, nu în succes. RuntimeClient.managed nu se reconectează și nu retrimite; receive păstrează separat recuperarea receive-only a rezultatelor metodei. Testul existent de pierdere a răspunsului cere [CREATE, STATUS], iar noile cazuri cer replay identic și o singură corelație. Nu s-a modificat replayul istoric/post-Stop și nu se revendică o nouă probă post-Stop pentru initialization."
+    },
+    {
+      "id": "NORM-INIT-07",
+      "requirement": "Pregătirea pre-client nu devine warm/config provider READY, client, turn sau inferență.",
+      "status": "PASS_SOURCE_SCOPE_SEPARATION",
+      "code": ["integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py:15-55", "integrations/hermes/upstream/managed-source/agent/agent_init.py:2331-2432", "integrations/hermes/upstream/managed-source/agent/agent_init.py:2472-2482", "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:683-793", "api/src/omnis/modules/runs/model_dispatch.py:318-397", "api/tests/test_owned_model_initialization.py:475-490"],
+      "evidence": "_initialize validează înaintea importului/alocării, apoi folosește AIAgent(owned_initialization=OwnedInitialization(canonical(p))) și observă core-ul real în implementarea existentă. init_agent direcționează exclusiv spre configure_owned_core și returnează înaintea setupului stock; client=None, context_compressor=None, client_status=DEFERRED_NO_CREDENTIAL, API count/iteration used zero. Contractul de rezultat și persistența cer HOLD/model_calls=0/native_turn=null și configurația observată egală sursei. Răspunsul de test este un double declarat, nu dovadă că această ramură nativă a rulat. Chat-completions-only rămâne limita DATA existentă. Warm/Responses, purpose/ExecutionSelection/model admission viitoare nu sunt blockers ai celor două înregistrări pre-client și nici livrate de ele."
+    }
+  ],
+  "commands_and_results": {
+    "reviewer_executed": [
+      {
+        "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff --name-status 2c1f2f1a811eb4390d33d09baa300ec1542722fd e02866ebd7a773aa6f1122b7809ba1264d0eec10 && git show --stat --oneline HEAD",
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "result": "HEAD și baza corecte; exact trei fișiere în diff; tracked curat, neversionatul protejat preexistent păstrat.",
+        "limit": "Identitate și inventar Git, nu execuție produs."
+      },
+      {
+        "command": "git diff 2c1f2f1a811eb4390d33d09baa300ec1542722fd e02866ebd7a773aa6f1122b7809ba1264d0eec10 -- api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py && sha256sum api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py && git diff --check 2c1f2f1a811eb4390d33d09baa300ec1542722fd e02866ebd7a773aa6f1122b7809ba1264d0eec10 -- api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "result": "Diff complet citit; cele trei SHA concordă cu raportul autorului; diff --check fără erori.",
+        "limit": "Whitespace și integritate, nu corectitudine dinamică."
+      },
+      {
+        "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import ast,hashlib,json,pathlib,subprocess; r=pathlib.Path.cwd(); base=\"2c1f2f1a811eb4390d33d09baa300ec1542722fd\"; head=\"e02866ebd7a773aa6f1122b7809ba1264d0eec10\"; paths=[\"api/tests/test_owned_model_initialization.py\",\"integrations/hermes/src/omnis_hermes/runtime_host.py\",\"integrations/hermes/src/omnis_hermes/runtime_protocol.py\"]; got=[]\nfor p in paths:\n raw=(r/p).read_bytes(); assert raw==subprocess.check_output([\"git\",\"show\",head+\":\"+p]); ast.parse(raw,filename=p); got.append({\"path\":p,\"sha256\":hashlib.sha256(raw).hexdigest()})\nfor p,cls,method,key in [(paths[1],\"RuntimeHost\",\"_validate\",\"\\\"task_model_initialize\\\"\"),(paths[2],\"NativePeer\",\"call\",\"managed.RPC[\\\"task_model_initialize\\\"]\")]:\n text=(r/p).read_text(); old=subprocess.check_output([\"git\",\"show\",base+\":\"+p],text=True); line=\"                \"+key+\": managed.validate_initialization,\\n\"; assert text.count(line)==1 and text.replace(line,\"\",1)==old; tree=ast.parse(text); c=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name==cls); m=next(n for n in c.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==method); assert line.strip() in ast.get_source_segment(text,m)\nauthor=json.loads(pathlib.Path(\"/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization.json\").read_text()); assert got==author[\"intended_files\"]; assert subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],text=True).strip()==head; print(json.dumps({\"status\":\"PASS_AST_AND_EXACT_BYTES_ONLY\",\"snapshot\":head,\"base\":base,\"files\":got,\"production_insertions\":2,\"production_other_changes\":0,\"source_or_native_imports\":0,\"tests_executed\":0},ensure_ascii=False))"],
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "result": "PASS_AST_AND_EXACT_BYTES_ONLY; 3 fișiere parsează, bytes egali bloburilor frozen/raportului, exact două inserții în metodele reale, zero importuri de sursă/native și zero teste executate.",
+        "limit": "Verificare statică inline, nu harness nou, unit PASS sau integrare."
+      },
+      {
+        "command": "git show --no-patch --format='%H%n%P%n%s' e02866ebd7a773aa6f1122b7809ba1264d0eec10 && git diff --exit-code 92ca39ec49319f2c69107ddfdad38d099bb4839c e02866ebd7a773aa6f1122b7809ba1264d0eec10 -- api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "result": "Părinte exact2c1f2f1; aceleași trei fișiere la commitul autorului și la integrare.",
+        "limit": "Aprobarea rămâne legată de hashes, nu de mesajul commitului."
+      },
+      {
+        "command": "git status --short --branch && git rev-parse HEAD && sha256sum api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "cwd": "/home/kali/OmnisAI",
+        "exit": 0,
+        "result": "Verificare finală: HEAD și cele trei hashes neschimbate; nicio editare tracked.",
+        "limit": "Ultima verificare înaintea scrierii acestui raport, fără lock Git care ar împiedica editări viitoare."
+      }
+    ],
+    "reused_author_evidence_not_rerun": {
+      "report": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/author-initialization.json",
+      "binding": "Cele trei hashes au fost comparate independent; nu am citit loguri private brute și nu am relansat cele85 de teste neschimbate.",
+      "cwd": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work",
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+      "environment": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+      "python_prefix": "import pathlib,sys,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/'api/src'),str(r/'api/tests'),str(r/'integrations/hermes/src')]; raise SystemExit(pytest.main(ARGV))",
+      "red": {
+        "argv": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_owned_model_initialization.py", "-k", "crosses_existing_transport_validators", "-q", "--tb=short"],
+        "exit": 1,
+        "failed": 2,
+        "deselected": 8,
+        "attribution": "Raportul autorului: ambele gate-uri lipsă produc KeyError pe payload produs de owner. Nu este reproducere RED executată de reviewer."
+      },
+      "green": {
+        "argv": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_owned_model_initialization.py", "api/tests/test_ready_model_configuration.py", "integrations/hermes/tests/test_protocol.py", "integrations/hermes/tests/test_client.py", "integrations/hermes/tests/test_managed_native_source.py", "integrations/hermes/tests/test_host.py::test_ipc_invalid_types_are_sanitized_before_spawn", "integrations/hermes/tests/test_host.py::test_ipc_accepts_initial_zero_generation_but_not_stale_boot_or_fence", "integrations/hermes/tests/test_host.py::test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server", "-q", "--tb=no", "-s"],
+        "exit": 0,
+        "passed": 85,
+        "duration_seconds": 2.49,
+        "attribution": "Rezultat autor, reutilizat scoped pe bytes identici. Părintele a comunicat separat2 focused PASS în main; nu le număr drept execuții ale reviewerului."
+      },
+      "quality": [
+        {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_protocol.py integrations/hermes/src/omnis_hermes/runtime_host.py", "exit": 0},
+        {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_owned_model_initialization.py integrations/hermes/src/omnis_hermes/runtime_protocol.py integrations/hermes/src/omnis_hermes/runtime_host.py", "exit": 0},
+        {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/ni-p8uy2_2q/mypy api/tests/test_owned_model_initialization.py integrations/hermes/src", "exit": 0}
+      ],
+      "limits": "Sursă și transport sintetic. Testele de protocol/client existente pot folosi peers sintetici; nici acest raport, nici count85 nu probează PostgreSQL sau AIAgent real."
+    }
+  },
+  "evidence_limits_and_open_gates": [
+    {"id": "LIMIT-INIT-01", "status": "NOT_RUN", "scope": "Durabilitate/readback PostgreSQL prin tranzacții reale, owner/fence/grant DB și concurență reală. SourceOwner substituie explicit aceste frontiere."},
+    {"id": "LIMIT-INIT-02", "status": "NOT_RUN", "scope": "RPC._initialize/AIAgent/observe_owned_core executate nativ pe pin, importuri native reci și absența accesului real la credentiale/client. Au fost citite sursele, nu importate sau executate."},
+    {"id": "LIMIT-INIT-03", "status": "NOT_RUN", "scope": "Distribuție/build/OCI, installed consumer, lifecycle/drain nativ, restart runtime și initialization post-Stop. Acest diff nu le închide și nu modifică autoritatea receive-only existentă."},
+    {"id": "LIMIT-INIT-04", "status": "OUT_OF_SCOPE_NOT_A_BLOCKER_FOR_THIS_REPAIR", "scope": "Warm/Responses, model client READY, turn/config/purpose/ExecutionSelection autentice pentru inferență, reserve/SENT/ledger/caps la send și P2-live. Rămân cerințe separate, fără autoritate nouă aici."},
+    {"id": "LIMIT-INIT-05", "status": "NOT_RUN", "scope": "make check/canonical final, DB/SDK/browser/provider/network/auth/target. Nu au fost autorizate sau executate în acest review."},
+    {"id": "LIMIT-INIT-06", "status": "NOT_APPLICABLE", "scope": "Reticle: fără UI afectată. Chisel: BLOCKED_NO_GO, neîncărcat/neexecutat. Nu sunt revieweri suplimentari."}
+  ],
+  "scope_preservation": {
+    "repository_edits": [],
+    "created_files": ["/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/review-initialization-norm.json"],
+    "source_or_native_imports_executed": 0,
+    "tests_executed_by_reviewer": 0,
+    "installs_builds_services_resources_started": false,
+    "network_auth_provider_target_effects": false,
+    "protected_content_read_hashed_or_copied": false,
+    "global_personal_profiles_r1_P0_push_P3_touched": false,
+    "new_harness_or_agent": false,
+    "skills_modified": false
+  },
+  "handoff": {
+    "AICI": {"implementation": "Remediu existent integrat, exact2 linii producție", "evidence": "SOURCE/transport scoped reutilizat; integritate/AST independent PASS; PG/native initialization NOT_RUN", "review": "APPROVED_SCOPED normativ pe e02866e/3SHA"},
+    "global_status": "P2-inert/P4a-minim/P2-live nu sunt închise prin acest review; fără trecere la P3.",
+    "parent_action": "Adjudecă și reviewul complementar pe aceleași bytes; pentru acceptarea consumerului complet, probează bounded PG/native initialization prin ownerul și runnerul existente numai după preflight/admitere. Păstrează HOLD și lipsa oricărei autorități de model.",
+    "approval_condition": "Nicio schimbare a celor trei fișiere după hashes aprobate; orice delta nouă cere verificare/re-review afectat, nu transfer automat.",
+    "skipped": "Fără rerun85 neschimbate, fără QA istorică, inferență viitoare, harness ori instalări noi.",
+    "residual_risk": "Aprobarea de sursă/transport nu dovedește constructorul nativ rece sau commitul PostgreSQL; acceptarea real-consumer rămâne separată."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "status": "FIX_COMMITTED_SOURCE_GREEN",
+  "worktree": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work",
+  "commits": {
+    "frozen_qa_parent": "0dd3ec9f5f645f68a6349fe91a7e55750c08e972",
+    "separate_admission_fix": "2312e6f9473bbc78712174c969ea09b8dae56767"
+  },
+  "scope": {
+    "requirement": "Restore the existing unsafe-Make-flags verification protection for test-owned-initialization-native-pg.",
+    "consumer": "Existing Makefile verification-goal filter and existing development unittest.",
+    "risk": "An omitted target accepted MAKEFLAGS=-n and returned exit0 without executing verification.",
+    "change": "Register the target on the existing filter line; parameterize the existing test with subTests over check and test-owned-initialization-native-pg. No runner, fixture, consumer, product, dependency or other source changes.",
+    "allowed_repository_files": ["Makefile", "tests/development/test_test_db_gate.py"]
+  },
+  "changed_files_sha256": {
+    "Makefile": "6f75d2570d8c6cf776155fcb239dbd5972a4bcd02c679b9ef80a138d6cbf89bf",
+    "tests/development/test_test_db_gate.py": "ce25503c67e28937c314a3a1b98132a3c3c7139f23bc52dfaeb30b4710323f55"
+  },
+  "final_whole_qa_set_sha256": {
+    "Makefile": "6f75d2570d8c6cf776155fcb239dbd5972a4bcd02c679b9ef80a138d6cbf89bf",
+    "api/tests/test_contract_method_pg.py": "98cee912f60440a5ffa38dccfafda276aa26ab29cc65674ae0db0f4020b7c2b6",
+    "ops/run_test_db_gate.py": "b64a839e627cca14b6193c65fafe88a314a836ffcb61aadbd7e8a156c5d87be6",
+    "tests/development/test_test_db_gate.py": "ce25503c67e28937c314a3a1b98132a3c3c7139f23bc52dfaeb30b4710323f55"
+  },
+  "unchanged_product_sha256": {
+    "api/tests/test_owned_model_initialization.py": "383f273633036e5acc1240c45099dd0f57e1ea8a65d9480721924594131a3819",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "62633f35a8dd63e0f51e537f67a0956664da148b4ad9935604ccc033325954c2",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed"
+  },
+  "source_verification": {
+    "cwd": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work",
+    "test_file": "tests/development/test_test_db_gate.py",
+    "test_selector": "SafeTestDatabaseGateTests.test_full_check_cannot_become_a_dry_run_from_makeflags",
+    "execution": "python3 -I -B with runpy.run_path on the absolute worktree test-file path, unittest.TestSuite containing exactly the selected real unittest, and unittest.TextTestRunner(verbosity=2). Both invocations asserted cwd, the module SCRIPT path and exactly one collected test. No other unittest or QA was executed.",
+    "asserted_script": "/home/kali/.hermes/cache/scratch/ni-p8uy2_2q/work/ops/run_test_db_gate.py",
+    "make_commands": ["MAKEFLAGS=-n make check", "MAKEFLAGS=-n make test-owned-initialization-native-pg"],
+    "make_execution": "subprocess.run(['make', target], cwd=worktree, env={**os.environ, 'MAKEFLAGS': '-n'}, capture_output=True, text=True, timeout=10, check=False), both inside the real test and as direct before/after exit probes.",
+    "red": {
+      "test_process_exit_code": 1,
+      "tests_run": 1,
+      "failing_subtest": "target='test-owned-initialization-native-pg'",
+      "failure": "AssertionError: 0 == 0",
+      "elapsed_seconds": 0.012,
+      "make_results": [
+        {"target": "check", "exit_code": 2, "verification_diagnostic": true},
+        {"target": "test-owned-initialization-native-pg", "exit_code": 0, "verification_diagnostic": false}
+      ]
+    },
+    "green": {
+      "test_process_exit_code": 0,
+      "tests_run": 1,
+      "target_subtests": 2,
+      "result": "OK",
+      "elapsed_seconds": 0.009,
+      "make_results": [
+        {"target": "check", "exit_code": 2, "verification_diagnostic": true},
+        {"target": "test-owned-initialization-native-pg", "exit_code": 2, "verification_diagnostic": true}
+      ]
+    },
+    "diagnostic": "Unsafe Make flags for verification; execute the real gate",
+    "diff_check_exit_code": 0,
+    "staged_diff_check_exit_code": 0
+  },
+  "integrity": {
+    "frozen_product_qa_and_ops_files": "Three product files, api/tests/test_contract_method_pg.py and ops/run_test_db_gate.py compared byte-for-byte against git show 0dd3ec9:<path>; all identical.",
+    "changed_paths": "Exactly Makefile and tests/development/test_test_db_gate.py; explicit staging only those paths.",
+    "commit_readback": "git show --stat --oneline HEAD confirmed the separate two-file commit; git status --porcelain=v1 was empty afterwards.",
+    "history": "0dd3ec9 preserved as parent; no amend, reset, rewrite, integration into main or push.",
+    "original_qa_report": "Not read or modified; historical make -n exit0 remains a concrete admission finding, never product PASS."
+  },
+  "limits": {
+    "native_pg_oci_network_provider_account_target": "NOT_RUN",
+    "full_qa_and_canonical_gate": "NOT_RUN",
+    "other_unsafe_flags": "Not separately exercised; the target now uses the unchanged shared n/t/q/i guard. Focused regression exercised inherited MAKEFLAGS=-n only.",
+    "installs_and_external_cache_writes": "None; Python used -I -B, no package manager or environment modifications.",
+    "protected_files_profiles_r1_p0_p3": "Untouched; no protected HTML or ponytail JSON read/hash/copy.",
+    "review": "Final changed bytes require two focused complementary reviews; no approval inherited or claimed.",
+    "next": "Parent may admit one fresh native attempt only after the final-delta reviews and existing safety prerequisites. This report does not perform or approve it."
+  },
+  "rollback": "git revert 2312e6f9473bbc78712174c969ea09b8dae56767, then rerun the same focused SOURCE test; no external resource state was changed."
+}

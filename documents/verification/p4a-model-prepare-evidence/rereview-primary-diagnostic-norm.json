@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "review_kind": "FOCUSED_NORMATIVE_F01_DELTA_REREVIEW",
+  "verdict": "APPROVED_SCOPED",
+  "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+  "head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+  "previous_reviewed_head": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+  "original_slice_base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+  "paths_sha256": {
+    "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "consumer_line must be a genuine integer outer caller line or null, not exception-controlled data; preserve primary propagation, uncertainty and checkpoint-before-cleanup.",
+    "consumer": "Existing test_contract_method_real_native_pg_owner_receipts_check_inbox.run outer handler and unchanged finally/checkpoint writer.",
+    "risk": "Subclass traceback override could persist private arbitrary metadata; repair must not replace the original exception, clear uncertainty, or change success/finalizer/deadline behavior.",
+    "decision": "Approve only the one-assignment descriptor fix and existing regression extension on the exact current hashes. Parent adjudicates with complementary re-review before separately authorized existing-runner QA."
+  },
+  "scope": {
+    "changed_owner_line": "api/tests/test_contract_method_pg.py:12210",
+    "regression": "api/tests/test_model_test_prepare_source.py:406-553; existing matrix extended from 9 to 12 cases.",
+    "callers_fixtures_config_exports": "No additional changed callers, fixture/config/export files; only the existing outer handler and its SOURCE matrix are affected.",
+    "not_a_general_audit": true,
+    "original_approvals": "The original normative APPROVED_SCOPED remains evidence only for unchanged scope; this report explicitly reviews the changed assignment/regression bytes. The original safety CHANGES_REQUESTED report and F01 reproducer remain preserved, not overwritten."
+  },
+  "findings": [],
+  "changes_requested": [],
+  "F01_disposition": {
+    "id": "SAFETY-PRIMARY-DIAGNOSTIC-F01",
+    "status": "RESOLVED_SCOPED",
+    "parent_adjudication": "PENDING; complementary exact-current-snapshot safety re-review is outside this normative report.",
+    "original_defect": "error.__traceback__ dispatched to a subclass property returning SimpleNamespace(tb_lineno=synthetic_private_string), which reached the persisted consumer_line.",
+    "repair": "BaseException.__dict__[\"__traceback__\"].__get__(error, type(error)) reads the actual built-in descriptor, bypassing exception attribute lookup; unchanged None branch or real traceback tb_lineno is used.",
+    "independent_evidence": "Built-in descriptor type and __objclass__ provenance checked directly. All 12 current SOURCE cases pass, including hostile override crossed with normal cleanup, cleanup error and diagnostic-write failure; persisted diagnostics require exact int/actual probe caller line and synthetic marker absence.",
+    "RED_to_GREEN_evidence": "Author report records RED 2 failed/10 passed on hostile override int assertions, GREEN 12 passed, final SOURCE 46 passed and Ruff/format/strict mypy exit0. Parent exact original reproducer was confirmed as supplied in delegation. This reviewer independently reran current 12 cases only; did not recreate RED or rerun full SOURCE/quality.",
+    "remaining_limit": "consumer_line is the outer checkpoint consumer callsite, not the inner Host/native cause. The SOURCE probe uses the real handler/finally with a substituted fail await at probe line 3; it does not establish a historical runtime line."
+  },
+  "acceptance_matrix": [
+    {
+      "requirement": "Built-in traceback provenance; bounded integer/null metadata",
+      "status": "PASS_SCOPED",
+      "evidence": "Changed assignment at :12210 uses the actual BaseException class-dictionary getset descriptor. Static/runtime descriptor identity check passes; unraised error returns None. Current persisted SOURCE metadata requires type(consumer_line) is int and equality to both the actual built-in traceback caller line and probe await line (:548-551). Fixed source filename and unchanged allowlisted exception tags retained.",
+      "limit": "Null getter behavior and unchanged null branch were checked; the raised-error SOURCE matrix takes the integer branch, not a fabricated null traceback handler scenario."
+    },
+    {
+      "requirement": "Original primary identity/context and uncertainty before cleanup",
+      "status": "PASS_SCOPED",
+      "evidence": "12 SOURCE cases execute the actual extracted handler/full finally/real checkpoint writer with resource doubles. They require identical primary/context, primary event then cleanup, cleanup_failed/unsettled true, UNCERTAIN/NOT_SETTLED_DB_RETAINED, and no success observation. Source :12205-12207 sets uncertainty before metadata; model_prepare implies installed_native at :8202-8203. Bare raise and diagnostic-only BaseException suppression unchanged.",
+      "limit": "db_fence starts unsettled in the fixture; producer ordering is established by source and exact AST comparison, not inferred from that injected state alone."
+    },
+    {
+      "requirement": "Diagnostic persisted before close; secondary failure cannot replace primary at tested seams",
+      "status": "PASS_SCOPED",
+      "evidence": "Normal and cleanup-error cases read a persisted primary-only snapshot at the first substituted close; diagnostic-failure cases retain the primary and conservative final UNCERTAIN without claiming checkpoint persistence. Hostile str/repr and synthetic marker absence remain asserted."
+    },
+    {
+      "requirement": "No change to try/finally, successful finalizer, deadline180, caps, grants or runtime owners",
+      "status": "PASS_AST_IDENTITY",
+      "evidence": "Entire owner module AST equals previous HEAD after replacing only the original trace assignment. Try body, complete finally and else equal both previous HEAD and original base. All other SOURCE test ASTs are unchanged; complete original-base/current and delta inventories contain only the two declared files. Existing timeout/cap/grant runner files are outside the diff.",
+      "retained_evidence": "Original normative report independently ran 13 cases (nine primary-error cases plus four unchanged success/refusal controls). Those four controls were not rerun here; their unaffected AST and original scoped evidence are retained."
+    },
+    {
+      "requirement": "Historical UNKNOWN/UNCERTAIN not converted to runtime PASS; bounded cycle",
+      "status": "RETAINED",
+      "evidence": "Relevant p4a-minim.md current/first-attempt/diagnostic sections retain the original 1FAIL+1ERROR/19.67s/exit2, cause UNKNOWN and proof UNCERTAIN. This is cycle2 diagnostic repair, with no new harness, retry, deadline change or cycle reset. No historical private proof/log was reread or modified."
+    }
+  ],
+  "snapshot_checks": {
+    "all_other_SOURCE_tests_AST_unchanged": true,
+    "case_counts": {
+      "current": 12,
+      "previous": 9
+    },
+    "descriptor_builtin_provenance": true,
+    "head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+    "immutable_reports_sha256": {
+      "author-primary-diagnostic-f01.json": "6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e",
+      "review-primary-diagnostic-norm.json": "31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be",
+      "review-primary-diagnostic-safety.json": "b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019"
+    },
+    "null_trace_handling_unchanged_and_descriptor_returns_None_for_unraised_error": true,
+    "only_owner_descriptor_assignment_changed_AST": true,
+    "original_base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "previous": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+      "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+    },
+    "try_finally_else_AST_unchanged_vs_previous_and_original": true,
+    "working_bytes_equal_HEAD_blobs": true,
+    "worktree_clean": true
+  },
+  "commands": [
+    {
+      "id": "snapshot_ast_and_descriptor",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,copy,hashlib,json,subprocess,types\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprevious=\"16f47a2a193d4090d9220c4b7f87efb24e160137\"\noriginal=\"3c5f5b43232209602cc0262b7f922a973e977f17\"\nhead=\"358df38a64c3cb53f5600f372b746ff6bd3adf67\"\nexpected={\"api/tests/test_contract_method_pg.py\":\"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\",\"api/tests/test_model_test_prepare_source.py\":\"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}\ndef git(*args):\n    return subprocess.check_output([\"git\",*args],cwd=root)\nassert git(\"rev-parse\",\"HEAD\").decode().strip()==head\nassert git(\"rev-parse\",\"HEAD^\").decode().strip()==previous\nassert git(\"status\",\"--porcelain\")==b\"\"\nassert git(\"diff\",\"--name-only\",previous+\"..\"+head).decode().splitlines()==list(expected)\nassert git(\"diff\",\"--name-only\",original+\"..\"+head).decode().splitlines()==list(expected)\nfor path,sha in expected.items():\n    assert hashlib.sha256((root/path).read_bytes()).hexdigest()==sha\n    assert hashlib.sha256(git(\"show\",head+\":\"+path)).hexdigest()==sha\ndef parsed(rev,path):\n    return ast.parse(git(\"show\",rev+\":\"+path))\ndef owner(tree):\n    consumer=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==\"test_contract_method_real_native_pg_owner_receipts_check_inbox\")\n    run=next(n for n in consumer.body if isinstance(n,ast.AsyncFunctionDef) and n.name==\"run\")\n    return next(n for n in run.body if isinstance(n,ast.Try) and n.finalbody)\nowner_path,test_path=list(expected)\nold=parsed(previous,owner_path)\nnew=ast.parse((root/owner_path).read_bytes())\nold_arm,new_arm=owner(old),owner(new)\nfor field in (\"body\",\"finalbody\",\"orelse\"):\n    for before in (old_arm,owner(parsed(original,owner_path))):\n        assert ast.dump(ast.Module(body=getattr(before,field),type_ignores=[]))==ast.dump(ast.Module(body=getattr(new_arm,field),type_ignores=[]))\nold_assignment=next(n for n in ast.walk(old_arm.handlers[0]) if isinstance(n,ast.Assign) and ast.unparse(n)==\"trace = error.__traceback__\")\nnew_assignment=next(n for n in ast.walk(new_arm.handlers[0]) if isinstance(n,ast.Assign) and ast.unparse(n).startswith(\"trace = \"))\nassert ast.unparse(new_assignment.value)==\"BaseException.__dict__['__traceback__'].__get__(error, type(error))\"\nold_assignment.value=copy.deepcopy(new_assignment.value)\nassert ast.dump(old)==ast.dump(new)\nold_tests,new_tests=parsed(previous,test_path),ast.parse((root/test_path).read_bytes())\nname=\"test_model_prepare_primary_error_before_real_finally\"\ndef case_count(tree):\n    target=next(n for n in tree.body if isinstance(n,ast.AsyncFunctionDef) and n.name==name)\n    counts=[len(ast.literal_eval(n.args[1])) for n in target.decorator_list if isinstance(n,ast.Call) and ast.unparse(n.func)==\"pytest.mark.parametrize\"]\n    import math\n    return math.prod(counts)\nassert case_count(old_tests)==9 and case_count(new_tests)==12\nfor tree in (old_tests,new_tests):\n    tree.body=[n for n in tree.body if not (isinstance(n,ast.AsyncFunctionDef) and n.name==name)]\nassert ast.dump(old_tests)==ast.dump(new_tests)\ndescriptor=BaseException.__dict__[\"__traceback__\"]\nassert type(descriptor) is types.GetSetDescriptorType and descriptor.__objclass__ is BaseException\nassert descriptor.__get__(RuntimeError(),RuntimeError) is None\nreports={p:hashlib.sha256((root.parent/p).read_bytes()).hexdigest() for p in [\"review-primary-diagnostic-norm.json\",\"review-primary-diagnostic-safety.json\",\"author-primary-diagnostic-f01.json\"]}\nassert reports=={\"review-primary-diagnostic-norm.json\":\"31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be\",\"review-primary-diagnostic-safety.json\":\"b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019\",\"author-primary-diagnostic-f01.json\":\"6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e\"}\nprint(json.dumps({\"head\":head,\"previous\":previous,\"original_base\":original,\"sha256\":expected,\"working_bytes_equal_HEAD_blobs\":True,\"worktree_clean\":True,\"only_owner_descriptor_assignment_changed_AST\":True,\"try_finally_else_AST_unchanged_vs_previous_and_original\":True,\"all_other_SOURCE_tests_AST_unchanged\":True,\"case_counts\":{\"previous\":case_count(parsed(previous,test_path)),\"current\":case_count(ast.parse((root/test_path).read_bytes()))},\"descriptor_builtin_provenance\":True,\"null_trace_handling_unchanged_and_descriptor_returns_None_for_unraised_error\":True,\"immutable_reports_sha256\":reports},sort_keys=True))\n"
+      ],
+      "output": "{\"all_other_SOURCE_tests_AST_unchanged\": true, \"case_counts\": {\"current\": 12, \"previous\": 9}, \"descriptor_builtin_provenance\": true, \"head\": \"358df38a64c3cb53f5600f372b746ff6bd3adf67\", \"immutable_reports_sha256\": {\"author-primary-diagnostic-f01.json\": \"6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e\", \"review-primary-diagnostic-norm.json\": \"31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be\", \"review-primary-diagnostic-safety.json\": \"b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019\"}, \"null_trace_handling_unchanged_and_descriptor_returns_None_for_unraised_error\": true, \"only_owner_descriptor_assignment_changed_AST\": true, \"original_base\": \"3c5f5b43232209602cc0262b7f922a973e977f17\", \"previous\": \"16f47a2a193d4090d9220c4b7f87efb24e160137\", \"sha256\": {\"api/tests/test_contract_method_pg.py\": \"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\", \"api/tests/test_model_test_prepare_source.py\": \"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}, \"try_finally_else_AST_unchanged_vs_previous_and_original\": true, \"working_bytes_equal_HEAD_blobs\": true, \"worktree_clean\": true}",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "id": "targeted_12_SOURCE",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"rereview-norm-f01-source-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nimport test_contract_method_pg as owner\nassert sys.dont_write_bytecode\nassert Path(omnis.__file__).resolve().is_relative_to(root/\"api/src\")\nassert Path(owner.__file__).resolve()==root/\"api/tests/test_contract_method_pg.py\"\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))\n"
+      ],
+      "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-norm-f01-source-92l1l2ef\n............                                                             [100%]\n12 passed in 1.60s",
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "id": "final_snapshot_readback",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --exit-code HEAD -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && git diff --check 16f47a2a193d4090d9220c4b7f87efb24e160137..358df38a64c3cb53f5600f372b746ff6bd3adf67 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && git -C /home/kali/OmnisAI rev-parse HEAD",
+      "output": "## work/md-zdo0u8vi\n358df38a64c3cb53f5600f372b746ff6bd3adf67\na883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031  api/tests/test_contract_method_pg.py\n4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090  api/tests/test_model_test_prepare_source.py\n3c5f5b43232209602cc0262b7f922a973e977f17",
+      "exit_code": 0,
+      "error": null
+    }
+  ],
+  "execution_result": {
+    "targeted_SOURCE": "12 passed in 1.60s; exit0",
+    "private_TMPDIR": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-norm-f01-source-92l1l2ef",
+    "private_basetemp": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-norm-f01-source-92l1l2ef/pytest",
+    "cache_import_controls": "Explicit -I -B; candidate api/src, api/tests and integrations/hermes/src paths; package/owner origin assertions; plugin autoload disabled with pytest_asyncio explicitly enabled; pytest cacheprovider disabled.",
+    "boundary": "Actual handler, complete finally and checkpoint writer executed with resource doubles. This is SOURCE evidence, not PG/native integration, real-resource cleanup or OS confinement."
+  },
+  "original_reports_preserved": {
+    "sha256": {
+      "author-primary-diagnostic-f01.json": "6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e",
+      "review-primary-diagnostic-norm.json": "31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be",
+      "review-primary-diagnostic-safety.json": "b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019"
+    },
+    "author_report": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic-f01.json",
+    "reported_not_reexecuted": "RED2fail/10pass; GREEN12; final46SOURCE; final Ruff/format/mypy exit0."
+  },
+  "created_or_modified": {
+    "repository_files": [],
+    "commits": [],
+    "report": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-primary-diagnostic-norm.json",
+    "other_writes": "Only owned private SOURCE pytest fixtures under the listed TMPDIR; retained. No source/test/helper/verifier edits, cache cleanup, commit, merge or push.",
+    "main_checkout_head_readback": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "preexisting_cache": "Previously reported ignored work/.ruff_cache not removed or audited."
+  },
+  "issues_encountered": [],
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "limits": [
+    "Approval binds only the exact HEAD/two hashes above and the F01 normative delta; it does not substitute for the independent safety re-review or parent integration/readback.",
+    "No full suite/canonical gate, PG/native/installed run, Docker/OCI/build/server/network/provider/model/account/target effects, r1/P0/global/profile changes or push.",
+    "Protected HTML, ponytail JSON, .env/auth, raw boot/capability and raw private logs were not read, hashed, copied or modified.",
+    "Best-effort diagnostic persistence can fail; primary preservation and conservative uncertainty remain the intended result in that case. This does not certify all unchanged finalizer/storage failure paths or deliberate pytest showlocals/showargs.",
+    "Historical cause remains UNKNOWN and original proof UNCERTAIN. No account/inference/model-preparation success, runtime credit or new QA authorization is granted."
+  ],
+  "handoff_status": {
+    "AICI": "F01 descriptor fix implemented/committed at 358df38; normative delta APPROVED_SCOPED; independent current12SOURCE PASS; parent complementary adjudication/integration pending.",
+    "model_prepare_acceptance": "BLOCKED_QA",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Parent compare both re-review snapshots/hashes, adjudicate F01 and preserve original reports; only then continue the separately contracted existing QA180 path. No third harness."
+  },
+  "ponytail_skipped": "Unrelated audits, unchanged controls replay, full SOURCE/quality/canonical suites and native/PG attempts.",
+  "ponytail_risk": "The projection defect is fixed scoped; storage remains best effort and SOURCE PASS cannot resolve the historical UNKNOWN cause or UNCERTAIN proof."
+}

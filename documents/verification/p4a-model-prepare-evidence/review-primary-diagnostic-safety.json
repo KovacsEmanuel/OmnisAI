@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "review_role": "Complementary safety-focused independent read-only review",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": {
+    "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "head": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+    "paths_sha256": {
+      "api/tests/test_contract_method_pg.py": "d8a9b0d37a667967800680b3f61f5073409f0ed5c71aa6049bce5fe88bd7883a",
+      "api/tests/test_model_test_prepare_source.py": "02496dff6456f1f0dc335c78015fa2cca2758b698e0b0a9f2e83a7b08fbb609b"
+    },
+    "focus": "New primary-error handler, existing sanitizer/checkpoint caller, complete unchanged finally, and nine added SOURCE regression cases. No general unchanged-runtime audit.",
+    "main_checkpoint_not_changed": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "requirement_consumer_risk_decision": "Existing model-prepare consumer must persist only bounded public primary-error tags and a genuine outer caller line without replacing the primary or clearing uncertainty. A synthetic private marker reaching this diagnostic blocks acceptance; SOURCE PASS alone does not admit product PASS."
+  },
+  "original_report": {
+    "path": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic.json",
+    "sha256": "de44153f023b780643eed3a7e1d0f58023c6db97afbbbef5ba0ca2f6ae9a690a"
+  },
+  "findings": [
+    {
+      "id": "SAFETY-PRIMARY-DIAGNOSTIC-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "path": "api/tests/test_contract_method_pg.py",
+      "line": 12210,
+      "related_line": 12215,
+      "title": "Overridable exception traceback metadata bypasses the safe diagnostic projection",
+      "requirement_violated": "consumer_line must be an actual integer caller line or null; diagnostic must not persist arbitrary exception-controlled strings, paths or private payloads.",
+      "mechanism": "error.__traceback__ performs subclass attribute/property lookup. A RuntimeError subclass can return SimpleNamespace(tb_lineno=private_string). The newly added code passes that string verbatim to the real checkpoint under consumer_line; the sanitizer only protects exceptions, not this field. It also accepts arbitrary nested JSON-compatible content, so the new metadata field is not intrinsically bounded.",
+      "reproducer": "commands/reproducer-corrected contains exact argv. Raise HostileTraceback with a __traceback__ property returning SimpleNamespace(tb_lineno=\"PUBLIC_SYNTHETIC_PRIVATE_TRACEBACK_LINE\"); execute the actual extracted handler and full unchanged finally with resource doubles and the actual checkpoint writer.",
+      "observed": {
+        "reproducer_exit_code": 0,
+        "synthetic_private_marker_persisted": true,
+        "persisted_consumer_line_type": "str",
+        "primary_identity_preserved": true,
+        "proof_status": "UNCERTAIN",
+        "db_fence_unsettled": true,
+        "base_exception_descriptor_returns_real_traceback": true,
+        "artifact": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-safety-traceback-ir83p27n/method-history-proof.json"
+      },
+      "risk_boundary": "Confirmed diagnostic-content/schema violation for a hostile exception subclass, not an observed real-secret disclosure, network exfiltration or authorization bypass. An arbitrary exception is already running in-process Python; this finding concerns the expressly safe persisted projection only.",
+      "remedy": "Read the real built-in traceback descriptor directly, e.g. BaseException.__traceback__.__get__(error, type(error)), rather than dispatching to the exception override; retain only its integer outer tb_lineno or null. Preserve the existing bare raise, uncertainty assignments and finally. Add one regression using this overridden property to the existing SOURCE test; require marker absence and actual integer caller line. No helper/framework, runtime fix, wider grant or third harness is needed.",
+      "regression_gap": "The nine passing cases exercise hostile __str__/__repr__, public context, cancellation, close error and a primary-only checkpoint error, but no hostile override at the newly introduced __traceback__/consumer_line boundary.",
+      "fix_status": "NOT_IMPLEMENTED_BY_READ_ONLY_REVIEWER"
+    }
+  ],
+  "checks": [
+    {
+      "property": "Bounded existing exception tags",
+      "result": "SCOPED_STATIC_AND_SOURCE_PASS",
+      "evidence": "launch_exception_chain at lines 3080-3118 emits at most four rows with fixed type/reason allowlists and does not invoke str/repr. Nine-case exact output assertions pass. The existing sanitizer was not changed or generally audited."
+    },
+    {
+      "property": "Fixed source and caller-line provenance",
+      "result": "PARTIAL_FAIL",
+      "evidence": "source is a literal filename and no real traceback path/locals are accessed; consumer_line fails the hostile-metadata reproducer F01. Even a valid line localizes only the outer caller, not a Host/native root cause."
+    },
+    {
+      "property": "Primary identity, context and cancellation",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Nine real-handler/finally cases retain primary object/context, including asyncio.CancelledError. New diagnostic has no await, catches BaseException only around diagnostic work and retains the original bare raise."
+    },
+    {
+      "property": "Secondary error behavior",
+      "result": "PASS_TESTED_BOUNDARIES_ONLY",
+      "evidence": "The injected runtime.close error and the injected primary-diagnostic checkpoint error do not replace the primary in the nine cases. This is not a guarantee for persistent storage failure or every unchanged finalizer assertion."
+    },
+    {
+      "property": "Uncertainty and cleanup ordering",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Primary checkpoint precedes resource close; cleanup_failed and unsettled stay true, proof becomes UNCERTAIN/NOT_SETTLED_DB_RETAINED, success observation is not called. F01 also retains uncertainty."
+    },
+    {
+      "property": "Unchanged behavior outside new handler",
+      "result": "PASS_AST_IDENTITY",
+      "evidence": "Compared base/current actual run try body and complete finally AST: both unchanged; only two declared paths differ, final tracked worktree clean and both hashes unchanged."
+    }
+  ],
+  "commands": [
+    {
+      "id": "snapshot",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat 3c5f5b43232209602cc0262b7f922a973e977f17..16f47a2a193d4090d9220c4b7f87efb24e160137 && git diff --name-only 3c5f5b43232209602cc0262b7f922a973e977f17..16f47a2a193d4090d9220c4b7f87efb24e160137",
+      "exit_code": 0,
+      "result": "Expected head and two declared paths; no tracked/untracked status entries."
+    },
+    {
+      "id": "diff",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "command": "git diff --no-ext-diff --unified=18 3c5f5b43232209602cc0262b7f922a973e977f17..16f47a2a193d4090d9220c4b7f87efb24e160137 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "Exact two-file diff reviewed with affected caller/sanitizer/writer/finally."
+    },
+    {
+      "id": "diff-and-hashes",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "command": "git diff --check 3c5f5b43232209602cc0262b7f922a973e977f17..16f47a2a193d4090d9220c4b7f87efb24e160137 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic.json",
+      "exit_code": 0,
+      "result": "No whitespace error; hashes match scope and original_report."
+    },
+    {
+      "id": "targeted-nine",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"review-safety-source-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nassert sys.dont_write_bytecode\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))"
+      ],
+      "exit_code": 0,
+      "result": "9 passed in 2.67s",
+      "private_root": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-safety-source-si32h855",
+      "limits": "Actual affected handler/full finally/real checkpoint with resource doubles, pytest cache disabled, explicit worktree imports, no product/PG/native launch."
+    },
+    {
+      "id": "reproducer-initial",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv_from": "reproducer-corrected",
+      "source_delta": {
+        "replace": "actual_trace=BaseException.__traceback__.__get__(primary,type(primary))\nassert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int",
+        "with": "assert BaseException.__traceback__.__get__(primary,type(primary)).tb_lineno==3",
+        "import_difference": "from types import SimpleNamespace instead of importing TracebackType too"
+      },
+      "exit_code": 1,
+      "result": "Reviewer auxiliary assertion failed: checking traceback after propagation adds the check() caller frame, so assuming its head remained probe line 3 was invalid. Marker persistence and retained-primary/uncertainty assertions had already passed. This command is not counted as a complete passing reproducer."
+    },
+    {
+      "id": "reproducer-corrected",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,asyncio,json,os,sys,tempfile\nfrom pathlib import Path\nfrom types import SimpleNamespace,TracebackType\nfrom unittest.mock import AsyncMock\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"review-safety-traceback-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport test_contract_method_pg as owner\nfrom omnis.modules.settings.catalog_schema import canonical\nassert Path(owner.__file__).resolve()==root/\"api/tests/test_contract_method_pg.py\"\ntree=ast.parse(Path(owner.__file__).read_bytes())\nconsumer=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==\"test_contract_method_real_native_pg_owner_receipts_check_inbox\")\nrun=next(n for n in consumer.body if isinstance(n,ast.AsyncFunctionDef) and n.name==\"run\")\noriginal=next(n for n in run.body if isinstance(n,ast.Try) and n.finalbody)\nwriter=next(n for n in consumer.body if isinstance(n,ast.FunctionDef) and n.name==\"checkpoint\")\nprobe=ast.parse(\"async def probe():\\n try:\\n  await fail()\\n except BaseException:\\n  pass\\n finally:\\n  pass\\n\")\nstatement=probe.body[0].body[0]\nstatement.handlers,statement.finalbody=original.handlers,original.finalbody\nmarker=\"PUBLIC_SYNTHETIC_PRIVATE_TRACEBACK_LINE\"\nclass HostileTraceback(RuntimeError):\n    @property\n    def __traceback__(self):\n        return SimpleNamespace(tb_lineno=marker)\nprimary=HostileTraceback(\"opaque\")\nasync def fail():\n    raise primary\nproof={}\npath=private/\"method-history-proof.json\"\nh03_state={\"docker_unknown\":False,\"reader_unknown\":False,\"cleanup_failed\":False}\nfence={\"unsettled\":True}\nscope={\"proof\":proof,\"proof_path\":path,\"canonical\":canonical,\"asyncio\":asyncio,\"sys\":sys,\"fail\":fail,\"installed_native\":True,\"model_prepare\":True,\"launch_exception_chain\":owner.launch_exception_chain,\"h03_state\":h03_state,\"db_fence\":fence,\"dispatch_waiters\":[],\"done\":asyncio.Event(),\"heartbeat\":None,\"runtime\":None,\"public_control\":None,\"engine\":SimpleNamespace(dispose=AsyncMock()),\"batch2\":False,\"startup\":False,\"h04\":None,\"h03\":False,\"host\":None,\"applicability\":\"model-test-prepare\"}\nexec(compile(ast.Module(body=[writer],type_ignores=[]),owner.__file__,\"exec\"),scope)\nexec(compile(ast.fix_missing_locations(probe),owner.__file__,\"exec\"),scope)\nasync def check():\n    try:\n        await scope[\"probe\"]()\n    except BaseException as observed:\n        assert observed is primary\n    else:\n        raise AssertionError(\"PRIMARY_LOST\")\nasyncio.run(check())\npersisted=json.loads(path.read_bytes())\ndiagnostic=persisted[\"model_prepare_primary_error\"]\nassert diagnostic[\"consumer_line\"]==marker\nassert marker in canonical(persisted).decode()\nassert persisted[\"status\"]==\"UNCERTAIN\" and fence[\"unsettled\"] is True\nactual_trace=BaseException.__traceback__.__get__(primary,type(primary))\nassert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int\nprint(json.dumps({\"reproducer\":\"OVERRIDDEN_EXCEPTION_TRACEBACK_METADATA\",\"actual_handler_finally_and_checkpoint\":True,\"primary_identity_preserved\":True,\"persisted_consumer_line_type\":type(diagnostic[\"consumer_line\"]).__name__,\"synthetic_private_marker_persisted\":True,\"uncertainty_preserved\":True,\"base_exception_descriptor_returns_real_traceback\":True,\"owned_artifact\":str(path)},sort_keys=True))"
+      ],
+      "exit_code": 0,
+      "result": {
+        "actual_handler_finally_and_checkpoint": true,
+        "base_exception_descriptor_returns_real_traceback": true,
+        "persisted_consumer_line_type": "str",
+        "primary_identity_preserved": true,
+        "synthetic_private_marker_persisted": true,
+        "uncertainty_preserved": true
+      },
+      "interpretation": "Exit zero confirms the defect reproducer, not diagnostic safety."
+    },
+    {
+      "id": "final-identity-and-AST",
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nbase=\"3c5f5b43232209602cc0262b7f922a973e977f17\"\nhead=\"16f47a2a193d4090d9220c4b7f87efb24e160137\"\npaths=[\"api/tests/test_contract_method_pg.py\",\"api/tests/test_model_test_prepare_source.py\"]\nassert subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=root,text=True).strip()==head\nassert subprocess.check_output([\"git\",\"diff\",\"--name-only\",base+\"..\"+head],cwd=root,text=True).splitlines()==paths\nassert subprocess.check_output([\"git\",\"status\",\"--porcelain\"],cwd=root,text=True)==\"\"\ndef arm(raw):\n    consumer=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name==\"test_contract_method_real_native_pg_owner_receipts_check_inbox\")\n    run=next(n for n in consumer.body if isinstance(n,ast.AsyncFunctionDef) and n.name==\"run\")\n    return next(n for n in run.body if isinstance(n,ast.Try) and n.finalbody)\nold=arm(subprocess.check_output([\"git\",\"show\",base+\":\"+paths[0]],cwd=root))\nnew=arm((root/paths[0]).read_bytes())\nassert ast.dump(ast.Module(body=old.body,type_ignores=[]))==ast.dump(ast.Module(body=new.body,type_ignores=[]))\nassert ast.dump(ast.Module(body=old.finalbody,type_ignores=[]))==ast.dump(ast.Module(body=new.finalbody,type_ignores=[]))\nprint(json.dumps({\"head\":head,\"tracked_worktree_clean\":True,\"changed_paths\":paths,\"try_body_AST_unchanged\":True,\"finally_AST_unchanged\":True,\"sha256\":{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths},\"author_report_sha256\":hashlib.sha256(Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic.json\").read_bytes()).hexdigest()},sort_keys=True))"
+      ],
+      "following_command": "git status --short --branch",
+      "exit_code": 0,
+      "result": "Both scope hashes and author report SHA unchanged; expected head; only two declared changed paths; clean tracked worktree; original try body and finally AST unchanged."
+    }
+  ],
+  "author_evidence_not_independently_replayed": {
+    "RED": "9 failed",
+    "GREEN": "9 passed",
+    "final_SOURCE": "43 passed",
+    "ruff_mypy": "exit 0 reported; not rerun by this reviewer"
+  },
+  "original_historical_attempt": {
+    "status": "UNCERTAIN",
+    "primary_cause": "UNKNOWN",
+    "native_observation": "NOT_OBSERVED",
+    "proof_sha256_from_author_report_not_rehashed": "9f16394e32b2ac95280e11a7eafa069de75e3b5d6e7613a4f2c9daba5b06d53f",
+    "retrospective_attribution": "NONE"
+  },
+  "created_or_modified": {
+    "repository_files": [],
+    "commits": [],
+    "deliverable": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json",
+    "other_writes": "Only private scratch pytest fixtures and synthetic proof output from the declared SOURCE/reproducer commands. No source edits or persisted test infrastructure.",
+    "existing_ruff_cache": "Author-reported ignored work/.ruff_cache deviation retained; not removed or audited."
+  },
+  "issues_encountered": [
+    "F01 reproduced on current bytes despite all nine existing regression cases passing.",
+    "Initial reviewer traceback-line assumption was wrong after propagation; corrected without editing source or changing any runtime limit."
+  ],
+  "limits": [
+    "No native/PG/installed consumer PASS. No build/OCI/Docker/DB/server/provider/model/account/target, r1/P0/global/profile changes, commit or push.",
+    "No raw PG logs, private boot/capability files, .env/auth or configuration contents accessed. Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were not read, hashed, copied or modified.",
+    "No third harness or recursive report audit. The additional direct code-object check addresses one concrete newly introduced metadata disclosure boundary.",
+    "SOURCE/doubles do not prove OS confinement, actual cleanup of native resource families, storage availability, every secondary finalizer failure, or deliberate pytest --showlocals/--showargs safety.",
+    "Parent adjudicates this finding and the complementary review before any separately authorized fresh diagnostic QA. Historical cause remains UNKNOWN and historical UNCERTAIN is unchanged."
+  ],
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "handoff_status": {
+    "current_slice": "AICI: safe primary diagnostic / CHANGES_REQUESTED for F01",
+    "implementation": "Candidate committed in isolated worktree, not integrated by reviewer",
+    "proof": "Nine SOURCE cases pass; concrete hostile-metadata reproducer confirms failure; real consumer NOT_RUN",
+    "review": "Safety review CHANGES_REQUESTED on exact hashes; parent adjudication pending",
+    "product_gate": "P4a-minim/model-prepare remains BLOCKED_QA, P2-live NOT_RUN, phase2 NOT_CLOSED",
+    "next": "Parent reproduce and minimally repair F01 on the existing metadata line, rerun affected tests and request focused delta re-review before existing-runner fresh QA."
+  },
+  "ponytail_skipped": "Skipped unrelated unchanged-runtime audits, full canonical suite and real resource launches.",
+  "ponytail_risk": "The safe checkpoint currently accepts exception-controlled traceback metadata; no product PASS or historical root-cause claim is justified."
+}

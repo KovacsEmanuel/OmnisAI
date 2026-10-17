@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "status": "F01_FIXED_SOURCE_GREEN_COMMITTED_FOCUSED_REVIEW_PENDING",
+  "finding": "SAFETY-PRIMARY-DIAGNOSTIC-F01",
+  "severity": "MEDIUM",
+  "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+  "base": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+  "head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+  "original_slice_base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+  "requirement_consumer_risk_decision": "Existing model-prepare primary-error checkpoint must retain a genuine integer outer consumer line or null, never exception-controlled private strings/objects. Actual existing handler + entire finally + real checkpoint writer exercised with SOURCE resource seams. Only focused re-review is admitted; no new runtime attempt or product acceptance.",
+  "scope": {
+    "repository_files_modified": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "repository_files_created": [],
+    "fix": "One assignment reads BaseException.__dict__[\"__traceback__\"].__get__(error,type(error)); built-in traceback tb_lineno is an integer and null handling stays unchanged. Exception override is never read.",
+    "regression": "Extend existing 9-case SOURCE matrix to 12 with a synthetic OpaqueFailure subclass whose __traceback__ property returns SimpleNamespace(tb_lineno=marker); require exact int line matching actual built-in descriptor, marker absence, original primary/context, checkpoint-before-cleanup and UNCERTAIN. No new harness/helper/observer/verifier/library or runtime code.",
+    "callers_fixtures_config_exports_changed": []
+  },
+  "paths_sha256": {
+    "api/tests/test_contract_method_pg.py": {
+      "base_sha256": "d8a9b0d37a667967800680b3f61f5073409f0ed5c71aa6049bce5fe88bd7883a",
+      "current_sha256": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031"
+    },
+    "api/tests/test_model_test_prepare_source.py": {
+      "base_sha256": "02496dff6456f1f0dc335c78015fa2cca2758b698e0b0a9f2e83a7b08fbb609b",
+      "current_sha256": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+    }
+  },
+  "original_reports_preserved": {
+    "sha256": {
+      "author-primary-diagnostic.json": "de44153f023b780643eed3a7e1d0f58023c6db97afbbbef5ba0ca2f6ae9a690a",
+      "review-primary-diagnostic-norm.json": "31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be",
+      "review-primary-diagnostic-safety.json": "b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019"
+    },
+    "original_author_report_not_overwritten": true,
+    "original_norm_verdict": "APPROVED_SCOPED on old bytes only",
+    "original_safety_verdict": "CHANGES_REQUESTED / F01 on old bytes",
+    "parent_reproducer_reference": {
+      "report": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json",
+      "command_id": "reproducer-corrected",
+      "parent_replayed_before_delegation": true,
+      "parent_result_as_provided": "exit0; synthetic_private_marker_persisted=true; consumer_line type=str; same primary; UNCERTAIN",
+      "interpretation": "Safe projection/schema violation, not demonstrated real credential disclosure or historical runtime root cause."
+    }
+  },
+  "RED": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"f01-red-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nassert sys.dont_write_bytecode\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))"
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-red-zl0iz33w\n...F...F....                                                             [100%]\n=================================== FAILURES ===================================\n_ test_model_prepare_primary_error_before_real_finally[None-hostile-traceback] _\napi/tests/test_model_test_prepare_source.py:550: in test_model_prepare_primary_error_before_real_finally\n    assert type(diagnostic[\"consumer_line\"]) is int\nE   AssertionError: assert <class 'str'> is int\nE    +  where <class 'str'> = type('PUBLIC_SYNTHETIC_PRIVATE_PRIMARY_ERROR')\n_ test_model_prepare_primary_error_before_real_finally[cleanup-hostile-traceback] _\napi/tests/test_model_test_prepare_source.py:550: in test_model_prepare_primary_error_before_real_finally\n    assert type(diagnostic[\"consumer_line\"]) is int\nE   AssertionError: assert <class 'str'> is int\nE    +  where <class 'str'> = type('PUBLIC_SYNTHETIC_PRIVATE_PRIMARY_ERROR')\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_prepare_source.py::test_model_prepare_primary_error_before_real_finally[None-hostile-traceback]\nFAILED api/tests/test_model_test_prepare_source.py::test_model_prepare_primary_error_before_real_finally[cleanup-hostile-traceback]\n2 failed, 10 passed in 2.77s",
+    "exit_code": 1,
+    "error": null
+  },
+  "GREEN_intermediate": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"f01-green-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nassert sys.dont_write_bytecode\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))"
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-green-ah_q1vun\n............                                                             [100%]\n12 passed in 2.79s",
+    "exit_code": 0,
+    "error": null
+  },
+  "final_checks_after_last_edit": {
+    "SOURCE_final": {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"f01-source-final-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nassert sys.dont_write_bytecode\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")]))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-source-final-wbwikc3l\n..............................................                           [100%]\n46 passed in 10.21s",
+      "exit_code": 0,
+      "error": null
+    },
+    "ruff_check_final": {
+      "argv": [
+        "env",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-quality-sfttickg",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "All checks passed!",
+      "exit_code": 0,
+      "error": null
+    },
+    "ruff_format_final": {
+      "argv": [
+        "env",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-quality-sfttickg",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "2 files already formatted",
+      "exit_code": 0,
+      "error": null
+    },
+    "mypy_final": {
+      "argv": [
+        "env",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-quality-sfttickg",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "Success: no issues found in 2 source files",
+      "exit_code": 0,
+      "error": null
+    },
+    "snapshot_AST": {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,copy,hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nbase=\"16f47a2a193d4090d9220c4b7f87efb24e160137\"\noriginal=\"3c5f5b43232209602cc0262b7f922a973e977f17\"\npaths=[\"api/tests/test_contract_method_pg.py\",\"api/tests/test_model_test_prepare_source.py\"]\ndef before(path,revision=base):\n    return ast.parse(subprocess.check_output([\"git\",\"show\",revision+\":\"+path],cwd=root))\ndef owner(tree):\n    consumer=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==\"test_contract_method_real_native_pg_owner_receipts_check_inbox\")\n    run=next(n for n in consumer.body if isinstance(n,ast.AsyncFunctionDef) and n.name==\"run\")\n    return next(n for n in run.body if isinstance(n,ast.Try) and n.finalbody)\nold=before(paths[0]); new=ast.parse((root/paths[0]).read_bytes())\nold_arm=owner(old);new_arm=owner(new)\nfor field in (\"body\",\"finalbody\",\"orelse\"):\n    assert ast.dump(ast.Module(body=getattr(old_arm,field),type_ignores=[]))==ast.dump(ast.Module(body=getattr(new_arm,field),type_ignores=[]))\n    assert ast.dump(ast.Module(body=getattr(owner(before(paths[0],original)),field),type_ignores=[]))==ast.dump(ast.Module(body=getattr(new_arm,field),type_ignores=[]))\nassignment=next(n for n in ast.walk(old_arm.handlers[0]) if isinstance(n,ast.Assign) and ast.unparse(n)==\"trace = error.__traceback__\")\nnew_assignment=next(n for n in ast.walk(new_arm.handlers[0]) if isinstance(n,ast.Assign) and ast.unparse(n).startswith(\"trace = \"))\nassert ast.unparse(new_assignment.value)==\"BaseException.__dict__['__traceback__'].__get__(error, type(error))\"\nassignment.value=copy.deepcopy(new_assignment.value)\nassert ast.dump(old)==ast.dump(new)\nold_tests=before(paths[1]);new_tests=ast.parse((root/paths[1]).read_bytes())\nfor tree in (old_tests,new_tests):\n    tree.body=[n for n in tree.body if not (isinstance(n,ast.AsyncFunctionDef) and n.name==\"test_model_prepare_primary_error_before_real_finally\")]\nassert ast.dump(old_tests)==ast.dump(new_tests)\nassert subprocess.check_output([\"git\",\"diff\",\"--name-only\",base],cwd=root,text=True).splitlines()==paths\nreports=[\"author-primary-diagnostic.json\",\"review-primary-diagnostic-norm.json\",\"review-primary-diagnostic-safety.json\"]\nprint(json.dumps({\"base\":base,\"original_base\":original,\"only_owner_assignment_changed_AST\":True,\"try_body_AST_unchanged\":True,\"finally_AST_unchanged\":True,\"else_AST_unchanged\":True,\"sanitizer_checkpoint_proof_and_success_cases_unchanged\":True,\"other_SOURCE_tests_AST_unchanged\":True,\"sha256\":{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths},\"immutable_reports_sha256\":{p:hashlib.sha256((root.parent/p).read_bytes()).hexdigest() for p in reports}},sort_keys=True))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "{\"base\": \"16f47a2a193d4090d9220c4b7f87efb24e160137\", \"else_AST_unchanged\": true, \"finally_AST_unchanged\": true, \"immutable_reports_sha256\": {\"author-primary-diagnostic.json\": \"de44153f023b780643eed3a7e1d0f58023c6db97afbbbef5ba0ca2f6ae9a690a\", \"review-primary-diagnostic-norm.json\": \"31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be\", \"review-primary-diagnostic-safety.json\": \"b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019\"}, \"only_owner_assignment_changed_AST\": true, \"original_base\": \"3c5f5b43232209602cc0262b7f922a973e977f17\", \"other_SOURCE_tests_AST_unchanged\": true, \"sanitizer_checkpoint_proof_and_success_cases_unchanged\": true, \"sha256\": {\"api/tests/test_contract_method_pg.py\": \"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\", \"api/tests/test_model_test_prepare_source.py\": \"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}, \"try_body_AST_unchanged\": true}",
+      "exit_code": 0,
+      "error": null
+    }
+  },
+  "new_fix_evidence": {
+    "SOURCE_final": "46 passed in 10.21s, exit0; includes all 12 primary-error cases plus unchanged success/denials. Persisted snapshot before resource close matches bounded diagnostic; marker absent. Hostile override no longer supplies consumer_line.",
+    "line_provenance": "Real built-in traceback descriptor, outer probe/consumer await line; after propagation the regression compares tb_next to exclude its own invocation frame. Not an inner/Host cause.",
+    "runtime_not_retried": true
+  },
+  "unchanged_AST": {
+    "only_owner_assignment_changed_AST": true,
+    "try_body_AST_unchanged": true,
+    "finally_AST_unchanged": true,
+    "else_AST_unchanged": true,
+    "sanitizer_checkpoint_proof_and_success_cases_unchanged": true,
+    "other_SOURCE_tests_AST_unchanged": true
+  },
+  "attempts_preserved": {
+    "mypy_intermediate": {
+      "argv": [
+        "env",
+        "TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/f01-quality-sfttickg",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir=/dev/null",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py",
+        "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+      "output": "api/tests/test_contract_method_pg.py:12210: error: Item \"TracebackType\" of \"TracebackType | None\" has no attribute \"__get__\"  [union-attr]\napi/tests/test_contract_method_pg.py:12210: error: Item \"None\" of \"TracebackType | None\" has no attribute \"__get__\"  [union-attr]\napi/tests/test_model_test_prepare_source.py:548: error: Item \"TracebackType\" of \"TracebackType | None\" has no attribute \"__get__\"  [union-attr]\napi/tests/test_model_test_prepare_source.py:548: error: Item \"None\" of \"TracebackType | None\" has no attribute \"__get__\"  [union-attr]\nFound 4 errors in 2 files (checked 2 source files)",
+      "exit_code": 1,
+      "error": null
+    },
+    "explanation": "The reviewer example BaseException.__traceback__.__get__ passes runtime tests but mypy views the class attribute as TracebackType|None and reports four union-attr errors across both files. Read the identical descriptor from BaseException.__dict__ instead; no ignores, explicit Any, casts or extra helper. Final affected tests and all quality checks rerun on final bytes."
+  },
+  "historical_failure": {
+    "primary_cause": "UNKNOWN",
+    "original_status": "UNCERTAIN",
+    "no_retrospective_attribution": true,
+    "original_proof_not_reread_or_changed": true
+  },
+  "cycle_budget": {
+    "existing_QA_only_cycle": 2,
+    "new_harness_or_cycle_reset": false,
+    "third_observer_growth": "NOT_AUTHORIZED"
+  },
+  "git_readback": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nbase=\"16f47a2a193d4090d9220c4b7f87efb24e160137\"\nexpected={\"api/tests/test_contract_method_pg.py\":\"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\",\"api/tests/test_model_test_prepare_source.py\":\"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}\ndef git(*args):\n    return subprocess.check_output([\"git\",*args],cwd=root,text=True).strip()\nhead=git(\"rev-parse\",\"HEAD\")\nassert git(\"rev-parse\",\"HEAD^\")==base\nassert git(\"status\",\"--porcelain\")==\"\"\nassert git(\"diff\",\"--name-only\",base+\"..\"+head).splitlines()==list(expected)\nfor path,sha in expected.items():\n    assert hashlib.sha256((root/path).read_bytes()).hexdigest()==sha\n    assert hashlib.sha256(subprocess.check_output([\"git\",\"show\",head+\":\"+path],cwd=root)).hexdigest()==sha\nreports={p:hashlib.sha256((root.parent/p).read_bytes()).hexdigest() for p in [\"author-primary-diagnostic.json\",\"review-primary-diagnostic-norm.json\",\"review-primary-diagnostic-safety.json\"]}\nprint(json.dumps({\"head\":head,\"parent\":base,\"branch\":git(\"branch\",\"--show-current\"),\"tracked_worktree_clean\":True,\"committed_hashes\":expected,\"immutable_reports_sha256\":reports,\"ignored_ruff_cache_preserved\":(root/\".ruff_cache\").is_dir(),\"main_checkout_head_read_only\":subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=\"/home/kali/OmnisAI\",text=True).strip(),\"show_stat\":git(\"show\",\"--stat\",\"--oneline\",\"HEAD\")},sort_keys=True))"
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "output": "{\"branch\": \"work/md-zdo0u8vi\", \"committed_hashes\": {\"api/tests/test_contract_method_pg.py\": \"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\", \"api/tests/test_model_test_prepare_source.py\": \"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}, \"head\": \"358df38a64c3cb53f5600f372b746ff6bd3adf67\", \"ignored_ruff_cache_preserved\": true, \"immutable_reports_sha256\": {\"author-primary-diagnostic.json\": \"de44153f023b780643eed3a7e1d0f58023c6db97afbbbef5ba0ca2f6ae9a690a\", \"review-primary-diagnostic-norm.json\": \"31cc19b606aa7e40ae8abfaae465c0e23da21a1eb66a95345c60cbb1b301b4be\", \"review-primary-diagnostic-safety.json\": \"b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019\"}, \"main_checkout_head_read_only\": \"3c5f5b43232209602cc0262b7f922a973e977f17\", \"parent\": \"16f47a2a193d4090d9220c4b7f87efb24e160137\", \"show_stat\": \"358df38 test(qa): bypass hostile traceback overrides in primary metadata\\n api/tests/test_contract_method_pg.py        |  2 +-\\n api/tests/test_model_test_prepare_source.py | 14 ++++++++++++--\\n 2 files changed, 13 insertions(+), 3 deletions(-)\", \"tracked_worktree_clean\": true}",
+    "exit_code": 0,
+    "error": null
+  },
+  "commit": {
+    "argv": [
+      "git",
+      "commit",
+      "-m",
+      "test(qa): bypass hostile traceback overrides in primary metadata",
+      "-m",
+      "Why: close reproduced SAFETY-PRIMARY-DIAGNOSTIC-F01 by reading the actual BaseException traceback descriptor from its class dictionary. Keep useful integer outer callsite metadata without invoking exception-controlled properties. Only the existing handler assignment and SOURCE regression change.",
+      "-m",
+      "Verification: isolated python -I -B SOURCE test_model_prepare_primary_error_before_real_finally RED 2 failed/10 passed (consumer_line was synthetic marker str); GREEN 12 passed. Final test_model_test_prepare_source.py: 46 passed, exit 0. Final Ruff check/format --no-cache and mypy --no-incremental --cache-dir=/dev/null on both files exit 0; git diff --cached --check exit 0. AST: entire owner module unchanged except descriptor assignment; try/finally/else and all other SOURCE tests unchanged. Exact argv/results retained in author-primary-diagnostic-f01.json under the delegated scratch root.",
+      "-m",
+      "Relevant failed attempt: direct BaseException.__traceback__.__get__ worked at runtime but mypy rejected its class-attribute typing (4 union-attr errors); class-dictionary descriptor lookup preserves identical runtime behavior without ignores or new dependencies.",
+      "-m",
+      "Limits: SOURCE/resource seams only, no PG/native/runtime launch or product acceptance; historical failure cause UNKNOWN and uncertainty retained. Focused complementary delta re-review remains with parent. Existing ignored cache retained. No main integration, product/API/grant/deadline changes, or push. Rollback: git revert this commit and rerun affected SOURCE/quality checks."
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "output": "[work/md-zdo0u8vi 358df38] test(qa): bypass hostile traceback overrides in primary metadata\n 2 files changed, 13 insertions(+), 3 deletions(-)",
+    "exit_code": 0,
+    "error": null
+  },
+  "review_needed": {
+    "status": "PENDING_PARENT_FOCUSED_COMPLEMENTARY_DELTA_REVIEW",
+    "snapshot": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+    "paths_sha256": {
+      "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+      "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+    },
+    "compare_against_both_original_reports": true,
+    "focus": "Close original F01 reproducer only; preserve normative ordering, original identity/context/bare raise/uncertainty and unchanged try/finally. Old approval does not automatically approve changed bytes.",
+    "parent_owns_integration_and_any_fresh_QA": true
+  },
+  "safety": {
+    "only_declared_own_worktree_committed": true,
+    "main_checkout_read_only_head": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "push": false,
+    "protected_HTML_and_ponytail_JSON_read_hashed_copied_modified": false,
+    "credentials_raw_PG_logs_boot_capabilities_read": false,
+    "existing_ignored_cache_preserved": true,
+    "new_tools_use_cache_suppression": true,
+    "private_TMPDIR_and_explicit_worktree_imports": true,
+    "only_synthetic_marker_in_RED_output": true
+  },
+  "NOT_RUN": [
+    "PG/native/installed consumer retry",
+    "Docker/OCI/build/provider/network/account/server/target effects",
+    "canonical make check/test",
+    "r1/P0/global/profile changes or push"
+  ],
+  "limits": [
+    "SOURCE executes actual extracted handler/full finally/checkpoint but resource seams are doubles; no product or OS-confinement PASS.",
+    "Storage/diagnostic failure remains best effort and cannot replace the primary; uncertainty stays conservative.",
+    "Historical runtime cause remains UNKNOWN; this fix closes only the safe metadata defect subject to focused independent re-review."
+  ],
+  "status_delta": {
+    "AICI": "F01 fix implemented/committed; SOURCE green; re-review pending",
+    "P4a_minim_model_prepare": "BLOCKED_QA",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED"
+  },
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "procedural_lesson_for_parent": "For safe exception metadata bypass subclass lookup via the actual BaseException descriptor; its class dictionary spelling avoids static typing the descriptor as an instance TracebackType. No skill file edited outside the two-file contract.",
+  "next": "Freeze these two hashes; parent focused delta re-review against both immutable reports before any separately authorized fresh diagnostic QA. No new harness, cycle or speculative runtime fix."
+}

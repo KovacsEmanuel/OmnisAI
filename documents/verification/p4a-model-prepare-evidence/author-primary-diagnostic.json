@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_DIAGNOSTIC_FIXED_REVIEW_PENDING_HISTORICAL_CAUSE_UNKNOWN",
+  "requirement_consumer_risk_decision": "Retain a safe primary failure in the existing model-test-prepare consumer before cleanup while --tb=no suppresses unsafe traceback data; SOURCE failure must preserve error identity/context and uncertainty. SOURCE PASS admits exact-snapshot review only, never product acceptance or an author native retry.",
+  "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+  "base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+  "head": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+  "paths_sha256": {
+    "api/tests/test_contract_method_pg.py": {
+      "base_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "current_sha256": "d8a9b0d37a667967800680b3f61f5073409f0ed5c71aa6049bce5fe88bd7883a",
+      "finally_AST_unchanged": true,
+      "try_body_AST_unchanged": true
+    },
+    "api/tests/test_model_test_prepare_source.py": {
+      "base_sha256": "dde71ef13d06d2448b8b10a205fa7a62033f2b19bf3bcb1b687b7e8133719346",
+      "current_sha256": "02496dff6456f1f0dc335c78015fa2cca2758b698e0b0a9f2e83a7b08fbb609b"
+    }
+  },
+  "changes": {
+    "api/tests/test_contract_method_pg.py": "Only existing outer handler: bind error, reuse launch_exception_chain and checkpoint under model_prepare; fixed public source plus first consumer traceback line; best-effort diagnostic cannot replace primary; original bare raise and uncertainty assignments retained.",
+    "api/tests/test_model_test_prepare_source.py": "One parametrized SOURCE regression (9 cases) compiles/executes actual existing handler and complete finally plus real checkpoint writer; resource seams substituted only. Checks opaque hostile str/repr, public context, cancellation, cleanup error and diagnostic error. Existing success/refusal observation controls retained unchanged.",
+    "new_runtime_helpers_classes_observers_owners": 0,
+    "finally_AST_unchanged": true,
+    "try_body_AST_unchanged": true,
+    "runtime_API_product_files_modified": [],
+    "primary_schema": {
+      "model_prepare_primary_error": {
+        "exceptions": "existing sanitizer: <=4 fixed public type/reason rows",
+        "source": "literal test_contract_method_pg.py",
+        "consumer_line": "first consumer traceback line integer, or null; caller location, NOT inner/Host root cause"
+      }
+    }
+  },
+  "root_cause_findings": {
+    "demonstrated_diagnostic_defect": "The outer BaseException handler set uncertainty and re-raised without checkpointing a primary error. With --tb=no the retained pytest summary has no first exception. Exact handler/finally SOURCE controls observed cleanup with no primary checkpoint before the fix (9 RED failures), and a sanitized persisted checkpoint before cleanup afterward.",
+    "historical_first_failure_primary_cause": "UNKNOWN",
+    "retained_original": {
+      "has_model_prepare_commit": false,
+      "has_primary_diagnostic": false,
+      "native_observation_bytes": 0,
+      "proof_sha256": "9f16394e32b2ac95280e11a7eafa069de75e3b5d6e7613a4f2c9daba5b06d53f",
+      "proof_status": "UNCERTAIN",
+      "provider_config": {
+        "contents_read": false,
+        "exists": true,
+        "mode": "0o644",
+        "uid": 1000
+      }
+    },
+    "flow_traced": [
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "lines": "8642-8882",
+        "fact": "start_host verifies stock process identity and installed bytes, connects, then preserves original boot/capability and closes idle IPC. model_prepare follows the non-startup path."
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "lines": "8102-8112,8940-8951,9218-9222",
+        "fact": "PreparationPrerequisite doubles document loading only; native preparation/domain preparation and one-task graph precede the model-prepare branch."
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "lines": "9695-9794",
+        "fact": "Same owner reconnects; Settings save/status polls within existing 3.2s bound, requires CONFIRMED/selection and MANAGEMENT, then real control preparation. Independent PG commit checkpoint is before original native exchange."
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "lines": "266-348,435-560",
+        "fact": "Host asynchronously starts Settings worker and management server, validates ready/health/configuration and fences authority. Listed worker exceptions normalize to INDETERMINATE; no primary reason is retained there. Read-only trace only, no product change."
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "lines": "693-750",
+        "fact": "Settings consumer validates command/result and operation correlation, closes IPC and re-raises failures."
+      }
+    ],
+    "bounded_conclusions": [
+      "Original proof SHA matches retained evidence, remains UNCERTAIN, has neither model_prepare_commit nor primary diagnostic; native observation is empty.",
+      "Provider config exists (UID1000, mode0644); contents not read. Existence does not prove CONFIRMED Settings, operation identity, ordering or failure cause.",
+      "Original safe reports show Host startup/exit0 and qa-host READY, not authentic native preparation entry or Settings confirmation.",
+      "Observed frontier does not establish which pre-commit operation raised; the 3.2s wait, Settings normalization, process identity and preparation are not retrospectively assigned as the original cause."
+    ],
+    "rejected_actions": [
+      "No deadline/grant/cap increase",
+      "No product speculative fix",
+      "No fresh native/PG retry to recover cause",
+      "No original fixture/DB adoption or resource recreation"
+    ]
+  },
+  "historical_attempt_preserved": {
+    "evidence_prefix": "documents/verification/p4a-model-prepare-evidence/",
+    "safe_reports_read": [
+      "qa-native-first-fail.json",
+      "qa-native-first-proof.json",
+      "qa-native-first-result.json"
+    ],
+    "original_test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "command": [
+      "make",
+      "--no-print-directory",
+      "test-model-test-prepare-native-pg",
+      "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+    ],
+    "exit_code": 2,
+    "pytest_failed": 1,
+    "pytest_error": 1,
+    "pytest_elapsed_seconds": 19.67,
+    "family_drained": true,
+    "original_primary_proof_unchanged": true,
+    "product_uncertainty_preserved": true,
+    "cleanup_readback": "Reused parent original exact-CID404/project-empty/endpoints-PID-absent evidence; no fresh Docker/API query or cleanup by this author. PGDATA/images retained, not adopted."
+  },
+  "RED": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"source-red-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.environ[\"TMPDIR\"]=str(private)\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))'",
+    "exit_code": 1,
+    "result": "9 failed in 2.60s",
+    "failure": "All cases reached the existing complete finally but events were [cleanup], not [primary, cleanup]. No syntax/import/test-setup error.",
+    "record": "source-red.json"
+  },
+  "GREEN_focused": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"source-green-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.environ[\"TMPDIR\"]=str(private)\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))'",
+    "exit_code": 0,
+    "result": "9 passed in 2.15s",
+    "record": "source-green.json"
+  },
+  "final_affected_checks": {
+    "ruff-check": {
+      "command": "env TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/quality-ue4iqgov /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "output": "All checks passed!",
+      "record": "ruff-check-final2.json"
+    },
+    "ruff-format-check": {
+      "command": "env TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/quality-ue4iqgov /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --no-cache --config /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "output": "2 files already formatted",
+      "record": "ruff-format-check-final2.json"
+    },
+    "mypy": {
+      "command": "env TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/quality-ue4iqgov /home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/pyproject.toml --no-incremental --cache-dir=/dev/null /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "output": "Success: no issues found in 2 source files",
+      "record": "mypy-final2.json"
+    },
+    "source-regression": {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"source-regression-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.environ[\"TMPDIR\"]=str(private)\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")]))'",
+      "exit_code": 0,
+      "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/source-regression-nbjck3ww\n...........................................                              [100%]\n43 passed in 9.72s",
+      "record": "source-regression-final2.json"
+    }
+  },
+  "iterations_preserved": [
+    {
+      "record": "ruff-format-check-initial.json",
+      "exit_code": 1,
+      "issue": "Two local test formatting differences, fixed without runtime edit."
+    },
+    {
+      "record": "mypy-final.json",
+      "exit_code": 1,
+      "issue": "One redundant cast in new regression, removed; no ignore or gate downgrade."
+    },
+    {
+      "record": "source-regression-final.json",
+      "exit_code": 0,
+      "result": "43 passed in 9.82s before redundant-cast removal; final affected rerun after last edit is separately recorded."
+    }
+  ],
+  "issues": [
+    {
+      "status": "TOOLING_SCOPE_DEVIATION_RETAINED",
+      "fact": "Initial Ruff check/format commands omitted --no-cache; work/.ruff_cache observed and retained. No pre-command ignored-cache census exists, so exact preexisting/new cache attribution is NOT_PROVEN. Final Ruff uses --no-cache and mypy uses --no-incremental --cache-dir=/dev/null. No cache was removed to manufacture clean evidence.",
+      "path": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/.ruff_cache",
+      "record": "cache-scope-observation.json"
+    }
+  ],
+  "cycle_budget": {
+    "reader_calibration": 1,
+    "this_missing_primary_diagnostic": 2,
+    "third_harness_only_repair_without_product_progress": "NOT_AUTHORIZED"
+  },
+  "rawunsafe_omitted": true,
+  "secret_safety": [
+    "No historical raw gate logs, boot/capability receipts, credential .env/auth files or config contents read/dumped/regex-printed.",
+    "No raw exception message/repr, locals, native payload, DSN or arbitrary traceback path added to diagnostic.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json not read/hashed/copied/modified.",
+    "Only synthetic SOURCE pytest --tb=short output recorded; this is not deliberate --showlocals/--showargs certification."
+  ],
+  "actual_slice_effect": "Repairs observability for a subsequent separately authorized failure on the existing consumer. SOURCE proves primary identity/context and uncertainty preserved, including a caught cleanup error and diagnostic failure. No product acceptance criterion advanced and historical cause remains UNKNOWN.",
+  "NOT_RUN": [
+    "PG/native installed consumer retry",
+    "Docker/OCI/build/provider/model/account/target/server operations",
+    "Full canonical make check/test",
+    "P2-live",
+    "P3 or r1/P0/global/profile/push changes"
+  ],
+  "reviews_needed": [
+    {
+      "status": "PENDING_PARENT_CONTRACT",
+      "snapshot": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+      "scope": "Exactly the two paths/hashes above",
+      "focus": "Normative compliance: same owner, checkpoint before cleanup, original error/uncertainty/ordering and unchanged proof/verdict/finalizer/grants."
+    },
+    {
+      "status": "PENDING_PARENT_CONTRACT",
+      "snapshot": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+      "scope": "Exactly the two paths/hashes above",
+      "focus": "Security/correctness/simplicity: safe sanitizer and fixed caller-line metadata, hostile exceptions/cancellation, diagnostic/cleanup failure and no secret/raw-payload exposure."
+    }
+  ],
+  "fresh_owned_QA": "NOT_RUN_BY_AUTHOR; parent may contract only after complementary exact-snapshot review and prerequisite disposition. No retry authority inferred from SOURCE PASS.",
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "git_readback": {
+    "record": "git-readback.json",
+    "status": "Only work/md-zdo0u8vi branch; tracked worktree clean after commit. Ignored Ruff cache retained as noted. Main checkout not modified.",
+    "changed_paths": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ]
+  },
+  "limits": [
+    "SOURCE executes real affected except/finally/checkpoint code with substituted resource seams, not a full live installed consumer or OS confinement.",
+    "A saved line is the outer consumer callsite on the tested source hash, not arbitrary inner-stack or normalized Host failure detail.",
+    "Missing diagnostic persistence remains possible on storage/diagnostic failure; primary still propagates and uncertainty remains.",
+    "Parent owns integration, complementary reviews, actual fresh QA and any later product root-cause decision."
+  ],
+  "next": "Hand off exact committed candidate and two path hashes for the two focused reviews; keep P4a-minim/model-prepare BLOCKED_QA, P2-live NOT_RUN and phase2 NOT_CLOSED. No third harness-only repair without product progress."
+}

@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "review_role": "Focused independent safety re-review, read-only source; cycle 2",
+  "verdict": "APPROVED_SCOPED",
+  "scope": {
+    "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+    "head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+    "previous": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+    "original_base_and_unchanged_main": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "paths_sha256": {
+      "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+      "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+    },
+    "focus": "One trace assignment at api/tests/test_contract_method_pg.py:12210 and extension of existing SOURCE regression at api/tests/test_model_test_prepare_source.py:406-553. Reuse unaffected original safety review; no wider audit.",
+    "requirement_consumer_risk_decision": "Persist only genuine integer outer caller line or null through existing primary-error checkpoint; hostile exception metadata must not enter proof or replace primary/context/uncertainty. Passing closes only F01; product acceptance stays with parent."
+  },
+  "original_finding_disposition": {
+    "id": "SAFETY-PRIMARY-DIAGNOSTIC-F01",
+    "severity": "MEDIUM",
+    "original_verdict": "CHANGES_REQUESTED",
+    "disposition": "CLOSED_CURRENT_SCOPED",
+    "original_report": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json",
+    "original_report_sha256": "b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019",
+    "fix": "Read BaseException.__dict__[\"__traceback__\"].__get__(error,type(error)); exception subclass property is bypassed and built-in traceback supplies authentic integer tb_lineno.",
+    "proof": "Original actual-handler/full-finally/real-checkpoint reproducer replayed with safe post-repair expectations, ordinary known-positive plus original hostile override. Both persisted int line 3 and no marker. No old defect assertion was mistaken for an acceptance assertion.",
+    "RED_from_author_not_replayed": "2 failed / 10 passed before repair, synthetic string consumer_line; immutable author report retained.",
+    "independent_GREEN": "12 SOURCE cases passed in 2.95s, exit0, plus both direct original-reproducer controls exit0.",
+    "closure_limit": "Only demonstrated metadata/schema defect; not historical runtime root cause, real-secret exposure assessment, general exception-hardening or product PASS."
+  },
+  "findings": [],
+  "controls": [
+    {
+      "control": "known-positive",
+      "exit_code": 0,
+      "actual_handler_finally_and_checkpoint": true,
+      "base_exception_descriptor_returns_real_traceback": true,
+      "consumer_line": 3,
+      "context_identity_preserved": true,
+      "owned_artifact": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-safety-f01-traceback-si_qi645/method-history-proof.json",
+      "persisted_consumer_line_type": "int",
+      "primary_identity_preserved": true,
+      "synthetic_private_marker_persisted": false,
+      "uncertainty_preserved": true
+    },
+    {
+      "control": "hostile-override-original-reproducer",
+      "exit_code": 0,
+      "actual_handler_finally_and_checkpoint": true,
+      "base_exception_descriptor_returns_real_traceback": true,
+      "consumer_line": 3,
+      "context_identity_preserved": true,
+      "owned_artifact": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-safety-f01-traceback-f5s3paid/method-history-proof.json",
+      "persisted_consumer_line_type": "int",
+      "primary_identity_preserved": true,
+      "synthetic_private_marker_persisted": false,
+      "uncertainty_preserved": true
+    }
+  ],
+  "preserved_contracts": {
+    "primary_identity_context_cancellation": "Actual 12-case matrix retains original error/context including public-context and CancelledError; both direct controls also retain explicit preexisting context.",
+    "secondary_failures": "Existing cleanup/checkpoint-failure cases preserve primary and conservative uncertainty; no universal persistent-storage/finalizer guarantee.",
+    "order_and_uncertainty": "Checkpoint before cleanup; cleanup_failed and unsettled true, UNCERTAIN/NOT_SETTLED_DB_RETAINED; success observer not called.",
+    "projection": "Same exact exceptions/source/consumer_line field set; no raw message, repr, traceback path, locals or new fields; integer caller line matches independent AST await lineno and real traceback.",
+    "unchanged_code": "Whole owner module AST unchanged except one assignment: sanitizer, writer, bare raise, try/finally/else, cleanup, guards/grants/deadlines unchanged. Other SOURCE tests unchanged; changed assertions strengthened.",
+    "prior_review_reuse": "Unaffected original safety checks retained in their original scope; no automatic approval of unrelated or unreviewed requirements."
+  },
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic-f01.json",
+    "sha256": "6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e",
+    "not_independently_rerun": "Author full SOURCE 46 PASS and final Ruff/format/mypy exit0 retained; this reviewer reran only affected 12-case matrix and original reproducer controls."
+  },
+  "commands": [
+    {
+      "id": "focused-12-SOURCE",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"rereview-safety-f01-source-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.chmod(private,0o700)\nos.environ[\"TMPDIR\"]=str(private)\nos.environ[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"]=\"1\"\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nassert Path(omnis.__file__).resolve().is_relative_to(root)\nassert sys.dont_write_bytecode\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\"]))"
+      ],
+      "exit_code": 0,
+      "result": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-safety-f01-source-j8xtklk3\n............                                                             [100%]\n12 passed in 2.95s"
+    },
+    {
+      "id": "snapshot-and-one-assignment-AST",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,copy,hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nbase=\"16f47a2a193d4090d9220c4b7f87efb24e160137\"\nhead=\"358df38a64c3cb53f5600f372b746ff6bd3adf67\"\nexpected={\"api/tests/test_contract_method_pg.py\":\"a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031\",\"api/tests/test_model_test_prepare_source.py\":\"4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090\"}\ndef git(*args): return subprocess.check_output([\"git\",*args],cwd=root)\nassert git(\"rev-parse\",\"HEAD\").decode().strip()==head\nassert git(\"rev-parse\",\"HEAD^\").decode().strip()==base\nassert git(\"status\",\"--porcelain\")==b\"\"\nassert git(\"diff\",\"--name-only\",base+\"..\"+head).decode().splitlines()==list(expected)\nfor path,sha in expected.items():\n    assert hashlib.sha256((root/path).read_bytes()).hexdigest()==sha\n    assert hashlib.sha256(git(\"show\",head+\":\"+path)).hexdigest()==sha\nowner_path=next(iter(expected))\nold=ast.parse(git(\"show\",base+\":\"+owner_path)); new=ast.parse((root/owner_path).read_bytes())\nassignment=next(n for n in ast.walk(old) if isinstance(n,ast.Assign) and ast.unparse(n)==\"trace = error.__traceback__\")\nreplacements=[n for n in ast.walk(new) if isinstance(n,ast.Assign) and ast.unparse(n)==\"trace = BaseException.__dict__['__traceback__'].__get__(error, type(error))\"]\nassert len(replacements)==1\nassignment.value=copy.deepcopy(replacements[0].value)\nassert ast.dump(old)==ast.dump(new)\ntests_path=list(expected)[1]\nold_test=ast.parse(git(\"show\",base+\":\"+tests_path));new_test=ast.parse((root/tests_path).read_bytes())\nfor tree in (old_test,new_test):\n    tree.body=[n for n in tree.body if not(isinstance(n,ast.AsyncFunctionDef) and n.name==\"test_model_prepare_primary_error_before_real_finally\")]\nassert ast.dump(old_test)==ast.dump(new_test)\nreports={\"review-primary-diagnostic-safety.json\":\"b0a0f39efb0b7a67052cb9ec613cd7034184c28f1209fedffcd51743ba337019\",\"author-primary-diagnostic-f01.json\":\"6281af5e61393241b056121084b03b032eeeecf5f666f96b7b0777c092d9fc2e\"}\nfor path,sha in reports.items(): assert hashlib.sha256((root.parent/path).read_bytes()).hexdigest()==sha\nprint(json.dumps({\"head\":head,\"parent\":base,\"paths_sha256\":expected,\"only_owner_assignment_changed_AST\":True,\"all_other_SOURCE_tests_unchanged_AST\":True,\"old_handler_other_fields_and_entire_finally_unchanged\":True,\"reports_sha256\":reports,\"worktree_clean\":True},sort_keys=True))"
+      ],
+      "exit_code": 0,
+      "result": "Exact HEAD/two committed hashes; entire owner AST identical after replacing just trace assignment; all other SOURCE tests AST unchanged; immutable reports match; clean worktree."
+    },
+    {
+      "id": "original-reproducer-known-positive-and-hostile-after-repair",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import json,subprocess\nfrom pathlib import Path\nreport=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json\")\nold=next(c for c in json.loads(report.read_bytes())[\"commands\"] if c[\"id\"]==\"reproducer-corrected\")[\"argv\"]\nassert old[:4]==[\"/home/kali/OmnisAI/api/.venv/bin/python\",\"-I\",\"-B\",\"-c\"]\nassert len(old)==5\ncommon=old[4]\nchanges=[\n    ('prefix=\"review-safety-traceback-\"','prefix=\"rereview-safety-f01-traceback-\"'),\n    ('primary=HostileTraceback(\"opaque\")','primary=HostileTraceback(\"opaque\")\\ncontext=RuntimeError(\"opaque-context\")\\nprimary.__context__=context'),\n    ('assert observed is primary','assert observed is primary and primary.__context__ is context'),\n    ('assert diagnostic[\"consumer_line\"]==marker','assert set(diagnostic)=={\"exceptions\",\"source\",\"consumer_line\"}\\nassert diagnostic[\"source\"]==\"test_contract_method_pg.py\"\\nassert type(diagnostic[\"consumer_line\"]) is int\\nassert diagnostic[\"consumer_line\"]==statement.body[0].lineno'),\n    ('assert marker in canonical(persisted).decode()','assert marker not in canonical(persisted).decode()'),\n    ('assert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int','assert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int\\nassert actual_trace.tb_next is not None\\nassert diagnostic[\"consumer_line\"]==actual_trace.tb_next.tb_lineno'),\n    ('\"synthetic_private_marker_persisted\":True','\"synthetic_private_marker_persisted\":False,\"context_identity_preserved\":True,\"consumer_line\":diagnostic[\"consumer_line\"]'),\n]\nfor source,replacement in changes:\n    replacement=replacement.replace(\"\\n\",\"\n\")\n    assert common.count(source)==1\n    common=common.replace(source,replacement,1)\nfor name in (\"known-positive\",\"hostile-override-original-reproducer\"):\n    code=common\n    if name==\"known-positive\":\n        code=code.replace('primary=HostileTraceback(\"opaque\")','primary=ValueError(\"Runtime exchange unavailable\")',1)\n    argv=[*old[:4],code]\n    completed=subprocess.run(argv,cwd=\"/home/kali/OmnisAI\",capture_output=True,text=True,timeout=30,check=False)\n    print(json.dumps({\"control\":name,\"exit_code\":completed.returncode,\"stdout\":completed.stdout.strip(),\"stderr\":completed.stderr.strip()},sort_keys=True),flush=True)\n    if completed.returncode: raise SystemExit(completed.returncode)\n"
+      ],
+      "exit_code": 1,
+      "result": "Reviewer command quoting SyntaxError before any consumer import/probe launch; corrected command immediately below. Not a product failure or passing control."
+    },
+    {
+      "id": "original-reproducer-known-positive-and-hostile-after-repair-corrected",
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import json,subprocess\nfrom pathlib import Path\nreport=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json\")\nold=next(c for c in json.loads(report.read_bytes())[\"commands\"] if c[\"id\"]==\"reproducer-corrected\")[\"argv\"]\nassert old[:4]==[\"/home/kali/OmnisAI/api/.venv/bin/python\",\"-I\",\"-B\",\"-c\"]\nassert len(old)==5\ncommon=old[4]\nchanges=[\n    ('prefix=\"review-safety-traceback-\"','prefix=\"rereview-safety-f01-traceback-\"'),\n    ('primary=HostileTraceback(\"opaque\")','primary=HostileTraceback(\"opaque\")\\ncontext=RuntimeError(\"opaque-context\")\\nprimary.__context__=context'),\n    ('assert observed is primary','assert observed is primary and primary.__context__ is context'),\n    ('assert diagnostic[\"consumer_line\"]==marker','assert set(diagnostic)=={\"exceptions\",\"source\",\"consumer_line\"}\\nassert diagnostic[\"source\"]==\"test_contract_method_pg.py\"\\nassert type(diagnostic[\"consumer_line\"]) is int\\nassert diagnostic[\"consumer_line\"]==statement.body[0].lineno'),\n    ('assert marker in canonical(persisted).decode()','assert marker not in canonical(persisted).decode()'),\n    ('assert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int','assert isinstance(actual_trace,TracebackType) and type(actual_trace.tb_lineno) is int\\nassert actual_trace.tb_next is not None\\nassert diagnostic[\"consumer_line\"]==actual_trace.tb_next.tb_lineno'),\n    ('\"synthetic_private_marker_persisted\":True','\"synthetic_private_marker_persisted\":False,\"context_identity_preserved\":True,\"consumer_line\":diagnostic[\"consumer_line\"]'),\n]\nfor source,replacement in changes:\n    replacement=replacement.replace(chr(92)+\"n\",chr(10))\n    assert common.count(source)==1\n    common=common.replace(source,replacement,1)\nfor name in (\"known-positive\",\"hostile-override-original-reproducer\"):\n    code=common\n    if name==\"known-positive\":\n        code=code.replace('primary=HostileTraceback(\"opaque\")','primary=ValueError(\"Runtime exchange unavailable\")',1)\n    argv=[*old[:4],code]\n    completed=subprocess.run(argv,cwd=\"/home/kali/OmnisAI\",capture_output=True,text=True,timeout=30,check=False)\n    print(json.dumps({\"control\":name,\"exit_code\":completed.returncode,\"stdout\":completed.stdout.strip(),\"stderr\":completed.stderr.strip()},sort_keys=True),flush=True)\n    if completed.returncode: raise SystemExit(completed.returncode)\n"
+      ],
+      "exit_code": 0,
+      "result": "Both original-reproducer controls exit0: actual checkpoint readback has consumer_line=3/int, marker absent, same primary/context and UNCERTAIN."
+    },
+    {
+      "id": "final-readback",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work status --short --branch && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work rev-parse HEAD && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --check 16f47a2a193d4090d9220c4b7f87efb24e160137..358df38a64c3cb53f5600f372b746ff6bd3adf67 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && sha256sum /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic-f01.json /home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-safety.json && git status --short --branch && git rev-parse HEAD",
+      "exit_code": 0,
+      "result": "exit0; expected candidate HEAD and two hashes unchanged; diff --check clean; author/original safety report SHAs unchanged; active checkout remains 3c5f5b4 with preexisting protected HTML untracked and untouched."
+    }
+  ],
+  "issues_encountered": [
+    "One reviewer replay-command quoting SyntaxError before probe execution (exit1); corrected in-memory without source changes. Successful controls and exact failed command retained separately."
+  ],
+  "created_or_modified": {
+    "repository_files": [],
+    "commits": [],
+    "deliverable": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/rereview-primary-diagnostic-safety.json",
+    "other_writes": "Only owned private scratch pytest fixtures and two synthetic proof files. Python -I -B, explicit candidate import paths, disabled pytest autoload/cache, private TMPDIR/basetemp. No new verifier/helper file or third harness.",
+    "preserved": "Old reports immutable; preexisting ignored cache and protected HTML untouched; no .env/auth/private boot/capability/raw-log reads."
+  },
+  "limits": [
+    "SOURCE actual extracted handler/full finally/checkpoint with resource doubles; no native/PG/installed/product or OS-confinement PASS.",
+    "No build/OCI/Docker/server/network/model/account/target, r1/P0/global/profile changes, commit or push; canonical gates NOT_RUN.",
+    "Historical primary cause UNKNOWN and original UNCERTAIN proof unreconciled; no attribution or retrospective promotion.",
+    "No unrelated audit or recursive verifier. No universal safety claim for deliberate --showlocals/--showargs, arbitrary storage failure or unchanged finalizer branches.",
+    "Parent adjudicates both complementary delta reviews before separately authorized existing-consumer QA180; no such launch by reviewer."
+  ],
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "handoff_status": {
+    "AICI_F01": {
+      "implementation": "COMMITTED_CANDIDATE_358df38",
+      "proof": "12_SOURCE_AND_2_REPRODUCER_CONTROLS_PASS",
+      "review": "APPROVED_SCOPED"
+    },
+    "historical_failure": {
+      "primary_cause": "UNKNOWN",
+      "proof": "UNCERTAIN_UNRECONCILED"
+    },
+    "model_prepare_product": "BLOCKED_QA_PENDING_PARENT_ADJUDICATION_AND_REAL_CONSUMER",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Parent compare both exact-snapshot focused reports, adjudicate F01 and perform only admitted existing-runner QA; no wider helper cycle."
+  },
+  "ponytail_skipped": "Unchanged runtime audit, full SOURCE/quality replay, canonical suite and resource launches.",
+  "ponytail_risk": "This closes only F01 safe metadata; historical uncertainty and real-consumer product gate remain open."
+}

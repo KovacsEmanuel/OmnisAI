@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "review_kind": "FOCUSED_NORMATIVE_PRIMARY_DIAGNOSTIC",
+  "reviewer_role": "Independent read-only normative reviewer; parent adjudicates integration and further QA",
+  "worktree": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work",
+  "base": "3c5f5b43232209602cc0262b7f922a973e977f17",
+  "head": "16f47a2a193d4090d9220c4b7f87efb24e160137",
+  "main_checkout": {
+    "path": "/home/kali/OmnisAI",
+    "head_before_and_after": "3c5f5b43232209602cc0262b7f922a973e977f17",
+    "preexisting_untracked_path_preserved_without_read_hash_or_copy": "documents/Omnis_Notite_Originale.html",
+    "separate_main_ref_not_used": true
+  },
+  "paths_sha256": {
+    "api/tests/test_contract_method_pg.py": "d8a9b0d37a667967800680b3f61f5073409f0ed5c71aa6049bce5fe88bd7883a",
+    "api/tests/test_model_test_prepare_source.py": "02496dff6456f1f0dc335c78015fa2cca2758b698e0b0a9f2e83a7b08fbb609b"
+  },
+  "snapshot_checks": {
+    "status": "PASS",
+    "head_and_path_hashes_verified_before_and_after_source_execution": true,
+    "working_bytes_equal_head_blobs": true,
+    "full_base_to_head_changed_path_inventory_is_exactly_the_two_declared_paths": true,
+    "tracked_worktree_clean_before_and_after": true,
+    "diff_stat": "2 files changed, 153 insertions(+), 1 deletion(-)",
+    "owner_try_body_AST_unchanged": true,
+    "owner_finally_AST_unchanged": true,
+    "owner_else_AST_unchanged": true,
+    "entire_owner_module_AST_equal_after_replacing_only_changed_handler_with_base_handler": true,
+    "entire_source_test_module_AST_equal_after_removing_only_the_added_parameterized_test": true,
+    "AST_comparison_command_exit_code": 0,
+    "AST_comparison_result": "PASS_EXACT_SNAPSHOT_AST"
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Retain only a bounded safe primary-error checkpoint in the existing model-test-prepare consumer before cleanup, preserving primary propagation and conservative resource uncertainty.",
+    "consumer": "test_contract_method_real_native_pg_owner_receipts_check_inbox.run, existing outer except/finally and existing checkpoint writer",
+    "risk": "Cleanup or diagnostic errors could erase or replace the original failure, clear uncertainty, leak private exception data, or accidentally change a successful finalizer verdict.",
+    "decision": "Approve only this exact two-file diagnostic delta if ordering, original exception identity/context, uncertainty and unchanged success/negative finalizer controls hold; do not promote product/runtime acceptance."
+  },
+  "findings": [],
+  "changes_requested": [],
+  "acceptance_matrix": [
+    {
+      "requirement": "Existing uncertainty is established before diagnostic work",
+      "status": "PASS_SCOPED",
+      "evidence": "api/tests/test_contract_method_pg.py:12204-12208 retains the original installed_native assignments to h03_state.cleanup_failed and db_fence.unsettled before entering the diagnostic branch. model_prepare implies installed_native at :8202-8203. The nine SOURCE cases retain UNCERTAIN and NOT_SETTLED_DB_RETAINED after the actual finally.",
+      "limit": "The SOURCE fixture initializes db_fence.unsettled true; the ordering and unchanged producer assignments are independently established by source/AST comparison, not inferred solely from that injected state."
+    },
+    {
+      "requirement": "Primary checkpoint precedes cleanup on the existing owner",
+      "status": "PASS_SCOPED",
+      "evidence": "The new checkpoint is confined to the existing outer handler at :12208-12219, before the unchanged finally at :12221. The nine cases execute the actual handler, complete finally, and checkpoint writer with resource doubles; event order is primary then cleanup, with persisted primary-only snapshots visible at the first substituted close when the diagnostic writer succeeds."
+    },
+    {
+      "requirement": "Original primary identity/context and bare raise survive secondary failures",
+      "status": "PASS_SCOPED",
+      "evidence": "Bare raise remains at :12220. The inner BaseException catch encloses only diagnostic work and cannot replace the propagating primary. Nine cases cover opaque errors, allowlisted public context, and cancellation crossed with ordinary cleanup, a caught cleanup error, or diagnostic failure; they assert the same exception object and original context."
+    },
+    {
+      "requirement": "Only bounded public diagnostic fields; no raw traceback or private exception data",
+      "status": "PASS_SCOPED",
+      "evidence": "The delta reuses unchanged launch_exception_chain at :3080-3118, limited to four rows of fixed public type/reason values. New metadata consists only of literal source test_contract_method_pg.py and the first consumer traceback tb_lineno or null. Hostile str/repr and synthetic private markers are covered by the nine SOURCE cases.",
+      "limit": "consumer_line is the outer consumer callsite on these source bytes, not an inner/Host root cause. Diagnostic persistence remains best effort on storage or sanitizer failure."
+    },
+    {
+      "requirement": "No verdict, success path, finalizer, grant or deadline change",
+      "status": "PASS_SCOPED",
+      "evidence": "Entire owner module AST matches base after substituting only the changed handler; all existing SOURCE tests likewise match after removing the single added test. Thus the original try/finally, verdicts, owner/resource handling and grants remain unchanged. The timeout180 runner/config paths are outside the exact two-file diff. Four unchanged early-return controls additionally pass: ordinary valid observation is accepted, while caught-forbidden, unknown-row and unjoined-close are denied."
+    },
+    {
+      "requirement": "Minimal scope; no new owner, observer, retry or product fix",
+      "status": "PASS_SCOPED",
+      "evidence": "The complete base-to-head path inventory is exactly the two declared test files. Implementation is one existing-handler checkpoint using the existing sanitizer/writer; the only additional SOURCE test is one nine-case parameterized regression. No product file, dependency, config, grant, timeout, historical proof or runtime owner is changed."
+    },
+    {
+      "requirement": "Preserve the historical failure and UNKNOWN cause",
+      "status": "PASS_SCOPED",
+      "evidence": "documents/verification/p4a-minim.md:43-51 and the bounded author report retain the original aa0158e attempt as 1 FAIL + 1 ERROR in 19.67s, exit2/family_drained=true, proof UNCERTAIN with empty native observation and no model_prepare_commit. Neither history nor the proof is changed by this snapshot.",
+      "limit": "Historical artifacts and raw PG logs were not re-executed or dumped. This review neither recovers the missing original exception nor attributes it to Settings, timing, preparation or another speculative cause."
+    }
+  ],
+  "commands": [
+    {
+      "purpose": "Initial repository and frozen snapshot identity",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git show --stat --oneline HEAD && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work status --short --branch && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work rev-parse HEAD && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --stat 3c5f5b43232209602cc0262b7f922a973e977f17 16f47a2a193d4090d9220c4b7f87efb24e160137 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && sha256sum /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0
+    },
+    {
+      "purpose": "Limited diff, complete changed-path inventory, whitespace check",
+      "command": "git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --no-ext-diff --unified=10 3c5f5b43232209602cc0262b7f922a973e977f17 16f47a2a193d4090d9220c4b7f87efb24e160137 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --name-only 3c5f5b43232209602cc0262b7f922a973e977f17 16f47a2a193d4090d9220c4b7f87efb24e160137 && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --check 3c5f5b43232209602cc0262b7f922a973e977f17 16f47a2a193d4090d9220c4b7f87efb24e160137 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0
+    },
+    {
+      "purpose": "Nine affected SOURCE regressions plus four unchanged success/refusal finalizer controls",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import os,sys,tempfile\nfrom pathlib import Path\nroot=Path(\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi/work\")\nprivate=Path(tempfile.mkdtemp(prefix=\"norm-source-\",dir=\"/home/kali/.hermes/cache/scratch/md-zdo0u8vi\"))\nos.environ[\"TMPDIR\"]=str(private)\nsys.path[:0]=[str(root/leaf) for leaf in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]\nimport omnis,pytest\nimport test_contract_method_pg as owner\nassert sys.dont_write_bytecode\nassert Path(omnis.__file__).resolve().is_relative_to(root/\"api/src\")\nassert Path(owner.__file__).resolve()==root/\"api/tests/test_contract_method_pg.py\"\nprint(\"OWNED_TMPDIR=\"+str(private),flush=True)\nraise SystemExit(pytest.main([\"-c\",str(root/\"api/pyproject.toml\"),\"-p\",\"no:cacheprovider\",\"--basetemp\",str(private/\"pytest\"),\"--tb=short\",\"-q\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_primary_error_before_real_finally\",str(root/\"api/tests/test_model_test_prepare_source.py\")+\"::test_model_prepare_real_early_return_finally\"]))'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "output": "OWNED_TMPDIR=/home/kali/.hermes/cache/scratch/md-zdo0u8vi/norm-source-l0fhz6vr\n.............                                                            [100%]\n13 passed in 1.80s",
+      "private_basetemp": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/norm-source-l0fhz6vr/pytest",
+      "cache_controls": "Explicit -I -B, pytest cacheprovider disabled; no new verifier file",
+      "limit": "SOURCE actual handler/finally/checkpoint with substituted resources, not PG/native integration or OS confinement"
+    },
+    {
+      "purpose": "Final snapshot and main-checkout readback",
+      "command": "git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work status --short --branch && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work rev-parse HEAD && git -C /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work diff --exit-code HEAD -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && sha256sum /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/md-zdo0u8vi/work/api/tests/test_model_test_prepare_source.py && git status --short --branch && git rev-parse HEAD",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "Frozen HEAD and both path hashes unchanged; tracked worktree clean; main checkout unchanged at base with the same protected untracked HTML path"
+    }
+  ],
+  "author_evidence_consulted_not_reexecuted": {
+    "path": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/author-primary-diagnostic.json",
+    "bounded_reads": "lines 1-160 and 153-232",
+    "reported_RED": "9 failed; primary checkpoint absent before cleanup",
+    "reported_focused_GREEN": "9 passed",
+    "reported_final_affected_SOURCE": "43 passed in 9.72s, exit0",
+    "reported_affected_Ruff_and_mypy": "Ruff check/format and strict mypy exit0",
+    "independent_review_execution": "Only the scoped 13-case SOURCE invocation and exact-snapshot/static checks above; no claim that this reviewer reran the author's full 43-case suite or quality tools"
+  },
+  "scope_and_ownership": {
+    "repository_files_modified": [],
+    "commits_created": [],
+    "report_created": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/review-primary-diagnostic-norm.json",
+    "source_fixture_artifacts": "/home/kali/.hermes/cache/scratch/md-zdo0u8vi/norm-source-l0fhz6vr",
+    "private_source_fixture_artifacts_retained": true,
+    "preexisting_author_ruff_cache": "Already reported work/.ruff_cache retained without cleanup; attribution of its creation remains NOT_PROVEN and was not reopened",
+    "protected_paths_not_read_hashed_copied_or_modified": [
+      "documents/Omnis_Notite_Originale.html",
+      "tools/development/ponytail.json"
+    ],
+    "no_raw_PG_logs_boot_capability_env_auth_or_config_contents_read_or_dumped": true
+  },
+  "applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "limits": [
+    "Approval is bound only to the two declared path hashes at 16f47a2a193d4090d9220c4b7f87efb24e160137 and the normative checkpoint/error-preservation scope.",
+    "No PG/native, OCI/Docker, server, provider/model/account, target, installed runtime, r1/P0/global/profile, push or full canonical gate was run.",
+    "Historical primary cause remains UNKNOWN; retained original proof remains UNCERTAIN with no native observation. No runtime or successful model-preparation certification is granted.",
+    "Diagnostic persistence can fail; the new diagnostic catch deliberately preserves the original failure rather than claiming a saved diagnostic in that case.",
+    "No implementation, new test, new harness/verifier, speculative fix or third QA-only repair cycle was introduced."
+  ],
+  "handoff_status": {
+    "current_slice": "AICI: minimal primary diagnostic reviewed APPROVED_SCOPED; SOURCE 13 PASS; parent integration/adjudication pending",
+    "model_prepare_product_acceptance": "BLOCKED_QA; not promoted by this review",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Parent adjudicates this original report together with the complementary exact-snapshot review, then continues only the existing separately contracted QA path; this report does not itself authorize a retry."
+  }
+}

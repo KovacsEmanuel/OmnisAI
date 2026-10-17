@@ -1,0 +1,42 @@
+{
+  "status": "SOURCE_UDS_TRANSPORT_PASS_PRIMARY_NATIVE_CAUSE_UNKNOWN",
+  "runtime": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh", "verification": "Current Hermes ancestor argv", "python": "/home/kali/OmnisAI/api/.venv/bin/python3.13", "flags": ["-I", "-B"]},
+  "scope": "One bounded inline SOURCE probe; no repository edits, new owner/framework/observer, commit, delegation, native/PG/provider execution or limits increased.",
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "original_report": "send-diagnosis.json",
+    "original_report_sha256": "1291d27cb5d4d41eac7fff4b821ac0b5280903570b730e01c86a77270e47c422",
+    "all_original_report_input_hashes": "UNCHANGED_VERIFIED",
+    "local_control_sha256": "caa3d78b1f8aa6b38a144ce0e9e669b98306cba54d20739714da18101b50b80b",
+    "repository_files_changed_in_this_step": [],
+    "git_diff_check_exit": 0
+  },
+  "probe": {
+    "invocation": "Inline python3.13 -I -B -c from the declared worktree; explicit imports api/src, integrations/hermes/src, api/tests, cli/src. TMPDIR and TemporaryDirectory solely inside /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF; umask 077.",
+    "producer": "Reused the existing execution-owner SOURCE test AST and prepared_source/SourceOwner setup. Captured its original SEND after actual NativeTaskOwner/ModelTest/budgets reserve/SENT commit and before the existing compiler/HTTP double. No second SENT generated.",
+    "positive_path": "Actual RuntimeClient.managed -> _exchange/_exchange_locked over real UDS -> RuntimeHost._handle/_validate/_managed/validate_initialization -> explicit SOURCE peer.call -> actual validate_initialization_result/validate_execution_result -> Client reply. Actual ModelTest.execution_receipt readback retained SENT/UNKNOWN.",
+    "pending_response": {"protocol": "omnis-managed-admission-v6", "context_ref": "exact incoming packet context_ref", "dispatch_ref": "reference of incoming packet dispatch", "status": "PENDING", "receipt": null},
+    "reader": "Actual LocalControl socket and control_task reader invoked the original send command as replay. NativeTaskOwner replay sent RECEIVE through the same RuntimeClient/Host UDS and returned the exact SENT/UNKNOWN readback plus correlation_id. Graph unchanged; no second SEND or accounting transition.",
+    "negative": "On that same connected RuntimeClient/Host channel, changed only the outer Client epoch from 1 to 2, with matching SOURCE authority for epoch 2. The retained Host epoch remained 1. RECEIVE was refused before peer.call; RuntimeUnavailable args were exactly [Runtime exchange unavailable]. Host stale-fence validation is the deterministic identity predicate exercised; no claim to recovered native refusal details.",
+    "native_peer_modes": ["SEND", "RECEIVE"],
+    "negative_peer_count_and_ledger": "UNCHANGED_VERIFIED",
+    "result_fields": {"state": "SENT", "usage_state": "UNKNOWN", "inference_status": "UNKNOWN", "provider_receipt_ref": null},
+    "exit_code": 0,
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/send-transport-control.private.log",
+    "log_mode_verified": "0600",
+    "cleanup": "Runtime/LocalControl sockets, boot/cap files absent; Host clients empty and watchdog joined. TemporaryDirectory removed. This is own SOURCE IPC cleanup, not native drain certification."
+  },
+  "source_seams": [
+    "Existing SourceOwner storage, transactions, instance/readiness and CREATE reply doubles.",
+    "Synthetic READY Host/process, finite existing bootstrap inventory and 4-second authority grants; original grant/deadline checks unchanged.",
+    "NativePeer.call explicit SOURCE PENDING reply; native process/registry/compiler/constructor are not invoked.",
+    "Host Stop is a SOURCE lifecycle double; real Host and LocalControl server/client cleanup still executed."
+  ],
+  "finding": "No concrete packet/transport/reader mismatch reproduced at this boundary. PENDING remained SENT/UNKNOWN, without fabricated model success. This excludes the tested deterministic mismatch, not every timing/state failure of the historical run.",
+  "remaining_boundary": "Real NativePeer RPC transport/response, retained native service/registry lineage and carrier state, release/lifeline and subsequent real compiler/constructor execution remain unexercised. The original primary exception class/finite reason is still absent. ZERO HEADERS does not attribute its cause.",
+  "proposed_fix": null,
+  "next_decision": "UNKNOWN; no retry or implementation in this step. Parent adjudicates the remaining native boundary using the original primary error evidence.",
+  "not_run": ["PG", "Docker", "native process/registry/constructor/compiler", "provider/product model/target calls", "historical fixture reuse", "full suites/canonical", "independent QA or integration"],
+  "preservation": "Original send-diagnosis.json and historical FAIL/UNKNOWN retained. Forbidden original HTML, tools/development/ponytail.json, credentials and .env not read/copied/hashed/modified. Only own synthetic IPC boot/cap files were consumed by the existing clients; no original fixture boot/capability accessed."
+}

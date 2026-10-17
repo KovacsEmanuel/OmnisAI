@@ -1,0 +1,71 @@
+{
+  "status": "UNKNOWN_PRIMARY_REFUSAL_SOURCE_DATA_CONTROLS_PASS",
+  "scope": "Read-only diagnosis of the existing model-test SEND producer/transport/native-registry contract. No repository edits, commits, delegation, new owner/observer/runner, fixture reuse or effectful QA.",
+  "runtime": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh", "verified": "Current Hermes ancestor argv --provider/--model/--reasoning", "python": "/home/kali/OmnisAI/api/.venv/bin/python3.13", "version": "3.13.15", "flags": ["-I", "-B"]},
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "initial_and_final_changed_paths": ["api/tests/test_contract_method_pg.py", "api/tests/test_model_test_prepare_source.py"],
+    "changed_by_this_diagnosis": [],
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+      "api/tests/test_model_test_prepare_source.py": "d37f7e43f5f3d5b0fe4d4f6cd8efd0096ea56591d0c483489fcd71814c5aa48b",
+      "api/src/omnis/modules/runs/model_test.py": "bd8133048310c8bc85169de1ffe45f565b88f0c9b76e3343956f550730c8ebf6",
+      "api/src/omnis/policy/budgets.py": "467963d569eae665d047a1aef4f8f3a4b843c817310f5697abf4acf5a13372ec",
+      "api/src/omnis/supervisor/native_tasks.py": "56320e482edd565ccc54221b2e8e778d384d70c16b3f41222d491c6de97f4d95",
+      "api/src/omnis/supervisor/runtime_client.py": "660677d6ab2f071e68ed013dc1d2c40ebdfde07f8940c7535b7a6497e5b5ebf5",
+      "api/src/omnis/modules/tasks/managed_store.py": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py": "9844ca3867c90a64f6df4eb6473dd26285057d2c19b7fa5854c3ed16e97b3ff8",
+      "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py": "446316c1c5c47fe28e311d00658519d9d7628797950b04c0bcbcd7bfea70c5e4",
+      "integrations/hermes/src/omnis_hermes/model_request.py": "f1053c68a12988d3f511c76f1a5734756a36acec489458badcf6b9b5562dffef",
+      "integrations/hermes/upstream/managed-source/tui_gateway/rpc_dispatch.py": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027",
+      "integrations/hermes/upstream/managed-source/agent/managed_admission_rpc.py": "d3403b00f6a0f0a7f070cfd130488df21c0cb8071b82907a78b6bef0107c9100",
+      "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "b5fff48093a1af71a91203bd28e44c9f2742141e508b3da2c5a64590d3155b29",
+      "integrations/hermes/upstream/managed-source/agent/agent_init.py": "16eaf2049c5db9af4a4c43e96343a5191fd80045ea27c072aa7391db55e5d930",
+      "integrations/hermes/upstream/managed-source/agent/turn_context.py": "043810cf95850ca53b9ff13750f5c9bdfea0b8dfa07546c2bbb420277bf4cc24",
+      "integrations/hermes/upstream/managed-source/agent/turn_api_request.py": "63179d20e47e8c3563d3fd5f2897fd769ff04e76bc56fe766aaf1d9e84bf3ffb"
+    }
+  },
+  "trace": [
+    "ModelTest.reserve_execution model_test.py:568-729 resolves the completed start, DATA decision, native turn and composition; produces binding/projection/budget/reservation/dispatch/attempt. ModelTest.execution_packet :731-782 calls budgets.mark_sent, assembles exact v6 SEND fields and persists model-test-send. Replay returns mode RECEIVE, not another SENT.",
+    "budgets.reserve budgets.py:275-345 stores allocation/dispatch with UNKNOWN usage; RESERVED is reconstructed state, not a preceding transition row. mark_sent :418-422 -> _transition :402-415 -> _event :383-399 returns a full model-dispatch-transition envelope. Payload is dispatch_ref, sequence=len(history)+1, state=SENT, created_at=UTC isoformat string. managed_store.put :16-48 persists the canonical envelope as JSONB; owned/get/graph reconstruct validated envelopes.",
+    "NativeTaskOwner._model_test_send native_tasks.py:309-363 commits reserve and the SEND packet before runtime.managed; then passes the actual result to execution_receipt. handle :113-115 maps RuntimeUnavailable to CatalogError TASK_INDETERMINATE.",
+    "RuntimeClient.managed runtime_client.py:640-675 serializes/validates an object, acquires inert_probe authority and calls _exchange. _exchange :377-443 enforces operation/payload/authority and serialization lock. _exchange_locked :445-617 enforces current grant, frame size, correlation, ok/state/inventory and managed reply; several failures are intentionally normalized to Runtime exchange unavailable.",
+    "RuntimeHost._validate runtime_host.py:1221-1270 validates the SEND frame and initialization DATA. _managed :600-745 checks live grant/READY, validate_initialization, execution boot/epoch/generation, invokes NativePeer.call, then validates the execution result. NativePeer.call runtime_protocol.py:387-430 validates before correlation/write; native RPC errors are raised from _read :332-337.",
+    "managed_admission_contract.validate_initialization :948-954 delegates v6 SEND/RECEIVE to model_request.execution_packet :281-424; validates every envelope, linkage, projection, dispatch and SENT sequence/state. CodexFinalRequest :427-479 additionally freezes canonical bytes and the finite expected request.",
+    "Native rpc_dispatch.py:23-31 routes the real private RPC and collapses exceptions to managed admission denied. managed_admission_rpc._initialize :26-51 validates before allocation and sends SEND/RECEIVE to the retained service. SubagentLifecycleService.execute_model_test :355-395 checks retained registry/lineage/carrier context, binding and DATA, then stores CodexFinalRequest and sets the existing release event; replay must match its frozen bytes.",
+    "ModelTestPreparation.payload/__post_init__ managed_admission_contract.py:307-320 validates canonical CREATE. configure_model_test agent_init.py:2331-2374 installs that carrier and execution events/state. conversation_loop.py:1643-1658 enters the source-bound builder; turn_context.py:996-1017 binds turn identity, signals ready and waits for release. run_model_test_request turn_api_request.py:188-299 checks constructor authority and the existing compiler transformations before the physical request. These real runtime states/effects were not exercised here."
+  ],
+  "reproducer_and_controls": {
+    "execution": "One inline /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c invocation, exit 0; existing worktree paths inserted explicitly. All imported producer/validator modules checked to resolve inside this worktree. No pytest suite or effectful integration target run.",
+    "reuse": "AST extraction of existing test_execution_owner_commits_reserve_and_sent_then_replays_without_send. Removed decorators; retained its setup/commands through result=owner.handler.handle(send). In its existing synthetic native callback, retained original CREATE, SEND validation and commit/SENT assertions, then stopped immediately before final=CodexFinalRequest(...) by raising an in-memory Captured BaseException carrying packet, CREATE and existing SourceOwner. Thus the existing actual owner/ModelTest/budgets produced the packet without executing compiler, constructor or HTTP.",
+    "positive": [
+      "Generated SEND sent.kind=model-dispatch-transition; payload keys exactly created_at, dispatch_ref, sequence, state; sequence=1 of exact type int; state=SENT.",
+      "validate_initialization(packet) == execution_packet(packet) == packet; CodexFinalRequest(canonical(packet)) and expected_body passed; actual RuntimeClient._object accepted its serialized representation.",
+      "Extracted the unchanged actual native execute_model_test If guard whose error is Execution binding changed. It accepted the produced packet against the actual ModelTestPreparation CREATE context and SOURCE identity carriers matching the preparation reply."
+    ],
+    "negative": [
+      "Resealed only sent.payload.sequence=2 using the existing envelope producer: validate_initialization refused with ManagedModelTerminal.",
+      "Changed only c.run_id in the registry guard input: actual guard raised ValueError with exact finite reason Execution binding changed."
+    ],
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/send-source-control.private.log",
+    "log_mode_verified": "0600",
+    "seams": "Existing prepared_source/SourceOwner synthetic storage, transaction/authority/readback and native CREATE reply. Existing test replaces runtime.managed. Native binding predicate used matching SOURCE parent/child identity carriers, not a live registry. No native modules/constructor/thread/RPC service or provider execution was started.",
+    "temporary_directory": "TemporaryDirectory under /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF, removed by its context manager; -I -B disabled ambient PYTHONPATH/bytecode use."
+  },
+  "findings": [
+    {"classification": "SOURCE_DATA_MISMATCH_NOT_REPRODUCED", "result": "No concrete producer/validator mismatch identified on the packet generated by actual ModelTest.execution_packet and budgets.mark_sent at the declared SOURCE seams. The SENT sequence/type/envelope hypothesis is not reproduced."},
+    {"classification": "EVIDENCE_BOUNDARY", "result": "The companion's runtime.managed replacement bypasses actual authority acquisition, _exchange/Host response handling and the retained native registry. Its compiler/constructor/HTTP doubles do not establish the real native execution path. The new inline controls add packet validation and the actual registry binding predicate only, not transport/native acceptance."},
+    {"classification": "PRIMARY_CAUSE_UNKNOWN", "result": "The original failing control_task(request_send) has OTHER_EXCEPTION/UNCLASSIFIED only. The checkpoint establishes reserve/SENT readback before actual_exchange, not the disposition of that exchange or execution registry. ZERO HEADERS does not identify a cause. No reason is attributed to the historical failure."}
+  ],
+  "historical_attempt": {
+    "source": "Parent-provided facts; original attempt/PG/native/credential files not opened or reused",
+    "reference": "/home/kali/.hermes/cache/scratch/cxs-o6mJPFIE/attempt.json",
+    "preserved": "1FAIL+1ERROR, 27.84s, gate2, drained=true, 465 inputs unchanged; primary reason UNKNOWN. Overall proof remains UNCERTAIN/NOT_SETTLED_DB_RETAINED; parent separately confirmed physical cleanup/data preservation."
+  },
+  "proposed_fix": null,
+  "genuine_blocker": "Attribution needs the original primary exception class and finite reason bound to request_send at consumer line 9944; if wrapped, the corresponding underlying RuntimeUnavailable/RPC refusal reason/code and whether SEND reached the retained native execution owner. Those facts are not supplied by the current allowlisted proof or recreated by SOURCE identity doubles. No speculative product change or blind rerun is justified.",
+  "not_run": ["PostgreSQL", "Docker", "native process/constructor/registry service", "real RuntimeClient/Host exchange", "provider/product model/target calls", "credential or boot-capability access", "original fixture reuse", "full SOURCE suites", "full canonical", "implementation", "commit", "delegation", "integration or phase closure"],
+  "protected_inputs": "Forbidden original HTML, tools/development/ponytail.json, credentials and .env were not read/copied/hashed/modified. Earlier reports and FAIL/UNKNOWN evidence preserved."
+}

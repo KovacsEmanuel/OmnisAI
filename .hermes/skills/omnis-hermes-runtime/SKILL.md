@@ -31,6 +31,8 @@ Load the `hermes-agent` skill and relevant official documentation; read architec
 ## Pitfalls
 Profiles are not OS sandboxes. Hooks/tool descriptions are not an egress boundary. A simulated RPC peer is not the real runtime; an installed skill is not a validated investigator. Keep the development MCP tools out of the assessment runtime.
 
+- Keep Settings save and local authentication as separate observations: save returns NOT_VERIFIED, while auth_read produces the local grant state and still does not establish inference readiness. When the Host retains only the latest Settings operation, pass that operation_id through model_test_start/context/replay; a stale save ID cannot identify the later authentication read. Exercise the real consumer sequence with absent-grant and stale-ID controls rather than changing the producer to claim authentication.
+
 - Trace an existing operation through every transport validator registry, not only its advertised RPC and final handler. Use the actual owner-produced payload and a positive through both gates: a missing registry entry can reject legitimate initialization while mocked owner tests pass. Preserve pre-client DATA/HOLD and require the real PG/native consumer before crediting constructor or persistence behavior.
 
 - Prove cross-process authority revocation before the first cancellation/transport-finalizer await. A genuine HTTPcore trace veto can still read a stale native lease after the Host enters STOPPING; queuing SIGTERM does not prove its handler already ran. Exercise an otherwise-valid native send at that cleanup cut and preserve the admitted control, rather than obtaining denial from a missing new bootstrap prerequisite.

@@ -565,6 +565,16 @@ class RuntimeHost:
         if deadline > time.monotonic_ns() + 4_500_000_000:
             raise ValueError("Invalid managed grant")
         payload = cast(dict[str, object], body["payload"])
+        original = (self.boot, self.generation, self.epoch)
+
+        def request_live(state: str) -> None:
+            if (
+                time.monotonic_ns() >= deadline
+                or (self.boot, self.generation, self.epoch) != original
+                or self.state != state
+            ):
+                raise ValueError("Expired preparation request")
+
         if payload.get("protocol") == managed.PROTOCOL_V5:
             managed.validate_model_prepare(payload)
             context = cast(
@@ -600,14 +610,17 @@ class RuntimeHost:
                     or await self._settings_native("read", None) != settings.SELECTION
                 ):
                     raise ValueError("Saved native Settings required")
+                request_live("MANAGEMENT")
                 # Revoke and certify the original management family before preparation.
                 await self.stop()
                 if self.state != "STOPPED":
                     raise ValueError("Management drain uncertain")
+                request_live("STOPPED")
                 self.process, self.peer = None, None
                 self.settings_command = None
                 self.state = "IDLE"
                 await self._launch(body)
+            request_live("READY")
         self._preparation_ready()
         operation = body["op"]
         assert isinstance(operation, str)

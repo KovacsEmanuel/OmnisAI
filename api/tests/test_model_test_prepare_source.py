@@ -736,7 +736,10 @@ async def test_compact_reply_finite_largest_layout_and_strict_reader(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("grant", ["good", "bool", "expired", "over-managed"])
+@pytest.mark.parametrize(
+    "grant",
+    ["good", "bool", "expired", "over-managed", "read-expired", "read-stopped", "read-fenced"],
+)
 async def test_model_prepare_host_checks_grant_before_handoff(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grant: str
 ) -> None:
@@ -746,6 +749,8 @@ async def test_model_prepare_host_checks_grant_before_handoff(
     from omnis_hermes.managed_admission_contract import preparation_result
     from omnis_hermes.runtime_host import RuntimeHost
 
+    clock = [10_000_000_000]
+    monkeypatch.setattr(time, "monotonic_ns", lambda: clock[0])
     owner, consumer, conn, manifest, authority = await prepared_source(tmp_path, monkeypatch)
     payload = await produce(owner, consumer, conn, manifest, authority)
     host = RuntimeHost(tmp_path)
@@ -780,6 +785,17 @@ async def test_model_prepare_host_checks_grant_before_handoff(
             native_turn={"task_id": str(context["task_id"]), "turn_id": "SOURCE-turn"},
         )
     )
+
+    async def saved_read(action: str, selected: object) -> dict[str, object]:
+        if grant == "read-expired":
+            clock[0] += 200_000_000
+        elif grant == "read-stopped":
+            host.state = "STOPPED"
+        elif grant == "read-fenced":
+            host.generation += 1
+        return dict(REQUESTED)
+
+    read.side_effect = saved_read
     stop.side_effect, launch.side_effect = stopped, launched
     monkeypatch.setattr(host, "_settings_native", read)
     monkeypatch.setattr(host, "stop", stop)
@@ -789,6 +805,9 @@ async def test_model_prepare_host_checks_grant_before_handoff(
         "bool": True,
         "expired": time.monotonic_ns() - 1,
         "over-managed": time.monotonic_ns() + 4_800_000_000,
+        "read-expired": time.monotonic_ns() + 100_000_000,
+        "read-stopped": time.monotonic_ns() + 3_000_000_000,
+        "read-fenced": time.monotonic_ns() + 3_000_000_000,
     }[grant]
     body = {
         "payload": payload,
@@ -804,6 +823,14 @@ async def test_model_prepare_host_checks_grant_before_handoff(
         stop.assert_awaited_once()
         launch.assert_awaited_once_with(body)
         call.assert_awaited_once()
+    elif grant.startswith("read-"):
+        with pytest.raises(ValueError, match="Expired preparation request"):
+            await host._managed(body)
+        read.assert_awaited_once()
+        for effect in (stop, launch, call):
+            effect.assert_not_awaited()
+        assert host.deadline_ns == 14_000_000_000
+        assert host.state == ("STOPPED" if grant == "read-stopped" else "MANAGEMENT")
     else:
         with pytest.raises(ValueError, match="Invalid (authority deadline|managed grant)"):
             await host._managed(body)

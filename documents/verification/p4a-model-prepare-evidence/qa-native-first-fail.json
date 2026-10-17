@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_REAL_MODEL_TEST_PREPARE_QA_DISTRIBUTION_PASS",
+  "root": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi",
+  "outcome": "OCI43 and real UID1000 static distribution PASS; unchanged installed API95 reader accepted. One original PG/native case failed (1FAIL/1ERROR, exit2), original family drained. Actual native preparation/Settings confirmation/close+Future/CLOSED_JOINED not proven. Exact owned resources are absent after original cleanup; original product UNCERTAIN remains. No retry or product repair.",
+  "requirement_consumer_risk_decision": "Saved Settings and immutable model-test context through same managed owner to real installed native HOLD, with context-bound close and held Future join; deny acceptance on absent product proof even with exit0 or family drain.",
+  "head": "aa0158e7720c2d327dcd664277c5c6d32ed69723",
+  "source_product_commit": "5e0a2df9bb88eb765797dbf83880cfd50f6993a8",
+  "reviewed_snapshot": "864224fecf1c585291c78fcc6ad128a19dce8c05",
+  "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+  "review_scope": {
+    "original_product_files": 27,
+    "unchanged_at_reviewed_source": 26,
+    "test_only_authorized_changed_paths": [
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "reader_repair_commit": "5a37281",
+    "two_reader_reviews": {
+      "review-reader-limits-norm.json": {
+        "sha256": "ba2dd053791c2b2d109d41987b92b006f52a32ef4d438244b19005fc01fd18b6",
+        "adjudicated": "APPROVED_SCOPED",
+        "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138"
+      },
+      "review-reader-limits-safety.json": {
+        "sha256": "319b929bd26c5d58acf12995a9fb00b9c5935c070d608a02503341ac6a7334e0",
+        "adjudicated": "APPROVED_SCOPED",
+        "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138"
+      }
+    }
+  },
+  "integrity": {
+    "source_input_snapshot_count": 63,
+    "before": {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/before.json",
+      "sha256": "4edcbe4e46783b8765f4e9f8e279a1d1925ec74e0daf41a3616901f4266d8ea7"
+    },
+    "after": {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/after.json",
+      "sha256": "4edcbe4e46783b8765f4e9f8e279a1d1925ec74e0daf41a3616901f4266d8ea7"
+    },
+    "all_equal": true,
+    "prepared_closure_count": 3260,
+    "prepared_closure_unchanged": true,
+    "original_immutable_reports": {
+      "report.json": {
+        "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/report.json",
+        "sha256": "95c26045099974b787ae65f83bd7cdfbc28eac4b8ea3544167989badba25c175"
+      },
+      "native-inputs.json": {
+        "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/native-inputs.json",
+        "sha256": "4aded4dd87df66a8c7814c27ae1f80a5c2457bbc3be438c01af928356c9b4d3a"
+      },
+      "reader-report.json": {
+        "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-report.json",
+        "sha256": "9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9"
+      },
+      "build-report.json": {
+        "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/build-report.json",
+        "sha256": "9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d"
+      },
+      "reader-candidate-not-admitted.json": {
+        "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+        "sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+      }
+    },
+    "original_reports_all_unchanged": true,
+    "staged_input_closure_unchanged": true,
+    "API_reader_after_attempt": "PASS_CURRENT95_NO_PACKAGE_CACHE",
+    "product_diff_empty": true,
+    "repo_status_after": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html\n",
+    "protected_paths": "documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were not read/hashed/copied/modified"
+  },
+  "artifact": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "sha256": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5"
+  },
+  "reader": {
+    "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "reader_acceptance": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/reader-accepted.json",
+    "sha256": "e40f7479911537873e13c855bf9e01ff47cca1e7f1ceaebb0f0e22e77a9a7565"
+  },
+  "preflight": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/preflight.json",
+    "sha256": "14cfbef453e45475b4324613b6c11fc250f0cf7f39c0462e42e8f6bb2567f692"
+  },
+  "QA": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/qa-report.json",
+    "sha256": "8b4b29c48609196830d818c34636bcd8f406fbd1115f555743b142df295eca55"
+  },
+  "original_product_proof": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/method-history-proof.json",
+    "sha256": "9f16394e32b2ac95280e11a7eafa069de75e3b5d6e7613a4f2c9daba5b06d53f",
+    "status": "UNCERTAIN",
+    "keys": [
+      "first_final_after_stop",
+      "h03_cid",
+      "h03_cidfile",
+      "h03_daemon",
+      "h03_inverse",
+      "h03_last_docker",
+      "h03_name",
+      "h03_nonce",
+      "h03_resource_cleanup",
+      "h03_runtime",
+      "h03_scope",
+      "h03_state",
+      "native_entry",
+      "public_control_cleanup",
+      "qa_bootstrap_sha256",
+      "qa_host_argv",
+      "qa_mount_source",
+      "qa_mount_target",
+      "qa_native_argv",
+      "status"
+    ]
+  },
+  "original_family_receipt": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/gate.log.result.json",
+    "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+  },
+  "original_attempt": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/qa-attempt.json",
+    "sha256": "b52fbacb837c14800ef6ecccad927213104665fc51afd2e6c8ab6c65edc0c068"
+  },
+  "original_distribution_readback": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/distribution-readback.json",
+    "sha256": "b3c268f21962b1612f125085d12c305ceabbbb1af43ae784257e2ff51af1943b"
+  },
+  "original_build": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/oci-build.json",
+    "sha256": "3ef0f4ccee0bc76a2dba12a78924a71520e8e7cafec312e4d9a46f291d939ce1"
+  },
+  "build_owner": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/build-owner.json",
+    "sha256": "e16bcc8eb02011d027c9c9eac18d9c6aa9ff00e8f25a28f5810090a90b4eebd9"
+  },
+  "cleanup": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/cleanup-readback.json",
+    "sha256": "4efa81ec1d3feb58e2595dbb1b2c0bfa887ce4dcc5bcdc24acf29a3cd182ad90"
+  },
+  "execution": {
+    "command": [
+      "make",
+      "--no-print-directory",
+      "test-model-test-prepare-native-pg",
+      "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+    ],
+    "gate_target": "test-model-test-prepare-native-pg",
+    "gate_exit_code": 2,
+    "gate_timeout_seconds": 180,
+    "owner_elapsed_seconds": 24.611,
+    "pytest_failed": 1,
+    "pytest_error": 1,
+    "pytest_elapsed_seconds": 19.67,
+    "family_drained": true,
+    "gate_invocations": 1,
+    "PG_native_attempts": 1,
+    "historical_reader_preflight_blocked_attempts": "NOT_RUNTIME_FAILURES",
+    "selected_seam": "h03-process-fixed-pg-selection.py:253-265; same command/base copy plus six explicit pins/same log/same timeout",
+    "six_bindings": {
+      "OMNIS_BATCH2_NORMATIVE_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "OMNIS_BATCH2_INPUT_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+      "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+      "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+      "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+    },
+    "retry_fallback": false,
+    "new_owner": false
+  },
+  "distribution": {
+    "status": "PASS_STATIC_CURRENT_DISTRIBUTION",
+    "installed_public_inventory_count": 43,
+    "native_destinations": 23,
+    "adapter_destinations": 20,
+    "physical_input_paths": 41,
+    "installed_native_source_files": 3187,
+    "dependency_wheels": 67,
+    "UID": 1000,
+    "GID": 1000,
+    "effective_read_search": "ACTUAL_INSTALLED_STD_LIB_PROBE_PASS_INCLUDING_MOUNTED_QA_AND_MANIFEST",
+    "stock_cmd": [
+      "/opt/hermes/venv/bin/python",
+      "-I",
+      "-m",
+      "omnis_hermes.runtime_host"
+    ],
+    "image_id": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+    "image_tag": "omnis-model-prepare-lseqdyzi:qa",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "build_exit_code": 0,
+    "base_image_id": "sha256:915835de46a63f9598442159437904042f1c69a9b41c4965fba1db9ceab66578",
+    "prepared_inputs_rebuilt_or_redownloaded": false,
+    "scope": "Static distribution only; actual PG API owner remains current SOURCE with installed95 cold-reader; existing preparation prerequisite double is explicit"
+  },
+  "acceptance_rows": {
+    "OCI_current43_UID_distribution": "PASS",
+    "unchanged_current_installed_API_reader95": "PASS",
+    "no_effect_h03_current_only_model_prepare_preflight": "PASS",
+    "real_PG18_6_private_UDS_no_network_fixture": "PASS",
+    "stock_Host_started_then_exit0": "OBSERVED_ORIGINAL_DOCKER_METADATA_AND_QA_HOST_READY",
+    "saved_Settings_confirmation": "NOT_PROVEN",
+    "committed_new_model_prepare_context_before_original_exchange": "CHECKPOINT_NOT_REACHED",
+    "authentic_native_turn_HOLD_observation": "NOT_OBSERVED",
+    "context_bound_CLOSE_future_done_CLOSED_JOINED": "NOT_PROVEN",
+    "original_strict_native_observation_validator": {
+      "status": "REFUSED_ORIGINAL_EMPTY_OBSERVATION",
+      "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+    },
+    "exact_owned_resource_cleanup_readback": "PASS_RESOURCE_ONLY_ORIGINAL_DOMAIN_UNCERTAIN_PRESERVED"
+  },
+  "failure": {
+    "primary_cause": "UNKNOWN",
+    "frontier": "After real stock Host startup; before first model_prepare_commit checkpoint and before observed native entry",
+    "diagnostic_limit": "Original Make target uses --tb=no; retained pytest summary has no primary exception. No raw traceback/DSN exposed, no retry or diagnostic re-execution."
+  },
+  "failed_attempts": [
+    {
+      "attempt": 1,
+      "status": "FAIL_REAL_PG_NATIVE_ATTEMPT_PREPARATION_NOT_PROVEN",
+      "gate_exit_code": 2,
+      "product_proof_status": "UNCERTAIN",
+      "original_report": {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/qa-report.json",
+        "sha256": "8b4b29c48609196830d818c34636bcd8f406fbd1115f555743b142df295eca55"
+      }
+    }
+  ],
+  "resources": {
+    "exact_CIDs": {
+      "static_probe": {
+        "cid": "c7148af6be31e1b81a7311a319e1bcc6ff83a246021906e9df241dbe4806155b",
+        "absent": true,
+        "channel": "existing_StopEngine_GET_container_HTTP404"
+      },
+      "runtime_host": {
+        "cid": "3313f5e3102a314cb97bb1c10ccc874ddb1871a1b84be520c6f2f9111565fb1f",
+        "absent": true,
+        "channel": "existing_StopEngine_GET_container_HTTP404"
+      },
+      "postgres": {
+        "cid": "d86b494d3e300fffec8d8d9880bc23af7b62e34bce8a5c98e50084aac5ef346a",
+        "absent": true,
+        "channel": "existing_StopEngine_GET_container_HTTP404"
+      }
+    },
+    "PG_project": "omnis-p01-0a6024cce3bd4304a6c9bd3aa26b62a6",
+    "PG_system_identifier": "7697619142746824734",
+    "PGDATA_retained": {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/data",
+      "dev": 2049,
+      "ino": 8844957,
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o700",
+      "retained": true
+    },
+    "images_retained": {
+      "runtime": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+      "postgres": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+    },
+    "host_pid_readback": [
+      {
+        "pid": 1804504,
+        "proc_absent": true,
+        "starttime": "NOT_RECORDED_BY_FAILED_CASE"
+      }
+    ],
+    "native_identity": "NOT_OBSERVED",
+    "sockets_absent": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/runtime.sock",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/runtime.boot",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/control.sock",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/control.cap",
+        "absent": true
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/socket/.s.PGSQL.5432",
+        "absent": true
+      }
+    ],
+    "kernel_owned_UDS_count": 0,
+    "owned_logs_private_mode0600": 10,
+    "inverse": "Original test/runner finalizers already removed exact CIDs and endpoints; do not re-execute cleanup or delete retained data/images. Future artifact removal only with explicit exact identity/ownership decision."
+  },
+  "files_created": "Only this private QA root: finite producer invocations, intent/manifests/readback/sanitized reports, original private logs, and existing owner/test fixture outputs. No repository edits/commits/current MAP writes.",
+  "limits": [
+    "This is a failed first real preparation QA, not a runtime failure attributed to old BLOCKED preflights.",
+    "No primary exception is retained by the existing --tb=no channel; internal cause stays UNKNOWN.",
+    "Current absent CIDs/endpoints and family_drained do not prove the required native CLOSE/Future/CLOSED_JOINED state.",
+    "Retained failed-case proof is UNCERTAIN and immutable; do not label it PASS after resource readback.",
+    "No native inference/account/OAuth/provider/model/target/r1/P0/global/push; no product edits, cap/grant/deadline increases or special campaign-budget use.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Scratch evidence/data/images are retained locally, not a durable backup."
+  ],
+  "next_action": "Parent adjudicate the retained original failure on exact snapshot; narrow the missing primary-error boundary before any separately authorized fresh attempt. No product fix, larger limit, third harness or retry performed.",
+  "lesson_for_parent": "Existing --tb=no keeps failure safe but omits the primary exception in this attempt. Preserve this failure; any future diagnostic change must be a minimal approved existing observer seam, not another harness or replay of the same attempt."
+}

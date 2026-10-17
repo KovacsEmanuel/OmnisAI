@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_REAL_PG_NATIVE_ATTEMPT_PREPARATION_NOT_PROVEN",
+  "root": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi",
+  "attempts": 1,
+  "historical_blocked_preflights_are_runtime_failures": false,
+  "gate_exit_code": 2,
+  "gate_timeout_seconds": 180,
+  "owner_elapsed_seconds": 24.611,
+  "pytest_counts": {
+    "passed": [],
+    "failed": [
+      1
+    ],
+    "error": [
+      1
+    ],
+    "errors": [],
+    "skipped": []
+  },
+  "pytest_elapsed_seconds": [
+    19.67
+  ],
+  "family_drained": true,
+  "command": [
+    "make",
+    "--no-print-directory",
+    "test-model-test-prepare-native-pg",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "proof": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/method-history-proof.json",
+    "sha256": "9f16394e32b2ac95280e11a7eafa069de75e3b5d6e7613a4f2c9daba5b06d53f",
+    "status": "UNCERTAIN",
+    "keys": [
+      "first_final_after_stop",
+      "h03_cid",
+      "h03_cidfile",
+      "h03_daemon",
+      "h03_inverse",
+      "h03_last_docker",
+      "h03_name",
+      "h03_nonce",
+      "h03_resource_cleanup",
+      "h03_runtime",
+      "h03_scope",
+      "h03_state",
+      "native_entry",
+      "public_control_cleanup",
+      "qa_bootstrap_sha256",
+      "qa_host_argv",
+      "qa_mount_source",
+      "qa_mount_target",
+      "qa_native_argv",
+      "status"
+    ]
+  },
+  "original_container_states": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-491a4b2c34c743a6aa80767b0029f6b1.stdout",
+      "sha256": "2912f3527e2f81484332ca160e29e2b7135fa4c71febd504b1aa1635aa02ca7e",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-eb2a02422ecf48dcb82df690e8ae0809.stdout",
+      "sha256": "2912f3527e2f81484332ca160e29e2b7135fa4c71febd504b1aa1635aa02ca7e",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-3e93ee3823114078804610e6f2c75f2e.stdout",
+      "sha256": "2912f3527e2f81484332ca160e29e2b7135fa4c71febd504b1aa1635aa02ca7e",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-f634bbcb54d44eaf9326ab2ba80b8fdb.stdout",
+      "sha256": "244d7f564cfa715851f1ea1f7ba6f210f37a9d2b6c5bd588fdb1bbc41da7afe7",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1804504,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-736544c07016467a9099f85a6ec61ad9.stdout",
+      "sha256": "244d7f564cfa715851f1ea1f7ba6f210f37a9d2b6c5bd588fdb1bbc41da7afe7",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1804504,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-882a4e1b08b04ecb92fb724b5fa57baa.stdout",
+      "sha256": "244d7f564cfa715851f1ea1f7ba6f210f37a9d2b6c5bd588fdb1bbc41da7afe7",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1804504,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-7176496aebda42a2aeac7105fd6227e8.stdout",
+      "sha256": "8b268d973fe1c68283a8936d6c60f9092ee4002816fce65ce5b3ad3e8d56a3f1",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-docker-011de353dd614cd0bca750413561592f.stdout",
+      "sha256": "8b268d973fe1c68283a8936d6c60f9092ee4002816fce65ce5b3ad3e8d56a3f1",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    }
+  ],
+  "scope": {
+    "API_owner": "SOURCE_CURRENT_CHECKOUT",
+    "native_distribution": "INSTALLED_CURRENT_OCI43_STOCK_CMD",
+    "API_reader": "UNCHANGED_ACCEPTED_INSTALLED95",
+    "preparation_prerequisite": "EXISTING_SOURCE_DOUBLE",
+    "postgres": "REAL_PRIVATE_PG18_6_UDS_NO_NETWORK",
+    "Host": "REAL_STOCK_HOST_STARTED_THEN_EXIT0_NAMESPACE_RECEIPT_NOT_RETAINED",
+    "native_turn": "NOT_OBSERVED",
+    "settings_save_readback": "NOT_PROVEN_BY_RETAINED_PROOF",
+    "model_prepare_commit": "NOT_REACHED_OBSERVED_CHECKPOINT",
+    "CLOSE_Future_done_Host_context_bound_CLOSED_JOINED": "NOT_RUN_NOT_PROVEN"
+  },
+  "native_observation": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "original_validator": {
+      "status": "REFUSED_ORIGINAL_EMPTY_OBSERVATION",
+      "reason": "NATIVE_OBSERVATION_INCOMPLETE_OR_UNKNOWN"
+    },
+    "bootstrap_diagnostic": {
+      "status": "INCOMPLETE",
+      "pre_ready_complete": false,
+      "root_cause": "UNKNOWN",
+      "observer_ready": null,
+      "last_enter": null,
+      "completed": [],
+      "pending": [],
+      "elapsed_ms": null,
+      "audit_ms": null,
+      "audit_calls": null,
+      "phase_events": null,
+      "issues": [
+        "MISSING_PHASE_COMPLETION",
+        "NO_DATA",
+        "OBSERVER_UNCONFIRMED"
+      ]
+    }
+  },
+  "host_diagnostic": {
+    "status": "OBSERVED",
+    "root_cause": "UNKNOWN",
+    "events": []
+  },
+  "qa_host": {
+    "role": "host",
+    "sha256": "41352f1e786f10ee0275d5f1da839fd8869cde32b3415a0b82f48f200a59543e",
+    "status": "READY"
+  },
+  "qa_native_receipt_exists": false,
+  "failure": {
+    "primary_cause": "UNKNOWN",
+    "frontier": "After real stock Host startup; before first model_prepare_commit checkpoint and before observed native entry",
+    "diagnostic_limit": "Original Make target uses --tb=no; retained pytest summary has no primary exception. No raw traceback/DSN exposed, no retry or diagnostic re-execution."
+  },
+  "cleanup": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/cleanup-readback.json",
+    "sha256": "4efa81ec1d3feb58e2595dbb1b2c0bfa887ce4dcc5bcdc24acf29a3cd182ad90"
+  },
+  "provider_account_model_target": "NOT_RUN",
+  "next_action": "Parent adjudicate the retained original failure on exact snapshot; narrow the missing primary-error boundary before any separately authorized fresh attempt. No product fix, larger limit, third harness or retry performed."
+}

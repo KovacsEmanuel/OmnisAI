@@ -1,0 +1,8 @@
+{
+  "status": "PASS_CURRENT_INSTALLED_READER",
+  "descriptor": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+  "sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+  "modules": 95,
+  "provenance_commit": "6a6e416c93290d248c652d59baf9ec0d24b0dad7",
+  "unchanged_descriptor": true
+}

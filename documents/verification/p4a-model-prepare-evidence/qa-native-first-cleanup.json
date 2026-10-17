@@ -1,0 +1,90 @@
+{
+  "status": "PASS_EXACT_RESOURCE_READBACK_NOT_DOMAIN_SETTLEMENT",
+  "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "daemon_unchanged": true,
+  "exact_containers": {
+    "static_probe": {
+      "cid": "c7148af6be31e1b81a7311a319e1bcc6ff83a246021906e9df241dbe4806155b",
+      "absent": true,
+      "channel": "existing_StopEngine_GET_container_HTTP404"
+    },
+    "runtime_host": {
+      "cid": "3313f5e3102a314cb97bb1c10ccc874ddb1871a1b84be520c6f2f9111565fb1f",
+      "absent": true,
+      "channel": "existing_StopEngine_GET_container_HTTP404"
+    },
+    "postgres": {
+      "cid": "d86b494d3e300fffec8d8d9880bc23af7b62e34bce8a5c98e50084aac5ef346a",
+      "absent": true,
+      "channel": "existing_StopEngine_GET_container_HTTP404"
+    }
+  },
+  "PG_project": "omnis-p01-0a6024cce3bd4304a6c9bd3aa26b62a6",
+  "PG_project_containers": [],
+  "PG_project_networks_count": 0,
+  "endpoint_absence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/runtime.sock",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/runtime.boot",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/control.sock",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/cm-d9f09bfc99f846a285faaa0518b06ada/control.cap",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/socket/.s.PGSQL.5432",
+      "absent": true
+    }
+  ],
+  "owned_path_kernel_UDS_entries": 0,
+  "original_family": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "original_family_receipt": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/gate.log.result.json",
+    "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+  },
+  "original_DB_cleanup": {
+    "absent": true,
+    "networks_absent": true,
+    "socket_absent": true,
+    "uncertain": false
+  },
+  "original_product_cleanup": "NOT_SETTLED_DB_RETAINED",
+  "original_product_status": "UNCERTAIN",
+  "public_control_cleanup": "PASS",
+  "host_pid_readback": [
+    {
+      "pid": 1804504,
+      "proc_absent": true,
+      "starttime": "NOT_RECORDED_BY_FAILED_CASE"
+    }
+  ],
+  "native_PID_starttime": "NOT_OBSERVED",
+  "PGDATA": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/db-8dd834fbbf2946a8/data",
+    "dev": 2049,
+    "ino": 8844957,
+    "uid": 1000,
+    "gid": 1000,
+    "mode": "0o700",
+    "retained": true
+  },
+  "PG_system_identifier": "7697619142746824734",
+  "images_retained": {
+    "runtime": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+    "postgres": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+  },
+  "resource_cleanup_rerun": false,
+  "limits": "Current exact absence and original family drain do not manufacture model preparation CLOSE/Future/CLOSED_JOINED evidence; original UNCERTAIN remains immutable."
+}

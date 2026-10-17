@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "status": "PASS_STATIC_CURRENT_DISTRIBUTION",
+  "root": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi",
+  "effective_uid_access": true,
+  "runtime_started": false,
+  "startup_autoload": "NONE",
+  "image_id": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+  "stock_cmd": [
+    "/opt/hermes/venv/bin/python",
+    "-I",
+    "-m",
+    "omnis_hermes.runtime_host"
+  ],
+  "dependency_provenance_sha256": "c88ae5ac01d3052ca5dd43b096040aa9b6aa9a30b6ed993c017091d39a5a54e3",
+  "public_inventory": [
+    {
+      "path": "opt/hermes/source/agent/agent_init.py",
+      "sha256": "510612768e857688a884d5fe04ea5412e3802c5b1ea5120f9768607224b42181",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/agent_init.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/auxiliary_client.py",
+      "sha256": "f816f2444aa661f40e413db31ad95e3e058a3946fbe3a9e6d9805b7ae3380e4a",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/auxiliary_client.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/chat_completion_helpers.py",
+      "sha256": "74fb139daf50464c7f7b2446066f2842d1dfb83e57e6283d188b930b3bc034b2",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/chat_completion_helpers.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/chat_completion_nonstream.py",
+      "sha256": "3a96463c69dd71aed8ff79504bd859ccbfca4e2f51f5ce75e9b424eb04e5417f",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/chat_completion_nonstream.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/cold_admission.py",
+      "sha256": "aabad0925f19dce4f349351c7a390a1496ab6cedc28e345857d4c6dc2568f6f0",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/cold_admission.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/contract_execution.py",
+      "sha256": "1217b803935f21fb088b91f0fbb293288d9309955be399e77cc5a4cfea7917dc",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/contract_execution.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/conversation_loop.py",
+      "sha256": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/conversation_loop.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/managed_admission_rpc.py",
+      "sha256": "a6bc9920e8ed4449d6b7937cbb07b6a8cd19cb66689465f91c16a082750067c7",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/managed_admission_rpc.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/subagent_lifecycle.py",
+      "sha256": "1743884d52b5dcb4ddf4b1a31aafc60944784bd280f46e28e92ca2f2bb3bfc16",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/subagent_lifecycle.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/turn_api_call.py",
+      "sha256": "bdf23eabfdbefb27d26d59c3965c8dd6d6daab20b5194ab713bc70a2e7287f33",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/turn_api_call.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/turn_api_error.py",
+      "sha256": "2835f951205dcff0c71d687987cba4f569a9085f65fa6d207163059c0147c58d",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/turn_api_error.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/turn_api_request.py",
+      "sha256": "402bbae7a32568612eb3398d5968778c412c119713fafbf3a34c84363e9b402a",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/turn_api_request.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/agent/turn_context.py",
+      "sha256": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/agent/turn_context.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/hermes_cli/auth.py",
+      "sha256": "32e64e69bbde8bdc8005e9cd1faa7620d21390d8e25397ef2da1374f7c17bbc5",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/hermes_cli/auth.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/hermes_cli/env_loader.py",
+      "sha256": "2bb251025590b17ae13cc50dd8f6961ee5b20015791225355c0f2b0d3ce8da07",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/hermes_cli/env_loader.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/hermes_cli/main.py",
+      "sha256": "9af28bd6b3daffcc1df2ae6cf345f17372356b3146cd8cac4be964c91d18d77d",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/hermes_cli/main.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/hermes_cli/web_routers/oauth.py",
+      "sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/hermes_cli/web_routers/oauth.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/providers/__init__.py",
+      "sha256": "613fdad89491c3a755fd6670267fb7f12bc8ac0d8dfb46211cda0c2ac2539e7d",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/providers/__init__.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/run_agent.py",
+      "sha256": "1a110734986ec28f6477b08aa31d2c5a741d22e661507ff537d1c1626b6c34e0",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/run_agent.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/tools/lazy_deps.py",
+      "sha256": "45b0ec8f8fb6d5f5041e25a890637b25de3d8c5c37dc83304f8cca84baa535a1",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/tools/lazy_deps.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/tui_gateway/entry.py",
+      "sha256": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/tui_gateway/entry.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/tui_gateway/rpc_dispatch.py",
+      "sha256": "7c212d282ff1245b222661901a8726ad7074b30e8a17143e67f260b50a9cf027",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/tui_gateway/rpc_dispatch.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/source/tui_gateway/server.py",
+      "sha256": "b70cd19646cd8407bffd4ce25178ebaca122ccf7a4fce830bd833dbf8363e62e",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/source/tui_gateway/server.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/__init__.py",
+      "sha256": "f9ea33450d1b76e43e6d3c92b4328388e7b49e05141ec18b6541c5c2450d3e59",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/__init__.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/contract_method.py",
+      "sha256": "09a0669c8373c4423a57955a3364457841f8210d99e1a2e54608dc5d94bd5b19",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/contract_method.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/managed_admission_contract.py",
+      "sha256": "5b8172c983ff519c9f3227b0209cb1e68930c6f097e95c0d686a7d21342129db",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/managed_admission_contract.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_auth.py",
+      "sha256": "14510773ad948b96080bcf32456754b045c46e8d47a98df5e7e034338688f0d3",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_auth.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_contract.py",
+      "sha256": "c68d97a7b55968f7bdccb857308126017b2c094355e878bb4ea278672545beaa",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_contract.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_http.py",
+      "sha256": "5568a03c779c388a61653e5047ef0005203d478cfeef9f42c50a4d2e98b2270b",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_http.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_oauth.py",
+      "sha256": "a0052cbcf74ec042bf6d93d701e6b24b34e465ec88671b26aedb6f6a00218bea",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_oauth.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_server.py",
+      "sha256": "f60bf3147dcd02530600b19ba7556ec4bcf0fdedac190a1a6787ed81a1a86dd7",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/management_server.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_admission.py",
+      "sha256": "73a79b9df5cc61a552d4f39fd3ac0a71f8afd52da713d7b8c5bca3776ccf1dc9",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_admission.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_configuration.py",
+      "sha256": "dde8ad63db05c52a1085e441d625dd200726bb47e5bd9aa7feff469b056b3910",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_configuration.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_context.py",
+      "sha256": "a09bb22c4014e38be141d7f3ccf2840166d7695ca721be5e92eed5d18c211141",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_context.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_projection.py",
+      "sha256": "23e912313a7c186e5f49908f6dca5aba61a93c204544f2c467ba10b304b8aaf9",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_projection.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_request.py",
+      "sha256": "a0bd4d852067e6bf654bc1684512086194e08fbeb2702b272db08a61bb8e3bfd",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_request.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_terminal.py",
+      "sha256": "cf0e603d31feb4b65df61204b3b4593b91d33f94538c7891711db1a09d2195b9",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/model_terminal.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_contract.py",
+      "sha256": "40be3fce792b99ee5a0412aeb8af2e5e8957a9b0542041ef4482a536c6f52a41",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_contract.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_worker.py",
+      "sha256": "0d62b2f1af5b02d249ee591edd5915f28fa6ce83820c0d7b2de64f0905159ad0",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/native_preparation_worker.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/private_paths.py",
+      "sha256": "be86fde3bc65f9a1447780cbcffc26aaaa933b0697fcfd4a5e32d95bd3241154",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/private_paths.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/prompt_bundle.py",
+      "sha256": "1d3b651d8b7338b0c235329db2aa9fe3b448413aa04027ec21bf8997ba797a91",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/prompt_bundle.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py",
+      "sha256": "ce60b934e8b8424840e82e4b757bdf0ad357175c653bfa34d02a92fa37722cb8",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_host.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    },
+    {
+      "path": "opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_protocol.py",
+      "sha256": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed",
+      "match": true,
+      "access": {
+        "path": "/opt/hermes/venv/lib/python3.13/site-packages/omnis_hermes/runtime_protocol.py",
+        "uid": 0,
+        "gid": 0,
+        "mode": "0o644",
+        "read_search": true
+      }
+    }
+  ],
+  "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "docker_host": "unix:///run/docker.sock",
+  "image_tag": "omnis-model-prepare-lseqdyzi:qa",
+  "installed_observation": {
+    "path": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/distribution-readback.json",
+    "sha256": "b3c268f21962b1612f125085d12c305ceabbbb1af43ae784257e2ff51af1943b"
+  },
+  "source_manifest_sha256": "db3fd66cd7a3063f7472d00987240b4ab4ced42a199b99f71c436db901ac0778",
+  "build_manifest_sha256": "fc234c3550c2a0a971fb951d7211529a03accc11203836672d5dac610294e474",
+  "native_count": 23,
+  "adapter_count": 20,
+  "all_installed_source_files": 3187,
+  "source_inputs_reused": true
+}

@@ -1,0 +1,54 @@
+{
+  "status": "PASS_BUILD_READBACK_NOT_RUNTIME",
+  "runtime_started": false,
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "--config",
+        "<existing-producer-private-client>",
+        "--host",
+        "unix:///run/docker.sock",
+        "build",
+        "--platform",
+        "linux/amd64",
+        "--pull=false",
+        "--network=none",
+        "--build-arg",
+        "RUNTIME_UID=1000",
+        "--build-arg",
+        "RUNTIME_GID=1000",
+        "--label",
+        "org.omnis.qa-root=mq-lseqdyzi",
+        "--label",
+        "org.omnis.image-role=model-prepare-qa",
+        "-f",
+        "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/context/Dockerfile",
+        "-t",
+        "omnis-model-prepare-lseqdyzi:qa",
+        "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/context"
+      ],
+      "timeout_seconds": 300,
+      "exit_code": 0
+    }
+  ],
+  "docker_host": "unix:///run/docker.sock",
+  "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "base_image_id": "sha256:915835de46a63f9598442159437904042f1c69a9b41c4965fba1db9ceab66578",
+  "base_reference": "python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a",
+  "tag": "omnis-model-prepare-lseqdyzi:qa",
+  "intent_sha256": "b1471662108d7a43cf9654b0cabbd658398c574c9c1dbb9ebc861bec552ea851",
+  "image_id": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+  "stock_cmd": [
+    "/opt/hermes/venv/bin/python",
+    "-I",
+    "-m",
+    "omnis_hermes.runtime_host"
+  ],
+  "user": "1000:1000",
+  "labels": {
+    "org.omnis.image-role": "model-prepare-qa",
+    "org.omnis.qa-root": "mq-lseqdyzi"
+  },
+  "base_unchanged": true
+}

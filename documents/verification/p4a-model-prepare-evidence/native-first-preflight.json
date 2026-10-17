@@ -1,0 +1,73 @@
+{
+  "status": "PASS_NO_EFFECT_CURRENT_PREREQUISITES",
+  "head": "aa0158e7720c2d327dcd664277c5c6d32ed69723",
+  "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+  "current_h03_prerequisites": "PASS_current_only_true_model_prepare_true",
+  "image_id": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+  "inventory_count": 43,
+  "reader_python": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+  "reader_files": 95,
+  "six_explicit_bindings": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "reviews": {
+    "review-reader-limits-norm.json": {
+      "sha256": "ba2dd053791c2b2d109d41987b92b006f52a32ef4d438244b19005fc01fd18b6",
+      "adjudicated": "APPROVED_SCOPED",
+      "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138"
+    },
+    "review-reader-limits-safety.json": {
+      "sha256": "319b929bd26c5d58acf12995a9fb00b9c5935c070d608a02503341ac6a7334e0",
+      "adjudicated": "APPROVED_SCOPED",
+      "test_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138"
+    }
+  },
+  "toolchain_uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "prove_signature": "(gate_target: str | None = None, uv: str = 'uv', timeout_seconds: int = 3600) -> int",
+  "commands": [
+    {
+      "label": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/runner-help.log"
+    },
+    {
+      "label": "collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+        "-q",
+        "--collect-only",
+        "--tb=no"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/collect.log"
+    }
+  ],
+  "pytest_basetemp": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/t/mtp",
+  "basetemp_under_physical_TMPDIR": true,
+  "provider_account_model_target_traffic": "NONE",
+  "PG_native_attempts": 0,
+  "fresh_fixture_ready": true
+}

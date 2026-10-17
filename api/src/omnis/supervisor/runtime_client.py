@@ -487,6 +487,14 @@ class RuntimeClient:
                 if remaining <= 0:
                     raise RuntimeUnavailable("Expired runtime authority")
                 timeout = min(3.2, remaining)
+                if (
+                    op == "task_model_initialize"
+                    and payload is not None
+                    and payload.get("protocol") == "omnis-managed-admission-v5"
+                    and payload.get("mode") == "CREATE"
+                ):
+                    # Cold Settings/drain/launch share this exchange; grant checks stay unchanged.
+                    timeout = min(6.0, remaining + 1.0)
                 if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
                     raise RuntimeUnavailable("Runtime managed-task limit")
             if op == "prepare" and authority is not None:

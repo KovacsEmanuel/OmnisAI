@@ -28,6 +28,7 @@ from omnis.core.paths import (
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.records import CommandKind
 from omnis.modules.instance.schemas import (
+    MODEL_TEST_PREPARE_WAIT_SECONDS,
     ControlRequest,
     InstanceView,
     LifecycleCommand,
@@ -259,7 +260,8 @@ class LocalControl:
         self.clients.add(task)
         try:
             try:
-                async with asyncio.timeout(4):
+                started = asyncio.get_running_loop().time()
+                async with asyncio.timeout_at(started + 4) as timeout:
                     peer = writer.get_extra_info("socket").getsockopt(
                         socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
                     )
@@ -278,6 +280,11 @@ class LocalControl:
                         ):
                             response = {"ok": False, "error": "CONTROL_DENIED"}
                         else:
+                            if (
+                                isinstance(body.command, NativeTaskCommand)
+                                and body.command.action == "model_test_prepare"
+                            ):
+                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
                             response = await self._dispatch(body.command)
             except (
                 ValueError,

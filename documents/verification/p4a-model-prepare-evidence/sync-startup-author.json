@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTED_EXERCISED_SOURCE_SCOPED_NOT_ACCEPTED",
+  "base_commit": "8b670bd6c0998a2ca0421ff871fc948cc5d6bb60",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "workdir": "/home/kali/OmnisAI",
+  "author_is_only_code_writer": true,
+  "committed": false,
+  "integration_owner": "parent",
+  "acceptance_row": "Synchronous cold model-test preparation must not self-cancel a legitimate within-grant response through control_task -> LocalControl -> NativeTaskOwner -> RuntimeClient -> RuntimeHost/NativePeer; finite waits, no new authority",
+  "change_summary": [
+    "Only v5 CREATE task_model_initialize exchanges use the existing launch refusal/drain wait formula min(6.0, grant_remaining + 1.0); all successful managed responses still require current unexpired authority.",
+    "Only validated model_test_prepare callers use shared MODEL_TEST_PREPARE_WAIT_SECONDS=4+6+4=14; LocalControl extends its entry-relative deadline only after peer/capability/schema validation. Other commands and unauthenticated/frame reads retain 4s.",
+    "No new owner, helper, config, dependency, retry/reconnect/resend/fallback, async PENDING/status or shielding. No persistence/callback movement."
+  ],
+  "wait_value_justification": {
+    "runtime_exchange": "Reuses launch min(6,remaining+1) to encompass saved Settings read, management drain, cold launch/ready/handshake and initialize/refusal; current grant <=4.5s implies at most5.5s wait. 1s refusal/drain allowance grants no work; Host/native deadline and client response-time fence unchanged.",
+    "caller_envelope": "14s finite shared end-to-end waiting envelope = existing4s caller allowance allocated to pre-exchange DB/readback/Settings lookup work + existing6s launch/refusal ceiling +4s allocated to post-exchange persistence/commit/readback. This is a waiting envelope, not a new phase authority; Instance/lease/Stop checks stay unchanged. Callback runs after grant and consumes that original grant.",
+    "synthetic_timing": "SOURCE pre-grant readback0.9s + post-grant callback0.4s + saved-read1.2s + peer slow-ready2.1s + post-exchange persistence0.2s. Final cold elapsed5.135s includes own cleanup, legitimate result checked before grant expiry."
+  },
+  "files": [
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/modules/instance/schemas.py",
+      "sha256": "358d93ab4fccd194fa46927e3353c33a3bc141c805016556735b9b3067641767",
+      "git_blob": "916d1e53231dc183c54e3d7d6f8b0954e4d6b0d4",
+      "change": "modified"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "45c1ab8edad6a9c32fcc56c1c75f57182cdb9555c9b537f7f8a1c36eb61726fc",
+      "git_blob": "141b38ad4f08dc5cde1187ebc90ff0f40d65ee16",
+      "change": "modified"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "9707c04eb957dc98262a1c9db3b2131900d7222fa8d694ea95baf278b6b3cd72",
+      "git_blob": "db5b245bccc9c290c5e09b3e5c601b20905a4299",
+      "change": "modified"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/src/omnis/transport/local_control.py",
+      "sha256": "42d61eb7a40e1c6eca1ac518cc635efc721f760fb1fdd2dc69cd7d5a015b2472",
+      "git_blob": "5423336846eae6e79840c7ac580bbe91981edd28",
+      "change": "modified"
+    },
+    {
+      "path": "/home/kali/OmnisAI/api/tests/test_model_prepare_sync_source.py",
+      "sha256": "8ab34111a4925b0c2c0044a987851146c4f234a2e9da18e2a4c7069521cf773a",
+      "git_blob": "0200a0554ca7104f2579e9255e8c32d9250140a5",
+      "change": "created"
+    }
+  ],
+  "git_tracked_diff_sha256": "e80ff11d4a0df5ebac51859a7bdd39f8fb965edf520a405d33982f2162bfdb9c",
+  "git_diff_hash_excludes_untracked_test": true,
+  "product_diff": {
+    "insertions": 24,
+    "deletions": 4,
+    "files": 4
+  },
+  "new_test_lines": 296,
+  "caller_audit": [
+    "RuntimeClient._exchange_locked -> _exchange, direct serializer test; all _exchange invocations in runtime_client.py and native_tasks.py read",
+    "NativeTaskOwner.handle -> supervisor/__main__.py existing native_task callback; _handle -> _model_test_prepare; control_task -> native_tasks.main; CLI contains no direct task caller",
+    "LocalControl._handle -> existing authenticated UDS server and _dispatch; InstanceService.runtime_authority and native_preparation_commit read; Host _managed/_managed_connected/_launch/_watch/stop and peer fixture read",
+    "Affected SOURCE producers prepared_source/produce, SourceOwner, control tests, existing runtime-client tests; no exports/config/fixture producer changed"
+  ],
+  "checks": [
+    {
+      "name": "RED_real_4s_callers",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_model_prepare_sync_source.py::test_cold_prepare_waits_through_real_callers[fast]\", \"api/tests/test_model_prepare_sync_source.py::test_cold_prepare_waits_through_real_callers[cold]\", \"-q\", \"-s\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/red2-tmp\"]))'",
+      "exit_code": 1,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/red2.log",
+      "result": "1 failed, 1 passed in 8.13s; cold control_task asyncio.timeout(4), handshake cancelled with 1445072239ns authority remaining and peer failure false; no injected cancellation",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "RED_runtime_after_only_caller_alignment",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_model_prepare_sync_source.py::test_cold_prepare_waits_through_real_callers[cold]\", \"-q\", \"-s\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/red3-tmp\"]))'",
+      "exit_code": 1,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/red3.log",
+      "result": "1 failed in 5.45s; TASK_INDETERMINATE, real RuntimeClient TimeoutError -> close/EOF -> Host handshake cancellation; 897499896ns remaining and peer failure false",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "GREEN_initial_vertical",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_model_prepare_sync_source.py\", \"-q\", \"-s\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/green-tmp\"]))'",
+      "exit_code": 0,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/green.log",
+      "result": "5 passed in 17.67s: fast/cold/expiry/stop/disconnect",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "affected_API_with_existing_client_tests",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_model_prepare_sync_source.py\", \"api/tests/test_model_test_prepare_source.py\", \"api/tests/test_owned_model_initialization.py\", \"api/tests/test_native_task_control.py\", \"api/tests/test_native_task_client.py\", \"api/tests/test_model_preflight_control.py\", \"api/tests/test_local_control.py::test_pairing_issuer_uses_instance_transaction_before_write\", \"api/tests/test_local_control.py::test_pairing_issuer_rechecks_lease_after_challenge_write\", \"api/tests/test_local_control.py::test_request_validates_reply_without_discarding_evidence\", \"api/tests/test_local_control.py::test_private_directory_rejects_replaceable_ancestor\", \"-q\", \"-s\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/api-regression-tmp\"]))'",
+      "exit_code": 1,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/api-regression.log",
+      "result": "151 passed, 1 failed in 36.60s; sole failure baseline-v5 negative mismatch, separately reproduced on base bytes; no excluded test altered",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "GREEN_final_owned_SOURCE",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"api/tests/test_model_prepare_sync_source.py\", \"api/tests/test_model_test_prepare_source.py\", \"api/tests/test_owned_model_initialization.py\", \"api/tests/test_native_task_control.py\", \"api/tests/test_model_preflight_control.py\", \"api/tests/test_local_control.py::test_pairing_issuer_uses_instance_transaction_before_write\", \"api/tests/test_local_control.py::test_pairing_issuer_rechecks_lease_after_challenge_write\", \"api/tests/test_local_control.py::test_request_validates_reply_without_discarding_evidence\", \"api/tests/test_local_control.py::test_private_directory_rejects_replaceable_ancestor\", \"-q\", \"-s\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/final-tmp\"]))'",
+      "exit_code": 0,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/final-source.log",
+      "result": "132 passed in 35.55s after final edits; includes 9 new cases, existing prepare/owned initialization/control/readers/Stop/fencing regressions",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "unchanged_launch_startup_budget_separate_process",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"-p\", \"pytest_asyncio.plugin\", \"-p\", \"no:cacheprovider\", \"integrations/hermes/tests/test_startup_budget.py\", \"-q\", \"--tb=short\", \"--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/adapter-regression-tmp\"]))'",
+      "exit_code": 0,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/adapter-regression.log",
+      "result": "1 passed in 2.65s; synthetic peer only, no installed Hermes",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "final_Ruff_format_diff",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-cache --no-fix api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py && api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --no-cache --check api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py && git diff --check",
+      "exit_code": 0,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/final-ruff.log",
+      "result": "All checks passed; 5 files already formatted; git diff --check exit0",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "final_strict_mypy",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH MYPY_CACHE_DIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/mypy api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py",
+      "exit_code": 0,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/final-mypy.log",
+      "result": "Success: no issues found in 5 source files",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    },
+    {
+      "name": "baseline_existing_v5_failure_exact",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -c 'import asyncio,pathlib,subprocess,sys,types; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; source=subprocess.check_output([\"git\",\"show\",\"8b670bd6c0998a2ca0421ff871fc948cc5d6bb60:api/src/omnis/supervisor/runtime_client.py\"]); module=types.ModuleType(\"baseline_runtime_client\"); sys.modules[module.__name__]=module; exec(compile(source,\"baseline_runtime_client.py\",\"exec\"),module.__dict__); import test_native_task_client as test; test.RuntimeClient=module.RuntimeClient; test.RuntimeUnavailable=module.RuntimeUnavailable; print(\"BASELINE_8b670bd_NATIVE_CLIENT_V5_NEGATIVE\",flush=True); asyncio.run(test.test_unknown_managed_version_never_requests_authority(pathlib.Path(\"/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel\"),\"omnis-managed-admission-v5\"))'",
+      "exit_code": 1,
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/baseline-v5-exact.log",
+      "result": "Exact baseline assertion: expected regex 'payload denied', actual 'Runtime disconnected'; no checkout switch or file write",
+      "command_representation": "Reproduction command with identical executable, flags, test nodes and environment; output redirection is represented by output_path."
+    }
+  ],
+  "other_attempts": [
+    {
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/red.log",
+      "exit_code": 1,
+      "classification": "QA_DRIVER_ONLY",
+      "detail": "Initial SourceOwner mock lacked service.engine; fixed only test setup. -k cold also selected all parametrizations; node selection corrected. Not the RED evidence."
+    },
+    {
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/mypy-initial.log",
+      "exit_code": 1,
+      "classification": "TEST_TYPING_FIXED",
+      "detail": "REQUESTED must import from its defining product module, not a test-module implicit reexport. No any/ignore added."
+    },
+    {
+      "exit_code": 1,
+      "classification": "TEST_FORMAT_FIXED",
+      "detail": "Initial Ruff I001/new-test formatting corrected; final no-cache Ruff checks pass."
+    },
+    {
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/regression.log",
+      "exit_code": 1,
+      "classification": "QA_COLLECTION_COLLISION_PLUS_PREEXISTING_FAILURE",
+      "detail": "67failed/86passed40.38s when API and adapter tests collected together: duplicate test_native_preparation basename shadowed API fixture import, plus existing v5 negative. Separate processes correct collection; product not patched for harness."
+    },
+    {
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/baseline-v5.log",
+      "exit_code": 1,
+      "classification": "BASELINE_PROBE_CLASS_ALIAS_CORRECTED",
+      "detail": "Initial in-memory baseline probe replaced RuntimeClient but not RuntimeUnavailable alias; exact follow-up replaces both and reproduces expected regex mismatch."
+    }
+  ],
+  "findings_open": [
+    {
+      "id": "SOURCE-BASELINE-V5-NEGATIVE",
+      "file": "/home/kali/OmnisAI/api/tests/test_native_task_client.py",
+      "line": 262,
+      "status": "PREEXISTING_REPRODUCED_NOT_FIXED_SCOPE_EXCLUDED",
+      "detail": "v5 is an accepted managed protocol in base RuntimeClient.managed, while this negative expects payload denied before authority for task_stage/v5; current and base produce Runtime disconnected. Needs parent adjudication; no green full-regression/canonical claim."
+    }
+  ],
+  "boundary": {
+    "product_real": [
+      "control_task",
+      "LocalControl peer/capability validation and dispatch",
+      "NativeTaskOwner orchestration and actual ModelTest producer/dispatch/persist validators",
+      "RuntimeClient.managed/_exchange/_exchange_locked/close",
+      "real UDS both channels",
+      "RuntimeHost._handle/_managed_connected/_managed/_launch/watchdog",
+      "NativePeer real slow-ready/handshake/capability calls",
+      "owned fixture process cleanup/settlement"
+    ],
+    "doubles": [
+      "SourceOwner DB storage/commit/fence and readiness",
+      "runtime authority DB producer, explicitly600ms expiry or4500ms positive",
+      "saved Settings/status and1.2s native-read double",
+      "no management subprocess; management-no-process Stop transition only is a fixture double",
+      "model initialize/preparation_result and CLOSE replies synthetic; no real native turn or joined Future proven",
+      "0.9s pre-grant DB delay,0.4s committed-source callback delay,0.2s post-exchange persistence delay"
+    ],
+    "no_private_data": true,
+    "not_run": [
+      "PostgreSQL",
+      "OCI/build/install",
+      "installed Hermes/native runtime",
+      "provider/network/authentication/inference",
+      "make test-model-test-prepare-native-pg",
+      "run_gate180s",
+      "runner --check",
+      "Responses/live/auth new work",
+      "full canonical gate",
+      "independent review"
+    ]
+  },
+  "cleanup": {
+    "final_five_real_caller_cases": "PASS: RuntimeHost clients empty and lock FD closed; runtime.sock/runtime.boot and control.sock/control.cap absent; every launched own synthetic peer has returncode and /proc/pid absent. Lock-file remnants are private fixture files, not active locks. No foreign process signalled.",
+    "fixtures": "temp/IPC roots only under specified TMPDIR; pytest ipc_directory reused, full AF_UNIX path asserted below108bytes",
+    "scope": "SOURCE process/transport cleanup only, not native/domain settlement or historical OCI cleanup"
+  },
+  "preserved": [
+    "grant producer maximum4.5s/lease5s",
+    "Host native ready/RPC deadlines",
+    "Stop/fencing and caps",
+    "QA180s",
+    "commit -> grant -> independent-read callback -> original exchange -> persist ordering",
+    "existing PG callback and UUID fix bytes",
+    "historical old-exclusive-cause UNKNOWN and domain UNCERTAIN",
+    "protected original HTML and tools/development/ponytail.json not read/copied/hashed/modified",
+    "README/register/map/skills/config not modified",
+    "no git commit/staging/push"
+  ],
+  "next_parent_actions": [
+    "Review exact five hashes with two complementary independent reviewers, including Ponytail minimization; adjudicate baseline-v5 finding without silently extending scope",
+    "Only after review, rebuild/attest affected artifacts and run the existing single fresh native-PG consumer through original run_gate180s and six explicit bindings",
+    "Parent integrates/commits and updates active registry/map; this report is not final acceptance or phase2 closure"
+  ],
+  "project_status": {
+    "AICI_sync_fix": {
+      "implementation": "IMPLEMENTED_UNCOMMITTED",
+      "proof": "PASS_SOURCE_SCOPED_WITH_SEPARATE_PREEXISTING_REGRESSION_FAIL",
+      "review": "NOT_REVIEWED"
+    },
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED"
+  },
+  "limits": [
+    "No retrospective attribution of the historical installed FAIL.",
+    "14s is a bounded API waiting envelope, not proof of installed preparation performance; native work still expires on original grant.",
+    "The baseline-v5 failure remains visible; 132 final owned SOURCE passes do not mean the broader regression selection or canonical gate passed."
+  ]
+}

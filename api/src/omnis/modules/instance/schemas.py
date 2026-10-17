@@ -8,6 +8,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
 from omnis.modules.settings.provider_models import SettingsControl
 
+# Existing 4s non-runtime work on each side of the 6s launch/refusal wait; not authority.
+MODEL_TEST_PREPARE_WAIT_SECONDS = 4 + 6 + 4
+
 
 class InstanceView(BaseModel):
     model_config = ConfigDict(from_attributes=True)

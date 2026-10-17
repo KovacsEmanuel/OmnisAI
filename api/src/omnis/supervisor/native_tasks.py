@@ -17,7 +17,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.modules.instance.domain import ControlConflict
-from omnis.modules.instance.schemas import NativeTaskCommand
+from omnis.modules.instance.schemas import MODEL_TEST_PREPARE_WAIT_SECONDS, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs.managed_admission import ManagedAdmission
 from omnis.modules.settings import candidate_store as records
@@ -101,7 +101,8 @@ class NativeTaskOwner:
         command = NativeTaskCommand.model_validate(
             command.model_dump(mode="python", warnings=False)
         )
-        deadline = asyncio.get_running_loop().time() + 4
+        wait = MODEL_TEST_PREPARE_WAIT_SECONDS if command.action == "model_test_prepare" else 4
+        deadline = asyncio.get_running_loop().time() + wait
         async with asyncio.timeout_at(deadline):
             try:
                 return await self._handle(command, deadline)
@@ -527,7 +528,8 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
     command = NativeTaskCommand.model_validate(value)
     existing_private_root(directory)
     capability = _read_capability(directory)
-    async with asyncio.timeout(4):
+    wait = MODEL_TEST_PREPARE_WAIT_SECONDS if command.action == "model_test_prepare" else 4
+    async with asyncio.timeout(wait):
         reader, writer = await asyncio.open_unix_connection(
             directory / "control.sock", limit=NATIVE_TASK_REPLY_MAX_BYTES
         )

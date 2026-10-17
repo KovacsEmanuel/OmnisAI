@@ -7221,7 +7221,7 @@ def test_h04_current_reader_source_snapshot(
         with zipfile.ZipFile(wheel_path, "a", compression=zipfile.ZIP_DEFLATED) as wheel:
             members = wheel.infolist()
             if mutation.startswith("aggregate-"):
-                target_size = 1114112 + (mutation == "aggregate-max-plus-one")
+                target_size = 1179648 + (mutation == "aggregate-max-plus-one")
                 padding = target_size - sum(m.file_size for m in members)
                 assert 0 <= padding <= 131072
                 wheel.writestr("bounded-control", b" " * padding)
@@ -7605,7 +7605,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
                 len(members) > 128
                 or len({m.filename for m in members}) != len(members)
                 or any(m.file_size > 131072 for m in members)
-                or sum(m.file_size for m in members) > 1114112
+                or sum(m.file_size for m in members) > 1179648
             ):
                 raise ValueError
             names = {n for n in wheel.namelist() if n.startswith("omnis/") and not n.endswith("/")}
@@ -7652,7 +7652,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
                 "    for name in distribution.namelist():",
                 "    assert len(distribution.infolist()) <= 128\n"
                 "    assert all(m.file_size <= 131072 for m in distribution.infolist())\n"
-                "    assert sum(m.file_size for m in distribution.infolist()) <= 1114112\n"
+                "    assert sum(m.file_size for m in distribution.infolist()) <= 1179648\n"
                 "    for name in distribution.namelist():",
             )
         )

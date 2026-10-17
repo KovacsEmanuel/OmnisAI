@@ -1,0 +1,85 @@
+{
+  "status": "PASS_NO_EFFECT_CURRENT_PREREQUISITES",
+  "head": "70e30fdfee631f2c13534c900bce5fbf684f9280",
+  "commands": [
+    {
+      "label": "runner-help",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/OmnisAI/ops/run_test_db_gate.py",
+        "--help"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/runner-help.log"
+    },
+    {
+      "label": "collect",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]",
+        "-q",
+        "--collect-only",
+        "--tb=no",
+        "--basetemp=/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/collect"
+      ],
+      "exit_code": 0,
+      "log": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/collect.log"
+    }
+  ],
+  "PG_native_attempts": 0,
+  "current_h03_prerequisites": "PASS_current_only_true_model_prepare_true",
+  "image_id": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+  "inventory_count": 43,
+  "native_count": 23,
+  "adapter_count": 20,
+  "reader_python": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+  "reader_files": 95,
+  "prove_signature": "(gate_target: str | None = None, uv: str = 'uv', timeout_seconds: int = 3600) -> int",
+  "toolchain_uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "six_explicit_bindings": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "pytest_basetemp": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp",
+  "basetemp_under_physical_TMPDIR": true,
+  "resource_readback": "previous-resource-readback.json",
+  "fresh_fixture_ready": true,
+  "reviews": {
+    "rereview-primary-diagnostic-norm.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/rereview-primary-diagnostic-norm.json",
+      "sha256": "fad8d40260238eca684beb4ae9d5d7046b0e3a03e7413d39db066156087f3404",
+      "verdict": "APPROVED_SCOPED",
+      "reviewed_head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+      "paths_sha256": {
+        "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+      }
+    },
+    "rereview-primary-diagnostic-safety.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/rereview-primary-diagnostic-safety.json",
+      "sha256": "ddb9b8c9557d617d31bce858b033546e3a8ea307486dbcd96abc4edd33f6b936",
+      "verdict": "APPROVED_SCOPED",
+      "reviewed_head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+      "paths_sha256": {
+        "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+      }
+    }
+  }
+}

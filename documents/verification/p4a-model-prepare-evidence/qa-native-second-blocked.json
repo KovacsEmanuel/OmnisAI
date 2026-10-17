@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "status": "BLOCKED_QA_DIAGNOSTIC_CALLER_LOCALIZED_INNER_CAUSE_UNKNOWN",
+  "root": "/home/kali/.hermes/cache/scratch/m2-xm73ierz",
+  "snapshot": {
+    "head_before": "70e30fdfee631f2c13534c900bce5fbf684f9280",
+    "head_after": "70e30fdfee631f2c13534c900bce5fbf684f9280",
+    "git_status_before_after": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html",
+    "tracked_and_staged_diff_empty": true,
+    "test_sha256": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "source_test_sha256": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090",
+    "product_changes": [],
+    "commits": [],
+    "scope": "scratch-only real QA diagnostic attempt; exact approved test-only delta"
+  },
+  "requirement_consumer_risk_decision": "One approved diagnostic model-test-prepare through original PG owner/run_gate180; first safe primary location or complete HOLD/commit/close/join oracles; failure remains blocked without further harness cycles.",
+  "review_binding": {
+    "rereview-primary-diagnostic-norm.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/rereview-primary-diagnostic-norm.json",
+      "sha256": "fad8d40260238eca684beb4ae9d5d7046b0e3a03e7413d39db066156087f3404",
+      "verdict": "APPROVED_SCOPED",
+      "reviewed_head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+      "paths_sha256": {
+        "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+      }
+    },
+    "rereview-primary-diagnostic-safety.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/rereview-primary-diagnostic-safety.json",
+      "sha256": "ddb9b8c9557d617d31bce858b033546e3a8ea307486dbcd96abc4edd33f6b936",
+      "verdict": "APPROVED_SCOPED",
+      "reviewed_head": "358df38a64c3cb53f5600f372b746ff6bd3adf67",
+      "paths_sha256": {
+        "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+      }
+    }
+  },
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "attempt": {
+    "attempts": 1,
+    "gate_invocations": 1,
+    "command": [
+      "make",
+      "--no-print-directory",
+      "test-model-test-prepare-native-pg",
+      "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+    ],
+    "gate_timeout_seconds": 180,
+    "gate_exit_code": 2,
+    "owner_elapsed_seconds": 25.393,
+    "pytest_counts": {
+      "passed": 0,
+      "failed": 1,
+      "errors": 1,
+      "skipped": 0
+    },
+    "pytest_elapsed_seconds": 20.58,
+    "family_drained": true,
+    "family_receipt": {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/db-e6f121e56ba44776/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "value": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    }
+  },
+  "execution": {
+    "terminal_session_id": "proc_14e2dc7fc006",
+    "terminal_invocation_exit": 0,
+    "distinction": "Invocation serializes original owner result; its exit0 is not product PASS. Original owner/gate returned2.",
+    "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+    "selection_seam": "h03-process-fixed-pg-selection.py:253-265; only runner.run_gate alias; same command/base-copy plus six pins/log/180",
+    "run_one_path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/run-one.py",
+    "run_one_actual_sha256": "7625de2c0b00ee25b8c62f68f6fe920e730d4ee5206f62100956584b8a5cba4b",
+    "prelaunch_commands_manifest": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/commands.json",
+    "prelaunch_manifest_hash_limit": "run_one_sha256 in commands.json describes the preserved unexecuted syntax-error text; actual executed script SHA is above. Launch command unchanged.",
+    "new_observer_harness_or_owner": false,
+    "no_retry": true
+  },
+  "primary_diagnostic": {
+    "consumer_line": 9794,
+    "exceptions": [
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "OTHER_EXCEPTION"
+      },
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "IncompleteReadError"
+      }
+    ],
+    "source": "test_contract_method_pg.py"
+  },
+  "phase": {
+    "consumer": "control_task(directory, request_prepare)",
+    "source": "api/tests/test_contract_method_pg.py",
+    "line": 9794,
+    "literal_source_line": "mt_answer = await control_task(directory, request_prepare)",
+    "source_order_inference": "Settings CONFIRMED/exact selection, NOT_VERIFIED/inference_ready false, MANAGEMENT assertions at9718-9723 were passed before this failing await. This is caller localization, not an inner-cause diagnosis.",
+    "missing_model_prepare_commit": "No checkpoint; independent context/receipt/dispatch readback at9788 not proved. Absence is not evidence of rollback/no writes.",
+    "source_normalization_only": "native_tasks.py:555-557 maps IncompleteReadError from control reply readuntil to CatalogError(TASK_REJECTED); runtime public checkpoint itself records only OTHER_EXCEPTION/UNCLASSIFIED + IncompleteReadError/UNCLASSIFIED. No raw reason/type expansion or inner attribution."
+  },
+  "proof": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/method-history-proof.json",
+    "sha256": "23593d3ad40b1a58b82a31ec2808588f736e6e89118516f418329947ab99c07c",
+    "status": "UNCERTAIN",
+    "keys": [
+      "first_final_after_stop",
+      "h03_cid",
+      "h03_cidfile",
+      "h03_daemon",
+      "h03_inverse",
+      "h03_last_docker",
+      "h03_name",
+      "h03_nonce",
+      "h03_resource_cleanup",
+      "h03_runtime",
+      "h03_scope",
+      "h03_state",
+      "model_prepare_primary_error",
+      "native_entry",
+      "public_control_cleanup",
+      "qa_bootstrap_sha256",
+      "qa_host_argv",
+      "qa_mount_source",
+      "qa_mount_target",
+      "qa_native_argv",
+      "status"
+    ]
+  },
+  "existing_observation": {
+    "native": {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "rows": 0
+    },
+    "host": {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-state/host-launch-diagnostic.json",
+      "sha256": "23209b6f660ca1c546755072736bfe86f28c7fe860507f3aae25fc290a132d2a",
+      "value": {
+        "state": "STOPPED",
+        "events": []
+      },
+      "inner_cause": "UNKNOWN"
+    }
+  },
+  "validation": {
+    "no_effect_preflight": {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/preflight.json",
+      "sha256": "58be577705b2234a005032436caeef6f0dcaea45c16d8a07659a5e3dc809b28e",
+      "status": "PASS_NO_EFFECT_CURRENT_PREREQUISITES",
+      "existing_h03_prerequisites": "current_only=True,model_prepare=True",
+      "collect_count": 1,
+      "runner_help_exit": 0,
+      "collect_exit": 0,
+      "source_input_count_unchanged_after_attempt": 63,
+      "previous_non_test_inputs_unchanged": 61,
+      "closure_inputs_rechecked": 3260,
+      "installed_inventory": {
+        "native": 23,
+        "adapter": 20,
+        "total": 43
+      },
+      "API_source_export_wheel_installed_modules": 95
+    },
+    "source_after": {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/after.json",
+      "sha256": "398f5abd0dfbd3aae241652710ab5188c0bfa1873a64acad5977a32ef1e0d2da"
+    },
+    "historical_reports_descriptors_unchanged": 18,
+    "review_reports_unchanged": true,
+    "private_root_HOME_TMPDIR_mode": "0o700",
+    "private_log_mode": "0o600",
+    "private_logs_checked": 92,
+    "symlink_proof_aliases_deduplicated_to": 1
+  },
+  "resource_cleanup": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/cleanup-readback.json",
+    "sha256": "350a7e6a8dfbe98e4079b9462b7f20d435f0bda8204dbdea88537358d276db3e",
+    "status": "PASS_EXACT_RESOURCE_READBACK_NOT_DOMAIN_SETTLEMENT",
+    "readback_only_no_cleanup_replay": true
+  },
+  "qa_report": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/qa-report.json",
+    "sha256": "2d5f4a255b676101fcf440797ed516ddb31fa08e4814d65788dabef5e4ed3eda"
+  },
+  "issues": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/invocation-before-launch-issue.json",
+      "effect": "NONE; tool facade/scratch source syntax caught before launch, preserved; no extra PG/native attempt."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/readback-before-completion-issue.json",
+      "effect": "Read-only parser failure on nonUTF8 kernel socket name; exact-owned byte filter used for completed readback, no retry/effect."
+    }
+  ],
+  "scope_exclusions": [
+    "No rebuild/download/staticprobe rerun/prewarm",
+    "No raw PG logs/tracebacks/boot capabilities/env/auth config readback or output",
+    "No account/OAuth/model/provider/target traffic",
+    "No grants/deadlines/caps changes",
+    "No historical cleanup replay/adoption/r1/P0/global/push",
+    "No third observer/infrastructure repair or native retry",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "historical_failure": "Original first attempt remains UNKNOWN/UNCERTAIN, immutable; this attempt is not retrospective attribution.",
+  "handoff_status": {
+    "AICI_model_prepare": {
+      "code": "IMPLEMENTED_SOURCE",
+      "proof": "FAIL_FRESH_QA/BLOCKED; original proof UNCERTAIN",
+      "review": "APPROVED_SCOPED_SOURCE_ONLY"
+    },
+    "P4a_minim": "PARTIAL/BLOCKED_QA",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Parent adjudicates exact reports and localized control_task reply frontier; no further QA-only harness cycle. Product repair only after a concrete cause is reproduced without effects."
+  },
+  "not_proven": [
+    "model_prepare_commit",
+    "native HOLD/context/turn observation",
+    "cold/replay/census",
+    "CLOSE/Future.done/CLOSED_JOINED",
+    "account",
+    "inference"
+  ],
+  "ponytail_skipped": "No repeated gates, full canonical, new instrumentation or wider investigation.",
+  "ponytail_risk": "Caller localized after Settings, but control-handler/internal failure and durable context state remain UNKNOWN; physical cleanup does not prove model close/join."
+}

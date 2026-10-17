@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_REAL_PG_NATIVE_DIAGNOSTIC_ATTEMPT_BLOCKED_INNER_CAUSE_UNKNOWN",
+  "root": "/home/kali/.hermes/cache/scratch/m2-xm73ierz",
+  "attempts": 1,
+  "gate_invocations": 1,
+  "gate_exit_code": 2,
+  "gate_timeout_seconds": 180,
+  "owner_elapsed_seconds": 25.393,
+  "pytest_counts": {
+    "passed": 0,
+    "failed": 1,
+    "errors": 1,
+    "skipped": 0
+  },
+  "pytest_elapsed_seconds": 20.58,
+  "family_drained": true,
+  "family_receipt": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/db-e6f121e56ba44776/gate.log.result.json",
+    "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+    "value": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    }
+  },
+  "command": [
+    "make",
+    "--no-print-directory",
+    "test-model-test-prepare-native-pg",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+  },
+  "proof": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/method-history-proof.json",
+    "sha256": "23593d3ad40b1a58b82a31ec2808588f736e6e89118516f418329947ab99c07c",
+    "status": "UNCERTAIN",
+    "keys": [
+      "first_final_after_stop",
+      "h03_cid",
+      "h03_cidfile",
+      "h03_daemon",
+      "h03_inverse",
+      "h03_last_docker",
+      "h03_name",
+      "h03_nonce",
+      "h03_resource_cleanup",
+      "h03_runtime",
+      "h03_scope",
+      "h03_state",
+      "model_prepare_primary_error",
+      "native_entry",
+      "public_control_cleanup",
+      "qa_bootstrap_sha256",
+      "qa_host_argv",
+      "qa_mount_source",
+      "qa_mount_target",
+      "qa_native_argv",
+      "status"
+    ]
+  },
+  "primary_diagnostic": {
+    "consumer_line": 9794,
+    "exceptions": [
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "OTHER_EXCEPTION"
+      },
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "IncompleteReadError"
+      }
+    ],
+    "source": "test_contract_method_pg.py"
+  },
+  "phase": {
+    "consumer": "control_task(directory, request_prepare)",
+    "source": "api/tests/test_contract_method_pg.py",
+    "line": 9794,
+    "literal_source_line": "mt_answer = await control_task(directory, request_prepare)",
+    "source_order_inference": "Settings CONFIRMED/exact selection, NOT_VERIFIED/inference_ready false, MANAGEMENT assertions at9718-9723 were passed before this failing await. This is caller localization, not an inner-cause diagnosis.",
+    "missing_model_prepare_commit": "No checkpoint; independent context/receipt/dispatch readback at9788 not proved. Absence is not evidence of rollback/no writes.",
+    "source_normalization_only": "native_tasks.py:555-557 maps IncompleteReadError from control reply readuntil to CatalogError(TASK_REJECTED); runtime public checkpoint itself records only OTHER_EXCEPTION/UNCLASSIFIED + IncompleteReadError/UNCLASSIFIED. No raw reason/type expansion or inner attribution."
+  },
+  "original_container_states": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-954b674d037c4450872efc5eeb722c1b.stdout",
+      "sha256": "bbbaec14499f72aaf1c010f08b946571ea5bdf63592cade6dd065a7c232611de",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-5e7530418884410d9490dce914ab366e.stdout",
+      "sha256": "1615fd4d76c6377fac1939edd9820e00d68e763496ea82dd2bfc373088da950b",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1815815,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-44dc35489f0743229d798965b97619e9.stdout",
+      "sha256": "a6796261304efdf161d59384b9bde52b1bb17db95c9012f118e8b40a042af6f4",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-fdeaf1a258b54699a5f4f73a03cb9bca.stdout",
+      "sha256": "1615fd4d76c6377fac1939edd9820e00d68e763496ea82dd2bfc373088da950b",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1815815,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-0c1534664a0944158c8fce987f973cf4.stdout",
+      "sha256": "bbbaec14499f72aaf1c010f08b946571ea5bdf63592cade6dd065a7c232611de",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-8ee93aef3c0e47f49cc34ae468516350.stdout",
+      "sha256": "1615fd4d76c6377fac1939edd9820e00d68e763496ea82dd2bfc373088da950b",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 1815815,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-82e28aebd2144154ae46fbf85709f660.stdout",
+      "sha256": "a6796261304efdf161d59384b9bde52b1bb17db95c9012f118e8b40a042af6f4",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-docker-5e639b7b3d9b48e2ab42df42a15b6326.stdout",
+      "sha256": "fd28040a86dbc9c6ce8bc2a447c8519770a9924cffa86d48db05d1810f4321a6",
+      "state": {
+        "Status": "created",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "OOMKilled": false
+      }
+    }
+  ],
+  "native_observation": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-state/native-observation.jsonl",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "rows": 0
+  },
+  "host_launch_observation": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/t/mtp/test_contract_method_real_nati0/h03-state/host-launch-diagnostic.json",
+    "sha256": "23209b6f660ca1c546755072736bfe86f28c7fe860507f3aae25fc290a132d2a",
+    "value": {
+      "state": "STOPPED",
+      "events": []
+    },
+    "inner_cause": "UNKNOWN"
+  },
+  "not_proven": [
+    "model_prepare_commit",
+    "native HOLD/context/turn observation",
+    "cold/replay/census",
+    "CLOSE/Future.done/CLOSED_JOINED",
+    "account",
+    "inference"
+  ],
+  "first_attempt_preserved": "Original first failure remains UNKNOWN/UNCERTAIN; no retrospective attribution.",
+  "further_attempts_or_harness_changes": "NOT_AUTHORIZED_QA_ONLY_CYCLE_2_COMPLETE",
+  "cleanup_readback": {
+    "path": "/home/kali/.hermes/cache/scratch/m2-xm73ierz/cleanup-readback.json",
+    "sha256": "350a7e6a8dfbe98e4079b9462b7f20d435f0bda8204dbdea88537358d276db3e"
+  }
+}

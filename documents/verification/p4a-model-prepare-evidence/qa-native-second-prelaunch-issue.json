@@ -1,0 +1,9 @@
+{
+  "status": "NO_EFFECT_NO_ATTEMPT",
+  "gate_invocations": 0,
+  "issues": [
+    "Scratch run-one string construction contained an unterminated newline literal; write_file syntax checker detected it before launch.",
+    "execute_code terminal facade does not accept background keyword; no terminal launch occurred."
+  ],
+  "remedy": "Preserve unexecuted text; use chr(10) for the exact existing save call; use native terminal background tool. No owner/observer/semantic harness change."
+}

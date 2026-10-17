@@ -1,0 +1,7 @@
+{
+  "status": "READBACK_ONLY_PARSER_ERROR_NO_EFFECT",
+  "exception_type": "UnicodeDecodeError",
+  "phase": "/proc/net/unix owned-path filter",
+  "reason": "Kernel socket names are arbitrary bytes, not universally UTF-8.",
+  "remedy": "Filter raw bytes by the exact ASCII-owned path encodings. No new observation, resource effect, owner, retry or product change."
+}

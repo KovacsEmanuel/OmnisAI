@@ -1846,6 +1846,24 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         assert result["output_tokens"] is None and result["provider_receipt_ref"] is None
     before = canonical(owner.graph)
     assert await owner.handler.handle(send) == result
+    from contextlib import asynccontextmanager
+    from collections.abc import AsyncIterator
+    from omnis.modules.instance.domain import ControlCode, ControlConflict
+
+    @asynccontextmanager
+    async def stopped(*args: object) -> AsyncIterator[AsyncConnection]:
+        if args:
+            raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+        yield conn
+
+    monkeypatch.setattr(owner.handler.service, "native_preparation_commit", stopped)
+    assert await owner.handler.handle(send) == result
+    restarted = send.model_copy(update={"expected_epoch": 2, "expected_generation": 1})
+    assert await owner.handler.handle(restarted) == result
+    with pytest.raises(CatalogError, match="COMMAND_CONFLICT"):
+        await owner.handler.handle(restarted.model_copy(update={"data_approval": {**decision, "decision_id": str(uuid4())}}))
+    with pytest.raises((CatalogError, ControlConflict)):
+        await owner.handler.handle(restarted.model_copy(update={"owner_id": str(uuid4())}))
     assert len(starts) == len(sends) == 1 and canonical(owner.graph) == before
     assert len(physical) == (0 if outcome == "stop" else 1)
     from omnis_hermes.runtime_protocol import encode

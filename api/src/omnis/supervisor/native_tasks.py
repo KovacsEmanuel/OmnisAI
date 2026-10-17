@@ -24,6 +24,7 @@ from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.candidate_catalog import uuid_string
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import canonical, load_json
+from omnis.modules.tasks import managed_store as store
 from omnis.modules.tasks.managed_contract import PROTOCOL, manifest_protocol, mapping, ref
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
@@ -309,28 +310,56 @@ class NativeTaskOwner:
         from omnis.modules.runs.model_test import ModelTest
 
         consumer = ModelTest(self.domain)
-        async with self.service.native_preparation_commit(
-            self.owner, self.epoch, command.expected_generation
-        ) as conn:
-            await self._instance(conn, command)
-            attempt, created = await consumer.reserve_execution(conn, command)
-            prior = await consumer.execution_receipt(conn, command.owner_id, attempt)
+        async with self.domain.engine.begin() as conn:
+            attempt = await consumer.replay_execution(conn, command)
+            prior = (
+                None
+                if attempt is None
+                else await consumer.execution_receipt(conn, command.owner_id, attempt)
+            )
+            if attempt is not None:
+                run, _ = await store.owned(conn, command.owner_id, records.reference(attempt))
+                turn = await store.get(
+                    conn, command.owner_id, run, mapping(attempt["payload"])["turn_ref"]
+                )
+                original = mapping(turn["payload"])
+                if prior is not None and (
+                    prior["provider_receipt_ref"] is not None
+                    or original["runtime_boot"] != self.runtime.boot
+                    or mapping(original["authority"])["epoch"] != command.expected_epoch
+                    or mapping(original["authority"])["generation"] != command.expected_generation
+                ):
+                    return prior
+        created = False
+        if attempt is None:
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                attempt, created = await consumer.reserve_execution(conn, command)
+                prior = await consumer.execution_receipt(conn, command.owner_id, attempt)
+        assert prior is not None
         if prior["provider_receipt_ref"] is not None:
             return prior
-        async with self.service.native_preparation_commit(
-            self.owner, self.epoch, command.expected_generation
-        ) as conn:
-            await self._instance(conn, command)
-            packet = await consumer.execution_packet(conn, command.owner_id, attempt, send=created)
+        try:
+            async with self.service.native_preparation_commit(
+                self.owner, self.epoch, command.expected_generation
+            ) as conn:
+                await self._instance(conn, command)
+                packet = await consumer.execution_packet(
+                    conn, command.owner_id, attempt, send=created
+                )
+        except ControlConflict:
+            if created:
+                raise
+            return prior
         if packet is None:
             return prior
         result = await self.runtime.managed(
             self.service, self.owner, "task_model_initialize", packet
         )
-        async with self.service.native_preparation_commit(
-            self.owner, self.epoch, command.expected_generation
-        ) as conn:
-            await self._instance(conn, command)
+        # Receive/settlement cannot authorize new work and survives a concurrent Stop.
+        async with self.domain.engine.begin() as conn:
             return await consumer.execution_receipt(conn, command.owner_id, attempt, result)
 
     def _model_test_reply(

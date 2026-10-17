@@ -535,6 +535,36 @@ class ModelTest:
         await store.put(connection, owner, run, item)
         return await store.get(connection, owner, run, records.reference(item))
 
+    async def replay_execution(
+        self, connection: AsyncConnection, command: NativeTaskCommand
+    ) -> dict[str, object] | None:
+        try:
+            saved = await store.command_receipt(
+                connection, command.owner_id, str(command.protocol_id)
+            )
+        except CatalogError as error:
+            if error.reason == "REF_UNAVAILABLE":
+                return None
+            raise
+        body = mapping(record(saved, "contract-input-command")["payload"])
+        if body["operation"] != command.action or body["owner_id"] != command.owner_id:
+            raise CatalogError("COMMAND_CONFLICT")
+        run, attempt = await store.owned(
+            connection, command.owner_id, mapping(body["result_refs"])["attempt_ref"]
+        )
+        a = mapping(record(attempt, "model-test-attempt")["payload"])
+        turn = await store.get(connection, command.owner_id, run, a["turn_ref"])
+        authority = mapping(mapping(record(turn, "native-turn")["payload"])["authority"])
+        request = command.model_dump(mode="json")
+        # The immutable receipt authenticates the original send; reader fences grant no work.
+        request.update(
+            expected_epoch=authority["epoch"], expected_generation=authority["generation"]
+        )
+        await store.command_replay(
+            connection, command.owner_id, str(command.protocol_id), command.action, request
+        )
+        return attempt
+
     async def reserve_execution(
         self,
         connection: AsyncConnection,

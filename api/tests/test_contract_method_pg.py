@@ -9924,6 +9924,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     assert heartbeat is not None
                     await heartbeat
                     await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                    assert await runtime.drain() is True
                     mt_native_closed = observation.read_bytes()
                     assert mt_native_closed.startswith(native_after)
                     mt_stopped = await control_task(directory, request_prepare)

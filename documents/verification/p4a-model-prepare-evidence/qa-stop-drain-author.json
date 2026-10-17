@@ -1,0 +1,54 @@
+{
+  "base": "33a5b06783e4404ddc6535e4b533f76aeca7ba4f",
+  "scope": ["api/tests/test_contract_method_pg.py", "api/tests/test_model_test_prepare_source.py"],
+  "requirement_consumer_risk_decision": "Model-test preparation Stop at the existing QA consumer must fence DB, then drain the original runtime before settled observation and strict STOPPED/CLOSE checks. RED authorizes only the missing caller drain, not a product or grant change.",
+  "pre_edit_cause": {
+    "service": "InstanceService.shutdown service.py:390-411 commits admission=false/generation+1/SHUTDOWN receipt only; runtime_drain is only invoked by quiesce:413-436 when bound.",
+    "consumer": "test_contract_method_pg.py:8469 uses InstanceService(engine) without runtime_drain; model_prepare arm:9923-9943 joins renewal and calls DB shutdown but no drain before baseline/status/CLOSE.",
+    "matched_stock": "supervisor/__main__.py:77 binds original runtime.drain, loop:147 quiesces, finalizer:167 strictly requires drain; existing QA sibling:10450 requires await runtime.drain() is True before observation.",
+    "drain_host": "RuntimeClient.drain runtime_client.py:786-792 sends stop and requires drained=True from both ACK and status readback. RuntimeHost.stop:1071-1173 validates correlated native CLOSE and latches uncertainty; STOPPED requires physical drain, owned namespace, no uncertainty. snapshot:214 derives drained from state.",
+    "red": "Actual consumer AST fragment (done.set through validate_model_close_result), actual RuntimeClient.drain with explicitly labeled DB/Host doubles; no native Future credit. 4 failed in 2.16s, exit1. Positive fails actual STOPPED assertion at original QA:9934; stop exchange awaited zero times in negative controls.",
+    "historical_limit": "This demonstrates a sufficient caller omission; it does not recover the unretained original Host state or prove exclusive retrospective cause. Last real QA remains FAIL/ERROR/UNCERTAIN and prior progress remains intact."
+  },
+  "intended_fix": "Insert assert await runtime.drain() is True immediately after awaited service.shutdown, before mt_native_closed baseline. Preserve all later STOPPED/drained, correlated CLOSE, byte equality/census and same-Future oracles unchanged.",
+  "exit_controls": ["positive original drain sends stop, reads status and settles before baseline", "false drain fails before baseline", "exception propagates before baseline", "missing CLOSE fails original validator, never reports success"],
+  "red_log": "/home/kali/.hermes/cache/scratch/sc-vz0lobs5/red.log",
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "real_qa": "NOT_RUN_BY_CHILD",
+  "resources": "Only fresh owned scratch and SOURCE fixture resources; no PG/OCI/native/provider/account/target launch, old DB adoption, or Git stage/commit.",
+  "cause_recorded_before_qa_edit": true,
+  "outcome": "FIX_IMPLEMENTED_SOURCE_VERIFIED_PENDING_PARENT_REVIEW_AND_REAL_QA",
+  "head_after": "33a5b06783e4404ddc6535e4b533f76aeca7ba4f",
+  "final_sha256": {
+    "api/tests/test_contract_method_pg.py": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+    "api/tests/test_model_test_prepare_source.py": "b82c4ef83bb2dc9b98ddb6bebf5441b03d0e00c5915d0f9362af3258ccbe50eb"
+  },
+  "diff": {
+    "api/tests/test_contract_method_pg.py": "+1/-0: require original runtime drain after DB shutdown and before native closed baseline; all downstream oracles unchanged",
+    "api/tests/test_model_test_prepare_source.py": "+114/-0: one four-case parametrized SOURCE regression executing original consumer AST and real RuntimeClient.drain with DB/Host seams substituted",
+    "tracked_other_files_changed": false,
+    "index_changed": false,
+    "stage_commit_push": "NOT_PERFORMED",
+    "protected_paths": "Original untracked HTML not read/hashed/copied/written; tools/development/ponytail.json not read/written"
+  },
+  "test_command": "TMPDIR=/home/kali/.hermes/cache/scratch/sc-vz0lobs5 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\",\"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"--basetemp=/home/kali/.hermes/cache/scratch/sc-vz0lobs5/f\",\"-q\",\"--tb=short\",\"api/tests/test_model_test_prepare_source.py\"]))' > /home/kali/.hermes/cache/scratch/sc-vz0lobs5/final-source.log 2>&1",
+  "verification": [
+    {"phase": "RED", "command_delta_from_test_command": "basetemp r; select file::test_model_prepare_qa_shutdown_drains_before_closed_baseline; log red.log", "exit": 1, "result": "4 failed in 2.16s; original STOPPED assertion fails; no stop exchange"},
+    {"phase": "initial GREEN attempt", "command_delta_from_test_command": "basetemp g; log green.log", "exit": 1, "result": "1 failed, 77 passed in 20.45s; new test incorrectly inspected async local mt_close_evidence through global scope; corrected test to return original validated value, no consumer/oracle change"},
+    {"phase": "initial quality", "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-cache api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0},
+    {"phase": "initial format", "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check --no-cache api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 1, "result": "new test generator wrapping only; fixed by targeted patch"},
+    {"phase": "initial typing", "command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/sc-vz0lobs5/mypy api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0, "result": "2 source files clean"},
+    {"phase": "final SOURCE after last edit", "command": "test_command", "exit": 0, "result": "78 passed in 21.07s; all four new controls and 74 existing source cases"},
+    {"phase": "final lint", "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-cache api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0, "result": "All checks passed"},
+    {"phase": "final format", "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check --no-cache api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0, "result": "2 files already formatted"},
+    {"phase": "final typing", "command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/sc-vz0lobs5/mypy-final api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py", "exit": 0, "result": "Success: no issues found in 2 source files"},
+    {"phase": "diff", "command": "git diff --check", "exit": 0},
+    {"phase": "scratch retirement", "command": "api/.venv/bin/python -I -B: os.walk exact owned scratch, lstat socket/receipt/cache inventory and assert emptiness", "exit": 0, "result": "zero remaining sockets, runtime.sock/runtime.boot, __pycache__; SOURCE fixture tasks/UDS retired; logs/test data/mypy caches retained"}
+  ],
+  "other_preliminary_issue": "One multi-hunk patch validation refused ambiguous scope match atomically; no files changed by refusal; corrected context and applied focused patch.",
+  "scope_rationale": "Only local model_prepare shutdown arm changed; no shared helper/product/native/owner/observer/config/fixture mutation. Ran complete affected source file; unchanged 115 shared regression set and startup/canonical not rerun because shared scope unaffected.",
+  "preserved": ["renewal done and join before DB fence", "DB fence before first drain effect", "awaited original runtime drain before settled baseline", "native_closed startswith native_after", "strict STOPPED and drained true", "validate_model_close_result correlation", "same-Future close observer", "no-rerun/census/native byte equality", "grants/deadlines/expiry/caps/Stop unchanged", "historical FAIL/UNKNOWN and actual prior QA progress"],
+  "limitations": ["DB shutdown/Host are explicitly labeled SOURCE doubles in new regression; no native Future or real end-to-end credit", "Original Host state/drained was not retained; exclusive historical cause not established", "Two exact-snapshot independent reviews, parent adjudication/commit and one admitted fresh original run_gate180 remain parent-owned", "No live/provider/account/target/UI/canonical/P3 verification or launch", "No new skill written outside two-file write scope; existing settled-IPC skill already documents baseline-after-authentic-drain rule"],
+  "parent_next": "Review these exact two file hashes with two complementary independent reviewers; after approval run only the admitted fresh original consumer gate, preserving strict CLOSE/same-Future/census checks. No acceptance claimed from SOURCE alone."
+}

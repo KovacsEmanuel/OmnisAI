@@ -223,6 +223,120 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
     assert not (ipc_directory / "runtime.boot").exists()
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fault", [None, "false", "exception", "missing-close"])
+async def test_model_prepare_qa_shutdown_drains_before_closed_baseline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str | None
+) -> None:
+    """Execute the real QA Stop arm and RuntimeClient drain; DB/Host are doubles."""
+    import ast
+    import asyncio
+    from collections.abc import Awaitable, Callable
+    from types import SimpleNamespace
+
+    from omnis_hermes.managed_admission_contract import validate_model_close_result
+
+    import test_contract_method_pg as qa
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    tree = ast.parse(Path(qa.__file__).read_bytes())
+    baseline = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "mt_native_closed" for t in n.targets)
+    )
+    arm = next(n for n in ast.walk(tree) if isinstance(n, ast.If) and baseline in n.body)
+    start = next(i for i, n in enumerate(arm.body) if ast.unparse(n) == "done.set()")
+    end = next(
+        i
+        for i, n in enumerate(arm.body)
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "mt_close_evidence" for t in n.targets)
+    )
+    probe = cast(ast.AsyncFunctionDef, ast.parse("async def probe(): pass").body[0])
+    probe.body = arm.body[start : end + 1] + ast.parse("return mt_close_evidence").body
+    events: list[str] = []
+    done = asyncio.Event()
+    context = {"kind": "model-test-context", "id": str(uuid4()), "revision": 1, "digest": "a" * 64}
+    close = {
+        "protocol": "omnis-managed-admission-v5",
+        "mode": "CLOSE",
+        "context_ref": context,
+        "status": "CLOSED_JOINED",
+    }
+
+    async def joined() -> None:
+        assert done.is_set()
+        events.append("joined")
+
+    heartbeat = asyncio.create_task(joined())
+
+    async def shutdown(*args: object) -> None:
+        assert heartbeat.done() and events == ["joined"]
+        events.append("fenced")
+
+    async def exchange(operation: str) -> dict[str, object]:
+        assert operation == "stop" and events == ["joined", "fenced"]
+        events.append("drain-enter")
+        await asyncio.sleep(0)
+        assert events[-1] == "drain-enter"  # No observation before the awaited barrier.
+        if fault == "exception":
+            raise RuntimeError("SOURCE_DRAIN_FAILURE")
+        events.append("drain-return")
+        return {"drained": fault != "false"}
+
+    async def status() -> dict[str, object]:
+        drained = "drain-return" in events and fault != "false"
+        return {
+            "state": "STOPPED" if drained else "READY",
+            "drained": drained,
+            "model_preparation_close": None if fault == "missing-close" else close,
+        }
+
+    def read() -> bytes:
+        events.append("baseline")
+        return b"SOURCE-observation"
+
+    runtime = RuntimeClient(tmp_path, generation=0, epoch=1)
+    stop = AsyncMock(side_effect=exchange)
+    monkeypatch.setattr(runtime, "_exchange", stop)
+    monkeypatch.setattr(runtime, "status", AsyncMock(side_effect=status))
+    replay = AsyncMock()
+    scope: dict[str, object] = {
+        "done": done,
+        "heartbeat": heartbeat,
+        "service": SimpleNamespace(shutdown=shutdown),
+        "uuid4": uuid4,
+        "status": SimpleNamespace(generation=0),
+        "supervisor": uuid4(),
+        "epoch": 1,
+        "runtime": runtime,
+        "observation": SimpleNamespace(read_bytes=read),
+        "native_after": b"SOURCE-observation",
+        "control_task": replay,
+        "directory": tmp_path,
+        "request_prepare": {},
+        "mt_answer": {"context_ref": context},
+        "validate_model_close_result": validate_model_close_result,
+    }
+    exec(compile(ast.Module(body=[probe], type_ignores=[]), qa.__file__, "exec"), scope)
+    invoke = cast(Callable[[], Awaitable[object]], scope["probe"])
+    if fault is None:
+        assert await invoke() == close
+        assert events == ["joined", "fenced", "drain-enter", "drain-return", "baseline"]
+    else:
+        expected: type[Exception] = RuntimeError if fault == "exception" else AssertionError
+        if fault == "missing-close":
+            expected = ValueError
+        with pytest.raises(expected):
+            await invoke()
+        stop.assert_awaited_once_with("stop")
+        if fault != "missing-close":
+            assert "baseline" not in events
+            replay.assert_not_awaited()
+
+
 async def prepared_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, padding: str = "", objective_suffix: str = ""
 ) -> tuple[SourceOwner, ModelTest, AsyncConnection, dict[str, object], dict[str, object]]:

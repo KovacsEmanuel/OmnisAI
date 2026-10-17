@@ -143,6 +143,22 @@ def test_replay_rechecks_cold_configuration(lifecycle):
     assert len(x.checks) == before + 1
 
 
+def test_constructor_cut_closes_unpublished_child_and_preserves_primary(lifecycle):
+    x = lifecycle
+    class Cut(BaseException):
+        pass
+    primary = Cut("SOURCE original cut")
+    def cut(*args):
+        raise primary
+    x.service._capability = cut
+    with pytest.raises(Cut) as caught:
+        x.service.prepare_model_test(x.payload())
+    assert caught.value is primary
+    assert x.children[0]._model_test_closed.is_set()
+    assert x.children[0]._model_test_future is None
+    assert next(iter(x.service._model_test_batches.values()))["record"] is None
+
+
 def test_other_active_native_child_counts_against_prepare_cap(lifecycle):
     x = lifecycle
     x.registry.records["other"] = SimpleNamespace(agent=object(), future=None, state="RUNNING")

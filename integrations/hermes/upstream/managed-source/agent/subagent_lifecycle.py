@@ -301,12 +301,13 @@ class SubagentLifecycleService:
                                           SubagentState.RUNNING, SubagentState.CANCEL_REQUESTED)):
                     raise ValueError("Native child already active")
             # Retain failure before the constructor: uncertain CREATE is never repeated.
-            marker = {"bound": bound, "parent": parent, "record": None,
+            marker = {"bound": bound, "parent": parent, "record": None, "child": None,
                       "root_identity": (parent._subagent_id, parent.session_id)}
             self._model_test_batches[key] = marker
             try:
                 from run_agent import AIAgent
                 child = AIAgent(model_test_preparation=ModelTestPreparation(canonical(p)))
+                marker["child"] = child
                 marker["child_identity"] = (child._subagent_id, child.session_id)
                 child._parent_session_id = parent.session_id
                 created = time.time()
@@ -340,8 +341,9 @@ class SubagentLifecycleService:
                     native_child_id=child._subagent_id, native_session_id=child.session_id,
                     native_turn=child._model_test_turn)
             except BaseException:
-                if marker["record"] is not None:
-                    marker["record"].agent.close()
+                if marker["child"] is not None:
+                    with contextlib.suppress(BaseException):
+                        marker["child"].close()  # cleanup cannot replace the primary failure
                 raise
 
     def stage(self, payload):

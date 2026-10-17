@@ -12207,7 +12207,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 db_fence["unsettled"] = True
             if model_prepare:
                 try:
-                    trace = error.__traceback__
+                    trace = BaseException.__dict__["__traceback__"].__get__(error, type(error))
                     checkpoint(
                         model_prepare_primary_error={
                             "exceptions": launch_exception_chain(error),

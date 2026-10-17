@@ -404,7 +404,7 @@ async def test_actual_transport_serializers_exact_wire(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("failure", ["opaque", "public-context", "cancel"])
+@pytest.mark.parametrize("failure", ["opaque", "public-context", "cancel", "hostile-traceback"])
 @pytest.mark.parametrize("secondary", [None, "cleanup", "checkpoint"])
 async def test_model_prepare_primary_error_before_real_finally(
     tmp_path: Path, failure: str, secondary: str | None
@@ -447,10 +447,16 @@ async def test_model_prepare_primary_error_before_real_finally(
             raise AssertionError("PRIVATE_EXCEPTION_REPR_EVALUATED")
 
     opaque = OpaqueFailure(marker)
+    hostile = type(
+        "HostileTraceback",
+        (OpaqueFailure,),
+        {"__traceback__": property(lambda self: SimpleNamespace(tb_lineno=marker))},
+    )(marker)
     primary: BaseException = {
         "opaque": opaque,
         "public-context": ValueError("Runtime exchange unavailable"),
         "cancel": asyncio.CancelledError(marker),
+        "hostile-traceback": hostile,
     }[failure]
     if failure == "public-context":
         primary.__context__ = opaque
@@ -534,11 +540,15 @@ async def test_model_prepare_primary_error_before_real_finally(
                 {"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"},
             ],
             "cancel": [{"type": "CancelledError", "reason": "UNCLASSIFIED"}],
+            "hostile-traceback": [{"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"}],
         }[failure]
         assert set(diagnostic) == {"exceptions", "source", "consumer_line"}
         assert diagnostic["exceptions"] == expected
         assert diagnostic["source"] == "test_contract_method_pg.py"
-        assert diagnostic["consumer_line"] == statement.body[0].lineno
+        trace = BaseException.__dict__["__traceback__"].__get__(primary, type(primary))
+        assert trace is not None and trace.tb_next is not None
+        assert type(diagnostic["consumer_line"]) is int
+        assert diagnostic["consumer_line"] == trace.tb_next.tb_lineno == statement.body[0].lineno
         assert snapshots == [{"model_prepare_primary_error": diagnostic}]
     assert marker not in canonical(proof).decode()
 

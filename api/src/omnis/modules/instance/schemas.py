@@ -88,6 +88,7 @@ class NativeTaskCommand(StrictBody):
         "model_preflight",
         "model_configuration",
         "model_initialization",
+        "model_test_prepare",
         "model_protocol_prepare",
         "model_protocol_validation",
     ]
@@ -101,6 +102,7 @@ class NativeTaskCommand(StrictBody):
     provider_config_ref: dict[str, object] | None = Field(
         default=None, exclude_if=lambda v: v is None
     )
+    settings_operation_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
     initialization_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
     protocol_id: str | None = Field(default=None, exclude_if=lambda v: v is None)
     protocol_caps: dict[str, object] | None = Field(default=None, exclude_if=lambda v: v is None)
@@ -117,6 +119,18 @@ class NativeTaskCommand(StrictBody):
     def model_preflight(self) -> Self:
         from omnis.modules.settings.catalog_schema import canonical
 
+        if self.action == "model_test_prepare":
+            from omnis.modules.settings.candidate_catalog import uuid_string
+
+            self.initialization_id = uuid_string(self.initialization_id)
+            self.settings_operation_id = uuid_string(self.settings_operation_id)
+            if any(v is not None for v in (self.configuration, self.provider_config_ref, self.data_approval, self.protocol_id, self.protocol_caps)):
+                raise ValueError("Preparation consumes saved native Settings only")
+            if len(canonical(self.model_dump(mode="json"))) > 3600:
+                raise ValueError("Preparation command too large")
+            return self
+        if self.settings_operation_id is not None:
+            raise ValueError("Settings reference only belongs to preparation")
         if self.action in {"model_protocol_prepare", "model_protocol_validation"}:
             from omnis.modules.runs.model_dispatch import data_decision
             from omnis.modules.settings.candidate_catalog import uuid_string

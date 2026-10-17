@@ -245,6 +245,25 @@ class NativeTaskOwner:
             "initialization_data": data.decode(),
         }
 
+    async def _model_test_prepare(self, command: NativeTaskCommand) -> dict[str, object]:
+        from omnis.modules.runs.model_test import ModelTest
+
+        saved = await self.runtime.settings_status(str(command.settings_operation_id))
+        async with self.service.native_preparation_commit(
+            self.owner, self.epoch, command.expected_generation
+        ) as conn:
+            await self._instance(conn, command)
+            context = await ModelTest(self.domain).prepare(
+                conn, command.owner_id, command.manifest_ref,
+                str(command.initialization_id), str(command.settings_operation_id), saved,
+                {"instance_id": command.instance_id, "owner": str(self.owner),
+                 "epoch": self.epoch, "generation": command.expected_generation},
+                str(self.runtime.boot),
+            )
+        return {"ok": True, "model_test_context": context["payload"],
+                "context_ref": records.reference(context), "inference_status": "HOLD",
+                "account_status": "NOT_VERIFIED"}
+
     async def _model_initialization(self, command: NativeTaskCommand) -> dict[str, object]:
         from omnis.modules.runs.model_dispatch import ModelDispatch
 
@@ -303,7 +322,7 @@ class NativeTaskOwner:
         )
         if canonical(back["manifest_ref"]) != canonical(command.manifest_ref):
             raise CatalogError("COMMAND_CONFLICT")
-        if command.action in {"model_configuration", "model_initialization"}:
+        if command.action in {"model_configuration", "model_initialization", "model_test_prepare"}:
             if (
                 back["binding"] is not None
                 or back["stage_started"]
@@ -311,6 +330,8 @@ class NativeTaskOwner:
                 or back["results"]
             ):
                 raise CatalogError("MODEL_CONFIGURATION_REJECTED")
+            if command.action == "model_test_prepare":
+                return await self._model_test_prepare(command)
             if command.action == "model_initialization":
                 return await self._model_initialization(command)
             return await self._model_configuration(command)

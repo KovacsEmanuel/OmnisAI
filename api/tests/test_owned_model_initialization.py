@@ -188,6 +188,56 @@ class SourceOwner:
 
 
 @pytest.mark.asyncio
+async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from test_contract_method_producer import batch2_source
+
+    graph, bundle, source, actual_owner = await batch2_source(tmp_path / "material", monkeypatch)
+    owner = SourceOwner(tmp_path, monkeypatch)
+    owner.owner = actual_owner
+    owner.base["owner_id"] = actual_owner
+    owner.graph[:] = graph
+    old_run = next(r for r in graph if r["kind"] == "managed-run")
+    owner.run = str(old_run["id"])
+    owner.state["run_id"] = owner.run
+    manifest = graph[-1]
+    owner.base["manifest_ref"] = records.reference(manifest)
+    monkeypatch.setattr(owner.handler.domain, "readback", AsyncMock(return_value={
+        "manifest_ref": records.reference(manifest), "manifest": manifest,
+        "binding": None, "results": [], "stage_started": False, "release_started": False,
+    }))
+    owner.handler.domain.root = tmp_path
+    # Boundary doubles only; BuildSource came from the real retained-material producer.
+    monkeypatch.setattr(owner.handler.domain, "_source", AsyncMock(return_value=source))
+    owner.runtime.settings_status = AsyncMock(return_value={
+        "status": "CONFIRMED", "selection": {
+            "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
+        }, "authenticated": "NOT_VERIFIED",
+    })
+    command = NativeTaskCommand.model_validate({
+        **owner.base, "action": "model_test_prepare", "initialization_id": str(uuid4()),
+        "settings_operation_id": str(uuid4()),
+    })
+    answer = await owner.handler.handle(command)
+    assert answer["inference_status"] == "HOLD"
+    assert answer["account_status"] == "NOT_VERIFIED"
+    context = mapping(answer["model_test_context"])
+    assert context["purpose"] == "MODEL_TEST_PREPARE"
+    assert context["requested"] == {
+        "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
+    }
+    assert context["effective"] is None
+    assert context["selection_ref"] != records.reference(source.selection)
+    assert context["snapshot_ref"] != mapping(source.selection["payload"])["snapshot_ref"]
+    before = canonical(owner.graph)
+    owner.native.assert_not_awaited()
+    assert await owner.handler.handle(command) == answer
+    assert canonical(owner.graph) == before
+    owner.reserve.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_private_owner_commits_source_and_intent_before_core_handoff_then_replays_readonly(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

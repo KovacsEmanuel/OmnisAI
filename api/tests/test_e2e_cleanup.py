@@ -46,7 +46,9 @@ def test_real_e2e_consumer_retains_first_driver_error_and_separate_cleanup_failu
         return process
 
     monkeypatch.setattr(consumer, "start_supervisor", lambda *_: synthetic_service(stubborn=False))
-    monkeypatch.setattr(consumer, "launch_api", lambda *_: synthetic_service(stubborn=True))
+    monkeypatch.setattr(
+        consumer, "launch_api", lambda *_, own_source=False: synthetic_service(stubborn=True)
+    )
     monkeypatch.setattr(consumer, "wait_ready", lambda *_: None)
     monkeypatch.setattr(consumer, "wait_api", lambda *_: None)
 
@@ -105,7 +107,11 @@ def test_real_e2e_consumer_retains_first_driver_error_and_separate_cleanup_failu
     try:
         with pytest.raises(ExceptionGroup) as failure:
             consumer.test_built_web_against_real_control_plane(
-                URL.create("postgresql+psycopg", database="unused"), tmp_path, family, "b04"
+                URL.create("postgresql+psycopg", database="unused"),
+                tmp_path,
+                family,
+                "b04",
+                monkeypatch,
             )
         reasons = [str(error) for error in failure.value.exceptions]
         assert any("page.goto: Timeout 30000ms exceeded" in reason for reason in reasons), reasons

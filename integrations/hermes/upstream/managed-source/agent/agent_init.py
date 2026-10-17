@@ -2347,6 +2347,7 @@ def configure_model_test(agent, carrier):
     agent.session_start = datetime.now()
     agent.session_id = new_session_id(agent.session_start)
     agent._subagent_id = str(uuid4())
+    agent._model_test_identity = (agent.session_id, agent._subagent_id)
     agent._parent_session_id = None
     agent.provider = context["requested"]["provider"]
     agent.model = context["requested"]["model"]
@@ -2372,7 +2373,9 @@ def observe_model_test(agent):
         raise ValueError("No constructor-owned preparation")
     p = carrier.payload()
     c = p["context"]["payload"]
-    if (agent._model_test_closed.is_set() or agent.client is not None
+    if (agent._model_test_closed.is_set()
+            or (agent.session_id, agent._subagent_id) != agent._model_test_identity
+            or agent.client is not None
             or type(agent._api_call_count) is not int or agent._api_call_count != 0
             or type(agent.tools) is not tuple or len(agent.tools) != 0
             or type(agent.enabled_toolsets) is not tuple or len(agent.enabled_toolsets) != 0

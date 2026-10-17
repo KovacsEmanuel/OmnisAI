@@ -268,6 +268,8 @@ class SubagentLifecycleService:
                 if child._model_test_closed.is_set() or child._model_test_failure is not None:
                     return preparation_result(p)
                 observe_model_test(child)
+                if child._parent_session_id != prior["parent"].session_id:
+                    raise ValueError("Preparation child parent changed")
                 if not child._model_test_ready.is_set() or child._model_test_turn is None:
                     return preparation_result(p)
                 return preparation_result(p, native_root_id=prior["parent"]._subagent_id,

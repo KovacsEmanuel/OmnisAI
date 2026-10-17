@@ -318,6 +318,7 @@ def test_model_test_native_source_parks_actual_builder_before_stock_effects() ->
     configure = next(n for n in init.body if isinstance(n, ast.FunctionDef) and n.name == "configure_model_test")
     text = ast.unparse(configure)
     assert "new_session_id(" in text and "agent.client = None" in text
+    assert "agent._model_test_identity" in text
     assert "resolve_runtime" not in text and "config_operation" not in text
 
 

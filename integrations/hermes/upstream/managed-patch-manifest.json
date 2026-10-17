@@ -30,7 +30,7 @@
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "d3defbb9f0e6037e5130a7d8afe48f66ce78dd9bf78e2447cc03815fe8d604e0"
+      "patched_sha256": "efee1831eec09ed98489be4c20c3b5753a6164b13ce6ae183f8b07f56fcc1598"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -58,7 +58,7 @@
     },
     "agent/agent_init.py": {
       "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81",
-      "patched_sha256": "21a87701b4a840e708168297f6a81b9ac3dce01a1efde8c01694c8b5b3240312"
+      "patched_sha256": "3cc1b1451d010350d43672b405c60b79572dd2a55d7f0cc8306df72bea2d318e"
     },
     "agent/contract_execution.py": {
       "original_sha256": null,
@@ -69,5 +69,5 @@
       "patched_sha256": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb"
     }
   },
-  "patch_sha256": "8c7a541b74ec360d91a055854a098ddbf3cafb7bd1ce526c857c7e6503b6b423"
+  "patch_sha256": "e542846562a30c5a660062528ddabc189fa226b7e884adc236a268457c25b1a1"
 }

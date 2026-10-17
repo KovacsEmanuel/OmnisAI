@@ -1049,6 +1049,7 @@ def main() -> int:
             "test-model-budget-pg",
             "test-model-admission-pg",
             "test-owned-initialization-native-pg",
+            "test-model-test-prepare-native-pg",
         ),
         default="check-components",
     )

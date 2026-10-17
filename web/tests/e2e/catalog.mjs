@@ -115,7 +115,9 @@ export async function runCatalog({ page, check, paired, output, origin, screensh
 
     for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
       await page.setViewportSize(viewport);
-      await reload.focus();
+      // Enter keyboard modality after pointer recovery before checking :focus-visible.
+      await inspect.focus();
+      await page.keyboard.press('Tab');
       await check(reload).toBeFocused();
       const focus = await reload.evaluate(element => {
         const rect = element.getBoundingClientRect();

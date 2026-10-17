@@ -31,6 +31,10 @@ def _initialize(params):
     if p["protocol"] == "omnis-managed-admission-v5":
         global _ROOT, _SERVICE
         with _LOCK:
+            if p["mode"] == "CLOSE":
+                if _SERVICE is None:
+                    raise ValueError("No native preparation owner")
+                return _SERVICE.close_model_tests(p["context_ref"])
             if _SERVICE is None:
                 if p["mode"] == "STATUS":
                     from omnis_hermes.managed_admission_contract import preparation_result

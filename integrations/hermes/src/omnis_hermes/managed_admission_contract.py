@@ -37,6 +37,32 @@ PROTOCOL_V5 = "omnis-managed-admission-v5"
 MODEL_TEST_REQUESTED = {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"}
 
 
+def validate_model_close(value: object) -> dict[str, object]:
+    p = obj(value, {"protocol", "mode", "context_ref"})
+    if (
+        type(p["protocol"]) is not str
+        or p["protocol"] != PROTOCOL_V5
+        or type(p["mode"]) is not str
+        or p["mode"] != "CLOSE"
+    ):
+        raise ValueError("Invalid preparation close")
+    context = reference(p["context_ref"], "model-test-context")
+    _integer(context["revision"], 1, 1)
+    return p
+
+
+def validate_model_close_result(value: object, request: object) -> dict[str, object]:
+    v = obj(value, {"protocol", "mode", "context_ref", "status"})
+    p = validate_model_close({k: v[k] for k in ("protocol", "mode", "context_ref")})
+    if (
+        p != validate_model_close(request)
+        or type(v["status"]) is not str
+        or v["status"] != "CLOSED_JOINED"
+    ):
+        raise ValueError("Native preparation drain uncertain")
+    return v
+
+
 def validate_model_prepare(value: object) -> dict[str, object]:
     """Separate DATA contract; the v1-v4 readers and their guards stay closed."""
     bounded(value)
@@ -898,6 +924,8 @@ def _configuration(value: object) -> dict[str, object]:
 def validate_initialization(value: object) -> dict[str, object]:
     """Validate DATA, not origin/dispatch authority. Private owner/Host grants remain required."""
     if type(value) is dict and value.get("protocol") == PROTOCOL_V5:
+        if value.get("mode") == "CLOSE":
+            return validate_model_close(value)
         return validate_model_prepare(value)
     _exact_data(value)
     value = wire(value, _INITIALIZATION_FIELDS)

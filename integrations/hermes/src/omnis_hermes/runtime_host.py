@@ -131,6 +131,10 @@ class RuntimeHost:
         # Receive-only retention survives native drain, not Host restart. Never
         # evict a terminal result to make room for an unrecoverable execution.
         self.managed_finals: dict[str, bytes] = {}
+        self.model_preparation_close: bytes | None = None
+        self.model_close_evidence: bytes | None = None
+        self.model_close_attempted = False
+        self.model_close_uncertain = False
         self.settings_task: asyncio.Task[None] | None = None
         self.settings_command: dict[str, object] | None = None
         self.settings_seen: set[str] = set()
@@ -202,7 +206,7 @@ class RuntimeHost:
             self.lock_fd = None
 
     def snapshot(self) -> dict[str, object]:
-        return {
+        result = {
             "state": self.state,
             "generation": self.generation,
             "epoch": self.epoch,
@@ -212,6 +216,13 @@ class RuntimeHost:
             "capabilities": self.capabilities,
             "bootstrap_inventory": self.peer.bootstrap_inventory if self.peer is not None else None,
         }
+        if self.model_preparation_close is not None:
+            result["model_preparation_close"] = (
+                json.loads(self.model_close_evidence)
+                if self.model_close_evidence is not None
+                else None
+            )
+        return result
 
     def _grant(self, body: dict[str, object]) -> int:
         deadline = body.get("deadline_ns")
@@ -667,6 +678,22 @@ class RuntimeHost:
         assert self.peer is not None
         async with asyncio.timeout(remaining):
             if operation == "task_model_initialize":
+                if payload.get("protocol") == managed.PROTOCOL_V5 and payload["mode"] == "CREATE":
+                    close = canonical(
+                        managed.validate_model_close(
+                            {
+                                "protocol": managed.PROTOCOL_V5,
+                                "mode": "CLOSE",
+                                "context_ref": managed.ref(
+                                    cast(dict[str, object], payload["context"])
+                                ),
+                            }
+                        )
+                    )
+                    if self.model_preparation_close != close:
+                        self.model_preparation_close = close
+                        self.model_close_attempted = False
+                        self.model_close_evidence = None
                 observed = await self.peer.call(managed.RPC[operation], payload, timeout=remaining)
                 self._preparation_ready()
                 return managed.validate_initialization_result(observed, payload)
@@ -1045,6 +1072,10 @@ class RuntimeHost:
         # EOF is synchronous and visible in the native worker without signal
         # delivery or an event-loop turn. Revoke before even waiting for the lock.
         self._revoke_management_lifeline()
+        if self.model_preparation_close is not None:
+            self.model_close_uncertain |= self.state == "UNCERTAIN"
+            if self.state != "STOPPED":
+                self.state = "STOPPING"  # revoke admission before the first await
         async with self.stop_lock:
             if self.state == "STOPPED":
                 return
@@ -1065,16 +1096,36 @@ class RuntimeHost:
                     settings.identity(self.settings_result["operation_id"]), status
                 )
             if self.process is None:
+                if self.model_preparation_close is not None and self.model_close_evidence is None:
+                    self.model_close_uncertain = True
+                    self.state = "UNCERTAIN"
+                    return
                 if self.settings_command is not None:
                     self.state = "STOPPED"
                 return
-            uncertain = self.state == "UNCERTAIN"
+            uncertain = self.state == "UNCERTAIN" or self.model_close_uncertain
             if uncertain and self.process.returncode is not None and self.preparation_task is None:
+                self.state = "UNCERTAIN"
                 return
             self.state = "STOPPING"
             if self.preparation_task is not None:
                 self.preparation_task.cancel()
                 await asyncio.gather(self.preparation_task, return_exceptions=True)
+            if self.model_preparation_close is not None and not self.model_close_attempted:
+                self.model_close_attempted = True
+                self.model_close_uncertain = True  # latch before any fallible transport boundary
+                try:
+                    if self.peer is None:
+                        raise ValueError("Native preparation owner unavailable")
+                    close = managed.validate_model_close(json.loads(self.model_preparation_close))
+                    result = managed.validate_model_close_result(
+                        await self.peer.call(managed.RPC["task_model_initialize"], close), close
+                    )
+                    self.model_close_evidence = canonical(result)
+                    self.model_close_uncertain = uncertain
+                except Exception:
+                    self.model_close_uncertain = True
+            uncertain |= self.model_close_uncertain
             handles: dict[int, int] = {}
             try:
                 for pid in self._owned_pids():

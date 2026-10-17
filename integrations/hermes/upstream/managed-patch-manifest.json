@@ -26,11 +26,11 @@
     },
     "agent/managed_admission_rpc.py": {
       "original_sha256": null,
-      "patched_sha256": "b093b4fc1683ceb269b89a46fe49a1b3e814fe8aaed3599492d000bfdbd3397d"
+      "patched_sha256": "a6bc9920e8ed4449d6b7937cbb07b6a8cd19cb66689465f91c16a082750067c7"
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "19170fb6643fdedc5e5abaa5328006610292b169e81e510b6b2847524d22be89"
+      "patched_sha256": "1743884d52b5dcb4ddf4b1a31aafc60944784bd280f46e28e92ca2f2bb3bfc16"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -73,5 +73,5 @@
       "patched_sha256": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f"
     }
   },
-  "patch_sha256": "c55286c2fe562e7c9dfd36d1214d16c30e5b11bd6cb32431162b89b42c919665"
+  "patch_sha256": "f7664cba1b7f58a9bd26e97ceb491b57ffa4d2bd88924edfef047e830b34ce04"
 }

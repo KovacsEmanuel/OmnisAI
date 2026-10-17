@@ -393,30 +393,32 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
                 AsyncMock(wraps=getattr(store, name))
                 for name in ("command_receipt", "owned", "command_replay")
             ]
-            for name, lookup in zip(("command_receipt", "owned", "command_replay"), lookups):
+            for name, lookup in zip(
+                ("command_receipt", "owned", "command_replay"), lookups, strict=True
+            ):
                 invalid.setattr(store, name, lookup)
             for entry in ("handle", "completed"):
                 for field, good in (("expected_epoch", 1), ("expected_generation", 0)):
-                    for value in (bool(good), float(good), str(good)):
-                        bad = command.model_copy(update={field: value})
+                    for invalid_value in (bool(good), float(good), str(good)):
+                        invalid_command = command.model_copy(update={field: invalid_value})
                         try:
                             if entry == "handle":
-                                await owner.handler.handle(bad)
+                                await owner.handler.handle(invalid_command)
                             else:
-                                await consumer.completed(connection, bad)
+                                await consumer.completed(connection, invalid_command)
                         except (ValidationError, CatalogError):
-                            rejected.append((entry, field, type(value)))
-                for value in (True, 1.0, "1"):
-                    bad = command.model_copy(
-                        update={"manifest_ref": {**command.manifest_ref, "revision": value}}
+                            rejected.append((entry, field, type(invalid_value)))
+                for invalid_value in (True, 1.0, "1"):
+                    invalid_command = command.model_copy(
+                        update={"manifest_ref": {**command.manifest_ref, "revision": invalid_value}}
                     )
                     try:
                         if entry == "handle":
-                            await owner.handler.handle(bad)
+                            await owner.handler.handle(invalid_command)
                         else:
-                            await consumer.completed(connection, bad)
+                            await consumer.completed(connection, invalid_command)
                     except (ValidationError, CatalogError):
-                        rejected.append((entry, "revision", type(value)))
+                        rejected.append((entry, "revision", type(invalid_value)))
             assert len(rejected) == 18
             for lookup in lookups:
                 lookup.assert_not_awaited()

@@ -249,7 +249,7 @@ class SubagentLifecycleService:
 
     def prepare_model_test(self, payload):
         from omnis_hermes.managed_admission_contract import (
-            ModelTestPreparation, canonical, preparation_result, validate_model_prepare,
+            ModelTestPreparation, canonical, preparation_result, validate_model_prepare, ref,
         )
         from agent.agent_init import observe_model_test
         from agent.cold_admission import configuration_snapshot
@@ -294,6 +294,7 @@ class SubagentLifecycleService:
             for batch in self._model_test_batches.values():
                 held = batch["record"]
                 if (held is None or not held.agent._model_test_closed.is_set()
+                        or (held.model_test_submit_started and held.future is None)
                         or (held.future is not None and not held.future.done())):
                     raise ValueError("Native preparation active or drain uncertain")
             prepared = {id(b["record"]) for b in self._model_test_batches.values()}
@@ -305,6 +306,7 @@ class SubagentLifecycleService:
                     raise ValueError("Native child already active")
             # Retain failure before the constructor: uncertain CREATE is never repeated.
             marker = {"bound": bound, "parent": parent, "record": None, "child": None,
+                      "context_ref": ref(p["context"]),
                       "root_identity": (parent._subagent_id, parent.session_id)}
             self._model_test_batches[key] = marker
             try:
@@ -350,8 +352,11 @@ class SubagentLifecycleService:
                         marker["child"].close()  # cleanup cannot replace the primary failure
                 raise
 
-    def close_model_tests(self):
+    def close_model_tests(self, context_ref=None):
         with _REGISTRY.lock:
+            if context_ref is not None and not any(
+                    b["context_ref"] == context_ref for b in self._model_test_batches.values()):
+                raise ValueError("Unknown native preparation context")
             self._model_test_stopping = True
             children = [b["child"] for b in self._model_test_batches.values() if b["child"] is not None]
             for child in children:
@@ -360,15 +365,20 @@ class SubagentLifecycleService:
         for batch in self._model_test_batches.values():
             try:
                 child, record = batch["child"], batch["record"]
-                if child is not None:
+                if child is None or record is None:
+                    uncertain = True
+                if child is not None and (record is None or record.future is None or not record.future.done()):
                     child.close()
-                if record is not None and record.model_test_submit_started and (
-                        record.future is None or not record.future.done()):
+                if record is not None and (record.future is None or not record.future.done()):
                     uncertain = True
             except Exception:
                 uncertain = True
         if uncertain:
             raise ValueError("Native preparation drain uncertain")
+        if context_ref is not None:
+            # Receipt follows actual owner revocation and the single record Future.
+            return {"protocol": "omnis-managed-admission-v5", "mode": "CLOSE",
+                    "context_ref": context_ref, "status": "CLOSED_JOINED"}
 
     def stage(self, payload):
         """Create cold native identities, with no executor or conversation admission."""

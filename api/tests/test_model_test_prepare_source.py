@@ -746,7 +746,7 @@ async def test_model_prepare_host_checks_grant_before_handoff(
     import time
     from unittest.mock import Mock
 
-    from omnis_hermes.managed_admission_contract import preparation_result
+    from omnis_hermes.managed_admission_contract import preparation_result, ref
     from omnis_hermes.runtime_host import RuntimeHost
 
     clock = [10_000_000_000]
@@ -819,6 +819,12 @@ async def test_model_prepare_host_checks_grant_before_handoff(
     if grant == "good":
         assert mapping(await host._managed(body))["status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
         assert host.deadline_ns == deadline
+        assert host.model_preparation_close is not None
+        assert json.loads(host.model_preparation_close) == {
+            "protocol": payload["protocol"],
+            "mode": "CLOSE",
+            "context_ref": ref(mapping(payload["context"])),
+        }
         read.assert_awaited_once()
         stop.assert_awaited_once()
         launch.assert_awaited_once_with(body)
@@ -837,3 +843,133 @@ async def test_model_prepare_host_checks_grant_before_handoff(
         for effect in (read, stop, launch, call):
             effect.assert_not_awaited()
         assert host.state == "MANAGEMENT"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "fault", [None, "absent", "join-error", "wrong-context", "wrong-status", "extra", "timeout"]
+)
+async def test_model_prepare_stop_requires_correlated_close_join(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str | None
+) -> None:
+    import asyncio
+    import os
+    from collections import deque
+    from unittest.mock import Mock
+
+    from omnis_hermes import runtime_host
+    from omnis_hermes.managed_admission_contract import PROTOCOL_V5, ref
+    from omnis_hermes.runtime_protocol import NativePeer, encode
+
+    owner, consumer, conn, manifest, authority = await prepared_source(tmp_path, monkeypatch)
+    payload = await produce(owner, consumer, conn, manifest, authority)
+    close = {
+        "protocol": PROTOCOL_V5,
+        "mode": "CLOSE",
+        "context_ref": ref(mapping(payload["context"])),
+    }
+    host = runtime_host.RuntimeHost(tmp_path)
+    host.state, host.namespace_owned = "READY", True
+    host.model_preparation_close = canonical(close)
+    process = Mock(pid=12345, returncode=None, wait=AsyncMock(return_value=0))
+    host.process = process
+    monkeypatch.setattr(host, "_owned_pids", lambda: set())
+    peer = object.__new__(NativePeer)
+    peer.failure, peer.queued_bytes, peer.next_id, peer.timeout = None, 0, 2**63 - 2, 0.8
+    peer.queue, peer.pending, peer.late = asyncio.Queue(32), {}, deque(maxlen=32)
+    host.peer = peer
+    effects = []
+    enqueue = peer._enqueue
+
+    def deliver(frame: dict[str, object]) -> None:
+        assert host.state == "STOPPING"
+        enqueue(frame)
+        raw, _ = peer.queue.get_nowait()
+        assert json.loads(raw)["params"] == close and len(raw) <= 65536
+        effects.append("close")
+        future = peer.pending[(int, peer.next_id)]
+        result: dict[str, object] = {**close, "status": "CLOSED_JOINED"}
+        if fault == "absent":
+            future.set_result(None)
+        elif fault == "join-error":
+            future.set_exception(ValueError("Native preparation drain uncertain"))
+        elif fault == "timeout":
+            future.set_exception(TimeoutError())
+        else:
+            if fault == "wrong-context":
+                result["context_ref"] = {**mapping(close["context_ref"]), "id": str(uuid4())}
+            elif fault == "wrong-status":
+                result["status"] = "UNKNOWN"
+            elif fault == "extra":
+                result["joined"] = True
+            assert len(encode({"jsonrpc": "2.0", "id": peer.next_id, "result": result})) <= 65536
+            future.set_result(result)
+
+    monkeypatch.setattr(peer, "_enqueue", deliver)
+    if fault is None:
+        from omnis_hermes.managed_admission_contract import RPC
+
+        for field, value in (
+            ("revision", True),
+            ("revision", 1.0),
+            ("revision", "1"),
+            ("revision", 2),
+            ("kind", "launch-manifest"),
+            ("id", True),
+            ("digest", "g" * 64),
+        ):
+            invalid: dict[str, object] = {
+                **close,
+                "context_ref": {**mapping(close["context_ref"]), field: value},
+            }
+            with pytest.raises(ValueError):
+                await peer.call(RPC["task_model_initialize"], invalid)
+            assert peer.next_id == 2**63 - 2 and peer.pending == {} and effects == []
+        print(
+            "MODEL_CLOSE_NATIVE_REQUEST_BYTES="
+            + str(
+                len(
+                    encode(
+                        {
+                            "jsonrpc": "2.0",
+                            "id": 2**63 - 1,
+                            "method": RPC["task_model_initialize"],
+                            "params": close,
+                        }
+                    )
+                )
+            )
+        )
+        print(
+            "MODEL_CLOSE_NATIVE_REPLY_BYTES="
+            + str(
+                len(
+                    encode(
+                        {
+                            "jsonrpc": "2.0",
+                            "id": 2**63 - 1,
+                            "result": {**close, "status": "CLOSED_JOINED"},
+                        }
+                    )
+                )
+            )
+        )
+    retired = AsyncMock(side_effect=lambda: effects.append("retire"))
+    monkeypatch.setattr(peer, "close", retired)
+
+    def physical_kill(*args: object) -> None:
+        effects.append("physical-kill")
+        process.returncode = 0
+
+    monkeypatch.setattr(os, "killpg", physical_kill)
+    await host.stop()
+    assert effects == ["close", "physical-kill", "retire"]
+    assert host.state == ("STOPPED" if fault is None else "UNCERTAIN")
+    assert (host.model_close_evidence is not None) is (fault is None)
+    peer.bootstrap_inventory = None
+    assert host.snapshot()["model_preparation_close"] == (
+        {**close, "status": "CLOSED_JOINED"} if fault is None else None
+    )
+    if fault is not None:
+        await host.stop()
+        assert host.state == "UNCERTAIN" and effects.count("close") == 1

@@ -9877,7 +9877,23 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     assert heartbeat is not None
                     await heartbeat
                     await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                    mt_native_closed = observation.read_bytes()
+                    assert mt_native_closed.startswith(native_after)
                     mt_stopped = await control_task(directory, request_prepare)
+                    from omnis_hermes.managed_admission_contract import validate_model_close_result
+
+                    mt_closed_host = await runtime.status()
+                    assert (
+                        mt_closed_host["state"] == "STOPPED" and mt_closed_host["drained"] is True
+                    )
+                    mt_close_evidence = validate_model_close_result(
+                        mt_closed_host.get("model_preparation_close"),
+                        {
+                            "protocol": "omnis-managed-admission-v5",
+                            "mode": "CLOSE",
+                            "context_ref": mt_answer["context_ref"],
+                        },
+                    )
                     assert canonical(
                         {k: v for k, v in mt_stopped.items() if k != "correlation_id"}
                     ) == canonical({k: v for k, v in mt_answer.items() if k != "correlation_id"})
@@ -9888,9 +9904,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         with pytest.raises(CatalogError):
                             await control_task(directory, {**request_prepare, **mt_changes})
                     assert await mission_census() == after_tables
-                    assert observation.read_bytes() == native_after
+                    assert observation.read_bytes() == mt_native_closed
                     checkpoint(
-                        model_prepare_closed_replay="RECEIVE_ONLY_ORIGINAL_COMMAND_NO_NATIVE_OR_WRITES"
+                        model_prepare_closed_replay="RECEIVE_ONLY_ORIGINAL_COMMAND_NO_NATIVE_OR_WRITES",
+                        model_prepare_close_join=mt_close_evidence,
                     )
                     return  # The shared finally requires real close + joined held worker.
                 try:

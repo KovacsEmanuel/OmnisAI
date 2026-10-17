@@ -129,7 +129,9 @@ class ModelTest:
     async def completed(
         self, connection: AsyncConnection, command: NativeTaskCommand
     ) -> tuple[dict[str, object], dict[str, object]] | None:
-        command = NativeTaskCommand.model_validate(command.model_dump(mode="python", warnings=False))
+        command = NativeTaskCommand.model_validate(
+            command.model_dump(mode="python", warnings=False)
+        )
         try:
             receipt = await store.command_receipt(
                 connection, command.owner_id, str(command.initialization_id)

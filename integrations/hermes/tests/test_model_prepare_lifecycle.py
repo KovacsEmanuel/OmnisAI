@@ -1,6 +1,7 @@
 """Real lifecycle method AST with explicit child/schema doubles; no native imports."""
 
 import ast
+import asyncio
 import concurrent.futures
 import contextlib
 import json
@@ -9,9 +10,13 @@ import threading
 import time
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+from omnis_hermes import managed_admission_contract as contract
+from omnis_hermes.runtime_host import RuntimeHost
+from omnis_hermes.runtime_protocol import NativePeer, encode
 
 ROOT = Path(__file__).resolve().parents[3] / "integrations/hermes/upstream/managed-source"
 
@@ -59,6 +64,12 @@ def lifecycle(monkeypatch):
         canonical=lambda p: json.dumps(p, sort_keys=True).encode(),
         preparation_result=result,
         validate_model_prepare=lambda p: p,
+        ref=lambda c: {
+            "kind": "model-test-context",
+            "id": c["payload"]["preparation_id"],
+            "revision": 1,
+            "digest": "a" * 64,
+        },
     )
     registry = SimpleNamespace(lock=threading.RLock(), records={})
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="mtp-SOURCE")
@@ -381,5 +392,117 @@ def test_submit_started_without_future_publication_stays_uncertain(lifecycle, mo
     record = next(iter(x.registry.records.values()))
     assert record.model_test_submit_started and record.future is None
     assert record.agent._model_test_closed.is_set()
+    with pytest.raises(ValueError, match="active|drain"):
+        x.service.prepare_model_test(x.payload())
     with pytest.raises(ValueError, match="drain uncertain"):
         x.service.close_model_tests()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fault", [None, "held", "unknown", "missing-owner"])
+async def test_existing_private_rpc_close_returns_only_real_join_evidence(
+    lifecycle, monkeypatch, tmp_path, fault
+):
+    x = lifecycle
+    p = x.payload()
+    x.service.prepare_model_test(p)
+    batch = next(iter(x.service._model_test_batches.values()))
+    agent_tree = ast.parse((ROOT / "run_agent.py").read_text())
+    agent_class = next(
+        n for n in agent_tree.body if isinstance(n, ast.ClassDef) and n.name == "AIAgent"
+    )
+    close_method = next(
+        n for n in agent_class.body if isinstance(n, ast.FunctionDef) and n.name == "close"
+    )
+    close_scope = {}
+    exec(
+        compile(ast.Module(body=[close_method], type_ignores=[]), "SOURCE-native-close", "exec"),
+        close_scope,
+    )
+    batch["child"]._model_test_preparation = object()
+    type(batch["child"]).close = close_scope["close"]
+    close = {"protocol": contract.PROTOCOL_V5, "mode": "CLOSE", "context_ref": batch["context_ref"]}
+    if fault == "unknown":
+        close["context_ref"] = {**batch["context_ref"], "id": str(uuid4())}
+    if fault != "held":
+        x.release.set()
+    module = sys.modules["omnis_hermes.managed_admission_contract"]
+    for name in ("OwnedInitialization", "initialization_result", "validate_initialization"):
+        monkeypatch.setattr(module, name, getattr(contract, name), raising=False)
+    tree = ast.parse((ROOT / "agent/managed_admission_rpc.py").read_text())
+    initialize = next(
+        n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_initialize"
+    )
+    scope = {
+        "_LOCK": threading.RLock(),
+        "_SERVICE": None if fault == "missing-owner" else x.service,
+        "_ROOT": x.parent,
+    }
+    exec(
+        compile(
+            ast.Module(body=[initialize], type_ignores=[]), "SOURCE-private-initialize", "exec"
+        ),
+        scope,
+    )
+    host = RuntimeHost(tmp_path)
+    host.state, host.namespace_owned = "READY", True
+    host.model_preparation_close = contract.canonical(close)
+    process = Mock(pid=12345, returncode=None, wait=AsyncMock(return_value=0))
+    process.stdout, process.stderr = asyncio.StreamReader(), asyncio.StreamReader()
+    process.stderr.feed_eof()
+    effects = []
+
+    class Pipe:
+        def write(self, raw):
+            frame = json.loads(raw)
+            assert host.state == "STOPPING" and frame["params"] == close
+            assert frame["method"] == contract.RPC["task_model_initialize"]
+            effects.append("native-close")
+            reply = {"jsonrpc": "2.0", "id": frame["id"]}
+            try:
+                reply["result"] = scope["_initialize"](frame["params"])
+            except ValueError:
+                reply["error"] = {"code": -32603, "message": "Native preparation drain uncertain"}
+            process.stdout.feed_data(encode(reply))
+
+        async def drain(self):
+            pass
+
+        def close(self):
+            effects.append("retire")
+
+        async def wait_closed(self):
+            pass
+
+    process.stdin = Pipe()
+    host.process, host.peer = process, NativePeer(process, timeout=0.8)
+    monkeypatch.setattr(host, "_owned_pids", lambda: set())
+
+    def physical_absence(*args):
+        if fault is None:
+            assert batch["child"]._model_test_closed.is_set() and batch["record"].future.done()
+            assert host.model_close_evidence is not None
+        else:
+            assert host.model_close_uncertain and host.model_close_evidence is None
+        effects.append("physical-kill")
+        process.returncode = 0
+
+    import os
+
+    monkeypatch.setattr(os, "killpg", physical_absence)
+    try:
+        await host.stop()
+        assert effects == ["native-close", "physical-kill", "retire"]
+        assert host.state == ("STOPPED" if fault is None else "UNCERTAIN")
+        if fault is None:
+            assert host.model_close_evidence is not None
+            result = json.loads(host.model_close_evidence)
+            assert contract.validate_model_close_result(result, close) == result
+            # EOF/signal fallback is idempotent and still observes the same settled Future.
+            assert x.service.close_model_tests(batch["context_ref"]) == result
+        else:
+            await host.stop()
+            assert host.state == "UNCERTAIN" and effects.count("native-close") == 1
+    finally:
+        await host.peer.close()
+    assert len(x.children) == 1

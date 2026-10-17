@@ -98,7 +98,9 @@ class NativeTaskOwner:
         }
 
     async def handle(self, command: NativeTaskCommand) -> dict[str, object]:
-        command = NativeTaskCommand.model_validate(command.model_dump(mode="python", warnings=False))
+        command = NativeTaskCommand.model_validate(
+            command.model_dump(mode="python", warnings=False)
+        )
         deadline = asyncio.get_running_loop().time() + 4
         async with asyncio.timeout_at(deadline):
             try:

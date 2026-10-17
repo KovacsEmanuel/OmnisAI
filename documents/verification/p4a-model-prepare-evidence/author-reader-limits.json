@@ -1,0 +1,620 @@
+{
+  "schema_version": 1,
+  "status": "AUTHOR_READY_FOR_TWO_FOCUSED_EXACT_SNAPSHOT_REVIEWS_NOT_INTEGRATED",
+  "authorization": {
+    "quote": "Da — ajustează numai cele două limite de artefact QA și continuă verificările.",
+    "scope": "Two finite QA artifact byte constraints only, applied consistently in existing parent reader and generated isolated origin; no product source change"
+  },
+  "snapshot": {
+    "base": "202c3c27843db26ad129f9f292465d49792e5f46",
+    "head": "69d6caec81badb2317755b0b2805b37477458e25",
+    "branch": "work/ar-74cdpo7w",
+    "worktree": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+    "allowed_changed_paths": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests/test_contract_method_pg.py",
+        "sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138"
+      }
+    ],
+    "git_diff_paths": [
+      "api/tests/test_contract_method_pg.py"
+    ],
+    "git_status_porcelain": "",
+    "git_show_stat": "69d6cae test(qa): calibrate only current API reader artifact byte caps\n api/tests/test_contract_method_pg.py | 57 ++++++++++++++++++++++++++++++------\n 1 file changed, 48 insertions(+), 9 deletions(-)",
+    "diff_numstat": "48\t9\tapi/tests/test_contract_method_pg.py",
+    "frozen": true
+  },
+  "acceptance_row": {
+    "consumer": "api/tests/test_contract_method_pg.py::batch2_current_reader -> existing isolated HISTORICAL_ORIGIN with installed API",
+    "requirement": "Unchanged current built API snapshot fits two calibrated finite QA artifact caps; reject max+1 on the same existing consumer",
+    "risk": "Historical QA size guard blocks valid current 95-module closure; an overbroad calibration or stale origin guard could admit/refuse incorrectly",
+    "decision": "Reader prerequisite unblocked only; parent reviews and existing real QA preflight still required"
+  },
+  "calibration": {
+    "measured_raw": 280593,
+    "old_raw_cap": 262144,
+    "new_raw_cap": 327680,
+    "measured_aggregate": 1090231,
+    "old_aggregate_cap": 1048576,
+    "new_aggregate_cap": 1114112,
+    "quantum": 65536,
+    "formula": "ceil(measured_bytes / 65536) * 65536",
+    "justification": "Smallest 64-KiB multiples containing observed built inputs; previous multiples 262144 and 1048576 both fail. Package-only bytes 1080680 already exceed old aggregate, so metadata deletion/compression cannot fix it."
+  },
+  "real_inputs": {
+    "descriptor": {
+      "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+      "sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+    },
+    "wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da"
+    },
+    "interpreter": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader/bin/python",
+    "descriptor_bytes_not_modified_or_renamed": true,
+    "wheel_bytes_not_modified_or_rebuilt": true,
+    "actual_original_descriptor_RED_exit": 1,
+    "actual_same_original_descriptor_GREEN_exit": 0,
+    "installed_origin": "REAL -I -B child; existing reader returned exact current descriptor with 95 modules",
+    "metrics": {
+      "raw": 280593,
+      "aggregate": 1090231,
+      "members": 114,
+      "max_member": 80828
+    },
+    "inventory": "95 exact ROOT/export/wheel/installed package files, regular single-link current UID; no package caches on real inputs after execution"
+  },
+  "verification": {
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python (3.13.15)",
+    "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+    "common_environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "existing_controls_environment_addition": {
+      "OMNIS_BATCH2_SOURCE_API_ARTIFACT": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_real_reader_cache_con0/h04-reader/h04-current-reader.json"
+    },
+    "RED": [
+      {
+        "name": "red-real",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];from pathlib import Path;import test_contract_method_pg as m;m.batch2_current_reader(Path(\"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\"),expected_sha256=\"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\")"
+        ],
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/red-real.log",
+        "summary": [
+          "    raise AssertionError(\"BATCH2_CURRENT_READER_REFUSED\") from None",
+          "AssertionError: BATCH2_CURRENT_READER_REFUSED"
+        ]
+      },
+      {
+        "name": "red-boundaries",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "--basetemp",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/red-boundaries",
+          "--tb=short",
+          "-q",
+          "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max]",
+          "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max-plus-one]",
+          "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max]",
+          "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max-plus-one]"
+        ],
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/red-boundaries.log",
+        "summary": [
+          "    raise AssertionError(\"BATCH2_CURRENT_READER_REFUSED\") from None",
+          "E   AssertionError: BATCH2_CURRENT_READER_REFUSED",
+          "    raise AssertionError(\"BATCH2_CURRENT_READER_REFUSED\") from None",
+          "E   AssertionError: BATCH2_CURRENT_READER_REFUSED",
+          "2 failed, 2 passed in 2.11s"
+        ]
+      }
+    ],
+    "GREEN": [
+      {
+        "name": "green-real",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];from pathlib import Path;import test_contract_method_pg as m;d=m.batch2_current_reader(Path(\"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\"),expected_sha256=\"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\");print(\"PASS_REAL_INSTALLED_ORIGIN files=\"+str(len(d[\"files\"])))"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-real.log",
+        "summary": [
+          "PASS_REAL_INSTALLED_ORIGIN files=95"
+        ]
+      },
+      {
+        "name": "green-source",
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "api/pyproject.toml",
+          "--basetemp",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source",
+          "--tb=short",
+          "-q",
+          "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+          "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+          "api/tests/test_contract_method_pg.py::test_h03_process_receipt_requires_actual_replacement"
+        ],
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source.log",
+        "summary": [
+          "33 passed in 6.85s"
+        ]
+      }
+    ],
+    "existing_reader_controls": {
+      "name": "existing-controls",
+      "fixture_label": "SOURCE exact-current-package synthetic wheel/venv with explicit trusted dependency .pth; separate built real wheel positive retained",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/existing-controls",
+        "--tb=short",
+        "-q",
+        "api/tests/test_contract_method_pg.py::test_batch2_current_reader_actual_helper",
+        "api/tests/test_contract_method_pg.py::test_batch2_observation_exact_fields"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/existing-controls.log",
+      "summary": [
+        "19 passed in 1.88s"
+      ]
+    },
+    "distinct_SOURCE_pytest_cases_passed": 52,
+    "synthetic_fixture_limits": "SOURCE source-snapshot tests substitute origin only; separate boundary readbacks execute real isolated origins on both exact maxima. Existing reader negatives use existing synthetic exact-current-package wheel/venv fixture with explicit trusted dependency .pth. Separate unchanged real built wheel is the acceptance positive.",
+    "boundary_rows": [
+      {
+        "kind": "raw",
+        "boundary": 327680,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source12/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "5535f7d131bbb2f228cbcd935955f12ae871b1d2cf3616a400f9a8df63376739",
+        "wheel_sha256": "1c0fe3192bfad5e635653b159514a28e361733488d37d24170fa62bfef1ca870",
+        "metrics": {
+          "raw": 327680,
+          "aggregate": 1080680,
+          "members": 95,
+          "max_member": 80828,
+          "unique_names": 95
+        },
+        "status": "ACCEPTED",
+        "reason": "EXACT_WHEEL_AND_GIT_EXPORT",
+        "origin": [
+          {
+            "exit": 0,
+            "stderr_empty": true,
+            "isolated": true,
+            "timeout": 15
+          }
+        ],
+        "first_exception": null
+      },
+      {
+        "kind": "raw",
+        "boundary": 327681,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source13/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "be289e91f268bc8fda5b56a9a82db1877486cc2a9d7fc0af4a16215e524c10d9",
+        "wheel_sha256": "471fb72abc099a72a3651a50c07ad7b4500a201c74d2a46542739ffe9cc8fc47",
+        "metrics": {
+          "raw": 327681,
+          "aggregate": 1080680,
+          "members": 95,
+          "max_member": 80828,
+          "unique_names": 95
+        },
+        "status": "REFUSED",
+        "reason": "BATCH2_CURRENT_READER_REFUSED",
+        "origin": [],
+        "first_exception": {
+          "line": 7502,
+          "type": "CatalogError",
+          "source": "wheel_raw = batch2_reader_material(wheel_path, 327680)"
+        }
+      },
+      {
+        "kind": "aggregate",
+        "boundary": 1114112,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source14/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "3a20f0aa7f5ac3d53497f416929a65bede7beef40757b02c83b1b768eb940ce2",
+        "wheel_sha256": "313a72a4dff84b84567daee051774f79d0bb126a0860265b44cb1daf0b35a520",
+        "metrics": {
+          "raw": 274314,
+          "aggregate": 1114112,
+          "members": 96,
+          "max_member": 80828,
+          "unique_names": 96
+        },
+        "status": "ACCEPTED",
+        "reason": "EXACT_WHEEL_AND_GIT_EXPORT",
+        "origin": [
+          {
+            "exit": 0,
+            "stderr_empty": true,
+            "isolated": true,
+            "timeout": 15
+          }
+        ],
+        "first_exception": null
+      },
+      {
+        "kind": "aggregate",
+        "boundary": 1114113,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source15/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "23a73da074ed3a8367b70c7af65dd754a896f1a73b185687378dff7944078f4f",
+        "wheel_sha256": "a68f4d02eaabb6ea338c475e15cbe9bd0aa1891a6348726f91c11d85784a1e0f",
+        "metrics": {
+          "raw": 274314,
+          "aggregate": 1114113,
+          "members": 96,
+          "max_member": 80828,
+          "unique_names": 96
+        },
+        "status": "REFUSED",
+        "reason": "BATCH2_CURRENT_READER_REFUSED",
+        "origin": [],
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError",
+          "source": "raise ValueError"
+        }
+      },
+      {
+        "kind": "count",
+        "boundary": 129,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source16/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "96b53d1b93c80d745afc46ffa871a9500b30ecc4a267e0f0f6cffeb21d98aae4",
+        "wheel_sha256": "8fce72baa60a25fd0141fc3c61607da14c8f597b975d063df031ddd7b8bcc31e",
+        "metrics": {
+          "raw": 278014,
+          "aggregate": 1080680,
+          "members": 129,
+          "max_member": 80828,
+          "unique_names": 129
+        },
+        "status": "REFUSED",
+        "reason": "BATCH2_CURRENT_READER_REFUSED",
+        "origin": [],
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError",
+          "source": "raise ValueError"
+        }
+      },
+      {
+        "kind": "duplicate",
+        "boundary": 1,
+        "fixture_label": "Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source17/h04-reader/h04-current-reader.json",
+        "descriptor_sha256": "83ecf2faf0735402b792b11f97159de893d53d9d032173af7e541590612a37fa",
+        "wheel_sha256": "b1d360036502f08b03035e26f768b71f0f5911797787c90d0829d6ff84af1c82",
+        "metrics": {
+          "raw": 274303,
+          "aggregate": 1080713,
+          "members": 96,
+          "max_member": 80828,
+          "unique_names": 95
+        },
+        "status": "REFUSED",
+        "reason": "BATCH2_CURRENT_READER_REFUSED",
+        "origin": [],
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError",
+          "source": "raise ValueError"
+        }
+      }
+    ],
+    "boundary_readback_command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,os,json,zipfile,venv,linecache;from pathlib import Path;root=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w\");repo=root/\"work\";sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m\nrows=[];seen=set();run=m.subprocess.run\nfor handle in sorted((root/\"green-source\").glob(\"test_h04_current_reader_source*/h04-reader/h04-current-reader.json\")):\n handle=handle.resolve()\n if handle in seen: continue\n seen.add(handle);d=json.loads(handle.read_bytes());c=d[\"current\"];w=Path(c[\"wheel\"])\n try:\n  with zipfile.ZipFile(w) as z:\n   members=z.infolist();metrics={\"raw\":w.stat().st_size,\"aggregate\":sum(x.file_size for x in members),\"members\":len(members),\"max_member\":max(x.file_size for x in members),\"unique_names\":len({x.filename for x in members})}\n except zipfile.BadZipFile: continue\n if metrics[\"raw\"] in (327680,327681): kind=\"raw\";n=metrics[\"raw\"];positive=n==327680;assert metrics[\"aggregate\"]<=1114112 and metrics[\"members\"]<=128 and metrics[\"max_member\"]<=131072\n elif metrics[\"aggregate\"] in (1114112,1114113): kind=\"aggregate\";n=metrics[\"aggregate\"];positive=n==1114112;assert metrics[\"raw\"]<=327680 and metrics[\"members\"]<=128 and metrics[\"max_member\"]<=131072\n elif metrics[\"members\"]==129: kind=\"count\";n=129;positive=False;assert metrics[\"raw\"]<=327680 and metrics[\"aggregate\"]<=1114112 and metrics[\"max_member\"]<=131072\n elif metrics[\"unique_names\"]<metrics[\"members\"]: kind=\"duplicate\";n=metrics[\"members\"]-metrics[\"unique_names\"];positive=False;assert metrics[\"raw\"]<=327680 and metrics[\"aggregate\"]<=1114112 and metrics[\"members\"]<=128 and metrics[\"max_member\"]<=131072\n else: continue\n python=Path(c[\"python\"])\n if positive:\n  venv.EnvBuilder(system_site_packages=True,symlinks=True,with_pip=False).create(python.parent.parent)\n  (python.parent.parent/\"lib/python3.13/site-packages/source-dependencies.pth\").write_text(str(Path(sys.prefix)/\"lib/python3.13/site-packages\")+\"\\n\")\n calls=[];events=[]\n def observed(*args,**kwargs):\n  result=run(*args,**kwargs);calls.append({\"exit\":result.returncode,\"stderr_empty\":result.stderr==b\"\",\"isolated\":args[0][1:3]==[\"-I\",\"-B\"],\"timeout\":kwargs[\"timeout\"]});return result\n def trace(frame,event,arg):\n  if frame.f_code is m.batch2_current_reader.__code__ and event==\"exception\": events.append({\"line\":frame.f_lineno,\"type\":arg[0].__name__,\"source\":linecache.getline(frame.f_code.co_filename,frame.f_lineno).strip()})\n  return trace\n m.subprocess.run=observed;sys.settrace(trace)\n try:\n  result=m.batch2_current_reader(handle,expected_sha256=m.sha(handle.read_bytes()));assert result==c;status=\"ACCEPTED\";reason=\"EXACT_WHEEL_AND_GIT_EXPORT\"\n except AssertionError as error:\n  assert str(error)==\"BATCH2_CURRENT_READER_REFUSED\";status=\"REFUSED\";reason=str(error)\n finally: sys.settrace(None);m.subprocess.run=run\n assert (status==\"ACCEPTED\")==positive\n assert len(calls)==int(positive)\n if not positive:\n  assert events[0][\"source\"]==(\"wheel_raw = batch2_reader_material(wheel_path, 327680)\" if kind==\"raw\" else \"raise ValueError\")\n rows.append({\"kind\":kind,\"boundary\":n,\"fixture_label\":\"Synthetic ZIP built by existing SOURCE fixture over exact modern 95-module closure; real isolated origin on both positives; trusted dependency .pth only\",\"handle\":str(handle),\"descriptor_sha256\":m.sha(handle.read_bytes()),\"wheel_sha256\":m.sha(w.read_bytes()),\"metrics\":metrics,\"status\":status,\"reason\":reason,\"origin\":calls,\"first_exception\":events[0] if events else None})\nassert sorted((r[\"kind\"],r[\"boundary\"]) for r in rows)==[(\"aggregate\",1114112),(\"aggregate\",1114113),(\"count\",129),(\"duplicate\",1),(\"raw\",327680),(\"raw\",327681)]\np=root/\"boundary-evidence.json\";fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600);os.write(fd,json.dumps({\"argv\":sys.orig_argv,\"exit\":0,\"rows\":rows},indent=2).encode());os.close(fd);print(json.dumps(rows,indent=2))"
+    ],
+    "boundary_readback_exit": 0,
+    "retained_ZIP_negatives": [
+      {
+        "kind": "zip-member",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/existing-controls/test_batch2_current_reader_act16/reader.json",
+        "metrics": {
+          "raw": 274409,
+          "aggregate": 1211753,
+          "members": 96,
+          "max_member": 131073
+        },
+        "public_reason": "BATCH2_CURRENT_READER_REFUSED",
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError",
+          "source": "raise ValueError"
+        },
+        "limitation": "Per-member guard precedes aggregate in existing short-circuit OR; retained additive-member fixture also exceeds aggregate, not an independent guard-removal mutant"
+      },
+      {
+        "kind": "zip-aggregate",
+        "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/existing-controls/test_batch2_current_reader_act17/reader.json",
+        "metrics": {
+          "raw": 274409,
+          "aggregate": 1211752,
+          "members": 96,
+          "max_member": 131072
+        },
+        "public_reason": "BATCH2_CURRENT_READER_REFUSED",
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError",
+          "source": "raise ValueError"
+        },
+        "limitation": "All other ZIP size/count caps in bounds; aggregate-only negative"
+      }
+    ],
+    "retained_ZIP_negative_command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,os,json,zipfile,linecache;from pathlib import Path;root=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w\");repo=root/\"work\";sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m;rows=[];seen=set();old_matches=list((root/\"existing-controls\").glob(\"test_batch2_current_reader_actu*/reader.json\"));assert len(old_matches)==0\nfor handle in sorted((root/\"existing-controls\").glob(\"*/reader.json\")):\n handle=handle.resolve()\n if handle in seen:continue\n seen.add(handle)\n try:d=json.loads(handle.read_bytes());c=d[\"current\"];w=Path(c[\"wheel\"])\n except (ValueError,TypeError,KeyError):continue\n if w.name!=\"expanded.whl\":continue\n with zipfile.ZipFile(w) as z:metrics={\"raw\":w.stat().st_size,\"aggregate\":sum(x.file_size for x in z.infolist()),\"members\":len(z.infolist()),\"max_member\":max(x.file_size for x in z.infolist())}\n assert metrics[\"raw\"]<=327680 and metrics[\"members\"]<=128;kind=\"zip-member\" if metrics[\"max_member\"]>131072 else \"zip-aggregate\";events=[]\n def trace(frame,event,arg):\n  if frame.f_code is m.batch2_current_reader.__code__ and event==\"exception\":events.append({\"line\":frame.f_lineno,\"type\":arg[0].__name__,\"source\":linecache.getline(frame.f_code.co_filename,frame.f_lineno).strip()})\n  return trace\n sys.settrace(trace)\n try:m.batch2_current_reader(handle,expected_sha256=m.sha(handle.read_bytes()));raise RuntimeError(\"NEGATIVE_NOT_REFUSED\")\n except AssertionError as error:assert str(error)==\"BATCH2_CURRENT_READER_REFUSED\"\n finally:sys.settrace(None)\n assert events[0][\"type\"]==\"ValueError\" and events[0][\"line\"]==7532\n rows.append({\"kind\":kind,\"handle\":str(handle),\"metrics\":metrics,\"public_reason\":\"BATCH2_CURRENT_READER_REFUSED\",\"first_exception\":events[0],\"limitation\":\"Per-member guard precedes aggregate in existing short-circuit OR; retained additive-member fixture also exceeds aggregate, not an independent guard-removal mutant\" if kind==\"zip-member\" else \"All other ZIP size/count caps in bounds; aggregate-only negative\"})\nassert len(rows)==2;record={\"argv\":sys.orig_argv,\"exit\":0,\"failed_attempt\":{\"exit\":1,\"reason\":\"Scratch-only evidence enumeration glob test_batch2_current_reader_actu*/reader.json matched zero pytest directories; no consumer invoked; exact name is truncated to actN\",\"repair_cycles\":1,\"corrected_glob\":\"*/reader.json\",\"source_changes\":False},\"rows\":rows};p=root/\"retained-zip-negative-evidence.json\";fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600);os.write(fd,json.dumps(record,indent=2).encode());os.close(fd);print(json.dumps(record,indent=2))"
+    ],
+    "retained_ZIP_negative_exit": 0,
+    "quality": [
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_contract_method_pg.py"
+        ],
+        "exit": 0,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "api/pyproject.toml",
+          "api/tests/test_contract_method_pg.py"
+        ],
+        "exit": 0,
+        "stdout": "1 file already formatted\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--cache-dir",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/mypy-final-cache",
+          "--config-file",
+          "api/pyproject.toml",
+          "api/tests/test_contract_method_pg.py"
+        ],
+        "exit": 0,
+        "stdout": "Success: no issues found in 1 source file\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "integrity": {
+      "file_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "reader_AST_exactly_two_bound_values_changed_parent_and_origin": true,
+      "unchanged_other_top_level_definitions": 103,
+      "real_descriptor_sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+      "real_wheel_sha256": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da",
+      "real_metrics": {
+        "raw": 280593,
+        "aggregate": 1090231,
+        "members": 114,
+        "max_member": 80828
+      },
+      "full_package_inventories_and_bytes_equal": 95,
+      "all_regular_single_link_current_uid": true,
+      "package_caches": "NONE",
+      "calibration": {
+        "quantum": 65536,
+        "raw_minimal_multiple": 327680,
+        "aggregate_minimal_multiple": 1114112
+      },
+      "quality": [
+        {
+          "argv": [
+            "/home/kali/OmnisAI/api/.venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "api/pyproject.toml",
+            "api/tests/test_contract_method_pg.py"
+          ],
+          "exit": 0,
+          "stdout": "All checks passed!\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/home/kali/OmnisAI/api/.venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "api/pyproject.toml",
+            "api/tests/test_contract_method_pg.py"
+          ],
+          "exit": 0,
+          "stdout": "1 file already formatted\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/home/kali/OmnisAI/api/.venv/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "mypy",
+            "--cache-dir",
+            "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/mypy-final-cache",
+            "--config-file",
+            "api/pyproject.toml",
+            "api/tests/test_contract_method_pg.py"
+          ],
+          "exit": 0,
+          "stdout": "Success: no issues found in 1 source file\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    }
+  },
+  "unchanged": {
+    "reader_function_AST": "Exactly old 262144->327680 and 1048576->1114112 in parent and origin strings; no other behavioral AST change",
+    "other_top_level_definitions_unchanged": 103,
+    "constraints": [
+      "count128",
+      "per-member131072",
+      "ZIP duplicate/name inventory checks",
+      "strict descriptor fields and scalar types",
+      "UID/path/physical-parent/nofollow/single-link/stable reads",
+      "complete ROOT/export/wheel/installed inventory and every-byte equality",
+      "installed cache refusal before origin and each fresh reader",
+      "native schemas and native receipt type/extra-field denials",
+      "all six OMNIS_BATCH2 review/artifact/API bindings",
+      "timeout180 and isolated origin timeout15",
+      "transport/grant/model/call/output/deadline/campaign caps"
+    ],
+    "outside_allowed_QA_file": "No tracked diff from base; native/API product and original blocked reports unchanged",
+    "original_blocked_reports": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/documents/verification/p4a-model-prepare-evidence/qa-preflight-reader-blocked.json",
+        "sha256": "95c26045099974b787ae65f83bd7cdfbc28eac4b8ea3544167989badba25c175"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/documents/verification/p4a-model-prepare-evidence/reader-preflight-blocked.json",
+        "sha256": "9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/documents/verification/p4a-model-prepare-evidence/build-preflight-blocked.json",
+        "sha256": "9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d"
+      }
+    ]
+  },
+  "failed_attempts": [
+    {
+      "kind": "EXPECTED_RED",
+      "name": "red-real",
+      "exit": 1,
+      "reason": "BATCH2_CURRENT_READER_REFUSED under old reader caps; original descriptor and wheel"
+    },
+    {
+      "kind": "EXPECTED_RED",
+      "name": "red-boundaries",
+      "exit": 1,
+      "reason": "2 failed maxima, 2 passed plus-one denials before cap change; initial plus-one tests alone did not localize the later guard, hence final guarded readbacks recorded"
+    },
+    {
+      "exit": 1,
+      "reason": "Scratch-only evidence enumeration glob test_batch2_current_reader_actu*/reader.json matched zero pytest directories; no consumer invoked; exact name is truncated to actN",
+      "repair_cycles": 1,
+      "corrected_glob": "*/reader.json",
+      "source_changes": false
+    }
+  ],
+  "limits": [
+    "No PG, native runtime, Docker/OCI, build/rebuild, server, account/provider/model/target traffic, global profile, r1 or push effects; no canonical QA run or native PASS claimed",
+    "Existing per-member additive negative reaches the original shared ZIP guard before origin, but also exceeds aggregate; it is not an independent guard-removal mutant. Per-member implementation is AST-unchanged. Raw and aggregate max+1 controls independently isolate their intended constraints.",
+    "Synthetic malicious cache fixtures retained under owned scratch; no cache deletion for green and no claim that every synthetic fixture is cache-free",
+    "Only one scratch evidence enumeration repair: truncated pytest directory-name glob; no repository edits or product retry from that failure",
+    "Shared main was not edited, switched, committed, rebuilt or integrated by this author; parent owns final integration/readback",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; no independent reviews assigned or inferred",
+    "Scratch evidence can expire; parent must retain the adjudicated conclusion/original report through the existing slice register"
+  ],
+  "rollback": {
+    "command": "git revert 69d6caec81badb2317755b0b2805b37477458e25",
+    "effect": "Restores historical two caps and matching fixture expectations; unchanged current real wheel will be refused again; no external runtime effects to reverse"
+  },
+  "next": "Parent performs two complementary focused read-only reviews on this exact head/file SHA, adjudicates/integrates, then resumes existing preflight/QA under original six bindings and timeout180. P4a-minim PARTIAL; P2-live NOT_RUN; faza2 NOT_CLOSED; STOP before P3."
+}

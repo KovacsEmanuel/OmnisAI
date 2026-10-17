@@ -1,0 +1,594 @@
+{
+  "schema_version": 1,
+  "report_id": "review-reader-limits-norm",
+  "role": "Independent read-only normative/consumer/order reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "summary": "Only the two authorized finite QA artifact caps change in the parent reader and generated isolated origin. The unchanged genuine built wheel passes through the real installed origin; independently observed max acceptance and max+1 refusal localize the intended guards. No blocking normative defect found in this exact delta. This is not PG/native or product acceptance.",
+  "authorization": {
+    "quote": "Da — ajustează numai cele două limite de artefact QA și continuă verificările.",
+    "repository_record": "documents/verification/p4a-minim.md:33-39",
+    "normative_obligations": [
+      "Use measured artifacts and finite cap values, with max/max+1 on the existing consumer.",
+      "Keep count128, member131072, descriptor/path/UID/no-follow/single-link/inventory/byte/cache guards and all six bindings unchanged.",
+      "Complete both complementary reviews before the parent resumes real preflight/QA under the original run_gate owner and timeout180.",
+      "Retain unchanged SOURCE approvals at their original scope; do not convert a reader prerequisite or SOURCE test to native/model PASS."
+    ]
+  },
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+    "base": "202c3c27843db26ad129f9f292465d49792e5f46",
+    "head": "69d6caec81badb2317755b0b2805b37477458e25",
+    "changed_path": "api/tests/test_contract_method_pg.py",
+    "file_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+    "initial": {
+      "head": "69d6caec81badb2317755b0b2805b37477458e25",
+      "base": "202c3c27843db26ad129f9f292465d49792e5f46",
+      "candidate_status_porcelain": "",
+      "file_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "main_head": "202c3c27843db26ad129f9f292465d49792e5f46",
+      "main_status_porcelain": "?? documents/Omnis_Notite_Originale.html",
+      "source": "Initial terminal git/status/diff and sha256sum, all exit0; protected file appeared only as an untracked pathname."
+    },
+    "final": {
+      "head": "69d6caec81badb2317755b0b2805b37477458e25",
+      "base": "202c3c27843db26ad129f9f292465d49792e5f46",
+      "file_sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+      "candidate_clean": true,
+      "changed_paths": [
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "numstat": {
+        "added": 48,
+        "deleted": 9
+      },
+      "changed_definitions": [
+        "test_batch2_current_reader_actual_helper",
+        "test_h04_current_reader_source_snapshot",
+        "batch2_current_reader"
+      ],
+      "unchanged_definitions": 103,
+      "reader_AST_only_two_calibrated_values": true,
+      "all_other_top_level_AST_unchanged": true,
+      "main_head": "202c3c27843db26ad129f9f292465d49792e5f46",
+      "main_status_unchanged": "?? documents/Omnis_Notite_Originale.html",
+      "original_reports_sha256": {
+        "api/tests/test_contract_method_pg.py": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+        "documents/verification/p4a-model-prepare-evidence/qa-preflight-reader-blocked.json": "95c26045099974b787ae65f83bd7cdfbc28eac4b8ea3544167989badba25c175",
+        "documents/verification/p4a-model-prepare-evidence/reader-preflight-blocked.json": "9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9",
+        "documents/verification/p4a-model-prepare-evidence/build-preflight-blocked.json": "9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d"
+      },
+      "input_sha256": {
+        "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json": "fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+        "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da"
+      },
+      "protected_file_contents_not_read_or_hashed": true
+    },
+    "exact_snapshot_unchanged_before_after": true,
+    "source_approval_reference": "864224fecf1c585291c78fcc6ad128a19dce8c05; retained as previously adjudicated SOURCE scope, not independently re-audited here."
+  },
+  "scope": {
+    "reviewed": [
+      "Authorized artifact-cap calibration and its affected existing fixtures.",
+      "Parent/generated-origin numerical and inclusive-boundary consistency.",
+      "Genuine built artifact positive versus explicitly synthetic source controls.",
+      "Actual refusal producers, byte identities, unchanged gates and review-before-QA ordering."
+    ],
+    "not_reviewed": [
+      "General product/native security or unchanged source behavior.",
+      "Independent complementary input/safety review owned by another reviewer.",
+      "Real model-preparation PG/native QA, installed full distribution gate, canonical suites or live inference."
+    ]
+  },
+  "calibration": {
+    "quantum": 65536,
+    "raw": {
+      "measured": 280593,
+      "old": 262144,
+      "new": 327680,
+      "parent": "api/tests/test_contract_method_pg.py:7502",
+      "generated_origin": "api/tests/test_contract_method_pg.py:7567-7570"
+    },
+    "aggregate": {
+      "measured": 1090231,
+      "old": 1048576,
+      "new": 1114112,
+      "parent": "api/tests/test_contract_method_pg.py:7524-7532",
+      "generated_origin": "api/tests/test_contract_method_pg.py:7573-7578"
+    },
+    "package_only": 1080680,
+    "minimal_64KiB_multiples_independently_computed": true,
+    "decision": "Metadata removal or alternative compression cannot make the required 1080680 package bytes fit the old 1048576 aggregate cap. Both calibrated values are the smallest chosen-quantum multiples covering the actual wheel."
+  },
+  "findings": [],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Only two approved finite byte caps; no additional product/gate changes.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7498-7502",
+        "api/tests/test_contract_method_pg.py:7524-7532",
+        "api/tests/test_contract_method_pg.py:7564-7579"
+      ],
+      "evidence": "Git diff is exactly one QA test file, +48/-9. AST-normalizing only 262144->327680 and 1048576->1114112 makes the base reader identical to the candidate, including origin strings. Other top-level statements and 103 other definitions are unchanged. Two existing test definitions receive matching cases/expectations; no new helper/owner/config/dependency.",
+      "disposition": "SATISFIED_SCOPED"
+    },
+    {
+      "requirement": "Parent and real isolated origin accept current authentic installed bytes.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7443-7612"
+      ],
+      "evidence": "Independently invoked the unchanged original descriptor/wheel. Baseline reader function refuses with CatalogError SIZE_LIMIT before origin. Current reader returns exactly current, with all95 installed package files and real origin exit0/stderr empty/EXACT_WHEEL_AND_GIT_EXPORT. Exact descriptor/wheel/package inventory preserved before and after.",
+      "disposition": "SATISFIED_SCOPED"
+    },
+    {
+      "requirement": "Max acceptance and max+1 denial through the same current reader, with the actual intended guard.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7135-7158",
+        "api/tests/test_contract_method_pg.py:7225-7231",
+        "api/tests/test_contract_method_pg.py:7502",
+        "api/tests/test_contract_method_pg.py:7527-7532"
+      ],
+      "evidence": "Independent run of existing SOURCE cases22PASS; separately executed retained SHA-matching synthetic raw327680/aggregate1114112 fixtures through actual isolated origins, both exit0. raw327681 refuses from CatalogError SIZE_LIMIT at7502; aggregate1114113 refuses from ValueError at7532, with all other size/count limits valid. Neither max+1 reaches origin.",
+      "disposition": "SATISFIED_SCOPED"
+    },
+    {
+      "requirement": "SOURCE controls must not masquerade as built-wheel/native acceptance.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7096",
+        "api/tests/test_contract_method_pg.py:7212-7219",
+        "api/tests/test_contract_method_pg.py:7238-7256"
+      ],
+      "evidence": "SOURCE test explicitly substitutes subprocess origin. Independently executed positive boundary origins use retained synthetic exact-package wheels/private dependency .pth, not a build claim. Genuine built wheel acceptance is separate and uses the original descriptor/wheel/interpreter. Author report labels these seams and the overlapping per-member fixture limit explicitly.",
+      "disposition": "SATISFIED_WITH_EXPLICIT_LIMITS"
+    },
+    {
+      "requirement": "Keep other constraints, review bindings, original failures and gate ordering.",
+      "code": [
+        "api/tests/test_contract_method_pg.py:7443-7612",
+        "documents/verification/p4a-minim.md:27-39"
+      ],
+      "evidence": "Only two normalized numerical values differ in reader AST; other top-level data and gate definitions unchanged. Original three blocked reports retain their recorded SHA256. No review binding was changed or set by this reviewer and no PG/native gate was invoked.",
+      "disposition": "SATISFIED_SCOPED"
+    }
+  ],
+  "independent_execution": {
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_flags": [
+      "-I",
+      "-B"
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "resource_contract": {
+      "owner": "This read-only review owns only /home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2 and the requested original JSON report. Existing author/genuine descriptors, wheels and installed packages are read-only inputs.",
+      "pytest_basetemp": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2/source-cases",
+      "basetemp_physically_under_private_TMPDIR": true,
+      "budget": "Targeted22-case SOURCE pytest run;8direct assertion scenarios; each actual installed origin uses unchanged timeout15, outer command bounded120s. No PG/native resource allocation.",
+      "settlement": "Every actual installed-origin subprocess returned and was joined by subprocess.run; no timeout or failure in reviewer commands. Scratch fixtures retained; no service/container/DB/native family was started.",
+      "failure_output_allowlist": [
+        "test status/count/exit",
+        "public BATCH2_CURRENT_READER_REFUSED",
+        "first exception type/line and exact CatalogError SIZE_LIMIT",
+        "origin exit/stderr-empty/installed_bytes",
+        "artifact SHA256 and ZIP counts/byte metrics"
+      ]
+    },
+    "commands": [
+      {
+        "name": "owned-scratch",
+        "argv": [
+          "mkdir",
+          "-m",
+          "700",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+        "exit": 0,
+        "output": "",
+        "outer_error": null
+      },
+      {
+        "name": "focused-collect",
+        "argv": [
+          "env",
+          "-i",
+          "PATH=/usr/bin:/bin",
+          "HOME=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "TMPDIR=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/pyproject.toml",
+          "--basetemp",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2/source-cases",
+          "--collect-only",
+          "--tb=short",
+          "-q",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+        "exit": 0,
+        "output": "tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[None]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[descriptor-pin]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[commit-type]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[commit-format]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[root-byte]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[export-byte]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[installed-byte]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[extra-root]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[extra-export]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[extra-installed]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[missing-row]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[duplicate-row]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max-plus-one]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max-plus-one]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[zip-count]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[zip-duplicate]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[bad-zip]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[descriptor-extra]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[current-extra]\ntests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[stale-reader]\n\n22 tests collected in 1.04s",
+        "outer_error": null
+      },
+      {
+        "name": "focused-source-cases",
+        "argv": [
+          "env",
+          "-i",
+          "PATH=/usr/bin:/bin",
+          "HOME=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "TMPDIR=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path[:0]=['/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/src', '/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+          "-p",
+          "pytest_asyncio.plugin",
+          "-p",
+          "no:cacheprovider",
+          "-c",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/pyproject.toml",
+          "--basetemp",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2/source-cases",
+          "--tb=short",
+          "-q",
+          "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work/api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+        "exit": 0,
+        "output": "......................                                                   [100%]\n22 passed in 3.77s",
+        "outer_error": null
+      },
+      {
+        "name": "actual-reader-baseline-positive-boundaries",
+        "argv": [
+          "env",
+          "-i",
+          "PATH=/usr/bin:/bin",
+          "HOME=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "TMPDIR=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys,os,json,ast,subprocess,zipfile,hashlib,stat\nfrom pathlib import Path\nrepo=Path('/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work');sys.path[:0]=[str(repo/'api/tests'),str(repo/'api/src'),str(repo/'integrations/hermes/src')]\nimport test_contract_method_pg as m\nbase='202c3c27843db26ad129f9f292465d49792e5f46'\nbase_source=subprocess.run(['git','show',base+':api/tests/test_contract_method_pg.py'],cwd=repo,capture_output=True,text=True,check=True).stdout\nnode=next(n for n in ast.parse(base_source).body if isinstance(n,ast.FunctionDef) and n.name=='batch2_current_reader')\nnamespace=dict(vars(m));exec(compile(ast.Module(body=[node],type_ignores=[]),'<base-reader>','exec'),namespace)\nold=namespace['batch2_current_reader'];real_run=m.subprocess.run\nreal_handle=Path('/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json')\nreal_sha='8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939'\nauthor_path=Path('/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json')\nassert hashlib.sha256(author_path.read_bytes()).hexdigest()=='fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7'\nauthor=json.loads(author_path.read_bytes());scenarios=[('genuine-built-old-caps',real_handle,real_sha,False,old),('genuine-built-current-caps',real_handle,real_sha,True,m.batch2_current_reader)]\nfor row in author['verification']['boundary_rows']:\n scenarios.append((row['kind']+'-'+str(row['boundary']),Path(row['handle']),row['descriptor_sha256'],row['status']=='ACCEPTED',m.batch2_current_reader))\ndef digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()\ndef snapshot(handle):\n d=json.loads(handle.read_bytes());c=d['current'];w=Path(c['wheel']);p=Path(c['python']).parent.parent/'lib/python3.13/site-packages/omnis'\n inventory={str(x.relative_to(p)):digest(x) for x in p.rglob('*') if x.is_file()}\n with zipfile.ZipFile(w) as z:\n  members=z.infolist();metrics={'raw':w.stat().st_size,'aggregate':sum(x.file_size for x in members),'members':len(members),'max_member':max(x.file_size for x in members),'unique_names':len({x.filename for x in members}),'package_bytes':sum(x.file_size for x in members if x.filename.startswith('omnis/') and not x.filename.endswith('/'))}\n return {'descriptor_sha256':digest(handle),'wheel_sha256':digest(w),'installed_inventory':inventory,'metrics':metrics}\nresults=[];original_root=m.ROOT\ntry:\n for name,handle,expected,positive,consumer in scenarios:\n  before=snapshot(handle);assert before['descriptor_sha256']==expected\n  d=json.loads(handle.read_bytes());current=d['current'];assert before['wheel_sha256']==current['wheel_sha256']\n  if name.startswith('genuine-built'):\n   m.ROOT=repo\n  else:\n   m.ROOT=handle.parent/'checkout'\n   reported=next(x for x in author['verification']['boundary_rows'] if x['handle']==str(handle))\n   assert before['wheel_sha256']==reported['wheel_sha256']\n   for key,value in reported['metrics'].items():assert before['metrics'][key]==value\n  origins=[];exceptions=[]\n  def observed(*args,**kwargs):\n   argv=args[0];assert argv[1:4]==['-I','-B','-c'];assert kwargs['timeout']==15\n   program=argv[4];assert 'batch2_reader_material(wheel, 327680)' in program and 'sum(m.file_size for m in distribution.infolist()) <= 1114112' in program\n   ast.parse(program)\n   child=real_run(*args,**kwargs)\n   origins.append({'exit':child.returncode,'stderr_empty':not child.stderr,'installed_bytes':json.loads(child.stdout)['installed_bytes'] if child.returncode==0 else None,'argv_isolated':argv[1:4],'timeout':kwargs['timeout'],'program_sha256':hashlib.sha256(program.encode()).hexdigest(),'raw_cap':327680,'aggregate_cap':1114112})\n   return child\n  def trace(frame,event,arg):\n   if frame.f_code is consumer.__code__ and event=='exception':\n    reason=str(arg[1]) if type(arg[1]).__name__=='CatalogError' and str(arg[1])=='SIZE_LIMIT' else None\n    exceptions.append({'line':frame.f_lineno,'type':arg[0].__name__,'reason_allowlisted':reason})\n   return trace\n  m.subprocess.run=observed;sys.settrace(trace)\n  try:\n   value=consumer(handle,expected_sha256=expected)\n  except AssertionError as error:\n   assert str(error)=='BATCH2_CURRENT_READER_REFUSED';assert not positive\n   status='REFUSED';public_reason=str(error)\n  else:\n   assert positive and value==current;status='ACCEPTED';public_reason='EXACT_WHEEL_AND_GIT_EXPORT'\n  finally:\n   sys.settrace(None);m.subprocess.run=real_run\n  assert len(origins)==int(positive)\n  after=snapshot(handle);assert before==after\n  assert not any('__pycache__' in p or p.endswith('.pyc') for p in after['installed_inventory'])\n  if not positive:\n   assert exceptions\n   if name in ('genuine-built-old-caps','raw-327681'):assert exceptions[0]['type']=='CatalogError' and exceptions[0]['reason_allowlisted']=='SIZE_LIMIT'\n   else:assert exceptions[0]['type']=='ValueError' and exceptions[0]['line']==7532\n  if name.startswith('genuine-built'):\n   metrics=before['metrics'];assert metrics['raw']==280593 and metrics['aggregate']==1090231 and metrics['package_bytes']==1080680\n   assert (metrics['raw']+65535)//65536*65536==327680 and (metrics['aggregate']+65535)//65536*65536==1114112\n  results.append({'scenario':name,'handle':str(handle),'descriptor_sha256':expected,'wheel_sha256':before['wheel_sha256'],'metrics':before['metrics'],'status':status,'reason':public_reason,'first_parent_exception':exceptions[0] if exceptions else None,'origins':origins,'installed_files':len(after['installed_inventory']),'unchanged_descriptor_wheel_package_inventory':True,'package_caches':False})\nfinally:\n m.ROOT=original_root;m.subprocess.run=real_run;sys.settrace(None)\nassert len(results)==8\nprint(json.dumps({'status':'PASS_SCOPED_READER_ONLY','scenarios':results}))\n"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+        "exit": 0,
+        "output": "{\"status\": \"PASS_SCOPED_READER_ONLY\", \"scenarios\": [{\"scenario\": \"genuine-built-old-caps\", \"handle\": \"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\", \"descriptor_sha256\": \"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\", \"wheel_sha256\": \"d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da\", \"metrics\": {\"raw\": 280593, \"aggregate\": 1090231, \"members\": 114, \"max_member\": 80828, \"unique_names\": 114, \"package_bytes\": 1080680}, \"status\": \"REFUSED\", \"reason\": \"BATCH2_CURRENT_READER_REFUSED\", \"first_parent_exception\": {\"line\": 7463, \"type\": \"CatalogError\", \"reason_allowlisted\": \"SIZE_LIMIT\"}, \"origins\": [], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"genuine-built-current-caps\", \"handle\": \"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\", \"descriptor_sha256\": \"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\", \"wheel_sha256\": \"d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da\", \"metrics\": {\"raw\": 280593, \"aggregate\": 1090231, \"members\": 114, \"max_member\": 80828, \"unique_names\": 114, \"package_bytes\": 1080680}, \"status\": \"ACCEPTED\", \"reason\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"first_parent_exception\": null, \"origins\": [{\"exit\": 0, \"stderr_empty\": true, \"installed_bytes\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"argv_isolated\": [\"-I\", \"-B\", \"-c\"], \"timeout\": 15, \"program_sha256\": \"7b40205554d16cc3f86ecbe7d5d68724cbda1e7804f74a6ba8b137e9a1ba5b5f\", \"raw_cap\": 327680, \"aggregate_cap\": 1114112}], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"raw-327680\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source12/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"5535f7d131bbb2f228cbcd935955f12ae871b1d2cf3616a400f9a8df63376739\", \"wheel_sha256\": \"1c0fe3192bfad5e635653b159514a28e361733488d37d24170fa62bfef1ca870\", \"metrics\": {\"raw\": 327680, \"aggregate\": 1080680, \"members\": 95, \"max_member\": 80828, \"unique_names\": 95, \"package_bytes\": 1080680}, \"status\": \"ACCEPTED\", \"reason\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"first_parent_exception\": null, \"origins\": [{\"exit\": 0, \"stderr_empty\": true, \"installed_bytes\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"argv_isolated\": [\"-I\", \"-B\", \"-c\"], \"timeout\": 15, \"program_sha256\": \"afb646038ccb6c5d284029ecd9fad0f45e0068eae460e8d5f4e61fa37d14c431\", \"raw_cap\": 327680, \"aggregate_cap\": 1114112}], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"raw-327681\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source13/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"be289e91f268bc8fda5b56a9a82db1877486cc2a9d7fc0af4a16215e524c10d9\", \"wheel_sha256\": \"471fb72abc099a72a3651a50c07ad7b4500a201c74d2a46542739ffe9cc8fc47\", \"metrics\": {\"raw\": 327681, \"aggregate\": 1080680, \"members\": 95, \"max_member\": 80828, \"unique_names\": 95, \"package_bytes\": 1080680}, \"status\": \"REFUSED\", \"reason\": \"BATCH2_CURRENT_READER_REFUSED\", \"first_parent_exception\": {\"line\": 7502, \"type\": \"CatalogError\", \"reason_allowlisted\": \"SIZE_LIMIT\"}, \"origins\": [], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"aggregate-1114112\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source14/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"3a20f0aa7f5ac3d53497f416929a65bede7beef40757b02c83b1b768eb940ce2\", \"wheel_sha256\": \"313a72a4dff84b84567daee051774f79d0bb126a0860265b44cb1daf0b35a520\", \"metrics\": {\"raw\": 274314, \"aggregate\": 1114112, \"members\": 96, \"max_member\": 80828, \"unique_names\": 96, \"package_bytes\": 1080680}, \"status\": \"ACCEPTED\", \"reason\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"first_parent_exception\": null, \"origins\": [{\"exit\": 0, \"stderr_empty\": true, \"installed_bytes\": \"EXACT_WHEEL_AND_GIT_EXPORT\", \"argv_isolated\": [\"-I\", \"-B\", \"-c\"], \"timeout\": 15, \"program_sha256\": \"d9cdd772f604dddd601780865d1762fada55b98d8aecd3f20412fdd6d720b8bf\", \"raw_cap\": 327680, \"aggregate_cap\": 1114112}], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"aggregate-1114113\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source15/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"23a73da074ed3a8367b70c7af65dd754a896f1a73b185687378dff7944078f4f\", \"wheel_sha256\": \"a68f4d02eaabb6ea338c475e15cbe9bd0aa1891a6348726f91c11d85784a1e0f\", \"metrics\": {\"raw\": 274314, \"aggregate\": 1114113, \"members\": 96, \"max_member\": 80828, \"unique_names\": 96, \"package_bytes\": 1080680}, \"status\": \"REFUSED\", \"reason\": \"BATCH2_CURRENT_READER_REFUSED\", \"first_parent_exception\": {\"line\": 7532, \"type\": \"ValueError\", \"reason_allowlisted\": null}, \"origins\": [], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"count-129\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source16/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"96b53d1b93c80d745afc46ffa871a9500b30ecc4a267e0f0f6cffeb21d98aae4\", \"wheel_sha256\": \"8fce72baa60a25fd0141fc3c61607da14c8f597b975d063df031ddd7b8bcc31e\", \"metrics\": {\"raw\": 278014, \"aggregate\": 1080680, \"members\": 129, \"max_member\": 80828, \"unique_names\": 129, \"package_bytes\": 1080680}, \"status\": \"REFUSED\", \"reason\": \"BATCH2_CURRENT_READER_REFUSED\", \"first_parent_exception\": {\"line\": 7532, \"type\": \"ValueError\", \"reason_allowlisted\": null}, \"origins\": [], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}, {\"scenario\": \"duplicate-1\", \"handle\": \"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source17/h04-reader/h04-current-reader.json\", \"descriptor_sha256\": \"83ecf2faf0735402b792b11f97159de893d53d9d032173af7e541590612a37fa\", \"wheel_sha256\": \"b1d360036502f08b03035e26f768b71f0f5911797787c90d0829d6ff84af1c82\", \"metrics\": {\"raw\": 274303, \"aggregate\": 1080713, \"members\": 96, \"max_member\": 80828, \"unique_names\": 95, \"package_bytes\": 1080713}, \"status\": \"REFUSED\", \"reason\": \"BATCH2_CURRENT_READER_REFUSED\", \"first_parent_exception\": {\"line\": 7532, \"type\": \"ValueError\", \"reason_allowlisted\": null}, \"origins\": [], \"installed_files\": 95, \"unchanged_descriptor_wheel_package_inventory\": true, \"package_caches\": false}]}",
+        "outer_error": null
+      },
+      {
+        "name": "final-snapshot-integrity",
+        "argv": [
+          "env",
+          "-i",
+          "PATH=/usr/bin:/bin",
+          "HOME=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "TMPDIR=/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import ast,json,hashlib,subprocess\nfrom pathlib import Path\nrepo=Path('/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work');base='202c3c27843db26ad129f9f292465d49792e5f46';expected_head='69d6caec81badb2317755b0b2805b37477458e25';allowed='api/tests/test_contract_method_pg.py'\ndef git(*args,cwd=repo):\n r=subprocess.run(['git',*args],cwd=cwd,capture_output=True,text=True);assert r.returncode==0;return r.stdout.strip()\ndef sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()\nassert git('rev-parse','HEAD')==expected_head\nassert git('status','--porcelain')=='' and git('diff','--cached','--name-only')==''\nassert git('diff','--name-only',base+'..HEAD').splitlines()==[allowed]\nassert git('diff','--numstat',base+'..HEAD')=='48\\t9\\t'+allowed\nassert git('diff','--check',base+'..HEAD')==''\nmain=Path('/home/kali/OmnisAI');main_head=git('rev-parse','HEAD',cwd=main);assert main_head==base\nmain_status=git('status','--porcelain',cwd=main);assert main_status=='?? documents/Omnis_Notite_Originale.html'\nold=git('show',base+':'+allowed);new=(repo/allowed).read_text();a,b=ast.parse(old),ast.parse(new)\nnodes=lambda tree:{n.name:n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}\nad,bd=nodes(a),nodes(b);changed=[n for n in ad if ast.dump(ad[n],include_attributes=False)!=ast.dump(bd[n],include_attributes=False)]\nassert set(ad)==set(bd) and set(changed)=={'test_batch2_current_reader_actual_helper','test_h04_current_reader_source_snapshot','batch2_current_reader'}\ncalibrated=ast.get_source_segment(old,ad['batch2_current_reader']).replace('262144','327680').replace('1048576','1114112')\nassert ast.dump(ast.parse(calibrated).body[0],include_attributes=False)==ast.dump(bd['batch2_current_reader'],include_attributes=False)\nexpected={allowed:'1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138','documents/verification/p4a-model-prepare-evidence/qa-preflight-reader-blocked.json':'95c26045099974b787ae65f83bd7cdfbc28eac4b8ea3544167989badba25c175','documents/verification/p4a-model-prepare-evidence/reader-preflight-blocked.json':'9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9','documents/verification/p4a-model-prepare-evidence/build-preflight-blocked.json':'9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d'}\nfor path,value in expected.items():assert sha(repo/path)==value\ninputs={'/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json':'fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7','/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json':'8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939','/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl':'d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da'}\nfor path,value in inputs.items():assert sha(path)==value\nprint(json.dumps({'head':expected_head,'base':base,'file_sha256':expected[allowed],'candidate_clean':True,'changed_paths':[allowed],'numstat':{'added':48,'deleted':9},'changed_definitions':changed,'unchanged_definitions':sum(n not in changed for n in ad),'reader_AST_only_two_calibrated_values':True,'all_other_top_level_AST_unchanged':ast.dump(ast.Module(body=[n for n in a.body if not isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))],type_ignores=[]),include_attributes=False)==ast.dump(ast.Module(body=[n for n in b.body if not isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))],type_ignores=[]),include_attributes=False),'main_head':main_head,'main_status_unchanged':main_status,'original_reports_sha256':expected,'input_sha256':inputs,'protected_file_contents_not_read_or_hashed':True}))\n"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+        "exit": 0,
+        "output": "{\"head\": \"69d6caec81badb2317755b0b2805b37477458e25\", \"base\": \"202c3c27843db26ad129f9f292465d49792e5f46\", \"file_sha256\": \"1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138\", \"candidate_clean\": true, \"changed_paths\": [\"api/tests/test_contract_method_pg.py\"], \"numstat\": {\"added\": 48, \"deleted\": 9}, \"changed_definitions\": [\"test_batch2_current_reader_actual_helper\", \"test_h04_current_reader_source_snapshot\", \"batch2_current_reader\"], \"unchanged_definitions\": 103, \"reader_AST_only_two_calibrated_values\": true, \"all_other_top_level_AST_unchanged\": true, \"main_head\": \"202c3c27843db26ad129f9f292465d49792e5f46\", \"main_status_unchanged\": \"?? documents/Omnis_Notite_Originale.html\", \"original_reports_sha256\": {\"api/tests/test_contract_method_pg.py\": \"1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138\", \"documents/verification/p4a-model-prepare-evidence/qa-preflight-reader-blocked.json\": \"95c26045099974b787ae65f83bd7cdfbc28eac4b8ea3544167989badba25c175\", \"documents/verification/p4a-model-prepare-evidence/reader-preflight-blocked.json\": \"9a06f887bfc32d6938c9e5d0bb50fd266eaba40ad4f591fb72dc6e35fe215ed9\", \"documents/verification/p4a-model-prepare-evidence/build-preflight-blocked.json\": \"9536ceb86f41912fc8c97c777081fee9f3a5d9568e66bce929f30935d953668d\"}, \"input_sha256\": {\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json\": \"fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7\", \"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\": \"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\", \"/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl\": \"d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da\"}, \"protected_file_contents_not_read_or_hashed\": true}",
+        "outer_error": null
+      }
+    ],
+    "source_pytest": {
+      "collected": 22,
+      "passed": 22,
+      "skipped": 0,
+      "exit": 0,
+      "seconds_reported": 3.77,
+      "scope": "Existing test_h04_current_reader_source_snapshot only; origin seam substituted, not installed acceptance."
+    },
+    "actual_consumer_assertions": {
+      "status": "PASS_SCOPED_READER_ONLY",
+      "scenarios": [
+        {
+          "scenario": "genuine-built-old-caps",
+          "handle": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+          "descriptor_sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+          "wheel_sha256": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da",
+          "metrics": {
+            "raw": 280593,
+            "aggregate": 1090231,
+            "members": 114,
+            "max_member": 80828,
+            "unique_names": 114,
+            "package_bytes": 1080680
+          },
+          "status": "REFUSED",
+          "reason": "BATCH2_CURRENT_READER_REFUSED",
+          "first_parent_exception": {
+            "line": 7463,
+            "type": "CatalogError",
+            "reason_allowlisted": "SIZE_LIMIT"
+          },
+          "origins": [],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "genuine-built-current-caps",
+          "handle": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+          "descriptor_sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+          "wheel_sha256": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da",
+          "metrics": {
+            "raw": 280593,
+            "aggregate": 1090231,
+            "members": 114,
+            "max_member": 80828,
+            "unique_names": 114,
+            "package_bytes": 1080680
+          },
+          "status": "ACCEPTED",
+          "reason": "EXACT_WHEEL_AND_GIT_EXPORT",
+          "first_parent_exception": null,
+          "origins": [
+            {
+              "exit": 0,
+              "stderr_empty": true,
+              "installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT",
+              "argv_isolated": [
+                "-I",
+                "-B",
+                "-c"
+              ],
+              "timeout": 15,
+              "program_sha256": "7b40205554d16cc3f86ecbe7d5d68724cbda1e7804f74a6ba8b137e9a1ba5b5f",
+              "raw_cap": 327680,
+              "aggregate_cap": 1114112
+            }
+          ],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "raw-327680",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source12/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "5535f7d131bbb2f228cbcd935955f12ae871b1d2cf3616a400f9a8df63376739",
+          "wheel_sha256": "1c0fe3192bfad5e635653b159514a28e361733488d37d24170fa62bfef1ca870",
+          "metrics": {
+            "raw": 327680,
+            "aggregate": 1080680,
+            "members": 95,
+            "max_member": 80828,
+            "unique_names": 95,
+            "package_bytes": 1080680
+          },
+          "status": "ACCEPTED",
+          "reason": "EXACT_WHEEL_AND_GIT_EXPORT",
+          "first_parent_exception": null,
+          "origins": [
+            {
+              "exit": 0,
+              "stderr_empty": true,
+              "installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT",
+              "argv_isolated": [
+                "-I",
+                "-B",
+                "-c"
+              ],
+              "timeout": 15,
+              "program_sha256": "afb646038ccb6c5d284029ecd9fad0f45e0068eae460e8d5f4e61fa37d14c431",
+              "raw_cap": 327680,
+              "aggregate_cap": 1114112
+            }
+          ],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "raw-327681",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source13/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "be289e91f268bc8fda5b56a9a82db1877486cc2a9d7fc0af4a16215e524c10d9",
+          "wheel_sha256": "471fb72abc099a72a3651a50c07ad7b4500a201c74d2a46542739ffe9cc8fc47",
+          "metrics": {
+            "raw": 327681,
+            "aggregate": 1080680,
+            "members": 95,
+            "max_member": 80828,
+            "unique_names": 95,
+            "package_bytes": 1080680
+          },
+          "status": "REFUSED",
+          "reason": "BATCH2_CURRENT_READER_REFUSED",
+          "first_parent_exception": {
+            "line": 7502,
+            "type": "CatalogError",
+            "reason_allowlisted": "SIZE_LIMIT"
+          },
+          "origins": [],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "aggregate-1114112",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source14/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "3a20f0aa7f5ac3d53497f416929a65bede7beef40757b02c83b1b768eb940ce2",
+          "wheel_sha256": "313a72a4dff84b84567daee051774f79d0bb126a0860265b44cb1daf0b35a520",
+          "metrics": {
+            "raw": 274314,
+            "aggregate": 1114112,
+            "members": 96,
+            "max_member": 80828,
+            "unique_names": 96,
+            "package_bytes": 1080680
+          },
+          "status": "ACCEPTED",
+          "reason": "EXACT_WHEEL_AND_GIT_EXPORT",
+          "first_parent_exception": null,
+          "origins": [
+            {
+              "exit": 0,
+              "stderr_empty": true,
+              "installed_bytes": "EXACT_WHEEL_AND_GIT_EXPORT",
+              "argv_isolated": [
+                "-I",
+                "-B",
+                "-c"
+              ],
+              "timeout": 15,
+              "program_sha256": "d9cdd772f604dddd601780865d1762fada55b98d8aecd3f20412fdd6d720b8bf",
+              "raw_cap": 327680,
+              "aggregate_cap": 1114112
+            }
+          ],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "aggregate-1114113",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source15/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "23a73da074ed3a8367b70c7af65dd754a896f1a73b185687378dff7944078f4f",
+          "wheel_sha256": "a68f4d02eaabb6ea338c475e15cbe9bd0aa1891a6348726f91c11d85784a1e0f",
+          "metrics": {
+            "raw": 274314,
+            "aggregate": 1114113,
+            "members": 96,
+            "max_member": 80828,
+            "unique_names": 96,
+            "package_bytes": 1080680
+          },
+          "status": "REFUSED",
+          "reason": "BATCH2_CURRENT_READER_REFUSED",
+          "first_parent_exception": {
+            "line": 7532,
+            "type": "ValueError",
+            "reason_allowlisted": null
+          },
+          "origins": [],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "count-129",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source16/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "96b53d1b93c80d745afc46ffa871a9500b30ecc4a267e0f0f6cffeb21d98aae4",
+          "wheel_sha256": "8fce72baa60a25fd0141fc3c61607da14c8f597b975d063df031ddd7b8bcc31e",
+          "metrics": {
+            "raw": 278014,
+            "aggregate": 1080680,
+            "members": 129,
+            "max_member": 80828,
+            "unique_names": 129,
+            "package_bytes": 1080680
+          },
+          "status": "REFUSED",
+          "reason": "BATCH2_CURRENT_READER_REFUSED",
+          "first_parent_exception": {
+            "line": 7532,
+            "type": "ValueError",
+            "reason_allowlisted": null
+          },
+          "origins": [],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        },
+        {
+          "scenario": "duplicate-1",
+          "handle": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_current_reader_source17/h04-reader/h04-current-reader.json",
+          "descriptor_sha256": "83ecf2faf0735402b792b11f97159de893d53d9d032173af7e541590612a37fa",
+          "wheel_sha256": "b1d360036502f08b03035e26f768b71f0f5911797787c90d0829d6ff84af1c82",
+          "metrics": {
+            "raw": 274303,
+            "aggregate": 1080713,
+            "members": 96,
+            "max_member": 80828,
+            "unique_names": 95,
+            "package_bytes": 1080713
+          },
+          "status": "REFUSED",
+          "reason": "BATCH2_CURRENT_READER_REFUSED",
+          "first_parent_exception": {
+            "line": 7532,
+            "type": "ValueError",
+            "reason_allowlisted": null
+          },
+          "origins": [],
+          "installed_files": 95,
+          "unchanged_descriptor_wheel_package_inventory": true,
+          "package_caches": false
+        }
+      ]
+    },
+    "negative_exit_semantics": "The baseline and max+1 refusals were caught and asserted within the direct verification command, which correctly exits0. This report does not mislabel them as independent process exit1. Author RED process exits are separate historical evidence.",
+    "origin_observation_seam": "A transparent subprocess.run wrapper records actual argv/code and real child results without replacing the result. Trace captures only the affected consumer first exception type/line and allowlisted SIZE_LIMIT. Synthetic boundary ROOT is selected to its exact exported checkout; genuine positive ROOT is the candidate worktree. Baseline only compiles the base reader function against unchanged candidate helper globals; no base source file was written or whole-baseline suite claimed."
+  },
+  "author_evidence": {
+    "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json",
+    "sha256": "fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7",
+    "reviewed_claims": [
+      "Actual descriptor/wheel baseline refusal and current acceptance.",
+      "52distinct SOURCE cases and Ruff/format/mypy success as author-reported evidence, not claimed independently rerun or added to reviewer count.",
+      "Explicit synthetic-origin/dependency seams and actual boundary readback commands.",
+      "Per-member additive negative also exceeds aggregate and is not an independent guard-removal mutant.",
+      "One failed scratch enumeration glob, with preserved failure and no product effects."
+    ],
+    "independent_crosscheck": "Author SHA, genuine/boundary descriptor/wheel identities, measured metrics, real positive/max origins and localized parent refusals verified directly. Not a blanket validation of every author-report field."
+  },
+  "status_delta_proposed_to_parent": {
+    "qa_cap_code": "IMPLEMENTED_IN_CANDIDATE_NOT_INTEGRATED",
+    "qa_cap_proof": "PASS_SCOPED_READER_ONLY",
+    "normative_review": "APPROVED_SCOPED",
+    "complementary_review": "Not adjudicated by this report.",
+    "model_preparation_SOURCE": "Retained at original approval scope.",
+    "model_preparation_new_PG_native": "NOT_RUN_BY_THIS_REVIEW",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Parent adjudicates both complementary exact-snapshot reviews; only then bind the new QA test SHA and resume existing preflight plus first real bounded QA via original run_gate/timeout180. No new owner, audit or source reopening without a concrete defect."
+  },
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "files": {
+    "repository_modified": [],
+    "original_report_created": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/review-reader-limits-norm.json",
+    "scratch_fixture_root_created": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/norm-focused-9960ccb7c2",
+    "scratch_fixture_producer": "Existing targeted pytest test, no new implementation/verifier file.",
+    "existing_input_changes": "None: checked genuine and boundary descriptor/wheel/package inventories remain equal before/after.",
+    "commit_or_push": "None"
+  },
+  "issues_encountered": [],
+  "limits": [
+    "Approval is exact-snapshot and normative/consumer/order scoped, not a general security audit or guarantee of future artifact growth.",
+    "SOURCE fixture origins are substituted by the existing test. Retained synthetic boundary fixtures use trusted dependency/startup seams; independent real-child boundary positives are not a whole-distribution/native/runtime acceptance.",
+    "Max+1 denials are localized in the parent before launching origin. They do not independently mutate an origin-only overlimit input; origin threshold presence and inclusive maxima were exercised through real children.",
+    "Unchanged per-member additive fixture overlaps aggregate rejection; no new independent per-member guard-removal evidence claimed or required for the unchanged guard.",
+    "No product edits/build/OCI/Docker/DB/native/model/server/account/provider/target/r1/P0/global effects, credential input, protected-file content reads/hashes/copies, or push. Parent original PG/native gate remains pending.",
+    "No full canonical, documentation, lint or typecheck suites rerun by this focused reviewer; author quality outputs retained as author evidence only.",
+    "Scratch evidence may expire; parent must preserve the original report byte-exact and adjudicated result in the existing slice register."
+  ]
+}

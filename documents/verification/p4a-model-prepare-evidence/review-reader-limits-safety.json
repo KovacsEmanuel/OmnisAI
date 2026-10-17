@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "review_kind": "INDEPENDENT_COMPLEMENTARY_SAFETY_REVIEW_READ_ONLY",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "No blocking safety finding in the authorized two-limit QA-reader calibration. This is not integration approval, runtime QA, model authority, or phase-2 certification.",
+  "findings": [],
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+    "base": "202c3c27843db26ad129f9f292465d49792e5f46",
+    "head": "69d6caec81badb2317755b0b2805b37477458e25",
+    "branch": "work/ar-74cdpo7w",
+    "changed_files": [
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256": "1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138",
+        "insertions": 48,
+        "deletions": 9
+      }
+    ],
+    "status_before": "CLEAN",
+    "status_after_tests": "CLEAN",
+    "head_and_file_sha_before_after_equal": true,
+    "parent_main_ref_observed_during_review": "d372295a5fa592e16443944b8ace4fdc0c3f1d18",
+    "parent_main_note": "Main moved independently of this frozen worktree; no review or execution approval is transferred to that different snapshot."
+  },
+  "authorization": {
+    "operator_exception": "Only QA wheel raw cap 262144 -> 327680 and aggregate uncompressed ZIP cap 1048576 -> 1114112, consistently in parent and generated isolated origin.",
+    "requirement_consumer_risk_decision": {
+      "requirement": "Current genuine API artifact fits the smallest 64-KiB bounds, with strict over-limit refusal.",
+      "consumer": "batch2_current_reader -> existing isolated HISTORICAL_ORIGIN; h03_prerequisites call site unchanged.",
+      "risk": "Overbroad cap/schema/origin relaxation, early unrelated denial credited as a guard test, or obsolete generated-origin cap.",
+      "decision": "Admit only the calibrated reader prerequisite for parent adjudication; preserve the original 180-second real-QA seam and require both exact-snapshot reviews."
+    },
+    "no_model_transport_grant_timeout_or_authority_change": true,
+    "no_new_mechanism": true,
+    "protected_paths": "documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were not read, hashed, copied or modified."
+  },
+  "inspected_context": [
+    "AGENTS.md",
+    "CONTRIBUTING.md (product-oriented execution and review contract)",
+    "README.md",
+    "documents/verification/implementation-status.md (CURRENT only)",
+    "documents/verification/p4a-minim.md:31-39",
+    "api/tests/conftest.py",
+    "api/pyproject.toml",
+    "api/tests/test_contract_method_pg.py (exact diff, affected fixtures/helper/origin/caller)",
+    "api/src/omnis/modules/settings/skill_catalog.py:59-106"
+  ],
+  "static_integrity": {
+    "reader_AST_equal_to_base_after_reversing_only_two_cap_values": true,
+    "historical_origin_assignment_unchanged": true,
+    "changed_top_level_definitions": [
+      "test_batch2_current_reader_actual_helper",
+      "test_h04_current_reader_source_snapshot",
+      "batch2_current_reader"
+    ],
+    "unchanged_top_level_definitions": 103,
+    "product_runtime_source_diff": "NONE",
+    "unchanged_guards": {
+      "descriptor_bytes": 32768,
+      "pyvenv_cfg_bytes": 4096,
+      "zip_member_count": 128,
+      "per_member_bytes": 131072,
+      "isolated_origin_timeout_seconds": 15,
+      "real_QA_runner_timeout_seconds": 180,
+      "schema": "Exact descriptor/current/row fields; strict schema integer, commit/string/path types, duplicate JSON-key refusal and pinned SHA.",
+      "paths": "Absolute scratch root; source/wheel canonical and under root; interpreter resolves to the current attested toolchain, with owned canonical parent and bounded pyvenv.cfg.",
+      "material": "Existing directory-by-directory O_NOFOLLOW plus O_NONBLOCK final FD; regular, current UID, single-link; bounded read and before/after inode/change fences.",
+      "inventories": "Every package file in ROOT/export/wheel/installed must match; installed caches refused before origin import and in fresh readers. No fixed-filename or fixed-count bypass for additive modules.",
+      "identity": "Exact source/export/installed/wheel bytes and row hashes remain required. Origin stays -I -B, private explicit PATH/HOME/TMPDIR, success exit, empty stderr, exact installed_bytes tag.",
+      "admission": "The two current test-SHA review bindings and six original QA input bindings are unchanged; this reviewer did not set or exercise execution permission."
+    }
+  },
+  "calibration": {
+    "quantum": 65536,
+    "formula": "ceil(measured / 65536) * 65536",
+    "raw": {
+      "measured": 280593,
+      "old": 262144,
+      "new": 327680,
+      "smallest_multiple_verified": true
+    },
+    "aggregate": {
+      "measured": 1090231,
+      "old": 1048576,
+      "new": 1114112,
+      "smallest_multiple_verified": true
+    },
+    "members": 114,
+    "max_member": 80828,
+    "package_bytes_alone": 1080680
+  },
+  "real_positive": {
+    "descriptor": {
+      "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json",
+      "sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939"
+    },
+    "wheel": {
+      "path": "/home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da"
+    },
+    "independent_result": "Original descriptor accepted through the unchanged real installed API origin; returned descriptor.current exactly.",
+    "full_matching_package_files": 95,
+    "inventories_enumerated_and_bytes_compared": [
+      "candidate ROOT",
+      "source export",
+      "wheel",
+      "installed package"
+    ],
+    "all_material_regular_current_uid_single_link": true,
+    "package_cache_inventory": "NONE",
+    "isolated_origin": {
+      "exit": 0,
+      "stderr_empty": true,
+      "isolated": true,
+      "bytecode_write_disabled": true,
+      "timeout_seconds": 15,
+      "observed_generated_code_sha256": "a7c1a539277c3d0720f41b2b7a07894c6fea62cfb4bf5ce556597f80a4d52958"
+    },
+    "original_inputs_unchanged_before_after": true
+  },
+  "executed_evidence": {
+    "pytest": {
+      "exit": 0,
+      "passed": 43,
+      "skipped": 0,
+      "duration_seconds": 7.88,
+      "selectors": [
+        "test_h04_current_reader_source_snapshot",
+        "test_batch2_current_reader_actual_helper",
+        "test_h04_real_reader_cache_controls"
+      ],
+      "fresh_basetemp": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/safety-reader-pytest-69d6cae",
+      "fixture_scope": "SOURCE fixture plus the already-existing synthetic exact-current-package wheel/venv with explicit trusted dependency .pth. SOURCE origin substitution is not installed-distribution acceptance. The separate genuine built-wheel positive and retained exact-max real origins were independently run.",
+      "raw_trace_policy": "Only fixed test/mutation/first exception type+line/accepted fields emitted; no frame locals, raw child stderr, environment or private logs dumped."
+    },
+    "new_controls_reach_intended_guard": [
+      {
+        "case": "wheel-max",
+        "accepted": true,
+        "raw": 327680,
+        "aggregate": 1080680
+      },
+      {
+        "case": "wheel-max-plus-one",
+        "accepted": false,
+        "raw": 327681,
+        "aggregate": 1080680,
+        "first_exception": {
+          "line": 7502,
+          "type": "CatalogError"
+        }
+      },
+      {
+        "case": "aggregate-max",
+        "accepted": true,
+        "raw": 274314,
+        "aggregate": 1114112
+      },
+      {
+        "case": "aggregate-max-plus-one",
+        "accepted": false,
+        "raw": 274314,
+        "aggregate": 1114113,
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError"
+        }
+      },
+      {
+        "case": "zip-count",
+        "accepted": false,
+        "raw": 278014,
+        "aggregate": 1080680,
+        "members": 129,
+        "unique_names": 129,
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError"
+        }
+      },
+      {
+        "case": "zip-duplicate",
+        "accepted": false,
+        "raw": 274303,
+        "aggregate": 1080713,
+        "members": 96,
+        "unique_names": 95,
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError"
+        }
+      },
+      {
+        "case": "bad-zip",
+        "accepted": false,
+        "first_exception": {
+          "line": 7524,
+          "type": "BadZipFile"
+        }
+      },
+      {
+        "case": "descriptor-extra",
+        "accepted": false,
+        "first_exception": {
+          "line": 7468,
+          "type": "ValueError"
+        }
+      },
+      {
+        "case": "current-extra",
+        "accepted": false,
+        "first_exception": {
+          "line": 7482,
+          "type": "ValueError"
+        }
+      }
+    ],
+    "samechannel_boundary_readback": {
+      "rows": 6,
+      "accepted_real_isolated_origins": 2,
+      "negatives_before_origin": 4,
+      "max_raw_descriptor_sha256": "5535f7d131bbb2f228cbcd935955f12ae871b1d2cf3616a400f9a8df63376739",
+      "max_aggregate_descriptor_sha256": "3a20f0aa7f5ac3d53497f416929a65bede7beef40757b02c83b1b768eb940ce2",
+      "provenance": "Each retained boundary descriptor and wheel hash was checked against the pinned author report before invoking the candidate reader; each measured archive violates only its intended predicate or none for positives. Both maxima passed real -I -B origins, timeout15, exit0/empty stderr. No blanket-reject observer can satisfy these paired positives."
+    },
+    "old_caps_independent_parent_controls": [
+      {
+        "cap": "raw",
+        "value": 262144,
+        "result": "BATCH2_CURRENT_READER_REFUSED",
+        "first_exception": {
+          "line": 7502,
+          "type": "CatalogError"
+        }
+      },
+      {
+        "cap": "aggregate",
+        "value": 1048576,
+        "result": "BATCH2_CURRENT_READER_REFUSED",
+        "first_exception": {
+          "line": 7532,
+          "type": "ValueError"
+        }
+      }
+    ],
+    "old_caps_independent_origin_controls": [
+      {
+        "cap": "raw",
+        "value": 262144,
+        "exit": 1,
+        "stdout_empty": true,
+        "denial": "SIZE_LIMIT"
+      },
+      {
+        "cap": "aggregate",
+        "value": 1048576,
+        "exit": 1,
+        "stdout_empty": true,
+        "denial": "AssertionError"
+      }
+    ],
+    "lower_cap_method": "Controlled code/string substitutions in reviewer-process memory only, one cap at a time, against the same genuine descriptor/wheel. Original source, descriptor, wheel and generated-origin function unchanged.",
+    "retained_member_negative": {
+      "raw": 274409,
+      "aggregate": 1211753,
+      "members": 96,
+      "max_member": 131073,
+      "first_exception_in_independent_pytest": {
+        "line": 7532,
+        "type": "ValueError"
+      },
+      "limitation": "Also violates aggregate; earlier per-member short-circuit is reached, but this is not an independent per-member guard-removal proof. Guard itself is AST-unchanged."
+    },
+    "retained_aggregate_negative": {
+      "raw": 274409,
+      "aggregate": 1211752,
+      "members": 96,
+      "max_member": 131072,
+      "first_exception_in_independent_pytest": {
+        "line": 7532,
+        "type": "ValueError"
+      },
+      "limitation": "Aggregate-only negative; all other ZIP finite guards in bounds."
+    },
+    "cache_controls": "Unchanged positive, pre-origin UNCHECKED_HASH refusal, and post-origin fresh-reader UNCHECKED_HASH refusal passed. Synthetic unknown caches intentionally preserved in private pytest fixtures; no cache-cleaning for green."
+  },
+  "observations_not_blocking": [
+    {
+      "id": "LIMIT-MEMBER-CONTROL",
+      "scope": "Unchanged additive per-member fixture",
+      "detail": "As disclosed by author and confirmed independently, per-member negative also exceeds aggregate. Do not claim independent guard-removal coverage.",
+      "minimal_remedy": "No code change needed for this two-limit slice; retain the explicit evidence limitation."
+    },
+    {
+      "id": "LIMIT-LEGACY-WRONG-ORIGIN",
+      "scope": "Unchanged test_batch2_current_reader_actual_helper[wrong-origin]",
+      "detail": "Observed first refusal is FileNotFoundError at line7522 (missing pyvenv.cfg), not the later real imported-package origin predicate. This test proves refusal/no-origin effects, not isolated exercise of that origin predicate. The genuine installed positive, exact current source closure and unchanged origin implementation were separately checked.",
+      "minimal_remedy": "Do not promote this unchanged negative into independent real-origin guard coverage; no broad runtime re-audit or new fixture required by this calibration."
+    }
+  ],
+  "commands": [
+    {
+      "id": "snapshot-before",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "shell": "git status --short --branch && git rev-parse HEAD && git show --stat --oneline HEAD && git diff --stat 202c3c27843db26ad129f9f292465d49792e5f46 HEAD && git diff --no-ext-diff 202c3c27843db26ad129f9f292465d49792e5f46 HEAD -- api/tests/test_contract_method_pg.py && sha256sum api/tests/test_contract_method_pg.py",
+      "exit": 0
+    },
+    {
+      "id": "ast-exact-delta",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "environment_mode": "inherited environment; interpreter -I -B",
+      "environment": null,
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import ast,hashlib,json,subprocess;from pathlib import Path;p=Path(\"api/tests/test_contract_method_pg.py\");old=subprocess.check_output([\"git\",\"show\",\"202c3c27843db26ad129f9f292465d49792e5f46:api/tests/test_contract_method_pg.py\"],text=True);new=p.read_text();a=ast.parse(old);b=ast.parse(new);defs=lambda tree:{n.name:n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))};da,db=defs(a),defs(b);changed=[n for n in da if ast.dump(da[n])!=ast.dump(db[n])];normalized=new.replace(\"327680\",\"262144\").replace(\"1114112\",\"1048576\");c=defs(ast.parse(normalized));assert ast.dump(da[\"batch2_current_reader\"])==ast.dump(c[\"batch2_current_reader\"]);print(json.dumps({\"changed_top_level_definitions\":changed,\"unchanged_top_level_definitions\":sum(ast.dump(da[n])==ast.dump(db[n]) for n in da),\"reader_normalized_AST_matches_base\":True,\"historical_origin_assignment_identical\":next(ast.dump(n) for n in a.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==\"HISTORICAL_ORIGIN\" for t in n.targets))==next(ast.dump(n) for n in b.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==\"HISTORICAL_ORIGIN\" for t in n.targets)),\"sha256\":hashlib.sha256(p.read_bytes()).hexdigest()},sort_keys=True))"
+      ],
+      "exit": 0,
+      "result": "103 unchanged definitions; only helper test/source-snapshot test/current reader changed; normalized reader AST matches base; HISTORICAL_ORIGIN assignment identical."
+    },
+    {
+      "id": "genuine-artifact-and-real-origin",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "environment_mode": "env -i",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json,zipfile,hashlib,stat,ast;from pathlib import Path;repo=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work\");sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m\nhandle=Path(\"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\");expected=\"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\";assert m.sha(handle.read_bytes())==expected;c=json.loads(handle.read_bytes())[\"current\"];w=Path(c[\"wheel\"]);assert m.sha(w.read_bytes())==\"d718e45bf37ca9140ece271b74cb130a8cfef328e38d62f916cc805d82d6d9da\"\nwith zipfile.ZipFile(w) as z:\n members=z.infolist();names={n for n in z.namelist() if n.startswith(\"omnis/\") and not n.endswith(\"/\")};metrics={\"raw\":w.stat().st_size,\"aggregate\":sum(i.file_size for i in members),\"members\":len(members),\"max_member\":max(i.file_size for i in members),\"package_bytes\":sum(z.getinfo(n).file_size for n in names)};assert len(names)==len(c[\"files\"])==95\n bases=[repo/\"api/src\",Path(c[\"source\"])/\"api/src\",Path(c[\"python\"]).parent.parent/\"lib/python3.13/site-packages\"]\n for base in bases:\n  assert {str(p.relative_to(base)) for p in (base/\"omnis\").rglob(\"*\") if p.is_file()}==names\n  for n in sorted(names):\n   p=base/n;s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==m.os.getuid();assert m.batch2_reader_material(p,131072)==z.read(n)\noldrun=m.subprocess.run;calls=[]\ndef observe(*args,**kw):\n r=oldrun(*args,**kw);calls.append({\"argv\":args[0],\"timeout\":kw[\"timeout\"],\"cwd\":str(kw[\"cwd\"]),\"exit\":r.returncode,\"stderr_empty\":not r.stderr});return r\nm.subprocess.run=observe\nassert m.batch2_current_reader(handle,expected_sha256=expected)==c;assert len(calls)==1;argv=calls[0][\"argv\"];code=argv[4];assert argv[1:4]==[\"-I\",\"-B\",\"-c\"] and calls[0][\"timeout\"]==15\norigin_checks=[]\nfor name,before,after in [(\"raw-old\", \"327680\", \"262144\"),(\"aggregate-old\", \"1114112\", \"1048576\")]:\n changed=code.replace(before,after);assert changed!=code;r=oldrun([*argv[:4],changed,*argv[5:]],cwd=calls[0][\"cwd\"],env={\"PATH\":\"/usr/bin:/bin\",\"HOME\":calls[0][\"cwd\"],\"TMPDIR\":calls[0][\"cwd\"]},capture_output=True,timeout=15);assert r.returncode==1 and r.stdout==b\"\";origin_checks.append({\"case\":name,\"exit\":r.returncode,\"stdout_empty\":not r.stdout,\"denial\":(\"SIZE_LIMIT\" if b\"SIZE_LIMIT\" in r.stderr else \"AssertionError\" if r.stderr.endswith(b\"AssertionError\\n\") else \"UNRECOGNIZED\")});assert origin_checks[-1][\"denial\"]!=\"UNRECOGNIZED\"\nprint(json.dumps({\"real_current_reader\":\"ACCEPTED\",\"descriptor_sha256\":expected,\"wheel_sha256\":m.sha(w.read_bytes()),\"metrics\":metrics,\"inventories_exact\":len(names),\"regular_current_uid_single_link\":True,\"no_package_cache\":True,\"origin\":{\"exit\":calls[0][\"exit\"],\"timeout\":calls[0][\"timeout\"],\"isolated\":True,\"bytecode_write_disabled\":True,\"code_sha256\":m.sha(code.encode())},\"origin_old_cap_controls\":origin_checks,\"minimal_64KiB_limits\":{k:((metrics[k]+65535)//65536)*65536 for k in (\"raw\",\"aggregate\")}},sort_keys=True))"
+      ],
+      "exit": 0,
+      "result": "Real reader accepted, 95 full matching files, genuine metrics, and both old-origin-cap controls refused."
+    },
+    {
+      "id": "affected-pytest-with-first-exception-tracing",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "environment_mode": "env -i",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "OMNIS_BATCH2_SOURCE_API_ARTIFACT": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/green-source/test_h04_real_reader_cache_con0/h04-reader/h04-current-reader.json"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json;from pathlib import Path;repo=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work\");sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m;import pytest\nbase=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/safety-reader-pytest-69d6cae\");assert not base.exists();events=[];active={}\ndef trace(frame,event,arg):\n if frame.f_code is not m.batch2_current_reader.__code__:return None\n if event==\"call\":\n  caller=frame.f_back\n  while caller is not None and not caller.f_code.co_name.startswith(\"test_\"):caller=caller.f_back\n  row={\"test\":caller.f_code.co_name if caller else \"NONE\",\"mutation\":caller.f_locals.get(\"mutation\",caller.f_locals.get(\"cache_phase\")) if caller else None,\"first_exception\":None};events.append(row);active[id(frame)]=row\n elif event==\"exception\" and active[id(frame)][\"first_exception\"] is None:active[id(frame)][\"first_exception\"]={\"line\":frame.f_lineno,\"type\":arg[0].__name__}\n elif event==\"return\":active.pop(id(frame))[\"accepted\"]=arg is not None\n return trace\nsys.settrace(trace)\ntry:code=pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"--basetemp\",str(base),\"--tb=short\",\"-q\",\"api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot\",\"api/tests/test_contract_method_pg.py::test_batch2_current_reader_actual_helper\",\"api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls\"])\nfinally:sys.settrace(None)\nprint(\"SAFETY_READER_TRACE=\"+json.dumps(events,sort_keys=True));raise SystemExit(code)"
+      ],
+      "exit": 0,
+      "result": "43 passed in 7.88s; no skips; expected positive and guard-specific negative trace."
+    },
+    {
+      "id": "retained-boundaries-real-origins-and-provenance",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "environment_mode": "env -i",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json,zipfile;from pathlib import Path;root=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w\");repo=root/\"work\";sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m\nreport=root/\"author-reader-limits.json\";assert m.sha(report.read_bytes())==\"fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7\";a=json.loads(report.read_bytes());run=m.subprocess.run;rows=[];calls=[]\ndef observed(*args,**kw):\n r=run(*args,**kw);calls.append({\"exit\":r.returncode,\"stderr_empty\":r.stderr==b\"\",\"isolated\":args[0][1:4]==[\"-I\",\"-B\",\"-c\"],\"timeout\":kw[\"timeout\"]});return r\nm.subprocess.run=observed\nfor r in a[\"verification\"][\"boundary_rows\"]:\n h=Path(r[\"handle\"]);assert m.sha(h.read_bytes())==r[\"descriptor_sha256\"];d=json.loads(h.read_bytes());c=d[\"current\"];w=Path(c[\"wheel\"]);assert m.sha(w.read_bytes())==r[\"wheel_sha256\"]\n with zipfile.ZipFile(w) as z:\n  ms=z.infolist();metrics={\"raw\":w.stat().st_size,\"aggregate\":sum(i.file_size for i in ms),\"members\":len(ms),\"max_member\":max(i.file_size for i in ms),\"unique_names\":len({i.filename for i in ms})}\n assert metrics==r[\"metrics\"];violations=[n for n,yes in [(\"raw\",metrics[\"raw\"]>327680),(\"aggregate\",metrics[\"aggregate\"]>1114112),(\"count\",metrics[\"members\"]>128),(\"member\",metrics[\"max_member\"]>131072),(\"duplicate\",metrics[\"members\"]!=metrics[\"unique_names\"])] if yes];events=[];calls.clear();m.ROOT=h.parent/\"checkout\"\n def trace(frame,event,arg):\n  if frame.f_code is m.batch2_current_reader.__code__:\n   if event==\"exception\":events.append({\"line\":frame.f_lineno,\"type\":arg[0].__name__})\n   return trace\n  return None\n sys.settrace(trace)\n try:\n  try:out=m.batch2_current_reader(h,expected_sha256=m.sha(h.read_bytes()));accepted=True;assert out==c\n  except AssertionError as error:accepted=False;assert str(error)==\"BATCH2_CURRENT_READER_REFUSED\"\n finally:sys.settrace(None)\n positive=r[\"status\"]==\"ACCEPTED\";assert accepted==positive;assert violations==([] if positive else [r[\"kind\"]]);assert (len(calls)==1 and calls[0]=={\"exit\":0,\"stderr_empty\":True,\"isolated\":True,\"timeout\":15}) if positive else not calls\n rows.append({\"kind\":r[\"kind\"],\"boundary\":r[\"boundary\"],\"handle\":str(h),\"descriptor_sha256\":m.sha(h.read_bytes()),\"metrics\":metrics,\"violations\":violations,\"accepted\":accepted,\"origin\":list(calls),\"first_exception\":events[0] if events else None})\nassert len(rows)==6\nlegacy=[]\nfor r in a[\"verification\"][\"retained_ZIP_negatives\"]:\n h=Path(r[\"handle\"]);d=json.loads(h.read_bytes());w=Path(d[\"current\"][\"wheel\"])\n with zipfile.ZipFile(w) as z:ms=z.infolist();metrics={\"raw\":w.stat().st_size,\"aggregate\":sum(i.file_size for i in ms),\"members\":len(ms),\"max_member\":max(i.file_size for i in ms)}\n assert metrics==r[\"metrics\"];assert metrics[\"raw\"]<=327680 and metrics[\"members\"]<=128;legacy.append({\"kind\":r[\"kind\"],\"metrics\":metrics,\"per_member_exceeded\":metrics[\"max_member\"]>131072,\"aggregate_exceeded\":metrics[\"aggregate\"]>1114112})\nprint(json.dumps({\"samechannel_boundary_readbacks\":rows,\"legacy_negative_overlap\":legacy},sort_keys=True))"
+      ],
+      "exit": 0,
+      "result": "Six hash-pinned boundary rows independently read back; two accepted real isolated origins, four single-predicate negatives; per-member overlap confirmed."
+    },
+    {
+      "id": "parent-lower-cap-isolation",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "environment_mode": "env -i",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,json,types;from pathlib import Path;repo=Path(\"/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work\");sys.path[:0]=[str(repo/\"api/tests\"),str(repo/\"api/src\"),str(repo/\"integrations/hermes/src\")];import test_contract_method_pg as m;h=Path(\"/home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json\");expected=\"8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939\";rows=[]\nfor label,current,old in [(\"raw-old\",327680,262144),(\"aggregate-old\",1114112,1048576)]:\n original=m.batch2_current_reader.__code__;assert sum(type(v) is int and v==current for v in original.co_consts)==1;code=original.replace(co_consts=tuple(old if type(v) is int and v==current else v for v in original.co_consts));f=types.FunctionType(code,m.__dict__);events=[]\n def trace(frame,event,arg):\n  if frame.f_code is code:\n   if event==\"exception\":events.append({\"line\":frame.f_lineno,\"type\":arg[0].__name__})\n   return trace\n  return None\n sys.settrace(trace)\n try:\n  try:f(h,expected_sha256=expected);raise RuntimeError(\"OLD_CAP_ACCEPTED\")\n  except AssertionError as error:assert str(error)==\"BATCH2_CURRENT_READER_REFUSED\"\n finally:sys.settrace(None)\n assert events[0]=={\"line\":7502 if label==\"raw-old\" else 7532,\"type\":\"CatalogError\" if label==\"raw-old\" else \"ValueError\"};rows.append({\"case\":label,\"public_reason\":\"BATCH2_CURRENT_READER_REFUSED\",\"first_exception\":events[0]})\nprint(json.dumps({\"parent_old_cap_controls\":rows,\"mutations\":\"IN_MEMORY_ONLY: one integer constant per control; original function and all files unchanged\"},sort_keys=True))"
+      ],
+      "exit": 0,
+      "result": "Each old cap independently refuses the same genuine artifact at its intended parent guard."
+    },
+    {
+      "id": "snapshot-after-tests",
+      "cwd": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/work",
+      "shell": "git status --short --branch && git rev-parse HEAD && git diff --check 202c3c27843db26ad129f9f292465d49792e5f46 HEAD && git diff --name-only 202c3c27843db26ad129f9f292465d49792e5f46 HEAD && sha256sum api/tests/test_contract_method_pg.py /home/kali/.hermes/cache/scratch/mp-_i844ny7/reader-candidate-not-admitted.json /home/kali/.hermes/cache/scratch/mp-_i844ny7/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "exit": 0,
+      "result": "Clean worktree, frozen head and all three pinned SHA256 values unchanged."
+    }
+  ],
+  "author_report": {
+    "path": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/author-reader-limits.json",
+    "sha256": "fe431b977516c808c803bf4750ecf55f84b06340d9d04441740b89e24dc0dda7",
+    "treatment": "Evidence locator only; original hash verified. Verdict based on independent diff/AST inspection, actual candidate pytest, real descriptor/origin execution, and boundary readbacks, not author prose."
+  },
+  "writes_and_effects": {
+    "repository_files_modified": [],
+    "report_created": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/review-reader-limits-safety.json",
+    "temporary_test_fixtures_created": "/home/kali/.hermes/cache/scratch/ar-74cdpo7w/safety-reader-pytest-69d6cae",
+    "fixture_cleanup": "Preserved, including deliberate synthetic cache negatives; all directly invoked isolated origins synchronously joined via subprocess.run. No DB/runtime/native family was provisioned.",
+    "no_product_edits_new_verifier_or_source_cleanup": true,
+    "no_commit_push_account_provider_network_PG_Docker_native_server_target_r1_P0_or_global_effects": true,
+    "skills": "Loaded existing review/status/safety guidance; no skill files written because the task permits only the report and existing procedures already cover this workflow."
+  },
+  "limits": [
+    "No canonical make gate, PostgreSQL/native/model-preparation journey, transport, Stop, grants or product runtime re-audit executed. Those remain at their existing scoped approvals and pending real-QA state.",
+    "The synthetic boundary fixtures use the explicitly trusted dependency .pth seam. A separate unchanged genuine built API wheel was accepted through its real installed origin; this is not a fresh build or dependency/OS confinement audit.",
+    "UID/hardlink/nofollow enforcement was inspected and AST-unchanged; not every unchanged guard was independently fault-injected. Only executed negatives are credited.",
+    "No phase-2/global/runtime/inference readiness or absence of all possible effects is certified.",
+    "Scratch fixtures/reports may expire; parent must retain exact report bytes and adjudicated conclusion in the existing slice record, not infer later approval from this scratch path."
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "handoff": {
+    "current_slice": "QA reader calibration only — AICI",
+    "implementation": "COMMITTED_IN_FROZEN_CANDIDATE",
+    "proof": "PASS_SCOPED_SOURCE_AND_REAL_API_READER",
+    "review": "APPROVED_SCOPED_SAFETY; complementary review/parent adjudication separate",
+    "next": "Parent compares both reports and current file SHA; bind 1b4e01078e6fb5e363517d7fd5cd1fe29a06b702961404eed4520c3e19ccf138 through the original run_gate seam180 for the first separately owned real model-preparation QA. Do not use the old approved test SHA or widen model/transport/grant/time caps.",
+    "global": "P2-live NOT_RUN; phase2 NOT_CLOSED; no status-map promotion by this reviewer."
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_SCOPED_UNCOMMITTED_PENDING_PARENT_REVIEW",
+  "workdir": "/home/kali/OmnisAI",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "base_commit": "8b670bd6c0998a2ca0421ff871fc948cc5d6bb60",
+  "final_HEAD": "8b670bd6c0998a2ca0421ff871fc948cc5d6bb60",
+  "committed": false,
+  "staged": false,
+  "integration_owner": "parent",
+  "acceptance_row": "Unknown protocol refusal through RuntimeClient.managed must occur before authority; correct only obsolete negative fixture, preserve all existing assertions/positives, execute complete client file, all recorded affected selectors, adapter separately and strict scoped quality.",
+  "scope": {
+    "only_repository_edit": "api/tests/test_native_task_client.py:262",
+    "before": "@pytest.mark.parametrize(\"protocol\", [None, True, [], \"omnis-managed-admission-v5\"])",
+    "after": "@pytest.mark.parametrize(\"protocol\", [None, True, [], \"omnis-managed-admission-v6\"])",
+    "callers": "test_unknown_managed_version_never_requests_authority -> RuntimeClient.managed",
+    "product_config_exports_dependencies_or_other_fixtures_modified": false,
+    "user_data_or_API_compatibility_effect": "None; test-only correction",
+    "positive_task_stage_v5_semantics_added": false
+  },
+  "allowlist_read": {
+    "file": "api/src/omnis/supervisor/runtime_client.py:654-661",
+    "supported": [
+      "omnis-managed-admission-v1",
+      "omnis-managed-admission-v2",
+      "omnis-managed-admission-v3",
+      "omnis-managed-admission-v4",
+      "omnis-managed-admission-v5"
+    ],
+    "v6_is_unsupported": true
+  },
+  "checks": [
+    {
+      "name": "RED_current",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_task_client.py::test_unknown_managed_version_never_requests_authority'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-red-tmp'\"'\"']))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-red-current.log",
+      "exit_code": 1,
+      "result": "1 failed, 3 passed in 0.24s; expected payload denied, actual Runtime disconnected"
+    },
+    {
+      "name": "RED_baseline_exact_original_assertion",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import asyncio,pathlib,subprocess,sys,types; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; source=subprocess.check_output([\"git\",\"show\",\"8b670bd6c0998a2ca0421ff871fc948cc5d6bb60:api/src/omnis/supervisor/runtime_client.py\"]); module=types.ModuleType(\"baseline_runtime_client\"); sys.modules[module.__name__]=module; exec(compile(source,\"baseline_runtime_client.py\",\"exec\"),module.__dict__); import test_native_task_client as test; test.RuntimeClient=module.RuntimeClient; test.RuntimeUnavailable=module.RuntimeUnavailable; print(\"BASELINE_8b670bd_NATIVE_CLIENT_V5_NEGATIVE\",flush=True); asyncio.run(test.test_unknown_managed_version_never_requests_authority(pathlib.Path(\"/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel\"),\"omnis-managed-admission-v5\"))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-red-baseline.log",
+      "exit_code": 1,
+      "result": "Expected regex payload denied; actual Runtime disconnected. Baseline RuntimeClient source loaded in memory; both class aliases replaced, original negative invoked before edit. Other imported modules are current SOURCE; not an all-baseline checkout."
+    },
+    {
+      "name": "GREEN_full_client",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-client-tmp'\"'\"']))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-client.log",
+      "exit_code": 0,
+      "result": "24 passed in 1.21s"
+    },
+    {
+      "name": "GREEN_all_recorded_affected_API_selectors",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'api/tests/test_owned_model_initialization.py'\"'\"', '\"'\"'api/tests/test_native_task_control.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_model_preflight_control.py'\"'\"', '\"'\"'api/tests/test_local_control.py::test_pairing_issuer_uses_instance_transaction_before_write'\"'\"', '\"'\"'api/tests/test_local_control.py::test_pairing_issuer_rechecks_lease_after_challenge_write'\"'\"', '\"'\"'api/tests/test_local_control.py::test_request_validates_reply_without_discarding_evidence'\"'\"', '\"'\"'api/tests/test_local_control.py::test_private_directory_rejects_replaceable_ancestor'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-affected-tmp'\"'\"']))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-affected.log",
+      "exit_code": 0,
+      "result": "156 passed in 36.48s"
+    },
+    {
+      "name": "GREEN_adapter_separate_process",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-adapter-tmp'\"'\"']))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-adapter.log",
+      "exit_code": 0,
+      "result": "1 passed in 2.68s"
+    },
+    {
+      "name": "ruff",
+      "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-cache --no-fix api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py api/tests/test_native_task_client.py",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-ruff.log",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "name": "format",
+      "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --no-cache --check api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py api/tests/test_native_task_client.py",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-format.log",
+      "exit_code": 0,
+      "result": "6 files already formatted"
+    },
+    {
+      "name": "strict_mypy",
+      "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg MYPY_CACHE_DIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-mypy api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --strict --no-incremental api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/instance/schemas.py api/tests/test_model_prepare_sync_source.py api/tests/test_native_task_client.py",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-mypy.log",
+      "exit_code": 0,
+      "result": "Success: no issues found in 6 source files"
+    },
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-diff-check.log",
+      "exit_code": 0,
+      "result": "No whitespace errors"
+    },
+    {
+      "name": "exact_recorded_selection_collection",
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-xdg api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; root=pathlib.Path.cwd(); sys.path[:0]=[str(root/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'api/tests/test_owned_model_initialization.py'\"'\"', '\"'\"'api/tests/test_native_task_control.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_model_preflight_control.py'\"'\"', '\"'\"'api/tests/test_local_control.py::test_pairing_issuer_uses_instance_transaction_before_write'\"'\"', '\"'\"'api/tests/test_local_control.py::test_pairing_issuer_rechecks_lease_after_challenge_write'\"'\"', '\"'\"'api/tests/test_local_control.py::test_request_validates_reply_without_discarding_evidence'\"'\"', '\"'\"'api/tests/test_local_control.py::test_private_directory_rejects_replaceable_ancestor'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-collect-tmp'\"'\"', '\"'\"'--collect-only'\"'\"']))'",
+      "output_path": "/home/kali/.hermes/cache/scratch/sync-prepare-rxikdxel/version-collect.log",
+      "exit_code": 0,
+      "result": "156 tests collected in 0.54s",
+      "per_file": {
+        "tests/test_model_prepare_sync_source.py": 9,
+        "tests/test_model_test_prepare_source.py": 61,
+        "tests/test_owned_model_initialization.py": 18,
+        "tests/test_native_task_control.py": 23,
+        "tests/test_native_task_client.py": 24,
+        "tests/test_model_preflight_control.py": 12,
+        "tests/test_local_control.py": 9
+      },
+      "actual_driver": "Extracted original pytest argv from author-startup.json via ast.literal_eval, dropped only -s, changed owned basetemp and appended --collect-only; asserted exit0 and len(nodes)==156."
+    }
+  ],
+  "command_note": "All commands cwd=/home/kali/OmnisAI. Reproduction strings preserve executable, environment and argv; stdout/stderr redirected to output_path. Equivalent quoting/whitespace only.",
+  "selection": {
+    "original_check": "author-startup.json:affected_API_with_existing_client_tests",
+    "all_original_selectors": [
+      "api/tests/test_model_prepare_sync_source.py",
+      "api/tests/test_model_test_prepare_source.py",
+      "api/tests/test_owned_model_initialization.py",
+      "api/tests/test_native_task_control.py",
+      "api/tests/test_native_task_client.py",
+      "api/tests/test_model_preflight_control.py",
+      "api/tests/test_local_control.py::test_pairing_issuer_uses_instance_transaction_before_write",
+      "api/tests/test_local_control.py::test_pairing_issuer_rechecks_lease_after_challenge_write",
+      "api/tests/test_local_control.py::test_request_validates_reply_without_discarding_evidence",
+      "api/tests/test_local_control.py::test_private_directory_rejects_replaceable_ancestor"
+    ],
+    "excluded_tests": [],
+    "current_run_passed": 156,
+    "current_collected": 156,
+    "historical_report_and_raw_log_result_preserved": "1 failed, 151 passed in 36.60s",
+    "count_discrepancy": "Historical total152 versus current156 is disclosed. Re-fetch of original raw log confirms152; re-collection of ALL original recorded selectors confirms156. No tests added or excluded by this one-line correction; the +4 historical provenance is UNKNOWN, not relabelled."
+  },
+  "final_files": [
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "358d93ab4fccd194fa46927e3353c33a3bc141c805016556735b9b3067641767",
+      "matches_author_startup": true,
+      "modified_this_task": false
+    },
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "45c1ab8edad6a9c32fcc56c1c75f57182cdb9555c9b537f7f8a1c36eb61726fc",
+      "matches_author_startup": true,
+      "modified_this_task": false
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "9707c04eb957dc98262a1c9db3b2131900d7222fa8d694ea95baf278b6b3cd72",
+      "matches_author_startup": true,
+      "modified_this_task": false
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "42d61eb7a40e1c6eca1ac518cc635efc721f760fb1fdd2dc69cd7d5a015b2472",
+      "matches_author_startup": true,
+      "modified_this_task": false
+    },
+    {
+      "path": "api/tests/test_model_prepare_sync_source.py",
+      "sha256": "8ab34111a4925b0c2c0044a987851146c4f234a2e9da18e2a4c7069521cf773a",
+      "matches_author_startup": true,
+      "modified_this_task": false
+    },
+    {
+      "path": "api/tests/test_native_task_client.py",
+      "sha256": "91649a1278dd22746ffd8d52b86a7931d588b06ffa470ed48814866c62e41511",
+      "git_blob": "854103023a560ee43a404bca328594f37f76adaa",
+      "baseline_sha256": "ffd37024aedcfd6432fc0b361462a3f1d7bf8e24a8e7eadc80e0efc070666bc5",
+      "modified_this_task": true
+    }
+  ],
+  "identity_verification": {
+    "method": "Terminal SHA256 comparison of five existing WIP files against author-startup.json, all equal; complete native-client current bytes asserted equal to HEAD bytes after exactly one unique decorator replacement. git status/diff and empty staged diff checked; HEAD unchanged.",
+    "one_line_only": true,
+    "all_assertions_positives_malformed_parameters_no_authority_no_resend_expiry_controls_byte_preserved": true,
+    "test_diff_sha256": "a32d32d7a4f63a54f4d74ba9b7b0f63027c93cb0eb58ef17c47ba7f010d26aaa",
+    "author_startup_sha256": "f1850ee0f6a3620e99ae2fa2299a89538f36b923bd22fa3d9057d77ebe243230"
+  },
+  "interpreter": {
+    "invoked": "api/.venv/bin/python -I -B",
+    "observed_version": "3.13.15",
+    "resolved": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "note": "Literal api/.venv/bin/python3.13.15 absent; used the existing project venv Python3.13.15 as in original author report. No executable/dependency/config modifications."
+  },
+  "cleanup": {
+    "source_fixture_assertions": "Five sync cases output OWNED_PEER_REAPED=True and ENDPOINTS_ABSENT=True. Synthetic UDS/process cleanup, not native/domain settlement.",
+    "writes": "One fixture line plus requested scratch report, SOURCE test logs, pytest temporary roots and owned mypy/XDG caches under supplied scratch. -I -B, disabled pytest plugin autoload, explicit asyncio plugin/no cacheprovider, Ruff no-cache.",
+    "foreign_resources": "No external service/lifecycle/provider/account/target actions."
+  },
+  "preserved_failures": [
+    "author-startup.json/all prior failed attempts unchanged",
+    "version-red-current.log exit1",
+    "version-red-baseline.log exit1"
+  ],
+  "issues": [
+    {
+      "id": "SOURCE-BASELINE-V5-NEGATIVE",
+      "status": "CORRECTED_TEST_ONLY_PENDING_PARENT_REVIEW",
+      "detail": "Current full client and complete recorded affected selection pass; no validator/protocol/semantics change."
+    },
+    {
+      "id": "HISTORICAL_COUNT_152_VS_CURRENT_156",
+      "status": "DISCLOSED_UNKNOWN_HISTORICAL_PROVENANCE",
+      "detail": "Current156 independently collected; earlier152 result retained, no false152PASS claim."
+    },
+    {
+      "id": "REPORT_CONSTRUCTION_DEDUP_METADATA",
+      "status": "RESOLVED_REPORT_ONLY",
+      "detail": "First report construction hit KeyError because an unchanged read_file returned dedup metadata instead of content. No report was written; used already-observed tool evidence, without source changes or test reruns."
+    }
+  ],
+  "protected_scope": "Original HTML not read/hashed/copied/modified; tools/development/ponytail.json not read/modified; no .env/private logs/capability reads; no other repository/skill/doc/config edits; no commit/stage/push.",
+  "not_run": [
+    "PostgreSQL",
+    "OCI/build/install",
+    "installed Hermes/native runtime",
+    "provider/account/network/inference",
+    "target effects",
+    "full canonical make check/test",
+    "independent review (parent owns it)"
+  ],
+  "project_status": {
+    "AICI_fixture": {
+      "implementation": "CORRECTED_UNCOMMITTED",
+      "proof": "PASS_SOURCE_SCOPED",
+      "review": "PARENT_PENDING"
+    },
+    "sync_product": "PREEXISTING_WIP_BYTE_IDENTICAL; no new product acceptance",
+    "P4a_minim": "PARTIAL",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED"
+  },
+  "limits": [
+    "Source/synthetic regression success is not native admission, installed performance or phase acceptance.",
+    "No new positive task_stage/v5 or semantics.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

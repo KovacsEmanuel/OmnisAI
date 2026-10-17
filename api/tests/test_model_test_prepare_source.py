@@ -514,7 +514,7 @@ def test_model_prepare_observer_exact_carrier_and_attempts(
     carrier = contract.ModelTestPreparation() if fault != "wrong-carrier" else object()
     actor.__dict__.update(
         _model_test_preparation=carrier,
-        _model_test_future=Mock(done=Mock(return_value=fault != "unjoined-close")),
+        _model_test_record=Mock(future=Mock(done=Mock(return_value=fault != "unjoined-close"))),
         _model_test_closed=Mock(is_set=Mock(return_value=True)),
     )
     events = Mock()

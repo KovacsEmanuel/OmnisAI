@@ -142,6 +142,7 @@ class _Record:
     updated_at: float
     agent: Any = None
     future: Optional[Future] = None
+    model_test_submit_started: bool = False
     started_at: Optional[float] = None
     completed_at: Optional[float] = None
     result: Optional[SubagentResult] = None
@@ -317,6 +318,7 @@ class SubagentLifecycleService:
                     None, created, None, None, "leaf", 1,
                     self._capability(child._subagent_id, parent.session_id, created))
                 record = _Record(handle, SubagentState.PENDING, created, agent=child)
+                child._model_test_record = record
                 marker["record"] = record
                 _REGISTRY.records[handle.subagent_id] = record
                 def conversation():
@@ -327,8 +329,8 @@ class SubagentLifecycleService:
                     except Exception:
                         child._model_test_failure = "PREPARATION_STOPPED_OR_FAILED"
                         child._model_test_ready.set()
+                record.model_test_submit_started = True
                 record.future = _EXECUTOR.submit(conversation)
-                child._model_test_future = record.future
                 if not child._model_test_ready.wait(2):
                     child.close()
                     raise ValueError("Preparation turn binding timeout")
@@ -355,9 +357,14 @@ class SubagentLifecycleService:
             for child in children:
                 child._model_test_closed.set()  # revoke every child before the first join
         uncertain = False
-        for child in children:
+        for batch in self._model_test_batches.values():
             try:
-                child.close()
+                child, record = batch["child"], batch["record"]
+                if child is not None:
+                    child.close()
+                if record is not None and record.model_test_submit_started and (
+                        record.future is None or not record.future.done()):
+                    uncertain = True
             except Exception:
                 uncertain = True
         if uncertain:

@@ -6447,7 +6447,8 @@ def prepare_observe(frame, event):
         emit("forbidden-sink", "MODEL_PREPARE_IDENTITY")
         raise RuntimeError("Forbidden native sink")
     if name == "close" and event == "return":
-        future = state.get("_model_test_future")
+        record = state.get("_model_test_record")
+        future = record.future if record is not None else None
         if future is None or not future.done() or not state["_model_test_closed"].is_set():
             emit("forbidden-sink", "MODEL_PREPARE_NOT_JOINED")
             raise RuntimeError("Forbidden native sink")

@@ -2341,7 +2341,7 @@ def configure_model_test(agent, carrier):
     agent._model_test_closed = threading.Event()
     agent._model_test_entered = False
     agent._model_test_bound = False
-    agent._model_test_future = None
+    agent._model_test_record = None
     agent._model_test_failure = None
     agent._model_test_turn = None
     agent.session_start = datetime.now()

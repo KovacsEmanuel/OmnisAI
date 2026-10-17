@@ -31,13 +31,13 @@ def lifecycle(monkeypatch):
         def __init__(self, **kwargs):
             self._subagent_id, self.session_id = str(uuid4()), str(uuid4())
             self._model_test_closed, self._model_test_ready = threading.Event(), threading.Event()
-            self._model_test_failure = self._model_test_turn = self._model_test_future = None
+            self._model_test_failure = self._model_test_turn = self._model_test_record = None
             children.append(self)
 
         def close(self):
             self._model_test_closed.set()
-            if self._model_test_future is not None:
-                self._model_test_future.result(timeout=1)
+            if self._model_test_record is not None and self._model_test_record.future is not None:
+                self._model_test_record.future.result(timeout=1)
 
     def conversation(child, text, task_id):
         child._model_test_turn = {"task_id": task_id, "turn_id": "SOURCE-turn"}
@@ -66,6 +66,7 @@ def lifecycle(monkeypatch):
     class Record:
         def __init__(self, *args, agent):
             self.agent, self.state, self.future = agent, args[1], None
+            self.model_test_submit_started = False
 
     class Handle:
         def __init__(self, *args):
@@ -139,7 +140,7 @@ def test_one_held_or_unjoined_child_blocks_new_identity(lifecycle):
     x = lifecycle
     first = x.payload()
     assert x.service.prepare_model_test(first)["status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
-    assert x.children[0]._model_test_future.running()
+    assert x.children[0]._model_test_record.future.running()
     assert (
         x.service.prepare_model_test({**first, "mode": "STATUS"})["status"]
         == "TURN_BOUND_PRE_CLIENT_HOLD"
@@ -209,7 +210,7 @@ def test_constructor_cut_closes_unpublished_child_and_preserves_primary(lifecycl
         x.service.prepare_model_test(x.payload())
     assert caught.value is primary
     assert x.children[0]._model_test_closed.is_set()
-    assert x.children[0]._model_test_future is None
+    assert x.children[0]._model_test_record is None
     assert next(iter(x.service._model_test_batches.values()))["record"] is None
 
 
@@ -219,7 +220,7 @@ def test_native_owner_exit_revokes_and_joins_held_child(lifecycle, monkeypatch, 
     p = x.payload()
     x.service.prepare_model_test(p)
     child = x.children[0]
-    assert child._model_test_future.running()
+    assert child._model_test_record.future.running()
     x.release.set()
     entry = ROOT / "tui_gateway/entry.py"
     assert entry.is_file(), "Native EOF/Stop entry cleanup is missing"
@@ -259,7 +260,7 @@ def test_native_owner_exit_revokes_and_joins_held_child(lifecycle, monkeypatch, 
         ),
         scope,
     )
-    assert child._model_test_closed.is_set() and child._model_test_future.done()
+    assert child._model_test_closed.is_set() and child._model_test_record.future.done()
     assert x.service.prepare_model_test({**p, "mode": "STATUS"})["status"] == "UNKNOWN"
     with pytest.raises(ValueError, match="stopping"):
         x.service.prepare_model_test(x.payload())
@@ -273,7 +274,7 @@ def test_unsettled_exit_keeps_unknown_and_blocks_new_children(lifecycle):
     with pytest.raises(ValueError, match="drain uncertain"):
         x.service.close_model_tests()
     child = x.children[0]
-    assert child._model_test_closed.is_set() and not child._model_test_future.done()
+    assert child._model_test_closed.is_set() and not child._model_test_record.future.done()
     assert x.service.prepare_model_test({**p, "mode": "STATUS"})["status"] == "UNKNOWN"
     with pytest.raises(ValueError, match="stopping"):
         x.service.prepare_model_test(x.payload())
@@ -303,3 +304,82 @@ def test_other_active_native_child_counts_against_prepare_cap(lifecycle):
     with pytest.raises(ValueError, match="active|drain"):
         x.service.prepare_model_test(x.payload())
     assert not x.children and not x.service._model_test_batches
+
+
+@pytest.mark.parametrize("held", [False, True])
+def test_post_submit_cut_owner_joins_single_retained_future(lifecycle, held):
+    x = lifecycle
+    tree = ast.parse((ROOT / "run_agent.py").read_text())
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "AIAgent")
+    cls.bases = []
+    cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "close"]
+    scope = {}
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[cls], type_ignores=[])),
+            "SOURCE-close",
+            "exec",
+        ),
+        scope,
+    )
+
+    class Cut(BaseException):
+        pass
+
+    primary = Cut("SOURCE post-submit interruption")
+    cut = []
+
+    def interrupt(frame, event, arg):
+        if event == "line" and frame.f_code is x.service.prepare_model_test.__func__.__code__:
+            record = frame.f_locals.get("record")
+            if not cut and record is not None and record.future is not None:
+                child = record.agent
+                child._model_test_preparation = object()
+                type(child).close = scope["AIAgent"].close
+                cut.append(record)
+                raise primary
+        return interrupt
+
+    if not held:
+        x.release.set()
+    sys.settrace(interrupt)
+    try:
+        with pytest.raises(Cut) as caught:
+            x.service.prepare_model_test(x.payload())
+    finally:
+        sys.settrace(None)
+    assert caught.value is primary and cut
+    record = cut[0]
+    assert record.agent._model_test_closed.is_set()
+    if held:
+        with pytest.raises(ValueError, match="drain uncertain"):
+            x.service.close_model_tests()
+        assert not record.future.done()
+    else:
+        x.service.close_model_tests()
+        assert record.future.done(), "product owner must join before test finalizer"
+
+
+def test_submit_started_without_future_publication_stays_uncertain(lifecycle, monkeypatch):
+    x = lifecycle
+    scope = x.service.prepare_model_test.__func__.__globals__
+    submit = scope["_EXECUTOR"].submit
+
+    class Cut(BaseException):
+        pass
+
+    primary = Cut("SOURCE submit returned before publication")
+
+    def interrupted_submit(fn):
+        submit(fn)
+        raise primary
+
+    monkeypatch.setitem(scope, "_EXECUTOR", SimpleNamespace(submit=interrupted_submit))
+    with pytest.raises(Cut) as caught:
+        x.service.prepare_model_test(x.payload())
+    assert caught.value is primary
+    record = next(iter(x.registry.records.values()))
+    assert record.model_test_submit_started and record.future is None
+    assert record.agent._model_test_closed.is_set()
+    with pytest.raises(ValueError, match="drain uncertain"):
+        x.service.close_model_tests()

@@ -1044,7 +1044,10 @@ class AIAgent(
         blocks the rest."""
         if self.__dict__.get("_model_test_preparation") is not None:
             self._model_test_closed.set()
-            future = self.__dict__.get("_model_test_future")
+            record = self.__dict__.get("_model_test_record")
+            future = record.future if record is not None else None
+            if record is not None and record.model_test_submit_started and future is None:
+                raise ValueError("Native preparation submission uncertain")
             if future is not None:
                 future.result(timeout=1)
             return

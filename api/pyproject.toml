@@ -41,7 +41,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "strict"
-pythonpath = ["src"]
+pythonpath = ["src", "../integrations/hermes/src"]
 
 [tool.ruff]
 required-version = "==0.16.9"

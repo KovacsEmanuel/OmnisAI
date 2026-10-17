@@ -37,6 +37,49 @@ def test_host_lifeline_expiry_and_renewal_without_watchdog(tmp_path: Path) -> No
         os.close(reader)
 
 
+@pytest.mark.parametrize("fault", [None, "truncated", "eof"])
+def test_host_lifeline_drains_stock_renewal_backlog(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str | None
+) -> None:
+    import os
+    from types import SimpleNamespace
+
+    from omnis_hermes import management_oauth, runtime_host
+
+    clock = [10_000_000_000]
+    timer = SimpleNamespace(monotonic_ns=lambda: clock[0])
+    monkeypatch.setattr(runtime_host, "time", timer)
+    monkeypatch.setattr(management_oauth, "time", timer)
+    host = runtime_host.RuntimeHost(tmp_path)
+    host.deadline_ns = clock[0] + 4_500_000_000
+    reader = host._open_management_lifeline()
+    try:
+        owner = management_oauth.NativeOAuth.from_owner_fd(reader)
+        assert host.watchdog is None
+        for _ in range(560):
+            clock[0] += 500_000_000
+            host.deadline_ns = host._grant({"deadline_ns": clock[0] + 4_500_000_000})
+        assert clock[0] == 290_000_000_000
+        assert host.management_lifeline_write is not None
+        if fault == "truncated":
+            os.write(host.management_lifeline_write, b"x")
+        elif fault == "eof":
+            host._revoke_management_lifeline()
+        if fault is None:
+            owner._owner_alive()  # first read must see all 4480 queued bytes
+            assert owner.owner_deadline_ns == host.deadline_ns
+            owner._owner_alive()
+            clock[0] += 4_500_000_000
+            with pytest.raises(ValueError):
+                owner._owner_alive()
+        else:
+            with pytest.raises(ValueError):
+                owner._owner_alive()
+    finally:
+        host._revoke_management_lifeline()
+        os.close(reader)
+
+
 @pytest.mark.asyncio
 async def test_host_connect_poll_cancel_uses_one_slot_and_current_read(
     ipc_directory: Path, monkeypatch: pytest.MonkeyPatch

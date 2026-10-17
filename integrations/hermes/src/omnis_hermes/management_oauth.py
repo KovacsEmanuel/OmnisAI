@@ -201,15 +201,21 @@ class NativeOAuth:
                 raise ValueError("Auth owner changed")
             poll = select.poll()
             poll.register(self.owner_fd, select.POLLIN | select.POLLHUP | select.POLLERR)
-            for _, events in poll.poll(0):
+            # Kernel capacity bounds the drain, even if the writer keeps renewing.
+            remaining = fcntl.fcntl(self.owner_fd, fcntl.F_GETPIPE_SZ)
+            while ready := poll.poll(0):
+                events = ready[0][1]
                 if events & (select.POLLHUP | select.POLLERR | select.POLLNVAL):
                     raise ValueError("Auth owner revoked")
+                if remaining <= 0:
+                    raise ValueError("Owner renewal backlog exceeded")
                 try:
-                    updates = os.read(self.owner_fd, 4096)
+                    updates = os.read(self.owner_fd, min(4096, remaining))
                 except BlockingIOError:
                     updates = b""
                 if not updates or len(updates) % 8:
                     raise ValueError("Invalid owner renewal")
+                remaining -= len(updates)
                 self.owner_deadline_ns = struct.unpack("!Q", updates[-8:])[0]
             now = time.monotonic_ns()
             if not now < self.owner_deadline_ns <= now + 5_000_000_000:

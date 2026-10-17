@@ -1,0 +1,47 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "base": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "hashes_initial_and_final": {
+    "api/tests/test_contract_method_pg.py": "e6eeb8a8872beb24bf4b9b9379bac0b2184ecee10bf943890e95b76632762545",
+    "api/tests/test_model_test_prepare_source.py": "d0e8ff1bf778d96fa47b3cc6700456609a60709ef45099986253d82621926364"
+  },
+  "findings": [],
+  "assessment": [
+    "Delta exclusiv de teste/diagnostic, fără schimbări de produs, payload, grant, deadline, observer sau owner. Diff-ul lasă Settings și comportamentul rr2 neschimbate.",
+    "Citite control_task, NativeTaskOwner._model_test_send, RuntimeClient.managed/_exchange/_exchange_locked și checkpoint-ul real. RuntimeUnavailable este ValueError: normalizarea exchange păstrează contextul intern, dar refuzul public traversează UDS separat. Checkpoint-ul din callback captează lanțul înainte de pierderea lui la frontiera UDS.",
+    "NOT_ENTERED/BEFORE_EXCHANGE/EXCHANGE_FAILED/REPLY_RETURNED și CONTROL_REQUEST/SETTLEMENT_WAIT separă frontierele cerute; REPLY_RETURNED nu certifică acceptarea managed/readback sau succesul SEND.",
+    "Diagnosticul păstrează numai tipuri/motive finite allowlisted, maximum patru elemente; nu serializează mesaje arbitrare, traceback, locals, DSN, capability ori payload. Erorile noilor checkpoint-uri sunt suprimate; bare raise păstrează excepția originală.",
+    "Comparația AST cu baza confirmă identitatea probei PG/SENT existente, apelului inițial control_task, întregii bucle originale cu timeout 3.2s/sleep 0.025 și tuturor aserțiunilor/readerilor ulteriori. Nu există retry sau succes fabricat."
+  ],
+  "checks": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p pytest_asyncio.plugin -p no:cacheprovider --tb=no -q api/tests/test_model_test_prepare_source.py::test_send_diagnostic_keeps_public_catalog_reason_only api/tests/test_model_test_prepare_source.py::test_send_diagnostic_real_callback_and_control_arm api/tests/test_contract_method_pg.py::test_launch_failure_diagnostic_preserves_public_context_not_raw_error",
+      "exit": 0,
+      "passed": 12,
+      "duration_seconds": 3.77,
+      "log": "/home/kali/.hermes/cache/scratch/p2-send-8McfiCAj/review-norm/source12.log",
+      "scope": "SOURCE; mediu curățat, fără plugin autoload/cacheprovider; callback/control arm extrase din bytes reali, exchange/control/PG dublate; inclusiv diagnostic care ridică și identitatea/contextul excepției originale."
+    },
+    {
+      "command": "python -I -B inline AST comparison against git show base:api/tests/test_contract_method_pg.py",
+      "exit": 0,
+      "passed": 6,
+      "additional_assertion": "Exact două căi modificate, cele autorizate."
+    },
+    {
+      "command": "git diff --check -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0
+    },
+    {
+      "command": "sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0,
+      "matched": 2,
+      "scope": "La început și la final, identice cu cele cerute."
+    }
+  ],
+  "limits": [
+    "NOT_RUN: PG/native/UDS real, Docker, provider, browser, target, fixture reuse și teste mai largi. Nu certifică originea refuzului istoric, lipsa tuturor gap-urilor sau succes live; părintele deține tentativa fresh și acceptarea QA.",
+    "Timeout-ul SOURCE injectează TimeoutError; expirarea reală și cancellation nu sunt exercitate dinamic. Frontiera asyncio timeout/polling este verificată static neschimbată.",
+    "Ruff/format/mypy și RED-ul autorului nu au fost rerulate ori revendicate drept dovezi independente. Fișierele interzise, credentialele și configurațiile globale nu au fost accesate. Nicio modificare de produs sau commit."
+  ]
+}

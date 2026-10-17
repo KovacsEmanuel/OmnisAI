@@ -1,0 +1,31 @@
+{
+  "status": "READY_FOR_PARENT_REVIEW_SOURCE_ONLY",
+  "base": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "files_sha256": {
+    "api/tests/test_contract_method_pg.py": "e6eeb8a8872beb24bf4b9b9379bac0b2184ecee10bf943890e95b76632762545",
+    "api/tests/test_model_test_prepare_source.py": "d0e8ff1bf778d96fa47b3cc6700456609a60709ef45099986253d82621926364"
+  },
+  "change": "Diff necomis exclusiv in cele doua teste. Helperul existent pastreaza CatalogError/public control reasons si motive statice RuntimeClient. Callbackul committed_execution si blocul control/polling emit checkpointuri finite, fara schimbarea SEND/oracolului/timeouturilor/granturilor.",
+  "alternative": "--tb=line nu recupereaza cauza normalizata prin UDS; traceback complet poate expune date si nu reface exceptia pierduta pe server. Folosite numai helperul si checkpointul existente.",
+  "captured": {
+    "model_execute_exchange": "point=NOT_ENTERED/BEFORE_EXCHANGE/EXCHANGE_FAILED/REPLY_RETURNED; exceptions numai la EXCHANGE_FAILED",
+    "model_execute_control_error": "point=CONTROL_REQUEST/SETTLEMENT_WAIT; exceptions",
+    "exceptions": "maxim 4 perechi type/reason allowlisted; necunoscute OTHER_EXCEPTION/UNCLASSIFIED; TimeoutError ramane distinct prin type"
+  },
+  "omitted": "Nu se adauga traceback/repr/str/locals/frames, DSN, payload/reply body, capability, identificatori nativi, metrici, observer, owner, timer ori infrastructura.",
+  "original_error_control": "Callbackul si blocul control folosesc bare raise; erorile diagnosticarii sunt suprimate separat. SOURCE verifica identitatea exceptiei primare si lantul __context__, inclusiv Runtime exchange unavailable -> Runtime refused, cand checkpointul esueaza. Verifica si identitatea payloadului/replyului si absenta markerului privat din diagnostic.",
+  "command_aliases": {
+    "P": "/home/kali/OmnisAI/api/.venv/bin/python -I -B",
+    "F": "api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py"
+  },
+  "checks": [
+    {"command": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k send_diagnostic -q -p no:cacheprovider --tb=short", "phase": "RED", "exit": 1, "failed": 6, "passed": 5, "seconds": 3.48, "log": "developer-red.log", "finding": "CatalogError era OTHER_EXCEPTION/UNCLASSIFIED; checkpointurile exchange/control lipseau"},
+    {"command": "P -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py api/tests/test_contract_method_pg.py -k 'send_diagnostic or launch_failure_diagnostic_preserves_public_context_not_raw_error' -q -p no:cacheprovider --tb=short", "phase": "GREEN_FINAL", "exit": 0, "passed": 12, "deselected": 532, "seconds": 2.90, "log": "developer-green-final.log"},
+    {"command": "P -m ruff check --config api/pyproject.toml F", "exit": 0, "files": 2, "log": "developer-ruff.log"},
+    {"command": "P -m ruff format --config api/pyproject.toml --check F", "exit": 0, "files": 2, "log": "developer-format.log"},
+    {"command": "P -m mypy --config-file api/pyproject.toml F", "exit": 0, "files": 2, "log": "developer-mypy-final.log"},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "privacy": "Loguri sibling developer-*.log private 0600; TMPDIR=../tmp-developer si cache=../cache-developer, sub rootul p2-send; fara modificarea shared venv.",
+  "limits": "SOURCE executa callbackul si blocul control originale extrase AST, cu exchange/control/PG readback doubles; timeout injectat in polling, nu masurare reala a deadlineului. NOT_RUN: PG/native/Docker/provider/target/fullgate/review. Cauza QA originale ramane UNKNOWN; nu este remediu de produs. Fisierele protejate, credentials/.env/globale neatinse; fara fixture reuse, delegare sau commit. Parintele face review/integrate si decide tentativa fresh."
+}

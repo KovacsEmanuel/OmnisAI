@@ -22,6 +22,190 @@ from test_contract_method_producer import batch2_source
 from test_owned_model_initialization import SourceOwner
 
 
+def test_send_diagnostic_keeps_public_catalog_reason_only() -> None:
+    import test_contract_method_pg as qa
+
+    for reason in (
+        "TASK_UNAVAILABLE",
+        "TASK_REJECTED",
+        "TASK_INDETERMINATE",
+        "COMMAND_CONFLICT",
+        "CONTROL_TIMEOUT",
+        "CONTROL_UNAVAILABLE",
+        "LEASE_LOST",
+        "INVALID_REQUEST",
+    ):
+        assert qa.launch_exception_chain(CatalogError(reason)) == [
+            {"type": "CatalogError", "reason": reason}
+        ]
+    assert qa.launch_exception_chain(CatalogError("PRIVATE_SEND_REASON")) == [
+        {"type": "CatalogError", "reason": "UNCLASSIFIED"}
+    ]
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    assert qa.launch_exception_chain(RuntimeUnavailable("Runtime authority mismatch")) == [
+        {"type": "RuntimeUnavailable", "reason": "Runtime authority mismatch"}
+    ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("outcome", ["reply", "exchange", "before", "after", "timeout"])
+@pytest.mark.parametrize("broken_diagnostic", [False, True])
+async def test_send_diagnostic_real_callback_and_control_arm(
+    outcome: str, broken_diagnostic: bool
+) -> None:
+    """Real QA callback/control arm; only exchange, PG readback and control are doubles."""
+    import ast
+    import asyncio
+    from collections.abc import Awaitable, Callable
+    from contextlib import suppress
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+
+    import test_contract_method_pg as qa
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    tree = ast.parse(Path(qa.__file__).read_bytes())
+    callback = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "committed_execution"
+    )
+    branch = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.If) and ast.unparse(n.test) == "model_execute" and callback in n.body
+    )
+    start = branch.body.index(callback)
+    end = next(
+        i for i, n in enumerate(branch.body) if ast.unparse(n).startswith("assert len(sends)")
+    )
+    probe = cast(ast.AsyncFunctionDef, ast.parse("async def probe(): pass").body[0])
+    probe.body = branch.body[start:end] + ast.parse("return mt_result").body
+    proof: dict[str, object] = {}
+    marker = "PRIVATE_SEND_PAYLOAD"
+    primary: BaseException = (
+        TimeoutError(marker) if outcome == "timeout" else CatalogError("TASK_REJECTED")
+    )
+    refusal = RuntimeUnavailable("Runtime exchange unavailable")
+    inner = RuntimeUnavailable("Runtime refused")
+    refusal.__context__ = inner
+    reply: dict[str, object] = {"state": "SETTLED", "private": marker}
+    packet: dict[str, object] = {"private": marker}
+    payload = {**packet, "mode": "SEND"}
+    engine = MagicMock()
+    consumer = SimpleNamespace(
+        replay_execution=AsyncMock(return_value={}),
+        execution_receipt=AsyncMock(return_value={"state": "SENT", "usage_state": "UNKNOWN"}),
+        execution_packet=AsyncMock(return_value=packet),
+    )
+    exchanges = 0
+
+    def checkpoint(**fields: object) -> None:
+        if broken_diagnostic and "model_execute_commit" not in fields:
+            raise RuntimeError(marker)
+        proof.update(fields)
+
+    async def actual_exchange(*args: object) -> dict[str, object]:
+        nonlocal exchanges
+        assert args == ("task_model_initialize", None, payload) and args[2] is payload
+        exchanges += 1
+        if outcome == "exchange":
+            raise refusal
+        return reply
+
+    runtime = SimpleNamespace(_exchange=actual_exchange)
+
+    async def control_task(*args: object) -> dict[str, object]:
+        if outcome == "before":
+            raise primary
+        if exchanges and outcome == "timeout":
+            raise primary
+        try:
+            answer = await runtime._exchange("task_model_initialize", None, payload)
+        except RuntimeUnavailable:
+            raise primary from None
+        if outcome == "after":
+            raise primary
+        return {"state": "SENT"} if outcome == "timeout" else answer
+
+    scope: dict[str, object] = {
+        "asyncio": asyncio,
+        "suppress": suppress,
+        "RuntimeAuthority": RuntimeAuthority,
+        "runtime": runtime,
+        "actual_exchange": actual_exchange,
+        "checkpoint": checkpoint,
+        "launch_exception_chain": qa.launch_exception_chain,
+        "monkeypatch": pytest.MonkeyPatch(),
+        "control_task": control_task,
+        "directory": None,
+        "request_send": {},
+        "engine": engine,
+        "NativeTaskCommand": SimpleNamespace(model_validate=lambda value: value),
+        "ModelTest": lambda domain: consumer,
+        "domain": None,
+        "seed": SimpleNamespace(owner="SOURCE"),
+        "sends": [],
+        "canonical": canonical,
+        "mapping": mapping,
+    }
+    exec(
+        compile(
+            ast.fix_missing_locations(ast.Module(body=[probe], type_ignores=[])),
+            qa.__file__,
+            "exec",
+        ),
+        scope,
+    )
+    invoke = cast(Callable[[], Awaitable[dict[str, object]]], scope["probe"])
+    if outcome == "reply":
+        assert await invoke() is reply
+    else:
+        with pytest.raises(BaseException) as caught:
+            await invoke()
+        assert caught.value is primary
+        assert primary.__context__ is (refusal if outcome == "exchange" else None)
+        assert refusal.__context__ is inner and inner.__context__ is None
+    if broken_diagnostic:
+        assert set(proof) == (set() if outcome == "before" else {"model_execute_commit"})
+    else:
+        assert proof["model_execute_exchange"] == (
+            {"point": "NOT_ENTERED"}
+            if outcome == "before"
+            else {
+                "point": "EXCHANGE_FAILED",
+                "exceptions": [
+                    {"type": "RuntimeUnavailable", "reason": "Runtime exchange unavailable"},
+                    {"type": "RuntimeUnavailable", "reason": "Runtime refused"},
+                ],
+            }
+            if outcome == "exchange"
+            else {"point": "REPLY_RETURNED"}
+        )
+        if outcome != "reply":
+            expected_control = [
+                {
+                    "type": "TimeoutError" if outcome == "timeout" else "CatalogError",
+                    "reason": "UNCLASSIFIED" if outcome == "timeout" else "TASK_REJECTED",
+                }
+            ]
+            if outcome == "exchange":
+                expected_control.extend(
+                    [
+                        {"type": "RuntimeUnavailable", "reason": "Runtime exchange unavailable"},
+                        {"type": "RuntimeUnavailable", "reason": "Runtime refused"},
+                    ]
+                )
+            assert proof["model_execute_control_error"] == {
+                "point": "SETTLEMENT_WAIT" if outcome == "timeout" else "CONTROL_REQUEST",
+                "exceptions": expected_control,
+            }
+    assert marker not in canonical(proof).decode()
+    assert engine.connect.call_count == (0 if outcome == "before" else 1)
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("producer", ["heartbeat-only", "stock", "qa"])
 @pytest.mark.parametrize("finish", ["expiry", "stop"])

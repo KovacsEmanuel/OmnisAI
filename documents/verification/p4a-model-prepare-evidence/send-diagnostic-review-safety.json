@@ -1,0 +1,38 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Review independent READ-ONLY al deltei diagnostice SEND; fara modificari de produs, delegare sau commit.",
+  "base": "992904c792aca6fb7004de0cc204c7526ae756f0",
+  "files_sha256": {
+    "api/tests/test_contract_method_pg.py": "e6eeb8a8872beb24bf4b9b9379bac0b2184ecee10bf943890e95b76632762545",
+    "api/tests/test_model_test_prepare_source.py": "d0e8ff1bf778d96fa47b3cc6700456609a60709ef45099986253d82621926364"
+  },
+  "hash_verification": "Identice la intrare si dupa controalele executate; confirmare finala inainte de predare.",
+  "findings": [],
+  "assessment": [
+    "launch_exception_chain pastreaza numai tipuri/motive din seturi finite, cel mult 4 perechi; motive necunoscute si tipuri necunoscute sunt proiectate la UNCLASSIFIED/OTHER_EXCEPTION. Nu serializeaza mesaje arbitrare, repr, traceback, locals, DSN, capability ori payload.",
+    "Inspectate control_task, NativeTaskOwner._model_test_send, LocalControl._dispatch/normalizarea UDS si RuntimeClient.managed/_exchange/_exchange_locked. Checkpointul EXCHANGE_FAILED retine lantul public inainte ca UDS sa-l piarda; NOT_ENTERED/BEFORE_EXCHANGE/REPLY_RETURNED si CONTROL_REQUEST/SETTLEMENT_WAIT separa frontierele cerute, fara atribuirea unei cauze.",
+    "Noile diagnostice sunt sincrone, best-effort in suppress(BaseException); exceptiile primare sunt repropagate cu bare raise. Identitatea exceptiei si contextul raman verificate cand checkpointul esueaza; anularea este protejata structural prin aceleasi brate BaseException, fara await diagnostic suplimentar.",
+    "Diff-ul nu schimba payloadul, apelurile reale, granturile, deadlineurile, conditia de succes, Settings, observerul sau ownerul. Foloseste checkpointul existent si campuri retinute finite."
+  ],
+  "checks": [
+    {
+      "command": "env -i PATH=/usr/bin:/bin HOME=<review-safety> TMPDIR=<review-safety> PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_prepare_source.py api/tests/test_contract_method_pg.py -k 'send_diagnostic or launch_failure_diagnostic_preserves_public_context_not_raw_error' -q -p pytest_asyncio.plugin -p no:cacheprovider --tb=no",
+      "exit": 0,
+      "passed": 12,
+      "deselected": 532,
+      "seconds": 3.71,
+      "log": "/home/kali/.hermes/cache/scratch/p2-send-8McfiCAj/review-safety/diagnostic-controls.log",
+      "log_mode": "0600"
+    },
+    {
+      "command": "git diff --check 992904c792aca6fb7004de0cc204c7526ae756f0 -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0
+    }
+  ],
+  "limits": [
+    "SOURCE: callbackul si bratul control reale sunt extrase AST, dar exchange/control/PG readback sunt doubles; timeoutul este injectat. Nu certifica integrare UDS/native/PG sau succes live.",
+    "Anularea si esecul helperului diagnostic sunt evaluate prin inspectia codului; matricea executata acopera esecul checkpointului, nu un caz separat CancelledError/helper ostil.",
+    "RED6FAIL/5PASS si Ruff/format/mypy sunt self-report al autorului, nu reverificate aici. Corectia Settings si comportamentul rr2 neschimbate nu au fost rerulate.",
+    "Fara PG/native/Docker/provider/browser/target, fixture reuse, suite largi, dependinte noi sau acces la fisierele protejate/credentials/.env/globale. Cauza QA initiale ramane UNKNOWN; parintele adjudeca, integreaza si detine tentativa reala fresh."
+  ]
+}

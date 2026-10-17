@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Coroutine, Generator, Iterator
-from contextlib import nullcontext
+from contextlib import nullcontext, suppress
 from copy import deepcopy
 from pathlib import Path
 from types import CodeType
@@ -3088,6 +3088,7 @@ def launch_rpc_phase(value: object) -> str:
 def launch_exception_chain(error: BaseException) -> list[dict[str, str]]:
     """Bounded public tags only; never evaluate or retain exception reprs."""
     exception_types = {
+        "CatalogError",
         "RuntimeUnavailable",
         "ProtocolError",
         "RPCError",
@@ -3098,9 +3099,38 @@ def launch_exception_chain(error: BaseException) -> list[dict[str, str]]:
         "LimitOverrunError",
     }
     public_reasons = {
+        "TASK_UNAVAILABLE",
+        "TASK_REJECTED",
+        "TASK_INDETERMINATE",
+        "COMMAND_CONFLICT",
+        "CONTROL_TIMEOUT",
+        "CONTROL_UNAVAILABLE",
+        "LEASE_LOST",
+        "INVALID_REQUEST",
         "Runtime exchange unavailable",
         "Runtime correlation mismatch",
         "Runtime refused",
+        "Runtime operation denied",
+        "Runtime payload denied",
+        "Runtime authority missing",
+        "Runtime authority mismatch",
+        "Runtime disconnected",
+        "Expired runtime authority",
+        "Runtime managed-task limit",
+        "Runtime managed-task fence",
+        "Invalid runtime state",
+        "Invalid runtime message",
+        "Runtime message limit",
+        "Invalid bootstrap inventory",
+        "Invalid runtime readiness",
+        "Invalid runtime fence",
+        "Invalid idle runtime",
+        "Runtime stale fence",
+        "Invalid runtime drain",
+        "Missing bootstrap inventory",
+        "Missing ready bootstrap inventory",
+        "Inventory before native ready",
+        "Changed bootstrap inventory",
         "Native RPC deadline",
         "Native ready deadline",
         "Native transport unavailable",
@@ -9937,15 +9967,46 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                                 checkpoint(
                                     model_execute_commit="PG_RESERVE_AND_DURABLE_SENT_BEFORE_NATIVE_SEND"
                                 )
-                            return await actual_exchange(op, authority, payload)
+                            if op != "task_model_initialize":
+                                return await actual_exchange(op, authority, payload)
+                            with suppress(BaseException):
+                                checkpoint(model_execute_exchange={"point": "BEFORE_EXCHANGE"})
+                            try:
+                                reply = await actual_exchange(op, authority, payload)
+                            except BaseException as error:
+                                with suppress(BaseException):
+                                    checkpoint(
+                                        model_execute_exchange={
+                                            "point": "EXCHANGE_FAILED",
+                                            "exceptions": launch_exception_chain(error),
+                                        }
+                                    )
+                                raise
+                            with suppress(BaseException):
+                                checkpoint(model_execute_exchange={"point": "REPLY_RETURNED"})
+                            return reply
 
-                        with monkeypatch.context() as execution_patch:
-                            execution_patch.setattr(runtime, "_exchange", committed_execution)
-                            mt_result = await control_task(directory, request_send)
-                            async with asyncio.timeout(3.2):
-                                while mt_result["state"] != "SETTLED":
-                                    await asyncio.sleep(0.025)
-                                    mt_result = await control_task(directory, request_send)
+                        with suppress(BaseException):
+                            checkpoint(model_execute_exchange={"point": "NOT_ENTERED"})
+                        control_point = "CONTROL_REQUEST"
+                        try:
+                            with monkeypatch.context() as execution_patch:
+                                execution_patch.setattr(runtime, "_exchange", committed_execution)
+                                mt_result = await control_task(directory, request_send)
+                                control_point = "SETTLEMENT_WAIT"
+                                async with asyncio.timeout(3.2):
+                                    while mt_result["state"] != "SETTLED":
+                                        await asyncio.sleep(0.025)
+                                        mt_result = await control_task(directory, request_send)
+                        except BaseException as error:
+                            with suppress(BaseException):
+                                checkpoint(
+                                    model_execute_control_error={
+                                        "point": control_point,
+                                        "exceptions": launch_exception_chain(error),
+                                    }
+                                )
+                            raise
                         assert len(sends) == 1
                         assert (
                             mt_result["usage_state"] == "KNOWN" and mt_result["output_tokens"] == 12

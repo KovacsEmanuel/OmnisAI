@@ -12201,10 +12201,22 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     adversarial_append_count=1,
                     post_adversarial_markers=await markers(),
                 )
-        except BaseException:
+        except BaseException as error:
             if installed_native:
                 h03_state["cleanup_failed"] = True
                 db_fence["unsettled"] = True
+            if model_prepare:
+                try:
+                    trace = error.__traceback__
+                    checkpoint(
+                        model_prepare_primary_error={
+                            "exceptions": launch_exception_chain(error),
+                            "source": "test_contract_method_pg.py",
+                            "consumer_line": None if trace is None else trace.tb_lineno,
+                        }
+                    )
+                except BaseException:
+                    pass  # Diagnostic failure must not replace the propagating primary error.
             raise
         finally:
             cleanup_failed = False

@@ -403,6 +403,146 @@ async def test_actual_transport_serializers_exact_wire(
         assert raw == encode(native)
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["opaque", "public-context", "cancel"])
+@pytest.mark.parametrize("secondary", [None, "cleanup", "checkpoint"])
+async def test_model_prepare_primary_error_before_real_finally(
+    tmp_path: Path, failure: str, secondary: str | None
+) -> None:
+    """Run the consumer's actual handler/finally; substitute only resource seams."""
+    import ast
+    import asyncio
+    import sys
+    from collections.abc import Awaitable, Callable
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    import test_contract_method_pg as owner
+
+    tree = ast.parse(Path(owner.__file__).read_bytes())
+    consumer = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "test_contract_method_real_native_pg_owner_receipts_check_inbox"
+    )
+    run = next(
+        node
+        for node in consumer.body
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "run"
+    )
+    original = next(node for node in run.body if isinstance(node, ast.Try) and node.finalbody)
+    probe = ast.parse(
+        "async def probe():\n try:\n  await fail()\n except BaseException:\n  pass\n finally:\n  pass\n"
+    )
+    statement = cast(ast.Try, cast(ast.AsyncFunctionDef, probe.body[0]).body[0])
+    statement.handlers, statement.finalbody = original.handlers, original.finalbody
+    marker = "PUBLIC_SYNTHETIC_PRIVATE_PRIMARY_ERROR"
+
+    class OpaqueFailure(RuntimeError):
+        def __str__(self) -> str:
+            raise AssertionError("PRIVATE_EXCEPTION_STR_EVALUATED")
+
+        def __repr__(self) -> str:
+            raise AssertionError("PRIVATE_EXCEPTION_REPR_EVALUATED")
+
+    opaque = OpaqueFailure(marker)
+    primary: BaseException = {
+        "opaque": opaque,
+        "public-context": ValueError("Runtime exchange unavailable"),
+        "cancel": asyncio.CancelledError(marker),
+    }[failure]
+    if failure == "public-context":
+        primary.__context__ = opaque
+    context = primary.__context__
+
+    async def fail() -> None:
+        raise primary
+
+    proof: dict[str, object] = {}
+    path = tmp_path / "method-history-proof.json"
+    scope: dict[str, object] = {"proof": proof, "proof_path": path, "canonical": canonical}
+    writer = next(
+        node
+        for node in consumer.body
+        if isinstance(node, ast.FunctionDef) and node.name == "checkpoint"
+    )
+    exec(compile(ast.Module(body=[writer], type_ignores=[]), owner.__file__, "exec"), scope)
+    write_checkpoint = scope["checkpoint"]
+    assert callable(write_checkpoint)
+    events: list[str] = []
+    snapshots: list[dict[str, object]] = []
+
+    def checkpoint(**fields: object) -> None:
+        if "model_prepare_primary_error" in fields:
+            events.append("primary")
+            if secondary == "checkpoint":
+                raise OpaqueFailure(marker)
+        write_checkpoint(**fields)
+
+    async def close() -> None:
+        events.append("cleanup")
+        snapshots.append(json.loads(path.read_bytes()) if path.exists() else {})
+        if secondary == "cleanup":
+            raise OpaqueFailure(marker)
+
+    h03_state = {"docker_unknown": False, "reader_unknown": False, "cleanup_failed": False}
+    db_fence: dict[str, object] = {"unsettled": True}
+    observation = Mock()
+    scope.update(
+        asyncio=asyncio,
+        sys=sys,
+        fail=fail,
+        installed_native=True,
+        model_prepare=True,
+        checkpoint=checkpoint,
+        launch_exception_chain=owner.launch_exception_chain,
+        h03_state=h03_state,
+        db_fence=db_fence,
+        dispatch_waiters=[],
+        done=asyncio.Event(),
+        heartbeat=None,
+        runtime=SimpleNamespace(close=close),
+        public_control=None,
+        engine=SimpleNamespace(dispose=AsyncMock()),
+        batch2=False,
+        startup=False,
+        h04=None,
+        h03=False,
+        host=None,
+        applicability="model-test-prepare",
+        require_native_observation=observation,
+    )
+    exec(compile(ast.fix_missing_locations(probe), owner.__file__, "exec"), scope)
+    invoke = cast(Callable[[], Awaitable[None]], scope["probe"])
+    with pytest.raises(BaseException) as caught:
+        await invoke()
+    assert caught.value is primary and primary.__context__ is context
+    assert events == ["primary", "cleanup"]
+    assert h03_state["cleanup_failed"] is True and db_fence["unsettled"] is True
+    assert proof["status"] == "UNCERTAIN"
+    assert proof["h03_resource_cleanup"] == "NOT_SETTLED_DB_RETAINED"
+    observation.assert_not_called()
+    if secondary == "checkpoint":
+        assert "model_prepare_primary_error" not in proof
+    else:
+        diagnostic = mapping(proof["model_prepare_primary_error"])
+        expected = {
+            "opaque": [{"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"}],
+            "public-context": [
+                {"type": "ValueError", "reason": "Runtime exchange unavailable"},
+                {"type": "OTHER_EXCEPTION", "reason": "UNCLASSIFIED"},
+            ],
+            "cancel": [{"type": "CancelledError", "reason": "UNCLASSIFIED"}],
+        }[failure]
+        assert set(diagnostic) == {"exceptions", "source", "consumer_line"}
+        assert diagnostic["exceptions"] == expected
+        assert diagnostic["source"] == "test_contract_method_pg.py"
+        assert diagnostic["consumer_line"] == statement.body[0].lineno
+        assert snapshots == [{"model_prepare_primary_error": diagnostic}]
+    assert marker not in canonical(proof).decode()
+
+
 @pytest.mark.parametrize("fault", [None, "caught-forbidden", "unknown-row", "unjoined-close"])
 def test_model_prepare_real_early_return_finally(tmp_path: Path, fault: str | None) -> None:
     """Execute the original shared finally arm, not a parallel permissive oracle."""

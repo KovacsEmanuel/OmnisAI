@@ -9775,8 +9775,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                                     .one()
                                 )
                             assert (
-                                task["run_id"] == mt_context["run_id"]
-                                and task["attempt_id"] == mt_context["attempt_id"]
+                                str(task["run_id"]) == mt_context["run_id"]
+                                and str(task["attempt_id"]) == mt_context["attempt_id"]
                                 and task["batch_index"] == 0
                                 and task["state"] == "QUEUED"
                             )

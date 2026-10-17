@@ -127,6 +127,61 @@ async def produce(
     return payload
 
 
+@pytest.mark.parametrize("encoding", ["text", "binary", "string"])
+@pytest.mark.parametrize("fault", [None, "run_id", "attempt_id", "batch_index", "state"])
+def test_model_prepare_committed_task_identity(encoding: str, fault: str | None) -> None:
+    """Run the existing QA assertion against real driver values, without PG/native."""
+    import ast
+
+    from psycopg.types.uuid import UUIDBinaryLoader, UUIDLoader
+
+    import test_contract_method_pg as owner
+
+    tree = ast.parse(Path(owner.__file__).read_bytes())
+    callbacks = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "committed_prepare"
+    ]
+    assert len(callbacks) == 1
+    assertions = [
+        node
+        for node in ast.walk(callbacks[0])
+        if isinstance(node, ast.Assert)
+        and {"run_id", "attempt_id", "batch_index", "state"}
+        <= {
+            item.slice.value
+            for item in ast.walk(node)
+            if isinstance(item, ast.Subscript)
+            and isinstance(item.value, ast.Name)
+            and item.value.id == "task"
+            and isinstance(item.slice, ast.Constant)
+        }
+    ]
+    assert len(assertions) == 1
+    code = compile(ast.Module(body=[assertions[0]], type_ignores=[]), owner.__file__, "exec")
+    identities = {"run_id": uuid4(), "attempt_id": uuid4()}
+    context = {key: str(value) for key, value in identities.items()}
+    task: dict[str, object] = {
+        "batch_index": 1 if fault == "batch_index" else 0,
+        "state": "RUNNING" if fault == "state" else "QUEUED",
+    }
+    for key, value in identities.items():
+        if fault == key:
+            value = uuid4()
+        task[key] = {
+            "text": UUIDLoader(2950).load(str(value).encode()),
+            "binary": UUIDBinaryLoader(2950).load(value.bytes),
+            "string": str(value),
+        }[encoding]
+    scope = {"task": task, "mt_context": context}
+    if fault is None:
+        exec(code, scope)
+    else:
+        with pytest.raises(AssertionError):
+            exec(code, scope)
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "padding", ["", 'ă雪😀"\\' * 80], ids=["canonical", "escaped-unicode-quotes"]

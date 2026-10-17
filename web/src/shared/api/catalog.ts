@@ -4,7 +4,7 @@ import { ApiError, isRecord, isUuid } from './errors';
 export type CatalogPin = components['schemas']['CatalogPin'];
 export type CatalogPage = components['schemas']['CatalogPage'];
 export type CatalogInspection = components['schemas']['CatalogInspection'];
-const kinds = ['source-draft', 'candidate-snapshot', 'technical-review', 'evaluation-receipt', 'operator-confirmation', 'catalog-publication', 'evaluation-input', 'contract-case-input', 'contract-case-records', 'qualified-release', 'release-qualification', 'package', 'profile', 'technique', 'procedure', 'schema', 'method', 'prompt', 'template', 'overlay', 'asset'];
+const kinds = ['source-draft', 'candidate-snapshot', 'technical-review', 'evaluation-receipt', 'operator-confirmation', 'catalog-publication', 'evaluation-input', 'contract-case-input', 'contract-case-records', 'contract-input-context', 'evaluation-admission', 'qualified-release', 'release-qualification', 'package', 'profile', 'technique', 'procedure', 'schema', 'method', 'prompt', 'template', 'overlay', 'asset'];
 const digest = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{64}$/.test(v);
 const key = (v: unknown): v is string => typeof v === 'string' && /^[a-z][a-z0-9_.-]{0,127}$/.test(v);
 const positive = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 1;

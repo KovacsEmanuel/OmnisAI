@@ -61,6 +61,11 @@ SHARED = frozenset(
     )
 )
 ROW_COLUMNS = "id,owner_id,group_id,kind,revision,digest,envelope"
+EVALUATION_PROTOCOLS = {
+    "b06a-static-pure-v1": ("omnis-static-pure-v1", 0, "evaluation-input"),
+    "c03-static-pure-capture-v2": ("omnis-static-pure-capture-v2", 1, "contract-case-input"),
+    "c03-static-pure-records-v3": ("omnis-static-pure-records-v3", 2, "contract-case-records"),
+}
 
 
 def refuse() -> NoReturn:
@@ -233,9 +238,129 @@ async def retained(
     ):
         refuse()
     body = record["payload"]
-    if not isinstance(body, dict) or body.get("created_by") != owner:
+    capture = kind in (
+        "contract-case-input",
+        "contract-case-records",
+        "contract-input-context",
+        "evaluation-admission",
+    )
+    if (
+        not isinstance(body, dict)
+        or body.get("owner_id" if capture else "created_by") != owner
+        or (capture and record["revision"] != 1)
+        or (
+            kind in ("contract-case-input", "contract-case-records")
+            and len(canonical(record)) > 8192
+        )
+    ):
         refuse()
     return body
+
+
+async def capture_input(
+    connection: AsyncConnection,
+    input_ref: object,
+    kind: str,
+    version: int,
+    body: dict[str, object],
+    index: dict[str, object],
+    owner: str,
+    group: str,
+) -> None:
+    """Join retained producer metadata only, without opening schema/material bytes."""
+    value = await retained(connection, input_ref, kind, owner, group)
+    obj(value, {"version", "value", "schema_ref", "owner_id", "context_ref", "provenance"})
+    integer(value["version"], 1, 1)
+    if not isinstance(value["value"], dict):
+        refuse()
+    schema = pin(value["schema_ref"], "schema")
+    provenance = obj(
+        value["provenance"], {"producer_key", "producer_revision", "command_id", "source_kind"}
+    )
+    if provenance != {
+        "producer_key": kind,
+        "producer_revision": kind + "-v1",
+        "command_id": uuid_text(provenance["command_id"]),
+        "source_kind": "SYNTHETIC",
+    }:
+        refuse()
+    context = await retained(
+        connection, value["context_ref"], "contract-input-context", owner, group
+    )
+    obj(
+        context,
+        {
+            "version",
+            "namespace",
+            "owner_id",
+            "basis_ref",
+            "snapshot_ref",
+            "procedure_ref",
+            "schema_ref",
+            "selection_ref",
+            "mission_ref",
+            "focus_ref",
+        },
+    )
+    integer(context["version"], version, version)
+    procedure = pin(context["procedure_ref"], "procedure")
+    basis = pin(context["basis_ref"], "evaluation-admission")
+    if canonical(context) != canonical(
+        {
+            "version": version,
+            "namespace": "PACKAGE_EVAL",
+            "owner_id": owner,
+            "basis_ref": basis,
+            "snapshot_ref": body["snapshot_ref"],
+            "procedure_ref": procedure,
+            "schema_ref": schema,
+            "selection_ref": None,
+            "mission_ref": None,
+            "focus_ref": None,
+        }
+    ):
+        refuse()
+    admission = await retained(connection, basis, "evaluation-admission", owner, group)
+    integer(admission.get("version"), version, version)
+    if canonical(admission) != canonical(
+        {
+            "version": version,
+            "namespace": "PACKAGE_EVAL",
+            "owner_id": owner,
+            "snapshot_ref": body["snapshot_ref"],
+            "procedure_ref": procedure,
+            "schema_ref": schema,
+            "material_digest": body["material_digest"],
+            "resolved_index_digest": body["resolved_index_digest"],
+            "compiler_revision": body["compiler_revision"],
+        }
+    ):
+        refuse()
+    # The admission records the producer's procedure/schema association. Check
+    # both exact pins against this snapshot's index, not a current compiler.
+    bindings = cast(list[dict[str, object]], index["catalog_bindings"])
+    procedures = [b for b in bindings if b["ref"] == procedure and b["entity_kind"] == "procedure"]
+    schemas = [b for b in bindings if b["ref"] == schema and b["entity_kind"] == "schema"]
+    if (
+        len(procedures) != 1
+        or len(schemas) != 1
+        or procedures[0]["package_key"] != schemas[0]["package_key"]
+        or procedure not in pins(body["candidate_refs"])
+        or schema not in pins(body["candidate_refs"])
+        or not any(
+            canonical(ref)
+            == canonical(
+                {
+                    "package_key": procedures[0]["package_key"],
+                    "entity_kind": "procedure",
+                    "key": procedures[0]["key"],
+                    "digest": procedure["digest"],
+                }
+            )
+            for ref in cast(list[object], index["refs"])
+        )
+    ):
+        refuse()
 
 
 def publication(record: dict[str, object], owner: str) -> dict[str, object]:
@@ -443,6 +568,8 @@ async def inspect_publication(
         or re.fullmatch(r"local-operator:(?:0|[1-9][0-9]*)", str(confirmation["actor"])) is None
     ):
         refuse()
+    protocol: object = None
+    shared_input: dict[str, object] | None = None
     for kind in ("STATIC", "PURE"):
         receipt = await retained(
             connection, body[kind.lower() + "_evaluation_ref"], "evaluation-receipt", owner, group
@@ -492,6 +619,11 @@ async def inspect_publication(
         ):
             if canonical(receipt[field]) != canonical(body[field]):
                 refuse()
+        if kind == "STATIC":
+            protocol = receipt["protocol"]
+        if type(protocol) is not str or protocol not in EVALUATION_PROTOCOLS:
+            refuse()
+        evaluator, version, input_kind = EVALUATION_PROTOCOLS[protocol]
         if (
             receipt["status"] != kind + "_PASS"
             or receipt["evaluation_kind"] != kind
@@ -499,14 +631,21 @@ async def inspect_publication(
             or receipt["effective"] is not None
             or receipt["model_ref"] is not None
             or receipt["requested"] != index["requested"]
-            or receipt["protocol"] != "b06a-static-pure-v1"
-            or receipt["evaluator"] != "omnis-static-pure-v1"
+            or receipt["protocol"] != protocol
+            or receipt["evaluator"] != evaluator
             or receipt["target_evidence"] != "NOT_APPLICABLE"
             or receipt["evidence_refs"] != []
         ):
             refuse()
         integer(receipt["duration_ns"], 0)
-        if kind == "PURE":
+        if version:
+            ref = pin(receipt["input_ref"], input_kind)
+            if kind == "STATIC":
+                shared_input = ref
+                await capture_input(connection, ref, input_kind, version, body, index, owner, group)
+            elif ref != shared_input:
+                refuse()
+        elif kind == "PURE":
             input_body = await retained(
                 connection, receipt["input_ref"], "evaluation-input", owner, group
             )

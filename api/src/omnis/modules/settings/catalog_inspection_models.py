@@ -26,6 +26,8 @@ class CatalogPin(StrictDTO):
         "evaluation-input",
         "contract-case-input",
         "contract-case-records",
+        "contract-input-context",
+        "evaluation-admission",
         "qualified-release",
         "release-qualification",
         "package",

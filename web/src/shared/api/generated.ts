@@ -425,7 +425,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "source-draft" | "candidate-snapshot" | "technical-review" | "evaluation-receipt" | "operator-confirmation" | "catalog-publication" | "evaluation-input" | "contract-case-input" | "contract-case-records" | "qualified-release" | "release-qualification" | "package" | "profile" | "technique" | "procedure" | "schema" | "method" | "prompt" | "template" | "overlay" | "asset";
+            kind: "source-draft" | "candidate-snapshot" | "technical-review" | "evaluation-receipt" | "operator-confirmation" | "catalog-publication" | "evaluation-input" | "contract-case-input" | "contract-case-records" | "contract-input-context" | "evaluation-admission" | "qualified-release" | "release-qualification" | "package" | "profile" | "technique" | "procedure" | "schema" | "method" | "prompt" | "template" | "overlay" | "asset";
             /** Revision */
             revision: number;
         };

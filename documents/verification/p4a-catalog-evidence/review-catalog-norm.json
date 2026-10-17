@@ -1,0 +1,147 @@
+{
+  "report_id": "P4A-CATALOG-NORM-INTEGRATED-1bdc999",
+  "role": "independent_read_only_normative_producer_compatibility_persistence_readback",
+  "verdict": "CHANGES_REQUESTED",
+  "verdict_scope": "Frozen integrated P4a read-only catalog metadata UI/API source, 14 changed files. One confirmed producer-compatibility blocker; no absolute absence-of-defects assertion. No gate closure or integration acceptance.",
+  "repository": "/home/kali/OmnisAI",
+  "base": "4d2b29e7e1902d32df85b29ddf778886f2928967",
+  "reviewed_head": "1bdc999df8cd7e01532b25463675bf99f91222df",
+  "author_manifest_head": "de5a25c2e51df9a6942e608589ffe67e5dd33b48",
+  "changed_path_count": 14,
+  "manifest_comparison": "All 14 actual working-tree SHA256 values match the explicit author manifest. All 13 explicit unchanged behavior/publication files also match. Checked HEAD before and after review; no tracked/index changes. Preexisting protected untracked HTML only named by git status, never opened/copied/hashed.",
+  "changed_paths_sha256": {
+    "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+    "api/src/omnis/modules/settings/catalog_inspection.py": "099d8ebd2ae84113311b89c8fd87c017478648c40ba227ee489fe6aa289f87e8",
+    "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+    "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+    "api/tests/test_catalog_inspection_source.py": "e3e89c21fd323b39c7662a2fd0219a1f670f260d00c88b72b433a54a9ce6495a",
+    "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+    "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+    "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+    "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+    "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+    "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+    "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+    "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+    "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f"
+  },
+  "normative_sources": [
+    "CONTRIBUTING.md:29-77 — product-first requirement/consumer/risk/decision; exact-snapshot independent review; source and real QA are different stages",
+    "documents/Omnis_Implementation_Plan.md:289-293 — P4a minimum read-only immutable reviewed/published catalog, dependency/readiness axes, no inference authority",
+    "documents/Omnis_Implementation_Plan.md:601-603 — CURRENT order: catalog/readiness through existing producers before separately authorized live model qualification",
+    "documents/Omnis_MVP_Architecture.md:686-702 — immutable CandidateSnapshot/review/evaluation/publication; recorded STATIC/PURE distinct from FIXTURE/BENCHMARK; author_kind OPERATOR/AI/IMPORT and separate operator confirmation",
+    "documents/Omnis_MVP_Architecture.md:704-731 — package-qualified identities and literal pins; ExecutionPreference is not ExecutionSelection or a grant",
+    "documents/Omnis_UI_UX_Spec.md:153-157 — minimal read-only Settings is allowed; immutable exact revisions/digests and separated qualification axes"
+  ],
+  "findings": [
+    {
+      "id": "NORM-CATALOG-IMPORT-01",
+      "severity": "MEDIUM",
+      "priority": "P2",
+      "blocking_for_declared_metadata_contract": true,
+      "path": "api/src/omnis/modules/settings/catalog_inspection.py",
+      "line": 667,
+      "end_line": 668,
+      "title": "Reader refuses operator-published IMPORT-authored material supported by the unchanged producer",
+      "requirement": "Read-only inspection must consume actual existing publication producers without silently removing a supported provenance. Architecture section 9.8 explicitly records author_kind OPERATOR/AI/IMPORT; operator confirmation, not source authorship, supplies publication authority.",
+      "producer_evidence": [
+        "candidate_catalog.py:168-175 accepts capture author_kind OPERATOR, AI and IMPORT",
+        "candidate_catalog.py:368-377 preserves that literal author_kind in every source-draft",
+        "candidate_catalog.py:427-454 preserves it in technical-review without rejecting IMPORT",
+        "catalog_publication.py:179-198 validates OPERATOR confirmation separately",
+        "catalog_publication.py:200-226 constructs identical immutable publication payload independent of source author_kind"
+      ],
+      "consumer_failure": "inspect_publication checks each source author_kind against only (OPERATOR, AI). A valid IMPORT-authored, separately operator-confirmed publication is listed by published_page but its exact detail raises CATALOG_METADATA_UNAVAILABLE; route detail maps this to HTTP503 and UI shows unavailable. The HTTP consequence is traced from routes.py:49-53, not a separate live-DB observation.",
+      "reproducer": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/repro_producer_compatibility.py",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/repro_producer_compatibility.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 1,
+      "observed": "Nine same-reader SOURCE cases: OPERATOR and AI accepted for v1/v2/v3 (six positive controls); IMPORT accepted by actual capture request validation, check_evaluations and exact _publication_payload projection, listed by current-head reader, then refused by detail for all three versions (three mismatches). Guarded compiler/evaluator/material calls attempted zero times. Positive controls additionally retain exact detail after head removal and refuse wrong digest.",
+      "evidence_file": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/producer-compatibility-result.json",
+      "evidence_limit": "Synthetic immutable driver rows plus actual non-effectful producer functions, not a genuine PostgreSQL capture/freeze/qualification/confirmation/Publish. Source code localizes the concrete incompatible whitelist independently of that later QA.",
+      "minimal_fix": "Include IMPORT in the source provenance allowlist; retain OPERATOR-only confirmation authority. Add v1/v2/v3 IMPORT controls through inspect_publication, keeping unknown author kinds denied. No producer, BEHAVIOR_FILES, migration, editor or model/runtime authority change is necessary."
+    }
+  ],
+  "requirement_code_evidence_matrix": [
+    {
+      "requirement": "Only current published heads, bounded actual pagination",
+      "code": "catalog_inspection.py:518-565; publication_store.py:23-30,91-114; catalog routes current/page",
+      "assessment": "SOURCE_CONFORMANT_IN_REVIEW_SCOPE",
+      "evidence": "SELECT current head WHERE publication_id IS NOT NULL, UUID keyset ORDER BY publication_id LIMIT21, return20 plus real lookahead/next_after. Header/draft/owner/generation joins validate list identity. Existing SOURCE tests cover non-null versus cleared head; SQL shape inspected. Authentic PostgreSQL pagination is deferred QA, not credited from the synthetic Connection that does not execute SQL."
+    },
+    {
+      "requirement": "Exact immutable UUID/digest readback independent of newer head",
+      "code": "catalog_inspection.py:568-578; CatalogSettings.tsx:15-25,33-42; client.ts:45-57",
+      "assessment": "SOURCE_CONFORMANT_IN_REVIEW_SCOPE",
+      "evidence": "Detail queries catalog_record by exact publication UUID, validates canonical envelope/row identity and supplied digest, and never follows publication_head. URL keeps publication/digest independently of current list. Existing test plus six independent helper positive controls preserve exact detail after head removal and deny wrong digest. Newer-head browser/restart is next QA, NOT_RUN here."
+    },
+    {
+      "requirement": "Existing producer compatibility, v1/v2/v3 literal pins",
+      "code": "catalog_inspection.py:70-74,266-369,688-773; catalog_inspection_models.py:15,105-106",
+      "assessment": "CHANGES_REQUESTED_IMPORT_PROVENANCE",
+      "evidence": "v1 input, v2 contract-case-input/context1, v3 contract-case-records/context2 match actual retained field names. STATIC/PURE share same exact input for v2/v3; owner/group/snapshot/procedure/schema/material/index/compiler/provenance/admission joins are present. Existing 89 SOURCE tests pass, including F01 actual producer behavior revisions and malformed controls. New IMPORT reproducer fails three versions; OPERATOR/AI controls pass."
+    },
+    {
+      "requirement": "Named package_key/full pins and index identity",
+      "code": "catalog_inspection.py:372-477; candidate_index.py:18-67; candidate_store.py:192-253; skill_catalog.py:780-807; CatalogSettings.tsx:49-60",
+      "assessment": "SOURCE_CONFORMANT_IN_REVIEW_SCOPE",
+      "evidence": "Names come from retained catalog_bindings joined to source identities and package file-list digest, not inferred from current filesystem/compiler. Duplicate names/UUID aliases/kind mismatches are denied. Producer retains all external bindings but selected closure includes package pins; reader validates retained namespaces and projects exact candidate/closure pins only, without claiming external material verification. UI shows package_key and full Ref, with named entities grouped per package."
+    },
+    {
+      "requirement": "Stored review/STATIC/PURE are not runtime or security authority",
+      "code": "catalog_inspection.py:579-687,690-813; catalog_inspection_models.py:107-118; CatalogSettings.tsx:28-29,44-48",
+      "assessment": "SOURCE_CONFORMANT_APPROVED_BOUNDARY",
+      "evidence": "Exact pinned snapshot/review/evaluation/confirmation records are joined and compared. Output says RECORDED_STATIC_PASS/RECORDED_PURE_PASS, literal historical sha256:64 behavior identity, material/fixture/benchmark/security NOT_VERIFIED, runtime NOT_AVAILABLE, assessment_selectable false and resolution NO_MODEL. Dependency metadata NOT_VERIFIED for external artifacts is explicitly appropriate at this metadata-only seam, not a defect or claim of installed/readiness certification."
+    },
+    {
+      "requirement": "Read-only catalog must not compile/evaluate/open material or activate a run",
+      "code": "catalog_inspection.py imports/call graph and SELECT-only row_for/published_page; catalog_inspection_routes.py; Settings.tsx; CatalogSettings.tsx",
+      "assessment": "SOURCE_CONFORMANT_IN_REVIEW_SCOPE",
+      "evidence": "Three OpenAPI catalog paths have only GET. New reader uses DB metadata, canonical hashes and DTO validation, not PublicationCatalog._readback, compile_pinned, evaluate_pure or material access. Test/independent helper guards see zero compiler/evaluator/material attempts. URL selection is inspect-only, never ExecutionSelection or an editor/store/migration/run selector. This is a scoped call-graph/source observation, not universal syscall confinement."
+    }
+  ],
+  "executed_evidence": [
+    {
+      "label": "Affected SOURCE regressions",
+      "cwd": "/home/kali/OmnisAI",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pathlib,pytest;r=pathlib.Path.cwd();sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\")];raise SystemExit(pytest.main([\"api/tests/test_catalog_inspection_source.py\",\"-q\",\"-p\",\"no:cacheprovider\",\"--basetemp=/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/pytest\"]))'",
+      "exit_code": 0,
+      "result": "89 passed in 1.23s",
+      "limit": "SOURCE only; synthetic driver rows and in-process ASGI seam, not PostgreSQL or browser product QA"
+    },
+    {
+      "label": "Independent existing-producer compatibility repro",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/repro_producer_compatibility.py",
+      "exit_code": 1,
+      "result": "Six positive controls accepted; three IMPORT incompatibilities, zero forbidden call attempts",
+      "limit": "Expected behavior failure, not a harness exception; no compilation, PURE qualification, DB or service effects"
+    },
+    {
+      "label": "Snapshot and unchanged producer verification",
+      "exit_code": 0,
+      "result": "14/14 changed paths and 13/13 unchanged explicit closure/publication hashes match manifest; HEAD exact before/after; no tracked/index changes",
+      "evidence_file": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-norm/reviewed-snapshot.json"
+    },
+    {
+      "label": "Diff whitespace and schema inspection",
+      "command": "git diff --check 4d2b29e7e1902d32df85b29ddf778886f2928967 1bdc999df8cd7e01532b25463675bf99f91222df; direct JSON parse of explicit contracts/omnis.openapi.json catalog paths/schemas",
+      "exit_code": 0,
+      "result": "No diff-check errors; three catalog paths GET-only; required pin/binding/page/inspection fields and additionalProperties=false; behavior revision fields keep literal ^sha256:[0-9a-f]{64}$"
+    }
+  ],
+  "limits_and_non_findings": [
+    "This review does not close P4a/G04a/G02-live, accept integration, approve aesthetics or claim absolute absence of gaps.",
+    "Independent complementary safety reviewer owns detailed authorization/concurrency/errors/bounds/UI checks. Existing affected SOURCE tests include auth/input negatives, but they are not a substitute for that review.",
+    "Authentic PostgreSQL publication->API and browser clicks/keyboard/reload/pagination/restart proof are NOT_RUN here, by contract next QA after source findings are adjudicated; their absence is not used as a circular SOURCE blocker.",
+    "NOT_VERIFIED external dependency/material metadata and NOT_AVAILABLE runtime are correct conservative boundaries for this feature, not missing live readiness enforcement disguised as a defect.",
+    "No product edits/commits, dependency installs, network calls, model/provider/target/native calls, DB/container/server/browser operations, protected document reads or personal/global/r1/P0 profile operations occurred.",
+    "All writes are reviewer-owned scratch files under review-norm; Python imports/tests used -I -B and disabled pytest cacheprovider; no node_modules or main cache writes were requested.",
+    "Reticle NOT_RUN_SOURCE_ONLY; no admitted instrumented UI runtime in this task. Chisel BLOCKED_NO_GO; neither tool is credited as a reviewer.",
+    "No style-only simplicity finding: existing metadata-only slice stays within approved boundary, although schema validation is explicit and substantial. Do not fix this compatibility defect by invoking compiler/material validation on GET."
+  ],
+  "parent_handoff": {
+    "next_action": "Reproduce NORM-CATALOG-IMPORT-01, fix whitelist minimally with SOURCE RED/GREEN and unknown-kind denial, obtain focused exact-byte re-review; reconcile complementary review before real owned PostgreSQL/browser QA.",
+    "proposed_status_delta": "SL12 catalog metadata implementation exists; this frozen SOURCE review is CHANGES_REQUESTED due IMPORT. Overall P4a remains PARTIAL; previously accepted OAuth and P2-inert proofs retain their old scope. Live/model qualification and canonical final gates unchanged.",
+    "workflow_lesson_proposed_only": "When a read-only metadata projection adds provenance enums, compare its literal accepted values directly to producer capture and separate operator-confirmation authority. Do not conflate imported authorship with permission to publish. No skill write was authorized in this read-only leaf."
+  }
+}

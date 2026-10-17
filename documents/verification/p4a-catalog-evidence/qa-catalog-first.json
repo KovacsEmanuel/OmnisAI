@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL",
+  "report_id": "P4A-CATALOG-ONE-ATTEMPT-INDEPENDENT-QA-34d8502",
+  "scope": "ONE_P4A_CATALOG_REAL_PG_BROWSER_ATTEMPT",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "head_before": "34d85021586be87b3299c9eb90c3dc0da816bad7",
+    "head_after": "34d85021586be87b3299c9eb90c3dc0da816bad7",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "exact19_source_hashes": {
+      "Makefile": "59d14c7a84f067446c9c7b85b62fb96d1497a85ee7ef822d5a63e6d6436acf3c",
+      "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+      "api/src/omnis/modules/settings/catalog_inspection.py": "51b0498640229c6949a2799c35b7f494e53930100e063bb5155a8d8fc453311f",
+      "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+      "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+      "api/tests/test_catalog_inspection_source.py": "79469496bccdf89833c8d7920cb6051a050b29e40597183f6ce32397c5c6d06d",
+      "api/tests/test_web_e2e.py": "ace163605a80c346ab7add4b378d73a3d10bb1a6f99d7169ff1819760f22cc72",
+      "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+      "ops/run_test_db_gate.py": "a2d32382b95ecf36c39fcc22c21170d1edbc672afef43dc0b26fab6750414b1f",
+      "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+      "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+      "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+      "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+      "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+      "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+      "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+      "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f",
+      "web/tests/e2e/catalog.mjs": "fcbf6222eece8587a558d8f42516a735eb8159291cd99319822f72a9cb8f9405",
+      "web/tests/e2e/run.mjs": "33bf669fbf7c3a4aa7585fb0aa64f7ffc4bafcde1e2437e7830f8ddcbbf257b8"
+    },
+    "before_and_after_match_normative_manifest": true,
+    "unchanged_producer_inputs_13_verified_before_launch": true,
+    "git_tracked_modifications": [],
+    "preexisting_untracked_preserved": "documents/Omnis_Notite_Originale.html",
+    "protected_html": "NOT_READ_NOT_HASHED_NOT_COPIED"
+  },
+  "execution": {
+    "admitted_attempts": 1,
+    "effectful_attempts": 1,
+    "retries": 0,
+    "cwd": "/home/kali/OmnisAI",
+    "effective_prefix": [
+      "env",
+      "-i"
+    ],
+    "environment": {
+      "HOME": "/home/kali/.hermes/cache/scratch/cate2e-1/home",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/cate2e-1",
+      "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin"
+    },
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "ops/run_test_db_gate.py",
+      "--check",
+      "--target",
+      "test-catalog-settings-e2e",
+      "--uv",
+      "/home/kali/.local/share/omnis-toolchains/bin/uv",
+      "--timeout-seconds",
+      "600"
+    ],
+    "umask": "077",
+    "terminal_session": "proc_b6ae7c0f33cd",
+    "terminal_anchor_pid": 1709914,
+    "terminal_process_readback": {
+      "status": "exited",
+      "exit_code": 2,
+      "completion_reason": "exited"
+    },
+    "outer_exit": 2,
+    "gate_make_exit": 2,
+    "pytest": {
+      "test": "api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[catalog]",
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "elapsed_seconds": 25.26,
+      "make_target_exit": 1
+    },
+    "shell_real_elapsed_seconds": 42.74,
+    "build": {
+      "command": "npm --prefix web run build",
+      "invocation_observed": true,
+      "vite_build_observed": true,
+      "vite_completed": true,
+      "generated_manifest": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+      "generated_manifest_valid": true,
+      "generated_files": {
+        "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "assets/index-C-3jayy1.js": "212d67afbc06a0edebe28cfd606ba0ac8a91cf861bf99f6b9c3515ee40112962",
+        "assets/index-qLRttWws.css": "2d9a6318512d3b70faf2277da3d33264f95970abd50cd1d96517ed396da16f01",
+        "index.html": "b972260797352d67ed5aa972e6aea387a75cc916141e4ab6eafa1a0c5bdb6ad3"
+      }
+    },
+    "full_canonical": "NOT_RUN"
+  },
+  "failure": {
+    "source": "web/tests/e2e/catalog.mjs",
+    "line": 125,
+    "errorclass": "AssertionError",
+    "actual_outline": "3px",
+    "expected_outline": "2px",
+    "reported_relation_observed": true,
+    "reason": "OUTLINE_WIDTH_MISMATCH",
+    "stage": "First viewport loop (1440x1000), before geometry/44px assertions and viewport/full-page captures",
+    "propagated_source": {
+      "path": "api/tests/test_web_e2e.py",
+      "line": 402
+    },
+    "classification": "Observed E2E oracle failure, not adjudicated as product versus test defect; no fix or retry"
+  },
+  "typed_final_outcome": {
+    "strict_original_family_receipt_valid": true,
+    "receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "receipt_path": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa/gate.log.result.json",
+    "receipt_sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+    "receipt_code_matches_target_and_terminal": true,
+    "final_result_path": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/result.json",
+    "final_result_present": false,
+    "browser_result_present": false,
+    "nonempty_pytest_pass_required_but_absent": true,
+    "all_named_product_fields_true": "NOT_PRODUCED",
+    "cleanup_verified_product_field": "NOT_PRODUCED",
+    "final_product_pass": false
+  },
+  "product_oracle": {
+    "publication_ref": {
+      "kind": "catalog-publication",
+      "id": "53fe421f-441b-4040-b3d8-311fbef6b838",
+      "revision": 1,
+      "digest": "a09d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45"
+    },
+    "profile_key": "records-mapping-contract",
+    "package_keys": [
+      "@profile",
+      "records-mapping-contract"
+    ],
+    "authentic_producer_qualification_pty_publish": "REACHED: fixture metadata and later real API/browser frame; prefix only, not final PASS",
+    "direct_pg_no_rerun_and_pre_browser_census": "REACHED_PREFIX: defining-module/alias guards and five-table pre-browser preparation; no universal/HTTP-process no-exec claim",
+    "same_browser_exact_selection_reload_wrong_digest_stale_hiding_recovery": "PREFIX_REACHED_BEFORE_LINE125: preceding exact JSON/DOM assertions returned, network positive/503/recovery retained; not final certification",
+    "desktop_focus": "FAIL: actual3px vs exact2px oracle",
+    "desktop_44px_geometry": "NOT_RUN: after failing outline assertion",
+    "mobile_focus_geometry": "NOT_RUN",
+    "five_table_census_after_browser": "NOT_RUN: driver return assertion failed before post-browser census",
+    "catalog_tables": [
+      "catalog_record",
+      "catalog_identity",
+      "catalog_reservation",
+      "catalog_command",
+      "catalog_publication_head"
+    ],
+    "authentic_d2_head_clear_list_empty_historical_detail_equal": "NOT_RUN: post-Node HTTPX step was not reached",
+    "metadata_readiness": "No physical/runtime/assessment readiness claim"
+  },
+  "network": {
+    "artifact": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/catalog-network.json",
+    "responses": [
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog/publications/53fe421f-441b-4040-b3d8-311fbef6b838/a09d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog/publications/53fe421f-441b-4040-b3d8-311fbef6b838/a09d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog/publications/53fe421f-441b-4040-b3d8-311fbef6b838/a09d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog/publications/53fe421f-441b-4040-b3d8-311fbef6b838/009d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45",
+        "status": 503
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/settings/catalog/publications/53fe421f-441b-4040-b3d8-311fbef6b838/a09d08f4a006a7a57b1a9bb4f8a4c6e774aa995c56e95019645275dd51f45f45",
+        "status": 200
+      }
+    ],
+    "failures": [],
+    "response_count": 9,
+    "positive_detail_200_count": 4,
+    "intentional_wrong_digest_503_count": 1,
+    "transport_failure_count": 0,
+    "unexpected_response_count": 0,
+    "all_catalog_requests_get": true,
+    "classification": "Exactly one deliberate HTTP503 negative, not zero HTTP errors; all observed request failures retained without exemption"
+  },
+  "screenshots": {
+    "required_pairs": [
+      "catalog-1440-viewport.png",
+      "catalog-1440-full.png",
+      "catalog-390-viewport.png",
+      "catalog-390-full.png"
+    ],
+    "produced_required_pairs": [],
+    "pair_status": "NOT_PRODUCED_BEFORE_FAILURE",
+    "actual_single_full_page": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/catalog-wrong-digest.png",
+    "vision_inspected": true,
+    "pixel_observation": "Exact publication unavailable/refusal text visible, no recorded STATIC/PURE pass or expanded package details; catalog Inspect entry and metadata remain.",
+    "visual_aesthetic_approval": "NOT_CLAIMED",
+    "viewport_occlusion_and_accessibility_approval": "NOT_CLAIMED"
+  },
+  "resource_handles": {
+    "root": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa",
+    "project": "omnis-p01-803e93774bd4441a82492a3351f740c8",
+    "container_id": "a6601d0a32abc518eeb95c9d8bc04d3a05cc77df9333922b04b5ec07b3e2dc89",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "system_identifier": "7697543347857457182"
+  },
+  "cleanup": {
+    "outcome": "VERIFIED_SCOPED_ORIGINAL_FAMILY_DRAIN_AND_EXACT_DB_RETIREMENT",
+    "original_owner_ack": {
+      "outer_cleanup_ack": true
+    },
+    "independent_readback": {
+      "docker": {
+        "endpoint": "unix:///run/docker.sock",
+        "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "daemon_matches": true,
+        "exact_cid": "a6601d0a32abc518eeb95c9d8bc04d3a05cc77df9333922b04b5ec07b3e2dc89",
+        "exact_container_http_status": 404,
+        "project": "omnis-p01-803e93774bd4441a82492a3351f740c8",
+        "project_containers_http_status": 200,
+        "project_container_ids": [],
+        "project_networks_http_status": 200,
+        "project_network_ids": [],
+        "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "image_retained": true
+      },
+      "paths": {
+        "fixture_root": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa",
+        "pg_socket": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa/socket/.s.PGSQL.5432",
+        "pg_socket_absent": true,
+        "control_directories": [],
+        "observed_control_socket_paths": [],
+        "control_sockets_absent": null,
+        "control_socket_readback_status": "NOT_OBSERVED_EXACT_LOCATOR",
+        "private_unix_endpoints": [],
+        "data_retained": true
+      },
+      "processes": {
+        "matching_live": [],
+        "terminal_anchor_absent": true,
+        "pid_starttimes_observed": [],
+        "api_ports_found_in_private_log": [],
+        "matching_listeners": [],
+        "exact_endpoint_observation_limit": "No live API/supervisor/browser PID/starttime, API port, or control-directory locator was captured before the attempt exited. No exact-PID/port readback claimed. Strict original family drain receipt is separate evidence."
+      },
+      "failure": {
+        "source": "web/tests/e2e/catalog.mjs",
+        "line": 125,
+        "errorclass": "AssertionError",
+        "actual_outline": "3px",
+        "expected_outline": "2px",
+        "reported_relation_observed": true
+      },
+      "original_owner_readback": {
+        "outer_cleanup_ack": true
+      },
+      "log_modes": {
+        "outer": "0o600",
+        "gate": "0o600"
+      }
+    },
+    "exact_api_supervisor_browser_pid_starttimes_and_api_port": "NOT_OBSERVED; cannot assert exact-process/port independent readback",
+    "worker_actual_state": "Tracked command exited2; strict original worker receipt code2/family_drained=true; post-exit root/runner process scan empty. Worker PID/starttime not observed.",
+    "absence_not_substituted_for_original_ack": true,
+    "additional_effectful_cleanup": "NONE: original owner only",
+    "data_logs_image_retained": true,
+    "browser_asset_links_retained_for_parent": 3
+  },
+  "output_artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/intent.json",
+      "sha256": "2f320e8f975e7d4e6c5930314a49856424055ea3a467146ff959854315006087",
+      "mode": "0o664"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/outer.log",
+      "sha256": "610bc73dfcb45caed1dfb22423c5901f6930e65f08e8fd140c38a8cfa0a26280",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/observed-handles.json",
+      "sha256": "1bbf53e0287023452a96c26ce8b62aaf7be53be03b4ee917a6574e74a3478f13",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/cleanup-readback.json",
+      "sha256": "4b2e70606ac30acbfabc64d77692f9ebcde655bc64c772c16de5c29ded512168",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa/fixture.json",
+      "sha256": "f3c166da640c1c2b4cdb1246e44dcda463b5f7ae5cc81c4e74886b8950175870",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa/gate.log",
+      "sha256": "e463c2807c7fb876c298796f2172154bc1fbbc3930b5a5d10b5637f917a92d9a",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/db-a66a674457684eaa/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/catalog-fixture.json",
+      "sha256": "9d3ee4f102385cfd93d0a6a2e9d306e57693429d3d0ad80c785633ed043ad118",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/catalog-network.json",
+      "sha256": "493c7ab4fa0ffcf605780abfab76c3e03261726837ea92b3e081c58353c7cc31",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/cate2e-1/omnis-p03-e2e/catalog/catalog-wrong-digest.png",
+      "sha256": "1f9edfc3246e432a5fd98045c5641e65e51da1f97e49ea84ae7033d8b69f6485",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+      "sha256": "e6a9b747534998899901e053f8bdc175d5ab9188fce23b30e617673900be6c51",
+      "mode": "0o600"
+    }
+  ],
+  "qa_auxiliary_issues": [
+    {
+      "kind": "READ_ONLY_PREREQUISITE_LOOKUP",
+      "status": "RESOLVED_BEFORE_LAUNCH",
+      "detail": "Assumed headless-shell path and old internal Playwright registry path failed; installed public Chromium lookup plus exact asset filesystem enumeration verified all three executable assets under sanitized HOME before admission."
+    },
+    {
+      "kind": "READ_ONLY_READBACK_DECODE",
+      "status": "RESOLVED",
+      "detail": "Unrelated /proc/net/unix bytes were not valid UTF8; surrogateescape allowed exact owned-root filtering. No effectful retry."
+    }
+  ],
+  "limits": {
+    "low_decoder_N01": "PARENT_DEFERRED_UNCHANGED",
+    "reticle": "NOT_INTEGRATED_NOT_RUN",
+    "chisel": "BLOCKED_NO_GO_NOT_RUN",
+    "oauth_native_model_provider_target_p3_r1_p0_global_install_download_push": "NOT_EXECUTED",
+    "p4a_g04a_g02_live_phase2": "NOT_CLOSED_BY_THIS_QA",
+    "parent_next_step": "Adjudicate the exact3px-versus2px oracle failure and missing later acceptance evidence; no retry or code edit admitted in this leaf."
+  },
+  "files_created_by_qa_observer": [
+    "/home/kali/.hermes/cache/scratch/cate2e-1/observed-handles.json",
+    "/home/kali/.hermes/cache/scratch/cate2e-1/cleanup-readback.json",
+    "/home/kali/.hermes/cache/scratch/cate2e-1/qa-catalog.json"
+  ],
+  "commits_created": []
+}

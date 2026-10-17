@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "review_id": "P4A-CATALOG-IMPORT-FOCUSED-SAFETY-34d8502",
+  "role": "Independent complementary safety supplement; read-only shared checkout",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "Accepting IMPORT as retained source authorship is producer-compatible provenance recognition, not Review/Publish/confirmation or effect authority. The exact one-line extension retains OPERATOR-only confirmation and fail-closed unknown/malformed authorship denials. No new blocking safety finding in the delta or affected call site.",
+  "verdict_scope": "Only the two changed paths and the affected inspect_publication provenance/confirmation/read-only GET call site. SOURCE synthetic retained-row evidence. Unchanged product and five-file E2E source-admission approvals are reused only within their original scopes; no runtime, integration or final gate acceptance.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "final_head": "34d85021586be87b3299c9eb90c3dc0da816bad7",
+    "author_fix_commit": "e8c38be5fa3e68da2aa9cf9cec4e4e4c55fd88bf",
+    "changed_path_count": 2,
+    "changed_paths_sha256": {
+      "api/src/omnis/modules/settings/catalog_inspection.py": "51b0498640229c6949a2799c35b7f494e53930100e063bb5155a8d8fc453311f",
+      "api/tests/test_catalog_inspection_source.py": "79469496bccdf89833c8d7920cb6051a050b29e40597183f6ce32397c5c6d06d"
+    },
+    "integrity_checks": {
+      "author_two_hashes": true,
+      "confirmation_guard_retained": true,
+      "e2e_five_hashes": true,
+      "head_expected": true,
+      "one_product_replacement": true,
+      "only_two_paths_since_e2e": true,
+      "original_twelve_hashes": true
+    },
+    "initial_and_final_git_status": "?? documents/Omnis_Notite_Originale.html",
+    "protected_untracked_path": "Preexisting; path observed through git only. Contents not read, copied or hashed."
+  },
+  "blocking_findings": [],
+  "new_nonblocking_findings": [],
+  "finding_dispositions": [
+    {
+      "id": "NORM-CATALOG-IMPORT-01",
+      "status": "MINIMAL_FIX_HAS_NO_RESIDUAL_SAFETY_BLOCKER_IN_REVIEWED_DELTA",
+      "decision": "Source provenance now recognizes the same OPERATOR/AI/IMPORT set as the unchanged capture producer. Normative reviewer independently owns closure of its original blocker; this report does not replace that verdict."
+    },
+    {
+      "id": "CATALOG-SAFETY-N01",
+      "severity": "LOW",
+      "status": "PARENT_DEFERRED_NONBLOCKING_UNCHANGED",
+      "decision": "Original client decoder hardening note remains deferred, not fixed, reopened or promoted. No web/decoder byte changed."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Authorship does not grant publish or confirmation authority",
+      "code": [
+        "documents/Omnis_MVP_Architecture.md:700-702",
+        "api/src/omnis/modules/settings/candidate_catalog.py:168-175",
+        "api/src/omnis/modules/settings/catalog_inspection.py:643-687",
+        "api/src/omnis/modules/settings/catalog_publication.py:179-198"
+      ],
+      "finding": "One product replacement only: OPERATOR/AI -> OPERATOR/AI/IMPORT at inspection line667. Capture already permits that provenance. Confirmation selection, exact retained ref/owner/group correlation, OPERATOR-only author_kind, and local-operator actor remain unchanged; the publication producer is untouched."
+    },
+    {
+      "requirement": "Valid IMPORT source accepted without execution or readiness elevation",
+      "code": [
+        "api/src/omnis/modules/settings/catalog_inspection.py:793-813",
+        "api/tests/test_catalog_inspection_source.py:495-560"
+      ],
+      "finding": "Existing actual reader controls passed for OPERATOR, AI and IMPORT across retained versions1/2/3, preserving exact projected refs and compiler/evaluator pins; compile/evaluate/material attempt list stays empty. Material remains NOT_VERIFIED, runtime NOT_AVAILABLE, assessment_selectable=false and resolution NO_MODEL. Test evidence is synthetic-row SOURCE, not authentic publication."
+    },
+    {
+      "requirement": "Unknown or malformed source provenance still denies",
+      "code": [
+        "api/src/omnis/modules/settings/catalog_inspection.py:667-668",
+        "api/tests/test_catalog_inspection_source.py:563-585"
+      ],
+      "finding": "UNKNOWN, null and array [IMPORT] each refuse with exact CATALOG_METADATA_UNAVAILABLE through inspect_publication; profile in v1 and profile/package in v2/v3 are covered. No coercion, default approval or broad catch added."
+    },
+    {
+      "requirement": "Non-OPERATOR confirmation still denies even with IMPORT source",
+      "code": [
+        "api/src/omnis/modules/settings/catalog_inspection.py:677-687",
+        "api/tests/test_catalog_inspection_source.py:588-605"
+      ],
+      "finding": "AI/IMPORT/UNKNOWN confirmation refuse with exact CATALOG_METADATA_UNAVAILABLE in all three retained versions; corresponding OPERATOR-confirmed positives pass on the same reader. Confirmation guard is byte-unchanged."
+    },
+    {
+      "requirement": "GET remains metadata-only and unchanged failures remain sanitized",
+      "code": [
+        "api/src/omnis/modules/settings/catalog_inspection_routes.py:39-53",
+        "api/src/omnis/modules/settings/catalog_inspection.py:817-825",
+        "api/tests/test_catalog_inspection_source.py:403-416"
+      ],
+      "finding": "Affected call site is the same bounded GET -> inspect_publication read path. No publication/write/effect dispatch added; the tuple change leaves the existing sanitized failure route intact. Existing synthetic connection asserts SELECT only. Unchanged auth/UI/concurrency scope is reused, not reaudited."
+    }
+  ],
+  "reused_approvals": {
+    "original_safety": {
+      "report": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/review-catalog-safety.json",
+      "review_id": "P4A-CATALOG-SAFETY-SOURCE-1bdc999",
+      "head": "1bdc999df8cd7e01532b25463675bf99f91222df",
+      "verdict": "APPROVED_SCOPED",
+      "original_scope": "Frozen 14-file integrated candidate, read-only published-head/exact-publication metadata consumer, SOURCE and pure-function evidence only. No integration/final gate transition, live PostgreSQL/browser acceptance, physical material verification or runtime-readiness approval.",
+      "original_reviewed_paths_sha256": {
+        "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+        "api/src/omnis/modules/settings/catalog_inspection.py": "099d8ebd2ae84113311b89c8fd87c017478648c40ba227ee489fe6aa289f87e8",
+        "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+        "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+        "api/tests/test_catalog_inspection_source.py": "e3e89c21fd323b39c7662a2fd0219a1f670f260d00c88b72b433a54a9ce6495a",
+        "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+        "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+        "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+        "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+        "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+        "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+        "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+        "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+        "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f"
+      },
+      "reused_unchanged_path_count": 12,
+      "reused_unchanged_paths_sha256": {
+        "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+        "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+        "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+        "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+        "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+        "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+        "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+        "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+        "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+        "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+        "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+        "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f"
+      },
+      "rule": "Original approval of the two old changed files is not transferred automatically: current changed bytes are the subject of this supplement. Twelve remaining original paths match; original findings and limitations persist. No repeat whole-source suite or whole-product audit."
+    },
+    "e2e_source_admission": {
+      "report": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-e2e/review-catalog-e2e-safety.json",
+      "review_id": "CATALOG-E2E-QA-DELTA-SAFETY",
+      "head": "7672762bf393f9e663240bd599f37e69e3680e4f",
+      "verdict": "APPROVED_SCOPED",
+      "original_scope": "The five-file test/admission delta is suitable for ONE parent-owned fresh PostgreSQL/browser attempt after the separately owned blockers and final execution-environment prerequisites clear. This is source admission, not a runtime PASS or final integration acceptance.",
+      "unchanged_path_count": 5,
+      "unchanged_paths_sha256": {
+        "Makefile": "59d14c7a84f067446c9c7b85b62fb96d1497a85ee7ef822d5a63e6d6436acf3c",
+        "api/tests/test_web_e2e.py": "ace163605a80c346ab7add4b378d73a3d10bb1a6f99d7169ff1819760f22cc72",
+        "ops/run_test_db_gate.py": "a2d32382b95ecf36c39fcc22c21170d1edbc672afef43dc0b26fab6750414b1f",
+        "web/tests/e2e/catalog.mjs": "fcbf6222eece8587a558d8f42516a735eb8159291cd99319822f72a9cb8f9405",
+        "web/tests/e2e/run.mjs": "33bf669fbf7c3a4aa7585fb0aa64f7ffc4bafcde1e2437e7830f8ddcbbf257b8"
+      },
+      "rule": "Five hashes match at final HEAD; no repeated E2E harness audit or launch. Original source admission is not a PG/browser runtime PASS. Final scratch-HOME Chromium/environment preflight and resource-owning launch remain parent-owned."
+    }
+  },
+  "executed_checks": [
+    {
+      "kind": "Bounded existing provenance/confirmation/no-execution SOURCE regressions",
+      "requirement_consumer_risk_decision": "Recognize legitimate imported provenance through actual inspect_publication while preventing bad provenance/nonoperator confirmation and compile/effect elevation; PASS permits this source-scoped safety supplement, FAIL blocks it.",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,sys; r=pathlib.Path(\"/home/kali/OmnisAI\"); s=pathlib.Path(\"/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/rereview-safety\"); s.mkdir(mode=0o700,exist_ok=True); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\")]; import pytest; import omnis.modules.settings.catalog_inspection as c; import test_catalog_inspection_source as t; assert pathlib.Path(c.__file__).resolve()==r/\"api/src/omnis/modules/settings/catalog_inspection.py\"; assert pathlib.Path(t.__file__).resolve()==r/\"api/tests/test_catalog_inspection_source.py\"; print(\"Exact main source imports verified; Python\",sys.version.split()[0]); raise SystemExit(pytest.main([\"api/tests/test_catalog_inspection_source.py\",\"-q\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp=\"+str(s/\"pytest-focused\"),\"-k\",\"retained_capture_protocols_inspect_without_compilation or unknown_source_authorship_refuses or import_authorship_still_requires_operator_confirmation\",\"--tb=short\"]))'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 33,
+      "deselected": 87,
+      "elapsed_seconds": 0.24,
+      "python": "3.13.15",
+      "output": "Exact main source imports verified; Python 3.13.15\n.................................                                        [100%]\n33 passed, 87 deselected in 0.24s",
+      "limits": "Synthetic rows and producer-shaped input fixtures, not PG/qualification/browser. Existing tests only; no new scenarios or framework. Explicit -I -B, plugin autoload disabled, explicit pytest-asyncio, cacheprovider disabled and owned basetemp."
+    },
+    {
+      "kind": "Exact delta inspection",
+      "command": "git diff HEAD^ HEAD -- api/src/omnis/modules/settings/catalog_inspection.py api/tests/test_catalog_inspection_source.py && git status --porcelain=v1",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "One product line and focused test changes only; no tracked modifications."
+    },
+    {
+      "kind": "Bounded diff cleanliness and snapshot/toolchain",
+      "command": "git diff --name-only 7672762bf393f9e663240bd599f37e69e3680e4f HEAD && git diff --check HEAD^ HEAD && /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; print(sys.version.split()[0])'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Exactly the two changed paths since E2E-reviewed HEAD; diff-check clean; Python3.13.15."
+    },
+    {
+      "kind": "Final exact hashes and one-product-replacement integrity",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import hashlib,json,pathlib,subprocess\nr=pathlib.Path(\"/home/kali/OmnisAI\")\nb=pathlib.Path(\"/home/kali/.hermes/cache/scratch/pc-j3m9OnvK\")\nexpected=\"34d85021586be87b3299c9eb90c3dc0da816bad7\"\ndef git(*a):\n p=subprocess.run([\"git\",*a],cwd=r,capture_output=True,text=True,check=True)\n return p.stdout.strip()\ndef digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()\nsafety=json.loads((b/\"review-safety/review-catalog-safety.json\").read_text())\ne2e=json.loads((b/\"review-e2e/review-catalog-e2e-safety.json\").read_text())\nauthor=json.loads((b/\"author-import-fix.json\").read_text())\nchanged={p:digest(r/p) for p in author[\"changed_paths_sha256\"]}\nunchanged={p:digest(r/p) for p in safety[\"snapshot\"][\"reviewed_paths_sha256\"] if p not in changed}\ne2e_current={p:digest(r/p) for p in e2e[\"changed_paths_sha256\"]}\nhead=git(\"rev-parse\",\"HEAD\")\ndelta_paths=git(\"diff\",\"--name-only\",e2e[\"reviewed_head\"],\"HEAD\").splitlines()\nsource=\"api/src/omnis/modules/settings/catalog_inspection.py\"\nold=subprocess.run([\"git\",\"show\",\"HEAD^:\"+source],cwd=r,capture_output=True,check=True).stdout\nnew=(r/source).read_bytes()\nold_tuple=b'\"'\"'source[\"author_kind\"] not in (\"OPERATOR\", \"AI\")'\"'\"'\nnew_tuple=b'\"'\"'source[\"author_kind\"] not in (\"OPERATOR\", \"AI\", \"IMPORT\")'\"'\"'\nchecks={\"head_expected\":head==expected,\"author_two_hashes\":changed==author[\"changed_paths_sha256\"],\"original_twelve_hashes\":all(v==safety[\"snapshot\"][\"reviewed_paths_sha256\"][p] for p,v in unchanged.items()),\"e2e_five_hashes\":e2e_current==e2e[\"changed_paths_sha256\"],\"only_two_paths_since_e2e\":set(delta_paths)==set(changed),\"one_product_replacement\":old.count(old_tuple)==1 and old.replace(old_tuple,new_tuple)==new,\"confirmation_guard_retained\":b'\"'\"'confirmation[\"author_kind\"] != \"OPERATOR\"'\"'\"' in old and b'\"'\"'confirmation[\"author_kind\"] != \"OPERATOR\"'\"'\"' in new}\nresult={\"final_head\":head,\"final_git_status\":git(\"status\",\"--porcelain=v1\"),\"changed_paths_sha256\":changed,\"changed_path_count\":len(changed),\"reused_original_unchanged_paths_sha256\":unchanged,\"reused_original_unchanged_path_count\":len(unchanged),\"original_reviewed_paths_sha256\":safety[\"snapshot\"][\"reviewed_paths_sha256\"],\"reused_e2e_paths_sha256\":e2e_current,\"reused_e2e_path_count\":len(e2e_current),\"original_review_id\":safety[\"review_id\"],\"original_verdict_scope\":safety[\"verdict_scope\"],\"original_head\":safety[\"snapshot\"][\"head\"],\"e2e_review_id\":e2e[\"report_id\"],\"e2e_head\":e2e[\"reviewed_head\"],\"e2e_verdict_scope\":e2e[\"decision\"],\"checks\":checks}\nprint(json.dumps(result,sort_keys=True))\nraise SystemExit(0 if all(checks.values()) else 1)'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Two author hashes, twelve unchanged original-review hashes and five unchanged E2E hashes match; exact source replacement and confirmation-guard retention true; expected final HEAD confirmed."
+    }
+  ],
+  "not_repeated": [
+    "Parent/author full120SOURCE affected module PASS is retained as provided context, not claimed rerun here. Only existing33focused controls were independently executed.",
+    "Original broad91SOURCE, UI/jsdom, producer helper, quality, PG/browser or canonical suites were not rerun.",
+    "No unaffected code reaudit or report-verification workstream."
+  ],
+  "scope_integrity": {
+    "product_main_edits": [],
+    "commits_created": [],
+    "scratch_root": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/rereview-safety",
+    "created_report": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/rereview-safety/rereview-catalog-safety.json",
+    "python_bytecode": "Explicit -I -B; no Python bytecode writes permitted by invocation. Existing source imports pinned with __file__ assertions.",
+    "external_effects": "No PG/container/browser/native/server/provider/model/target/install effects; no service or effectful fixture acquired.",
+    "protected_html_credentials_profiles_global_r1_P0": "NOT_TOUCHED; protected HTML contents not read/copied/hashed; no credentials inspected.",
+    "reticle": "NOT_APPLICABLE_SOURCE_ONLY_NOT_RUN",
+    "chisel": "BLOCKED_NO_GO_NOT_RUN",
+    "skills": "No skill/profile writes under scratch-only charter. No new workflow requiring a skill change."
+  },
+  "issues_encountered": [
+    {
+      "status": "RESOLVED_READ_ONLY_LOOKUP",
+      "issue": "Initial candidate_models.py lookup found no such path; located actual capture author_kind validation by bounded source search in candidate_catalog.py. No test/runtime failure or product change."
+    }
+  ],
+  "parent_handoff": {
+    "AICI": "One-line IMPORT provenance correction IMPLEMENTED;33focused SOURCE PASS; safety APPROVED_SCOPED at exact34d8502/two hashes.",
+    "unchanged": "Original twelve-path source approval and five-file E2E source admission retained, LOW N01 still deferred.",
+    "remaining": "Normative reviewer owns its blocker closure; parent owns integration/acceptance/gates, final scratch-HOME Chromium preflight and separately authorized fresh consumer QA. No P4a/G04a/G02-live/canonical transition from this report."
+  }
+}

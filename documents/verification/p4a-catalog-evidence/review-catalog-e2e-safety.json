@@ -1,0 +1,130 @@
+{
+  "report_id": "CATALOG-E2E-QA-DELTA-SAFETY",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "The five-file test/admission delta is suitable for ONE parent-owned fresh PostgreSQL/browser attempt after the separately owned blockers and final execution-environment prerequisites clear. This is source admission, not a runtime PASS or final integration acceptance.",
+  "reviewed_head": "7672762bf393f9e663240bd599f37e69e3680e4f",
+  "baseline": "1bdc999df8cd7e01532b25463675bf99f91222df",
+  "author_test_snapshot": "53dc1ecabfad2cb8335077f5aabccf85b1eb39fb",
+  "changed_path_count": 5,
+  "changed_paths_sha256": {
+    "Makefile": "59d14c7a84f067446c9c7b85b62fb96d1497a85ee7ef822d5a63e6d6436acf3c",
+    "api/tests/test_web_e2e.py": "ace163605a80c346ab7add4b378d73a3d10bb1a6f99d7169ff1819760f22cc72",
+    "ops/run_test_db_gate.py": "a2d32382b95ecf36c39fcc22c21170d1edbc672afef43dc0b26fab6750414b1f",
+    "web/tests/e2e/run.mjs": "33bf669fbf7c3a4aa7585fb0aa64f7ffc4bafcde1e2437e7830f8ddcbbf257b8",
+    "web/tests/e2e/catalog.mjs": "fcbf6222eece8587a558d8f42516a735eb8159291cd99319822f72a9cb8f9405"
+  },
+  "blocking_findings": [],
+  "nonblocking_delta_findings": [],
+  "preserved_approvals_and_dispositions": {
+    "unchanged_product": "All 14 product hashes in author-catalog-e2e.json independently match this checkout. Reuse the original scoped product approval at 1bdc999; no duplicate whole-product audit performed.",
+    "unchanged_producers": "All 13 producer hashes in the author manifest independently match. Seven adjacent fixture/family/marker/supervisor/control/producer helpers are byte-identical to the baseline.",
+    "CATALOG-SAFETY-N01": "Original LOW, explicitly parent-deferred; not reopened and not promoted to an admission blocker.",
+    "normative_importer_finding": "Already confirmed and separately assigned to its developer. Excluded from this five-file delta review; not duplicated, not claimed closed. Parent owns its remediation and the overall launch decision. Changed product bytes require their own affected verification/review."
+  },
+  "source_acceptance": [
+    {
+      "requirement": "Authentic records producer, trusted confirmation, real Publish",
+      "status": "SATISFIED_SOURCE_RUNTIME_NOT_RUN",
+      "locations": ["api/tests/test_web_e2e.py:73-151", "api/tests/fixtures/c03_records.py:33-93", "api/tests/fixtures/b06b_publication/consumer.py:121-135,186-226,253-316,413-432"],
+      "evidence": "qualify_records copies the existing records-mapping-contract package and profile, then invokes actual capture/review/freeze/admit-evaluation-records(schema3)/STATIC/PURE. confirmed uses the existing real PTY, waits for exact refs/digests/statuses before sending yes, validates the operator UID/owner/selection, and publish uses the authentic confirmation. No publication INSERT, fabricated evaluation, new executable harness or observer. CLI positive requires exit0, empty stderr and parsed JSON on its own channel."
+    },
+    {
+      "requirement": "Read-only census and honest no-rerun scope",
+      "status": "SATISFIED_SOURCE_RUNTIME_NOT_RUN",
+      "locations": ["api/tests/test_web_e2e.py:40-151,405-410,496-504"],
+      "evidence": "The census compares ordered full rows plus xmin for catalog_record/catalog_identity/catalog_reservation/catalog_command/catalog_publication_head. It runs around the guarded direct-PG read, whole browser journey, HTTPX positive and post-D2 GETs; deliberate D2 writes establish a new baseline. A mismatch raises only a sanitized message. Direct reader guards patch defining skill_catalog compile/evaluate functions, imported candidate aliases and CandidateCatalog.dispatch; attempts are recorded before raising and checked after return. The report explicitly says direct PG, NOT an HTTP-process no-execution observer."
+    },
+    {
+      "requirement": "Same-browser positive, real exact denial, recovery/reload and honest readiness",
+      "status": "SATISFIED_SOURCE_RUNTIME_NOT_RUN",
+      "locations": ["web/tests/e2e/catalog.mjs:8-147", "api/src/omnis/modules/settings/catalog_inspection_routes.py:39-53"],
+      "evidence": "One paired page selects the producer identity by keyboard, compares the actual detail JSON to the producer-derived PG view, reloads and explicitly refreshes. A single changed hex digit preserves format and reaches the same real API. Exact503/CONTROL_UNAVAILABLE/error field sets/correlation UUID/empty field_errors are required, with the stale recorded-pass/package region hidden. Inspect explicitly recovers the original identity. Catalog attempts must all be GET; exactly one deliberate503 is distinguished from failures and unexpected responses. Material/BENCHMARK/FIXTURE/SECURITY remain NOT_VERIFIED, runtime NOT_AVAILABLE, NO_MODEL and assessment selectable no. Screenshots/focus assertions do not assert physical readiness or visual acceptance."
+    },
+    {
+      "requirement": "Legitimate unpublished D2 and immutable historical detail",
+      "status": "SATISFIED_SOURCE_RUNTIME_NOT_RUN",
+      "locations": ["api/tests/test_web_e2e.py:154-228,399-410"],
+      "evidence": "After Node communicate returns, a separate HTTPX session pairs through the existing LocalControl owner. The same original seed owner changes its private profile and calls real capture, asserts generation+1, new draft and cleared current publication_ref. Current list must be empty; the old exact detail remains strictly equal. No SQL head manipulation and no false claim that this separate HTTPX history check is a browser journey."
+    },
+    {
+      "requirement": "Family ownership, cleanup-before-DROP, secret channel and final verdict",
+      "status": "PRESERVED_SOURCE_RUNTIME_NOT_RUN",
+      "locations": ["api/tests/test_web_e2e.py:278-282,309-329,430-517", "api/tests/conftest.py:114-156", "api/tests/e2e_processes.py:113-150", "web/tests/e2e/run.mjs:82-94,311-322"],
+      "evidence": "The existing e2e_family depends on the DB fixture, so its finalizer precedes disposable DB finalization; it is already active during producer setup. Original cleanup_all/adoption/marker/secret/exit-check block is byte-identical before the added final catalog report fields. The network confinement and context/browser finally are unchanged. HTTPX capability/code/session/CSRF are registered only in the existing private marker pipe, not logs; the new network report is scanned by the parent secret checker. The intermediate browser-result/PASS text remains nonfinal: context/browser close must complete for Node exit0, history assertions must pass, then cleanup_all, process exit checks and leak checks must pass before final result.json with cleanup_verified is written. Outer family-drained receipt and fixture finalization are still required for overall success. No lifecycle behavior changes."
+    },
+    {
+      "requirement": "Existing target runner, exact invocation, original nine cases",
+      "status": "VERIFIED_NO_EFFECT",
+      "locations": ["Makefile:232-237", "ops/run_test_db_gate.py:1018-1093", "api/tests/test_web_e2e.py:285-299"],
+      "evidence": "Runner bytes differ from baseline only by adding one target choice. The exact --check --target test-catalog-settings-e2e --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600 argv parses in the real AST-extracted parser prefix without executing main. --probe-only is not a dry run: it provisions the DB but skips the target. Original nine cases remain in order; collection finds all10 and focal1. Make target selects the existing parametrized owner, source/tests paths, explicit pytest-asyncio, disabled cache/plugin autoload and --tb=line. No new lifecycle entrypoint, parser, supervisor or dependency."
+    }
+  ],
+  "oracle_failability": {
+    "status": "SOURCE_FALSIFIABLE_RUNTIME_NOT_RUN",
+    "positive": "Actual producer publication refs/payload fields must match the direct-PG view; actual browser response JSON must equal that view and the rendered metadata must match.",
+    "negative": "The same paired browser must receive the exact intentional digest refusal tuple, not an arbitrary failure; an always-denying API fails the earlier positive, a successful wrong-digest response fails status503, stale successful detail fails the hiding assertions, and catalog writes fail full-row/xmin equality.",
+    "cleanup": "Driver timeout/nonzero, history failure, marker/secret failure, unexpected process exit or teardown failure prevents the final parent result.json success branch. Browser-result.json or a source collection exit0 is insufficient.",
+    "limit": "No PG/browser run, runtime mutation control or resource-cleanup experiment was executed. Source falsifiability is not observed runtime correctness."
+  },
+  "no_effect_checks": [
+    {"check": "Exact five hashes and 14 product hashes against author manifest; runner one-choice-only diff; actual parser-prefix exact argv; UID/path/access/input inventory", "exit": 0},
+    {"check": "All13 unchanged producer hashes", "exit": 0},
+    {"check": "Ruff check and format --check --no-cache on both changed Python files", "exit": 0, "observed": "All checks passed; 2 files already formatted"},
+    {"check": "Pinned Node --check on run.mjs and catalog.mjs; git diff --check baseline..reviewed_head", "exit": 0},
+    {"check": "Isolated Python -I -B explicit own-source pytest collection, no cacheprovider or plugin autoload", "exit": 0, "collected": 10, "passed_runtime_tests": 0},
+    {"check": "Same collection invocation with exact catalog nodeid", "exit": 0, "collected": 1, "passed_runtime_tests": 0},
+    {"check": "Existing runner --help only", "exit": 0, "observed": "Catalog target admitted in actual choices"},
+    {"check": "Pinned API package metadata and tool versions", "exit": 0, "observed": "Python3.13.15; pytest9.1.1; pytest-asyncio1.4.0; Ruff0.16.9; httpx0.28.1; psycopg3.3.6; Pydantic2.13.5; SQLAlchemy2.0.54; uvicorn0.54.0; alembic1.20.0; jsonschema4.26.0; PyYAML6.0.3; uv0.12.19; Node24.21.0; npm11.19.0"},
+    {"check": "Producer source-root derivation and YAML inputs", "exit": 0, "observed": "Nine declared seed files accessible, profile/procedure parse as YAML, package root /home/kali/OmnisAI/skills, CLI root /home/kali/OmnisAI/api/src"},
+    {"check": "Original nine-case list, seven adjacent helpers, original Python teardown, browser network guard/finalizer preservation", "exit": 0},
+    {"check": "Playwright library import/path lookup only, including sanitized gate-like env", "exit": 0, "observed": "@playwright/test1.63.0 imports. With a new scratch HOME and no ambient cache overrides, Chromium lookup is HOME/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome. No browser launched."}
+  ],
+  "execution_prerequisites_for_parent": [
+    {
+      "status": "REQUIRES_FINAL_PARENT_READBACK",
+      "item": "Use an explicitly prepared owned scratch HOME. Runner _gate_environment retains HOME/PATH/TMPDIR but strips ambient PLAYWRIGHT_BROWSERS_PATH/XDG_CACHE_HOME; validate the selected Chromium executable under the exact sanitized child environment before PG provisioning. A library import or browser path from the ambient environment is not enough. In the intentionally empty reviewer scratch HOME, that executable is absent; this is a demonstrated prerequisite, not a defect in the five-file delta or a claim about the parent's prepared HOME. No install/download or global-cache inspection was performed."
+    },
+    {
+      "status": "VERIFIED_TEMPLATE_NOT_CREATED",
+      "item": "Proposed /home/kali/.hermes/cache/scratch/cate2e-1 was absent. Parent must create one fresh canonical owned mode0700 TMPDIR at admission and read back ownership/mode. Actual producer paths use db-<16hex>/socket/.s.PGSQL.5432 and omnis-ipc-<8chars>/control.sock directly below TMPDIR: this template yields82 and73 encoded bytes, both below108. ipc_directory membership and control socket length are checked in the catalog test. No tmp_path or fixed --basetemp seam is used."
+    },
+    {
+      "status": "VERIFIED_SOURCE_LIBRARY_ACCESS",
+      "item": "UID1000; equipped main API/CLI interpreters exist and resolve to pinned Python3.13.15; uv/node/npm executables and installed Playwright package accessible; authentic package/profile and adjacent producer helpers readable. Detailed nonsensitive metadata is in sibling preflight.json. Parent still owns Docker/image availability and exact resource attestation; no daemon/container/API was contacted here."
+    },
+    {
+      "status": "PARENT_OWNED",
+      "item": "Clear the separately assigned importer blocker and preserve its disposition. If it changes product bytes, do the affected verification/review without treating this unchanged-test-delta approval as approval of that fix. Run only the exact600s check target after final hashes/environment are verified. Inspect strict final result, nonempty pytest1PASS, expected503/network evidence, screenshot pairs and outer code/family_drained receipt; independently read back exact owned resources/cleanup. Preserve any failed attempt, raw private logs and uncertainty; do not print DSNs/capabilities/codes/cookies/CSRF or reuse a leaked fixture."
+    }
+  ],
+  "admitted_later_command_not_executed": {
+    "cwd": "/home/kali/OmnisAI",
+    "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "ops/run_test_db_gate.py", "--check", "--target", "test-catalog-settings-e2e", "--uv", "/home/kali/.local/share/omnis-toolchains/bin/uv", "--timeout-seconds", "600"],
+    "path": "/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+    "home": "Parent-selected prepared private scratch HOME; not inferred from ambient environment",
+    "tmpdir": "One fresh canonical mode0700 short private root, for example the still-uncreated cate2e-1 template"
+  },
+  "reviewer_probe_issues": [
+    {"status": "CORRECTED_NO_EFFECT", "exit": 1, "issue": "An auxiliary input-format read initially tried json.loads on the real omnis.yaml and raised JSONDecodeError before any resource action. Repeated with installed yaml.safe_load; YAML inputs parse. No product/harness edit or runtime attempt."},
+    {"status": "RESOLVED_LOOKUP_ONLY", "issue": "An assumed old Playwright source layout path did not exist. Used actual installed module resolution and source search instead; no package installation or browser launch."}
+  ],
+  "limits": {
+    "pg_browser_journey": "NOT_RUN",
+    "physical_readiness": "NOT_VERIFIED_NOT_AVAILABLE_AS_PRODUCT_METADATA",
+    "visual_acceptance": "NOT_RUN",
+    "no_rerun_runtime": "NOT_RUN; prospective direct-PG guard only, not HTTP-process observation",
+    "actual_cleanup": "NOT_RUN; source preservation reviewed, parent owns runtime settlement",
+    "reticle": "NOT_INTEGRATED_NOT_EXECUTED",
+    "chisel": "BLOCKED_NO_GO_NOT_EXECUTED",
+    "overall_p4a": "PARTIAL; this source review does not close product/live/canonical gates"
+  },
+  "scope_integrity": {
+    "tracked_files_modified": [],
+    "commits_created": [],
+    "created_files": ["/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-e2e/preflight.json", "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-e2e/review-catalog-e2e-safety.json"],
+    "protected_html": "NOT_READ_NOT_HASHED_NOT_COPIED; preexisting untracked path only observed in git status",
+    "resource_effects": "No target/check/probe-only/attest execution, DB/container/API/browser/native/provider/model/OAuth/target/install/download effect",
+    "final_head": "7672762bf393f9e663240bd599f37e69e3680e4f",
+    "final_git_status": "No tracked modifications; only the preexisting protected untracked HTML path"
+  }
+}

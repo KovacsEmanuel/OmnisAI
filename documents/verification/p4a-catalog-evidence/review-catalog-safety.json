@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "review_id": "P4A-CATALOG-SAFETY-SOURCE-1bdc999",
+  "reviewer_role": "Independent complementary safety/auth/concurrency/UI-source reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Frozen 14-file integrated candidate, read-only published-head/exact-publication metadata consumer, SOURCE and pure-function evidence only. No integration/final gate transition, live PostgreSQL/browser acceptance, physical material verification or runtime-readiness approval.",
+  "blocking_findings": [],
+  "blocking_finding_count": 0,
+  "nonblocking_finding_count": 1,
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "4d2b29e7e1902d32df85b29ddf778886f2928967",
+    "head": "1bdc999df8cd7e01532b25463675bf99f91222df",
+    "author_head": "de5a25c2e51df9a6942e608589ffe67e5dd33b48",
+    "author_manifest": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/author-catalog3.json",
+    "reviewed_path_count": 14,
+    "all_reviewed_source_hashes_match_author_manifest": true,
+    "head_and_hashes_rechecked_after_tests": true,
+    "reviewed_paths_sha256": {
+      "api/src/omnis/api.py": "da49208aa8f3b035f2b08265f5bc2c614218b90a74d10a49a7b4823ad0f5fed7",
+      "api/src/omnis/modules/settings/catalog_inspection.py": "099d8ebd2ae84113311b89c8fd87c017478648c40ba227ee489fe6aa289f87e8",
+      "api/src/omnis/modules/settings/catalog_inspection_models.py": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73",
+      "api/src/omnis/modules/settings/catalog_inspection_routes.py": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348",
+      "api/tests/test_catalog_inspection_source.py": "e3e89c21fd323b39c7662a2fd0219a1f670f260d00c88b72b433a54a9ce6495a",
+      "contracts/omnis.openapi.json": "cdb43101fec5fb7e39540c83e87d826a96033c78f5fd347814674949552b2417",
+      "web/src/app/CatalogSettings.test.tsx": "0e1d67ee60eb48427e1dfa588a2b9ef61d4be07f5243286a81a41e62f8598c4e",
+      "web/src/features/engagement/CatalogSettings.tsx": "4ca64f8263b6267f239a6e44bd82c890ec21e9a09e499de7ff96079f9c0c7d3d",
+      "web/src/features/engagement/Settings.tsx": "d37a81c26da674ed40c90dd6e05db48ac28454210c64ccf64938966ef05d1bad",
+      "web/src/shared/api/catalog.test.ts": "66f461a8be4ee6ca0ef8d8d74496280a8e66800ad0410ab9c138220413fb278a",
+      "web/src/shared/api/catalog.ts": "1dc969f2ce01300bc4b4058ffaadcbb3f42775b29a5190d70ca0891573d4dd02",
+      "web/src/shared/api/client.ts": "70784864dc030030d6041c7e67c06e9dccc115dddad7882cf06fb4f19608503e",
+      "web/src/shared/api/generated.ts": "a6e16f4dd2c64603751119f44d266a21925737ec289f286cfa101d7c45fd657d",
+      "web/tests/catalog-fixtures.ts": "5a94b13f2bca86d32634b3ca56042f745c24afa6399c4b432773492d9ccfa54f"
+    },
+    "unchanged_behavior_and_publication": "All 13 author-manifest hashes independently matched after checks; scoped Git diff changes no producer/compiler/evaluator/BEHAVIOR_FILES, publication producer, migration or accepted OAuth implementation.",
+    "initial_and_final_worktree_state": "Tracked checkout clean at frozen HEAD; preexisting untracked documents/Omnis_Notite_Originale.html remained present and was not opened, hashed or copied."
+  },
+  "nonblocking_findings": [
+    {
+      "id": "CATALOG-SAFETY-N01",
+      "severity": "LOW",
+      "status": "CONFIRMED_NONBLOCKING_DEFENSIVE_DECODER_GAP",
+      "path": "web/src/shared/api/catalog.ts",
+      "lines": [16, 27, 55, 59, 60],
+      "criterion": "Strict UI response decoding should preserve enum scalar types and expected pin roles instead of accepting a coercible value as a typed CatalogInspection.",
+      "finding": "String(value.kind), String(requested.requirement/on_unavailable) and String(dependency_metadata) admit one-element JSON arrays. The six singular pin fields are checked only as generic pins, so technical_review_ref.kind='profile' also passes. The actual decoder accepted each characterized mutation while preserving the recorded-pass fields.",
+      "concrete_reproducer": "Run the saved decoder_probe.cjs against the frozen actual catalog.ts/errors.ts and actual inspectionFixture(). Positive passes; revision=true and runtime=READY refuse; dependency_metadata=['NO_EXTERNAL_DEPENDENCIES'], requested.requirement=['PREFERRED'], technical_review_ref.kind=['technical-review'] and technical_review_ref.kind='profile' all decode successfully.",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/node /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/decoder_probe.cjs",
+      "observed_exit": 0,
+      "evidence": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/decoder-probe.json",
+      "minimal_fix": "Replace coercive enum membership with typeof value === 'string' followed by membership. For the singular inspection pins, use an explicit field-to-kind map (profile, candidate-snapshot, technical-review, evaluation-receipt, evaluation-receipt, operator-confirmation). Add decoder negatives for the characterized arrays and wrong semantic kind.",
+      "why_not_blocking": "No stock API or valid retained-producer path to these malformed UI values was demonstrated. The reviewed API reader enforces actual pin roles, row/ref identity, owner/group, strict Preference and output DTO types before serialization. The UI accepts no effect/run authority and still requires material NOT_VERIFIED, runtime NOT_AVAILABLE, assessment_selectable=false and resolution NO_MODEL. This is client-boundary hardening, not evidence of an API auth bypass or an execution-ready false green."
+    }
+  ],
+  "requirement_code_evidence_matrix": [
+    {
+      "requirement": "Paired-only read-only Settings catalog; Host/Origin/no-store and no caller owner authority",
+      "code": ["api/src/omnis/api.py:63-69", "api/src/omnis/security/host_origin.py:104-153,179-209,231-244", "api/src/omnis/modules/settings/catalog_inspection_routes.py:15-53"],
+      "conclusion": "Satisfied within SOURCE scope. Shared LocalBoundary is retained; all three catalog routes are GET-only. No owner query or new authority field. Independent ASGI controls proved unauthenticated 401, wrong Host 400, foreign/null Origin 403, owner query 400, malformed cursor/digest 422 before the reader connection, success/error no-store and sanitized SQL failure.",
+      "evidence": ["source-result.json", "test_safety_source.py:test_catalog_local_boundary_and_sanitized_failures"]
+    },
+    {
+      "requirement": "Exact immutable UUID/digest detail, owner/group and row/ref correlation, real retained v1/v2/v3 metadata rather than current compiler execution",
+      "code": ["api/src/omnis/modules/settings/catalog_inspection.py:91-141,234-369,480-515,568-773", "api/src/omnis/modules/settings/catalog_inspection_models.py:18-118"],
+      "conclusion": "Satisfied for supported retained producer shapes within SOURCE scope. Canonical envelope digest and row columns are correlated; every retained record is joined by exact Ref, owner and group. Known v2/v3 input/context/admission protocol branches correlate snapshot/procedure/schema/material/index/compiler metadata and require the same STATIC/PURE input. Historical compiler/evaluator digests are identities, not current implementation attestations. Tests use actual pure admission/input producers but synthetic ledger rows; they are not authentic PG publication evidence.",
+      "evidence": ["api/tests/test_catalog_inspection_source.py", "source-result.json"]
+    },
+    {
+      "requirement": "Named packages/index identities with no implicit dependency/material readiness",
+      "code": ["api/src/omnis/modules/settings/catalog_inspection.py:372-477,643-676,793-813", "web/src/features/engagement/CatalogSettings.tsx:28-60"],
+      "conclusion": "Satisfied scoped. Validates retained source identity shape, local package file-list digest and bounded exact bindings; refuses duplicate identities/UUID aliases and malformed mappings. External retained binding supersets are not treated as installed material: only selected exact candidate/closure pins project names, and dependency/material/runtime/security qualifications stay explicit. Does not certify release material or replay qualification.",
+      "evidence": ["source-result.json", "web-result.json"]
+    },
+    {
+      "requirement": "Consistent current-head page and immutable detail under capture/promotion without changing authority",
+      "code": ["api/src/omnis/modules/settings/catalog_inspection.py:518-578", "api/src/omnis/migrations/versions/0009_catalog_candidates.py:50-58", "api/src/omnis/modules/settings/publication_store.py"],
+      "conclusion": "Source reasoning plus a deterministic capture-during-read control passed. One bounded SELECT captures head tuples; later reads are of immutable referenced ledger rows. Concurrent head replacement need not make historical detail follow a new head. No mutable head is reread to build a mixed detail. Actual PostgreSQL overlap/isolation was NOT_RUN and is not claimed.",
+      "evidence": ["test_safety_source.py:test_page_reads_one_head_snapshot_and_detail_stays_immutable", "api/tests/test_catalog_inspection_source.py:test_exact_retained_inspection_does_not_follow_changed_head"]
+    },
+    {
+      "requirement": "Bounded inputs/reads/failure and sanitized unavailable responses",
+      "code": ["api/src/omnis/modules/settings/catalog_inspection_routes.py:19-24,44-53", "api/src/omnis/modules/settings/catalog_inspection.py:115-141,144-216,518-565,817-825", "web/src/shared/api/client.ts:17-22,46-58"],
+      "conclusion": "Satisfied scoped: page LIMIT 21 with 20-item lookahead; nested count/depth/text/scalar limits and 1MiB record cap; strict UUID/digest/int boundaries; total reader coroutine timeout includes connection. Independent stalled-connect control returned sanitized 503 within a 5s observer cap, with the product's original 3s timeout unmodified. SQL error marker was absent from response. This is not OS confinement against arbitrary malicious DB-sized native allocation.",
+      "evidence": ["source-result.json", "test_safety_source.py"]
+    },
+    {
+      "requirement": "No GET/import compile, PURE rerun, material open or execution authority; unchanged producer behavior",
+      "code": ["api/src/omnis/modules/settings/catalog_inspection.py", "api/src/omnis/modules/settings/catalog_inspection_routes.py", "api/tests/test_catalog_inspection_source.py:495-531", "web/src/features/engagement/CatalogSettings.tsx"],
+      "conclusion": "No such new call path found. Inspection uses SQL SELECT and metadata/canonical validation, not PublicationCatalog._readback/compile_pinned/material access. Fresh catalog-inspection import does not load candidate_catalog's filesystem fingerprint producer. Existing SOURCE guard tests patch compile/read/evaluator aliases on the actual reader. New modules introduce no filesystem-source attestation or runtime bootstrap at import. Wheel build/import was NOT_RUN, so this is a source closure conclusion rather than installed-wheel QA.",
+      "evidence": ["source-result.json", "fresh import command exit0", "13 unchanged author behavior/publication hashes"]
+    },
+    {
+      "requirement": "UI auth epochs, freshness/stale-green and non-authoritative URL selection",
+      "code": ["web/src/features/engagement/CatalogSettings.tsx:15-25,30-48", "web/src/features/bootstrap/useBrowserSession.ts:29-58,113-134", "web/src/shared/api/catalog.ts:52-68"],
+      "conclusion": "Satisfied in inspected/source-exercised scope, subject to the LOW decoder note. Query keys bind exact ID/digest, private reads use the existing session epoch, and data is withheld during failure/refetch/transition. Failed refresh removes pass metadata in existing component test. Independent actual-App/jsdom test expired the session while an exact detail GET was pending, then delivered a late success: no pass metadata or private query was restored. No writes, Connect, Publish, Evaluate or run/model selection authority was added.",
+      "evidence": ["web-result.json", "web-session-final-result.json", "catalog-session.test.tsx"]
+    },
+    {
+      "requirement": "Accessible semantics, focus preservation and modest reuse",
+      "code": ["web/src/features/engagement/CatalogSettings.tsx:26-65", "web/src/features/engagement/Settings.tsx", "web/src/features/engagement/Engagement.module.css:8-12", "web/src/app/App.tsx:17-23"],
+      "conclusion": "Source uses existing shell/session/query/client/CSS, native named buttons, heading/section/list structure, alert errors and output loading states; untrusted strings render as text. No new modal/trap, key interception or Stop change. This is not keyboard geometry, screen-reader or visual acceptance. Live focus after selection/reload, narrow viewport wrapping and large metadata navigation remain explicit later browser QA observations, not confirmed blocking defects."
+    }
+  ],
+  "executed_checks": [
+    {
+      "kind": "Affected API SOURCE plus independent boundary/head controls",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/run_source_review.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 91,
+      "elapsed_seconds": 5.633,
+      "python": "3.13.15",
+      "evidence": ["source-result.json", "source-check.log", "reviewed-source-hashes.json"],
+      "limits": "Synthetic driver rows and synthetic readiness/session seam, in-process ASGI only; no PG. Cacheprovider disabled and Python -I -B; basetemp owned scratch."
+    },
+    {
+      "kind": "Affected UI component/decoder SOURCE",
+      "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/bin/node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/vitest.config.mjs --configLoader native --reporter=json --outputFile=/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/web-result.json",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 4,
+      "node": "24.21.0",
+      "evidence": ["web-result.json", "vitest.config.mjs"],
+      "limits": "jsdom and fake GETs; no real browser or network. Existing dependency tree read only, native config loader and owned Vite cacheDir; results cache disabled."
+    },
+    {
+      "kind": "Independent actual-App session-expiry/late-success SOURCE",
+      "command": "ln -s /home/kali/OmnisAI/web/node_modules /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/node_modules && NODE_ENV=test /home/kali/.local/share/omnis-toolchains/bin/node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/vitest-session.config.mjs --configLoader native --reporter=json --outputFile=/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/web-session-final-result.json; result=$?; unlink /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/node_modules; exit $result",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "passed": 2,
+      "evidence": ["catalog-session.test.tsx", "vitest-session.config.mjs", "web-session-final-result.json"],
+      "limits": "jsdom synthetic HTTP responses, actual App/useBrowserSession/CatalogSettings path. Separate valid HTTP401 UNAUTHENTICATED->session null and HTTP200/null->INVALID_RESPONSE controls; both deny late success and clear private queries. No browser/session-DB integration. Owned dependency symlink removed and absence checked afterward."
+    },
+    {
+      "kind": "Pure decoder characterization; confirms nonblocking gap, not product PASS",
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/node /home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety/decoder_probe.cjs",
+      "exit": 0,
+      "evidence": ["decoder_probe.cjs", "decoder-probe.json"],
+      "limits": "Transpiles actual TS in memory and invokes real decoder with synthetic fixture; does not render a browser or substitute an API producer."
+    },
+    {
+      "kind": "OpenAPI exact drift and fresh no-producer-import check",
+      "commands": [
+        "/home/kali/OmnisAI/api/.venv/bin/python -I -B scripts/export_contracts.py --check",
+        "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path.insert(0,\"/home/kali/OmnisAI/api/src\"); import omnis.modules.settings.catalog_inspection; assert \"omnis.modules.settings.candidate_catalog\" not in sys.modules; print(\"fresh catalog-inspection import: no candidate behavior fingerprint/producer module imported\")'"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "limits": "No subprocess test_export invocation without -B; no output rewrite and no wheel build."
+    },
+    {
+      "kind": "Initial/final snapshot, exact diff and integrity",
+      "commands": [
+        "git status --short --branch",
+        "git rev-parse HEAD",
+        "git diff --stat 4d2b29e7e1902d32df85b29ddf778886f2928967 1bdc999df8cd7e01532b25463675bf99f91222df",
+        "git diff --check 4d2b29e7e1902d32df85b29ddf778886f2928967 1bdc999df8cd7e01532b25463675bf99f91222df"
+      ],
+      "exit": 0,
+      "details": "Reviewed all added sources/tests/DTO-contract-generated/client integration diffs plus relevant real shared auth/session/store/producer/schema paths. SHA256 census matches exact 14-path author manifest; 13 unchanged behavior/publication hashes also match. No protected HTML contents read."
+    }
+  ],
+  "failed_or_adjusted_prerequisites": [
+    {
+      "kind": "Initial session fixture exercised unavailability, not the intended expiry branch",
+      "exit": 0,
+      "evidence": ["catalog-session-initial.test.tsx", "web-session-result.json"],
+      "disposition": "Preserved initial1PASS. HTTP200/null produces INVALID_RESPONSE in the actual api.session decoder; it does not prove UNAUTHENTICATED/expire. Corrected the same bounded source control to parameterize both a strict HTTP401 error envelope and HTTP200/null, assert their distinct resulting session states and late-result refusal. Final2PASS is separately retained in web-session-final-result.json. No product code changed or previous result relabeled as expiry proof."
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/bin/python3 --version",
+      "exit": 127,
+      "disposition": "That Python alias does not exist. Used the existing API venv executable, measured Python3.13.15. No install, PATH/global mutation or fallback to ambient Python. The later separate pinned Node check measured24.21.0. Not a product failure."
+    }
+  ],
+  "genuine_uncertainty_and_deferred_observations": [
+    "Authentic PostgreSQL capture/qualification/confirmation/Publish-to-inspection, reload persistence and overlapping publication-head transactions were not executed. They remain later parent-owned consumer QA, not a circular precondition of this SOURCE-scoped approval.",
+    "No real browser, screenshots, focus geometry, keyboard viewport journey or assistive-technology run. Source semantics and jsdom stale-green/auth behavior are the reviewed evidence channel.",
+    "No new wheel/import-from-wheel or installed release boot; no distribution approval is inferred from source imports.",
+    "No material/dependency installation, compiler/PURE rerun, BENCHMARK/FIXTURE/SECURITY validation, model effective configuration, provider readiness or run authorization is asserted.",
+    "Author-reported prior full-parallel web timing failures remain in author-catalog3.json; this reviewer did not rerun the unrelated full web suite or relabel those failures.",
+    "Historical immutable metadata is trusted only at the explicit ledger/provenance consistency boundary reviewed here, not as cryptographic authenticity against coherent arbitrary DB administrator rewriting/insertion. No universal adversary audit was attempted."
+  ],
+  "scope_integrity": {
+    "product_edits": "NONE",
+    "commits": "NONE",
+    "main_git_writes": "NONE",
+    "protected_html": "NOT_READ_NOT_HASHED_NOT_COPIED",
+    "profiles_global_r1_P0": "NOT_TOUCHED",
+    "pg_container_native_provider_model_target_browser_server_install_download_effects": "NOT_PERFORMED",
+    "existing_oauth": "UNCHANGED_ACCEPTED_SCOPE_NOT_RERUN",
+    "resources": "No service/listener/DB/browser/container/provider resource acquired. Unit runners joined; owned temporary dependency symlink removed. Scratch evidence/cache/test output retained only under declared review-safety root.",
+    "reticle": "NOT_INTEGRATED_AND_NOT_RUN; SOURCE-only review",
+    "chisel": "BLOCKED_NO_GO; native read tools used",
+    "skill_edits": "NONE under read-only/scratch-only charter; parent may retain the decoder hardening note with adjudication."
+  },
+  "created_artifacts_root": "/home/kali/.hermes/cache/scratch/pc-j3m9OnvK/review-safety",
+  "created_artifacts": [
+    "review-catalog-safety.json",
+    "reviewed-source-hashes.json",
+    "run_source_review.py",
+    "test_safety_source.py",
+    "source-result.json",
+    "source-check.log",
+    "vitest.config.mjs",
+    "web-result.json",
+    "vitest-session.config.mjs",
+    "catalog-session.test.tsx",
+    "catalog-session-initial.test.tsx",
+    "web-session-result.json",
+    "web-session-final-result.json",
+    "decoder_probe.cjs",
+    "decoder-probe.json"
+  ],
+  "proposed_status_delta_for_parent": {
+    "AICI_catalog": "IMPLEMENTED_SOURCE_SCOPED; safety review APPROVED_SCOPED on exact14 hashes; one LOW decoder hardening note for explicit disposition.",
+    "proof": "91 affected API SOURCE controls,4 existing UI SOURCE tests,2 independent actual-App expiry/unavailability late-result SOURCE tests pass; real consumer PG/browser QA still NOT_RUN by this reviewer.",
+    "global": "No P4a/G04a/G02-live/P2-live/canonical acceptance transition. Existing OAuth and P2-inert acceptance remain at their own scope; STOP before P3.",
+    "next": "Parent compare snapshot and complementary report, adjudicate N01, then sequence separately authorized exact-candidate PostgreSQL/browser consumer QA. Do not transfer this scoped approval to changed bytes or claim runtime/material readiness."
+  }
+}

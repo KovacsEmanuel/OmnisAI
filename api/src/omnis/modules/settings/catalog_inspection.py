@@ -664,7 +664,7 @@ async def inspect_publication(
             or source["material_digest"] != body["material_digest"]
         ):
             refuse()
-        if source["author_kind"] not in ("OPERATOR", "AI"):
+        if source["author_kind"] not in ("OPERATOR", "AI", "IMPORT"):
             refuse()
         if source_kind == "profile":
             if profile_seen or ref != body["draft_ref"] or source["key"] != body["profile_key"]:

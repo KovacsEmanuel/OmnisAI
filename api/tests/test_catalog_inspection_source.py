@@ -493,16 +493,22 @@ def test_strict_nested_metadata_cannot_alias_integer_pins(value: object) -> None
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("version", [2, 3])
+@pytest.mark.parametrize("version", [1, 2, 3])
+@pytest.mark.parametrize("author_kind", ["OPERATOR", "AI", "IMPORT"])
 async def test_retained_capture_protocols_inspect_without_compilation(
     version: int,
+    author_kind: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from omnis.modules.settings import candidate_catalog, skill_catalog
+    from omnis.modules.settings import candidate_catalog, candidate_index, skill_catalog
     from omnis.modules.settings.catalog_inspection import inspect_publication
     from omnis.modules.settings.catalog_publication import check_evaluations
 
-    head, rows = fixture_rows(version)
+    def mutate(kind: str, body: dict[str, object]) -> None:
+        if kind in ("source-draft", "technical-review"):
+            body["author_kind"] = author_kind
+
+    head, rows = fixture_rows(version, mutate)
     identity = str(head["publication_id"])
     record = cast(dict[str, object], rows[identity]["envelope"])
     body = cast(dict[str, object], record["payload"])
@@ -513,14 +519,19 @@ async def test_retained_capture_protocols_inspect_without_compilation(
     ]
     check_evaluations({**body, "owner_id": str(head["owner_id"])}, receipts, [])
 
+    attempts: list[str] = []
+
     def forbidden(*args: object, **kwargs: object) -> None:
+        attempts.append("compile/evaluate/open material")
         raise AssertionError("inspection must not compile/evaluate/open material")
 
     for module, name in (
         (candidate_catalog, "compile_material"),
         (candidate_catalog, "read_material"),
         (candidate_catalog, "evaluate_pure"),
+        (candidate_index, "compile_material"),
         (skill_catalog, "compile_catalog"),
+        (skill_catalog, "evaluate_pure"),
     ):
         monkeypatch.setattr(module, name, forbidden)
     view = await inspect_publication(
@@ -529,6 +540,69 @@ async def test_retained_capture_protocols_inspect_without_compilation(
     assert view.static == "RECORDED_STATIC_PASS" and view.pure == "RECORDED_PURE_PASS"
     assert view.material == "NOT_VERIFIED" and view.runtime == "NOT_AVAILABLE"
     assert view.assessment_selectable is False
+    assert attempts == []
+    projected = view.model_dump(mode="json")
+    for field in (
+        "publication_ref",
+        "snapshot_ref",
+        "technical_review_ref",
+        "static_evaluation_ref",
+        "pure_evaluation_ref",
+        "confirmation_ref",
+        "source_draft_refs",
+        "compiler_revision",
+        "evaluator_revision",
+    ):
+        assert projected[field] == (
+            store.reference(record) if field == "publication_ref" else body[field]
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "version,source_kind",
+    [(1, "profile"), (2, "profile"), (2, "package"), (3, "profile"), (3, "package")],
+)
+@pytest.mark.parametrize("author_kind", ["UNKNOWN", None, ["IMPORT"]])
+async def test_unknown_source_authorship_refuses(
+    version: int, source_kind: str, author_kind: object
+) -> None:
+    from omnis.modules.settings.catalog_inspection import inspect_publication
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    def mutate(kind: str, body: dict[str, object]) -> None:
+        if kind == "source-draft" and body["source_kind"] == source_kind:
+            body["author_kind"] = author_kind
+
+    head, rows = fixture_rows(version, mutate)
+    identity = str(head["publication_id"])
+    with pytest.raises(CatalogError, match="^CATALOG_METADATA_UNAVAILABLE$"):
+        await inspect_publication(
+            cast(AsyncConnection, Connection(head, rows)), identity, str(rows[identity]["digest"])
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("version", [1, 2, 3])
+@pytest.mark.parametrize("confirmation_author", ["AI", "IMPORT", "UNKNOWN"])
+async def test_import_authorship_still_requires_operator_confirmation(
+    version: int, confirmation_author: str
+) -> None:
+    from omnis.modules.settings.catalog_inspection import inspect_publication
+    from omnis.modules.settings.catalog_models import CatalogError
+
+    def mutate(kind: str, body: dict[str, object]) -> None:
+        if kind in ("source-draft", "technical-review"):
+            body["author_kind"] = "IMPORT"
+        elif kind == "operator-confirmation":
+            body["author_kind"] = confirmation_author
+
+    head, rows = fixture_rows(version, mutate)
+    identity = str(head["publication_id"])
+    with pytest.raises(CatalogError, match="^CATALOG_METADATA_UNAVAILABLE$"):
+        await inspect_publication(
+            cast(AsyncConnection, Connection(head, rows)), identity, str(rows[identity]["digest"])
+        )
 
 
 @pytest.mark.asyncio

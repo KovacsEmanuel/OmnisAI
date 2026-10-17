@@ -1,0 +1,221 @@
+{
+  "status": "FAIL_BLOCKED_UNCERTAIN_NO_RETRY",
+  "process_id": "proc_101a0ab55ec4",
+  "invoker_exit_code": 0,
+  "invoker_exit_is_not_gate_pass": true,
+  "original_gate_exit_code": 2,
+  "original_gate_invocations": 1,
+  "timeout_seconds": 180,
+  "original_owner_elapsed_seconds": 32.584,
+  "pytest_summary": "1 failed, 1 error in 27.73s",
+  "command": [
+    "make",
+    "--no-print-directory",
+    "test-model-test-prepare-native-pg",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "family": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "proof_status": "UNCERTAIN",
+  "model_prepare_commit": "INDEPENDENT_PG_READ_BEFORE_ORIGINAL_EXCHANGE",
+  "model_prepare_primary_error": {
+    "consumer_line": 9933,
+    "exceptions": [
+      {
+        "reason": "UNCLASSIFIED",
+        "type": "OTHER_EXCEPTION"
+      }
+    ],
+    "source": "test_contract_method_pg.py"
+  },
+  "model_prepare_replay": "NO_SECOND_CREATE_OR_WORKER",
+  "cold_reader": "ACTUAL_DISPATCH_STATUS_NO_RUNTIME",
+  "context_HOLD_native_turn": "INDEPENDENT_PG_NATIVE_TURN_TASK_BOUND_MODEL_CALLS_EXACT_INT_ZERO_DEFERRED_NO_CREDENTIAL_HOLD_NOT_VERIFIED",
+  "expected_11_records_run_task_census": "PASSED_EXACT_11_RECORD_KINDS_PLUS_RUN1_TASK1_OLD_RECORDS_REVISION2_INBOX_UNCHANGED_SOURCE_ORDER",
+  "old_graph_unchanged": "PASSED_AFTER_COLD_READER_WITH_POST_COLD_CENSUS_NATIVE_BYTES_EQUALITY",
+  "close_future_done_CLOSED_JOINED": "NOT_PROVEN",
+  "bootstrap_observation": {
+    "status": "INCOMPLETE",
+    "pre_ready_complete": true,
+    "root_cause": "UNKNOWN",
+    "observer_ready": true,
+    "last_enter": "ENTRY_READY_WRITE_BEGIN",
+    "completed": [
+      "SERVER_SECRET_SCOPE_IMPORT_BEGIN",
+      "SERVER_ENV_LOADER_IMPORT_BEGIN",
+      "SERVER_LOCAL_ENV_IMPORT_BEGIN",
+      "CONVERSATION_TURN_API_IMPORT_BEGIN",
+      "CONVERSATION_MODULE_BEGIN",
+      "SERVER_CONVERSATION_IMPORT_BEGIN",
+      "MANAGED_RPC_DISPATCH_MODULE_BEGIN",
+      "SERVER_SPLIT_HANDLERS_IMPORT_BEGIN",
+      "SERVER_MODULE_BEGIN",
+      "ENTRY_SERVER_IMPORT_BEGIN",
+      "ENTRY_READY_WRITE_BEGIN"
+    ],
+    "pending": [
+      "BOOTSTRAP_RUNPY_ENTRY_BEGIN",
+      "ENTRY_MODULE_BEGIN",
+      "ENTRY_MAIN_BEGIN"
+    ],
+    "elapsed_ms": 2964,
+    "audit_ms": 15,
+    "audit_calls": 37426,
+    "phase_events": 25,
+    "issues": [
+      "MISSING_PHASE_COMPLETION"
+    ]
+  },
+  "host_launch_observation": {
+    "status": "OBSERVED",
+    "root_cause": "UNKNOWN",
+    "events": [
+      {
+        "method": "NativePeer.handshake",
+        "event": "ENTER",
+        "offset": 4,
+        "line": 442,
+        "elapsed_ms": 5001,
+        "ready_timeout_s": 4.308227506
+      },
+      {
+        "method": "NativePeer.handshake",
+        "event": "RAISE",
+        "offset": 578,
+        "line": 462,
+        "elapsed_ms": 8243,
+        "exception": "OTHER"
+      },
+      {
+        "method": "NativePeer.handshake",
+        "event": "HANDLED",
+        "offset": 674,
+        "line": 462,
+        "elapsed_ms": 8243,
+        "exception": "OTHER"
+      },
+      {
+        "method": "NativePeer.handshake",
+        "event": "HANDLED",
+        "offset": 678,
+        "line": 0,
+        "elapsed_ms": 8243,
+        "exception": "OTHER"
+      },
+      {
+        "method": "RuntimeHost._launch",
+        "event": "RAISE",
+        "offset": 920,
+        "line": 258,
+        "elapsed_ms": 8243,
+        "exception": "OTHER"
+      },
+      {
+        "method": "RuntimeHost._launch",
+        "event": "HANDLED",
+        "offset": 1120,
+        "line": 258,
+        "elapsed_ms": 8243,
+        "exception": "OTHER"
+      },
+      {
+        "method": "NativePeer._read",
+        "event": "RAISE",
+        "offset": 150,
+        "line": 322,
+        "elapsed_ms": 12029,
+        "exception": "CancelledError"
+      },
+      {
+        "method": "NativePeer._read",
+        "event": "HANDLED",
+        "offset": 2062,
+        "line": 322,
+        "elapsed_ms": 12029,
+        "exception": "CancelledError"
+      },
+      {
+        "method": "NativePeer._read",
+        "event": "HANDLED",
+        "offset": 2068,
+        "line": 0,
+        "elapsed_ms": 12029,
+        "exception": "CancelledError"
+      },
+      {
+        "method": "NativePeer._read",
+        "event": "HANDLED",
+        "offset": 2198,
+        "line": 0,
+        "elapsed_ms": 12029,
+        "exception": "CancelledError"
+      },
+      {
+        "method": "NativePeer._read",
+        "event": "HANDLED",
+        "offset": 2204,
+        "line": 0,
+        "elapsed_ms": 12029,
+        "exception": "CancelledError"
+      }
+    ]
+  },
+  "native_allowlisted_counts": [
+    {
+      "test": "observer",
+      "status": "READY",
+      "count": 1
+    },
+    {
+      "test": "prepare-_bind_turn_identity",
+      "status": "COMPLETED",
+      "count": 1
+    },
+    {
+      "test": "prepare-_bind_turn_identity",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "prepare-build_turn_context",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "prepare-close",
+      "status": "COMPLETED",
+      "count": 1
+    },
+    {
+      "test": "prepare-close",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "prepare-configure_model_test",
+      "status": "COMPLETED",
+      "count": 1
+    },
+    {
+      "test": "prepare-configure_model_test",
+      "status": "ENTERED",
+      "count": 1
+    },
+    {
+      "test": "prepare-run_conversation",
+      "status": "ENTERED",
+      "count": 1
+    }
+  ],
+  "native_observation_bytes": 4577,
+  "outer_placeholder_observation_bytes": 0,
+  "no_new_observer_no_prewarm_no_retry": true,
+  "API_reader_reused_unchanged": true,
+  "historical_failures": "PRESERVED_UNKNOWN_UNCERTAIN",
+  "historical_exclusive_cause": "NOT_PROVEN",
+  "failure_cause": "UNKNOWN",
+  "native_receipt_fields": "Actual managed_admission_contract.py schemas used; no invented task result/native receipt fields"
+}

@@ -1,0 +1,39 @@
+{
+  "head": "705f5b4cf4db67a56607f357aaa5600d24168914",
+  "root": "/home/kali/.hermes/cache/scratch/m7-2dn0xpbx",
+  "test_sha256": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+  "source_companion_sha256": "d814a9f2800d3f543d7adae784fdd5cc02af27c4e7846f16837ed14108d20607",
+  "attempts_authorized": 1,
+  "timeout_seconds": 180,
+  "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+  "allowed_seam": "h03-process-fixed-pg-selection.py:253-265; identical command/base plus six explicit pins/log/timeout",
+  "reviews": {
+    "qa-owner-renewal-review-norm.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-review-norm.json",
+      "sha256": "da2b89441f9bc91765cd3fe1c7df954401b8dc1a0d38cb3332d2b8c12ea3a64d",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "snapshot": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42"
+    },
+    "qa-owner-renewal-review-safety.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/qa-owner-renewal-review-safety.json",
+      "sha256": "bf4483762bca22347d760661797213cd56a3323ecc3548493794b4d820a84e73",
+      "verdict": "APPROVED_SOURCE_SCOPED_CONDITIONAL_FRESH_CONSUMER_ADMISSION",
+      "snapshot": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42"
+    }
+  },
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l/reader.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "38774dd167b8da23480e8175545888855bc426c2b20817d79ad829afc98d811d"
+  },
+  "cleanup_owner": "Original test finally and runner.cleanup_owned only after strict family drain",
+  "no_repo_writes_no_prewarm_no_retry": true,
+  "unchanged_API_reader_reused": true,
+  "renewal_review_snapshot": "fc8254ea33ecd144b49dacc84c3d6ad2ba6bdd42",
+  "product_review_snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+  "failure_allowlist": "fixed exception tags, source literal, exact int/null line; existing public proof/observations; typed resource identities",
+  "data_and_images_retained": true
+}

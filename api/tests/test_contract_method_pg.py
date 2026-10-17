@@ -9558,6 +9558,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     "result-qualification",
                     "owned-initialization",
                     "model-test-prepare",
+                    "model-test-execute",
                 }
                 or (
                     applicability is not None

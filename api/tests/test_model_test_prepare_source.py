@@ -443,6 +443,51 @@ async def produce(
     return payload
 
 
+@pytest.mark.parametrize(
+    "applicability,expected",
+    [
+        ("model-test-execute", True),
+        ("model-test-prepare", True),
+        ("owned-initialization", True),
+        ("mission-consumer", True),
+        ("result-qualification", True),
+        ("evidence-full", True),
+        ("partial-requirement-prefix", True),
+        (None, False),
+        ("support-zero", False),
+    ],
+)
+def test_model_test_public_listener_selection(applicability: str | None, expected: bool) -> None:
+    """Evaluate the actual listener guard without creating a listener, DB or child."""
+    import ast
+
+    source = Path(__file__).with_name("test_contract_method_pg.py")
+    tree = ast.parse(source.read_bytes())
+    guards = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and any(
+            isinstance(statement, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "public_control"
+                for target in statement.targets
+            )
+            and isinstance(statement.value, ast.Await)
+            and isinstance(statement.value.value, ast.Call)
+            and isinstance(statement.value.value.func, ast.Attribute)
+            and statement.value.value.func.attr == "__aenter__"
+            and isinstance(statement.value.value.func.value, ast.Call)
+            and isinstance(statement.value.value.func.value.func, ast.Name)
+            and statement.value.value.func.value.func.id == "LocalControl"
+            for statement in node.body
+        )
+    ]
+    assert len(guards) == 1
+    scope = {"h03": False, "batch2": False, "h04": None, "applicability": applicability}
+    assert eval(compile(ast.Expression(guards[0].test), str(source), "eval"), scope) is expected
+
+
 @pytest.mark.parametrize("encoding", ["text", "binary", "string"])
 @pytest.mark.parametrize("fault", [None, "run_id", "attempt_id", "batch_index", "state"])
 def test_model_prepare_committed_task_identity(encoding: str, fault: str | None) -> None:

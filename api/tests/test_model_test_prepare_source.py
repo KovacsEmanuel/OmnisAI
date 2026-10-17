@@ -98,10 +98,18 @@ async def produce(
     authority: dict[str, object],
 ) -> dict[str, object]:
     from omnis.modules.instance.schemas import NativeTaskCommand
+
     identity, settings_id = str(uuid4()), str(uuid4())
-    command = NativeTaskCommand.model_validate({**owner.base, "owner_id": owner.owner,
-        "manifest_ref": manifest, "action": "model_test_prepare", "initialization_id": identity,
-        "settings_operation_id": settings_id})
+    command = NativeTaskCommand.model_validate(
+        {
+            **owner.base,
+            "owner_id": owner.owner,
+            "manifest_ref": manifest,
+            "action": "model_test_prepare",
+            "initialization_id": identity,
+            "settings_operation_id": settings_id,
+        }
+    )
     context, created = await consumer.prepare(
         conn,
         owner.owner,
@@ -540,6 +548,48 @@ def test_model_prepare_observer_exact_carrier_and_attempts(
         assert all(call.args[0] == "forbidden-sink" for call in events.call_args_list)
 
 
+def test_model_prepare_bootstrap_matches_current_native_entry() -> None:
+    import ast
+
+    import test_contract_method_pg as owner
+
+    root = Path(__file__).resolve().parents[2] / "integrations/hermes/upstream"
+    entry = ast.parse((root / "managed-source/tui_gateway/entry.py").read_text())
+    main = next(n for n in entry.body if isinstance(n, ast.FunctionDef) and n.name == "main")
+    ready = next(
+        n
+        for n in main.body
+        if isinstance(n, ast.Expr)
+        and isinstance(n.value, ast.Call)
+        and isinstance(n.value.func, ast.Name)
+        and n.value.func.id == "_write_or_exit"
+    )
+    following = main.body[main.body.index(ready) + 1]
+    observer = ast.parse(owner.batch2_native_observer(startup=False, model_prepare=True))
+    inventory = next(
+        n
+        for n in observer.body
+        if isinstance(n, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "phase_inventory" for t in n.targets)
+    )
+    scope: dict[str, object] = {"managed": root / "managed-source", "inert": root / "inert-source"}
+    exec(
+        compile(ast.Module(body=[inventory], type_ignores=[]), "SOURCE-phase-inventory", "exec"),
+        scope,
+    )
+    phases = cast(
+        dict[tuple[str, str, int], tuple[str, dict[int, tuple[str, str]]]], scope["phase_inventory"]
+    )
+    key = (str(root / "managed-source/tui_gateway/entry.py"), "main", main.lineno)
+    assert phases[key] == (
+        "ENTRY_MAIN_BEGIN",
+        {
+            ready.lineno: ("ENTRY_READY_WRITE_BEGIN", "ENTER"),
+            following.lineno: ("ENTRY_READY_WRITE_BEGIN", "END"),
+        },
+    )
+
+
 def test_model_prepare_prefix_denies_before_stock_branch() -> None:
     import ast
     import sys
@@ -604,17 +654,23 @@ async def test_compact_reply_finite_largest_layout_and_strict_reader(
     from omnis.modules.instance.schemas import NativeTaskCommand
     from omnis.supervisor.native_tasks import NativeTaskOwner
     from test_model_preflight_control import consume
-    from test_owned_model_initialization import test_model_test_prepare_owns_fresh_qualified_context_and_holds
+    from test_owned_model_initialization import (
+        test_model_test_prepare_owns_fresh_qualified_context_and_holds,
+    )
 
     captures: list[tuple[NativeTaskCommand, dict[str, object]]] = []
     handle = NativeTaskOwner.handle
+
     async def capture(self: NativeTaskOwner, command: NativeTaskCommand) -> dict[str, object]:
         answer = await handle(self, command)
         captures.append((command, answer))
         return answer
+
     with monkeypatch.context() as producer:
         producer.setattr(NativeTaskOwner, "handle", capture)
-        await test_model_test_prepare_owns_fresh_qualified_context_and_holds(tmp_path, producer, False)
+        await test_model_test_prepare_owns_fresh_qualified_context_and_holds(
+            tmp_path, producer, False
+        )
     command, answer = captures[0]
     response = {**answer, "correlation_id": str(uuid4())}
     assert await consume(monkeypatch, command.model_dump(mode="json"), response) == response
@@ -624,22 +680,57 @@ async def test_compact_reply_finite_largest_layout_and_strict_reader(
     for field in ("owner_id", "initialization_id", "run_id", "correlation_id"):
         maximum[field] = "ffffffff-ffff-ffff-ffff-ffffffffffff"
     for field in ("context_ref", "turn_ref", "manifest_ref"):
-        maximum[field] = {**mapping(maximum[field]), "id": "ffffffff-ffff-ffff-ffff-ffffffffffff", "digest": "f" * 64}
+        maximum[field] = {
+            **mapping(maximum[field]),
+            "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+            "digest": "f" * 64,
+        }
     size = len(json.dumps(maximum).encode()) + 1
     assert size == len(json.dumps(response).encode()) + 1 < 3600 < 4096
-    largest_command = {**command.model_dump(mode="json"), "expected_epoch": 2**63-1,
-                       "expected_generation": 2**63-1}
-    assert len(canonical(NativeTaskCommand.model_validate(largest_command).model_dump(mode="json"))) <= 3600
-    assert len(json.dumps({"version": 1, "capability": "f"*64, "command": largest_command}).encode()) + 1 <= 4096
-    for field, value in (("kind", "launch-manifest"), ("id", True), ("digest", "g"*64),
-                         ("revision", True), ("revision", 2)):
+    print(f"MODEL_TEST_COMPACT_REPLY_JSON_LF_CORRELATION={size}")
+    # Serializer-only whitespace boundaries, not a legitimate maximum DTO layout.
+    encoded = json.dumps(response).encode()
+    at_limit = encoded + b" " * (4096 - len(encoded) - 1) + b"\n"
+    assert len(at_limit) == 4096
+    assert (
+        await consume(monkeypatch, command.model_dump(mode="json"), response, at_limit) == response
+    )
+    with pytest.raises(CatalogError, match="TASK_REJECTED"):
+        await consume(
+            monkeypatch, command.model_dump(mode="json"), response, at_limit[:-1] + b" \n"
+        )
+    largest_command = {
+        **command.model_dump(mode="json"),
+        "expected_epoch": 2**63 - 1,
+        "expected_generation": 2**63 - 1,
+    }
+    assert (
+        len(canonical(NativeTaskCommand.model_validate(largest_command).model_dump(mode="json")))
+        <= 3600
+    )
+    assert (
+        len(json.dumps({"version": 1, "capability": "f" * 64, "command": largest_command}).encode())
+        + 1
+        <= 4096
+    )
+    for field, value in (
+        ("kind", "launch-manifest"),
+        ("id", True),
+        ("digest", "g" * 64),
+        ("revision", True),
+        ("revision", 2),
+    ):
         bad = deepcopy(response)
         bad["context_ref"] = {**mapping(bad["context_ref"]), field: value}
         with pytest.raises(CatalogError):
             await consume(monkeypatch, command.model_dump(mode="json"), bad)
-    for field, value in (("preparation_status", "READY"), ("inference_status", "READY"),
-                         ("initialization_id", str(uuid4())), ("owner_id", str(uuid4())),
-                         ("account_status", "VERIFIED")):
+    for field, value in (
+        ("preparation_status", "READY"),
+        ("inference_status", "READY"),
+        ("initialization_id", str(uuid4())),
+        ("owner_id", str(uuid4())),
+        ("account_status", "VERIFIED"),
+    ):
         with pytest.raises(CatalogError):
             await consume(monkeypatch, command.model_dump(mode="json"), {**response, field: value})
 
@@ -650,7 +741,6 @@ async def test_model_prepare_host_checks_grant_before_handoff(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grant: str
 ) -> None:
     import time
-    from types import SimpleNamespace
     from unittest.mock import Mock
 
     from omnis_hermes.managed_admission_contract import preparation_result
@@ -664,28 +754,49 @@ async def test_model_prepare_host_checks_grant_before_handoff(
     host.deadline_ns = time.monotonic_ns() + 4_000_000_000
     host.settings_task = Mock(done=Mock(return_value=True))
     context = mapping(mapping(payload["context"])["payload"])
-    host.settings_result = {"status": "CONFIRMED", "operation_id": context["settings_operation_id"],
-                            "selection": REQUESTED}
+    host.settings_result = {
+        "status": "CONFIRMED",
+        "operation_id": context["settings_operation_id"],
+        "selection": REQUESTED,
+    }
     read = AsyncMock(return_value=REQUESTED)
     stop = AsyncMock()
     launch = AsyncMock()
+
     async def stopped() -> None:
         host.state = "STOPPED"
+
     async def launched(body: dict[str, object]) -> None:
         host.state = "READY"
-        host.process = SimpleNamespace(returncode=None)
-        host.peer = SimpleNamespace(failure=None, call=call)
-    call = AsyncMock(return_value=preparation_result(payload, native_root_id=str(uuid4()),
-        native_child_id=str(uuid4()), native_session_id="SOURCE-session",
-        native_turn={"task_id": str(context["task_id"]), "turn_id": "SOURCE-turn"}))
+        host.process = Mock(returncode=None)
+        host.peer = Mock(failure=None, call=call)
+
+    call = AsyncMock(
+        return_value=preparation_result(
+            payload,
+            native_root_id=str(uuid4()),
+            native_child_id=str(uuid4()),
+            native_session_id="SOURCE-session",
+            native_turn={"task_id": str(context["task_id"]), "turn_id": "SOURCE-turn"},
+        )
+    )
     stop.side_effect, launch.side_effect = stopped, launched
     monkeypatch.setattr(host, "_settings_native", read)
     monkeypatch.setattr(host, "stop", stop)
     monkeypatch.setattr(host, "_launch", launch)
-    deadline = {"good": time.monotonic_ns() + 4_000_000_000, "bool": True,
-                "expired": time.monotonic_ns() - 1, "over-managed": time.monotonic_ns() + 4_800_000_000}[grant]
-    body = {"payload": payload, "op": "task_model_initialize", "epoch": 1,
-            "generation": 0, "deadline_ns": deadline}
+    deadline = {
+        "good": time.monotonic_ns() + 4_000_000_000,
+        "bool": True,
+        "expired": time.monotonic_ns() - 1,
+        "over-managed": time.monotonic_ns() + 4_800_000_000,
+    }[grant]
+    body = {
+        "payload": payload,
+        "op": "task_model_initialize",
+        "epoch": 1,
+        "generation": 0,
+        "deadline_ns": deadline,
+    }
     if grant == "good":
         assert mapping(await host._managed(body))["status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
         assert host.deadline_ns == deadline

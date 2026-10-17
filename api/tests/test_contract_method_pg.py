@@ -6467,6 +6467,15 @@ def batch2_native_observer(
         'phase_transition("BOOTSTRAP_RUNPY_ENTRY_BEGIN", "ENTER")\ntry:', 1
     )[0]
     core = "allowed = " + core
+    if model_prepare:
+        core = core.replace(
+            'str(inert / "tui_gateway/entry.py")', 'str(managed / "tui_gateway/entry.py")'
+        )
+        core = (
+            core.replace('"main", 439', '"main", 447')
+            .replace("{464:", "{472:")
+            .replace("469:", "477:")
+        )
     overlay_begin = core.index("if not installed:")
     overlay_end = core.index("forbidden =", overlay_begin)
     core = core[:overlay_begin] + core[overlay_end:]
@@ -9779,7 +9788,10 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     )
                     async with engine.connect() as independent:
                         mt_context_record = await managed_store.get(
-                            independent, seed.owner, str(mt_answer["run_id"]), mt_answer["context_ref"]
+                            independent,
+                            seed.owner,
+                            str(mt_answer["run_id"]),
+                            mt_answer["context_ref"],
                         )
                         mt_payload, mt_observation = await ModelTest(domain).dispatch(
                             independent, seed.owner, mt_context_record, False
@@ -9865,16 +9877,20 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     await heartbeat
                     await service.shutdown(uuid4(), status.generation, supervisor, epoch)
                     mt_stopped = await control_task(directory, request_prepare)
-                    assert canonical({k: v for k, v in mt_stopped.items() if k != "correlation_id"}) == canonical(
-                        {k: v for k, v in mt_answer.items() if k != "correlation_id"}
-                    )
-                    for mt_changes in ({"initialization_id": str(uuid4())},
-                                       {"settings_operation_id": str(uuid4())}):
+                    assert canonical(
+                        {k: v for k, v in mt_stopped.items() if k != "correlation_id"}
+                    ) == canonical({k: v for k, v in mt_answer.items() if k != "correlation_id"})
+                    for mt_changes in (
+                        {"initialization_id": str(uuid4())},
+                        {"settings_operation_id": str(uuid4())},
+                    ):
                         with pytest.raises(CatalogError):
                             await control_task(directory, {**request_prepare, **mt_changes})
                     assert await mission_census() == after_tables
                     assert observation.read_bytes() == native_after
-                    checkpoint(model_prepare_closed_replay="RECEIVE_ONLY_ORIGINAL_COMMAND_NO_NATIVE_OR_WRITES")
+                    checkpoint(
+                        model_prepare_closed_replay="RECEIVE_ONLY_ORIGINAL_COMMAND_NO_NATIVE_OR_WRITES"
+                    )
                     return  # The shared finally requires real close + joined held worker.
                 try:
                     ready = await runtime.launch_inert(service, supervisor)

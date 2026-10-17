@@ -567,21 +567,38 @@ class RuntimeHost:
         payload = cast(dict[str, object], body["payload"])
         if payload.get("protocol") == managed.PROTOCOL_V5:
             managed.validate_model_prepare(payload)
-            context = cast(dict[str, object], payload["context"])["payload"]
-            if (context["runtime_boot"] != self.boot or context["authority"]["epoch"] != body["epoch"]
-                    or context["authority"]["generation"] != body["generation"]):
+            context = cast(
+                dict[str, object], cast(dict[str, object], payload["context"])["payload"]
+            )
+            if (
+                context["runtime_boot"] != self.boot
+                or cast(dict[str, object], context["authority"])["epoch"] != body["epoch"]
+                or cast(dict[str, object], context["authority"])["generation"] != body["generation"]
+            ):
                 raise ValueError("Stale model preparation authority")
-            if (self.settings_result is None or self.settings_result["status"] != "CONFIRMED"
-                    or self.settings_result["operation_id"] != context["settings_operation_id"]
-                    or self.settings_result["selection"] != settings.SELECTION):
+            if (
+                self.settings_result is None
+                or self.settings_result["status"] != "CONFIRMED"
+                or self.settings_result["operation_id"] != context["settings_operation_id"]
+                or self.settings_result["selection"] != settings.SELECTION
+            ):
                 raise ValueError("Owned saved Settings readback required")
             if self.state == "MANAGEMENT":
-                if payload["mode"] != "CREATE" or self.settings_task is None or not self.settings_task.done():
+                if (
+                    payload["mode"] != "CREATE"
+                    or self.settings_task is None
+                    or not self.settings_task.done()
+                ):
                     raise ValueError("Management must settle before model preparation")
-                context = cast(dict[str, object], payload["context"])["payload"]
-                if (self.settings_result is None or self.settings_result["status"] != "CONFIRMED"
-                        or self.settings_result["operation_id"] != context["settings_operation_id"]
-                        or await self._settings_native("read", None) != settings.SELECTION):
+                context = cast(
+                    dict[str, object], cast(dict[str, object], payload["context"])["payload"]
+                )
+                if (
+                    self.settings_result is None
+                    or self.settings_result["status"] != "CONFIRMED"
+                    or self.settings_result["operation_id"] != context["settings_operation_id"]
+                    or await self._settings_native("read", None) != settings.SELECTION
+                ):
                     raise ValueError("Saved native Settings required")
                 # Revoke and certify the original management family before preparation.
                 await self.stop()
@@ -608,8 +625,11 @@ class RuntimeHost:
         ):
             raise ValueError("Managed result retention full")
         if operation == "task_model_initialize":
-            binding = (cast(dict[str, object], payload["context"])["payload"]
-                       if payload.get("protocol") == managed.PROTOCOL_V5 else payload)
+            binding = (
+                cast(dict[str, object], cast(dict[str, object], payload["context"])["payload"])
+                if payload.get("protocol") == managed.PROTOCOL_V5
+                else payload
+            )
             authority = cast(dict[str, object], binding["authority"])
             if binding["runtime_boot"] != self.boot or (
                 authority["generation"],

@@ -48,9 +48,12 @@ async def consume(
     monkeypatch: pytest.MonkeyPatch,
     request: dict[str, object],
     response: dict[str, object],
+    raw_reply: bytes | None = None,
 ) -> dict[str, object]:
     reader, writer = Mock(), Mock()
-    reader.readuntil = AsyncMock(return_value=canonical(response) + b"\n")
+    reader.readuntil = AsyncMock(
+        return_value=canonical(response) + b"\n" if raw_reply is None else raw_reply
+    )
     writer.drain, writer.wait_closed = AsyncMock(), AsyncMock()
     writer.get_extra_info.return_value.getsockopt.return_value = struct.pack(
         "3i", 123, os.getuid(), os.getgid()

@@ -66,10 +66,14 @@ async def batch2_source(
             "snapshot_ref": records.reference(candidate),
             "publication_ref": ref("catalog-publication"),
             "profile_ref": ref("profile"),
-            "package_refs": [b["ref"] for b in compiled.catalog_bindings if b["entity_kind"] == "package"],
+            "package_refs": [
+                b["ref"] for b in compiled.catalog_bindings if b["entity_kind"] == "package"
+            ],
             "candidate_refs": [b["ref"] for b in compiled.catalog_bindings],
-            "dependency_closure_refs": [], "dependency_artifact_refs": [],
-            "dependency_closure_digest": "a" * 64, "created_by": seed.owner,
+            "dependency_closure_refs": [],
+            "dependency_artifact_refs": [],
+            "dependency_closure_digest": "a" * 64,
+            "created_by": seed.owner,
             "material_digest": compiled.material_digest,
             "resolved_index_digest": compiled.resolved_index_digest,
         },

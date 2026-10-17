@@ -124,7 +124,16 @@ class NativeTaskCommand(StrictBody):
 
             self.initialization_id = uuid_string(self.initialization_id)
             self.settings_operation_id = uuid_string(self.settings_operation_id)
-            if any(v is not None for v in (self.configuration, self.provider_config_ref, self.data_approval, self.protocol_id, self.protocol_caps)):
+            if any(
+                v is not None
+                for v in (
+                    self.configuration,
+                    self.provider_config_ref,
+                    self.data_approval,
+                    self.protocol_id,
+                    self.protocol_caps,
+                )
+            ):
                 raise ValueError("Preparation consumes saved native Settings only")
             if len(canonical(self.model_dump(mode="json"))) > 3600:
                 raise ValueError("Preparation command too large")

@@ -253,8 +253,12 @@ class NativeTaskOwner:
             completed = await consumer.completed(conn, command)
         if completed is not None:
             return self._model_test_reply(command, *completed)
-        authority = {"instance_id": command.instance_id, "owner": str(self.owner),
-                     "epoch": self.epoch, "generation": command.expected_generation}
+        authority = {
+            "instance_id": command.instance_id,
+            "owner": str(self.owner),
+            "epoch": self.epoch,
+            "generation": command.expected_generation,
+        }
         saved = None
         for attempt in range(2):
             try:
@@ -263,18 +267,28 @@ class NativeTaskOwner:
                 ) as conn:
                     await self._instance(conn, command)
                     context, created = await consumer.prepare(
-                        conn, command.owner_id, command.manifest_ref,
-                        str(command.initialization_id), str(command.settings_operation_id), saved,
-                        authority, str(self.runtime.boot), command,
+                        conn,
+                        command.owner_id,
+                        command.manifest_ref,
+                        str(command.initialization_id),
+                        str(command.settings_operation_id),
+                        saved,
+                        authority,
+                        str(self.runtime.boot),
+                        command,
                     )
-                    payload, observation = await consumer.dispatch(conn, command.owner_id, context, created)
+                    payload, observation = await consumer.dispatch(
+                        conn, command.owner_id, context, created
+                    )
                 break
             except CatalogError as error:
                 if error.reason != "MODEL_TEST_SETTINGS_REQUIRED" or attempt:
                     raise
                 saved = await self.runtime.settings_status(str(command.settings_operation_id))
         if observation is None:
-            result = await self.runtime.managed(self.service, self.owner, "task_model_initialize", payload)
+            result = await self.runtime.managed(
+                self.service, self.owner, "task_model_initialize", payload
+            )
             async with self.service.native_preparation_commit(
                 self.owner, self.epoch, command.expected_generation
             ) as conn:
@@ -287,12 +301,18 @@ class NativeTaskOwner:
     def _model_test_reply(
         self, command: NativeTaskCommand, context: dict[str, object], observation: dict[str, object]
     ) -> dict[str, object]:
-        return {"ok": True, "context_ref": records.reference(context),
-                "run_id": mapping(context["payload"])["run_id"],
-                "initialization_id": command.initialization_id, "owner_id": command.owner_id,
-                "manifest_ref": command.manifest_ref, "inference_status": "HOLD",
-                "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD",
-                "turn_ref": records.reference(observation), "account_status": "NOT_VERIFIED"}
+        return {
+            "ok": True,
+            "context_ref": records.reference(context),
+            "run_id": mapping(context["payload"])["run_id"],
+            "initialization_id": command.initialization_id,
+            "owner_id": command.owner_id,
+            "manifest_ref": command.manifest_ref,
+            "inference_status": "HOLD",
+            "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD",
+            "turn_ref": records.reference(observation),
+            "account_status": "NOT_VERIFIED",
+        }
 
     async def _model_initialization(self, command: NativeTaskCommand) -> dict[str, object]:
         from omnis.modules.runs.model_dispatch import ModelDispatch
@@ -554,17 +574,35 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
             if command.action == "model_test_prepare":
                 from omnis.modules.tasks.managed_contract import exact, integer
 
-                exact(reply, {"ok", "correlation_id", "context_ref", "run_id", "initialization_id",
-                              "owner_id", "manifest_ref", "inference_status", "preparation_status",
-                              "turn_ref", "account_status"})
+                exact(
+                    reply,
+                    {
+                        "ok",
+                        "correlation_id",
+                        "context_ref",
+                        "run_id",
+                        "initialization_id",
+                        "owner_id",
+                        "manifest_ref",
+                        "inference_status",
+                        "preparation_status",
+                        "turn_ref",
+                        "account_status",
+                    },
+                )
                 integer(ref(reply["context_ref"], "model-test-context")["revision"], 1, 1)
                 integer(ref(reply["turn_ref"], "native-turn")["revision"], 1, 1)
                 uuid_string(reply["run_id"])
-                if (len(raw_reply) > 4096 or reply["initialization_id"] != command.initialization_id
-                        or reply["owner_id"] != command.owner_id
-                        or ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
-                        or reply["inference_status"] != "HOLD" or reply["account_status"] != "NOT_VERIFIED"
-                        or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"):
+                integer(ref(reply["manifest_ref"], "launch-manifest")["revision"], 1, 1)
+                if (
+                    len(raw_reply) > 4096
+                    or reply["initialization_id"] != command.initialization_id
+                    or reply["owner_id"] != command.owner_id
+                    or ref(reply["manifest_ref"], "launch-manifest") != command.manifest_ref
+                    or reply["inference_status"] != "HOLD"
+                    or reply["account_status"] != "NOT_VERIFIED"
+                    or reply["preparation_status"] != "TURN_BOUND_PRE_CLIENT_HOLD"
+                ):
                     raise CatalogError("TASK_REJECTED")
                 return reply
             if command.action == "model_initialization":

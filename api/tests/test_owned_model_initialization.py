@@ -72,9 +72,10 @@ class SourceOwner:
         monkeypatch.setattr(store, "graph", AsyncMock(side_effect=lambda *_a: list(self.graph)))
 
         async def get(c: object, owner: str, run: str, pin: object) -> dict[str, object]:
-            if owner != self.owner or (run != self.run and not any(
-                r["kind"] == "managed-run" and r["id"] == run for r in self.graph
-            )):
+            if owner != self.owner or (
+                run != self.run
+                and not any(r["kind"] == "managed-run" and r["id"] == run for r in self.graph)
+            ):
                 raise CatalogError("REF_UNAVAILABLE")
             matches = [r for r in self.graph if records.reference(r) == pin]
             if len(matches) != 1:
@@ -84,8 +85,10 @@ class SourceOwner:
         async def put(c: object, owner: str, run: str, value: object) -> None:
             item = record(value)
             assert owner == self.owner
-            assert run == self.run or (item["kind"] == "managed-run" and item["id"] == run) or any(
-                r["kind"] == "managed-run" and r["id"] == run for r in self.graph
+            assert (
+                run == self.run
+                or (item["kind"] == "managed-run" and item["id"] == run)
+                or any(r["kind"] == "managed-run" and r["id"] == run for r in self.graph)
             )
             self.graph.append(item)
 
@@ -124,6 +127,7 @@ class SourceOwner:
         @asynccontextmanager
         async def read_transaction() -> AsyncIterator[AsyncConnection]:
             yield conn
+
         monkeypatch.setattr(domain.engine, "begin", read_transaction)
         service.native_preparation_commit = fence
         runtime = RuntimeClient(root, generation=0, epoch=1)
@@ -214,30 +218,57 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     owner.state["run_id"] = owner.run
     manifest = graph[-1]
     owner.base["manifest_ref"] = records.reference(manifest)
-    monkeypatch.setattr(owner.handler.domain, "readback", AsyncMock(return_value={
-        "manifest_ref": records.reference(manifest), "manifest": manifest,
-        "binding": None, "results": [], "stage_started": False, "release_started": False,
-    }))
+    monkeypatch.setattr(
+        owner.handler.domain,
+        "readback",
+        AsyncMock(
+            return_value={
+                "manifest_ref": records.reference(manifest),
+                "manifest": manifest,
+                "binding": None,
+                "results": [],
+                "stage_started": False,
+                "release_started": False,
+            }
+        ),
+    )
     owner.handler.domain.root = tmp_path
     # Extend only the fixture's catalog storage seam; invoke the actual strict reader again.
     catalog_get = records.get
-    async def catalog_read(connection, who, pin):
+
+    async def catalog_read(
+        connection: AsyncConnection, who: str, pin: dict[str, object]
+    ) -> tuple[str, dict[str, object]]:
         if pin == source.preparation_ref:
-            return "SOURCE-CATALOG-GROUP", records.envelope("native-preparation-receipt", {
-                "bundle_ref": records.reference(bundle),
-            })
+            return "SOURCE-CATALOG-GROUP", records.envelope(
+                "native-preparation-receipt",
+                {
+                    "bundle_ref": records.reference(bundle),
+                },
+            )
         return await catalog_get(connection, who, pin)
+
     monkeypatch.setattr(records, "get", catalog_read)
-    owner.runtime.settings_status = AsyncMock(return_value={
-        "status": "CONFIRMED", "selection": {
-            "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
-        }, "authenticated": "NOT_VERIFIED",
-    })
-    command = NativeTaskCommand.model_validate({
-        **owner.base, "action": "model_test_prepare", "initialization_id": str(uuid4()),
-        "settings_operation_id": str(uuid4()),
-    })
-    async def prepared_double(service, lease, operation, payload):
+    saved_status = AsyncMock(
+        return_value={
+            "status": "CONFIRMED",
+            "selection": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"},
+            "authenticated": "NOT_VERIFIED",
+        }
+    )
+    monkeypatch.setattr(owner.runtime, "settings_status", saved_status)
+    command = NativeTaskCommand.model_validate(
+        {
+            **owner.base,
+            "action": "model_test_prepare",
+            "initialization_id": str(uuid4()),
+            "settings_operation_id": str(uuid4()),
+        }
+    )
+
+    async def prepared_double(
+        service: InstanceService, lease: UUID, operation: str, payload: dict[str, object]
+    ) -> dict[str, object]:
         from omnis_hermes.managed_admission_contract import preparation_result
 
         assert owner.events[-1] == "commit"
@@ -245,11 +276,18 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
         owner.payloads.append(deepcopy(payload))
         if lost_reply and len(owner.payloads) == 1:
             from omnis.supervisor.runtime_client import RuntimeUnavailable
+
             raise RuntimeUnavailable("SOURCE lost preparation reply")
-        return preparation_result(payload, native_root_id=str(uuid4()),
-            native_child_id=str(uuid4()), native_session_id="SOURCE-SESSION-DOUBLE",
-            native_turn={"task_id": payload["context"]["payload"]["task_id"],
-                         "turn_id": "SOURCE-TURN-DOUBLE"})
+        return preparation_result(
+            payload,
+            native_root_id=str(uuid4()),
+            native_child_id=str(uuid4()),
+            native_session_id="SOURCE-SESSION-DOUBLE",
+            native_turn={
+                "task_id": mapping(mapping(payload["context"])["payload"])["task_id"],
+                "turn_id": "SOURCE-TURN-DOUBLE",
+            },
+        )
 
     owner.native.side_effect = prepared_double
     if lost_reply:
@@ -260,11 +298,16 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     assert answer["inference_status"] == "HOLD"
     assert answer["account_status"] == "NOT_VERIFIED"
     import json
+
     assert len(json.dumps({**answer, "correlation_id": str(uuid4())}).encode()) + 1 <= 4096
-    context = mapping(next(r for r in owner.graph if records.reference(r) == answer["context_ref"])["payload"])
+    context = mapping(
+        next(r for r in owner.graph if records.reference(r) == answer["context_ref"])["payload"]
+    )
     assert context["purpose"] == "MODEL_TEST_PREPARE"
     assert context["requested"] == {
-        "provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"
+        "provider": "openai-codex",
+        "model": "gpt-6.1-sol",
+        "effort": "xhigh",
     }
     assert context["effective"] is None
     assert context["selection_ref"] != records.reference(source.selection)
@@ -273,52 +316,87 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     assert owner.native.await_count == 1 + int(lost_reply)
     assert await owner.handler.handle(command) == answer
     assert owner.native.await_count == 1 + int(lost_reply)
-    assert [p["mode"] for p in owner.payloads] == (["CREATE", "STATUS"] if lost_reply else ["CREATE"])
-    owner.runtime.settings_status.assert_awaited_once()
+    assert [p["mode"] for p in owner.payloads] == (
+        ["CREATE", "STATUS"] if lost_reply else ["CREATE"]
+    )
+    saved_status.assert_awaited_once()
     assert canonical(owner.graph) == before
     from omnis_hermes.managed_admission_contract import (
         validate_initialization,
         validate_preparation_result,
     )
     from omnis_hermes.runtime_protocol import encode
+
     payload = owner.payloads[-1]
     assert validate_initialization(payload) == payload
     assert len(canonical(payload)) <= 32768
-    assert len(encode({"jsonrpc": "2.0", "id": str(uuid4()), "method": "omnis.managed.model_initialize", "params": payload})) <= 65536
-    for key, value in (("purpose", "CONTRACT_PROBE"), ("version", True),
-                       ("batch_index", True), ("effective", {"model": "fallback"}),
-                       ("account_status", "AUTHENTICATED"), ("task_id", str(uuid4()))):
+    assert (
+        len(
+            encode(
+                {
+                    "jsonrpc": "2.0",
+                    "id": str(uuid4()),
+                    "method": "omnis.managed.model_initialize",
+                    "params": payload,
+                }
+            )
+        )
+        <= 65536
+    )
+    for key, value in (
+        ("purpose", "CONTRACT_PROBE"),
+        ("version", True),
+        ("batch_index", True),
+        ("effective", {"model": "fallback"}),
+        ("account_status", "AUTHENTICATED"),
+        ("task_id", str(uuid4())),
+    ):
         bad = deepcopy(payload)
-        body = mapping(bad["context"])["payload"]
+        body = mapping(mapping(bad["context"])["payload"])
         body[key] = value
         bad["context"] = records.envelope("model-test-context", body)
         with pytest.raises(ValueError):
             validate_initialization(bad)
-    bad_result = deepcopy(mapping(next(r for r in owner.graph if records.reference(r) == answer["turn_ref"])["payload"]))
+    bad_result = deepcopy(
+        mapping(
+            next(r for r in owner.graph if records.reference(r) == answer["turn_ref"])["payload"]
+        )
+    )
     bad_result["model_calls"] = False
     with pytest.raises(ValueError):
         validate_preparation_result(bad_result, payload)
     owner.reserve.assert_not_awaited()
     # Complete immutable readback survives closed admission and a different boot.
     from omnis.modules.instance.domain import ControlCode, ControlConflict
+
     closed = Mock(side_effect=ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN))
     monkeypatch.setattr(owner.handler.service, "native_preparation_commit", closed)
     owner.runtime.boot = str(uuid4())
-    owner.runtime.settings_status.reset_mock()
+    saved_status.reset_mock()
     count = owner.native.await_count
     assert await owner.handler.handle(command) == answer
     assert canonical(owner.graph) == before
     assert owner.native.await_count == count
-    owner.runtime.settings_status.assert_not_awaited()
+    saved_status.assert_not_awaited()
     closed.assert_not_called()
-    for changes in ({"settings_operation_id": str(uuid4())}, {"expected_generation": 1},
-                    {"instance_id": str(uuid4())}):
+    for changes in (
+        {"settings_operation_id": str(uuid4())},
+        {"expected_generation": 1},
+        {"instance_id": str(uuid4())},
+    ):
         with pytest.raises(CatalogError, match="COMMAND_CONFLICT"):
-            await owner.handler.handle(NativeTaskCommand.model_validate({**command.model_dump(mode="json"), **changes}))
+            await owner.handler.handle(
+                NativeTaskCommand.model_validate({**command.model_dump(mode="json"), **changes})
+            )
     # Missing/pending observations still need current authority, never another CREATE.
     observation = next(r for r in owner.graph if records.reference(r) == answer["turn_ref"])
     owner.graph.remove(observation)
-    for pending in (command, NativeTaskCommand.model_validate({**command.model_dump(mode="json"), "initialization_id": str(uuid4())})):
+    for pending in (
+        command,
+        NativeTaskCommand.model_validate(
+            {**command.model_dump(mode="json"), "initialization_id": str(uuid4())}
+        ),
+    ):
         with pytest.raises(ControlConflict):
             await owner.handler.handle(pending)
     assert owner.native.await_count == count
@@ -332,21 +410,33 @@ def test_model_test_native_source_parks_actual_builder_before_stock_effects() ->
 
     root = Path(__file__).resolve().parents[2] / "integrations/hermes/upstream/managed-source"
     loop = ast.parse((root / "agent/conversation_loop.py").read_bytes())
-    turn = next(n for n in loop.body if isinstance(n, ast.FunctionDef) and n.name == "run_conversation")
+    turn = next(
+        n for n in loop.body if isinstance(n, ast.FunctionDef) and n.name == "run_conversation"
+    )
     source = ast.unparse(turn)
     assert source.index("_model_test_preparation") < source.index("native_turn_images")
     assert "return build_turn_context(" in source
     builder_tree = ast.parse((root / "agent/turn_context.py").read_bytes())
-    builder = next(n for n in builder_tree.body if isinstance(n, ast.FunctionDef) and n.name == "build_turn_context")
+    builder = next(
+        n
+        for n in builder_tree.body
+        if isinstance(n, ast.FunctionDef) and n.name == "build_turn_context"
+    )
     preparation = next(n for n in builder.body if isinstance(n, ast.If))
     prefix = ast.unparse(preparation)
     assert "_bind_turn_identity(" in prefix
-    assert prefix.index("_bind_turn_identity(") < prefix.index("_model_test_ready.set()") < prefix.index("_model_test_closed.wait()")
+    assert (
+        prefix.index("_bind_turn_identity(")
+        < prefix.index("_model_test_ready.set()")
+        < prefix.index("_model_test_closed.wait()")
+    )
     assert "raise ValueError" in prefix
     assert "turn_context_compaction" not in prefix
     assert "install_safe_stdio()" not in prefix
     init = ast.parse((root / "agent/agent_init.py").read_bytes())
-    configure = next(n for n in init.body if isinstance(n, ast.FunctionDef) and n.name == "configure_model_test")
+    configure = next(
+        n for n in init.body if isinstance(n, ast.FunctionDef) and n.name == "configure_model_test"
+    )
     text = ast.unparse(configure)
     assert "new_session_id(" in text and "agent.client = None" in text
     assert "agent._model_test_identity" in text

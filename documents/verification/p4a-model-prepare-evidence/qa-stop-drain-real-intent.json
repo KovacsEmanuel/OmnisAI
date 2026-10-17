@@ -1,0 +1,39 @@
+{
+  "head": "9ab0f7318fdb01288f58a32f4b09b0059887d34e",
+  "root": "/home/kali/.hermes/cache/scratch/m8-9mirelc8",
+  "test_sha256": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+  "source_companion_sha256": "b82c4ef83bb2dc9b98ddb6bebf5441b03d0e00c5915d0f9362af3258ccbe50eb",
+  "attempts_authorized": 1,
+  "timeout_seconds": 180,
+  "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+  "allowed_seam": "h03-process-fixed-pg-selection.py:253-265; identical command/base plus six explicit pins/log/timeout",
+  "reviews": {
+    "qa-stop-drain-review-norm.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/qa-stop-drain-review-norm.json",
+      "sha256": "3035d14b8b35808c9cefd97f3351012341f70fa52b55797e5f8a06d6e4ee763a",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "snapshot": "943bbf07e068f102b4fc79b8573a2a60a76247cc"
+    },
+    "qa-stop-drain-review-safety.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/qa-stop-drain-review-safety.json",
+      "sha256": "4d9c6b2590f326506330e5fbbf2dfd41d226e9da6a22cd35d896333884ffd470",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "snapshot": "943bbf07e068f102b4fc79b8573a2a60a76247cc"
+    }
+  },
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l/reader.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "38774dd167b8da23480e8175545888855bc426c2b20817d79ad829afc98d811d"
+  },
+  "cleanup_owner": "Original test finally and runner.cleanup_owned only after strict family drain",
+  "no_repo_writes_no_prewarm_no_retry": true,
+  "unchanged_API_reader_reused": true,
+  "stop_caller_review_snapshot": "943bbf07e068f102b4fc79b8573a2a60a76247cc",
+  "product_review_snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+  "failure_allowlist": "fixed exception tags, source literal, exact int/null line; existing public proof/observations; typed resource identities",
+  "data_and_images_retained": true
+}

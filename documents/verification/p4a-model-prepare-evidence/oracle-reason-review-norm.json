@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "review_type": "INDEPENDENT_READ_ONLY_NORMATIVE_ORDER_PERSISTENCE_READBACK_PONYTAIL_FULL",
+  "snapshot": "ecba036d61846d7f125dc0ba2c221af66f47e53a",
+  "base": "b0c9151dfeaf8a84e879515f039339e343c75713",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "repository": "/home/kali/OmnisAI",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "blocking_findings": [],
+  "two_sha256": {
+    "api/tests/test_contract_method_pg.py": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4",
+    "api/tests/test_model_test_prepare_source.py": "059e74300df5d484ad308543a5c4f2918367c83fa2e594ff1e3608343943aa0b"
+  },
+  "supporting_evidence_sha256": {
+    "documents/verification/p4a-model-prepare-evidence/oracle-reason-author.json": "2fb24b275dd241916e437542d989d5ca1d979f36c9925e3b7b93cfd3d4398003",
+    "documents/verification/p4a-model-prepare-evidence/oracle-reason-source-probe.py": "d17b1dc9175d63ebc4bec0648d316523d62e329a0ac87c21eaeb05888c099aaf"
+  },
+  "what_this_change_does": "Corectează exclusiv motivul exact așteptat de QA pentru manifestul cu digest schimbat: COMMAND_CONFLICT. Settings operation și owner străin rămân TASK_REJECTED; adaugă o regresie SOURCE care execută aserțiunea AST reală pe un canal UDS cu control pozitiv.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "CONTRIBUTING.md:50-65 și p4a-minim.md:142 cer dovada celor trei refuzuri conservatoare, corecție minimă, două reviewuri exacte și preflight înaintea unei singure probe reale fresh.",
+    "consumer": "test-model-test-prepare-native-pg existent; api/tests/test_contract_method_pg.py:9695-9954, prin control_task -> LocalControl -> NativeTaskOwner.",
+    "risk": "Un TASK_REJECTED comun produce fals FAIL pentru COMMAND_CONFLICT legitim; acceptarea unei mulțimi de motive, un handler always-reject sau pierderea census/no-rerun ar produce fals GREEN.",
+    "decision": "Corecția actuală elimină falsul FAIL demonstrat fără acceptare mai largă. SOURCE este aprobat scoped; este justificată următoarea probă reală unică numai după al doilea review, adjudecare și preflight fresh. Nu autorizează launch imediat și nu acordă PASS produsului."
+  },
+  "normative_and_connected_code_review": [
+    {
+      "criterion": "Motiv public exact pe fiecare cale",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": [
+        "test_contract_method_pg.py:9801-9824 păstrează trei cazuri și cere regex ancorat individual, nu o alternativă comună.",
+        "native_tasks.py:373-377 citește graphul original pentru owner+command și refuză manifestul divergent cu COMMAND_CONFLICT înainte de ModelTest.prepare.",
+        "local_control.py:159-169 păstrează COMMAND_CONFLICT și normalizează celelalte erori de catalog la TASK_REJECTED; native_tasks.py:564-577 păstrează motivul pe control_task.",
+        "model_test.py:191-216 refuză Settings absent/neconfirmat înainte de construirea și persistarea contextului; native_tasks.py:266-290 reîncearcă numai citirea Settings, nu acordă authority.",
+        "managed_admission.py:1240-1248 și managed_store.py:105-126 filtrează owner+command; ownerul străin produce REF_UNAVAILABLE, apoi TASK_REJECTED public.",
+        "runtime_client.py:742-755 verifică operation_id; runtime_host.py:1279-1294 returnează UNAVAILABLE pentru operație străină. Această alegere nu depinde de diferența READY versus MANAGEMENT din fixture și consumer."
+      ]
+    },
+    {
+      "criterion": "Ordine commit -> readback -> exchange și replay receive-only",
+      "status": "UNCHANGED_SOURCE_CONTRACT",
+      "evidence": [
+        "Diff-ul api/src, integrations/hermes/src, ops și Makefile este gol între base și snapshot.",
+        "native_tasks.py:251-302 păstrează completed-readback înainte de Settings/native, commitul înainte de managed exchange și persistarea după exchange cu verificarea bootului.",
+        "test_contract_method_pg.py:9733-9799 păstrează independent PG read-before-original-exchange, CREATE o singură dată și replayul original.",
+        "test_contract_method_pg.py:9825-9910 păstrează egalitatea răspunsului, cold model-test-read, graphul vechi și censusul exact; nu s-a redeschis ori modificat testul UUID."
+      ]
+    },
+    {
+      "criterion": "No-write, census și no-rerun",
+      "status": "UNCHANGED_ASSERTIONS_NOT_REAL_DB_CERTIFICATION",
+      "evidence": [
+        "Compararea AST a confirmat că toate instrucțiunile după raises din loop sunt identice; rămân mission_census == after_tables și observation.read_bytes == native_after după fiecare refuz.",
+        "AST-ul loopului este identic după substituirea numai a targetului, cazurilor/reason și expresiei match.",
+        "test_contract_method_pg.py:9832-9910 păstrează readbackul observation/context, model_calls exact int zero, HOLD/NOT_VERIFIED, cold reader STATUS, delta records11/runs1/tasks1 și revision2/inbox neschimbate.",
+        "Proba separată SOURCE execută loopul complet; censusul său este graph bytes și observația este payload-list, nu census PG sau observație nativă."
+      ]
+    },
+    {
+      "criterion": "Stop, CLOSE corelat și settlement",
+      "status": "UNCHANGED_NOT_PROVEN_REAL",
+      "evidence": [
+        "test_contract_method_pg.py:9918-9954 păstrează shutdown, STOPPED/drained, validate_model_close_result corelat la context_ref, replay post-Stop și refuzurile fără scrieri.",
+        "test_contract_method_pg.py:12207-12393 păstrează propagarea erorii, fence/unsettled, cleanup și observația strictă în finally inclusiv după returnul anticipat.",
+        "Nicio schimbare la grant/deadline/caps/fencing/cleanup sau runtime; aprobarea SOURCE existentă a startupului nu este reauditată sau promovată la rezultat real."
+      ]
+    },
+    {
+      "criterion": "Regresie și Ponytail full",
+      "status": "PASS_SCOPED",
+      "evidence": [
+        "test_model_test_prepare_source.py:229-302 refolosește producerul existent, NativeTaskOwner real și LocalControl/control_task UDS; verifică întâi răspunsul pozitiv reținut, apoi aserțiunea reală AST pentru manifest.",
+        "Regresia nu pretinde validarea ownerului/Settings pe fixture-urile identity-blind; proba separată restaurează ManagedAdmission.readback/managed_store.state reale și folosește RuntimeClient/RuntimeHost reale peste transportul UDS și seams SQL/catalog declarate.",
+        "Schimbarea comportamentală minimă este tabelul local case/reason. Nu există API/helper/framework/owner/config/dependență nouă de produs. AST-ul urmează patternul SOURCE existent și leagă RED de exact aserțiunea consumerului.",
+        "Nu am identificat un reproducer concret pentru o corecție suplimentară obligatorie; nu solicit refactor, extindere de harness sau altă suită fără efect asupra acestei decizii."
+      ]
+    }
+  ],
+  "verification_performed_by_reviewer": [
+    {
+      "check": "git status --short --branch; git rev-parse HEAD; git diff --stat base snapshot; git diff; git show --stat --oneline HEAD",
+      "exit": 0,
+      "result": "HEAD exact; tracked/staged clean; numai numele HTML protejat preexistent untracked, fără acces la conținut."
+    },
+    {
+      "check": "git diff --check b0c9151dfeaf8a84e879515f039339e343c75713 ecba036d61846d7f125dc0ba2c221af66f47e53a",
+      "exit": 0,
+      "result": "Fără whitespace errors."
+    },
+    {
+      "check": "api/.venv/bin/python3.13 -I -B; hashlib.sha256 și comparație cu git show snapshot:path pentru cele două teste și cele două evidence artifacts",
+      "exit": 0,
+      "result": "Toate cele patru fișiere sunt byte-exact cu snapshotul și hashurile declarate; scratch test_reason_probe.py este identic cu proba versionată."
+    },
+    {
+      "check": "Citire completă author JSON/probe, diff exact și definiții conectate; extragere allowlisted a sumarului logurilor SOURCE; comparație AST loop base/snapshot",
+      "exit": 0,
+      "result": "Dovezile finale și RED sunt prezente; assertions census/native rămân identice. Nu am rulat un test nou sau o resursă effectful."
+    }
+  ],
+  "reused_evidence_not_reexecuted": {
+    "red": {
+      "exit": 1,
+      "summary": "1 failed in 1.95s",
+      "boundary": "Regresia AST reală: COMMAND_CONFLICT versus vechiul TASK_REJECTED; control pozitiv UDS înaintea refuzului."
+    },
+    "source_affected_after_last_edit": {
+      "exit": 0,
+      "summary": "103 passed in 13.28s",
+      "paths": [
+        "api/tests/test_model_test_prepare_source.py",
+        "api/tests/test_owned_model_initialization.py",
+        "api/tests/test_native_task_control.py"
+      ]
+    },
+    "complete_three_case_ast_loop": {
+      "exit": 0,
+      "summary": "1 passed in 1.84s",
+      "boundary": "Positive retained producer reply plus exact TASK_REJECTED / TASK_REJECTED / COMMAND_CONFLICT through actual owner/control UDS; real identity-sensitive methods over explicit in-memory storage seams."
+    },
+    "quality_author_recorded": "Ruff check/format și mypy strict pe cele două fișiere: exit0 după ultima editare. Comenzile exacte sunt păstrate în author JSON; nu le-am rerulat ceremonial.",
+    "parent_regression": "Registrul declară 1PASS1.68s/exit0 al părintelui; nu este execuție proprie și nu este însumată cu cele103."
+  },
+  "next_single_real_probe": {
+    "justified_by_this_review": true,
+    "admission": "CONDITIONAL_NOT_LAUNCH_AUTHORIZATION",
+    "consumer": "test-model-test-prepare-native-pg",
+    "runner": "existing run_gate; timeout180; six explicit bindings",
+    "conditions_before_any_effect": [
+      "Al doilea review complementar pe același snapshot/2SHA și adjudecare explicită a părintelui; findings concrete rezolvate dacă există.",
+      "Preflight fresh fără efecte: argv/choices/opt-in, collect, source/library/pin, UID/acces/mounturi; --check al runnerului DB NU este dry-run și nu se execută pentru preflight.",
+      "Readbackul API95/reader și OCI43 existente trebuie să reconfirme identitatea; nu rebuild/prewarm neschimbat și nu adopție de DB/root vechi.",
+      "Actualizarea bindingurilor test afectate numai după ambele reviewuri; aceeași anvelopă180, HOME/TMPDIR și basetemp privat sub TMPDIR.",
+      "O singură fixture fresh sub ownerul/cleanupul original; failure fields mici sanitizate; niciun log privat PG/capability/env; FAIL păstrat, fără retry pentru verde."
+    ],
+    "observable_acceptance_still_required": [
+      "Trei refuzuri exacte fără scrieri ori native rerun și replay byte-equal.",
+      "Cold reader real și censusul persistent final exact al consumerului existent.",
+      "CLOSE corelat/context și same-Future settlement/CLOSED_JOINED autentice, plus cleanup/readback exact și păstrarea datelor."
+    ]
+  },
+  "historical_failure_disposition": {
+    "head": "edafa6c8053231ab882cd93ddfcda64b533b00f7",
+    "result": "1FAIL1ERROR25.76s/gate2/family_drainedtrue",
+    "negative_index": "UNKNOWN",
+    "exact_public_reason": "UNKNOWN",
+    "exclusive_cause": "UNKNOWN_NOT_ATTRIBUTED_TO_MANIFEST",
+    "domain_cleanup": "UNCERTAIN_RETAINED",
+    "current_defect": "MODEL-PREPARE-QA-MANIFEST-REASON-01 este corectat SOURCE; nu închide acceptarea QA reală."
+  },
+  "limits": [
+    "Review static independent cu reutilizarea dovezilor SOURCE byte-bound, nu o nouă rulare pytest/PG/OCI/native/provider.",
+    "Storage/SQL/catalog/native model result/peer metadata sunt doubles declarate. Nu certifică PostgreSQL, cold installed reader, native census, Stop settlement sau performanță reală.",
+    "Nu reauditez produsul startup5ebfd02 și cele șase hashes neschimbate; aprobarea anterioară rămâne numai la scope-ul ei.",
+    "Nu am verificat starea live ori readbackul curent al artefactelor/resurselor vechi. Acestea rămân prerequisite ale preflightului părintelui, nu o observație de resurse făcută aici.",
+    "Nu Responses/auth/web/live/canonical/P3/r1/global/push, nu închidere P4a-minim sau faza2.",
+    "Nu am citit/hashuit/copiat HTML-ul protejat sau tools/development/ponytail.json; nu am citit secrete/env/loguri private PG.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "status_delta_for_parent": {
+    "qa_oracle": "SOURCE_APPROVED_SCOPED_BY_NORMATIVE_REVIEW; complementary review and parent adjudication pending",
+    "p4a_minim": "PARTIAL_NOT_CLOSED",
+    "p2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Al doilea review/adjudecare -> preflight fresh -> o singură QA reală existentă dacă toate condițiile trec."
+  },
+  "writes": [
+    "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/review-norm.json"
+  ],
+  "repository_changes_by_reviewer": [],
+  "issues_encountered": [
+    "Un selector literal de sumar RED căuta textul pytest 'Regex pattern did not match', absent din logul scurt; extragerea allowlisted a confirmat ulterior mismatchul COMMAND_CONFLICT/TASK_REJECTED și 1failed1.95s. Nu este eșec de test nou sau finding de produs."
+  ],
+  "ponytail_verdict": "Ship SOURCE-scoped only; no extra code requested. Not checked: real PG/native acceptance. Risk: historical failure cause and real settlement remain unknown until the single admitted fresh consumer probe."
+}

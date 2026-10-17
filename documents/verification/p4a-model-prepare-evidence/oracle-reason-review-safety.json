@@ -1,0 +1,197 @@
+{
+  "report_id": "QA-ORACLE-SAFETY-ECBA036",
+  "review_type": "INDEPENDENT_READ_ONLY_SAFETY_AUTHORITY_CONCURRENCY_STOP_FAILURE_CLEANUP_PONYTAIL_FULL",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "b0c9151dfeaf8a84e879515f039339e343c75713",
+    "head": "ecba036d61846d7f125dc0ba2c221af66f47e53a",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "tracked_worktree": "CLEAN_AT_REVIEW",
+    "preexisting_protected_untracked": "documents/Omnis_Notite_Originale.html",
+    "protected_untracked_access": "NAME_ONLY_NOT_READ_HASHED_COPIED_OR_WRITTEN",
+    "ponytail_json_access": "NOT_READ_OR_WRITTEN"
+  },
+  "sha256": {
+    "api/tests/test_contract_method_pg.py": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4",
+    "api/tests/test_model_test_prepare_source.py": "059e74300df5d484ad308543a5c4f2918367c83fa2e594ff1e3608343943aa0b"
+  },
+  "evidence_sha256": {
+    "documents/verification/p4a-model-prepare-evidence/oracle-reason-author.json": "2fb24b275dd241916e437542d989d5ca1d979f36c9925e3b7b93cfd3d4398003",
+    "documents/verification/p4a-model-prepare-evidence/oracle-reason-source-probe.py": "d17b1dc9175d63ebc4bec0648d316523d62e329a0ac87c21eaeb05888c099aaf"
+  },
+  "what_this_change_does": "Corectează numai așteptarea QA: Settings și owner străine rămân TASK_REJECTED, iar digestul manifest diferit trebuie să producă exact COMMAND_CONFLICT. Adaugă o regresie pe aserțiunea AST a consumerului existent, cu răspuns SOURCE reținut acceptat și refuz real prin același UDS. Nu schimbă produsul, protocolul, autoritatea sau cleanupul.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Refuzuri publice exacte, fără false green și fără slăbirea census/no-rerun/Stop/CLOSE.",
+    "consumer": "test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare], prin control_task -> LocalControl -> NativeTaskOwner -> ModelTest.",
+    "risk": "Un motiv comun greșit oprește proba pe un refuz corect; o corecție permisivă ar putea accepta un refuz arbitrar sau ar putea ascunde scrieri/reexecuție/settlement neconfirmat.",
+    "decision": "Aprobarea SOURCE a corecției justifică numai admiterea condiționată a unei singure probe fresh prin consumerul existent, după reviewul complementar și preflight. Nu acordă PASS native sau închiderea fazei."
+  },
+  "scope": {
+    "changed_code_paths": [
+      "api/tests/test_contract_method_pg.py:9801-9824",
+      "api/tests/test_model_test_prepare_source.py:229-300"
+    ],
+    "changed_support_paths": [
+      "README.md",
+      "documents/verification/implementation-status.md",
+      "documents/verification/p4a-minim.md",
+      "documents/verification/p4a-model-prepare-evidence/oracle-reason-author.json",
+      "documents/verification/p4a-model-prepare-evidence/oracle-reason-source-probe.py"
+    ],
+    "connected_paths_read": [
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/src/omnis/transport/local_control.py",
+      "api/src/omnis/modules/runs/model_test.py",
+      "api/src/omnis/modules/runs/managed_admission.py",
+      "api/src/omnis/modules/tasks/managed_store.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/src/omnis/modules/settings/catalog_models.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "api/tests/test_owned_model_initialization.py"
+    ],
+    "expected_load": "Un operator local și o singură invocare QA bounded; nu serviciu multi-tenant.",
+    "prior_complementary_source_approval": "UNCHANGED_SCOPE_NOT_REOPENED"
+  },
+  "findings": [],
+  "checks": [
+    {
+      "area": "STRICT_DENIAL_ORACLE",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "evidence": "test_contract_method_pg.py:9801-9824 păstrează trei rânduri distincte cu câte un motiv literal și match ancorat ^...$. Nu folosește tuple de motive acceptate, excepție generică ori catch care să transforme orice refuz în succes. CatalogError.__str__ este reasonul stabil prin constructorul ValueError.",
+      "safety_effect": "Un reason diferit sau lipsa excepției continuă să eșueze; fiecare negativ are initialization_id nou."
+    },
+    {
+      "area": "MANIFEST_AUTHORITY_DENIAL_BEFORE_EFFECT",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "evidence": "NativeTaskOwner._handle:373-379 citește graful pentru owner+command, compară manifestul canonical și ridică COMMAND_CONFLICT înainte de _model_test_prepare. LocalControl:164-168 și control_task:564-576 păstrează exact acest motiv.",
+      "safety_effect": "Schimbarea QA aliniază așteptarea la un guard existent; nu permite creare, dispatch ori ocolirea manifestului."
+    },
+    {
+      "area": "FOREIGN_OWNER",
+      "result": "APPROVED_SOURCE_SCOPED_WITH_DECLARED_SQL_SEAM",
+      "evidence": "ManagedAdmission.readback:1240-1248 -> managed_store.state:105-126 folosește owner_id plus command_id și ridică REF_UNAVAILABLE dacă rândul lipsește. LocalControl normalizează acest motiv la TASK_REJECTED. Proba arhivată restaurează metodele reale; SQL/catalog rows sunt doubles explicite, cu pozitiv pentru ownerul corect și negativ pentru cel străin.",
+      "safety_effect": "Refuzul precedă prepararea/model/native. Nu creditez readbackul constant al SourceOwner drept verificare de ownership."
+    },
+    {
+      "area": "FOREIGN_SETTINGS_OPERATION",
+      "result": "APPROVED_SOURCE_SCOPED_WITH_DECLARED_HOST_SEAMS",
+      "evidence": "RuntimeHost._handle:1279-1294 întoarce CONFIRMED numai pentru operația reținută, altfel UNAVAILABLE pentru operația cerută. RuntimeClient.settings_status:742-755 validează corelarea. ModelTest.prepare:191-216 refuză înainte de construirea/persistarea noilor records dacă statusul/selecția nu sunt cele cerute; _model_test_prepare:265-290 recitește Settings o singură dată, apoi propagă MODEL_TEST_SETTINGS_REQUIRED -> TASK_REJECTED.",
+      "safety_effect": "Proba SOURCE folosește Host/client/UDS reale în READY, dar peer bootstrap și stop sunt seams fără proces. Nu deduc acest refuz din settings_status always-confirmed al fixture-ului vechi."
+    },
+    {
+      "area": "REPLAY_AND_NO_RERUN",
+      "result": "UNCHANGED_AND_RETAINED",
+      "evidence": "Comparația AST independentă a întregului fișier QA devine identică cu baza dacă se substituie doar target/iter și contextul pytest.raises ale loopului schimbat. Corpul apelului negativ și nonce-ul, censusul per caz și byte equality ale observației sunt identice. Replay, cold-reader, old graph și censusul final de la9825-9917 rămân în consumer.",
+      "safety_effect": "Corecția nu ocolește niciun control de scrieri sau reexecuție. SOURCE graph/payload equality nu este census PG sau numărătoare native."
+    },
+    {
+      "area": "CONCURRENCY_EPOCH_GRANTS_EXPIRY",
+      "result": "UNCHANGED_NOT_NEWLY_RUNTIME_PROVEN",
+      "evidence": "Git diff base..head nu schimbă api/src, integrations/hermes/src, ops, cli, web sau Makefile. Nu există lock, worker, task detached, owner, protocol, limită, grant ori deadline nou în delta QA. Monkeypatch-urile regresiei sunt limitate de context și refolosesc fixture-ul existent.",
+      "safety_effect": "Aprobarea existentă a produsului startup rămâne la scope-ul său. Nu pretind overlap PG, expirare reală ori izolare tranzacțională probate aici."
+    },
+    {
+      "area": "STOP_CLOSE_FAILURE_CLEANUP",
+      "result": "UNCHANGED_STRICT_CONSUMER_REQUIREMENTS_RETAINED",
+      "evidence": "Consumerul păstrează shutdown, STOPPED+drained, validate_model_close_result legat de contextul original, replay receive-only și refuzurile post-Stop la9918-9954. Finally12225-12417 continuă cleanupul, păstrarea incertitudinii și verificarea observației native după returnul scenariului numai în absența unei excepții primare.",
+      "safety_effect": "Corecția nu transformă close ENTER/COMPLETED, family_drained sau absența fizică în CLOSE corelat/same-Future.done/CLOSED_JOINED. Aceste rezultate rămân de demonstrat în consumerul fresh."
+    },
+    {
+      "area": "SOURCE_REGRESSION_AND_FALSE_GREEN",
+      "result": "APPROVED_SOURCE_SCOPED",
+      "evidence": "test_model_test_prepare_source.py:229-300 reține rezultatul helperului producer existent, acceptă întâi replica completă prin control_task/LocalControl pe același UDS, cere un singur loop și trei rânduri, apoi execută chiar raises/body din rândul manifest al consumerului. Folosirea AST este deja patternul fișierului pentru regresia UUID.",
+      "safety_effect": "Regresia nu acceptă un observer always-rejecting, deoarece pozitivul trebuie acceptat înainte de negativ. Scope-ul committed este manifestul; primele două negative au dovada SOURCE separată, nu sunt pretinse prin fixture-ul identity-blind."
+    },
+    {
+      "area": "PONYTAIL_FULL",
+      "result": "NO_CONCRETE_LEAN_FINDING",
+      "evidence": "Tuplele per-case sunt schimbarea minimă a oracle-ului. Regresia reutilizează producerul, UDS, ownerul și patternul AST existente; nu introduce dependențe, helper public, wrapper de runtime, observer sau framework nou. Fragilitatea intenționată față de forma AST este acceptabilă pentru această regresie pe consumerul exact.",
+      "safety_effect": "Nu cer refactor, noi fixture-uri ori rerunuri ceremoniale fără defect concret."
+    }
+  ],
+  "independent_verification": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --stat b0c9151dfeaf8a84e879515f039339e343c75713 ecba036d61846d7f125dc0ba2c221af66f47e53a; git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "result": "Snapshotul cerut, tracked clean, numai originalul HTML protejat untracked; delta comisă în șapte căi, dintre care două căi de test."
+    },
+    {
+      "command": "git diff --no-ext-diff <base> <head> -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py; sha256sum <cele două teste și cele două dovezi versionate>; git diff --check <base> <head>",
+      "exit_code": 0,
+      "result": "Cele patru SHA coincid cu manifestul primit; diff check curat."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c '<comparație stdlib ast/json/hashlib/subprocess a QA din bază și HEAD, fără import de aplicație>'",
+      "exit_code": 0,
+      "result": {
+        "qa_ast_equal_after_only_tuple_reason_projection": true,
+        "unchanged_negative_control_call_and_nonce": true,
+        "unchanged_loop_tail_census_and_native_bytes": true,
+        "changed_product_runtime_runner_paths": [],
+        "exact_reason_order": ["TASK_REJECTED", "TASK_REJECTED", "COMMAND_CONFLICT"]
+      },
+      "limit": "Verificare statică a invariabilității, nu execuție a testului PG/native."
+    }
+  ],
+  "reused_evidence_not_rerun_by_reviewer": {
+    "source": "oracle-reason-author.json și oracle-reason-source-probe.py, SHA verificate mai sus",
+    "red": "1 failed in 1.95s, exit1, mismatchul demonstrat al reasonului pe aserțiunea AST reală",
+    "final_green": "103 passed in 13.28s, exit0 după ultima editare relevantă",
+    "full_three_negative_ast_loop": "1 passed in 1.84s, exit0; metode reale peste seams SOURCE declarate",
+    "quality": "Ruff check/format și strict mypy pe două căi, exit0, conform raportului autorului",
+    "parent_regression": "1PASS1.68s/exit0 consemnat în registrul curent; nu este o nouă execuție a reviewerului",
+    "preliminary_failures": "Păstrate în raportul original; nu sunt șterse ori promovate la RED de produs."
+  },
+  "historical_failure_disposition": {
+    "real_attempt": "edafa6c8053231ab882cd93ddfcda64b533b00f7",
+    "result": "FAIL, 1failed+1error25.76s, gateexit2, family_drained=true, conform registrului curent",
+    "exclusive_cause": "UNKNOWN",
+    "actual_negative_index_and_reason": "UNKNOWN",
+    "domain_state": "UNCERTAIN_NOT_SETTLED_DB_RETAINED",
+    "decision": "Defectul oracle-ului este demonstrat SOURCE, dar nu atribui retrospectiv eșecul real exclusiv negativului manifest și nu promovez cleanupul fizic la settlement de domeniu."
+  },
+  "verdict": "APPROVED_SCOPED_SOURCE",
+  "verdict_scope": "Corecția QA-oracle și regresia manifest, cu cele două SHA exacte; fără findings concrete blocante în delta sau call paths afectate.",
+  "fresh_consumer_admission": {
+    "verdict": "CONDITIONALLY_ADMISSIBLE_NOT_LAUNCHED",
+    "conditions": [
+      "Părintele adjudecă ambele reviewuri complementare pe același snapshot și fixează ambele bindinguri reviewed la SHA-ul curent c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4 al consumerului QA, nu la vechiul testSHA.",
+      "Preflightul fără efecte confirmă argv/choices/collect, source/library/pin/readability și identitatea API95/OCI43 reutilizate. Runnerul --check nu este dry-run și nu este admis ca preflight fără provisioning.",
+      "Numai o invocare distinctă fresh a consumerului original [model-test-prepare], prin run_gate/target/owner/șase bindinguri explicite existente și timeout180 neschimbat; HOME/TMPDIR/PG fresh și basetemp în TMPDIR.",
+      "Se păstrează aceleași granturi/expiry/fences/caps, denials exacte, census/no-rerun și probele CLOSE/same-Future settlement; fără prewarm/retry/resend ori owner/observer nou.",
+      "Înainte de efecte se declară ownerul și cleanup/readbackul exact, datele păstrate și diagnosticul allowlisted. Orice FAIL ori settlement incomplet rămâne FAIL/UNCERTAIN, fără adopția datelor vechi și fără relansare oarbă."
+    ],
+    "not_authorized_by_this_review": [
+      "PASS native sau închidere P4a/faza2",
+      "auth/Responses/provider/send/cont/model/target/web/live",
+      "P3, push, modificări globale ori adopție DB istorică"
+    ]
+  },
+  "limits": [
+    "Review static read-only cu reutilizare explicită a probelor SOURCE existente; nu am lansat pytest, runner --check, PG, OCI, RuntimeHost, proces nativ sau provider.",
+    "Nu am citit credentiale, environment privat, capabilități private, loguri PG istorice sau datele instanțelor vechi.",
+    "Regresia committed exercită numai rândul manifest și aserțiunea raises, nu censusul PG/native ori toate trei negativele prin fixture-ul său identity-blind.",
+    "Proba SOURCE separată pentru toate trei negativele restaurează readback/state și Settings UDS reale, dar SQL/catalog/peer bootstrap/Stop fără proces și rezultatul model sunt doubles declarate.",
+    "Censusul acelei probe este canonical(owner.graph), iar observația este payload list SOURCE; nu reprezintă census final PG, proces nativ, grant efectiv ori Future settlement.",
+    "Cold-reader, censusul final autentic și CLOSE/context/same-Future.done/CLOSED_JOINED rămân NOT_RUN la această frontieră, nu findings waive-uite și nu PASS dedus.",
+    "Nu am redeschis reviewul produsului startup neschimbat ori alte acceptări istorice și nu am executat canonicalul complet."
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "files_created_or_modified": [
+    "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/review-safety.json"
+  ],
+  "repository_edits": [],
+  "runtime_effects": "NONE",
+  "issues_encountered": [],
+  "proposed_status_delta_for_parent": {
+    "AICI_QA_ORACLE": "FIXED_SOURCE / APPROVED_SCOPED_SOURCE de acest reviewer; integrarea și adjudecarea finală aparțin părintelui",
+    "P4a_minim": "PARTIAL, real consumer acceptance pending",
+    "P2_live": "NOT_RUN",
+    "phase2": "NOT_CLOSED",
+    "next": "Adjudecare review complementar exact -> preflight fără efecte -> o singură probă fresh justificată, dacă toate condițiile sunt satisfăcute"
+  },
+  "ponytail_not_checked_and_risk": "Nu am relansat runtime ori canonical și nu am auditat produsul neafectat. Riscul rămas este eșecul consumerului fresh sau settlement neconfirmat; SOURCE nu îl elimină."
+}

@@ -167,7 +167,7 @@ if not installed:
 forbidden = {"init_agent", "_resolve_child_runtime", "run_conversation",
     "handle_function_call", "_init_client", "_resolve_runtime",
     "load_credential_pool", "get_api_key", "discover_builtin_tools", "discover_plugins"}
-observed = forbidden | {"main", "run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values"}
+observed = forbidden | {"main", "run_contract", "_read_bound_input", "run_handler", "_contract_guard", "release", "validate_stage", "stage", "initialize_contract", "predicate_values", "configure_owned_core", "observe_owned_core", "_initialize"}
 from types import CodeType
 # Fourteen fixed boundaries. LINE is local to these exact code objects, never global.
 # END means the next fixed source boundary or PY_RETURN was reached, not READY.
@@ -252,6 +252,54 @@ def observe(frame, event, arg):
         elif id(frame) in entered:
             elapsed = (time.monotonic_ns() - entered.pop(id(frame))) // 1_000_000
             emit(name, "RETURNED_MS", elapsed)
+    if name in {"init_agent", "configure_owned_core", "observe_owned_core"}:
+        root = sys.modules.get("run_agent")
+        init = sys.modules.get("agent.agent_init")
+        contract = sys.modules.get("omnis_hermes.managed_admission_contract")
+        actual = frame.f_locals.get("agent")
+        expected = getattr(root, "AIAgent", None)
+        carrier = (frame.f_locals.get("owned_initialization") if name == "init_agent"
+                   else frame.f_locals.get("carrier") if name == "configure_owned_core"
+                   else object.__getattribute__(actual, "__dict__").get("_owned_initialization")
+                   if expected is not None and type(actual) is expected else None)
+        caller = frame.f_back
+        caller_codes = ([expected.__init__.__code__] if name == "init_agent" and expected is not None
+                        else [init.init_agent.__code__] if name == "configure_owned_core" and init is not None
+                        else [init.configure_owned_core.__code__, sys.modules["agent.managed_admission_rpc"]._observed_result.__code__]
+                        if name == "observe_owned_core" and init is not None and "agent.managed_admission_rpc" in sys.modules else [])
+        valid = (root is not None and init is not None and contract is not None
+                 and expected is not None and type(actual) is expected
+                 and type(carrier) is contract.OwnedInitialization
+                 and filename == str(managed / "agent/agent_init.py")
+                 and frame.f_code is getattr(init, name).__code__
+                 and caller is not None and any(caller.f_code is code for code in caller_codes)
+                 and caller.f_locals.get("self" if name == "init_agent" else "agent") is actual
+                 and (name != "init_agent" or
+                      caller.f_locals.get("owned_initialization") is carrier
+                      and expected.__init__.__code__.co_filename == str(managed / "run_agent.py")
+                      and caller.f_back is not None
+                      and "agent.managed_admission_rpc" in sys.modules
+                      and caller.f_back.f_code is sys.modules["agent.managed_admission_rpc"]._initialize.__code__
+                      and (event != "call" or not actual.__dict__)))
+        if not valid:
+            emit("forbidden-sink", name)
+            raise RuntimeError("Forbidden native sink")
+        if name == "observe_owned_core" and event == "return":
+            state = actual.__dict__
+            if (state.get("client", False) is not None
+                    or state.get("client_status") != "DEFERRED_NO_CREDENTIAL"
+                    or type(state.get("_api_call_count")) is not int
+                    or state["_api_call_count"] != 0):
+                emit("forbidden-sink", name)
+                raise RuntimeError("Forbidden native sink")
+            emit("owned-preclient", "CLIENT_NONE_CALLS_ZERO")
+        emit("owned-initialization" if name == "init_agent" else name,
+             "ENTERED" if event == "call" else "COMPLETED")
+        return
+    if name == "_initialize" and filename == str(managed / "agent/managed_admission_rpc.py"):
+        rpc = sys.modules.get("agent.managed_admission_rpc")
+        if rpc is not None and frame.f_code is rpc._initialize.__code__:
+            emit("owned-rpc", "ENTERED" if event == "call" else "COMPLETED")
     if event == "call" and name in forbidden:
         emit("forbidden-sink", name)
         raise RuntimeError("Forbidden native sink")
@@ -2660,6 +2708,129 @@ def test_stock_site_mount_is_single_ro_outside_rw_roots(tmp_path: Path) -> None:
         alias.unlink()
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [None, "stock", "carrier-subclass", "agent-subclass", "not-agent", "caller", "filename"],
+)
+@pytest.mark.parametrize("boundary", ["init_agent", "configure_owned_core", "observe_owned_core"])
+def test_owned_initialization_observer_exact_constructor_branch(
+    mutation: str | None, boundary: str
+) -> None:
+    """SOURCE code-object control only: no native import, constructor, PG or RPC."""
+    from types import ModuleType, SimpleNamespace
+
+    observer = BOOTSTRAP.split("forbidden =", 1)[1].split('emit("observer", "READY")', 1)[0]
+    namespace: dict[str, object] = {}
+    exec(
+        "from pathlib import Path\nimport sys, threading, time\n"
+        "source, managed, inert, adapter = [Path('/synthetic/'+v) for v in ('source','managed','inert','adapter')]\n"
+        "rows=[]\ndef emit(test,status,count=1): rows.append(dict(test=test,status=status,count=count))\n",
+        namespace,
+    )
+    # Run only the observer definitions; monitoring registration belongs to the
+    # existing subprocess tests and is not needed for this direct callback cut.
+    observer = "forbidden =" + observer.split("observer_id =", 1)[0]
+    exec(observer, namespace)
+    root, init, contract, rpc = (
+        ModuleType(name)
+        for name in (
+            "run_agent",
+            "agent.agent_init",
+            "omnis_hermes.managed_admission_contract",
+            "agent.managed_admission_rpc",
+        )
+    )
+    exec(
+        compile(
+            "class AIAgent:\n def __init__(self): pass\n", "/synthetic/managed/run_agent.py", "exec"
+        ),
+        root.__dict__,
+    )
+    exec(
+        compile(
+            "def init_agent(agent, owned_initialization=None): pass\n",
+            "/synthetic/managed/agent/agent_init.py",
+            "exec",
+        ),
+        init.__dict__,
+    )
+    exec(
+        compile(
+            "def configure_owned_core(agent, carrier): pass\ndef observe_owned_core(agent): pass\n",
+            "/synthetic/managed/agent/agent_init.py",
+            "exec",
+        ),
+        init.__dict__,
+    )
+    exec("def _observed_result(agent): pass\ndef _initialize(params): pass", rpc.__dict__)
+    exec("class OwnedInitialization: pass", contract.__dict__)
+    agent_type = cast(type, root.__dict__["AIAgent"])
+    carrier_type = cast(type, contract.__dict__["OwnedInitialization"])
+    agent: object = agent_type()
+    carrier = carrier_type()
+    if mutation == "stock":
+        carrier = None
+    elif mutation == "carrier-subclass":
+        carrier = type("OtherCarrier", (carrier_type,), {})()
+    elif mutation == "agent-subclass":
+        agent = type("OtherAgent", (agent_type,), {})()
+    if boundary == "observe_owned_core":
+        agent.__dict__.update(
+            _owned_initialization=carrier,
+            client=None,
+            client_status="DEFERRED_NO_CREDENTIAL",
+            _api_call_count=0,
+        )
+    if mutation == "not-agent":
+        agent = object()
+    code = init.__dict__[boundary].__code__
+    if mutation == "filename":
+        code = code.replace(co_filename="/synthetic/managed/foreign.py")
+    caller = (
+        agent_type.__dict__["__init__"].__code__
+        if boundary == "init_agent"
+        else init.__dict__[
+            "init_agent" if boundary == "configure_owned_core" else "configure_owned_core"
+        ].__code__
+    )
+    if mutation == "caller":
+        caller = caller.replace(co_name="foreign")
+    frame = SimpleNamespace(
+        f_code=code,
+        f_locals={"agent": agent, "owned_initialization": carrier, "carrier": carrier},
+        f_back=SimpleNamespace(
+            f_code=caller,
+            f_locals={"self": agent, "agent": agent, "owned_initialization": carrier},
+            f_back=SimpleNamespace(f_code=rpc.__dict__["_initialize"].__code__),
+        ),
+    )
+    with pytest.MonkeyPatch.context() as patcher:
+        for module in (root, init, contract, rpc):
+            patcher.setitem(sys.modules, module.__name__, module)
+        callback = namespace["observe"]
+        assert callable(callback)
+        if mutation is None:
+            callback(frame, "call", None)
+            callback(frame, "return", None)
+        else:
+            with pytest.raises(RuntimeError, match="Forbidden native sink"):
+                callback(frame, "call", None)
+    label = "owned-initialization" if boundary == "init_agent" else boundary
+    assert namespace["rows"] == (
+        [
+            {"test": label, "status": "ENTERED", "count": 1},
+            *(
+                [{"test": "owned-preclient", "status": "CLIENT_NONE_CALLS_ZERO", "count": 1}]
+                if boundary == "observe_owned_core"
+                else []
+            ),
+            {"test": label, "status": "COMPLETED", "count": 1},
+        ]
+        if mutation is None
+        else [{"test": "forbidden-sink", "status": boundary, "count": 1}]
+    )
+
+
 def test_batch2_observation_exact_fields() -> None:
     row: dict[str, object] = {
         "test": "batch2-access",
@@ -2722,6 +2893,11 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
         "validate_stage": {"ENTERED", "RETURNED_MS"},
         "stage": {"ENTERED", "RETURNED_MS"},
         "initialize_contract": {"ENTERED", "RETURNED_MS"},
+        "owned-initialization": {"ENTERED", "COMPLETED"},
+        "configure_owned_core": {"ENTERED", "COMPLETED"},
+        "observe_owned_core": {"ENTERED", "COMPLETED"},
+        "owned-rpc": {"ENTERED", "COMPLETED"},
+        "owned-preclient": {"CLIENT_NONE_CALLS_ZERO"},
         "run_contract": {"REAL_AIAgent", "WRONG_TYPE"},
         "bound-predicates": {"SATISFIED", "GAP"},
         "_read_bound_input": {"ENTERED"},
@@ -7792,6 +7968,7 @@ class PreparationPrerequisite(RuntimeClient):
     "first_final_after_stop,with_criteria,lost_reply,legacy_criteria,early_return,applicability",
     [
         (False, False, False, False, False, None),
+        (False, False, False, False, False, "owned-initialization"),
         (False, True, False, False, False, None),
         (False, True, False, True, False, None),
         (True, True, False, False, False, None),
@@ -7820,6 +7997,7 @@ class PreparationPrerequisite(RuntimeClient):
     ],
     ids=[
         "support-zero",
+        "owned-initialization",
         "criteria-normal",
         "criteria-legacy717",
         "criteria-first-late-held",
@@ -7898,6 +8076,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
         not in {
             "mission-consumer",
             "result-qualification",
+            "owned-initialization",
         }
     ):
         import yaml
@@ -9086,7 +9265,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 h03
                 or batch2
                 or h04 is not None
-                or applicability in {"mission-consumer", "result-qualification"}
+                or applicability
+                in {"mission-consumer", "result-qualification", "owned-initialization"}
                 or (
                     applicability is not None
                     and applicability.startswith(("evidence-", "partial-requirement-"))
@@ -9378,6 +9558,218 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 if batch2 or h04 is not None:
                     require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
                 checkpoint(launch_diagnostic=diagnostic)
+                if applicability == "owned-initialization":
+                    from omnis.modules.settings import candidate_store as stored
+                    from omnis.modules.tasks import managed_store
+                    from omnis.transport.control_probe import _read_capability
+                    from test_ready_model_configuration import configuration
+
+                    assert public_control is not None
+                    back_request = seed.request(command_id=assignment["command_id"])
+                    before_back = await domain.readback(back_request)
+                    assert before_back["binding"] is None
+                    assert before_back["stage_started"] is before_back["release_started"] is False
+                    assert before_back["results"] == []
+                    init_before_tables = mapping(json.loads(await mission_census()))
+                    configured = await control_task(
+                        directory,
+                        {
+                            **lifecycle,
+                            "action": "model_configuration",
+                            "configuration": configuration(),
+                        },
+                    )
+                    assert configured["configuration_status"] == "READY"
+                    assert (
+                        configured["initialization_status"]
+                        == configured["inference_status"]
+                        == "HOLD"
+                    )
+                    source_ref = mapping(configured["provider_config_ref"])
+                    init_command = {
+                        **lifecycle,
+                        "action": "model_initialization",
+                        "provider_config_ref": source_ref,
+                        "initialization_id": str(uuid4()),
+                    }
+                    configured_census = await mission_census()
+                    native_before = observation.read_bytes()
+                    # Invalid DTOs must reach the same authenticated server too;
+                    # control_task correctly rejects missing/bool refs before IO.
+                    for changes in (
+                        {"provider_config_ref": None},
+                        {"owner_id": str(uuid4())},
+                        {"provider_config_ref": {**source_ref, "revision": 2}},
+                        {"provider_config_ref": {**source_ref, "revision": True}},
+                        {"provider_config_ref": {**source_ref, "digest": "0" * 64}},
+                    ):
+                        async with asyncio.timeout(4):
+                            reader, writer = await asyncio.open_unix_connection(
+                                directory / "control.sock", limit=4096
+                            )
+                            try:
+                                writer.write(
+                                    canonical(
+                                        {
+                                            "version": 1,
+                                            "capability": _read_capability(directory),
+                                            "command": {**init_command, **changes},
+                                        }
+                                    )
+                                    + b"\n"
+                                )
+                                await writer.drain()
+                                rejected = mapping(json.loads(await reader.readuntil(b"\n")))
+                                assert rejected["ok"] is False
+                                assert rejected["error"] in {"INVALID_REQUEST", "TASK_REJECTED"}
+                            finally:
+                                writer.close()
+                                await asyncio.wait_for(writer.wait_closed(), 0.2)
+                        if await mission_census() != configured_census:
+                            raise AssertionError("INITIALIZATION_DENIAL_CHANGED_CENSUS")
+                        assert observation.read_bytes() == native_before
+
+                    original_exchange = runtime._exchange
+                    init_modes: list[object] = []
+
+                    async def committed_initialization_exchange(
+                        op: str,
+                        authority: RuntimeAuthority | None = None,
+                        payload: dict[str, object] | None = None,
+                    ) -> dict[str, object]:
+                        assert op == "task_model_initialize" and payload is not None
+                        init_modes.append(payload["mode"])
+                        assert init_modes == ["CREATE"]
+                        # A different PG connection sees the authentic producer,
+                        # intent AND command receipt before the real exchange.
+                        async with engine.connect() as independent:
+                            source = await managed_store.get(
+                                independent, seed.owner, str(prepared["run_id"]), source_ref
+                            )
+                            producer = await managed_store.command_receipt(
+                                independent,
+                                seed.owner,
+                                str(
+                                    mapping(mapping(source["payload"])["configuration"])[
+                                        "decision_id"
+                                    ]
+                                ),
+                            )
+                            intent = await managed_store.get(
+                                independent,
+                                seed.owner,
+                                str(prepared["run_id"]),
+                                payload["intent_ref"],
+                            )
+                            receipt = await managed_store.command_receipt(
+                                independent, seed.owner, str(init_command["initialization_id"])
+                            )
+                        assert canonical(source) == canonical(payload["provider_config"])
+                        assert canonical(producer) == canonical(payload["producer_receipt"])
+                        assert mapping(producer["payload"])["operation"] == "model_configuration"
+                        assert mapping(receipt["payload"])["operation"] == "model_initialization"
+                        assert mapping(mapping(receipt["payload"])["result_refs"])[
+                            "intent_ref"
+                        ] == stored.reference(intent)
+                        assert mapping(intent["payload"])["provider_config_ref"] == source_ref
+                        assert payload["initialization_data"] == configured["initialization_data"]
+                        checkpoint(
+                            initialization_commit_barrier="INDEPENDENT_PG_READ_BEFORE_EXCHANGE"
+                        )
+                        return await original_exchange(op, authority, payload)
+
+                    with monkeypatch.context() as init_observer:
+                        init_observer.setattr(
+                            runtime, "_exchange", committed_initialization_exchange
+                        )
+                        initialized = await control_task(directory, init_command)
+                        native_after = observation.read_bytes()
+                        after_census = await mission_census()
+                        init_replay = await control_task(directory, init_command)
+                    assert canonical(
+                        {k: v for k, v in init_replay.items() if k != "correlation_id"}
+                    ) == canonical({k: v for k, v in initialized.items() if k != "correlation_id"})
+                    assert init_modes == ["CREATE"]
+                    assert observation.read_bytes() == native_after
+                    if await mission_census() != after_census:
+                        raise AssertionError("INITIALIZATION_REPLAY_CHANGED_CENSUS")
+                    observed = mapping(initialized["initialization_observation"])
+                    body = mapping(observed["payload"])
+                    assert (
+                        initialized["initialization_status"]
+                        == body["status"]
+                        == "CONFIG_INITIALIZED_AT_PRE_CLIENT_SEAM"
+                    )
+                    assert body["client_status"] == "DEFERRED_NO_CREDENTIAL"
+                    assert body["inference_status"] == initialized["inference_status"] == "HOLD"
+                    assert body["model_calls"] == 0 and type(body["model_calls"]) is int
+                    assert body["native_turn"] is None
+                    assert (
+                        canonical(body["observed_configuration"])
+                        == str(configured["initialization_data"]).encode()
+                    )
+                    async with engine.connect() as independent:
+                        assert (
+                            await managed_store.get(
+                                independent,
+                                seed.owner,
+                                str(prepared["run_id"]),
+                                initialized["initialization_ref"],
+                            )
+                            == observed
+                        )
+                    init_after_tables = mapping(json.loads(after_census))
+                    old_rows = sequence(init_before_tables["records"])
+                    old_ids = {mapping(r)["id"] for r in old_rows}
+                    unchanged = [
+                        r
+                        for r in sequence(init_after_tables["records"])
+                        if mapping(r)["id"] in old_ids
+                    ]
+                    added = [
+                        mapping(mapping(r)["envelope"])
+                        for r in sequence(init_after_tables["records"])
+                        if mapping(r)["id"] not in old_ids
+                    ]
+                    assert canonical(unchanged) == canonical(old_rows)
+                    assert sorted(str(r["kind"]) for r in added) == sorted(
+                        [
+                            "provider-config",
+                            "contract-input-command",
+                            "contract-input-command",
+                            "native-initialization-intent",
+                            "native-initialization-observation",
+                        ]
+                    )
+                    assert {k: v for k, v in init_after_tables.items() if k != "records"} == {
+                        k: v for k, v in init_before_tables.items() if k != "records"
+                    }
+                    counts = mapping((await markers())["records"])
+                    for kind in (
+                        "model-budget",
+                        "model-reservation",
+                        "model-dispatch",
+                        "model-dispatch-transition",
+                        "model-usage-receipt",
+                        "native-turn",
+                    ):
+                        assert counts.get(kind, 0) == 0
+                    durable = await domain.readback(back_request)
+                    assert canonical(await restarted_cli("readback", back_request)) == canonical(
+                        durable
+                    )
+                    assert observation.read_bytes() == native_after
+                    if await mission_census() != after_census:
+                        raise AssertionError("INITIALIZATION_COLD_READ_CHANGED_CENSUS")
+                    checkpoint(
+                        initialization_replay="READ_ONLY_NO_SECOND_CREATE",
+                        initialization_ref_denials=5,
+                        initialization_table_census="FIVE_TABLES_EXACT_FIVE_NEW_RECORDS_ZERO_MODEL_LEDGER",
+                        model_calls=0,
+                        native_turn=None,
+                        inference_status="HOLD",
+                    )
+                    return  # Original finally includes the strict initialization oracle.
                 original_stage_exchange = runtime._exchange
 
                 async def measured_stage_exchange(
@@ -11534,6 +11926,30 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     require_native_observation(observation), h04, mapping(proof["h04_binding"])
                 )
                 checkpoint(status="PASS_H04_H05_SOURCE_OWNER_INSTALLED_NATIVE_SCOPED")
+            if applicability == "owned-initialization" and sys.exc_info()[0] is None:
+                rows = require_native_observation(observation)
+                assert [r for r in rows if r["test"] == "owned-preclient"] == [
+                    {"test": "owned-preclient", "status": "CLIENT_NONE_CALLS_ZERO", "count": 1}
+                ] * 2
+                for boundary, count in (
+                    ("owned-rpc", 1),
+                    ("owned-initialization", 1),
+                    ("configure_owned_core", 1),
+                    ("observe_owned_core", 2),
+                ):
+                    assert [r for r in rows if r["test"] == boundary] == [
+                        {"test": boundary, "status": edge, "count": 1}
+                        for _ in range(count)
+                        for edge in ("ENTERED", "COMPLETED")
+                    ]
+                assert not any(
+                    r["test"]
+                    in {"run_contract", "_read_bound_input", "run_handler", "native-release"}
+                    for r in rows
+                )
+                checkpoint(
+                    status="PASS_SOURCE_PG_NATIVE_PRECLIENT_SCOPED_NOT_INSTALLED_OR_INFERENCE"
+                )
         rows = require_native_observation(observation)
         assert [r for r in rows if r["test"] == "run_contract"] == [
             {"test": "run_contract", "status": "REAL_AIAgent", "count": 1}

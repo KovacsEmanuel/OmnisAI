@@ -86,6 +86,11 @@ test-native-preparation-pg:
 .PHONY: test-managed-admission-pg
 .PHONY: test-contract-method-pg
 .PHONY: test-contract-method-native-pg
+.PHONY: test-owned-initialization-native-pg
+test-owned-initialization-native-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml 'api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[owned-initialization]' -q --tb=no --basetemp="$$TMPDIR/oi"
+
 test-contract-method-native-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_pg.py -q --tb=line

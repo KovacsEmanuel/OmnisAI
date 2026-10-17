@@ -1048,6 +1048,7 @@ def main() -> int:
             "test-c03-pg",
             "test-model-budget-pg",
             "test-model-admission-pg",
+            "test-owned-initialization-native-pg",
         ),
         default="check-components",
     )

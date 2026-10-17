@@ -1,0 +1,96 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review_type": "READ_ONLY_STATIC_ONE_LINE_DELTA",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "verified": "Allowlisted ancestor argv: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh",
+    "fallback": false,
+    "delegated": false
+  },
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head_before_and_final": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "final2hashes": {
+      "api/tests/test_contract_method_pg.py": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+      "api/tests/test_model_test_prepare_source.py": "d37f7e43f5f3d5b0fe4d4f6cd8efd0096ea56591d0c483489fcd71814c5aa48b"
+    },
+    "both_hashes_verified_before_and_final": true,
+    "previous_source_reconstructed_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+    "previous_reconstruction_matches_prior_review": true,
+    "only_delta": "operations.append moved from after runtime.boot assertion to first control_task statement, line 482: one removed line and one added line; all other bytes match the reconstructed prior snapshot.",
+    "repo_edits": false,
+    "changed_repo_files_before_and_final": 2,
+    "commit_or_integration": false
+  },
+  "finding_disposition": {
+    "id": "NORM-P2SET-01",
+    "disposition": "RESOLVED_SCOPED",
+    "evidence": "api/tests/test_model_test_prepare_source.py:481-488,540-545: entry is now recorded before any assertion in control_task. An AssertionError from this double can still enter pytest.raises, but cannot leave operations empty and masquerade as consumer refusal before start. The existing outer assertion now rejects that path.",
+    "safety": "The moved statement only appends the existing operation ID to a local test list. No grant, authority, authentication, owner, deadline, dependency, Stop or product code changes. Remaining assertions and their order are intact; owner invocation is not advanced. No credential read or new external effect is introduced. Existing no-launch/no-payload/reserve checks remain unchanged.",
+    "historical_false_green": "Parent reports original auth-assert-removal mutant: 4 PASS, exit 0. Prior approval did not detect this observation gap; it is not evidence that the old snapshot rejected the mutant.",
+    "new_findings": []
+  },
+  "actual_checks": [
+    {
+      "name": "runtime_and_before_hashes",
+      "method": "python3 -B inline stdlib; exact two files SHA256; allowlisted ancestor flags",
+      "exit_code": 0,
+      "hash_count": 2,
+      "log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/rereview-snapshot-before.log"
+    },
+    {
+      "name": "in_memory_previous_bytes_and_final_snapshot",
+      "method": "python3 -B inline stdlib; undo move only in memory, compare previous SHA256, assert first AST statement, compare remaining AST, unified diff, final two hashes and git status/HEAD",
+      "exit_code": 0,
+      "removed_lines": 1,
+      "added_lines": 1,
+      "final_hash_count": 2,
+      "other_ast_equal": true,
+      "log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/rereview-static-delta.log"
+    },
+    {
+      "command": "git diff --check -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0
+    }
+  ],
+  "reused_evidence_not_rerun": {
+    "source4": {
+      "provenance": "developer-f01.json exit/counts; f01-source4.private.log read independently",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "deselected": 109,
+      "cases": ["False-LOCAL_PRESENT", "True-LOCAL_PRESENT", "True-ABSENT", "True-NOT_VERIFIED"]
+    },
+    "auth_assert_removal_mutant": {
+      "provenance": "developer-f01.json execution/exit; f01-mutant.private.log read independently",
+      "exit_code": 1,
+      "passed": 2,
+      "failed": 2,
+      "deselected": 109,
+      "failed_cases": ["True-ABSENT", "True-NOT_VERIFIED"],
+      "result": "EXPECTED_FAIL"
+    },
+    "quality": {
+      "provenance": "developer-f01.json only; not independently rerun",
+      "ruff_check_exit": 0,
+      "ruff_format_check_exit": 0,
+      "mypy_exit": 0
+    },
+    "prior_safety_review": "../review-safety.json reused only for unchanged scope and consumer bytes"
+  },
+  "limits": {
+    "new_test_runs": 0,
+    "new_real_qa": "NOT_RUN",
+    "unchanged_scope_reopened": false,
+    "native_pg_docker_provider_browser": "NOT_RUN",
+    "real_stop_drain": "NOT_RUN; prior SOURCE evidence uses doubles",
+    "full_suite": "NOT_RUN",
+    "protected_original_html": "NOT_READ_NOT_COPIED_NOT_HASHED_NOT_MODIFIED",
+    "ponytail_config": "NOT_READ_NOT_MODIFIED",
+    "credentials_dotenv_global": "NOT_READ_NOT_MODIFIED",
+    "decision_boundary": "Approval applies only to NORM-P2SET-01 on the exact final2hashes. No new product QA or universal safety claim. Adjudication, integration and real QA remain parent-owned; phase 2 is not closed."
+  }
+}

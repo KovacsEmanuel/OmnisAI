@@ -1,0 +1,97 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Re-review READ-ONLY exclusiv NORM-P2SET-01; Ponytail full/review, findings concrete only. Adjudecarea, integrarea și real QA aparțin părintelui.",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "verified": "Flaguri allowlisted citite din argv-ul strămoșului Hermes: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh.",
+    "fallback_used": false,
+    "delegated": false
+  },
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head_before_and_final": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "changed_paths_before_and_final": ["api/tests/test_contract_method_pg.py", "api/tests/test_model_test_prepare_source.py"],
+    "staged_diff": "EMPTY",
+    "initial2hashes": {
+      "api/tests/test_contract_method_pg.py": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+      "api/tests/test_model_test_prepare_source.py": "d37f7e43f5f3d5b0fe4d4f6cd8efd0096ea56591d0c483489fcd71814c5aa48b"
+    },
+    "reconstructed_previous_source_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+    "only_delta_verified": "În memorie, mutarea inversă a unicei linii operations.append din prima instrucțiune control_task înapoi după assert runtime.boot == host.boot reproduce exact SHA-ul SOURCE anterior. Consumerul este byte-identic cu reviewul anterior.",
+    "repository_files_edited": [],
+    "commits_created": []
+  },
+  "final2hashes": {
+    "api/tests/test_contract_method_pg.py": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+    "api/tests/test_model_test_prepare_source.py": "d37f7e43f5f3d5b0fe4d4f6cd8efd0096ea56591d0c483489fcd71814c5aa48b"
+  },
+  "finding_disposition": {
+    "id": "NORM-P2SET-01",
+    "status": "CLOSED_SOURCE_SCOPED",
+    "evidence": "api/tests/test_model_test_prepare_source.py:482 înregistrează intrarea în control_task înaintea tuturor aserțiunilor. Eliminarea exclusiv în memorie a aserțiunii LOCAL_PRESENT a consumerului produce acum eșecuri la :545 pentru True-ABSENT și True-NOT_VERIFIED, deoarece operations nu mai este gol; dublul nu mai poate masca atingerea frontierei ca refuz al consumerului.",
+    "remaining_findings": [],
+    "unchanged_review": "Contract assessments și limitele din ../review-norm.json sunt reutilizate, nu reauditate. Numai blocajul negative-oracle din evaluarea Execute este închis; nu se transferă aprobarea SOURCE la native/PG/live. ../developer-f01.json a fost citit ca self-report, nu ca probă independentă."
+  },
+  "checks": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "version": "3.13.15",
+    "flags": ["-I", "-B"],
+    "pytest_arguments_common": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_model_test_prepare_source.py", "-k", "qa_settings_sequence", "-vv", "--tb=short"],
+    "environment": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm",
+      "isolation": "Mediu explicit PATH/LANG/TMPDIR și cele două controale pytest/bytecode; fără moștenirea PYTEST_ADDOPTS/PYTEST_PLUGINS/PYTHONPATH ori a configurării PG/credentials."
+    },
+    "preflight_and_delta": {
+      "exit_code": 0,
+      "result": "Python 3.13.15 existent; isolated=1/no_bytecode=true; pytest și pytest_asyncio prezente. Hashurile inițiale corespund; reconstrucția byte-exact a snapshotului anterior și AST first-statement check trec. Configurația și fixture ipc_directory au fost citite; fără instalări."
+    },
+    "source4": {
+      "invocation": "python -I -B -m pytest cu argumentele comune și --basetemp review-norm/rereview-source4-tmp",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "selected": 4,
+      "deselected": 109,
+      "seconds": 3.24,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/rereview-source4-0aao83ea.log"
+    },
+    "mutation_final": {
+      "invocation": "python -I -B -c; pytest.main cu aceleași argumente și --basetemp review-norm/rereview-mutant4-final-tmp; unittest.mock.patch.object(Path, read_bytes) numai pentru consumerul exact.",
+      "remove_exact_line": "                            and authenticated[\"authenticated\"] == \"LOCAL_PRESENT\"\n",
+      "line_matches_per_mutated_read": 1,
+      "mutated_reads": 5,
+      "pytest_exit_code": 1,
+      "process_exit_code": 1,
+      "passed": 2,
+      "failed": 2,
+      "selected": 4,
+      "deselected": 109,
+      "seconds": 3.48,
+      "failed_cases": ["True-ABSENT", "True-NOT_VERIFIED"],
+      "passed_cases": ["False-LOCAL_PRESENT", "True-LOCAL_PRESENT"],
+      "failure_location": "api/tests/test_model_test_prepare_source.py:545; operations conține UUID-ul handoffului",
+      "result": "EXPECTED_RED; false-green eliminat pentru mutația cerută, fără editarea bytes-ului de pe disc.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/rereview-mutant4-final-bez20v0y.log"
+    },
+    "retained_first_mutation_attempt": {
+      "process_exit_code": 1,
+      "pytest_summary": "2 failed, 2 passed, 109 deselected in 3.37s",
+      "limitation": "După terminarea pytest, o aserțiune auxiliară a presupus greșit exact 4 citiri; au fost 5. Log păstrat, nu folosit drept exit pytest curat. Eliminată numai acea presupunere din invocarea inline și repetată numai aceeași mutație pe cele patru cazuri; baseline-ul nu a fost repetat.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/rereview-mutant4-_oxqvxpz.log"
+    },
+    "final_integrity": "Hashuri finale identice cu cele inițiale; HEAD și cele două căi modificate neschimbate; index gol. git diff --check pe cele două fișiere fără diagnostice. Invocarea terminal finală exit0."
+  },
+  "limits": {
+    "proof_boundary": "SOURCE: AST consumer + RuntimeClient/RuntimeHost/UDS și owner existent; authority/storage/native/auth/lifecycle rămân dublele explicite ale regresiei. Nu dovadă a transportului public LocalControl sau a autentificării reale.",
+    "not_run": ["full154/full gates", "ruff/format/mypy independent", "PostgreSQL", "Docker", "native", "provider/inference", "browser", "real QA"],
+    "quality_evidence": "Quality0 din developer-f01.json rămâne self-report; nu a fost rerulat independent.",
+    "no_scope_expansion": "Fără produs/grant/deadline/owner/harness/dependency nou; reutilizat pytest și reproducerul Path.read_bytes în memorie, fără fișier runner nou.",
+    "protected_inputs": "documents/Omnis_Notite_Originale.html nu a fost citit/copiat/hașuit/modificat; tools/development/ponytail.json nu a fost citit/modificat; credentials/.env/config global nu au fost citite/modificate.",
+    "integration": "NOT_PERFORMED_PARENT_OWNED",
+    "phase2": "NOT_CLOSED"
+  }
+}

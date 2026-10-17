@@ -9846,12 +9846,27 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             saved = await runtime.settings_status(settings_id)
                     assert saved["status"] == "CONFIRMED" and saved["selection"] == REQUESTED
                     assert (
-                        saved["authenticated"]
-                        == ("LOCAL_PRESENT" if model_execute else "NOT_VERIFIED")
+                        saved["authenticated"] == "NOT_VERIFIED"
                         and saved["inference_ready"] is False
                     )
                     assert (await runtime.status())["state"] == "MANAGEMENT"
                     if model_execute:
+                        settings_id = str(uuid4())
+                        authenticated = await runtime.settings(
+                            service,
+                            supervisor,
+                            {"operation_id": settings_id, "action": "auth_read", "selection": None},
+                        )
+                        async with asyncio.timeout(3.2):
+                            while authenticated["status"] == "PENDING":
+                                await asyncio.sleep(0.01)
+                                authenticated = await runtime.settings_status(settings_id)
+                        assert (
+                            authenticated["status"] == "CONFIRMED"
+                            and authenticated["selection"] == REQUESTED
+                            and authenticated["authenticated"] == "LOCAL_PRESENT"
+                            and authenticated["inference_ready"] is False
+                        )
                         request_start = {
                             **lifecycle,
                             "action": "model_test_start",

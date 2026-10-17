@@ -338,6 +338,237 @@ async def test_model_prepare_qa_shutdown_drains_before_closed_baseline(
             replay.assert_not_awaited()
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "execute,authenticated",
+    [(False, "LOCAL_PRESENT"), (True, "LOCAL_PRESENT"), (True, "ABSENT"), (True, "NOT_VERIFIED")],
+)
+async def test_model_test_qa_settings_sequence(
+    tmp_path: Path,
+    ipc_directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    execute: bool,
+    authenticated: str,
+) -> None:
+    """Actual QA AST/Client/Host/owner; authority, storage and native lifecycle are SOURCE doubles."""
+    import ast
+    import asyncio
+    import time
+    from collections.abc import Awaitable, Callable
+    from unittest.mock import Mock
+
+    from omnis_hermes.managed_admission_contract import preparation_result
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    import test_contract_method_pg as qa
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.modules.tasks import managed_store as store
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    tree = ast.parse(Path(qa.__file__).read_bytes())
+    arm = next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "model_prepare"
+        and any(
+            isinstance(child, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == "settings_id" for t in child.targets)
+            for child in node.body
+        )
+    )
+    start = next(
+        i for i, node in enumerate(arm.body) if ast.unparse(node).startswith("settings_id =")
+    )
+    branch = next(
+        node
+        for node in arm.body
+        if isinstance(node, ast.If) and ast.unparse(node.test) == "model_execute"
+    )
+    end = next(
+        i for i, node in enumerate(branch.body) if ast.unparse(node).startswith("mt_answer =")
+    )
+    branch.body = branch.body[: end + 1]
+    probe = cast(ast.AsyncFunctionDef, ast.parse("async def probe(): pass").body[0])
+    probe.body = arm.body[start : arm.body.index(branch) + 1]
+    module = ast.fix_missing_locations(ast.Module(body=[probe], type_ignores=[]))
+
+    owner, _, _, manifest, _ = await prepared_source(tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        owner.handler.domain, "readback", AsyncMock(return_value={"manifest_ref": manifest})
+    )
+    host = RuntimeHost(ipc_directory)
+    runtime = owner.runtime
+    runtime.directory = ipc_directory
+    # SourceOwner normally replaces managed IPC; this regression uses the real Client/Host.
+    monkeypatch.setattr(runtime, "managed", RuntimeClient.managed.__get__(runtime))
+    monkeypatch.setattr(
+        owner.handler.service,
+        "runtime_authority",
+        AsyncMock(
+            side_effect=lambda *a, **k: RuntimeAuthority(0, 1, time.monotonic_ns() + 4_000_000_000)
+        ),
+    )
+    selected: object = None
+    actions: list[str] = []
+    operations: list[str] = []
+    payloads: list[dict[str, object]] = []
+
+    async def native_settings(action: str, selection: object) -> object:
+        nonlocal selected
+        actions.append(action)
+        if action == "save":
+            selected = selection
+        if action == "auth_read":
+            return {"selection": selected, "authenticated": authenticated}
+        return selected
+
+    async def stopped() -> None:
+        host.state = "STOPPED"
+        host.process, host.peer = None, None
+
+    async def native_call(
+        operation: str, payload: dict[str, object], *, timeout: float
+    ) -> dict[str, object]:
+        assert operation == "omnis.managed.model_initialize"
+        assert 0 < timeout <= 4.5
+        assert owner.events[-1] == "commit"
+        payloads.append(payload)
+        return preparation_result(
+            payload,
+            native_root_id=str(uuid4()),
+            native_child_id=str(uuid4()),
+            native_session_id="SOURCE-settings-session",
+            native_turn={
+                "task_id": mapping(mapping(payload["context"])["payload"])["task_id"],
+                "turn_id": "SOURCE-settings-turn",
+            },
+        )
+
+    async def launched(body: dict[str, object]) -> None:
+        host.state, host.deadline_ns = "READY", cast(int, body["deadline_ns"])
+        host.process = Mock(returncode=None)
+        host.peer = Mock(
+            failure=None,
+            bootstrap_inventory={
+                "schema_version": 1,
+                "observation": "NATIVE_BOOTSTRAP",
+                "scope": "/state/active",
+                "registry": {
+                    "status": "NOT_INITIALIZED",
+                    "generation": None,
+                    "count": None,
+                    "entries": None,
+                },
+                "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+            },
+            call=AsyncMock(side_effect=native_call),
+        )
+
+    monkeypatch.setattr(host, "_settings_native", native_settings)
+    monkeypatch.setattr(host, "stop", AsyncMock(side_effect=stopped))
+    monkeypatch.setattr(host, "_launch", AsyncMock(side_effect=launched))
+    original_get = store.get
+
+    async def owned(conn: AsyncConnection, who: str, pin: object) -> tuple[str, dict[str, object]]:
+        item = next(r for r in owner.graph if records.reference(r) == pin)
+        run = str(mapping(item["payload"]).get("run_id", owner.run))
+        return run, await original_get(conn, who, run, pin)
+
+    monkeypatch.setattr(store, "owned", owned)
+
+    async def control_task(directory: Path, request: dict[str, object]) -> dict[str, object]:
+        operations.append(str(request["settings_operation_id"]))
+        assert directory == ipc_directory and request["action"] == "model_test_start"
+        current = mapping(host.settings_result)
+        assert current["authenticated"] == "LOCAL_PRESENT" and current["inference_ready"] is False
+        assert request["settings_operation_id"] == current["operation_id"]
+        assert runtime.boot == host.boot
+        stale = next(identity for identity in host.settings_seen if identity != operations[0])
+        assert (await runtime.settings_status(stale))["status"] == "UNAVAILABLE"
+        command = NativeTaskCommand.model_validate(request)
+        before = canonical(owner.graph)
+        with pytest.raises(CatalogError, match="^MODEL_TEST_SETTINGS_REQUIRED$"):
+            await owner.handler.handle(command.model_copy(update={"settings_operation_id": stale}))
+        assert canonical(owner.graph) == before and payloads == []
+        answer = await owner.handler.handle(command)
+        host.settings_result = {**current, "operation_id": stale}
+        try:
+            with pytest.raises(ValueError, match="^Owned saved Settings readback required$"):
+                await host._managed(
+                    {
+                        "payload": payloads[0],
+                        "op": "task_model_initialize",
+                        "epoch": 1,
+                        "generation": 0,
+                        "deadline_ns": time.monotonic_ns() + 4_000_000_000,
+                    }
+                )
+        finally:
+            host.settings_result = current
+        context = next(r for r in owner.graph if records.reference(r) == answer["context_ref"])
+        assert mapping(context["payload"])["settings_operation_id"] == operations[0]
+        assert (
+            mapping(mapping(payloads[0]["context"])["payload"])["settings_operation_id"]
+            == operations[0]
+        )
+        before = canonical(owner.graph)
+        assert await owner.handler.handle(command) == answer
+        with pytest.raises(CatalogError, match="^COMMAND_CONFLICT$"):
+            await owner.handler.handle(command.model_copy(update={"settings_operation_id": stale}))
+        assert canonical(owner.graph) == before and len(payloads) == 1
+        return answer
+
+    scope: dict[str, object] = {
+        "asyncio": asyncio,
+        "uuid4": uuid4,
+        "runtime": runtime,
+        "service": owner.handler.service,
+        "supervisor": owner.lease,
+        "REQUESTED": REQUESTED,
+        "model_execute": execute,
+        "lifecycle": {**owner.base, "owner_id": owner.owner, "manifest_ref": manifest},
+        "directory": ipc_directory,
+        "control_task": control_task,
+    }
+    exec(compile(module, qa.__file__, "exec"), scope)
+    invoke = cast(Callable[[], Awaitable[None]], scope["probe"])
+    async with host:
+        await runtime.connect()
+        try:
+            if execute and authenticated != "LOCAL_PRESENT":
+                with pytest.raises(AssertionError):
+                    await invoke()
+                assert host.settings_result is not None
+                assert host.settings_result["authenticated"] == authenticated
+                assert actions == ["save", "auth_read"] and not operations and not payloads
+                request = next(
+                    node for node in branch.body if ast.unparse(node).startswith("request_start =")
+                )
+                scope["settings_id"] = host.settings_result["operation_id"]
+                exec(
+                    compile(ast.Module(body=[request], type_ignores=[]), qa.__file__, "exec"), scope
+                )
+                with pytest.raises(CatalogError, match="^TASK_INDETERMINATE$"):
+                    await owner.handler.handle(
+                        NativeTaskCommand.model_validate(scope["request_start"])
+                    )
+                assert actions == ["save", "auth_read", "read", "auth_read"] and not payloads
+                cast(AsyncMock, host._launch).assert_not_awaited()
+            else:
+                await invoke()
+                assert actions == (
+                    ["save", "auth_read", "read", "auth_read"] if execute else ["save"]
+                )
+                assert len(operations) == len(payloads) == int(execute)
+                assert host.settings_result is not None
+                assert host.settings_result["inference_ready"] is False
+        finally:
+            await runtime.close()
+    owner.reserve.assert_not_awaited()
+
+
 async def prepared_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, padding: str = "", objective_suffix: str = ""
 ) -> tuple[SourceOwner, ModelTest, AsyncConnection, dict[str, object], dict[str, object]]:

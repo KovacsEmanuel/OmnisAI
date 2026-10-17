@@ -1,0 +1,158 @@
+{
+  "status": "DEVELOPER_SOURCE_PASS_PENDING_PARENT_REVIEW_AND_REAL_QA",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "metadata_verified_from": "Current Hermes ancestor process argv: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh",
+    "session_id": "20261018_002814_8a317e",
+    "fallback_or_downgrade": false,
+    "delegated": false
+  },
+  "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+  "base": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+  "head_after": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+  "initial_worktree": "CLEAN",
+  "committed": false,
+  "integration": "NOT_PERFORMED_PARENT_OWNED",
+  "phase2": "NOT_CLOSED",
+  "allowed_changed_files": [
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "sha256": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+      "change": "Save asserts CONFIRMED/NOT_VERIFIED/inference_ready=false. Execute alone performs a separate auth_read with explicit selection=null, bounded polling and LOCAL_PRESENT assertion, then uses its operation_id in request_start."
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+      "change": "One four-case SOURCE regression executes the consumer's actual AST from save through model_test_start with real RuntimeClient/RuntimeHost Settings and managed UDS, NativeTaskOwner, ModelTest and replay logic."
+    }
+  ],
+  "trace": [
+    "RuntimeClient.settings validates ProviderCommand including required selection, obtains management authority, and enforces response operation_id correlation.",
+    "RuntimeClient.settings_status enforces operation_id correlation; RuntimeHost retains only its current settings_result and returns UNAVAILABLE for a replaced operation.",
+    "RuntimeHost._settings_start and _settings_run use management_contract.view. Save never reads auth and view defaults to NOT_VERIFIED with inference_ready=false; auth_read/logout produce authentication separately.",
+    "RuntimeHost._handle implements Settings request/status dispatch; there is no separate _settings method in this snapshot.",
+    "NativeTaskOwner._model_test_prepare retries prepare after reading the command's settings_operation_id, then dispatches the qualified context through real RuntimeClient.managed to RuntimeHost._managed.",
+    "ModelTest.prepare binds settings_operation_id into its request, provider configuration and context. ModelTest.completed/command_replay reject an operation_id change on the same initialization.",
+    "RuntimeHost._managed enforces exact context/settings_result operation_id and separately requires native auth_read LOCAL_PRESENT for v6 CREATE.",
+    "Sibling callers inspected: supervisor Settings callback, local_control Settings dispatch, provider Settings SOURCE/API/denial tests, existing SourceOwner/HOLD tests. No sibling product changes were needed."
+  ],
+  "operation_id_correlation": {
+    "save": "Fresh save UUID; CONFIRMED, exact requested selection, NOT_VERIFIED, inference_ready=false.",
+    "auth_read": "Execute replaces settings_id with a new UUID, awaits this operation, and asserts CONFIRMED, exact selection, LOCAL_PRESENT and inference_ready=false.",
+    "start": "request_start.settings_operation_id is the current auth_read UUID; the actual owner-produced ModelTest context and managed payload preserve that UUID.",
+    "old_id": "Old save status becomes UNAVAILABLE. An owner start using it is MODEL_TEST_SETTINGS_REQUIRED with no graph/native effects. A Host/current-context mismatch is Owned saved Settings readback required. Changing it on completed replay is COMMAND_CONFLICT.",
+    "replay": "Current UUID replays the completed answer without a second native call or graph change.",
+    "hold": "Execute=false runs save only, remains NOT_VERIFIED/inference_ready=false, and adds no auth_read or start. Existing HOLD regressions remain passing."
+  },
+  "evidence_environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "version": "3.13.15",
+    "dependencies_verified_without_install": {"pytest": "9.1.1", "ruff": "0.16.9", "mypy": "2.3.1", "psycopg": "3.3.6"},
+    "PYTHONPATH": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/api/src:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/integrations/hermes/src:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/api/tests:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/cli/src",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "unset": ["PYTEST_ADDOPTS", "PYTEST_PLUGINS"],
+    "RUFF_CACHE_DIR_final": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/ruff-cache",
+    "umask": "077",
+    "all_created_log_modes_verified": "0600",
+    "cache_cleanup_note": "The initial Ruff invocation created work/.ruff_cache. Its three files were verified newer than this run's RED log, then that exact owned cache directory was removed. Final Ruff/mypy/pytest caches and temporary files are in the authorized scratch root. Shared venv was not modified."
+  },
+  "red": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k 'qa_settings_sequence and LOCAL_PRESENT' --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/red-tmp -q",
+    "exit_code": 1,
+    "passed": 1,
+    "failed": 1,
+    "deselected": 111,
+    "seconds": 2.44,
+    "expected_failure": "Actual consumer assertion at test_contract_method_pg.py:9849 expected LOCAL_PRESENT immediately after save; real Host returned NOT_VERIFIED. HOLD passed.",
+    "scope": "Regression test's initial version against unchanged HEAD consumer, before the consumer fix; later assertions extend coverage.",
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/red.log"
+  },
+  "green": {
+    "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py api/tests/test_provider_settings_source.py api/tests/test_provider_settings_api_source.py api/tests/test_provider_settings_denials.py api/tests/test_owned_model_initialization.py --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/regression-tmp -q",
+    "exit_code": 0,
+    "passed": 154,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 39.23,
+    "includes_final_four_case_regression": true,
+    "after_last_code_edit": true,
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/regression.log"
+  },
+  "quality": [
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/ruff-final.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m ruff format --config api/pyproject.toml --check api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "2 files already formatted",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/format-final.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/mypy-cache api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "Success: no issues found in 2 source files",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/mypy-final.log"
+    },
+    {"command": "git diff --check", "exit_code": 0, "after_last_code_edit": true}
+  ],
+  "intermediate_attempts_preserved": {
+    "command_template": "/home/kali/OmnisAI/api/.venv/bin/python -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/NAME-tmp -q",
+    "private_log_directory": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF",
+    "attempts": [
+      {"name": "green", "exit_code": 1, "passed": 1, "failed": 3, "deselected": 109, "seconds": 4.37, "log": "green.log", "cause": "First consumer fix omitted ProviderCommand's required selection=null on auth_read; corrected explicitly."},
+      {"name": "green2", "exit_code": 1, "passed": 3, "failed": 1, "deselected": 109, "seconds": 4.50, "log": "green2.log", "cause": "Existing SourceOwner readback still referenced its seed manifest; matched prepared_source's real manifest as existing execution tests do."},
+      {"name": "green3", "exit_code": 1, "passed": 3, "failed": 1, "deselected": 109, "seconds": 3.74, "log": "green3.log", "cause": "SourceOwner.base retained its original owner_id while prepared_source changed owner.owner; used the actual producer owner_id."},
+      {"name": "green4", "exit_code": 1, "passed": 3, "failed": 1, "deselected": 109, "seconds": 3.65, "log": "green4.log", "cause": "SOURCE NativePeer.call double lacked the existing timeout keyword; corrected signature without changing any deadline/cap."},
+      {"name": "green5", "exit_code": 1, "passed": 3, "failed": 1, "deselected": 109, "seconds": 3.49, "log": "green5.log", "cause": "READY SOURCE peer lacked the existing required bootstrap inventory; reused the companion's finite NOT_INITIALIZED inventory shape."},
+      {"name": "green6", "exit_code": 0, "passed": 4, "failed": 0, "deselected": 109, "seconds": 2.99, "log": "green6.log", "scope": "Positive start/replay and consumer denials passed before the last defense-in-depth assertions."},
+      {"name": "green7", "exit_code": 1, "passed": 2, "failed": 2, "deselected": 109, "seconds": 4.06, "log": "green7.log", "cause": "Additional direct Host-defense negative executed request_start AST outside probe locals; supplied current settings operation_id from the actual Host result."}
+    ],
+    "initial_quality": [
+      {"exit_code": 1, "log": "ruff.log", "cause": "Unused SOURCE import, removed."},
+      {"exit_code": 1, "log": "mypy.log", "cause": "Comparison across differently typed empty lists, replaced with explicit emptiness checks."},
+      {"exit_code": 1, "log": "format-diff.log", "cause": "New lines required formatting; applied the displayed formatting through patch."},
+      {"exit_code": 0, "log": "mypy2.log", "scope": "Intermediate snapshot only; final mypy rerun separately passed."}
+    ]
+  },
+  "findings": [
+    "The bug was solely in the QA consumer's expected authentication timing; product save semantics remain unchanged.",
+    "The auth_read operation replaces the Host's save result, so carrying the old save UUID into model_test_start would fail. The corrected consumer intentionally replaces settings_id before creating request_start.",
+    "Both ABSENT and NOT_VERIFIED fail the original consumer's LOCAL_PRESENT assertion before start; bypassing that assertion still reaches the real Host's v6 auth guard and returns TASK_INDETERMINATE without launch/native execution.",
+    "No production code, auth semantics, cap, grant policy, deadline limits, dependencies, owner or runner were added or modified. Existing short synthetic authority follows the current SOURCE test pattern.",
+    "The SOURCE setup required more fixture repair iterations than intended. All intermediate FAILs are retained and are not represented as product PASS or native QA. No additional infrastructure was introduced."
+  ],
+  "explicit_synthetic_seams": [
+    "Existing prepared_source/SourceOwner in-memory storage and transaction/instance-authority doubles, with the actual seed manifest and owner identity.",
+    "RuntimeHost._settings_native synthetic local management returns selection and the parametrized auth state; no credential store is read.",
+    "RuntimeHost.stop/_launch and NativePeer.call/bootstrap inventory are synthetic lifecycle/constructor/turn boundaries; no native process starts.",
+    "The extracted consumer's control_task handoff invokes actual NativeTaskOwner.handle directly, not the public LocalControl socket; Settings and managed RuntimeClient/Host UDS remain real. Public-control transport is outside this narrowed regression."
+  ],
+  "gaps": [
+    "SOURCE evidence does not establish actual credentials, native management/authentication, PostgreSQL persistence, native constructor/turn or provider inference.",
+    "Independent complementary reviews and real consumer QA belong to the parent and have not been performed in this developer session.",
+    "No claim of integration, canonical PASS, universal gap absence or phase2 closure. Historical FAIL/UNKNOWN are unchanged."
+  ],
+  "not_run": {
+    "postgresql": "NOT_RUN",
+    "docker": "NOT_RUN",
+    "native": "NOT_RUN",
+    "provider": "NOT_RUN",
+    "live_product_model_calls": "NOT_RUN",
+    "make_check_full_canonical": "NOT_RUN",
+    "independent_reviews": "NOT_RUN_PARENT_OWNED",
+    "real_qa": "NOT_RUN_PARENT_OWNED"
+  },
+  "protected_inputs": {
+    "documents/Omnis_Notite_Originale.html": "NOT_READ_NOT_COPIED_NOT_HASHED_NOT_MODIFIED",
+    "tools/development/ponytail.json": "NOT_READ_NOT_MODIFIED",
+    "credentials_and_dotenv": "NOT_READ_NOT_MODIFIED"
+  }
+}

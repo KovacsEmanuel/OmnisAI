@@ -1,0 +1,91 @@
+{
+  "finding": "NORM-P2SET-01",
+  "status": "FIXED_SOURCE_SCOPED_PENDING_FOCUSED_NORMATIVE_REVIEW",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "verified": "Allowlisted flags of the current Hermes ancestor argv",
+    "delegated": false,
+    "fallback": false
+  },
+  "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+  "base": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+  "change": {
+    "path": "api/tests/test_model_test_prepare_source.py",
+    "before_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+    "after_sha256": "d37f7e43f5f3d5b0fe4d4f6cd8efd0096ea56591d0c483489fcd71814c5aa48b",
+    "delta": "Only moved operations.append(str(request[\"settings_operation_id\"])) to the first statement in the existing control_task, before its assertions. No consumer/product/other repository file edits."
+  },
+  "preserved": {
+    "consumer_sha256": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+    "developer_result_sha256_before_and_after": "d22d030835a2afdc0e3254df766e39a7d270d7d869a471f28f1d018863c591ba",
+    "historical_failures": "Retained; no original report or logs overwritten",
+    "safety_review": "Unchanged scope; no new safety acceptance claimed"
+  },
+  "environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "PYTHONPATH": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/api/src:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/integrations/hermes/src:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/api/tests:/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work/cli/src",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "unset": ["PYTEST_ADDOPTS", "PYTEST_PLUGINS"],
+    "cache_directories": ["../ruff-cache", "../mypy-cache"],
+    "log_directory": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF",
+    "log_modes_verified": "0600"
+  },
+  "checks_after_last_edit": [
+    {
+      "name": "SOURCE4",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/f01-source4-tmp -q --tb=no",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "deselected": 109,
+      "seconds": 2.96,
+      "private_log": "f01-source4.private.log"
+    },
+    {
+      "name": "IN_MEMORY_CONSUMER_AUTH_ASSERT_REMOVAL",
+      "execution": "/home/kali/OmnisAI/api/.venv/bin/python -B -c; unittest.mock.patch.object(Path, 'read_bytes') changes only bytes returned for the resolved test_contract_method_pg.py, then pytest.main runs the same four existing cases. No file mutation, runner or test added.",
+      "remove_exact_line": "                            and authenticated[\"authenticated\"] == \"LOCAL_PRESENT\"\n",
+      "mutation_matches_asserted": 1,
+      "pytest_arguments": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_model_test_prepare_source.py", "-k", "qa_settings_sequence", "--basetemp", "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/f01-mutant-tmp", "-q", "--tb=no"],
+      "exit_code": 1,
+      "passed": 2,
+      "failed": 2,
+      "deselected": 109,
+      "seconds": 3.08,
+      "failed_cases": ["True-ABSENT", "True-NOT_VERIFIED"],
+      "assessment": "EXPECTED_FAIL: reaching control_task is now recorded, so a double's AssertionError cannot masquerade as consumer refusal before start.",
+      "private_log": "f01-mutant.private.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "private_log": "f01-ruff.private.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m ruff format --config api/pyproject.toml --check api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "private_log": "f01-format.private.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/mypy-cache api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "private_log": "f01-mypy.private.log"
+    },
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "limits": {
+    "full154": "NOT_RUN",
+    "postgresql": "NOT_RUN",
+    "docker_native_provider_product_model_calls": "NOT_RUN",
+    "focused_normative_rereview": "PENDING_PARENT",
+    "real_qa": "NOT_RUN_PARENT_OWNED",
+    "integration": "NOT_PERFORMED",
+    "commits": "NONE",
+    "phase2": "NOT_CLOSED",
+    "protected_files_credentials": "NOT_READ_NOT_MODIFIED"
+  }
+}

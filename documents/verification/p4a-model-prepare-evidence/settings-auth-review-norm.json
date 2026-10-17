@@ -1,0 +1,227 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "summary": "Corecția consumerului respectă save/auth_read și folosește UUID-ul operației curente. Există un singur finding de acceptare în regresia nouă: cazurile negative pot trece chiar dacă aserțiunea LOCAL_PRESENT din consumer este eliminată, deoarece prind AssertionError din dublul control_task înainte de înregistrarea apelului.",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "verification": "Flagurile allowlisted ale procesului Hermes strămoș au fost citite din /proc: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh.",
+    "fallback_used": false,
+    "delegated": false,
+    "skills_loaded": ["ponytail:ponytail", "ponytail:ponytail-review"],
+    "mode": "full"
+  },
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head_initial": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "head_final": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "branch": "work/p2-settings-3LgdzjmF",
+    "staged_diff": "EMPTY",
+    "changed_paths_initial_and_final": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "files": [
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "expected_sha256": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+        "initial_sha256": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+        "final_sha256": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5"
+      },
+      {
+        "path": "api/tests/test_model_test_prepare_source.py",
+        "expected_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+        "initial_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+        "final_sha256": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41"
+      }
+    ],
+    "repository_files_edited_by_reviewer": [],
+    "commits_created": [],
+    "mutations": "Numai în memoria proceselor de test: modificarea temporară a bytes returnați de Path.read_bytes pentru AST-ul consumerului; fișierele de pe disc nu au fost schimbate. S-a reutilizat regresia și runnerul pytest existente, fără owner sau mini-aplicație nouă."
+  },
+  "scope": {
+    "acceptance_boundary": "Review read-only al diff-ului necomis și al traseului P2/P4a save -> auth_read -> model_test_start -> context -> managed -> persist/replay.",
+    "read": [
+      "AGENTS.md și README.md",
+      "api/pyproject.toml și api/tests/conftest.py, pentru preflight fără efecte",
+      "Cele două fișiere modificate și helperii SOURCE prepared_source, SourceOwner, batch2_source",
+      "RuntimeClient.settings/settings_status/status/managed și validarea/corelarea schimbului IPC",
+      "RuntimeHost._settings_start/_settings_run/_managed și dispatch settings_status",
+      "management_contract.command/view",
+      "NativeTaskOwner._model_test_prepare și conversia RuntimeUnavailable",
+      "ModelTest.prepare/completed/dispatch/persist",
+      "Fragmentele locale HOLD/replay/census din consumerul QA și referințele Settings/preparation din documents/verification/p4a-minim.md",
+      "../developer-result.json, tratat exclusiv ca self-report"
+    ],
+    "load_assumed": "Local-first, un singur operator; nu audit de scalare sau repo-wide.",
+    "integration_owner": "Părintele adjudecă și integrează; reviewerul nu închide faza2."
+  },
+  "contract_assessment": [
+    {
+      "requirement": "Save CONFIRMED, selecție exactă, NOT_VERIFIED, inference_ready=false; produsul nu falsifică autentificarea.",
+      "result": "CONFORM_SOURCE",
+      "evidence": "Consumer: api/tests/test_contract_method_pg.py:9833-9852. Host: integrations/hermes/src/omnis_hermes/runtime_host.py:330-353; management_contract.py:48-94. Save nu invocă auth_read și view păstrează NOT_VERIFIED/false. Niciun fișier de produs modificat."
+    },
+    {
+      "requirement": "Execute face auth_read separat, CONFIRMED/selecție exactă/LOCAL_PRESENT/false.",
+      "result": "CONSUMER_CONFORM_REGRESSION_NEGATIVE_ORACLE_BLOCKED",
+      "evidence": "Consumer: api/tests/test_contract_method_pg.py:9853-9869 păstrează explicit LOCAL_PRESENT. Cele patru cazuri SOURCE trec, dar findingul NORM-P2SET-01 demonstrează că regresia nu distinge refuzul consumerului de o aserțiune din dublul control_task."
+    },
+    {
+      "requirement": "UUID curent până la producer/context/consumer și replay.",
+      "result": "CONFORM_SOURCE_SCOPED",
+      "evidence": "settings_id este înlocuit înainte de auth_read și request_start îl folosește la :9873. RuntimeClient verifică operation_id la :736-738 și :751-756; Host înlocuiește settings_result și oferă UNAVAILABLE pentru ID-ul vechi la :1325-1339. NativeTaskOwner citește exact command.settings_operation_id la :277-295. ModelTest îl include în request/config/context și completed refuză schimbarea la :162-181. Regresia verifică UUID-ul contextului/payloadului, refuzul vechiului ID înainte de modificarea graph-ului, guardul Host și replay fără al doilea apel nativ sintetic."
+    },
+    {
+      "requirement": "Ordine, persistență și replay fără efecte repetate.",
+      "result": "CONFORM_SOURCE_SCOPED",
+      "evidence": "ModelTest.prepare scrie/readback/command_complete înainte de return; NativeTaskOwner închide tranzacția înainte de managed și persistă observația după răspuns. Dublul native_call cere ultimul eveniment commit. Replay păstrează graph-ul și len(payloads)==1. Acestea sunt probe SOURCE cu storage/tranzacții duble, nu dovadă PostgreSQL."
+    },
+    {
+      "requirement": "Vechile aserțiuni, census și HOLD execute=false nu sunt slăbite.",
+      "result": "CONFORM_DIFF_SCOPED",
+      "evidence": "Diff-ul consumerului schimbă numai așteptarea autentificării la save și adaugă auth_read în ramura execute. Ramura HOLD, aserțiunile de contabilizare/census/replay și restul testelor existente rămân nemodificate. Comparația AST cu HEAD arată zero teste eliminate și zero teste existente modificate în test_model_test_prepare_source.py; există un singur test nou parametrizat. Cazul execute=false trece independent și observă numai save, fără start sau payload managed."
+    }
+  ],
+  "findings": [
+    {
+      "id": "NORM-P2SET-01",
+      "severity": "MEDIUM",
+      "category": "FALSE_GREEN_NEGATIVE_REGRESSION",
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "line": 484,
+      "related_locations": [
+        "api/tests/test_model_test_prepare_source.py:481-487",
+        "api/tests/test_model_test_prepare_source.py:540-545",
+        "api/tests/test_contract_method_pg.py:9864-9869"
+      ],
+      "title": "Regresia poate atribui consumerului un refuz produs de dublul control_task",
+      "problem": "Cazurile ABSENT și NOT_VERIFIED acceptă orice AssertionError din invoke(). control_task verifică el însuși LOCAL_PRESENT înainte de operations.append. Dacă aserțiunea LOCAL_PRESENT din consumer este eliminată, consumerul ajunge la control_task, aserțiunea dublului eșuează și este prinsă ca refuz așteptat; operations rămâne gol. Verificările de la :543-545 trec, deși frontiera model_test_start a fost atinsă. Guardul Host este verificat separat, dar nu repară acest oracle al consumerului.",
+      "reproducer": {
+        "method": "Reutilizarea celor patru cazuri qa_settings_sequence, cu o singură mutație read-only în bytes-ul AST al consumerului. Nu s-a editat niciun fișier.",
+        "target": "api/tests/test_contract_method_pg.py",
+        "remove_exact_line": "                            and authenticated[\"authenticated\"] == \"LOCAL_PRESENT\"\n",
+        "pytest_selector": "qa_settings_sequence",
+        "baseline": {"exit_code": 0, "passed": 4, "deselected": 109},
+        "observed_after_mutation": {"exit_code": 0, "passed": 4, "deselected": 109},
+        "expected": "Cazurile negative trebuie să eșueze dacă lipsește refuzul consumerului înainte de apelarea control_task.",
+        "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/remove-consumer-auth-assert-7flljmzw.log"
+      },
+      "minimal_fix": "Mută operations.append(str(request[\"settings_operation_id\"])) înaintea aserțiunii LOCAL_PRESENT din control_task, astfel încât orice intrare în acest handoff să fie observată. Păstrează aserțiunea LOCAL_PRESENT din consumer și toate guardurile existente. Rerulează cele patru cazuri și verifică faptul că eliminarea exclusiv în memorie a aserțiunii consumerului nu mai rămâne green.",
+      "acceptance_impact": "Blochează acceptarea oracle-ului negativ cerut pentru consumer; nu este constatare de autentificare falsă în produs și nu contestă remediul save/auth_read sau corelarea pozitivă."
+    }
+  ],
+  "checks_executed": [
+    {
+      "name": "Snapshot inițial",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "HEAD și ambele hashes corespund; exact două fișiere modificate."
+    },
+    {
+      "name": "Diff exact și index",
+      "command": "git diff -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && git diff --cached --stat",
+      "exit_code": 0,
+      "result": "Index gol; numai modificările de test declarate."
+    },
+    {
+      "name": "Preflight importuri",
+      "execution": "Python /home/kali/OmnisAI/api/.venv/bin/python -I -B -c; citește tool.pytest.ini_options.pythonpath din api/pyproject.toml, adaugă aceleași căi și api/tests, importă modulele relevante și verifică apartenența lor la worktree.",
+      "exit_code": 0,
+      "result": "RuntimeClient, NativeTaskOwner, ModelTest, RuntimeHost și test_contract_method_pg se rezolvă din worktree-ul frozen. pytest/pytest_asyncio sunt disponibile în venv-ul existent; isolated=1, bytecode_disabled=true. TMPDIR este scratch-ul autorizat, mod 0700; lungimea căii de socket este în limită. Fără instalări."
+    },
+    {
+      "name": "Colectare fără execuție",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence -q --collect-only",
+      "exit_code": 0,
+      "selected": 4,
+      "collected_total": 113,
+      "deselected": 109,
+      "seconds": 0.70,
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/collect-3m9t8hba.log"
+    },
+    {
+      "name": "Cele patru cazuri pe snapshotul nemodificat",
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm /home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence -q --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/pytest-source4",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "deselected": 109,
+      "seconds": 2.97,
+      "scope": "SOURCE; Settings și managed IPC UDS reale, native/auth/storage/autoritate/lifecycle duble explicite; control_task cheamă owner.handle direct.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/source4-wljgj905.log"
+    },
+    {
+      "name": "Control RED read-only pentru vechea așteptare save",
+      "execution": "Același interpreter -I -B și pytest.main în proces privat; Path.read_bytes returnează numai în memorie pentru AST-ul consumerului saved[\"authenticated\"] == (\"LOCAL_PRESENT\" if model_execute else \"NOT_VERIFIED\") în loc de saved[\"authenticated\"] == \"NOT_VERIFIED\". Restul fișierelor și regresia rămân neschimbate.",
+      "pytest_arguments": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_model_test_prepare_source.py", "-k", "qa_settings_sequence and LOCAL_PRESENT", "--basetemp", "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/pytest-restore-save-expectation", "-q", "--tb=no"],
+      "exit_code": 1,
+      "passed": 1,
+      "failed": 1,
+      "deselected": 111,
+      "seconds": 2.33,
+      "result": "Regresia detectează reintroducerea așteptării greșite la save. Este o probă nouă SOURCE în memorie, nu reinterpretarea cauzei istorice a unui FAIL native.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/restore-save-expectation-8syh3wsh.log"
+    },
+    {
+      "name": "Reproducere false-green LOCAL_PRESENT",
+      "execution": "Același interpreter -I -B și pytest.main în proces privat; Path.read_bytes elimină exclusiv în memoria AST linia exactă din findingul NORM-P2SET-01. Nu modifică fișierul și nu înlocuiește produsul sau ownerul.",
+      "pytest_arguments": ["-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-c", "api/pyproject.toml", "api/tests/test_model_test_prepare_source.py", "-k", "qa_settings_sequence", "--basetemp", "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/pytest-remove-consumer-auth-assert", "-q", "--tb=no"],
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "deselected": 109,
+      "seconds": 3.29,
+      "result": "Mutația nu este detectată: finding reprodus.",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm/remove-consumer-auth-assert-7flljmzw.log"
+    },
+    {
+      "name": "Integritate diff și teste existente",
+      "execution": "git diff --check; comparație AST read-only cu git show HEAD pentru cele două fișiere.",
+      "exit_code": 0,
+      "result": "Zero teste eliminate. Nicio funcție de test existentă schimbată în test_model_test_prepare_source.py; un singur test nou. În consumer este schimbat numai testul QA declarat. Census/HOLD/replay existente nu sunt șterse sau slăbite."
+    },
+    {
+      "name": "Snapshot final",
+      "command": "git status --short --branch && git rev-parse HEAD && sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "result": "Aceeași bază, exact cele două fișiere inițiale modificate, ambele hashes identice cu snapshotul cerut."
+    }
+  ],
+  "environment_controls": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "removed_from_test_environment": ["PYTEST_ADDOPTS", "PYTEST_PLUGINS", "PYTHONPATH"],
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-norm",
+    "logs_mode": "0600, verificat pentru fiecare dintre cele patru loguri",
+    "repository_or_venv_cache_writes": "Nu au fost cerute; -I -B și -p no:cacheprovider, temporarele în scratch.",
+    "new_owner_or_application_harness": false,
+    "product_or_model_live_calls": false
+  },
+  "author_evidence": {
+    "source": "../developer-result.json",
+    "status": "SELF_REPORT_NOT_PROMOTED_TO_INDEPENDENT_EVIDENCE",
+    "reported": "RED 1FAIL/1PASS, GREEN154 SOURCE și Ruff/format/mypy exit0; încercări intermediare SOURCE păstrate.",
+    "independent_scope": "Doar cele patru cazuri și cele două controale read-only în memorie au fost executate aici. Nu se transferă GREEN154 sau SOURCE la native/PG/live."
+  },
+  "limits_and_not_run": {
+    "postgresql": "NOT_RUN",
+    "docker": "NOT_RUN",
+    "native_process_constructor_turn": "NOT_RUN",
+    "real_authentication_or_credential_store": "NOT_RUN",
+    "provider_inference": "NOT_RUN",
+    "public_LocalControl_transport": "NOT_RUN; handoff-ul regresiei este owner.handle direct",
+    "full_source154": "NOT_RUN_BY_REVIEWER; numai self-report al autorului",
+    "ruff_format_mypy": "NOT_RUN_BY_REVIEWER; numai self-report al autorului",
+    "full_canonical": "NOT_RUN",
+    "historical_inert_slices": "NOT_REAUDITED",
+    "historical_failure_root_cause": "NOT_ATTRIBUTED",
+    "phase2": "NOT_CLOSED; acceptarea și integrarea aparțin părintelui"
+  },
+  "protected_inputs": {
+    "original_html": "NOT_READ_NOT_COPIED_NOT_HASHED_NOT_MODIFIED",
+    "tools_development_ponytail_json": "NOT_READ_NOT_MODIFIED",
+    "credentials_dotenv": "NOT_READ_NOT_MODIFIED"
+  },
+  "remaining_action": "Developerul remediază minimal NORM-P2SET-01 în regresia existentă; apoi probele afectate și re-review focalizat pe noul hash. Nicio modificare de produs, grant, timeout, cap sau harness nu este cerută."
+}

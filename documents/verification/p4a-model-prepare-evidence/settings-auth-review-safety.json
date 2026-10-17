@@ -1,0 +1,150 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review_type": "independent_read_only_frozen_snapshot",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "verification": "Ancestor process flags independently read from /proc: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh.",
+    "fallback_performed": false,
+    "delegated": false
+  },
+  "snapshot": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/work",
+    "head_initial": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "head_final": "dd51e3a294c136caa15088a43ecd90ed4a79cd33",
+    "changed_files_count": 2,
+    "files": [
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "sha256_initial": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5",
+        "sha256_final": "20448bdc85b55266c7efc60b1d1fa54ab736d334b3402e27cf97e25181b4fbb5"
+      },
+      {
+        "path": "api/tests/test_model_test_prepare_source.py",
+        "sha256_initial": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41",
+        "sha256_final": "b8b98d08bd39f78739fed1c702f8211b7439754fa259394d10ccc397579e7b41"
+      }
+    ],
+    "hashes_match_requested_and_unchanged": true,
+    "product_files_modified_by_candidate": false,
+    "reviewer_repo_edits": false,
+    "committed": false,
+    "pushed": false
+  },
+  "scope": {
+    "contract": "Corectarea consumatorului QA: save CONFIRMED/exact selection/NOT_VERIFIED/inference_ready=false; auth_read separat numai pentru execute, CONFIRMED/exact selection/LOCAL_PRESENT/false; operation_id curent propagat la start/context/replay; HOLD execute=false neschimbat.",
+    "reviewed": [
+      "Diff integral al celor doua fisiere si secventa QA afectata P2/P4a.",
+      "RuntimeClient.settings/settings_status/status/managed si corelarea/fence/Stop relevante.",
+      "RuntimeHost._settings_start/_settings_run/_managed, dispatch/status, watchdog si Stop relevante.",
+      "NativeTaskOwner.handle/_model_test_prepare si ModelTest.prepare/completed/dispatch/persist.",
+      "ProviderCommand/ProviderView, management_contract.view si command_complete/command_replay.",
+      "Seamurile prepared_source/SourceOwner/batch2_source, ipc_directory si prerequisitele no-effects ale celor patru cazuri SOURCE."
+    ],
+    "context_read": ["AGENTS.md", "README.md", "Sectiunile relevante din documents/verification/p4a-minim.md", "../developer-result.json ca self-report"],
+    "skills_loaded": ["ponytail:ponytail full", "ponytail:ponytail-review"],
+    "assumed_load": "local-first, un singur operator",
+    "not_whole_repo_audit": true
+  },
+  "findings": [],
+  "acceptance_basis": [
+    {
+      "path_line": "api/tests/test_contract_method_pg.py:9833-9876",
+      "result": "Save nu mai pretinde autentificare. Asertiunea LOCAL_PRESENT ramane la auth_read; noul UUID inlocuieste settings_id inainte de model_test_start. Payloadul auth_read are explicit selection=null. Pollingul ramane bounded; nu apar connect/logout/send sau retry implicit nou."
+    },
+    {
+      "path_line": "integrations/hermes/src/omnis_hermes/runtime_host.py:282-364,600-667",
+      "result": "Host pastreaza rezultatul operatiei curente; save foloseste view implicit NOT_VERIFIED. _managed coreleaza contextul cu operation_id curent, verifica authority, selection si auth_read LOCAL_PRESENT pentru v6 CREATE, apoi cere Stop/drain inainte de launch. Codul de produs si aceste bariere nu sunt modificate de diff."
+    },
+    {
+      "path_line": "api/src/omnis/supervisor/native_tasks.py:256-307; api/src/omnis/modules/runs/model_test.py:136-223,251-269,364-399",
+      "result": "Owner citeste statusul ID-ului din comanda, apoi ModelTest leaga ID-ul in request/config/context. Replay-ul complet verifica aceeasi identitate si request digest; schimbarea ID-ului pe aceeasi initializare este conflict, nu autorizatie noua."
+    },
+    {
+      "path_line": "api/tests/test_model_test_prepare_source.py:341-569",
+      "result": "Regresia compileaza AST-ul consumatorului real de la save pana la start, fara rescrierea asertiunilor. Client/Host Settings si managed UDS, owner, ModelTest si command replay sunt reale SOURCE. Save nu este dublat ca LOCAL_PRESENT. Cazul pozitiv verifica ID curent in comanda/context/payload, refuzul ID-ului vechi si replay fara apel nativ suplimentar. ABSENT/NOT_VERIFIED opresc consumatorul; ocolirea explicita a asertiunii in negativ ajunge la guardul real Host si este refuzata inainte de launch/native call. HOLD executa numai save."
+    },
+    {
+      "path_line": "api/tests/test_model_test_prepare_source.py:400-569",
+      "result": "Seamurile sintetice sunt explicite: storage/authority/fence, _settings_native, stop/_launch si NativePeer.call. Nu acceseaza credentiale, PG sau management nativ. Fiecare caz verifica reserve neapelat; payloadurile ajung numai la preparation_result double, nu la provider. Limita AST exclude SEND si nu constituie proba pentru send, Stop fizic ori autentificare reala."
+    }
+  ],
+  "checks_executed": [
+    {
+      "name": "initial_snapshot",
+      "command": "pwd; git status --short --branch; git rev-parse HEAD; git diff --stat; sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit_code": 0,
+      "changed_files_count": 2,
+      "result": "HEAD si ambele SHA256 coincid exact cu snapshotul cerut."
+    },
+    {
+      "name": "import_preflight",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <importlib.util.find_spec pentru callerii afectati, cu rutele SOURCE din configuratia citita>",
+      "exit_code": 0,
+      "count": 5,
+      "python_version": "3.13.15",
+      "result": "Toate cele cinci origini rezolvate sunt in worktree-ul inghetat: RuntimeClient, NativeTaskOwner, ModelTest, RuntimeHost si test_contract_method_pg. api/pyproject.toml fixeaza src si ../integrations/hermes/src pentru pytest.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/import-preflight.log"
+    },
+    {
+      "name": "collect_selected_source_cases",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/pytest-tmp -q --tb=no --collect-only",
+      "exit_code": 0,
+      "selected": 4,
+      "deselected": 109,
+      "log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/collect.log"
+    },
+    {
+      "name": "qa_settings_sequence",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_prepare_source.py -k qa_settings_sequence --basetemp /home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/pytest-tmp -q --tb=no",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety",
+        "HOME": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety",
+        "ambient_environment": "Child primeste numai PATH, HOME, LANG, TMPDIR si cele doua flaguri de test; fara configuratie PG/provider sau PYTEST_ADDOPTS/PYTEST_PLUGINS."
+      },
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "deselected": 109,
+      "pytest_seconds": 2.96,
+      "cases": ["False-LOCAL_PRESENT", "True-LOCAL_PRESENT", "True-ABSENT", "True-NOT_VERIFIED"],
+      "scope": "SOURCE cu UDS real privat si doubles explicite; nu native/PG/live.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-settings-3LgdzjmF/review-safety/qa-settings-sequence.log"
+    },
+    {
+      "name": "final_snapshot_and_local_cleanup",
+      "command": "git diff --check; git status --short --branch; git rev-parse HEAD; sha256sum api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py; inspectie moduri loguri si endpointuri SOURCE proprii",
+      "exit_code": 0,
+      "changed_files_count": 2,
+      "result": "HEAD si hashurile neschimbate; diff --check fara output; cele patru fisiere log/evidence proprii au mod 0600; zero runtime.sock/runtime.boot ramase sub scratchul reviewului."
+    }
+  ],
+  "self_report_boundary": {
+    "developer_result_read": true,
+    "author_red_1fail_1pass": "SELF_REPORT_NOT_REEXECUTED",
+    "author_green_154source": "SELF_REPORT_NOT_REEXECUTED",
+    "author_ruff_format_mypy": "SELF_REPORT_NOT_REEXECUTED",
+    "intermediate_source_fixture_failures": "Pastrate in raportul autorului; nu sunt reinterpretate ca PASS sau defect de produs.",
+    "historical_causality": "Nicio atribuire a unei cauze istorice mai largi."
+  },
+  "not_run": {
+    "native": "NOT_RUN",
+    "postgresql": "NOT_RUN",
+    "docker": "NOT_RUN",
+    "provider_or_live_model": "NOT_RUN",
+    "browser_or_target": "NOT_RUN",
+    "public_control_transport": "NOT_RUN in regresia restransa; control_task preda direct ownerului real",
+    "real_stop_drain": "NOT_RUN; stop/_launch sunt doubles in aceste patru cazuri",
+    "full_source_154_and_quality": "NOT_RUN independent; self-report distinct",
+    "canonical": "NOT_RUN"
+  },
+  "protected_inputs": {
+    "documents/Omnis_Notite_Originale.html": "NOT_READ_NOT_COPIED_NOT_HASHED_NOT_MODIFIED",
+    "tools/development/ponytail.json": "NOT_READ_NOT_MODIFIED",
+    "credentials_and_dotenv": "NOT_READ_NOT_MODIFIED"
+  },
+  "decision_boundary": "Fara findings blocante concrete in diff si traseul declarat. APPROVED_SCOPED aproba numai corectia testului si regresia SOURCE pe acesti bytes; nu certifica autentificare/inferenta, native/PG/live sau absenta universala a gapurilor. Adjudecarea, integrarea si orice QA reala raman ale parintelui; faza2 NOT_CLOSED."
+}

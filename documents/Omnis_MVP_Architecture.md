@@ -310,6 +310,8 @@ Rezerva `VALIDATION` aparține ledgerului runului și nu poate fi consumată de 
 
 Bariera InstanceControl și fencingul se reverifică între reserve și send. Stop/Pause interzic dispatchuri noi, inclusiv wake nativ; anularea locală nu pretinde retragerea calculului remote deja trimis. Un tur cu submit incert se reconciliază, nu se repetă pentru a obține un răspuns. G-MODEL probează pozitiv un call admis și negativ cap epuizat, rezervări concurente, Stop între reserve/send, răspuns pierdut, retry/fallback neadmis și usage UNKNOWN; boot/status rămân zero provider calls. P2-inert folosește fixture de protocol fără provider; P2-live cere separat cont/model/date/buget autorizate.
 
+**Excepție autorizată pentru prima felie Codex pe subscripție:** operatorul a eliminat plafonul de output tokens generat drept criteriu blocant pentru`openai-codex/gpt-6.1-sol/xhigh`. Outputul se monitorizează, nu se declară limitat la transport sau cost zero; lipsa usage păstrează UNKNOWN, fără rezervă numerică prezentată fals ca limită garantată. Contractele ledger/DTO ale acestei rute trebuie să distingă explicit monitorizarea de capul numeric aplicabil API-urilor. Calls/deadline local/campanie/un copil, DATA, reserve→SENT, Stop/fencing și no-retry rămân. Excepția nu schimbă consumatorii API/inert existenți și nu atestă oprirea calculului remote. [Mandat și dovezi](verification/p4a-minim.md).
+
 ## 6. Scheduler, taskuri, continuări și bugete
 
 Supervisorul unic deține dispatcherul, runtime-ul și lease-urile. API poate avea mai multe procese în viitor, dar nu pornește schedulerul în lifespan. PostgreSQL oferă advisory locks la nivel de sesiune sau tranzacție; alegerea și eliberarea lor trebuie să fie explicite.[8]

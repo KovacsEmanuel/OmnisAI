@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "snapshot": "4eae74ecb3bda030f0fdfdcb5b4a9c8f87f67782",
+  "status": "HISTORICAL_ASSESSMENT_SUPERSEDED_BY_OPERATOR_OUTPUT_CAP_WAIVER",
+  "operator_addendum": "After this source assessment, the operator explicitly removed generated-output token caps as a blocking requirement for the authorized Codex subscription route and ordered minimal implementation to continue. Original analysis and NOT_VERIFIED backend facts below remain historical evidence, not an active output-cap blocker. Calls, local deadlines, DATA, reserve/SENT, Stop, no retry and usage/UNKNOWN remain required. Numeric API cap contracts are unchanged.",
+  "scope": "Source and public-document feasibility only. No Omnis inference, OAuth/account, SDK/native/DB/OCI/browser execution. No implementation assigned.",
+  "source_check": {
+    "command": "api/.venv/bin/python -I -B <scratch>/source-cap-check.py",
+    "exit_code": 0,
+    "result": {
+      "status": "PASS_SOURCE_CHARACTERIZATION_ONLY",
+      "asserted_controls": 3,
+      "pin": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+      "archive_sha256": "f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80",
+      "verified_unmodified_source": {
+        "agent/transports/codex.py": "02b5cb1ba5603bb86fee315947a364f17678333e8f24b57bf4876aa1adcc292b",
+        "agent/reasoning_effort.py": "742bf0702d77d2a3db7853a1f0d23e8bdf9cb30b78c10135e8b9018517b4bb2d"
+      },
+      "mapping_branch": [
+        {
+          "is_codex_backend": true,
+          "requested_max_tokens": 32768,
+          "max_output_tokens_emitted": null
+        },
+        {
+          "is_codex_backend": false,
+          "requested_max_tokens": 32768,
+          "max_output_tokens_emitted": 32768
+        }
+      ],
+      "local_xhigh_preserved": true,
+      "backend_cap_enforcement": "NOT_VERIFIED",
+      "backend_model_effort": "NOT_VERIFIED",
+      "product_inference": "NOT_RUN",
+      "scope": "Exact source branch and stdlib-only effort functions; no transport/SDK/native/DB/provider execution."
+    },
+    "source": "\"\"\"Read-only characterization of unchanged pinned source, NOT provider QA.\"\"\"\nimport ast\nimport hashlib\nimport json\nimport tarfile\nfrom pathlib import Path\nfrom typing import Any, Optional\n\nrepo = Path('/home/kali/OmnisAI')\nroot = Path('/home/kali/.hermes/cache/scratch/mp-_i844ny7/prepared/runtime-source')\npin = json.loads((repo / 'integrations/hermes/pin.json').read_bytes())\narchive = Path('/home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar')\nwith archive.open('rb') as source:\n    assert hashlib.file_digest(source, 'sha256').hexdigest() == pin['source_archive_sha256']\npaths = ('agent/transports/codex.py', 'agent/reasoning_effort.py')\nverified = {}\nwith tarfile.open(archive) as source:\n    for name in paths:\n        members = [m for m in source.getmembers() if m.name == name and m.isfile()]\n        assert len(members) == 1\n        stream = source.extractfile(members[0])\n        assert stream is not None\n        original = stream.read()\n        assert original == (root / name).read_bytes()\n        verified[name] = hashlib.sha256(original).hexdigest()\n\ntree = ast.parse((root / paths[0]).read_bytes())\nbranch: list[ast.stmt] = [n for n in ast.walk(tree) if isinstance(n, ast.If) and n.lineno == 776]\nassert len(branch) == 1 and isinstance(branch[0], ast.If) and ast.unparse(branch[0].test) == 'is_codex_backend'\nhelpers: list[ast.stmt] = [n for n in tree.body if isinstance(n, ast.FunctionDef)\n           and n.name in {'_merge_extra_headers', '_bounded_prompt_cache_key'}]\nassert len(helpers) == 2\nscope = {'Any': Any, 'Optional': Optional, 'hashlib': hashlib}\nexec(compile(ast.Module(body=helpers, type_ignores=[]), str(root / paths[0]), 'exec'), scope)\ncode = compile(ast.Module(body=branch, type_ignores=[]), str(root / paths[0]), 'exec')\nrows = []\nfor codex in (True, False):\n    local = dict(scope, is_codex_backend=codex, session_id='synthetic-source-control',\n                 _cache_scope='synthetic-source-control', kwargs={}, params={'max_tokens': 32768})\n    exec(code, local)\n    observed = local['kwargs']\n    assert type(observed) is dict\n    assert ('max_output_tokens' in observed) is (not codex)\n    if not codex:\n        assert observed['max_output_tokens'] == 32768\n    rows.append({'is_codex_backend': codex, 'requested_max_tokens': 32768,\n                 'max_output_tokens_emitted': observed.get('max_output_tokens')})\n\n# This module is stdlib-only; executing it cannot contact a provider.\nreasoning = ast.parse((root / paths[1]).read_bytes())\nassert all(n.module in {'__future__', 'typing'} for n in reasoning.body if isinstance(n, ast.ImportFrom))\nassert all(a.name == 're' for n in reasoning.body if isinstance(n, ast.Import) for a in n.names)\nefforts = {}\nexec(compile(reasoning, str(root / paths[1]), 'exec'), efforts)\nsupported = efforts['codex_supported_efforts']('gpt-6.1-sol')\nassert 'xhigh' in supported and efforts['clamp_effort']('xhigh', supported) == 'xhigh'\nprint(json.dumps({'status': 'PASS_SOURCE_CHARACTERIZATION_ONLY', 'asserted_controls': 3,\n                  'pin': pin['commit'], 'archive_sha256': pin['source_archive_sha256'],\n                  'verified_unmodified_source': verified, 'mapping_branch': rows,\n                  'local_xhigh_preserved': True, 'backend_cap_enforcement': 'NOT_VERIFIED',\n                  'backend_model_effort': 'NOT_VERIFIED', 'product_inference': 'NOT_RUN',\n                  'scope': 'Exact source branch and stdlib-only effort functions; no transport/SDK/native/DB/provider execution.'}, indent=2))\n",
+    "source_sha256": "70b9d6ebf65c1d36f8a7f160f04d09d020c44ab907aac551fd98e401695fc6af"
+  },
+  "source_check_setup_failures": [
+    {
+      "exit_code": 1,
+      "reason": "Archive member predicate assumed a leading directory; actual exact paths have no prefix. Before branch execution; no native/provider IO."
+    },
+    {
+      "exit_code": 1,
+      "reason": "Full auxiliary_client.py equality was incorrectly expected despite existing reviewed overlay. Scope narrowed to the two unchanged source files actually executed. Auxiliary comment is contextual source evidence only, not backend proof."
+    }
+  ],
+  "independent_feasibility": {
+    "session_id": "01a14b26-3b84-7a00-9f33-6574892adbcb",
+    "process": "proc_4774854ec4ef",
+    "exit_code": 0,
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "xhigh",
+    "cli_provider": "openai",
+    "semantic_auth_route": "Codex CLI development OAuth, distinct from Omnis product account",
+    "sandbox": "read-only",
+    "original_report": "**Verdict: BLOCKED_PRELIVE pentru plafonul obligatoriu de output generat, inclusiv reasoning ascuns.** Sursele justifică blocarea porții de acceptare; **nu demonstrează imposibilitate absolută sau un refuz live al backendului actual**. Un simplu fix de mapping nu este suficient.\n\n**VERIFIED_SOURCE**\n\n- **Pin confirmat:** HEAD este `4eae74ecb3bda030f0fdfdcb5b4a9c8f87f67782`. Arhiva originală are SHA-256-ul cerut, `f18177d037fc8012ad9a7bf7e5b4d05f5e0ca63bad9d28e43905389264282c80`, conform [pin.json](/home/kali/OmnisAI/integrations/hermes/pin.json:1).\n\n- **Hermes omite mappingul:** în original, `agent/transports/codex.py:776–787` aplică `max_tokens → max_output_tokens` numai în ramura non-Codex. Fișierul pregătit este identic cu originalul verificat. Comentariul despre HTTP 400 există și în original, `agent/auxiliary_client.py:1499`; rămâne o afirmație din sursă, nu probă autentificată actuală. [Transportul exact fixat](https://github.com/NousResearch/hermes-agent/blob/ee5ee84a345204a3b1d6ef6ba1ab747e602867b9/agent/transports/codex.py#L776-L787).\n\n- **Există documentație primară mai puternică decât acel comentariu:** OpenAI listează explicit `max_output_tokens` drept nesuportat pentru fluxul actual ChatGPT plan usage, inclusiv prin Codex app-server. Aceasta descrie fluxul public `api.openai.com/v1`; nu certifică separat comportamentul endpointului istoric `backend-api/codex`. Schema clientului Codex upstream, `ResponsesApiRequest`, nici ea nu conține plafonul. [Limitări oficiale](https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations), [schema Codex, liniile 260–286](https://github.com/openai/codex/blob/main/codex-rs/codex-api/src/common.rs#L260-L286).\n\n- **Semantica plafonului este documentată pentru API-ul Responses general:** `max_output_tokens` limitează tokenurile generate, inclusiv reasoning ascuns și formatare nevizibilă. Această garanție nu se transferă automat unui flux care declară parametrul nesuportat. [Reasoning models](https://developers.openai.com/api/docs/guides/reasoning#controlling-costs).\n\n- **`gpt-6.1-sol/xhigh` are suport public documentat.** Pinul Hermes nu recunoaște explicit familia `6.1-sol`, dar fallbackul său include `xhigh`, iar `clamp_effort` păstrează nivelurile acceptate: `agent/reasoning_effort.py:33,97–105,133–138`. Așadar, această omisiune din catalog **nu dovedește downgrade pentru `xhigh`**. [Modelul oficial](https://developers.openai.com/api/docs/models/gpt-6.1-sol).\n\n- **Discovery înainte de inferență este posibil:** clientul Codex are GET pentru catalog, cu `client_version`, iar schema catalogului include `supported_reasoning_levels`. Un catalog proaspăt, autentificat pentru contul și ruta efective, poate confirma suportul *advertised* înaintea primului apel. Nu garantează succesul viitoarei inferențe. [Discovery Codex](https://github.com/openai/codex/blob/main/codex-rs/codex-api/src/endpoint/models.rs#L31-L84), [schema modelului](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/openai_models.rs#L385-L393).\n\nIssue [#4138](https://github.com/openai/codex/issues/4138) confirmă eliminarea suportului configurației CLI; nu constituie probă despre backendul actual pentru acest model.\n\n**NOT_VERIFIED:** eligibilitatea contului Omnis, catalogul său actual, acceptarea/refuzul parametrului pe ruta exactă și enforcementul numeric. Nu am accesat credentiale și nu am executat discovery autentificat sau inferență.\n\n**Alternativă minimă:** nu am identificat una documentată care păstrează simultan providerul, modelul, contul/autorizarea și pinul cerute. Nici mutarea la fluxul public ChatGPT plan usage nu rezolvă plafonul: documentația sa îl declară nesuportat. API-key Responses oferă contractul documentat, dar schimbă autorizarea/facturarea și nu califică drept alternativă în constrângerile actuale.\n\n**Decizie pentru developer:** poate continua numai cu pregătire inertă și preflight care refuză implicit capabilitățile neconfirmate, reutilizând [ledgerul existent](/home/kali/OmnisAI/api/src/omnis/policy/budgets.py:151). Activarea apelului sintetic rămâne blocată până la o garanție verificabilă pentru plafon, review și confirmarea contului. Serializarea parametrului, răspunsul scurt, contorizarea textului și anularea locală nu satisfac această cerință.\n\nComenzi locale finale, toate **exit 0**:\n\n```text\ngit status --short --branch\ngit diff --exit-code\ngit rev-parse HEAD\nsha256sum /home/kali/.hermes/cache/scratch/cp4-0_amt9iv/pinned-source.tar\nnl -ba /home/kali/.hermes/cache/scratch/mp-_i844ny7/prepared/runtime-source/agent/transports/codex.py | sed -n '776,787p'\n```\n\nÎncercări nereușite: o cale greșită pentru `budgets.py` (`rg`, exit 2), retrieval GitHub din shell (exit 1, DNS) și un here-document refuzat de filesystem; verificările relevante au fost reluate prin citire directă și web. Repo nemodificat; niciun commit, runtime, DB, browser, login sau apel de model Omnis. Fișierele excluse nu au fost citite/copiate/hashuite/modificate.",
+    "original_report_sha256": "700b1c30992b9d34f05e28545350182049943680a40856d1ed0454afd4313079"
+  },
+  "primary_public_sources": [
+    {
+      "url": "https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations",
+      "scope": "ChatGPT plan usage through Sign in with ChatGPT and https://api.openai.com/v1, directly and via Codex app-server; NOT an observed contract of the pinned historical backend-api/codex endpoint",
+      "excerpt": "Unsupported fields: Omit background, conversation, max_output_tokens, max_tool_calls, metadata, moderation, multi_agent, prompt, prompt_cache_retention, safety_identifier, temperature, top_logprobs, top_p, truncation, and user."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/guides/reasoning#controlling-costs",
+      "scope": "General Responses API, not automatic authority for Codex OAuth",
+      "excerpt": "limit the total number of tokens the model generates, including reasoning tokens, visible output tokens, and non-visible formatting tokens, by using the max_output_tokens parameter"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "scope": "Public API model declaration, not Omnis account entitlement or effective live receipt",
+      "excerpt": "reasoning.effort supports low, medium (default), high, xhigh, and max. The none and minimal reasoning efforts are not supported."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.162.1/codex-rs/codex-api/src/common.rs",
+      "scope": "Fixed Codex client request schemas have no max_output_tokens field; omission is not proof that an untested server rejects it."
+    },
+    {
+      "url": "https://github.com/openai/codex/issues/4138#issuecomment-3571715194",
+      "scope": "Historical configuration-support removal only, not current gpt-6.1-sol backend execution."
+    }
+  ],
+  "decision": {
+    "backend_refusal": "NOT_OBSERVED",
+    "backend_output_cap": "NOT_VERIFIED",
+    "account_entitlement": "NOT_VERIFIED",
+    "model_effort_effective": "NOT_VERIFIED",
+    "local_stream_abort": "Does not bound hidden generation or establish remote cancellation",
+    "implementation": "NOT_STARTED_AT_PRELIVE_BLOCKER",
+    "canonical_gate": "NOT_RUN_NO_PRODUCT_INTEGRATION",
+    "browser_login": "NOT_RUN_NOT_YET_NEEDED",
+    "next_gate": "Verifiable cap contract and enforcement for the exact authorized Codex OAuth route, or a separately authorized scope change. Do not silently change provider/account/budget or substitute delivered-text limits."
+  }
+}

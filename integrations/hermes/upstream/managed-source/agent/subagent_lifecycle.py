@@ -281,6 +281,18 @@ class SubagentLifecycleService:
             configuration_snapshot(parent)
             if parent._parent_session_id is not None or len(self._model_test_batches) >= 32:
                 raise ValueError("Fresh native preparation root required")
+            for batch in self._model_test_batches.values():
+                held = batch["record"]
+                if (held is None or not held.agent._model_test_closed.is_set()
+                        or (held.future is not None and not held.future.done())):
+                    raise ValueError("Native preparation active or drain uncertain")
+            prepared = {id(b["record"]) for b in self._model_test_batches.values()}
+            for held in _REGISTRY.records.values():
+                if id(held) not in prepared and (
+                        (held.future is not None and not held.future.done())
+                        or held.state in (SubagentState.PENDING, SubagentState.STARTING,
+                                          SubagentState.RUNNING, SubagentState.CANCEL_REQUESTED)):
+                    raise ValueError("Native child already active")
             # Retain failure before the constructor: uncertain CREATE is never repeated.
             marker = {"bound": bound, "parent": parent, "record": None}
             self._model_test_batches[key] = marker

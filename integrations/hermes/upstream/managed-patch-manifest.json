@@ -30,7 +30,7 @@
     },
     "agent/subagent_lifecycle.py": {
       "original_sha256": "1c3dc15ad5bb91a79cba040ca7bf504e44f8fbf45db1911ed30821ce1730b51c",
-      "patched_sha256": "efee1831eec09ed98489be4c20c3b5753a6164b13ce6ae183f8b07f56fcc1598"
+      "patched_sha256": "277f9a36d9a3939b21c5437e48623d956b3bd99952850a8aa2b46489a7b70202"
     },
     "agent/turn_api_call.py": {
       "original_sha256": "8a30fbfd7e91f06b9b688be5a5b20be9c62c4114aae5e3bd14c0adf5ff23f16b",
@@ -69,5 +69,5 @@
       "patched_sha256": "8068c0ddde8f947bb1bd27de49b725081bf36d753cbe9931ea3568b55091f0bb"
     }
   },
-  "patch_sha256": "e542846562a30c5a660062528ddabc189fa226b7e884adc236a268457c25b1a1"
+  "patch_sha256": "e7cd9cc7ead15921d4043b9ff8568063ea0463ee96357b6e7a4c9feb6669de85"
 }

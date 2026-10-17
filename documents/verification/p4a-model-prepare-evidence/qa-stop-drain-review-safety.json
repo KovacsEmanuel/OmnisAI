@@ -1,0 +1,135 @@
+{
+  "report_id": "p4a-qa-stop-drain-independent-safety-943bbf0",
+  "role": "independent read-only safety/authority/concurrency/Stop/failure/cleanup and Ponytail full reviewer",
+  "language": "ro",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "decision": "Admitere condiționată a unei singure probe fresh prin consumerul original după reviewul complementar și adjudecarea părintelui. Nu native PASS, nu acceptare P4a/P2-live.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "33a5b06783e4404ddc6535e4b533f76aeca7ba4f",
+    "head_start_and_end": "943bbf07e068f102b4fc79b8573a2a60a76247cc",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "tracked_worktree_clean": true,
+    "index_clean": true,
+    "protected_untracked_preserved": "documents/Omnis_Notite_Originale.html listed by git status only; not read, hashed, copied or written",
+    "protected_tooling": "tools/development/ponytail.json not read or written",
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+      "api/tests/test_model_test_prepare_source.py": "b82c4ef83bb2dc9b98ddb6bebf5441b03d0e00c5915d0f9362af3258ccbe50eb",
+      "documents/verification/p4a-model-prepare-evidence/qa-stop-drain-author.json": "3e0ea7bd921db4a2b108f8a63a5a68495225f6510f08ce7cb7faa5b372c2360f"
+    }
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Stop păstrează revocare/fence DB înainte de drain și readback; baseline no-rerun se citește numai după settlement confirmat. UNKNOWN nu se promovează prin cleanup fizic.",
+    "consumer": "api/tests/test_contract_method_pg.py model_prepare arm, original connected RuntimeClient and original shared finally",
+    "risk": "Shutdown DB fără stop runtime permite baseline prematur și verificări STOPPED/CLOSE imposibile; un drain fals sau incert nu trebuie să publice verde sau să fabrice join.",
+    "decision": "Linia 9927 remediază omisiunea callerului fără alt owner, wrapper, autoritate sau modificare de produs. SOURCE este suficient pentru admitere condiționată, nu pentru a închide dovada nativă."
+  },
+  "scope_reviewed": {
+    "behavior_delta": "Exact +1 linie la api/tests/test_contract_method_pg.py:9927: assert await runtime.drain() is True, imediat după await service.shutdown și înainte de mt_native_closed.",
+    "regression_delta": "Exact o funcție parametrizată cu patru cazuri în api/tests/test_model_test_prepare_source.py:226-337, +114 linii de diff incluzând separatoare.",
+    "supporting_docs": ["README.md CURRENT", "documents/verification/implementation-status.md CURRENT", "documents/verification/p4a-minim.md CURRENT și ultimul paragraf Stop caller", "documents/verification/p4a-model-prepare-evidence/qa-stop-drain-author.json"],
+    "callers_and_seams": ["InstanceService(engine) fixture:8469", "maintain_owner:8784-8797 și done/join:9923-9925", "InstanceService.shutdown:390-411 și _locked:198-222", "InstanceService.quiesce:413-436", "RuntimeClient._exchange:377-443, response validation:526-563, drain:786-792", "RuntimeHost.stop:1071-1173, private authenticated handler:1226-1318", "validate_model_close_result:54-63", "shared failure/finally:12213-12399", "same-carrier native observer:6412-6456", "stock supervisor runtime callback/quiesce/finalizer and existing QA sibling drains"],
+    "unchanged_product_or_authority": true,
+    "configuration_exports_dependencies_changes": "NONE; no caller signature, fixture binding, export, dependency, model, provider, grant, deadline or cap changed"
+  },
+  "findings": [],
+  "blocking_findings_count": 0,
+  "review_checks": [
+    {
+      "area": "Ordering and transaction fence",
+      "result": "PASS_SOURCE",
+      "evidence": ["api/tests/test_contract_method_pg.py:9923-9929", "api/src/omnis/modules/instance/service.py:198-222,390-411"],
+      "reason": "done.set puis await heartbeat termină producătorul de renewal înainte de shutdown. shutdown iese din engine.begin înainte ca await să returneze; închide admiterea/incrementează generation și persistă SHUTDOWN fără runtime effect. Drainul nou începe după commit, nu sub lockul tranzacției. Dacă shutdown/commit eșuează, stopul și baseline nu sunt executate pe această cale."
+    },
+    {
+      "area": "Original owner, authority and concurrency",
+      "result": "PASS_SOURCE",
+      "evidence": ["api/tests/test_contract_method_pg.py:8469,8784-8808,9923-9927", "api/src/omnis/supervisor/runtime_client.py:413-443,465-474,526-563", "integrations/hermes/src/omnis_hermes/runtime_host.py:1185-1202,1234-1255"],
+      "reason": "Se folosește obiectul runtime existent, nu o conexiune/familie nouă. PreparationPrerequisite moștenește drainul real. Exchange folosește lockul existent, stop serial și boot/correlation/generation/epoch validate. Hostul verifică peer UID, capability, fence și owner_writer. Joinul heartbeat exclude concurența renewal→stop în acest caller. Nu se cere autoritate nouă după închiderea DB și nu se rescrie generation pentru a ocoli Hostul."
+    },
+    {
+      "area": "Strict drain, refusal, exception and cancellation",
+      "result": "PASS_SOURCE",
+      "evidence": ["api/src/omnis/supervisor/runtime_client.py:786-792", "api/tests/test_contract_method_pg.py:9927,12213-12229", "api/tests/test_model_test_prepare_source.py:280-337"],
+      "reason": "Drainul real cere exact True atât din ACK cât și din status readback. Linia nouă cere strict is True; False refuză înainte de baseline și replay. OSError/ValueError/TimeoutError devin False în implementarea existentă; alte excepții și cancellation propagă, fără catch nou. Cazul exception al companionului injectează RuntimeError la exchange; nu este dovadă nativă pentru fiecare frontieră de transport. Handlerul exterior marchează cleanup_failed și DB unsettled și repropagă primary error."
+    },
+    {
+      "area": "UNKNOWN and native CLOSE settlement",
+      "result": "PASS_SOURCE_PRESERVED_NATIVE_NOT_RUN",
+      "evidence": ["integrations/hermes/src/omnis_hermes/runtime_host.py:1071-1128,1162-1170", "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:54-63", "api/tests/test_contract_method_pg.py:9933-9944,6412-6456,12371-12399"],
+      "reason": "Hostul revocă lifeline înainte de primul await, serializează stop, latch-uiește incertitudinea înainte de CLOSE RPC și nu transformă eșecul lui în CLOSED_JOINED. STOPPED cere drain fizic, namespace-owned și absența incertitudinii. Callerul păstrează verificarea STOPPED+drained și validatorul CLOSE legat exact de context_ref. Missing CLOSE produce ValueError în validatorul original. Observerul nativ al aceluiași carrier/future și COMPLETED close în finally sunt byte-unchanged, nu probate de mockul nou."
+    },
+    {
+      "area": "Observation, no-rerun and persistence oracles",
+      "result": "PASS_SOURCE_UNWEAKENED",
+      "evidence": ["api/tests/test_contract_method_pg.py:9830-9922,9928-9959", "byte reconstruction check against base"],
+      "reason": "Baselineul închis se citește după drain. Native_closed.startswith(native_after) rămâne strict, fără filtrarea EXIT sau toleranțe suplimentare. Replayul post-Stop și refuzurile identity/CAS, censusul exact11 record kinds/run1/task1/old rows/revision2/inbox, egalitatea byte-exact după replay și checkpointurile existente sunt toate neschimbate. Verificarea mecanică a demonstrat că întreg QA original diferă exclusiv prin linia de drain."
+    },
+    {
+      "area": "Failure, cleanup and database retention",
+      "result": "PASS_SOURCE_UNCHANGED",
+      "evidence": ["api/tests/test_contract_method_pg.py:12213-12343,12371-12399"],
+      "reason": "Un drain refuzat/incomplet intră în handlerul existent cu primary exception, cleanup_failed și db_fence unsettled. Finally încearcă cleanupul original și nu șterge incertitudinea prin simpla absență a resursei: clearance cere resource_absent și toate flags false. Statusul verde final cere sys.exc_info()[0] is None și oracolele native după cleanup, inclusiv pentru returnul timpuriu. Proba SOURCE nu certifică cleanupul fizic fresh sau retenția DB reală."
+    },
+    {
+      "area": "Ponytail full / minimum complete change",
+      "result": "PASS_SOURCE",
+      "evidence": ["git diff base..head on both tests", "stock supervisor __main__.py:77,138-174", "existing QA sibling:10403,10451"],
+      "reason": "Cel mai mic remediu complet este un apel explicit al drainului deja existent la callerul care îl omitea. Nu este justificată schimbarea semanticii InstanceService.shutdown, legarea unui callback în toate fixtures sau un helper/owner/observer nou. Companionul extrage AST-ul consumerului real, nu reproduce o copie divergentă, și folosește RuntimeClient.drain real. Cele patru controale sunt finite și seam-urile DB/Host/transport sunt declarate doubles. Testele/fixtures/config/exports neafectate rămân neschimbate."
+    }
+  ],
+  "verification_performed_by_reviewer": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git show --stat --oneline HEAD; git diff 33a5b06783e4404ddc6535e4b533f76aeca7ba4f..943bbf07e068f102b4fc79b8573a2a60a76247cc --name-status",
+      "exit": 0,
+      "result": "Exact requested HEAD, tracked clean, protected untracked HTML preserved; six committed paths, executable delta confined to two test files."
+    },
+    {
+      "command": "git diff 33a5b06783e4404ddc6535e4b533f76aeca7ba4f..943bbf07e068f102b4fc79b8573a2a60a76247cc -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py documents/verification/p4a-minim.md; git diff --cached --stat; git log -5 --oneline",
+      "exit": 0,
+      "result": "Reviewed full affected test diff, CURRENT/Stop note and clean index."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c <stdlib-only hash/AST/byte-reconstruction assertions>; git diff --check 33a5b06783e4404ddc6535e4b533f76aeca7ba4f..943bbf07e068f102b4fc79b8573a2a60a76247cc; git status --short --branch",
+      "exit": 0,
+      "result": "Three SHA256 values match declared bytes. Original QA equals base with only exact one-line insertion; removing only new parametrized function/decorators/separators restores original companion byte-for-byte. All original oracles and existing tests unchanged; diff check clean and HEAD/worktree unchanged.",
+      "limit": "No imports of QA/native modules, no pytest invocation, no PG/OCI/provider/target effects. Printed new_test_lines=112 measures decorator-through-body span; git diff remains +114 including separating blank lines."
+    },
+    {
+      "command": "read_file/search_files on declared committed source and scope docs",
+      "result": "Source trace through DB transaction, runtime serialization/readback, Host Stop uncertainty, CLOSE validator, original observer and shared finally completed. No raw private logs, .env, private environment or capabilities read."
+    }
+  ],
+  "existing_evidence_reused_not_reexecuted": {
+    "author_report_sha256_verified": "3e0ea7bd921db4a2b108f8a63a5a68495225f6510f08ce7cb7faa5b372c2360f",
+    "reported_red": "Original consumer fragment 4 failed in 2.16s/exit1; missing stop exchange. Not independently rerun by this reviewer.",
+    "reported_final_source": "78 passed in 21.07s/exit0 and Ruff/format/strict mypy on two paths exit0 after final edit. Not independently rerun.",
+    "parent_control_from_task_and_current_note": "Four new cases PASS in 1.79s/exit0; not independently rerun.",
+    "historical_native": "QA705f5b4 post-cold/census11/replay/cold-reader progress retained; terminal result remains 1FAIL+1ERROR27.73s/gate2 and domain UNCERTAIN. No original primary Host state/flags recovered; no claim that caller omission exclusively caused that historic failure.",
+    "reason_no_ceremonial_replay": "No concrete new defect found requiring an additional probe. Reuse exact-byte bounded SOURCE controls and unchanged acceptance evidence; next useful evidence is the already-defined original consumer, parent-owned."
+  },
+  "conditional_fresh_probe_admission": {
+    "source_reviewer_decision": "ADMIT_CONDITIONALLY",
+    "must_complete_before_effects": ["Complementary independent review on these exact two SHA256 values and parent adjudication; any blocking concrete finding must be resolved first.", "Existing original runner argv/selection/collect/source-library/pin/access/identity and private TMPDIR membership preflight must pass without effects. DB --check is effectful, not a preflight.", "Bind current QA SHA3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db through original six bindings, fresh owned HOME/tmp/PG and existing family owner/cleanup. Unchanged API95/OCI43 evidence may be reused only after fresh identity/access preflight."],
+    "allowed_next": "One fresh original consumer run_gate180 through the existing path, no retry on unchanged bytes and no new observer/verifier framework.",
+    "must_preserve": ["DB fence then authentic runtime drain then settled baseline", "STOPPED and drained is True", "context-correlated CLOSED_JOINED and real same-carrier Future join observer", "native byte equality, exact census and replay/refusal oracles", "original deadlines/grants/caps/Stop behavior", "primary failure/UNKNOWN and database retention until exact owned settlement readback"],
+    "not_authorized": ["provider/account/model inference or target traffic", "Responses/auth/web/live/P3/r1/global/push", "old DB adoption or foreign resource cleanup", "native grant/deadline increase or forced STOPPED/drained flag", "OCI rebuild solely for unchanged source/distribution", "new helper owner, observer, harness or verifier"]
+  },
+  "limits_and_not_run": [
+    "SOURCE review only; reviewer did not execute PG, OCI, native Hermes, provider, account, target, web, live or canonical gates.",
+    "New regression substitutes DB shutdown, Host/transport ACK/status and CLOSE input. A synthetic CLOSED_JOINED is not evidence of a native Future, real physical drain or authentic CLOSE receipt.",
+    "No independent recreation of author RED/GREEN or historic QA; reused claims are explicitly separated from reviewer tool output.",
+    "No assertion of universal security, cleanup or absence of gaps outside this delta and affected callers.",
+    "Native same-Future/CLOSE acceptance remains NOT_RUN on the fixed bytes until the admitted original consumer completes; historical UNKNOWN is preserved."
+  ],
+  "tool_applicability": {"reticle": "NOT_APPLICABLE", "chisel": "BLOCKED_NO_GO"},
+  "writes_and_effects": {
+    "only_created_file": "/home/kali/.hermes/cache/scratch/sc-vz0lobs5/review-safety.json",
+    "repository_edits_stage_commit_push": "NONE",
+    "services_or_external_effects": "NONE",
+    "new_owned_resources_requiring_retirement": "NONE; source inspection and stdlib-only -I -B verification only"
+  },
+  "proposed_parent_status_delta": "Safety review APPROVED_SOURCE_SCOPED pe943bbf0; Stop caller rămâne IN_REVIEW până la review complementar/adjudecare și proba reală. P4a PARTIAL, P2-live NOT_RUN, faza2 NOT_CLOSED. Nu modifica istoricul FAIL/UNKNOWN.",
+  "ponytail_skipped_and_risk": "Am omis re-auditarea acceptărilor byte-unchanged, frameworkuri și rerulări ceremoniale. Risc rămas: SOURCE/doubles nu certifică drainul/CLOSE/same-Future nativ; proba fresh originală poate încă refuza și trebuie să păstreze UNCERTAIN."
+}

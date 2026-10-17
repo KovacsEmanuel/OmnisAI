@@ -1,0 +1,155 @@
+{
+  "report_id": "QA-STOP-DRAIN-NORM-943bbf0",
+  "role": "independent_read_only_normative_order_persistence_readback_and_ponytail_full",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "decision": "No blocking finding in the reviewed delta. The one-line QA caller fix correctly requests the original runtime Stop after the committed DB shutdown fence and before the closed observation baseline. This approves source and regression scope only, not native settlement or product acceptance.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "33a5b06783e4404ddc6535e4b533f76aeca7ba4f",
+    "head": "943bbf07e068f102b4fc79b8573a2a60a76247cc",
+    "branch": "checkpoint/p2-batch2-pause-20261015",
+    "tracked_worktree_clean_at_entry_and_exit": true,
+    "index_clean": true,
+    "preexisting_untracked_preserved_not_opened": ["documents/Omnis_Notite_Originale.html"],
+    "sha256": {
+      "api/tests/test_contract_method_pg.py": "3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db",
+      "api/tests/test_model_test_prepare_source.py": "b82c4ef83bb2dc9b98ddb6bebf5441b03d0e00c5915d0f9362af3258ccbe50eb"
+    },
+    "reused_author_report": {
+      "path": "documents/verification/p4a-model-prepare-evidence/qa-stop-drain-author.json",
+      "sha256": "3e0ea7bd921db4a2b108f8a63a5a68495225f6510f08ce7cb7faa5b372c2360f",
+      "complete_json_read": true,
+      "test_execution_credit": "AUTHOR_RECORDED_BYTE_BOUND_NOT_INDEPENDENTLY_RERUN"
+    }
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Fence/revoke admission before runtime Stop effects; claim STOPPED and capture settled no-rerun bytes only after authentic original-runtime drain and exact-target readback, retaining correlated CLOSE and native settlement gates.",
+    "consumer": "api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox, model_prepare arm at lines 9923-9960",
+    "risk": "DB-only shutdown can leave the original runtime active while QA records a closed baseline and expects STOPPED/CLOSE. A permissive replacement would falsely pass unproven native settlement or hide replay work.",
+    "decision": "Accept the minimal caller correction SOURCE-scoped. After the complementary review and parent adjudication, allow only the already-authorized fresh original bounded consumer following no-effect preflight; block acceptance if authentic CLOSE/same-Future or the unchanged oracles fail."
+  },
+  "authority_read": [
+    "AGENTS.md",
+    "CONTRIBUTING.md, especially product-first execution and two complementary reviews",
+    "README.md CURRENT only as active status, not a historical queue",
+    "omnis-review-qa skill in full",
+    "omnis-project-status skill in full, ORIENT/read-only",
+    "User Ponytail full rules in full; tools/development/ponytail.json was not opened",
+    "documents/verification/implementation-status.md active affected row at line 13",
+    "documents/verification/p4a-minim.md CURRENT and current renewal/Stop-caller paragraphs at lines 150-156",
+    "documents/Omnis_MVP_Architecture.md lines 154-164: fence, drain, readback and no false STOPPED",
+    "documents/Omnis_Implementation_Plan.md relevant P2-inert/P4a-minim/P2-live dependency and SL11-SL12 rows"
+  ],
+  "scope": {
+    "changed_behavior": "Exactly one added assertion at api/tests/test_contract_method_pg.py:9927: assert await runtime.drain() is True",
+    "companion": "One four-case parametrized regression, +114 lines, at api/tests/test_model_test_prepare_source.py:226-337",
+    "connected_paths_read": [
+      "api/src/omnis/modules/instance/service.py:66-69,197-222,376-436",
+      "api/src/omnis/supervisor/runtime_client.py:760-792",
+      "api/src/omnis/supervisor/__main__.py:72-77,138-174",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:208-225,1071-1173,1191-1202,1255-1278",
+      "integrations/hermes/src/omnis_hermes/managed_admission_contract.py:54-63",
+      "api/tests/test_contract_method_pg.py:6412-6456,8463-8475,9860-9960,10450-10455,12240-12399"
+    ],
+    "not_a_general_product_audit": true
+  },
+  "findings": [],
+  "finding_schema_if_present": ["id", "severity", "path", "line", "case", "violated_requirement", "remedy"],
+  "requirement_code_evidence_matrix": [
+    {
+      "requirement": "Renewal producer must be stopped/joined before the DB fence",
+      "code": "test_contract_method_pg.py:9923-9926",
+      "assessment": "PRESERVED",
+      "evidence": "done.set(), non-null heartbeat assertion and await heartbeat remain before shutdown. The regression runs this actual AST arm; its shutdown double requires heartbeat.done() and the joined event. No owner or renewal logic changed."
+    },
+    {
+      "requirement": "Durable admission fence before the first drain effect",
+      "code": "instance/service.py:197-222,390-411; test_contract_method_pg.py:9926-9927",
+      "assessment": "SOURCE_ORDER_CORRECT",
+      "evidence": "shutdown uses _locked, whose enclosing engine.begin transaction commits during async-context exit before the awaited method returns. It records SHUTDOWN and sets admission_open=false, generation+1 and shutdown_command_id. It does not drain. The QA fixture constructs InstanceService(engine) without runtime_drain at line 8469. The new awaited runtime.drain is strictly after successful shutdown, not inside its transaction and not before its commit. This is source reasoning, not a fresh PG commit/crash proof."
+    },
+    {
+      "requirement": "Drain the same original runtime and read back its state before the closed baseline",
+      "code": "test_contract_method_pg.py:9927-9943; runtime_client.py:786-792; runtime_host.py:1255-1278",
+      "assessment": "SOURCE_ORDER_CORRECT_FAIL_CLOSED",
+      "evidence": "No new client, replacement owner, runtime identity or grant is created. RuntimeClient.drain awaits stop and then status on that client, requires both drained fields to be exactly True, and returns False on OSError/ValueError/TimeoutError. The new identity assertion prevents baseline/replay after False; an uncaught exception also exits before baseline. Host handles stop by awaiting its existing stop method before generating the response. Original later status still separately demands STOPPED and drained=True, so IDLE or a success ACK alone cannot satisfy the consumer."
+    },
+    {
+      "requirement": "Keep strict context-correlated native CLOSE and no false-green uncertainty",
+      "code": "runtime_host.py:1114-1128,1162-1170; managed_admission_contract.py:54-63; test_contract_method_pg.py:9933-9944",
+      "assessment": "PRESERVED_NOT_NATIVE_PROVEN",
+      "evidence": "Host latches uncertainty before attempting the original CLOSE RPC, validates its context and CLOSED_JOINED result, and retains UNCERTAIN unless physical drain, namespace ownership and certainty all hold. QA still applies the original strict validator against the original mt_answer context. Neither the validator nor Host behavior changed. The new companion's CLOSE is explicitly synthetic and is not evidence of native AIAgent.close or native Future settlement."
+    },
+    {
+      "requirement": "Keep byte, census, old-row, replay and same-Future/native observer gates",
+      "code": "test_contract_method_pg.py:9868-9959,6449-6454,12371-12399",
+      "assessment": "BYTE_EXACTLY_PRESERVED",
+      "evidence": "A direct Python comparison against git-show base proved that the entire current consumer file equals the base plus only the declared drain assertion. Thus all other bytes are unchanged: cold-reader equality; exact eleven record kinds/run1/task1/old rows/revision2/inbox checks; native_closed.startswith(native_after); replay answer and identity-denial checks; exact final census/native-byte equality. The original observer still checks the actual record.future.done() and closed event on AIAgent.close return; the shared finally remains reachable after the early return and requires authentic close ENTERED/COMPLETED with no forbidden execution. These are preserved gates, not freshly passed native evidence."
+    },
+    {
+      "requirement": "Regression must follow the changed consumer rather than a copied implementation",
+      "code": "test_model_test_prepare_source.py:226-337",
+      "assessment": "ADEQUATE_SOURCE_SCOPED",
+      "evidence": "The test extracts and executes the actual AST from done.set through the original CLOSE validator and uses real RuntimeClient.drain with declared DB/Host/transport doubles. Positive requires joined→fenced→drain-enter→drain-return→baseline across an await. False and exception refuse before baseline/replay; missing CLOSE reaches and fails the original strict validator. This proves the caller ordering/failure seam only, not DB transactions, UDS, native process or native Future behavior."
+    }
+  ],
+  "ponytail_full_review": {
+    "verdict": "MINIMAL_COMPLETE_SOURCE_DELTA",
+    "reach": ["existing model_prepare QA Stop caller", "its narrowly affected source regression", "unchanged InstanceService fixture", "existing RuntimeClient/Host Stop and readback", "existing downstream replay/native observer oracles"],
+    "smallest_complete_change": "An explicit one-line drain at the fixture caller fixes the missing action without globally binding or changing service semantics for unrelated fixture branches. Existing QA sibling already requires strict drain before its observation baseline, and stock supervisor binds runtime.drain and quiesces separately.",
+    "regression_cost": "The +114 lines are finite four-case coverage of the actual caller AST and real drain. No reusable framework, owner, timeout, option, dependency, configuration, product refactor or synthetic native-success promotion is introduced. No style-only reduction requested.",
+    "user_data_or_authority_change": "None in production paths; only QA requests the already-defined original runtime Stop after its existing DB shutdown. No deletion, grant increase, capability widening or automatic replay was added."
+  },
+  "verification": {
+    "independent_performed": [
+      {
+        "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git show --stat --oneline HEAD; git diff --cached --stat",
+        "exit": 0,
+        "result": "Exact requested HEAD, clean tracked worktree/index; preexisting protected untracked HTML only."
+      },
+      {
+        "command": "git diff 33a5b06783e4404ddc6535e4b533f76aeca7ba4f 943bbf07e068f102b4fc79b8573a2a60a76247cc -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+        "exit": 0,
+        "result": "Consumer +1/-0; companion +114/-0."
+      },
+      {
+        "command": "python3 -I -B direct stdlib SHA256, ast.parse and git-show base comparison; no application imports",
+        "exit": 0,
+        "result": "Both requested final test SHAs and author-report SHA match. Current consumer is exactly base plus the one drain assertion; companion AST parses."
+      },
+      {
+        "command": "git diff --check 33a5b06783e4404ddc6535e4b533f76aeca7ba4f 943bbf07e068f102b4fc79b8573a2a60a76247cc -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+        "exit": 0,
+        "result": "No whitespace errors."
+      }
+    ],
+    "reused_not_rerun": {
+      "author_red": "4 failed in 2.16s / exit1 before consumer edit; original STOPPED assertion fails and no stop exchange",
+      "author_final_affected_companion": "78 passed in 21.07s / exit0, after last edit",
+      "author_final_quality": "Ruff check, Ruff format check, strict mypy for the two affected files: exit0",
+      "parent_targeted": "4 new cases passed in 1.79s / exit0, supplied context; not independently rerun here",
+      "intermediate_failures_preserved": "Author report retains initial 1 failed/77 passed test-local scope error and format-check failure, followed by correction and final full affected-file evidence.",
+      "reason_not_rerun": "Exact current bytes match the evidence; static review found no concrete finding needing a fresh reproducer. No ceremonial suite or verifier was added."
+    },
+    "real_consumer": "NOT_RUN_BY_THIS_REVIEW",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "limits_and_open_gates": [
+    "SOURCE review and synthetic CLOSE/status doubles do not prove native AIAgent.close, correlated same-Future settlement, physical runtime drain or fresh PG persistence/readback.",
+    "The last real consumer remains the retained FAIL/ERROR, with prior post-cold/census/replay progress intact. Historical primary Host state/drained and exclusive cause remain UNKNOWN. The current sufficient caller omission is not retrospective exclusive causality.",
+    "Complementary independent review, parent adjudication and one preflight-admitted fresh original consumer are still acceptance gates. Use existing run_gate180 and six explicit bindings, fresh owned HOME/TMPDIR/PG, current QA SHA 3153e6bbbce3e0e0d2b1bbe8448a86314f5f06ff63ef614dcf37461f63d766db, original resource owner/cleanup and all strict native oracles. No new harness or retry was proposed.",
+    "API95/OCI43 reuse requires parent identity/access readback; this reviewer neither rebuilt nor independently read their external resources.",
+    "No PG, OCI, native launch, provider, account, target, private environment, capability receipt, old PG log, web/live, canonical, global profile, push or authentication operation was performed. The effectful DB runner --check was not run.",
+    "No repository file, index, commit, skill or configuration was modified. Only the requested scratch JSON report was written."
+  ],
+  "issues_encountered": [
+    "Initial author-report lookup used p4a-minim-evidence instead of the linked p4a-model-prepare-evidence path; corrected from the active paragraph and read the complete exact report.",
+    "Initial RuntimeHost lookup under api/supervisor did not exist; discovered and inspected its actual integrations/hermes source path. Neither lookup produced effects."
+  ],
+  "proposed_status_delta_for_parent": {
+    "current_slice": "SL12/P4a-minim Stop-caller fix: source implemented/committed; this normative review APPROVED_SOURCE_SCOPED; fresh native proof still NOT_RUN",
+    "unchanged": "P4a-minim PARTIAL; P2-live NOT_RUN; B06b/G02/P2 NOT_CLOSED; no authority for Responses/auth/web/live/P3",
+    "next": "Adjudicate this exact-snapshot report with the complementary review; after no-effect preflight, run only the existing single fresh bounded original consumer and retain its exact result/cleanup without relaxing any oracle."
+  }
+}

@@ -4558,14 +4558,15 @@ def test_qa_offline_idle_channel_real_uds(monkeypatch: pytest.MonkeyPatch, relea
     asyncio.run(run())
 
 
-@pytest.mark.parametrize("batch2", [False, True], ids=["h03", "batch2"])
+@pytest.mark.parametrize("caller", ["h03", "batch2", "model-execute"])
 @pytest.mark.parametrize("valid_drain", [True, False])
 def test_h03_settled_connection_retires_after_offline_readers(
-    monkeypatch: pytest.MonkeyPatch, valid_drain: bool, batch2: bool
+    monkeypatch: pytest.MonkeyPatch, valid_drain: bool, caller: str
 ) -> None:
     """Actual caller AST + SOURCE Host/client UDS; no native, DB or Docker launch."""
     import ast
     import tempfile
+    from types import SimpleNamespace
 
     monkeypatch.syspath_prepend(str(ROOT / "integrations/hermes/src"))
     from omnis_hermes.runtime_host import RuntimeHost
@@ -4597,7 +4598,7 @@ def test_h03_settled_connection_retires_after_offline_readers(
         body=readers.body[start:end],
         decorator_list=[],
     )
-    if batch2:
+    if caller == "batch2":
         branch = next(
             n
             for n in ast.walk(tree)
@@ -4613,6 +4614,22 @@ def test_h03_settled_connection_retires_after_offline_readers(
                 or "await runtime.close()" in ast.unparse(n)
             )
         ]
+    elif caller == "model-execute":
+        branch = next(
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.If)
+            and ast.unparse(n.test) == "model_execute"
+            and any(
+                isinstance(s, ast.For) and "mt_reader_changes" in ast.unparse(s.target)
+                for s in n.body
+            )
+        )
+        start = next(
+            i for i, n in enumerate(branch.body) if "assert await runtime.drain()" in ast.unparse(n)
+        )
+        end = next(i for i, n in enumerate(branch.body) if isinstance(n, ast.Return))
+        settle.body = branch.body[start : end - 1]
 
     async def run() -> None:
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="h03-") as name:
@@ -4624,6 +4641,32 @@ def test_h03_settled_connection_retires_after_offline_readers(
                 state: dict[str, object] = {"Running": True, "ExitCode": 0}
                 flags = {"docker_unknown": False, "cleanup_failed": False}
                 proof: dict[str, object] = {}
+                context = {
+                    "id": str(uuid4()),
+                    "kind": "model-test-context",
+                    "revision": 1,
+                    "digest": "a" * 64,
+                }
+                close = {
+                    "protocol": "omnis-managed-admission-v6",
+                    "mode": "CLOSE",
+                    "context_ref": context,
+                }
+                if caller == "model-execute":
+                    # SOURCE close evidence only; drain and retirement use the real UDS.
+                    host.state, host.epoch = "STOPPED", 1
+                    host.model_preparation_close = canonical(close)
+                    host.model_close_evidence = canonical({**close, "status": "CLOSED_JOINED"})
+
+                async def offline_control(*args: object) -> dict[str, object]:
+                    return {"state": "SETTLED"}
+
+                async def offline_cli(*args: object) -> dict[str, object]:
+                    await asyncio.sleep(2.7)
+                    return {"state": "SETTLED"}
+
+                async def mission_census() -> bytes:
+                    return b"unchanged-source-census"
 
                 async def inspect_owned() -> dict[str, object]:
                     return {"State": state}
@@ -4643,6 +4686,15 @@ def test_h03_settled_connection_retires_after_offline_readers(
                     h03_state=flags,
                     process_receipts=[],
                     checkpoint=lambda **fields: proof.update(fields),
+                    mt_answer={"context_ref": context},
+                    epoch=1,
+                    status=SimpleNamespace(generation=0),
+                    control_task=offline_control,
+                    restarted_cli=offline_cli,
+                    request_send={},
+                    expected={"state": "SETTLED"},
+                    mission_census=mission_census,
+                    after_tables=b"unchanged-source-census",
                 )
                 exec(
                     compile(
@@ -4668,7 +4720,9 @@ def test_h03_settled_connection_retires_after_offline_readers(
                         runtime.capability = "invalid-synthetic-capability"
                         with pytest.raises(
                             AssertionError,
-                            match=None if batch2 else "^H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN$",
+                            match="^H03_REPLACEMENT_NATIVE_DRAIN_UNCERTAIN$"
+                            if caller == "h03"
+                            else None,
                         ):
                             await settle_call()
                         assert "h03_last_retirement" not in proof
@@ -4677,7 +4731,8 @@ def test_h03_settled_connection_retires_after_offline_readers(
                     if (runtime.boot, runtime.capability) != original_identity:
                         raise AssertionError("SETTLED_OWNER_IDENTITY_CHANGED")
                     # Same offline interval that lets the unchanged Host idle timer fire.
-                    await asyncio.sleep(2.7)
+                    if caller != "model-execute":
+                        await asyncio.sleep(2.7)
                     await retire_call()
                     if (runtime.boot, runtime.capability) != original_identity:
                         raise AssertionError("RETIRED_OWNER_IDENTITY_CHANGED")
@@ -10078,6 +10133,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             },
                         )
                         assert closed_host["drained"] is True and close["status"] == "CLOSED_JOINED"
+                        await runtime.close()
                         for mt_reader_changes in (
                             {},
                             {

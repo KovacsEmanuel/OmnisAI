@@ -8782,10 +8782,15 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             status = await service.owned_status(supervisor, epoch)
 
             async def maintain_owner() -> None:
-                # Same real lease producer as the supervisor; no changed TTL,
-                # synthetic grant or native deadline extension.
+                # Keep the held preparation alive through the stock owner's renewal.
                 while not done.is_set():
                     await service.heartbeat(supervisor, epoch)
+                    if model_prepare and runtime is not None and runtime.writer is not None:
+                        runtime_state = (await runtime.status())["state"]
+                        if runtime_state == "READY":
+                            await runtime.renew(service, supervisor)
+                        elif runtime_state == "MANAGEMENT":
+                            await runtime.renew(service, supervisor, management=True)
                     try:
                         await asyncio.wait_for(done.wait(), 0.5)
                     except TimeoutError:

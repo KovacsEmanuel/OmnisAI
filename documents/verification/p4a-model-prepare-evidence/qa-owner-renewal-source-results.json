@@ -1,0 +1,82 @@
+{
+  "final-source": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src']; raise SystemExit(pytest.main(['-c', '/home/kali/OmnisAI/api/pyproject.toml', '-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/me-mc8lsiv_/t/final', '-q', '--tb=short', 'api/tests/test_model_test_prepare_source.py', 'api/tests/test_owned_model_initialization.py', 'api/tests/test_native_task_control.py']))"
+    ],
+    "exit": 0,
+    "output": "........................................................................ [ 62%]\n...........................................                              [100%]\n115 passed in 21.25s\n"
+  },
+  "ruff": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "api/pyproject.toml",
+      "--no-cache",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "exit": 0,
+    "output": "All checks passed!\n"
+  },
+  "format": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "ruff",
+      "format",
+      "--config",
+      "api/pyproject.toml",
+      "--check",
+      "--no-cache",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "exit": 0,
+    "output": "2 files already formatted\n"
+  },
+  "mypy": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "mypy",
+      "--config-file",
+      "api/pyproject.toml",
+      "--no-incremental",
+      "--cache-dir",
+      "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/mypy-final",
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "exit": 0,
+    "output": "Success: no issues found in 2 source files\n"
+  },
+  "diff-check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "output": ""
+  },
+  "files": {
+    "api/tests/test_contract_method_pg.py": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+    "api/tests/test_model_test_prepare_source.py": "d814a9f2800d3f543d7adae784fdd5cc02af27c4e7846f16837ed14108d20607"
+  },
+  "head": "e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc",
+  "status": "## checkpoint/p2-batch2-pause-20261015\n M api/tests/test_contract_method_pg.py\n M api/tests/test_model_test_prepare_source.py\n?? documents/Omnis_Notite_Originale.html\n",
+  "created_endpoints_remaining": []
+}

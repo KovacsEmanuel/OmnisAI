@@ -1,0 +1,57 @@
+{
+  "base_head": "e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc",
+  "status": "SOURCE_GREEN_REVIEW_PENDING_REAL_CONSUMER_NOT_RUN",
+  "cause_record_written_before_qa_edit": true,
+  "acceptance": "Align only model_prepare QA owner's existing heartbeat coroutine with existing supervisor READY/MANAGEMENT renewal; retain all census/byte equality, shutdown and CLOSE oracles.",
+  "write_scope": ["/home/kali/OmnisAI/api/tests/test_contract_method_pg.py", "/home/kali/OmnisAI/api/tests/test_model_test_prepare_source.py"],
+  "cause": "Actual QA maintain_owner coroutine renews DB heartbeat but not Host authority. SOURCE controlled clock passes initial 4.5s deadline while heartbeat continues; actual RuntimeHost._watch calls actual stop, actual NativePeer.call sends context-bound CLOSE, existing MODEL_PREPARE_OBSERVER appends prepare-close ENTERED/COMPLETED. Existing stock supervisor tick extracted from source renews the same real RuntimeClient/UDS/Host and prevents this append while alive. Actual current QA coroutine fails the unchanged-observation/alive expectation.",
+  "before_qa_edit": {
+    "command": "TMPDIR=/home/kali/.hermes/cache/scratch/me-mc8lsiv_/t PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\",\"/home/kali/OmnisAI/api/tests\",\"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-c\",\"/home/kali/OmnisAI/api/pyproject.toml\",\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"--basetemp=/home/kali/.hermes/cache/scratch/me-mc8lsiv_/t/red2\",\"-q\",\"--tb=short\",\"api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop\"]))'",
+    "exit": 1,
+    "result": "2 failed, 4 passed in 5.13s",
+    "meaning": "Both heartbeat-only causal controls and both stock-renewal controls PASS; both actual QA coroutine cases RED solely at READY/empty-observation assertion (actual UNCERTAIN). Stock renewal stops at doneEvent; intentional expiry or explicit Stop closes exactly once and renewed authority cannot resurrect it. Non-OCI host remains UNCERTAIN, deliberately not STOPPED certification."
+  },
+  "minimum_fix_rationale": "Use existing runtime.status and runtime.renew on existing owner only for model_prepare and connected runtime, READY or MANAGEMENT with management=True; do not renew disconnected/preparation/in-flight or stopped states; no new owner, limits, retries, reconnect, prewarm or observer architecture.",
+  "preliminary_failures": [
+    "Selection -k not qa deselected all six tests; exit5; no effects beyond pytest scratch.",
+    "First SOURCE probe: 6fail; observer mechanism already reached but STOPPING not yet joined, stock owner alias absent. Fixed fixture settlement and alias only.",
+    "Second SOURCE probe: 2pass/4fail; heartbeat control now passes; stock RuntimeClient correctly refused missing READY bootstrap inventory. Supplied existing fixture's valid NOT_INITIALIZED inventory; no product validation removed."
+  ],
+  "limits": [
+    "SOURCE-only authority/storage/native child/frame/signal doubles explicitly labelled; real RuntimeHost watchdog/stop, RuntimeClient, UDS, NativePeer.call and observer callback executed.",
+    "Not actual native AIAgent.close or native worker Future settlement: synthetic child and manually completed real concurrent Future at NativePeer delivery seam.",
+    "No real PG census; demonstrated native-observation operand divergence, not independent DB mutation.",
+    "Historical operand and exclusive cause remain UNKNOWN because original after_tables/native_after not persisted.",
+    "No PG/OCI/native/provider/account/target launch; no global or protected-file access; no stage/commit."
+  ],
+  "resources": "Owned scratch me-mc8lsiv_, pytest basetemps, mypy caches and short ipc_directory UDS; no native child, DB, container or TCP/HTTP listener launched. Each new test closes clients, cancels/joins watchdog, verifies runtime.sock/runtime.boot absent. Native process and signal are mocks. Final scan under owned test TMPDIR found no runtime.sock/runtime.boot. Scratch/bytes/logs retained; nothing historical adopted or retired.",
+  "final": {
+    "head_unchanged": "e8e7a2f98b785356fb8e7c6a41ddbd84c7b28fbc",
+    "checks_command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/me-mc8lsiv_/verify.py",
+    "checks_exit": 0,
+    "final_test_against_exact_base": {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/me-mc8lsiv_/baseline-red.py",
+      "exit": 1,
+      "result": "4 failed, 8 passed in 8.21s",
+      "output_handle": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/baseline-red-result.json",
+      "meaning": "Final 12 tests execute the exact base-HEAD QA maintain_owner AST through qa.__file__ substituted to byte-exact git-show source. All 8 heartbeat-only/stock controls PASS; all 4 unmodified QA cases fail only alive/unchanged-observation assertion for READY and MANAGEMENT. This supplements, not replaces, the six-case RED recorded before QA edit. Repo bytes were not mutated for this control."
+    },
+    "commands_outputs": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/final-results.json",
+    "source": "115 passed in 21.25s; 103 existing across model_test_prepare_source, owned_model_initialization, native_task_control plus 12 new owner controls (READY/MANAGEMENT x heartbeat-only/stock/actual-QA x expiry/Stop)",
+    "quality": "Ruff check0; format0 (2 already formatted); strict mypy0 (2 source files); git diff --check0. Explicit api/pyproject.toml, no auto pytest plugins/cacheprovider, -I -B, all caches/temp confined to owned scratch.",
+    "new_control_meaning": "Controlled nanosecond clock advances six seconds through the original 4.5s Host grant. Stock and QA renewals preserve original empty observer bytes and unfinished SOURCE Future; heartbeat-only causes watchdog CLOSE and exactly two existing-observer append rows. doneEvent blocks all further producer work. Both intentional expiry and real UDS Stop still execute CLOSE exactly once; actual Host rejects fresh renewal afterward. Management renewals explicitly use management=True, READY uses inert_probe=True. Non-namespace-owned Host remains UNCERTAIN, never falsely certified STOPPED.",
+    "sha256": {
+      "/home/kali/OmnisAI/api/tests/test_contract_method_pg.py": "b248d64e649eb917eff90fcba3891f6497865df197d4a668967c79ff5b93f8a5",
+      "/home/kali/OmnisAI/api/tests/test_model_test_prepare_source.py": "d814a9f2800d3f543d7adae784fdd5cc02af27c4e7846f16837ed14108d20607"
+    },
+    "snapshot_manifest": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/snapshot.json",
+    "exact_diff": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/change.diff",
+    "diff_sha256": "b149ef546c012ce04bc9e74f4bcd0aafda68334fcf7edca35d8661a0ce693007",
+    "bytes_directory": "/home/kali/.hermes/cache/scratch/me-mc8lsiv_/bytes",
+    "change_size": "QA: 9-line hunk (7 additions, 2 comment deletions); SOURCE: 201 added lines. Only two allowed repo files changed; index untouched, no commit.",
+    "preliminary_green": "92 passed in21.01s on first two modules before format. Initial quality found import/format issues (mypy already0); corrected by explicit no-cache Ruff only on owned SOURCE test, then all checks rerun after last edit.",
+    "remaining": "Parent owns two independent exact-snapshot reviews then source/access preflight and one admitted fresh real consumer if approved. Full post-cold equality, final11 records and authentic native same-Future CLOSE+join remain NOT_RUN on changed caller. Historical FAIL/UNKNOWN/UNCERTAIN unchanged. No 156 startup rerun or make check.",
+    "skill_delta_for_parent": "Existing runtime skill already requires same real supervisor lease producer. Clarify at integration that DB heartbeat alone does not renew Host: mirror connected READY/MANAGEMENT runtime.renew and stop before done/Stop. No skill file changed because author write scope permits only two tests.",
+    "tool_applicability": "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  }
+}

@@ -22,6 +22,207 @@ from test_contract_method_producer import batch2_source
 from test_owned_model_initialization import SourceOwner
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("producer", ["heartbeat-only", "stock", "qa"])
+@pytest.mark.parametrize("finish", ["expiry", "stop"])
+@pytest.mark.parametrize("state", ["READY", "MANAGEMENT"])
+async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
+    tmp_path: Path,
+    ipc_directory: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    producer: str,
+    finish: str,
+    state: str,
+) -> None:
+    """SOURCE owner/Host/UDS/observer; storage, native child and signal are doubles."""
+    import ast
+    import asyncio
+    import os
+    import sys
+    from collections import deque
+    from collections.abc import Awaitable, Callable, Coroutine
+    from concurrent.futures import Future
+    from types import CodeType, ModuleType, SimpleNamespace
+    from unittest.mock import Mock
+    from uuid import UUID
+
+    from omnis_hermes import managed_admission_contract as contract
+    from omnis_hermes import runtime_host
+    from omnis_hermes.runtime_protocol import NativePeer
+
+    import test_contract_method_pg as qa
+    from omnis.modules.instance.service import RuntimeAuthority
+    from omnis.supervisor import runtime_client
+    from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
+
+    tree = ast.parse(Path(qa.__file__).read_bytes())
+    maintain = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "maintain_owner"
+    )
+    loop = cast(ast.While, maintain.body[0])
+    if producer != "qa":
+        loop.body = [loop.body[0], loop.body[-1]]
+    if producer == "stock":
+        stock = ast.parse((qa.ROOT / "api/src/omnis/supervisor/__main__.py").read_bytes())
+        tick = next(
+            n
+            for n in ast.walk(stock)
+            if isinstance(n, ast.ExceptHandler)
+            and any(isinstance(c, ast.Attribute) and c.attr == "quiesce" for c in ast.walk(n))
+        )
+        loop.body[1:1] = tick.body[2:]
+
+    clock = [10_000_000_000]
+    monkeypatch.setattr(runtime_host, "time", SimpleNamespace(monotonic_ns=lambda: clock[0]))
+    monkeypatch.setattr(runtime_client, "time", SimpleNamespace(monotonic_ns=lambda: clock[0]))
+    host = runtime_host.RuntimeHost(ipc_directory)
+    done = asyncio.Event()
+    service = Mock(heartbeat=AsyncMock(), quiesce=AsyncMock())
+    service.runtime_authority = AsyncMock(
+        side_effect=lambda *a, **k: RuntimeAuthority(0, 1, clock[0] + 4_500_000_000)
+    )
+    process = Mock(pid=12345, returncode=None, wait=AsyncMock(return_value=0))
+    monkeypatch.setattr(host, "_owned_pids", lambda: set())
+    monkeypatch.setattr(os, "killpg", lambda *a: setattr(process, "returncode", 0))
+    close = {
+        "protocol": contract.PROTOCOL_V5,
+        "mode": "CLOSE",
+        "context_ref": {
+            "id": str(uuid4()),
+            "kind": "model-test-context",
+            "revision": 1,
+            "digest": "a" * 64,
+        },
+    }
+    peer = object.__new__(NativePeer)
+    peer.failure, peer.queued_bytes, peer.next_id, peer.timeout = None, 0, 0, 0.8
+    peer.queue, peer.pending, peer.late = asyncio.Queue(32), {}, deque(maxlen=32)
+    peer.bootstrap_inventory = {
+        "schema_version": 1,
+        "observation": "NATIVE_BOOTSTRAP",
+        "scope": "/state/active",
+        "registry": {
+            "status": "NOT_INITIALIZED",
+            "generation": None,
+            "count": None,
+            "entries": None,
+        },
+        "plugins": {"status": "NOT_INITIALIZED", "count": None, "entries": None},
+    }
+    monkeypatch.setattr(peer, "close", AsyncMock())
+    observation = tmp_path / "native-observation.jsonl"
+    observation.touch()
+    root = ModuleType("run_agent")
+    exec(
+        compile("class AIAgent:\n def close(self): pass\n", str(tmp_path / "run_agent.py"), "exec"),
+        root.__dict__,
+    )
+    monkeypatch.setitem(sys.modules, "run_agent", root)
+    child = root.AIAgent()
+    future: Future[None] = Future()
+    child._model_test_preparation = contract.ModelTestPreparation.__new__(
+        contract.ModelTestPreparation
+    )
+    child._model_test_record = SimpleNamespace(future=future)
+    child._model_test_closed = __import__("threading").Event()
+
+    def emit(test: str, status: str) -> None:
+        with observation.open("ab") as output:
+            output.write(canonical({"test": test, "status": status, "count": 1}) + b"\n")
+
+    observer = {"sys": sys, "managed": tmp_path, "CodeType": CodeType, "emit": emit}
+    exec(qa.MODEL_PREPARE_OBSERVER, observer)
+    observe = cast(Callable[[object, str], bool], observer["prepare_observe"])
+
+    def deliver(frame: dict[str, object]) -> None:
+        assert host.state == "STOPPING" and mapping(frame["params"]) == close
+        # The existing observer receives the exact SOURCE child code/carrier.
+        frame_double = SimpleNamespace(
+            f_code=root.AIAgent.close.__code__, f_locals={"self": child}, f_back=None
+        )
+        observe(frame_double, "call")
+        child._model_test_closed.set()
+        future.set_result(None)
+        observe(frame_double, "return")
+        peer.pending[(int, peer.next_id)].set_result({**close, "status": "CLOSED_JOINED"})
+
+    monkeypatch.setattr(peer, "_enqueue", deliver)
+    ticks = 0
+
+    async def interval(wait: Coroutine[None, None, bool], timeout: float) -> None:
+        nonlocal ticks
+        assert timeout == 0.5
+        wait.close()
+        ticks += 1
+        clock[0] += 500_000_000
+        await asyncio.sleep(0.03)  # Yield to the real 25ms watchdog, not a grant extension.
+        if host.state == "STOPPING":
+            async with asyncio.timeout(1), host.stop_lock:
+                pass
+        if ticks == 12:
+            done.set()
+        raise TimeoutError
+
+    async with host:
+        host.state, host.epoch, host.generation = state, 1, 0
+        host.deadline_ns = clock[0] + 4_500_000_000
+        original_deadline = host.deadline_ns
+        host.process, host.peer, host.model_preparation_close = process, peer, canonical(close)
+        runtime = RuntimeClient(ipc_directory, generation=0, epoch=1)
+        await runtime.connect()
+        scope = {
+            "asyncio": SimpleNamespace(wait_for=interval),
+            "done": done,
+            "service": service,
+            "supervisor": uuid4(),
+            "epoch": 1,
+            "runtime": runtime,
+            "model_prepare": True,
+        }
+        scope["owner"] = scope["supervisor"]
+        exec(compile(ast.Module(body=[maintain], type_ignores=[]), qa.__file__, "exec"), scope)
+        invoke = cast(Callable[[], Awaitable[None]], scope["maintain_owner"])
+        try:
+            await invoke()
+            assert clock[0] > original_deadline and service.heartbeat.await_count == 12
+            if producer == "heartbeat-only":
+                assert future.done() and host.state == "UNCERTAIN"
+                assert [
+                    json.loads(row)["status"] for row in observation.read_bytes().splitlines()
+                ] == ["ENTERED", "COMPLETED"]
+            else:
+                assert host.state == state and observation.read_bytes() == b""
+                assert not future.done() and service.runtime_authority.await_count == 12
+                assert all(
+                    call.kwargs
+                    == ({"management": True} if state == "MANAGEMENT" else {"inert_probe": True})
+                    for call in service.runtime_authority.await_args_list
+                )
+            calls = service.runtime_authority.await_count
+            await invoke()  # doneEvent prevents renewal after the intentional Stop frontier.
+            assert service.runtime_authority.await_count == calls
+            if finish == "expiry":
+                clock[0] = host.deadline_ns
+                async with asyncio.timeout(1):
+                    while host.state in {"READY", "MANAGEMENT", "STOPPING"}:
+                        await asyncio.sleep(0.001)
+            else:
+                assert (await runtime._exchange("stop"))["state"] == "UNCERTAIN"
+            assert future.done() and host.model_close_evidence == canonical(
+                {**close, "status": "CLOSED_JOINED"}
+            )
+            with pytest.raises(RuntimeUnavailable):
+                await runtime.renew(service, cast(UUID, scope["supervisor"]))
+            assert observation.read_bytes().count(b"prepare-close") == 2
+        finally:
+            await runtime.close()
+    assert not host.clients and host.watchdog is not None and host.watchdog.done()
+    assert not (ipc_directory / "runtime.sock").exists()
+    assert not (ipc_directory / "runtime.boot").exists()
+
+
 async def prepared_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, padding: str = "", objective_suffix: str = ""
 ) -> tuple[SourceOwner, ModelTest, AsyncConnection, dict[str, object], dict[str, object]]:

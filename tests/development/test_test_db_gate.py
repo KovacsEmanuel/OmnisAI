@@ -200,17 +200,19 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
 
     def test_full_check_cannot_become_a_dry_run_from_makeflags(self) -> None:
         env = {**os.environ, "MAKEFLAGS": "-n"}
-        completed = subprocess.run(
-            ["make", "check"],
-            cwd=SCRIPT.parent.parent,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-        )
-        self.assertNotEqual(completed.returncode, 0)
-        self.assertIn("verification", completed.stdout + completed.stderr)
+        for target in ("check", "test-owned-initialization-native-pg"):
+            with self.subTest(target=target):
+                completed = subprocess.run(
+                    ["make", target],
+                    cwd=SCRIPT.parent.parent,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    check=False,
+                )
+                self.assertNotEqual(completed.returncode, 0)
+                self.assertIn("verification", completed.stdout + completed.stderr)
 
     def test_gate_process_propagates_failure_without_a_database(self) -> None:
         module = runpy.run_path(str(SCRIPT))

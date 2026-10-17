@@ -1,0 +1,148 @@
+{
+  "verdict": "CONFIRMED_SOURCE_CAUSAL_REPRO_NOT_PHASE_ACCEPTANCE",
+  "finding_id": "MODEL-PREPARE-QA-UUID-ASSERTION",
+  "repo": "/home/kali/OmnisAI",
+  "head": "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+  "branch": "checkpoint/p2-batch2-pause-20261015",
+  "summary": "The unchanged committed_prepare QA callback compares psycopg-decoded UUID columns with JSON strings. Its run_id assertion at line 9778 fails even for identical identifier values. AssertionError propagates through the real NativeTaskOwner and RuntimeClient.managed into LocalControl, whose finally closes control.sock without a response. The real control_task client then reports TASK_REJECTED with IncompleteReadError context, before checkpoint 9788 or the original runtime exchange.",
+  "smallest_fix_proposed_not_applied": {
+    "file": "api/tests/test_contract_method_pg.py",
+    "lines": [9778, 9779],
+    "before": [
+      "task[\"run_id\"] == mt_context[\"run_id\"]",
+      "and task[\"attempt_id\"] == mt_context[\"attempt_id\"]"
+    ],
+    "after": [
+      "str(task[\"run_id\"]) == mt_context[\"run_id\"]",
+      "and str(task[\"attempt_id\"]) == mt_context[\"attempt_id\"]"
+    ],
+    "scope": "QA-only UUID representation normalization; retain batch_index/state, receipt operation, exact canonical dispatch and commit-before-exchange assertions. No product, transport handler, fixture, configuration, export or public caller change is necessary for this demonstrated defect.",
+    "regression": "Same actual callback and LocalControl/control_task channel: valid loader-produced UUID row must reach checkpoint and reply; changed UUID must still fail before exchange. Parent owns any repository test addition and fix."
+  },
+  "producer_and_decoder_evidence": {
+    "schema": "api/src/omnis/migrations/versions/0011_managed_tasks.py:41-43 declares task_id, attempt_id and run_id as uuid",
+    "producer": "api/src/omnis/modules/runs/model_test.py:279-280,341-353 produces JSON-string run_id and attempt_id; RuntimeClient.managed:645 JSON-roundtrips the payload before invoking the callback",
+    "driver": "Actual installed psycopg 3.3.6 default UUIDLoader and UUIDBinaryLoader were exercised without a connection; both return uuid.UUID",
+    "sqlalchemy": "Actual installed SQLAlchemy 2.0.54 psycopg dialect uses PGUuid with result_processor=None. The callback executes an untyped text SELECT, with no string cast. core/db.py:61-68 creates the normal psycopg engine; no register_loader/register_uuid/as_uuid override was found in api/src.",
+    "substituted_rows": "SOURCE ONLY: IteratorResult/SimpleResultMetaData supplies a RowMapping containing UUID values decoded by the actual registered psycopg loader, not rows read from PostgreSQL."
+  },
+  "actual_enclosing_path": [
+    "LocalControl._handle:281 awaits _dispatch",
+    "LocalControl._dispatch:162 invokes the actual NativeTaskOwner.handle; its native-task handler catches only CatalogError",
+    "NativeTaskOwner.handle:107 -> _handle:378 -> _model_test_prepare:250-301 invokes actual ModelTest.completed/prepare/dispatch",
+    "NativeTaskOwner._model_test_prepare:291 calls actual RuntimeClient.managed after SOURCE transaction-fence exit",
+    "RuntimeClient.managed:658 invokes the extracted committed_prepare callback; BaseException handler 663-665 closes runtime and re-raises",
+    "Unmodified committed_prepare:9733-9790 fails its UUID/string comparison at 9778; 9779 is the same latent error, short-circuited by 9778",
+    "LocalControl._handle:282-297 does not catch AssertionError; finally 304-309 closes the actual UDS writer before response write 298-300",
+    "control_task:555-557 catches the resulting actual IncompleteReadError and raises CatalogError(TASK_REJECTED)"
+  ],
+  "controls": [
+    {
+      "case": "raw-uuid",
+      "callback": "Unmodified AST extracted from actual test file, original filename and line locations retained",
+      "row": "SOURCE row with actual psycopg loader UUID values; all str(value) identities equal the actual produced JSON strings",
+      "result": "AssertionError QA_CALLBACK:9778; client TASK_REJECTED with IncompleteReadError context",
+      "checkpoint": false,
+      "source_exchange_calls": 0
+    },
+    {
+      "case": "raw-string",
+      "callback": "Unmodified",
+      "row": "SOURCE alternate representation control: same identifiers represented as strings",
+      "result": "Real control_task validated ok=true and TURN_BOUND_PRE_CLIENT_HOLD",
+      "checkpoint": true,
+      "source_exchange_calls": 1
+    },
+    {
+      "case": "normalized",
+      "callback": "Only the proposed two str() calls substituted in scratch AST; no repository edit",
+      "row": "SOURCE actual-loader UUID values",
+      "result": "Real control_task validated ok=true and TURN_BOUND_PRE_CLIENT_HOLD",
+      "checkpoint": true,
+      "source_exchange_calls": 1
+    },
+    {
+      "case": "wrong-uuid",
+      "callback": "Same two-call normalization candidate",
+      "row": "SOURCE actual-loader UUID values, only run_id deliberately changed",
+      "result": "AssertionError QA_CALLBACK:9778; client TASK_REJECTED with IncompleteReadError context; strict identity check preserved",
+      "checkpoint": false,
+      "source_exchange_calls": 0
+    }
+  ],
+  "hypotheses_disposition": [
+    {"hypothesis": "UUID/string mismatch is sufficient to cause the observed control EOF", "status": "CONFIRMED_SOURCE_CAUSAL", "evidence": "raw-uuid versus raw-string/normalized on identical real control UDS consumer"},
+    {"hypothesis": "SQLAlchemy normalizes these UUID columns into JSON strings automatically", "status": "REJECTED_FOR_NORMAL_DRIVER_PATH", "evidence": "real registered loaders return UUID; dialect PGUuid has no result processor; query is untyped SQL text with no cast"},
+    {"hypothesis": "A native launch/provider failure is necessary for this EOF", "status": "REJECTED_AS_NECESSARY_CAUSE", "evidence": "reproduced same EOF before the original exchange, without native/DB/provider"},
+    {"hypothesis": "An earlier KeyError/TypeError must occur before this assertion for the valid producer", "status": "REJECTED_IN_TESTED_SOURCE_PATH", "evidence": "all earlier actual ModelTest and callback operations completed and the captured real server traceback terminates at assertion 9778"},
+    {"hypothesis": "This was the exclusive internal exception of historical attempt70e30fd", "status": "NOT_PROVEN", "evidence": "Historical internal server traceback was not retained/available; present proof demonstrates a concrete deterministic defect on exact test SHA and the identical client symptom, not retrospective exclusive attribution"}
+  ],
+  "effects_and_limits": {
+    "real": ["ModelTest producer and dispatch", "NativeTaskOwner orchestration", "RuntimeClient.managed JSON validation/serialization", "extracted committed_prepare", "LocalControl and control_task with kernel-authenticated private UDS", "psycopg UUID decoding", "SQLAlchemy RowMapping"],
+    "source_doubles": ["Existing batch2_source/prepared_source/SourceOwner storage and publication seams", "engine connection and SQL execution results", "InstanceService readiness/authority/commit fences", "settings saved-status read", "final _exchange response via existing preparation_result contract helper"],
+    "not_run": ["PostgreSQL connection/transactions/commit visibility", "Docker", "native Host or Hermes process/turn", "provider/account/model", "network target", "full runtime retry", "full suite or canonical gate", "phase acceptance"],
+    "safety": "-I -B used on every Python invocation. All probe material stays in one owned 0700 scratch directory; private capture/results are 0600. Python audit guard refuses process creation, non-UDS connections and UDS outside the owned scratch root; psycopg.connect is refused in cases. This is a narrow seam guard, not a universal OS sandbox.",
+    "cleanup": "All four final cases assert control.sock and control.cap retirement; post-probe scratch census found zero sockets and zero capabilities. No inference reservations or real native calls. Files/data retained.",
+    "repo": "No repository/product/test/skill edit, commit or push. git diff --exit-code -- api/src api/tests returned 0; status remained only the preexisting protected HTML. Neither protected file was read/hashed/copied/modified.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "commands": [
+    {
+      "workdir": "/home/kali/OmnisAI",
+      "command": "umask 077; api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py > /home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe-output.private 2>&1; result=$?; printf 'CAUSAL_PROBE_EXIT=%s\\n' \"$result\"; exit \"$result\"",
+      "exit": 1,
+      "status": "SOURCE_SETUP_FAILURE: private control directory not yet created; LocalControl requires an existing 0700 directory; callback not reached",
+      "retained": "probe-failure.json"
+    },
+    {
+      "workdir": "/home/kali/OmnisAI",
+      "command": "umask 077; api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py > /home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe2-output.private 2>&1; result=$?; printf 'CAUSAL_PROBE_EXIT=%s\\n' \"$result\"; exit \"$result\"",
+      "exit": 1,
+      "status": "SOURCE_SETUP_FAILURE: SourceOwner's spec mock service omitted engine attribute; argument evaluation at LocalControl:149 raised AttributeError before readiness double or owner; callback not reached",
+      "retained": "probe2-failure.json"
+    },
+    {
+      "workdir": "/home/kali/OmnisAI",
+      "command": "umask 077; api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py > /home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe3-output.private 2>&1; result=$?; printf 'CAUSAL_PROBE_EXIT=%s\\n' \"$result\"; exit \"$result\"",
+      "exit": 1,
+      "status": "Same SOURCE setup failure, replayed only to retain sanitized per-case exception metadata; this was not another native/PG QA attempt",
+      "retained": "probe3-cases.json, probe3-failure.json"
+    },
+    {
+      "workdir": "/home/kali/OmnisAI",
+      "command": "umask 077; api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py > /home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe4-output.private 2>&1; result=$?; printf 'CAUSAL_PROBE_EXIT=%s\\n' \"$result\"; exit \"$result\"",
+      "exit": 0,
+      "status": "CAUSAL_PROBE_PASS: all four same-channel controls verified after supplying the SOURCE service.engine seam",
+      "retained": "probe-results.json, probe4-cases.json"
+    },
+    {
+      "workdir": "/home/kali/OmnisAI",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --exit-code -- api/src api/tests",
+      "exit": 0,
+      "status": "HEAD and branch unchanged; no source/test diff"
+    }
+  ],
+  "reproducer": {
+    "path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py",
+    "sha256": "3a26e036bde95ed93dac905f3c3ee2dc373e2cc69be968bb841b0a449a5c713d",
+    "reuse": "The successful command is fresh-root-only: r4-* fixture paths are retained and intentionally cannot be overwritten. To replay, place the exact reproducer bytes in a fresh owned 0700 scratch directory and invoke the same repository venv interpreter with -I -B. Its __file__ parent is the sole output root. No script source change is needed.",
+    "sensitive_output_policy": "Raw capture files were never returned through tools; only fixed tags, exception classes and code labels/line numbers were read."
+  },
+  "artifacts": [
+    {"path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe-results.json", "sha256": "2756dc3724b8ab70e76e2bcfe42beec7f44b55ea08d9bda0a52b8f1262f243f3"},
+    {"path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe-failure.json", "sha256": "b89ad7ddbf55a9a6686ce910e43fa904a6cc48c2bf3b8d2d0834f86bc6e40171"},
+    {"path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe2-failure.json", "sha256": "c3a2c3318715b7b9486713c842d8030ffb5d8d219b64f2688afeca6b36878a83"},
+    {"path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe3-cases.json", "sha256": "7208bdd4af9b08f5c4b38f071d6acc4e9826c3bf3ddac6484a7b71ce90fe9712"},
+    {"path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/probe4-cases.json", "sha256": "50335bae3d737e6a54cf873073559d422e69681ef06b1ad377f1d322b1a5f463"}
+  ],
+  "source_sha256": {
+    "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "api/src/omnis/modules/runs/model_test.py": "27ed6c44d7d2a74c933d2b8ef52bc0ef816412a49d37eb77f07a61dfa9cb4b12",
+    "api/src/omnis/supervisor/native_tasks.py": "f9c1cf301a7f6100158c79996eff530edeea2cb161a28e9cf330a9372b7dc3b8",
+    "api/src/omnis/supervisor/runtime_client.py": "420e85bf906eb0d7c713581096d726db0fa9b65e695686ea9f3c8f7857416832",
+    "api/src/omnis/transport/local_control.py": "2d29eb3e4048296f06d8c85898652c79e0035dd97af6e7d0095dca2ed263fdab",
+    "api/src/omnis/migrations/versions/0011_managed_tasks.py": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d"
+  },
+  "proposed_skill_lesson_not_written_in_shared_checkout": "When QA callbacks read UUID columns through psycopg/SQLAlchemy, compare canonical identifiers, not driver UUID objects with JSON strings. Reproduce callback assertion propagation through the enclosing owner and real UDS before attributing an EOF to native launch."
+}

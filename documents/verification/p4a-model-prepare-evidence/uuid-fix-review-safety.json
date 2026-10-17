@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "review_kind": "independent read-only safety/failure/type-boundary review",
+  "verdict": "APPROVED_SCOPED",
+  "candidate": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+  "base_commit": "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+  "reviewed_commit": "6682706ce187cae931f70c91d32447b3b9d75eec",
+  "reviewed_files_sha256": {
+    "api/tests/test_contract_method_pg.py": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+    "api/tests/test_model_test_prepare_source.py": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33"
+  },
+  "findings": [],
+  "scope": {
+    "changed_files": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "pg_change": "Exactly two str() conversions at api/tests/test_contract_method_pg.py:9778-9779; all other bytes identical to base.",
+    "source_change": "Only the 55-line parameterized assertion regression added at api/tests/test_model_test_prepare_source.py:130-182; remaining module AST unchanged.",
+    "acceptance": "Equivalent psycopg UUID/string identities pass; foreign run, foreign attempt, wrong batch, wrong state still raise AssertionError; no catch, authority, caps, timeout180, Stop, UNKNOWN, cleanup or output-boundary change.",
+    "callers": "Existing committed_prepare QA callback around RuntimeClient._exchange; new SOURCE regression executes the actual current assertion AST, not a copied predicate.",
+    "out_of_scope": [
+      "new harness/observer",
+      "runtime effects",
+      "native launch",
+      "PostgreSQL/Docker",
+      "provider/network/target",
+      "installed/distribution/phase approval",
+      "general audit",
+      "shared writes/commit/push"
+    ]
+  },
+  "results": {
+    "source_test_cases": 15,
+    "passed": 15,
+    "failed": 0,
+    "positive_controls": 3,
+    "negative_controls": 12,
+    "encodings": [
+      "psycopg UUIDLoader text",
+      "psycopg UUIDBinaryLoader binary",
+      "string"
+    ],
+    "negative_dimensions": [
+      "foreign run_id",
+      "foreign attempt_id",
+      "batch_index 1 instead of 0",
+      "state RUNNING instead of QUEUED"
+    ],
+    "duration_seconds_pytest": 3.19,
+    "static_checks": {
+      "exit": 0,
+      "pg_bytes_equal_base_plus_only_two_str_calls": true,
+      "source_ast_equal_base_after_removing_only_added_test": true,
+      "callback_has_no_exception_handler": true,
+      "callback_ends_in_await_original_exchange": true,
+      "hashes_after_test": {
+        "api/tests/test_contract_method_pg.py": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+        "api/tests/test_model_test_prepare_source.py": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33"
+      }
+    },
+    "analysis": [
+      {
+        "file": "api/tests/test_contract_method_pg.py",
+        "lines": "9765-9790",
+        "conclusion": "Raw text-SQL SELECT of typed non-null uuid columns is the representation seam. str(UUID) produces canonical identity text for JSON context comparison; it does not equate foreign UUIDs. Batch/state predicates and single-row read remain exact and unchanged."
+      },
+      {
+        "file": "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+        "lines": "41-49",
+        "conclusion": "Adjacent source evidence: attempt_id/run_id are native uuid NOT NULL columns. This is trusted driver-value normalization in QA, not permissive coercion of an untrusted authority input."
+      },
+      {
+        "file": "api/tests/test_model_test_prepare_source.py",
+        "lines": "130-182",
+        "conclusion": "All 15 current assertion AST cases ran independently. Three matching identity forms pass and 12 mismatches fail. No broad exception catch is added; negatives explicitly require AssertionError."
+      },
+      {
+        "file": "api/tests/test_contract_method_pg.py",
+        "lines": "9733-9790",
+        "conclusion": "No enclosing handler added to the callback; actual_exchange remains after all original assertions and commit checkpoint. Assertion failures still propagate instead of turning into successful exchanges."
+      },
+      {
+        "file": "api/tests/test_contract_method_pg.py",
+        "lines": "9743-9749; 9783-9789; 9839-9951",
+        "conclusion": "Authority/boot, receipt operation, replay, model_calls=0, HOLD/NOT_VERIFIED, stopped/drained and receive-only checks unchanged. Byte equality outside the two conversions also preserves all caps/grants/timeouts/Stop/UNKNOWN/finally-cleanup code without re-auditing it."
+      },
+      {
+        "file": "api/tests/test_contract_method_pg.py",
+        "lines": "7341-7377; 9324-9331",
+        "conclusion": "Sister task comparisons consume serialized readback/to_jsonb values; they do not establish another raw-driver UUID seam requiring this patch."
+      }
+    ],
+    "new_secret_or_output_boundary": false,
+    "product_code_changed": false
+  },
+  "commands": [
+    {
+      "id": "git-snapshot-and-diff",
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff --cached --stat && git diff --name-status 94015a2bdf0a322f0c2bfce63e351333d3b27112 6682706ce187cae931f70c91d32447b3b9d75eec && git diff --no-ext-diff --unified=16 94015a2bdf0a322f0c2bfce63e351333d3b27112 6682706ce187cae931f70c91d32447b3b9d75eec -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py && git diff --check 94015a2bdf0a322f0c2bfce63e351333d3b27112 6682706ce187cae931f70c91d32447b3b9d75eec -- api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+      "exit": 0,
+      "result": "Clean exact head; only declared two files; 2/2 and 55/0 lines; diff check clean."
+    },
+    {
+      "id": "source-current-ast-15",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=['/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/src', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/integrations/hermes/src']; import pytest; sys.exit(pytest.main(['-c', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml', '-p', 'no:cacheprovider', '-p', 'pytest_asyncio.plugin', '--basetemp', '/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/pytest', '-v', '--tb=short', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity']))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api",
+      "env": {
+        "HOME": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl",
+        "PATH": "/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "stdout_stderr_log": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/pytest.log",
+      "summary": [
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[None-text] PASSED [  6%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[None-binary] PASSED [ 13%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[None-string] PASSED [ 20%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[run_id-text] PASSED [ 26%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[run_id-binary] PASSED [ 33%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[run_id-string] PASSED [ 40%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[attempt_id-text] PASSED [ 46%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[attempt_id-binary] PASSED [ 53%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[attempt_id-string] PASSED [ 60%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[batch_index-text] PASSED [ 66%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[batch_index-binary] PASSED [ 73%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[batch_index-string] PASSED [ 80%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[state-text] PASSED [ 86%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[state-binary] PASSED [ 93%]",
+        "tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[state-string] PASSED [100%]",
+        "============================== 15 passed in 3.19s =============================="
+      ]
+    },
+    {
+      "id": "static-diff-confinement",
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "interpreter": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B"
+      ],
+      "procedure": "Read git show base:api/tests/test_contract_method_pg.py; apply exactly task[run_id]/task[attempt_id] -> str(task[...]) in memory; assert byte equality to current. Parse base/current SOURCE module AST; remove only new test FunctionDef; assert equal AST dumps. Find committed_prepare and assert no ExceptHandler, final Return(Await(actual_exchange(...))). Rehash exactly both reviewed files after pytest.",
+      "exit": 0,
+      "result_file": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/static-check.json"
+    },
+    {
+      "id": "git-final-snapshot",
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "exit": 0,
+      "stdout": "## candidate/model-prepare-uuid-0a9vuqt7\n",
+      "head": "6682706ce187cae931f70c91d32447b3b9d75eec"
+    },
+    {
+      "id": "git-final-diff-check",
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+        "6682706ce187cae931f70c91d32447b3b9d75eec",
+        "--",
+        "api/tests/test_contract_method_pg.py",
+        "api/tests/test_model_test_prepare_source.py"
+      ],
+      "exit": 0,
+      "stdout": ""
+    },
+    {
+      "id": "original-finding-sha256",
+      "interpreter": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B"
+      ],
+      "procedure": "hashlib.sha256(Path(original_finding_path).read_bytes()).hexdigest(); assert equals supplied exact SHA; no raw content published",
+      "exit": 0,
+      "file": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/finding.json",
+      "sha256": "cfbca02307c42a791ca72897c363f528ec6db093d5fddb679fa8dd4c2e74e35c"
+    }
+  ],
+  "evidence_boundaries": {
+    "independently_executed": "Only exact 15 SOURCE assertion cases and static scope/identity checks.",
+    "parent_evidence_not_rerun": {
+      "path": "/home/kali/.hermes/cache/scratch/mtp-parent-nxh65vxd/probe-results.json",
+      "scope": "Parent states real owner/ModelTest/RuntimeClient.managed with real UDS and SOURCE rows/storage/authority/final exchange; real loaders/SQLAlchemy no UUID result processor. This review does not promote that to native/PG authority proof."
+    },
+    "author_evidence_not_rerun": {
+      "path": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/report.json",
+      "scope": "Author RED2fail13pass, GREEN79SOURCEpass, Ruff/format/mypy0 are supplied context, not independent executions here."
+    },
+    "historical_cause": "Representation defect and focused correction established; no exclusive historical-cause proof. Older live failures and UNKNOWN remain unresolved at their original scope."
+  },
+  "limits": [
+    "SOURCE regression compiles the assertion only; it does not execute real committed_prepare asynchronous transaction/exchange or a product owner journey.",
+    "No live PG/native/Docker/provider/network target or installed gate attempted or approved. Two QA-only cycles remain; no new attempt is admitted by this report.",
+    "Preservation of unchanged safety/cleanup/error code is established by exact full-file byte comparison, not a new physical Stop/concurrency/cleanup test.",
+    "str() is justified for native uuid driver outputs at this QA seam; no claim of arbitrary object-input validation or universal runtime confinement.",
+    "No lint/mypy/full canonical rerun; author results remain attributed. No general harness or global product audit.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were never read, hashed, copied or changed."
+  ],
+  "issues_encountered": [
+    {
+      "blocking": false,
+      "description": "Initial targeted schema lookup used absent api/migrations; corrected by discovering existing api/src/omnis/migrations/versions/0011_managed_tasks.py. No execution/test failure."
+    }
+  ],
+  "artifacts": {
+    "owned_scratch": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl",
+    "directory_mode": "0700",
+    "logs_mode": "0600",
+    "files_created": [
+      "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/test-command.json",
+      "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/pytest.log",
+      "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/static-check.json",
+      "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/report.json",
+      "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/report.sha256.json"
+    ],
+    "repository_files_modified": [],
+    "integrity_receipt": "/home/kali/.hermes/cache/scratch/uuid-safety-review-cg2knisl/report.sha256.json",
+    "integrity_definition": "SHA256 of full exact persisted report.json bytes; external receipt avoids recursive self-hashing."
+  },
+  "status_delta": {
+    "AICI": "UUID assertion QA fix: APPROVED_SCOPED at exact two SHA values; parent adjudication/integration only.",
+    "P4a_minim": "PARTIAL/BLOCKED_QA unchanged",
+    "P2_live": "NOT_RUN unchanged",
+    "phase2": "NOT_CLOSED unchanged",
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  }
+}

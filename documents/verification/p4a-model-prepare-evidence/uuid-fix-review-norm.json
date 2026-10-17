@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "review_role": "INDEPENDENT_NORMATIVE_ORDER_PERSISTENCE_READBACK",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "SOURCE_ONLY_EXACT_TWO_FILE_UUID_ASSERTION_REPAIR",
+  "worktree": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+  "base": "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+  "candidate": "6682706ce187cae931f70c91d32447b3b9d75eec",
+  "findings": [],
+  "blocking_findings": [],
+  "acceptance": [
+    {
+      "requirement": "Exact scope; no product change",
+      "status": "PASS",
+      "evidence": "Complete base/candidate name inventory is exactly two test files. Current files equal candidate blobs. Whole PG test equals base with only str(task[run_id]) and str(task[attempt_id]); source regression adds exactly 55 lines and otherwise equals base."
+    },
+    {
+      "requirement": "Identity equality across DB UUID and JSON string",
+      "status": "PASS_SOURCE",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:9778",
+        "api/tests/test_contract_method_pg.py:9779",
+        "api/tests/test_model_test_prepare_source.py:130-182"
+      ],
+      "evidence": "The exact assertion AST is extracted from the unique committed_prepare callback. Matching psycopg UUIDLoader(text), UUIDBinaryLoader(binary), and original string representations pass. The context values and expected identities are not changed or coerced."
+    },
+    {
+      "requirement": "Wrong run/attempt denied; batch/state remain strict",
+      "status": "PASS_SOURCE",
+      "evidence": "3 positive cases and 12 denial cases on the same extracted assertion. Every representation refuses wrong run_id, wrong attempt_id, batch_index=1 and state=RUNNING. Existing == 0 and == QUEUED are byte-unchanged."
+    },
+    {
+      "requirement": "Independent persisted readback before original exchange",
+      "status": "PRESERVED_STATIC_NOT_PG_EXECUTED",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:9733-9790",
+        "api/src/omnis/supervisor/native_tasks.py:267-293",
+        "api/src/omnis/supervisor/runtime_client.py:645-658"
+      ],
+      "evidence": "The existing callback still obtains its own engine.connect() connection, reads context and command receipt, dispatches from that read context, SELECTs managed_task by the same task_id, requires .one(), checks exact run/attempt/batch/state and the model_test_prepare receipt. It requires mt_observed is None and canonical(dispatched)==canonical(payload), writes the same INDEPENDENT_PG_READ_BEFORE_ORIGINAL_EXCHANGE checkpoint, then invokes actual_exchange. NativeTaskOwner leaves native_preparation_commit before runtime.managed, and RuntimeClient JSON-roundtrips before callback dispatch. All these bytes and order are unchanged."
+    },
+    {
+      "requirement": "No weakening of surrounding replay/census/authorization oracle",
+      "status": "PRESERVED_STATIC",
+      "locations": [
+        "api/tests/test_contract_method_pg.py:9792-9828"
+      ],
+      "evidence": "CREATE single-mode equality, receipt/replay canonical equality, changed settings/owner/manifest denials, mission census and unchanged observation assertions are outside the two substitutions and byte-identical to base. Not reexecuted."
+    }
+  ],
+  "execution": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/src', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(['-p', 'no:cacheprovider', '-p', 'pytest_asyncio.plugin', '-vv', '--no-header', '--tb=short', '-o', 'addopts=', '--basetemp=/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a/tmp/pytest', '--junitxml=/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a/focused.xml', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity']))"
+    ],
+    "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api",
+    "env": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a/tmp",
+      "LANG": "C.UTF-8",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "exit_code": 0,
+    "duration_seconds": 3.832,
+    "log": "/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a/focused.private.log",
+    "junit": "/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a/focused.xml"
+  },
+  "snapshot_verification": {
+    "snapshot": {
+      "api/tests/test_contract_method_pg.py": {
+        "sha256": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+        "base_sha256": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "current_equals_commit": true,
+        "whole_file_equals_base_with_only_two_uuid_str_conversions": true
+      },
+      "api/tests/test_model_test_prepare_source.py": {
+        "sha256": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33",
+        "base_sha256": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090",
+        "current_equals_commit": true,
+        "sole_added_lines": 55,
+        "otherwise_byte_equal_to_base": true
+      }
+    },
+    "diff_paths": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "diff_check_exit": 0,
+    "regression": {
+      "total": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "test_names": [
+      "test_model_prepare_committed_task_identity[None-text]",
+      "test_model_prepare_committed_task_identity[None-binary]",
+      "test_model_prepare_committed_task_identity[None-string]",
+      "test_model_prepare_committed_task_identity[run_id-text]",
+      "test_model_prepare_committed_task_identity[run_id-binary]",
+      "test_model_prepare_committed_task_identity[run_id-string]",
+      "test_model_prepare_committed_task_identity[attempt_id-text]",
+      "test_model_prepare_committed_task_identity[attempt_id-binary]",
+      "test_model_prepare_committed_task_identity[attempt_id-string]",
+      "test_model_prepare_committed_task_identity[batch_index-text]",
+      "test_model_prepare_committed_task_identity[batch_index-binary]",
+      "test_model_prepare_committed_task_identity[batch_index-string]",
+      "test_model_prepare_committed_task_identity[state-text]",
+      "test_model_prepare_committed_task_identity[state-binary]",
+      "test_model_prepare_committed_task_identity[state-string]"
+    ],
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--name-only",
+          "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+          "6682706ce187cae931f70c91d32447b3b9d75eec"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--exit-code",
+          "--",
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--cached",
+          "--exit-code",
+          "--",
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+          "6682706ce187cae931f70c91d32447b3b9d75eec",
+          "--",
+          "api/tests/test_contract_method_pg.py",
+          "api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "94015a2bdf0a322f0c2bfce63e351333d3b27112:api/tests/test_contract_method_pg.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "6682706ce187cae931f70c91d32447b3b9d75eec:api/tests/test_contract_method_pg.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "94015a2bdf0a322f0c2bfce63e351333d3b27112:api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "6682706ce187cae931f70c91d32447b3b9d75eec:api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "status",
+          "--short",
+          "--branch"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "exit_code": 0
+      }
+    ],
+    "status": "## candidate/model-prepare-uuid-0a9vuqt7",
+    "log_mode": "0o600",
+    "scratch_mode": "0o700"
+  },
+  "prior_evidence_read_not_reexecuted": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/finding.json",
+      "sha256": "cfbca02307c42a791ca72897c363f528ec6db093d5fddb679fa8dd4c2e74e35c",
+      "finding_id": "MODEL-PREPARE-QA-UUID-ASSERTION",
+      "disposition": "CLOSED_SOURCE_ASSERTION_FIXED",
+      "basis": "Candidate is precisely the proposed two str() conversions. Original causal proof and parent reproduction use real ModelTest/owner/RuntimeClient.managed and real local UDS with SOURCE storage/commit/exchange seams. Raw UUID reaches assertion failure before checkpoint; raw strings and normalized UUID pass; wrong UUID remains denied."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/mtp-parent-nxh65vxd/probe-results.json",
+      "sha256": "2756dc3724b8ab70e76e2bcfe42beec7f44b55ea08d9bda0a52b8f1262f243f3",
+      "status": "READ_CONFIRMED_SOURCE_CAUSAL_REPRO_NOT_LIVE_ATTRIBUTION"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/report.json",
+      "sha256": "e28eec502c5ba1c86e7cddc4a2691582912a2cd31bc4c6519e976afa4b309aa8",
+      "author_red": {
+        "exit": 1,
+        "failed": 2,
+        "passed": 13,
+        "failed_positive_representations": [
+          "text",
+          "binary"
+        ],
+        "test_file_sha256": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33",
+        "old_pg_file_sha256": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031"
+      },
+      "author_green": {
+        "exit": 0,
+        "passed": 79
+      },
+      "author_quality_exits": {
+        "ruff": 0,
+        "format": 0,
+        "scoped_mypy": 0
+      },
+      "attribution": "Prior author results read as retained evidence, not independently rerun or added to current 15."
+    }
+  ],
+  "historical_exclusive_cause": "NOT_PROVEN; historical native/PG attempt did not retain the internal server traceback. Present source-causal finding does not rewrite its FAIL/UNCERTAIN or establish exclusive historical attribution.",
+  "normative_inputs": [
+    "AGENTS.md",
+    "README.md CURRENT",
+    "CONTRIBUTING.md:40-77",
+    "documents/verification/implementation-status.md:11-15",
+    "documents/verification/p4a-minim.md CURRENT/model preparation/two-cycle boundary",
+    "documents/Omnis_MVP_Architecture.md:299-321",
+    "omnis-review-qa",
+    "omnis-project-status ORIENT"
+  ],
+  "write_scope": {
+    "repository_modified": false,
+    "commits_created": false,
+    "shared_skills_modified": false,
+    "scratch_root": "/home/kali/.hermes/cache/scratch/uuid-norm-review-8iis824a",
+    "scratch_mode": "0o700",
+    "private_log_mode": "0o600",
+    "artifacts": [
+      "initial.json",
+      "execution.json",
+      "focused.private.log",
+      "focused.xml",
+      "verification.json",
+      "review.json"
+    ],
+    "only_executed_tests": "15 cases of test_model_prepare_committed_task_identity"
+  },
+  "issues_encountered": [
+    {
+      "kind": "HARMLESS_DISCOVERY_MISS",
+      "detail": "A read-only search at candidate/runtime returned path-not-found. The actual adapter path integrations/hermes/src was then read from api/pyproject.toml and validated before test execution."
+    }
+  ],
+  "limits": [
+    "Approval is restricted to exact snapshot/two test files and SOURCE assertion behavior; no integration or phase approval.",
+    "No PG connection/transaction/commit-visibility experiment, Docker, native Host/Hermes runtime launch, provider/account/target/network, global change, push or full/unaffected suite.",
+    "Commit-before-exchange/independent readback/checkpoint/canonical dispatch are verified as preserved source invariants, not newly observed runtime events.",
+    "Driver decoder values are real psycopg loader results supplied as SOURCE rows; they are not rows obtained from a PostgreSQL server.",
+    "No protected document or ponytail configuration content was read, hashed, copied or changed.",
+    "No new observer/infrastructure or third QA-only live attempt. The two prior cycles and retained failures remain in force.",
+    "Python -I -B, fresh allowlisted environment, explicit current-worktree src/tests/adapter sys.path, disabled plugin autoload/cacheprovider and private TMPDIR control the stated Python test write scope; this is not a universal native syscall sandbox.",
+    "No new reusable workflow was discovered; shared skill/status writes were excluded by this read-only delegation."
+  ],
+  "status_delta": [
+    {
+      "row": "AICI UUID assertion fix",
+      "implementation": "CANDIDATE_COMMITTED_TEST_ONLY",
+      "proof": "PASS_SOURCE_15_EXIT0",
+      "review": "APPROVED_SCOPED",
+      "next": "Parent compares exact hashes and adjudicates integration."
+    },
+    {
+      "row": "P4a-minim",
+      "implementation": "PARTIAL",
+      "proof": "BLOCKED_QA retained",
+      "review": "No phase approval",
+      "next": "Any fresh bounded runtime attempt requires separate authority and existing gates."
+    },
+    {
+      "row": "P2-live/faza2",
+      "implementation": "NOT_RUN/NOT_CLOSED",
+      "proof": "NOT_RUN",
+      "review": "NOT_APPROVED",
+      "next": "Existing plan gates; STOP before P3."
+    }
+  ],
+  "tool_applicability": {
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  }
+}

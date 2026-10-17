@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "finding": "MODEL-PREPARE-QA-UUID-ASSERTION",
+  "status": "CANDIDATE_COMMITTED_SOURCE_GREEN_AWAITING_PARENT_REVIEW",
+  "base": "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+  "candidate_commit": "6682706ce187cae931f70c91d32447b3b9d75eec",
+  "branch": "candidate/model-prepare-uuid-0a9vuqt7",
+  "worktree": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+  "scratch_root": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7",
+  "scratch_mode": "0o700",
+  "scope": {
+    "allowed_files": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "repair": "Only str(task[run_id]) and str(task[attempt_id]) in existing committed_prepare assertion",
+    "regression": "One 55-line parametrized test extracts the unique existing callback/assertion by AST semantic fields and executes it unchanged",
+    "cases": "psycopg text UUIDLoader, binary UUIDBinaryLoader, original strings; matching identities and wrong run/attempt/batch/state",
+    "product_changed": false,
+    "other_assertions_order_timeouts_bindings_cleanup_unknown_error_handling_unchanged": true,
+    "sister_to_jsonb_assertions_unchanged": true
+  },
+  "snapshot": {
+    "base": "94015a2bdf0a322f0c2bfce63e351333d3b27112",
+    "files_sha256": {
+      "api/tests/test_contract_method_pg.py": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+      "api/tests/test_model_test_prepare_source.py": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33"
+    },
+    "total_passed": 79,
+    "new_regression_passed": 15,
+    "by_module": {
+      "tests.test_model_test_prepare_source": 61,
+      "tests.test_owned_model_initialization": 18
+    },
+    "only_allowed_paths_changed": true,
+    "pg_module_is_exact_two_line_repair": true,
+    "regression_bytes_unchanged_since_RED": true,
+    "product_diff_empty": true,
+    "scratch_mode": "0o700",
+    "status": " M api/tests/test_contract_method_pg.py\n M api/tests/test_model_test_prepare_source.py\n"
+  },
+  "file_sha256": {
+    "api/tests/test_contract_method_pg.py": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+    "api/tests/test_model_test_prepare_source.py": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33"
+  },
+  "baseline_file_sha256": {
+    "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+    "api/tests/test_model_test_prepare_source.py": "4e6b0b044616185b80cbc13004d6f62e5abbb9ac3667dceed528eeffd289d090"
+  },
+  "diff_sha256": "60e67927e205dd6fed56e0af868acb63fd55a743fad107482d96e51cf268b0f6",
+  "execution": {
+    "red": {
+      "phase": "RED",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=['/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/src', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-c",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "pytest_asyncio.plugin",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp/red",
+        "-q",
+        "--tb=short",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/home",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "LC_ALL": "C.UTF-8"
+      },
+      "environment_policy": "clean allowlist; inherited environment discarded; -I -B; pytest plugin autoload disabled; no cacheprovider",
+      "exit": 1,
+      "output": "FF.............                                                          [100%]\n=================================== FAILURES ===================================\n____________ test_model_prepare_committed_task_identity[None-text] _____________\napi/tests/test_model_test_prepare_source.py:179: in test_model_prepare_committed_task_identity\n    exec(code, scope)\napi/tests/test_contract_method_pg.py:9778: in <module>\n    task[\"run_id\"] == mt_context[\"run_id\"]\nE   AssertionError\n___________ test_model_prepare_committed_task_identity[None-binary] ____________\napi/tests/test_model_test_prepare_source.py:179: in test_model_prepare_committed_task_identity\n    exec(code, scope)\napi/tests/test_contract_method_pg.py:9778: in <module>\n    task[\"run_id\"] == mt_context[\"run_id\"]\nE   AssertionError\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[None-text]\nFAILED api/tests/test_model_test_prepare_source.py::test_model_prepare_committed_task_identity[None-binary]\n2 failed, 13 passed in 3.80s\n",
+      "files_sha256": {
+        "api/tests/test_contract_method_pg.py": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+        "api/tests/test_model_test_prepare_source.py": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33"
+      }
+    },
+    "green": {
+      "phase": "GREEN_AFFECTED_SOURCE",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=['/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/src', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests', '/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-c",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "pytest_asyncio.plugin",
+        "--basetemp",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp/green",
+        "-q",
+        "--tb=short",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_owned_model_initialization.py",
+        "--junitxml",
+        "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/green.xml"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/home",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "LC_ALL": "C.UTF-8"
+      },
+      "exit": 0,
+      "output": "........................................................................ [ 91%]\n.......                                                                  [100%]\n79 passed in 22.68s\n"
+    },
+    "quality": [
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_contract_method_pg.py",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "HOME": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/home",
+          "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+          "LC_ALL": "C.UTF-8"
+        },
+        "exit": 0,
+        "output": "All checks passed!\n"
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_contract_method_pg.py",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "HOME": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/home",
+          "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+          "LC_ALL": "C.UTF-8"
+        },
+        "exit": 0,
+        "output": "2 files already formatted\n"
+      },
+      {
+        "argv": [
+          "/home/kali/OmnisAI/api/.venv/bin/python",
+          "-I",
+          "-B",
+          "-m",
+          "mypy",
+          "--config-file",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/pyproject.toml",
+          "--cache-dir",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/mypy-cache",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_contract_method_pg.py",
+          "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree/api/tests/test_model_test_prepare_source.py"
+        ],
+        "cwd": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/worktree",
+        "environment": {
+          "PATH": "/usr/bin:/bin",
+          "HOME": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/home",
+          "TMPDIR": "/home/kali/.hermes/cache/scratch/uuid-assertion-0a9vuqt7/tmp",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+          "LC_ALL": "C.UTF-8"
+        },
+        "exit": 0,
+        "output": "Success: no issues found in 2 source files\n"
+      }
+    ]
+  },
+  "evidence_boundary": {
+    "provided_causal_evidence": {
+      "finding_path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/finding.json",
+      "finding_sha256": "cfbca02307c42a791ca72897c363f528ec6db093d5fddb679fa8dd4c2e74e35c",
+      "repro_path": "/home/kali/.hermes/cache/scratch/mte-p9h40i1d/repro.py",
+      "repro_sha256": "3a26e036bde95ed93dac905f3c3ee2dc373e2cc69be968bb841b0a449a5c713d",
+      "both_hashes_checked": true,
+      "not_rerun_by_candidate_author": true
+    },
+    "candidate_observed": "Original exact assertion fails on matching real psycopg-loaded UUIDs at line9778; same regression source passes after exact two-line normalization; all mismatches still deny",
+    "no_historical_exclusive_cause_claim": true,
+    "prior_two_qa_only_cycles_retained": true,
+    "no_new_owner_observer_runtime_harness": true
+  },
+  "git": {
+    "candidate_clean": true,
+    "shared_checkout_status": "## checkpoint/p2-batch2-pause-20261015\n?? documents/Omnis_Notite_Originale.html\n",
+    "shared_head_unchanged": true,
+    "only_allowed_paths_committed": true,
+    "diff_check_exit": 0,
+    "commit_hooks_disabled_for_bounded_no_effect_commit": true,
+    "push": false
+  },
+  "review": "NOT_REVIEWED; parent to independently review exact snapshot in two complementary scopes and decide any fresh existing real consumer",
+  "not_run": [
+    "canonical make check/test",
+    "PostgreSQL",
+    "Docker",
+    "native runtime",
+    "provider/account/inference",
+    "network/target",
+    "personal state",
+    "global configuration",
+    "P3"
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "limits": [
+    "SOURCE assertion regression is not native/PG/live acceptance",
+    "No new proof of checkpoint/exchange/cleanup execution; unchanged callback preservation checked byte-for-byte",
+    "P4a-minim remains PARTIAL/BLOCKED_QA; P2-live NOT_RUN; faza2 NOT_CLOSED; STOP before P3",
+    "Documentation/skills not changed under two-file edit boundary"
+  ],
+  "issues": [],
+  "rollback": "Inspect commit, git revert 6682706ce187cae931f70c91d32447b3b9d75eec, rerun affected SOURCE checks; no external state changes"
+}

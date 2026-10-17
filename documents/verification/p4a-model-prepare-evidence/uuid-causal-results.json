@@ -1,0 +1,254 @@
+{
+  "verdict": "CONFIRMED_SOURCE_CAUSAL_REPRO_NOT_LIVE_ATTRIBUTION",
+  "callback_source_sha256": "a883a9548c81c8472ca00b3ed8ed77987c594ef1eaaab252706a3bbe37323031",
+  "callback_lines": [
+    9733,
+    9790
+  ],
+  "python": "3.13.15",
+  "psycopg": "3.3.6",
+  "sqlalchemy": "2.0.54",
+  "psycopg_default_uuid_loaders": [
+    "UUIDLoader",
+    "UUIDBinaryLoader"
+  ],
+  "sqlalchemy_uuid_result_processor": null,
+  "cases": [
+    {
+      "case": "raw-uuid",
+      "scope": "SOURCE_STORAGE_REAL_CONTROL_UDS",
+      "candidate_callback_normalization": false,
+      "row_kind": "uuid",
+      "wrong_run": false,
+      "checkpoints": [],
+      "exchange_calls": 0,
+      "server_errors": [
+        {
+          "exception": "AssertionError",
+          "frames": [
+            {
+              "code": "LOCAL_CONTROL",
+              "line": 281
+            },
+            {
+              "code": "LOCAL_CONTROL",
+              "line": 162
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 107
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 378
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 291
+            },
+            {
+              "code": "RUNTIME_CLIENT",
+              "line": 658
+            },
+            {
+              "code": "QA_CALLBACK",
+              "line": 9778
+            }
+          ]
+        }
+      ],
+      "row_types": [
+        "UUID",
+        "UUID",
+        "UUID"
+      ],
+      "context_types": [
+        "str",
+        "str",
+        "str"
+      ],
+      "identifier_values_equal_after_str": [
+        true,
+        true,
+        true
+      ],
+      "client": {
+        "tag": "CATALOG_ERROR",
+        "reason": "TASK_REJECTED",
+        "context": "IncompleteReadError",
+        "frames": [
+          {
+            "code": "SOURCE_PROBE",
+            "line": 185
+          },
+          {
+            "code": "NATIVE_TASK_OWNER",
+            "line": 557
+          }
+        ]
+      },
+      "modes": [
+        "CREATE"
+      ],
+      "control_cleanup": true,
+      "inference_reservations": 0,
+      "real_native_calls": 0
+    },
+    {
+      "case": "raw-string",
+      "scope": "SOURCE_STORAGE_REAL_CONTROL_UDS",
+      "candidate_callback_normalization": false,
+      "row_kind": "string",
+      "wrong_run": false,
+      "checkpoints": [
+        "SOURCE_CALLBACK_COMMIT_CHECK_REACHED"
+      ],
+      "exchange_calls": 1,
+      "server_errors": [],
+      "row_types": [
+        "str",
+        "str",
+        "str"
+      ],
+      "context_types": [
+        "str",
+        "str",
+        "str"
+      ],
+      "identifier_values_equal_after_str": [
+        true,
+        true,
+        true
+      ],
+      "client": {
+        "tag": "REPLY",
+        "ok": true,
+        "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD"
+      },
+      "modes": [
+        "CREATE"
+      ],
+      "control_cleanup": true,
+      "inference_reservations": 0,
+      "real_native_calls": 0
+    },
+    {
+      "case": "normalized",
+      "scope": "SOURCE_STORAGE_REAL_CONTROL_UDS",
+      "candidate_callback_normalization": true,
+      "row_kind": "uuid",
+      "wrong_run": false,
+      "checkpoints": [
+        "SOURCE_CALLBACK_COMMIT_CHECK_REACHED"
+      ],
+      "exchange_calls": 1,
+      "server_errors": [],
+      "row_types": [
+        "UUID",
+        "UUID",
+        "UUID"
+      ],
+      "context_types": [
+        "str",
+        "str",
+        "str"
+      ],
+      "identifier_values_equal_after_str": [
+        true,
+        true,
+        true
+      ],
+      "client": {
+        "tag": "REPLY",
+        "ok": true,
+        "preparation_status": "TURN_BOUND_PRE_CLIENT_HOLD"
+      },
+      "modes": [
+        "CREATE"
+      ],
+      "control_cleanup": true,
+      "inference_reservations": 0,
+      "real_native_calls": 0
+    },
+    {
+      "case": "wrong-uuid",
+      "scope": "SOURCE_STORAGE_REAL_CONTROL_UDS",
+      "candidate_callback_normalization": true,
+      "row_kind": "uuid",
+      "wrong_run": true,
+      "checkpoints": [],
+      "exchange_calls": 0,
+      "server_errors": [
+        {
+          "exception": "AssertionError",
+          "frames": [
+            {
+              "code": "LOCAL_CONTROL",
+              "line": 281
+            },
+            {
+              "code": "LOCAL_CONTROL",
+              "line": 162
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 107
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 378
+            },
+            {
+              "code": "NATIVE_TASK_OWNER",
+              "line": 291
+            },
+            {
+              "code": "RUNTIME_CLIENT",
+              "line": 658
+            },
+            {
+              "code": "QA_CALLBACK",
+              "line": 9778
+            }
+          ]
+        }
+      ],
+      "row_types": [
+        "UUID",
+        "UUID",
+        "UUID"
+      ],
+      "context_types": [
+        "str",
+        "str",
+        "str"
+      ],
+      "identifier_values_equal_after_str": [
+        true,
+        true,
+        false
+      ],
+      "client": {
+        "tag": "CATALOG_ERROR",
+        "reason": "TASK_REJECTED",
+        "context": "IncompleteReadError",
+        "frames": [
+          {
+            "code": "SOURCE_PROBE",
+            "line": 185
+          },
+          {
+            "code": "NATIVE_TASK_OWNER",
+            "line": 557
+          }
+        ]
+      },
+      "modes": [
+        "CREATE"
+      ],
+      "control_cleanup": true,
+      "inference_reservations": 0,
+      "real_native_calls": 0
+    }
+  ]
+}

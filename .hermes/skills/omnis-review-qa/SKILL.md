@@ -37,6 +37,8 @@ For hash-routed prototypes, reload or create a fresh browser page between cases:
 
 Verify focused pixels and target geometry, not only activeElement: an outer outline can be clipped, and a contextual link can preserve scroll below the selected object's title. Test repeat navigation from long mobile pages and place focus below persistent run controls.
 
+For a keyboard `:focus-visible` requirement after pointer actions, enter keyboard modality with a real Tab from a verified predecessor before measuring the ring. Programmatic `.focus()` can make the element active while `:focus-visible` remains false; a nonzero computed outline width with `outline-style:none` is not a visible ring. Reproduce the modality difference with current CSS and the pinned browser, retain the exact ring/geometry/target-size assertions, and distinguish a CSS-fixture proof from the fresh product journey. Do not weaken the oracle or change product CSS merely to satisfy a script-focus check.
+
 Resolve an evidence/task link's operation, identity and snapshot explicitly; opening the destination page while retaining incompatible filters can display another object's evidence. Include a prior-selection/empty-filter regression.
 
 Exercise rerenders as well as initial clicks: a stopped/paused run must not regain an active phase after finding review or filtering. Recheck current evidence availability in every consumer (finding, operation inspector, coverage and newly exported reports), while preserving historical verdicts and saved report snapshots. Download and parse the actual export; a preview count is not evidence that its bytes match.

@@ -161,6 +161,7 @@ class NativeOAuth:
         self.terminal: str | None = None
         self.owner_fd: int | None = None
         self.owner_identity: tuple[int, int] | None = None
+        self.owner_deadline_ns = 0
 
     @classmethod
     def from_owner_fd(cls, fd: int) -> Self:
@@ -180,13 +181,14 @@ class NativeOAuth:
             or not flags & os.O_NONBLOCK
         ):
             raise ValueError("Invalid management lifeline")
-        bootstrap = os.read(fd, 17)
-        if bootstrap != struct.pack("!QQ", info.st_dev, info.st_ino):
+        bootstrap = os.read(fd, 24)
+        if len(bootstrap) != 24 or bootstrap[:16] != struct.pack("!QQ", info.st_dev, info.st_ino):
             raise ValueError("Invalid management bootstrap")
         os.set_inheritable(fd, False)
         owner = cls()
         owner.owner_fd = fd
         owner.owner_identity = (info.st_dev, info.st_ino)
+        owner.owner_deadline_ns = struct.unpack("!Q", bootstrap[16:])[0]
         owner._owner_alive()
         return owner
 
@@ -199,8 +201,19 @@ class NativeOAuth:
                 raise ValueError("Auth owner changed")
             poll = select.poll()
             poll.register(self.owner_fd, select.POLLIN | select.POLLHUP | select.POLLERR)
-            if poll.poll(0):
-                raise ValueError("Auth owner revoked")
+            for _, events in poll.poll(0):
+                if events & (select.POLLHUP | select.POLLERR | select.POLLNVAL):
+                    raise ValueError("Auth owner revoked")
+                try:
+                    updates = os.read(self.owner_fd, 4096)
+                except BlockingIOError:
+                    updates = b""
+                if not updates or len(updates) % 8:
+                    raise ValueError("Invalid owner renewal")
+                self.owner_deadline_ns = struct.unpack("!Q", updates[-8:])[0]
+            now = time.monotonic_ns()
+            if not now < self.owner_deadline_ns <= now + 5_000_000_000:
+                raise ValueError("Auth owner expired")
         except OSError:
             raise ValueError("Auth owner unavailable") from None
 

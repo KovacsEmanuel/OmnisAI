@@ -189,6 +189,9 @@ def run_model_test_request(agent):
     """One constructor-owned native Responses request, no stock retry/fallback loop."""
     import os
     import time
+    import socket
+    import threading
+    from contextlib import suppress
     from datetime import datetime, timezone
     import httpx
     from openai import OpenAI
@@ -196,6 +199,7 @@ def run_model_test_request(agent):
     from omnis_hermes.managed_admission_contract import canonical, ref
     from omnis_hermes.native_preparation_contract import loads
     from agent.transports.codex import ResponsesApiTransport
+    from agent.codex_headers import codex_cloudflare_headers
 
     final = agent._model_test_dispatch
     if type(final) is not CodexFinalRequest or not agent._model_test_execution:
@@ -206,16 +210,25 @@ def run_model_test_request(agent):
     d = p["dispatch"]["payload"]
     result = {"protocol": p["protocol"], "context_ref": p["context_ref"],
         "dispatch_ref": ref(p["dispatch"]), "status": "UNKNOWN", "receipt": None}
-    physical = {"headers": 0, "request": None, "wire_digest": None}
+    physical = {"headers": 0, "request": None, "wire_digest": None, "socket": None}
     expiry = datetime.fromisoformat(d["deadline"])
     if expiry.utcoffset() != timezone.utc.utcoffset(expiry):
         raise ValueError("Invalid execution deadline")
     remaining = (expiry - datetime.now(timezone.utc)).total_seconds()
     deadline = time.monotonic() + min(300.0, remaining)
+    retired = threading.Event()
+
+    def abort():
+        retired.set()
+        sock = physical["socket"]
+        if sock is not None:
+            # shutdown wakes a blocked read without releasing another thread's TLS FD.
+            with suppress(OSError):
+                sock.shutdown(socket.SHUT_RDWR)
 
     def guard():
         agent._model_test_lifeline._owner_alive()
-        if agent._model_test_closed.is_set() or time.monotonic() >= deadline:
+        if retired.is_set() or agent._model_test_closed.is_set() or time.monotonic() >= deadline:
             raise ValueError("Execution authority revoked")
         if agent._model_test_dispatch is not final or agent._api_call_count != 0:
             raise ValueError("Execution authority changed")
@@ -229,8 +242,15 @@ def run_model_test_request(agent):
         request.extensions["trace"] = trace
 
     def trace(event, info):
+        if event in ("connection.connect_tcp.complete", "connection.connect_unix_socket.complete"):
+            # Keep an owned descriptor across SSL wrap_socket's detach/handshake.
+            physical["socket"] = info["return_value"].get_extra_info("socket").dup()
+            guard()
         if event.endswith(".started"):
             guard()
+            # httpcore forwards this exact kwargs dict to connect/start_tls.
+            if "timeout" in info:
+                info["timeout"] = max(0.001, deadline - time.monotonic())
         if event.endswith(".send_request_headers.started"):
             request = physical["request"]
             if request is None or physical["headers"] != 0:
@@ -239,6 +259,7 @@ def run_model_test_request(agent):
             physical["headers"] = 1
 
     client = None
+    timer = None
     try:
         guard()
         if os.environ.get("HERMES_HOME") != "/state/provider":
@@ -259,25 +280,56 @@ def run_model_test_request(agent):
                 "replay_encrypted_reasoning": False, "timeout": 300.0},
         )
         kwargs = final.consume_native(kwargs)  # after ALL native transformations
+        kwargs["timeout"] = max(0.001, deadline - time.monotonic())
         transport = httpx.HTTPTransport(uds="/runtime/auth-egress.sock", retries=0, trust_env=False)
         http = httpx.Client(transport=transport, trust_env=False, follow_redirects=False,
-            timeout=300.0, event_hooks={"request": [before_send]})
+            timeout=kwargs["timeout"], event_hooks={"request": [before_send]})
         client = OpenAI(api_key=token, base_url=CODEX_URL.rsplit("/", 1)[0], max_retries=0,
-            timeout=300.0, http_client=http)
+            timeout=kwargs["timeout"], http_client=http,
+            default_headers=codex_cloudflare_headers(token, base_url=CODEX_URL.rsplit("/", 1)[0]))
         agent._model_test_client = client
+        agent._model_test_abort = abort
+        timer = threading.Timer(max(0.0, deadline - time.monotonic()), abort)
+        timer.daemon = True
+        timer.start()
         guard()
         terminal = None
+        output_items = []
         with client.responses.create(**kwargs) as stream:
             for event in stream:
                 guard()
+                if event.type == "response.output_item.done":
+                    item = event.item.model_dump(mode="json")
+                    if len(canonical(output_items + [item])) > 32768:
+                        raise ValueError("Provider output requires reconciliation")
+                    output_items.append(item)
                 if event.type in ("response.completed", "response.incomplete", "response.failed"):
                     if terminal is not None:
                         raise ValueError("Duplicate terminal response")
                     terminal = event.response
+                    break
         if terminal is None or physical["headers"] != 1:
             raise ValueError("Provider outcome unknown")
         usage = terminal.usage
-        output = terminal.output_text
+        # The pin assembles output_item.done because Codex terminal.output may be null.
+        if terminal.output is not None and type(terminal.output) is not list:
+            raise ValueError("Malformed provider output")
+        items = output_items or terminal.output or []
+        if type(items) is not list:
+            raise ValueError("Malformed provider output")
+        parts = []
+        for item in items:
+            item = item if type(item) is dict else item.model_dump(mode="json")
+            if item.get("type") == "reasoning":
+                continue
+            if item.get("type") != "message" or type(item.get("content")) is not list:
+                raise ValueError("Unclassified provider output")
+            for part in item["content"]:
+                field = {"output_text": "text", "refusal": "refusal"}.get(part.get("type"))
+                if field is None or type(part.get(field)) is not str:
+                    raise ValueError("Unclassified provider content")
+                parts.append(part[field])
+        output = "".join(parts)
         if type(output) is not str or len(output.encode()) > 8192:
             raise ValueError("Provider output requires reconciliation")
         result["status"] = "COMPLETE"
@@ -291,10 +343,16 @@ def run_model_test_request(agent):
         # SENT remains consumed even if this process cannot recover a receipt.
         result = {**result, "status": "UNKNOWN", "receipt": None}
     finally:
+        if timer is not None:
+            timer.cancel()
+            timer.join()
         if client is not None:
             try:
                 client.close()
             except Exception:
                 result = {**result, "status": "UNKNOWN", "receipt": None}
+        if physical["socket"] is not None:
+            with suppress(OSError):
+                physical["socket"].close()
         agent._api_call_count = physical["headers"]
         agent._model_test_result = result

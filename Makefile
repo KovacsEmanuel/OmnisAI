@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -90,6 +90,11 @@ test-native-preparation-pg:
 test-model-test-prepare-native-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml 'api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-prepare]' -q --tb=no --basetemp="$$TMPDIR/mtp"
+
+.PHONY: test-model-test-execute-native-pg
+test-model-test-execute-native-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_CONTRACT_METHOD_NATIVE_PG=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml 'api/tests/test_contract_method_pg.py::test_contract_method_real_native_pg_owner_receipts_check_inbox[model-test-execute]' -q --tb=no --basetemp="$$TMPDIR/mte"
 
 .PHONY: test-owned-initialization-native-pg
 test-owned-initialization-native-pg:

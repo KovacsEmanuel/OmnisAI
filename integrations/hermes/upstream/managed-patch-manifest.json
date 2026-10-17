@@ -42,7 +42,7 @@
     },
     "agent/turn_api_request.py": {
       "original_sha256": "e31386cb83cf551026e4df9b589173b54bc913b36fc1a09942a520e68033b59e",
-      "patched_sha256": "bd419afce1c849b2dbe5009d92c70802aaec8ab35500f0fbd251569bc4261ac7"
+      "patched_sha256": "ee722e4cdac7f904702936d5fc4e7c5349f03bb3e95ed5958dd73e4b14d63db8"
     },
     "providers/__init__.py": {
       "original_sha256": "a3bb7c8a8ebbd589fa0e2c303380ccc14b8a71efbf8e63976e3ceda5c0cc12da",
@@ -50,7 +50,7 @@
     },
     "run_agent.py": {
       "original_sha256": "244da863d3c21591a3b5326dc14c2962d4e31131dda52df628502cd9fcbfea33",
-      "patched_sha256": "a10678a0a00fbb7d489bd77f3e394ba0df551c65747defc2280b9f4200c81b13"
+      "patched_sha256": "d8d640866064f4b6c19aee4aa54bf68876e2752c13b15d926b32720bf225c481"
     },
     "tui_gateway/rpc_dispatch.py": {
       "original_sha256": "31429f1b8e1f1185d8b05e3281da5a85939071952386c5426713c02bde676743",
@@ -58,7 +58,7 @@
     },
     "agent/agent_init.py": {
       "original_sha256": "ce93f1d5acd4727d0005b46d7054d8892a55c820be40ebc7f594695f576b4d81",
-      "patched_sha256": "2faaf6ae4857d4875f48ed009c5bb6dd779bbc78b1f320514ca53960fd7de14f"
+      "patched_sha256": "16eaf2049c5db9af4a4c43e96343a5191fd80045ea27c072aa7391db55e5d930"
     },
     "agent/contract_execution.py": {
       "original_sha256": null,
@@ -73,5 +73,5 @@
       "patched_sha256": "44f5a477ddcb850579f0a9c087e26bf8e874daba2743e1154b298c6b5b59940f"
     }
   },
-  "patch_sha256": "5bc809427edbc80b55290ca6a3de47c3b417becad25372e948ebc566172239d3"
+  "patch_sha256": "da30beeea2e8185d5bc9133f90ec196de4d11f3df53739bd4b92c9b958ec707d"
 }

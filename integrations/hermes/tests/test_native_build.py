@@ -71,6 +71,7 @@ class NativeInertSeam(unittest.TestCase):
                 )
 
                 host = RuntimeHost(Path("unused"))
+                host.deadline_ns = time.monotonic_ns() + 4_000_000_000
                 reader = host._open_management_lifeline()
                 owner = NativeOAuth.from_owner_fd(reader)
 

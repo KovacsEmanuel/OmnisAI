@@ -2345,6 +2345,7 @@ def configure_model_test(agent, carrier):
         agent._model_test_dispatch = None
         agent._model_test_result = None
         agent._model_test_client = None
+        agent._model_test_abort = None
     agent._model_test_ready = threading.Event()
     agent._model_test_closed = threading.Event()
     agent._model_test_entered = False

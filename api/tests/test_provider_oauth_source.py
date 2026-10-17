@@ -11,6 +11,32 @@ import httpx
 import pytest
 
 
+def test_host_lifeline_expiry_and_renewal_without_watchdog(tmp_path: Path) -> None:
+    import os
+
+    from omnis_hermes.management_oauth import NativeOAuth
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    host = RuntimeHost(tmp_path)
+    host.deadline_ns = time.monotonic_ns() + 40_000_000
+    reader = host._open_management_lifeline()
+    try:
+        owner = NativeOAuth.from_owner_fd(reader)
+        owner._owner_alive()
+        host.deadline_ns = host._grant({"deadline_ns": time.monotonic_ns() + 150_000_000})
+        time.sleep(0.06)
+        owner._owner_alive()  # same authority observes the stock renewed Host deadline
+        time.sleep(0.12)
+        with pytest.raises(ValueError):
+            owner._owner_alive()  # writer still open; Host watchdog has never run
+        host._revoke_management_lifeline()
+        with pytest.raises(ValueError):
+            owner._owner_alive()
+    finally:
+        host._revoke_management_lifeline()
+        os.close(reader)
+
+
 @pytest.mark.asyncio
 async def test_host_connect_poll_cancel_uses_one_slot_and_current_read(
     ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
@@ -335,6 +361,7 @@ async def test_lifeline_child_observes_owner_eof_without_signal(tmp_path: Path) 
     from omnis_hermes import management_oauth, runtime_host
 
     host = runtime_host.RuntimeHost(tmp_path)
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
     reader = host._open_management_lifeline()
     source = str(Path(management_oauth.__file__).resolve().parents[1])
     code = (
@@ -382,6 +409,7 @@ def test_lifeline_missing_wrong_mode_identity_and_eof_fail_closed(tmp_path: Path
     with pytest.raises(ValueError):
         NativeOAuth().guard()
     host = RuntimeHost(tmp_path)
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
     reader = host._open_management_lifeline()
     try:
         assert host.management_lifeline_write is not None
@@ -469,6 +497,7 @@ def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
     from omnis_hermes.runtime_host import RuntimeHost
 
     host = RuntimeHost(Path("unused"))
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
     reader = host._open_management_lifeline()
     owner = management_oauth.NativeOAuth.from_owner_fd(reader)
     assert hasattr(owner, "revoke"), "Native Stop fence missing"

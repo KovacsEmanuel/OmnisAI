@@ -1044,11 +1044,11 @@ class AIAgent(
         blocks the rest."""
         if self.__dict__.get("_model_test_preparation") is not None:
             self._model_test_closed.set()
-            client = self.__dict__.get("_model_test_client")
             uncertain = False
-            if client is not None:
+            abort = self.__dict__.get("_model_test_abort")
+            if abort is not None:
                 try:
-                    client.close()
+                    abort()
                 except Exception:
                     uncertain = True
             record = self.__dict__.get("_model_test_record")

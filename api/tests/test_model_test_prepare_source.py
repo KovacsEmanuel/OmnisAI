@@ -180,6 +180,7 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
             "epoch": 1,
             "runtime": runtime,
             "model_prepare": True,
+            "model_execute": False,
         }
         scope["owner"] = scope["supervisor"]
         exec(compile(ast.Module(body=[maintain], type_ignores=[]), qa.__file__, "exec"), scope)
@@ -1052,6 +1053,7 @@ def test_model_prepare_real_early_return_finally(tmp_path: Path, fault: str | No
     scope: dict[str, object] = {
         "sys": sys,
         "model_prepare": True,
+        "model_execute": False,
         "observation": path,
         "require_native_observation": owner.require_native_observation,
         "checkpoint": checkpoint,
@@ -1610,20 +1612,52 @@ async def test_execution_start_is_fresh_qualified_and_bounded_source(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("outcome", ["complete", "lost", "stop"])
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        "complete",
+        "null",
+        "lost",
+        "stop",
+        "expired",
+        "blocked",
+        "trickle",
+        "malformed",
+        "complete-stop",
+        "missing-account",
+        "malformed-token",
+        "missing-token",
+        "socket-detach",
+    ],
+)
 async def test_execution_owner_commits_reserve_and_sent_then_replays_without_send(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     outcome: str,
 ) -> None:
     """SOURCE owners/ledger/native function+real SDK; storage/constructor/compiler/HTTP are doubles."""
+    import base64
+    import importlib.util
     import os
-    import struct
+    import socket
     import threading
+    import time
+    from collections.abc import Iterator
+    from datetime import tzinfo
     from types import ModuleType, SimpleNamespace
 
     import httpx
 
+    if outcome == "socket-detach":
+        probe, peer_probe = socket.socketpair()
+        try:
+            try:
+                probe.shutdown(socket.SHUT_RDWR)
+            except PermissionError:
+                pytest.skip("Sandbox denies genuine socket shutdown; parent socket/TLS QA required")
+        finally:
+            probe.close()
+            peer_probe.close()
     assert import_module("openai").__version__ == "2.24.0"  # existing native SDK, no network
     from hashlib import sha256
     from typing import Callable
@@ -1722,29 +1756,71 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
 
         monkeypatch.setattr(compiler, "ResponsesApiTransport", CompilerDouble, raising=False)
         monkeypatch.setitem(__import__("sys").modules, "agent.transports.codex", compiler)
+        # Exact pure leaf from the prepared pin; no helper double in this SOURCE test.
+        pinned = Path(os.environ["HERMES_NATIVE_SOURCE"]) / "agent/codex_headers.py"
+        assert sha256(pinned.read_bytes()).hexdigest() == (
+            "f294215fef55f229704cd3fc596ccb6840af126459f15a7ffd38f2c51ae62f6a"
+        )
+        spec = importlib.util.spec_from_file_location("agent.codex_headers", pinned)
+        assert spec is not None and spec.loader is not None
+        headers_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(headers_module)
+        monkeypatch.setitem(__import__("sys").modules, "agent.codex_headers", headers_module)
+        cli = ModuleType("hermes_cli")
+        monkeypatch.setattr(cli, "__version__", "SOURCE_VERSION", raising=False)
+        monkeypatch.setitem(__import__("sys").modules, "hermes_cli", cli)
+        claims = (
+            {}
+            if outcome == "missing-account"
+            else {
+                "https://api.openai.com/auth": {
+                    "chatgpt_account_id": "SOURCE_ACCOUNT",
+                    "chatgpt_data_residency": "eu",
+                }
+            }
+        )
+        token = (
+            "synthetic."
+            + base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")
+            + ".unsigned"
+        )
+        if outcome == "malformed-token":
+            token = "SYNTHETIC_NOT_A_CREDENTIAL"
         auth = ModuleType("hermes_cli.auth_codex")
         monkeypatch.setattr(
             auth,
             "_read_codex_tokens",
-            lambda: {"tokens": {"access_token": "SYNTHETIC_NOT_A_CREDENTIAL"}},
+            lambda: {"tokens": {} if outcome == "missing-token" else {"access_token": token}},
             raising=False,
         )
         monkeypatch.setattr(
             auth, "_codex_access_token_is_expiring", lambda *a: False, raising=False
         )
         monkeypatch.setitem(__import__("sys").modules, "hermes_cli.auth_codex", auth)
-        reader, writer = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
-        os.fchmod(reader, 0o600)
-        info = os.fstat(reader)
-        os.write(writer, struct.pack("!QQ", info.st_dev, info.st_ino))
-        lifeline = NativeOAuth.from_owner_fd(reader)
         host = RuntimeHost(tmp_path)
-        host.management_lifeline_write = writer
+        host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+        reader = host._open_management_lifeline()
+        lifeline = NativeOAuth.from_owner_fd(reader)
 
         def transport(request: httpx.Request) -> httpx.Response:
+            assert request.headers["originator"] == "hermes-agent"
+            assert request.headers["user-agent"] == "HermesAgent/SOURCE_VERSION"
+            assert request.headers["authorization"] == "Bearer " + token
+            if outcome in {"missing-account", "malformed-token"}:
+                assert "chatgpt-account-id" not in request.headers
+                assert "x-openai-internal-codex-residency" not in request.headers
+            else:
+                assert request.headers["chatgpt-account-id"] == "SOURCE_ACCOUNT"
+                assert request.headers["x-openai-internal-codex-residency"] == "eu"
+            assert token.encode() not in final.raw
+            if outcome in {"blocked", "trickle", "socket-detach"}:
+                assert all(0 < value <= 0.3 for value in request.extensions["timeout"].values())
             final.validate_wire(request.content)
             if outcome == "stop":
                 host._revoke_management_lifeline()  # real synchronous pipe EOF before simulated preheader
+            if outcome == "expired":
+                host.deadline_ns = time.monotonic_ns() + 1_000_000
+                time.sleep(0.005)  # actual Host writer stays open; no watchdog runs
             trace = cast(Callable[[str, dict[str, object]], None], request.extensions["trace"])
             trace("http11.send_request_headers.started", {})
             physical.append("headers")
@@ -1756,7 +1832,11 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
                 "created_at": 0,
                 "status": "completed",
                 "model": "gpt-6.1-sol",
-                "output": [],
+                "output": None
+                if outcome == "null"
+                else [{"type": "unknown"}]
+                if outcome == "malformed"
+                else [],
                 "reasoning": {"effort": "xhigh", "summary": "auto"},
                 "usage": {
                     "input_tokens": 15,
@@ -1766,10 +1846,104 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
                 },
             }
             event = {"type": "response.completed", "response": response}
+            item = {
+                "id": "msg_source",
+                "type": "message",
+                "status": "completed",
+                "role": "assistant",
+                "content": [{"type": "output_text", "text": "Synthetic reply.", "annotations": []}],
+            }
+            prefix = ""
+            if outcome == "null":
+                prefix = (
+                    "event: response.output_item.done\ndata: "
+                    + json.dumps(
+                        {"type": "response.output_item.done", "output_index": 0, "item": item}
+                    )
+                    + "\n\n"
+                )
+            if outcome in {"blocked", "trickle", "socket-detach"}:
+                from httpcore._backends.sync import SyncStream
+
+                closed = threading.Event()
+                read_end = write_end = -1
+
+                class PipeSocket:
+                    def shutdown(self, how: int) -> None:
+                        if not closed.is_set():
+                            closed.set()
+                            os.close(write_end)
+
+                    def dup(self) -> "PipeSocket":
+                        return self
+
+                    def close(self) -> None:
+                        pass
+
+                    def recv(self, size: int) -> bytes:
+                        return os.read(read_end, size)
+
+                sock: socket.socket | PipeSocket
+                if outcome in {"blocked", "trickle"}:
+                    read_end, write_end = os.pipe()
+                    sock = PipeSocket()
+                else:
+                    sock, peer_socket = socket.socketpair()
+                connect_info: dict[str, object] = {"timeout": 300.0}
+                trace("connection.connect_unix_socket.started", connect_info)
+                assert 0 < cast(float, connect_info["timeout"]) <= 0.3
+                if isinstance(sock, socket.socket):
+                    trace(
+                        "connection.connect_unix_socket.complete",
+                        {"return_value": SyncStream(sock)},
+                    )
+                else:
+                    trace(
+                        "connection.connect_unix_socket.complete",
+                        {"return_value": SimpleNamespace(get_extra_info=lambda key: sock)},
+                    )
+                if outcome == "socket-detach":
+                    assert isinstance(sock, socket.socket)
+                    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM, fileno=sock.detach())
+
+                class Body(httpx.SyncByteStream):
+                    def __iter__(self) -> Iterator[bytes]:
+                        retained["reader_entered"] = True
+                        while data := sock.recv(1024):
+                            yield data
+
+                    def close(self) -> None:
+                        closed.set()
+                        if outcome in {"blocked", "trickle"}:
+                            sock.shutdown(2)
+                            os.close(read_end)
+                        else:
+                            peer_socket.close()
+                            sock.close()
+
+                if outcome == "trickle":
+
+                    def trickle() -> None:
+                        while not closed.wait(0.025):
+                            try:
+                                os.write(write_end, b": keepalive\n\n")
+                            except OSError:
+                                return
+
+                    writer_thread = threading.Thread(target=trickle, daemon=True)
+                    retained["writer_thread"] = writer_thread
+                    writer_thread.start()
+                # Safety bound for RED: original code otherwise blocks for 300 seconds.
+                safety = threading.Timer(1.5, sock.shutdown, args=(2,))
+                safety.start()
+                retained["safety"] = safety
+                return httpx.Response(
+                    200, headers={"content-type": "text/event-stream"}, stream=Body()
+                )
             return httpx.Response(
                 200,
                 headers={"content-type": "text/event-stream"},
-                text="event: response.completed\ndata: " + json.dumps(event) + "\n\n",
+                text=prefix + "event: response.completed\ndata: " + json.dumps(event) + "\n\n",
             )
 
         monkeypatch.setattr(httpx, "HTTPTransport", lambda **k: httpx.MockTransport(transport))
@@ -1789,12 +1963,42 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         function = load(
             "turn_api_request.py", {"run_model_test_request"}, {}
         ).run_model_test_request
+        if outcome in {"blocked", "trickle", "socket-detach"}:
+            import datetime as datetime_module
+            from datetime import datetime
+
+            class NearDeadline(datetime):
+                @classmethod
+                def now(cls, tz: tzinfo | None = None) -> "NearDeadline":
+                    return cls.fromtimestamp(datetime.now(tz).timestamp() + 299.7, tz)
+
+            monkeypatch.setattr(datetime_module, "datetime", NearDeadline)
+        began = time.monotonic()
         try:
             function(child)
+            if outcome in {"blocked", "trickle", "socket-detach"}:
+                assert retained.get("reader_entered") is True
+                assert 0.2 < time.monotonic() - began < 1.0
         finally:
+            timer = retained.get("safety")
+            if isinstance(timer, threading.Timer):
+                timer.cancel()
+                timer.join()
+            writer_thread = retained.get("writer_thread")
+            if isinstance(writer_thread, threading.Thread):
+                writer_thread.join(timeout=1)
+                assert not writer_thread.is_alive()
             host._revoke_management_lifeline()
             os.close(reader)
+        assert token not in json.dumps(child._model_test_result)
         retained["result"] = child._model_test_result
+        if outcome == "complete-stop":
+            from omnis.modules.instance.domain import ControlCode, ControlConflict
+
+            def stopped_commit(*args: object) -> object:
+                raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+
+            monkeypatch.setattr(owner.handler.service, "native_preparation_commit", stopped_commit)
         return mapping(retained["result"])
 
     monkeypatch.setattr(owner.runtime, "managed", native)
@@ -1834,20 +2038,27 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         }
     )
     result = await owner.handler.handle(send)
-    if outcome == "complete":
+    if outcome in {"complete", "null", "complete-stop", "missing-account", "malformed-token"}:
         assert (
             result["state"] == "SETTLED"
             and result["output_tokens"] == 12
             and result["reasoning_tokens"] == 9
         )
         assert result["inference_status"] == "VERIFIED" and result["cost_observed"] is None
+        if outcome == "null":
+            receipt = next(r for r in owner.graph if r["kind"] == "provider-receipt")
+            assert (
+                mapping(mapping(receipt["payload"])["observed"])["output_text"]
+                == "Synthetic reply."
+            )
     else:
         assert result["state"] == "SENT" and result["usage_state"] == "UNKNOWN"
         assert result["output_tokens"] is None and result["provider_receipt_ref"] is None
     before = canonical(owner.graph)
     assert await owner.handler.handle(send) == result
-    from contextlib import asynccontextmanager
     from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+
     from omnis.modules.instance.domain import ControlCode, ControlConflict
 
     @asynccontextmanager
@@ -1861,11 +2072,15 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
     restarted = send.model_copy(update={"expected_epoch": 2, "expected_generation": 1})
     assert await owner.handler.handle(restarted) == result
     with pytest.raises(CatalogError, match="COMMAND_CONFLICT"):
-        await owner.handler.handle(restarted.model_copy(update={"data_approval": {**decision, "decision_id": str(uuid4())}}))
+        await owner.handler.handle(
+            restarted.model_copy(
+                update={"data_approval": {**decision, "decision_id": str(uuid4())}}
+            )
+        )
     with pytest.raises((CatalogError, ControlConflict)):
         await owner.handler.handle(restarted.model_copy(update={"owner_id": str(uuid4())}))
     assert len(starts) == len(sends) == 1 and canonical(owner.graph) == before
-    assert len(physical) == (0 if outcome == "stop" else 1)
+    assert len(physical) == (0 if outcome in {"stop", "expired", "missing-token"} else 1)
     from omnis_hermes.runtime_protocol import encode
 
     measurements = {}

@@ -481,6 +481,13 @@ try:
             engine = database_engine(os.environ["OMNIS_DATABASE_URL"])
             try:
                 async with engine.connect() as connection:
+                    if value.get("action") == "model_test_send":
+                        from omnis.modules.instance.schemas import NativeTaskCommand
+                        consumer = ModelTest(module.ManagedAdmission(engine))
+                        attempt = await consumer.replay_execution(connection, NativeTaskCommand.model_validate(value))
+                        if attempt is None:
+                            raise AssertionError("MODEL_TEST_RECEIPT_UNAVAILABLE")
+                        return await consumer.execution_receipt(connection, value["owner_id"], attempt)
                     context = await managed_store.get(connection, value["owner_id"], value["run_id"], value["context_ref"])
                     payload, observation = await ModelTest(module.ManagedAdmission(engine)).dispatch(connection, value["owner_id"], context, False)
                 return {"payload":payload,"observation":observation}
@@ -2915,6 +2922,7 @@ def launch_bootstrap_diagnostic(raw: bytes) -> dict[str, object]:
         "observe_owned_core": {"ENTERED", "COMPLETED"},
         "owned-rpc": {"ENTERED", "COMPLETED"},
         "owned-preclient": {"CLIENT_NONE_CALLS_ZERO"},
+        "model-test-http": {"HEADERS"},
         **{
             "prepare-" + name: {"ENTERED", "COMPLETED"}
             for name in (
@@ -6442,7 +6450,7 @@ def prepare_observe(frame, event):
             callers = [getattr(sys.modules[caller_module], caller_name).__code__]
         valid = valid and caller is not None and any(caller.f_code is code for code in callers)
         if name in {"run_conversation", "build_turn_context"}:
-            prepare_prefixes[frame.f_code] = 1658 if name == "run_conversation" else 1011
+            prepare_prefixes[frame.f_code] = 1658 if name == "run_conversation" else 1017
     if not valid:
         emit("forbidden-sink", "MODEL_PREPARE_IDENTITY")
         raise RuntimeError("Forbidden native sink")
@@ -6458,7 +6466,11 @@ def prepare_observe(frame, event):
 
 
 def batch2_native_observer(
-    *, startup: bool, h04: str | None = None, model_prepare: bool = False
+    *,
+    startup: bool,
+    h04: str | None = None,
+    model_prepare: bool = False,
+    model_execute: bool = False,
 ) -> str:
     """Reuse the SOURCE observer, excluding its argv/env wrapper and manual runpy."""
     if h04 is not None and (h04 not in H04_CASES or startup):
@@ -6558,6 +6570,12 @@ def batch2_native_observer(
             "def monitor_line(code, line):",
             'def monitor_line(code, line):\n    if code in prepare_prefixes:\n        if line > prepare_prefixes[code]:\n            emit("forbidden-sink", "MODEL_PREPARE_PREFIX")\n            raise RuntimeError("Forbidden native sink")\n        return',
         )
+    if model_execute:
+        core = core.replace(
+            'name.endswith((".env", "auth.json", "credentials.json"))',
+            '(name.endswith((".env", "auth.json", "credentials.json")) and Path(name) != Path("/state/provider/auth.json"))',
+        )
+
     return (
         "import importlib.abc, importlib.util, json, os, runpy, sys, threading, time\n"
         "from pathlib import Path\n"
@@ -6571,7 +6589,38 @@ def batch2_native_observer(
         + (STARTUP_NATIVE_PRIMARY if startup else "")
         + STOCK_NATIVE_FINISH
         + core
+        + (MODEL_TEST_HTTP_FIXTURE if model_execute else "")
     )
+
+
+MODEL_TEST_HTTP_FIXTURE = r"""
+# Controlled HTTP only. The real native compiler, SDK and synthetic credential reader run.
+import httpx
+def synthetic_model_transport(request):
+    from omnis_hermes.model_request import CODEX_URL
+    if request.method != "POST" or str(request.url) != CODEX_URL:
+        raise ValueError("Synthetic model endpoint refused")
+    if (request.headers.get("originator") != "hermes-agent"
+        or request.headers.get("chatgpt-account-id") != "SYNTHETIC_ACCOUNT"
+        or request.headers.get("x-openai-internal-codex-residency") != "eu"):
+        raise ValueError("Synthetic required Codex headers missing")
+    from agent import codex_headers
+    if Path(codex_headers.__file__).resolve() != source / "agent/codex_headers.py":
+        raise ValueError("Pinned header helper required")
+    request.extensions["trace"]("http11.send_request_headers.started", {})
+    emit("model-test-http", "HEADERS")
+    item = {"id":"msg_synthetic", "type":"message", "role":"assistant", "status":"completed",
+        "content":[{"type":"output_text", "text":"Synthetic response.", "annotations":[]}]}
+    terminal = {"id":"resp_synthetic", "object":"response", "created_at":0, "status":"completed",
+        "model":"gpt-6.1-sol", "output":None, "reasoning":{"effort":"xhigh","summary":"auto"},
+        "usage":{"input_tokens":15,"output_tokens":12,"total_tokens":27,
+            "output_tokens_details":{"reasoning_tokens":9}}}
+    events = [{"type":"response.output_item.done","output_index":0,"item":item},
+        {"type":"response.completed","response":terminal}]
+    raw = "".join("event: " + e["type"] + "\ndata: " + json.dumps(e) + "\n\n" for e in events)
+    return httpx.Response(200, headers={"content-type":"text/event-stream"}, text=raw)
+httpx.HTTPTransport = lambda **kwargs: httpx.MockTransport(synthetic_model_transport)
+"""
 
 
 STOCK_SITE = r"""
@@ -6687,10 +6736,26 @@ if qa_role is not None:
 """
 
 
+def test_model_test_execution_attachment_is_finite_and_uses_real_compiler(tmp_path: Path) -> None:
+    _, _, hashes = batch2_installed_entry(tmp_path, model_prepare=True, model_execute=True)
+    source = (tmp_path / "qa-sitecustomize.py").read_text()
+    compile(source, "qa-sitecustomize.py", "exec")
+    assert len(hashes) == 1 and len(source.encode()) <= 65536
+    assert "MockTransport" in source and "response.output_item.done" in source
+    assert "CompilerDouble" not in source and "_read_codex_tokens =" not in source
+
+
 def batch2_installed_entry(
-    root: Path, *, startup: bool = False, h04: str | None = None, model_prepare: bool = False
+    root: Path,
+    *,
+    startup: bool = False,
+    h04: str | None = None,
+    model_prepare: bool = False,
+    model_execute: bool = False,
 ) -> tuple[list[str], list[str], dict[str, str]]:
     """One immutable attachment outside both RW roots; no command override."""
+    if model_execute and not model_prepare:
+        raise ValueError("Execution requires the model-test attachment")
     script = (
         "qa_target = "
         + repr(QA_SITE_TARGET)
@@ -6701,13 +6766,26 @@ def batch2_installed_entry(
         + "\nstartup = "
         + repr(startup)
         + "\nnative_core = "
-        + repr(batch2_native_observer(startup=startup, h04=h04, model_prepare=model_prepare))
+        + repr(
+            batch2_native_observer(
+                startup=startup, h04=h04, model_prepare=model_prepare, model_execute=model_execute
+            )
+        )
         + "\nhost_diagnostic = "
         + repr(HOST_LAUNCH_DIAGNOSTIC)
         + "\nhost_stop = "
         + repr(STARTUP_HOST_STOP)
         + "\n"
-        + STOCK_SITE
+        + (
+            STOCK_SITE.replace(
+                "'HERMES_HOME': '/state/active'", "'HERMES_HOME': '/state/provider'"
+            ).replace(
+                "or any(path.iterdir())",
+                "or (path != Path('/state/provider') and any(path.iterdir()))",
+            )
+            if model_execute
+            else STOCK_SITE
+        )
     ).encode()
     if len(script) > 65536:
         raise AssertionError("QA_SITE_SIZE_REFUSED")
@@ -8122,6 +8200,7 @@ class PreparationPrerequisite(RuntimeClient):
         (False, False, False, False, False, None),
         (False, False, False, False, False, "owned-initialization"),
         (False, False, False, False, False, "model-test-prepare"),
+        (False, False, False, False, False, "model-test-execute"),
         (False, True, False, False, False, None),
         (False, True, False, True, False, None),
         (True, True, False, False, False, None),
@@ -8152,6 +8231,7 @@ class PreparationPrerequisite(RuntimeClient):
         "support-zero",
         "owned-initialization",
         "model-test-prepare",
+        "model-test-execute",
         "criteria-normal",
         "criteria-legacy717",
         "criteria-first-late-held",
@@ -8199,7 +8279,8 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}
     startup = applicability == "batch2-startup-only"
     h04 = applicability if applicability in H04_CASES else None
-    model_prepare = applicability == "model-test-prepare"
+    model_execute = applicability == "model-test-execute"
+    model_prepare = applicability == "model-test-prepare" or model_execute
     installed_native = h03 or batch2 or startup or h04 is not None or model_prepare
     h03_plan: dict[str, object] = {}
     reader_python: Path | None = None
@@ -8236,6 +8317,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             "result-qualification",
             "owned-initialization",
             "model-test-prepare",
+            "model-test-execute",
         }
     ):
         import yaml
@@ -8809,6 +8891,43 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
             if installed_native:
                 state_dir = tmp_path / "h03-state"
                 state_dir.mkdir(mode=0o700)
+                if model_execute:
+                    import base64
+
+                    synthetic_home = state_dir / "provider"
+                    synthetic_home.mkdir(mode=0o700)
+                    claims = (
+                        base64.urlsafe_b64encode(
+                            json.dumps(
+                                {
+                                    "exp": int(time.time()) + 7200,
+                                    "https://api.openai.com/auth": {
+                                        "chatgpt_account_id": "SYNTHETIC_ACCOUNT",
+                                        "chatgpt_data_residency": "eu",
+                                    },
+                                }
+                            ).encode()
+                        )
+                        .decode()
+                        .rstrip("=")
+                    )
+                    synthetic_auth = synthetic_home / "auth.json"
+                    synthetic_auth.write_bytes(
+                        canonical(
+                            {
+                                "version": 1,
+                                "providers": {
+                                    "openai-codex": {
+                                        "tokens": {
+                                            "access_token": "synthetic." + claims + ".synthetic",
+                                            "refresh_token": "SYNTHETIC_NEVER_REFRESH",
+                                        }
+                                    }
+                                },
+                            }
+                        )
+                    )
+                    synthetic_auth.chmod(0o600)
                 for name in (
                     "work",
                     "os-home",
@@ -8828,7 +8947,11 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                 qa_file = None
                 if batch2 or startup or h04 is not None or model_prepare:
                     qa_host_argv, qa_native_argv, qa_hashes = batch2_installed_entry(
-                        tmp_path, startup=startup, h04=h04, model_prepare=model_prepare
+                        tmp_path,
+                        startup=startup,
+                        h04=h04,
+                        model_prepare=model_prepare,
+                        model_execute=model_execute,
                     )
                     qa_file = tmp_path / "qa-sitecustomize.py"
                     observation = state_dir / "native-observation.jsonl"
@@ -9722,10 +9845,175 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                             saved = await runtime.settings_status(settings_id)
                     assert saved["status"] == "CONFIRMED" and saved["selection"] == REQUESTED
                     assert (
-                        saved["authenticated"] == "NOT_VERIFIED"
+                        saved["authenticated"]
+                        == ("LOCAL_PRESENT" if model_execute else "NOT_VERIFIED")
                         and saved["inference_ready"] is False
                     )
                     assert (await runtime.status())["state"] == "MANAGEMENT"
+                    if model_execute:
+                        request_start = {
+                            **lifecycle,
+                            "action": "model_test_start",
+                            "settings_operation_id": settings_id,
+                            "initialization_id": str(uuid4()),
+                        }
+                        mt_answer = await control_task(directory, request_start)
+                        native_process_receipt()
+                        require_stock_observation(state_dir, qa_hashes["qa-sitecustomize.py"])
+                        async with engine.connect() as independent:
+                            composition = await managed_store.get(
+                                independent,
+                                seed.owner,
+                                str(mt_answer["run_id"]),
+                                mt_answer["composition_ref"],
+                            )
+                        decision = {
+                            "decision_id": str(uuid4()),
+                            "composition_ref": mt_answer["composition_ref"],
+                            "approved_text_digests": sorted(
+                                sha(t.encode())
+                                for t in (
+                                    "Respond briefly to this synthetic model test. Use no tools.",
+                                    str(mapping(composition["payload"])["text"]),
+                                )
+                            ),
+                        }
+                        request_send = {
+                            **lifecycle,
+                            "action": "model_test_send",
+                            "initialization_id": request_start["initialization_id"],
+                            "protocol_id": str(uuid4()),
+                            "data_approval": decision,
+                        }
+                        actual_exchange = runtime._exchange
+                        sends = []
+
+                        async def committed_execution(
+                            op: str,
+                            authority: RuntimeAuthority | None = None,
+                            payload: dict[str, object] | None = None,
+                        ) -> dict[str, object]:
+                            if (
+                                op == "task_model_initialize"
+                                and payload is not None
+                                and payload.get("mode") == "SEND"
+                            ):
+                                sends.append(canonical(payload))
+                                async with engine.connect() as independent:
+                                    command = NativeTaskCommand.model_validate(request_send)
+                                    attempt = await ModelTest(domain).replay_execution(
+                                        independent, command
+                                    )
+                                    assert attempt is not None
+                                    accounting = await ModelTest(domain).execution_receipt(
+                                        independent, seed.owner, attempt
+                                    )
+                                    assert (
+                                        accounting["state"] == "SENT"
+                                        and accounting["usage_state"] == "UNKNOWN"
+                                    )
+                                    packet = await ModelTest(domain).execution_packet(
+                                        independent, seed.owner, attempt, send=False
+                                    )
+                                    assert canonical(
+                                        {**mapping(packet), "mode": "SEND"}
+                                    ) == canonical(payload)
+                                checkpoint(
+                                    model_execute_commit="PG_RESERVE_AND_DURABLE_SENT_BEFORE_NATIVE_SEND"
+                                )
+                            return await actual_exchange(op, authority, payload)
+
+                        with monkeypatch.context() as execution_patch:
+                            execution_patch.setattr(runtime, "_exchange", committed_execution)
+                            mt_result = await control_task(directory, request_send)
+                            async with asyncio.timeout(3.2):
+                                while mt_result["state"] != "SETTLED":
+                                    await asyncio.sleep(0.025)
+                                    mt_result = await control_task(directory, request_send)
+                        assert len(sends) == 1
+                        assert (
+                            mt_result["usage_state"] == "KNOWN" and mt_result["output_tokens"] == 12
+                        )
+                        assert (
+                            mt_result["reasoning_tokens"] == 9
+                            and mt_result["provider_receipt_ref"] is not None
+                        )
+                        async with engine.connect() as independent:
+                            receipt = await managed_store.get(
+                                independent,
+                                seed.owner,
+                                str(mt_answer["run_id"]),
+                                mt_result["provider_receipt_ref"],
+                            )
+                        assert (
+                            mapping(mapping(receipt["payload"])["observed"])["output_text"]
+                            == "Synthetic response."
+                        )
+                        after_tables = await mission_census()
+                        native_after = observation.read_bytes()
+                        expected = {k: v for k, v in mt_result.items() if k != "correlation_id"}
+                        for _ in range(2):
+                            assert await restarted_cli("model-test-read", request_send) == expected
+                        for mt_execution_changes, reason in (
+                            ({"protocol_id": str(uuid4())}, "MODEL_BUDGET_EXHAUSTED"),
+                            (
+                                {"data_approval": {**decision, "decision_id": str(uuid4())}},
+                                "COMMAND_CONFLICT",
+                            ),
+                        ):
+                            with pytest.raises(CatalogError, match="^" + reason + "$"):
+                                await control_task(
+                                    directory, {**request_send, **mt_execution_changes}
+                                )
+                        assert (
+                            await mission_census() == after_tables
+                            and observation.read_bytes() == native_after
+                        )
+                        assert canonical(await domain.readback(back_request)) == mt_old_graph
+                        done.set()
+                        assert heartbeat is not None
+                        await heartbeat
+                        await service.shutdown(uuid4(), status.generation, supervisor, epoch)
+                        assert await runtime.drain() is True
+                        from omnis_hermes.managed_admission_contract import (
+                            validate_model_close_result,
+                        )
+
+                        closed_host = await runtime.status()
+                        close = validate_model_close_result(
+                            closed_host.get("model_preparation_close"),
+                            {
+                                "protocol": "omnis-managed-admission-v6",
+                                "mode": "CLOSE",
+                                "context_ref": mt_answer["context_ref"],
+                            },
+                        )
+                        assert closed_host["drained"] is True and close["status"] == "CLOSED_JOINED"
+                        for mt_reader_changes in (
+                            {},
+                            {
+                                "expected_epoch": epoch + 1,
+                                "expected_generation": status.generation + 1,
+                            },
+                        ):
+                            mt_stopped_execution = await control_task(
+                                directory, {**request_send, **mt_reader_changes}
+                            )
+                            assert {
+                                k: v
+                                for k, v in mt_stopped_execution.items()
+                                if k != "correlation_id"
+                            } == expected
+                        assert await restarted_cli("model-test-read", request_send) == expected
+                        assert await mission_census() == after_tables
+                        checkpoint(
+                            model_execute="CONTROLLED_HTTP_REAL_NATIVE_COMPILER_SDK_SYNTHETIC_AUTH_READER",
+                            model_execute_send_count=len(sends),
+                            model_execute_close=close,
+                            model_execute_accounting=expected,
+                            model_execute_live="NOT_RUN",
+                        )
+                        return
                     request_prepare = {
                         **lifecycle,
                         "action": "model_test_prepare",
@@ -12396,7 +12684,13 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                     in {"run_contract", "_read_bound_input", "run_handler", "native-release"}
                     for row in rows
                 )
-                checkpoint(status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE")
+                if model_execute:
+                    assert [r for r in rows if r["test"] == "model-test-http"] == [
+                        {"test": "model-test-http", "status": "HEADERS", "count": 1}
+                    ]
+                    checkpoint(status="PASS_MODEL_TEST_CONTROLLED_NATIVE_NOT_LIVE")
+                else:
+                    checkpoint(status="PASS_MODEL_TEST_PREPARE_HOLD_NOT_ACCOUNT_OR_INFERENCE")
             if applicability == "owned-initialization" and sys.exc_info()[0] is None:
                 rows = require_native_observation(observation)
                 assert [r for r in rows if r["test"] == "owned-preclient"] == [

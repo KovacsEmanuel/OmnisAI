@@ -427,6 +427,17 @@ class RuntimeHost:
                 await asyncio.sleep(0.25)
                 action = "cancel" if self.oauth_cancel else "status"
 
+    @property
+    def deadline_ns(self) -> int:
+        return self._deadline_ns
+
+    @deadline_ns.setter
+    def deadline_ns(self, deadline: int) -> None:
+        writer = getattr(self, "management_lifeline_write", None)
+        if writer is not None:
+            os.write(writer, struct.pack("!Q", deadline))
+        self._deadline_ns = deadline
+
     def _revoke_management_lifeline(self) -> None:
         fd, self.management_lifeline_write = self.management_lifeline_write, None
         if fd is not None:
@@ -439,7 +450,7 @@ class RuntimeHost:
         reader, writer = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
         try:
             info = os.fstat(reader)
-            os.write(writer, struct.pack("!QQ", info.st_dev, info.st_ino))
+            os.write(writer, struct.pack("!QQQ", info.st_dev, info.st_ino, self.deadline_ns))
         except BaseException:
             for fd in (reader, writer):
                 with suppress(OSError):

@@ -10,6 +10,7 @@ import { chromium, expect } from '@playwright/test';
 import { assertSecretFree } from './leaks.mjs';
 import { runB03 } from './b03.mjs';
 import { runB04 } from './b04.mjs';
+import { runCatalog } from './catalog.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -136,6 +137,7 @@ async function screenshot(name) {
 }
 
 let blocker;
+let catalogEvidence;
 try {
   if (scenario !== 'accessibility') {
     // The E2E fixture boots API/supervisor without the installed launcher.
@@ -169,6 +171,8 @@ try {
     await runB03({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
   } else if (scenario === 'b04') {
     await runB04({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
+  } else if (scenario === 'catalog') {
+    catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
   } else if (scenario === 'flow') {
     const foreignHost = await context.request.get(`${origin}/health/live`, { headers: { Host: 'attacker.invalid', 'X-Forwarded-Host': new URL(origin).host } });
     assert.equal(foreignHost.status(), 400);
@@ -307,6 +311,7 @@ try {
   await secretChecks();
   await writeFile(join(output, 'browser-result.json'), JSON.stringify({ scenario, passed: true, browser: browser.version(),
     ...(scenario === 'b04' ? { stage: process.env.OMNIS_E2E_STAGE } : {}),
+    ...(catalogEvidence ? { catalog: catalogEvidence } : {}),
     requestCount: requests.length, externalRequests: external.length, pageErrors: pageErrors.length,
     secretChecks: true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
   console.log(`E2E PASS ${scenario}: real backend, synthetic pairing, browser ${browser.version()}`);

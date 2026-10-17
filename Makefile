@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -228,6 +228,13 @@ test-b04-e2e: build-web
 .PHONY: test-e2e
 test-e2e: build-web
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s
+
+# The existing PG/browser family owns this one authentic records-v3 journey.
+# Explicit source selection also permits a read-only borrowed API interpreter.
+.PHONY: test-catalog-settings-e2e
+test-catalog-settings-e2e: build-web
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -c 'import pathlib,sys,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/"api/src"),str(r/"api/tests")]; raise SystemExit(pytest.main(["-p","pytest_asyncio.plugin","-p","no:cacheprovider","-c","api/pyproject.toml","api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[catalog]","-q","-s","--tb=line"]))'
 
 # The CLI wheel is independent of the API checkout and of the operator's profile.
 check-cli: test-cli test-cli-live

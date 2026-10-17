@@ -159,6 +159,34 @@ def test_constructor_cut_closes_unpublished_child_and_preserves_primary(lifecycl
     assert next(iter(x.service._model_test_batches.values()))["record"] is None
 
 
+@pytest.mark.parametrize("exit_path", ["EOF", "Stop"])
+def test_native_owner_exit_revokes_and_joins_held_child(lifecycle, monkeypatch, exit_path):
+    x = lifecycle
+    p = x.payload()
+    x.service.prepare_model_test(p)
+    child = x.children[0]
+    assert child._model_test_future.running()
+    x.release.set()
+    entry = ROOT / "tui_gateway/entry.py"
+    assert entry.is_file(), "Native EOF/Stop entry cleanup is missing"
+    tree = ast.parse(entry.read_text())
+    helper = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_close_model_test_preparations")
+    rpc = ModuleType("agent.managed_admission_rpc")
+    rpc.close_preparations = x.service.close_model_tests
+    monkeypatch.setitem(sys.modules, rpc.__name__, rpc)
+    scope = {"sys": sys}
+    exec(compile(ast.fix_missing_locations(ast.Module(body=[helper], type_ignores=[])), str(entry), "exec"), scope)
+    caller = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == ("_log_exit" if exit_path == "EOF" else "_log_signal"))
+    # Exercise the real cleanup prefix, stopping before unrelated stock log/signal effects.
+    statement = next(n for n in caller.body if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call))
+    exec(compile(ast.fix_missing_locations(ast.Module(body=[statement], type_ignores=[])), str(entry), "exec"), scope)
+    assert child._model_test_closed.is_set() and child._model_test_future.done()
+    assert x.service.prepare_model_test({**p, "mode": "STATUS"})["status"] == "UNKNOWN"
+    with pytest.raises(ValueError, match="stopping"):
+        x.service.prepare_model_test(x.payload())
+    assert len(x.children) == 1
+
+
 def test_other_active_native_child_counts_against_prepare_cap(lifecycle):
     x = lifecycle
     x.registry.records["other"] = SimpleNamespace(agent=object(), future=None, state="RUNNING")

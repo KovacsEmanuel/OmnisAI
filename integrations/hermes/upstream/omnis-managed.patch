@@ -412,7 +412,7 @@
 
 --- /dev/null
 +++ b/agent/managed_admission_rpc.py
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,97 @@
 +"""Private RPC entry for the reviewed managed admission extension.
 +
 +Only reachable through the fixed inert native stdin peer. No tool registration,
@@ -484,6 +484,12 @@
 +        return result
 +
 +
++def close_preparations():
++    with _LOCK:
++        if _SERVICE is not None:
++            _SERVICE.close_model_tests()
++
++
 +def dispatch(method, params):
 +    global _ROOT, _SERVICE
 +    from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight
@@ -519,7 +525,7 @@
      UNKNOWN = "UNKNOWN"
 
 
-@@ -241,9 +243,416 @@
+@@ -241,9 +243,433 @@
 
      def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
          self._parent_agent_resolver = parent_agent_resolver
@@ -564,6 +570,8 @@
 +                    native_turn=child._model_test_turn)
 +            if p["mode"] == "STATUS":
 +                return preparation_result(p)
++            if getattr(self, "_model_test_stopping", False):
++                raise ValueError("Native preparation owner stopping")
 +            parent = self._parent_agent_resolver()
 +            configuration_snapshot(parent)
 +            if parent._parent_session_id is not None or len(self._model_test_batches) >= 32:
@@ -625,6 +633,21 @@
 +                    with contextlib.suppress(BaseException):
 +                        marker["child"].close()  # cleanup cannot replace the primary failure
 +                raise
++
++    def close_model_tests(self):
++        with _REGISTRY.lock:
++            self._model_test_stopping = True
++            children = [b["child"] for b in self._model_test_batches.values() if b["child"] is not None]
++            for child in children:
++                child._model_test_closed.set()  # revoke every child before the first join
++        uncertain = False
++        for child in children:
++            try:
++                child.close()
++            except Exception:
++                uncertain = True
++        if uncertain:
++            raise ValueError("Native preparation drain uncertain")
 +
 +    def stage(self, payload):
 +        """Create cold native identities, with no executor or conversation admission."""
@@ -1718,3 +1741,39 @@
      from agent.turn_context_compaction import run_turn_start_compaction
 
      # Guard stdio against OSError from broken pipes (systemd/headless/daemon).
+--- a/tui_gateway/entry.py
++++ b/tui_gateway/entry.py
+@@ -110,14 +110,21 @@
+         from tools.environments.base import kill_live_foreground_processes
+         kill_live_foreground_processes(now=True)
+     os._exit(0)
+
+
++def _close_model_test_preparations():
++    owner = sys.modules.get("agent.managed_admission_rpc")
++    if owner is not None:
++        owner.close_preparations()
++
++
+ def _log_signal(signum: int, frame) -> None:
+     """Capture WHICH thread and WHERE a termination signal hit us, then exit. ``sys.exit(0)``
+     alone raced the worker pool (a thread holding ``_stdout_lock`` mid-flush blocks interpreter
+     shutdown), so: log all thread stacks, give the configured grace to drain, then ``os._exit``."""
++    _close_model_test_preparations()
+     # SIGPIPE/SIGHUP don't exist on Windows — only look up attributes present.
+     names = {int(sig): attr for attr in ("SIGPIPE", "SIGTERM", "SIGHUP", "SIGINT", "SIGBREAK")
+              if (sig := getattr(signal, attr, None)) is not None}
+     name = names.get(signum, f"signal {signum}")
+
+@@ -168,10 +175,11 @@
+ _install_signal("SIGINT", signal.SIG_IGN)
+
+
+ def _log_exit(reason: str) -> None:
+     """Record why the gateway exits (every path is a silent sys.exit(0) otherwise)."""
++    _close_model_test_preparations()
+     _append_crash_log(f"gateway exit · {time.strftime('%Y-%m-%d %H:%M:%S')} · reason={reason}")
+     print(f"[gateway-exit] {reason}", file=sys.stderr, flush=True)
+
+
+ def wait_for_mcp_discovery(timeout: "float | None" = None) -> None:

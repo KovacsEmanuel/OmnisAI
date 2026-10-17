@@ -284,6 +284,8 @@ class SubagentLifecycleService:
                     native_turn=child._model_test_turn)
             if p["mode"] == "STATUS":
                 return preparation_result(p)
+            if getattr(self, "_model_test_stopping", False):
+                raise ValueError("Native preparation owner stopping")
             parent = self._parent_agent_resolver()
             configuration_snapshot(parent)
             if parent._parent_session_id is not None or len(self._model_test_batches) >= 32:
@@ -345,6 +347,21 @@ class SubagentLifecycleService:
                     with contextlib.suppress(BaseException):
                         marker["child"].close()  # cleanup cannot replace the primary failure
                 raise
+
+    def close_model_tests(self):
+        with _REGISTRY.lock:
+            self._model_test_stopping = True
+            children = [b["child"] for b in self._model_test_batches.values() if b["child"] is not None]
+            for child in children:
+                child._model_test_closed.set()  # revoke every child before the first join
+        uncertain = False
+        for child in children:
+            try:
+                child.close()
+            except Exception:
+                uncertain = True
+        if uncertain:
+            raise ValueError("Native preparation drain uncertain")
 
     def stage(self, payload):
         """Create cold native identities, with no executor or conversation admission."""

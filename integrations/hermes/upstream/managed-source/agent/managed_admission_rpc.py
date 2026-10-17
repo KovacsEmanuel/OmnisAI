@@ -69,6 +69,12 @@ def _initialize(params):
         return result
 
 
+def close_preparations():
+    with _LOCK:
+        if _SERVICE is not None:
+            _SERVICE.close_model_tests()
+
+
 def dispatch(method, params):
     global _ROOT, _SERVICE
     from omnis_hermes.managed_admission_contract import RPC, validate_stage, validate_status, validate_release, validate_model_preflight

@@ -42,6 +42,7 @@ def test_managed_patch_is_separate_and_exactly_pinned():
         "agent/turn_api_error.py",
         "agent/turn_api_request.py",
         "tui_gateway/rpc_dispatch.py",
+        "tui_gateway/entry.py",
         "providers/__init__.py",
     }
 

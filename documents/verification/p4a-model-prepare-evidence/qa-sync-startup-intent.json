@@ -1,0 +1,38 @@
+{
+  "head": "edafa6c8053231ab882cd93ddfcda64b533b00f7",
+  "root": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l",
+  "test_sha256": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+  "source_companion_sha256": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33",
+  "attempts_authorized": 1,
+  "timeout_seconds": 180,
+  "original_owner": "ops/run_test_db_gate.py:prove_private_fixture/run_gate",
+  "allowed_seam": "h03-process-fixed-pg-selection.py:253-265; identical command/base plus six explicit pins/log/timeout",
+  "reviews": {
+    "sync-startup-review-norm.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/sync-startup-review-norm.json",
+      "sha256": "393ab825720245b4f282caca398f2ef17d2c5aefb3f29d5892667c8deed1a85d",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef"
+    },
+    "sync-startup-review-safety.json": {
+      "path": "/home/kali/OmnisAI/documents/verification/p4a-model-prepare-evidence/sync-startup-review-safety.json",
+      "sha256": "8f8090290f3c50b4201c5419ebce24495d5ba1b5cddbe0367f872cd39106a99d",
+      "verdict": "APPROVED_SCOPED_SOURCE",
+      "snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef"
+    }
+  },
+  "pins": {
+    "OMNIS_BATCH2_NORMATIVE_REVIEWED": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+    "OMNIS_BATCH2_INPUT_REVIEWED": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+    "OMNIS_BATCH2_ARTIFACT": "/home/kali/.hermes/cache/scratch/mq-lseqdyzi/artifact.json",
+    "OMNIS_BATCH2_ARTIFACT_SHA": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+    "OMNIS_BATCH2_API_PREREQUISITES": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l/reader.json",
+    "OMNIS_BATCH2_API_PREREQUISITES_SHA": "38774dd167b8da23480e8175545888855bc426c2b20817d79ad829afc98d811d"
+  },
+  "cleanup_owner": "Original test finally and runner.cleanup_owned only after strict family drain",
+  "no_repo_writes_no_prewarm_no_retry": true,
+  "affected_API_reader_rebuilt": true,
+  "product_review_snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+  "failure_allowlist": "fixed exception tags, source literal, exact int/null line; existing public proof/observations; typed resource identities",
+  "data_and_images_retained": true
+}

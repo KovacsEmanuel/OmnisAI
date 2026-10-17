@@ -1,0 +1,6 @@
+{
+  "status": "FAIL_PREFLIGHT_NO_RUNTIME_AUTHORIZED",
+  "PG_native_attempts": 0,
+  "commands": [],
+  "exception_type": "AssertionError"
+}

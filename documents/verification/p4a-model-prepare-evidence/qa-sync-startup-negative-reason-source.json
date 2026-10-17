@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "verdict": "CONFIRMED_SOURCE_ORACLE_REASON_MISMATCH_NOT_EXCLUSIVE_REAL_FAILURE_ATTRIBUTION",
+  "snapshot": "5ebfd02ecd1bdfb0f854018205227729f77cf7ef",
+  "finding_id": "MODEL-PREPARE-QA-MANIFEST-REASON-01",
+  "scope": "SOURCE storage/model/DB doubles from existing test helper; actual NativeTaskOwner.handle/_handle, retained completed reply, LocalControl, control_task and UDS",
+  "original_consumer": "api/tests/test_contract_method_pg.py:9801-9818",
+  "guard": "api/src/omnis/supervisor/native_tasks.py:373-377",
+  "reason_projection": "api/src/omnis/transport/local_control.py:164-168 and native_tasks.py:564-576 preserve COMMAND_CONFLICT",
+  "reproducer": "/home/kali/.hermes/cache/scratch/ms-xxfxw95l/test_negative_reason_source.py",
+  "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 TMPDIR=/home/kali/.hermes/cache/scratch/ms-xxfxw95l/t api/.venv/bin/python -I -B -c 'import pathlib,sys,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"/home/kali/.hermes/cache/scratch/ms-xxfxw95l/test_negative_reason_source.py\",\"-q\",\"-s\",\"--tb=short\",\"--basetemp=/home/kali/.hermes/cache/scratch/ms-xxfxw95l/t/reason-source2\"]))'",
+  "execution": {"exit_code": 0, "pytest": "1 passed in 1.39s", "PG_native_launches": 0},
+  "positive": "Original completed command returns the exact producer-generated stored SOURCE answer through the same control socket",
+  "negative": "Same otherwise valid command with fresh initialization_id and only manifest digest zeroed refuses COMMAND_CONFLICT before model consumer",
+  "original_QA_assertion": "CatalogError matching ^TASK_REJECTED$",
+  "original_QA_assertion_on_observed_exception": "FAIL reproduced and explicitly required by test; not a product GREEN or weakened guard",
+  "cleanup": "Both SOURCE control endpoint roots absent; successful case clients joined, lock closed, no native processes launched",
+  "preliminary_failures_retained": [
+    {"exit_code": 1, "kind": "INVOCATION_SYNTAX_ERROR_UNMATCHED_PAREN", "test_execution": false},
+    {"exit_code": 1, "pytest": "1 failed in 1.39s", "kind": "SOURCE_SETUP_MISSING_MOCK_SERVICE_ENGINE", "disposition": "Set handler.service.engine to existing domain.engine as in admitted sync test; failed IPC root retained and retired"}
+  ],
+  "real_attempt_limit": "The fresh PG/native primary is at line9811 and has only two OTHER_EXCEPTION/UNCLASSIFIED tags. It does not retain the negative-loop index or actual reason; do not claim this SOURCE mismatch is its exclusive cause or assert first two negatives passed.",
+  "decision": "BLOCKED real scoped acceptance; no product/oracle edit, no second PG/native attempt, no new observer or harness. Future minimum decision is reason-aware control on existing oracle after actual first-two path checks, followed by affected tests/review; not retry for green.",
+  "not_proven": ["Final cold-reader", "Post-negative no-write/no-rerun census", "All 11 record kinds", "Domain-correlated CLOSE and same Future.done/CLOSED_JOINED acceptance", "Account/inference/live/phase2"]
+}

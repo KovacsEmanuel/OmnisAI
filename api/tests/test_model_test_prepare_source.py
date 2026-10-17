@@ -589,3 +589,60 @@ async def test_retained_replay_after_shutdown_is_blocked_by_existing_fence(
             pytest.fail("closed-admission replay unexpectedly entered receipt reader")
     assert caught.value.code == ControlCode.INSTANCE_SHUTTING_DOWN
     conn.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("grant", ["good", "bool", "expired", "over-managed"])
+async def test_model_prepare_host_checks_grant_before_handoff(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grant: str
+) -> None:
+    import time
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    from omnis_hermes.managed_admission_contract import preparation_result
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    owner, consumer, conn, manifest, authority = await prepared_source(tmp_path, monkeypatch)
+    payload = await produce(owner, consumer, conn, manifest, authority)
+    host = RuntimeHost(tmp_path)
+    host.boot = str(owner.runtime.boot)
+    host.epoch, host.generation, host.state = 1, 0, "MANAGEMENT"
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+    host.settings_task = Mock(done=Mock(return_value=True))
+    context = mapping(mapping(payload["context"])["payload"])
+    host.settings_result = {"status": "CONFIRMED", "operation_id": context["settings_operation_id"],
+                            "selection": REQUESTED}
+    read = AsyncMock(return_value=REQUESTED)
+    stop = AsyncMock()
+    launch = AsyncMock()
+    async def stopped() -> None:
+        host.state = "STOPPED"
+    async def launched(body: dict[str, object]) -> None:
+        host.state = "READY"
+        host.process = SimpleNamespace(returncode=None)
+        host.peer = SimpleNamespace(failure=None, call=call)
+    call = AsyncMock(return_value=preparation_result(payload, native_root_id=str(uuid4()),
+        native_child_id=str(uuid4()), native_session_id="SOURCE-session",
+        native_turn={"task_id": str(context["task_id"]), "turn_id": "SOURCE-turn"}))
+    stop.side_effect, launch.side_effect = stopped, launched
+    monkeypatch.setattr(host, "_settings_native", read)
+    monkeypatch.setattr(host, "stop", stop)
+    monkeypatch.setattr(host, "_launch", launch)
+    deadline = {"good": time.monotonic_ns() + 4_000_000_000, "bool": True,
+                "expired": time.monotonic_ns() - 1, "over-managed": time.monotonic_ns() + 4_800_000_000}[grant]
+    body = {"payload": payload, "op": "task_model_initialize", "epoch": 1,
+            "generation": 0, "deadline_ns": deadline}
+    if grant == "good":
+        assert mapping(await host._managed(body))["status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
+        assert host.deadline_ns == deadline
+        read.assert_awaited_once()
+        stop.assert_awaited_once()
+        launch.assert_awaited_once_with(body)
+        call.assert_awaited_once()
+    else:
+        with pytest.raises(ValueError, match="Invalid (authority deadline|managed grant)"):
+            await host._managed(body)
+        for effect in (read, stop, launch, call):
+            effect.assert_not_awaited()
+        assert host.state == "MANAGEMENT"

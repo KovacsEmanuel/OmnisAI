@@ -561,6 +561,9 @@ class RuntimeHost:
 
     async def _managed(self, body: dict[str, object]) -> dict[str, object]:
         """Finite call on the existing owner/peer, never retry a lost native reply."""
+        deadline = self._grant(body)
+        if deadline > time.monotonic_ns() + 4_500_000_000:
+            raise ValueError("Invalid managed grant")
         payload = cast(dict[str, object], body["payload"])
         if payload.get("protocol") == managed.PROTOCOL_V5:
             managed.validate_model_prepare(payload)

@@ -9798,17 +9798,20 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
                         native_after = observation.read_bytes()
                         mt_replay = await control_task(directory, request_prepare)
                     assert modes == ["CREATE"]
-                    for mt_changed in (
-                        {"settings_operation_id": str(uuid4())},
-                        {"owner_id": str(uuid4())},
-                        {
-                            "manifest_ref": {
-                                **mapping(lifecycle["manifest_ref"]),
-                                "digest": "0" * 64,
-                            }
-                        },
+                    for mt_changed, mt_reason in (
+                        ({"settings_operation_id": str(uuid4())}, "TASK_REJECTED"),
+                        ({"owner_id": str(uuid4())}, "TASK_REJECTED"),
+                        (
+                            {
+                                "manifest_ref": {
+                                    **mapping(lifecycle["manifest_ref"]),
+                                    "digest": "0" * 64,
+                                }
+                            },
+                            "COMMAND_CONFLICT",
+                        ),
                     ):
-                        with pytest.raises(CatalogError, match="^TASK_REJECTED$"):
+                        with pytest.raises(CatalogError, match=f"^{mt_reason}$"):
                             await control_task(
                                 directory,
                                 {

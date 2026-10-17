@@ -227,6 +227,80 @@ async def test_actual_v5_producer_serializers(
 
 
 @pytest.mark.asyncio
+async def test_model_prepare_manifest_negative_uses_actual_qa_oracle(
+    tmp_path: Path, ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Actual retained SOURCE reply/UDS and consumer assertion; no PG/native proof."""
+    import ast
+
+    import test_contract_method_pg as qa
+    from omnis.modules.instance.schemas import NativeTaskCommand
+    from omnis.supervisor.native_tasks import NativeTaskOwner, control_task
+    from omnis.transport import local_control
+    from test_owned_model_initialization import (
+        test_model_test_prepare_owns_fresh_qualified_context_and_holds,
+    )
+
+    captured: list[tuple[NativeTaskOwner, NativeTaskCommand, dict[str, object]]] = []
+    handle = NativeTaskOwner.handle
+
+    async def capture(self: NativeTaskOwner, command: NativeTaskCommand) -> dict[str, object]:
+        answer = await handle(self, command)
+        captured.append((self, command, answer))
+        return answer
+
+    with monkeypatch.context() as producer:
+        producer.setattr(NativeTaskOwner, "handle", capture)
+        await test_model_test_prepare_owns_fresh_qualified_context_and_holds(
+            tmp_path, producer, False
+        )
+        handler, command, expected = captured[0]
+        handler.service.engine = handler.domain.engine
+        producer.setattr(local_control, "readiness_reason", AsyncMock(return_value=None))
+        async with local_control.LocalControl(
+            ipc_directory, handler.service, handler.owner, handler.epoch, native_task=handler.handle
+        ):
+            answer = await control_task(ipc_directory, command.model_dump(mode="json"))
+            assert {k: v for k, v in answer.items() if k != "correlation_id"} == expected
+            tree = ast.parse(Path(qa.__file__).read_bytes())
+            loops = [
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, ast.For)
+                and any(
+                    isinstance(target, ast.Name) and target.id == "mt_changed"
+                    for target in ast.walk(node.target)
+                )
+            ]
+            assert len(loops) == 1
+            loop = loops[0]
+            scope: dict[str, object] = {
+                "mapping": mapping,
+                "uuid4": uuid4,
+                "lifecycle": command.model_dump(mode="json"),
+                "pytest": pytest,
+                "CatalogError": CatalogError,
+                "control_task": control_task,
+                "directory": ipc_directory,
+                "request_prepare": command.model_dump(mode="json"),
+            }
+            rows = eval(compile(ast.Expression(loop.iter), qa.__file__, "eval"), scope)
+            assert len(rows) == 3
+            # Run only the demonstrated manifest guard, not identity-blind fixture denials.
+            loop.iter = ast.Name(id="manifest_row", ctx=ast.Load())
+            scope["manifest_row"] = rows[2:]
+            probe = cast(ast.AsyncFunctionDef, ast.parse("async def probe(): pass").body[0])
+            probe.body = [
+                ast.For(target=loop.target, iter=loop.iter, body=[loop.body[0]], orelse=[])
+            ]
+            module = ast.fix_missing_locations(ast.Module(body=[probe], type_ignores=[]))
+            exec(compile(module, qa.__file__, "exec"), scope)
+            from collections.abc import Awaitable, Callable
+
+            await cast(Callable[[], Awaitable[None]], scope["probe"])()
+
+
+@pytest.mark.asyncio
 async def test_actual_v5_producer_limit_before_first_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

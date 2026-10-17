@@ -1,0 +1,391 @@
+{
+  "base_head": "b0c9151dfeaf8a84e879515f039339e343c75713",
+  "scope": "SOURCE_QA_ORACLE_ONLY_NO_PG_OCI_HERMES_PROVIDER",
+  "status": "SOURCE_QA_ORACLE_FIXED_UNCOMMITTED_PENDING_PARENT_TWO_REVIEWS",
+  "pre_edit_reason_analysis": {
+    "actual_consumer": "api/tests/test_contract_method_pg.py:9801-9821",
+    "defect": "One common TASK_REJECTED expectation contradicts preserved COMMAND_CONFLICT from the manifest guard.",
+    "settings_operation_id": "Real RuntimeHost._handle returns UNAVAILABLE for foreign operation in READY; RuntimeClient.settings_status validates matching operation ID; actual ModelTest.prepare rejects MODEL_TEST_SETTINGS_REQUIRED; LocalControl normalizes to TASK_REJECTED; control_task preserves it.",
+    "owner_id": "Actual ManagedAdmission.readback -> actual managed_store.state uses owner+command SQL. Declared row transport seam returns no row for foreign owner -> REF_UNAVAILABLE; LocalControl normalizes to TASK_REJECTED.",
+    "manifest_ref": "Actual readback validates retained original graph; NativeTaskOwner._handle compares canonical retained manifest to requested digest -> COMMAND_CONFLICT; LocalControl and control_task preserve it.",
+    "producer_control": "Actual ModelTest.prepare/dispatch/persist with preparation_result SOURCE reply double, completed immutable reply accepted by real control_task/LocalControl on same UDS channel before all 3 negatives.",
+    "proof_result": {
+      "exit": 0,
+      "passed": 1,
+      "seconds": 1.2,
+      "settings_operation_id": "TASK_REJECTED",
+      "owner_id": "TASK_REJECTED",
+      "manifest_ref": "COMMAND_CONFLICT"
+    },
+    "proof_script": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py",
+    "proof_log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/probe4.log",
+    "doubles_and_limits": [
+      "No real PostgreSQL, native process, Hermes, model, provider or credentials.",
+      "Existing SourceOwner connection/store seams restored at real readback/state methods; declared catalog snapshot and technique identity row extend existing fixture storage only.",
+      "Real RuntimeHost and RuntimeClient UDS settings path uses READY bootstrap peer metadata double; stop state seam has no process; no native work.",
+      "Existing SourceOwner constant readback and always-confirmed settings were not used to derive foreign-owner/settings reasons.",
+      "No exclusive attribution to the historic real-PG FAIL; exact negative index/reason there remains UNKNOWN."
+    ],
+    "planned_minimal_change": "Keep settings/owner exact TASK_REJECTED; set only manifest exact COMMAND_CONFLICT using per-row reason; retain all census/native byte-equality assertions. Add one regression executing actual AST consumer manifest row through real owner/control channel."
+  },
+  "preliminary_failures": [
+    {
+      "kind": "READ_PATH_TYPO",
+      "effect": "NONE",
+      "path": "api/ src/omnis/transport/local_control.py",
+      "result": "NOT_FOUND; corrected read"
+    },
+    {
+      "kind": "SOURCE_FIXTURE_SETUP",
+      "log": "probe.log",
+      "exit": 1,
+      "reason": "MISSING_RUNTIME_DIRECTORY",
+      "seconds": 1.14
+    },
+    {
+      "kind": "SOURCE_FIXTURE_STORAGE_SEAM",
+      "log": "probe2.log",
+      "exit": 1,
+      "reason": "MISSING_RETAINED_CATALOG_SNAPSHOT_STOPITERATION",
+      "seconds": 1.1
+    },
+    {
+      "kind": "SOURCE_FIXTURE_STORAGE_SEAM",
+      "log": "probe3.log",
+      "exit": 1,
+      "reason": "MISSING_TECHNIQUE_IDENTITY_ROW",
+      "seconds": 1.09
+    },
+    {
+      "kind": "PRE_RUN_IMPORT_CORRECTION",
+      "effect": "NONE",
+      "reason": "PureProbe import corrected from inspected product source before invocation"
+    },
+    {
+      "kind": "INCORRECT_QUALITY_INVOCATION",
+      "commands": [
+        "api/.venv/bin/ruff check --cache-dir /home/kali/.hermes/cache/scratch/qo-c4mlsuer/ruff api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py",
+        "api/.venv/bin/ruff format --check --cache-dir /home/kali/.hermes/cache/scratch/qo-c4mlsuer/ruff api/tests/test_contract_method_pg.py api/tests/test_model_test_prepare_source.py"
+      ],
+      "exits": [
+        1,
+        1
+      ],
+      "result": "Ruff auto-config invocation produced 7 unchanged I001 import-block findings; format found one newly added line needing layout. No import edits. Canonical isolated interpreter + explicit api/pyproject.toml yields clean Ruff; only new line wrapped."
+    }
+  ],
+  "nonchanges": [
+    "No product files",
+    "No startup fix changes",
+    "No grants/deadlines/Stop/caps/fences/expiry changes",
+    "No protected HTML access",
+    "No ponytail.json access",
+    "No private data/env/credentials/old PG logs",
+    "No launch/PG/OCI/provider/network",
+    "No stage/commit/push",
+    "No docs/skills writes"
+  ],
+  "pending": [
+    "Parent adjudication and two independent exact-snapshot reviews",
+    "Parent integration/commit",
+    "Real PG/native QA NOT_RUN; historical negative index/reason UNKNOWN; CLOSE/same-Future settlement and final native census not certified here"
+  ],
+  "red": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src']; raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/red', '--tb=short', '-q', 'api/tests/test_model_test_prepare_source.py::test_model_prepare_manifest_negative_uses_actual_qa_oracle']))"
+    ],
+    "cwd": "/home/kali/OmnisAI",
+    "environment_explicit": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "exit": 1,
+    "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/red.log",
+    "summary": [
+      "1 failed in 1.95s"
+    ],
+    "failure": "Actual consumer AST assertion line9811 expected TASK_REJECTED but real owner/control returned COMMAND_CONFLICT; positive retained reply accepted on same UDS channel first."
+  },
+  "green_before_last_format_edit": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src']; raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/green', '--tb=short', '-q', 'api/tests/test_model_test_prepare_source.py', 'api/tests/test_owned_model_initialization.py', 'api/tests/test_native_task_control.py']))"
+    ],
+    "cwd": "/home/kali/OmnisAI",
+    "environment_explicit": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "exit": 0,
+    "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/green.log",
+    "summary": [
+      "103 passed in 13.45s"
+    ]
+  },
+  "green_after_last_repo_edit": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src']; raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/final-green', '--tb=short', '-q', 'api/tests/test_model_test_prepare_source.py', 'api/tests/test_owned_model_initialization.py', 'api/tests/test_native_task_control.py']))"
+    ],
+    "cwd": "/home/kali/OmnisAI",
+    "environment_explicit": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "exit": 0,
+    "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/final-green.log",
+    "summary": [
+      "103 passed in 13.28s"
+    ]
+  },
+  "all_three_actual_consumer_ast_source_control": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+      "-I",
+      "-B",
+      "-c",
+      "import sys,pytest; sys.path[:0]=['/home/kali/OmnisAI/api/src', '/home/kali/OmnisAI/api/tests', '/home/kali/OmnisAI/integrations/hermes/src']; raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/final-source-all3', '--tb=short', '-q', '-p', 'conftest', '/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py']))"
+    ],
+    "cwd": "/home/kali/OmnisAI",
+    "environment_explicit": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "exit": 0,
+    "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/final-source-all3.log",
+    "summary": [
+      "1 passed in 1.84s"
+    ],
+    "boundary": "Full current actual negative loop AST, including unchanged census/native equality assertions, executed through real control_task/LocalControl/NativeTaskOwner/ModelTest/ManagedAdmission.readback/managed_store.state plus RuntimeClient.settings_status/RuntimeHost._handle. Census is SOURCE graph bytes, observation is SOURCE payload list, NOT real DB/native evidence.",
+    "positive_negative": {
+      "positive": "Retained authentic SOURCE producer reply accepted byte-equivalent after correlation removal; same settings operation CONFIRMED in READY",
+      "negatives": {
+        "foreign_settings_operation": "TASK_REJECTED via MODEL_TEST_SETTINGS_REQUIRED",
+        "foreign_owner": "TASK_REJECTED via REF_UNAVAILABLE",
+        "manifest_digest_zero": "COMMAND_CONFLICT"
+      },
+      "unchanged_source_graph": true,
+      "source_native_and_reserve_awaits": 0,
+      "actual_new_initialization_per_negative": true,
+      "synthetic_result_promoted_to_native": false
+    }
+  },
+  "regression_scope": "One new regression extracts the actual consumer loop and its manifest row / raises statement, using existing producer fixture and real UDS positive/negative. Existing producer fixture readback/settings are identity-blind; they are NOT used to claim first-two denial proof. The separate all-three scratch proof restores real readback/state and real settings transport.",
+  "quality_after_last_repo_edit": [
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "MYPYPATH",
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/ruff",
+        "api/tests/test_contract_method_pg.py",
+        "api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "MYPYPATH",
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/ruff",
+        "api/tests/test_contract_method_pg.py",
+        "api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "2 files already formatted"
+    },
+    {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "MYPYPATH",
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--strict",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/mypy",
+        "api/tests/test_contract_method_pg.py",
+        "api/tests/test_model_test_prepare_source.py"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Success: no issues found in 2 source files"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "clean"
+    }
+  ],
+  "interpreter": {
+    "path": "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+    "verified_version": "Python 3.13.15",
+    "literal_versioned_binary": "api/.venv/bin/python3.13.15 does not exist; actual api/.venv/bin/python3.13 is verified 3.13.15"
+  },
+  "pre_edit_proof_commands": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\", \"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-p\", \"pytest_asyncio.plugin\", \"-p\", \"conftest\", \"-p\", \"no:cacheprovider\", \"--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/probe\", \"--tb=short\", \"-q\", \"-s\", \"/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py\"]))"
+      ],
+      "environment_explicit": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 1,
+      "seconds": 1.14,
+      "sanitized_result": "MISSING_RUNTIME_DIRECTORY",
+      "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/probe.log",
+      "note": "Semantically exact argv reconstructed from invocation; original shell command used equivalent Python literal quoting."
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\", \"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-p\", \"pytest_asyncio.plugin\", \"-p\", \"conftest\", \"-p\", \"no:cacheprovider\", \"--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/probe2\", \"--tb=short\", \"-q\", \"-s\", \"/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py\"]))"
+      ],
+      "environment_explicit": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 1,
+      "seconds": 1.1,
+      "sanitized_result": "MISSING_RETAINED_CATALOG_SNAPSHOT_STOPITERATION",
+      "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/probe2.log",
+      "note": "Semantically exact argv reconstructed from invocation; original shell command used equivalent Python literal quoting."
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\", \"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-p\", \"pytest_asyncio.plugin\", \"-p\", \"conftest\", \"-p\", \"no:cacheprovider\", \"--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/probe3\", \"--tb=short\", \"-q\", \"-s\", \"/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py\"]))"
+      ],
+      "environment_explicit": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 1,
+      "seconds": 1.09,
+      "sanitized_result": "MISSING_TECHNIQUE_IDENTITY_ROW",
+      "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/probe3.log",
+      "note": "Semantically exact argv reconstructed from invocation; original shell command used equivalent Python literal quoting."
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python3.13",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; sys.path[:0]=[\"/home/kali/OmnisAI/api/src\", \"/home/kali/OmnisAI/api/tests\", \"/home/kali/OmnisAI/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-p\", \"pytest_asyncio.plugin\", \"-p\", \"conftest\", \"-p\", \"no:cacheprovider\", \"--basetemp=/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t/probe4\", \"--tb=short\", \"-q\", \"-s\", \"/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py\"]))"
+      ],
+      "environment_explicit": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/t",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "seconds": 1.2,
+      "sanitized_result": "THREE_EXACT_PUBLIC_REASONS_OBSERVED",
+      "log": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/probe4.log",
+      "note": "Semantically exact argv reconstructed from invocation; original shell command used equivalent Python literal quoting."
+    }
+  ],
+  "final_files": {
+    "api/tests/test_contract_method_pg.py": {
+      "sha256": "c8526ead3cab25ec9cf06c4d739b4aab8ea1f65cd3b3058b51d8042e5e8989f4"
+    },
+    "api/tests/test_model_test_prepare_source.py": {
+      "sha256": "059e74300df5d484ad308543a5c4f2918367c83fa2e594ff1e3608343943aa0b"
+    }
+  },
+  "scratch_artifacts": {
+    "test_reason_probe.py": {
+      "path": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/test_reason_probe.py",
+      "sha256": "d17b1dc9175d63ebc4bec0648d316523d62e329a0ac87c21eaeb05888c099aaf"
+    },
+    "run.py": {
+      "path": "/home/kali/.hermes/cache/scratch/qo-c4mlsuer/run.py",
+      "sha256": "28c166da494a7ada8a060f5fb0873f3f8f9e25492c82345c4f248de3f118a2d6"
+    }
+  },
+  "final_git": {
+    "HEAD": "b0c9151dfeaf8a84e879515f039339e343c75713",
+    "tracked_modified": [
+      "api/tests/test_contract_method_pg.py",
+      "api/tests/test_model_test_prepare_source.py"
+    ],
+    "staged": [],
+    "preexisting_protected_untracked_name_only": "documents/Omnis_Notite_Originale.html",
+    "diff_summary": "2 files changed, 87 insertions(+), 10 deletions(-)",
+    "parent_owns_commit": true
+  },
+  "not_run": [
+    "make check / DB runner --check",
+    "PG/OCI/Hermes/native/provider launch",
+    "auth/Responses/web/live",
+    "156 unchanged startup fix tests",
+    "Reticle NOT_APPLICABLE",
+    "Chisel BLOCKED_NO_GO"
+  ],
+  "risks": [
+    "SOURCE-only fix and proof, not real QA acceptance.",
+    "Existing historical PG negative index/reason remains UNKNOWN.",
+    "First-two proof uses explicit in-memory SQL/catalog/peer seams; does not certify PostgreSQL isolation or native process settlement."
+  ]
+}

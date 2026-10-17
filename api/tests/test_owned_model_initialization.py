@@ -379,6 +379,51 @@ async def test_model_test_prepare_owns_fresh_qualified_context_and_holds(
     assert owner.native.await_count == count
     saved_status.assert_not_awaited()
     closed.assert_not_called()
+    # Typed callers may bypass model construction; reject before any receipt lookup.
+    from pydantic import ValidationError
+
+    from omnis.modules.runs.model_test import ModelTest
+
+    rejected = []
+    async with owner.handler.domain.engine.begin() as connection:
+        consumer = ModelTest(owner.handler.domain)
+        assert await consumer.completed(connection, command) is not None
+        with monkeypatch.context() as invalid:
+            lookups = [
+                AsyncMock(wraps=getattr(store, name))
+                for name in ("command_receipt", "owned", "command_replay")
+            ]
+            for name, lookup in zip(("command_receipt", "owned", "command_replay"), lookups):
+                invalid.setattr(store, name, lookup)
+            for entry in ("handle", "completed"):
+                for field, good in (("expected_epoch", 1), ("expected_generation", 0)):
+                    for value in (bool(good), float(good), str(good)):
+                        bad = command.model_copy(update={field: value})
+                        try:
+                            if entry == "handle":
+                                await owner.handler.handle(bad)
+                            else:
+                                await consumer.completed(connection, bad)
+                        except (ValidationError, CatalogError):
+                            rejected.append((entry, field, type(value)))
+                for value in (True, 1.0, "1"):
+                    bad = command.model_copy(
+                        update={"manifest_ref": {**command.manifest_ref, "revision": value}}
+                    )
+                    try:
+                        if entry == "handle":
+                            await owner.handler.handle(bad)
+                        else:
+                            await consumer.completed(connection, bad)
+                    except (ValidationError, CatalogError):
+                        rejected.append((entry, "revision", type(value)))
+            assert len(rejected) == 18
+            for lookup in lookups:
+                lookup.assert_not_awaited()
+    assert owner.native.await_count == count
+    saved_status.assert_not_awaited()
+    closed.assert_not_called()
+    assert canonical(owner.graph) == before
     for changes in (
         {"settings_operation_id": str(uuid4())},
         {"expected_generation": 1},

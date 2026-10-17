@@ -1,0 +1,17 @@
+{
+  "snapshot_count": 63,
+  "unchanged_non_test_inputs": 61,
+  "approved_test_sha256": "f612941716b889ca53b3e0d6f3a92c4e2a3b4936269068eaab32e819d86a08fa",
+  "companion_sha256": "6a7d08855ca248e87247a1eee55a65066f00aabeb8f27ab3b4c07cc90f081c33",
+  "before_after_exact": true,
+  "closure_count": 3260,
+  "closure_before_after_exact": true,
+  "artifact_sha256": "3f44032637982ddd6b99ec7b3399dbf3f15d49cb1033cedefa4dcbd8e79a55e5",
+  "reader_sha256": "8f269fb8412495d87c724ed3c3b05992656b707203e54bd1acb2730d09a6b939",
+  "historical_committed_bytes_unchanged": {
+    "documents/verification/p4a-model-prepare-evidence/qa-native-first-proof.json": "9f16394e32b2ac95280e11a7eafa069de75e3b5d6e7613a4f2c9daba5b06d53f",
+    "documents/verification/p4a-model-prepare-evidence/qa-native-second-proof.json": "23593d3ad40b1a58b82a31ec2808588f736e6e89118516f418329947ab99c07c",
+    "documents/verification/p4a-model-prepare-evidence/qa-native-second-blocked.json": "192994c9df42c778e9005a24bd6579e1a676614ec903f33a043576f61254b9db"
+  },
+  "no_repository_writes": true
+}

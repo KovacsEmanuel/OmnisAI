@@ -1,0 +1,85 @@
+{
+  "status": "PASS_EXACT_RESOURCE_READBACK_NOT_DOMAIN_SETTLEMENT",
+  "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "daemon_unchanged": true,
+  "exact_containers": {
+    "runtime_host": {
+      "cid": "e1f1754bec3b31a473056c1489c3eaba899dd43849ef3e23577bdd1b5945fb66",
+      "absent": true,
+      "channel": "existing_StopEngine_GET_container_HTTP404"
+    },
+    "postgres": {
+      "cid": "f040e88cf9a3971fca3ef95a9b176188db4f3efcaa294b7ec9ac18c70d4c78b8",
+      "absent": true,
+      "channel": "existing_StopEngine_GET_container_HTTP404"
+    }
+  },
+  "PG_project": "omnis-p01-bb6f75f789934c638bf3d571d4d32a76",
+  "PG_project_containers": [],
+  "PG_project_networks_count": 0,
+  "endpoint_absence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/cm-84760b046bf64527b204e8a15505f6f9/runtime.sock",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/cm-84760b046bf64527b204e8a15505f6f9/runtime.boot",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/cm-84760b046bf64527b204e8a15505f6f9/control.sock",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/cm-84760b046bf64527b204e8a15505f6f9/control.cap",
+      "absent": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/db-57212d575ad045a2/socket/.s.PGSQL.5432",
+      "absent": true
+    }
+  ],
+  "owned_path_kernel_UDS_entries": 0,
+  "original_family": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "original_family_receipt": {
+    "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/db-57212d575ad045a2/gate.log.result.json",
+    "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab"
+  },
+  "original_DB_cleanup": {
+    "absent": true,
+    "networks_absent": true,
+    "socket_absent": true,
+    "uncertain": false
+  },
+  "original_product_cleanup": "NOT_SETTLED_DB_RETAINED",
+  "original_product_status": "UNCERTAIN",
+  "public_control_cleanup": "PASS",
+  "host_native_process_identities": "NOT_OBSERVED_BEFORE_FAILURE_NO_PID_IDENTITY_CLAIM",
+  "last_docker_process": {
+    "pid": 1826590,
+    "proc_absent": true,
+    "starttime": "NOT_RECORDED"
+  },
+  "PGDATA": {
+    "path": "/home/kali/.hermes/cache/scratch/m3-ti45eubc/t/db-57212d575ad045a2/data",
+    "dev": 2049,
+    "ino": 9500567,
+    "uid": 1000,
+    "gid": 1000,
+    "mode": "0o700",
+    "retained": true,
+    "before_inode": "NOT_SEPARATELY_RECORDED"
+  },
+  "PG_system_identifier": "7697632360317784094",
+  "images_retained": {
+    "runtime": "sha256:bd44abfebbf2b86206d663969a6e393bb742b67ad5d6c757c3eb1e3dbd7b6992",
+    "postgres": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb"
+  },
+  "resource_cleanup_rerun": false,
+  "cleanup_owner": "Original test finally and runner.cleanup_owned only; readback GET/stat only",
+  "limits": "Physical absence and family drain do not prove model CLOSE/Future/CLOSED_JOINED. Host/native identities were not checkpointed before this failure; no retrospective PID claim."
+}

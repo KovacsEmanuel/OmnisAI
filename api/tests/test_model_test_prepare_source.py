@@ -1628,6 +1628,13 @@ async def test_execution_start_is_fresh_qualified_and_bounded_source(
         "malformed-token",
         "missing-token",
         "socket-detach",
+        "reorder",
+        "duplicate",
+        "index-conflict",
+        "identity-conflict",
+        "terminal-unknown",
+        "terminal-disagreement",
+        "terminal-agrees",
     ],
 )
 async def test_execution_owner_commits_reserve_and_sent_then_replays_without_send(
@@ -1854,14 +1861,31 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
                 "content": [{"type": "output_text", "text": "Synthetic reply.", "annotations": []}],
             }
             prefix = ""
-            if outcome == "null":
-                prefix = (
-                    "event: response.output_item.done\ndata: "
-                    + json.dumps(
-                        {"type": "response.output_item.done", "output_index": 0, "item": item}
-                    )
-                    + "\n\n"
-                )
+            parser_cases = {"null", "reorder", "duplicate", "index-conflict",
+                            "identity-conflict", "terminal-unknown", "terminal-disagreement",
+                            "terminal-agrees"}
+            if outcome in parser_cases:
+                second = {**item, "id": "msg_second", "content": [
+                    {"type": "output_text", "text": " Second.", "annotations": []}]}
+                done = {"type": "response.output_item.done", "output_index": 0, "item": item}
+                events = [done]
+                response["output"] = None
+                if outcome == "reorder":
+                    events = [{**done, "output_index": 1, "item": second}, done]
+                elif outcome == "duplicate":
+                    events.append(dict(done))
+                elif outcome == "index-conflict":
+                    events.append({**done, "item": second})
+                elif outcome == "identity-conflict":
+                    events.append({**done, "output_index": 1})
+                elif outcome == "terminal-unknown":
+                    response["output"] = [{"type": "unknown"}]
+                elif outcome == "terminal-disagreement":
+                    response["output"] = [second]
+                elif outcome == "terminal-agrees":
+                    response["output"] = [item]
+                prefix = "".join("event: response.output_item.done\ndata: "
+                                 + json.dumps(e) + "\n\n" for e in events)
             if outcome in {"blocked", "trickle", "socket-detach"}:
                 from httpcore._backends.sync import SyncStream
 
@@ -2038,18 +2062,19 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         }
     )
     result = await owner.handler.handle(send)
-    if outcome in {"complete", "null", "complete-stop", "missing-account", "malformed-token"}:
+    if outcome in {"complete", "null", "complete-stop", "missing-account", "malformed-token",
+                   "reorder", "terminal-agrees"}:
         assert (
             result["state"] == "SETTLED"
             and result["output_tokens"] == 12
             and result["reasoning_tokens"] == 9
         )
         assert result["inference_status"] == "VERIFIED" and result["cost_observed"] is None
-        if outcome == "null":
+        if outcome in {"null", "reorder", "terminal-agrees"}:
             receipt = next(r for r in owner.graph if r["kind"] == "provider-receipt")
             assert (
                 mapping(mapping(receipt["payload"])["observed"])["output_text"]
-                == "Synthetic reply."
+                == "Synthetic reply." + (" Second." if outcome == "reorder" else "")
             )
     else:
         assert result["state"] == "SENT" and result["usage_state"] == "UNKNOWN"

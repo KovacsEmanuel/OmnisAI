@@ -294,15 +294,23 @@ def run_model_test_request(agent):
         timer.start()
         guard()
         terminal = None
-        output_items = []
+        output_items = {}
+        output_ids = set()
         with client.responses.create(**kwargs) as stream:
             for event in stream:
                 guard()
                 if event.type == "response.output_item.done":
                     item = event.item.model_dump(mode="json")
-                    if len(canonical(output_items + [item])) > 32768:
+                    index = event.output_index
+                    identity = item.get("id")
+                    if (type(index) is not int or not 0 <= index < 32768
+                            or type(identity) is not str or not identity
+                            or index in output_items or identity in output_ids):
+                        raise ValueError("Ambiguous provider output")
+                    if len(canonical(list(output_items.values()) + [item])) > 32768:
                         raise ValueError("Provider output requires reconciliation")
-                    output_items.append(item)
+                    output_items[index] = item
+                    output_ids.add(identity)
                 if event.type in ("response.completed", "response.incomplete", "response.failed"):
                     if terminal is not None:
                         raise ValueError("Duplicate terminal response")
@@ -314,9 +322,20 @@ def run_model_test_request(agent):
         # The pin assembles output_item.done because Codex terminal.output may be null.
         if terminal.output is not None and type(terminal.output) is not list:
             raise ValueError("Malformed provider output")
-        items = output_items or terminal.output or []
-        if type(items) is not list:
-            raise ValueError("Malformed provider output")
+        if sorted(output_items) != list(range(len(output_items))):
+            raise ValueError("Incomplete provider output")
+        items = [output_items[i] for i in range(len(output_items))]
+        if terminal.output is not None:
+            terminal_items = [item if type(item) is dict else item.model_dump(mode="json")
+                for item in terminal.output]
+            if items and canonical(items) != canonical(terminal_items):
+                raise ValueError("Conflicting terminal output")
+            items = terminal_items
+        if len(canonical(items)) > 32768:
+            raise ValueError("Provider output requires reconciliation")
+        identities = [item.get("id") for item in items]
+        if any(type(identity) is not str or not identity for identity in identities) or len(set(identities)) != len(identities):
+            raise ValueError("Ambiguous provider output")
         parts = []
         for item in items:
             item = item if type(item) is dict else item.model_dump(mode="json")

@@ -113,6 +113,36 @@ def test_one_held_or_unjoined_child_blocks_new_identity(lifecycle):
     assert len(x.children) == 2
 
 
+@pytest.mark.parametrize("change", ["resolver", "root-id", "root-session", "child-id", "child-session"])
+def test_live_replay_requires_original_root_and_pinned_identities(lifecycle, change):
+    x = lifecycle
+    p = x.payload()
+    x.service.prepare_model_test(p)
+    child = x.children[0]
+    if change == "resolver":
+        x.current[0] = SimpleNamespace(**vars(x.parent))
+    elif change == "root-id":
+        x.parent._subagent_id = str(uuid4())
+    elif change == "root-session":
+        x.parent.session_id = "changed"
+    elif change == "child-id":
+        child._subagent_id = str(uuid4())
+    else:
+        child.session_id = "changed"
+    with pytest.raises(ValueError, match="root|identity|parent"):
+        x.service.prepare_model_test({**p, "mode": "STATUS"})
+    assert len(x.children) == 1
+
+
+def test_replay_rechecks_cold_configuration(lifecycle):
+    x = lifecycle
+    p = x.payload()
+    x.service.prepare_model_test(p)
+    before = len(x.checks)
+    assert x.service.prepare_model_test({**p, "mode": "STATUS"})["status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
+    assert len(x.checks) == before + 1
+
+
 def test_other_active_native_child_counts_against_prepare_cap(lifecycle):
     x = lifecycle
     x.registry.records["other"] = SimpleNamespace(agent=object(), future=None, state="RUNNING")

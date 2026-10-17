@@ -267,8 +267,15 @@ class SubagentLifecycleService:
                 child = prior["record"].agent
                 if child._model_test_closed.is_set() or child._model_test_failure is not None:
                     return preparation_result(p)
+                parent = self._parent_agent_resolver()
+                if (parent is not prior["parent"]
+                        or (parent._subagent_id, parent.session_id) != prior["root_identity"]):
+                    raise ValueError("Preparation root identity changed")
+                configuration_snapshot(parent)
+                if (child._subagent_id, child.session_id) != prior["child_identity"]:
+                    raise ValueError("Preparation child identity changed")
                 observe_model_test(child)
-                if child._parent_session_id != prior["parent"].session_id:
+                if child._parent_session_id != prior["root_identity"][1]:
                     raise ValueError("Preparation child parent changed")
                 if not child._model_test_ready.is_set() or child._model_test_turn is None:
                     return preparation_result(p)
@@ -294,11 +301,13 @@ class SubagentLifecycleService:
                                           SubagentState.RUNNING, SubagentState.CANCEL_REQUESTED)):
                     raise ValueError("Native child already active")
             # Retain failure before the constructor: uncertain CREATE is never repeated.
-            marker = {"bound": bound, "parent": parent, "record": None}
+            marker = {"bound": bound, "parent": parent, "record": None,
+                      "root_identity": (parent._subagent_id, parent.session_id)}
             self._model_test_batches[key] = marker
             try:
                 from run_agent import AIAgent
                 child = AIAgent(model_test_preparation=ModelTestPreparation(canonical(p)))
+                marker["child_identity"] = (child._subagent_id, child.session_id)
                 child._parent_session_id = parent.session_id
                 created = time.time()
                 handle = SubagentHandle(PUBLIC_CONTRACT_VERSION, child._subagent_id, parent.session_id,

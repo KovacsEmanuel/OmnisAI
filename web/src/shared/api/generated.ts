@@ -138,6 +138,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Current */
+        get: operations["current_api_v1_settings_catalog_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/catalog/page/{after}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Next Page */
+        get: operations["next_page_api_v1_settings_catalog_page__after__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/catalog/publications/{publication_id}/{digest}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detail */
+        get: operations["detail_api_v1_settings_catalog_publications__publication_id___digest__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/provider": {
         parameters: {
             query?: never;
@@ -256,6 +307,127 @@ export interface components {
             source_revision: number;
             /** Tenant */
             tenant: string;
+        };
+        /** CatalogEntry */
+        CatalogEntry: {
+            /** Generation */
+            generation: number;
+            /** Profile Key */
+            profile_key: string;
+            publication_ref: components["schemas"]["CatalogPin"];
+        };
+        /** CatalogInspection */
+        CatalogInspection: {
+            /**
+             * Assessment Selectable
+             * @constant
+             */
+            assessment_selectable: false;
+            /**
+             * Benchmark
+             * @constant
+             */
+            benchmark: "NOT_VERIFIED";
+            /** Candidate Refs */
+            candidate_refs: components["schemas"]["CatalogPin"][];
+            /** Compiler Revision */
+            compiler_revision: string;
+            confirmation_ref: components["schemas"]["CatalogPin"];
+            /** Dependency Artifact Refs */
+            dependency_artifact_refs: components["schemas"]["CatalogPin"][];
+            /** Dependency Closure Digest */
+            dependency_closure_digest: string;
+            /** Dependency Closure Refs */
+            dependency_closure_refs: components["schemas"]["CatalogPin"][];
+            /**
+             * Dependency Metadata
+             * @enum {string}
+             */
+            dependency_metadata: "NO_EXTERNAL_DEPENDENCIES" | "NOT_VERIFIED";
+            /** Evaluator Revision */
+            evaluator_revision: string;
+            /**
+             * Fixture
+             * @constant
+             */
+            fixture: "NOT_VERIFIED";
+            /** Generation */
+            generation: number;
+            /**
+             * Material
+             * @constant
+             */
+            material: "NOT_VERIFIED";
+            /** Material Digest */
+            material_digest: string;
+            /** Owner Id */
+            owner_id: string;
+            /** Profile Key */
+            profile_key: string;
+            profile_ref: components["schemas"]["CatalogPin"];
+            publication_ref: components["schemas"]["CatalogPin"];
+            /**
+             * Pure
+             * @constant
+             */
+            pure: "RECORDED_PURE_PASS";
+            pure_evaluation_ref: components["schemas"]["CatalogPin"];
+            requested: components["schemas"]["Preference"];
+            /**
+             * Resolution
+             * @constant
+             */
+            resolution: "NO_MODEL";
+            /** Resolved Index Digest */
+            resolved_index_digest: string;
+            /**
+             * Review
+             * @constant
+             */
+            review: "RECORDED_STATIC_PASS";
+            /**
+             * Runtime
+             * @constant
+             */
+            runtime: "NOT_AVAILABLE";
+            /**
+             * Security
+             * @constant
+             */
+            security: "NOT_VERIFIED";
+            snapshot_ref: components["schemas"]["CatalogPin"];
+            /** Source Draft Refs */
+            source_draft_refs: components["schemas"]["CatalogPin"][];
+            /**
+             * Static
+             * @constant
+             */
+            static: "RECORDED_STATIC_PASS";
+            static_evaluation_ref: components["schemas"]["CatalogPin"];
+            technical_review_ref: components["schemas"]["CatalogPin"];
+        };
+        /** CatalogPage */
+        CatalogPage: {
+            /** Has More */
+            has_more: boolean;
+            /** Items */
+            items: components["schemas"]["CatalogEntry"][];
+            /** Next After */
+            next_after: string | null;
+        };
+        /** CatalogPin */
+        CatalogPin: {
+            /** Digest */
+            digest: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "source-draft" | "candidate-snapshot" | "technical-review" | "evaluation-receipt" | "operator-confirmation" | "catalog-publication" | "evaluation-input" | "contract-case-input" | "contract-case-records" | "qualified-release" | "release-qualification" | "package" | "profile" | "technique" | "procedure" | "schema" | "method" | "prompt" | "template" | "overlay" | "asset";
+            /** Revision */
+            revision: number;
         };
         /** @enum {string} */
         ConstraintKind: "READ_ONLY" | "EXCLUDE_FEATURE" | "REQUIRE_CRITERION";
@@ -582,6 +754,23 @@ export interface components {
         PairingBody: {
             /** Code */
             code: string;
+        };
+        /** Preference */
+        Preference: {
+            /** Effort */
+            effort: string | null;
+            /** Model Key */
+            model_key: string | null;
+            /**
+             * On Unavailable
+             * @enum {string}
+             */
+            on_unavailable: "BLOCK" | "USE_RUN_DEFAULT";
+            /**
+             * Requirement
+             * @enum {string}
+             */
+            requirement: "REQUIRED" | "PREFERRED";
         };
         /** ProjectionEnvelope */
         ProjectionEnvelope: {
@@ -1540,6 +1729,224 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    current_api_v1_settings_catalog_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogPage"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    next_page_api_v1_settings_catalog_page__after__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                after: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogPage"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    detail_api_v1_settings_catalog_publications__publication_id___digest__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publication_id: string;
+                digest: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogInspection"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -152,6 +152,319 @@
         "title": "BusinessMatrixEntry",
         "type": "object"
       },
+      "CatalogEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "generation": {
+            "exclusiveMaximum": 9.223372036854776e+18,
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "profile_key": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "title": "Profile Key",
+            "type": "string"
+          },
+          "publication_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          }
+        },
+        "required": [
+          "publication_ref",
+          "profile_key",
+          "generation"
+        ],
+        "title": "CatalogEntry",
+        "type": "object"
+      },
+      "CatalogInspection": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_selectable": {
+            "const": false,
+            "title": "Assessment Selectable",
+            "type": "boolean"
+          },
+          "benchmark": {
+            "const": "NOT_VERIFIED",
+            "title": "Benchmark",
+            "type": "string"
+          },
+          "candidate_refs": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogPin"
+            },
+            "maxItems": 128,
+            "title": "Candidate Refs",
+            "type": "array"
+          },
+          "compiler_revision": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Compiler Revision",
+            "type": "string"
+          },
+          "confirmation_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "dependency_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogPin"
+            },
+            "maxItems": 128,
+            "title": "Dependency Artifact Refs",
+            "type": "array"
+          },
+          "dependency_closure_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Dependency Closure Digest",
+            "type": "string"
+          },
+          "dependency_closure_refs": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogPin"
+            },
+            "maxItems": 128,
+            "title": "Dependency Closure Refs",
+            "type": "array"
+          },
+          "dependency_metadata": {
+            "enum": [
+              "NO_EXTERNAL_DEPENDENCIES",
+              "NOT_VERIFIED"
+            ],
+            "title": "Dependency Metadata",
+            "type": "string"
+          },
+          "evaluator_revision": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evaluator Revision",
+            "type": "string"
+          },
+          "fixture": {
+            "const": "NOT_VERIFIED",
+            "title": "Fixture",
+            "type": "string"
+          },
+          "generation": {
+            "exclusiveMaximum": 9.223372036854776e+18,
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "material": {
+            "const": "NOT_VERIFIED",
+            "title": "Material",
+            "type": "string"
+          },
+          "material_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Material Digest",
+            "type": "string"
+          },
+          "owner_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Owner Id",
+            "type": "string"
+          },
+          "profile_key": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "title": "Profile Key",
+            "type": "string"
+          },
+          "profile_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "publication_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "pure": {
+            "const": "RECORDED_PURE_PASS",
+            "title": "Pure",
+            "type": "string"
+          },
+          "pure_evaluation_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "requested": {
+            "$ref": "#/components/schemas/Preference"
+          },
+          "resolution": {
+            "const": "NO_MODEL",
+            "title": "Resolution",
+            "type": "string"
+          },
+          "resolved_index_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resolved Index Digest",
+            "type": "string"
+          },
+          "review": {
+            "const": "RECORDED_STATIC_PASS",
+            "title": "Review",
+            "type": "string"
+          },
+          "runtime": {
+            "const": "NOT_AVAILABLE",
+            "title": "Runtime",
+            "type": "string"
+          },
+          "security": {
+            "const": "NOT_VERIFIED",
+            "title": "Security",
+            "type": "string"
+          },
+          "snapshot_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "source_draft_refs": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogPin"
+            },
+            "maxItems": 128,
+            "title": "Source Draft Refs",
+            "type": "array"
+          },
+          "static": {
+            "const": "RECORDED_STATIC_PASS",
+            "title": "Static",
+            "type": "string"
+          },
+          "static_evaluation_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          },
+          "technical_review_ref": {
+            "$ref": "#/components/schemas/CatalogPin"
+          }
+        },
+        "required": [
+          "publication_ref",
+          "profile_key",
+          "generation",
+          "owner_id",
+          "profile_ref",
+          "snapshot_ref",
+          "technical_review_ref",
+          "static_evaluation_ref",
+          "pure_evaluation_ref",
+          "confirmation_ref",
+          "source_draft_refs",
+          "candidate_refs",
+          "dependency_closure_refs",
+          "dependency_artifact_refs",
+          "material_digest",
+          "resolved_index_digest",
+          "dependency_closure_digest",
+          "compiler_revision",
+          "evaluator_revision",
+          "requested",
+          "review",
+          "static",
+          "pure",
+          "dependency_metadata",
+          "material",
+          "runtime",
+          "benchmark",
+          "fixture",
+          "security",
+          "assessment_selectable",
+          "resolution"
+        ],
+        "title": "CatalogInspection",
+        "type": "object"
+      },
+      "CatalogPage": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntry"
+            },
+            "maxItems": 20,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next After"
+          }
+        },
+        "required": [
+          "items",
+          "has_more",
+          "next_after"
+        ],
+        "title": "CatalogPage",
+        "type": "object"
+      },
+      "CatalogPin": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "source-draft",
+              "candidate-snapshot",
+              "technical-review",
+              "evaluation-receipt",
+              "operator-confirmation",
+              "catalog-publication",
+              "evaluation-input",
+              "contract-case-input",
+              "contract-case-records",
+              "qualified-release",
+              "release-qualification",
+              "package",
+              "profile",
+              "technique",
+              "procedure",
+              "schema",
+              "method",
+              "prompt",
+              "template",
+              "overlay",
+              "asset"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "revision": {
+            "exclusiveMaximum": 2147483647.0,
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "revision",
+          "digest"
+        ],
+        "title": "CatalogPin",
+        "type": "object"
+      },
       "ConstraintKind": {
         "enum": [
           "READ_ONLY",
@@ -994,6 +1307,59 @@
           "code"
         ],
         "title": "PairingBody",
+        "type": "object"
+      },
+      "Preference": {
+        "additionalProperties": false,
+        "properties": {
+          "effort": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effort"
+          },
+          "model_key": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Key"
+          },
+          "on_unavailable": {
+            "enum": [
+              "BLOCK",
+              "USE_RUN_DEFAULT"
+            ],
+            "title": "On Unavailable",
+            "type": "string"
+          },
+          "requirement": {
+            "enum": [
+              "REQUIRED",
+              "PREFERRED"
+            ],
+            "title": "Requirement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_key",
+          "effort",
+          "requirement",
+          "on_unavailable"
+        ],
+        "title": "Preference",
         "type": "object"
       },
       "ProjectionEnvelope": {
@@ -2385,6 +2751,264 @@
           }
         },
         "summary": "List Revisions"
+      }
+    },
+    "/api/v1/settings/catalog": {
+      "get": {
+        "operationId": "current_api_v1_settings_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Current"
+      }
+    },
+    "/api/v1/settings/catalog/page/{after}": {
+      "get": {
+        "operationId": "next_page_api_v1_settings_catalog_page__after__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "after",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "After",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Next Page"
+      }
+    },
+    "/api/v1/settings/catalog/publications/{publication_id}/{digest}": {
+      "get": {
+        "operationId": "detail_api_v1_settings_catalog_publications__publication_id___digest__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "publication_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Publication Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "digest",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Digest",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogInspection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Detail"
       }
     },
     "/api/v1/settings/provider": {

@@ -6,10 +6,11 @@ import { decodeRevision } from './drafts';
 import type { Draft } from './drafts';
 import { decodeProvider } from './providers';
 import type { ProviderCommand } from './providers';
+import { catalogSelection, decodeCatalogInspection, decodeCatalogPage } from './catalog';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -41,6 +42,20 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async catalog(after: string | null, signal?: AbortSignal) {
+    if (after !== null && !isUuid(after)) throw new ApiError('INVALID_INPUT');
+    const response = await request(after ? `/api/v1/settings/catalog/page/${after}` : '/api/v1/settings/catalog', {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeCatalogPage(value);
+  },
+  async catalogPublication(id: string, digest: string, signal?: AbortSignal) {
+    if (!catalogSelection(id, digest)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/settings/catalog/publications/${id}/${digest}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeCatalogInspection(value, id, digest);
+  },
   async providerCommand(payload: ProviderCommand, csrf: string, signal?: AbortSignal) {
     const response = await request('/api/v1/settings/provider', { method: 'PUT', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);

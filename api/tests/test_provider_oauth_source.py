@@ -235,6 +235,76 @@ def test_fixed_client_refuses_redirects_host_extensions_before_transport() -> No
         assert len(sent) == 1
 
 
+def test_fixed_client_retires_each_poll_before_the_next_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ssl
+    from typing import Self
+
+    from httpcore import NetworkStream
+    from httpcore._backends.sync import SyncBackend
+    from omnis_hermes.management_oauth import FixedClient
+
+    statuses = iter((403, 404))
+
+    class Stream(NetworkStream):
+        closed = False
+
+        def read(self, max_bytes: int, timeout: float | None = None) -> bytes:
+            return f"HTTP/1.1 {next(statuses)} Pending\r\nContent-Length: 0\r\n\r\n".encode()
+
+        def write(self, buffer: bytes, timeout: float | None = None) -> None:
+            assert not self.closed
+
+        def close(self) -> None:
+            self.closed = True
+
+        def start_tls(
+            self,
+            ssl_context: ssl.SSLContext,
+            server_hostname: str | None = None,
+            timeout: float | None = None,
+        ) -> Self:
+            assert server_hostname == "auth.openai.com"
+            assert ssl_context.verify_mode == ssl.CERT_REQUIRED
+            assert ssl_context.check_hostname
+            return self  # Synthetic wire only; real TLS/UDS is exercised separately.
+
+        def get_extra_info(self, info: str) -> None:
+            return None
+
+    opened: list[Stream] = []
+
+    def connect(
+        backend: SyncBackend,
+        path: str,
+        timeout: float | None = None,
+        socket_options: object = None,
+    ) -> Stream:
+        assert path == "/runtime/auth-egress.sock"
+        stream = Stream()
+        opened.append(stream)
+        return stream
+
+    def deny_tcp(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Only the synthetic UDS backend is permitted")
+
+    monkeypatch.setattr(SyncBackend, "connect_unix_socket", connect)
+    monkeypatch.setattr(SyncBackend, "connect_tcp", deny_tcp)
+    with FixedClient(lambda: None) as client:
+        transport = client.client._transport
+        assert (
+            isinstance(transport, httpx.HTTPTransport) and transport._pool._max_connections == 100
+        )
+        for status in (403, 404):
+            assert (
+                client.post("https://auth.openai.com/api/accounts/deviceauth/token").status_code
+                == status
+            )
+            assert opened[-1].closed, "A poll must not retain the relay's 15s connection budget"
+        assert len(opened) == 2
+
+
 @pytest.mark.parametrize(
     "size,redirect", [(1024 * 1024, False), (1024 * 1024 + 1, False), (0, True)]
 )

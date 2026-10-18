@@ -45,7 +45,11 @@ class FixedClient:
         self._headers_started = False
         self.client = httpx.Client(
             transport=httpx.HTTPTransport(
-                uds="/runtime/auth-egress.sock", retries=0, trust_env=False
+                uds="/runtime/auth-egress.sock",
+                retries=0,
+                trust_env=False,
+                # The relay's 15s budget belongs to one request, not the polling session.
+                limits=httpx.Limits(max_connections=100, max_keepalive_connections=0),
             ),
             trust_env=False,
             follow_redirects=False,

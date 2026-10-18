@@ -1,0 +1,119 @@
+{
+  "status": "SOURCE_FIX_PASS_PENDING_FOCUSED_INDEPENDENT_REREVIEW",
+  "runtime_requested": "openai-codex/gpt-6.1-sol/xhigh",
+  "runtime_observed": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "evidence": "Live ancestor Hermes PID2141171 cmdline allowlisted flags matched all three values.",
+    "fallback_or_delegation": false
+  },
+  "cwd": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+  "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "head": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "change": "Only preserve max_connections=100 explicitly in the existing httpx.Limits(max_connections=100, max_keepalive_connections=0), plus one cap assertion in the existing polling regression. No wrapper, harness or test matrix added.",
+  "findings": [
+    {
+      "id": "NORM-LIMIT-01",
+      "review": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-norm.json",
+      "disposition": "REPRODUCED_RED_FIXED_SOURCE_GREEN_PENDING_REREVIEW",
+      "evidence": "Existing regression with the new cap assertion fails on the previous candidate: 9223372036854775807 != 100. After the explicit cap fix, all18SOURCE tests pass and the no-network pool comparison is100->100."
+    },
+    {
+      "id": "OAUTH-SAFETY-F01",
+      "review": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-safety.json",
+      "disposition": "SAME_REPRODUCED_ROOT_CAUSE_FIXED_SOURCE_GREEN_PENDING_REREVIEW",
+      "evidence": "Same single cap-preservation fix and assertion as NORM-LIMIT-01; not a second independent implementation or a claim of prior exploitation."
+    }
+  ],
+  "changed_paths": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py",
+      "previous_sha256": "7443344cab17effd36f8c6d154b45dc574704f15489f682f893d1a326d2bf044",
+      "sha256": "51f65ebbf7c578f1fc4ecdd858dfd01d54b2a867e5e617496c5ed2db788ef9c3"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src/omnis_hermes/management_oauth.py",
+      "previous_sha256": "ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80",
+      "sha256": "b2331326542c779353a1f9184ce0cfb8f9f38172ec539e7923ddb4d9324586a9"
+    }
+  ],
+  "execution": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_flags": ["-I", "-B", "-X", "pycache_prefix=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/pycache"],
+    "sys_path_prefix": [
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/src",
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src"
+    ],
+    "private_root": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix",
+    "pytest_environment": "env -i with PATH=/usr/bin:/bin, private HOME/TMPDIR/XDG_CACHE_HOME, PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; explicit pytest_asyncio.plugin; cacheprovider disabled.",
+    "pytest_common_argv": ["-c", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/pyproject.toml", "-q", "--tb=short", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider"],
+    "red": {
+      "target": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py::test_fixed_client_retires_each_poll_before_the_next_request",
+      "basetemp": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/pytest-red",
+      "exit": 1,
+      "failed": 1,
+      "seconds": 0.17,
+      "observed_max_connections": 9223372036854775807,
+      "expected_max_connections": 100,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/red.log"
+    },
+    "green_final": {
+      "target": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py",
+      "basetemp": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/pytest-final",
+      "exit": 0,
+      "passed": 18,
+      "failed": 0,
+      "seconds": 1.26,
+      "after_last_edit": true,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/green-final.log"
+    },
+    "quality_final": [
+      {
+        "command": "API Python with python_flags -m ruff check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/ruff-check-final.log"
+      },
+      {
+        "command": "API Python with python_flags -m ruff format --check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/ruff-format-final.log"
+      },
+      {
+        "command": "API Python with python_flags -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/mypy integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/mypy-final.log"
+      },
+      {"command": "git diff --check", "exit": 0}
+    ],
+    "preserved_intermediate_results": "green.log:18PASS/exit0/1.30s before assertion-only formatting. Initial ruff-format.log:exit1 for wrapping the assertion; fixed only that formatting, then18SOURCE and all scoped quality rerun on final bytes. Original logs not overwritten."
+  },
+  "no_network_pool_comparison": {
+    "exit": 0,
+    "method": "Construct original HTTPTransport with fixed UDS/retries0/trust_envfalse and final FixedClient; inspect actual HTTPcore pools, then close both via context managers. socket.socket.connect and socket.getaddrinfo were patched to raise; no post was invoked.",
+    "baseline": {"max_connections": 100, "max_keepalive_connections": 20, "keepalive_expiry": 5.0, "retries": 0},
+    "final": {"max_connections": 100, "max_keepalive_connections": 0, "keepalive_expiry": 5.0, "retries": 0},
+    "final_timeout": {"connect": 15, "read": 15, "write": 15, "pool": 15},
+    "network_requests": 0,
+    "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/limit-fix/pool-comparison.log"
+  },
+  "preserved_evidence": {
+    "original_report": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-developer-result.json",
+    "original_report_sha256": "0792f1602685134d33d7886f4385a40457036457d882c5c6572863072e343bb0",
+    "original_report_modified": false,
+    "local_tls_reproducer": "Unchanged, not rerun: this delta preserves a pool cap and does not change the demonstrated connection-retirement behavior. Earlier local TLS evidence remains scoped to its recorded snapshot; no new installed/provider claim.",
+    "cli16": "NOT_RERUN; historical subprocess source/-B/cache boundary remains UNVERIFIED and excluded from new acceptance credit. No cache investigation or cleanup attempted."
+  },
+  "boundaries_and_cleanup": {
+    "proof": "SOURCE18 and no-network real pool-configuration comparison only; repository retirement test still uses a synthetic UDS NetworkStream with real HTTPX/HTTPcore pooling.",
+    "unchanged": "All other limits, no-retry/fallback, TLS/URL/secret guards, Stop/leases and native producer/pin/overlay/distribution.",
+    "no_access": "No instance, browser, PG, OCI, provider, private profile/logs or protected files accessed. No dependency installation, global configuration or delegation.",
+    "cleanup": "Foreground checks completed; comparison transport contexts closed. No TLS server/provider/DB/container was launched. Private logs and caches retained under limit-fix; no unknown historical cache touched.",
+    "git": "Only the exact two allowed tracked paths modified; index unchanged, HEAD unchanged; no commit/push."
+  },
+  "remaining": [
+    "Focused independent re-review of the two new hashes and parent acceptance/commit remain pending; this developer does not close the tracked findings or declare integration.",
+    "Historical OAuth failure cause remains UNKNOWN; FAIL/INDETERMINATE records are unchanged.",
+    "No CLI16, broad canonical, installed or provider QA rerun; existing CLI child/cache uncertainty remains separate."
+  ]
+}

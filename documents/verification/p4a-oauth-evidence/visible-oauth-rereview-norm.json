@@ -1,0 +1,50 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused independent READ-ONLY re-review of NORM-LIMIT-01 only; no integration or installed acceptance.",
+  "root": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+  "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "head": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "files": [
+    {"path": "integrations/hermes/src/omnis_hermes/management_oauth.py", "sha256": "b2331326542c779353a1f9184ce0cfb8f9f38172ec539e7923ddb4d9324586a9"},
+    {"path": "api/tests/test_provider_oauth_source.py", "sha256": "51f65ebbf7c578f1fc4ecdd858dfd01d54b2a867e5e617496c5ed2db788ef9c3"}
+  ],
+  "finding": {
+    "id": "NORM-LIMIT-01", "disposition": "RESOLVED_SOURCE_SCOPED_PENDING_PARENT_ADJUDICATION",
+    "code": "integrations/hermes/src/omnis_hermes/management_oauth.py:52",
+    "test": "api/tests/test_provider_oauth_source.py:294-305",
+    "reason": "Explicit max_connections=100 preserves the original finite pool cap; max_keepalive_connections=0 still retires completed polling connections. The existing regression now asserts the real HTTPcore pool cap and verifies retirement for both403/404 responses.",
+    "delta_integrity": "Removing only max_connections=100 in memory reconstructs the exact previously reviewed source SHA ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80. Removing only the new test assertion block reconstructs test SHA7443344cab17effd36f8c6d154b45dc574704f15489f682f893d1a326d2bf044. No other source delta.",
+    "caller_assessment": "Existing serial native polling/client_factory path is unchanged. No new callers, authority, retries, fallback, timeout, receipt or terminal-state changes. Prior connected-source review is reused only within its unaffected scope."
+  },
+  "findings": [],
+  "runtime_requested": "openai-codex/gpt-6.1-sol/xhigh",
+  "runtime_observed": {"provider": "openai-codex", "model": "gpt-6.1-sol", "reasoning": "xhigh", "evidence": "Allowlisted live ancestor PID2142657 flags --provider/--model/--reasoning matched; supplied session context agrees on provider/model.", "fallback_or_delegation": false},
+  "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+  "python_version": "3.13.15",
+  "python_flags": ["-I", "-B", "-X", "pycache_prefix=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/pycache"],
+  "sys_path_prefix": ["/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/src", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src"],
+  "environment": {"TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix", "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/cache", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "unset": ["PYTHONPATH", "MYPYPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"], "output_mode": "0700", "log_umask": "077"},
+  "commands": [
+    {"id": "green", "command": "API Python + python_flags -c program below, with environment above and cwd=root", "exit": 0, "passed": 18, "failed": 0, "seconds": 1.20, "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/green.log",
+     "program": "import sys,pathlib,hashlib,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/'api/src'),str(r/'integrations/hermes/src')]; from omnis_hermes import management_oauth; print('SOURCE='+management_oauth.__file__,flush=True); print('SOURCE_SHA256='+hashlib.sha256(pathlib.Path(management_oauth.__file__).read_bytes()).hexdigest(),flush=True); raise SystemExit(pytest.main(['-c',str(r/'api/pyproject.toml'),str(r/'api/tests/test_provider_oauth_source.py'),'-p','pytest_asyncio.plugin','-p','no:cacheprovider','-q','--tb=short','--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/pytest-green']))"},
+    {"id": "red-previous-candidate", "command": "API Python + python_flags -c program below, with environment above and cwd=root", "exit": 1, "expected_nonzero": true, "failed": 1, "seconds": 0.16, "failure": "New cap assertion at test:296 rejects9223372036854775807 !=100 before any network request.", "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/red.log",
+     "program": "import sys,pathlib,types,hashlib,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/'api/src'),str(r/'integrations/hermes/src')]; p=r/'integrations/hermes/src/omnis_hermes/management_oauth.py'; src=p.read_bytes().replace(b'max_connections=100, ',b''); assert hashlib.sha256(src).hexdigest()=='ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80', 'previous candidate source mismatch'; name='omnis_hermes.management_oauth'; m=types.ModuleType(name); m.__file__=str(p); m.__package__='omnis_hermes'; sys.modules[name]=m; exec(compile(src,'PREVIOUS_REVIEWED_CANDIDATE/management_oauth.py','exec'),m.__dict__); print('PREVIOUS_SOURCE_SHA256='+hashlib.sha256(src).hexdigest(),flush=True); raise SystemExit(pytest.main(['-c',str(r/'api/pyproject.toml'),str(r/'api/tests/test_provider_oauth_source.py')+'::test_fixed_client_retires_each_poll_before_the_next_request','-p','pytest_asyncio.plugin','-p','no:cacheprovider','-q','--tb=short','--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limit-fix/pytest-red']))"},
+    {"id": "delta-binding", "command": "API Python -I -B; explicit sys.path prefix; remove only the new cap assertion block in memory and compare SHA256 with the previously reviewed test", "exit": 0, "matched_previous_test": true},
+    {"id": "diff-check", "command": "git diff --check", "exit": 0}
+  ],
+  "counts": {"candidate_tests_passed": 18, "candidate_tests_failed": 0, "expected_red_failures": 1, "nonzero_check_invocations": 1, "unexpected_failures": 0, "remaining_normative_blockers": 0, "CLI_suite_tests_run": 0},
+  "evidence_reused": {
+    "prior_review": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-norm.json",
+    "prior_review_sha256_unchanged": "bd6b7271e2e5ebe52100a654f009e8d6fc66ce4349cff5faea8af82fb4505e84",
+    "developer_fix_report_read": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-developer-limit-fix.json",
+    "quality": "Author reports final Ruff/check-format/mypy exit0; not independently rerun or added to reviewer test counts.",
+    "previous_source_review": "Unaffected managed native poll/no-retry, authority, finite relay/request budgets and cancellation/terminal semantics reused scoped, not re-audited."
+  },
+  "limits": [
+    "SOURCE tests use real HTTPX/HTTPcore with a synthetic UDS NetworkStream; no real provider, installed-runtime or TLS acceptance is claimed.",
+    "Historical early native INDETERMINATE cause remains UNKNOWN; no retrospective attribution or blind live retry approval.",
+    "No CLI16, broad suite, local TLS rerun, provider/account, PG, OCI, browser, global configuration, install or private-profile access. Protected files were not accessed; no unknown cache deletion.",
+    "Original review preserved; exact two product hashes and HEAD rechecked after tests. No product edits, commits or integration transitions by reviewer."
+  ],
+  "parent_boundary": "Parent adjudicates and integrates. Approval applies only to the exact source hashes and resolution of NORM-LIMIT-01; installed QA, P4a/P2-live and phase2 closure remain outside this re-review."
+}

@@ -1,0 +1,45 @@
+{
+  "status": "PARTIAL_NATIVE_OAUTH_BLOCKED",
+  "source_commit": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "installed_root": "/home/kali/.omnis-p2-ui2",
+  "release_sha256": "fdb107d25113ed3ea440805e9f7d596250c5712aef67ccb395940299300e357b",
+  "origin": "http://127.0.0.1:8765",
+  "browser": "Pinned Chromium153.0.8010.12, headed on actual X11 :0.0; exact window98566148 brought front, focused on desktop0, same active desktop; no personal browser profile",
+  "before_after": "Prior preserved screenshot shown in the visible QA browser before actual installed app. Current4served assets hash-match installed manifest. Captures inspected through vision tool, not substituted for the visible window.",
+  "passed": [
+    "Real installed CLI install/install-image/start/status and dashboard readiness",
+    "Provider read: CONFIRMED/configuredfalse; Save enabled",
+    "One real Save, response withheld only at browser; unknown blocks replacement/read/repeat; recovery GET uses same operation ID; CONFIRMED/configuredtrue after recovery and reload",
+    "Authenticated NOT_VERIFIED and inference_readyfalse preserved",
+    "No horizontal overflow320/390/1280/1440; all Provider selects/buttons minimum44px",
+    "Skip link and native Provider->Model->Effort->Connect->Read keyboard sequence with visible solid2px focus ring after hydrated state",
+    "Forced-colors/reduced-motion capture and CSS zoom200 without horizontal overflow; not native zoom/WCAG certification",
+    "Home->New navigation; empty Save shows six field errors and no success; all five steps reachable; Start assessment remains disabled",
+    "Settings Runtime/Skills/Providers navigation; published catalog honestly empty, no fabricated readiness or P3 behavior",
+    "Real own ui_session expiry: active1->expired1->active0; HTTP401, pairing form, zero provider controls/challenge; fresh ordinary local pairing restoresHTTP200",
+    "Native Connect once reached real CHALLENGE; no code captured/logged, account not approved",
+    "Direct native Chromium launch gives actual hidden/false-focus on inactive Omnis tab"
+  ],
+  "failures_preserved": [
+    "First keyboard assertion FOCUS_SEQUENCE_REFUSED waited only for heading, not hydration; observed subsequent exact sequence passes after configured readback without product edit",
+    "First OAuth QA failed HIDDEN state assertion: both tabs simultaneously visible/focused under Playwright. Second focused attempt disabling emulation in another CDP session still HIDDEN_NOT_OBSERVED. No new Connect. Browser launch narrowed to native Chromium, same isolated browser profile; actual hidden state observed",
+    "Original Connect5715487d-2a5f-4992-8671-01e62f121301 then read back INDETERMINATE/oauthNONE/challengeabsent.12GET observations span6704ms; exact terminal transition time NOT_OBSERVED. Cause UNKNOWN; not attributed to UI or later pooled-connection reproducer",
+    "Read-only DOM selector syntax and expiry command quoting failed before actions; corrected without product edits. Re-pair raw selector missed button arrow before submit; same unsubmitted code was used, no repeated issuance"
+  ],
+  "not_run": [
+    "Successful background polling at the native CHALLENGE: corrected browser visibility arrived after native operation failed",
+    "CHALLENGE reload and Cancel settlement on this installed attempt; no Cancel mutation reached server before INDETERMINATE",
+    "Operator visual approval and account authentication",
+    "Provider inference; remaining G04a/G02-live criteria; phase2 final canonical"
+  ],
+  "native_readback": {
+    "operation_id": "5715487d-2a5f-4992-8671-01e62f121301",
+    "status": "INDETERMINATE",
+    "oauth": "NONE",
+    "challenge_present": false,
+    "inference_ready": false,
+    "later_runtime_process_inventory": "Only original RuntimeHost PID2101063; no management/native worker observed",
+    "auth_file": "Absent by stat only; no credential content read"
+  },
+  "limits": "No retry of Connect, fallback, provider inference, target traffic, P3, personal credentials, global changes or push. UI unit/source reviews do not approve aesthetics or native OAuth. Timing/fluidity not benchmark-certified. Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO. Historical failures preserved."
+}

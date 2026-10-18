@@ -1,0 +1,236 @@
+{
+  "report_kind": "INDEPENDENT_READ_ONLY_NORMATIVE_SOURCE_REVIEW",
+  "verdict": "CHANGES_REQUESTED",
+  "summary_ro": "Remediul retrage corect conexiunea după fiecare răspuns pending, iar regresia este RED pe baza exactă și GREEN pe candidat. Există însă o abatere normativă reproductibilă: construirea unui nou httpx.Limits numai cu max_keepalive_connections=0 elimină implicit plafonul anterior max_connections=100. Este necesară păstrarea explicită a acestui plafon, fără alte schimbări. Nu este demonstrată o problemă de concurență în callerul nativ actual, care este serial.",
+  "runtime_requested": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "fallback": false,
+    "delegation": false
+  },
+  "runtime_observed": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "evidence": "Read-only /proc ancestor traversal returned Hermes PID 2132265 with --provider openai-codex --model gpt-6.1-sol --reasoning xhigh. Provider/model also match supplied session context. Only these allowlisted flags were emitted; no environment or private configuration was read.",
+    "fallback_or_downgrade_used": false,
+    "delegation_used": false
+  },
+  "snapshot": {
+    "root": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+    "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "head": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "branch": "work/p2-oauth-ui2",
+    "state": "Frozen uncommitted candidate: exactly the two supplied tracked files modified; index empty. Reviewer made no product edits, commits or pushes.",
+    "files": [
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_oauth.py",
+        "sha256": "ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80"
+      },
+      {
+        "path": "api/tests/test_provider_oauth_source.py",
+        "sha256": "7443344cab17effd36f8c6d154b45dc574704f15489f682f893d1a326d2bf044"
+      }
+    ],
+    "baseline_management_oauth_sha256": "860b339fa98388ff7253ac1c7de5fcd138b35fa450ae99ed650dd134ecd3be0f",
+    "hashes_and_head_rechecked_after_source_tests": true,
+    "native_producer": {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source/hermes_cli/web_routers/oauth.py",
+      "sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+      "access": "Read-only; relevant managed worker/client/poll/error/save branches reviewed, never imported as an installed provider."
+    }
+  },
+  "scope": {
+    "acceptance_requirement": "Legitimate pending OAuth polling and honest cancellation, without changing authority, retries or unrelated limits.",
+    "consumer_chain": "RuntimeHost._settings_run/_oauth_flow -> private management flow route -> NativeOAuth.operate -> exact native _codex_full_login_worker/_codex_poll_authorization -> client_factory -> FixedClient -> HTTPX/HTTPcore -> start_auth_forwarder.",
+    "reviewed_callers": [
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:330-428",
+      "integrations/hermes/src/omnis_hermes/management_server.py:185-201",
+      "integrations/hermes/src/omnis_hermes/management_oauth.py:41-151,230-338",
+      "native hermes_cli/web_routers/oauth.py:157-338",
+      "cli/src/omnis_cli/forwarder.py:90-110,306-421"
+    ],
+    "tests_fixtures_config": [
+      "api/tests/test_provider_oauth_source.py (all 639 lines)",
+      "api/tests/conftest.py (no autouse DB fixture; selected tests require no database)",
+      "api/pyproject.toml",
+      "integrations/hermes/tests/test_native_build.py:44-135 (existing precedence test, source review only)"
+    ],
+    "expected_load": "Local-first, single operator, one owned synchronous native OAuth worker. No new public caller, fixture, export, dependency or configuration is required for this adapter-only fix.",
+    "instructions_loaded": [
+      "/home/kali/.hermes/SOUL.md",
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "ponytail:ponytail",
+      "ponytail:ponytail-review",
+      ".hermes/skills/omnis-review-qa/SKILL.md",
+      ".hermes/skills/omnis-project-status/SKILL.md"
+    ],
+    "skill_resolution_note": "skill_view('omnis-review-qa') was unavailable in the active catalog; its exact versioned project SKILL.md was read directly. No installation, profile change or model fallback was used."
+  },
+  "findings": [
+    {
+      "id": "NORM-LIMIT-01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "EXPLICIT_REQUIREMENT_VIOLATION",
+      "location": "integrations/hermes/src/omnis_hermes/management_oauth.py:52",
+      "related_test": "api/tests/test_provider_oauth_source.py:238-301",
+      "title_ro": "Noul obiect Limits elimină și plafonul de conexiuni, nu numai keepalive",
+      "requirement": "Preserve existing limits except the expressly intended idle connection retirement; user explicitly requires no change to authority/retries/limits.",
+      "concrete_case": "Construct FixedClient with a no-op guard, without sending any request, on baseline and candidate under HTTPX 0.28.1 / HTTPcore 1.0.9. The baseline HTTPTransport default supplies max_connections=100; httpx.Limits(max_keepalive_connections=0) instead defaults max_connections=None, represented by HTTPcore as 9223372036854775807. Thus a separate finite limit is demonstrably widened in the exact candidate.",
+      "reproducer": {
+        "command_id": "limits-comparison",
+        "output": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limits-comparison.log",
+        "exit": 1,
+        "baseline": {"max_connections": 100, "max_keepalive_connections": 20, "keepalive_expiry": 5.0, "retries": 0},
+        "candidate": {"max_connections": 9223372036854775807, "max_keepalive_connections": 0, "keepalive_expiry": 5.0, "retries": 0},
+        "network_requests": 0
+      },
+      "smallest_fix": "Set limits=httpx.Limits(max_connections=100, max_keepalive_connections=0). Extend the focused regression to preserve the preexisting finite connection cap, rerun the affected source tests, then request focused re-review on the new hashes.",
+      "impact_and_limit": "This is a measured configuration-contract violation, not evidence of 101 concurrent requests or an active resource-exhaustion incident. The current native poller is serial and the relay still admits one connection. Those unchanged guards limit practical exposure but do not make the explicit no-unrelated-limit-change claim true.",
+      "if_skipped_ro": "Candidatul rămâne în afara contractului declarat de limite neschimbate; aprobarea ar masca o relaxare implicită evitabilă."
+    }
+  ],
+  "requirement_review": [
+    {
+      "requirement": "Pending polling must not inherit the age of an earlier polling connection",
+      "assessment": "SUPPORTED_SOURCE_SCOPED",
+      "code": "management_oauth.py:47-57; native oauth.py:223-257; forwarder.py:346-406",
+      "evidence": "Real HTTPcore pooling closes each fully consumed synthetic response before the next request; both pending 403 and 404 use fresh streams. New regression fails on exact baseline and passes on candidate. Author local TLS differential is consistent with the source mechanism."
+    },
+    {
+      "requirement": "Authority, retries, fallback and finite budgets remain unchanged",
+      "assessment": "CHANGES_REQUESTED_FOR_POOL_CONNECTION_CAP_ONLY",
+      "code": "management_oauth.py:47-82,98-125,230-240; native oauth.py:187-196,210-217,227-255; forwarder.py:320-406",
+      "evidence": "retries=0, managed single-attempt POST and no transient retry, fixed UDS/host/URL/TLS, request hooks and post-TLS current-authority trace remain. HTTPX connect/read/write/pool timeouts are still 15. Relay total15s, idle10s, DNS/connect2s, singleton and existing byte caps are unchanged. Native interval3..10s/expiry900s are unchanged. However the separate HTTPX max_connections=100 cap is no longer preserved."
+    },
+    {
+      "requirement": "Cancellation and terminal/receipt semantics stay honest",
+      "assessment": "SUPPORTED_SOURCE_REVIEW_NOT_INSTALLED_ACCEPTANCE",
+      "code": "management_oauth.py:301-338; native oauth.py:285-338; runtime_host.py:330-428",
+      "evidence": "Active cancelled worker still projects CANCELLING, not terminal success. Once settled, native error retains INDETERMINATE precedence over cancel/expiry; SAVED remains tied to approved status and save lock. Terminal projections clear challenge/session identifiers; Host confirms CANCELLED/EXPIRED/SAVED only after auth_read and maps uncertain transport to INDETERMINATE. No changed terminal, receipt, lease or save code was found. Existing author native precedence evidence covers six subcases and is supplemental, not independently rerun here."
+    }
+  ],
+  "execution": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_version": "3.13.15",
+    "httpx_version": "0.28.1",
+    "httpcore_version": "1.0.9",
+    "pytest_version": "9.1.1",
+    "common_python_flags": ["-I", "-B", "-X", "pycache_prefix=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/pycache"],
+    "sys_path_prefix": [
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/src",
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src"
+    ],
+    "environment": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm",
+      "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/cache",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "unset_for_pytest": ["PYTHONPATH", "MYPYPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"],
+      "output_directory_mode": "0700",
+      "test_log_umask": "077"
+    },
+    "commands": [
+      {
+        "id": "api-green",
+        "invocation": "API Python with common flags and explicit sys.path prefix; import current management_oauth and emit its __file__; raise SystemExit(pytest.main(argv)).",
+        "pytest_argv": ["-c", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/pyproject.toml", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-q", "--tb=short", "--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/pytest-green"],
+        "exit": 0,
+        "passed": 18,
+        "failed": 0,
+        "seconds": 1.22,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/api-green.log"
+      },
+      {
+        "id": "api-red",
+        "invocation": "Same Python/flags/sys.path/environment. subprocess.check_output(['git','show','5e5c9bf282e673c54e32eeca5a90af044122ad5f:integrations/hermes/src/omnis_hermes/management_oauth.py']) retrieves exact baseline bytes. Compile those unmodified bytes into types.ModuleType('omnis_hermes.management_oauth'), register in sys.modules before pytest, emit baseline SHA256; raise SystemExit(pytest.main(argv)). No checkout or source file is changed.",
+        "pytest_argv": ["-c", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/pyproject.toml", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py::test_fixed_client_retires_each_poll_before_the_next_request", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-q", "--tb=short", "--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/pytest-red"],
+        "exit": 1,
+        "expected_nonzero": true,
+        "failed": 1,
+        "failure_location": "api/tests/test_provider_oauth_source.py:300",
+        "failure_reason": "The first completed pending response leaves its stream open on baseline.",
+        "seconds": 0.16,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/api-red.log"
+      },
+      {
+        "id": "limits-comparison",
+        "invocation": "Same Python/common flags/explicit sys.path/TMPDIR/cache. Load current FixedClient and a separate module compiled from git show of the exact baseline. For each, enter its client context without calling post; read client.client._transport._pool._max_connections, _max_keepalive_connections, _keepalive_expiry, _retries and client.client.timeout.as_dict(). Emit only these public configuration values. Exit1 with sanitized NORM-LIMIT-01 if baseline and candidate max_connections differ.",
+        "exit": 1,
+        "nonzero_meaning": "Reproduced requirement violation, not infrastructure failure.",
+        "mismatched_independent_limits": 1,
+        "network_requests": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm/limits-comparison.log"
+      },
+      {
+        "id": "diff-integrity",
+        "command": "git diff --check",
+        "exit": 0
+      }
+    ],
+    "counts": {
+      "independently_executed_candidate_tests_passed": 18,
+      "expected_baseline_regression_failures": 1,
+      "reproduced_blocking_contract_mismatches": 1,
+      "nonzero_check_invocations": 2,
+      "infrastructure_failures": 0,
+      "blocking_findings": 1,
+      "independently_executed_native_precedence_tests": 0,
+      "independently_executed_cli_suite_tests": 0,
+      "independently_executed_local_tls_reproductions": 0
+    }
+  },
+  "author_evidence_reviewed_not_reexecuted": {
+    "report": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-developer-result.json",
+    "local_reproducer": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/repro_poll.py",
+    "local_reproducer_sha256": "4eb7ed5a8e29070b871f605f29a69ef0e9ff05e841783f9ab4ed81caf169a19a",
+    "local_reproducer_read_before_any_possible_run": true,
+    "baseline_log_read": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-age-red.log",
+    "candidate_log_read": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-product-green.log",
+    "observed_in_retained_author_logs": "Baseline: fifth poll fails18.127s, challenge observed, pending=false, AUTH_TRANSPORT_UNCERTAIN, worker inactive. Candidate: six polls pending, CANCELLED25.118s, seven connections/DNS/numeric-connect interceptions, worker inactive after cleanup. These are author-run observations, not reviewer-run TLS results.",
+    "native_precedence": "Existing source test inspected and native-green.log read: author1test/6subcases/exit0; not counted as an independently executed reviewer test.",
+    "quality": "Author reports Ruff check/format and mypy exit0 on the two files. Not rerun or independently promoted here; reviewer git diff --check exit0.",
+    "cli_supplement": "Author16 unchanged CLI tests not credited or rerun. Existing child source binding/-B/cache boundaries remain UNVERIFIED. No recursive audit or unknown-cache deletion performed."
+  },
+  "coverage_and_limits": {
+    "independent_source_review_is_installed_acceptance": false,
+    "local_tls_reproduction": "NOT_RUN by reviewer: source mechanism, exact baseline RED and author differential were sufficient for this normative review; no concrete TLS doubt justified another effectful reproduction.",
+    "source_regression_boundary": "Real HTTPX/HTTPcore pooling/framing with a synthetic NetworkStream and synthetic UDS backend. It verifies retirement for 403/404 and TLS configuration inputs, not a real TLS handshake, installed service or provider response.",
+    "author_reproducer_boundary": "SOURCE/local TLS/UDS plus real HTTPX/HTTPcore, controlled management/native import seams, intercepted DNS/numeric connect, synthetic auth constants and denied save. Not provider or installed acceptance.",
+    "historical_ui_failure": "Earlier actual Connect reached CHALLENGE then INDETERMINATE over approximately6.7s of polling. Cause remains UNKNOWN. The later-age18.127s reproducer does not establish its cause and does not justify a blind live retry.",
+    "unchanged_failure_semantics": "No retries, fallback, authority extensions, success receipts or historical error reclassification were added. Existing error/cancel/expiry precedence was reviewed, not universally proven for every possible failure.",
+    "operational_tradeoff": "Fresh TLS connection and relay DNS resolution per poll increase handshake/resolution work. Current3..10s polling interval, one worker and existing relay singleton remain; no high-concurrency deployment claim.",
+    "not_run": ["provider/account/token exchange/save/inference", "browser", "PostgreSQL", "OCI/Docker", "installed runtime acceptance", "CLI subprocess suite", "broad suite or canonical make check", "phase2 closure"],
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "write_and_safety_boundary": {
+    "product_edits": false,
+    "commits_or_pushes": false,
+    "installs_or_global_provider_changes": false,
+    "private_profiles_accounts_or_private_logs_accessed": false,
+    "forbidden_paths_accessed_copied_hashed_or_modified": false,
+    "forbidden_paths": ["documents/Omnis_Notite_Originale.html", "tools/development/ponytail.json"],
+    "own_outputs": ["/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-norm", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-norm.json"],
+    "bytecode": "Parent Python uses -I -B and private pycache_prefix. Selected existing API lifeline child already uses -I -B with explicit adapter sys.path. No claim about unknown historical caches; none deleted.",
+    "cleanup": "Focused tests returned normally; their existing fixture/finalizer boundaries were reviewed. No reviewer TLS listener/provider/DB/OCI resource was launched. Own logs and pytest temp evidence are retained; no unknown cache cleanup."
+  },
+  "parent_actions": [
+    "Adjudicate NORM-LIMIT-01 as a narrowly scoped finite-limit preservation change; assigned developer owns edits, not this reviewer.",
+    "Preserve max_connections=100 explicitly, test the cap alongside connection retirement, rerun affected18SOURCE tests and request focused re-review on new hashes. No broad suite or provider retry is needed to reproduce this finding.",
+    "Only parent accepts/integrates/commits after required reviews. This report neither authorizes live retry nor closes historical UNKNOWN, P4a, P2-live or phase2."
+  ],
+  "status_delta": {
+    "current_slice": "AICI OAuth pending-poll adapter-only candidate",
+    "implementation": "IMPLEMENTED_UNCOMMITTED_CANDIDATE",
+    "proof": "18SOURCE_PASS; baseline1RED; separate finite-limit1MISMATCH",
+    "review": "CHANGES_REQUESTED",
+    "integration": "PARENT_PENDING",
+    "P4a": "PARTIAL",
+    "P2_live_and_canonical_final": "NOT_RUN_BY_THIS_REVIEW",
+    "phase2": "NOT_CLOSED",
+    "map_note": "Versioned status prose lags HEAD polish integration; no map edits or general repository reconciliation were performed."
+  }
+}

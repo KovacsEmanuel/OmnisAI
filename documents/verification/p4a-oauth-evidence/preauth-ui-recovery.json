@@ -1,19 +1,66 @@
 {
-  "status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
-  "main_product_commit": "b4192f569cc70464bc465ae039bee8e48fc0ca75",
+  "status": "VISIBLE_QA_PARTIAL_EARLY_NATIVE_OAUTH_BLOCKED_UNKNOWN",
+  "previous_handoff_status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
+  "main_product_commit": "ac1acc54ba0a46e65a2c98b00277ecb6586737a7",
+  "current": {
+    "polish_commit": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "polish_identity": "Exact remaining three-file delta imported; original complementary reviews reused; relevant callers unchanged",
+    "web_gate": "Node24.21.0/npm11.19.0: lint/typecheck/93unit/13files/contracts/design/build4 all exit0",
+    "visible_qa": "preauth-ui-visible-qa.json; actual headed X11 window foreground, before/after; real installed Settings/save/exact recovery/reload/expiry/geometry/navigation",
+    "native_failure": "One Connect5715487d-2a5f-4992-8671-01e62f121301 reached CHALLENGE then INDETERMINATE.12GET span6704ms, exact terminal timing and cause UNKNOWN. No new Connect, account approval or inference.",
+    "not_closed": "Native background polling/reload challenge/Cancel; visual approval; live auth; G04a/G02-live; phase2",
+    "pooling_fix": "ac1acc5: max_keepalive_connections0 with max_connections100 preserved. Two exact-snapshot focused re-reviews APPROVED_SCOPED after original CHANGES_REQUESTED;18SOURCE parent PASS0.95s; local controlled TLS/UDS6polls then CANCELLED25.117s/exit0/worker joined. Does not establish the earlier failure cause.",
+    "developer_checkpoint": "f82fab1 on work/p2-oauth-ui2, clean; already integrated, do not reimport",
+    "tested_installation": {
+      "root": "/home/kali/.omnis-p2-ui2",
+      "source": "5e5c9bf",
+      "release_sha256": "fdb107d25113ed3ea440805e9f7d596250c5712aef67ccb395940299300e357b",
+      "project": "omnis-local-de9a95bf8e3a453d98e07e2d9e9217b0",
+      "instance_id": "9713b025-be9c-40e8-a21f-1facc319b1cb",
+      "origin": "http://127.0.0.1:8765",
+      "state": "STOPPED",
+      "generation": 2,
+      "admission_open": false,
+      "stop_exit": 0,
+      "stop_seconds": 13.016,
+      "cleanup": "Exact4CIDs/project/networks/IPC/listener absent; PostgreSQL/provider directory identities unchanged; data/images retained. Both owned browsers and all author/reviewer jobs exited.",
+      "not_final_artifact": "Precedes ac1acc5 adapter correction; never overwrite immutable installed release or credit that correction as installed QA"
+    },
+    "current_built_artifact": {
+      "archive": "/home/kali/.omnis-p2-ui2/recovery/current-artifact.tar.gz",
+      "sha256": "5624eb51886c0a68549bb9decded16eebe7327cc96531160ef99b12faaa73f34",
+      "bytes": 68698758,
+      "members": 3276,
+      "release_sha256": "080dc278999d2cff6ce8d6c9bdb3f16ff8a8b55a662b03ac35de94b71eba0831",
+      "adapter_wheel_sha256": "2b3ed67747ac5f60cbf6fb0fa7f0b19ec58f07df84115986e2bfeda857b52091",
+      "identity": "API95/CLI22 unchanged; adapter20 wheel-source exact; native3260 closure validated; fresh UI4 reused unchanged",
+      "installed_or_oci_qa": "NOT_RUN"
+    },
+    "private_evidence": {
+      "archive": "/home/kali/.omnis-p2-ui2/recovery/visible-qa-evidence.tar.gz",
+      "sha256": "202b37692532eaa1cc414b42ba336ac79c65c382013e340e03d7fd145b255124",
+      "bytes": 759072,
+      "members": 31,
+      "mode": "0600",
+      "excludes": "Browser profile/cookies/credentials/PGDATA/raw private service logs; not off-device backup"
+    },
+    "canonical_final": "NOT_RUN: no-effect toolchain preflight exit0, but default integrations/hermes/upstream/inert-source/run_agent.py absent. No DB provisioned; restore only the pinned source prerequisite before canonical, no weakened gate.",
+    "next_decision": "Localize early native failure through existing consumers before another effect; no blind Connect or extra observer/harness. Then install actual bundle and affected visible QA, operator visual/auth acceptance, synthetic legitimate inference and remaining live obligations. Inert/controlled evidence unchanged remains reusable."
+  },
   "main_branch": "checkpoint/p2-batch2-pause-20261015",
   "candidate": {
     "branch": "work/p2-ui-FLhtAyZm",
     "commit": "16c2e5ff0ae7d199869f97be085e6f8ff6a6ff76",
     "worktree": "/home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/work",
     "clean_after_checkpoint": true,
-    "integration_rule": "Apply only the three-file delta from b4192f5 to this checkpoint. Functional phase1 is already integrated; do not cherry-pick the whole checkpoint or reimport older candidates.",
+    "integration_rule": "HISTORICAL candidate: its remaining three-file delta is already integrated as5e5c9bf. Do not cherry-pick or reimport it; functional phase1 remains b4192f5.",
     "files_sha256": {
       "web/src/features/engagement/ProviderSettings.tsx": "9ec0669fd7b2b174989902af68c9874427a224a6390176afb55731eb24f88cc8",
       "web/src/features/engagement/Engagement.module.css": "57b4c0a0b2a025c2f6d53e7855062d1e451b1aa4e07420b147ec08c0b818bda4",
       "web/src/app/ProviderSettings.test.tsx": "a11e2b411dddcd0edaaa533527413a5d7992acc4b46d23bb7e7859ab7d760005"
     },
-    "remaining_delta": {"files": 3, "insertions": 34, "deletions": 3}
+    "remaining_delta_at_previous_handoff": {"files": 3, "insertions": 34, "deletions": 3},
+    "remaining_delta_now": 0
   },
   "accepted_scope": {
     "native": "send-controlled-native-pass.json: actual existing consumer1PASS35.72s/exit0/drained on7a2ac5a, controlled HTTP/synthetic auth only; reuse unchanged evidence",
@@ -50,7 +97,7 @@
     "original_root": "/home/kali/.hermes/cache/scratch/uiq-kzdTki7q",
     "excluded": "Cookies, credentials, raw logs, dependencies, worktrees, PostgreSQL data and Docker images; not an off-device backup. Git preserves candidate source and original review reports."
   },
-  "next": "Integrate only reviewed polish delta; pinned final UI checks/build; additive current artifact/profile through existing owners, preserving stopped candidate/data; visible headed browser QA with operator participation; then operator-only live authentication if ready.",
+  "next": "Use current.next_decision; polish is already integrated and visible QA has a retained native OAuth blocker. Do not resume the historical preparation sequence below or repeat Connect blindly.",
   "visible_qa_contract": "Show the actual Omnis window on the operator desktop and keep it visible during tests. Verify foreground/visibility, announce short steps and show before/after. Pause automation when the operator takes control. Do not claim headless/screenshot-only execution is live-visible. No secrets in chat, captures, logs or Git.",
-  "limits": "No implementation or services launched during prompt preparation. All owned tracked jobs already exited. Final polish browser QA, live auth/provider inference and final phase2 canonical NOT_RUN. P2/P4a not closed; no P3/target/r1/global/push."
+  "limits": "Previous prompt preparation had no effects; this current implementation did build/install/visible QA and exact Stop. Live auth/provider inference, post-ac1acc5 installed QA and final canonical remain NOT_RUN. P2/P4a not closed; no P3/target/r1/global/push. Historical records below current retain their original scope."
 }

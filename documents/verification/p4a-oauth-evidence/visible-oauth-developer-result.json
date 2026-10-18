@@ -1,0 +1,261 @@
+{
+  "status": "CANDIDATE_PARTIAL_SOURCE_PASS_PENDING_INDEPENDENT_REVIEW",
+  "integration_status": "BLOCKED_PENDING_PARENT_REVIEW_AND_ACCEPTANCE",
+  "runtime_requested": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "fallback": false
+  },
+  "runtime_observed": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "evidence": "Live ancestor Hermes PID 2118262 cmdline flags --provider openai-codex --model gpt-6.1-sol --reasoning xhigh; model/provider also match supplied runtime context.",
+    "fallback_or_downgrade_used": false
+  },
+  "cwd": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+  "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "head": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "git": {
+    "branch": "work/p2-oauth-ui2",
+    "initial_status": "CLEAN",
+    "final_status": "Git reports only the two listed owned tracked files modified; index unchanged; no commit or push. Ignored child bytecode/cache writes are not fully attested.",
+    "commit_status": "NOT_RUN_DEVELOPER_SHARED_CHECKOUT_OWNERSHIP",
+    "parent_must_commit_before_completion": true
+  },
+  "finding": {
+    "id": "OAUTH-POOLED-CONNECTION-AGE-01",
+    "status": "REPRODUCED_AND_MINIMALLY_FIXED_SOURCE_SCOPED",
+    "requirement": "A legitimate pending Connect must not fail solely because unrelated prior polling consumed a connection-wide transport budget; cancellation must settle honestly.",
+    "consumer": "RuntimeHost._oauth_flow -> NativeOAuth.operate -> exact pinned _codex_full_login_worker/_codex_poll_authorization AST -> FixedClient -> real HTTPX/HTTPcore -> local verified TLS over UDS -> start_auth_forwarder.",
+    "concrete_case": "Native interval 3s, repeated HTTP 403 pending replies, fifth poll delayed 4s. Each request remains below its 15s request timeout, but the pooled polling connection has a 15s total relay lifetime. Baseline cuts the in-flight fifth poll at 18.127s from flow start after a real local CHALLENGE observation.",
+    "cause": "FixedClient retains HTTP/1.1 connections across polls. start_auth_forwarder applies asyncio.timeout(15) around the whole auth.openai.com connection, including all prior requests and idle polling time. A later otherwise-valid response can cross that connection deadline and terminate the no-retry native worker.",
+    "baseline_result": {
+      "exit": 1,
+      "challenge_seen": true,
+      "poll_count": 5,
+      "elapsed_seconds": 18.127,
+      "pending_after_six_polls": false,
+      "flow_error": "AUTH_TRANSPORT_UNCERTAIN",
+      "worker_active_at_observation": false,
+      "connections": 2
+    },
+    "fix": "Set httpx.Limits(max_keepalive_connections=0) on the existing FixedClient HTTPTransport. Each completed response retires its connection, so the next poll does not inherit the previous polling connection's remaining lifetime.",
+    "why_management_oauth_edit_is_in_scope": "The native producer intentionally reuses one client for polling. The reproduced mismatch is at that client's pooling seam, not in lease renewal, API/PG, UI or the native overlay. A single transport setting fixes the demonstrated case without changing any relay limit or native producer.",
+    "unchanged_guards": [
+      "15s auth connection cap and existing 10s auth stream idle cap",
+      "HTTPX timeout 15s",
+      "3..10s native polling interval validation and native 900s flow expiry",
+      "Singleton relay admission, full DNS validation, fixed numeric destination and SNI allowlist",
+      "Verified TLS, trust_env=false, retries=0, redirects disabled",
+      "Finite URL/method/header/extensions and decoded response-body guards",
+      "Current-authority trace checks, lifeline, grants, cancellation and terminal error precedence",
+      "Native no-retry policy and all secret guards"
+    ],
+    "limits": [
+      "This demonstrates one deterministic product defect, not the exclusive cause of the historical provider failure.",
+      "The recorded historical browser failure occurred sooner than this 18s reproduction. Historical root cause remains UNKNOWN.",
+      "The healthy immediate-response pooled control completed six polls and cancelled successfully, so connection age alone does not imply every pending flow fails at 15s.",
+      "The singleton/half-close hypothesis is not established as a product defect. _copy already propagates write_eof; its gather and admission semantics were not changed.",
+      "No claim that every possible OAuth failure or gap is removed. Additional TLS handshakes and DNS resolutions per poll are the intentional tradeoff."
+    ]
+  },
+  "changed_paths": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/tests/test_provider_oauth_source.py",
+      "sha256": "7443344cab17effd36f8c6d154b45dc574704f15489f682f893d1a326d2bf044",
+      "change": "Existing SOURCE suite extended with one HTTPX/HTTPcore pooling regression for both pending HTTP 403 and 404; synthetic UDS backend only, TCP explicitly denied."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src/omnis_hermes/management_oauth.py",
+      "sha256": "ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80",
+      "change": "Disable idle connection retention on the existing fixed OAuth transport."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/repro_poll.py",
+      "sha256": "4eb7ed5a8e29070b871f605f29a69ef0e9ff05e841783f9ab4ed81caf169a19a",
+      "role": "Scratch-only deterministic local TLS/UDS reproduction, never installed or added to the repository."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/oauth-candidate.patch",
+      "sha256": "711e7bfd5ccd53cb56b3bdbf580f957863ba995fbfe94652a4fccea812f78a76",
+      "role": "Exact unstaged candidate diff for parent review."
+    }
+  ],
+  "commands": {
+    "api_python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "cli_python": "/home/kali/OmnisAI/cli/.venv/bin/python",
+    "python_version_observed": "3.13.15",
+    "httpx_version_observed": "0.28.1",
+    "httpcore_version_observed": "1.0.9",
+    "environment": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer",
+      "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/cache",
+      "python_flags": ["-I", "-B"]
+    },
+    "api_sys_path_prefix": [
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/src",
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src"
+    ],
+    "red_unit": {
+      "invocation": "API Python -I -B -c: prepend api_sys_path_prefix; pytest.main(['-c', cwd+'/api/pyproject.toml', cwd+'/api/tests/test_provider_oauth_source.py::test_fixed_client_retires_each_poll_before_the_next_request', '-q', '--tb=short', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/pytest-red'])",
+      "exit": 1,
+      "tests_failed": 1,
+      "reason": "First pending response leaves the original pooled stream open.",
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/unit-red.log"
+    },
+    "red_local_consumer": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/repro_poll.py"],
+      "snapshot": "Original management_oauth.py before the fix; fifth poll delayed 4s.",
+      "exit": 1,
+      "assertions_failed": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-age-red.log"
+    },
+    "green_local_consumer": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/repro_poll.py"],
+      "snapshot": "Current product source, no --fresh override; same delayed fifth poll.",
+      "exit": 0,
+      "challenge_seen": true,
+      "pending_after_six_polls": true,
+      "poll_count": 6,
+      "elapsed_seconds": 25.118,
+      "final_oauth": "CANCELLED",
+      "flow_error": null,
+      "connections": 7,
+      "dns_calls": 7,
+      "numeric_connect_calls": 7,
+      "worker_alive_after_cleanup": false,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-product-green.log"
+    },
+    "green_api": {
+      "invocation": "API Python -I -B -c: prepend api_sys_path_prefix; pytest.main(['-c', cwd+'/api/pyproject.toml', cwd+'/api/tests/test_provider_oauth_source.py', '-q', '--tb=short', '-p', 'no:cacheprovider', '--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/pytest-final'])",
+      "exit": 0,
+      "tests_passed": 18,
+      "seconds": 0.99,
+      "after_last_relevant_edit": true,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/api-final.log"
+    },
+    "green_cli": {
+      "invocation": "CLI Python -I -B -c: prepend cwd+'/cli/src' and cwd+'/cli/tests'; unittest loader modules test_auth_forwarder and test_forwarder, TextTestRunner; exit nonzero unless successful.",
+      "boundary_warning": "The parent test process imports worktree sources, but existing test_forwarder subprocess tests include python -I -m omnis_cli.forwarder without -B or the parent's explicit sys.path. Their imported child source and possible bytecode/cache writes outside the scratch root are UNVERIFIED. The 16 passing tests are not a claim of fully worktree-bound subprocess coverage.",
+      "exit": 0,
+      "tests_passed": 16,
+      "seconds": 5.173,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/cli-green.log"
+    },
+    "green_native_precedence": {
+      "invocation": "HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source API Python -I -B -c: prepend worktree api/src, integrations/hermes/src and integrations/hermes/tests; run test_native_build.NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry with unittest.",
+      "exit": 0,
+      "tests_passed": 1,
+      "subcases": 6,
+      "seconds": 0.166,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/native-green.log"
+    },
+    "green_test_total": 35,
+    "quality": [
+      {
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/ruff-check.log"
+      },
+      {
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "files": 2,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/ruff-format.log"
+      },
+      {
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/mypy integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py",
+        "exit": 0,
+        "files": 2,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/mypy.log"
+      },
+      {"command": "git diff --check", "exit": 0}
+    ],
+    "earlier_attempts_preserved": [
+      {
+        "kind": "HARNESS_ROUTING_FAILURE",
+        "exit": 1,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-red.log",
+        "cause": "Initial numeric-connect test replacement also intercepted the local AF_UNIX connect. Corrected only that scratch seam to delegate AF_UNIX to the real original loop.sock_connect; zero provider effects."
+      },
+      {
+        "kind": "NEGATIVE_HYPOTHESIS_CONTROL",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-red2.log",
+        "result": "Baseline pooled transport with immediate responses survived six polls and cancelled, so unconditional failure at connection age was not assumed."
+      },
+      {
+        "kind": "FRESH_CONNECTION_DIFFERENTIAL_CONTROL",
+        "exit": 0,
+        "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-fresh-control.log",
+        "result": "Only test transport pooling changed before product edit; delayed fifth poll then succeeded through cancellation."
+      },
+      {
+        "kind": "QUALITY_FINDINGS_FIXED",
+        "result": "First check found a forward local class annotation and redundant return parentheses in the new test. Moved the annotation after the class and normalized only that return. Final Ruff/check-format/mypy all exit0; no gate weakened."
+      }
+    ]
+  },
+  "source_vs_real_boundaries": {
+    "real_exercised": [
+      "Current worktree RuntimeHost._oauth_flow and NativeOAuth with an actual Host-owned lifeline and renewed existing grants",
+      "Exact read-only pinned producer functions extracted by AST, including the full native login worker and poll loop",
+      "Real HTTPX/HTTPcore pooling, HTTP/1.1 framing and SSL verification against a fixture-only local CA with the expected hostname",
+      "Real local TLS server, UDS listener, relay copy tasks, resolver thread ownership and cancellation settlement"
+    ],
+    "substituted": [
+      "Management request dispatch directly invokes NativeOAuth.operate; no management HTTP server or external API/PG was launched",
+      "Native auth constants and save sink replaced with synthetic constants and an assertion refusing any save; no native credential store import",
+      "DNS returns a fixed validated public sockaddr without any actual DNS; numeric connect is intercepted before any network syscall",
+      "Relay upstream raw socket is replaced with an owned local UDS TLS endpoint; the local CA is injected only into the test transport",
+      "The repository regression uses a synthetic NetworkStream and real HTTPcore parsing/pooling; it is not independently an SSL or provider integration proof"
+    ],
+    "cli_subprocess_boundary": "PARTIAL/UNVERIFIED: existing test_forwarder subprocess invocation does not propagate explicit worktree sys.path or -B. Discovered at final boundary inspection; no further probe or cleanup was attempted after the runtime stop notice. This does not affect the explicitly worktree-bound API regression or local TLS reproduction.",
+    "not_run": [
+      "Browser/API/PostgreSQL end-to-end",
+      "Installed API/CLI/OCI or current-instance validation",
+      "Provider/account approval, token exchange/save and inference",
+      "Independent review, parent integration and canonical make check"
+    ],
+    "historical_operation": "5715487d-2a5f-4992-8671-01e62f121301",
+    "historical_cause": "UNKNOWN",
+    "historical_FAIL_INDETERMINATE_preserved": true
+  },
+  "review": {
+    "self_review": "SCOPED_ONLY: read callers, policy guards, native poll/error semantics and exact diff; no additional blocking finding established.",
+    "independent_review": "NOT_RUN: this developer was explicitly forbidden to delegate; parent owns the independent acceptance gate.",
+    "ship_or_integration_approval": false
+  },
+  "cleanup_local_exact": {
+    "tls_fixtures": "Each owned TemporaryDirectory removed, including its generated local certificate/private key and UDS paths.",
+    "readback": "Final recursive lstat restricted to the owned developer scratch subtree found zero sockets, key.pem, cert.pem or tls-* directories.",
+    "local_tls_leftovers": [],
+    "worker": "Native worker joined; active=false in both failing consumer and final passing consumer cleanup outputs.",
+    "relay": "listener.close and wait_closed completed; resolver drainage verified by the existing owner; auth socket explicitly unlinked.",
+    "local_server": "All accepted test writers aborted/closed and server tasks awaited before listener wait_closed.",
+    "lifeline": "Host writer revoked and owned read fd closed.",
+    "preserved": "Scratch reproduction, patch, sanitized logs and explicitly directed parent test/type caches retained under the developer scratch root; only the two intended tracked repository files are modified. Possible ignored bytecode/cache writes from existing CLI test subprocesses remain UNVERIFIED; no unknown cache was deleted or restored.",
+    "no_active_instance_cleanup_attempted": true
+  },
+  "constraints": {
+    "no_delegation": true,
+    "no_install_or_global_configuration": true,
+    "no_docs_or_instructions_modified": true,
+    "forbidden_documents_Omnis_Notite_Originale_html_and_tools_development_ponytail_json_not_read_copied_hashed_or_modified": true,
+    "no_active_instance_browser_private_profile_auth_json_private_logs_Docker_PG_OCI_or_provider_access": true,
+    "distribution_pin_overlay_unchanged": true,
+    "no_new_repo_harness_observer_framework": true,
+    "historical_harness_cycle_count_not_reset": true
+  },
+  "rest": [
+    "Resolve the existing CLI test subprocess source/-B/cache boundary before crediting its installed-style child coverage or claiming all test cache writes were confined. No final rerun was performed after the runtime stop notice.",
+    "Parent must independently review the exact two file hashes and candidate patch, adjudicate this SOURCE-scoped fix and commit only intended changes.",
+    "Historical early INDETERMINATE remains unexplained; do not present this deterministic later-age failure as its exclusive cause.",
+    "No authorization was consumed for a new provider QA; any later distribution/live attempt requires the parent's separate reviewed scope and operator authorization.",
+    "Full canonical make check remains NOT_RUN here because its PG/Docker effects were explicitly forbidden."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Re-review independent READ-ONLY exclusiv OAUTH-SAFETY-F01: plafon100 păstrat și retirement per poll; nu acceptare installed sau integrare.",
+  "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "head_initial_and_final": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+  "worktree": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+  "files": [
+    {"path": "integrations/hermes/src/omnis_hermes/management_oauth.py", "sha256": "b2331326542c779353a1f9184ce0cfb8f9f38172ec539e7923ddb4d9324586a9", "lines": "47-57,136-140"},
+    {"path": "api/tests/test_provider_oauth_source.py", "sha256": "51f65ebbf7c578f1fc4ecdd858dfd01d54b2a867e5e617496c5ed2db788ef9c3", "lines": "238-305; cap295-298"}
+  ],
+  "finding": {
+    "id": "OAUTH-SAFETY-F01",
+    "disposition": "FIX_VERIFIED_SOURCE_SCOPED_RECOMMENDED_FOR_PARENT_CLOSURE",
+    "evidence": "Linia52 păstrează explicit max_connections=100; testul existent verifică plafonul real și închiderea fiecăruia dintre cele două streamuri403/404. Comparația fără rețea confirmă100->100, keepalive20->0, expiry5->5, retries0->0 și toate timeouturile15.",
+    "new_findings": [],
+    "integration_or_tracked_finding_closed_by_reviewer": false
+  },
+  "delta_binding": "Inversarea numai în memorie a parametrului max_connections și a celor4linii noi de test reproduce exact SHA256 din reviewul original pentru ambele fișiere. Nicio altă schimbare față de snapshotul anterior; callerul client_factory și bucla managed de polling au fost recitite focalizat.",
+  "native_producer": {"path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source/hermes_cli/web_routers/oauth.py", "sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7", "unchanged": true},
+  "runtime_requested": "openai-codex/gpt-6.1-sol/xhigh",
+  "runtime_observed": {"provider": "openai-codex", "model": "gpt-6.1-sol", "reasoning": "xhigh", "evidence": "Contextul sesiunii și flagurile allowlisted ale strămoșului Hermes PID2142665: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh", "fallback_downgrade_delegation": false},
+  "execution_common": {
+    "cwd": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "version": "3.13.15",
+    "flags": ["-I", "-B", "-X", "pycache_prefix=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/cache/pycache"],
+    "environment_mode": "env -i; umask077; output directories0700",
+    "environment": {"PATH": "/usr/bin:/bin", "HOME": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/home", "TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/r2", "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/cache", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+    "sys_path_prefix": ["/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/api/src", "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work/integrations/hermes/src"],
+    "log_root": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview"
+  },
+  "commands": [
+    {"id": "source-final", "argv_tail": ["-c", "import sys; root=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work\"; sys.path[:0]=[root+\"/api/src\",root+\"/integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main([\"-c\",root+\"/api/pyproject.toml\",root+\"/api/tests/test_provider_oauth_source.py\",\"-q\",\"--tb=no\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/r2/p\"]))"], "exit": 0, "passed": 18, "failed": 0, "skipped": 0, "seconds": 1.50, "log": "source-final.log"},
+    {"id": "pool-comparison", "argv_tail": ["-c", "import sys,json,socket; from unittest.mock import patch; root=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work\"; sys.path[:0]=[root+\"/api/src\",root+\"/integrations/hermes/src\"]; import httpx; from omnis_hermes.management_oauth import FixedClient;\nwith patch.object(socket.socket,\"connect\",side_effect=RuntimeError(\"Network denied\")), patch.object(socket,\"getaddrinfo\",side_effect=RuntimeError(\"DNS denied\")), httpx.HTTPTransport(uds=\"/runtime/auth-egress.sock\",retries=0,trust_env=False) as baseline, FixedClient(lambda: None) as candidate:\n a=baseline._pool; b=candidate.client._transport._pool; fields=(\"_max_connections\",\"_max_keepalive_connections\",\"_keepalive_expiry\",\"_retries\"); data={\"baseline\":{k:getattr(a,k) for k in fields},\"candidate\":{k:getattr(b,k) for k in fields},\"timeout\":candidate.client.timeout.as_dict(),\"network_requests\":0}; ok=a._max_connections==b._max_connections==100 and b._max_keepalive_connections==0 and a._keepalive_expiry==b._keepalive_expiry==5.0 and a._retries==b._retries==0 and all(v==15 for v in data[\"timeout\"].values())\nprint(json.dumps(data)); raise SystemExit(0 if ok else 1)"], "environment_override": {"TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/tmp", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "UNSET"}, "exit": 0, "comparison_passed": 1, "network_requests": 0, "log": "pool-comparison.log"},
+    {"id": "source-initial", "same_as": "source-final", "overrides": {"TMPDIR": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/tmp", "basetemp": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/tmp/pytest"}, "exit": 1, "passed": 17, "failed": 1, "seconds": 1.15, "log": "source-tests.log"},
+    {"id": "source-diagnostic", "same_as": "source-initial", "overrides": {"target": "api/tests/test_provider_oauth_source.py::test_host_connect_poll_cancel_uses_one_slot_and_current_read", "tb": "short", "basetemp": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/limit-rereview/tmp/pytest-diagnostic"}, "exit": 1, "passed": 0, "failed": 1, "seconds": 0.75, "log": "source-diagnostic.log"},
+    {"id": "snapshot-final", "command": "git status --short --branch; git rev-parse HEAD; git diff --cached --stat; git diff --check; API Python -I -B SHA256 comparison of exact two paths and original report", "exit": 0, "matching_source_hashes": 2, "original_report_unchanged": true}
+  ],
+  "retained_failure": "Ambele exit1 proprii sunt același defect de harness: testul Host eșuează la sock.bind în runtime_host.py:168 cu OSError AF_UNIX path too long. Am scurtat numai TMPDIR/basetemp în propriul review-safety/r2; fără editare de produs, ștergeri de cache sau slăbirea testelor. Rularea finală18PASS păstrează separat aceste două încercări eșuate.",
+  "own_counts": {"final_source_passed": 18, "final_source_failed": 0, "final_source_skipped": 0, "no_network_comparison_passed": 1, "nonzero_terminal_invocations": 2, "unresolved_blocking_findings_in_delta": 0},
+  "author_evidence": {"report": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-developer-limit-fix.json", "RED1_GREEN18_quality0": "Citit și reutilizat ca dovadă a autorului; RED/quality nu au fost rerulate sau prezentate drept execuții proprii."},
+  "prior_review_reused": {"path": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-safety.json", "sha256": "44d0cf8486eb8db6c0c024f11016ac0f608f2fb001535f7feae04496beaa4077", "preserved": true, "scope": "Restul concluziilor safety neafectate rămân scoped; acest raport nou dispune numai fixul F01."},
+  "limits": ["SOURCE/synthetic UDS NetworkStream cu HTTPX/HTTPcore reale; comparație reală de configurare fără rețea, nu TLS/provider/installed acceptance.", "Nu au fost rerulate16CLI, native precedence, TLS/UDS, broad canonical sau auditul repo. Incertitudinea istorică CLI child/cache rămâne exclusă din credit.", "Historical early native INDETERMINATE rămâne FAIL/cauzăUNKNOWN; nicio atribuire nouă și niciun retry live aprobat.", "Fără acces la cele două fișiere protejate, provider/PG/OCI/browser/conturi/private profiles; fără instalare/global/delegare/produs editat/commit/push. Nu s-a lansat server TLS sau proces background nou; transporturile comparației au fost închise."],
+  "handoff": {"AICI": "OAuth pooling candidate SOURCE_PASS / APPROVED_SCOPED pe cele două SHA exacte", "integration": "PENDING_PARENT_ADJUDICATION_AND_COMMIT", "P4a_phase2": "NOT_CLOSED_BY_THIS_REVIEW", "next": "Părintele adjudecă F01 și integrează; reviewerul nu închide integrarea și nu autorizează live."}
+}

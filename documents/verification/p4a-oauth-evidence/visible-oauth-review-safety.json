@@ -1,0 +1,260 @@
+{
+  "report_type": "INDEPENDENT_READ_ONLY_SOURCE_SAFETY_REVIEW",
+  "verdict": "CHANGES_REQUESTED",
+  "summary": "Retragerea conexiunii după fiecare răspuns rezolvă mecanismul pooling/relay demonstrat și păstrează guardurile traseului analizat. Totuși, noul httpx.Limits elimină implicit plafonul separat max_connections=100; cerința de a nu schimba celelalte limite nu este respectată. Nu este o constatare de exploatare prin producerul secvențial actual.",
+  "runtime_requested": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "fallback": false,
+    "delegation": false
+  },
+  "runtime_observed": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "evidence": "Contextul runtime declară openai-codex/gpt-6.1-sol. Inspecția read-only a lanțului /proc al procesului curent a identificat strămoșul Hermes PID 2132272 cu --provider openai-codex --model gpt-6.1-sol --reasoning xhigh. Au fost emise numai aceste flaguri, nu mediul sau argv integral.",
+    "fallback_or_downgrade_used": false,
+    "delegation_used": false,
+    "limit": "Flagurile procesului și contextul sesiunii sunt observația disponibilă; nu a fost interogat providerul pentru o atestare externă."
+  },
+  "instructions": {
+    "read": [
+      "/home/kali/.hermes/SOUL.md",
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "README.md",
+      "ponytail:ponytail",
+      "ponytail:ponytail-review",
+      ".hermes/skills/omnis-review-qa/SKILL.md",
+      ".hermes/skills/omnis-project-status/SKILL.md"
+    ],
+    "skill_lookup_limit": "skill_view('omnis-review-qa') a returnat not found; skill-ul proiectului a fost încărcat prin read_file din checkoutul exact. Nicio instalare sau modificare de loader.",
+    "ponytail_level": "full"
+  },
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work",
+    "branch": "work/p2-oauth-ui2",
+    "base": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "head_at_start": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "head_at_hash_readback": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
+    "diff_sha256": "711e7bfd5ccd53cb56b3bdbf580f957863ba995fbfe94652a4fccea812f78a76",
+    "index_changes": false,
+    "owned_product_edits": false,
+    "files": [
+      {
+        "path": "integrations/hermes/src/omnis_hermes/management_oauth.py",
+        "sha256": "ccde167e32d6e32df2ff19f36385eff8a3bcad8816303a0012bdc9c5e3d16f80",
+        "base_sha256": "860b339fa98388ff7253ac1c7de5fcd138b35fa450ae99ed650dd134ecd3be0f",
+        "matches_requested_and_final_readback": true
+      },
+      {
+        "path": "api/tests/test_provider_oauth_source.py",
+        "sha256": "7443344cab17effd36f8c6d154b45dc574704f15489f682f893d1a326d2bf044",
+        "base_sha256": "059a38650d2c77cef30d131047bd5854c018c5624e2d277743d625ee23e7775c",
+        "matches_requested_and_final_readback": true
+      }
+    ],
+    "native_producer": {
+      "path": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source/hermes_cli/web_routers/oauth.py",
+      "sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+      "access": "READ_ONLY_SOURCE",
+      "reviewed_lines": "157-338"
+    },
+    "initial_and_final_git_status": "Doar cele două fișiere frozen sunt modificate; indexul nu are modificări. Niciun commit/push/integration efectuat de reviewer."
+  },
+  "scope": {
+    "requirement": "Polling OAuth legitim rămâne pending fără reutilizarea unei conexiuni îmbătrânite sub relay total15s; anulare onestă; fără schimbarea autorității, retry-urilor sau celorlalte limite.",
+    "consumer": "RuntimeHost._oauth_flow -> management_server flow -> NativeOAuth.operate -> producerul managed _codex_full_login_worker/_codex_poll_authorization -> client_factory -> FixedClient -> HTTPX/HTTPcore -> relay auth UDS.",
+    "load_assumption": "Un singur operator, un singur worker OAuth admis, polling secvențial conform producerului citit.",
+    "connected_source_reviewed": [
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:330-428,430-459",
+      "integrations/hermes/src/omnis_hermes/management_server.py:115-214",
+      "integrations/hermes/src/omnis_hermes/management_oauth.py:25-338",
+      "api/tests/test_provider_oauth_source.py:1-639",
+      "integrations/hermes/tests/test_native_build.py:44-139",
+      "cli/src/omnis_cli/forwarder.py:306-425",
+      "Producerul nativ exact:157-338",
+      "api/pyproject.toml și api/tests/conftest.py pentru admiterea testelor fără PG",
+      "HTTPX0.28.1/HTTPcore1.0.9 instalate: construcția transportului, Limits/defaults, conectare/TLS/retries, pool și închiderea streamului"
+    ],
+    "not_general_repository_audit": true
+  },
+  "findings": [
+    {
+      "id": "OAUTH-SAFETY-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "UNINTENDED_LIMIT_CHANGE",
+      "file": "integrations/hermes/src/omnis_hermes/management_oauth.py",
+      "line": 52,
+      "related_test": "api/tests/test_provider_oauth_source.py:238-301",
+      "title": "Noul Limits elimină plafonul separat de conexiuni",
+      "what_this_is": "Transportul original omite limits și primește HTTPX DEFAULT_LIMITS cu max_connections=100. Modificarea vrea numai dezactivarea conexiunilor păstrate între poll-uri.",
+      "concrete_problem": "httpx.Limits(max_keepalive_connections=0) nu păstrează celelalte câmpuri din DEFAULT_LIMITS: max_connections este implicit None. HTTPcore transformă None în sys.maxsize. Citirea celor două pool-uri reale, fără nicio cerere de rețea, a arătat baseline100 versus candidate9223372036854775807. keepalive_expiry=5.0 și retries=0 au rămas identice.",
+      "requirement_violated": "Păstrarea celorlalte limite/bugete în această remediere adapter-only; numai retenția keepalive trebuie schimbată.",
+      "reproducer": {
+        "kind": "NO_NETWORK_REAL_TRANSPORT_CONFIGURATION",
+        "artifact": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/pool-limits.log",
+        "procedure": "Construiește HTTPTransport cu exact argumentele din baza frozen, construiește FixedClient curent, compară baseline._pool._max_connections cu candidate.client._transport._pool._max_connections și închide ambele. Niciun post/connect/TLS nu este executat.",
+        "expected": "100 în ambele pool-uri",
+        "observed": {"baseline": 100, "candidate": 9223372036854775807},
+        "exit": 1,
+        "failed_predicates": 1,
+        "network_requests": 0
+      },
+      "minimal_fix": "Păstrează explicit max_connections=100 în același httpx.Limits(max_connections=100, max_keepalive_connections=0). Extinde testul existent cu o verificare mică a plafonului păstrat; nu introduce un nou helper, configurator sau harness.",
+      "if_skipped": "Snapshotul livrează o relaxare de limită necerută, iar cele18teste rămân verzi fără să o detecteze.",
+      "reachability_limit": "Producerul citit folosește un singur client secvențial și ownerul admite un worker. Nu am demonstrat depășirea a100conexiuni pe acest flux, bypass de singleton, trafic suplimentar sau exploit. Findingul este incompatibilitatea deterministă de configurare cu cerința explicită, nu o asemenea revendicare."
+    }
+  ],
+  "review_results": [
+    {
+      "requirement": "Fiecare răspuns finalizat retrage conexiunea înainte de poll-ul următor",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Noul test rulează HTTPX/HTTPcore reale cu stream sintetic UDS, răspunsuri403/404, assert closed după fiecare post și exact două conectări. PoolByteStream.close reasignează pool-ul; max_keepalive_connections=0 retrage conexiunea devenită idle."
+    },
+    {
+      "requirement": "Autoritate, Stop și anulare fără succes fals",
+      "result": "NO_ADDITIONAL_BLOCKING_FINDING_ESTABLISHED_SCOPED",
+      "evidence": "before_send/trace continuă să verifice ownerul curent; limita de grant/lifeline și expirarea900s nu sunt editate. Guardul post-header rămâne conservator. NativeOAuth așteaptă active=false înainte de terminal; status error precedă cancel/expiry, iar producerul serializează cancel/save pe același lock. Testele SOURCE de lifeline/Stop/settlement trec.",
+      "limit": "Nu este o probă installed/native/provider de Stop fizic sau token save."
+    },
+    {
+      "requirement": "TLS/SNI/URL/secrete și no-resend",
+      "result": "NO_ADDITIONAL_BLOCKING_FINDING_ESTABLISHED_SCOPED",
+      "evidence": "UDS fix, verify implicit true, trust_env=false, redirects=false, retries=0 și timeout15 sunt păstrate. Allowlist POST/URL/Host/extensions/headers, corp decoded1MiB și challenge finit rămân identice. Producerul managed are un singur attempt la POST și propagă erorile de polling fără retry. Noile conexiuni execută din nou verificările de conectare/TLS; nu redispatch-uiesc o cerere eșuată.",
+      "limit": "Regresia nouă verifică SSLContext/SNI la un start_tls sintetic; nu dovedește negociere TLS/provider."
+    },
+    {
+      "requirement": "Închidere răspuns și failure",
+      "result": "NO_ADDITIONAL_BLOCKING_FINDING_ESTABLISHED_SCOPED",
+      "evidence": "Hook-ul existent consumă corpul; redirect și body-limit închid răspunsul. Închiderea pool-ului la ieșirea contextului rămâne. Citirea implementării HTTPcore confirmă că retragerea conexiunii idle închide streamul, fără callback de autoritate legat de request în HTTPConnection.close.",
+      "limit": "Nu a fost adăugată o matrice nouă de fault injection; nu revendic absența tuturor defectelor preexistente."
+    },
+    {
+      "requirement": "Simplitate și mentenanță",
+      "result": "MINIMAL_APPROACH_WITH_ONE_REQUIRED_LIMIT_CORRECTION",
+      "evidence": "Un parametru al transportului existent este suficient; fără dependență, wrapper, retry sau modificare de relay. Testul folosește un seam privat HTTPcore fixat1.0.9; este o cuplare locală explicită, nu un motiv pentru infrastructură nouă. Costul suplimentar DNS/TLS per poll este deliberat."
+    }
+  ],
+  "own_commands": [
+    {
+      "purpose": "Bind frozen snapshot and scope",
+      "command": "pwd; git status --short --branch; git diff --stat; git rev-parse HEAD; git diff -- integrations/hermes/src/omnis_hermes/management_oauth.py api/tests/test_provider_oauth_source.py; /home/kali/OmnisAI/api/.venv/bin/python -I -B -c '<sys.version and SHA256 of exact two paths>'",
+      "exit": 0,
+      "result": "HEAD și ambele SHA256 coincid; Python3.13.15."
+    },
+    {
+      "purpose": "Verify requested runtime without changing configuration",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '<walk own /proc ancestry and print only --provider/--model/--reasoning>'",
+      "exit": 0,
+      "result": "PID2132272: openai-codex/gpt-6.1-sol/xhigh."
+    },
+    {
+      "purpose": "Private output prerequisite and installed dependency availability",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c '<mkdir/lstat only review-safety and its tmp/cache/home; importlib.metadata versions>'; git diff --check",
+      "exit": 0,
+      "result": "review-safety este director nonsymlink deținut de UID curent,0700; pytest9.1.1/httpx0.28.1/httpcore1.0.9/pytest-asyncio1.4.0; diff-check0."
+    },
+    {
+      "purpose": "Pending retirement, guards, Stop and settlement regression gate",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/home TMPDIR=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/tmp XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/cache PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; root=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work\"; sys.pycache_prefix=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/cache/pycache\"; sys.path[:0]=[root+\"/api/src\",root+\"/integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main([\"-c\",root+\"/api/pyproject.toml\",root+\"/api/tests/test_provider_oauth_source.py\",\"-q\",\"--tb=no\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/tmp/pytest\"]))'",
+      "exit": 0,
+      "tests_passed": 18,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "seconds": 1.36,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/api-focused.log",
+      "limit": "SOURCE/synthetic only. Conftest și fixture-urile selectate au fost citite înainte; nu folosesc PG. Testul lifeline existent lansează numai copilul său Python -I -B, nu CLI suite; acel comportament neschimbat nu primește credit de installed acceptance."
+    },
+    {
+      "purpose": "Concrete doubt: does new Limits preserve existing connection budget?",
+      "command": "env -i PATH=/usr/bin:/bin HOME=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/home TMPDIR=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/tmp XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/cache /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,json; sys.pycache_prefix=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/cache/pycache\"; root=\"/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-work\"; sys.path[:0]=[root+\"/api/src\",root+\"/integrations/hermes/src\"]; import httpx; from omnis_hermes.management_oauth import FixedClient; baseline=httpx.HTTPTransport(uds=\"/runtime/auth-egress.sock\",retries=0,trust_env=False); candidate=FixedClient(lambda: None); a=baseline._pool; b=candidate.client._transport._pool; data={\"baseline\":{\"max_connections\":a._max_connections,\"max_keepalive_connections\":a._max_keepalive_connections,\"keepalive_expiry\":a._keepalive_expiry,\"retries\":a._retries},\"candidate\":{\"max_connections\":b._max_connections,\"max_keepalive_connections\":b._max_keepalive_connections,\"keepalive_expiry\":b._keepalive_expiry,\"retries\":b._retries},\"network_requests\":0}; baseline.close(); candidate.client.close(); print(json.dumps(data)); raise SystemExit(0 if data[\"baseline\"][\"max_connections\"]==data[\"candidate\"][\"max_connections\"] else 1)'",
+      "exit": 1,
+      "failed_predicates": 1,
+      "network_requests": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety/pool-limits.log"
+    },
+    {
+      "purpose": "Final frozen snapshot integrity",
+      "command": "git status --short --branch; git diff --cached --stat; git diff --check; /home/kali/OmnisAI/api/.venv/bin/python -I -B -c '<SHA256 compare exact two frozen paths>'",
+      "exit": 0,
+      "frozen_hashes_matching": 2,
+      "result": "Aceleași două modificări preexistente; index neschimbat; diff-check0."
+    }
+  ],
+  "own_execution_totals": {
+    "focused_pytest_passed": 18,
+    "focused_pytest_failed": 0,
+    "focused_pytest_skipped": 0,
+    "separate_configuration_predicates_failed": 1,
+    "nonzero_terminal_invocations": 1,
+    "nonzero_reason": "Reproducerea intenționată a OAUTH-SAFETY-F01; exit1, nu eșec al suitei18.",
+    "blocked_or_missing_test_prerequisites": 0
+  },
+  "author_evidence_reused_not_independently_executed": {
+    "report": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-developer-result.json",
+    "reproducer_read_before_any_possible_run": "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/repro_poll.py",
+    "reviewer_reproducer_execution": "NOT_RUN: nu a apărut un dubiu suplimentar despre mecanismul de retragere care să justifice repetarea TLS/UDS. Findingul nou a fost reprodus fără rețea.",
+    "read_logs": [
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-age-red.log",
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/developer/poll-product-green.log"
+    ],
+    "baseline": {"reported_exit": 1, "poll_count": 5, "elapsed_seconds": 18.127, "flow_error": "AUTH_TRANSPORT_UNCERTAIN", "worker_alive_after_cleanup": false},
+    "candidate": {"reported_exit": 0, "poll_count": 6, "elapsed_seconds": 25.118, "final_oauth": "CANCELLED", "worker_alive_after_cleanup": false},
+    "boundary": "SOURCE/local TLS/UDS cu HTTPX/HTTPcore reale. Importuri management/producer, DNS/numeric-connect și save folosesc seams controlate. Nu este provider/installed proof și nu este un rezultat independent al reviewerului.",
+    "native_error_precedence": "Dovada autorului1test/6subcases este suplimentară, neschimbată; codul testului și workerul exact au fost citite, dar nu rerulate.",
+    "quality": "Ruff/format/mypy exit0 raportate de autor; nu au fost rerulate de reviewer și nu sunt prezentate ca execuții proprii.",
+    "unchanged_cli_16": "EXCLUDED_FROM_ACCEPTANCE_CREDIT; source-binding/-B/cache ale copiilor rămân UNVERIFIED. Nicio rerulare, audit recursiv sau ștergere de cache."
+  },
+  "historical_ui_failure": {
+    "state": "FAIL_INDETERMINATE_PRESERVED",
+    "polling_span_approximately_seconds": 6.7,
+    "cause": "UNKNOWN",
+    "attribution_to_this_reproducer": false,
+    "blind_live_retry_approved": false,
+    "phase2_closed": false
+  },
+  "coverage_limits": {
+    "acceptance_level": "INDEPENDENT_SOURCE_REVIEW_ONLY_NOT_INSTALLED_ACCEPTANCE",
+    "not_run": [
+      "Provider/accounts/token exchange/save/inference",
+      "Browser/UI actuală",
+      "API/PostgreSQL/OCI/installed distribution",
+      "Broad suite/canonical make check",
+      "Subprocess CLI suite",
+      "Rerulare proprie a reproducerii TLS/UDS sau a native precedence"
+    ],
+    "remaining_risk": "Handshake/DNS nou per poll este costul fixului. Timeouturile relay/request și expirările rămân finite; acest review nu garantează toate comportamentele rețelei și nu explică eșecul UI istoric.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "write_and_effect_boundary": {
+    "allowed_outputs": [
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/review-safety",
+      "/home/kali/.hermes/cache/scratch/ui2-7bnsuo2_/oauth-review-safety.json"
+    ],
+    "product_edited": false,
+    "commit_or_push": false,
+    "installation_or_global_configuration": false,
+    "provider_pg_oci_browser_accounts_private_profiles_access": false,
+    "forbidden_documents_Omnis_Notite_Originale_html_and_tools_development_ponytail_json_access": false,
+    "author_artifacts_overwritten": false,
+    "unknown_caches_deleted": false,
+    "new_background_processes_or_tls_resources": false,
+    "own_transport_objects_closed": true,
+    "own_test_process": "Foreground terminal command completed exit0; existing fixture lifeline child is awaited by its test. No installed-family drain claim.",
+    "cache_policy": "Python -I -B; parent pycache lookup redirected to private output; pytest cacheprovider disabled; clean allowlisted environment and private HOME/TMPDIR/XDG_CACHE_HOME/--basetemp. No universal OS confinement or unchanged child-cache attestation claimed."
+  },
+  "handoff": {
+    "integration_owner": "Parent",
+    "next_action": "Dezvoltatorul păstrează max_connections=100 în aceeași modificare minimă și acoperă regresia de plafon în testul existent; rerulează affected18 și cere re-review focalizat pe noii bytes. Părintele adjudecă findingul și decide integrarea/commitul.",
+    "status_delta": [
+      {"slice": "AICI OAuth adapter pooling", "implementation": "CANDIDATE_UNCOMMITTED", "proof": "18_SOURCE_PASS_AND_1_LIMIT_REGRESSION_REPRODUCED", "review": "CHANGES_REQUESTED"},
+      {"slice": "P4a-minim / historical Connect", "implementation": "PARTIAL", "proof": "HISTORICAL_FAIL_INDETERMINATE_CAUSE_UNKNOWN", "review": "NOT_CLOSED_BY_THIS_REVIEW"},
+      {"slice": "P2-live / phase2", "implementation": "NO_STATUS_PROMOTION", "proof": "NOT_RUN_HERE", "review": "NOT_CLOSED"}
+    ],
+    "no_installation_or_live_retry_authorization": true
+  }
+}

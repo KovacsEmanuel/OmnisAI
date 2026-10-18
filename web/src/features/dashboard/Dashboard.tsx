@@ -34,9 +34,9 @@ export function Dashboard() {
       </div>
       <div className={styles.availability}><span className={styles.state}>{projection.data.attention_state}</span><p id="assessment-unavailable">{copy.runReason}</p></div>
       <div className={styles.recentHead}><h2>{copy.recent}</h2><button disabled={query.isFetching} onClick={() => { void query.refetch(); }}>{copy.refresh}</button></div>
-      <p className={styles.metadata}>{copy.snapshot} <time>{projection.as_of}</time> · {stale ? copy.unavailable : copy.live}</p>
+      <p className={styles.metadata}>{copy.snapshot} <time>{projection.as_of}</time></p>
       <div className={styles.bento}>
-        {projection.data.items.length === 0 && <div className={styles.panel}><div className={styles.core}><p>{copy.empty}</p></div></div>}
+        {projection.data.items.length === 0 && <p className={styles.empty}>{copy.empty}</p>}
         {projection.data.items.map(item => <article className={styles.panel} key={item.engagement_id}><div className={styles.core}>
           <p className={styles.kicker}>{item.assessment_mode} · {item.stage}</p><h3><Link to={`/engagements/${item.engagement_id}/overview`}>{item.name}</Link></h3>
           <p className={styles.metadata}>{item.engagement_id}</p><p>Revision {item.revision} · {item.run_state}</p>

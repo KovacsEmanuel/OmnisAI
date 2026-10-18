@@ -57,7 +57,7 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
   expect(within(screen.getByRole('region', { name: 'Total engagements' })).getByText('1')).toBeVisible();
   expect(screen.queryByRole('heading', { name: 'Needs your review' })).not.toBeInTheDocument();
   expect(screen.queryByRole('heading', { name: 'Workspace pulse' })).not.toBeInTheDocument();
-  const reason = 'Assessment execution is unavailable in this build. Findings, coverage, model cost and review queues are unavailable, not zero.';
+  const reason = 'Assessments are unavailable in this build. — means unavailable, not zero.';
   expect(screen.getAllByText(reason)).toHaveLength(1);
   expect(screen.getByText(reason)).toBeVisible();
   for (const label of ['Confirmed findings', 'Coverage', 'Model cost']) {
@@ -68,7 +68,28 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
   }
   expect(screen.getByText('UNAVAILABLE')).toBeVisible();
   expect(screen.getByText(summary.engagement_id)).toBeVisible();
-  expect(screen.getByText(projection.as_of)).toBeVisible();
+  const timestamp = screen.getByText(projection.as_of);
+  expect(timestamp).toBeVisible();
+  expect(timestamp.tagName).toBe('TIME');
+  expect(timestamp.parentElement?.textContent).toBe(`As of ${projection.as_of}`);
   expect(fetcher).toHaveBeenCalledWith('/api/v1/dashboard?limit=20', expect.objectContaining({ credentials: 'same-origin', cache: 'no-store' }));
   expect(screen.queryByRole('button', { name: 'Start assessment' })).not.toBeInTheDocument();
+});
+
+it('shows an empty list as a plain section-wide message, not a pretend engagement card', async () => {
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => {
+    const path = String(input);
+    return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health
+      : { ...projection, data: { ...projection.data, total_engagements: 0, items: [] } });
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
+  const empty = await screen.findByText('No engagements saved yet.');
+  expect(empty).toBeVisible();
+  expect(empty.tagName).toBe('P');
+  expect(empty.parentElement?.parentElement).toBe(screen.getByRole('region', { name: 'Dashboard projection' }));
+  expect(screen.queryByRole('article')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('link', { name: 'New engagement' })).toHaveLength(1);
+  expect(within(screen.getByRole('region', { name: 'Total engagements' })).getByText('0')).toBeVisible();
+  expect(screen.getAllByText('—')).toHaveLength(3);
 });

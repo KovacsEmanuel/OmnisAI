@@ -1,0 +1,125 @@
+{
+  "status": "PASS_SCOPED_INSTALLED_VISIBLE_UI_AWAITING_OPERATOR_VISUAL_ACCEPTANCE",
+  "source_commit": "d253ba6c89c0a80f42cd2c2ba278a3630dab8108",
+  "source_commits": [
+    "a009980",
+    "edaad5b",
+    "3300732",
+    "fbb0638",
+    "9b04747",
+    "d253ba6"
+  ],
+  "review": "Original14-file APPROVED_SCOPED plus exact5-file density re-review APPROVED_SCOPED; no blocking findings",
+  "source_hashes": {
+    "cli/integration/installed_browser.mjs": "6294e048e68f0adb0cdde54ab8dd4da6cad504f89d667ee58adeada1ba14240c",
+    "web/src/app/App.test.tsx": "a01a84a515c8e398a93d0fe1b872cdb1646e61ecdebffdd2ef3fd379d62df776",
+    "web/src/app/Dashboard.test.tsx": "2dafece7eb68a76797f7814acb3f61af51b5e7363a086763ec4055900acf7a43",
+    "web/src/app/ProviderSettings.test.tsx": "42319c264570dd63b03558e6c49ac9ebdbaedb3003a2354275f5fe61a4605d7a",
+    "web/src/features/bootstrap/Bootstrap.module.css": "e72638e8ad7129500ccdeda802827af38a8ca24a4d6e9fd4752f72eaddb1d2e7",
+    "web/src/features/bootstrap/Bootstrap.tsx": "06a6337964101b87f4bf02df92a46b95e6f864448b4ca9e1ff2cb34abc568454",
+    "web/src/features/bootstrap/copy.ts": "a1a141c09b88beba1ae7685dd6814f0f4fd1a8890a18152291e35f8f446185e3",
+    "web/src/features/dashboard/Dashboard.module.css": "edc2e0a7856aa7ad6eb39443ab6066f78eb7331072133e18143e635166acee41",
+    "web/src/features/dashboard/Dashboard.tsx": "2fb94a767ac4394ab6eb54d859a1be262bb7dca8875d5e43f68a498c0567cd20",
+    "web/src/features/dashboard/copy.ts": "be64bd9ff09ffb6eafd9b324a7e5617293050b31e905208491a9368b1915ffcf",
+    "web/src/features/engagement/Engagement.module.css": "1a1653bd6fbbcadf753793bce600e2b9b27a1b75fbc9ca2a9c551133b96a5934",
+    "web/src/features/engagement/ProviderSettings.tsx": "c6a7de71a20232bc29e66ef1f5cee414b9349319b846b804fee950373b0f9ba0",
+    "web/src/features/engagement/Settings.tsx": "36f48f731f0d849a36ac2bc62eff20c093a67b9d2eaf3ec7e9a8fc8eefcd265b",
+    "web/tests/e2e/run.mjs": "7cdb168666c3146df0d7cd970738cedd8684c429f5a03640430546256d9f65bf"
+  },
+  "web_canonical": {
+    "command": "make check-web UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 (explicit pinned PATH and private HOME/npm config)",
+    "exit": 0,
+    "node": "v24.21.0",
+    "npm": "11.19.0",
+    "unit_tests": 96,
+    "test_files": 13,
+    "tooling_tests": 6,
+    "audit_vulnerabilities": 0,
+    "includes": "contracts export/check, tooling, typecheck, lint, full default unit suite, production build/4-file manifest, pinned versions and audit"
+  },
+  "installed": {
+    "root": "/home/kali/.omnis-p2-ui7",
+    "release_sha256": "3e71af7f707753d91f8be9b8542074bd6efaed1a2e8c191655fc670c901ca120",
+    "instance_id": "af5a562c-f05b-4953-9ae8-1b30cc90165f",
+    "project": "omnis-local-07989da02a91470baeff3a01457ecec3",
+    "state": "READY_RETAINED_FOR_OPERATOR",
+    "generation": 1,
+    "image_exit": 0,
+    "image_seconds": 44.791,
+    "start_exit": 0,
+    "start_seconds": 19.237,
+    "status_exit": 0,
+    "unchanged_sources": "API95/CLI22/native-adapter20 byte-exact; native3260 closure validated; new web/bundle/required OCI distribution",
+    "served_assets": 4,
+    "all_asset_hashes_match": true
+  },
+  "visible_qa": {
+    "native_window": 98566148,
+    "browser_pid": 2202481,
+    "debug_port": 9226,
+    "dedicated_profile": "/home/kali/.omnis-p2-ui3/browser",
+    "foreground_verified": true,
+    "source_before_images": "retained from UI5 before retirement",
+    "geometry_unique_surface_width": 12,
+    "geometry_composition": "UI7 Home/Runtime8 plus Providers4 unchanged from UI6; Providers1440 also rechecked on UI7, total13 observations for12 unique combinations",
+    "viewports": [
+      1440,
+      1280,
+      390,
+      320
+    ],
+    "home_heights": {
+      "390": {
+        "before": 1541,
+        "after": 1112,
+        "reduction": 429
+      },
+      "320": {
+        "before": 1582,
+        "after": 1153,
+        "reduction": 429
+      }
+    },
+    "runtime_session_height_desktop": 127.75,
+    "minimum_target_px": 44,
+    "home_single_creation_action": true,
+    "runtime_diagnostics": "closed by default; full exact instance ID visible after real keyboard Enter; Tab/Shift+Tab return and Space close at320, 48px target/2px ring/no occlusion; reload retains correct identity and closes disclosure",
+    "provider": "Actual native read configured=false -> save configured=true/CONFIRMED, authenticatedNOT_VERIFIED/oauthNONE; separate UI6 reload, keyboard disclosure, four widths, 200% zoom/forced colors/reduced motion. Same read/save and served assets verified on final UI7; no Connect",
+    "runtime_errors": "One CDP browser request failure before /api/logout reaches server; session200 persists; two genuine UI alerts outside disclosure and full-width/not-clipped at1440/390/320. Injection disabled, then real UI logout -> session401/instance401/private ID gone/focusH1",
+    "session_invalidation": "Actual API revocation outside App session owner then private read401 -> expired-or-revoked notice, pairing form, private ID removed/focusH1. Not elapsed TTL expiration; old unaffected temporal-expiry evidence remains separate",
+    "navigation_validation": "Single Home CTA reaches existing new wizard; empty Next gives1alert/6invalidfields/focusedDIV, dashboardcount remains0; no draft persistence or target calls",
+    "media": "Final Home/Runtime forced-colors and reduced-motion observed, transition0; native Chromium Ctrl+zoom DPR2 and restoredDPR1; no horizontal overflow. Provider same-scope media reused from UI6",
+    "pointer": "Final Home focused/visible with main outline none; keyboard summary solid2px preserved",
+    "limits": "Chromium only, no screen-reader/universal WCAG or performance benchmark; snapshots and typed DOM observations complement actual visible QA, not aesthetic approval"
+  },
+  "runtime_lifecycle": {
+    "ui6": "Original CLI Stop exit0/12.549s, separate status0/STOPPED generation2 and retained directory identities; no data/grant adoption",
+    "ui5": "At task entry supervisor exited3/OOMfalse, API remained up/control unavailable. CauseUNKNOWN. Existing emergency Stop exit4/9.295s, UNCERTAIN/RECOVERY_REQUIRED marker retained; exact4CIDs/project/networks/kernel sockets absent, data identities retained. Not normal logical STOPPED, never restart/adopt automatically",
+    "ui7": "Intentionally retained READY for operator; later status must be reobserved",
+    "older": "Previously stopped ready/ui2/ui3/ui4 scope reused; no global cleanup assertion"
+  },
+  "retained_limits_failures": {
+    "author": "Original RED5, then filler RED1 and density RED2 retained with their subsequent scoped GREEN; no weakened assertion",
+    "reviewer": "Original scratch ESM/CJS and jsdom native-keyboard failures retained; no new fixtures or reruns in focused re-review",
+    "parent_observer": "Syntax/quoting failures before effects; startup-record socket field mistaken for path; incomplete native metadata payload and noncanonical uv symlink refused before provisioning; corrected exact existing inputs. Browser index.html404 corrected to actual / route, contextual Providers link requires Runtime navigation, transient unsaved Home geometry assertion remains unclassified. Incomplete raw keyboard event/settling probe retained; correct text-bearing native events and readback pass. Double-escaped grid regex false1 is retained in geometry-first-attempt.json; raw4 columns and corrected literal split pass. Zoom declared baseline was corrected explicitly to measured after-reset baseline. Initial report transfer through tool text refused on encoded/redacted bytes; original source files transferred byte-exact instead",
+    "preexisting_installed_session_mode": "NOT_RUN as-is; starts / but then expects Runtime identity. Before selecting this mode, repair only its route/consumer; no product route change or removed assertion",
+    "full_canonical": "NOT_RUN: default NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry still reads absent inert-source/hermes_cli/web_routers/oauth.py; native test bytes unchanged. Not a new UI defect or weakened gate"
+  },
+  "live_boundary": {
+    "account_authentication": "NOT_RUN",
+    "provider_inference": "NOT_RUN",
+    "local_grant": "NOT_CHECKED_BY_NATIVE_AUTH_READ; auth/token credential filenames absent by stat-only",
+    "configured": "CONFIRMED native save/readback, not authenticated/reachable/inference_ready",
+    "p2": "NOT_CLOSED; P2-inert/G02-inert and controlled native7a2ac5a reused only at their scope",
+    "historical_oauth": "Old FAIL/INDETERMINATE causes remainUNKNOWN; 27f86d1 pre-auth32.411s unchanged logic reused, not rerun for presentation"
+  },
+  "private_evidence": {
+    "archive": "/home/kali/.omnis-p2-ui7/recovery/clean-ui-evidence.tar.gz",
+    "sha256": "165f80417d7587ff4605d966592af601dc5af30a593e0912c4515abafaf39b7d",
+    "members": 70,
+    "bytes": 3771220,
+    "mode": "0600",
+    "excludes": "browser profiles/cookies/credentials/capabilities/PGDATA/raw private logs; not off-device backup"
+  },
+  "handoff": "User requested this implementation+visible QA, then next-session prompt. No successor started. Current CLI environment/recovery in UI7/recovery/intent.json; operator visual confirmation and auth stay separate."
+}

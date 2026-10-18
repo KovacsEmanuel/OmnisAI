@@ -1,0 +1,110 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review_type": "Focused independent read-only re-review of density delta only",
+  "base": "7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+  "head": "b9400e83139df9fd45d58312c9decb4748da351b",
+  "worktree": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/work",
+  "working_tree_observed": "CLEAN; requested HEAD verified",
+  "may_integrate_in_declared_scope": true,
+  "integration_decision": "This exact five-file density delta is eligible for parent integration within the declared presentation scope. No blocking finding was identified. This does not certify that integration occurred, that installed density improved, or that the application is universally gap-free. Parent must exercise the affected final installed artifact before closing QA.",
+  "execution": {
+    "provider_model_effort_requested": "openai-codex/gpt-6.1-sol/xhigh",
+    "reasoning_setting_independently_introspected": false,
+    "fallback": false,
+    "delegation": false,
+    "product_test_config_rule_edits": false,
+    "new_fixtures_or_harness": false,
+    "browser_services_api_db_provider_calls": false,
+    "commits": false,
+    "writes": "This new scratch report and existing Vitest cache within the worktree's private dependencies only"
+  },
+  "what_this_change_does": "What this change does: Home uses two mobile metric columns, smaller metric/creation-card padding and a plain full-width empty-list message. It shortens shared unavailable copy while retaining the complete timestamp and explicit stale warning; Runtime aligns the existing browser-session title, state and logout with wrapping rows for boundary text and errors.",
+  "scope": [
+    "Dashboard presentation/CSS/copy/test only",
+    "Four compact Runtime/sessionRow CSS rules; existing Bootstrap markup and session owner remain unchanged",
+    "Connected metric descriptions, stale/pagination/timestamp consumers and default Bootstrap selector isolation"
+  ],
+  "changed_count": 5,
+  "changed_files": [
+    {"path":"web/src/app/Dashboard.test.tsx","sha256":"2dafece7eb68a76797f7814acb3f61af51b5e7363a086763ec4055900acf7a43"},
+    {"path":"web/src/features/bootstrap/Bootstrap.module.css","sha256":"e72638e8ad7129500ccdeda802827af38a8ca24a4d6e9fd4752f72eaddb1d2e7"},
+    {"path":"web/src/features/dashboard/Dashboard.module.css","sha256":"edc2e0a7856aa7ad6eb39443ab6066f78eb7331072133e18143e635166acee41"},
+    {"path":"web/src/features/dashboard/Dashboard.tsx","sha256":"2fb94a767ac4394ab6eb54d859a1be262bb7dca8875d5e43f68a498c0567cd20"},
+    {"path":"web/src/features/dashboard/copy.ts","sha256":"be64bd9ff09ffb6eafd9b324a7e5617293050b31e905208491a9368b1915ffcf"}
+  ],
+  "input_binding": {
+    "author_report": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-fix.json",
+    "patch": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-fix.patch",
+    "patch_sha256": "c4a0fe50a500186a5120ebc60063d3059207406bd1f29727ccb8fda248cc7c5c",
+    "verified": "Exactly five changed paths. Current file hashes, base file hashes and HEAD blobs agree with the author's manifest; patch SHA matches and reverse-apply check passes. No protected file content was accessed."
+  },
+  "findings": [],
+  "focused_assessment": [
+    {
+      "requirement": "Compact Runtime CSS must not hide critical state, errors, outputs or Logout; default Bootstrap must remain unaffected",
+      "references": ["web/src/features/bootstrap/Bootstrap.module.css:24-27", "web/src/features/bootstrap/Bootstrap.tsx:12-20", "web/src/features/bootstrap/Bootstrap.tsx:50-88"],
+      "result": "PASS_SOURCE_SCOPED",
+      "reason": "Every new selector requires both runtime and sessionRow. Default Bootstrap uses neither compact runtime nor sessionRow, so these additions do not match it. The session core wraps; heading, paired/unverified pill and Logout retain normal order, with Logout pushed to the row end. Direct boundary/warning paragraphs, output and the error container get a full flex basis, min-width0 and order1, without display:none, clipping, fixed heights or truncation. The error container retains its role=alert and nested Retry action. No new focusable element or changed DOM/handler is introduced; the CSS order change affects explanatory/error rows, not the order of actionable controls. Session-wide notices, readiness, stale/unknown state and instance errors outside this row are unchanged. Existing App tests, including logout uncertainty and stale/expiry cases, pass.",
+      "limit": "Actual wrapping, Logout placement, focus ring geometry and error-row visibility at installed viewports require parent QA; jsdom tests do not prove those pixels."
+    },
+    {
+      "requirement": "Mobile density change preserves honest and accessible metrics, creation action and empty state",
+      "references": ["web/src/features/dashboard/Dashboard.module.css:9-26", "web/src/features/dashboard/Dashboard.module.css:33", "web/src/features/dashboard/Dashboard.tsx:24-39", "web/src/features/dashboard/copy.ts:4-8", "web/src/app/Dashboard.test.tsx:38-94", "web/src/shared/styles/global.css:7-11"],
+      "result": "PASS_SOURCE_SCOPED",
+      "reason": "Four desktop metric columns remain; the <=1023px rule now supplies two columns. No metric markup/values/labels or aria-describedby links were changed. The shared visible description explicitly says the dash means unavailable, not zero; populated count1 and genuine empty count0 pass their tests while unavailable metrics remain three dashes. The single New engagement link and its minimum46px rule are retained. Smaller padding does not impose a smaller target or hide text. Empty content is a paragraph spanning grid-column1/-1, not a fabricated engagement article or duplicate creation action.",
+      "limit": "This review approves the source structure, not a measured body-height reduction or overflow-free installed geometry."
+    },
+    {
+      "requirement": "Preserve full timestamp, explicit stale state, identities and whole-snapshot pagination without redundant jargon",
+      "references": ["web/src/features/dashboard/Dashboard.tsx:12-22", "web/src/features/dashboard/Dashboard.tsx:27-45", "web/src/features/dashboard/copy.ts:7-9", "web/src/app/Dashboard.test.tsx:10-35", "web/src/app/Dashboard.test.tsx:69-75", "web/src/features/engagement/Wizard.tsx:210"],
+      "result": "PASS_SOURCE_SCOPED",
+      "reason": "The only removed timestamp text is the redundant Confirmed projection/unavailable suffix. The complete projection.as_of remains inside TIME, with no formatting, truncation or replacement. The dedicated stale output remains visible above metrics; loading/error/retry and query/cursor/snapshot logic are unchanged. Existing pagination test still verifies stale old-page retention followed by whole-page replacement and the new timestamp. Full item IDs and both page handlers are unchanged. Removed dashboardCopy.live has no remaining Dashboard/Wizard caller; Bootstrap's separate copy.live is untouched."
+    }
+  ],
+  "checks": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391 b9400e83139df9fd45d58312c9decb4748da351b; git diff --no-ext-diff 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391 b9400e83139df9fd45d58312c9decb4748da351b; git diff --check 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391 b9400e83139df9fd45d58312c9decb4748da351b",
+      "exit": 0,
+      "result": "Clean requested snapshot; exactly five files,37 insertions/10 deletions; no whitespace errors"
+    },
+    {
+      "command": "npm --prefix web run test -- --maxWorkers=2 src/app/App.test.tsx src/app/Dashboard.test.tsx",
+      "path_prefix": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+      "node": "v24.21.0",
+      "npm": "11.19.0",
+      "exit": 0,
+      "result": "2 files,15 tests PASS in2.48s",
+      "limit": "Existing SOURCE tests with API/fetch seams. Not browser geometry or installed/API/DB QA."
+    },
+    {
+      "command": "python -I -B -c (inline allowlisted five-file base/current SHA-256, HEAD-blob and patch-hash assertions)",
+      "exit": 0,
+      "result": "All five before/current hashes match density-fix.json; current bytes match requested HEAD; patch hash matches; destination density-review.json was absent"
+    },
+    {
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-fix.patch",
+      "exit": 0,
+      "limit": "Read-only patch integrity, not integration"
+    },
+    {
+      "command": "search_files on web/src (*.tsx): sessionRow|dashboardCopy|copy\\.live, followed by reading actual Bootstrap and Dashboard definitions/styles/tests",
+      "exit": null,
+      "result": "sessionRow is used only for compact Bootstrap; Dashboard copy is imported by Dashboard and Wizard, with Wizard using unchanged new; Bootstrap live is a separate copy object"
+    }
+  ],
+  "prior_evidence_disposition": {
+    "original_review": "review.json remains unmodified and bound to its original snapshot. This report covers only the new density delta.",
+    "parent_supplied_context": "Prior14-byte integration, make check-web95unit+6tooling/audit0 and installed UI6 Provider read/save/readback/reload/viewport/keyboard observations were supplied by the user. They were not rerun or independently requalified here, and their geometry is not transferred to the new artifact.",
+    "prior_failed_proofs": "The earlier two fixture/import mistakes and supplemental jsdom native-keyboard FAIL retain the dispositions and limits in review.json. No new fixture/harness was created, and none of those probes was rerun or relabeled green.",
+    "mode_session": "Preexisting mismatch unchanged; not expanded or re-reviewed. Parent uses the correct Runtime route."
+  },
+  "limits": [
+    "No browser or operator display, services/API/DB/Docker, provider/Connect/auth/inference/target traffic, global writes, delegation or commit.",
+    "No new screenshot, body-height, overflow or installed focus/wrapping measurement. In particular, no installed geometry or aesthetic acceptance is claimed on b9400e8.",
+    "Lint/build results remain attributed to density-fix.json; this reviewer reran only the affected existing15 tests and integrity checks. No new full-suite/canonical PASS is claimed.",
+    "No Bootstrap markup/ref/session/auth/handler, Providers, Stop, schema or dependency change exists in this five-file delta. The previous unchanged-scope review remains scoped, not a fresh general audit or universal assurance.",
+    "The protected original-notes HTML and ponytail configuration were not read, copied, hashed or modified. Original reports and scratch fixtures were not overwritten."
+  ],
+  "conclusion": "Verdict: Ship this density delta for scoped parent integration, then run the affected installed Home/Runtime QA on the rebuilt artifact. No Must fix/Should fix/Nice to have findings with a concrete requirement violation were identified.",
+  "handoff": "AICI: density source implemented and APPROVED_SCOPED; installed density/wrapping QA NOT_RUN on the new artifact. Parent owns integration, final artifact identity and affected QA. No global gate or P2-live status is promoted by this re-review."
+}

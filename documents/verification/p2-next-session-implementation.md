@@ -1,6 +1,108 @@
-# Sesiune fresh — P2-inert: QA Admission, H04–H05 și închidere
+# Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**DOAR ÎN SESIUNEA FRESH. CURRENT = HANDOFF_ONLY la cererea operatorului de a evita compresia.** Sesiunea precedentă a oprit autorii și a păstrat checkpointurile; nicio notificare întârziată nu reactivează lucrul. Acest document devine mandat de execuție numai când operatorul îl activează explicit. Obiectivul reluării este finalizarea **P2-inert** conform celor opt criterii din plan §7.1, fără predare după fiecare helper/fix. P2-live necesită separat cont/model/date/buget; nu se închide prin NO_MODEL.
+**DOAR ÎN SESIUNEA FRESH. CURRENT = HANDOFF_ONLY după polishul UI și QA cerute de operator.** Produs `d253ba6c89c0a80f42cd2c2ba278a3630dab8108`; commiturile documentare ulterioare se verifică în Git. UI7 este lăsată READY pentru inspecție, nu autentificată la provider. Niciun succesor nu a fost pornit. Promptul de mai jos devine mandat numai când operatorul îl folosește explicit într-o sesiune fresh; arhiva P2-inert de la final nu este o coadă de reluare.
+
+## Prompt pentru următoarea implementare
+
+```text
+Lucrează în /home/kali/OmnisAI.
+/ponytail:ponytail full
+
+MANDAT
+Continuă secvențial restul fazei 2 conform planului §7–8/§19:
+P4a/G04a → P2-live/G02-live. Primul apel reușit nu închide faza 2.
+Fără P3, trafic target, provideri/catalog/editor extinse, r1/P0,
+profiluri personale, modificări globale, push sau buget nelimitat.
+Respectă SOUL, AGENTS.md, CONTRIBUTING.md; nu le modifica pentru a evita gates.
+Încarcă Ponytail full/audit/review și skill-urile de proiect relevante.
+Audit read-only numai pe traseele afectate și criteriile restante.
+
+STARE DE RELUARE
+Verifică Git: branch checkpoint/p2-batch2-pause-20261015;
+polishul este integrat până la d253ba6c89c0a80f42cd2c2ba278a3630dab8108.
+Citește CURRENT din README, p4a-minim.md, p2-integration-b06cm.md,
+implementation-status.md și p4a-oauth-evidence/preauth-ui-recovery.json,
+plus plan §7–8/§19. Dovezile UI: clean-ui-installed.json și reviewurile legate.
+Singurul untracked cunoscut: documents/Omnis_Notite_Originale.html.
+NU citi/copia/hash/modifica acel HTML sau tools/development/ponytail.json.
+Păstrează munca străină și FAIL/UNKNOWN/INDETERMINATE. Fără reset/stash/push.
+
+ARTEFACT ACTUAL
+/home/kali/.omnis-p2-ui7, origin http://127.0.0.1:8765, generation1,
+instance af5a562c-f05b-4953-9ae8-1b30cc90165f,
+release SHA256 3e71af7f707753d91f8be9b8542074bd6efaed1a2e8c191655fc670c901ca120.
+Mediul CLI și ownerii sunt în recovery/intent.json; parsează privat.
+Reobservă readiness, contul/datele și browserul înainte de orice efect.
+Browserul dedicat UI3/debug9226 este păstrat pentru operator, nu profil personal.
+UI6 este STOPPED/generation2/date păstrate. UI5 are resursele fizice absente,
+dar rămâne UNCERTAIN/RECOVERY_REQUIRED după supervisor exit3/cauză UNKNOWN.
+Nu o adopta/reporni și nu șterge markerul. Dacă defectul reapare pe instanța
+actuală, capturează motivul finit prin ownerul existent înainte de cleanup;
+nu inventa retrospectiv cauza și nu relansa la orb.
+
+CE NU SE REIA
+UI: review + re-review scoped, make check-web final96unit/6tooling/audit0,
+QA instalată desktop/mobil/keyboard/unknown/logout/revocation trecute scoped.
+Nu reface polishul sau probele neschimbate; aprobarea estetică rămâne distinctă.
+P2-inert/G02-inert și SEND PG/native controlat7a2ac5a sunt acceptate scoped
+(1PASS/35,72s/exit0/family_drained=true), nu inferență provider live.
+Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
+numai pe logica neschimbată. Niciun candidat vechi nu se reimportă.
+
+PRIMII PAȘI ȘI RESTANȚE
+1. Corectează minimal prerechizitul canonic demonstrat:
+   NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry citește
+   greșit inert-source/hermes_cli/web_routers/oauth.py, absent din overlayul
+   parțial. Reproduce exact, folosește sursa pin-uită/producerul corect, fără
+   skip, copie arbitrară în vendor ori assertion slăbit. Nu este bug UI.
+   Dacă alegi installed_browser.mjs mode=session, repară întâi callerul care
+   pornește Home și apoi cere identitatea Runtime; nu schimba ruta produsului.
+2. Păstrează QA vizibilă: fereastră headed efectiv în față, URL comunicat,
+   fără înlocuire cu headless/screenshot-only. La preluarea operatorului,
+   oprește automatizarea și reobservă înainte de continuare.
+   După acceptarea UI, operatorul face autentificarea/confirmarea contului
+   Codex numai în web. Nu solicita/copia parole, tokenuri sau coduri în chat,
+   capturi, loguri ori Git. Save nu este auth; LOCAL_PRESENT se verifică
+   prin operația care îl produce și nu înseamnă inference_ready.
+3. Confirmă contul, modelul/effortul cerut, datele sintetice și bugetul finit.
+   Prima inferență trece exclusiv prin callerul legitim deja existent:
+   native_tasks.py/_model_test_prepare și _model_test_send → ModelTest,
+   cu producerii reali ai inputurilor, nu un apel SDK auxiliar sau helper fals.
+   Verifică legătura și limitele complete înainte de a atribui cod.
+   DATA, reserve/SENT durabile, usage/receipt/readback, Stop și no-retry/fallback
+   rămân obligatorii. Subscripția se monitorizează fără promisiunea unui plafon
+   garantat de output; plafoanele API și celelalte protecții rămân.
+4. Continuă criteriile live aplicabile: copil nativ + skill publicat/pin-uit,
+   identitate/mapping autentic înainte de acces, requested/effective model/effort,
+   inventar Brain/copil și auxiliare/no hidden calls, lineage/compresie sau
+   refuz explicit conform canonului, rezultat/inbox/consum/recovery și Stop.
+   Reutilizează părțile inerte neafectate; nu transforma un PASS sintetic ori
+   primul răspuns în închiderea G04a/G02-live. Fără alte familii/demo/editor.
+5. Canonical final real pe snapshotul final, după preflight fără efecte:
+   make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19
+   --check al runnerului PG PROVIZIONEAZĂ; nu este dry-run.
+   Respectă argv, opt-in, source/library/toolchain și ownership existente.
+   Cleanup prin ownerii originali, exact readback și date păstrate.
+
+MOD DE LUCRU
+Un developer în worktree din HEAD local; orchestratorul integrează/acceptă.
+Dezvoltare și review: openai-codex/gpt-6.1-sol/xhigh, fără downgrade/fallback.
+Node24.21.0/npm11.19.0, Python3.13.15/uv0.12.19 pentru componentele pin-uite.
+RED → fix minim → GREEN, review independent pe bytes exacți; două reviewuri
+complementare pentru authority/model dispatch/Stop/secrete/cross-runtime.
+Nu adăuga owner/contabil/framework/dependency/harness fără nevoie demonstrată.
+Nu mări granturi/calls/deadline-uri/limite ca să obții verde; nu reseta contorul
+ciclurilor numai harness. După două fără progres restrânge frontiera probei.
+Commit local după fiecare schimbare coerentă, stage numai fișierele intenționate,
+verifică commit/status și actualizează CURRENT în loc/registrul existent.
+Continuă fără handoff după fiecare fix; oprește la faza2 verificată, intervenția
+necesară a operatorului, blocker real ori limită de siguranță/buget. Raport scurt
+în română, PASS/FAIL/BLOCKED/NOT_RUN distincte, fără promisiune gap-free.
+```
+
+## Arhivă — promptul P2-inert anterior, inactiv
+
+Datele de mai jos păstrează checkpointul istoric. P2-inert a fost între timp închis scoped; nu relansa caps/H04/WIP-urile sau ordinea de atunci din această arhivă.
 
 ## 1. Starea exactă de recuperare
 

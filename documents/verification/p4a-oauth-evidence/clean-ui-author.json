@@ -1,0 +1,126 @@
+{
+  "status": "SOURCE_CHECKS_PASS_AWAITING_PARENT_REVIEW_AND_INSTALLED_QA",
+  "acceptance": "NOT_CLOSED: independent review, installed QA and visual approval are parent-owned and NOT_RUN here",
+  "worktree": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/work",
+  "branch": "work/clean-oauuaeqc",
+  "base": "f9c5bad600b22c072ec0e27f20966cff06d9528a",
+  "head": "ccecdea618908d88577a82219c7a1d6bde0b845d",
+  "working_tree": "CLEAN",
+  "scope": "Presentation-only Home, Settings Runtime via existing Bootstrap owner, and Providers; directly affected component tests and disclosure-opening identity locators only. No backend/API/schema/dependency/configuration or P2 implementation.",
+  "execution": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning_requested": "xhigh",
+    "reasoning_setting_independently_introspected": false,
+    "fallback": false,
+    "delegation": false,
+    "node": "v24.21.0",
+    "npm": "11.19.0",
+    "path_prefix": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+    "versions_printed_in_each_verification_process": true
+  },
+  "guidance_read": [
+    "AGENTS.md", "CONTRIBUTING.md", "README.md", "DESIGN.md", "documents/Omnis_UI_UX_Spec.md section 0",
+    "/home/kali/.hermes/SOUL.md (read-only; repository SOUL.md does not exist)",
+    "ponytail:ponytail full", "ponytail:ponytail-audit (read-only, scoped)",
+    ".hermes/skills/omnis-frontend/SKILL.md (read directly after skill_view lookup was unavailable)",
+    "/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html (read-only visual vocabulary/layout CSS; no imports or execution)"
+  ],
+  "changed_count": 14,
+  "changed_files": [
+    {"path":"cli/integration/installed_browser.mjs","sha256":"6294e048e68f0adb0cdde54ab8dd4da6cad504f89d667ee58adeada1ba14240c"},
+    {"path":"web/src/app/App.test.tsx","sha256":"a01a84a515c8e398a93d0fe1b872cdb1646e61ecdebffdd2ef3fd379d62df776"},
+    {"path":"web/src/app/Dashboard.test.tsx","sha256":"e618d9968ffa4d9d65f5fe33f6fd6c93564da3889a8368177096ffc2bf0b04e1"},
+    {"path":"web/src/app/ProviderSettings.test.tsx","sha256":"42319c264570dd63b03558e6c49ac9ebdbaedb3003a2354275f5fe61a4605d7a"},
+    {"path":"web/src/features/bootstrap/Bootstrap.module.css","sha256":"96a5cbdeb32d0a6f68301a13f9e04b235738646e4aaed67e3261142eff80f0bb"},
+    {"path":"web/src/features/bootstrap/Bootstrap.tsx","sha256":"06a6337964101b87f4bf02df92a46b95e6f864448b4ca9e1ff2cb34abc568454"},
+    {"path":"web/src/features/bootstrap/copy.ts","sha256":"a1a141c09b88beba1ae7685dd6814f0f4fd1a8890a18152291e35f8f446185e3"},
+    {"path":"web/src/features/dashboard/Dashboard.module.css","sha256":"6770eb6221de94a43249f1a4d55f09a3c068d33dc947f85f7b628ea9f2c532cb"},
+    {"path":"web/src/features/dashboard/Dashboard.tsx","sha256":"c747460370ebb4ad5b7647ad35d8e98edbfc85cdbc5fa1a40a5c1b566122f48c"},
+    {"path":"web/src/features/dashboard/copy.ts","sha256":"b5820832a3a435e10d14b1e0b0706f3ed818d69fe12a40d927d93a0ddebc03a4"},
+    {"path":"web/src/features/engagement/Engagement.module.css","sha256":"1a1653bd6fbbcadf753793bce600e2b9b27a1b75fbc9ca2a9c551133b96a5934"},
+    {"path":"web/src/features/engagement/ProviderSettings.tsx","sha256":"c6a7de71a20232bc29e66ef1f5cee414b9349319b846b804fee950373b0f9ba0"},
+    {"path":"web/src/features/engagement/Settings.tsx","sha256":"36f48f731f0d849a36ac2bc62eff20c093a67b9d2eaf3ec7e9a8fc8eefcd265b"},
+    {"path":"web/tests/e2e/run.mjs","sha256":"7cdb168666c3146df0d7cd970738cedd8684c429f5a03640430546256d9f65bf"}
+  ],
+  "commits": [
+    {"sha":"0909ccc70e45baf6221c43b9926b5112514d0e3b","subject":"polish(ui): focus Home on saved engagements"},
+    {"sha":"691307b27fc1f9f684d93c566c017c6d10ecbda6","subject":"polish(ui): distinguish compact Runtime from Home"},
+    {"sha":"ccecdea618908d88577a82219c7a1d6bde0b845d","subject":"polish(ui): group provider guidance without hiding safety states"}
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate.patch",
+    "command": "git diff --binary --full-index --no-ext-diff f9c5bad600b22c072ec0e27f20966cff06d9528a HEAD",
+    "sha256": "94401f1164535fb9e2e6dba63d505f5112d7d8366bd32ea3ab8abba3f4830822",
+    "bytes": 34012,
+    "reverse_apply_check_exit": 0
+  },
+  "red": {
+    "command": "npm --prefix web run test -- --maxWorkers=2 src/app/Dashboard.test.tsx src/app/App.test.tsx src/app/ProviderSettings.test.tsx",
+    "presentation_snapshot": "base f9c5bad600b22c072ec0e27f20966cff06d9528a with new/updated tests only; before product presentation edits",
+    "exit": 1,
+    "files_failed": 3,
+    "tests_failed": 5,
+    "tests_passed": 16,
+    "tests_total": 21,
+    "seconds": 10.32,
+    "failures": [
+      "Missing Instance diagnostics in pair/readback test",
+      "Runtime has two H1s instead of one",
+      "Missing Instance diagnostics in stale-data test",
+      "Home still has Your security/workspace headline",
+      "Provider still has old long introduction instead of concise safety copy"
+    ],
+    "limit": "The Home test first failed at the headline assertion; its later single-CTA/metric assertions are verified in GREEN, not claimed as separately reached RED assertions.",
+    "log": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/red.log"
+  },
+  "green": [
+    {"command":"npm --prefix web run lint","exit":0},
+    {"command":"npm --prefix web run typecheck","exit":0},
+    {"command":"npm --prefix web run test -- --maxWorkers=2","exit":0,"files_passed":13,"tests_passed":95,"tests_failed":0,"seconds":19.29,"log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/green-tests.log"},
+    {"command":"npm --prefix web run build","exit":0,"includes":["check:contracts","check:design","tsc --noEmit","production vite build","build-manifest"],"transformed_modules":168,"trusted_manifest_files":4,"log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/build.log"},
+    {"command":"node --check web/tests/e2e/run.mjs","exit":0,"limit":"syntax only, not browser execution"},
+    {"command":"node --check cli/integration/installed_browser.mjs","exit":0,"limit":"syntax only, not installed QA"},
+    {"command":"git diff --check; git diff f9c5bad600b22c072ec0e27f20966cff06d9528a HEAD --check","exit":0},
+    {"command":"git apply --reverse --check /home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate.patch","exit":0,"limit":"read-only exact diff check against candidate HEAD"}
+  ],
+  "call_sites": [
+    {"producer":"api.dashboard via readPrivate and Projection decoder","consumer":"Dashboard.tsx; App.tsx routes / and /engagements","preserved":"whole confirmed snapshot replacement, query/session predicates, real total/items/attention_state, as_of, stale/loading/error/retry, full engagement IDs, cursor navigation"},
+    {"producer":"Bootstrap health/instance queries and existing BrowserSession/useBrowserSession owner","consumer":"Settings.tsx runtime calls Bootstrap compact; App.tsx unauthenticated caller remains Bootstrap with default presentation","preserved":"polling/session/logout/notices and security boundary; focus target remains a heading; all critical states outside diagnostics"},
+    {"producer":"ProviderSettings existing operation/readback/unknown/polling logic","consumer":"Settings.tsx providers","preserved":"all handlers and predicates, finite budgets, fixed authorization URL, exact operation IDs, selection and distinct configured/authenticated/reachable/inference-ready/local-grant states, no resend/fallback"},
+    {"consumer":"web/tests/e2e/run.mjs and cli/integration/installed_browser.mjs","change":"Open native diagnostics before existing full identity visibility checks after navigation/reload; no assertion removal or weakening"},
+    {"consumer":"Wizard.tsx","preserved":"dashboardCopy.new unchanged; no setup/editor/Skills changes; full existing tests passed"}
+  ],
+  "changes_reasons": [
+    "Home keeps the v5 display headline, four compact double-bezel metrics, capsules/dots and recent-engagement bento; one creation CTA replaces duplicate actions. Repeated review/pulse placeholder panels become one visible shared, aria-describedby-linked unavailability explanation. No invented metrics.",
+    "Runtime is distinct and smaller without a second H1 or marketing hero. Bootstrap receives only a presentation prop; instance diagnostics are native default-closed details with minimum 44px summary and existing global focus styles. Full identity remains inside and is checked after opening.",
+    "Provider introduction is split into requested-selection guidance and persistent concise safety copy; only noncritical connection instructions are collapsed. Operation feedback and actions remain in the original visible structure."
+  ],
+  "scoped_read_only_audit": {
+    "independent": false,
+    "assumed_load": "existing local-first single operator",
+    "byte_equality_assertions_exit": 0,
+    "unchanged": [
+      "ProviderSettings entire pre-render logic",
+      "ProviderSettings states/feedback/fixed challenge URL/action handlers subtree",
+      "Dashboard entire pre-render query/snapshot logic",
+      "Bootstrap pre-render health/instance/session logic, apart from component presentation signature"
+    ],
+    "new_blocking_findings_observed": [],
+    "preexisting_parent_qa_prerequisite": {
+      "path": "cli/integration/installed_browser.mjs:181-185",
+      "observation": "mode=session navigates /, then expects an instance identity after pairing. App.tsx authenticated / renders Dashboard, not Bootstrap. This source-level caller/route mismatch already exists at base; opening diagnostics alone does not repair that existing mode. No browser attempt was made.",
+      "disposition": "Reported for parent QA planning; not repaired or requalified in this presentation slice. Runtime mode/caller must be selected correctly before real installed QA."
+    }
+  },
+  "limits_failures": [
+    "Independent review NOT_RUN; no delegation allowed in this developer session. Parent must review exact head/14 hashes before acceptance.",
+    "SOURCE browser, real installed QA, visual screenshot comparison and operator aesthetic approval NOT_RUN here; parent owns distribution/QA. No application/service/browser was started or contacted.",
+    "Live auth, inference, other P2 work, backend/API/DB/Docker/services/provider/personal data and secrets NOT_TOUCHED.",
+    "documents/Omnis_Notite_Originale.html and tools/development/ponytail.json contents were not read, copied, hashed or modified. Changed-file scope validation does not inspect their contents.",
+    "No dependency install, global rule/skill/config write, primary checkout commit or push. Only three local commits in the requested worktree.",
+    "Two atomic patch validation refusals occurred before any files were changed by those refused calls; corrected unique context applied successfully. No GREEN verification failures occurred.",
+    "A repository SOUL.md was absent; the explicitly requested global SOUL was read-only. omnis-frontend skill_view lookup failed; the repository skill file was read directly."
+  ],
+  "next_owner": "Parent: independent exact-snapshot review, then installed desktop/mobile/keyboard/state QA; integrate only after those gates, then supply the next-session prompt. This candidate does not claim integration or aesthetic acceptance."
+}

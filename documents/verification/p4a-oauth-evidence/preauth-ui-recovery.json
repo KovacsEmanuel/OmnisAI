@@ -1,8 +1,35 @@
 {
-  "status": "CURRENT_V5_STYLE_INSTALLED_READY_USER_VISUAL_APPROVAL_PENDING",
+  "status": "CLEAN_UI_INSTALLED_VISIBLE_QA_PASS_HANDOFF_ONLY",
   "previous_handoff_status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
-  "main_product_commit": "36e95c0622174947554341d1f15cd570ab0545a7",
+  "main_product_commit": "d253ba6c89c0a80f42cd2c2ba278a3630dab8108",
   "latest": {
+    "scope": "User requested cleaner Home/Runtime/Providers, affected QA, then next-session prompt; no successor in this session",
+    "root": "/home/kali/.omnis-p2-ui7",
+    "origin": "http://127.0.0.1:8765",
+    "state": "READY_RETAINED_FOR_OPERATOR",
+    "generation": 1,
+    "instance_id": "af5a562c-f05b-4953-9ae8-1b30cc90165f",
+    "project": "omnis-local-07989da02a91470baeff3a01457ecec3",
+    "release_sha256": "3e71af7f707753d91f8be9b8542074bd6efaed1a2e8c191655fc670c901ca120",
+    "current_cli_environment": "/home/kali/.omnis-p2-ui7/recovery/intent.json",
+    "evidence": "clean-ui-installed.json; original author/copy/review/density/re-review JSON preserved byte-exact",
+    "verification": "14 final source hashes; original review plus focused density re-review APPROVED_SCOPED. Canonical web exit0:96unit/6tooling/audit0 on Node24.21.0/npm11.19.0. Final Home/Runtime8 geometries plus unchanged Providers4, final Providers smoke/read/save. Keyboard/disclosure/fullID/reload, logout errors and real logout/revocation, zoom/media/navigation/empty validation; no aesthetic certification.",
+    "artifact": "API95/CLI22/adapter20 unchanged, native3260 closure validated; web/bundle/required OCI rebuilt. Image44.791s/start19.237s/exit0, separate READY readback,4served assets hash-exact.",
+    "operator_boundary": "Visual approval still separate. Configured native readback confirmed; auth/inference NOT_RUN. No Connect; stat-only grant filenames absent, not a native LOCAL_PRESENT/ABSENT observation. Dedicated browser kept foreground on Home.",
+    "retired_roots": "ui6 original Stop12.549s exit0, Status STOPPED/generation2/data identities retained. ui5 supervisor exit3/OOMfalse/causeUNKNOWN at entry; original emergency Stop9.295s exit4, logical UNCERTAIN/RECOVERY_REQUIRED retained, exact4CIDs/project/networks/kernel sockets absent and data retained. Never auto-restart/adopt ui5 or erase marker.",
+    "canonical": "Full make check NOT_RUN: unchanged native AST test points at absent inert-source/hermes_cli/web_routers/oauth.py. Preexisting installed browser mode=session also starts Home then expects Runtime identity; fix its caller before selecting it, no product route workaround.",
+    "private_evidence": {
+      "archive": "/home/kali/.omnis-p2-ui7/recovery/clean-ui-evidence.tar.gz",
+      "sha256": "165f80417d7587ff4605d966592af601dc5af30a593e0912c4515abafaf39b7d",
+      "members": 70,
+      "bytes": 3771220,
+      "mode": "0600",
+      "excludes": "Browser profiles/cookies/credentials/capabilities/PGDATA/raw private logs; not off-device backup"
+    },
+    "next": "Use p2-next-session-implementation.md CURRENT only when activated by operator in a fresh session. Reobserve service/browser and preserve operator data. Resolve concrete QA prerequisites, operator visual/auth decision, legitimate synthetic inference, then remaining G04a/G02-live criteria. No P3/target/global/push, no repeat of unchanged accepted evidence."
+  },
+  "previous_visual_v5_snapshot": {
+    "snapshot_scope": "Historical READY observation, superseded by current UI5 UNCERTAIN/physical retirement noted in latest; not a restart instruction",
     "style_commits": ["af228be", "36e95c0"],
     "reference": "External omnis-cockpit-v5.html unchanged, SHA d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7; visual primitives only, no demo features/data/scripts imported",
     "root": "/home/kali/.omnis-p2-ui5",

@@ -1,0 +1,81 @@
+{
+  "status": "COPY_FIX_SOURCE_CHECKS_PASS_AWAITING_PARENT_REVIEW",
+  "worktree": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/work",
+  "branch": "work/clean-oauuaeqc",
+  "base": "f9c5bad600b22c072ec0e27f20966cff06d9528a",
+  "previous_head": "ccecdea618908d88577a82219c7a1d6bde0b845d",
+  "head": "7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+  "commit": "7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+  "working_tree": "CLEAN",
+  "scope": "Small Home copy adjudication only: three files; Runtime, Providers, CSS, browser runners and all other source remain unchanged from previous_head.",
+  "changes": [
+    "Removed both introductory hero/create-card eyebrows and the redundant intro paragraph, without replacement slogans.",
+    "Kept the existing large v5 H1 with exact title Your engagements., the single New engagement CTA and Define scope and save a draft. hint.",
+    "Removed only newly unused dashboardCopy keys kicker, accent, createTitle and intro after checking imports/usages; Wizard uses dashboardCopy.new and is unchanged.",
+    "Strengthened the Dashboard presentation test to require the exact short title and absence of all removed filler. Existing CTA, real count, unavailable metric, full ID, snapshot and whole-snapshot pagination/stale assertions remain."
+  ],
+  "changed_count": 3,
+  "changed_files": [
+    {"path":"web/src/app/Dashboard.test.tsx","sha256":"ee7f0da34f540b4cef6e713f26d8cc966a681f419a0471fcd0bc0259e534467b"},
+    {"path":"web/src/features/dashboard/Dashboard.tsx","sha256":"01cb400f0d9df5b8032761ae07caed2518dfa793c114ae66ceee8fb1f1230bb7"},
+    {"path":"web/src/features/dashboard/copy.ts","sha256":"7822b6be362789e17caa55494ae8dcaecc219f0970cc7210c173eb8f9aaf709d"}
+  ],
+  "original_report": {
+    "path": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/developer-result.json",
+    "sha256": "f997ae24e59071c7d77e5d2c30e2198390a896fb67fe894f070c04bc370a5bca",
+    "preserved_unchanged": true,
+    "note": "Original report remains the record for previous_head; this addendum supplies current bytes and affected verification."
+  },
+  "final_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate-final.patch",
+    "command": "git diff --binary --full-index --no-ext-diff f9c5bad600b22c072ec0e27f20966cff06d9528a HEAD",
+    "sha256": "84006d8cd23dc1400f76421554f17d1079fc52426d2b8b4eb09d52548bbeda72",
+    "bytes": 35410,
+    "reverse_apply_check_exit": 0
+  },
+  "toolchain": {
+    "node": "v24.21.0", "npm": "11.19.0",
+    "path_prefix": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+    "versions_checked_in_each_test_build_process": true,
+    "installs_or_reconfiguration": false
+  },
+  "red": {
+    "command": "npm --prefix web run test -- --maxWorkers=2 src/app/Dashboard.test.tsx",
+    "snapshot": "previous_head presentation with updated Dashboard test only, before product edit",
+    "exit": 1, "files_failed": 1, "tests_failed": 1, "tests_passed": 1, "tests_total": 2,
+    "seconds": 1.80,
+    "failure": "Expected exact /^Your engagements\\.$/; received Your engagements,in focus.",
+    "log": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/copy-fix-red.log"
+  },
+  "green": [
+    {
+      "command": "npm --prefix web run test -- --maxWorkers=2 src/app/Dashboard.test.tsx",
+      "exit": 0, "files_passed": 1, "tests_passed": 2, "tests_failed": 0, "seconds": 2.28,
+      "log": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/copy-fix-green.log"
+    },
+    {
+      "command": "npm --prefix web run build", "exit": 0,
+      "includes": ["check:contracts", "check:design", "tsc --noEmit", "production Vite build", "trusted manifest"],
+      "transformed_modules": 168, "trusted_manifest_files": 4,
+      "log": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/copy-fix-build.log"
+    },
+    {"command":"git diff --check; git diff --cached --check","exit":0},
+    {"command":"git apply --reverse --check /home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate-final.patch","exit":0,"limit":"read-only exact patch check, not integration"}
+  ],
+  "scoped_read_only_audit": {
+    "independent": false,
+    "exit": 0,
+    "checks": [
+      "Exactly Dashboard.tsx, dashboard/copy.ts and Dashboard.test.tsx changed since previous_head.",
+      "Dashboard pre-render query/state logic is byte-equal to previous_head.",
+      "Dashboard rendering from query.isPending through all error/stale/metrics/bento/identity/pagination handlers is byte-equal to previous_head.",
+      "No Runtime/Providers/CSS/runner changes; prior scoped evidence is reused only for unchanged bytes."
+    ]
+  },
+  "limits": [
+    "Full 95-test suite was not repeated, as requested; it remains evidence for prior unchanged scope, not a new full-suite result on this head.",
+    "Independent review, browser/installed QA and aesthetic approval remain NOT_RUN/parent-owned. No next stage started.",
+    "No browser, DB, services, provider/auth/inference, global config/skills/rules, secrets, delegation or push.",
+    "Protected original notes HTML and ponytail configuration contents were not read, copied, hashed or modified."
+  ]
+}

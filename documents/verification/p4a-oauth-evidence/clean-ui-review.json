@@ -1,0 +1,184 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "acceptance_boundary": "Independent SOURCE/presentation review only. This is not integration approval, installed QA, or visual acceptance.",
+  "base": "f9c5bad600b22c072ec0e27f20966cff06d9528a",
+  "head": "7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+  "worktree": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/work",
+  "working_tree_observed": "CLEAN at entry and after source checks; HEAD matched the requested frozen snapshot",
+  "reviewer": {
+    "role": "Independent read-only reviewer",
+    "provider_model_requested": "openai-codex/gpt-6.1-sol/xhigh",
+    "runtime_reasoning_setting_independently_introspected": false,
+    "fallback": false,
+    "delegation": false,
+    "product_test_config_rule_edits": false,
+    "commits": false,
+    "writes": "This report, isolated reviewer-source fixtures/configuration and their caches under the requested scratch parent, and Vitest cache in this worktree's private web/node_modules only. No repository source/test/configuration/rule file was edited."
+  },
+  "ponytail_report": {
+    "what_this_change_does": "What this change does: Home keeps the large v5-style heading and real saved-engagement count, while removing repeated introductions, placeholder panels and the duplicate creation link. Runtime reuses Bootstrap in a compact presentation with native diagnostics disclosure; Providers groups guidance without moving operation feedback or safety warnings into the disclosure.",
+    "findings": [],
+    "conclusion": "Looks good. Ship within the SOURCE review boundary; run the parent's affected installed UI checks before accepting integration.",
+    "not_checked": "The installed application, real API/DB/provider operations, operator browser, screenshots, aesthetic acceptance and the final canonical suite were not exercised. The headless native-HTML/CSS fixture below is not installed application QA."
+  },
+  "scope": {
+    "assumed_load": "Existing local-first, single-operator application",
+    "included": [
+      "Home presentation/copy/CSS and the directly affected Dashboard tests",
+      "Existing Bootstrap reused through Settings compact prop; notices, headings, readiness/errors and diagnostics placement",
+      "Providers presentation/copy/CSS, persistent safety guidance and existing operation UI",
+      "App/BrowserSession/useBrowserSession callers and directly connected API decoders/clients",
+      "Both changed browser runners and the installed_pair_open.py mode=session caller, inspected without running services"
+    ],
+    "excluded": [
+      "P2 implementation or general audit, P3 and new product functionality",
+      "Backend/API/schema/dependency/global changes",
+      "Account authorization, inference, target traffic and changes to existing operator resources"
+    ],
+    "complementary_review_required": false,
+    "complementary_review_rationale": "No authority, model-dispatch, Stop, concurrency, secret/effect boundary or cross-runtime contract change was found in this diff. The session owner/client/decoders are byte-identical to base; Provider handlers, state predicates, polling, fixed challenge URL and action subtree are also byte-identical. One presentation reviewer is proportional to this change."
+  },
+  "changed_count": 14,
+  "changed_files": [
+    {"path":"cli/integration/installed_browser.mjs","sha256":"6294e048e68f0adb0cdde54ab8dd4da6cad504f89d667ee58adeada1ba14240c"},
+    {"path":"web/src/app/App.test.tsx","sha256":"a01a84a515c8e398a93d0fe1b872cdb1646e61ecdebffdd2ef3fd379d62df776"},
+    {"path":"web/src/app/Dashboard.test.tsx","sha256":"ee7f0da34f540b4cef6e713f26d8cc966a681f419a0471fcd0bc0259e534467b"},
+    {"path":"web/src/app/ProviderSettings.test.tsx","sha256":"42319c264570dd63b03558e6c49ac9ebdbaedb3003a2354275f5fe61a4605d7a"},
+    {"path":"web/src/features/bootstrap/Bootstrap.module.css","sha256":"96a5cbdeb32d0a6f68301a13f9e04b235738646e4aaed67e3261142eff80f0bb"},
+    {"path":"web/src/features/bootstrap/Bootstrap.tsx","sha256":"06a6337964101b87f4bf02df92a46b95e6f864448b4ca9e1ff2cb34abc568454"},
+    {"path":"web/src/features/bootstrap/copy.ts","sha256":"a1a141c09b88beba1ae7685dd6814f0f4fd1a8890a18152291e35f8f446185e3"},
+    {"path":"web/src/features/dashboard/Dashboard.module.css","sha256":"6770eb6221de94a43249f1a4d55f09a3c068d33dc947f85f7b628ea9f2c532cb"},
+    {"path":"web/src/features/dashboard/Dashboard.tsx","sha256":"01cb400f0d9df5b8032761ae07caed2518dfa793c114ae66ceee8fb1f1230bb7"},
+    {"path":"web/src/features/dashboard/copy.ts","sha256":"7822b6be362789e17caa55494ae8dcaecc219f0970cc7210c173eb8f9aaf709d"},
+    {"path":"web/src/features/engagement/Engagement.module.css","sha256":"1a1653bd6fbbcadf753793bce600e2b9b27a1b75fbc9ca2a9c551133b96a5934"},
+    {"path":"web/src/features/engagement/ProviderSettings.tsx","sha256":"c6a7de71a20232bc29e66ef1f5cee414b9349319b846b804fee950373b0f9ba0"},
+    {"path":"web/src/features/engagement/Settings.tsx","sha256":"36f48f731f0d849a36ac2bc62eff20c093a67b9d2eaf3ec7e9a8fc8eefcd265b"},
+    {"path":"web/tests/e2e/run.mjs","sha256":"7cdb168666c3146df0d7cd970738cedd8684c429f5a03640430546256d9f65bf"}
+  ],
+  "input_binding": {
+    "developer_report": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/developer-result.json",
+    "copy_fix_addendum": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/copy-fix.json",
+    "final_patch": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate-final.patch",
+    "final_patch_sha256": "84006d8cd23dc1400f76421554f17d1079fc52426d2b8b4eb09d52548bbeda72",
+    "verification": "The changed-path set has exactly 14 entries. Every worktree file equals its HEAD blob and the merged developer/addendum SHA-256 manifest. The final patch matches its declared hash and reverse-applies in check-only mode. Protected excluded files were not opened, copied or hashed."
+  },
+  "requirements_reviewed": [
+    {
+      "requirement": "Clean Home, one creation action, honest counts/unavailable metrics, full identities/snapshot/stale/pagination",
+      "references": ["web/src/features/dashboard/Dashboard.tsx:12-45", "web/src/features/dashboard/copy.ts:1-10", "web/src/shared/api/projections.ts:58-75", "web/src/app/Dashboard.test.tsx:10-73"],
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "Both Dashboard tests pass. The whole-snapshot query/cursor implementation is unchanged. Total comes from the decoded projection; unavailable metrics are dashes with one visible shared reason and accessible descriptions, not fabricated zeros. Full engagement IDs and as_of remain rendered. Refresh and both pagination handlers remain. The latest copy correction removes the extra text without replacing it with another slogan. The 60px/40px v5 display-heading styling remains; pixels and aesthetics await parent/operator."
+    },
+    {
+      "requirement": "Compact Runtime uses the existing owner and preserves heading/focus, critical state/errors and Start/Stop",
+      "references": ["web/src/features/engagement/Settings.tsx:8-11", "web/src/features/bootstrap/Bootstrap.tsx:24-100", "web/src/features/bootstrap/useBrowserSession.ts:10-136", "web/src/app/App.tsx:17-45"],
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "App tests pass with one Settings H1 and a compact Runtime H2. Readiness, stale/unknown/unverified labels, API/control errors, logout uncertainty, notices, HTTP loopback boundary and disabled Start/Stop explanations are outside diagnostics. Full instance identity remains reachable after opening the default-closed disclosure. The supplemental context-seam focus check confirms the compact H2 ref; the real App expiry path moves focus to the default Bootstrap H1 and shows the notice. No second BrowserSession owner or changed polling/authentication logic was introduced."
+    },
+    {
+      "requirement": "Providers grouping must retain safety cues, separate states, unknown/recovery/challenge/cancel and fixed URL/IDs/polling",
+      "references": ["web/src/features/engagement/ProviderSettings.tsx:10-106", "web/src/shared/api/providers.ts:7-28", "web/src/shared/api/client.ts:59-75", "web/src/app/ProviderSettings.test.tsx:8-283", "documents/Omnis_UI_UX_Spec.md:153-155"],
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "All ProviderSettings tests pass, including lost response, exact recovery, failed reload GET hiding the challenge, finite challenge validity, same-ID cancellation, late challenge suppression and background polling without Connect replay. The configured/authenticated/reachable/inference-ready/local-grant states and all action predicates/handlers are unchanged. Compatibility/no-inference, no-refresh and cancel-versus-local-logout warnings stay outside disclosure. Only explanatory connection instructions are collapsed; the challenge-specific fixed-page warning/link, pending/unknown message and cancel/recovery actions stay visible."
+    },
+    {
+      "requirement": "Native disclosures remain keyboard reachable with minimum 44px targets",
+      "references": ["web/src/features/bootstrap/Bootstrap.module.css:24-25", "web/src/features/engagement/Engagement.module.css:22-23", "web/src/shared/styles/global.css:1-20"],
+      "assessment": "PASS_SOURCE_FIXTURE_ONLY",
+      "evidence": "Fresh headless Chromium 153.0.8010.12, native HTML fixtures with the actual source CSS, viewport390x844: both summary targets measured44px high and390px wide; Tab focused them, Enter opened and Space closed them. Zero requests; owned browser closed normally. This confirms the native primitive/CSS and explains the jsdom keyboard limitation, not the geometry/focus ring of the installed application."
+    },
+    {
+      "requirement": "Adapt affected identity checks without weakening effect or secret assertions",
+      "references": ["web/tests/e2e/run.mjs:102-116", "web/tests/e2e/run.mjs:195-211", "cli/integration/installed_browser.mjs:181-205", "cli/integration/installed_pair_open.py:191-253", "cli/integration/installed_pair_open.py:369"],
+      "assessment": "PASS_SOURCE_SCOPED_WITH_PREEXISTING_CALLER_LIMIT",
+      "evidence": "The web E2E helper already navigates to Runtime before opening diagnostics; reload also resets the native disclosure and the added click is necessary. Neither runner removes or weakens identity/cookie/logout/secret-boundary assertions. Both syntax checks pass. The separately documented preexisting installed mode=session route mismatch remains; no installed execution is credited."
+    }
+  ],
+  "findings": [],
+  "preexisting_observations": [
+    {
+      "id": "PREEXISTING-INSTALLED-SESSION-ROUTE",
+      "severity": "QA_PREREQUISITE_IF_THIS_MODE_IS_SELECTED",
+      "new_regression": false,
+      "blocking_this_source_presentation_review": false,
+      "references": ["cli/integration/installed_browser.mjs:181-186", "cli/integration/installed_pair_open.py:198", "cli/integration/installed_pair_open.py:369", "web/src/app/App.tsx:36-43"],
+      "what_this_is": "The installed pair/open proof calls run_browser with its default mode=session. That mode initially visits /, whereas the other modes visit /settings/runtime.",
+      "problem": "After successful pairing, authenticated / renders Dashboard. It has neither Instance diagnostics nor the instance ID. The added diagnostics click therefore cannot complete in mode=session; the base revision already had the same wrong route before its instance-ID assertion. Both base App routing and base runner were inspected.",
+      "source_reproducer": "Trace installed_pair_open.prove -> run_browser(default session) -> installed_browser main goto(origin/) -> pair -> App authenticated Route / -> Dashboard; the next diagnostics/instance locator is absent. This is source-confirmed, not a claimed browser failure from this review.",
+      "requirement": "QA must exercise the actual affected consumer through the correct route and retain the full identity oracle; an unrun or mismatched mode cannot receive a PASS.",
+      "minimum_fix_if_needed": "Adapt only the caller: after pairing has completed, navigate to /settings/runtime before opening diagnostics and checking the full instance identity. Alternatively start this diagnostic-only mode on /settings/runtime. Keep identity/cookie/reload/logout/private-URL checks unchanged; do not change App routing to satisfy the oracle.",
+      "if_skipped": "Selecting this mode as-is will stop before its identity/reload/logout proof. The parent has explicitly planned correct real navigation instead; that separate installed QA still needs execution and its own evidence. No change is requested to product code for this preexisting oracle mismatch."
+    }
+  ],
+  "checks": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat f9c5bad600b22c072ec0e27f20966cff06d9528a 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391; git diff --name-status f9c5bad600b22c072ec0e27f20966cff06d9528a 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+      "exit": 0,
+      "result": "Clean requested HEAD; exactly14 modified paths in base-to-head diff"
+    },
+    {
+      "command": "git diff --check f9c5bad600b22c072ec0e27f20966cff06d9528a 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+      "exit": 0,
+      "result": "No whitespace errors"
+    },
+    {
+      "command": "npm --prefix web run test -- --maxWorkers=2 src/app/App.test.tsx src/app/Dashboard.test.tsx src/app/ProviderSettings.test.tsx",
+      "exit": 0,
+      "toolchain": "Node v24.21.0 / npm11.19.0; PATH prefix /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+      "result": "3 files,21 tests PASS in3.60s",
+      "limit": "SOURCE component/client tests, mocked fetch/API seams, no live backend"
+    },
+    {"command":"node --check web/tests/e2e/run.mjs","exit":0,"limit":"Syntax only"},
+    {"command":"node --check cli/integration/installed_browser.mjs","exit":0,"limit":"Syntax only"},
+    {
+      "command": "python -I -B -c (inline allowlisted changed-path/manifest/HEAD-blob/patch SHA-256 assertions)",
+      "exit": 0,
+      "result": "All14 final hashes match merged inputs and HEAD blobs; final patch hash matches addendum; protected files excluded"
+    },
+    {
+      "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/clean-oauuaeqc/candidate-final.patch",
+      "exit": 0,
+      "limit": "Read-only patch integrity, not integration"
+    },
+    {
+      "command": "python -I -B -c (inline base/current equality assertions for the named session/client/decoder files and changed-component logic subtrees)",
+      "exit": 0,
+      "result": "App, BrowserSession, useBrowserSession, API client, provider/projection decoders identical; Provider pre-render and states/feedback/challenge/actions identical; Dashboard pre-render identical; Bootstrap pre-render identical except its compact presentation prop"
+    },
+    {
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --maxWorkers=2 --config /home/kali/.hermes/cache/scratch/clean-oauuaeqc/reviewer-source/vitest.config.mjs",
+      "exit": 1,
+      "result": "Supplemental SOURCE:2 focus tests PASS,1 native-summary keyboard test FAIL in jsdom;1.59s",
+      "disposition": "Preserved as a failed proof, not a product finding. The failed assertion follows a successful keyboard-focus assertion; jsdom/user-event did not apply native Enter activation. A narrower native Chromium HTML+actual CSS fixture passed Enter and Space for both disclosures. No product handler was added and this failed run is not relabeled fully green.",
+      "seams": "Compact notice-focus test substitutes useSession context; expiry-focus test uses the actual App/session owner with API mocks"
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/clean-oauuaeqc/reviewer-source node /home/kali/.hermes/cache/scratch/clean-oauuaeqc/reviewer-source/native-summary.mjs",
+      "exit": 0,
+      "result": "Chromium153.0.8010.12:2 native-HTML/source-CSS cases PASS, each summary44x390px, Tab/Enter/Space PASS,0requests, SOURCE_FIXTURE_BROWSER_CLOSED",
+      "limit": "Fresh private headless fixture only. No application navigation, service/API/DB/account or operator-browser access; not visual or installed QA."
+    }
+  ],
+  "verification_attempt_limits": [
+    "The first isolated Vitest fixture failed before test collection because createRequire resolved Vitest's CommonJS entry. Its composite shell exit was0 due to a following date command; the failed suite/no-tests result is preserved here. Only scratch configuration was corrected to the ESM entry.",
+    "The first native-HTML fixture exited1 before browser launch because a CommonJS package was destructured through dynamic import without its default export. The scratch fixture was corrected to use createRequire directly. The subsequent native fixture completed0 and closed its own browser. No product edits or installations followed these fixture errors.",
+    "No full95-test suite, lint/typecheck/build or canonical rerun was done by the reviewer. The developer's prior95PASS and final Home2PASS/build0 remain attributed to their reports and revisions, not reviewer execution or final installed QA.",
+    "No protected original-notes HTML or ponytail configuration content was read/copied/hashed. A filename-only discovery listing is not a content read.",
+    "No general audit/P2 resumption, application services/API/DB/Docker, accounts/provider calls, inference or target traffic. No operator browser touched. No screenshot or aesthetic acceptance claim.",
+    "Reticle: NOT_INTEGRATED in this SOURCE review; Chisel: BLOCKED_NO_GO. Neither was installed or run."
+  ],
+  "guidance_read": [
+    "AGENTS.md", "CONTRIBUTING.md", "README.md", "ponytail:ponytail-review",
+    ".hermes/skills/omnis-review-qa/SKILL.md", ".hermes/skills/omnis-project-status/SKILL.md",
+    "documents/Omnis_UI_UX_Spec.md sections0,1,4/Providers and Skills,5 relevant rows",
+    "documents/verification/implementation-status.md CURRENT/affected rows",
+    "documents/verification/p4a-minim.md CURRENT and connected safety/QA semantics"
+  ],
+  "parent_handoff": {
+    "current_slice": "AICI: UI polish implemented at the frozen head; independent SOURCE review APPROVED_SCOPED; affected installed/visible QA and operator visual approval NOT_RUN here",
+    "required_next": "Parent adjudicates this exact14-file review, builds the final artifact, navigates the actual Home/Settings Runtime/Providers consumers, verifies keyboard/focus/disclosure/critical states and served identities, and records the real installed result. Do not credit mode=session unless it is correctly adapted and actually executed.",
+    "after_requested_deliverable": "Provide the requested next-session prompt only after this slice's implementation+QA outcome. Do not launch account authorization/inference/P3 from this review.",
+    "global_delta": "No global gate closure is proposed. Prior P0/P1/inert acceptances remain scoped; P4a/final phase2/live/canonical and broader MVP/post-MVP state are not promoted by this report.",
+    "integration_certified": false
+  }
+}

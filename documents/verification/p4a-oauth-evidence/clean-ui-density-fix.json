@@ -1,0 +1,87 @@
+{
+  "status": "DENSITY_SOURCE_CHECKS_PASS_AWAITING_FOCUSED_REVIEW_AND_INSTALLED_QA",
+  "worktree": "/home/kali/.hermes/cache/scratch/clean-oauuaeqc/work",
+  "branch": "work/clean-oauuaeqc",
+  "before": "7539e1e5d2acf067ac53e2b1cfbf6f9dab558391",
+  "head": "b9400e83139df9fd45d58312c9decb4748da351b",
+  "working_tree": "CLEAN",
+  "parent_context_supplied_by_user": "Parent fbb0638 integrates the prior 14-file candidate byte-exact; prior APPROVED_SCOPED review and canonical check-web 95 tests/6 tooling/audit0 PASS. These are user-supplied prior-snapshot evidence, not new approval or execution on this density delta.",
+  "scope": "Five files only: Dashboard presentation/CSS/copy/test and Bootstrap CSS. No Bootstrap markup, owner/hooks/ref/session/auth changes; Providers and harness mode=session deliberately unchanged.",
+  "commits": [
+    {"sha":"e5cd3b085a0feefb2d0b35417eefa915da0ef4d7","subject":"fix(ui): compact Home metrics and empty state"},
+    {"sha":"b9400e83139df9fd45d58312c9decb4748da351b","subject":"fix(ui): align Runtime browser session controls compactly"}
+  ],
+  "changed_count": 5,
+  "changed_files": [
+    {"path":"web/src/app/Dashboard.test.tsx","before_sha256":"ee7f0da34f540b4cef6e713f26d8cc966a681f419a0471fcd0bc0259e534467b","sha256":"2dafece7eb68a76797f7814acb3f61af51b5e7363a086763ec4055900acf7a43"},
+    {"path":"web/src/features/bootstrap/Bootstrap.module.css","before_sha256":"96a5cbdeb32d0a6f68301a13f9e04b235738646e4aaed67e3261142eff80f0bb","sha256":"e72638e8ad7129500ccdeda802827af38a8ca24a4d6e9fd4752f72eaddb1d2e7"},
+    {"path":"web/src/features/dashboard/Dashboard.module.css","before_sha256":"6770eb6221de94a43249f1a4d55f09a3c068d33dc947f85f7b628ea9f2c532cb","sha256":"edc2e0a7856aa7ad6eb39443ab6066f78eb7331072133e18143e635166acee41"},
+    {"path":"web/src/features/dashboard/Dashboard.tsx","before_sha256":"01cb400f0d9df5b8032761ae07caed2518dfa793c114ae66ceee8fb1f1230bb7","sha256":"2fb94a767ac4394ab6eb54d859a1be262bb7dca8875d5e43f68a498c0567cd20"},
+    {"path":"web/src/features/dashboard/copy.ts","before_sha256":"7822b6be362789e17caa55494ae8dcaecc219f0970cc7210c173eb8f9aaf709d","sha256":"be64bd9ff09ffb6eafd9b324a7e5617293050b31e905208491a9368b1915ffcf"}
+  ],
+  "delta": [
+    "Metrics use 2x2 below 1024px and retain four desktop columns; mobile bento remains one column. Metric padding is 16px; font sizes, focus rules, palette and double-bezel borders remain unchanged.",
+    "CTA core padding becomes 16px 20px; removed unused margin-top:24px on the button and excess helper bottom margin. Existing minimum 46px CTA target remains.",
+    "Empty state becomes a plain paragraph directly in bento spanning grid-column 1/-1; no pretend engagement card or duplicate CTA.",
+    "Shared visible accessible-description text is Assessments are unavailable in this build. — means unavailable, not zero. Real count, em dashes, attention state and aria-describedby remain.",
+    "Timestamp retains complete raw as_of in time; removed trailing Confirmed projection/duplicate unavailable suffix. Dedicated visible stale/loading/error UI and handlers remain byte-equal. Removed only the newly unused dashboardCopy.live key after checking usages; Bootstrap copy.live is distinct and unchanged.",
+    "Runtime/sessionRow-scoped wrapping flex aligns Browser session title, state and logout. Security boundary, outputs and error/logout-uncertain paragraphs retain full-width wrapping rows. No fixed height, clipping, disclosure or hidden safety text; no markup or logic changes."
+  ],
+  "images_read_only": [
+    "/home/kali/.omnis-p2-ui6/recovery/screens/home-390.png",
+    "/home/kali/.omnis-p2-ui6/recovery/screens/home-1440.png",
+    "/home/kali/.omnis-p2-ui6/recovery/screens/runtime-1440.png"
+  ],
+  "image_access_limit": "Read solely through image inspection, no browser/API/service/profile access. Providers screenshot was unnecessary because Providers is unchanged. Images show the previous installed UI6, not the new density result.",
+  "toolchain": {
+    "node":"v24.21.0","npm":"11.19.0",
+    "path_prefix":"/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+    "versions_printed_in_each_verification_process":true,
+    "install_or_global_reconfiguration":false
+  },
+  "red": {
+    "command":"npm --prefix web run test -- --maxWorkers=2 src/app/Dashboard.test.tsx",
+    "snapshot":"before presentation with updated Dashboard tests only, before product edits",
+    "exit":1,"files_failed":1,"tests_failed":2,"tests_passed":1,"tests_total":3,"seconds":1.87,
+    "failures":["Old common unavailability copy does not match concise requirement","Empty message is nested inside a pseudo-card instead of being direct bento content"],
+    "limit":"Timestamp assertion is reached and verified in GREEN; the old presentation test first failed at the new shared-copy assertion. CSS geometry is not tested by JSDOM.",
+    "log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-red.log"
+  },
+  "green": [
+    {"command":"npm --prefix web run lint","exit":0,"log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-lint.log"},
+    {"command":"npm --prefix web run test -- --maxWorkers=2 src/app/App.test.tsx src/app/Dashboard.test.tsx","exit":0,"files_passed":2,"tests_passed":15,"tests_failed":0,"seconds":2.88,"log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-green.log"},
+    {"command":"npm --prefix web run build","exit":0,"includes":["check:contracts","check:design","tsc --noEmit","production Vite build","trusted manifest"],"transformed_modules":168,"trusted_manifest_files":4,"log":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-build.log"},
+    {"command":"git diff --check; git diff --cached --check; git diff 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391 HEAD --check","exit":0},
+    {"command":"git apply --reverse --check /home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-fix.patch","exit":0,"limit":"read-only check against candidate HEAD, not parent integration"}
+  ],
+  "scoped_read_only_audit": {
+    "independent":false,"exit":0,
+    "assertions":[
+      "Exactly five allowed files differ from before.",
+      "Dashboard pre-render query/session/snapshot logic byte-equal to before.",
+      "Dashboard loading/error/stale UI, metric markup and attention/description links byte-equal to before.",
+      "Dashboard existing item/ID/navigation/pagination markup and handlers byte-equal to before.",
+      "Bootstrap.tsx and App.test.tsx entirely unchanged; existing session/expiry/logout uncertainty/stale/race tests rerun.",
+      "Providers, setup/editor/Skills, browser runners, dependencies, config and other implementation unchanged."
+    ]
+  },
+  "patch": {
+    "path":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/density-fix.patch",
+    "range":"7539e1e5d2acf067ac53e2b1cfbf6f9dab558391..b9400e83139df9fd45d58312c9decb4748da351b",
+    "command":"git diff --binary --full-index --no-ext-diff 7539e1e5d2acf067ac53e2b1cfbf6f9dab558391 HEAD",
+    "sha256":"c4a0fe50a500186a5120ebc60063d3059207406bd1f29727ccb8fda248cc7c5c",
+    "bytes":10241
+  },
+  "preserved_reports": [
+    {"path":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/developer-result.json","sha256":"f997ae24e59071c7d77e5d2c30e2198390a896fb67fe894f070c04bc370a5bca"},
+    {"path":"/home/kali/.hermes/cache/scratch/clean-oauuaeqc/copy-fix.json","sha256":"42a6c43a3c10193ad50bbb3b9e72c5677243476f86f9b49eca0e0b96285dfece"}
+  ],
+  "limits": [
+    "Full95/canonical/tooling were not repeated; prior evidence is reused only for unchanged scope. The fresh affected run is 15 tests, not a new full95 result.",
+    "No new browser/installed QA or geometry measurement. New body heights, overflow, focus layout and visual compactness remain NOT_MEASURED until parent reinstalls and exercises the affected artifact.",
+    "Prior independent approval does not automatically cover changed bytes; focused re-review is NOT_RUN and parent-owned, followed by installed affected QA.",
+    "No access to UI6 application/API/browser/services, DB/Docker/provider/auth/inference, secrets/global rules/skills/config, protected files or another P2 implementation. No delegation or push.",
+    "Original reports and prior candidate patches retained without edits. No next stage started."
+  ],
+  "next_owner":"Parent: focused exact-delta review, then reinstall and affected installed Home mobile/desktop and Runtime session/uncertainty QA. This report claims neither integration nor visual acceptance."
+}

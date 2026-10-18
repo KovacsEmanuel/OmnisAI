@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.41
+version: 0.1.42
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -38,6 +38,8 @@ For hash-routed prototypes, reload or create a fresh browser page between cases:
 Verify focused pixels and target geometry, not only activeElement: an outer outline can be clipped, and a contextual link can preserve scroll below the selected object's title. Test repeat navigation from long mobile pages and place focus below persistent run controls.
 
 For a keyboard `:focus-visible` requirement after pointer actions, enter keyboard modality with a real Tab from a verified predecessor before measuring the ring. Programmatic `.focus()` can make the element active while `:focus-visible` remains false; a nonzero computed outline width with `outline-style:none` is not a visible ring. Reproduce the modality difference with current CSS and the pinned browser, retain the exact ring/geometry/target-size assertions, and distinguish a CSS-fixture proof from the fresh product journey. Do not weaken the oracle or change product CSS merely to satisfy a script-focus check.
+
+For raw-CDP native disclosure checks, include generated text for character keys such as Space and wait for the browser's default action before reading `details.open`; a protocol ACK alone is not widget settlement. Persist the observed before/after state and raw geometry before an assertion, so an incomplete event or a misparsed CSS value cannot become a product bug or motivate a redundant React key handler.
 
 Resolve an evidence/task link's operation, identity and snapshot explicitly; opening the destination page while retaining incompatible filters can display another object's evidence. Include a prior-selection/empty-filter regression.
 

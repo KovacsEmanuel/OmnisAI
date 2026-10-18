@@ -71,7 +71,8 @@ export function ProviderSettings() {
   }
   return <section className={`${styles.core} ${styles.provider}`} aria-labelledby="provider-heading">
     <h2 id="provider-heading">Provider configuration</h2>
-    <p>Requested selection only. Model and effort compatibility have not been verified. Connect opens the native Codex device flow; approve it yourself on the fixed authorization page. Local reads never refresh credentials; Cancel does not log out and local logout does not revoke upstream. No inference is performed here.</p>
+    <p className={styles.providerHint}>Model and effort compatibility are not verified. No inference is performed here.</p>
+    <h3>Requested selection</h3>
     <div className={styles.providerSelection}>
     <label className={formStyles.field}>Provider <select aria-label="Provider" defaultValue="openai-codex" disabled={pending}><option value="openai-codex">openai-codex</option></select></label>
     <label className={formStyles.field}>Model <select aria-label="Model" defaultValue="gpt-6.1-sol" disabled={pending}><option value="gpt-6.1-sol">gpt-6.1-sol</option></select></label>
@@ -101,5 +102,7 @@ export function ProviderSettings() {
     <button type="button" onClick={() => void perform('logout')} disabled={!authReady || pending || unknown || !observed?.configured || observed.authenticated === 'NOT_VERIFIED' || observed.authenticated === 'ABSENT'}>Log out of Codex locally</button>
     {(unknown || pending) && <button type="button" onClick={() => void recover()} disabled={!authReady || sending}>Recover exact operation</button>}
     </div>
+    <div className={styles.providerSafety}><p>Local reads never refresh credentials.</p><p>Cancel does not log out. Local logout does not revoke upstream access.</p></div>
+    <details className={styles.providerInstructions}><summary>Connection instructions</summary><p>Connect opens the native Codex device flow. Approve it yourself on the fixed Codex authorization page.</p></details>
   </section>;
 }

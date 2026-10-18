@@ -85,6 +85,13 @@ it('connects once, displays only fixed challenge, cancels same operation and cle
   await user.click(await screen.findByRole('button', { name: 'Read native configuration' }));
   await user.click(await screen.findByRole('button', { name: 'Connect Codex' }));
   await screen.findByText('ABCD-EFGH');
+  expect(screen.getByText('Model and effort compatibility are not verified. No inference is performed here.')).toBeVisible();
+  expect(screen.getByText('Local reads never refresh credentials.')).toBeVisible();
+  expect(screen.getByText('Cancel does not log out. Local logout does not revoke upstream access.')).toBeVisible();
+  expect(screen.getByText('Connection instructions').closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByText('ABCD-EFGH')).toBeVisible();
+  expect(screen.getByText('Native operation pending; no success yet.')).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Cancel connection' })).toBeVisible();
   expect(screen.getByRole('link', { name: 'Open Codex device authorization' })).toHaveAttribute('href', 'https://auth.openai.com/codex/device');
   await user.click(screen.getByRole('button', { name: 'Cancel connection' }));
   await waitFor(() => expect(screen.queryByText('ABCD-EFGH')).not.toBeInTheDocument());

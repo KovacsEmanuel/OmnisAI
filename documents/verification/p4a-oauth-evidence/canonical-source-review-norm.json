@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "role": "independent normative read-only reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "decision": "Fixul prerechizitului SOURCE poate fi integrat de orchestrator pe snapshotul verificat. Nu este aprobare de autentificare, live, canonical complet sau faza 2.",
+  "findings": [],
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/work",
+    "base": "1e345f5254af86af8b7942bd2f83749c471cd09c",
+    "branch": "work/p2-live-7au4ie6u",
+    "uncommitted": true,
+    "file_count": 5,
+    "files": [
+      {"path": "Makefile", "sha256": "5cbc6835169fd851f919111498a250f9f9cdaca7dcca067177b628d5097b1235", "bytes": 26796},
+      {"path": "integrations/hermes/tests/test_native_build.py", "sha256": "683d84a66804bef9c3a7816aa2d8cf41970a4f819cd39c25e57cdfef22da9715", "bytes": 16183},
+      {"path": "ops/run_test_db_gate.py", "sha256": "e22621ecdbd15478eef111767642824671ba6b2e00014da246e4dc46e7bb234d", "bytes": 42353},
+      {"path": "tests/development/test_hermes_runtime_build.py", "sha256": "ce4aa597b30a0c08d811d40b2df96d9e12765642155c913ce845fa713a44ac8d", "bytes": 7757},
+      {"path": "tests/development/test_test_db_gate.py", "sha256": "5985c7eba8cff8521940c87467c8535ad1cd43ca120a12adbf530ee3d2606b9f", "bytes": 36040}
+    ],
+    "patch": {
+      "path": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/developer.patch",
+      "sha256": "563b023e9050bb8ea0bddca1bd23f1749145a9423bafecf80393595717d517ac",
+      "equals_current_git_diff_binary": true
+    },
+    "initial_and_final_hashes_match": true,
+    "final_status": "Same base and same five modified files; no reviewer changes to worktree or index."
+  },
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "verification": "Own Hermes ancestor PID 2654372 /proc selected flags only: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh",
+    "model_fallback_or_downgrade_used": false,
+    "requested_interpreter": "/home/kali/OmnisAI/api/.venv/bin/python3.13.15",
+    "requested_interpreter_status": "MISSING; exact invocation exit 127, No such file or directory",
+    "actual_interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "actual_resolved_binary": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "actual_version": "3.13.15",
+    "interpreter_spelling_deviation_explicit": true,
+    "interpreter_installation_or_version_downgrade": false,
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/review-norm-tmp",
+    "TMPDIR_mode": "0700",
+    "elapsed_process_seconds_before_report": 270.72
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Execute unchanged six OAuth precedence cases using pinned MANAGEMENT OAuth; carry source through canonical environment and refuse bad input before provisioning; do not require it for unrelated targets/probes.",
+    "consumer": "Makefile check -> run_test_db_gate.main/prove_private_fixture -> _preflight_gate -> _gate_environment -> run_gate Make argv -> check-components/check-runtime isolated AST child -> NativeInertSeam OAuth test",
+    "risk": "Wrong partial inert source, stale installed adapter import, source environment discarded or denial occurring after DB setup.",
+    "decision": "Accept prerequisite fix only: real source admission accepts prepared MANAGEMENT and refuses absent/original/tampered before fixture/toolchain, while actual AST child passes with forwarded source and current worktree adapter."
+  },
+  "trace": [
+    {
+      "code": "Makefile:19-23,159-164",
+      "assessment": "Canonical retains existing runner/check-components. AST child explicitly inserts current integrations/hermes/src under -I -B. Full runtime commands remain, not replaced by helper-only green."
+    },
+    {
+      "code": "ops/run_test_db_gate.py:826-853,880-888",
+      "assessment": "Only canonical check-components invokes exact AST source check before uv lookup, prepare_paths and Docker/PG processing. Sole production _preflight_gate caller updated to two arguments. Probe-only and unrelated admitted targets do not trigger OAuth prerequisite."
+    },
+    {
+      "code": "ops/run_test_db_gate.py:856-877,985-994",
+      "assessment": "Only explicit HERMES_NATIVE_SOURCE is added to existing sanitized gate environment, resolved absolute before fixed-worktree-cwd child. Make argv remains make --no-print-directory TARGET UV=uv. No override bypass, product env or auth authority change."
+    },
+    {
+      "code": "integrations/hermes/tests/test_native_build.py:23-26,45-68,77-163,165-184",
+      "assessment": "Shared admission reuses producer require_hash, checks pin hash of management manifest then exact OAuth patched_sha256. All nine methods, six cases, assertions and skip decorators are AST-identical to base after removing the new admission call."
+    },
+    {
+      "code": "ops/prepare_hermes_runtime.py:23-38,98-109,112-145,241-259",
+      "assessment": "Existing producer verifies originals and applies inert/managed/MANAGEMENT overlays; runtime-source copies prepared files. Only relevant OAuth input and pin-bound management manifest reattested here, not whole prepared tree."
+    },
+    {
+      "code": "tests/development/test_test_db_gate.py:48-121,568-618; tests/development/test_hermes_runtime_build.py:42-56",
+      "assessment": "New branches have bounded refusal/independence/environment regressions. Existing dispatch/cleanup regression now exercises real _gate_environment and exact Make argv while preserving no-teardown assertion. Independent positive uses supplied authentic source."
+    }
+  ],
+  "source_inputs": {
+    "pin_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "manifest_sha256": "8a00b91756cb3c16491fe7f5e47feadf7798db1f7753706ea49d48ad5b78521f",
+    "management_source": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source",
+    "management_oauth_sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+    "original_source": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+    "original_oauth_sha256": "f5ac65f27eb9722a433ab600f336617185b74e0ac75a25d727b7d4836d4ab076",
+    "scope": "Only relevant OAuth original/prepared bytes and pin-bound management manifest reattested. No prepare/build/reapply/import/prewarm of native tree."
+  },
+  "source_preflight_controls": [
+    {"input": "absent", "result": "OAuth AST requires HERMES_NATIVE_SOURCE from ops/prepare_hermes_runtime.py (MANAGEMENT)", "tool_lookup_calls": 0, "fixture_attempts": 0, "process_attempts": 0},
+    {"input": "original", "result": "management OAuth source SHA256 mismatch: oauth.py", "tool_lookup_calls": 0, "fixture_attempts": 0, "process_attempts": 0},
+    {"input": "tampered", "result": "management OAuth source SHA256 mismatch: oauth.py", "tool_lookup_calls": 0, "fixture_attempts": 0, "process_attempts": 0},
+    {"input": "valid MANAGEMENT", "result": "SOURCE_ACCEPTED_BEFORE_TOOLS", "tool_lookup_calls": 1, "fixture_attempts": 0, "process_attempts": 0}
+  ],
+  "oauth_cases": ["error", "cancel", "expiry", "ordinary_cancel", "guard_denial", "saved"],
+  "totals": {
+    "executed_unittest_methods": 17,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "oauth_subcases_in_one_method": 6,
+    "same_caller_source_controls": 4,
+    "calculation": "Pinned Python -I -B evaluated sum((5,1,9,2)) -> 17, exit 0. Subcases/source controls are not added to method total."
+  },
+  "commands": [
+    {
+      "id": "requested-interpreter",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13.15 -I -B -c 'import sys; print(sys.version)'",
+      "exit": 127,
+      "result": "Exact requested spelling unavailable: No such file or directory."
+    },
+    {
+      "id": "actual-interpreter",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; print(sys.version); print(sys.executable)'",
+      "exit": 0,
+      "result": "3.13.15; existing API venv alias, resolved binary recorded above; no installation or version downgrade."
+    },
+    {
+      "id": "runner-regressions",
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "tests/development/test_test_db_gate.py", "SafeTestDatabaseGateTests.test_gate_environment_preserves_only_explicit_native_source", "SafeTestDatabaseGateTests.test_canonical_oauth_source_refuses_before_any_fixture_or_toolchain_effect", "SafeTestDatabaseGateTests.test_noncanonical_gate_does_not_require_oauth_source", "SafeTestDatabaseGateTests.test_candidate_target_is_admitted_without_becoming_canonical", "SafeTestDatabaseGateTests.test_targeted_runs_cannot_emit_a_canonical_gate_label", "-v"],
+      "exit": 0,
+      "tests": 5,
+      "skipped": 0
+    },
+    {
+      "id": "oauth-refusal-regression",
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "tests/development/test_hermes_runtime_build.py", "RuntimeBuildControls.test_oauth_ast_refuses_unpinned_management_source", "-v"],
+      "exit": 0,
+      "tests": 1,
+      "skipped": 0
+    },
+    {
+      "id": "producer-and-unchanged-outcomes",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <inline source-only control>",
+      "exit": 0,
+      "actual_operations": ["runpy ops/prepare_hermes_runtime.py without main", "require_hash management-patch-manifest.json against PIN.management_patch_manifest_sha256", "require_hash supplied MANAGEMENT OAuth against patched_sha256", "require_hash supplied original OAuth against original_sha256", "git show HEAD:integrations/hermes/tests/test_native_build.py", "AST equality for complete NativeInertSeam class after removing only newly added admission call; assert nine methods and six literal cases"],
+      "result": "All assertions passed; source hashes and unchanged cases emitted in terminal output."
+    },
+    {
+      "id": "same-caller-preflight-controls",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <inline controlled real prove_private_fixture invocation>",
+      "exit": 0,
+      "cases": 4,
+      "actual_caller": "runpy ops/run_test_db_gate.py -> real prove_private_fixture(check-components, unused, 10) -> real _preflight_gate -> actual check_management_oauth_source",
+      "fences": "shutil.which raises SourceAccepted on first tool lookup; prepare_paths and _run raise AssertionError on any attempt. Caller/admission logic is not copied, bypassed or mocked. Nonempty source inputs supplied relative to worktree cwd. Tamper control copies only relevant worker and appends a comment in own TMPDIR.",
+      "fixture_attempts": 0,
+      "process_attempts": 0
+    },
+    {
+      "id": "real-environment-real-AST",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <inline caller of real _gate_environment and run_gate>",
+      "actual_child_argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import runpy,sys; sys.path.insert(0,\"integrations/hermes/src\"); sys.argv=[\"integrations/hermes/tests/test_native_build.py\",\"-v\"]; runpy.run_path(sys.argv[0],run_name=\"__main__\")"],
+      "exit": 0,
+      "tests": 9,
+      "skipped": 0,
+      "oauth_subcases": 6,
+      "timeout_seconds": 25,
+      "source_selection": "Relative HERMES_NATIVE_SOURCE passed to real _gate_environment; absolute expected value asserted; exact first check-runtime recipe parsed from frozen Makefile using shlex and executed through real run_gate.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/review-norm-tmp/ast/gate.log",
+      "own_result_readback": {"path": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/review-norm-tmp/ast/gate.log.result.json", "schema_version": 1, "code": 0, "family_drained": true},
+      "boundary": "SOURCE/controlled AST, not full check-runtime or canonical. No native tree module import or gateway launch. Existing family owner is an ordinary Python process. Its unchanged internal argv uses -I without -B; observer and affected AST child both use -I -B. Owner imports stdlib only."
+    },
+    {
+      "id": "private-config-and-dispatch",
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "tests/development/test_test_db_gate.py", "SafeTestDatabaseGateTests.test_gate_uses_private_operator_config_not_ambient_or_caller_config", "SafeTestDatabaseGateTests.test_gate_exception_never_authorizes_database_teardown", "-v"],
+      "exit": 0,
+      "tests": 2,
+      "skipped": 0,
+      "limit": "DB/docker sink doubles only. DISPOSABLE_CREATED and PRIVATE_DB_PROBE_OK stdout are synthetic unit markers, not real PG/OCI evidence. Existing test asserts actual Make argv, real _gate_environment output, raised gate exception and no teardown before drain."
+    },
+    {
+      "id": "ruff-runtime-scope",
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "ruff", "check", "--config", "api/pyproject.toml", "--no-cache", "--no-fix", "integrations/hermes/tests/test_native_build.py", "ops/run_test_db_gate.py"],
+      "exit": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "id": "format-runtime-scope",
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-m", "ruff", "format", "--config", "api/pyproject.toml", "--no-cache", "--check", "integrations/hermes/tests/test_native_build.py", "ops/run_test_db_gate.py"],
+      "exit": 0,
+      "result": "2 files already formatted"
+    },
+    {
+      "id": "snapshot-integrity",
+      "commands": ["git status --short --branch", "git rev-parse HEAD", "git diff --check", "sha256sum developer.patch and exact five declared files", "Pinned Python -I -B: assert all final file hashes equal developer-result.json; assert git diff --binary -- <five files> equals developer.patch byte-for-byte"],
+      "exit": 0,
+      "result": "Same base, same five modified files, matching initial/final snapshot hashes and exact patch equality."
+    }
+  ],
+  "caller_compatibility": {
+    "searched": "Definitions/usages in ops/*.py, tests/development/*.py, integrations/hermes/tests/*.py, scripts/*.py, tools/development/*.py and .github/workflows. Protected ponytail JSON not opened.",
+    "affected_runner_signature": "No remaining in-scope _preflight_gate call with old arity. Sole production caller and synthetic override updated.",
+    "shared_env_consumer": "test_managed_native_source.py also consumes HERMES_NATIVE_SOURCE. Prepared source is correct producer layout for its unchanged AST controls. No full runtime suite verdict inferred.",
+    "ci_input_gap": {
+      "location": ".github/workflows/ci.yml:34-41",
+      "status": "EXPLICIT_PREREQUISITE_UNSATISFIED_IN_UNCHANGED_WORKFLOW; NOT_BLOCKING_THIS_SOURCE_FIX",
+      "detail": "Workflow invokes make check without preparing/exporting HERMES_NATIVE_SOURCE. With no external input it will refuse at source preflight. This is expected no-input failure under the requested contract, not CI green or auth implementation. Any later CI-positive claim requires supplying existing pinned MANAGEMENT source through this same env channel."
+    }
+  },
+  "prior_findings_disposition": [
+    {
+      "id": "CANONICAL_ENV_DROPPED_SOURCE",
+      "status": "CLOSED_SCOPED_ON_THIS_SNAPSHOT",
+      "evidence": "Real _gate_environment forwards relative explicit source as absolute; real run_gate executes exact final Makefile AST recipe, 9 PASS/0 SKIP. Existing prove dispatcher unit asserts exact Make argv/source."
+    },
+    {
+      "id": "OAUTH_INPUT_AFTER_PROVISIONING",
+      "status": "CLOSED_SCOPED_ON_THIS_SNAPSHOT",
+      "evidence": "Real prove_private_fixture/check-components with real preflight accepts authentic MANAGEMENT up to first tool lookup; absent/original/tampered refuse with zero fixture/process attempts."
+    }
+  ],
+  "reused_not_reexecuted": {
+    "development_quality_baseline": "Developer-result reports unchanged six plus three preexisting Ruff diagnostics in development tests and two preexisting format blocks. No global development lint-green claimed by this review; no repeated baseline audit performed.",
+    "unchanged_full_gates": "Historical canonical/runtime evidence not promoted to current canonical PASS; integration boundary remains orchestrator-owned."
+  },
+  "boundaries_limits": [
+    "Full make check/make test/check-components and full check-runtime NOT_RUN. Actual --check runner CLI not launched; it provisions PostgreSQL.",
+    "Only SOURCE/no-effect controls and bounded local Python family processes used. No PG/OCI/provider/target/browser/native gateway/build/dependency installation.",
+    "No authentication product behavior changed or live OAuth tested. Six outcomes tested with existing synthetic sinks around actual pinned worker AST.",
+    "Source preflight is not whole-tree admission or immutability enforcement. Actual OAuth consumer rehashes before its six cases; concurrent replacement and unrelated source inventory are outside this scoped proof.",
+    "Exact requested interpreter spelling missing, exit 127. Tests used existing same-venv alias with verified Python 3.13.15. No toolchain mutation, version downgrade or model fallback.",
+    "Read-only worktree: no code/tests/config/skills/SOUL/memory/global settings edits, staging, commit, push or subagents. Scratch artifacts only under own 0700 TMPDIR and requested report path.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json not read/copied/hashed/modified. No operator .env/auth/cookies/foreign private receipts or logs accessed.",
+    "Attempt to use execute_code solely for report serialization was blocked by unattended-session policy before execution (tool_calls_made=0). Used normal write_file instead; no policy bypass or setting changes."
+  ],
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO",
+  "status_delta": {
+    "AICI": "OAuth SOURCE prerequisite: present/uncommitted; independent normative review APPROVED_SCOPED; 17 method tests PASS plus four source controls",
+    "integration": "NOT_PERFORMED; orchestrator adjudicates/integrates/commits",
+    "canonical_live_phase2": "NOT_RUN/NOT_CERTIFIED by this review",
+    "next": "Orchestrator compares exact five hashes, adjudicates complementary review and integrates only this prerequisite. Supply explicit MANAGEMENT input for any later admitted canonical attempt."
+  }
+}

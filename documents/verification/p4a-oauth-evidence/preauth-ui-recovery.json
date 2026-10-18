@@ -1,9 +1,9 @@
 {
-  "status": "CLEAN_UI_INSTALLED_VISIBLE_QA_PASS_HANDOFF_ONLY",
+  "status": "OPERATOR_PAUSED_UNTIL_MORNING_AUTH_CANCELLED_NO_INFERENCE",
   "previous_handoff_status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
   "main_product_commit": "d253ba6c89c0a80f42cd2c2ba278a3630dab8108",
   "latest": {
-    "scope": "User requested cleaner Home/Runtime/Providers, affected QA, then next-session prompt; no successor in this session",
+    "scope": "Fresh implementation mandate activated, UI accepted for continuation; operator subsequently paused until morning. Prerequisite e0d23d6 integrated; no live inference or successor during pause",
     "root": "/home/kali/.omnis-p2-ui7",
     "origin": "http://127.0.0.1:8765",
     "state": "READY_RETAINED_FOR_OPERATOR",
@@ -15,9 +15,9 @@
     "evidence": "clean-ui-installed.json; original author/copy/review/density/re-review JSON preserved byte-exact",
     "verification": "14 final source hashes; original review plus focused density re-review APPROVED_SCOPED. Canonical web exit0:96unit/6tooling/audit0 on Node24.21.0/npm11.19.0. Final Home/Runtime8 geometries plus unchanged Providers4, final Providers smoke/read/save. Keyboard/disclosure/fullID/reload, logout errors and real logout/revocation, zoom/media/navigation/empty validation; no aesthetic certification.",
     "artifact": "API95/CLI22/adapter20 unchanged, native3260 closure validated; web/bundle/required OCI rebuilt. Image44.791s/start19.237s/exit0, separate READY readback,4served assets hash-exact.",
-    "operator_boundary": "Visual approval still separate. Configured native readback confirmed; auth/inference NOT_RUN. No Connect; stat-only grant filenames absent, not a native LOCAL_PRESENT/ABSENT observation. Dedicated browser kept foreground on Home.",
+    "operator_boundary": "UI accepted for continuation, not universal design/function certification. Native auth_read a4fe839d-db59-47a6-b28c-b7415f0dc768 CONFIRMED/ABSENT. Connect 7d9d7d7b-9d5a-41b7-8d92-ff85ffa79bc6 reached CHALLENGE; operator reported nothing appeared/grayed out. At pause same-ID Cancel settled CONFIRMED/CANCELLED/ABSENT/challenge absent. No completed account consent or inference. First synthetic Codex gpt-6.1-sol/xhigh call max300s authorized but unused; no further calls implicitly authorized. Browser retained on Providers; external authorization tab not confirmed. No challenge/credential captured.",
     "retired_roots": "ui6 original Stop12.549s exit0, Status STOPPED/generation2/data identities retained. ui5 supervisor exit3/OOMfalse/causeUNKNOWN at entry; original emergency Stop9.295s exit4, logical UNCERTAIN/RECOVERY_REQUIRED retained, exact4CIDs/project/networks/kernel sockets absent and data retained. Never auto-restart/adopt ui5 or erase marker.",
-    "canonical": "Full make check NOT_RUN: unchanged native AST test points at absent inert-source/hermes_cli/web_routers/oauth.py. Preexisting installed browser mode=session also starts Home then expects Runtime identity; fix its caller before selecting it, no product route workaround.",
+    "canonical": "e0d23d6 fixes pinned MANAGEMENT source/canonical environment and isolated-child adapter selection; two complementary APPROVED_SCOPED reviews on exact5files, parent8regressions and9AST PASS. Source input explicitly HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source. Actual check-runtime FAIL exit2:441PASS/1FAIL25.64s in unchanged stock-control fixture passing None to native agent.__dict__; isolated1FAIL0.06s. Full canonical NOT_RUN. Old installed browser mode=session route mismatch remains separately unselected.",
     "private_evidence": {
       "archive": "/home/kali/.omnis-p2-ui7/recovery/clean-ui-evidence.tar.gz",
       "sha256": "165f80417d7587ff4605d966592af601dc5af30a593e0912c4515abafaf39b7d",
@@ -26,7 +26,7 @@
       "mode": "0600",
       "excludes": "Browser profiles/cookies/credentials/capabilities/PGDATA/raw private logs; not off-device backup"
     },
-    "next": "Use p2-next-session-implementation.md CURRENT only when activated by operator in a fresh session. Reobserve service/browser and preserve operator data. Resolve concrete QA prerequisites, operator visual/auth decision, legitimate synthetic inference, then remaining G04a/G02-live criteria. No P3/target/global/push, no repeat of unchanged accepted evidence."
+    "next": "PAUSED: resume only when operator returns. Reobserve Git/CURRENT/UI7/browser. Adjudicate unchanged None stock-control failure, then verify real authorization-tab creation rather than click ACK and leave auth to operator. Do not retry old cancelled operation. Auth -> legitimate authorized1call/300s -> remaining G04a/G02-live under finite further budget; no P3/target/global/push or repeat of unchanged accepted evidence. Developer/review/check jobs exited; browser and READY UI retained. Original worktree /home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/work contains exact already-integrated five-file delta, no active writer; do not reimport. Two wrong system Chromium145 launches exited SIGTRAP; pinned browser153.0.8010.12 restored dedicated profile/debug9226/window98566148."
   },
   "previous_visual_v5_snapshot": {
     "snapshot_scope": "Historical READY observation, superseded by current UI5 UNCERTAIN/physical retirement noted in latest; not a restart instruction",
@@ -156,5 +156,5 @@
   },
   "next": "Use latest.next. Prior records are historical at their exact snapshots; no reimport of polish or blind Connect retry.",
   "visible_qa_contract": "Show the actual Omnis window on the operator desktop and keep it visible during tests. Verify foreground/visibility, announce short steps and show before/after. Pause automation when the operator takes control. Do not claim headless/screenshot-only execution is live-visible. No secrets in chat, captures, logs or Git.",
-  "limits": "Current style artifact is installed and intentionally READY for visual inspection. User visual approval, account authentication/inference and final phase2 canonical remain pending/NOT_RUN. Pre-auth current journey passed separately; old FAIL/UNKNOWN stay historical. P2/P4a not closed; no P3/target/r1/global/push."
+  "limits": "UI accepted for continuation; account authorization not completed, zero product inference. Connect cancelled/settled and grant ABSENT by native observation. Operator pause until morning overrides continuation; no background development/checks. Component gate has one unchanged fixture FAIL; full phase2 canonical NOT_RUN. Source reviews/AST PASS do not close P4a/G02-live. Historical FAIL/UNKNOWN/UI5UNCERTAIN stay; no P3/target/r1/global/push."
 }

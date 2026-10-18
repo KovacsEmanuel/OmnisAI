@@ -1,6 +1,6 @@
 # Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**DOAR ÎN SESIUNEA FRESH. CURRENT = HANDOFF_ONLY după polishul UI și QA cerute de operator.** Produs `d253ba6c89c0a80f42cd2c2ba278a3630dab8108`; commiturile documentare ulterioare se verifică în Git. UI7 este lăsată READY pentru inspecție, nu autentificată la provider. Niciun succesor nu a fost pornit. Promptul de mai jos devine mandat numai când operatorul îl folosește explicit într-o sesiune fresh; arhiva P2-inert de la final nu este o coadă de reluare.
+**CURRENT = HANDOFF_ONLY / PAUZĂ până dimineață, cerută de operator după reluarea explicită.** Promptul „DOAR ÎN SESIUNEA FRESH” a fost activat în această reluare; în pauză este numai stare de recuperare, nu ordin de lansare. UI `d253ba6` acceptată pentru continuare, UI7 READY/date păstrate; prerechizit canonic `e0d23d6` integrat/reviewuit,9AST+8regresii PASS, dar check-runtime441PASS/1FAIL pe control neschimbat cu agent=None. Canonical complet NOT_RUN. Auth nefinalizată; unicul Connect a fost anulat CONFIRMED/CANCELLED/ABSENT, fără challenge. Prima probă Codex/xhigh1apel/300s autorizată/neconsumată. Nu porni altă activitate până la reluarea operatorului. Verifică Git/CURRENT; arhiva P2-inert de la final nu este coadă de reluare.
 
 ## Prompt pentru următoarea implementare
 
@@ -19,7 +19,7 @@ Audit read-only numai pe traseele afectate și criteriile restante.
 
 STARE DE RELUARE
 Verifică Git: branch checkpoint/p2-batch2-pause-20261015;
-polishul este integrat până la d253ba6c89c0a80f42cd2c2ba278a3630dab8108.
+UI d253ba6 și remediul prerequisite e0d23d6 sunt integrate, nu se reimportă.
 Citește CURRENT din README, p4a-minim.md, p2-integration-b06cm.md,
 implementation-status.md și p4a-oauth-evidence/preauth-ui-recovery.json,
 plus plan §7–8/§19. Dovezile UI: clean-ui-installed.json și reviewurile legate.
@@ -50,21 +50,37 @@ Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
 numai pe logica neschimbată. Niciun candidat vechi nu se reimportă.
 
 PRIMII PAȘI ȘI RESTANȚE
-1. Corectează minimal prerechizitul canonic demonstrat:
-   NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry citește
-   greșit inert-source/hermes_cli/web_routers/oauth.py, absent din overlayul
-   parțial. Reproduce exact, folosește sursa pin-uită/producerul corect, fără
-   skip, copie arbitrară în vendor ori assertion slăbit. Nu este bug UI.
+1. Reutilizează e0d23d6 și cele două reviewuri din p4a-minim.md:
+   HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source
+   este inputul MANAGEMENT explicit, validat înainte de provisioning și la AST.
+   Nu este no-input GREEN. Nu relansa remediul locatorului sau9AST neafectate.
+   Adjudecă următorul FAIL real: test_public_turn_denies_before_native_dependencies_and_preserves_stock_control
+   din integrations/hermes/tests/test_model_terminal.py trimite function(None,None),
+   dar native conversation_loop citește agent.__dict__ înaintea tripwire-ului stock.
+   Check-runtime:9AST PASS,441PASS/1FAIL25.64s/exit2; izolat1FAIL0.06s/exit1.
+   Test/producer/adaptor relevante sunt neschimbate de e0d23d6. Reproducer→fix minim
+   al fixture-ului/callerului legitim dacă se confirmă→regresii/review; fără skip,
+   produs auth modificat preventiv sau assertions slăbite. Nu este bug UI demonstrat.
    Dacă alegi installed_browser.mjs mode=session, repară întâi callerul care
    pornește Home și apoi cere identitatea Runtime; nu schimba ruta produsului.
 2. Păstrează QA vizibilă: fereastră headed efectiv în față, URL comunicat,
    fără înlocuire cu headless/screenshot-only. La preluarea operatorului,
    oprește automatizarea și reobservă înainte de continuare.
-   După acceptarea UI, operatorul face autentificarea/confirmarea contului
-   Codex numai în web. Nu solicita/copia parole, tokenuri sau coduri în chat,
+   UI este acceptată pentru continuare. Reobservă browserul dedicat pin153,
+   nu /usr/bin/chromium145 (două SIGTRAP păstrate). Operatorul nu a putut
+   continua ultima autorizare: „nu apare nimic, e grayed out”. Unicul Connect
+   7d9d7d7b-9d5a-41b7-8d92-ff85ffa79bc6 a fost CHALLENGE, apoi la pauză Cancel
+   pe același ID→CONFIRMED/CANCELLED/ABSENT fără challenge. Nu relua acest ID.
+   Clickul programatic nu a confirmat tab extern; verifică efectul real al
+   deschiderii URL-ului oficial înainte de predarea controlului, nu doar ACK.
+   Cauza exactă a simptomului operatorului rămâne UNKNOWN; fără retry orb.
+   Operatorul face autentificarea/confirmarea contului Codex numai în web.
+   Nu solicita/copia parole, tokenuri sau coduri în chat,
    capturi, loguri ori Git. Save nu este auth; LOCAL_PRESENT se verifică
    prin operația care îl produce și nu înseamnă inference_ready.
-3. Confirmă contul, modelul/effortul cerut, datele sintetice și bugetul finit.
+3. Buget confirmat/neconsumat: cont Codex ales de operator, gpt-6.1-sol/xhigh,
+   date sintetice, maximum1apel/300s pentru prima probă, fără retry/fallback.
+   Nu extinde acest acord la alte calls; auth/consimțământ încă nefinalizate.
    Prima inferență trece exclusiv prin callerul legitim deja existent:
    native_tasks.py/_model_test_prepare și _model_test_send → ModelTest,
    cu producerii reali ai inputurilor, nu un apel SDK auxiliar sau helper fals.
@@ -79,6 +95,7 @@ PRIMII PAȘI ȘI RESTANȚE
    Reutilizează părțile inerte neafectate; nu transforma un PASS sintetic ori
    primul răspuns în închiderea G04a/G02-live. Fără alte familii/demo/editor.
 5. Canonical final real pe snapshotul final, după preflight fără efecte:
+   exportă inputul HERMES_NATIVE_SOURCE MANAGEMENT de mai sus;
    make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19
    --check al runnerului PG PROVIZIONEAZĂ; nu este dry-run.
    Respectă argv, opt-in, source/library/toolchain și ownership existente.

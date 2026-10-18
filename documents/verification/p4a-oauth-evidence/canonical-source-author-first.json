@@ -1,0 +1,156 @@
+{
+  "base": "1e345f5254af86af8b7942bd2f83749c471cd09c",
+  "branch": "work/p2-live-7au4ie6u",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/work",
+  "status": "PASS_SCOPED_WITH_EXPLICIT_MANAGEMENT_INPUT; IMPLICIT_WITHOUT_SOURCE_BLOCKED; PENDING_ORCHESTRATOR_REVIEW",
+  "integration_status": "NOT_INTEGRATED; NO_COMMIT; NO_PUSH; BRANCH_UNCHANGED",
+  "runtime": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "reasoning": "xhigh",
+    "confirmation": "Own Hermes ancestor PID 2609636 /proc command-line flags: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh",
+    "fallback_used": false,
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_version_observed": "3.13.15",
+    "tmpdir": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/tmp"
+  },
+  "files": [
+    {"path": "Makefile", "sha256": "5cbc6835169fd851f919111498a250f9f9cdaca7dcca067177b628d5097b1235", "bytes": 26796},
+    {"path": "integrations/hermes/tests/test_native_build.py", "sha256": "e683887c15aa4c36a7c4eea913a2e6b8cf5be094f63eda64eeea7906186afd93", "bytes": 16160},
+    {"path": "tests/development/test_hermes_runtime_build.py", "sha256": "ce4aa597b30a0c08d811d40b2df96d9e12765642155c913ce845fa713a44ac8d", "bytes": 7757}
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/developer.patch",
+    "sha256": "7eb9ff894a27b170c5396c9eddd7c46bd3795a002da93160911a97af94682617",
+    "bytes": 5495,
+    "format": "Exact git diff --binary against unchanged local HEAD, only the three owned files"
+  },
+  "root_cause": "The default SOURCE is upstream/inert-source, a partial inert overlay that has no hermes_cli/web_routers/oauth.py. The OAuth worker control was added without a MANAGEMENT source prerequisite. The canonical -I child also did not explicitly select this worktree's adapter, regardless of a parent's sys.path.",
+  "requirement_consumer_risk_decision": {
+    "requirement": "Execute the actual pinned MANAGEMENT OAuth worker AST, retaining all six existing precedence cases and assertions.",
+    "consumer": "NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry, called by the AST recipe in make check-runtime.",
+    "risk": "Missing source prevents any precedence evidence; accepting arbitrary/original bytes or importing an installed adapter can test the wrong artifact.",
+    "decision": "Require an explicit prepared MANAGEMENT source using the existing HERMES_NATIVE_SOURCE seam; validate the pinned management manifest and selected OAuth file through the existing preparation producer's require_hash before native setup/AST execution. Run the AST recipe first and insert integrations/hermes/src inside its own -I child. No source discovery, scratch-path default, vendored copy, dependency or generic helper was introduced."
+  },
+  "scope_before_write": {
+    "callers": ["Makefile check-components -> check-runtime", "Makefile AST recipe", "Direct test_native_build.py invocation"],
+    "tests": ["Existing OAuth precedence method: six unchanged cases/assertions", "Other eight methods in test_native_build.py affected by the caller", "One new development regression refusing a valid-Python but unpinned worker before adapter imports"],
+    "fixtures": ["Existing prepared MANAGEMENT source, read-only", "Existing pinned original OAuth file, hash-only preflight plus refusal control", "New regression's disposable fixture under the owned absolute TMPDIR"],
+    "config": "Existing HERMES_NATIVE_SOURCE now documented as required MANAGEMENT input for check-runtime's OAuth control. No persistent/global/personal configuration changed. API_PY was overridden only on the bounded make refusal command to select the supplied interpreter.",
+    "exports": "No package/API exports changed.",
+    "user_limits": "No auth/provider/inference validation. No data migration/destruction or credential reads. A bare command without the external prepared source still refuses; it is not self-contained GREEN."
+  },
+  "source_semantics": {
+    "pin_commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "producer": "ops/prepare_hermes_runtime.py: prepare -> apply_inert_overlay -> apply_managed_overlay -> apply_management_overlay",
+    "manifest": "integrations/hermes/upstream/management-patch-manifest.json",
+    "manifest_sha256": "8a00b91756cb3c16491fe7f5e47feadf7798db1f7753706ea49d48ad5b78521f",
+    "original": {
+      "path": "/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned/hermes_cli/web_routers/oauth.py",
+      "sha256": "f5ac65f27eb9722a433ab600f336617185b74e0ac75a25d727b7d4836d4ab076",
+      "result": "Verified against original_sha256, then correctly refused by the MANAGEMENT-specific control before its six cases. This is input refusal, not a behavioral OAuth failure verdict."
+    },
+    "management": {
+      "source": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source",
+      "oauth_sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+      "result": "Verified against patched_sha256 from the pin-hash-verified manifest; actual worker AST executes against the existing synthetic effect sinks. Six cases pass."
+    },
+    "input_preflight": "Existing producer require_hash verified manifest, original OAuth file and prepared MANAGEMENT OAuth file; exit 0. No upstream source imports, archive extraction, prewarming, native gateway launch or dependency build.",
+    "no_implicit_fallback": true
+  },
+  "commands": {
+    "environment_common": {"TMPDIR": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/tmp"},
+    "red_consumer": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import os,runpy,sys; os.environ.pop(\"HERMES_NATIVE_SOURCE\",None); sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/work/integrations/hermes/src\"); sys.argv=[\"integrations/hermes/tests/test_native_build.py\",\"NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry\",\"-v\"]; runpy.run_path(sys.argv[0],run_name=\"__main__\")"],
+      "exit": 1,
+      "methods": 1,
+      "case_errors": 6,
+      "skip": 0,
+      "reason": "FileNotFoundError on inert-source/hermes_cli/web_routers/oauth.py in all six subtests before any OAuth precedence result",
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/red-consumer.log"
+    },
+    "red_regression": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import runpy,sys; sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/work/integrations/hermes/src\"); sys.argv=[\"tests/development/test_hermes_runtime_build.py\",\"RuntimeBuildControls.test_oauth_ast_refuses_unpinned_management_source\",\"-v\"]; runpy.run_path(sys.argv[0],run_name=\"__main__\")"],
+      "exit": 1,
+      "tests": 1,
+      "failures": 1,
+      "skip": 0,
+      "reason": "Before implementation, a valid-Python unpinned worker was executed instead of refused; entered.wait assertion failed rather than the required management OAuth source SHA256 mismatch.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/red-valid-regression.log",
+      "prior_attempt": {"exit": 1, "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/red-regression.log", "disposition": "Invalid-Python fixture produced SyntaxError; not accepted as RED evidence. Corrected fixture and reproduced the missing validation before implementation."}
+    },
+    "green_consumer": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import runpy,sys; sys.path.insert(0,\"integrations/hermes/src\"); sys.argv=['integrations/hermes/tests/test_native_build.py', 'NativeInertSeam.test_native_error_precedence_over_cancel_and_expiry', '-v']; runpy.run_path(sys.argv[0],run_name=\"__main__\")"],
+      "HERMES_NATIVE_SOURCE": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source",
+      "exit": 0,
+      "methods": 1,
+      "case_count": 6,
+      "cases": ["error", "cancel", "expiry", "ordinary_cancel", "guard_denial", "saved"],
+      "skip": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/green-consumer.log"
+    },
+    "green_exact_canonical_ast_recipe": {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import runpy,sys; sys.path.insert(0,\"integrations/hermes/src\"); sys.argv=[\"integrations/hermes/tests/test_native_build.py\",\"-v\"]; runpy.run_path(sys.argv[0],run_name=\"__main__\")'",
+      "selection": "Executed the exact final Makefile recipe extracted from disk, substituting only API_PY; did not run the rest of check-runtime.",
+      "HERMES_NATIVE_SOURCE": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source",
+      "exit": 0,
+      "tests": 9,
+      "skip": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/green-canonical-ast-recipe.log"
+    },
+    "green_source_regression": {
+      "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "tests/development/test_hermes_runtime_build.py", "RuntimeBuildControls.test_oauth_ast_refuses_unpinned_management_source", "-v"],
+      "exit": 0,
+      "tests": 1,
+      "skip": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/green-final-source-regression.log"
+    },
+    "original_source_control": {
+      "command": "Same isolated named OAuth consumer argv as green_consumer, with HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned",
+      "exit": 1,
+      "reason": "ValueError: management OAuth source SHA256 mismatch: oauth.py",
+      "cases_executed": 0,
+      "skip": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/original-source-denial.log"
+    },
+    "missing_input_canonical_control": {
+      "argv": ["make", "check-runtime", "API_PY=/home/kali/OmnisAI/api/.venv/bin/python"],
+      "HERMES_NATIVE_SOURCE": null,
+      "exit": 2,
+      "ast_child_exit": 1,
+      "tests": 9,
+      "failures": 1,
+      "skip": 2,
+      "skip_disposition": "Both existing full-pinned-source decorators, unchanged; positive prepared-source run has zero skips.",
+      "reason": "Explicit OAuth AST requires HERMES_NATIVE_SOURCE from ops/prepare_hermes_runtime.py (MANAGEMENT); stopped before broad runtime suite.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/missing-source-canonical-denial.log"
+    },
+    "quality": [
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/tests/test_native_build.py", "exit": 0, "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/ruff-check.log"},
+      {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check integrations/hermes/tests/test_native_build.py", "exit": 0, "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/ruff-format.log"},
+      {"command": "git diff --check", "exit": 0, "log": "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/final-diff-check.log"}
+    ],
+    "machine_readable_run_details": ["/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/execution-results.json", "/home/kali/.hermes/cache/scratch/p2-live-7au4ie6u/final-execution-results.json"]
+  },
+  "findings": [
+    {
+      "id": "OAUTH-AST-INPUT-REQUIRED",
+      "status": "BLOCKED_IF_IMPLICIT_MEANS_NO_SOURCE_INPUT",
+      "detail": "No allowed repository input contains the complete OAuth worker. Under the allowed file boundary, no-input GREEN cannot be delivered without distributing/restoring source or selecting an external prepared source. This patch deliberately does not invent discovery or copy vendor bytes. The explicit pinned prepared input has real GREEN evidence; a bare check-runtime still refuses.",
+      "next_decision": "Orchestrator must supply HERMES_NATIVE_SOURCE pointing to its prepared MANAGEMENT source for later canonical, or explicitly admit a separate source-distribution change if self-contained no-input execution is required."
+    }
+  ],
+  "review": "NOT_RUN_BY_DEVELOPER; exact frozen file and patch hashes supplied for orchestrator-owned independent review and integration",
+  "limits": [
+    "Full check-runtime positive, make check, make test and the effectful DB gate were not run.",
+    "No browser, installs, dependencies, OCI, PostgreSQL, native process launch, credentials, provider/network calls or inference.",
+    "No auth product, UI, vendor sources, pins, patches, profiles, global config, SOUL, memory or skills changed.",
+    "Protected documents/Omnis_Notite_Originale.html and tools/development/ponytail.json were not read, copied, hashed or changed.",
+    "Original source behavior was not executed; only its exact relevant hash and MANAGEMENT refusal were checked.",
+    "Only the OAuth input file was source-hash revalidated, not the entire supplied prepared tree.",
+    "No independent acceptance, integration or phase closure claimed; orchestrator owns review, integration and commit."
+  ],
+  "tooling_notes": ["skill_view could not resolve omnis-review-qa; relevant checked-in SKILL.md was read directly.", "execute_code was refused by unattended approval policy before execution (zero tool calls); used normal terminal/write_file tools instead without changing policy."],
+  "reticle": "NOT_APPLICABLE",
+  "chisel": "BLOCKED_NO_GO"
+}

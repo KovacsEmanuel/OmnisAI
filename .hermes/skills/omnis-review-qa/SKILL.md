@@ -1,7 +1,7 @@
 ---
 name: omnis-review-qa
 description: "Use when reviewing and verifying an Omnis change."
-version: 0.1.40
+version: 0.1.41
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -127,6 +127,7 @@ Trace replay/readback through pinned compiler and dependency validation before c
 - Keep catalog identity ownership consistent when qualifying variants of the same package in one private DB. An arbitrary new owner can hit IDENTITY_OWNERSHIP before a lexical refusal; use the legitimate same owner or explicitly distinct identities, then verify the intended frontier. Keep helper paths inside the actual owned TMPDIR required by their contract.
 - For historical unstarted graphs, test exact readback/request replay and receive-only restart; reconcile without a native final result must refuse NEEDS_RECONCILIATION without writes. Do not invent a terminal result to satisfy an extra oracle. Byte equality alone is not an independent evaluator-call census.
 - Attribute browser cancellations to measured request identity/action phase and same-browser successful readiness/pairing/session controls. Preserve cancellations and expected HTTP negatives; never hide unknown failures with a broad ERR_ABORTED exemption or describe expected errors as zero network errors.
+- For visible inactive-tab QA, verify the native window/tab and actual `document.visibilityState` before crediting background polling. An automation-controlled browser can report both tabs visible/focused; preserve that observer failure and narrow to a dedicated native headed browser with raw CDP rather than changing the app or replaying Connect. A corrected visibility control does not recover a native operation that already became INDETERMINATE.
 - Distinguish full-page capture artifacts from live occlusion. Pair viewport/full-page images at identical scroll/focus, measure bounds and hit tests, and inspect actual pixels. Keep unpaired captures inconclusive rather than changing otherwise-working UI for the screenshot.
 - When deliberately adding a supported wire version, inspect existing unknown-version controls. Add the new version to current-grant/transport positives and move only the obsolete unknown fixture to a genuinely unsupported version, preserving malformed-type, no-authority, no-resend and expiry assertions. Retain the original canonical FAIL; a synthetic peer proves transport only, not native admission.
 

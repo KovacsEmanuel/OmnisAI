@@ -39,6 +39,22 @@ class RuntimeBuildControls(unittest.TestCase):
                 module.apply_inert_overlay(source)
             self.assertEqual(path.read_text(), "untrusted modification\n")
 
+    def test_oauth_ast_refuses_unpinned_management_source(self):
+        import runpy
+        from unittest.mock import patch
+
+        seam = runpy.run_path(str(ROOT / "integrations/hermes/tests/test_native_build.py"))
+        case = seam["NativeInertSeam"]("test_native_error_precedence_over_cancel_and_expiry")
+        method = case.test_native_error_precedence_over_cancel_and_expiry
+        with tempfile.TemporaryDirectory() as raw:
+            source = Path(raw)
+            oauth = source / "hermes_cli/web_routers/oauth.py"
+            oauth.parent.mkdir(parents=True)
+            oauth.write_text("def _codex_full_login_worker(session_id):\n    pass\n")
+            with patch.dict(method.__func__.__globals__, {"SOURCE": source}):
+                with self.assertRaisesRegex(ValueError, "management OAuth source SHA256 mismatch"):
+                    method()
+
     def test_security_override_binds_original_and_selected_inputs(self):
         module = self.prepare_module()
         self.assertTrue(hasattr(module, "dependency_inputs"), "runtime security override is not consumed")

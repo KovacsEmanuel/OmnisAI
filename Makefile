@@ -155,9 +155,10 @@ test-b06a-pure:
 
 .PHONY: check-runtime
 # Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
+# OAuth AST requires HERMES_NATIVE_SOURCE from prepare_hermes_runtime.py (MANAGEMENT).
 check-runtime:
+	$(API_PY) -I -B -c 'import runpy,sys; sys.path.insert(0,"integrations/hermes/src"); sys.argv=["integrations/hermes/tests/test_native_build.py","-v"]; runpy.run_path(sys.argv[0],run_name="__main__")'
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","integrations/hermes/tests/test_native_h02.py","integrations/hermes/tests/test_bootstrap_inventory.py","integrations/hermes/tests/test_native_preparation.py","integrations/hermes/tests/test_managed_admission.py","integrations/hermes/tests/test_managed_build.py","integrations/hermes/tests/test_model_prepare_lifecycle.py","integrations/hermes/tests/test_managed_native_source.py","integrations/hermes/tests/test_model_terminal.py","integrations/hermes/tests/test_prompt_bundle.py","integrations/hermes/tests/test_managed_composition.py","integrations/hermes/tests/test_c03_case_input.py","integrations/hermes/tests/test_c03_records.py","integrations/hermes/tests/test_contract_method.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
-	$(API_PY) -I integrations/hermes/tests/test_native_build.py -v
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests
 	$(API_PY) -I -m ruff format --config api/pyproject.toml --check integrations/hermes/src integrations/hermes/tests
 	env -u PYTHONPATH MYPYPATH=api/src $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental integrations/hermes/src

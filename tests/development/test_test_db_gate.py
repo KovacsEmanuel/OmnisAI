@@ -45,6 +45,81 @@ def _render_config(paths):
 
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
+    def test_gate_environment_preserves_only_explicit_native_source(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
+            root = Path(raw)
+            source = root / "prepared"
+            for index, selected in enumerate((None, str(source))):
+                with self.subTest(source=selected):
+                    owned = root / str(index)
+                    owned.mkdir(mode=0o700)
+                    paths = module["Paths"](
+                        owned, owned / "data", owned / "socket", owned / "password"
+                    )
+                    ambient = {"TMPDIR": os.environ["TMPDIR"], "UNRELATED_PROBE": "denied"}
+                    if selected is not None:
+                        ambient["HERMES_NATIVE_SOURCE"] = selected
+                    with patch.dict(os.environ, ambient, clear=True):
+                        result = module["_gate_environment"](
+                            paths, {"HOME": str(root)}, owned / "fixture.json", "synthetic"
+                        )
+                    self.assertEqual(result.get("HERMES_NATIVE_SOURCE"), selected)
+                    self.assertNotIn("UNRELATED_PROBE", result)
+
+    def test_canonical_oauth_source_refuses_before_any_fixture_or_toolchain_effect(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        prove = module["prove_private_fixture"]
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
+            source = Path(raw)
+            oauth = source / "hermes_cli/web_routers/oauth.py"
+            oauth.parent.mkdir(parents=True)
+            oauth.write_text("def _codex_full_login_worker(session_id):\n    pass\n")
+            for selected in (None, str(source)):
+                with self.subTest(source=selected):
+                    ambient = {"TMPDIR": os.environ["TMPDIR"], "HOME": str(source)}
+                    if selected is not None:
+                        ambient["HERMES_NATIVE_SOURCE"] = selected
+                    with (
+                        patch.dict(os.environ, ambient, clear=True),
+                        patch.dict(
+                            prove.__globals__,
+                            {
+                                "prepare_paths": lambda *_args: self.fail(
+                                    "fixture preparation attempted"
+                                ),
+                                "_run": lambda *_args, **_kw: self.fail(
+                                    "toolchain/process attempted"
+                                ),
+                            },
+                        ),
+                    ):
+                        with self.assertRaisesRegex(
+                            ValueError, "OAuth.*(requires|SHA256 mismatch)"
+                        ):
+                            prove("check-components", "unused-uv", 10)
+
+    def test_noncanonical_gate_does_not_require_oauth_source(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        prove = module["prove_private_fixture"]
+
+        def before_db(*_args):
+            raise RuntimeError("before DB")
+
+        for target in (None, "test-db-contract"):
+            with (
+                self.subTest(target=target),
+                patch.dict(
+                    os.environ,
+                    {"TMPDIR": os.environ["TMPDIR"], "HOME": os.environ["HOME"]},
+                    clear=True,
+                ),
+                patch.dict(prove.__globals__, {"prepare_paths": before_db}),
+                patch.object(module["shutil"], "which", side_effect=before_db),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "before DB"):
+                    prove(target, "uv", 10)
+
     def test_candidate_target_is_admitted_without_becoming_canonical(self) -> None:
         import signal
 
@@ -512,26 +587,32 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                     return subprocess.CompletedProcess(argv, 0, "", "")
                 raise AssertionError(f"Unexpected synthetic command: {argv}")
 
-            def gate(*_args):
+            def gate(argv, env, *_args):
+                self.assertEqual(
+                    argv, ["make", "--no-print-directory", "check-components", "UV=uv"]
+                )
+                self.assertEqual(env["HERMES_NATIVE_SOURCE"], str(paths.root / "source"))
                 raise PermissionError("synthetic signal failure before family readback")
 
-            with patch.dict(
-                prove.__globals__,
-                {
-                    "prepare_paths": lambda _root: paths,
-                    "_preflight_gate": lambda uv: uv,
-                    "_docker_endpoint": lambda _env: "unix:///run/synthetic.sock",
-                    "_run": command,
-                    "validate_compose_config": lambda *_args: None,
-                    "_find_owned": lambda *_args: ["a" * 64] if started[0] else [],
-                    "_project_networks": lambda *_args: [],
-                    "_container": lambda *_args: {},
-                    "_authenticated": lambda *_args: "123456789",
-                    "attest_fixture": lambda *_args: {},
-                    "_gate_environment": lambda *_args: {},
-                    "run_gate": gate,
-                    "cleanup_owned": lambda *_args: cleanup.append(True) or True,
-                },
+            with (
+                patch.dict(os.environ, HERMES_NATIVE_SOURCE=str(paths.root / "source")),
+                patch.dict(
+                    prove.__globals__,
+                    {
+                        "prepare_paths": lambda _root: paths,
+                        "_preflight_gate": lambda uv, _target: uv,
+                        "_docker_endpoint": lambda _env: "unix:///run/synthetic.sock",
+                        "_run": command,
+                        "validate_compose_config": lambda *_args: None,
+                        "_find_owned": lambda *_args: ["a" * 64] if started[0] else [],
+                        "_project_networks": lambda *_args: [],
+                        "_container": lambda *_args: {},
+                        "_authenticated": lambda *_args: "123456789",
+                        "attest_fixture": lambda *_args: {},
+                        "run_gate": gate,
+                        "cleanup_owned": lambda *_args: cleanup.append(True) or True,
+                    },
+                ),
             ):
                 self.assertEqual(prove("check-components", "uv", 10), 2)
             self.assertEqual(cleanup, [], "DB teardown preceded family drain")

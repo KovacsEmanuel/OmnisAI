@@ -1,6 +1,7 @@
 """No-I/O control of the actual pinned startup AST, not a gateway replacement.
 
 Set HERMES_NATIVE_SOURCE to compare the same sink with original/patched sources.
+The OAuth control requires the prepared MANAGEMENT source, not stock originals.
 Only startup prefixes and admission functions run; all effect sinks are recorders.
 """
 
@@ -10,6 +11,7 @@ import ast
 import contextlib
 import json
 import os
+import runpy
 import sys
 import threading
 import time
@@ -40,8 +42,30 @@ def run_node(node, namespace):
     )
 
 
+def check_management_oauth_source():
+    oauth = SOURCE / "hermes_cli/web_routers/oauth.py"
+    if not oauth.is_file():
+        raise ValueError(
+            "OAuth AST requires HERMES_NATIVE_SOURCE from ops/prepare_hermes_runtime.py (MANAGEMENT)",
+        )
+    preparation = runpy.run_path(str(ROOT / "ops/prepare_hermes_runtime.py"))
+    manifest_path = preparation["UPSTREAM"] / "management-patch-manifest.json"
+    preparation["require_hash"](
+        manifest_path,
+        preparation["PIN"]["management_patch_manifest_sha256"],
+        "management manifest",
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    preparation["require_hash"](
+        oauth,
+        manifest["files"]["hermes_cli/web_routers/oauth.py"]["patched_sha256"],
+        "management OAuth source",
+    )
+
+
 class NativeInertSeam(unittest.TestCase):
     def test_native_error_precedence_over_cancel_and_expiry(self):
+        check_management_oauth_source()
         import importlib
         import logging
         from uuid import uuid4

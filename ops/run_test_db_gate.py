@@ -10,6 +10,7 @@ import ctypes
 import json
 import os
 import re
+import runpy
 import secrets
 import shutil
 import signal
@@ -822,7 +823,10 @@ def gate_label(target: str) -> str:
     return "CANONICAL_GATE" if target == "check-components" else "TARGETED_GATE"
 
 
-def _preflight_gate(uv: str) -> str:
+def _preflight_gate(uv: str, target: str) -> str:
+    if target == "check-components":
+        seam = runpy.run_path(str(_ROOT / "integrations/hermes/tests/test_native_build.py"))
+        seam["check_management_oauth_source"]()
     base = {"PATH": os.environ.get("PATH", ""), "HOME": os.environ["HOME"]}
     selected = shutil.which(uv)
     if selected is None:
@@ -863,6 +867,8 @@ def _gate_environment(
         "OMNIS_TEST_DB_PASSWORD": password,
         "OMNIS_TEST_DATABASE_URL": f"postgresql+psycopg://omnis_test:{password}@{quote(str(paths.socket), safe='')}/omnis_test",
     }
+    if "HERMES_NATIVE_SOURCE" in os.environ:
+        result["HERMES_NATIVE_SOURCE"] = str(Path(os.environ["HERMES_NATIVE_SOURCE"]).resolve())
     for name in ("NPM_CONFIG_USERCONFIG", "NPM_CONFIG_GLOBALCONFIG"):
         path = paths.root / name.lower()
         with path.open("x"):
@@ -877,7 +883,7 @@ def prove_private_fixture(
     if any(k.startswith(("DOCKER_", "COMPOSE_", "PG")) for k in os.environ):
         raise UnsafeFixture("Ambient Docker/Compose/libpq overrides forbidden")
     if gate_target is not None:
-        uv = _preflight_gate(uv)
+        uv = _preflight_gate(uv, gate_target)
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
     paths = prepare_paths(scratch / f"db-{uuid4().hex[:16]}")
     project = f"omnis-p01-{uuid4().hex}"

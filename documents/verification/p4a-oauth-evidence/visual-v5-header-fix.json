@@ -1,0 +1,21 @@
+{
+  "status": "SOURCE_BUILD_PASS_PENDING_PARENT_REREVIEW_AND_FRESH_ARTIFACT_QA",
+  "base": "4bea4c9a3845fcf8d996c38fa6c868e185f6be03",
+  "head": "4bea4c9a3845fcf8d996c38fa6c868e185f6be03",
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Hermes PID2311123 cmdline allowlisted flags", "fallback_delegation": false},
+  "change": "Only margin:0 added to the existing .heading h1 rule; whole-file comparison against HEAD proves no other source change. Mobile margin-block:12px override and all other properties preserved.",
+  "source": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/work/web/src/features/engagement/Engagement.module.css",
+  "source_sha256": "6c262b3883ea8d24e881e79f39d328c38cef3ba7799f7deb400b31f27d8fda03",
+  "patch": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/header-fix.patch",
+  "patch_sha256": "d0e995d023a58542fec8d671d273b4b3f494f0c067083b04c7ec37aa68943d29",
+  "parent_behavior_evidence": {"receipt": "/home/kali/.omnis-p2-ui4/recovery/header-spacing-repro.json", "access": "Exact nonsensitive JSON read-only, no other instance access", "before": {"marginTop": "26.8px", "marginBottom": "26.8px", "connect_bottom": 754.53125}, "temporary_margin_zero_control": {"connect_bottom": 700.9375, "viewport_height": 720}, "scope": "Parent's temporary DOM RED/GREEN control, not developer fresh-artifact QA"},
+  "checks": {
+    "toolchain": "Node24.21.0/npm11.19.0; private TMPDIR/XDG/npm caches under t/header-fix; no install",
+    "build": {"command": "npm run build", "exit": 0, "includes": "check:contracts0, check:design0, tsc --noEmit0, Vite production build0 and trusted4file manifest", "log": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/t/header-fix/build.log"},
+    "git_diff_check": 0,
+    "index_unchanged": 0,
+    "single_property_only_and_mobile_override_preserved": true
+  },
+  "limits": "No repeated93tests, capture harness, browser/API/PG/provider/OCI access or functional edits. No new visual acceptance or fresh installed geometry claim; parent owns re-review and artifact QA. Historical FAIL/limitations remain.",
+  "cleanup": "Foreground build completed; only the allowed CSS tracked path modified, index/HEAD unchanged; private log/cache/build retained. No server launched, global change, docs/protected-file access or commit; original reports/patches preserved."
+}

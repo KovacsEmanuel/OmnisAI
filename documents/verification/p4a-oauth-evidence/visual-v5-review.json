@@ -1,0 +1,56 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent READ-ONLY visual fidelity, compatibility and accessibility review of the exact13-file style port; not user visual approval or integration closure.",
+  "root": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/work",
+  "base": "27f86d155a573614896b6af31309dad588805296",
+  "head": "27f86d155a573614896b6af31309dad588805296",
+  "patch_sha256": "6376ec16311fa6072ff0f895347e672910f2ca640912ce5a8b41dcba48a2d480",
+  "hashes_before_and_after": {
+    "web/src/app/App.tsx": "84d65b1ccfa92c4d0194873fdf6921e0683896cc5007d21037cd29b237d73243",
+    "web/src/app/Shell.module.css": "d8595a83a4bfa9f9a4cf35584a91ff7e36ccd2f06b56e56956a028720579bd50",
+    "web/src/app/Shell.test.tsx": "301bdaa44bd85fb9ab02a6df2344ada5d85aa8852a030f29bf9446146412bd07",
+    "web/src/features/bootstrap/Bootstrap.module.css": "ae687e620565c1a50bf161f8b301fba37df64fdb2df7a1e3831c100d86cb3102",
+    "web/src/features/bootstrap/Bootstrap.tsx": "b941247d65c1682f974bffd3b62d7a3aa4592d47c125c3b39f8970d2fd560d94",
+    "web/src/features/bootstrap/PairingForm.tsx": "9800de52d2b2039638725fc31bc5d7e23ceb835b29d886ba1377b512e48ea9db",
+    "web/src/features/dashboard/Dashboard.module.css": "1fcb121d820dedde5a7c9dec75d8710c8fdd6671f533fbf2b2b284dce6e465c9",
+    "web/src/features/dashboard/Dashboard.tsx": "b83934ffb7e589bbad949dcd29aa9624357d546ff7c37f4bcf53d7fff43ded9f",
+    "web/src/features/engagement/Engagement.module.css": "570bca0cfeaaf42efacad26ac99d4dc77c9b647cfba8128bae7d3b81f35b1de3",
+    "web/src/features/engagement/ProviderSettings.tsx": "9cef574a1d4e79a2a6abca6e833fd36a9efba327cf1d2329e723ccdb8bf009c7",
+    "web/src/features/engagement/Settings.tsx": "d49fa51d5902b1640f9e23fad54585f9a745d4e83445d69798ae1cad08808c7b",
+    "web/src/features/engagement/Wizard.module.css": "a862ef1fc7f8e7a449943773354fca61e6d637aacc1e19df02a78b408da1b1d2",
+    "web/src/shared/styles/global.css": "bdcbbaaeb30d8dc162a030c8961611f320e63c79753ad041a86cf09ca83971ad"
+  },
+  "runtime_requested": "openai-codex/gpt-6.1-sol/xhigh",
+  "runtime_observed": {"provider": "openai-codex", "model": "gpt-6.1-sol", "reasoning": "xhigh", "evidence": "Live ancestor Hermes PID2275507 allowlisted --provider/--model/--reasoning flags matched; session context agrees on provider/model.", "fallback_or_delegation": false},
+  "findings": [],
+  "reference": {"path": "/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html", "sha256": "d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7", "review": "Authoritative CSS12-145 read as text; original scripts/payload URLs never executed."},
+  "images_loaded_via_vision": ["comparison.png", "t/screenshots/providers-1440-SYNTHETIC.png", "t/screenshots/new-320-SYNTHETIC.png", "t/screenshots/setup-390-SYNTHETIC.png", "t/screenshots/runtime-1280-SYNTHETIC.png", "t/screenshots/skills-320-SYNTHETIC.png"],
+  "visual_observations": {
+    "identity": "Actual left-reference/right-candidate comparison shows the same warm near-black/ivory/taupe family, restrained dot field, centered eye-brand capsule, pills and inset action discs. Candidate remains recognizably v5 without copying demo findings, metrics, operator controls or old features.",
+    "values": "Dark palette remains generated tokens0b0c0a/131412/191b18/eee9e1/b8aea1/c7baa7. Port matches key reference primitives: dot grid27px, decorative hairline8.5%, shell3%, inset6%, bezel pad4px/radii14px+10px, action height46px, disc34px/glyph16px. Local surface aliases do not modify generated tokens or generators.",
+    "spacing_surfaces": "Home and Settings/Providers/Skills/Runtime share capsules, fine borders and principal double-bezels. New/Setup reuse existing Wizard panels and step controls. Candidate is visually flatter in some surfaces and has different hero/metric rhythm from the populated demo; those differences are not concrete requirement violations or reasons to fabricate content.",
+    "responsive": "Inspected New320, Skills320 and Setup390 show stacked/wrapped navigation, fields, steps, long identity and safety copy within margins; Providers1440 and Runtime1280 show no visible clipping. Existing capture manifest records all six surfaces at320/390/1280/1440 with scrollWidth equal to viewport. This is synthetic fixture evidence, not fresh installed QA.",
+    "overlay_limit": "Known SOURCE VISUAL FIXTURE labels are capture-only overlays. Parts of the New/Setup form near the overlay cannot be visually certified from these images; no product-overlay finding or new recapture harness is warranted.",
+    "honest_states": "Neutral dots accompany explicit UNAVAILABLE/NOT_RUN/not-verified text. Providers retains compatibility/auth/inference warnings; Runtime retains unavailable execution, disabled Start/Stop and same-UID/root boundary copy. No fake red/green readiness or metrics were introduced."
+  },
+  "compatibility_accessibility": {
+    "callers": "Reviewed exact patch and live13files, plus existing App route focus, Bootstrap/PairingForm, Dashboard, Settings->ProviderSettings/CatalogSettings and Engagement->Wizard New/Setup connections. Changes are classes, decorative SVG/span/div and wrappers, not handlers, authority, session logic, form identity or API/data semantics.",
+    "decorations": "App.tsx:27 backdrop is aria-hidden; Shell.module.css:1-3,10 gives pointer-events:none at z0 below header/main z1. Global root isolation contains stacking. Eye SVG is aria-hidden/focusable=false; button icon spans are aria-hidden with nonfocusable SVG. Native labels, button types, disabled and aria-describedby conditions remain.",
+    "focus_controls": "App.tsx:17-23,28,35 still retains route focus, skip link and main tabindex=-1. global.css:15-16 keeps focus-visible and no pointer-only outline rule; reduced-motion override remains at:20. Navigation targets retain44px min height; primary native controls46px. Input/select/textarea borders remain color-border in Wizard.module.css:12 and Bootstrap.module.css:27, distinct from decorative hairlines.",
+    "contrast_boundary": "Source-token calculations resolve screenshot concerns for selected text/input/focus pairs, not a full rendered WCAG audit: secondary/surface8.453, secondary/selected6.456, text/selected11.679, input-border/neutral3.808, input-border/surface3.589, focus/surface11.341. Decorative hairlines are intentionally subtle and are not substituted for input boundaries."
+  },
+  "own_checks": [
+    {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --check; git diff --cached --stat", "exit": 0, "result": "Exact13preexisting tracked changes,58adds/37deletions, empty index, unchanged base/HEAD; no product edits."},
+    {"command": "Python -I -B: parse developer-result.json; SHA256 each13allowed paths; compare exact git diff --name-only set before/after; compare git diff --binary -- <13paths> byte-for-byte with candidate.patch", "exit": 0, "matched_files": 13, "live_diff_matches_patch": true},
+    {"command": "Python -I -B: read source tokens; calculate sRGB relative-luminance contrast for six selected pairs; parse existing t/capture-result.json and validate24unique six-surface/four-width entries and referenced images", "exit": 0, "contrast_pairs_passed": 6, "capture_rows": 24, "recorded_overflow_cases": 0, "recorded_non_none_backdrop_pointer_events": 0, "recorded_page_errors": 0, "recorded_blocked_requests": 0, "output": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/review/scoped-checks.json"}
+  ],
+  "counts": {"reviewed_frozen_files": 13, "own_test_suite_invocations": 0, "own_nonzero_check_invocations": 0, "blocking_findings": 0},
+  "reused_evidence": {
+    "parent_web": {"log_read": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/parent-web-final.log", "command": "npm --prefix web test -- --no-cache --maxWorkers=2", "runtime": "Node24.21.0/npm11.19.0 pinned", "passed": 93, "files_passed": 13, "exit": 0, "limit": "Parent rerun on same frozen bytes; not reviewer execution and not one-command default canonical green."},
+    "author_quality": "developer-result.json reports pinned lint/typecheck/build exit0 on unchanged candidate. Reused at that scope, not rerun or promoted to installed/visual acceptance.",
+    "historical_failure": "Original author full suite92PASS/1FAIL waiting Wizard hydration is retained with cause UNKNOWN; isolated same case1PASS is separate. Parent maxWorkers2 run passes93 without timeout/fixture weakening and does not erase the earlier failure.",
+    "captures": "Author24captures use built frontend plus SOURCE/mockGET fixtures, not real API/PG/provider. Recorded overflow0/errors0 reused only for original executed capture. Modified scratch capture/added keyboard checks were NOT_RUN and receive no credit."
+  },
+  "limits": ["No live focus traversal, screen reader, forced-colors, cross-browser or installed operator QA was executed by reviewer; static focus/source review and existing component evidence do not prove every rendered interaction.", "No active operator browser9226/8765, Connect/auth, provider, PG, OCI, installation, global changes or private profiles accessed. Protected files were not accessed; no product edits, commits or unknown-cache cleanup.", "No new capture harness or broad suite. Separate canonical default AST locator defect is untouched/uninvestigated, with no skip or invented green. Historical FAIL/UNKNOWN remain.", "Visual-family approval is scoped, not pixel-perfect equivalence, exhaustive bug absence or user aesthetic acceptance. Parent owns integration and actual installed visible QA; user owns final visual approval."],
+  "handoff": "APPROVED_SCOPED on these13hashes only. Source/evidence compatible with the requested smallest v5 style port. No integration or phase2 closure; own outputs retained only under the private review directory plus this requested report."
+}

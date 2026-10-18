@@ -1,0 +1,21 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused READ-ONLY review of the measured heading-spacing correction only; prior13-file approval reused outside this delta.",
+  "base_head": "4bea4c9a3845fcf8d996c38fa6c868e185f6be03",
+  "file": "web/src/features/engagement/Engagement.module.css",
+  "sha256_before_and_after_review": "6c262b3883ea8d24e881e79f39d328c38cef3ba7799f7deb400b31f27d8fda03",
+  "location": "web/src/features/engagement/Engagement.module.css:3",
+  "disposition": "Measured excess desktop heading margin corrected minimally with margin:0. No new blocking finding.",
+  "findings": [],
+  "caller_impact": "Selector reaches existing Settings headings and Engagement/Setup title headings; font, wrapping, text, identity and controls unchanged. New Wizard heading is outside this selector. Later mobile margin-block:12px at line31 still overrides vertical margins. Focus/skiplink/Stop and handlers untouched.",
+  "evidence": {"receipt": "/home/kali/.omnis-p2-ui4/recovery/header-spacing-repro.json", "before": {"marginTop": "26.8px", "marginBottom": "26.8px", "buttonBottom": 754.53125}, "temporary_control": {"buttonBottom": 700.9375, "viewport": 720}, "boundary": "Exact supplied nonsensitive receipt read only. Parent temporary DOM control, restored afterward; not fresh-artifact reviewer execution."},
+  "checks": [
+    {"command": "git diff -- <exact CSS>; SHA256; git rev-parse HEAD; git status --short --branch", "exit": 0, "result": "One modified file, expected hash and checkpoint."},
+    {"command": "Python -I -B: compare current CSS to HEAD plus only margin:0; match HEAD CSS and other12paths to prior review hashes; compare live binary diff to header-fix.patch; verify mobile override and supplied receipt geometry", "exit": 0, "result": "Exact delta and reuse bindings pass; recorded control fits720."},
+    {"command": "git diff --check; git diff --cached --quiet", "exit": 0}
+  ],
+  "counts": {"own_test_suite_runs": 0, "own_nonzero_checks": 0, "blocking_findings": 0},
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Live ancestor Hermes PID2314064 allowlisted provider/model/reasoning flags", "fallback_delegation": false},
+  "reused_build": "header-fix.json reports current npm build/contracts/design/typecheck exit0; not rerun. No tests/assertions/timeouts changed.",
+  "limits": "No browser/API/PG/provider/OCI/private-profile access beyond the exact authorized nonsensitive receipt; no protected paths/product edits/commits/global effects. No fullsuite or captures. Parent owns fresh artifact QA/integration; this is not installed geometry or aesthetic approval. Historical failures and unchanged scope remain."
+}

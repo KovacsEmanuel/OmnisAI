@@ -1,0 +1,58 @@
+{
+  "status": "VISUAL_CANDIDATE_PARTIALLY_VERIFIED_PENDING_REVIEW_AND_USER_APPROVAL",
+  "base": "27f86d155a573614896b6af31309dad588805296",
+  "head": "27f86d155a573614896b6af31309dad588805296",
+  "branch": "work/vf-ncomi3a8",
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Live Hermes PID2258334 allowlisted --provider/--model/--reasoning flags", "fallback_delegation": false},
+  "worktree": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/work",
+  "reference": {"path": "/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html", "provided_verified_sha256": "d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7", "provenance": "Read-only CSS12-145; screenshot reference-home.png inspected with vision. Original scripts/URLs not executed, reference not modified."},
+  "visual_checklist": {
+    "background": "App/Shell.module.css: static27px radial dot grid at text6% alpha, masked fade and subtle ambient radial light; aria-hidden backdrop, pointer-events:none beneath content. Global root stacking context prevents click interception.",
+    "palette_typography": "Existing generated DESIGN palette/fonts retained; warm neutral0b0c0a/surface131412/elevated191b18/ivory/taupe, hero60px and existing heading hierarchy. No DTCG/generated-token/generator edits.",
+    "nav_brand": "App/Shell: centered60px floating capsule, subtle hairline/shadow, existing active scope, decorative inline eyeSVG. At320/390px brand row plus3global links; same routes and focus logic.",
+    "bezel": "Dashboard/Engagement/Bootstrap panels share4px shell, outer14px/inner10px radii,8.5% decorative hairline and6% inset; Wizard existing panels use the same4px/inset treatment. Input borders retain color-border.",
+    "buttons": "Native buttons share46px minimum height; existing primary Dashboard/Pair/Connect/Start/Stop actions get34px decorative SVG discs. Accessible names, handlers, button types and disabled states preserved. No new action, framework or icon library.",
+    "status_pills": "Eyebrow capsules and neutral dots; Provider existing status paragraphs visually grouped, Dashboard UNAVAILABLE pill and Runtime NOT_RUN pills. No green/provider-ready inference or invented metric.",
+    "surfaces": "Actual shell, Dashboard, Settings Providers/Skills/Runtime, New and Setup share these treatments. Functional safety/error/identity/unavailable copy retained. focus-visible from21f82d2 retained; no pointer-focus rule reintroduced.",
+    "scope_limit": "Read-only scoped Ponytail audit/review only; no domain/API/runtime/auth behavior, graphs/council/demo features, light theme, decorative motion or global status/docs edits."
+  },
+  "changed_paths_sha256": {
+    "web/src/app/App.tsx": "84d65b1ccfa92c4d0194873fdf6921e0683896cc5007d21037cd29b237d73243",
+    "web/src/app/Shell.module.css": "d8595a83a4bfa9f9a4cf35584a91ff7e36ccd2f06b56e56956a028720579bd50",
+    "web/src/app/Shell.test.tsx": "301bdaa44bd85fb9ab02a6df2344ada5d85aa8852a030f29bf9446146412bd07",
+    "web/src/features/bootstrap/Bootstrap.module.css": "ae687e620565c1a50bf161f8b301fba37df64fdb2df7a1e3831c100d86cb3102",
+    "web/src/features/bootstrap/Bootstrap.tsx": "b941247d65c1682f974bffd3b62d7a3aa4592d47c125c3b39f8970d2fd560d94",
+    "web/src/features/bootstrap/PairingForm.tsx": "9800de52d2b2039638725fc31bc5d7e23ceb835b29d886ba1377b512e48ea9db",
+    "web/src/features/dashboard/Dashboard.module.css": "1fcb121d820dedde5a7c9dec75d8710c8fdd6671f533fbf2b2b284dce6e465c9",
+    "web/src/features/dashboard/Dashboard.tsx": "b83934ffb7e589bbad949dcd29aa9624357d546ff7c37f4bcf53d7fff43ded9f",
+    "web/src/features/engagement/Engagement.module.css": "570bca0cfeaaf42efacad26ac99d4dc77c9b647cfba8128bae7d3b81f35b1de3",
+    "web/src/features/engagement/ProviderSettings.tsx": "9cef574a1d4e79a2a6abca6e833fd36a9efba327cf1d2329e723ccdb8bf009c7",
+    "web/src/features/engagement/Settings.tsx": "d49fa51d5902b1640f9e23fad54585f9a745d4e83445d69798ae1cad08808c7b",
+    "web/src/features/engagement/Wizard.module.css": "a862ef1fc7f8e7a449943773354fca61e6d637aacc1e19df02a78b408da1b1d2",
+    "web/src/shared/styles/global.css": "bdcbbaaeb30d8dc162a030c8961611f320e63c79753ad041a86cf09ca83971ad"
+  },
+  "patch": {"path": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/candidate.patch", "sha256": "6376ec16311fa6072ff0f895347e672910f2ca640912ce5a8b41dcba48a2d480", "changed_file_count": 13, "explicit_owned_paths_only": true},
+  "commands": {
+    "toolchain": "Node24.21.0/npm11.19.0 from /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin; private copied dependencies, TMPDIR/XDG/npm caches under owned t, Vitest --no-cache.",
+    "markup_red": {"command": "NODE_ENV=test node node_modules/vitest/vitest.mjs run src/app/Shell.test.tsx --no-cache --reporter=dot", "exit": 1, "passed": 2, "failed": 1, "log": "t/markup-red.log", "reason": "Missing decorative accessible-hidden brandSVG before markup edit"},
+    "full_web": {"command": "npm test -- --no-cache --reporter=dot", "exit": 1, "passed": 92, "failed": 1, "total": 93, "log": "t/tests-final.log", "failure": "Wizard negative request-ceiling test timed out waiting for hydrated Rules & budgets; DOM still Loading draft. No Wizard logic or test timeout changed."},
+    "focused_failure_check": {"command": "NODE_ENV=test node node_modules/vitest/vitest.mjs run src/app/Wizard.test.tsx --no-cache --reporter=dot -t 'points a negative request ceiling'", "exit": 0, "passed": 1, "skipped_by_selection": 19, "log": "t/wizard-focused.log", "limit": "Same bytes pass isolated; historical full-suite failure retained, exclusive timing cause not established. Not a clean93PASS claim."},
+    "lint": {"command": "npm run lint", "exit": 0, "log": "t/lint.log"},
+    "typecheck": {"command": "npm run typecheck", "exit": 0, "log": "t/typecheck.log"},
+    "build": {"command": "npm run build", "exit": 0, "log": "t/build.log", "includes": "check:contracts0, check:design0, tsc0, Vite production build0, trusted4file manifest; work/web/dist"},
+    "integrity": {"git_diff_check_exit": 0, "index_unchanged_exit": 0},
+    "capture": {"command": "node <root>/t/capture.mjs (original executed version)", "exit": 0, "captures": 24, "widths": [1440,1280,390,320], "overflow_cases": 0, "blocked_requests": 0, "page_errors": 0, "log": "t/capture.log", "manifest": "t/capture-result.json"}
+  },
+  "screenshots": {
+    "reference": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/reference-home.png",
+    "directory": "/home/kali/.hermes/cache/scratch/vf-ncomi3a8/t/screenshots",
+    "inventory": "Each of home/runtime/providers/skills/new/setup at1440/1280/390/320: <surface>-<width>-SYNTHETIC.png; all24 persisted and counted in t/capture-result.json.",
+    "vision_inspected": ["home-1440-SYNTHETIC.png", "providers-1440-SYNTHETIC.png", "new-320-SYNTHETIC.png", "home-390-SYNTHETIC.png"],
+    "observed": "Warm dotted background, eye/nav capsule, ivory/taupe hierarchy, subtle principal double-bezels, pills and icon discs visible and cohesive; Providers keeps explicit no/not-verified readiness. Mobile labels/fields fit without horizontal clipping.",
+    "discrepancies": "Current real UI has less review content than reference demo and intentionally retains UNAVAILABLE/NOT_RUN rather than fake metrics. Pulse/action tiles are simpler than principal bezels; unavailable metric typography remains prominent, recent-draft link remains underlined. Final aesthetic acceptance is not inferred.",
+    "capture_defect": "Initial fixture-only fixed SOURCE label overlaps content in full-page mobile captures. This is not a product overlay. Capture driver changed to normal-flow label/new output directory, but recapture and its added keyboard checks were NOT_RUN after mandatory runtime stop; existing24images retained with this caveat."
+  },
+  "proof_boundary": "Built actual frontend via existing Vite preview127.0.0.1:4186 and GET-only intercepted HTTP using existing session/health/instance/draft/projection test fixtures plus catalog/provider shapes already in existing tests. All data labelled synthetic; no real API/PG/provider or auth Connect. Thin scratch capture script only, no repo framework/server/owner added.",
+  "cleanup": "Browser contexts and own Chromium closed in capture finally. Owned Vite preview proc_2015ceb072a9/PID2266095 killed and read back exited/-15. Private logs/caches/build/screenshots preserved; no unknown cache cleanup. Reference/protected files/personal profiles/operator browser untouched; no commit/install/global/push.",
+  "remaining": ["Resolve full-suite hydration test instability without weakening checks; original failure remains", "Recapture using already corrected normal-flow fixture label before final visual comparison", "Independent parent review and installed UI QA; user owns final visual approval. No integration or visual acceptance claimed"]
+}

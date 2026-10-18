@@ -1,8 +1,38 @@
 {
-  "status": "VISIBLE_QA_PARTIAL_EARLY_NATIVE_OAUTH_BLOCKED_UNKNOWN",
+  "status": "CURRENT_V5_STYLE_INSTALLED_READY_USER_VISUAL_APPROVAL_PENDING",
   "previous_handoff_status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
-  "main_product_commit": "ac1acc54ba0a46e65a2c98b00277ecb6586737a7",
-  "current": {
+  "main_product_commit": "36e95c0622174947554341d1f15cd570ab0545a7",
+  "latest": {
+    "style_commits": ["af228be", "36e95c0"],
+    "reference": "External omnis-cockpit-v5.html unchanged, SHA d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7; visual primitives only, no demo features/data/scripts imported",
+    "root": "/home/kali/.omnis-p2-ui5",
+    "origin": "http://127.0.0.1:8765",
+    "state": "READY",
+    "generation": 1,
+    "instance_id": "a9c50c38-bc17-4dfd-bdf8-c2a8b74e7490",
+    "project": "omnis-local-a1902a6c68cf45d19e76533700241339",
+    "release_sha256": "d3d294e1a0c355fb252dd8666d7211644a0b7e5bed0f4487c9a698d3403a4d33",
+    "image_build": "exit0/9.294s through existing CLI owner",
+    "start": "exit0/18.193s and separate READY readback",
+    "proof": "visual-v5-installed.json: source93web maxWorkers2, integration10, build/contracts/design/type/lint0; independent exact13file review plus one-property heading re-review.20installed geometry cases onaf228be and6affected final cases on36e95c0. Primary Connect bottom700.9375 in1280x720, mobile margin12px preserved. Pointer/keyboard/skip and forced-colors/reduced-motion scoped observations, not universal WCAG/aesthetic certification.",
+    "author_failures": "Original default full92PASS1hydrationFAIL retained, isolated1PASS and parent93PASS separate. Capture-only SOURCE label overlay and keyboard observer's wrong tab origin retained; no product edit to satisfy those bad controls.",
+    "runtime_logic": "API95/CLI22/native20 unchanged since27f86d1. Installed pre-auth Connect/background/reload/Cancel32.411s onui3 passed and is reused only at unchanged scope; no new Connect/model/target call for styling. Historical early INDETERMINATE cause still UNKNOWN, not reclassified.",
+    "operator_boundary": "Visual approval not yet given; account authentication/inference NOT_RUN. auth.json absent by stat only. Browser intentionally retained for operator; no raw logs/cookies/credentials/capabilities in Git.",
+    "old_roots": "ui3/ui4 STOPPED generation2, exact containers/projects/networks/actual IPC and kernel sockets absent, data identities unchanged/data preserved. ui2 and original ready root remain retained/stopped, no r1/P0 adoption.",
+    "browser": "Existing dedicated QA profile /home/kali/.omnis-p2-ui3/browser, current app paired freshly to ui5; actual X11 window98566148/PID2202481 verified by debug socket, profile lock and WM_CLASS, on active desktop0. Cua session-ended refusal did not cause global tooling changes.",
+    "private_evidence": {
+      "archive": "/home/kali/.omnis-p2-ui5/recovery/visual-v5-evidence.tar.gz",
+      "sha256": "a44e45ad3379c78d7ab1224abdf9acddfc1b92190676d6e058307fd0d3eeb493",
+      "bytes": 4380690,
+      "members": 41,
+      "mode": "0600",
+      "excludes": "Browser profiles/cookies/credentials/PGDATA/raw private service logs; not off-device backup"
+    },
+    "canonical": "NOT_RUN. Original15208files restored from pinned Git/archive f18177d0. Earlier inert-source/run_agent.py locator was incorrectly assumed; real default test_native_build OAuth precedence case fails1test/6errors on missing inert-source/hermes_cli/web_routers/oauth.py in the partial overlay. Fix actual test producer/locator without skip or weaker gate before canonical.",
+    "checkpoints": "7191c57/5276caf and4bea4c9/1313652 clean and already integrated; no reimport",
+    "next": "Operator visual feedback on actual Home/Settings, then operator-only account authentication in web and remaining G04a/G02-live obligations. Preserve current root/environment from its recovery/intent.json; Stop only through its existing CLI when requested. No P3/target/global/push or repeat of unchanged evidence."
+  },
+  "previous_visible_qa": {
     "polish_commit": "5e5c9bf282e673c54e32eeca5a90af044122ad5f",
     "polish_identity": "Exact remaining three-file delta imported; original complementary reviews reused; relevant callers unchanged",
     "web_gate": "Node24.21.0/npm11.19.0: lint/typecheck/93unit/13files/contracts/design/build4 all exit0",
@@ -97,7 +127,7 @@
     "original_root": "/home/kali/.hermes/cache/scratch/uiq-kzdTki7q",
     "excluded": "Cookies, credentials, raw logs, dependencies, worktrees, PostgreSQL data and Docker images; not an off-device backup. Git preserves candidate source and original review reports."
   },
-  "next": "Use current.next_decision; polish is already integrated and visible QA has a retained native OAuth blocker. Do not resume the historical preparation sequence below or repeat Connect blindly.",
+  "next": "Use latest.next. Prior records are historical at their exact snapshots; no reimport of polish or blind Connect retry.",
   "visible_qa_contract": "Show the actual Omnis window on the operator desktop and keep it visible during tests. Verify foreground/visibility, announce short steps and show before/after. Pause automation when the operator takes control. Do not claim headless/screenshot-only execution is live-visible. No secrets in chat, captures, logs or Git.",
-  "limits": "Previous prompt preparation had no effects; this current implementation did build/install/visible QA and exact Stop. Live auth/provider inference, post-ac1acc5 installed QA and final canonical remain NOT_RUN. P2/P4a not closed; no P3/target/r1/global/push. Historical records below current retain their original scope."
+  "limits": "Current style artifact is installed and intentionally READY for visual inspection. User visual approval, account authentication/inference and final phase2 canonical remain pending/NOT_RUN. Pre-auth current journey passed separately; old FAIL/UNKNOWN stay historical. P2/P4a not closed; no P3/target/r1/global/push."
 }

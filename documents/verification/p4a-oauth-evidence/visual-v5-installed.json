@@ -1,0 +1,427 @@
+{
+  "status": "PASS_SCOPED_INSTALLED_VISUAL_QA_USER_APPROVAL_PENDING",
+  "source_commits": [
+    "af228be",
+    "36e95c0"
+  ],
+  "reference_sha256": "d0545bda58284f5eacd595de395e161efe0d5ba083ffa94dd2423d8a084ed2e7",
+  "current_root": "/home/kali/.omnis-p2-ui5",
+  "origin": "http://127.0.0.1:8765",
+  "state": "READY_RETAINED_FOR_OPERATOR",
+  "current_start": {
+    "exit": 0,
+    "seconds": 18.193,
+    "result": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 1,
+      "instance_id": "a9c50c38-bc17-4dfd-bdf8-c2a8b74e7490",
+      "origin": "http://127.0.0.1:8765",
+      "reason": null,
+      "release": "0.1.0",
+      "reused": false,
+      "schema": "0013_mission_revisions",
+      "state": "READY",
+      "supervisor_epoch": 1
+    }
+  },
+  "current_image_build": {
+    "exit": 0,
+    "seconds": 9.294,
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc"
+  },
+  "served_assets": 4,
+  "style_geometry_before_header_correction": [
+    {
+      "surface": "home",
+      "width": 1440,
+      "route": "/",
+      "viewport": 1440,
+      "scroll": 1425,
+      "targets": 5,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "home",
+      "width": 1280,
+      "route": "/",
+      "viewport": 1280,
+      "scroll": 1265,
+      "targets": 5,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "home",
+      "width": 390,
+      "route": "/",
+      "viewport": 390,
+      "scroll": 375,
+      "targets": 5,
+      "minW": 107,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "home",
+      "width": 320,
+      "route": "/",
+      "viewport": 320,
+      "scroll": 305,
+      "targets": 5,
+      "minW": 83.65625,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "providers",
+      "width": 1440,
+      "route": "/settings/providers",
+      "viewport": 1440,
+      "scroll": 1440,
+      "targets": 15,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "providers",
+      "width": 1280,
+      "route": "/settings/providers",
+      "viewport": 1280,
+      "scroll": 1280,
+      "targets": 15,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "providers",
+      "width": 390,
+      "route": "/settings/providers",
+      "viewport": 390,
+      "scroll": 375,
+      "targets": 15,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "providers",
+      "width": 320,
+      "route": "/settings/providers",
+      "viewport": 320,
+      "scroll": 305,
+      "targets": 15,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "skills",
+      "width": 1440,
+      "route": "/settings/skills",
+      "viewport": 1440,
+      "scroll": 1440,
+      "targets": 8,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "skills",
+      "width": 1280,
+      "route": "/settings/skills",
+      "viewport": 1280,
+      "scroll": 1280,
+      "targets": 8,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "skills",
+      "width": 390,
+      "route": "/settings/skills",
+      "viewport": 390,
+      "scroll": 390,
+      "targets": 8,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "skills",
+      "width": 320,
+      "route": "/settings/skills",
+      "viewport": 320,
+      "scroll": 305,
+      "targets": 8,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "runtime",
+      "width": 1440,
+      "route": "/settings/runtime",
+      "viewport": 1440,
+      "scroll": 1425,
+      "targets": 11,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "runtime",
+      "width": 1280,
+      "route": "/settings/runtime",
+      "viewport": 1280,
+      "scroll": 1265,
+      "targets": 11,
+      "minW": 70.1875,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "runtime",
+      "width": 390,
+      "route": "/settings/runtime",
+      "viewport": 390,
+      "scroll": 375,
+      "targets": 11,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "runtime",
+      "width": 320,
+      "route": "/settings/runtime",
+      "viewport": 320,
+      "scroll": 305,
+      "targets": 11,
+      "minW": 79.28125,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "new",
+      "width": 1440,
+      "route": "/engagements/new",
+      "viewport": 1440,
+      "scroll": 1425,
+      "targets": 26,
+      "minW": 67,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "new",
+      "width": 1280,
+      "route": "/engagements/new",
+      "viewport": 1280,
+      "scroll": 1265,
+      "targets": 26,
+      "minW": 67,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "new",
+      "width": 390,
+      "route": "/engagements/new",
+      "viewport": 390,
+      "scroll": 375,
+      "targets": 26,
+      "minW": 107,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    },
+    {
+      "surface": "new",
+      "width": 320,
+      "route": "/engagements/new",
+      "viewport": 320,
+      "scroll": 305,
+      "targets": 26,
+      "minW": 83.65625,
+      "minH": 44,
+      "backdropPointer": "none",
+      "mainOutline": "none"
+    }
+  ],
+  "keyboard_and_observer_failure": {
+    "originalFailure": {
+      "reason": "SKIP_NOT_VISIBLE",
+      "scope": "Background click did not establish a fresh-document tab origin; pointer and keyboard route assertions had already passed. No product edit."
+    },
+    "pointer_route_assertions": "PASS before original observer failure",
+    "keyboard_route_assertions": "PASS before original observer failure",
+    "fresh_document_initial_tag": "BODY",
+    "skip": {
+      "name": "Skip to content",
+      "top": 8,
+      "outline": "solid"
+    },
+    "reduced_motion_transition": "0s",
+    "forced_colors_capture": true,
+    "scope": "Actual installed Chromium only; no screen-reader or universal WCAG certification"
+  },
+  "header_causal_control": {
+    "before": {
+      "marginTop": "26.8px",
+      "marginBottom": "26.8px",
+      "buttonBottom": 754.53125
+    },
+    "control": {
+      "buttonBottom": 700.9375,
+      "viewport": 720
+    },
+    "scope": "temporary single-property DOM control, not product edit"
+  },
+  "current_header_cases": [
+    {
+      "width": 1440,
+      "height": 900,
+      "scroll": 1440,
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "primaryBottom": 700.9375,
+      "primaryHeight": 46,
+      "minTargetH": 44,
+      "mainOutline": "none",
+      "challenge": false
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "scroll": 1265,
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "primaryBottom": 700.9375,
+      "primaryHeight": 46,
+      "minTargetH": 44,
+      "mainOutline": "none",
+      "challenge": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scroll": 375,
+      "marginTop": "12px",
+      "marginBottom": "12px",
+      "primaryBottom": 1298.890625,
+      "primaryHeight": 46,
+      "minTargetH": 44,
+      "mainOutline": "none",
+      "challenge": false
+    },
+    {
+      "width": 320,
+      "height": 844,
+      "scroll": 305,
+      "marginTop": "12px",
+      "marginBottom": "12px",
+      "primaryBottom": 1390.390625,
+      "primaryHeight": 46,
+      "minTargetH": 44,
+      "mainOutline": "none",
+      "challenge": false
+    },
+    {
+      "route": "/settings/skills",
+      "margin": "0px",
+      "overflow": false
+    },
+    {
+      "route": "/settings/runtime",
+      "margin": "0px",
+      "overflow": false
+    }
+  ],
+  "reused_unchanged_scope": "Other12source files/callers unchanged from approved visual source; native/API/CLI unchanged from27f86d1. No new Connect or model/target call. Source93web atmaxWorkers2 and integration10; CSS-only header delta build and fresh installed6cases. Original author92PASS1FAIL remains, not a default canonical PASS.",
+  "screenshots_inspected": [
+    "ui4/comparison-installed.png",
+    "ui4/providers-1440.png",
+    "ui4/new-320.png",
+    "ui4/providers-forced-colors.png"
+  ],
+  "current_screenshots": "/home/kali/.omnis-p2-ui5/recovery/screens",
+  "old_ui3_cleanup": {
+    "exit": 0,
+    "seconds": 13.175,
+    "result": {
+      "admission_open": false,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "dashboard_ready": false,
+      "generation": 2,
+      "instance_id": "e7ab9b11-c1a3-4791-9417-e887b3bb8dcc",
+      "origin": "http://127.0.0.1:8765",
+      "reason": null,
+      "state": "STOPPED"
+    },
+    "state_readback": "STOPPED",
+    "generation": 2,
+    "exact_containers_absent": {
+      "api": true,
+      "db": true,
+      "runtime": true,
+      "supervisor": true
+    },
+    "project_networks_absent": true,
+    "actual_ipc_paths_absent": true,
+    "kernel_owned_sockets": 0,
+    "data_identities_unchanged": true,
+    "data_retained": true
+  },
+  "old_ui4_cleanup": {
+    "stop_exit": 0,
+    "elapsed_with_readback_seconds": 13.624,
+    "state": "STOPPED",
+    "generation": 2,
+    "exact_containers_absent": {
+      "api": true,
+      "db": true,
+      "runtime": true,
+      "supervisor": true
+    },
+    "project_networks_ipc_absent": true,
+    "data_identities_unchanged": true,
+    "data_retained": true
+  },
+  "limits": [
+    "User visual approval pending; no aesthetics/WCAG guarantee",
+    "Actual Setup of a selected engagement not repeated; shared Wizard source/fixture evidence only, no record created to fill screenshots",
+    "Full phase2 canonical NOT_RUN; known native AST default-locator defect remains",
+    "Cua session-ended refusal retained; X11 focus verified through exact debug socket PID/profile lock/window identity, no global tooling changes",
+    "Browser retained in existing dedicated QA profile; credentials/cookies/DSNs/capabilities and raw service logs excluded"
+  ]
+}

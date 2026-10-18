@@ -189,6 +189,16 @@ it('polls the exact pending connection while unfocused without replaying Connect
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const mounted = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
   await screen.findByText('Configured: yes — native readback');
+  const user = userEvent.setup();
+  screen.getByRole('combobox', { name: 'Provider' }).focus();
+  await user.tab();
+  expect(screen.getByRole('combobox', { name: 'Model' })).toHaveFocus();
+  await user.tab();
+  expect(screen.getByRole('combobox', { name: 'Effort' })).toHaveFocus();
+  await user.tab();
+  expect(screen.getByRole('button', { name: 'Connect Codex' })).toHaveFocus();
+  await user.tab();
+  expect(screen.getByRole('button', { name: 'Read native configuration' })).toHaveFocus();
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] });
   try {
     focusManager.setFocused(false);

@@ -69,15 +69,20 @@ export function ProviderSettings() {
     } catch { if (!abort.signal.aborted) setUncertain(true); }
     finally { if (!abort.signal.aborted) setSending(false); }
   }
-  return <section className={styles.core} aria-labelledby="provider-heading">
+  return <section className={`${styles.core} ${styles.provider}`} aria-labelledby="provider-heading">
     <h2 id="provider-heading">Provider configuration</h2>
     <p>Requested selection only. Model and effort compatibility have not been verified. Connect opens the native Codex device flow; approve it yourself on the fixed authorization page. Local reads never refresh credentials; Cancel does not log out and local logout does not revoke upstream. No inference is performed here.</p>
+    <div className={styles.providerSelection}>
     <label className={formStyles.field}>Provider <select aria-label="Provider" defaultValue="openai-codex" disabled={pending}><option value="openai-codex">openai-codex</option></select></label>
     <label className={formStyles.field}>Model <select aria-label="Model" defaultValue="gpt-6.1-sol" disabled={pending}><option value="gpt-6.1-sol">gpt-6.1-sol</option></select></label>
     <label className={formStyles.field}>Effort <select aria-label="Effort" defaultValue="xhigh" disabled={pending}><option value="xhigh">xhigh</option></select></label>
+    </div>
+    <div className={styles.providerStates}>
     <p>Configured: {observed?.status === 'CONFIRMED' && !unknown ? (observed.configured ? 'yes — native readback' : 'no — native readback') : 'not confirmed'}</p>
     <p>Authenticated: not verified</p><p>Provider reachable: not verified</p><p>Inference ready: no</p>
     <p>Local grant: {unknown || observed?.status !== 'CONFIRMED' ? 'not confirmed' : observed.authenticated === 'ABSENT' ? 'absent — native readback' : observed.authenticated === 'LOCAL_PRESENT' ? 'present — not provider-verified' : observed.authenticated === 'LOCAL_EXPIRED' ? 'expired — local observation only' : observed.authenticated === 'LOCAL_UNKNOWN' ? 'unknown — no refresh attempted' : 'not checked'}</p>
+    </div>
+    <div className={styles.providerFeedback}>
     <output aria-live="polite">
       {unknown ? 'Outcome unknown. Do not repeat this action; recover the exact operation.' : pending ? 'Native operation pending; no success yet.' : observed?.status === 'BUSY' ? 'Runtime busy. Stop execution before changing Settings.' : observed?.status === 'CONFIRMED' ? 'Native readback confirmed.' : 'Read the native configuration before saving.'}
     </output>
@@ -86,11 +91,12 @@ export function ProviderSettings() {
       <a href="https://auth.openai.com/codex/device" target="_blank" rel="noreferrer noopener">Open Codex device authorization</a>
     </div>}
     {observed?.oauth === 'CANCELLED' && <p>Connection cancelled and worker settled. Existing grants were not deleted.</p>}
-    <div className={formStyles.actions}>
+    </div>
+    <div className={`${formStyles.actions} ${styles.providerActions}`}>
+    <button className={styles.providerConnect} type="button" onClick={() => void perform('connect')} disabled={!authReady || pending || unknown || !observed?.configured}>Connect Codex</button>
     <button type="button" onClick={() => void perform('read')} disabled={!authReady || pending || (unknown && !!operation)}>Read native configuration</button>
     <button type="button" onClick={() => void perform('save')} disabled={!authReady || pending || unknown || observed?.status !== 'CONFIRMED' || observed.configured}>Save selection</button>
     <button type="button" onClick={() => void perform('auth_read')} disabled={!authReady || pending || unknown || !observed?.configured}>Read local Codex grant</button>
-    <button type="button" onClick={() => void perform('connect')} disabled={!authReady || pending || unknown || !observed?.configured}>Connect Codex</button>
     {pending && observed?.oauth && observed.oauth !== 'NONE' && <button type="button" onClick={() => void perform('cancel')} disabled={!authReady || sending || cancelling || observed.oauth === 'CANCELLING'}>Cancel connection</button>}
     <button type="button" onClick={() => void perform('logout')} disabled={!authReady || pending || unknown || !observed?.configured || observed.authenticated === 'NOT_VERIFIED' || observed.authenticated === 'ABSENT'}>Log out of Codex locally</button>
     {(unknown || pending) && <button type="button" onClick={() => void recover()} disabled={!authReady || sending}>Recover exact operation</button>}

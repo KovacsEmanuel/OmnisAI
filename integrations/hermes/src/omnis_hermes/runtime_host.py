@@ -22,6 +22,7 @@ from . import managed_admission_contract as managed
 from . import management_contract as settings
 from . import private_paths
 from .management_http import configure, request
+from .management_oauth import oauth_failure, oauth_failure_type
 from .native_preparation_contract import (
     LIMITS,
     canonical,
@@ -140,6 +141,8 @@ class RuntimeHost:
         self.settings_seen: set[str] = set()
         self.settings_result: dict[str, object] | None = None
         self.oauth_cancel = False
+        self.oauth_diagnostic_seen = False
+        self.oauth_native_failure = False
         self.management_token = secrets.token_hex(32)
         self.management_port: int | None = None
         self.management_failed = False
@@ -322,6 +325,8 @@ class RuntimeHost:
         self.state = "MANAGEMENT"
         self.settings_command = payload
         self.oauth_cancel = False
+        self.oauth_diagnostic_seen = False
+        self.oauth_native_failure = False
         self.settings_seen.add(operation_id)
         self.settings_result = settings.view(operation_id, "PENDING")
         self.settings_task = asyncio.create_task(self._settings_run(payload))
@@ -358,10 +363,19 @@ class RuntimeHost:
             asyncio.IncompleteReadError,
             asyncio.LimitOverrunError,
             asyncio.CancelledError,
-        ):
+        ) as error:
             self.settings_result = settings.view(operation_id, "INDETERMINATE")
             self.management_failed = True
             self._revoke_management_lifeline()
+            if payload["action"] == "connect" and not self.oauth_native_failure:
+                kind = (
+                    "STOP"
+                    if self.state in {"STOPPING", "STOPPED", "UNCERTAIN"}
+                    else "LEASE"
+                    if time.monotonic_ns() >= self.deadline_ns
+                    else oauth_failure_type(error)
+                )
+                self._oauth_failure("HOST", kind)
 
     async def _oauth_flow(self, operation_id: str) -> None:
         fence = (self.generation, self.epoch)
@@ -409,6 +423,7 @@ class RuntimeHost:
                         operation_id, "PENDING", oauth=oauth, challenge=value["challenge"]
                     )
                 elif oauth == "INDETERMINATE":
+                    self.oauth_native_failure = True
                     raise ValueError("Auth transport uncertain")
                 elif oauth in {"SAVED", "CANCELLED", "EXPIRED"}:
                     readback = await self._settings_native("auth_read", None)
@@ -458,6 +473,40 @@ class RuntimeHost:
             raise
         self.management_lifeline_write = writer
         return reader
+
+    def _oauth_failure(self, phase: str, kind: str, status: int = 0) -> None:
+        with suppress(BaseException):
+            marker = oauth_failure(phase, kind, status)
+            if marker is not None and not self.oauth_diagnostic_seen:
+                self.oauth_diagnostic_seen = True
+                sys.stderr.write(marker)
+                sys.stderr.flush()
+
+    async def _discard_management_output(self, stream: asyncio.StreamReader) -> None:
+        total, pending = 0, b""
+        while chunk := await stream.read(4096):
+            total += len(chunk)
+            if total > 65536:
+                raise ValueError("Management output limit")
+            pending += chunk
+            while b"\n" in pending:
+                line, _, pending = pending.partition(b"\n")
+                if len(line) > 96 or self.oauth_diagnostic_seen:
+                    continue
+                with suppress(UnicodeDecodeError):
+                    parts = line.decode("ascii").split(" ")
+                    if (
+                        len(parts) == 4
+                        and parts[0] == "OMNIS_OAUTH_FAILURE"
+                        and parts[1] != "HOST"
+                        and len(parts[3]) <= 3
+                        and parts[3].isascii()
+                        and parts[3].isdecimal()
+                    ):
+                        status = int(parts[3])
+                        marker = oauth_failure(parts[1], parts[2], status)
+                        if marker is not None and marker.encode() == line + b"\n":
+                            self._oauth_failure(parts[1], parts[2], status)
 
     async def _settings_native(self, action: str, selected: object) -> dict[str, object] | None:
         fence = (self.generation, self.epoch)
@@ -548,20 +597,17 @@ class RuntimeHost:
                 os.close(lifeline)
             assert self.process.stdout is not None and self.process.stderr is not None
 
-            async def discard(stream: asyncio.StreamReader) -> None:
-                total = 0
-                while chunk := await stream.read(4096):
-                    total += len(chunk)
-                    if total > 65536:
-                        raise ValueError("Management output limit")
-
-            self.management_output.append(asyncio.create_task(discard(self.process.stderr)))
+            self.management_output.append(
+                asyncio.create_task(self._discard_management_output(self.process.stderr))
+            )
             raw = await self.process.stdout.readuntil(b"\n")
             prefix = b"HERMES_BACKEND_READY port="
             if not raw.startswith(prefix) or not raw[len(prefix) : -1].isdigit():
                 raise ValueError("Invalid management readiness")
             self.management_port = int(raw[len(prefix) : -1])
-            self.management_output.append(asyncio.create_task(discard(self.process.stdout)))
+            self.management_output.append(
+                asyncio.create_task(self._discard_management_output(self.process.stdout))
+            )
             if await request(
                 self.management_port,
                 self.management_token,

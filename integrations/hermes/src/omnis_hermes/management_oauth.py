@@ -13,6 +13,7 @@ import secrets
 import select
 import stat
 import struct
+import sys
 import threading
 import time
 from collections.abc import Callable, Iterator
@@ -36,6 +37,49 @@ _context = threading.local()
 
 class AuthAdmissionDenied(ValueError):
     """Trusted guard denial before this request could send; not transport loss."""
+
+
+_FAILURE_TYPES = (
+    AuthAdmissionDenied,
+    httpx.ConnectError,
+    httpx.ReadError,
+    httpx.WriteError,
+    httpx.ConnectTimeout,
+    httpx.ReadTimeout,
+    httpx.WriteTimeout,
+    httpx.PoolTimeout,
+    httpx.RemoteProtocolError,
+    httpx.LocalProtocolError,
+    ValueError,
+    OSError,
+    TimeoutError,
+)
+_FAILURE_NAMES = tuple(cls.__name__ for cls in _FAILURE_TYPES)
+
+
+def oauth_failure_type(error: BaseException) -> str:
+    # Unknown subclasses cannot supply names, repr or exception text.
+    return next(
+        (
+            name
+            for cls, name in zip(_FAILURE_TYPES, _FAILURE_NAMES, strict=True)
+            if type(error) is cls
+        ),
+        "UNKNOWN",
+    )
+
+
+def oauth_failure(phase: object, kind: object, status: object = 0) -> str | None:
+    if (
+        type(phase) is not str
+        or phase not in {"USER_CODE", "TOKEN_POLL", "TOKEN_EXCHANGE", "HOST"}
+        or type(kind) is not str
+        or kind not in {*_FAILURE_NAMES, "HTTP_STATUS", "UNKNOWN", "LEASE", "STOP"}
+        or type(status) is not int
+        or (not 100 <= status <= 599 if kind == "HTTP_STATUS" else status != 0)
+    ):
+        return None
+    return f"OMNIS_OAUTH_FAILURE {phase} {kind} {status}\n"
 
 
 class FixedClient:
@@ -109,6 +153,14 @@ class FixedClient:
             )
         ):
             raise ValueError("Auth headers denied")
+        owner = getattr(_context, "owner", None)
+        phase = {
+            "https://auth.openai.com/api/accounts/deviceauth/usercode": "USER_CODE",
+            "https://auth.openai.com/api/accounts/deviceauth/token": "TOKEN_POLL",
+            "https://auth.openai.com/oauth/token": "TOKEN_EXCHANGE",
+        }[url]
+        if isinstance(owner, NativeOAuth):
+            owner.diagnostic = (phase, "UNKNOWN", 0)
         self.guard()
         # No caller client/transport/proxy/redirect/extension/Host or SNI seam.
         data = kwargs.get("data")
@@ -117,13 +169,28 @@ class FixedClient:
             or any(type(k) is not str or type(v) is not str for k, v in data.items())
         ):
             raise ValueError("Auth form denied")
-        return self.client.post(
-            url,
-            json=kwargs.get("json"),
-            data=data,
-            headers=headers,
-            extensions={"trace": self._trace},
-        )
+        try:
+            response = self.client.post(
+                url,
+                json=kwargs.get("json"),
+                data=data,
+                headers=headers,
+                extensions={"trace": self._trace},
+            )
+        except Exception as error:
+            if isinstance(owner, NativeOAuth):
+                owner.diagnostic = (phase, oauth_failure_type(error), 0)
+            raise
+        status = response.status_code
+        if (
+            isinstance(owner, NativeOAuth)
+            and type(status) is int
+            and 100 <= status <= 599
+            and status != 200
+            and not (phase == "TOKEN_POLL" and status in {403, 404})
+        ):
+            owner.diagnostic = (phase, "HTTP_STATUS", status)
+        return response
 
     def __enter__(self) -> Self:
         self.client.__enter__()
@@ -166,6 +233,7 @@ class NativeOAuth:
         self.owner_fd: int | None = None
         self.owner_identity: tuple[int, int] | None = None
         self.owner_deadline_ns = 0
+        self.diagnostic: tuple[str, str, int] = ("USER_CODE", "UNKNOWN", 0)
 
     @classmethod
     def from_owner_fd(cls, fd: int) -> Self:
@@ -283,6 +351,7 @@ class NativeOAuth:
             self.sid = secrets.token_urlsafe(16)
             self.session = {"profile": None, "status": "pending", "cancelled": False}
             self.terminal = None
+            self.diagnostic = ("USER_CODE", "UNKNOWN", 0)
             with self.native._oauth_sessions_lock:
                 self.native._oauth_sessions[self.sid] = self.session
             native, sid = self.native, self.sid
@@ -292,6 +361,12 @@ class NativeOAuth:
                 try:
                     native._codex_full_login_worker(sid)
                 finally:
+                    if self.session is not None and self.session.get("status") == "error":
+                        with contextlib.suppress(BaseException):
+                            marker = oauth_failure(*self.diagnostic)
+                            if marker is not None:
+                                sys.stderr.write(marker)
+                                sys.stderr.flush()
                     del _context.owner
 
             self.thread = threading.Thread(target=work, daemon=True, name="omnis-codex-auth")

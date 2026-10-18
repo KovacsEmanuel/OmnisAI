@@ -641,3 +641,131 @@ def test_native_handle_retained_before_worker_and_cancel_waits_for_settlement(
             owner.thread.join(2)
         host._revoke_management_lifeline()
         os.close(reader)
+
+
+@pytest.mark.parametrize("fault", ["transport", "status", "subclass"])
+def test_native_oauth_failure_marker_is_finite_and_secret_free(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], fault: str
+) -> None:
+    import os
+    from types import SimpleNamespace
+
+    from omnis_hermes import management_oauth
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    secret = "PRIVATE_DIAGNOSTIC_SENTINEL"
+
+    class PrivateReadError(httpx.ReadError):
+        def __str__(self) -> str:
+            raise AssertionError("Exception text must not be inspected")
+
+    sessions: dict[str, dict[str, object]] = {}
+
+    def wire(request: httpx.Request) -> httpx.Response:
+        if fault == "status":
+            return httpx.Response(502, content=secret.encode())
+        raise (PrivateReadError if fault == "subclass" else httpx.ReadError)(secret)
+
+    def worker(sid: str) -> None:
+        try:
+            with management_oauth.client_factory() as client:
+                response = client.post("https://auth.openai.com/api/accounts/deviceauth/token")
+                if response.status_code != 200:
+                    raise RuntimeError(secret)
+        except Exception:
+            sessions[sid]["status"] = "error"  # Native worker's swallowed-error seam.
+
+    native = SimpleNamespace(
+        _oauth_sessions=sessions,
+        _oauth_sessions_lock=threading.RLock(),
+        _codex_full_login_worker=worker,
+    )
+    original = importlib.import_module
+    monkeypatch.setattr(
+        importlib,
+        "import_module",
+        lambda name: native if name == "hermes_cli.web_routers.oauth" else original(name),
+    )
+    monkeypatch.setattr(httpx, "HTTPTransport", lambda **kwargs: httpx.MockTransport(wire))
+    host = RuntimeHost(tmp_path)
+    host.deadline_ns = time.monotonic_ns() + 4_000_000_000
+    reader = host._open_management_lifeline()
+    owner = management_oauth.NativeOAuth.from_owner_fd(reader)
+    lease = {
+        "operation_id": str(uuid4()),
+        "boot": str(uuid4()),
+        "generation": 1,
+        "epoch": 1,
+        "deadline_ns": host.deadline_ns,
+    }
+    try:
+        owner.operate("connect", lease)
+        assert owner.thread is not None
+        owner.thread.join(1)
+        assert not owner.active
+        assert owner.operate("status", lease)["oauth"] == "INDETERMINATE"
+        output = capsys.readouterr()
+        expected = {
+            "transport": "ReadError 0",
+            "status": "HTTP_STATUS 502",
+            "subclass": "UNKNOWN 0",
+        }[fault]
+        assert output.out == ""
+        assert output.err == f"OMNIS_OAUTH_FAILURE TOKEN_POLL {expected}\n"
+        assert secret not in output.err
+    finally:
+        if owner.thread:
+            owner.thread.join(1)
+        host._revoke_management_lifeline()
+        os.close(reader)
+
+
+@pytest.mark.asyncio
+async def test_oauth_host_failure_and_management_discard_channel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import asyncio
+    from unittest.mock import AsyncMock
+
+    from omnis_hermes import management_oauth, runtime_host
+    from omnis_hermes.management_contract import SELECTION
+
+    host = runtime_host.RuntimeHost(tmp_path)
+    host.state = "MANAGEMENT"
+    monkeypatch.setattr(host, "_settings_native", AsyncMock(return_value=dict(SELECTION)))
+    await host._settings_run({"operation_id": str(uuid4()), "action": "connect"})
+    assert host.settings_result is not None and host.settings_result["status"] == "INDETERMINATE"
+    assert capsys.readouterr().err == "OMNIS_OAUTH_FAILURE HOST LEASE 0\n"
+
+    host = runtime_host.RuntimeHost(tmp_path)
+    stream = asyncio.StreamReader()
+    stream.feed_data(b"PRIVATE_SENTINEL\nOMNIS_OAUTH_FAILURE TOKEN_POLL PRIVATE_SENTINEL 0\n")
+    stream.feed_data(
+        b"OMNIS_OAUTH_FAILURE TOKEN_POLL ReadError 00\nOMNIS_OAUTH_FAILURE TOKEN_POLL HTTP_STATUS 999\n"
+    )
+    stream.feed_data(b"OMNIS_OAUTH_FAILURE TOKEN_")
+    stream.feed_data(b"POLL ReadError 0\nOMNIS_OAUTH_FAILURE TOKEN_POLL ReadError 0\n")
+    stream.feed_eof()
+    await host._discard_management_output(stream)
+    assert capsys.readouterr().err == "OMNIS_OAUTH_FAILURE TOKEN_POLL ReadError 0\n"
+
+    class PrivateString(str):
+        pass
+
+    assert management_oauth.oauth_failure(PrivateString("TOKEN_POLL"), "ReadError", 0) is None
+    assert management_oauth.oauth_failure("TOKEN_POLL", "HTTP_STATUS", True) is None
+    assert management_oauth.oauth_failure("TOKEN_POLL", "PRIVATE_SENTINEL", 0) is None
+
+    import sys
+    from types import SimpleNamespace
+    from unittest.mock import patch
+
+    def broken_write(value: str) -> None:
+        raise OSError("PRIVATE_SENTINEL")
+
+    host = runtime_host.RuntimeHost(tmp_path)
+    host.state = "MANAGEMENT"
+    monkeypatch.setattr(host, "_settings_native", AsyncMock(return_value=dict(SELECTION)))
+    with patch.object(sys, "stderr", SimpleNamespace(write=broken_write)):
+        await host._settings_run({"operation_id": str(uuid4()), "action": "connect"})
+    assert host.settings_result is not None and host.settings_result["status"] == "INDETERMINATE"

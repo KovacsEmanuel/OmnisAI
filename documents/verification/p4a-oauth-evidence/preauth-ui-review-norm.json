@@ -1,0 +1,33 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Review independent READ-ONLY al contractului pre-auth UI; nu acceptare OAuth nativa sau vizuala. Ponytail full/review; fara delegare, fallback, instalare, editare repo ori commit.",
+  "base": "47b34eeb96110174e7cdf5026e00fa1200beca0f",
+  "snapshot": {
+    "before_and_final_match": true,
+    "final3hashes": {
+      "web/src/features/engagement/ProviderSettings.tsx": "9ec0669fd7b2b174989902af68c9874427a224a6390176afb55731eb24f88cc8",
+      "web/src/features/engagement/Engagement.module.css": "57b4c0a0b2a025c2f6d53e7855062d1e451b1aa4e07420b147ec08c0b818bda4",
+      "web/src/app/ProviderSettings.test.tsx": "a11e2b411dddcd0edaaa533527413a5d7992acc4b46d23bb7e7859ab7d760005"
+    },
+    "git_status": "Aceiasi trei candidati modificati; HEAD neschimbat."
+  },
+  "findings": [],
+  "assessment": "Nu am identificat defecte blocante in bytes revizuiti. Poll-ul de fundal foloseste GET pentru operatia locala exacta, fara replay Connect; intervalul si limitele existente raman. Intentia Cancel ascunde imediat challenge-ul, rezista GET/cache pending si admite terminalul corelat. Read nu inlocuieste ID-ul comenzii locale unresolved, dar ramane disponibil la citirea initiala. Decoderul si readPrivate pastreaza validarea ID/URL si fencingul de sesiune; unknown/error/expiry nu devin succes ori readiness. Textele si avertismentele raman, ordinea DOM este nativa, iar regulile CSS adaugate sunt limitate la clasele Provider. API/SDK/grants/deadlines si runtime hero nu sunt modificate.",
+  "phase1": {
+    "assessment": "COMMITTABLE_INDEPENDENTLY_SOURCE_SCOPED: patch-ul se aplica singur peste baza, fara CSS/polish; am reconstruit numai in scratch si am rulat testele intermediare. Nu am modificat indexul sau worktree-ul.",
+    "patch_sha256": "dae06b7983d33bf272be126a923fef27b12bac3bf77e8f3b8d2f1a16b8da6ea9",
+    "intermediate_hashes_match": true,
+    "ProviderSettings.tsx": "ebd1deb66c45fd1c4ca0b5e974040715471056b11eca9b6d05e8296a996dbb5b",
+    "ProviderSettings.test.tsx": "9f955859cd378ba6f903298b301046c4ecfbf001bcacc38b85cb7a4c77dd908f",
+    "tests": "7/7 PASS, exit0"
+  },
+  "commands": [
+    {"command": "git status --short --branch; git diff --stat; git rev-parse HEAD; git diff -- <final3files>", "exit": 0},
+    {"command": "sha256sum <final3files> ../oauth-ui.patch", "exit": 0, "result": "Toate valorile cerute coincid; repetate final prin hashlib/assert, exit0."},
+    {"cwd": "work/web", "command": "NODE_ENV=test node node_modules/vitest/vitest.mjs run --config ../../review-norm/vitest.config.mjs --configLoader runner --maxWorkers=2 src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=../../review-norm/provider-tests.json", "exit": 0, "result": "7/7 PASS; include background, cancel/cache, lost-save recovery si keyboard."},
+    {"cwd": "review-norm/phase1", "command": "git apply --unsafe-paths /home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/oauth-ui.patch", "exit": 0, "result": "Aplicare prin subprocess pe copii git-show ale bazei; ambele hashes intermediare coincid."},
+    {"cwd": "work", "command": "NODE_ENV=test node web/node_modules/vitest/vitest.mjs run --config ../review-norm/phase1-vitest.config.mjs --configLoader runner --maxWorkers=2 src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=/home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/review-norm/phase1-provider-tests.json", "exit": 0, "result": "7/7 PASS pe baza+phase1 izolata."},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "limitations": "Executie proprie numai ProviderSettings/jsdom, Node22.22.0, Vitest4.1.11, dependente existente si cache-uri private. RED3, cele93 teste si celelalte gates/lint sunt self-report/parinte, nu rerulate. Fara browser/cookies/8765/PG/native/Docker/provider/target, credentiale/config global ori fisiere interzise. Geometria, contrastul si tintele efective44px nu sunt deduse din CSS/jsdom; QA browser finala ramane la parinte. Throttlingul taburilor ascunse poate intarzia timer-ele. FAIL/CANCELLED/INDETERMINATE native raman distincte; SOURCE doubles nu probeaza autentificarea nativa."
+}

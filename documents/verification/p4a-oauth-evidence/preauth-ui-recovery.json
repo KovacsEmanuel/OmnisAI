@@ -1,0 +1,56 @@
+{
+  "status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
+  "main_product_commit": "b4192f569cc70464bc465ae039bee8e48fc0ca75",
+  "main_branch": "checkpoint/p2-batch2-pause-20261015",
+  "candidate": {
+    "branch": "work/p2-ui-FLhtAyZm",
+    "commit": "16c2e5ff0ae7d199869f97be085e6f8ff6a6ff76",
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/work",
+    "clean_after_checkpoint": true,
+    "integration_rule": "Apply only the three-file delta from b4192f5 to this checkpoint. Functional phase1 is already integrated; do not cherry-pick the whole checkpoint or reimport older candidates.",
+    "files_sha256": {
+      "web/src/features/engagement/ProviderSettings.tsx": "9ec0669fd7b2b174989902af68c9874427a224a6390176afb55731eb24f88cc8",
+      "web/src/features/engagement/Engagement.module.css": "57b4c0a0b2a025c2f6d53e7855062d1e451b1aa4e07420b147ec08c0b818bda4",
+      "web/src/app/ProviderSettings.test.tsx": "a11e2b411dddcd0edaaa533527413a5d7992acc4b46d23bb7e7859ab7d760005"
+    },
+    "remaining_delta": {"files": 3, "insertions": 34, "deletions": 3}
+  },
+  "accepted_scope": {
+    "native": "send-controlled-native-pass.json: actual existing consumer1PASS35.72s/exit0/drained on7a2ac5a, controlled HTTP/synthetic auth only; reuse unchanged evidence",
+    "ui_functional": "b4192f5: bounded background GET polling, immediate challenge hiding on Cancel and exact local-operation recovery; parent7PASS on pinned Node24.21.0",
+    "ui_candidate_reviews": "Both original reviews APPROVED_SCOPED on exact final3hashes; source review only, not visual/native-auth acceptance",
+    "toolchain_limit": "Reviewer dynamic tests used Node22.22.0. Author93unit/type/contracts/design/build and parent pinned lint57files are retained at their boundaries; final integrated checks must run on Node24.21.0/npm11.19.0."
+  },
+  "old_installation": {
+    "root": "/home/kali/.omnis-p2-ready",
+    "project": "omnis-local-4f40d5df42d64acbaf3db76334e82ae7",
+    "origin": "http://127.0.0.1:8765",
+    "instance_id": "0497daa1-65f4-4438-8f67-5a60e350c77d",
+    "release_sha256": "43e76fff4ac1139aac8226da95bae816434bb6327ad411e9386e42159a093402",
+    "artifact_limit": "Built before b4192f5 and polish. Immutable release is stale for current UI and must not be overwritten or claimed as final artifact.",
+    "state": "STOPPED",
+    "generation": 2,
+    "admission_open": false,
+    "stop_exit": 0,
+    "stop_seconds": 13.193,
+    "fresh_handoff_status_readback_exit": 0,
+    "fresh_handoff_listener_8765": "ABSENT",
+    "physical_cleanup_recorded": "Exact api/db/runtime/supervisor CIDs and project/network/IPC/listener absent; postgres/PGDATA/provider dev-inode-uid-mode unchanged after Stop",
+    "data": "One explicitly inert QA draft, scope BLOCKED and budgets0, plus saved requested provider configuration retained; no credential contents read, auth.json absent before/after Stop",
+    "auth_result": "Existing installed settings-auth journey FAIL/AssertionError35.052s; subsequent server CANCELLED readback and separate manual attempt INDETERMINATE retained. No account approval by agent; no inference. Do not attribute these historical failures solely to the UI fixes."
+  },
+  "ui_qa_before_polish": "Real API/PG: empty form422, inert draft save201/readback/reload revision1, five Setup steps, engagement navigation with honest future UNAVAILABLE states, no overflow320/390/1280/1440, native skip-link visible. Providers actions measured y916-960 before polish. These are scoped observations, not full OAuth PASS or final aesthetic approval.",
+  "durable_private_evidence": {
+    "archive": "/home/kali/.omnis-p2-ready/recovery/preauth-ui-evidence.tar.gz",
+    "sha256": "d353c7eed54865cc737ec5fed30d295d8a939b902ff822cc852f4bde31786903",
+    "bytes": 202849,
+    "members": 9,
+    "mode": "0600",
+    "member_hashes_verified": true,
+    "original_root": "/home/kali/.hermes/cache/scratch/uiq-kzdTki7q",
+    "excluded": "Cookies, credentials, raw logs, dependencies, worktrees, PostgreSQL data and Docker images; not an off-device backup. Git preserves candidate source and original review reports."
+  },
+  "next": "Integrate only reviewed polish delta; pinned final UI checks/build; additive current artifact/profile through existing owners, preserving stopped candidate/data; visible headed browser QA with operator participation; then operator-only live authentication if ready.",
+  "visible_qa_contract": "Show the actual Omnis window on the operator desktop and keep it visible during tests. Verify foreground/visibility, announce short steps and show before/after. Pause automation when the operator takes control. Do not claim headless/screenshot-only execution is live-visible. No secrets in chat, captures, logs or Git.",
+  "limits": "No implementation or services launched during prompt preparation. All owned tracked jobs already exited. Final polish browser QA, live auth/provider inference and final phase2 canonical NOT_RUN. P2/P4a not closed; no P3/target/r1/global/push."
+}

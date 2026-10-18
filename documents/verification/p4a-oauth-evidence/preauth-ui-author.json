@@ -1,0 +1,46 @@
+{
+  "status": "SOURCE_READY_FOR_PARENT_REVIEW_BROWSER_QA_PENDING",
+  "base": "47b34eeb96110174e7cdf5026e00fa1200beca0f",
+  "commits": "NONE; trei fisiere necomise pentru integrarea parintelui",
+  "files_sha256": {
+    "web/src/features/engagement/ProviderSettings.tsx": "9ec0669fd7b2b174989902af68c9874427a224a6390176afb55731eb24f88cc8",
+    "web/src/features/engagement/Engagement.module.css": "57b4c0a0b2a025c2f6d53e7855062d1e451b1aa4e07420b147ec08c0b818bda4",
+    "web/src/app/ProviderSettings.test.tsx": "a11e2b411dddcd0edaaa533527413a5d7992acc4b46d23bb7e7859ab7d760005"
+  },
+  "phase1": {
+    "patch": "/home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/oauth-ui.patch",
+    "patch_sha256": "dae06b7983d33bf272be126a923fef27b12bac3bf77e8f3b8d2f1a16b8da6ea9",
+    "saved_before_polish": true,
+    "intermediate_sha256": {
+      "ProviderSettings.tsx": "ebd1deb66c45fd1c4ca0b5e974040715471056b11eca9b6d05e8296a996dbb5b",
+      "ProviderSettings.test.tsx": "9f955859cd378ba6f903298b301046c4ecfbf001bcacc38b85cb7a4c77dd908f"
+    },
+    "reproduced": [
+      "focusManager(false): PUT Connect o data, primul GET STARTING, urmatorul poll lipseste. refetchIntervalInBackground rezolva: CHALLENGE, terminal, apoi zero poll suplimentar.",
+      "Cancel: challenge vechi acopera intentia/receiptul CANCELLING. Flag local ascunde imediat codul, dezactiveaza Cancel repetat; receiptul pending are precedenta peste GET pending/cache, terminalul exact ramane admis.",
+      "Save cu raspuns pierdut, apoi Read native configuration produce alt PUT/read si inlocuieste operation_id. Read este blocat cat id-ul exact local este unknown; Recover citeste id-ul pierdut fara replay."
+    ],
+    "unconfirmed": "Cauza esecului OAuth nativ anterior NU este atribuita exclusiv UI.",
+    "command": "npm test -- --maxWorkers=2 src/app/ProviderSettings.test.tsx",
+    "red": { "exit": 1, "failed": 3, "passed": 4, "log": "evidence/phase1-red-correlation.log" },
+    "green": { "exit": 0, "passed": 7, "log": "evidence/phase1-green3.log" },
+    "intermediate_failures": "GREEN1:3 FAIL, guard unknown prea larg bloca primul read; GREEN2:1 FAIL, notificare Query. Corectate: guard pe id exact local, drain fake timer1ms dupa poll; fara sleep real/limite marite. Logurile originale pastrate."
+  },
+  "phase2": {
+    "layout": "Selecturi 3 coloane peste700px, stack mobil; cinci stari compacte pe3coloane, feedback operatie separat. Connect primul in DOM, contur primary/weight600; tinte >=44px, butoane fullwidth mobil. Fonturi, texte, avertismente, focus global si API neschimbate.",
+    "checks": "ProviderSettings 7/7 PASS exit0, evidence/phase2-provider.log. Tab Provider -> Model -> Effort -> Connect -> Read verificat in jsdom.",
+    "optional_runtime": "OMIS. App confirma Bootstrap nepaired complet si separat in Settings paired; eliminarea hero necesita si realocarea heading/ref pentru focus. Nu am adaugat structura pentru polish optional. Settings/Bootstrap neatinse."
+  },
+  "final_gates": [
+    { "command": "npm run lint", "exit": 1, "result": "BLOCKED: worktree fara tsx pentru anti-slop; fara npm install" },
+    { "command": "node --import tsx node_modules/oxlint/bin/oxlint -c oxlint.config.ts --deny-warnings --react-plugin --jsx-a11y-plugin --ignore-pattern **/generated.ts <cele 5 cai web absolute din scripts/lint.mjs>", "cwd": "/home/kali/OmnisAI/tools/development/anti-slop", "exit": 0, "result": "Alternativa read-only; config/lock/vendor comparate identic. evidence/final-lint-alternative.log este gol; nu revendic un numar de fisiere lintuite." },
+    { "command": "npm run typecheck", "exit": 0 },
+    { "command": "npm run check:contracts", "exit": 0 },
+    { "command": "npm run check:design", "exit": 0 },
+    { "command": "npm test -- --maxWorkers=2", "exit": 0, "tests": 93, "files": 13 },
+    { "command": "npm run build", "exit": 0, "manifest_files": 4 },
+    { "command": "git diff --check", "exit": 0 }
+  ],
+  "evidence_root": "/home/kali/.hermes/cache/scratch/p2-ui-FLhtAyZm/evidence",
+  "not_run_risks": "Browser/QA instalata, geometrie1280x720, overflow320/390, focus vizual, zoom/forced-colors: NOT_RUN, la parinte. Niciun acces la8765/OAuth/DB/native/provider/credentials/browser profile/fisiere interzise. Fara delegare/commit/install/fallback. Timer-ele taburilor ascunse pot fi throttled de browser; limitele UI existente raman. FAIL/UNKNOWN native si INDETERMINATE nu sunt ascunse. execute_code a fost blocat de politica single-query, zero apeluri executate."
+}

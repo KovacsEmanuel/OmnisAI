@@ -1,0 +1,40 @@
+{
+  "status": "PHASE1_SOURCE_PASS_PHASE2_CANDIDATE_BLOCKED_FINAL_GATES_NOT_RUN",
+  "base": "e4549e8687840df124126be60d5be4aa28944603",
+  "head_observed": "e4549e8687840df124126be60d5be4aa28944603",
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Live Hermes PID2158390 allowlisted cmdline flags", "fallback_delegation": false},
+  "root": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w",
+  "log_root": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/t",
+  "phase1": {
+    "status": "SOURCE_PASS_PENDING_INDEPENDENT_REVIEW_AND_INSTALLED_UI_QA",
+    "finding": "App route focus is retained; h1:focus/main:focus drew an outline even for pointer navigation. Changed only that rule to :focus-visible; no App/Bootstrap redesign or focus removal.",
+    "patch": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/phase1-ui.patch",
+    "patch_sha256": "7dc609cc5c69570ba153abff276e8c4a91259f2d58e3607573c987e837937dcd",
+    "files": {"web/src/shared/styles/global.css": "1ad8cd53dc4d6787b8d3964ccba1c2be491c0460ad17953b12d6c375501250a5", "web/src/app/Shell.test.tsx": "e940066fe2992208104f444258d80802aa5f1441b47dbc8df0090df7a413a449", "web/tests/e2e/run.mjs": "9838749e50e342ac8e5a6eff7f3c11e1d3f51bf84cb2a195b2d5c17aca37b39c"},
+    "red": {"exit": 1, "cases": 3, "failed": 1, "log": "t/ui-css-red.log", "observed": "Pointer focus-visible=false but solid2px outline; skip/keyboard solid2px"},
+    "green": {"exit": 0, "cases": 3, "log": "t/ui-css-green-final.log", "observed": "Pointer stays focused with outline-style none; skip/keyboard focused solid2px"},
+    "source": {"passed": 3, "exit": 0, "log": "t/ui-shell-final.log", "command": "NODE_ENV=test node node_modules/vitest/vitest.mjs run src/app/Shell.test.tsx --no-cache --reporter=dot"},
+    "checks": {"tsc_noEmit": 0, "node_check_e2e": 0, "git_diff_check_at_phase1": 0},
+    "boundary": "Owned headless Chromium1243, actual CSS with equivalent focus handler, no App/API/DB; actual Shell component tests pass. Existing E2E caller extended and syntax checked, not executed against installed UI.",
+    "attempt_limits": "Initial Shell invocation omitted package-prescribed NODE_ENV=test and failed3 before rendering; corrected command passes3. Empty-shell-variable CSS invocation had no evidence and is excluded. Final explicit invocation above is valid; no new runner added."
+  },
+  "phase2": {
+    "status": "DIAGNOSTIC_IMPLEMENTED_CANDIDATE_NOT_FINAL_VERIFIED_NOT_AN_OAUTH_FIX",
+    "historical_root_cause": "UNKNOWN; no current restricted reproduction establishes the early installed failure's cause. Native worker/Host normalization and discarded management output erase the old primary exception.",
+    "finding": "Diagnostic gap reproduced: actual NativeOAuth/FixedClient swallowed-error boundary and Host lease refusal had no finite marker. Added diagnostic metadata and one native failure marker, strictly reconstructed by the existing bounded Host drainer, plus Host refusal/lifecycle marker. No raw output forwarding or new API/DTO/schema/config/owner.",
+    "marker_contract": "Only phase USER_CODE/TOKEN_POLL/TOKEN_EXCHANGE or HOST; exact allowlisted exception class identity or UNKNOWN/HTTP_STATUS/LEASE/STOP; status0 or validated100..599 for HTTP_STATUS. Host deduplicates native/Host emissions; all other child output remains discarded under original65536-byte cap. Diagnostic stderr writes are best effort.",
+    "patch": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/phase2-oauth-diagnostic.patch",
+    "patch_sha256": "61a73d5c62069bbe0efb65c6abe7e0621c20be550479abeec6e08bf312c685e2",
+    "files": {"integrations/hermes/src/omnis_hermes/management_oauth.py": "4cce938addd6f88e4ea1a5323242ce979fd02530e544d6f5eae0e9363bb54fa5", "integrations/hermes/src/omnis_hermes/runtime_host.py": "b689a3d1569eda1210d054da12afc0ba9f4860badf0b01624b5fc308d3989eca", "api/tests/test_provider_oauth_source.py": "a95808e3b533e8cef0a113f03f5b14b0d175d17ed3c7d133fb97f748eee2236a"},
+    "red": {"exit": 1, "failed": 4, "deselected": 18, "seconds": 0.32, "log": "t/oauth-diag-red.log", "selection": "failure_marker or management_discard_channel"},
+    "green_before_last_edit": {"exit": 0, "passed": 22, "seconds": 1.61, "log": "t/oauth-diag-green.log", "boundary": "Includes real NativeOAuth/FixedClient with MockTransport and swallowed-error native-worker double, real Host normalization/drainer with controlled StreamReader. Positive transport/status, hostile exception subclass, secret/unknown/malformed markers and deduplication passed."},
+    "quality_before_last_edit": {"ruff_exit": 1, "finding": "B905 missing explicit zip strict; corrected in final source but not rerun", "mypy_exit": 0, "files": 3},
+    "last_edit": "Applied explicit zip strict=True and formatting; added broken diagnostic writer control preserving INDETERMINATE. This final test/control and final scoped quality were NOT_RUN after the mandatory runtime stop notice; earlier22PASS is not transferred to final bytes.",
+    "commands": "API Python3.13.15 -I -B -X pycache_prefix=<root>/t/pycache, explicit worktree api/src+integrations/hermes/src; pytest -c api/pyproject.toml api/tests/test_provider_oauth_source.py -p pytest_asyncio.plugin -p no:cacheprovider, private HOME/TMPDIR/XDG and basetemp. Quality: Ruff check and strict mypy on the exact3changed Python files.",
+    "unchanged": "ac1acc5 pool100/keepalive0/retries0 not reimplemented; no timeout/grant/Stop/TLS/URL/secret-guard/pin/overlay/distribution changes; CLI relay read-only. Historical FAIL/INDETERMINATE untouched.",
+    "remaining": "Run22SOURCE and Ruff/check-format/mypy on final bytes, focused independent review, then parent-owned real-artifact informative attempt only if separately admitted. No OAuth PASS or historical explanation claimed."
+  },
+  "final_patch": {"path": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/final.patch", "sha256": "25b6a546268f929ab9f27d0fce9c2abc2ad541f91cc73c12368a1eb75dc7c169", "scope": "Explicit six allowed paths only; original byte-exact Git binary diff, phase patches remain separable"},
+  "cleanup": "Own browser closed in finally; foreground API tests completed, native test threads joined and lifelines closed. Private copied node_modules, no Vitest result cache, TMPDIR/XDG/pytest/mypy under owned root. No active instance/provider/PG/OCI access, installation, unknown-cache cleanup, protected-file access or commit.",
+  "blockers": ["Final phase2 gates NOT_RUN at mandatory runtime stop; independent review and installed UI/auth QA remain parent-owned", "Historical OAuth root cause UNKNOWN", "Canonical/native-source restoration and old CLI cache uncertainty deliberately not investigated"]
+}

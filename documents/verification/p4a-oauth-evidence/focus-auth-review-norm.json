@@ -1,0 +1,55 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "role": "Independent READ-ONLY normative/dataflow/test-oracle review; Ponytail full; no integration closure.",
+  "root": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work",
+  "base": "e4549e8687840df124126be60d5be4aa28944603",
+  "head": "e4549e8687840df124126be60d5be4aa28944603",
+  "hashes_before_and_after": {
+    "web/src/shared/styles/global.css": "1ad8cd53dc4d6787b8d3964ccba1c2be491c0460ad17953b12d6c375501250a5",
+    "web/src/app/Shell.test.tsx": "e940066fe2992208104f444258d80802aa5f1441b47dbc8df0090df7a413a449",
+    "web/tests/e2e/run.mjs": "9838749e50e342ac8e5a6eff7f3c11e1d3f51bf84cb2a195b2d5c17aca37b39c",
+    "integrations/hermes/src/omnis_hermes/management_oauth.py": "4be4bc334a4826c4980130988efb02f1679ecfe25ca64ac53df39a5802ed7505",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "b689a3d1569eda1210d054da12afc0ba9f4860badf0b01624b5fc308d3989eca",
+    "api/tests/test_provider_oauth_source.py": "0bd8566e43e2064795718ca8070ab8cc5a7ef853a1fc97ba405597d0defa2f38"
+  },
+  "runtime_requested": "openai-codex/gpt-6.1-sol/xhigh",
+  "runtime_observed": {"provider": "openai-codex", "model": "gpt-6.1-sol", "reasoning": "xhigh", "evidence": "Live ancestor Hermes PID2164659 allowlisted --provider/--model/--reasoning flags; session provider/model agree.", "fallback_or_delegation": false},
+  "findings": [],
+  "source_assessment": {
+    "ui": "global.css:9-10 changes only h1/main :focus to :focus-visible. App.tsx:17-23,27-34 still performs route focus, retains main tabindex=-1 and native skip link. Bootstrap.tsx:37-38,58-69 keeps heading focus. No focus removal, modality tracker, component redesign or new dependency.",
+    "ui_oracle": "Actual Shell component test now exercises pointer navigation, reverse tab order and keyboard route activation. Added E2E assertions check pointer outline-style:none plus keyboard/skip focus and width2px. Author real-CSS headless RED/GREEN control separately confirms keyboard/skip outline-style:solid and pointer focus retained; it is not installed App QA.",
+    "producer": "Exact native oauth.py _codex_client -> client_factory -> FixedClient.post records only finite request phase and exact exception class identity or validated HTTP status. Native _codex_full_login_worker retains managed no-retry/error normalization. NativeOAuth.work emits only when that actual worker leaves session.status=error, before thread settlement. Existing terminal precedence and session/challenge clearing remain.",
+    "caller": "RuntimeHost._oauth_flow -> management_http.request -> management_server flow -> NativeOAuth.operate remains the effect path. management_http keeps its2s exchange and dispatch guard; server retains exclusive lock, bounded payload and no-store. Native INDETERMINATE is not re-labelled as a primary Host cause; Host skips its generic marker in that branch.",
+    "finite_diagnostics": "management_oauth.py:42-82 uses trusted class identities, not error.__class__/name/str/repr/body/traceback/path/capability. Exact str/int guards reject subclasses and bool status; status only100..599 for HTTP_STATUS, otherwise0. Unknown exception subclasses become UNKNOWN. TOKEN_POLL403/404 remain legitimate pending, not error markers.",
+    "host_observation": "runtime_host.py:335-378 emits HOST STOP/LEASE from lifecycle/deadline state observed when handling failure, or exact local exception type. These are observations, not proof of the initial native cause. INDETERMINATE and lifeline revocation occur before best-effort diagnostic output.",
+    "decoder_bounds": "runtime_host.py:477-509 reconstructs canonical allowlisted markers only, rejects child HOST labels, malformed/non-ASCII/noncanonical status and lines over96bytes; raw output remains discarded. Existing65536-byte per-stream limit remains. One Host-visible marker is deduplicated across drainers/Host handling per operation; write/flush failures are suppressed without changing failure state.",
+    "unchanged": "Pool max_connections100/keepalive0, retries0, TLS/URL/body guards, all grants/timeouts, native pin/overlay, Stop and cleanup code unchanged except diagnostic capture and replacing the existing output drainer. No new API/schema/owner/config or observer framework."
+  },
+  "execution": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python", "python_version": "3.13.15", "httpx": "0.28.1", "httpcore": "1.0.9",
+    "python_flags": ["-I", "-B", "-X", "pycache_prefix=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-norm/pycache"],
+    "sys_path_prefix": ["/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/api/src", "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/integrations/hermes/src"],
+    "environment": {"TMPDIR": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-norm", "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-norm/cache", "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1", "pytest_unset": ["PYTHONPATH", "MYPYPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"], "output_directory_mode": "0700", "log_umask": "077"},
+    "commands": [
+      {"id": "source22", "command": "API Python with flags/environment/sys.path above; pytest.main(argv)", "argv": ["-c", "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/api/pyproject.toml", "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/api/tests/test_provider_oauth_source.py", "-p", "pytest_asyncio.plugin", "-p", "no:cacheprovider", "-q", "--tb=short", "--basetemp=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-norm/pgreen"], "exit": 0, "passed": 22, "failed": 0, "seconds": 1.24, "log": "r-norm/source.log"},
+      {"id": "shell3", "command": "NODE_ENV=test pinned node --input-type=module -e program; TMPDIR/XDG private as above; npm_config_cache=<own>/npm; cwd=work/web", "program": "import { startVitest } from 'vitest/node'; const ctx=await startVitest('test',['src/app/Shell.test.tsx'],{root:process.cwd(),run:true,watch:false,cache:false,reporters:['dot'],configLoader:'runner'},{cacheDir:'/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-norm/vite'}); if(!ctx) process.exitCode=1; else { console.log('CACHE_DIR',ctx.vite.config.cacheDir); await ctx.close(); }", "exit": 0, "passed": 3, "failed": 0, "seconds": 2.49, "log": "r-norm/shell.log"},
+      {"id": "stream-controls", "command": "API Python with flags/sys.path/private paths above; real RuntimeHost._discard_management_output with controlled asyncio.StreamReader. Feed a marker fragment, yield one event-loop turn, feed its suffix+duplicate, require exactly one reconstructed marker. Fresh Host: feed65537bytes without newline, require ValueError and zero forwarded stderr. Redirect only synthetic output to StringIO.", "exit": 0, "controls_passed": 2, "log": "r-norm/stream-controls.log"},
+      {"command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --check web/tests/e2e/run.mjs", "exit": 0, "scope": "syntax only, no browser/E2E execution"},
+      {"command": "git diff --check", "exit": 0}
+    ],
+    "node": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node", "node_version": "24.21.0", "npm_version": "11.19.0",
+    "cache_boundary": "work/web/node_modules is a private physical directory, not a shared symlink. Runner configLoader avoids bundled config temp output; no Vitest result cache. Actual Vite cacheDir printed under r-norm/vite/vitest. Python bytecode disabled and private pycache_prefix used.",
+    "counts": {"source_tests_passed": 22, "shell_tests_passed": 3, "stream_controls_passed": 2, "own_nonzero_check_invocations": 0, "own_failed_tests": 0, "blocking_findings": 0}
+  },
+  "evidence_read_and_reused": {
+    "original_reports": ["developer-result.json", "developer-final.json"], "patches": ["phase1-ui.patch", "phase2-oauth-diagnostic-final.patch"],
+    "native_producer": "/home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source/hermes_cli/web_routers/oauth.py", "native_sha256": "e67dce382df4b0fa5acd67e8f2f2561bfee70600859864a0f6e4dfba8a9f38e7",
+    "native_review_reuse": "Hash matches the exact native worker/client/poll/error/save source already read in this session. Its managed attempts=1, pending403/404 and error/cancel precedence remain unchanged.",
+    "css_control": "Author t/ui-css-red.log:exit1/one pointer-outline failure; t/ui-css-green-final.log:three control states correct. Both read, not rerun; actual CSS with equivalent route-focus handler, not actual installed App.",
+    "other_gates": "Developer reports final22SOURCE/Ruff/check-format/mypy0; source22 independently rerun above. Parent pinned lint/build0 supplied by task; not independently rerun. Cold HTTPX import guard SOURCE/noIO is prerequisite evidence, not installed-image proof.",
+    "failures_preserved": "Original interrupted reports, CSS RED and intermediate gate failures remain untouched. Pooling ac1acc5 is unchanged and is not a proven explanation for the historical early failure."
+  },
+  "limits": ["No guarantee every failure has a specific marker. Pre-wire guard/out-of-capture failures may remain UNKNOWN or have no transport marker; phase can be the last recorded request phase. First-marker dedup can omit later observations.", "Finite marker reconstruction does not authenticate arbitrary output from a compromised TCB process. No new authority is granted through diagnostics.", "No real TLS/native-worker/provider/installed/browser/PG/OCI or broad CLI/canonical attempt. CSS headless control is reused author evidence; actual installed visible focus/auth QA remains parent-owned.", "Historical early CHALLENGE->INDETERMINATE cause remains UNKNOWN. Diagnostics are observation, not an OAuth repair or blind live-retry approval. Known canonical default AST locator problem was not investigated, changed or skipped."],
+  "constraints": {"product_writes_commits_installs_global_changes": false, "provider_PG_OCI_browser_private_profile_access": false, "protected_files_accessed": false, "delegation": false, "reticle": "NOT_INTEGRATED", "chisel": "BLOCKED_NO_GO"},
+  "handoff": "Exact six hashes and base/HEAD stable after checks; only those six preexisting tracked modifications, empty index. No product edits. Own logs/caches retained under r-norm; foreground tests completed. Parent adjudicates reviews and controls any informative actual-artifact attempt and integration. P4a/P2-live/phase2 are not closed."
+}

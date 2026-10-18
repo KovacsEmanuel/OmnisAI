@@ -1,0 +1,49 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent READ-ONLY safety review pe exact6fișiere: focus-visible și observație OAuth finită; nu remediu OAuth, acceptare installed sau închidere de integrare/fază.",
+  "base": "e4549e8687840df124126be60d5be4aa28944603",
+  "head_before_after": "e4549e8687840df124126be60d5be4aa28944603",
+  "worktree": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work",
+  "hashes_before_after_verified": {
+    "web/src/shared/styles/global.css": "1ad8cd53dc4d6787b8d3964ccba1c2be491c0460ad17953b12d6c375501250a5",
+    "web/src/app/Shell.test.tsx": "e940066fe2992208104f444258d80802aa5f1441b47dbc8df0090df7a413a449",
+    "web/tests/e2e/run.mjs": "9838749e50e342ac8e5a6eff7f3c11e1d3f51bf84cb2a195b2d5c17aca37b39c",
+    "integrations/hermes/src/omnis_hermes/management_oauth.py": "4be4bc334a4826c4980130988efb02f1679ecfe25ca64ac53df39a5802ed7505",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "b689a3d1569eda1210d054da12afc0ba9f4860badf0b01624b5fc308d3989eca",
+    "api/tests/test_provider_oauth_source.py": "0bd8566e43e2064795718ca8070ab8cc5a7ef853a1fc97ba405597d0defa2f38"
+  },
+  "diff_sha256": "84fc3b31896bd58ede765abeba824aa96cc84a736a852e900f6116b2f277b5f9",
+  "patches_read_and_hashed": {"phase1-ui.patch": "7dc609cc5c69570ba153abff276e8c4a91259f2d58e3607573c987e837937dcd", "phase2-oauth-diagnostic-final.patch": "1c8c6ebe07539787097a40368e42a81dedc44aca7d26a53722ce4a59aed00f8e"},
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Contextul sesiunii și flagurile allowlisted ale strămoșului Hermes PID2164667: --provider openai-codex --model gpt-6.1-sol --reasoning xhigh", "fallback_downgrade_delegation": false},
+  "rules_loaded": ["SOUL.md", "AGENTS.md", "CONTRIBUTING.md", "ponytail:ponytail full", "ponytail:ponytail-review", ".hermes/skills/omnis-review-qa/SKILL.md"],
+  "findings": [],
+  "review": [
+    {"requirement": "Fără secrete/nume de clase falsificate", "code": "management_oauth.py:42-82,156-193,359-370", "result": "SCOPED_PASS", "basis": "Identitate exactă a claselor, etichete constante și tipuri scalare exacte; subclasses necunoscute devin UNKNOWN. Fără str/repr(error), body, URL/path ori capability în marker. Faza vine numai din maparea URL-urilor deja admise; statusul emis este int100..599, nu bool/subclass."},
+    {"requirement": "Buffer/size/dedup fără raw forwarding", "code": "runtime_host.py:477-509,600-609", "result": "SCOPED_PASS", "basis": "Reconstituire canonică ASCII, linii acceptate cel mult96bytes, comparație byte-exact, status canonic; maximum un marker per comandă. Pending poate ajunge la plafonul existent65536bytes per stream, nu este pretins drept buffer96bytes. Controale65536/65537 și read-boundary/duplicate trecute; restul stdout/stderr este aruncat."},
+    {"requirement": "Excepții/INDETERMINATE/Stop/no-retry neschimbate", "code": "management_oauth.py:172-183,310-314,359-413; runtime_host.py:335-443,1120-1137,1163-1247", "result": "SCOPED_PASS", "basis": "Bare raise păstrează obiectul original; diagnosticul writer best-effort nu schimbă verdictul. Stop revocă lifeline înainte de await; output-limit continuă să activeze watchdog/Stop. Prioritatea error față de cancel/expiry și cleanupul rămân; pool100/keepalive0/retries0/timeouts/grants nu sunt modificate."},
+    {"requirement": "Cauză nativă versus stare Host observată", "code": "runtime_host.py:367-378,425-427; native oauth.py:285-338", "result": "SCOPED_PASS_WITH_LIMIT", "basis": "Native INDETERMINATE nu este reetichetat ca eroare primară Host. HOST STOP/LEASE descriu starea/deadline-ul la tratarea eșecului, nu cauza inițială. Erori în afara capturii sau înainte de wire pot rămâne UNKNOWN/fără marker; nu este promisă clasificare completă."},
+    {"requirement": "Pointer fără contur gigantic; tastatură/skip/route focus păstrate", "code": "global.css:9-10; App.tsx:17-34; Shell.test.tsx:20-42; run.mjs:260-274", "result": "SCOPED_PASS", "basis": "Numai selectorul :focus devine :focus-visible; tabIndex=-1, ref.focus, skiplink și regula globală de tastatură rămân. Shell3PASS propriu; controlul CSS real RED/GREEN al autorului este reutilizat, nu QA installed."}
+  ],
+  "call_chain_read": ["RuntimeHost._settings_run/_oauth_flow/_settings_native/output drainer/watch/Stop", "management_http.request/configure", "management_server flow și handle_exit", "NativeOAuth.operate/guard/revoke și FixedClient", "Producerul exact readonly /home/kali/.hermes/cache/scratch/cx-h1I9IKMg/prepared-rr2/runtime-source/hermes_cli/web_routers/oauth.py:59-96,157-338", "Shell/App și Bootstrap focus; configurații/test setup/manifest relevante"],
+  "execution_environment": {
+    "private_root": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-safety",
+    "environment": "env -i; PATH explicit; HOME=<private_root>/h; TMPDIR=<private_root>/t; XDG_CACHE_HOME=<private_root>/c; umask077; directoare0700",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python 3.13.15; -I -B -X pycache_prefix=<private_root>/c/pycache",
+    "sys_path_prefix": ["/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/api/src", "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/work/integrations/hermes/src"],
+    "node_npm": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin; observat node24.21.0/npm11.19.0",
+    "write_boundary": "Doar propriul private_root și raportul cerut. Vitest folosește configurație scratch care păstrează configurația proiectului, fixează root-ul real și cacheDir privat; configLoader runner evită bundle temporar în checkout, --no-cache dezactivează result cache. Fără instalare sau dependențe partajate prin symlink."
+  },
+  "commands": [
+    {"command": "API Python cu flagurile/sys.path/environment de mai sus; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; pytest.main(['-c',work+'/api/pyproject.toml',work+'/api/tests/test_provider_oauth_source.py','-q','--tb=no','-p','no:cacheprovider','-p','pytest_asyncio.plugin','--basetemp='+private_root+'/t/p'])", "exit": 0, "passed": 22, "failed": 0, "skipped": 0, "seconds": 1.45, "log": "r-safety/source22.log"},
+    {"command": "NODE_ENV=test; node node_modules/vitest/vitest.mjs run src/app/Shell.test.tsx --config /home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-safety/vitest.config.mjs --configLoader runner --no-cache --reporter=dot", "cwd": "work/web", "exit": 0, "passed": 3, "failed": 0, "seconds": 1.98, "log": "r-safety/shell3.log"},
+    {"command": "API Python -I -B -X pycache_prefix=<private_root>/c/pycache /home/kali/.hermes/cache/scratch/of-n9n2qc5w/r-safety/controls.py", "exit": 0, "passed": 8, "failed": 0, "log": "r-safety/controls.log", "boundary": "SOURCE/no network: MockTransport și StreamReader/management reply controlate"},
+    {"command": "Pinned node --check web/tests/e2e/run.mjs; git diff --check", "exit": 0},
+    {"command": "git status --short --branch; git rev-parse HEAD; git diff --cached --stat; git diff --check; API Python -I -B SHA256 exact6paths și git diff --binary -- exact6paths", "exit": 0, "matching_frozen_files_before_after": 6, "index_changes": 0}
+  ],
+  "own_counts": {"source_tests_passed": 22, "shell_tests_passed": 3, "extra_source_controls_passed": 8, "failed": 0, "nonzero_terminal_invocations": 0},
+  "extra_controls": ["Subclass redenumit ReadError și __str__/__repr__ ostile -> UNKNOWN", "Tipuri exacte phase/kind/status și bool/int-subclass/out-of-range refusals", "Identitatea excepției originale păstrată", "Linie împărțită la read-boundary și duplicate -> un marker", "HOST spoof/non-ASCII/status necanonic/linie lungă -> discard", "65536bytes acceptat fără forwarding", "65537bytes refuzat fără forwarding", "Rezultat nativ INDETERMINATE nu produce marker Host substituit"],
+  "reused_evidence": {"developer_reports_read": ["developer-final.json", "developer-result.json"], "CSS": "t/ui-css-red.log: pointer solid2px/exit1; t/ui-css-green-final.log: pointer style none, skip/keyboard solid2px/exit0; citite, fără browser propriu", "quality": "Autor final22SOURCE/Ruff/format/mypy0 și parent pinned lint/build0 raportate separat; nu sunt revendicate ca execuții proprii", "startup": "HTTPX există în producerul runtime-image declarat; cold-import guard SOURCE/noIO al autorului nu este installed proof. Nu s-a schimbat dependența/overlayul/pinul."},
+  "preserved_limits": ["Poolingac1acc5 este neschimbat și nu explică demonstrat historical early CHALLENGE->INDETERMINATE; toate FAIL/UNKNOWN rămân.", "Markerul finit nu oferă autenticitate împotriva codului arbitrar din copilul trusted și nu dovedește fiecare cauză posibilă. Nu transmite raw output și nu acordă autoritate nouă.", "Fără provider/conturi/PG/OCI/active browser/private profiles/global/install/delegare/commit/product edits; fără acces la cele două fișiere protejate.", "Nu s-au rulat broadCLI/native/canonical sau installed/visible E2E; problema locatorului AST implicit nu a fost investigată, modificată ori ascunsă prin skip.", "Reticle NOT_INTEGRATED/NOT_RUN aici; Chisel BLOCKED_NO_GO. Testele SOURCE/jsdom și controlul CSS nu sunt acceptare estetică sau installed."],
+  "cleanup": "Toate comenzile proprii foreground s-au încheiat. Testele existente își await/join propriii peers/workers/lifeline child; controalele noi nu lansează proces nativ, server TLS sau provider. Loguri/cache proprii păstrate, fără ștergerea cache-urilor necunoscute; cele6hashuri și indexul sunt neschimbate.",
+  "handoff": {"AICI": "CANDIDATE_UNCOMMITTED / SOURCE_AND_COMPONENT_PASS / APPROVED_SCOPED", "integration": "PENDING_PARENT_ADJUDICATION", "historical_cause": "UNKNOWN", "P4a_phase2": "NOT_CLOSED", "next": "Părintele adjudecă reviewurile obligatorii și decide tentativa informativă actual-artifact deja delimitată; acest review nu acordă retry live orb."}
+}

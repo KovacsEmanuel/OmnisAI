@@ -1,0 +1,48 @@
+{
+  "status": "FINAL_SOURCE_GATES_PASS_PENDING_INDEPENDENT_REVIEW_AND_ARTIFACT_QA",
+  "base": "e4549e8687840df124126be60d5be4aa28944603",
+  "head": "e4549e8687840df124126be60d5be4aa28944603",
+  "runtime": {"requested": "openai-codex/gpt-6.1-sol/xhigh", "observed": "openai-codex/gpt-6.1-sol/xhigh", "evidence": "Live Hermes PID2162595 --provider/--model/--reasoning flags", "fallback_downgrade_delegation": false},
+  "root": "/home/kali/.hermes/cache/scratch/of-n9n2qc5w",
+  "changed_files_sha256": {
+    "web/src/shared/styles/global.css": "1ad8cd53dc4d6787b8d3964ccba1c2be491c0460ad17953b12d6c375501250a5",
+    "web/src/app/Shell.test.tsx": "e940066fe2992208104f444258d80802aa5f1441b47dbc8df0090df7a413a449",
+    "web/tests/e2e/run.mjs": "9838749e50e342ac8e5a6eff7f3c11e1d3f51bf84cb2a195b2d5c17aca37b39c",
+    "integrations/hermes/src/omnis_hermes/management_oauth.py": "4be4bc334a4826c4980130988efb02f1679ecfe25ca64ac53df39a5802ed7505",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "b689a3d1569eda1210d054da12afc0ba9f4860badf0b01624b5fc308d3989eca",
+    "api/tests/test_provider_oauth_source.py": "0bd8566e43e2064795718ca8070ab8cc5a7ef853a1fc97ba405597d0defa2f38"
+  },
+  "patches": {
+    "phase1-ui.patch": "7dc609cc5c69570ba153abff276e8c4a91259f2d58e3607573c987e837937dcd",
+    "phase2-oauth-diagnostic-final.patch": "1c8c6ebe07539787097a40368e42a81dedc44aca7d26a53722ce4a59aed00f8e",
+    "final-candidate.patch": "84fc3b31896bd58ede765abeba824aa96cc84a736a852e900f6116b2f277b5f9"
+  },
+  "this_continuation_changes": "Only two concrete gate defects corrected: format the existing generator; patch stderr via directly imported sys in the writer test rather than a non-exported runtime_host.sys attribute. No product behavior extension.",
+  "final_gates": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": "-I -B -X pycache_prefix=<root>/t/pycache; explicit worktree/api/src and worktree/integrations/hermes/src",
+    "source": {"target": "api/tests/test_provider_oauth_source.py", "passed": 22, "failed": 0, "exit": 0, "seconds": 1.56, "log": "t/final/source22-final.log"},
+    "ruff": {"command": "ruff check --no-cache --config api/pyproject.toml <exact3Python>", "exit": 0, "log": "t/final/ruff-final.log"},
+    "format": {"command": "ruff format --check --no-cache --config api/pyproject.toml <exact3Python>", "files": 3, "exit": 0, "log": "t/final/format-final.log"},
+    "mypy": {"command": "mypy --config-file api/pyproject.toml --cache-dir <root>/t/mypy <exact3Python>", "files": 3, "exit": 0, "log": "t/final/mypy-final.log"},
+    "exact3Python": ["integrations/hermes/src/omnis_hermes/management_oauth.py", "integrations/hermes/src/omnis_hermes/runtime_host.py", "api/tests/test_provider_oauth_source.py"],
+    "after_last_edit": true,
+    "git_diff_check_exit": 0,
+    "index_unchanged_exit": 0,
+    "initial_attempt_preserved": "source22.log:22PASS; ruff0, format1, mypy1 before the two gate-only corrections. Original reports and logs not overwritten."
+  },
+  "startup_prerequisite": {
+    "declarations": "ops/Dockerfile.hermes:7-12 installs requirements-native.txt plus adapter artifacts into /opt/hermes/venv; :37 runs Host with that same interpreter. Both native requirements files pin httpx0.28.1/httpcore1.0.9; runtime-override/pyproject.toml:10 and exact pinned native pyproject.toml:44 declare HTTPX already.",
+    "result": "HTTPX is not an absent prerequisite of the declared runtime-image producer. No dependency added or installed.",
+    "cold_import": {"exit": 0, "httpx_version": "0.28.1", "forbidden_attempts": 0, "log": "t/final/import-preflight.log"},
+    "cold_import_boundary": "Fresh API interpreter imported exact worktree Host under a Python audit guard denying connect/DNS/subprocess/system, writes and specified private/protected reads. Normal module/library reads allowed. Not OS confinement or installed-image QA.",
+    "distribution_limit": "Standalone adapter-only environments are not certified: adapter pyproject itself lists jsonschema, not HTTPX. Evidence here covers the declared combined native-image producer and existing API test interpreter."
+  },
+  "phase1_reused": "All3UI hashes exactly match frozen phase1. Prior CSS control RED1/GREEN3, Shell3PASS/typecheck0/E2E-syntax0 reused; no UI source edit, browser rerun or aesthetic/installed approval.",
+  "diagnostic_scope": "Diagnostic only, not a fix for historical OAuth UNKNOWN. NativeOAuth/FixedClient real callers tested with synthetic native swallowed-error worker/MockTransport; Host normalization/drainer tested with controlled StreamReader. Exact transport type/status markers, hostile subclass/secret/malformed negatives, deduplication and best-effort writer failure preserve INDETERMINATE.",
+  "diagnostic_limits": "self.guard() before the wire exception capture is not comprehensively classified. Unknown/out-of-capture native failures can remain UNKNOWN or lack a specific transport marker. HOST STOP/LEASE describe observed lifecycle/deadline state at Host failure handling, not proof of the initial cause. No absolute diagnostic coverage promised.",
+  "unchanged": "Failure semantics/cleanup, pool100/keepalive0, all limits/grants/timeouts, no-retry/fallback/TLS/secret guards, native producer/pin/overlay/distribution. No original protected/untracked file included in explicit6path diffs.",
+  "cleanup": "Foreground source checks completed; existing tests join their own worker/lifeline child. Import-only preflight launched no service. Logs/private caches retained under owned t; no unknown caches removed. No commit, installation, global changes, broadCLI, PG, OCI, provider or installed browser access.",
+  "preserved": "developer-result.json, original phase2-oauth-diagnostic.patch and original final.patch remain untouched; final phase2/full patches use new filenames.",
+  "remaining": ["Parent-owned focused independent review and real-artifact UI/auth QA; no integration approval by author", "Historical early OAuth cause remains UNKNOWN", "Separate canonical test default-locator defect acknowledged but not touched; no vendor copy, skip or restored-source investigation"]
+}

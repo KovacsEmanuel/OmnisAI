@@ -21,6 +21,10 @@
 .runtime .metrics { margin: 16px 0; }
 .runtime .readiness { font-size: 20px; }
 .runtime .runbar + .small { margin-bottom: 16px; }
+.runtime .sessionRow .core { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.runtime .sessionRow .core h2 { margin: 0; }
+.runtime .sessionRow .core > button { margin-left: auto; }
+.runtime .sessionRow .core > p, .runtime .sessionRow .core > output, .runtime .sessionRow .core > .error { flex-basis: 100%; min-width: 0; order: 1; margin: 0; }
 .diagnostics { margin-top: 12px; border-top: 1px solid var(--color-divider); }
 .diagnostics summary { min-height: 44px; padding: 12px 0; cursor: pointer; color: var(--color-primary); font-weight: 500; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 600 11px/1.5 var(--font-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--color-secondary); padding: 6px 13px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-pill); background: var(--surface-shell); }

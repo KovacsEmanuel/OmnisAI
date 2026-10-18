@@ -50,7 +50,7 @@ export function Bootstrap() {
     <div>
       <div className={styles.runbar}>
         <div><span className={styles.eyebrow}>{copy.runControls}</span> <span className={styles.pill}>{copy.notRun}</span></div>
-        <div className={styles.actions}><button disabled aria-describedby="run-unavailable">{copy.start}</button><button className={styles.stop} disabled aria-describedby="run-unavailable">{copy.stop}</button></div>
+        <div className={styles.actions}><button className="withIcon" disabled aria-describedby="run-unavailable">{copy.start}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m8 5 11 7-11 7Z" /></svg></span></button><button className={`${styles.stop} withIcon`} disabled aria-describedby="run-unavailable">{copy.stop}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="6" y="6" width="12" height="12" rx="1" /></svg></span></button></div>
       </div>
       <p id="run-unavailable" className={styles.small}>{copy.runReason}</p>
       <div className={styles.hero}>

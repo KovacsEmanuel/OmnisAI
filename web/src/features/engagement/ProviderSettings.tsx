@@ -93,7 +93,7 @@ export function ProviderSettings() {
     {observed?.oauth === 'CANCELLED' && <p>Connection cancelled and worker settled. Existing grants were not deleted.</p>}
     </div>
     <div className={`${formStyles.actions} ${styles.providerActions}`}>
-    <button className={styles.providerConnect} type="button" onClick={() => void perform('connect')} disabled={!authReady || pending || unknown || !observed?.configured}>Connect Codex</button>
+    <button className={`${styles.providerConnect} withIcon`} type="button" onClick={() => void perform('connect')} disabled={!authReady || pending || unknown || !observed?.configured}>Connect Codex<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></button>
     <button type="button" onClick={() => void perform('read')} disabled={!authReady || pending || (unknown && !!operation)}>Read native configuration</button>
     <button type="button" onClick={() => void perform('save')} disabled={!authReady || pending || unknown || observed?.status !== 'CONFIRMED' || observed.configured}>Save selection</button>
     <button type="button" onClick={() => void perform('auth_read')} disabled={!authReady || pending || unknown || !observed?.configured}>Read local Codex grant</button>

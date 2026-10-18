@@ -23,6 +23,8 @@ it('navigates Home / Engagement / Settings without duplicating browser auth', as
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   await screen.findByLabelText('Pairing code');
+  expect(screen.getByRole('link', { name: 'Omnis' }).querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+  expect(screen.getByRole('button', { name: 'Pair browser' }).querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   const user = userEvent.setup();
   expect(screen.getByRole('main')).not.toHaveFocus();
   await user.tab();

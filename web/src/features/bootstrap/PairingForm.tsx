@@ -42,7 +42,7 @@ export function PairingForm({ onPair }: { onPair: (code: string) => Promise<void
         aria-invalid={failure !== null} aria-describedby={failure ? 'code-hint code-error' : 'code-hint'}
         onChange={event => setCode(event.target.value)} readOnly={pending} />
       {failure && <p id="code-error" role="alert" className={styles.error}>{failure}</p>}
-      <button type="submit" disabled={pending}>{pending ? copy.pairing : copy.pair}<span aria-hidden="true"> →</span></button>
+      <button className="withIcon" type="submit" disabled={pending}>{pending ? copy.pairing : copy.pair}<span className="buttonIcon" aria-hidden="true"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></button>
       <p className={styles.small}>{copy.privateHint}</p>
     </form>
     <p className={styles.small}>{copy.issuer}</p>

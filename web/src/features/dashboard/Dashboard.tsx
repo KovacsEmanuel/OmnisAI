@@ -22,13 +22,13 @@ export function Dashboard() {
   const stale = !!projection && (query.isFetching || query.isError || query.fetchStatus === 'paused' || now - query.dataUpdatedAt > 15000);
   return <section aria-label="Dashboard projection" aria-busy={query.isFetching}>
     <div className={styles.hero}><div><p className={styles.kicker}>{copy.kicker}</p><h1>{copy.title}<br /><span>{copy.accent}</span></h1><p>{copy.intro}</p></div>
-      <section className={`${styles.panel} ${styles.start}`}><div className={styles.core}><p className={styles.kicker}>{copy.createTitle}</p><Link className={styles.action} to="/engagements/new">{copy.new} →</Link><p>{copy.createHint}</p></div></section>
+      <section className={`${styles.panel} ${styles.start}`}><div className={styles.core}><p className={styles.kicker}>{copy.createTitle}</p><Link className={`${styles.action} withIcon`} to="/engagements/new">{copy.new}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></Link><p>{copy.createHint}</p></div></section>
     </div>
     {query.isPending && <output>{copy.loading}</output>}
     {query.isError && <div role="alert"><p>{query.error instanceof ApiError ? query.error.message : copy.unavailable}</p><button onClick={() => { void query.refetch(); }}>{copy.retry}</button></div>}
     {stale && <output>{copy.stale}</output>}
     {projection && <>
-      <section className={styles.panel}><div className={styles.core}><h2>{copy.review}</h2><span>{projection.data.attention_state}</span><p>{copy.attentionReason}</p></div></section>
+      <section className={styles.panel}><div className={styles.core}><h2>{copy.review}</h2><span className={styles.state}>{projection.data.attention_state}</span><p>{copy.attentionReason}</p></div></section>
       <div className={styles.metrics}>
         <section aria-label={copy.total} className={styles.panel}><div className={`${styles.core} ${styles.metric}`}><p className={styles.value}>{projection.data.total_engagements}</p><h2>{copy.total}</h2></div></section>
         {[copy.confirmed, copy.coverage, copy.cost].map(label => <section key={label} className={styles.panel}><div className={`${styles.core} ${styles.metric}`}><p className={styles.unknown}>{copy.unavailable}</p><h2>{label}</h2><p>{copy.notRun}</p></div></section>)}
@@ -41,7 +41,7 @@ export function Dashboard() {
           <p className={styles.kicker}>{item.assessment_mode} · {item.stage}</p><h3><Link to={`/engagements/${item.engagement_id}/overview`}>{item.name}</Link></h3>
           <p className={styles.metadata}>{item.engagement_id}</p><p>Revision {item.revision} · {item.run_state}</p>
         </div></article>)}
-        <Link className={styles.create} to="/engagements/new">{copy.new} →</Link>
+        <Link className={`${styles.create} withIcon`} to="/engagements/new">{copy.new}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></Link>
       </div>
       <div className={styles.pages}>{after && <button disabled={query.isFetching} onClick={() => setAfter(null)}>{copy.first}</button>}{projection.has_more && <button disabled={query.isFetching} onClick={() => setAfter(projection.next_page ?? null)}>{copy.next}</button>}</div>
     </>}

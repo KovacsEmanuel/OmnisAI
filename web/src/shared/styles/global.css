@@ -1,11 +1,17 @@
 * { box-sizing: border-box; }
+:root { --surface-hairline: color-mix(in srgb, var(--color-text) 8.5%, transparent); --surface-shell: color-mix(in srgb, var(--color-text) 3%, transparent); --surface-inset: color-mix(in srgb, var(--color-text) 6%, transparent); }
 html { color-scheme: dark; background: var(--color-neutral); }
-body { margin: 0; color: var(--color-text); font: 14.5px/1.5 var(--font-sans); letter-spacing: -.011em; }
+body { margin: 0; color: var(--color-text); font: 14.5px/1.5 var(--font-sans); letter-spacing: -.011em; -webkit-font-smoothing: antialiased; }
+#root { position: relative; isolation: isolate; min-height: 100dvh; }
 button, input { font: inherit; }
-button { min-height: 44px; min-width: 44px; padding: 10px 18px; color: var(--color-text); background: var(--color-selected); border: 1px solid var(--color-border); border-radius: var(--radius-pill); font-weight: 500; cursor: pointer; }
+button { min-height: 46px; min-width: 44px; padding: 10px 18px; color: var(--color-text); background: var(--color-selected); border: 1px solid var(--surface-hairline); border-radius: var(--radius-pill); font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px #0006; transition: background 150ms, border-color 150ms; }
 button:hover:not(:disabled) { background: var(--color-elevated); }
 button:disabled { cursor: not-allowed; color: var(--color-secondary); }
 a { color: var(--color-primary); }
+button.withIcon, a.withIcon { display: inline-flex; align-items: center; justify-content: space-between; gap: 11px; min-height: 46px; padding: 5px 7px 5px 20px; }
+.buttonIcon { display: inline-grid; place-items: center; width: 34px; height: 34px; flex: 0 0 34px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-text) 12%, transparent); }
+.buttonIcon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+::selection { background: color-mix(in srgb, var(--color-primary) 20%, transparent); }
 :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 h1:focus-visible, main:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 5px; }
 p { margin: 12px 0; }

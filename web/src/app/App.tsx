@@ -24,9 +24,10 @@ function Shell() {
   const scope = location.pathname.startsWith('/settings') ? 'settings' : /^\/engagements\/[0-9a-f-]{36}(?:\/|$)/i.test(location.pathname) ? 'engagement' : 'home';
   const selected = scope === 'engagement' ? location.pathname.split('/')[2] : null;
   return <>
+    <div className={styles.backdrop} aria-hidden="true" />
     <a className={styles.skip} href="#content">{copy.skip}</a>
     <header className={styles.header}><nav aria-label="Main navigation" className={styles.nav}>
-      <Link to="/" className={styles.brand ?? ''}>{copy.brand}</Link>
+      <Link to="/" className={styles.brand}><svg aria-hidden="true" viewBox="0 0 32 32" focusable="false"><path d="M3 16s5-9 13-9 13 9 13 9-5 9-13 9S3 16 3 16Z" /><circle cx="16" cy="16" r="4" /></svg>{copy.brand}</Link>
       <Link to="/" aria-current={scope === 'home' ? 'page' : undefined}>{copy.home}</Link>
       <Link to={selected ? `/engagements/${selected}/overview` : '/engagements'} aria-current={scope === 'engagement' ? 'page' : undefined}>{copy.engagement}</Link>
       <Link to="/settings/runtime" aria-current={scope === 'settings' ? 'page' : undefined}>{copy.settings}</Link>

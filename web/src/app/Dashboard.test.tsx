@@ -45,11 +45,27 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   expect(await screen.findByRole('heading', { name: 'Recent engagements' })).toBeVisible();
-  expect(screen.getByText('Create and edit saved drafts. Assessment execution is not available in this build.')).toBeVisible();
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your engagements,in focus.');
+  expect(screen.getAllByRole('link', { name: 'New engagement' })).toHaveLength(1);
+  expect(screen.getByRole('link', { name: 'New engagement' })).toHaveAttribute('href', '/engagements/new');
+  expect(screen.getByText('Define scope and save a draft.')).toBeVisible();
   expect(screen.queryByText(/Setup editing remains unavailable in B03/)).not.toBeInTheDocument();
   expect(screen.getByRole('link', { name: summary.name })).toHaveAttribute('href', `/engagements/${summary.engagement_id}/overview`);
   expect(within(screen.getByRole('region', { name: 'Total engagements' })).getByText('1')).toBeVisible();
-  expect(screen.getAllByText('UNAVAILABLE').length).toBeGreaterThanOrEqual(3);
+  expect(screen.queryByRole('heading', { name: 'Needs your review' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Workspace pulse' })).not.toBeInTheDocument();
+  const reason = 'Assessment execution is unavailable in this build. Findings, coverage, model cost and review queues are unavailable, not zero.';
+  expect(screen.getAllByText(reason)).toHaveLength(1);
+  expect(screen.getByText(reason)).toBeVisible();
+  for (const label of ['Confirmed findings', 'Coverage', 'Model cost']) {
+    const metric = screen.getByRole('region', { name: label });
+    expect(within(metric).getByText('—')).toBeVisible();
+    expect(metric).toHaveAccessibleDescription(reason);
+    expect(within(metric).queryByText('0')).not.toBeInTheDocument();
+  }
+  expect(screen.getByText('UNAVAILABLE')).toBeVisible();
+  expect(screen.getByText(summary.engagement_id)).toBeVisible();
+  expect(screen.getByText(projection.as_of)).toBeVisible();
   expect(fetcher).toHaveBeenCalledWith('/api/v1/dashboard?limit=20', expect.objectContaining({ credentials: 'same-origin', cache: 'no-store' }));
   expect(screen.queryByRole('button', { name: 'Start assessment' })).not.toBeInTheDocument();
 });

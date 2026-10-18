@@ -32,4 +32,12 @@ it('navigates Home / Engagement / Settings without duplicating browser auth', as
   expect(screen.getAllByRole('navigation', { name: 'Main navigation' })).toHaveLength(1);
   expect(api.session).toHaveBeenCalledTimes(1);
   expect(screen.getByRole('main')).toHaveFocus();
+  expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1');
+  await user.tab({ shift: true });
+  expect(screen.getByRole('link', { name: 'Settings' })).toHaveFocus();
+  await user.tab({ shift: true });
+  expect(screen.getByRole('link', { name: 'Engagement' })).toHaveFocus();
+  await user.keyboard('{Enter}');
+  expect(screen.getByRole('main')).toHaveFocus();
+  expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#content');
 });

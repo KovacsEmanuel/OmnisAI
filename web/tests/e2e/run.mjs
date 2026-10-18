@@ -262,6 +262,16 @@ try {
     await check(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
     await page.keyboard.press('Enter');
     await check(page.locator('main')).toBeFocused();
+    assert.equal(await page.locator('main').evaluate(element => getComputedStyle(element).outlineWidth), '2px');
+    await page.getByRole('link', { name: 'Settings', exact: true }).click();
+    await check(page.locator('main')).toBeFocused();
+    assert.equal(await page.locator('main').evaluate(element => getComputedStyle(element).outlineStyle), 'none');
+    await page.keyboard.press('Shift+Tab');
+    await check(page.getByRole('link', { name: 'Settings', exact: true })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Enter');
+    await check(page.locator('main')).toBeFocused();
+    assert.equal(await page.locator('main').evaluate(element => getComputedStyle(element).outlineWidth), '2px');
     for (const width of [320, 390, 1024, 1280, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Overflow at ${width}`);

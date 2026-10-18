@@ -7,7 +7,7 @@ button:hover:not(:disabled) { background: var(--color-elevated); }
 button:disabled { cursor: not-allowed; color: var(--color-secondary); }
 a { color: var(--color-primary); }
 :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
-h1:focus, main:focus { outline: 2px solid var(--color-focus); outline-offset: 5px; }
+h1:focus-visible, main:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 5px; }
 p { margin: 12px 0; }
 output { display: block; margin: 12px 0; }
 @media (max-width: 700px) { body { font-size: 16px; } }

@@ -1,7 +1,5 @@
 export const dashboardCopy = {
-  kicker: 'ENGAGEMENTS', title: 'Your engagements,', accent: 'in focus.',
-  createTitle: 'A NEW STARTING POINT', createHint: 'Define scope and save a draft.',
-  intro: 'Pick up a saved engagement or define your next scope.',
+  title: 'Your engagements.', createHint: 'Define scope and save a draft.',
   new: 'New engagement',
   total: 'Total engagements', confirmed: 'Confirmed findings', coverage: 'Coverage', cost: 'Model cost',
   unavailable: 'UNAVAILABLE', runReason: 'Assessment execution is unavailable in this build. Findings, coverage, model cost and review queues are unavailable, not zero.',

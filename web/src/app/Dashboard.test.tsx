@@ -45,7 +45,10 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   expect(await screen.findByRole('heading', { name: 'Recent engagements' })).toBeVisible();
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your engagements,in focus.');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Your engagements\.$/);
+  for (const filler of ['ENGAGEMENTS', 'A NEW STARTING POINT', 'in focus.', 'Pick up a saved engagement or define your next scope.']) {
+    expect(screen.queryByText(filler, { exact: true })).not.toBeInTheDocument();
+  }
   expect(screen.getAllByRole('link', { name: 'New engagement' })).toHaveLength(1);
   expect(screen.getByRole('link', { name: 'New engagement' })).toHaveAttribute('href', '/engagements/new');
   expect(screen.getByText('Define scope and save a draft.')).toBeVisible();

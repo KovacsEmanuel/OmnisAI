@@ -21,8 +21,8 @@ export function Dashboard() {
   const projection = query.data ?? accepted;
   const stale = !!projection && (query.isFetching || query.isError || query.fetchStatus === 'paused' || now - query.dataUpdatedAt > 15000);
   return <section aria-label="Dashboard projection" aria-busy={query.isFetching}>
-    <div className={styles.hero}><div><p className={styles.kicker}>{copy.kicker}</p><h1>{copy.title}<br /><span>{copy.accent}</span></h1><p>{copy.intro}</p></div>
-      <section className={`${styles.panel} ${styles.start}`}><div className={styles.core}><p className={styles.kicker}>{copy.createTitle}</p><Link className={`${styles.action} withIcon`} to="/engagements/new">{copy.new}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></Link><p>{copy.createHint}</p></div></section>
+    <div className={styles.hero}><div><h1>{copy.title}</h1></div>
+      <section className={`${styles.panel} ${styles.start}`}><div className={styles.core}><Link className={`${styles.action} withIcon`} to="/engagements/new">{copy.new}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span></Link><p>{copy.createHint}</p></div></section>
     </div>
     {query.isPending && <output>{copy.loading}</output>}
     {query.isError && <div role="alert"><p>{query.error instanceof ApiError ? query.error.message : copy.unavailable}</p><button onClick={() => { void query.refetch(); }}>{copy.retry}</button></div>}

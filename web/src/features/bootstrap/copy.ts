@@ -16,6 +16,7 @@ export const copy = {
   logoutUncertain: 'Logout is not confirmed. Check the session before trying again.',
   pairingUncertain: 'Pairing could not be confirmed. Check the local service before requesting a new code.',
   sessionActive: 'PAIRED', instanceTitle: 'Instance status', refresh: 'Refresh status',
+  runtimeTitle: 'Runtime & data', diagnostics: 'Instance diagnostics',
   live: 'Live response · local API', stale: 'STALE — showing the last confirmed response, not current state.',
   unverified: 'UNVERIFIED', noConfirmedStatus: 'Instance status is unverified. No response has been confirmed.',
   staleReadiness: 'Readiness is stale or paused. Check the local service before relying on its state.',
@@ -30,7 +31,7 @@ export const copy = {
   runReason: 'Run controls are unavailable: assessment execution is not implemented. No run has been started.',
   futureTitle: 'Next capabilities', engagementReason: 'Engagement storage and setup arrive after G00. No engagement data is available.',
   settingsReason: 'Provider, Skills and Runtime configuration are not implemented. No account is connected by startup.',
-  assessmentReason: 'Runtime, provider, policy, confinement and budget gates are not implemented or certified.',
+  assessmentReason: 'Assessment execution is unavailable in this build; configuration alone does not enable it.',
   footer: 'Local-first · Real API state · No target traffic',
   boundary: 'HTTP loopback only. A malicious process with the same UID or root is outside this security boundary.',
 };

@@ -21,7 +21,7 @@ function Failure({ error, retry }: { error: unknown; retry: () => void }) {
   </div>;
 }
 
-export function Bootstrap() {
+export function Bootstrap({ compact = false }: { compact?: boolean }) {
   const { session, transition, notice, logoutError, pair, logout, readPrivate } = useSession();
   const logoutPending = transition === 'logout';
   const heading = useRef<HTMLHeadingElement>(null);
@@ -47,17 +47,18 @@ export function Bootstrap() {
   const statusLabel = status.data ? (statusUnverified ? copy.stale : copy.live) : copy.noConfirmedStatus;
 
   return <>
-    <div>
+    <div className={compact ? styles.runtime : undefined}>
+      {compact && <h2 className={styles.runtimeHeading} ref={heading} tabIndex={-1}>{copy.runtimeTitle}</h2>}
       <div className={styles.runbar}>
         <div><span className={styles.eyebrow}>{copy.runControls}</span> <span className={styles.pill}>{copy.notRun}</span></div>
         <div className={styles.actions}><button className="withIcon" disabled aria-describedby="run-unavailable">{copy.start}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m8 5 11 7-11 7Z" /></svg></span></button><button className={`${styles.stop} withIcon`} disabled aria-describedby="run-unavailable">{copy.stop}<span className="buttonIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="6" y="6" width="12" height="12" rx="1" /></svg></span></button></div>
       </div>
       <p id="run-unavailable" className={styles.small}>{copy.runReason}</p>
-      <div className={styles.hero}>
-        <div className={styles.heroCopy}><p className={styles.eyebrow}>{copy.kicker}</p>
+      <div className={compact ? styles.sessionRow : styles.hero}>
+        {!compact && <div className={styles.heroCopy}><p className={styles.eyebrow}>{copy.kicker}</p>
           <h1 ref={heading} tabIndex={-1}>{copy.title}<br /><span>{copy.accent}</span></h1>
           <p>{session.data && !session.isError ? copy.pairedIntro : copy.intro}</p>
-        </div>
+        </div>}
         {session.isPending ? <Panel title={copy.sessionTitle}><output>{copy.checking}</output></Panel>
           : session.isError ? <Panel title={copy.sessionTitle}><Failure error={session.error} retry={() => { void session.refetch(); }} /></Panel>
           : session.data ? <Panel title={copy.sessionTitle}>
@@ -85,7 +86,7 @@ export function Bootstrap() {
         <div className={styles.cardHead}><p className={styles.small}>{statusLabel}</p><button onClick={() => { void status.refetch(); void health.refetch(); }} disabled={status.isFetching}>{status.isFetching ? copy.refreshing : copy.refresh}</button></div>
         {status.isPending && <output>{copy.loading}</output>}
         {status.isError && <Failure error={status.error} retry={() => { void status.refetch(); }} />}
-        {status.data && <dl className={styles.details}>
+        {status.data && <details className={styles.diagnostics}><summary>{copy.diagnostics}</summary><dl className={styles.details}>
           <div className={styles.identity}><dt>{copy.instanceId}</dt><dd className={styles.mono}>{status.data.instance_id}</dd></div>
           <div><dt>{copy.generation}</dt><dd>{status.data.generation}</dd></div>
           <div><dt>{copy.epoch}</dt><dd>{status.data.supervisor_epoch}</dd></div>
@@ -94,7 +95,7 @@ export function Bootstrap() {
           <div><dt>{copy.shutdown}</dt><dd className={styles.mono}>{status.data.shutdown_command_id ?? copy.none}</dd></div>
           <div><dt>{copy.quiesced}</dt><dd>{status.data.quiesced_generation ?? copy.none}</dd></div>
           <div><dt>{copy.finalized}</dt><dd>{status.data.shutdown_finalized ? copy.yes : copy.no}</dd></div>
-        </dl>}
+        </dl></details>}
       </Panel>}
       <footer className={styles.footer}>{copy.footer} · <a href={fontLicense}>Font license</a></footer>
     </div>

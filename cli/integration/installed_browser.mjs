@@ -182,6 +182,7 @@ async function main() {
     await expect(page.getByLabel('Pairing code')).toBeVisible();
     await page.getByLabel('Pairing code').fill(code);
     await page.getByRole('button', { name: 'Pair browser' }).click();
+    await page.getByText('Instance diagnostics', { exact: true }).click();
     await expect(page.getByText(instance, { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
     const cookie = (await context.cookies()).find(item => item.name === 'omnis_session');
@@ -192,6 +193,7 @@ async function main() {
       await page.goto(`${origin}/settings/runtime`);
     }
     await page.reload();
+    await page.getByText('Instance diagnostics', { exact: true }).click();
     await expect(page.getByText(instance, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Log out' }).click();
     await expect(page.getByText('Logged out. The server session was revoked.')).toBeVisible();

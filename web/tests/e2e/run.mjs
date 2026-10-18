@@ -105,6 +105,7 @@ async function paired() {
   // The diagnostic P0 surface now lives under global Settings, not Home.
   await check(page.getByLabel('Pairing code')).toHaveCount(0);
   await page.goto(`${origin}/settings/runtime`);
+  await page.getByText('Instance diagnostics', { exact: true }).click();
   await check(page.getByText(grant.status.instance_id, { exact: true })).toBeVisible();
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   const cookie = (await context.cookies()).find(item => item.name === 'omnis_session');
@@ -201,6 +202,7 @@ try {
       assert.equal(denied.body.error.code, 'INVALID_CSRF');
     }
     await page.reload();
+    await page.getByText('Instance diagnostics', { exact: true }).click();
     await check(page.getByText(grant.status.instance_id, { exact: true })).toBeVisible();
     await screenshot('instance-desktop');
     await secretChecks();

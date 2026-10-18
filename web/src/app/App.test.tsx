@@ -33,6 +33,7 @@ it('pairs a browser, reads actual instance state, and confirms logout with a ses
   await user.type(input, 'synthetic-pairing-code');
   await user.click(screen.getByRole('button', { name: 'Pair browser' }));
   expect(pair).toHaveBeenCalledExactlyOnceWith('synthetic-pairing-code');
+  await user.click(await screen.findByText('Instance diagnostics'));
   expect(await screen.findByText(instance.instance_id)).toBeVisible();
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   expect(screen.queryByLabelText('Pairing code')).not.toBeInTheDocument();
@@ -57,6 +58,47 @@ it('keeps pairing errors beside an empty field with keyboard focus', async () =>
   expect(input).toHaveFocus();
   expect(input).toHaveAttribute('aria-invalid', 'true');
   expect(input).toHaveAccessibleDescription(/Pairing refused/);
+});
+
+it('keeps Runtime compact with one page heading and default-closed diagnostics, not a Home hero', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  vi.spyOn(api, 'session').mockResolvedValue(session);
+  vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  mount();
+  await screen.findByText('PAIRED');
+  expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+  expect(screen.getByRole('heading', { level: 2, name: 'Runtime & data' })).toBeVisible();
+  expect(screen.queryByText('Your security')).not.toBeInTheDocument();
+  const summary = await screen.findByText('Instance diagnostics');
+  const details = summary.closest('details');
+  expect(details).not.toHaveAttribute('open');
+  expect(screen.getByText(instance.instance_id)).not.toBeVisible();
+  expect(screen.getByRole('region', { name: 'Service readiness' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Log out' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Refresh status' })).toBeVisible();
+  for (const name of ['Start assessment', 'Stop']) {
+    expect(screen.getByRole('button', { name })).toBeDisabled();
+    expect(screen.getByRole('button', { name })).toHaveAccessibleDescription(/unavailable/);
+  }
+  expect(screen.getByText(/HTTP loopback only/)).toBeVisible();
+  expect(screen.getByText('Assessment execution is unavailable in this build; configuration alone does not enable it.')).toBeVisible();
+  await userEvent.setup().click(summary);
+  expect(details).toHaveAttribute('open');
+  expect(screen.getByText(instance.instance_id)).toBeVisible();
+});
+
+it('keeps logout uncertainty visible outside the closed diagnostics', async () => {
+  vi.spyOn(api, 'health').mockResolvedValue(health);
+  vi.spyOn(api, 'session').mockResolvedValue(session);
+  vi.spyOn(api, 'instance').mockResolvedValue(instance);
+  vi.spyOn(api, 'logout').mockRejectedValue(new ApiError('API_UNAVAILABLE'));
+  mount();
+  await userEvent.setup().click(await screen.findByRole('button', { name: 'Log out' }));
+  const warning = await screen.findByText('Logout is not confirmed. Check the session before trying again.');
+  expect(warning).toBeVisible();
+  expect(warning.closest('details')).toBeNull();
+  expect(screen.queryByText('Logged out. The server session was revoked.')).not.toBeInTheDocument();
 });
 
 it('does not claim pairing when the cookie session cannot be read back', async () => {
@@ -196,4 +238,8 @@ it('labels old confirmed responses stale even before a new response or error arr
   expect(await screen.findByText('STALE — showing the last confirmed response, not current state.')).toBeVisible();
   expect(screen.getAllByText('UNKNOWN', { exact: true })).toHaveLength(2);
   expect(screen.getByText('UNVERIFIED', { exact: true })).toBeVisible();
+  for (const label of ['STALE — showing the last confirmed response, not current state.', 'UNKNOWN', 'UNVERIFIED']) {
+    for (const message of screen.getAllByText(label, { exact: true })) expect(message.closest('details')).toBeNull();
+  }
+  expect(screen.getByText('Instance diagnostics').closest('details')).not.toHaveAttribute('open');
 });

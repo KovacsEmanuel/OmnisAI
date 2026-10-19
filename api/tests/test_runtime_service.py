@@ -61,6 +61,78 @@ async def test_runtime_authority_checks_current_db_lease_and_exact_generation(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "startup",
+    [
+        "launch",
+        None,
+        True,
+        False,
+        "renew",
+        {},
+        {"protocol": "omnis-managed-admission-v6", "mode": "SEND"},
+    ],
+)
+async def test_startup_lease_is_narrow_and_original_owner_must_survive_update(
+    monkeypatch: pytest.MonkeyPatch,
+    startup: object,
+) -> None:
+    service = InstanceService(Mock(spec=AsyncEngine))
+    owner = uuid4()
+    now = datetime.now(timezone.utc)
+    instance = InstanceRecord(
+        id=1,
+        instance_id=uuid4(),
+        generation=0,
+        admission_open=False,
+        shutdown_command_id=None,
+        quiesced_generation=None,
+        quiesced_at=None,
+    )
+    lease = LeaseRecord(id=1, owner=owner, epoch=1, expires_at=now + timedelta(seconds=5))
+    connection = Mock(spec=AsyncConnection)
+    updated = []
+    expired = False
+
+    async def execute(statement: object, params: object = None) -> Mock:
+        result = Mock()
+        if str(statement).startswith("UPDATE"):
+            updated.append(params)
+        result.scalar_one.return_value = now + timedelta(seconds=6 if expired and updated else 0)
+        result.scalar_one_or_none.return_value = None
+        return result
+
+    connection.execute = AsyncMock(side_effect=execute)
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
+        yield connection, instance, lease
+
+    monkeypatch.setattr(service, "_locked", locked)
+    if startup is not None and startup != "launch":
+        with pytest.raises((ControlConflict, ValueError)):
+            await service.runtime_authority(owner, 1, 0, inert_probe=True, startup=startup)
+        assert not updated
+        return
+    grant = await service.runtime_authority(owner, 1, 0, inert_probe=True, startup=startup)
+    assert (
+        0
+        < grant.deadline_ns - time.monotonic_ns()
+        <= (10_000_000_000 if startup else 4_500_000_000)
+    )
+    assert updated == ([{"expires": now + timedelta(seconds=11)}] if startup else [])
+    updated.clear()
+    with pytest.raises(ControlConflict):
+        await service.runtime_authority(uuid4(), 1, 0, inert_probe=True, startup=startup)
+    assert not updated
+    if startup:
+        expired = True
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await service.runtime_authority(owner, 1, 0, inert_probe=True, startup=startup)
+        assert len(updated) == 1  # Original lease, not the just-written extension, is checked.
+
+
+@pytest.mark.asyncio
 async def test_quiescence_requires_observed_runtime_drain_before_db_update(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

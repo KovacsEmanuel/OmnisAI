@@ -246,6 +246,7 @@ class RuntimeClient:
         self.bootstrap_inventory: BootstrapInventory | None = None
         self._initial_management_bind = True
         self._stop_serial = 0
+        self._startup_active = False
 
     async def connect(self) -> None:
         private_directory(self.directory)
@@ -443,7 +444,17 @@ class RuntimeClient:
                 self.generation = authority.generation
             if op not in {"status", "settings_status", "task_receive", "stop"}:
                 self._initial_management_bind = False
-            response = await self._exchange_locked(op, authority, payload, _frozen=_frozen)
+            self._startup_active = op == "launch" or (
+                op == "task_model_initialize"
+                and payload is not None
+                and payload.get("protocol")
+                in ("omnis-managed-admission-v5", "omnis-managed-admission-v6")
+                and payload.get("mode") == "CREATE"
+            )
+            try:
+                response = await self._exchange_locked(op, authority, payload, _frozen=_frozen)
+            finally:
+                self._startup_active = False
             if op == "stop" and response["state"] != "IDLE":
                 self._initial_management_bind = False
             return response
@@ -500,8 +511,8 @@ class RuntimeClient:
                     in ("omnis-managed-admission-v5", "omnis-managed-admission-v6")
                     and payload.get("mode") == "CREATE"
                 ):
-                    # Cold Settings/drain/launch share this exchange; grant checks stay unchanged.
-                    timeout = min(6.0, remaining + 1.0)
+                    # One absolute startup grant, plus the existing refusal margin.
+                    timeout = min(11.0, remaining + 1.0)
                 if len(json.dumps(request, separators=(",", ":")).encode()) + 1 > MAX_FRAME:
                     raise RuntimeUnavailable("Runtime managed-task limit")
             if op == "prepare" and authority is not None:
@@ -528,7 +539,7 @@ class RuntimeClient:
                 remaining = (authority.deadline_ns - time.monotonic_ns()) / 1_000_000_000
                 if remaining <= 0:
                     raise RuntimeUnavailable("Expired runtime authority")
-                timeout = min(6.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
+                timeout = min(11.0, remaining + 1.0)  # Bounded refusal/drain after grant expiry.
             frame = json.dumps(request, separators=(",", ":")).encode() + b"\n"
         try:
             async with asyncio.timeout(timeout):
@@ -668,9 +679,23 @@ class RuntimeClient:
         ):
             raise RuntimeUnavailable("Runtime payload denied")
         try:
-            authority = await service.runtime_authority(
-                owner, self.epoch, self.generation, inert_probe=True
+            startup = (
+                operation == "task_model_initialize"
+                and checked["protocol"]
+                in ("omnis-managed-admission-v5", "omnis-managed-admission-v6")
+                and checked.get("mode") == "CREATE"
             )
+            if startup:
+                from omnis.modules.runs.model_test import qualify
+
+                qualify(checked)
+                authority = await service.runtime_authority(
+                    owner, self.epoch, self.generation, inert_probe=True, startup=checked
+                )
+            else:
+                authority = await service.runtime_authority(
+                    owner, self.epoch, self.generation, inert_probe=True
+                )
             response = await self._exchange(operation, authority, checked)
             result = response["managed"]
             if not isinstance(result, dict):
@@ -774,7 +799,7 @@ class RuntimeClient:
         stop_serial = self._stop_serial
         try:
             authority = await service.runtime_authority(
-                owner, self.epoch, self.generation, inert_probe=True
+                owner, self.epoch, self.generation, inert_probe=True, startup="launch"
             )
         except ControlConflict as error:
             if error.code != ControlCode.GENERATION_CONFLICT or not self._initial_management_bind:
@@ -787,9 +812,13 @@ class RuntimeClient:
             ):
                 raise RuntimeUnavailable("Initial OPEN generation required") from None
             authority = await service.runtime_authority(
-                owner, self.epoch, current.generation, inert_probe=True
+                owner, self.epoch, current.generation, inert_probe=True, startup="launch"
             )
-        return await self._exchange("launch", authority, _settings_stop_serial=stop_serial)
+        try:
+            return await self._exchange("launch", authority, _settings_stop_serial=stop_serial)
+        except BaseException:
+            await self.close()
+            raise
 
     async def renew(
         self, service: "InstanceService", owner: UUID, *, management: bool = False
@@ -809,6 +838,10 @@ class RuntimeClient:
             raise
 
     async def drain(self) -> bool:
+        if self._startup_active:
+            self._stop_serial += 1
+            await self.close()  # EOF cancels startup; absent readback is honestly UNKNOWN.
+            return False
         try:
             status = await self._exchange("stop")
             observed = await self.status()  # Exact target readback, not just ACK.

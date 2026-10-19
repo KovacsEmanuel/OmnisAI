@@ -9,8 +9,8 @@ from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_models import SettingsControl
 
-# Existing 4s non-runtime work on each side of the 6s launch/refusal wait; not authority.
-MODEL_TEST_PREPARE_WAIT_SECONDS = 4 + 6 + 4
+# Existing non-runtime sides + startup/refusal; server/client each get 1s response margin.
+MODEL_TEST_PREPARE_WAIT_SECONDS = 4 + (10 + 1) + 4
 
 
 class InstanceView(BaseModel):

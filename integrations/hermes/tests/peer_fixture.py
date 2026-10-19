@@ -14,8 +14,10 @@ mode = sys.argv[1] if len(sys.argv) > 1 else "normal"
 if mode == "ready_stall":
     time.sleep(10)
     sys.exit()
-if mode in {"ready_delay", "slow_ready"}:
-    time.sleep(0.2 if mode == "ready_delay" else 2.1)
+if mode in {"ready_delay", "slow_ready", "startup_eight", "startup_over"}:
+    time.sleep(
+        {"ready_delay": 0.2, "slow_ready": 2.1, "startup_eight": 8, "startup_over": 10.5}[mode]
+    )
 emit(
     {
         "jsonrpc": "2.0",

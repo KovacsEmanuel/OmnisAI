@@ -12,7 +12,7 @@ from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
 from omnis.core.errors import error_responses
-from omnis.modules.instance.schemas import ControlRequest
+from omnis.modules.instance.schemas import MODEL_TEST_PREPARE_WAIT_SECONDS, ControlRequest
 from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView
 from omnis.security.host_origin import error_response, reject_json_constant, unique_json_object
 from omnis.transport.control_probe import _read_capability
@@ -25,7 +25,7 @@ async def control_exchange(command: ModelTestControl) -> dict[str, object]:
     if not raw:
         raise ValueError("Control unavailable")
     directory = Path(raw)
-    wait = 14 if command.action == "provision" else 4
+    wait = MODEL_TEST_PREPARE_WAIT_SECONDS + 2 if command.action == "provision" else 4
     async with asyncio.timeout(wait):
         capability = await asyncio.to_thread(_read_capability, directory)
         reader, writer = await asyncio.open_unix_connection(directory / "control.sock", limit=65536)

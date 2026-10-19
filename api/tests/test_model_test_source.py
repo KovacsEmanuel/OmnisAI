@@ -64,7 +64,7 @@ async def test_normal_inert_launch_initial_open_bind_and_stop_fence(
     service = Mock()
 
     async def authority(
-        who: object, epoch: int, generation: int, *, inert_probe: bool
+        who: object, epoch: int, generation: int, *, inert_probe: bool, startup: object = None
     ) -> RuntimeAuthority:
         if generation != 1:
             raise ControlConflict(ControlCode.GENERATION_CONFLICT)

@@ -28,9 +28,10 @@ from test_model_test_prepare_source import prepared_source
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("case", ["fast", "cold", "expiry", "stop", "disconnect"])
+@pytest.mark.parametrize("case", ["fast", "cold", "over", "expiry", "stop", "disconnect"])
+@pytest.mark.parametrize("protocol", [5, 6])
 async def test_cold_prepare_waits_through_real_callers(
-    tmp_path: Path, ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, case: str
+    tmp_path: Path, ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, case: str, protocol: int
 ) -> None:
     import sys
 
@@ -40,7 +41,7 @@ async def test_cold_prepare_waits_through_real_callers(
             **owner.base,
             "owner_id": owner.owner,
             "manifest_ref": manifest,
-            "action": "model_test_prepare",
+            "action": "model_test_prepare" if protocol == 5 else "model_test_start",
             "initialization_id": str(uuid4()),
             "settings_operation_id": str(uuid4()),
         }
@@ -61,7 +62,7 @@ async def test_cold_prepare_waits_through_real_callers(
                 "-I",
                 "-B",
                 str(peer_fixture),
-                "normal" if case == "fast" else "slow_ready",
+                "normal" if case == "fast" else "startup_eight",
             ),
             directory,
         ),
@@ -87,12 +88,19 @@ async def test_cold_prepare_waits_through_real_callers(
         return {"manifest_ref": manifest}
 
     async def grant(
-        lease: UUID, epoch: int, generation: int, *, inert_probe: bool = False
+        lease: UUID,
+        epoch: int,
+        generation: int,
+        *,
+        inert_probe: bool = False,
+        startup: object = None,
     ) -> RuntimeAuthority:
         assert lease == owner.lease and (epoch, generation, inert_probe) == (1, 0, True)
+        assert type(startup) is dict and startup["mode"] == "CREATE"
+        contract.validate_model_prepare(startup)
         assert owner.events[-1] == "commit"
         events.append("COMMIT_BEFORE_GRANT")
-        deadline = time.monotonic_ns() + (600_000_000 if case == "expiry" else 4_500_000_000)
+        deadline = time.monotonic_ns() + (600_000_000 if case == "expiry" else 10_000_000_000)
         grants.append(deadline)
         return RuntimeAuthority(generation, epoch, deadline)
 
@@ -100,6 +108,40 @@ async def test_cold_prepare_waits_through_real_callers(
         operation: str, authority: RuntimeAuthority, payload: dict[str, object]
     ) -> dict[str, object]:
         assert operation == "task_model_initialize"
+        import json
+
+        envelope = {
+            "version": 1,
+            "id": "f" * 36,
+            "boot": runtime.boot,
+            "capability": runtime.capability,
+            "generation": 0,
+            "epoch": 1,
+            "op": operation,
+            "deadline_ns": authority.deadline_ns,
+            "payload": payload,
+        }
+        old = {**envelope, "deadline_ns": authority.deadline_ns - 5_500_000_000}
+        size = len(json.dumps(envelope, separators=(",", ":")).encode()) + 1
+        assert size == len(json.dumps(old, separators=(",", ":")).encode()) + 1 < 65536
+        native = {
+            "jsonrpc": "2.0",
+            "id": "f" * 36,
+            "method": contract.RPC[operation],
+            "params": payload,
+        }
+        control = {"version": 1, "capability": "f" * 64, "command": command.model_dump(mode="json")}
+        print(
+            f"COMPLETE_V{protocol}_BYTES="
+            + json.dumps(
+                {
+                    "host": size,
+                    "payload": len(json.dumps(payload, separators=(",", ":")).encode()),
+                    "native": len(json.dumps(native, separators=(",", ":")).encode()) + 1,
+                    "control": len(json.dumps(control, separators=(",", ":")).encode()) + 1,
+                }
+            )
+        )
         assert mapping(payload["context"]) in owner.graph
         events.append("COMMITTED_SOURCE_READBACK")
         await asyncio.sleep(0.4)  # After grant, as in the real QA's independent PG callback.
@@ -113,9 +155,11 @@ async def test_cold_prepare_waits_through_real_callers(
             raise
 
     async def saved_read(action: str, selected: object) -> dict[str, object]:
-        assert action == "read" and selected is None
+        assert action in {"read", "auth_read"} and selected is None
+        if action == "auth_read":
+            return {"selection": dict(REQUESTED), "authenticated": "LOCAL_PRESENT"}
         events.append("SAVED_READ")
-        await asyncio.sleep(1.2)
+        await asyncio.sleep(1.8 if case == "over" else 1.2)
         return dict(REQUESTED)
 
     async def stop() -> None:
@@ -204,13 +248,15 @@ async def test_cold_prepare_waits_through_real_callers(
                 if case in {"stop", "disconnect"}:
                     await asyncio.wait_for(ready.wait(), 4)
                     if case == "stop":
-                        await host.stop()
+                        assert await runtime.drain() is False
                     else:
                         await runtime.close()  # Real owner EOF cancels Host's in-flight operation.
                 if case in {"fast", "cold"}:
                     answer = await sender
                     assert answer["preparation_status"] == "TURN_BOUND_PRE_CLIENT_HOLD"
-                    assert answer["inference_status"] == "HOLD"
+                    assert answer["inference_status"] == (
+                        "HOLD" if protocol == 5 else "AWAITING_SEND"
+                    )
                     assert answer["account_status"] == "NOT_VERIFIED"
                     assert "PERSISTED_SOURCE" in events
                     assert "CLIENT_EXCHANGE_TIMEOUT" not in events

@@ -63,7 +63,7 @@ async def test_api_client_checks_grant_and_channel_loss_stops_owned_peer(monkeyp
     from omnis.supervisor.runtime_client import RuntimeClient
 
     class Authority:
-        async def runtime_authority(self, owner, epoch, generation, *, inert_probe):
+        async def runtime_authority(self, owner, epoch, generation, *, inert_probe, startup=None):
             assert inert_probe is True
             return RuntimeAuthority(generation, epoch, time.monotonic_ns() + 1_000_000_000)
 

@@ -256,7 +256,17 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
             if isinstance(n, ast.ExceptHandler)
             and any(isinstance(c, ast.Attribute) and c.attr == "quiesce" for c in ast.walk(n))
         )
-        loop.body[1:1] = tick.body[2:]
+        work = next(n for n in tick.body if isinstance(n, ast.Try))
+        heartbeat = next(
+            i
+            for i, n in enumerate(work.body)
+            if isinstance(n, ast.Expr)
+            and isinstance(n.value, ast.Await)
+            and isinstance(n.value.value, ast.Call)
+            and isinstance(n.value.value.func, ast.Attribute)
+            and n.value.value.func.attr == "heartbeat"
+        )
+        loop.body[:1] = work.body[heartbeat:]
 
     clock = [10_000_000_000]
     monkeypatch.setattr(runtime_host, "time", SimpleNamespace(monotonic_ns=lambda: clock[0]))
@@ -2075,7 +2085,7 @@ async def test_model_prepare_host_checks_grant_before_handoff(
         "good": time.monotonic_ns() + 4_000_000_000,
         "bool": True,
         "expired": time.monotonic_ns() - 1,
-        "over-managed": time.monotonic_ns() + 4_800_000_000,
+        "over-managed": time.monotonic_ns() + 10_800_000_000,
         "read-expired": time.monotonic_ns() + 100_000_000,
         "read-stopped": time.monotonic_ns() + 3_000_000_000,
         "read-fenced": time.monotonic_ns() + 3_000_000_000,
@@ -2106,7 +2116,7 @@ async def test_model_prepare_host_checks_grant_before_handoff(
         read.assert_awaited_once()
         for effect in (stop, launch, call):
             effect.assert_not_awaited()
-        assert host.deadline_ns == 14_000_000_000
+        assert host.deadline_ns == deadline
         assert host.state == ("STOPPED" if grant == "read-stopped" else "MANAGEMENT")
     else:
         with pytest.raises(ValueError, match="Invalid (authority deadline|managed grant)"):

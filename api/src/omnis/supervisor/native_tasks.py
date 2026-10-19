@@ -617,7 +617,9 @@ async def control_task(directory: Path, value: object) -> dict[str, object]:
         if command.action in {"model_test_prepare", "model_test_start"}
         else 4
     )
-    async with asyncio.timeout(wait):
+    async with asyncio.timeout(
+        wait + (2 if command.action in {"model_test_prepare", "model_test_start"} else 0)
+    ):
         reader, writer = await asyncio.open_unix_connection(
             directory / "control.sock", limit=NATIVE_TASK_REPLY_MAX_BYTES
         )

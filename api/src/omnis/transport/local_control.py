@@ -298,12 +298,12 @@ class LocalControl:
                             if isinstance(
                                 body.command, NativeTaskCommand
                             ) and body.command.action in {"model_test_prepare", "model_test_start"}:
-                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
+                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS + 1)
                             if (
                                 isinstance(body.command, ModelTestControl)
                                 and body.command.action == "provision"
                             ):
-                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
+                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS + 1)
                             response = await self._dispatch(body.command)
             except (
                 ValueError,

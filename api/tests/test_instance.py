@@ -9,6 +9,95 @@ from omnis.core.db import database_engine
 
 
 @pytest.mark.asyncio
+async def test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg(
+    migrated_database_url: URL,
+) -> None:
+    import time
+
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    try:
+        epoch = await service.acquire(owner)
+        ordinary = await service.runtime_authority(owner, epoch, 0, inert_probe=True)
+        assert 0 < ordinary.deadline_ns - time.monotonic_ns() <= 4_500_000_000
+        for startup in (True, "renew"):
+            with pytest.raises(ControlConflict):
+                await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup=startup)
+        with pytest.raises(ControlConflict):
+            await service.runtime_authority(uuid4(), epoch, 0, inert_probe=True, startup="launch")
+        grant = await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup="launch")
+        assert 9_000_000_000 < grant.deadline_ns - time.monotonic_ns() <= 10_000_000_000
+        async with engine.connect() as conn:
+            expiry = (
+                await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
+            ).scalar_one()
+            remaining = (
+                await conn.execute(
+                    text(
+                        "SELECT EXTRACT(EPOCH FROM expires_at-clock_timestamp()) FROM supervisor_lease WHERE id=1"
+                    )
+                )
+            ).scalar_one()
+            assert 10 < remaining <= 11
+        await service.heartbeat(owner, epoch)
+        async with engine.connect() as conn:
+            assert (
+                await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
+            ).scalar_one() == expiry
+        ordinary = await service.runtime_authority(owner, epoch, 0, inert_probe=True)
+        assert 0 < ordinary.deadline_ns - time.monotonic_ns() <= 4_500_000_000
+        async with engine.begin() as conn:
+            await conn.execute(
+                text(
+                    "UPDATE supervisor_lease SET expires_at=clock_timestamp()+interval '5 seconds' WHERE id=1"
+                )
+            )
+        await service.heartbeat(owner, epoch)
+        async with engine.connect() as conn:
+            assert (
+                await conn.execute(
+                    text(
+                        "SELECT EXTRACT(EPOCH FROM expires_at-clock_timestamp()) FROM supervisor_lease WHERE id=1"
+                    )
+                )
+            ).scalar_one() <= 5
+        # Actual blocking UPDATE crosses the original expiry; the extension must roll back.
+        async with engine.begin() as conn:
+            await conn.execute(
+                text(
+                    "CREATE FUNCTION delay_lease_update() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.3); RETURN NEW; END $$"
+                )
+            )
+            await conn.execute(
+                text(
+                    "UPDATE supervisor_lease SET expires_at=clock_timestamp()+interval '0.2 seconds' WHERE id=1"
+                )
+            )
+            await conn.execute(
+                text(
+                    "CREATE TRIGGER delay_lease BEFORE UPDATE ON supervisor_lease FOR EACH ROW EXECUTE FUNCTION delay_lease_update()"
+                )
+            )
+            original = (
+                await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
+            ).scalar_one()
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup="launch")
+        async with engine.connect() as conn:
+            assert (
+                await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
+            ).scalar_one() == original
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await service.heartbeat(owner, epoch)
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_shutdown_serializes_with_real_admission_and_requires_explicit_restart(
     migrated_database_url: URL,
 ) -> None:

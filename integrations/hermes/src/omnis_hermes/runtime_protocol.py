@@ -444,7 +444,7 @@ class NativePeer:
         if (
             type(startup_budget) not in (int, float)
             or not math.isfinite(startup_budget)
-            or not 0 < startup_budget <= 5
+            or not 0 < startup_budget <= 10
         ):
             raise ProtocolError("Invalid startup deadline")
         try:

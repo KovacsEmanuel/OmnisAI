@@ -310,7 +310,7 @@ async def test_real_peer_to_stock_client_inventory_projection_and_stopped_retent
     from omnis.supervisor.runtime_client import RuntimeClient
 
     class Authority:
-        async def runtime_authority(self, owner, epoch, generation, *, inert_probe):
+        async def runtime_authority(self, owner, epoch, generation, *, inert_probe, startup=None):
             assert inert_probe is True
             return RuntimeAuthority(generation, epoch, time.monotonic_ns() + 1_000_000_000)
 

@@ -230,7 +230,18 @@ class RuntimeHost:
     def _grant(self, body: dict[str, object]) -> int:
         deadline = body.get("deadline_ns")
         now = time.monotonic_ns()
-        if type(deadline) is not int or not now < deadline <= now + 5_000_000_000:
+        maximum = 5_000_000_000
+        if body.get("op") == "launch":
+            maximum = 10_000_000_000
+        elif body.get("op") == "task_model_initialize" and type(body.get("payload")) is dict:
+            payload = cast(dict[str, object], body["payload"])
+            if (
+                payload.get("protocol") in (managed.PROTOCOL_V5, managed.PROTOCOL_V6)
+                and payload.get("mode") == "CREATE"
+            ):
+                managed.validate_model_prepare(payload)
+                maximum = 10_000_000_000
+        if type(deadline) is not int or not now < deadline <= now + maximum:
             raise ValueError("Invalid authority deadline")
         return deadline
 
@@ -678,9 +689,14 @@ class RuntimeHost:
     async def _managed(self, body: dict[str, object]) -> dict[str, object]:
         """Finite call on the existing owner/peer, never retry a lost native reply."""
         deadline = self._grant(body)
-        if deadline > time.monotonic_ns() + 4_500_000_000:
-            raise ValueError("Invalid managed grant")
         payload = cast(dict[str, object], body["payload"])
+        startup = (
+            body["op"] == "task_model_initialize"
+            and payload.get("protocol") in (managed.PROTOCOL_V5, managed.PROTOCOL_V6)
+            and payload.get("mode") == "CREATE"
+        )
+        if not startup and deadline > time.monotonic_ns() + 4_500_000_000:
+            raise ValueError("Invalid managed grant")
         original = (self.boot, self.generation, self.epoch)
 
         def request_live(state: str) -> None:
@@ -718,6 +734,10 @@ class RuntimeHost:
                     or not self.settings_task.done()
                 ):
                     raise ValueError("Management must settle before model preparation")
+                request_live("MANAGEMENT")
+                if time.monotonic_ns() >= self.deadline_ns:
+                    raise ValueError("Expired management authority")
+                self.deadline_ns = deadline
                 context = cast(
                     dict[str, object], cast(dict[str, object], payload["context"])["payload"]
                 )
@@ -791,9 +811,7 @@ class RuntimeHost:
                 execution_authority["generation"],
             ) != (self.epoch, self.generation):
                 raise ValueError("Stale execution authority")
-        deadline = self._grant(body)
-        if deadline > time.monotonic_ns() + 4_500_000_000:
-            raise ValueError("Invalid managed grant")
+        request_live("READY")
         self.deadline_ns = deadline
         remaining = min(3.2, (deadline - time.monotonic_ns()) / 1_000_000_000)
         assert self.peer is not None
@@ -891,13 +909,19 @@ class RuntimeHost:
     async def _managed_connected(
         self, body: dict[str, object], reader: asyncio.StreamReader
     ) -> dict[str, object]:
-        operation = asyncio.create_task(self._managed(body))
+        deadline = self._grant(body)
+        operation = asyncio.create_task(
+            self._launch(body) if body["op"] == "launch" else self._managed(body)
+        )
         disconnected = asyncio.create_task(reader.read(1))
         try:
-            await asyncio.wait((operation, disconnected), return_when=asyncio.FIRST_COMPLETED)
+            remaining = (deadline - time.monotonic_ns()) / 1_000_000_000
+            async with asyncio.timeout(remaining):
+                await asyncio.wait((operation, disconnected), return_when=asyncio.FIRST_COMPLETED)
             if disconnected.done() or reader.at_eof():
                 raise ValueError("Managed owner disconnected")
-            return await operation
+            result = await operation
+            return {} if result is None else result
         finally:
             if not operation.done():
                 operation.cancel()
@@ -1387,7 +1411,7 @@ class RuntimeHost:
                         managed_result = None
                         settings_result = None
                         if body["op"] == "launch":
-                            await self._launch(body)
+                            await self._managed_connected(body, reader)
                         elif body["op"] == "renew":
                             if (
                                 self.state not in {"READY", "MANAGEMENT"}

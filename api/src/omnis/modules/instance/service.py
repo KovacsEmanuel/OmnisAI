@@ -9,6 +9,7 @@ import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from datetime import timedelta
 from json import dumps
 from uuid import UUID, uuid4
 
@@ -158,22 +159,38 @@ class InstanceService:
         *,
         inert_probe: bool = False,
         management: bool = False,
+        startup: object = None,
     ) -> RuntimeAuthority:
-        """Short absolute grant from CURRENT DB authority; never heartbeat or OPEN.
+        """Absolute grant from CURRENT DB authority; startup alone may bridge the lease.
 
         The typed inert probe may run against a never-shutdown closed instance.
         No assessment admission, Task or Hermes SDK is introduced here.
         """
         if (
-            type(generation) is not int
+            type(owner) is not UUID
+            or type(generation) is not int
             or not 0 <= generation <= 2**63 - 1
             or type(epoch) is not int
             or not 1 <= epoch <= 2**63 - 1
             or type(inert_probe) is not bool
             or type(management) is not bool
             or (management and inert_probe)
+            or (startup is not None and (not inert_probe or management))
         ):
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        if startup is not None:
+            if type(startup) is dict:
+                from omnis.modules.runs.model_test import qualify
+
+                if (
+                    startup.get("protocol")
+                    not in ("omnis-managed-admission-v5", "omnis-managed-admission-v6")
+                    or startup.get("mode") != "CREATE"
+                ):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                qualify(startup)
+            elif type(startup) is not str or startup != "launch":
+                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
             await self._stop_fence(connection)
@@ -188,7 +205,18 @@ class InstanceService:
             )
             if lease.expires_at is None:
                 raise ControlConflict(ControlCode.LEASE_LOST)
-            remaining = min(4.5, (lease.expires_at - now).total_seconds())
+            if startup is not None:
+                # Anchor to the original DB clock, never to UPDATE completion.
+                await connection.execute(
+                    text("UPDATE supervisor_lease SET expires_at = :expires WHERE id = 1"),
+                    {"expires": now + timedelta(seconds=11)},
+                )
+                await self._require_owner(connection, lease, owner, epoch)
+                await self._stop_fence(connection)
+                await self._require_owner(connection, lease, owner, epoch)
+            remaining = (
+                10.0 if startup is not None else min(4.5, (lease.expires_at - now).total_seconds())
+            )
             deadline = started + int(remaining * 1_000_000_000)
             if deadline <= time.monotonic_ns():
                 raise ControlConflict(ControlCode.LEASE_LOST)
@@ -275,9 +303,11 @@ class InstanceService:
             await self._require_owner(connection, lease, owner, epoch)
             await connection.execute(
                 text(
-                    "UPDATE supervisor_lease SET expires_at = clock_timestamp() + interval '5 seconds' WHERE id = 1"
+                    "UPDATE supervisor_lease SET expires_at = GREATEST(expires_at, "
+                    "clock_timestamp() + interval '5 seconds') WHERE id = 1"
                 )
             )
+            await self._require_owner(connection, lease, owner, epoch)
 
     async def release(self, owner: UUID, epoch: int) -> None:
         async with self._locked() as (connection, instance, lease):

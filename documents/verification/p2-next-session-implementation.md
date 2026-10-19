@@ -36,12 +36,18 @@ NU citi/copia/hash/modifica acel HTML sau tools/development/ponytail.json.
 Păstrează munca străină și FAIL/UNKNOWN/INDETERMINATE. Fără reset/stash/push.
 
 ARTEFACT ACTUAL
-/home/kali/.omnis-p2-ui8, origin http://127.0.0.1:8765, generation1,
+/home/kali/.omnis-p2-ui8, origin http://127.0.0.1:8765, generation3/epoch2,
 instance cebb549c-2a72-40fe-89fd-877f62b1b4d6,
 release SHA256 660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a.
 Mediul CLI și ownerii sunt în recovery/intent.json; parsează privat.
 Reobservă readiness, contul/datele și browserul înainte de orice efect.
-Browserul dedicat UI3/debug9226 este păstrat pentru operator, nu profil personal.
+Profilul QA UI3/debug9226 este istoric; nu îl lansa pentru testul actual.
+Operatorul deschide Chrome normal și face auth; nu automatiza profilul său,
+nu citi/copia cookies/credentiale/sesiuni și nu substitui browserul testing.
+Ulterior operatorul a cerut Stop/Start cu loguri și auth în Chrome-ul său normal:
+operator-chrome-restart.json păstrează Stop0, primul PORT_CONFLICT/TIME_WAIT,
+Start distinct0/READY/generation3/epoch2/date identice/logging existent activ.
+Nu porni Chrome testing și nu copia credentialele Hermes personale.
 UI6 este STOPPED/generation2/date păstrate. UI5 are resursele fizice absente,
 dar rămâne UNCERTAIN/RECOVERY_REQUIRED după supervisor exit3/cauză UNKNOWN.
 UI7 la fel: supervisor exit3/OOMfalse în pauză, Stop original exit4/9.554s,
@@ -79,8 +85,10 @@ PRIMII PAȘI ȘI RESTANȚE
 2. Păstrează QA vizibilă: fereastră headed efectiv în față, URL comunicat,
    fără înlocuire cu headless/screenshot-only. La preluarea operatorului,
    oprește automatizarea și reobservă înainte de continuare.
-   Reobservă browserul dedicat pin153, nu /usr/bin/chromium145
-   (două SIGTRAP istorice păstrate). Connect0e4e7c98-e19d-4436-ab7f-e9876cb19d20
+   Testul actual folosește Chrome normal deschis de operator; fără pornire
+   Chrome testing, control CDP sau capturi ale profilului personal.
+   Pin153 și cele două SIGTRAP ale Chromium145 sunt istoric QA, nu pași actuali.
+   Connect0e4e7c98-e19d-4436-ab7f-e9876cb19d20
    a produs CHALLENGE și tab oficial auth.openai.com confirmat efectiv deschis,
    apoi controlul a fost lăsat operatorului. Formularul a rămas fără răspuns;
    readback3682.983s mai târziu: INDETERMINATE/configuredfalse/selectionnull,

@@ -1,0 +1,182 @@
+{
+  "status": "RESTART_PASS_READY_OPERATOR_CHROME_AUTH_NOT_RUN",
+  "source_commit": "922dc9f",
+  "notes_base_commit": "f8ee64d",
+  "root": "/home/kali/.omnis-p2-ui8",
+  "origin": "http://127.0.0.1:8765",
+  "operator_request": "Stop/restart with logging; operator opens normal Chrome and handles Codex account auth. No testing-browser launch or personal credential copying.",
+  "stop": {
+    "stop": {
+      "exit": 0,
+      "seconds": 14.145,
+      "status": {
+        "state": "STOPPED",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 2,
+        "supervisor_epoch": null,
+        "admission_open": false,
+        "dashboard_ready": false,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    },
+    "stopped_status": {
+      "exit": 0,
+      "seconds": 0.826,
+      "status": {
+        "state": "STOPPED",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 2,
+        "supervisor_epoch": null,
+        "admission_open": false,
+        "dashboard_ready": false,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    }
+  },
+  "stop_readback": {
+    "exact_old_resources": [
+      {
+        "cid": "3918cfa8d3064e1ff25ba74d11f37419e6f827569c9c3ec0c1f329cb2a83597b",
+        "absent": true
+      },
+      {
+        "cid": "ba446b980b4dfb2be7001a56c90e4e7996d87cb4fad7fe8c2da6a5676de8317b",
+        "absent": true
+      },
+      {
+        "cid": "5cd0fce35c70c7e6a0937bc451eae64f177c4dc07cc220a4c33c2f94209c32af",
+        "absent": true
+      },
+      {
+        "cid": "f8268b6f0064866182493f0e10540ccaffee531a449f32a4e6c8336c0f5f2acf",
+        "absent": true
+      }
+    ],
+    "project_containers": [],
+    "project_networks": [],
+    "data_identity_unchanged": true
+  },
+  "first_start_refusal": {
+    "start": {
+      "exit": 2,
+      "seconds": 0.779,
+      "status": {
+        "state": "REFUSED",
+        "reason": "PORT_CONFLICT",
+        "instance_id": null,
+        "generation": null,
+        "supervisor_epoch": null,
+        "admission_open": null,
+        "dashboard_ready": false,
+        "assessment_ready": false,
+        "origin": null
+      }
+    }
+  },
+  "port_clearance": {
+    "result": "EXISTING_PREFLIGHT_PORT_PASS",
+    "seconds": 0.0,
+    "observations": 1,
+    "first_start": "REFUSED_PORT_CONFLICT_retained_in_start-results.json",
+    "observation": "No listener,connect_ex111,TIME_WAIT observed; no socket/sysctl settings changed"
+  },
+  "restart": {
+    "start_after_port_clearance": {
+      "exit": 0,
+      "seconds": 18.63,
+      "status": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 3,
+        "supervisor_epoch": 2,
+        "admission_open": true,
+        "dashboard_ready": true,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    },
+    "started_status": {
+      "exit": 0,
+      "seconds": 4.091,
+      "status": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 3,
+        "supervisor_epoch": 2,
+        "admission_open": true,
+        "dashboard_ready": true,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    }
+  },
+  "restart_readback": {
+    "resources": [
+      {
+        "cid": "bf8a40a6fbad5901a6ef169ae7492a6a832eac0899e6e9114e0698e266bb9ee6",
+        "service": "api",
+        "status": "running",
+        "logging_driver": "json-file",
+        "log_path_present": true
+      },
+      {
+        "cid": "f68f9f5678845e5d15269cfe611fb6e4a6a8a3612275eeb628a6ae6f1005f018",
+        "service": "supervisor",
+        "status": "running",
+        "logging_driver": "json-file",
+        "log_path_present": true
+      },
+      {
+        "cid": "f3538a037d09dc9577672b70c5eaffa42526df18e3d3dde758fe1165ef217775",
+        "service": "runtime",
+        "status": "running",
+        "logging_driver": "json-file",
+        "log_path_present": true
+      },
+      {
+        "cid": "1f152ca7ba76f8ea8eeb5a151fa2d25913773b3cb736b7763727a0b1f84d28d2",
+        "service": "db",
+        "status": "running",
+        "logging_driver": "json-file",
+        "log_path_present": true
+      }
+    ],
+    "data_identity_unchanged": true,
+    "new_resources_disjoint": true,
+    "forwarder_log": {
+      "path": "/home/kali/.omnis-p2-ui8/state/omnis/forwarder.log",
+      "exists": true,
+      "mode": "0o600"
+    }
+  },
+  "logging": {
+    "mode": "Existing Docker json-file driver verified active on4new CIDs, LogPath present; private forwarder log0600. Native finite OAuth phase/class/status diagnostic code unchanged. No separate CLI debug switch exists or was invented.",
+    "old_logs_private": "/home/kali/.omnis-p2-ui8/recovery/auth-chrome-619a1110be",
+    "raw_http_debug": false,
+    "raw_logs_in_git_or_chat": false,
+    "limitation": "Retained logs may not reveal the first cause; absence of a finite marker is not proof of no failure."
+  },
+  "browser_pairing": {
+    "command": "omnis pair",
+    "exit": 0,
+    "disclosure_channel": "dedicated_xterm_tty_only_no_capture",
+    "code_retained_in_report": false,
+    "native_window": "94371860",
+    "terminal_process": "proc_f2ad753fb3a9",
+    "policy": "Visible held terminal intentionally retained for operator. No TTY content read, screenshot or code in chat/log/Git. Operator opens normal Chrome; no browser/profile automation or account credential entry by assistant."
+  },
+  "auth": "OPERATOR_NOT_YET_CONFIRMED; previous operation INDETERMINATE is historical, not automatically resent after restart.",
+  "inference": "NOT_RUN",
+  "limits": [
+    "No product/source/config/pin/dependency change; previous scoped reviews/web QA reused, not rerun for operational restart.",
+    "No global networking/logging changes, port reuse relaxation, new runtime root, P3, target traffic, push or model call.",
+    "UI5/UI7 logical UNCERTAIN unchanged/not adopted. Same UI8 instance/storage retained, generation3/epoch2.",
+    "Full canonical NOT_RUN; independent inherited runtime stock-None fixture FAIL remains."
+  ]
+}

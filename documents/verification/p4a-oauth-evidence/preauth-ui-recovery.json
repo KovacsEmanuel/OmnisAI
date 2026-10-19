@@ -1,5 +1,5 @@
 {
-  "status": "UI_SIMPLE_CONNECT_DELIVERED_WAITING_OPERATOR_AUTH_NO_INFERENCE",
+  "status": "AUTH_SAVED_WEB_MODEL_TEST_IMPLEMENTATION_IN_PROGRESS_NO_INFERENCE_YET",
   "previous_handoff_status": "HANDOFF_PRESERVED_POLISH_PENDING_INTEGRATION_AND_VISIBLE_QA",
   "main_product_commit": "922dc9f",
   "latest": {
@@ -13,6 +13,20 @@
     "project": "omnis-local-b50fe370434f41219059a45e73a800c1",
     "release_sha256": "660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a",
     "current_cli_environment": "/home/kali/.omnis-p2-ui8/recovery/intent.json",
+    "current_auth_readback": {
+      "evidence": "operator-codex-auth-readback.json",
+      "operation_id": "0ba07c05-bf1b-45a3-bd65-c82f7f81e93d",
+      "status": "CONFIRMED",
+      "authenticated": "LOCAL_PRESENT",
+      "oauth": "SAVED",
+      "selection": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh"},
+      "challenge_present": false,
+      "reachable": "NOT_VERIFIED",
+      "inference_ready": false,
+      "channel": "Installed existing API settings_exchange GET-current via original private control owner; no browser/profile access or new mutation/model call",
+      "authorization": "Operator explicitly resumes Test model web, then simplified Setup and remaining phase2. First synthetic call max1/300s unused; no unlimited further calls or P3/targets. Full Brain chat remains later scope",
+      "current_author": "Single author in work/p2-webtest-5o53dewr from5d21826. StageA read-only input/normal-installed producer and owner discovery before product edits. Runtime normal profile currently lacks catalog/managed/preparation opt-ins; do not ship an inert panel or borrow test fixtures"
+    },
     "operator_chrome_restart": {
       "evidence": "operator-chrome-restart.json",
       "request": "Stop and restart with logging for operator-owned normal Chrome/Codex authorization; no testing-browser launch, personal Hermes grant adoption or automatic inference",
@@ -37,7 +51,7 @@
       "mode": "0600",
       "excludes": "Browser profiles/cookies/credentials/capabilities/PGDATA/raw private logs; not off-device backup"
     },
-    "next": "UX deliverable complete. Live resumes only on explicit operator request: reobserve Git/CURRENT/UI8/browser and exact INDETERMINATE operation without resend. Account auth in official web only; adjudicate unchanged None stock-control failure before full canonical. Prior1call/300s approval unused, not automatic continuation. Remaining G04a/G02-live need finite further budget; no P3/target/global/push or repeat unchanged evidence. All developer/review/QA processes exited, UI8/browser intentionally retained. Worktree p4a-simple-aeqwhv_2/work clean/a64df8a already integrated as922dc9f; p2-live-7au4ie6u/work8a18a58 already integrated ase0d23d6, neither is a reimport candidate. Dedicated browser UI3/profile/debug9226/window98566148 pin153.0.8010.12; no personal profile."
+    "next": "Current implementation explicitly authorized: Test model real web response -> simpler Setup/ROE -> remaining G04a/G02-live/canonical, not premature phase2 closure. Reuse current_auth_readback, not historical failed Connect below. Single author p2-webtest-5o53dewr/work StageA no-effect owner/input discovery, then parent admission before code. Reviews and installed real QA precede first1call/300s. Adjudicate stock-None fixture before full canonical. No P3/target/global/push or automatic further calls. UI8 retained for operator normal Chrome, no testing-browser launch or personal-profile access. Prior worktrees a64df8a/8a18a58 already integrated and never reimported. Old terminal/window pointers are historical ephemeral disclosures, never recover codes from them."
   },
   "previous_visual_v5_snapshot": {
     "snapshot_scope": "Historical READY observation, superseded by current UI5 UNCERTAIN/physical retirement noted in latest; not a restart instruction",
@@ -167,5 +181,5 @@
   },
   "next": "Use latest.next. Prior records are historical at their exact snapshots; no reimport of polish or blind Connect retry.",
   "visible_qa_contract": "Show the actual Omnis window on the operator desktop and keep it visible during tests. Verify foreground/visibility, announce short steps and show before/after. Pause automation when the operator takes control. Do not claim headless/screenshot-only execution is live-visible. No secrets in chat, captures, logs or Git.",
-  "limits": "Simple Connect UI delivered/source reviewed/installed through CHALLENGE, not account authorization or inference. Later operation INDETERMINATE/causeUNKNOWN, grant existence NOT_VERIFIED; no resend. Current UX request does not authorize automatic live continuation. Component gate has one unchanged fixture FAIL; full phase2 canonical NOT_RUN, P4a/G02-live NOT_CLOSED. Historical FAIL/UNKNOWN/UI5&UI7UNCERTAIN retained; ui8 kept for operator. private_evidence above is the historical ui7 archive, not a new ui8 archive. No P3/target/r1/global/push."
+  "limits": "Auth now SAVED/LOCAL_PRESENT in current_auth_readback, not provider reachability/inference proof. Historical INDETERMINATE Connect and UI5/UI7UNCERTAIN preserved, not reclassified or resent. Implementation resumed explicitly, first1call/300s unused; full chat/target/auth/extra calls not implicitly authorized. Component stock-None fixture FAIL and full canonical NOT_RUN remain, P4a/G02-live NOT_CLOSED. UI8 retained for operator normal Chrome; old private_evidence is historical ui7 archive. No P3/target/r1/global/push."
 }

@@ -1,6 +1,6 @@
 # Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**CURRENT = UI_SIMPLE_CONNECT_DELIVERED / WAITING_OPERATOR_AUTH, fără continuare automată.** Cererea de dimineață a schimbat livrabilul imediat la web simplu; `922dc9f` livrează Provider/Model/Connect, Diagnostic pliat, două re-reviewuri APPROVED_SCOPED și web115unit/6tooling/audit0/exit0. UI8 ultimul readback READY/date păstrate, QA instalată patru viewporturi/tastatură/un click read→save→connect→CHALLENGE și tab oficial deschis. Formularul operatorului fără răspuns; ulterior același ID INDETERMINATE/oauthNONE/challenge absent/cauzăUNKNOWN, fără retry/inferență. UI7 retrasă fizic/logicUNCERTAIN după supervisor exit3. `e0d23d6`/9AST/8regresii se reutilizează, runtime441PASS/1FAIL stock agent=None și canonical complet NOT_RUN rămân. Prima probă Codex/xhigh1apel/300s neconsumată. Promptul de mai jos se activează numai la cererea explicită de continuare live; verifică Git/CURRENT, nu relua arhiva.
+**CURRENT = AUTH_SAVED / WEB_MODEL_TEST_IN_PROGRESS.** Operatorul a aprobat explicit implementarea Test model→Setup simplu→restG04a/G02-live; nu este handoff sau închidere faza2. [Auth reală](p4a-oauth-evidence/operator-codex-auth-readback.json) CONFIRMED/LOCAL_PRESENT/oauthSAVED/gpt-6.1-sol/xhigh, inferență NOT_RUN; prima probă1apel/300s neconsumată. UI8 READY/generation3/epoch2/date păstrate, Providers922dc9f și probele scoped neafectate se reutilizează. Un singur autor pe work/p2-webtest-5o53dewr din5d21826; etapaA read-only stabilește producerii/inputurile complete/normal-installed handoff înainte de cod, fără efecte. Plan§8/UI§3 fixează panoul sintetic fără target/tools și fără chatBrain complet. Runtime441PASS/1FAIL stock agent=None și canonical complet NOT_RUN rămân. Verifică Git/CURRENT înainte de reluare; arhiva nu este coadă de lucru. Promptul de mai jos păstrează restanțele, iar stările vechi pending-auth sunt istorice.
 
 ## Prompt pentru următoarea implementare
 
@@ -69,6 +69,16 @@ Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
 numai pe logica neschimbată. Niciun candidat vechi nu se reimportă.
 
 PRIMII PAȘI ȘI RESTANȚE
+Acțiunea curentă este mai întâi Test model web din plan§8/UI§3, nu un alt Connect:
+auth0ba07c05-bf1b-45a3-bd65-c82f7f81e93d este CONFIRMED/LOCAL_PRESENT/oauthSAVED.
+Un singur autor p2-webtest-5o53dewr/work stabilește normal-installed producerul,
+ownerul, materialul complet/dimensiunile și consumerul real înainte de cod.
+ModelTest privat există, dar normal supervisor nu are catalog/managed opt-in,
+iar web nu are ruta/panoul: această lipsă de produs nu se acoperă cu fixture
+sau SDK direct. După contractul admis: RED/GREEN, două reviewuri, QA reală și
+prima probă1call/300s; apoi Setup simplu și restul live. Lista de mai jos este
+restul obligațiilor existente; fixtureNone se adjudecă înainte de canonical,
+nu este motiv să relansăm locatorul sau toate probele istorice.
 1. Reutilizează e0d23d6 și cele două reviewuri din p4a-minim.md:
    HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source
    este inputul MANAGEMENT explicit, validat înainte de provisioning și la AST.

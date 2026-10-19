@@ -1,0 +1,19 @@
+{
+  "exit": 0,
+  "channel": "existing installed API settings_exchange GET-current via private original control owner; no browser/command/mutation",
+  "view": {
+    "operation_id": "0ba07c05-bf1b-45a3-bd65-c82f7f81e93d",
+    "status": "CONFIRMED",
+    "configured": true,
+    "authenticated": "LOCAL_PRESENT",
+    "reachable": "NOT_VERIFIED",
+    "inference_ready": false,
+    "oauth": "SAVED",
+    "selection": {
+      "provider": "openai-codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh"
+    },
+    "challenge_present": false
+  }
+}

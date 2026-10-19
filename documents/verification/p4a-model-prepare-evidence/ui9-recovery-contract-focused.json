@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "decision": "B_REQUIRES_CORRECTED_OBSERVATION_CONTRACT_AND_REAL_DISTRIBUTION_WORK_NOT_YET_ADMITTED",
+  "scope": "Focused adjudication of runtime eligibility and distribution only; not a new P7 audit or implementation authorization.",
+  "repository": "/home/kali/OmnisAI",
+  "reviewed_head": "a783da4ebe65b3aed98215010648424537bc3584",
+  "supersedes": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/recovery-contract.json sections eligibility.runtime, supervisor_delta, distribution and the claim that the nine-file list is a complete implementation scope",
+  "implementation_status": "NOT_IMPLEMENTED",
+  "live_recovery_status": "NOT_RUN",
+  "outcome_ro": "IDLE nu este imposibil după EOF: stop() revine fără schimbare când process=None și nu există settings_command/model close. Pentru un Host realmente nefolosit, IDLE/drained/0/0 este tocmai rezultatul normal după drain+close. În schimb, STOPPED/0/0 nu este o stare produsă de aceste căi și clientul existent o refuză. Nu înlocuim o precondiție presupus imposibilă cu alta imposibilă. Problema reală este observarea: status revendică owner_writer, iar EOF execută Stop; nu există un status+close general no-effect. Distribuția B nu are un installer existent pentru aceeași instanță. Builderul și installerul existente pot fi reutilizate ca mecanisme de artefact, dar nu pot instala alt supervisor peste UI9 fără o extensie reală și verificată a pinningului/atestării. Nu recomand un nou subsystem sau owner.",
+  "runtime_adjudication": {
+    "RUNTIME_F01": {
+      "disposition": "PARTLY_CONFIRMED_PRIOR_CONTRACT_OVERSOLD_OBSERVATION; IDLE_IMPOSSIBILITY_REJECTED_BY_COMPLETE_STOP_BODY",
+      "facts": [
+        "RuntimeHost starts state=IDLE, generation=0, epoch=0, process=None, peer=None, capabilities={}.",
+        "Every authenticated _handle finalizer invokes stop(); the supervisor finally invokes runtime.drain(), then runtime.close(). Neither call alone implies state=STOPPED.",
+        "stop() first revokes the management lifeline. Under stop_lock, an already STOPPED Host returns. With process=None and no model close or settings_command, it returns without assigning state: pristine IDLE stays IDLE, including after owner disconnect.",
+        "If a settings command was accepted, generation/epoch are bound before MANAGEMENT. A cancelled or failed management startup can yield STOPPED even with process=None, but its epoch is nonzero. A native launch also binds the fence before process creation; successful drain does not reset it.",
+        "The internal MANAGEMENT-to-model transition sets IDLE temporarily but does not reset its bound fence. It is not a fresh no-work Host and cannot satisfy strict IDLE/0/0.",
+        "snapshot.drained is a projection of state in {IDLE,STOPPED}, not a separate live process census. Under normal source transitions a zero-fence IDLE Host has never accepted launch or Settings; installed provenance and original boot/resource identity still have to be attested.",
+        "RuntimeClient accepts zero-fence only when state=IDLE. Every other state must match the client's generation/epoch; its constructor requires epoch>=1. Merely adding STOPPED/0/0 to a prose contract cannot work through the existing client."
+      ],
+      "sources": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:108-150,189-228,237-244,285-333,682-712,1163-1265,1288-1294,1318-1410",
+        "api/src/omnis/supervisor/__main__.py:177-200",
+        "api/src/omnis/supervisor/runtime_client.py:230-290,538-589,811-826",
+        "integrations/hermes/tests/installed_fixture.py:54-56 explicitly expects IDLE -> stop(drained) -> IDLE; source read only, not rerun"
+      ]
+    },
+    "smallest_supported_runtime_predicate": {
+      "state": "IDLE",
+      "drained": true,
+      "generation": 0,
+      "epoch": 0,
+      "bootstrap_inventory": null,
+      "capabilities": {},
+      "assessment_ready": false,
+      "model_preparation_close": "ABSENT",
+      "identity": "Authentic successful correlated reply from the same attested original runtime CID/process incarnation, runtime.boot UUID and IPC identities; do not print capability or copy it into the contract.",
+      "typing": "Exact integer zero, exact bool true/false, exact null/empty mapping; preserve strict client validation and reject unexpected recovery fields.",
+      "note": "This predicate is realizable in the actual source and needs no RuntimeHost or RuntimeClient relaxation. It is not yet measured on UI9. Do not accept STOPPED/0/0, IDLE with a bound fence, MANAGEMENT, READY, STOPPING or UNCERTAIN as equivalents."
+    },
+    "if_actual_runtime_is_stopped": "STOPPED with its authentic old nonzero fence may be legitimate management/native drain, but is outside the strict never-bound slice. The new supervisor epoch cannot read it through the ordinary RuntimeClient fence comparison. Zero managed/model DB rows does not exclude native Settings activity. Do not reset runtime state/fences, relabel that state as IDLE, reconnect under a made-up grant, or silently generalize the recovery mode. Preserve the finding and decide a separately evidenced finite old-fence receive/drain contract if required; it is not an already-existing free branch of B.",
+    "observation_contract": {
+      "read_only_now": "No runtime connection. runtime.boot contains identity/capability, not state/drain evidence; its bytes or a DB census cannot prove runtime eligibility. There is no existing unauthenticated/read-only state channel that avoids owner claim and disconnect Stop.",
+      "gate": "First require parent's backup plus successful isolated restore/readback, exact installed-source/image/boot/resource attestation, and review of the recovery implementation. Backup path is /home/kali/.omnis-p2-ui9/recovery/same-instance-mtpbajof. This subagent did not read or touch the backup or the active independent restore QA.",
+      "actual_consumer": "Observe through the replacement supervisor's existing RuntimeClient as part of the explicit Stop-only recovery attempt, not through an exploratory second client. Only status/stop/status are wired; no Settings, prepare, task, renew, launch or model path. Retain that same owner channel through quiescence. Use the existing finite timeouts.",
+      "honest_effect_boundary": "The first authenticated status claims owner_writer. Failure/close can invoke Stop even if eligibility is rejected. Therefore this is an authorized lifecycle attempt, not no-effect preflight, and must already have the exact persisted intent and bounded cleanup/refusal contract. Do not perform it merely to decide whether implementation is worth writing.",
+      "transaction_order": "The existing-supervisor recovery variant may acquire its genuine guarded DB epoch/SHUTDOWN first, then connect using that actual fence: a never-bound Host accepts status/stop and replies IDLE/0/0. If runtime validation fails, DB is already closed/pending, not unchanged. This limit must be explicit in acceptance and failure handling. Never claim that all runtime eligibility was known before the first effect. No FINALIZE, StopGrant, STOPPED or OPEN on runtime failure.",
+      "success": "Same-boot exact predicate -> RuntimeClient.drain stop ACK plus correlated status readback -> InstanceService.quiesce -> FINALIZE and arm_stop/readback -> existing host Stop owner. Closing the channel is cleanup of that real attempt, not a separate neutral observation.",
+      "failure": "Preserve original READY evidence plus recovery intent and any genuine closed DB transition. Refuse blind reconnect/retry or automatic emergency fallback. An unknown close/drain outcome remains pending/uncertain; do not restore old READY or reset generations. If parent requires zero possible runtime effect even after backup, runtime eligibility cannot be obtained through the current product and the recovery remains BLOCKED."
+    }
+  },
+  "db_evidence_update": {
+    "source": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/ui9-recovery-census.json",
+    "provenance": "Parent reports real read-only original-DB command exit0; this subagent read the sanitized artifact and did not repeat SQL.",
+    "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+    "generation": 1,
+    "admission_open": true,
+    "shutdown_command_id": null,
+    "quiesced_generation": null,
+    "managed_counts": {"managed_record": 0, "managed_run": 0, "managed_task": 0, "managed_inbox": 0, "managed_mission_revision": 0},
+    "instance_stop_fence": 0,
+    "catalog_verdict": "Only the reported inert catalog kinds/operations; no native-preparation or model work. Preserve every existing confirmation/evaluation/catalog row.",
+    "still_not_proven": [
+      "Fresh exact supervisor lease owner/epoch and DB-clock expiration at takeover; census file does not include them.",
+      "Runtime state/fence/boot/ownership, including possible Settings-only activity, is not DB-census evidence.",
+      "Restore QA outcome and installed artifact/resource attestation."
+    ],
+    "takeover_rule": "Keep the prior explicit InstanceService takeover transaction and genuine SHUTDOWN producer; ordinary acquire cannot substitute. Recheck the finite census under existing instance->lease locks plus reviewed serialization against actual managed/catalog writers. Prior read-only emptiness is not atomic admission authority."
+  },
+  "distribution_adjudication": {
+    "DIST_F01": {
+      "disposition": "CONFIRMED_SCOPE_GAP_IN_PRIOR_CONTRACT",
+      "facts": [
+        "ops/build_control_bundle.py already accepts explicit API/CLI wheels, hashed web files and native metadata, checks the pinned lock/overlay, writes a complete release manifest and publishes a new directory with NOREPLACE. Reuse this artifact producer rather than invent another correction archive format.",
+        "build_bundle pins wheel filenames/release to 0.1.0; release._manifest also pins 0.1.0 and the schema. install_release is immutable/idempotent, not an upgrader: changed bytes at releases/0.1.0 are refused.",
+        "install_control_image loads that one installed release. Existing image.json must match the same bundle digest and images; it is not replaced. On a fresh image installation it generates a fresh random project and both control/runtime artifacts for the native profile. It has no existing same-project supervisor-only update parameter.",
+        "ControlRuntime and stop_owner._load_runtime independently load releases/0.1.0 plus image.json. The supervisor and API must use the same receipt.image_id; stop_receipt.validate_inventory enforces it again. Recovery's replacement-image exception therefore really crosses the launcher attestor, inventory validator and existing independent Stop owner.",
+        "The exact supervisor command/environment/mounts are also pinned. Merely selecting a corrected image does not authorize recovery argv/environment. The explicit finite mode must be bound at those same consumers.",
+        "CLI main exposes install/install-image, not upgrade. The existing new-Start reconcile job requires a genuine COMPLETED Stop receipt first; it cannot repair this pre-Stop orphan-owner state."
+      ],
+      "sources": [
+        "ops/build_control_bundle.py:30-59,73-94,108-152,169-186",
+        "ops/Dockerfile.control-model-test:1-13",
+        "cli/src/omnis_cli/release.py:21-31,48-125,160-174,200-300",
+        "cli/src/omnis_cli/compose.py:336-416,418-456,457-540",
+        "cli/src/omnis_cli/start_runtime.py:159-225,445-553,620-671",
+        "cli/src/omnis_cli/stop_receipt.py:100-165",
+        "cli/src/omnis_cli/stop_owner.py:110-145",
+        "cli/src/omnis_cli/start.py:934-961",
+        "cli/src/omnis_cli/restart.py:43-65,97-236",
+        "cli/src/omnis_cli/main.py:21-61,108-133"
+      ]
+    },
+    "comparison_only": [
+      {
+        "option": "Existing additive bundle/install/pin mechanism, with explicit upgrade if one existed",
+        "reuse": "Existing build_bundle -> release._manifest/publish_directory -> immutable install_release; existing compose image build/intent/readback owner.",
+        "verdict": "SMALLEST_EXISTING_ARTIFACT_MECHANISM_BUT_NOT_A_SAME_INSTANCE_RECOVERY_DISTRIBUTION_PATH",
+        "why_not_complete": "Another artifact output directory is possible. Installing changed 0.1.0 over UI9 refuses; installing it under a different data root and building images chooses a different project. No implemented explicit same-instance upgrade/rebind exists. A wheel alone cannot change the supervisor already in its immutable image. Do not turn the fresh-install seam into a disguised new UI9 profile or mutate installed.json/image.json by hand."
+      },
+      {
+        "option": "B: additive corrected CLI plus pinned Stop-only supervisor image, original installation retained",
+        "verdict": "CONDITIONALLY_COHERENT_BUT_REQUIRES_REAL_PRODUCT_DISTRIBUTION_EXTENSION",
+        "smallest_direction": "Use the current bundle/manifest/checksum producer and current release/image/lifecycle owners. Carry one finite original-bundle -> corrected-artifact/image/argv binding in the recovery lifecycle intent; do not add a parallel installer service, general image override, recovery owner or generic receipt framework. The existing Stop owner remains the only Stop effect owner and must independently validate that binding.",
+        "unavoidable": "A new same-instance supervisor-only artifact installation/binding branch is not already shipped. Its actual immutable output, original-project/daemon linkage, exact role/env/mounts, independent Stop load and restart verification are inseparable deliverable work, not configuration toggles. Original API/runtime/control-release bytes and image receipt stay untouched; correction is not disguised as the old bundle.",
+        "size_verdict": "No smaller COMPLETE EXISTING mechanism was found in the actual builder/release/installer/lifecycle seams. B's cross-owner size is real, and the earlier nine product files were an incomplete estimate: release/image distribution and its tests still belong to the slice. A generic 0.1.1 upgrade is not a demonstrated cheaper alternative and is not proposed."
+      }
+    ],
+    "what_can_be_separated_without_useless_helper": [
+      "First commit the narrowly tested domain+supervisor Stop-only behavior under its existing entrypoint, explicitly INTERNAL/NOT_DELIVERED; it must have the real producer/consumer tests, not only an exported helper. Do not deploy it to UI9 alone.",
+      "Then integrate additive packaging/pinning and the CLI-to-existing-Stop-owner tail as one coherent installed vertical slice. Build/manifest generation is an existing artifact step, not a new subsystem. Do not call this delivered until the original operator entry can recover and then start the same disposable instance with retained data.",
+      "Actual UI9 execution is a separate, backup-gated operational step after exact-snapshot reviews and the installed recovery journey. Do not preinstall only a correction CLI whose required backend/image authority is missing.",
+      "Skip version-general upgrade support, additional owner processes, parallel correction receipt formats, new runtime observation service and generic P7 recovery."
+    ],
+    "open_distribution_detail": "The private UI9 wrapper was not inspected in this scope. Parent must verify its exact interpreter/entrypoint and preserve original bytes before any explicit switch. The normal builder's Dockerfile includes dependency installation; building it is not automatically offline merely because requirements are hashed. No build/network authorization is inferred from this source review."
+  },
+  "minimum_complete_chain": [
+    "Verified backup/isolated restore and original instance/data/lease/artifact bindings; reviewed installed correction through the existing distribution owners.",
+    "Original CLI entry, explicit recovery Stop, both existing lifecycle locks, exact durable intent; replace only the attested exited supervisor with a Stop-only same-role incarnation.",
+    "Guarded InstanceService takeover atomically records authentic SHUTDOWN and closes admission; no CLI SQL or receipt fabrication, no ordinary acquire shortcut.",
+    "Same recovery supervisor connects once via existing RuntimeClient; strict authentic IDLE/drained/0/0/same boot and real drain/readback are necessary before quiescence. A refusal leaves the attempt pending/closed.",
+    "Existing LocalControl shutdown replay/status -> quiesce -> FINALIZE -> inventory -> arm_stop/readback -> existing Stop owner COMPLETED -> exact STOPPED readback.",
+    "A separate explicit normal Start verifies completed Stop including the actual correction supervisor pin, runs existing DB fence reconciliation, acquires the new normal owner and OPENs. Same UUID/project/origin/PGDATA/catalog/provider/confirmation/budget histories; no automatic Start in recovery Stop."
+  ],
+  "acceptance_delta_not_run": [
+    "Source regression: a genuine unused Host remains IDLE/0/0 through stop and owner EOF; no subprocess/native launch. An actual bound Settings/native Host cannot qualify merely because its DB managed census is empty.",
+    "Runtime refusal/timeout/lost reply after the DB recovery commit produces no FINALIZE/grant/STOPPED/OPEN and preserves intent; no hidden exploratory connection, reconnect or widened deadlines.",
+    "Distribution positive: correction installed additively, original bundle/image receipt unchanged, exact new supervisor image/argv accepted by both launcher and existing Stop owner; one-bit pin/env/argv/role mismatch refuses.",
+    "Installed same-instance positive: genuine orphaned no-work supervisor -> explicit recovery Stop -> separate normal Start; original identity and saved confirmation/catalog/data remain. This is mandatory before UI9, not proven by an image build or helper tests."
+  ],
+  "verification_performed": {
+    "source": "Complete RuntimeHost.stop/snapshot and authenticated-client cleanup; supervisor startup/finally; client fence/close/drain; builder/release/image install and actual lifecycle attestors/Stop inventory/owner/restart consumers.",
+    "memory_only_execution": "python3 -I -B extracted the actual stop/snapshot AST without importing project modules and exercised two no-process branches: pristine IDLE remains IDLE/0/0/drained and synthetic already-STOPPED is idempotent. Exit0. The latter is explicitly NOT evidence that STOPPED/0/0 is reachable.",
+    "static_assertion": "python3 -I -B enumerated every RuntimeHost generation/epoch assignment: constructor zero, _launch and _settings_start binding only; assertion PASS/exit0. No stop reset. No sockets, DB, native subprocess or project imports.",
+    "existing_test_read": "installed_fixture.py already encodes IDLE -> stop -> IDLE. Not executed.",
+    "git": "git diff --check exit0; HEAD unchanged a783da4ebe65b3aed98215010648424537bc3584; only preexisting documents/Omnis_Notite_Originale.html untracked, untouched.",
+    "no_effects": "No Docker, DB, runtime/UDS, network, model, personal/global profile, code/docs or skill writes. Active restore QA untouched.",
+    "only_created_file": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/recovery-contract-focused.json"
+  },
+  "parent_decision": "Accept the source correction that pristine IDLE survives stop/EOF; do not broaden to impossible STOPPED/0/0. Accept that runtime eligibility cannot be proved no-effect by the existing status channel. If B is implemented, admit its full finite distribution+installed journey rather than treating the nine-file sketch as ready. Otherwise remain BLOCKED, not new profile or emergency STOPPED. Actual UI9 runtime eligibility and successful recovery remain unproven.",
+  "proposed_skill_lesson_not_written_due_read_only_scope": "Read the no-process branch of Stop before equating EOF with a terminal state; distinguish a status handler's state read from authenticated connection ownership and its effectful finalizer. Do not invent STOPPED/0/0 when only IDLE has the zero-fence client exception.",
+  "ponytail": "Nu am refăcut auditul P2/P7, investigat exit3, inspectat wrapperul privat sau rulat restore/runtime/build. Riscul rămas: UI9 poate avea un Host bound de Settings, iar distribuția corectivă și parcursul instalat nu sunt încă implementate/probate."
+}

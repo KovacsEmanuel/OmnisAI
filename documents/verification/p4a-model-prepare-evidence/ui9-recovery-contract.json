@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "decision": "RECOMMEND_B_CONDITIONAL_ON_MEASURED_NO_WORK_AND_INSTALLED_PROOF",
+  "implementation_status": "CONTRACT_ONLY_NOT_IMPLEMENTED",
+  "operational_status": "UI9_RECOVERY_NOT_EXECUTED",
+  "repository": "/home/kali/OmnisAI",
+  "reviewed_start_head": "9c3000ea54ca849d5360037c91ebc06ca0e36bcb",
+  "observed_final_head": "a783da4ebe65b3aed98215010648424537bc3584",
+  "snapshot_note": "Parent committed documentation during review. git diff --name-only from the start head to final head for cli/, api/ and architecture was empty; affected product bytes inspected here did not change.",
+  "product_decision_ro": "Recuperarea minimă corectă este o intrare explicită Stop-only pentru instanța existentă, limitată la lipsa demonstrată a oricărui istoric managed/native/model. Produce o închidere autentică în InstanceService, finalizează Stop prin ownerul existent, apoi un Start separat folosește reconcilierea existentă. Nu este restaurarea vechiului READY și nu este restart direct al supervisorului.",
+  "variants": [
+    {
+      "id": "A",
+      "name": "CLI-only: pornește supervisorul vechi atestat și adaptează jurnalul pentru Stop",
+      "verdict": "REJECTED_FOR_CURRENT_STATE",
+      "reason": "InstanceService.acquire closes an OPEN instance after owner loss using a fresh shutdown_command_id but does NOT insert its SHUTDOWN command receipt. shutdown then rejects any new command while that shutdown_command_id exists. arm_stop independently requires authentic SHUTDOWN and FINALIZE receipts with the same current owner epoch. A CLI-only change cannot supply the missing DB authority through existing public methods.",
+      "rejected_workarounds": [
+        "Inserting instance_command or editing lease/admission directly from CLI would make CLI a second backend and fabricate authority.",
+        "FINALIZE, acquire another epoch, OPEN and then normal Stop would reopen before completed Stop, contrary to architecture 4.2/4.3; it also needs extra supervisor incarnations and is not the minimum safe path.",
+        "Treating emergency UNCERTAIN as STOPPED, or using stop_reconcile without its real grant and COMPLETED host receipt, is not recovery."
+      ],
+      "distribution_advantage_not_sufficient": "An additive CLI venv could preserve release 0.1.0, but packaging convenience does not repair the missing SHUTDOWN producer.",
+      "source": [
+        "api/src/omnis/modules/instance/service.py:236-271",
+        "api/src/omnis/modules/instance/service.py:390-411",
+        "api/src/omnis/modules/instance/service.py:529-560",
+        "api/src/omnis/modules/instance/service.py:347-374",
+        "cli/src/omnis_cli/restart.py:43-65"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Explicit idle-recovery Stop using the existing supervisor role and InstanceService",
+      "verdict": "RECOMMENDED_MINIMUM_COMPLETE_CONTRACT",
+      "operator_interface_proposed_not_existing": "/home/kali/.omnis-p2-ui9/omnis stop --recover-idle --json",
+      "next_existing_command_after_verified_STOPPED_only": "/home/kali/.omnis-p2-ui9/omnis start --no-open --json",
+      "end_of_recovery_command": "STOPPED with real SHUTDOWN, runtime quiescence, FINALIZE, StopGrant, existing host owner COMPLETED receipt and exact absence readback. No OPEN or automatic Start in recovery command.",
+      "same_instance_definition": "Preserve instance UUID, project, configured origin/port, original PGDATA bind-root identity and system_identifier, schema, catalog/provider roots, immutable catalog records, confirmation and budget history. Container incarnation and supervisor epoch must change honestly; they are not the identity of the installation.",
+      "domain_delta": "Add one explicitly selected acquire-for-idle-stop path in InstanceService (ordinary acquire stays unchanged). Under the existing instance->lease locks, validate exact expected instance/generation/epoch, DB-clock expired owner, no existing shutdown/fence, exact supported schema and no-work predicate. Atomically increment epoch, assign the new owner, close admission at generation G+1 with the predeclared Stop command UUID, and insert a genuine SHUTDOWN receipt for expected G/result G+1/owner_epoch E+1. Reuse shutdown's existing write/record rules rather than duplicating them in CLI. A failure rolls back; a lost acknowledgement leaves recovery pending and never implies replay permission.",
+      "supervisor_delta": "Use the existing supervisor entrypoint in an explicit finite recovery mode carrying the host-persisted instance/G/E/Stop ID. It becomes the sole new lease owner. Connect the existing runtime for status/drain only; do not wire Settings, native preparation, NativeTaskOwner, model_test or inert launch. Require genuine IDLE with drained=true and fence 0/0 before granting quiescence; other runtime states are outside this initial slice. Reuse service.quiesce with RuntimeClient.drain, LocalControl status/shutdown-replay/finalize/arm_stop, and ordinary heartbeat/lease-loss handling. No deadline changes. Existing OPEN cannot reopen this incomplete or same-epoch finalized shutdown.",
+      "host_delta": "Under both existing lifecycle locks, persist/read back an exact recovery intent before any supervisor rm/create/start. Attest and retire only the already-exited recorded supervisor CID, then create one replacement in that same role/project/attempt from the separately pinned recovery image. Do not restart the old CID blindly. Preserve original READY bytes as failure evidence. Initially make ordinary lifecycle reuse refuse the pending recovery, without deleting unreconciled markers. On exact new control/DB readback, publish a typed STOPPING record with old generation G/stop_expected G, stop_generation G+1, new owner epoch E+1, fresh control socket and replacement CID. Then join the existing Stop tail rather than bypassing it.",
+      "expected_authority_progression": "For confirmed G=1/E=1: recovery SHUTDOWN closes G=2/E=2; real Stop completes at G=2/E=2; later explicit original-release Start reconciles the grant and acquires E=3, then OPEN produces G=3. Values must be read back, not hard-coded or written to imitate success. Any unexpected transition refuses.",
+      "why_api_change_is_unavoidable": "The missing authority is a domain transaction in the API wheel shared by supervisor, not a host receipt problem. This proposal changes that shared code in a recovery-only supervisor artifact; it does not require replacing the currently running HTTP API, adding an HTTP route, or a DB migration.",
+      "not_claimed": "This is not a generic crash-recovery implementation, reconciliation of previously dispatched work, a root-cause fix for exit 3, or proof that the original runtime will accept a new status/drain channel. Those are excluded or explicit prerequisites."
+    }
+  ],
+  "eligibility": {
+    "observed_only_from_parent_diagnosis": {
+      "journal_phase": "READY",
+      "unreconciled_marker": false,
+      "supervisor_cid": "bcd1288a8948e370b7a7df2544bcf6cec82af327d32b5601b4330dc55108db0f",
+      "supervisor_state": "exited",
+      "supervisor_exit": 3,
+      "oom": false,
+      "lease_epoch": 1,
+      "lease_live": false,
+      "head_generation": 1,
+      "publication_ref": null,
+      "confirmation": "c9cf2e31 prefix and same digest per parent; full UUID/digest must come from retained evidence, never expand this prefix by guessing",
+      "model_test_records": 0
+    },
+    "must_measure_before_live_recovery": [
+      "Parent's consistent private backup plus successful isolated restore/readback, including retained catalog/confirmation and provider data without printing secrets. A directory copy of live PGDATA alone is not accepted. Backup does not confer lifecycle authority.",
+      "Exact format-4 model-test profile, instance.json/READY journal/release/image/project/daemon/port/PGDATA dev+ino/system_identifier/schema bindings. No pending recovery, prior Stop fence, unexplained extra container or unfinished daemon operation.",
+      "Exact supervisor exited/not Running/not Restarting/not Paused and no surviving owned process family. API, DB, runtime and forwarder are the recorded healthy/attested incarnations; check actual IPC/listener and auth-forwarder identity without reading or copying auth contents.",
+      "Actual instance_control is admission_open=true, shutdown_command_id=NULL, quiesced_generation=NULL at expected G; supervisor_lease is expected E with expired DB-clock lease. The diagnosis did not supply all these fields: READY journal is not a substitute.",
+      "Zero rows in public.managed_record, public.managed_run, public.managed_task, public.managed_inbox and public.managed_mission_revision, across ALL owners in this instance DB. This intentionally rejects even historical managed work; do not generalize to terminal-state reduction in this slice.",
+      "No catalog_record kind model-test-source/model-test-operation/model-test-terminal, native-preparation-bundle or native-preparation-receipt, and no corresponding orphan catalog_command fixed-model-test/preparation command. Confirm exact operation spelling from the existing producers when implementing. Static/PURE evaluation, catalog seed, operator-confirmation and drafts remain allowed and preserved.",
+      "Catalog head is still generation1/publicationNULL and the saved confirmation has the same full ID/digest/owner/selection. No publication or new human confirmation is part of recovery.",
+      "Runtime authenticated status is genuinely IDLE, drained=true, generation=0, epoch=0 with the same boot/IPC identity and no native bootstrap inventory. No MANAGEMENT/READY/STOPPING/STOPPED/UNCERTAIN adoption in this initial contract. If this is not true, stop and decide a separate narrowly evidenced extension rather than add retries.",
+      "Original wrapper/interpreter provenance and the separate immutable correction pins have been verified; wrapper remains the single operator entry. No P3, target, live model, global settings or push."
+    ],
+    "race_rule": "The no-work check is repeated by InstanceService in the takeover transaction, not trusted from a CLI SELECT. ManagedAdmission._prepare only takes its managed-owner advisory lock and can insert without the instance lock, so the instance lock alone is NOT an emptiness proof. Use bounded SHARE table locks for the finite census tables and relevant catalog tables during the check/transition, in a reviewed fixed order, or prove the equivalent existing-writer serialization in the real PG test. The narrow table-lock approach adds no schema/service. Catalog/managed writers resume after commit but cannot dispatch through the Stop-only supervisor; verify unchanged content again before host teardown. Any competing write or deadlock/timeout refuses, not retries.",
+    "schema_owner_evidence": [
+      "api/src/omnis/migrations/versions/0011_managed_tasks.py:13-58: actual managed tables and durable dispatch flags",
+      "api/src/omnis/modules/runs/managed_admission.py:338-405: preparation uses managed-owner, not instance lock",
+      "api/src/omnis/modules/runs/managed_admission.py:417-459: stage/release intents persist before IPC",
+      "api/src/omnis/modules/tasks/managed_store.py:16-49: immutable managed_record and managed_mission_revision writers",
+      "api/src/omnis/policy/budgets.py:1-6,65-146: model-budget/reservation/dispatch/transition/usage are managed_record envelopes, NOT a separate model_test or budget table",
+      "api/src/omnis/modules/runs/model_test_operation.py:28-60,150-229: model-test records are catalog_record/catalog_command; operation is committed before create_task",
+      "api/src/omnis/modules/runs/native_preparation.py:330-364: native preparation bundle/command commits before runtime dispatch",
+      "api/src/omnis/supervisor/native_tasks.py:37-62: existing task owner and close path",
+      "api/src/omnis/supervisor/runtime_client.py:561-570,811-817: IDLE/fence/drained validation and stop ACK plus readback"
+    ],
+    "current_gap": "Zero model-test records alone is insufficient. Full managed/native census, actual instance barrier fields, runtime IDLE and tested backup/restore are not established by this read-only review. Do not run recovery until parent obtains them."
+  },
+  "producer_consumer_chain": [
+    "Original wrapper -> main.py explicit Stop opt-in -> stop.py under existing installation and state locks.",
+    "Host recovery intent binds original READY digest, instance, G/E, Stop/finalize IDs, exact old CID/incarnation, immutable correction image and backup receipt locator -> replacement supervisor's strict recovery input.",
+    "InstanceService acquire-for-idle-stop -> committed SHUTDOWN receipt and closed barrier -> LocalControl existing shutdown replay/status -> CLI STOPPING record. No CLI SQL writes.",
+    "RuntimeClient real drain/status -> InstanceService.quiesce -> existing FINALIZE/readback -> prepare_stop_inventory -> arm_stop/stop_grant_readback.",
+    "Exact StopGrant -> existing run_stop_owner and guarded lock handoff -> COMPLETED receipt -> _publish_stopped/readback_stopped.",
+    "Separate later Start -> prepare_restart -> original-image DB-only omnis.stop_reconcile -> ACKED before supervisor acquire -> original-release OPEN/verify_running -> same UI9 READY. Old Stop inventory includes the correction supervisor's actual immutable image ID; it must not be replaced with the original image ID for convenience."
+  ],
+  "distribution": {
+    "strategy": "Additive recovery-only CLI and API-wheel-derived supervisor image, not overwriting or upgrading the sealed 0.1.0 release.",
+    "retain_untouched": [
+      "XDG_DATA_HOME/omnis/releases/0.1.0 and release.json/checksums",
+      "installed.json and image.json binding the original control/runtime images",
+      "original API and runtime image tags/IDs",
+      "instance.json UUID/project/schema/origin and original PGDATA/provider/catalog roots"
+    ],
+    "correction_artifacts": "A separately named private durable correction directory (outside sealed release and scratch for installed use), new CLI venv/wheel, immutable recovery API wheel and separately tagged/content-addressed supervisor image. A small correction receipt pins the ORIGINAL bundle digest plus new wheel/image hashes and exact permitted supervisor argv; no latest tag, source mount, PYTHONPATH injection, in-place image patch or general image-override setting.",
+    "wrapper": "Parent first verifies how /home/kali/.omnis-p2-ui9/omnis selects its CLI; preserve its exact original bytes and change only the interpreter/CLI target if required, retaining identical HOME/XDG/config/state/origin bindings. No alternate operational launcher. This review did not open the private wrapper, so its exact edit is an unresolved deployment prerequisite, not an invented command.",
+    "finite_attestation_change": "During recovery STOPPING/STOPPED only, a strict recovery binding in the journal authorizes the single replacement supervisor CID/image/argv from the correction receipt. All other roles retain original image/config checks. Bind it in start record validation, ControlRuntime.attest, stop_receipt.validate_inventory and stop_owner._load_runtime; do not just relax image checks. After completed Stop, original-release Start constructs its ordinary STARTING/READY record without the recovery extension, while archived original/recovery/Stop records remain.",
+    "old_cli_behavior": "Old CLI must refuse the recovery-extended record rather than adopt it. Corrected CLI must retain ordinary old-format behavior. Repointing to old CLI is safe before effects or after a later verified ordinary READY/STOPPED state without a pending recovery, not halfway through recovery.",
+    "why_not_new_release_version": "release.py, start_runtime.py, stop_owner.py and startup instance creation currently hard-pin 0.1.0. A full 0.1.1 upgrade would drag version selection and same-instance upgrade/rebind into this slice. A finite correction artifact avoids that broader mechanism but still requires real installed attestation tests.",
+    "deployment_blocker": "No existing installer for this correction binding was demonstrated. The finite additive install/attestation and wrapper switch are part of B's minimum implementation, not work to skip or a claim that a new API wheel is already usable in UI9. If the parent declines this distribution scope, recovery remains BLOCKED; do not silently choose a new instance."
+  },
+  "future_file_scope": {
+    "product_changes": [
+      {"path": "api/src/omnis/modules/instance/service.py", "change": "Explicit guarded idle-recovery acquisition and authentic SHUTDOWN producer; ordinary acquire/shutdown/finalize/fence semantics unchanged outside opt-in."},
+      {"path": "api/src/omnis/supervisor/__main__.py", "change": "Strict recovery startup input and Stop-only wiring using same owner, LocalControl and runtime drain; no runtime/model launch."},
+      {"path": "cli/src/omnis_cli/main.py", "change": "One stop --recover-idle opt-in, never implicit Start recovery."},
+      {"path": "cli/src/omnis_cli/stop.py", "change": "Preflight/intent/takeover handoff and joining existing shutdown/quiesce/finalize/host-owner tail without reacquiring held locks or emergency fallback."},
+      {"path": "cli/src/omnis_cli/restart.py", "change": "Finite recovery intent/binding helpers; retain original completed-Stop DB reconciliation and its ACK ordering."},
+      {"path": "cli/src/omnis_cli/start.py", "change": "Strict recovery journal extension, ordinary pending-recovery refusal, and dropping only the consumed recovery extension when producing new ordinary startup record."},
+      {"path": "cli/src/omnis_cli/start_runtime.py", "change": "Exact correction image/argv/CID attestation only for recovery supervisor plus bounded create/start through existing run; other roles unchanged."},
+      {"path": "cli/src/omnis_cli/stop_receipt.py", "change": "Validate exact correction supervisor image binding in the real Stop inventory, preserving all other strict keys/types and stage order."},
+      {"path": "cli/src/omnis_cli/stop_owner.py", "change": "Load the same finite correction binding in the independent owner and verifier; do not replace host-owner execution/lock/ACK machinery."}
+    ],
+    "unchanged_consumers_requiring_regression": [
+      "cli/src/omnis_cli/status.py, verified.py, pairing.py and browser.py: pending/closed recovery cannot be credited READY or opened/paired",
+      "api/src/omnis/transport/local_control.py and modules/instance/stop_contract.py: existing typed command/readback/grant consumer; no HTTP/OpenAPI change",
+      "api/src/omnis/stop_reconcile.py and InstanceService.reconcile_stop: accept actual completed inventory through existing schema, not an invented grant",
+      "cli/src/omnis_cli/lifecycle.py: existing lock/private receipt primitives; never call cleanup_startup_ipc on still-live API/runtime just to reclaim control IPC",
+      "LocalControl.__aenter__: existing exclusive service-lock/stale socket handling and new capability creation; no manual cap/socket restoration"
+    ],
+    "tests_and_fixtures": [
+      "api/tests/test_instance.py: guarded expired takeover -> real SHUTDOWN -> quiesce/finalize/arm; all precondition denials with unchanged DB; no-work overlap against real writers",
+      "api/tests/test_supervisor.py and test_runtime_supervisor.py: Stop-only mode disables preparation/tasks/settings/model/inert launch, IDLE drain required, lease loss preserved",
+      "api/tests/test_stop_fence.py, test_stop_control.py, test_stop_reconcile.py: current-epoch receipt coupling, authentic closed grant/reconciliation compatibility",
+      "cli/tests/test_stop_wiring.py and test_start_stop_boundary.py: opt-in explicitness, lock continuity, fresh Start ordering and no emergency fallback on recovery failure",
+      "cli/tests/test_stop.py, test_ready_journal.py and test_lifecycle_consumers.py: malformed/pending recovery refuses without effects; ordinary schemas remain strict",
+      "cli/tests/test_start_attestation.py, test_stop_receipt.py, test_stop_owner.py, test_restart_wiring.py: correction CID/image/argv positive and mutation negatives, independent owner load and original-release restart",
+      "cli/tests/stop_owner_fixture.py and stopped_fixture.py: add an opt-in correction fixture only; do not relax shared default expectations",
+      "cli/tests/test_model_test_catalog_lifecycle.py and test_settings_lifecycle.py: preserved confirmation/catalog/provider roots and unchanged budget histories across recovered Stop/Start",
+      "cli/integration/installed_stop.py and test_release.py: one installed no-provider/no-target recovery journey using existing owned fixture/lifecycle, not a new generic harness"
+    ],
+    "packaging_and_docs": "Extend only the existing release build/install integration needed to produce/verify the separate correction artifact; select the exact builder seam after its targeted source read, before assigning packaging code. It was not read in this task. No schema/migration/dependency/Compose default/OpenAPI/web export changes are intended. Record the scoped behavior in cli/README.md and affected architecture 4.2/4.3; parent owns canonical docs/status and required rendered readers. Protected original HTML and tools/development/ponytail.json remain out of scope.",
+    "scope_guard": "Do not start a generic image override, migration engine, recovery owner, P7 interrupted-run reconciliation, new scheduler or broad cleanup framework. If implementing B requires one, stop and reconsider the boundary instead."
+  },
+  "acceptance_and_tests_not_run": {
+    "positive": "Fresh disposable installed fixture reproduces READY journal + exited supervisor + expired lease + zero managed/native/model records. Original wrapper's proposed recovery Stop produces real closed receipts and COMPLETED host Stop; separate normal Start returns the same instance/data/catalog/confirmation with a new epoch/generation. Sentinel, immutable catalog digests, head1/null and zero managed/model accounting remain unchanged. Exactly owned old/new resources are read back; foreign inventory is unchanged.",
+    "finite_negatives": [
+      "Any managed/native/model record including only a budget reservation, or concurrent managed prepare commit, prevents eligibility; zero model-test operation alone is not accepted.",
+      "Live/changed lease, changed instance/G/E, existing shutdown/fence, mismatched CID/incarnation/image/argv/daemon/PGDATA/origin or unverified backup prevents recovery before relevant effects.",
+      "Runtime not IDLE or drain/readback failure yields no FINALIZE/grant/STOPPED/OPEN, preserves closed/pending evidence and refuses blind retry.",
+      "Lost create/start/DB-commit/control/host-owner ACK and failure to persist intent cannot be converted to success by a later status. Exercise only these new handoff boundaries, not a universal crash-cut catalogue.",
+      "Ordinary start/stop/open/pair and old CLI cannot adopt a pending or altered correction receipt. No Settings/preparation/task/model send is wired during recovery."
+    ],
+    "existing_commands_after_implementation": [
+      "make test-cli and make check-cli-wheel with project-pinned tools/private TMPDIR",
+      "python ops/run_test_db_gate.py --check --target test-sl04-pg with project-pinned interpreter/environment; extend the existing finite target only if required tests are absent",
+      "Affected api/cli Ruff and mypy commands exactly from Makefile",
+      "Existing installed_stop/test_release owned fixture extended for this opt-in case; the current check-installed-stop target alone does not yet contain or prove B",
+      "Two complementary independent reviews on final authority/distribution bytes, then one bounded installed recovery journey before UI9 use"
+    ],
+    "limit": "No tests, containers, DB reads, auth reads, network calls, backup/restore or lifecycle effects were run in this review. Static source inspection is not installed recovery PASS."
+  },
+  "inverse": {
+    "before_effects": "Restore original wrapper/CLI target bytes; leave additive artifacts unused. Original release, data and journal are unchanged.",
+    "after_takeover_or_host_effect": "No automatic rollback of epoch/generation or resurrection of old READY. Keep recovery intent and original evidence. If the existing Stop tail can finish with authentic authority, finish Stop then use a new explicit normal Start. On ambiguous outcome retain UNCERTAIN/closed state and stop; do not replay an uncertain Docker request.",
+    "data_restoration": "Parent's separately proved restore procedure is the data inverse only after exact owned writers/resources are settled. Restoring a backup must not overwrite current pending/fence evidence or reintroduce old lease/boot authority as live. A logical restore into a different PGDATA inode/system identity is not accepted by current lifecycle receipts; rebind is outside B. If that is the only available restore, report it as a remaining recovery blocker, not a supported command.",
+    "code": "Parent integrates focused commits; normal git revert for code, never reset/amend/push. Git revert does not undo service, DB, lease or wrapper effects."
+  },
+  "verification_performed": {
+    "git": "status/diff/stat/HEAD and diff --check read-only; product scope unchanged across parent's documentation commit",
+    "source": "Architecture 4 and 12; affected lifecycle/InstanceService/supervisor plus targeted schema/writer/caller/test/packaging-pin reads needed to test feasibility",
+    "memory_only_check": "python3 -I -B AST inspection: 4 source-structure assertions PASS/exit0, no repository imports or domain/resource calls. Tool-calculated example: G1/E1 -> closed G2/E2 -> separate Start E3/OPEN G3. This is not a recovery execution test.",
+    "final_git_readback": "git diff --check exit0; HEAD a783da4ebe65b3aed98215010648424537bc3584; only the preexisting protected untracked HTML remained, not read or modified.",
+    "root_cause": "UNKNOWN; no retry/deadline remedy inferred from exit3",
+    "repository_writes": [],
+    "live_effects": [],
+    "report_only_write": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/recovery-contract.json",
+    "preexisting_untracked_preserved": "documents/Omnis_Notite_Originale.html"
+  },
+  "parent_handoff": "B is a specific product decision, not permission to perform it now. Before assigning implementation, resolve the measured no-work/runtime eligibility and accept the finite additive correction distribution, especially its wrapper/builder seam. If either fails, remain BLOCKED rather than broadening the task or silently using a new instance. P2 remains NOT_CLOSED; no P3/targets/global/push.",
+  "ponytail": "Skipped root-cause reinvestigation, universal cuts, generic P7/migration and UI changes. Main risks: current runtime/census eligibility is unproven, and shared API authority cannot honestly be repaired by CLI-only journal edits."
+}

@@ -1,0 +1,13 @@
+{
+  "observation": {
+    "state": "IDLE",
+    "drained": true,
+    "generation": 0,
+    "epoch": 0,
+    "boot": "9a0a35d2-18fc-4df9-8757-c8837e318d8b",
+    "bootstrap_inventory": null,
+    "assessment_ready": false
+  },
+  "channel": "Existing RuntimeClient connect/status/close on original UI9; no grant/launch/renew/model/DB write",
+  "limit": "Authenticated close invokes existing Host stop; this is an admitted recovery observation, NOT a universal no-effect read. Original supervisor exited, process census Host-only, backup restore passed before operation."
+}

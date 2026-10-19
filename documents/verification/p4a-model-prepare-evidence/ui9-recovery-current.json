@@ -113,5 +113,6 @@
     "parent_source_tests": "22PASS6.68s/exit0, pinned Python3.13.15, Ruff check/format/diff0; seven reviewed bindings match",
     "canonical": "NOT_RUN"
   },
-  "next": "Minimum supported same-instance recovery contract through original owners; proposed IDLE-only prerequisite rejected because authenticated runtime disconnection invokes stop. Focused feasibility correction pending, then implementation/reviews/QA before live recovery. No service stop/start/restart or live state writes performed."
+  "runtime_observation": "Existing RuntimeClient connect/status/close exit0 on original UI9 after restore proof: IDLE/drained=true/generation0/epoch0/boot9a0a35d2-18fc-4df9-8757-c8837e318d8b/bootstrap_inventory=null. No grant/launch/renew/model or DB writes. Authenticated close invokes Host.stop, so observation is not universally effect-free; pristine process=None branch preserves IDLE. Parent initial IDLE objection corrected by full branch trace and live observation.",
+  "next": "Finite Stop-only recovery implementation admitted in sole-author worktree /home/kali/.hermes/cache/scratch/ui9-recover-a0gg5al3/work from3353b02, SOURCE/offline only. Existing owners plus strict additive distribution; no generic override/framework. Two reviews and installed QA before UI9 recovery. No Docker stop/start/restart or live DB writes performed."
 }

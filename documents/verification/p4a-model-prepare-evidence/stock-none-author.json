@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_FIXTURE_SCOPED_REVIEW_PENDING",
+  "base_commit": "01ca4e8b6a2586ce2cc65c5e8c94447e57a3f855",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+  "runtime_chat": {
+    "model": "gpt-6-astra-900k",
+    "provider": "openai-codex",
+    "source": "delegation context; no model selection or fallback performed"
+  },
+  "scope": "SOURCE-only correction of the stock public-turn fixture; no production, pin, guard, native runtime, provider, services, PG, Docker, browser, global, push, or P3 effects",
+  "changed_files": [
+    {
+      "path": "integrations/hermes/tests/test_model_terminal.py",
+      "absolute_path": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work/integrations/hermes/tests/test_model_terminal.py",
+      "before_sha256": "3fa03dde81ab67884beb27eb6b9dda7c198f466eded661d6c62857b30af71bd6",
+      "after_sha256": "e0d6b2433eea0004fea068bc5410cd9a0d2ef4190fc47e889e1669c54c2d0d01",
+      "change": "Create one empty SimpleNamespace agent and pass that same fixture to stock and managed function calls instead of None; 3 insertions, 2 deletions."
+    }
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none.patch",
+    "sha256": "8b945a571678cf9f8c377589f6c8f417d70dec469e97677c02de52f0ed235c68",
+    "validation_command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none.patch",
+    "exit_code": 0,
+    "scope": "Read-only reverse applicability against the modified worktree; not applied or integrated."
+  },
+  "cause": {
+    "classification": "CONFIRMED_FIXTURE_DEFECT",
+    "reproduction": "The original stock call function(None, None) raises AttributeError: 'NoneType' object has no attribute '__dict__' before the expected agent.turn_context import.",
+    "prefix": "integrations/hermes/upstream/managed-source/agent/conversation_loop.py:1640-1659: stock path reads agent.__dict__ at 1643; inert path also reads it at 1641; legitimate agents have instance state.",
+    "callers_checked": [
+      "Repository-wide Python search for run_conversation and TurnFacadeMixin.",
+      "managed-source/agent/subagent_lifecycle.py:313-330 constructs child=AIAgent(model_test_preparation=...) and passes child to run_conversation(child, text, task_id=...).",
+      "managed-source/run_agent.py:155,247-251,1658-1673 imports/inherits TurnFacadeMixin, constructs AIAgent, and invokes agent.run_conversation(user_query)."
+    ],
+    "decision": "An empty __dict__ is the legitimate stock-prefix fixture; no authority or preparation attributes are added. No product defect demonstrated; no scope expansion.",
+    "preserved": [
+      "AST load from the current managed-source conversation_loop.py; real function body unchanged.",
+      "Tripwire for every agent.* or tools.* import unchanged.",
+      "Stock exception match and exact attempts == [\"agent.turn_context\"] unchanged.",
+      "Same fixture and import tripwire on managed branch, terminal_result() equality and attempts == [] unchanged.",
+      "terminal_result() remains NO_MODEL, api_calls=0, failed=true, completed=false, failure_retryable=false.",
+      "No skip, xfail, weaker assertion, product edit, pin edit, or guard edit."
+    ]
+  },
+  "environment": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_version": "3.13.15",
+    "libraries_discovered": "/home/kali/OmnisAI/api/.venv/lib/python3.13/site-packages",
+    "versions": {
+      "pytest": "9.1.1",
+      "pytest-asyncio": "1.4.0",
+      "ruff": "0.16.9"
+    },
+    "source_resolution": "Explicit worktree integrations/hermes/src and api/src inserted before dependencies; model_terminal module origin asserted under worktree.",
+    "write_controls": "-I -B; pytest plugin autoload disabled; no cacheprovider; Ruff --no-cache; logs/patch/report under declared scratch root."
+  },
+  "pin_verification": {
+    "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
+    "python": "3.13.15",
+    "manifest_sha_matches_pin": true,
+    "managed_patch_sha_matches_pin": true,
+    "source_sha_matches_manifest": {
+      "agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+      "agent/subagent_lifecycle.py": "b5fff48093a1af71a91203bd28e44c9f2742141e508b3da2c5a64590d3155b29",
+      "run_agent.py": "d8d640866064f4b6c19aee4aa54bf68876e2752c13b15d926b32720bf225c481"
+    },
+    "exit_code": 0,
+    "limit": "Tracked managed-source bytes and manifest/overlay pin verified statically, not a rebuild or installed-native proof."
+  },
+  "checks": [
+    {
+      "phase": "RED",
+      "command": "set -o pipefail; env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,sys; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"integrations/hermes/src\"),str(r/\"api/src\")]; import omnis_hermes.model_terminal as model_terminal; assert pathlib.Path(model_terminal.__file__).is_relative_to(r); import pytest; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_model_terminal.py::test_public_turn_denies_before_native_dependencies_and_preserves_stock_control\",\"-vv\",\"--tb=short\"]))' 2>&1 | tee /home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-red.log",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 1,
+      "result": "1 failed in 0.12s; expected fixture AttributeError before tripwire",
+      "log": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-red.log",
+      "sha256": "ff5c345208ebedcff7d2ca5b8626a712b58aff545670cef8a5e7cd036972e4ba",
+      "scope": "Original affected SOURCE test on base bytes"
+    },
+    {
+      "phase": "GREEN_TARGET",
+      "command": "set -o pipefail; env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,sys; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"integrations/hermes/src\"),str(r/\"api/src\")]; import omnis_hermes.model_terminal as model_terminal; assert pathlib.Path(model_terminal.__file__).is_relative_to(r); import pytest; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_model_terminal.py::test_public_turn_denies_before_native_dependencies_and_preserves_stock_control\",\"-vv\",\"--tb=short\"]))' 2>&1 | tee /home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-green-target.log",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 0,
+      "passed": 1,
+      "result": "1 passed in 0.15s",
+      "log": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-green-target.log",
+      "sha256": "e9e61a7e6b1a8769538c5b59a35fef91e7bd7bf59f6f189d502e9dbac165bcb9",
+      "scope": "Affected SOURCE test after final code edit"
+    },
+    {
+      "phase": "GREEN_FILE",
+      "command": "set -o pipefail; env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import pathlib,sys; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"integrations/hermes/src\"),str(r/\"api/src\")]; import omnis_hermes.model_terminal as model_terminal; assert pathlib.Path(model_terminal.__file__).is_relative_to(r); import pytest; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_model_terminal.py\",\"-vv\",\"--tb=short\"]))' 2>&1 | tee /home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-green-file.log",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 0,
+      "passed": 22,
+      "result": "22 passed in 6.53s; no skips",
+      "log": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-green-file.log",
+      "sha256": "e7c97ab49a74af435d7f8d8e2082d65b364f9e4be405b84ab9a636710453a23e",
+      "scope": "Entire test_model_terminal.py after final code edit; AST prefixes and synthetic protocol/worker controls, not SDK/native/provider proof"
+    },
+    {
+      "phase": "RUFF_CHECK",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix --no-cache integrations/hermes/tests/test_model_terminal.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "log": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-ruff-check.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "scope": "Changed file only, configured pinned Ruff"
+    },
+    {
+      "phase": "RUFF_FORMAT",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check --no-cache integrations/hermes/tests/test_model_terminal.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 0,
+      "result": "1 file already formatted",
+      "log": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none-ruff-format.log",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "scope": "Changed file only"
+    },
+    {
+      "phase": "DIFF_CHECK",
+      "command": "git diff --check",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+      "exit_code": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "artifact_issue": {
+    "initial_patch_validation_exit_code": 128,
+    "failure": "error: corrupt patch at line 21",
+    "cause": "Initial patch copied from terminal tool rendered stdout lost trailing whitespace/context lines.",
+    "resolution": "Recreated patch from raw subprocess.check_output git diff serialized as JSON; reverse-check now exit 0. Test/source bytes unchanged; no test rerun needed for artifact-only correction."
+  },
+  "git": {
+    "initial_status": "clean",
+    "final_owned_status": "only integrations/hermes/tests/test_model_terminal.py modified",
+    "commits_created": [],
+    "integration": "NOT_PERFORMED_PARENT_OWNED",
+    "review": "NOT_REQUESTED_PARENT_OWNED"
+  },
+  "limits": [
+    "No service, PG, Docker, browser, installed native runtime or provider execution; no accounts/model/fallback configuration.",
+    "SOURCE guard/control evidence only, not successful native turn, provider inference, canonical gate, P2 closure, or UI9 recovery.",
+    "Real callers inspected statically; not invoked. Unmodified TurnFacadeMixin implementation is outside the tracked managed overlay and was not executed.",
+    "Full canonical make check intentionally not run because it provisions services/DB outside this delegation; mypy runtime target covers src only and production source is unchanged.",
+    "Independent review and parent integration/commit remain pending; scratch evidence expires."
+  ],
+  "procedure_note": "Match the minimal instance-state layout used by the pinned public entrypoint; exercise the same valid fixture on stock and denied paths and retain exact tripwire/reason assertions. Existing TDD storage-layout guidance covers this; no out-of-scope skill edits."
+}

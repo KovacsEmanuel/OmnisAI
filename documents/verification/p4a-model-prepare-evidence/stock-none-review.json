@@ -1,0 +1,124 @@
+{
+  "review_id": "stock-none-independent-source-review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Exact fixture-only diff: SimpleNamespace() replaces None as the first argument in the stock and managed calls of test_public_turn_denies_before_native_dependencies_and_preserves_stock_control. SOURCE function-prefix evidence only.",
+  "workspace": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work",
+  "base_commit": "01ca4e8b6a2586ce2cc65c5e8c94447e57a3f855",
+  "snapshot_manifest_sha256": "5c74b9cdc9673cf1d7105dd8c060e6d92d59172a50eff8148af4c166f750e3a8",
+  "snapshot_hash_method": "SHA256 of UTF-8 json.dumps(snapshot_sha256, sort_keys=True, separators=(',', ':'))",
+  "snapshot_sha256": {
+    "integrations/hermes/tests/test_model_terminal.py": "e0d6b2433eea0004fea068bc5410cd9a0d2ef4190fc47e889e1669c54c2d0d01",
+    "integrations/hermes/src/omnis_hermes/model_terminal.py": "399e5d541ce626ab938af644dacca891a19576afde9c167118a7874ce260cdc3",
+    "integrations/hermes/upstream/managed-source/agent/conversation_loop.py": "aff23241537037ed52b78709e0e5985ee3dc821c868e042e43a0cd278702b5bd",
+    "integrations/hermes/upstream/managed-source/agent/subagent_lifecycle.py": "b5fff48093a1af71a91203bd28e44c9f2742141e508b3da2c5a64590d3155b29",
+    "integrations/hermes/upstream/managed-source/run_agent.py": "d8d640866064f4b6c19aee4aa54bf68876e2752c13b15d926b32720bf225c481",
+    "integrations/hermes/pin.json": "17e7c8f45484401cd3639bd8dbd390559de396ab60849df744d45bd00520af07",
+    "api/pyproject.toml": "4b66abf6cf25ddae264fce4f3a4c109fb3e89db636ac6705676b6169267adead"
+  },
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/stock-none.patch",
+    "sha256": "8b945a571678cf9f8c377589f6c8f417d70dec469e97677c02de52f0ed235c68",
+    "equals_current_git_diff": true,
+    "files_changed": 1,
+    "insertions": 3,
+    "deletions": 2
+  },
+  "findings": [],
+  "reasoning": [
+    {
+      "criterion": "Fixture is legitimate for the exercised prefix",
+      "evidence": "conversation_loop.py:1640-1659 reads agent.__dict__.get('_model_test_preparation') before importing agent.turn_context. SimpleNamespace() has a real empty __dict__, supplies no preparation/owned authority and does not stub the guard. None was not a valid agent-shaped input for this prefix. user_message=None is not consumed before either measured frontier.",
+      "caller": "subagent_lifecycle.py:313-330 constructs AIAgent and passes the child into run_conversation; run_agent.py:247 defines the actual instance class. The test need not construct the heavyweight native agent to exercise this bounded prefix."
+    },
+    {
+      "criterion": "Stock control reaches precisely agent.turn_context",
+      "evidence": "The existing typed exception check plus attempts == ['agent.turn_context'] remains unchanged. A generic AttributeError, earlier agent.agent_init import, wrong dependency or unconditional denial cannot satisfy it. The same fixture object is then used for the managed call."
+    },
+    {
+      "criterion": "Managed public entry refuses before native dependencies",
+      "evidence": "The unchanged managed assertion compares the entire result to terminal_result() and then requires attempts == []. model_terminal.py:33-47 was read independently: NO_MODEL, failed=true, completed=false, failure_retryable=false, api_calls=0, messages=[], final_response=''. The actual prefix returns before both agent.turn_context and tools.vision_tools_history_budget."
+    },
+    {
+      "criterion": "No false-green from the fixture correction",
+      "evidence": "The old HEAD test independently fails with NoneType.__dict__ AttributeError. The corrected exact test passes. In-memory mutations of the actual extracted run_conversation guard are rejected by the same unchanged test: unconditional denial fails the stock control; removal of early denial raises ForbiddenNativeDependency on the managed call. Product/test source files were not mutated for these controls."
+    }
+  ],
+  "execution": {
+    "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "version": "3.13.15",
+    "flags": ["-I", "-B"],
+    "environment": {"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+    "sys_path_prefix": [
+      "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work/integrations/hermes/src",
+      "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work/api/src"
+    ],
+    "pytest_base_args": ["-c", "api/pyproject.toml", "-p", "no:cacheprovider", "-q"],
+    "pytest_bootstrap": "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work/integrations/hermes/src', '/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/work/api/src']; import pytest; raise SystemExit(pytest.main(ARGS))",
+    "author_report_used": false
+  },
+  "checks": [
+    {
+      "name": "exact-focused-test",
+      "selector": "integrations/hermes/tests/test_model_terminal.py::test_public_turn_denies_before_native_dependencies_and_preserves_stock_control",
+      "exit_code": 0,
+      "passed": 1,
+      "duration_seconds": 0.07,
+      "log": "stock-none-review/focused.log"
+    },
+    {
+      "name": "whole-affected-file",
+      "selector": "integrations/hermes/tests/test_model_terminal.py",
+      "exit_code": 0,
+      "passed": 22,
+      "duration_seconds": 6.35,
+      "log": "stock-none-review/file.log"
+    },
+    {
+      "name": "independent-baseline-red",
+      "source_command": "git show HEAD:integrations/hermes/tests/test_model_terminal.py",
+      "method": "Compile HEAD test module in memory with __file__ set to the current worktree test path. A pytest_collection_modifyitems plugin replaces the single selected item's obj with the original HEAD test function; current pinned source and sys.path remain identical. Add --tb=short to the same focused pytest invocation.",
+      "pytest_exit_code": 1,
+      "shell_expected_exit_check": 0,
+      "failed": 1,
+      "duration_seconds": 0.06,
+      "failure": "AttributeError: 'NoneType' object has no attribute '__dict__'",
+      "log": "stock-none-review/baseline-red.log"
+    },
+    {
+      "name": "same-oracle-in-memory-controls",
+      "exit_code": 0,
+      "method": "Load the unchanged test module without importing native modules. For each control call the exact test function inside pytest.MonkeyPatch.context(). The original AST loader is used for unchanged; for mutants replace only the first guard condition in the real run_conversation AST with True or False.",
+      "results": [
+        {"case": "unchanged", "oracle": "PASS", "error_type": null},
+        {"case": "always_deny", "oracle": "REJECTED", "error_type": "Failed"},
+        {"case": "remove_early_denial", "oracle": "REJECTED", "error_type": "ForbiddenNativeDependency"}
+      ],
+      "log": "stock-none-review/oracle-controls.log"
+    },
+    {
+      "name": "lint",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml integrations/hermes/tests/test_model_terminal.py",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "name": "diff-integrity",
+      "command": "git diff --check && git diff --quiet -- integrations/hermes/src integrations/hermes/upstream integrations/hermes/pin.json",
+      "exit_code": 0,
+      "final_status": "Only preexisting fixture diff remains in review worktree; shared checkout still has only the preexisting untracked protected HTML. Exact test and patch hashes match initial requested hashes."
+    }
+  ],
+  "warnings": [
+    "Each pytest invocation reports Unknown config option: asyncio_mode because plugin autoload is disabled. These tests are synchronous; the warning was preserved, not suppressed.",
+    "An initial read attempted integrations/hermes/PIN.json; the actual observed filename is integrations/hermes/pin.json and was then read. No source or pin was edited."
+  ],
+  "limits": [
+    "Approval covers only this exact fixture diff and pinned function-prefix behavior, not installed/native/live runtime acceptance.",
+    "AST extraction skips native module top-level imports and full construction. The import tripwire covers agent.* and tools.* names, not all possible I/O. No universal no-effects claim is made.",
+    "The terminal_result equality assertion checks delegation to the shared unchanged helper; it is not an independent regression oracle for future changes to that helper. Its current exact NO_MODEL contract was independently inspected.",
+    "No DB, Docker, browser, provider, inference, target traffic, global configuration or canonical suite was run. No secrets, protected HTML contents or ponytail.json were read.",
+    "No repository edits, integration, commit or push. Only authorized scratch logs and this report were created.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. P2/G02 and canonical acceptance remain unchanged and not closed."
+  ],
+  "handoff": "Parent may adjudicate and integrate the exact fixture-only patch. Re-review is required if its bytes or relevant pinned source change."
+}

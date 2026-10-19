@@ -156,15 +156,16 @@ def test_public_turn_denies_before_native_dependencies_and_preserves_stock_contr
             raise ForbiddenNativeDependency(name)
         return original_import(name, *args, **kwargs)
 
+    agent = SimpleNamespace()
     function = load("conversation_loop.py", ["run_conversation"], {}).run_conversation
     monkeypatch.setattr(builtins, "__import__", tripwire)
     monkeypatch.delenv("HERMES_OMNIS_INERT", raising=False)
     with pytest.raises(ForbiddenNativeDependency, match="agent.turn_context"):
-        function(None, None)
+        function(agent, None)
     assert attempts == ["agent.turn_context"]
     attempts.clear()
     monkeypatch.setenv("HERMES_OMNIS_INERT", "1")
-    assert function(None, None) == terminal_result()
+    assert function(agent, None) == terminal_result()
     assert attempts == []
 
 

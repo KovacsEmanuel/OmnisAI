@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "verdict": "IMPLEMENTED_SOURCE_SCOPED_READY_FOR_PARENT_REVIEWS",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+  "branch": "work/p2-idle-channel-fix",
+  "base": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "head": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+  "scope": [
+    "integrations/hermes/src/omnis_hermes/runtime_host.py",
+    "integrations/hermes/tests/test_host.py"
+  ],
+  "files": [
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "6ee2d16cc810d5bf2b6aa7826bff4a40e8b176d6303b4415c5466022c2efd017"
+    },
+    {
+      "path": "integrations/hermes/tests/test_host.py",
+      "sha256": "4d971d109d714d3bacbf4dc8414b8c7a6a9a8c98c4aa3782358c1cf9f38ffdeb"
+    }
+  ],
+  "root_cause": "Authenticated owner with no pending request was still subject to readuntil(2.5s); timeout emitted an unsolicited id:null denial, poisoning the next RuntimeClient correlation. Deterministic sufficient defect, not universal historical attribution.",
+  "change": "Wait for one byte with public readexactly only for authenticated current owner, then use unchanged 2.5s readuntil for rest (newline-only stays a complete invalid frame). Unauthenticated readuntil remains total 2.5s. No helpers, private reader state, keepalive, reconnect, resend or new protocol.",
+  "traced": {
+    "handler_callers": [
+      "RuntimeHost.__aenter__: asyncio.start_unix_server(self._handle)"
+    ],
+    "stop_paths": [
+      "__aexit__ closes clients before server.wait_closed then joins handler tasks",
+      "_handle authenticated finally invokes stop and releases owner",
+      "_handle stop command",
+      "_watch checks expiry/native failure every 0.025s independently",
+      "_launch failure",
+      "_managed management-to-native transition"
+    ],
+    "consumer": "Worktree API RuntimeClient over a real private Unix socket; API bytes unchanged"
+  },
+  "checks": [
+    {
+      "label": "red-idle",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/idle-qa /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py::test_authenticated_idle_uds_has_no_unsolicited_frame'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 1,
+      "elapsed_seconds": 7.012081886001397,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/red-idle.log",
+      "log_sha256": "fe61a0be803aa58ada0273c5e344526eebad35ff2abd426472cc14e623778f3a"
+    },
+    {
+      "label": "green-idle",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/idle-qa /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py::test_authenticated_idle_uds_has_no_unsolicited_frame'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 6.200198246981017,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/green-idle.log",
+      "log_sha256": "43103c0e29188a1588f17e49e9d4850ce82bb912e73b4e49d25c3fa6ff56512b"
+    },
+    {
+      "label": "host-regression",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/idle-qa /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 1,
+      "elapsed_seconds": 24.649257705023047,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/host-regression.log",
+      "log_sha256": "b92beaf483c23ad3463c826594527267569b31a1a0afe68cc77eb4499a9e0844"
+    },
+    {
+      "label": "host-and-startup-final",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/idle-qa /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 30.426485764968675,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/host-and-startup-final.log",
+      "log_sha256": "6e9b80441ef563d7af08504525841dedd59bd5f68666b0be4f4b1245b05346c3"
+    },
+    {
+      "label": "ruff-check",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/tests/test_host.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 0.12506233097519726,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/ruff-check.log",
+      "log_sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645"
+    },
+    {
+      "label": "ruff-format",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --no-cache --config api/pyproject.toml integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/tests/test_host.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 0.13543604599544778,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/ruff-format.log",
+      "log_sha256": "df0dab081f358dabd0446ad4183d17b2c301fc6a8f70ac29f83cbe310ff854bf"
+    },
+    {
+      "label": "mypy",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/idle-qa/mypy integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 3.9948967960081063,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/mypy.log",
+      "log_sha256": "17907841d6666178cd84e5080826b1cb952225b6ebf30f569df062937a5862a0"
+    },
+    {
+      "label": "diff-check",
+      "command": "git diff --check",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 0.040355552977416664,
+      "timeout_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "import-origin",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import omnis_hermes.runtime_host as h; import omnis.supervisor.runtime_client as c; print(sys.version); print(h.__file__); print(c.__file__)'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3963809350389056,
+      "timeout_seconds": 30,
+      "log": "/home/kali/.hermes/cache/scratch/idle-qa/import-origin.log",
+      "log_sha256": "0e715948f4ee51129e0bf9b4464c5a0b0a77b52c0562773353509bd50dc8cfa8"
+    }
+  ],
+  "observed_final_summary": "59 passed, 1 deselected in 29.82s",
+  "python": "3.13.15, pinned /home/kali/OmnisAI/api/.venv/bin/python -I -B with explicit worktree source paths",
+  "acceptance": [
+    "Two status positives, idle 2.8s, next status succeeds with unchanged owner and zero grant/process/preparation/settings work",
+    "No wire byte arrives during 2.8s idle on authenticated owner",
+    "Unknown operation, invalid operation type and wrong capability denied without spawn; next valid status accepted",
+    "Newline-only refused immediately as its own frame; EOF and partial-frame EOF close/release owner",
+    "Exact MAX_FRAME valid status accepted; MAX_FRAME+1 valid padded frame refused; oversized and unterminated overflow refused within original frame budget",
+    "Unauthenticated empty/partial requests and owned partial frames denied at 2.5s; second byte at 1.4s does not reset body deadline (observational bound 2.3..3.1s)",
+    "Real owned synthetic child with 400ms grant exits within 1s while UDS is idle; after another 2.8s status still correlates and renew is refused",
+    "Real owned synthetic live child with valid 4.5s grant remains alive through 2.8s idle, then explicit Stop or EOF drains it; no namespace certification claimed (UNCERTAIN)",
+    "Host exit closes unauthenticated and authenticated idle clients within 0.5s; exact endpoint/boot removed and lock reusable"
+  ],
+  "issues": [
+    {
+      "label": "overflow-test-oracle",
+      "observed": "Intermediate regression: 1 failed, 52 passed, 1 deselected in 24.08s. Test expected unterminated MAX_FRAME+1 refusal in 0.5s.",
+      "disposition": "One byte has been read separately, so StreamReader remaining buffer can equal MAX_FRAME and require the existing 2.5s body deadline. Corrected observational wait to 3.1s; no product timeout or accepted frame limit changed. Added exact MAX_FRAME positive / MAX_FRAME+1 valid-frame negative. Final full scoped run passes."
+    }
+  ],
+  "unchanged_limits": {
+    "owned_active_frame_seconds": 2.5,
+    "unauthenticated_total_frame_seconds": 2.5,
+    "max_frame_bytes": 65536,
+    "watchdog_period_seconds": 0.025,
+    "max_authority_grant_seconds": 5,
+    "writer_drain_seconds": 0.5
+  },
+  "not_run": [
+    "test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness: unchanged nested family_fixture/peer subprocesses lack -I -B; outside permitted fixture edits and retained prior explicit exclusion. All other tests in affected Host file plus all existing startup_budget tests executed.",
+    "Native Hermes/provider/model, PG, OCI/container, browser/UI9/current runtime, installed candidate and normal provisioning were not executed or contacted.",
+    "Canonical make check not run; this is source-scoped affected regression, not full product gate.",
+    "Two independent complementary reviews and installed real consumer are parent gates pending. No deployment or P2 closure."
+  ],
+  "preservation": [
+    "Diagnostics remain unchanged",
+    "Only Host and test_host changed; API/tests/upstream/pin/schema/CLI/UI/dependencies/limits untouched",
+    "Recovery 3a96b9f not imported or edited",
+    "No personal/protected files or global/project skills changed; existing TDD workflow reused"
+  ],
+  "reusable_lesson_for_parent": "Idle authenticated stream waiting is not a frame deadline. Separate first-byte wait with public API; bound the rest once, preserve newline/EOF/size validation, and independently prove lease expiry and Stop on the same real socket.",
+  "git_clean_after_commit": true,
+  "revert": "git revert 2ad4e982160ff7b475f25c13b891bbcd909789b8",
+  "limits": "SOURCE synthetic peers do not certify native/PID1 containment or historical cause. P2 remains NOT_CLOSED."
+}

@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent safety review of authenticated idle first-byte wait; SOURCE exact snapshot only, before installation",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+  "base": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "head": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+  "git_clean_before_and_after": true,
+  "source_files": [
+    {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "sha256": "6ee2d16cc810d5bf2b6aa7826bff4a40e8b176d6303b4415c5466022c2efd017"},
+    {"path": "integrations/hermes/tests/test_host.py", "sha256": "4d971d109d714d3bacbf4dc8414b8c7a6a9a8c98c4aa3782358c1cf9f38ffdeb"}
+  ],
+  "unchanged_consumer": {"path": "api/src/omnis/supervisor/runtime_client.py", "sha256": "6289662b46cb04af0cf1cbad314128fc6393bd01dabeb61cd2fa8c40bcf80109"},
+  "findings": [],
+  "blocking_findings": 0,
+  "findings_contract": "No reproduced product safety defect in this changed scope. A concrete defect would include severity, file:line, reproduction, violated invariant and remedy; absence here is not a universal absence proof.",
+  "acceptance": [
+    {
+      "requirement": "Only the authenticated CURRENT owner can wait without an idle first-byte deadline",
+      "code": "runtime_host.py:1350-1384,1441-1448",
+      "review": "SO_PEERCRED precedes loop. _validate precedes owner claim. Authentication and owner claim are synchronous before command_lock's first await. Both authenticated and identity-equal owner_writer are required by the new branch. Only claim and authenticated-finally release assign owner_writer.",
+      "evidence": "Independent real UDS overlapping two valid status requests yields exactly one winner; loser Stop denied; loser retains 2.5s unauthenticated timeout; closing loser does not release winner. Wrong peer and exclusive filesystem owner existing tests pass."
+    },
+    {
+      "requirement": "No authentication/schema/type bypass and no effect or authority creation from idle or denial",
+      "code": "runtime_host.py:1299-1348,1373-1384; native_preparation_contract.py:78-90",
+      "evidence": "Independent same-wire negatives before and after ownership cover bool version/generation, float epoch, list/object op, integer/wrong capability, list/stale boot and extra field. Each denies with unchanged owner, zero grant/process/preparation/settings; valid status controls pass. Parser-level float denial correctly has id:null, unlike post-parse validation denial."
+    },
+    {
+      "requirement": "Keep 2.5s started-frame budget, 2.5s total unauthenticated budget and MAX_FRAME=65536",
+      "code": "runtime_host.py:1363-1375; runtime_protocol.py:12",
+      "review": "Authenticated owner reads exactly one byte, then one wait_for(readuntil,2.5), not per-byte waits. Newline-only is a complete invalid frame. Total assembled length is checked before parsing. Unauthenticated readuntil branch remains unchanged. No generic timeout extension.",
+      "evidence": "Existing affected UDS tests pass: no unsolicited wire byte through 2.8s idle, next RuntimeClient status correlates; exact MAX_FRAME accepted, MAX_FRAME+1 valid padded frame denied, oversized/unterminated frames denied, later partial bytes do not reset deadline, newline and EOF cases. One separately consumed byte can defer unterminated MAX_FRAME+1 refusal until the existing 2.5s body budget; it never accepts the oversized frame."
+    },
+    {
+      "requirement": "Idle/partial transport cannot renew grants or prevent expiry/Stop/EOF/shutdown",
+      "code": "runtime_host.py:189-209,230-235,1152-1169,1195-1297,1391-1407,1437-1448",
+      "review": "Watchdog remains separate with 0.025s period, authority ceiling remains 5s, writer drain remains 0.5s. First-byte wait does not acquire command_lock or alter deadline_ns. EOF reaches existing authenticated finally Stop. Host shutdown closes clients before wait_closed and joins handlers.",
+      "evidence": "Independent real synthetic child with 600ms lease exits while owned frame is stuck after first byte; PID absent, owned set empty, UNCERTAIN retained, original grant unchanged, 2.5s frame denial observed, subsequent status accepted and renew denied. Affected tests independently pass idle lease expiry, live child through 2.8s idle followed by Stop or EOF, saturated native pending slots, and authenticated/unauthenticated host shutdown."
+    }
+  ],
+  "execution": {
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "version": "3.13.15",
+    "flags": ["-I", "-B"],
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety",
+    "umask": "077",
+    "source_path_prefix": ["/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src"],
+    "launcher": "python -I -B -c 'import sys; sys.path[:0]=SOURCE_PATH_PREFIX; import pytest; raise SystemExit(pytest.main(PYTEST_ARGS))'",
+    "common_pytest_args": ["-c", "api/pyproject.toml", "-p", "no:cacheprovider", "-q", "--tb=no"],
+    "preflight": "Exact frozen module origins read back; no preexisting executable source .pyc found. No installed-product launch or native Hermes import. Real UDS confined to fresh private roots; synthetic peer uses pinned interpreter -I -B and existing peer_fixture.py normal mode."
+  },
+  "tests": [
+    {
+      "name": "affected-host-and-startup",
+      "additional_pytest_args": ["--basetemp", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety/pytest-regression", "--junitxml", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety/regression.xml", "integrations/hermes/tests/test_host.py", "integrations/hermes/tests/test_startup_budget.py", "-k", "not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness"],
+      "exit_code": 0,
+      "passed": 59,
+      "deselected": 1,
+      "elapsed_seconds": 29.714,
+      "log": "idle-review-safety/regression.log",
+      "junit_sha256": "40dba273389da505494d83030491da55e78ed171250d8a9cb0c60cdba9853c37"
+    },
+    {
+      "name": "independent-safety-final",
+      "additional_pytest_args": ["--basetemp", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety/pytest-independent-final", "--junitxml", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety/independent-final.xml", "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-safety/test_idle_safety.py"],
+      "exit_code": 0,
+      "passed": 3,
+      "elapsed_seconds": 5.146,
+      "log": "idle-review-safety/independent-final.log",
+      "junit_sha256": "b1a01246dbab8ea9dbeedf8664f3497fed92966b7fd835b4ed94b6130af5dc85",
+      "test_sha256": "008f791adf70118491b91ac66b02f4fee1d57c0411d6fd60919aec0b99ff643e"
+    }
+  ],
+  "final_passed_count": 62,
+  "preserved_attempts": [
+    {
+      "name": "independent-initial",
+      "exit_code": 1,
+      "passed": 2,
+      "failed": 1,
+      "elapsed_seconds": 5.168,
+      "log": "idle-review-safety/independent.log",
+      "junit_sha256": "14fe3f0fc32a7877f71fba309bb08f77875daf4df32bd4542b05a2bf9f293580",
+      "initial_test_sha256": "ebbe77622aa6b6db892c5bf47aaa42d678031f02a47584ec333dd7c20f3012ca",
+      "cause": "Review test incorrectly expected correlation on epoch=1.0. Existing loads rejects floats before correlation extraction. Direct parser reproduction confirms ValueError. Corrected only scratch oracle to require null for this exact parser-negative; denial/authority/effect assertions unchanged. No product defect or product edit."
+    },
+    {
+      "name": "types-only-after-oracle-correction",
+      "exit_code": 0,
+      "passed": 1,
+      "elapsed_seconds": 0.123,
+      "log": "idle-review-safety/types-final.log",
+      "junit_sha256": "ede4b8ab59de26763f16b7c953a7762896422ec49f2ec9db6c68313ebf0c509f"
+    },
+    {
+      "name": "read-only-summary-command",
+      "exit_code": 1,
+      "cause": "Unmatched parenthesis in auxiliary XML summary command after successful Git/hash readback; corrected summary executed exit0. No product/test effect."
+    }
+  ],
+  "cleanup": {
+    "owned_synthetic_children": "Process wait, absent /proc PID and empty owned PID set asserted in the active-frame independent case and affected Stop/expiry tests; normal fixture has no descendant-spawn branch.",
+    "owned_socket_files_after_tests": [],
+    "owned_bytecode_after_tests": [],
+    "runtime_boot_and_socket_retirement": "Asserted in independent owner/expiry cases and affected shutdown tests; temporary fixture contexts clean their own roots.",
+    "product_edits": [],
+    "created_files": ["idle-review-safety.json", "idle-review-safety/test_idle_safety.py", "idle-review-safety/*.log", "idle-review-safety/*.xml"],
+    "commit": "None: read-only reviewer, scratch artifacts only"
+  },
+  "limits": [
+    "APPROVED_SCOPED is for the exact SOURCE hashes above, not installation, provisioning, native/PID1 containment, full product acceptance or P2 closure.",
+    "Unchanged detached-family test excluded: nested family_fixture subprocesses do not carry the mandated -I -B; previous exclusion retained, no fixture/product alteration.",
+    "No PostgreSQL, OCI, native Hermes, provider/model, browser/UI9, operator profiles, secrets, protected original HTML or global configuration accessed for execution. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Writer drain, watchdog internals and unchanged API were reviewed as unchanged and exercised through scoped tests, not broad reaudited. No universal absence of effects or process leaks claimed.",
+    "Historical root causes remain UNKNOWN except the demonstrated sufficient mechanism of an unsolicited idle denial poisoning the next correlation. No retrospective attribution.",
+    "Parent retains complementary normative review, exact installed consumer QA and integration adjudication. P2 remains NOT_CLOSED; canonical make check NOT_RUN."
+  ],
+  "status_delta_for_parent": "Idle fix IMPLEMENTED_SOURCE / PASS_SOURCE_SCOPED / safety APPROVED_SCOPED on 2ad4e98. No map/product update by reviewer. Install and real installed-channel acceptance remain parent gates.",
+  "reusable_note": "Separate no-bytes authenticated-owner lifetime from the once-started frame deadline; verify lease expiry independently through the same actual UDS. Existing review skill already covers parser-frontier correlation and source-scoped proofs; no skill/global change made."
+}

@@ -1,0 +1,131 @@
+{
+  "state": "IDLE_FIX_INSTALLED_READY_AWAITING_HUMAN_CONFIRMATION",
+  "source_commit": "3de38bc",
+  "reviewed_commit": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+  "reviews": [
+    "APPROVED_SCOPED_NORM",
+    "APPROVED_SCOPED_SAFETY"
+  ],
+  "parent_source": "59PASS1deselected29.80s/exit0; exact two reviewed hashes match",
+  "installed_sources": [
+    {
+      "path": "api/src/omnis/modules/runs/model_test_source.py",
+      "sha256": "27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1"
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "4dda12a8ea3d8f3b5aa1c1d12a2a33359a9e716137fbc3991f4f3130771b4228"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "6ee2d16cc810d5bf2b6aa7826bff4a40e8b176d6303b4415c5466022c2efd017"
+    }
+  ],
+  "build": {
+    "scope": "BUILD_ONLY_REVIEW_PENDING",
+    "source": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+    "bundle": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-build/bundle",
+    "prepared": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-build/prepared",
+    "adapter_sha256": "3865cd935587b31a63e5122fb10fd80ca9b7675369523fe0077a7298c8b23ab4",
+    "adapter_modules_exact": 20,
+    "payloads": 25,
+    "closure": 3260,
+    "changed": [
+      "native/build-manifest.json",
+      "native/requirements-artifacts.txt"
+    ],
+    "release_sha256": "1552956c26945388a6c0e56f9acab7ab1f625c478e5ca523312e1ee1061c5502",
+    "preflight_failure_retained": {
+      "reason": "new uv-created output parent was not0700 (exact mode in before_mode); builder refused pre-write",
+      "before_mode": 509,
+      "after_mode": 448,
+      "product_changed": false
+    }
+  },
+  "image_install": {
+    "stage": "idle_fix_image_install",
+    "exit": 0,
+    "seconds": 47.559
+  },
+  "root": "/home/kali/.omnis-p2-fixed",
+  "wrapper": "/home/kali/.omnis-p2-fixed/omnis",
+  "instance_id": "2a6b89fd-5c36-4b77-94a9-b1dcb4dab796",
+  "origin": "http://127.0.0.1:8766",
+  "last_status": {
+    "exit": 0,
+    "state": "READY",
+    "generation": 1,
+    "supervisor_epoch": 1,
+    "assessment_ready": false,
+    "after_confirmation_wait": true
+  },
+  "qualification": [
+    "STATIC_PASS",
+    "PURE_PASS"
+  ],
+  "head": {
+    "draft_ref": {
+      "digest": "3d50991af57d9866f76eb75a059c4e22eba1ffbf05f6dc6ee7459fd76652f81c",
+      "id": "a3130ae4-f8f3-47a8-8482-810f52490e5b",
+      "kind": "source-draft",
+      "revision": 1
+    },
+    "generation": 1,
+    "profile_key": "records-mapping-contract",
+    "publication_ref": null
+  },
+  "confirmation": {
+    "process": "proc_448586d0cb34",
+    "window": 83886100,
+    "receipt": "/home/kali/.omnis-p2-fixed/recovery/confirmation-terminal-exit.json",
+    "output": "/home/kali/.omnis-p2-fixed/state/omnis/catalog/requests/confirmed.json",
+    "state": "RUNNING_NO_RECEIPT_EMPTY_OUTPUT",
+    "no_replay": true
+  },
+  "previous_confirmation": {
+    "instance": "3d09774f-e48d-4710-b46c-83dc3a533b22",
+    "terminal_exit": 137,
+    "confirmation_commands": 0,
+    "confirmation_records": 0,
+    "status_failure_marker": "SUPERVISOR_FAILURE phase=RUNTIME_STATUS error=RUNTIME_UNAVAILABLE",
+    "retired_with_data_retained": true
+  },
+  "installed_RED_evidence": {
+    "positive": [
+      "IDLE",
+      "IDLE"
+    ],
+    "after_idle_error": "RUNTIME_UNAVAILABLE",
+    "wire": [
+      {
+        "id": "7f1f4a47-bd7b-44fd-8396-25bc82933c31",
+        "ok": true,
+        "error": null,
+        "state": "IDLE"
+      },
+      {
+        "id": "0955729f-1d07-4e5b-81ce-ac24cabf7aad",
+        "ok": true,
+        "error": null,
+        "state": "IDLE"
+      },
+      {
+        "id": null,
+        "ok": false,
+        "error": "RUNTIME_DENIED",
+        "state": "IDLE"
+      }
+    ],
+    "reproduced": true
+  },
+  "model_calls": 0,
+  "budget": "original1call/300s unused; no increase/reset",
+  "next": "Read pending human confirmation result, then exact Publish/readback/snapshot/selection and one normal provision. No repeated consent or blind provision resend.",
+  "limits": [
+    "Installed READY is not installed idle fault reproduction or native model preparation",
+    "Historical failures not all attributed exclusively to the idle defect",
+    "Detached-family/source baseline issues and full canonical remain unrun/unresolved at their scopes",
+    "Recovery framework quarantined, no P3 or target traffic"
+  ],
+  "phase2": "NOT_CLOSED"
+}

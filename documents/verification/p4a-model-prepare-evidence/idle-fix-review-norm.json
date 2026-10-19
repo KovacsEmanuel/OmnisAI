@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_SCOPED",
+  "review_kind": "Independent normative review; SOURCE real private UDS and synthetic-child regression",
+  "head": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+  "base": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+  "branch": "work/p2-idle-channel-fix",
+  "git_clean_before_and_after": true,
+  "hashes": {
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "6ee2d16cc810d5bf2b6aa7826bff4a40e8b176d6303b4415c5466022c2efd017",
+    "integrations/hermes/tests/test_host.py": "4d971d109d714d3bacbf4dc8414b8c7a6a9a8c98c4aa3782358c1cf9f38ffdeb",
+    "api/src/omnis/supervisor/runtime_client.py": "6289662b46cb04af0cf1cbad314128fc6393bd01dabeb61cd2fa8c40bcf80109",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed",
+    "integrations/hermes/tests/test_startup_budget.py": "94e95e81b5fce8c7298f753af40193b0fe82083d14c2c73e8675b91a11f5b3a4",
+    "integrations/hermes/tests/peer_fixture.py": "eac5a875955282c53e32fcb3b3004a5b5889d9e354100bb61588a7f3e3eac65c"
+  },
+  "findings": [],
+  "decision": "The eight-line Host-only fix correctly separates authenticated-owner idle from an in-progress frame. No normative blocker found in the requested exact snapshot. Parent adjudication/integration and installed verification remain separate.",
+  "scope": {
+    "changed_files": [
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "integrations/hermes/tests/test_host.py"
+    ],
+    "callers": [
+      "RuntimeHost.__aenter__ -> asyncio.start_unix_server(self._handle) at runtime_host.py:171-178",
+      "API RuntimeClient.connect/status/_exchange_locked at runtime_client.py:250-289,451-570,768; unchanged"
+    ],
+    "unchanged_surface": [
+      "RuntimeClient and protocol/readers",
+      "auth/UID/boot/capability/fence validation",
+      "all Host bytes outside the single framing replacement (exact byte normalization verified)",
+      "launch diagnostics already present at base",
+      "watchdog, Stop, EOF/finally and host exit",
+      "configuration, dependencies, exports, native pin/overlay, API and caller classes"
+    ],
+    "non_goals": [
+      "reconnect/resend/keepalive/new owner",
+      "recovery implementation",
+      "new limits or lease renewal",
+      "installed deployment or normal provisioning",
+      "global/canonical approval"
+    ]
+  },
+  "normative_references": [
+    {
+      "path": "documents/Omnis_MVP_Architecture.md:199-201",
+      "requirement": "L06 bounded fail-closed runtime framing/EOF; L08 Stop and quiescence"
+    },
+    {
+      "path": "documents/Omnis_MVP_Architecture.md:215-221,245-259,346",
+      "requirement": "single native owner, correlated control, no implicit execution; Stop revokes and verifies quiescence"
+    },
+    {
+      "path": "documents/Omnis_Implementation_Plan.md:132",
+      "requirement": "SL07 B05 supervisor/runtime bridge, framing/EOF/backpressure and watchdog"
+    },
+    {
+      "path": "CONTRIBUTING.md:42-71",
+      "requirement": "focused exact-byte complementary review, real affected consumer evidence, no canonical promotion from SOURCE"
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "No unsolicited reply during authenticated current-owner idle",
+      "code": "runtime_host.py:1366-1372",
+      "evidence": "test_authenticated_idle_uds_has_no_unsolicited_frame[False/True]: two status calls then 2.8s idle and next correlated status, raw-wire read sees no byte; owner and deadline unchanged. Independent fragmented control also sees no idle byte."
+    },
+    {
+      "requirement": "Idle wait is not authority; unauthenticated deadline unchanged",
+      "code": "runtime_host.py:1371-1372,1315-1326,1381-1384",
+      "evidence": "Unauth idle/partial denial at original 2.5s; wrong capability/type/unknown op denial and subsequent valid status; no grant/process introduced."
+    },
+    {
+      "requirement": "One complete-frame body deadline, not per-byte renewal",
+      "code": "runtime_host.py:1368-1370",
+      "evidence": "Owned partial begins with first byte; second byte at 1.4s does not defer denial beyond original 2.5s (observed bound 2.3..3.1). One wait_for encloses readuntil; no loop resetting a timer. Separate 65536-byte valid frame starts after 2.8s idle, completes after 1.1s and is accepted."
+    },
+    {
+      "requirement": "Cap exactly 65536; reject 65537, newline-only and malformed frames",
+      "code": "runtime_host.py:1369,1373-1378; runtime_protocol.py MAX_FRAME",
+      "evidence": "Existing exact MAX_FRAME valid status accepted; valid padded MAX_FRAME+1 refused; oversize/unterminated overflow denied. Newline-only is parsed immediately as a complete invalid frame. Independent fragmented control accepts exactly 65536."
+    },
+    {
+      "requirement": "EOF and host exit retain bounded cleanup",
+      "code": "runtime_host.py:189-209,1439-1448",
+      "evidence": "EOF/partial EOF release owner; host exit closes authenticated and unauthenticated idle UDS before server.wait_closed; clients/lock cleared, endpoint/boot absent and lock reusable."
+    },
+    {
+      "requirement": "Expiry, Stop and disconnect still terminate synthetic work while channel idles",
+      "code": "runtime_host.py:1152-1169,1195-1297,1406-1407,1441-1448",
+      "evidence": "400ms grant child exits within 1s on idle UDS; 4.5s grant child remains live across 2.8s idle then Stop/EOF drains it; renew refused after terminal state; PID absent and owned set empty. Saturated 32-pending watchdog regression also passes. UNCERTAIN retained without PID1 containment proof."
+    }
+  ],
+  "overflow_observer_adjudication": {
+    "verdict": "NOT_A_PRODUCT_LIMIT_WEAKENING",
+    "reason": "Consuming the first byte separately leaves exactly MAX_FRAME bytes after an unterminated MAX_FRAME+1 input; StreamReader readuntil need not throw overrun until another byte/newline or its unchanged 2.5s timeout. Raising test observation 0.5 -> 3.1 allows that existing deadline, not a product extension. Explicit len(raw)>MAX_FRAME still rejects a completed 65537-byte valid padded frame; 65536 is accepted.",
+    "bound": "Product 2.5s, observation <=3.1s; max admitted complete frame 65536 bytes including newline"
+  },
+  "checks": [
+    {
+      "name": "independent_host_startup_regression",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/inorm-et24h62i /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=no'\"'\"', '\"'\"'integrations/hermes/tests/test_host.py'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 30.245280437986366,
+      "log": "/home/kali/.hermes/cache/scratch/inorm-et24h62i/host-startup.log",
+      "scope": "SOURCE; real private UDS and owned synthetic children; excludes unchanged detached-family test"
+    },
+    {
+      "name": "independent_fragmented_exact_cap_after_idle",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/inorm-et24h62i /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys, runpy; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work/integrations/hermes/src'\"'\"']; runpy.run_path('\"'\"'/home/kali/.hermes/cache/scratch/inorm-et24h62i/fragmented_control.py'\"'\"',run_name=\"__main__\")'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "elapsed_seconds": 4.195104803016875,
+      "log": "/home/kali/.hermes/cache/scratch/inorm-et24h62i/fragmented-control.log",
+      "scope": "Real Host and API RuntimeClient; same owner; no native subprocess; private UDS"
+    },
+    {
+      "name": "final_identity_clean_status_diff_check",
+      "command": "python3 -I -B -c 'import json, hashlib, subprocess\nfrom pathlib import Path\np=Path(\"integrations/hermes/src/omnis_hermes/runtime_host.py\")\nbefore=subprocess.check_output([\"git\",\"show\",\"1c0fa73:\"+str(p)],text=True)\nafter=p.read_text()\nstart=after.index(\"                    if authenticated and self.owner_writer is writer:\")\nend=after.index(\"                    if len(raw) > MAX_FRAME:\",start)\npaths=[str(p),\"integrations/hermes/tests/test_host.py\",\"api/src/omnis/supervisor/runtime_client.py\",\"integrations/hermes/src/omnis_hermes/runtime_protocol.py\",\"integrations/hermes/tests/test_startup_budget.py\",\"integrations/hermes/tests/peer_fixture.py\"]\nfor name in paths[2:]:\n assert Path(name).read_bytes()==subprocess.check_output([\"git\",\"show\",\"1c0fa73:\"+name])\nprint(json.dumps({\"head\":subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],text=True).strip(),\"status\":subprocess.check_output([\"git\",\"status\",\"--porcelain\"],text=True),\"hashes\":{name:hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in paths},\"unchanged_dependencies\":True},indent=2))' && git diff 1c0fa73..HEAD --check",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "exit_code": 0,
+      "result": {
+        "head": "2ad4e982160ff7b475f25c13b891bbcd909789b8",
+        "status": "",
+        "hashes": {
+          "integrations/hermes/src/omnis_hermes/runtime_host.py": "6ee2d16cc810d5bf2b6aa7826bff4a40e8b176d6303b4415c5466022c2efd017",
+          "integrations/hermes/tests/test_host.py": "4d971d109d714d3bacbf4dc8414b8c7a6a9a8c98c4aa3782358c1cf9f38ffdeb",
+          "api/src/omnis/supervisor/runtime_client.py": "6289662b46cb04af0cf1cbad314128fc6393bd01dabeb61cd2fa8c40bcf80109",
+          "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed",
+          "integrations/hermes/tests/test_startup_budget.py": "94e95e81b5fce8c7298f753af40193b0fe82083d14c2c73e8675b91a11f5b3a4",
+          "integrations/hermes/tests/peer_fixture.py": "eac5a875955282c53e32fcb3b3004a5b5889d9e354100bb61588a7f3e3eac65c"
+        },
+        "unchanged_dependencies": true
+      }
+    }
+  ],
+  "results": {
+    "pytest_passed": 59,
+    "pytest_deselected": 1,
+    "pytest_reported_seconds": 29.61,
+    "pytest_exit": 0,
+    "additional_independent_controls": 1,
+    "additional_control_exit": 0,
+    "additional_control_result": "PASS; idle 2.800788349s, 65536 bytes, fragmentation 1.101433361s; same owner/deadline0; cleanup PASS"
+  },
+  "parent_red": {
+    "path": "/home/kali/.omnis-p2-model/recovery/idle-channel-probe-result.json",
+    "read_only_allowlisted_readback": true,
+    "reproduced": true,
+    "wire_observed": [
+      "correlated status IDLE ok=true",
+      "correlated status IDLE ok=true",
+      "id=null ok=false error=RUNTIME_DENIED state=IDLE after idle"
+    ],
+    "interpretation": "Deterministic sufficient defect, not a universal or exclusive explanation of historical startup failures. Installed candidate not tested here."
+  },
+  "cleanup": {
+    "test_assertions": "Synthetic child PIDs waited and absent; no owned descendants; UDS endpoint/boot removed; idle handler/lock settled. Additional control verified clients=0, endpoint/boot absent and lock released.",
+    "temporary_root": "/home/kali/.hermes/cache/scratch/inorm-et24h62i",
+    "source_changes": false,
+    "new_files": [
+      "/home/kali/.hermes/cache/scratch/inorm-et24h62i/fragmented_control.py",
+      "/home/kali/.hermes/cache/scratch/inorm-et24h62i/fragmented-control.log",
+      "/home/kali/.hermes/cache/scratch/inorm-et24h62i/host-startup.log",
+      "/home/kali/.hermes/cache/scratch/inorm-et24h62i/identity.log",
+      "/home/kali/.hermes/cache/scratch/inorm-et24h62i/checks.json",
+      "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/idle-review-norm.json"
+    ],
+    "scope_limit": "No claim of global host cleanup or OS sandbox certification."
+  },
+  "issues_encountered": [
+    "Scratch control static Pyright import resolution could not see explicitly supplied source paths; actual pinned Python execution imported both exact worktree modules and passed. No runtime/test failure in this review."
+  ],
+  "not_run": [
+    "Unchanged test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness: preexisting explicit exclusion because nested fixture lacks isolated/no-bytecode flags; not silently passed.",
+    "Canonical make check and native/PID1 containment; no provider/model/PG/OCI/browser effects.",
+    "Installed candidate and normal provisioning, current runtime, protected/global state and recovery paths.",
+    "Complementary safety review and parent integration are separate responsibilities."
+  ],
+  "status_delta": {
+    "current_fix_code": "IMPLEMENTED at exact frozen commit",
+    "proof": "PASS_SOURCE_SCOPED",
+    "normative_review": "APPROVED_SCOPED",
+    "P2_G02": "NOT_CLOSED",
+    "canonical": "NOT_RUN",
+    "next": "Parent reconcile complementary review and exact hashes before integration; installed consumer remains separate gate."
+  },
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "lesson_for_parent": "Existing review/runtime skills already require same-channel controls, unchanged product budgets and independent watchdog proof. Retain idle versus active-frame distinction without adding helpers or a generic reconnect framework."
+}

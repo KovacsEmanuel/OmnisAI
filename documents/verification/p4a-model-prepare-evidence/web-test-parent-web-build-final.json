@@ -1,0 +1,25 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work/web/node_modules/vite/bin/vite.js",
+        "build",
+        "--config",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-vite.config.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/scripts/build-manifest.mjs"
+      ],
+      "exit": 0
+    }
+  ],
+  "exit": 0,
+  "unchanged_frozen_web": true,
+  "manifest_files": 4,
+  "scope": "Real final build and byte-identical manifest emitter at relocated private script directory; not installed or browser/provider QA."
+}

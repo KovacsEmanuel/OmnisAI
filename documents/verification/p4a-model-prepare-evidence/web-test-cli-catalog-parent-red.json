@@ -1,0 +1,8 @@
+{
+  "source_patch_sha256": "7c81e83da4f264e50f6b67b32ca75136a443490ed39224a28785ffe2a0ae3dd0",
+  "command": "umask 077; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py \"test_model_test_catalog_lifecycle.py::test_catalog_uses_existing_stop_restart_and_frame_consumer[test_native_inventory_and_control_exact_frame_budgets]\" > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-stop-bound-red.log 2>&1",
+  "exit": 1,
+  "finding": "STOP_INVENTORY_INVALID reproduced through actual current-wheel catalog Stop consumer at complete maximum legal identity; original 2900-byte inventory guard retained",
+  "scope": "SOURCE existing lifecycle fixture, no Docker/PG/native/provider/installed effects",
+  "raw_log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-stop-bound-red.log"
+}

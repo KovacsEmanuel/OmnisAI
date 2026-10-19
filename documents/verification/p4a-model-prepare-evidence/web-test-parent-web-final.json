@@ -1,0 +1,28 @@
+{
+  "source_binding": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/input-binding.json",
+  "scope": "Final unchanged web bytes; targeted component, actual typecheck/build and byte-identical manifest emitter. No installed/browser/provider/PG proof. Prior118web/lint6tooling/contracts/design evidence reused where unchanged.",
+  "commands": [
+    {
+      "check": "typecheck",
+      "command": "umask 077; PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin ./node_modules/.bin/tsc --noEmit > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/typecheck.log 2>&1",
+      "exit": 0,
+      "tool_error": null,
+      "tool_output": ""
+    },
+    {
+      "check": "components",
+      "command": "umask 077; PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin NODE_ENV=test ./node_modules/.bin/vitest run --maxWorkers=2 --config /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/vitest.config.mjs src/app/ModelTest.test.tsx src/app/Engagement.test.tsx > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/components.log 2>&1",
+      "exit": 0,
+      "tool_error": null,
+      "tool_output": ""
+    },
+    {
+      "check": "build",
+      "command": "umask 077; PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin NODE_ENV=production ./node_modules/.bin/vite build --config /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-vite.config.mjs > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/build.log 2>&1 && PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin node /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/scripts/build-manifest.mjs >> /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-web-final/build.log 2>&1",
+      "exit": -1,
+      "tool_error": "This foreground command appears to start a long-lived server/watch process. Run it with background=true, verify readiness (health endpoint/log signal), then execute tests in a separate command.",
+      "tool_output": ""
+    }
+  ],
+  "source_unchanged": true
+}

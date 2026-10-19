@@ -1,0 +1,218 @@
+{
+  "verdict": "BLOCKED_MAX_LEGAL_CATALOG_STOP_INVENTORY",
+  "source_ready_for_review": false,
+  "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+  "branch": "work/p2-webtest-5o53dewr",
+  "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "prior_snapshot": "developer-result-second.json",
+  "prior_patch": "developer-second.patch",
+  "prior_manifest": "frozen-manifest-second.json",
+  "prior_patch_sha256": "308a1db01d6230fc17a48217a6e8cb61a862c121a200c04de52d9ba6531a1eea",
+  "requested": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "fallback": false
+  },
+  "delta_this_stage": [
+    "cli/tests/test_model_test_catalog_lifecycle.py"
+  ],
+  "frozen_bytes": {
+    "all_prior32_paths_unchanged": true,
+    "API_web_changed": false,
+    "Host_native_pin_changed": false
+  },
+  "delivered": [
+    "Current isolated CLI wheel rebuilt AFTER _View.model_test fix. All23wheel modules byte-equal to worktree and installed copy; parent imports and isolated python-I child origin verified.",
+    "New consuming test uses Fixture(native=True,auth=True,model_test=True) and existing four-role Stop/completion receipt/explicit restart consumer. Verifies catalog identity in real inventory and completion receipt, retained catalog sentinel, _View capability propagation. No fake native/PG/OCI success claim.",
+    "Wrong, missing, swapped and boolean catalog controls refuse before any synthetic Engine POST/DELETE; owned resources cleaned by existing fixtures.",
+    "Actual maximum legal catalog identity reaches existing inventory bound failure. Kept original validator, cap and failing regression intact; no xfail/skip/trim/relaxed assertion.",
+    "Actual ModelTest.execution_receipt, ModelTestRequest/View, ControlRequest and LocalControl._handle response serialization measured with declared SOURCE storage/stream/peer doubles. No product API/web edits were needed.",
+    "Finite executable installed provisioning command runbook uses only existing module CLIs and actual producer output refs. Human TTY confirmation remains mandatory. Fresh isolated candidate0.1.0 root required; UI8 saved grant untouched."
+  ],
+  "blocker": {
+    "acceptance_test": "cli/tests/test_model_test_catalog_lifecycle.py::test_catalog_uses_existing_stop_restart_and_frame_consumer[test_native_inventory_and_control_exact_frame_budgets]",
+    "reason": "Complete maximum legal four-role/auth inventory was2889bytes. Adding intact catalog key plus maximum legal5-integer identity adds80bytes:2969>2900. The original STOP_INVENTORY_INVALID refusal is reproduced in stop_receipt.validate_inventory, not a harness problem.",
+    "anchors": [
+      "cli/src/omnis_cli/stop_receipt.py:206-208",
+      "cli/src/omnis_cli/stop_owner.py:315-320",
+      "cli/tests/test_settings_lifecycle.py:228-270",
+      "cli/tests/test_model_test_catalog_lifecycle.py:17-63"
+    ],
+    "measurement": "tmp/stop-bound-finish.json",
+    "maximum_catalog_identity": [
+      18446744073709551615,
+      18446744073709551615,
+      4294967294,
+      4294967294,
+      448
+    ],
+    "inventory_bytes": 2969,
+    "inventory_cap": 2900,
+    "grant_bytes": 3446,
+    "grant_cap": 3600,
+    "ControlRequest_compact_frame_bytes": 3480,
+    "CLI_arm_stop_frame_bytes": 3627,
+    "LocalControl_reply_frame_bytes": 3674,
+    "request_reply_cap": 4096,
+    "schema_and_ControlRequest_ArmStopCommand_StopGrant_control_validators": "PASS for measured maximum; inventory's stricter2900cap correctly refuses",
+    "decision_boundary": "No admitted one-line fix satisfies simultaneously intact current inventory representation, all maximum legal identities and unchanged2900cap. Full request/reply4096 and grant3600 are NOT the failing bounds. Raising the internal inventory cap would be the smallest textual change but is explicitly forbidden and was not applied. Removing/truncating catalog identity or lowering test widths would invalidate this acceptance criterion.",
+    "recommended_next_decision": "Parent must explicitly admit a scoped lossless Stop inventory representation/binding adjustment that preserves catalog identity checks and existing hard limits, or revise the contradictory internal sublimit contract. Keep blocker open until that choice and exact-bound regression pass; do not deploy merely because this host's smaller observed identities fit. No Host/native/schema redesign was launched here."
+  },
+  "verification_environment": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python -I -B (3.13.15)",
+    "CLI_wheel": "tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl",
+    "CLI_wheel_sha256": "eccbb5c601212c48c84cb7599703a05ed66c64868a70eb48c28c7cf7b8f9d47b",
+    "CLI_parent_origin": "tmp/cli-venv/lib/python3.13/site-packages/omnis_cli/__init__.py",
+    "CLI_python_I_child_origin": "tmp/cli-venv/lib/python3.13/site-packages/omnis_cli/__init__.py",
+    "XDG_CONFIG_HOME": "tmp/cli-absent-config (owned absent root; operator config not read)",
+    "source_test_copy": "tmp/cli-suite/cli/tests; cli/src symlink targets current isolated installed wheel; copied SOURCE test bytes equal, no assertion/origin edits",
+    "runner": "tmp/run-cli-finish.py",
+    "runner_seam": "Only legacy test-owned TemporaryDirectory prefix sl04-data- becomes s-. Required canonical scratch root made auth-egress path111bytes; shortened stem makes103<108. No path cap/product change; original assertions and consumers untouched.",
+    "source_doubles": "Existing synthetic Engine transport, local inert child namespace family/forwarder fixture, DB/publication/stream/peer observations. These are SOURCE owner/lifecycle proofs, not Docker/native/installed preparation or inference."
+  },
+  "commands": [
+    {
+      "command": "UV_CACHE_DIR=tmp/uv-cache /home/kali/.local/share/omnis-toolchains/uv-0.12.19 build --offline --no-build-isolation --python /home/kali/OmnisAI/api/.venv/bin/python --wheel --directory cli --out-dir tmp/wheels && UV_CACHE_DIR=tmp/uv-cache /home/kali/.local/share/omnis-toolchains/uv-0.12.19 pip install --offline --no-index --no-deps --reinstall --link-mode copy --python tmp/cli-venv/bin/python tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl",
+      "exit": 0,
+      "result": "built and installed current23module CLI wheel"
+    },
+    {
+      "command": "Pinned Python stdlib zip/source/installed byte equality and isolated tmp/cli-venv/bin/python -I -B import/config child, timeout10s; explicit owned absent XDG_CONFIG_HOME",
+      "exit": 0,
+      "result": "23modules equal; child canonical installed origin and default Config confirmed",
+      "artifact": "tmp/cli-origin-finish.json"
+    },
+    {
+      "command": "SAME15file existing lifecycle selection, current wheel, explicit absent XDG_CONFIG_HOME; -p no:cacheprovider --noconftest -q --basetemp=tmp/cli-finish-selection",
+      "exit": 1,
+      "process": "proc_c2d91f2f0d44",
+      "result": "33FAILED/131PASS/702subtests; _View failure cleared. Remaining repeated PRIVATE_PATH_INVALID/AF_UNIX111byte path prerequisite diagnosed once before next selection. Original old75FAIL/112PASS stays in developer-result-second prior history."
+    },
+    {
+      "command": "Focused existing RestartWiring positive with diagnostic-only wrapper",
+      "exit": 1,
+      "result": "PRIVATE_PATH_INVALID; product start.py1104 rejects too-long control socket. Second diagnostic wrapper confirmed refusal before ensure_private; no assertions changed."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B tmp/run-cli-finish.py test_restart_wiring.py::RestartWiringTest::test_db_only_then_correlated_reconciliation_ack_then_supervisor test_model_test_catalog_lifecycle.py",
+      "exit": 1,
+      "result": "6PASS/1FAIL; shorter owned stem clears prerequisite. One failure is genuine maximum catalog inventory bound."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B tmp/run-cli-finish.py",
+      "exit": 1,
+      "process": "proc_3795c82de1d3",
+      "result": "144PASS/729subtests/1FAIL in26.01s; SAME original15file selection plus new6case catalog consumer. Sole failure is2969>2900. No other lifecycle regression remains in this selected scope."
+    },
+    {
+      "command": "RUFF_CACHE_DIR=tmp/ruff /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml cli/src cli/tests/runtime_inspect_fixture.py cli/tests/stop_owner_fixture.py cli/tests/test_settings_lifecycle.py cli/tests/test_model_test_topology.py cli/tests/test_model_test_catalog_lifecycle.py; same interpreter/config format --check same paths",
+      "exit": 1,
+      "result": "lint PASS; only new test required formatting. Mechanically formatted new file only."
+    },
+    {
+      "command": "RUFF_CACHE_DIR=tmp/ruff /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml cli/tests/test_model_test_catalog_lifecycle.py && ruff check --config api/pyproject.toml [same CLI paths] && ruff format --config api/pyproject.toml --check [same CLI paths]",
+      "exit": 0,
+      "result": "final lint PASS;28files formatted; after last edit"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir tmp/mypy-cli-finish cli/src",
+      "exit": 0,
+      "result": "strict product CLI closure23files, no issues; product bytes unchanged thereafter; no any/ignore/config weakening. Legacy untyped CLI test suite is exercised, not claimed strict-typed."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B tmp/run-cli-finish.py test_model_test_catalog_lifecycle.py",
+      "exit": 1,
+      "result": "final-current formatted test:5PASS/1FAIL in2.14s. Real Stop/receipt/restart and4negative controls PASS; maximum-bound test remains RED."
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B tmp/measure-public-finish.py",
+      "exit": 0,
+      "result": "actual receipt/DTO/LocalControl serialized positive/negative bound PASS_SOURCE_BOUND_ONLY",
+      "artifact": "tmp/public-bound-finish.json"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B tmp/measure-stop-finish.py",
+      "exit": 0,
+      "result": "measurement completed; nested real consumer exit1 retained; maximum inventory2969cap2900 BLOCKED, ArmStop/StopGrant/ControlRequest/schema/control constructors pass; no refusal bypass",
+      "artifact": "tmp/stop-bound-finish.json"
+    },
+    {
+      "command": "Pinned SOURCE interpreter, isolated runpy each existing module --help: candidate_catalog/catalog_publication/pure_probe/model_test_source",
+      "exit": 0,
+      "result": "all4grammar subprocesses exit0; no DB/control/provider effects",
+      "artifact": "tmp/provision-cli-grammar.json"
+    },
+    {
+      "command": "git diff --check; exact prior32path SHA equality; current23module source/wheel/installed equality; final new-test copy equality",
+      "exit": 0,
+      "result": "prior32paths unchanged,23modules equal,new formatted test equal; no parent dependency link removed"
+    }
+  ],
+  "public_bounds": {
+    "artifact": "tmp/public-bound-finish.json",
+    "public_ModelTestRequest_bytes": 70,
+    "ControlRequest_read_bytes": 181,
+    "ControlRequest_start_bytes": 216,
+    "private_input_cap": 4096,
+    "output_utf8_max_bytes": 8192,
+    "observed_model_max_characters": 256,
+    "observed_effort_max_characters": 32,
+    "maximum_valid_usage_integer": 9223372036854775807,
+    "actual_view_field_count": 17,
+    "worst_measured_valid_LocalControl_json_reply_with_correlation_newline": 53290,
+    "worst_measured_valid_HTTP_JSONResponse_bytes": 50866,
+    "actual_route_reader_limit": 65536,
+    "coverage": "ASCII,8192control characters, BMP UTF8, supplementary Unicode serialized as surrogate pairs; conservative NUL DTO serialization also measured. Receipt rejects NUL via exact()->clean_text; unpaired surrogate/8193byte output/token overflow rejected. ModelTestView itself has no upper string/int caps; bound is tied to actual fixed producer/receipt, not arbitrary schema-only instances. Duration conservatively tested at2**63-1, not asserted as DTO upper bound.",
+    "limit": "No invented32768public cap. JS safe-integer UI interpretation was not exercised by this Python bound; parent owns unchanged web proof. No API/web edits made."
+  },
+  "provisioning": {
+    "runbook": "tmp/provisioning-commands.txt",
+    "grammar_evidence": "tmp/provision-cli-grammar.json",
+    "ordering": "candidate capture->review->freeze->admit-evaluation-records(schema3)->STATIC/PURE evaluations(schema3)->publication head->real HUMAN TTY confirm->publish->RUN snapshot->PureProbe select(records-mapper)->private model_test_source --request selection_ref only->certified ordinary candidate Stop/Start->fresh candidate Settings/auth->panel readback->parent-approved1call",
+    "refs": "All request builders consume actual preceding output refs and snapshot digests; no invented ref/digest, synthetic publication receipt, SQL or pytest import instructions.",
+    "authority": "OWNER_UUID must be supplied privately by parent and equal new candidate instance UUID. Actual Publish consent is interactive stdin+stderr TTY; no automatic yes.",
+    "deployment_boundary": "Same0.1.0 immutable replacement rejected; use fresh isolated root. UI8 saved account/grant/root untouched; no copy/adoption/upgrade. Candidate may need own operator auth later.",
+    "status": "NOT_RUN effect-stage instructions; source grammar/schema/order checked, no actual qualification/publication/preparation/snapshot refs created. Blocker must clear before any effect execution."
+  },
+  "reused_unchanged_evidence": "Parent-admitted154API/118web/full-source measurement/contracts/design/tooling and previous scoped typing were NOT rerun. All prior32bytes unchanged; their declared boundaries remain as preserved second report. Parent owns unchanged final web type/build/component checks, pending not attributed as this stage's failure.",
+  "remaining": [
+    "Resolve genuine maximum catalog inventory representation/subcap contract; do not claim SOURCE_READY_FOR_REVIEW while RED.",
+    "Parent unchanged final web evidence and two complementary exact-byte independent reviews.",
+    "Only afterward fresh-candidate install, genuine operator Publish/native qualification/preparation, cross-boot source/manifest retention, browser panel, explicit1call300s provider QA; all NOT_RUN."
+  ],
+  "effects": {
+    "product_provider_calls": 0,
+    "Docker_PG_native_browser_deployment": "NOT_RUN",
+    "UI8_credentials_protected_originals": "NOT_READ_COPIED_HASHED",
+    "commits_branches_push_delegation_globals": "NONE",
+    "parent_dependency_links": "Not removed; exact nonproduct paths excluded at freeze",
+    "owned_processes": "All bounded SOURCE test/build processes observed exited; fixture inert children cleaned by original owners; no service launched"
+  },
+  "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/developer.patch",
+  "patch_sha256": "7c81e83da4f264e50f6b67b32ca75136a443490ed39224a28785ffe2a0ae3dd0",
+  "patch_bytes": 118273,
+  "path_sha_manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/frozen-manifest.json",
+  "manifest_sha256": "cb9e5792af62d73199f870677f811ac4910e529a7bdcc7ee60540bc74f354a93",
+  "changed_file_count": 33,
+  "prior_unchanged_path_count": 32,
+  "freeze_integrity": "PASS: base/branch/prior32paths/full10sourceassets/currentCLIwheel and installed copy/newtest copy checked; git diff --check PASS; patch parsed33entries; no parent-owned dependency links removed",
+  "artifact_hashes": {
+    "tmp/public-bound-finish.json": "61f659dcb3beb7c456165949a3a88b0c10b599f7b43b47122d089a9cd9f1472c",
+    "tmp/stop-bound-finish.json": "f715fbbcd675a5073de41da0cc5f16bfae4beda57ca7f2999c81f333977d5516",
+    "tmp/cli-origin-finish.json": "50e0cc103afde6349417fdb397d0c2288aa66dd1aedda333ff4f7d045cb17767",
+    "tmp/provision-cli-grammar.json": "bd8364ab0ffcef769e14943ddd7c3cf415ad54f7e0f7e0fdd0d5feb0ef21b44b",
+    "tmp/provisioning-commands.txt": "060819d3e8e9d6f8ffeaa167b2a775c3f731fa8ae991e40c2ce3c1d3c2f68175",
+    "tmp/run-cli-finish.py": "1198eb833d0b62427c17b643fb570dd8a8cec2cdad3d9dc350aeea4aaf74bcd9",
+    "tmp/measure-public-finish.py": "71c78c2273613463ff7f76cfdd6ff075909039050153b1e01b162fe4d990a471",
+    "tmp/measure-stop-finish.py": "ebc60a4197cc019135670464232278ccff1c84781bf9482c0af9e696866a7c9c"
+  },
+  "counts": {
+    "combined_passed": 144,
+    "new_catalog_controls_passed": 5,
+    "original_selected_tests_passed": 139,
+    "failed": 1,
+    "subtests_passed": 729
+  }
+}

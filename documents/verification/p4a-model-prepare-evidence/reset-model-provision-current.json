@@ -1,0 +1,230 @@
+{
+  "state": "RESET_COMPLETED_THEN_MODEL_PROVISION_FAILED",
+  "authorization": "Operator requested clean reset instead of expanding recovery; no further recovery implementation admitted.",
+  "product_source": "4370a40",
+  "main_at_reset": "ec845b0",
+  "quarantined_recovery": {
+    "branch": "work/ui9-recover-a0gg5al3",
+    "head": "3a96b9f477c704eeb2b6125521611c028597fc9f",
+    "root": "/home/kali/.hermes/cache/scratch/ui9-recover-a0gg5al3/work",
+    "integrated": false,
+    "installed": false
+  },
+  "old_ui9": {
+    "command_exit": 4,
+    "logical_state": "UNCERTAIN_RECOVERY_REQUIRED_PRESERVED",
+    "resources": [
+      {
+        "role": "api",
+        "id": "a39d87cd71d84d3ef919cd3b855171fd526ec92f24a93af87f4672d70b0ae8c8",
+        "absent": true
+      },
+      {
+        "role": "db",
+        "id": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+        "absent": true
+      },
+      {
+        "role": "runtime",
+        "id": "a8e3d0f57149a9659c8a89b1298e3d03b3f4a005c9b011a848ea4e1ee6d70cc3",
+        "absent": true
+      },
+      {
+        "role": "supervisor",
+        "id": "bcd1288a8948e370b7a7df2544bcf6cec82af327d32b5601b4330dc55108db0f",
+        "absent": true
+      }
+    ],
+    "project": {
+      "containers": {
+        "exit": 0,
+        "empty": true
+      },
+      "networks": {
+        "exit": 0,
+        "empty": true
+      }
+    },
+    "same_data_identity": {
+      "postgres": true,
+      "catalog": true,
+      "provider": true
+    },
+    "socket_paths_absent": {
+      "http/api.sock": true,
+      "runtime-ipc/control.sock": true,
+      "native-ipc/runtime.sock": true
+    },
+    "unreconciled_marker_preserved": true
+  },
+  "new_root": "/home/kali/.omnis-p2-reset",
+  "wrapper": "/home/kali/.omnis-p2-reset/omnis",
+  "origin": "http://127.0.0.1:8766",
+  "instance_id": "5fb30ffb-8a27-479c-b8ca-9680b9fd7d6b",
+  "original_release_sha256": "3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6",
+  "artifact_preflight": {
+    "original_cli_modules_exact": 23,
+    "payloads": 25,
+    "native_closure": 3260,
+    "new_recovery_module_absent": true
+  },
+  "image_install": {
+    "stage": "original_image_install",
+    "exit": 0,
+    "seconds": 13.078
+  },
+  "startup": {
+    "start_exit": 0,
+    "status_exit": 0,
+    "state": "READY",
+    "generation": 1,
+    "supervisor_epoch": 1,
+    "assessment_ready": false,
+    "historical_not_current": true
+  },
+  "publication": {
+    "confirmation": {
+      "digest": "182065455d7c01c933b52e73f2ec58d409ff29bbe8c4485947d56975a3bf978d",
+      "id": "8f7b68dc-2e1e-4663-8dce-855deaf8ce34",
+      "kind": "operator-confirmation",
+      "revision": 1
+    },
+    "head": {
+      "draft_ref": {
+        "digest": "6c0a054f48bdaf91c08241d4f97d3fc6043ce7dba9f5897d4e4ae343542c777b",
+        "id": "760c4dc5-b649-408a-bcd5-502a3771b447",
+        "kind": "source-draft",
+        "revision": 1
+      },
+      "generation": 2,
+      "profile_key": "records-mapping-contract",
+      "publication_ref": {
+        "digest": "ffc20f374fbfe2048a63237539781f670583b4b5b2aded0749d98b53324baad3",
+        "id": "b954d90b-a47b-476b-8285-c1869fd12ef7",
+        "kind": "catalog-publication",
+        "revision": 1
+      }
+    },
+    "selection_ref": {
+      "digest": "f011671b3a5efad40b555f21ba156943ee30160236060a0d404586fb63d7762c",
+      "id": "4ed6e913-5152-40b2-b8a9-65d4965babd3",
+      "kind": "execution-selection",
+      "revision": 1
+    },
+    "qualification": [
+      "STATIC_PASS",
+      "PURE_PASS"
+    ],
+    "no_old_auth_or_confirmation_copy": true
+  },
+  "provision": {
+    "exit": 137,
+    "seconds": 7.225,
+    "prepared_restart_required": false,
+    "stderr_bytes": 0,
+    "stdout_bytes": 32
+  },
+  "resources_after_failure": [
+    {
+      "role": "api",
+      "id": "c78c16158e950d6da466dc90136ca56245fad73f66b7eccbcac9920a76ba691f",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T15:08:35.167767858Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "memory_limit": 0
+    },
+    {
+      "role": "db",
+      "id": "f966483a0e20516289d633037ce1276ddf86bf6519a13fb39465b9136ef0b154",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T15:08:11.743627662Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "memory_limit": 0
+    },
+    {
+      "role": "runtime",
+      "id": "1e1771e7035489074d7736c7ca059d6907c8d76d5668083cf875441b25426300",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T15:08:30.970447181Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "memory_limit": 0
+    },
+    {
+      "role": "supervisor",
+      "id": "547eea2372dbeab5b731ca98467645ef98bbb6eef085b16de66ed3c3bdd91783",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 3,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T15:08:34.602774856Z",
+        "FinishedAt": "2026-10-19T15:14:41.121731908Z"
+      },
+      "memory_limit": 0
+    }
+  ],
+  "database_after_failure": {
+    "catalog": {
+      "evaluation-receipt": 2,
+      "contract-input-context": 1,
+      "run-snapshot": 1,
+      "contract-case-records": 1,
+      "source-draft": 2,
+      "model-test-provision": 1,
+      "execution-selection": 1,
+      "technical-review": 1,
+      "candidate-snapshot": 1,
+      "operator-confirmation": 1,
+      "catalog-publication": 1,
+      "evaluation-admission": 1
+    },
+    "commands": {
+      "evaluate": 2,
+      "capture": 1,
+      "fixed-model-test-provision": 1,
+      "confirm": 1,
+      "select": 1,
+      "admit-evaluation-records": 1,
+      "freeze": 1,
+      "publish": 1,
+      "snapshot": 1,
+      "review": 1
+    },
+    "managed_rows": 0,
+    "instance": {
+      "generation": 1,
+      "admission": true,
+      "shutdown": null,
+      "quiesced": null
+    },
+    "lease": {
+      "epoch": 1,
+      "live": false,
+      "expires": "2026-10-19T15:14:41.673993+00:00"
+    }
+  },
+  "current_status": {
+    "state": "UNAVAILABLE",
+    "reason": "RECOVERY_REQUIRED",
+    "exit": 4
+  },
+  "model_calls": 0,
+  "root_cause": "UNKNOWN: finite logs lack first exception; committed provision only, before native-preparation bundle/receipt/managed records. OOM false. No blind retry/reset or revival of recovery branch.",
+  "next": "Locate minimal failure on existing model_test_source -> RuntimeClient launch/heartbeat/renew -> NativePreparation entry. No generic recovery, new framework or P3.",
+  "phase2": "NOT_CLOSED"
+}

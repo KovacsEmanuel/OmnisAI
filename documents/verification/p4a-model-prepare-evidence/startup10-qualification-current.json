@@ -1,0 +1,35 @@
+{
+  "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+  "origin": "http://127.0.0.1:8766",
+  "capture": "COMMITTED_READ_BACK_WITHOUT_RESEND",
+  "capture_observer_failure": "Output directory absent after CLI completion; original command exit not retained. Original request digest matched committed receipt via read-only existing store.replay; command not repeated.",
+  "qualifications": {
+    "STATIC": "STATIC_PASS",
+    "PURE": "PURE_PASS"
+  },
+  "head": {
+    "draft_ref": {
+      "digest": "5459125dc7b017435c695fe9de0b349b2c810afc9b24e957a08abab6f1cad53a",
+      "id": "518845e1-dc87-4b44-8cd9-65b936810863",
+      "kind": "source-draft",
+      "revision": 1
+    },
+    "generation": 1,
+    "profile_key": "records-mapping-contract",
+    "publication_ref": null
+  },
+  "snapshot_ref": {
+    "digest": "bdc37e2e36a9312814e64346c01f3ab8ab6769514516e2e006a04c42850b6331",
+    "id": "05cbf026-6c11-4ed8-9196-299b11f248eb",
+    "kind": "candidate-snapshot",
+    "revision": 1
+  },
+  "confirm_request": "/home/kali/.omnis-p2-startup10/state/omnis/catalog/requests/operator-confirm.json",
+  "confirm_command_id": "fb83e546-c08f-47ed-9796-d5db81bc188e",
+  "confirmation": "NOT_EXECUTED",
+  "publication": "NOT_EXECUTED",
+  "native_preparation": "NOT_EXECUTED",
+  "model_calls": 0,
+  "budget": "Original aggregate 1 call/300s remains unconsumed; no reset",
+  "output_boundary": "Private original receipts remain under the new candidate recovery directory"
+}

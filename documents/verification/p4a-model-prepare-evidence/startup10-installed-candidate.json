@@ -1,0 +1,575 @@
+{
+  "state": "READY",
+  "acceptance_scope": "installed inert control plane only; NOT bootstrap10 proof; P2 NOT_CLOSED",
+  "next_normal_product_steps": {
+    "state": "CATALOG_QUALIFICATION_NOT_RUN; no confirmation process or request created",
+    "source_package": "records-mapping-contract",
+    "shipped_source_root": "/opt/omnis/model-test",
+    "catalog_host_root": "/home/kali/.omnis-p2-startup10/state/omnis/catalog",
+    "catalog_container_root": "/catalog",
+    "owner_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "execution_container": "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18",
+    "qualification": "Use the existing installed omnis.modules.settings.candidate_catalog capture -> review -> freeze -> evaluate STATIC/PURE flow on the shipped source, with newly generated requests bound to this owner. No old request, receipt, identity or confirmation is reusable.",
+    "confirmation_prerequisite": "Read catalog_publication head for the new draft and build the exact selection from the genuine qualification refs/digests. The request must not contain a fabricated operator-confirmation.",
+    "human_boundary": "In an operator-owned interactive terminal, execute installed python -I -B -m omnis.modules.settings.catalog_publication confirm --request /catalog/requests/operator-confirm.json --catalog-root /catalog. This is a future request path, not an existing artifact. Both stdin and stderr must be TTYs. The human reviews the exact selection, STATIC_PASS/PURE_PASS, assessment_selectable=false, resolution=NO_MODEL, then personally answers the prompt: Operator: confirm exact publication selection (type yes):",
+    "after_human_confirmation": "Read back the committed confirmation from this command, then use catalog_publication publish/readback with that exact reference. Use catalog_publication snapshot for the actual publication_ref, then python -I -B -m omnis.modules.runs.pure_probe select --request <new-selection-request> --catalog-root /catalog with schema_version=1, this owner_id, a fresh command_id, the real run-snapshot ref and recipe_key=records-mapper. This select, not execute, produces the genuine execution-selection ref. Invoke installed python -I -B -m omnis.modules.runs.model_test_source --request /catalog/requests/provision.json only after the valid publication; request shape is exactly {selection_ref: the genuine published execution-selection ref}.",
+    "final_readback": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-final-readback.json",
+    "final_catalog_regular_files": 0,
+    "runtime_only_host_pid1": true,
+    "after_successful_provision": "Require the authentic PREPARED_RESTART_REQUIRED outcome, then original-owner Stop/readback and a separately explicit Start on this same root before Settings/model setup. Do not retry a failed provision or equate current READY with native bootstrap10 acceptance.",
+    "browser_handoff": "When the operator is ready, /home/kali/.omnis-p2-startup10/omnis pair in their private TTY, then manually visit http://127.0.0.1:8766. Pairing has not been minted and no browser was opened.",
+    "help_grammar": "candidate_catalog, catalog_publication and model_test_source --help executed successfully inside this exact installed supervisor; no qualification/publication/provisioning was executed"
+  },
+  "shipped_model_test_source_readback": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-catalog-readback.json",
+  "issues": ["No failed product stage. Background shell emitted two nonfatal zle option diagnostics; exact image owner exited0/family_drained=true.", "Scratch reports/context are not a durable evidence archive. The running installed release and CLI are durable outside scratch."],
+  "head_at_build": "f2dd28fbe9b7f5fdfc5faaa35a09f2b97c844963",
+  "origin": "http://127.0.0.1:8766",
+  "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+  "release_sha256": "451c0ddb2523ec2ecefd32b674ffb37023f4be39b10338522cc3fadb4681eee5",
+  "wheel_sha256": {
+    "omnis_api-0.1.0-py3-none-any.whl": "28ff4520d3a37b501913123094f1dada54ec53281bc14e242f3a46761cad6aad",
+    "omnis_cli-0.1.0-py3-none-any.whl": "0e64d61f029d6082f23b720fa8ab1101c44914c30066aac51450fd58fb3fa948",
+    "omnis_hermes-0.1.0-py3-none-any.whl": "776b393ead6519ac598600a58496305dab62d592de767f39e7c09c69b117c325"
+  },
+  "source_inputs": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-source-inputs.json",
+  "source_inputs_sha256": "7ee50e38288dbae9f41abaf9ea95dfe63045bcbedbcb33e1d496dac66182478f",
+  "source_inputs_unchanged": true,
+  "source_input_count": 298,
+  "pin_sha256": "17e7c8f45484401cd3639bd8dbd390559de396ab60849df744d45bd00520af07",
+  "build": {
+    "payload_count": 25,
+    "closure_count": 3260,
+    "old_new_delta": [
+      "api/omnis_api-0.1.0-py3-none-any.whl",
+      "native/build-manifest.json",
+      "native/requirements-artifacts.txt"
+    ],
+    "original_prepared_unchanged": true,
+    "profile": "p4a-codex-auth",
+    "path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-build/bundle",
+    "runtime_context": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-build/prepared"
+  },
+  "image": {
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "format": 2,
+    "image_id": "sha256:0fd042d9c568d7e52ced61e5dd680c848696dbb0ad48ed65042f27044b4914a4",
+    "manifest_sha256": "451c0ddb2523ec2ecefd32b674ffb37023f4be39b10338522cc3fadb4681eee5",
+    "profile": "p4a-codex-auth",
+    "project": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37",
+    "release": "0.1.0",
+    "runtime_image_id": "sha256:905e3180e8cd810033336fd74379b1c4ffd5fceeb05ced97076691d1b0372de5",
+    "runtime_tag": "omnis-runtime-9ebd100a52914ed5aea6fa16c64e6f37:0.1.0",
+    "tag": "omnis-control-9ebd100a52914ed5aea6fa16c64e6f37:0.1.0"
+  },
+  "containers": {
+    "api": {
+      "Id": "47be1429e01f9c21236b84869d515aa448d7d339604661227782a56f8b051b5b",
+      "Image": "sha256:0fd042d9c568d7e52ced61e5dd680c848696dbb0ad48ed65042f27044b4914a4",
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/runtime-ipc",
+          "Destination": "/run/omnis-control",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/http",
+          "Destination": "/run/omnis-http",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "OOMKilled": false,
+        "Pid": 3997729,
+        "ExitCode": 0,
+        "StartedAt": "2026-10-19T20:51:14.790523604Z"
+      },
+      "restart_count": 0,
+      "user": "1000:1000",
+      "command": [
+        "python",
+        "-I",
+        "-m",
+        "omnis.serve"
+      ],
+      "entrypoint": null,
+      "network_mode": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control",
+      "networks": {
+        "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-api-1",
+            "api"
+          ],
+          "MacAddress": "02:42:ac:1a:00:04",
+          "DriverOpts": null,
+          "NetworkID": "3cb6b50b423bac904a5d76c66aab223e4375b4fc7fcfe3b5fcad8ba2fc56051b",
+          "EndpointID": "62845ea31a8106f5e77090b88599bd18afbb158a6fcb9528ac3dcae2e7394fd9",
+          "Gateway": "",
+          "IPAddress": "172.26.0.4",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-api-1",
+            "api",
+            "47be1429e01f"
+          ]
+        }
+      },
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "ports": {}
+    },
+    "db": {
+      "Id": "adec43658aa2b558d601c6acc5467701c2db0eed1a6e04f945185baeffb055bc",
+      "Image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/postgres",
+          "Destination": "/var/lib/postgresql",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/db-password",
+          "Destination": "/run/secrets/db_password",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "OOMKilled": false,
+        "Pid": 3994947,
+        "ExitCode": 0,
+        "StartedAt": "2026-10-19T20:51:03.586697336Z"
+      },
+      "restart_count": 0,
+      "user": "",
+      "command": [
+        "postgres"
+      ],
+      "entrypoint": [
+        "docker-entrypoint.sh"
+      ],
+      "network_mode": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control",
+      "networks": {
+        "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-db-1",
+            "db"
+          ],
+          "MacAddress": "02:42:ac:1a:00:02",
+          "DriverOpts": null,
+          "NetworkID": "3cb6b50b423bac904a5d76c66aab223e4375b4fc7fcfe3b5fcad8ba2fc56051b",
+          "EndpointID": "6a4e201ce67c9377b8adafc8dc03ff7d48876e13fcc2aae0e6550314b1e4748c",
+          "Gateway": "",
+          "IPAddress": "172.26.0.2",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-db-1",
+            "db",
+            "adec43658aa2"
+          ]
+        }
+      },
+      "read_only": false,
+      "cap_drop": null,
+      "security_opt": null,
+      "ports": {}
+    },
+    "runtime": {
+      "Id": "9ea2a5d27d4ae8af1a9570a7ce380396376a1205ee421a3be6ec019415d85792",
+      "Image": "sha256:905e3180e8cd810033336fd74379b1c4ffd5fceeb05ced97076691d1b0372de5",
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/native-ipc",
+          "Destination": "/runtime",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/provider",
+          "Destination": "/state/provider",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/native-ipc",
+          "Destination": "/state/tmp",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "OOMKilled": false,
+        "Pid": 3996550,
+        "ExitCode": 0,
+        "StartedAt": "2026-10-19T20:51:11.476545807Z"
+      },
+      "restart_count": 0,
+      "user": "1000:1000",
+      "command": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_hermes.runtime_host"
+      ],
+      "entrypoint": null,
+      "network_mode": "none",
+      "networks": {
+        "none": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": null,
+          "MacAddress": "",
+          "DriverOpts": null,
+          "NetworkID": "f9be7754cbe9245dd0c2f0b33bdf9e572548acdf09999b7895cdb95906813914",
+          "EndpointID": "7a02a379889b9d81ae5993d023ef692674464f74c0251109ace1a07d0a3146c6",
+          "Gateway": "",
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": null
+        }
+      },
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "ports": {}
+    },
+    "supervisor": {
+      "Id": "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18",
+      "Image": "sha256:0fd042d9c568d7e52ced61e5dd680c848696dbb0ad48ed65042f27044b4914a4",
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/catalog",
+          "Destination": "/catalog",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/runtime-ipc",
+          "Destination": "/run/omnis-control",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "/home/kali/.omnis-p2-startup10/state/omnis/native-ipc",
+          "Destination": "/runtime",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "OOMKilled": false,
+        "Pid": 3997622,
+        "ExitCode": 0,
+        "StartedAt": "2026-10-19T20:51:14.392954471Z"
+      },
+      "restart_count": 0,
+      "user": "1000:1000",
+      "command": [
+        "python",
+        "-I",
+        "-m",
+        "omnis.supervisor"
+      ],
+      "entrypoint": null,
+      "network_mode": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control",
+      "networks": {
+        "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-supervisor-1",
+            "supervisor"
+          ],
+          "MacAddress": "02:42:ac:1a:00:03",
+          "DriverOpts": null,
+          "NetworkID": "3cb6b50b423bac904a5d76c66aab223e4375b4fc7fcfe3b5fcad8ba2fc56051b",
+          "EndpointID": "7851db0e0364caff9191c4b63211f3ea00102b44f1a7bd0af85f2d9ae305ce12",
+          "Gateway": "",
+          "IPAddress": "172.26.0.3",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": [
+            "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-supervisor-1",
+            "supervisor",
+            "58223c8bb568"
+          ]
+        }
+      },
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "ports": {}
+    }
+  },
+  "network": {
+    "Id": "3cb6b50b423bac904a5d76c66aab223e4375b4fc7fcfe3b5fcad8ba2fc56051b",
+    "Name": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37_control",
+    "Internal": true,
+    "Driver": "bridge",
+    "Containers": {
+      "47be1429e01f9c21236b84869d515aa448d7d339604661227782a56f8b051b5b": {
+        "Name": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-api-1",
+        "EndpointID": "62845ea31a8106f5e77090b88599bd18afbb158a6fcb9528ac3dcae2e7394fd9",
+        "MacAddress": "02:42:ac:1a:00:04",
+        "IPv4Address": "172.26.0.4/16",
+        "IPv6Address": ""
+      },
+      "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18": {
+        "Name": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-supervisor-1",
+        "EndpointID": "7851db0e0364caff9191c4b63211f3ea00102b44f1a7bd0af85f2d9ae305ce12",
+        "MacAddress": "02:42:ac:1a:00:03",
+        "IPv4Address": "172.26.0.3/16",
+        "IPv6Address": ""
+      },
+      "adec43658aa2b558d601c6acc5467701c2db0eed1a6e04f945185baeffb055bc": {
+        "Name": "omnis-local-9ebd100a52914ed5aea6fa16c64e6f37-db-1",
+        "EndpointID": "6a4e201ce67c9377b8adafc8dc03ff7d48876e13fcc2aae0e6550314b1e4748c",
+        "MacAddress": "02:42:ac:1a:00:02",
+        "IPv4Address": "172.26.0.2/16",
+        "IPv6Address": ""
+      }
+    }
+  },
+  "forwarder": {
+    "argv": [
+      "/home/kali/.omnis-p2-startup10/tools/cli-venv/bin/python",
+      "-I",
+      "-m",
+      "omnis_cli.forwarder",
+      "--socket-dir",
+      "/home/kali/.omnis-p2-startup10/state/omnis/http",
+      "--port",
+      "8766",
+      "--auth-directory",
+      "/home/kali/.omnis-p2-startup10/state/omnis/native-ipc",
+      "--stop-attempt",
+      "813ce8da-f790-44a8-85fc-fb48e0d7463c"
+    ],
+    "boot_id": "1a8abc0e-8705-4bad-93bb-827e75c3cde8",
+    "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "pid": 3997972,
+    "start_ticks": "44839229"
+  },
+  "ipc": {
+    "api_socket": [
+      2049,
+      5699020
+    ],
+    "control_socket": [
+      2049,
+      5699023
+    ],
+    "runtime_ipc": {
+      "boot": "1f5ac2b3-9a23-4c00-8998-ee849ec4e71b",
+      "digest": "4e3911c39ff296726c4b4ace32152768badfc38e5caac5bca292fea2e2445340",
+      "file": [
+        2049,
+        5699017
+      ],
+      "lock": [
+        2049,
+        5698613
+      ],
+      "socket": [
+        2049,
+        5699018
+      ]
+    }
+  },
+  "module_readback": {
+    "api": {
+      "count": 99,
+      "exact": true,
+      "regular_single_link": true,
+      "sha256": "bbc083982b0da52508801f2e00035b178d1cc7b9f0cc0c6eecc10a77d060c703"
+    },
+    "supervisor": {
+      "count": 99,
+      "exact": true,
+      "regular_single_link": true,
+      "sha256": "bbc083982b0da52508801f2e00035b178d1cc7b9f0cc0c6eecc10a77d060c703"
+    },
+    "runtime": {
+      "count": 20,
+      "exact": true,
+      "regular_single_link": true,
+      "sha256": "2536a352fb0f8cb6c7416300fbbfafe43f6b01d7a32fd52c37154c1bfffa96df"
+    }
+  },
+  "native_readback": {
+    "native_source_count": 3187,
+    "native_source_exact": true,
+    "build_manifest_sha256": "2ac65f12aea2ac7ddb95590bcabe8a31ad5831bfe208754bf2fd7cb1f0e83e5c",
+    "source_manifest_sha256": "0dc24ceae1ce255987debe8929976eed677dc626d2612329b3dc27913a6c5b79"
+  },
+  "served_hashes": {
+    "/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+    "/assets/index-CCTUDgFi.css": "2eaad5343d259fb5ec67d35ca495ad3b8195856c546a30254824b42b54a3ada0",
+    "/assets/index-DLugYhQ_.js": "eb033eac628dfa993e4cb6c3be1bb35096a59af9ff2bc0cb40f1c59488e540c2",
+    "/": "91a90de18107239b8c43001e0c4e600c5a1411e7f0cc42aa0c685d0203b97188"
+  },
+  "shared_original_control_prefix_layers": 6,
+  "start": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 1,
+    "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "origin": "http://127.0.0.1:8766",
+    "reason": null,
+    "release": "0.1.0",
+    "reused": false,
+    "schema": "0013_mission_revisions",
+    "state": "READY",
+    "supervisor_epoch": 1
+  },
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 1,
+    "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "origin": "http://127.0.0.1:8766",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0013_mission_revisions",
+    "state": "READY",
+    "supervisor_epoch": 1
+  },
+  "image_family": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "durable_paths": {
+    "omnis": "/home/kali/.omnis-p2-startup10/omnis",
+    "home": "/home/kali/.omnis-p2-startup10/home",
+    "config": "/home/kali/.omnis-p2-startup10/config",
+    "data": "/home/kali/.omnis-p2-startup10/data",
+    "state": "/home/kali/.omnis-p2-startup10/state",
+    "cache": "/home/kali/.omnis-p2-startup10/cache",
+    "tmp": "/home/kali/.omnis-p2-startup10/tmp",
+    "tools/cli-venv": "/home/kali/.omnis-p2-startup10/tools/cli-venv"
+  },
+  "wrapper_sha256": "d1b118c1a3edf1cb1e18e86c6ef9c3335fc590eedb210849c723e2d58f4d06bf",
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/.omnis-p2-startup10/omnis",
+        "install",
+        "--bundle",
+        "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-build/bundle"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.omnis-p2-startup10/omnis",
+        "install-image",
+        "--runtime-context",
+        "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/installed-build/prepared"
+      ],
+      "exit": 0,
+      "family_handle": "proc_3048548f0d17",
+      "family_drained": true
+    },
+    {
+      "argv": [
+        "/home/kali/.omnis-p2-startup10/omnis",
+        "start",
+        "--no-open",
+        "--port",
+        "8766",
+        "--json"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.omnis-p2-startup10/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0
+    }
+  ],
+  "resources_outcome": "new four containers RUNNING; exact owned internal network; runtime network none; no Docker published ports; loopback forwarder; retained READY by request; foreign roots not modified",
+  "limits": {
+    "native_provisioning": "NOT_RUN, requires genuine publication confirmation",
+    "provider_auth": "NOT_RUN",
+    "model_calls": 0,
+    "pairing": "NOT_ISSUED",
+    "browser": "NOT_OPENED",
+    "aggregate_model_budget": "1 call/300s openai-codex/gpt-6.1-sol/xhigh UNCONSUMED, not reset",
+    "P2": "NOT_CLOSED",
+    "P3": "NOT_RUN",
+    "stop": "NOT_RUN on requested READY candidate",
+    "remote_install": "no new dependencies; native build --network=none; control requirements layer identical to prior image; no universal network observation"
+  },
+  "inverse": "/home/kali/.omnis-p2-startup10/omnis stop --json; original owner only, preserve data; no retry if UNCERTAIN"
+}

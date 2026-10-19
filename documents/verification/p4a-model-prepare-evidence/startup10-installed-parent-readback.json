@@ -1,0 +1,35 @@
+{
+  "source_report_sha256": "e32596e2f598e08ffb770b5a44b3e9bbf2920b1704f891e2ca9d35369d4f5f5f",
+  "containers": {
+    "api": {
+      "id": "47be1429e01f9c21236b84869d515aa448d7d339604661227782a56f8b051b5b",
+      "running": true,
+      "image_matches": true,
+      "no_published_ports": true
+    },
+    "db": {
+      "id": "adec43658aa2b558d601c6acc5467701c2db0eed1a6e04f945185baeffb055bc",
+      "running": true,
+      "image_matches": true,
+      "no_published_ports": true
+    },
+    "runtime": {
+      "id": "9ea2a5d27d4ae8af1a9570a7ce380396376a1205ee421a3be6ec019415d85792",
+      "running": true,
+      "image_matches": true,
+      "no_published_ports": true
+    },
+    "supervisor": {
+      "id": "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18",
+      "running": true,
+      "image_matches": true,
+      "no_published_ports": true
+    }
+  },
+  "http_status": 200,
+  "index_sha256": "91a90de18107239b8c43001e0c4e600c5a1411e7f0cc42aa0c685d0203b97188",
+  "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+  "origin": "http://127.0.0.1:8766",
+  "model_calls": 0,
+  "scope": "installed inert readiness only, not native preparation or model"
+}

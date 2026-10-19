@@ -1,0 +1,26 @@
+{
+  "state": "READY_AWAITING_OPERATOR_PUBLICATION_CONFIRMATION",
+  "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+  "root": "/home/kali/.omnis-p2-startup10",
+  "wrapper": "/home/kali/.omnis-p2-startup10/omnis",
+  "origin": "http://127.0.0.1:8766",
+  "tested_product": "f2dd28fbe9b7f5fdfc5faaa35a09f2b97c844963",
+  "release_sha256": "451c0ddb2523ec2ecefd32b674ffb37023f4be39b10338522cc3fadb4681eee5",
+  "confirmation_process": "proc_9eada6e8d22b",
+  "confirmation_window": 83886100,
+  "confirmation_request": "/home/kali/.omnis-p2-startup10/state/omnis/catalog/requests/operator-confirm.json",
+  "confirmation_command_id": "fb83e546-c08f-47ed-9796-d5db81bc188e",
+  "confirmation_receipt": "/home/kali/.omnis-p2-startup10/recovery/confirmation-terminal-exit.json",
+  "confirmation_output": "/home/kali/.omnis-p2-startup10/state/omnis/catalog/requests/confirmed.json",
+  "observed_terminal_receipt": null,
+  "observed_confirmation_output_nonempty": false,
+  "next": "Read exact original confirmation receipt and committed confirmation. Never launch another confirm or repeat saved yes. Then existing Publish/readback/snapshot/select/provision once; require PREPARED_RESTART_REQUIRED before same-root Stop/Start. Operator Chrome auth and first1call/300s after ready, never copied.",
+  "budget_consumed_model_calls": 0,
+  "phase2": "NOT_CLOSED",
+  "limits": [
+    "Inert installed READY is not native bootstrap10 success",
+    "No model response, authenticated browser, setup polish or final canonical",
+    "Prior roots remain retained/uncertain; no recovery framework",
+    "Capture logging failure repaired via read-only committed receipt lookup, not capture resend"
+  ]
+}

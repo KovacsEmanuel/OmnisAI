@@ -216,3 +216,29 @@ def test_public_request_and_private_fields_are_strict() -> None:
             operation_id=str(uuid4()),
             selection_ref={},
         )
+
+
+def test_provision_uses_catalog_validator(monkeypatch: pytest.MonkeyPatch) -> None:
+    from pydantic import ValidationError
+
+    from omnis.modules.settings import candidate_catalog
+
+    validate = Mock(wraps=candidate_catalog.valid_ref)
+    monkeypatch.setattr(candidate_catalog, "valid_ref", validate)
+    ref: dict[str, object] = {
+        "kind": "execution-selection",
+        "id": str(uuid4()),
+        "revision": 1,
+        "digest": "a" * 64,
+    }
+    control = ModelTestControl(op="model_test", action="provision", selection_ref=ref)
+    assert control.selection_ref == ref
+    validate.assert_called_once_with(ref)
+    malformed = {**ref, "revision": True}
+    with pytest.raises(ValidationError, match="INVALID_REQUEST"):
+        ModelTestControl(op="model_test", action="provision", selection_ref=malformed)
+    validate.assert_called_with(malformed)
+    with pytest.raises(ValidationError, match="Published selection required"):
+        ModelTestControl(
+            op="model_test", action="provision", selection_ref={**ref, "kind": "run-snapshot"}
+        )

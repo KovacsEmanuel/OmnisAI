@@ -5,8 +5,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from omnis.modules.settings.candidate_catalog import valid_ref
-
 
 class ModelTestRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
@@ -42,6 +40,8 @@ class ModelTestControl(BaseModel):
         if self.action == "provision":
             if self.operation_id is not None:
                 raise ValueError("Private provisioning only")
+            from omnis.modules.settings.candidate_catalog import valid_ref
+
             if valid_ref(self.selection_ref)["kind"] != "execution-selection":
                 raise ValueError("Published selection required")
         elif self.selection_ref is not None:

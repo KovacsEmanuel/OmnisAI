@@ -1,0 +1,169 @@
+{
+  "stage": "A_INPUT_OWNER_PREREQUISITE_ONLY",
+  "verdict": "CONTRACT_READY_FOR_PARENT_DECISION_INPUT_PREREQUISITE_BLOCKED",
+  "git": {
+    "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+    "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+    "branch": "work/p2-webtest-5o53dewr",
+    "changed_files": []
+  },
+  "development_model": {"provider": "openai-codex", "model": "gpt-6.1-sol", "effort": "xhigh", "fallback": false, "settings_changed": false, "note": "Required assignment configuration; no claim of an independently observable development inference effort."},
+  "effects": {"product_edits": false, "commits": false, "services_started": false, "product_provider_calls": 0, "credential_reads": false, "protected_files_read_copied_hashed": false, "operator_instance_inspected": false},
+  "first_missing_product_behavior": "Ordinary installed startup does not expose the existing model-test owner with a legitimately produced, retained published source manifest. Adding a web button alone cannot execute ModelTest safely.",
+  "existing_chain": [
+    {
+      "producer": "api/src/omnis/modules/settings/candidate_catalog.py:CandidateCatalog",
+      "consumer": "api/src/omnis/modules/settings/catalog_publication.py:PublicationCatalog._selected/_confirmation/load_probe (118,179,259)",
+      "inputs_owner": "Owner-scoped capture of package/profile, technical review, frozen candidate, STATIC_PASS and PURE_PASS, exact selection/digests, expected head generation and real operator confirmation before Publish. CLI publication owner already exists; do not copy fixture receipts."
+    },
+    {
+      "producer": "api/src/omnis/modules/runs/pure_probe.py:PureProbe._selection; api/src/omnis/modules/runs/native_preparation.py:NativePreparation.build/prepare (245,323)",
+      "consumer": "api/src/omnis/modules/runs/managed_admission.py:ManagedAdmission._source/_build/prepare_method (156,248,334)",
+      "inputs_owner": "Published RUN snapshot, recipe selection, retained full preparation bundle and actual native loader receipt bound to that selection; an unbound/unreleased legitimate managed launch manifest and original command receipt. Record/slot context is produced by ContractInputs.create_method_context/create_input, not browser refs."
+    },
+    {
+      "producer": "api/src/omnis/supervisor/native_tasks.py:NativeTaskOwner._model_test_prepare (256)",
+      "consumer": "api/src/omnis/modules/runs/model_test.py:ModelTest.prepare/dispatch/persist (186,470,516)",
+      "inputs_owner": "NativeTaskCommand model_test_start: owner_id, original command_id, instance_id, current generation/epoch, legitimate manifest_ref, initialization_id, latest CONFIRMED settings_operation_id. Supervisor owns authority/runtime boot and Settings readback; ModelTest produces fresh SETTINGS_TEST snapshot/config/brief/composition/context, not assessment authority."
+    },
+    {
+      "producer": "api/src/omnis/supervisor/native_tasks.py:NativeTaskOwner._model_test_send (309)",
+      "consumer": "api/src/omnis/modules/runs/model_test.py:reserve_execution/execution_packet/execution_receipt (568,731,784)",
+      "inputs_owner": "Same initialization, stable protocol_id and DATA decision bound to composition_ref and exactly the two synthetic text digests. Existing owner lock, calls=1 budget, 300s deadline, durable reserve then SENT precede transport. No retry/refund from UNKNOWN."
+    },
+    {
+      "producer": "api/src/omnis/supervisor/runtime_client.py:RuntimeClient.managed (640)",
+      "consumer": "integrations/hermes/src/omnis_hermes/runtime_host.py:RuntimeHost._managed (646); integrations/hermes/src/omnis_hermes/model_request.py:CodexFinalRequest (428)",
+      "inputs_owner": "Existing supervisor-connected private capability channel and Host/native lineage. Host verifies owned Settings/auth, drains MANAGEMENT before fixed native launch; native turn binds model request, full DTO/wire equality and lifeline/Stop veto remain authoritative. No raw SDK replacement."
+    },
+    {
+      "producer": "api/src/omnis/modules/runs/model_test.py:execution_receipt/validate_execution_readback (784,912)",
+      "consumer": "MISSING sanitized authenticated web projection consumed by web/src/features/engagement/Engagement.tsx:Engagement (16)",
+      "inputs_owner": "Persisted provider-receipt contains output_text/model/effort/input+output+reasoning tokens, but current validated native readback returns refs/accounting/inference_status only. Public projection must read the existing owned receipt, never mislabel requested config as observation."
+    }
+  ],
+  "normal_installed_gap": {
+    "anchors": [
+      "api/src/omnis/supervisor/__main__.py:run 27-44,78-114,123-137",
+      "cli/src/omnis_cli/start_runtime.py:settings_overlay 76-104; ControlRuntime configuration attestation 614-635",
+      "cli/src/omnis_cli/start.py:configuration attestation 342; startup native identity 1180",
+      "ops/compose.control.yaml:supervisor 27-49",
+      "api/src/omnis/api.py:create_app 63-68",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py:_managed 662-713",
+      "api/src/omnis/supervisor/runtime_client.py:prepare 619-637"
+    ],
+    "facts": [
+      "Catalog root currently requires OMNIS_RUNTIME_INERT_PROBE=1 and explicit runtime; NativeTaskOwner additionally requires OMNIS_MANAGED_TASKS=1. Ordinary Settings installs pass OMNIS_RUNTIME_DIR only and register Settings only when probe is absent.",
+      "Installed settings_overlay mounts native IPC and provider state, not a retained publication/preparation catalog. CLI compares exact environment and mounts; adding only an env flag fails attestation and/or disables Settings.",
+      "Host already implements settled MANAGEMENT -> certified stop -> fixed native launch for v5/v6 CREATE. Reuse it; do not start a second runtime/owner or use TestLaunch, whose namespace_owned cannot certify installed Stop.",
+      "That CREATE consumes a source manifest which already requires NativePreparation. RuntimeClient.prepare expects READY; therefore the existing CREATE transition alone does not bootstrap the missing source. A legitimate preparation/startup sequence must be implemented or supplied first.",
+      "No authenticated web model-test route exists in create_app. Engagement currently projects an inert draft and disabled Start."
+    ],
+    "installed_source_presence": "NOT_OBSERVED: private UI8 root was not inspected. Source distribution/startup has no catalog mount/bootstrap wiring; parent supplied auth readback does not establish a published manifest or native preparation receipt.",
+    "parent_auth_context": "Parent reports same UI8 instance cebb549c-2a72-40fe-89fd-877f62b1b4d6 generation3/epoch2, settings operation 0ba07c05-bf1b-45a3-bd65-c82f7f81e93d CONFIRMED/LOCAL_PRESENT with saved required selection, inference unverified. Treat as parent evidence, not independently rechecked or a forever-valid Settings ID."
+  },
+  "smallest_vertical_choice": {
+    "choice": "One fixed synthetic Test model operation scoped to an existing engagement, using the existing settings/runtime/native-task/domain owners. First complete finite source provisioning and ordinary-start owner wiring; then expose a small panel in engagement overview, without depending on assessment Start, ROE completion, target fields or engagement objective.",
+    "public_contract_proposed_not_existing": {
+      "put": "/api/v1/engagements/{engagement_id}/model-test/operations/{operation_id}: explicit fixed-input consent/start; tiny strict body, no prompt/model/provider/capability/raw refs from browser",
+      "get": "/api/v1/engagements/{engagement_id}/model-test: current persisted operation; /operations/{operation_id}: same operation receive-only readback",
+      "operation": "Persist engagement association, immutable source/initialization/send IDs and requested selection before dispatch in existing owner-scoped managed records/command receipts. Reuse a single admitted test operation for the current explicit one-call budget; another UUID must not manufacture another budget. No generic queue or new owner.",
+      "projection": "Operation ID, truthful phase/reason, fixed displayed system+user input, requested provider/model/effort, independently observed model/effort or UNKNOWN, escaped response text, nullable usage and duration, durable readback/reconciliation status. No capabilities, secrets, raw native/manifest/provider refs or raw error payloads."
+    },
+    "normal_lifecycle": [
+      "Normal auth profile startup stays inert: no provider inference, no target Start, no personal grant adoption, no test-only probe opt-in. Explicit finite source setup may prepare/publish only through existing owners and actual confirmation.",
+      "Source bootstrap must work from ordinary IDLE/MANAGEMENT, preserving settled Settings and certifying each management/native transition. Resolve preparation-before-manifest ordering without bypassing loader receipts or enlarging grants. Existing fixed Host process and supervisor connection only.",
+      "Click persists operation/IDs and approved exact input before reserve/SENT. At most one product call and 300s execution, tools empty, retries/fallback/auxiliaries forbidden. MONITOR_SUBSCRIPTION is explicit: output/cost may be UNKNOWN; do not invent a guaranteed Codex output ceiling.",
+      "Browser disconnect/reload never resends. GET reads durable operation; same live Host may RECEIVE only. Completed PG receipt remains readable after Stop and restart. A lost Host/SENT without receipt stays UNKNOWN and cannot restart inference.",
+      "Existing Stop revokes before cleanup, joins model preparation/call family and reports STOPPED only with real proof. Retain provider auth/config, catalog, operation/receipt and engagement data. Restart creates a new fenced boot; no old grant/attempt revival. Settings in execution is BUSY rather than hot-swapping; do not silently reopen Settings or restart execution on completion."
+    ],
+    "non_goals": ["Freeform/chat/history transcript", "P3/targets", "identities/credential implementation", "catalog editor or second provider", "generic service/factory/queue", "Setup/ROE redesign in this first slice", "phase2 closure from one response"]
+  },
+  "synthetic_source": {
+    "package": "skills/records-mapping-contract (existing full first-party package; no dependencies)",
+    "profile": "profiles/records-mapping-contract.yaml:records-mapper; currently CANDIDATE references, not an already installed immutable published release",
+    "system": "Respond briefly to this synthetic model test. Use no tools.",
+    "user": "Map supplied structured synthetic records.",
+    "objective_anchor": "skills/records-mapping-contract/templates/procedures/map-records.yaml:13",
+    "limitation": "This is a fixed synthetic connectivity response, not execution/validation of the records method. Only the procedure objective and fixed instruction reach the provider; engagement target/objective/records/auth data do not.",
+    "legitimate_production": "Reuse CandidateCatalog capture/review/freeze/admit-evaluation-records/evaluate STATIC+PURE -> PublicationCatalog exact head/TTY confirmation/publish/snapshot -> PureProbe select -> NativePreparation actual loader receipt -> ContractInputs finite synthetic context/input -> ManagedAdmission.prepare_method task_count=1. Pin the resulting refs; replay/readback never reruns qualification. No fixture imports in product.",
+    "producer_examples_not_product_inputs": ["api/tests/fixtures/c03_records.py:records_seed/qualify_records 33/45", "api/tests/fixtures/b06b_publication/consumer.py:Seed 148", "api/tests/test_contract_method_pg.py:8506-8514,9180-9202,9220-9233,9949-10198"],
+    "critical_boundary": "Current native PG QA explicitly labels preparation double at 9180. It proves model execution on that supplied preparation, not ordinary installed source provisioning. No published refs for UI8 have been supplied."
+  },
+  "scope_files": {
+    "required_existing": [
+      "api/src/omnis/api.py",
+      "api/src/omnis/supervisor/__main__.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/src/omnis/modules/runs/model_test.py",
+      "api/src/omnis/modules/instance/schemas.py",
+      "api/src/omnis/transport/local_control.py",
+      "cli/src/omnis_cli/start_runtime.py",
+      "cli/src/omnis_cli/start.py",
+      "ops/build_control_bundle.py",
+      "web/src/features/engagement/Engagement.tsx",
+      "web/src/features/engagement/Engagement.module.css",
+      "web/src/shared/api/client.ts"
+    ],
+    "finite_new_files_proposed": ["api/src/omnis/modules/runs/model_test_routes.py", "web/src/features/engagement/ModelTest.tsx"],
+    "conditional_only_if_required_by_demonstrated_seam": [
+      "api/src/omnis/modules/runs/native_preparation.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "cli/src/omnis_cli/stop_owner.py",
+      "cli/src/omnis_cli/stop_receipt.py",
+      "CLI startup/Stop exact identity schema call sites if a new retained catalog mount is admitted",
+      "Existing native bundle/pin/export manifest files only if executable distribution changes, through existing exporter, not hand-authored hashes"
+    ],
+    "test_exports": [
+      "api/tests/test_model_test_prepare_source.py and new targeted model_test web-route tests",
+      "api/tests/test_provider_settings_source.py; api/tests/test_supervisor.py; api/tests/test_local_control.py",
+      "api/tests/test_contract_method_pg.py existing model-test-execute case, retaining controlled-HTTP label",
+      "cli/tests/test_start.py and cli/tests/test_stop.py affected exact-topology checks",
+      "integrations/hermes/tests/test_runtime_host.py if transition affected",
+      "web engagement component tests and affected existing Playwright E2E",
+      "web/scripts/generate-contracts.mjs consumers/generated API types as determined by existing generator",
+      "ops bundle/export tests and finite skills/profile asset manifest for admitted source input"
+    ],
+    "excluded": "No schema migration by default; reuse managed records/receipts. No edits to package/profile objectives, protected originals, unrelated runtime fixture bug, global settings or operator root. File list is a bounded admission envelope, not an order to edit every listed file."
+  },
+  "size_and_input_gate": {
+    "status": "NOT_MEASURED_COMPLETE_SOURCE_PREREQUISITE",
+    "reason": "This checkout has no executable api/.venv/bin/python; current interpreter lacks pytest_asyncio. Required pinned Python3.13.15/project closure is not established. No installs or borrowed parent environment were authorized. Do not infer a full producer PASS from fixture assertions or make up sizes.",
+    "actual_no_effect_check": {"exit": 0, "api_venv_executable": false, "available_import_specs": ["pytest", "pydantic", "sqlalchemy", "yaml", "jsonschema"], "missing_import_specs": ["pytest_asyncio"], "runner_target_present": true, "method": "stdlib AST and import specs only; no native import, DB or services"},
+    "required_complete_measurement": "Parent supplies pinned prepared SOURCE interpreter. Reuse api/tests/test_model_test_prepare_source.py:prepared_source (756) for full records package, real compile/capture/NativePreparation.build/ManagedAdmission._source and ModelTest.prepare with action=model_test_start, not the v5 produce helper. Declare fixture storage/publication/lease/receipt doubles (test_contract_method_producer.py:batch2_source and test_owned_model_initialization.py:SourceOwner); no actual qualification/PG/native authority claimed. Measure full retained bundle, complete original method graph/stage, produced v6 context+all seven records+material, actual ControlRequest command envelope, Host and native newline frames, v6 SEND packet and full CodexFinalRequest expected body through real serializer. Negative oversized/escaped UTF-8 inputs must fail before first persistence/reserve. If it cannot fit, stop before implementation; never drop method requirements/material to get green.",
+    "limits": {
+      "original_graph_plus_preparation_canonical_bytes": 65536,
+      "original_method_stage_canonical_bytes": 32768,
+      "native_task_command_canonical_bytes": 3600,
+      "control_request_frame_bytes": 4096,
+      "native_task_reply_bytes": 65536,
+      "v6_prepare_payload_and_produced_records_each_canonical_bytes": 32768,
+      "host_and_jsonrpc_frames_including_newline_each_bytes": 65536,
+      "v6_send_packet_and_final_sdk_wire_each_max_bytes": 32768,
+      "provider_output_text_utf8_bytes": 8192,
+      "public_request_body_bytes": 4096
+    },
+    "dto": "Full fixed Codex Responses body: model gpt-6.1-sol, fixed instructions, one user input_text objective, store=false, existing derived prompt_cache_key, reasoning effort=xhigh/summary=auto, include=[], stream=true; no tools/history/extra_body. CodexFinalRequest.consume_native enforces timeout=300.0 and exact kwargs; validate_wire checks complete body equality. Include escaped encoding overhead, full immutable package bytes, ref/digest fields and max fence/ID framing; no toy subset."
+  },
+  "qa_admission": {
+    "first_existing_consumer_command_after_prerequisites_and_reviews_only": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-test-execute-native-pg --uv <absolute-pinned-uv> --timeout-seconds 600",
+    "grammar_anchors": ["ops/run_test_db_gate.py:main 1024-1106", "Makefile:test-model-test-execute-native-pg 94-97"],
+    "not_run": "Command is specified, not executed. --probe-only is NOT a no-effect preflight: it provisions a DB. No make dry-run success claim (Makefile refuses verification dry-run flags).",
+    "no_effect_preflight": "Before effectful QA, confirm pinned interpreter/deps; parse runner choices (done, target admitted); collect exact pytest node with plugin autoload disabled in scratch; inspect existing source pin, LIBRARIES path and install/source manifests from test_contract_method_pg.py; verify required immutable source files and non-root UID search/read permissions, no secret reads. Parent must supply environment paths; never invent DSN or unverified source/library pins.",
+    "positive": "Same controlled HTTP/native PG consumer: authentic initialization -> reserve/SENT visible on independent connection -> one native compiler/SDK request -> retained actual controlled response -> receipt/settlement. This is not live inference and still uses the declared preparation fixture.",
+    "negative": "Same public route/control channel: missing session, wrong origin/CSRF, foreign engagement, arbitrary/raw refs or text, absent/stale Settings ID/grant, changed DATA decision, duplicate command and concurrent different operation IDs, exhausted budget, Stop-before-send, lost response, Host restart. Denials must leave zero additional send/reserve as appropriate; same-op readback cannot send.",
+    "first_real_affected_consumer": "After exact-snapshot complementary reviews, fresh installed ordinary-start browser/API/PG journey, not private native_task alone: engagement -> fixed panel -> one explicit click -> real authorized Codex response -> reload/same-op GET -> Stop/readback -> explicit restart/readback. Use parent-controlled one-call/300s product budget and existing isolated instance lifecycle; no target traffic. Validate tab closure only removes observer, not retries. Controlled response is never substituted for the live acceptance.",
+    "boundary": "SOURCE constructors/doubles establish shape/size only; controlled HTTP establishes native compiler/SDK/ledger path only; bundle/wheel/images and exact mount/fence attestation establish installed distribution; one actual product response establishes live acceptance only for that operation. Phase2/G02 live and canonical closure remain separate.",
+    "regressions": "Affected API/web/CLI/Stop and contract generation/build after final edits; installed QA requires real focus/keyboard/reload and rendering. Full canonical at phase integration boundary. Existing stock-control fixture failure (function(None,None) versus native agent.__dict__) remains independent and must be adjudicated later; no unrelated product fix or claimed phase2 PASS."
+  },
+  "parent_admission_decision": {
+    "recommended_smallest_fix": "Admit a finite normal-installed source/owner bridge as part of this same vertical behavior, using the existing records package and owner chain, private retained catalog identity/mount and real operator Publish confirmation; do not admit only UI+route or flip the inert-probe flags. Parent must first supply the prepared pinned SOURCE interpreter and either exact legitimate installed source refs/receipt or authorize their explicit finite production/distribution and lifecycle changes. Then measure the complete v6 path before writing product code.",
+    "why_not_unconditional": "There is no supplied installed manifest and no proved normal MANAGEMENT -> real NativePreparation -> managed manifest path. A test-only receipt/double would violate the requested visible-real-model contract. Filesystem/installation changes also need parent-owned before/after/inverse and data-preservation scope; this read-only invocation cannot provide those effects.",
+    "alternative": "If parent already possesses a legitimate same-instance/owner published snapshot, preparation receipt and unbound managed manifest, supply only sanitized exact refs/readback and catalog location identity through the parent, not credentials. Reuse them and omit new seed production; do not assume they exist from auth success.",
+    "first_author_action_after_admission": "Complete full no-effect v6 producer/frame/DTO measurement in the parent-supplied pinned environment; resolve the finite normal bootstrap ordering on the existing Host. Only then implement the owner/route/panel through the admitted inputs. No additional architect/developer.",
+    "acceptance_gate": "One durable engagement-visible actual response with honest requested/observed status, exactly one SEND, same-operation no-resend reload/restart/unknown behavior and preserved Stop/auth/data boundaries; two complementary exact-snapshot reviews and real affected-consumer QA. Not full phase2 closure."
+  },
+  "status": {"AICI_stage_A": "CONTRACT_DELIVERED", "implementation": "NOT_STARTED", "complete_size_proof": "BLOCKED_ENVIRONMENT_AND_INSTALLED_INPUT", "product_QA": "NOT_RUN", "independent_review": "PARENT_GATE_NOT_RUN", "phase2": "NOT_CLOSED"},
+  "skipped_and_risk": ["No product changes, delegation, browser, Docker/PG/native launch, provider calls, credentials/private-root inspection or archive crawl. No Setup/ROE implementation in Stage A.", "Risk: ordinary installed bootstrap lacks legitimate retained source and owner wiring; SOURCE sizing and live consumer are unverified. Auth success alone cannot unblock inference safely."]
+}

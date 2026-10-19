@@ -7,6 +7,7 @@ import type { Draft } from './drafts';
 import { decodeProvider } from './providers';
 import type { ProviderCommand } from './providers';
 import { catalogSelection, decodeCatalogInspection, decodeCatalogPage } from './catalog';
+import { decodeModelTest } from './modelTest';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
@@ -42,6 +43,23 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async modelTest(signal?: AbortSignal) {
+    const response = await request('/api/v1/model-test', {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeModelTest(value);
+  },
+  async startModelTest(operationId: string, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(operationId)) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/model-test', { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf,
+    }, body: JSON.stringify({ operation_id: operationId, consent: true }) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
   async catalog(after: string | null, signal?: AbortSignal) {
     if (after !== null && !isUuid(after)) throw new ApiError('INVALID_INPUT');
     const response = await request(after ? `/api/v1/settings/catalog/page/${after}` : '/api/v1/settings/catalog', {}, signal);

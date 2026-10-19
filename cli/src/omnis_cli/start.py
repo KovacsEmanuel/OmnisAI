@@ -108,7 +108,11 @@ NATIVE_FIELDS = {"runtime_image_id", "provider_identity", "runtime_dir_identity"
 
 def native_fields(record: dict[str, object]) -> set[str]:
     if type(record.get("format")) is int and record["format"] in (3, 4):
-        return NATIVE_FIELDS | ({"auth"} if record["format"] == 4 else set())
+        return (
+            NATIVE_FIELDS
+            | ({"auth"} if record["format"] == 4 else set())
+            | ({"catalog_identity"} if "catalog_identity" in record else set())
+        )
     return set()
 
 
@@ -348,6 +352,19 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                     "target": "/runtime",
                 }
             )
+            if getattr(runtime, "model_test", False) is True:
+                expected_environment.update(
+                    OMNIS_NATIVE_PREPARATION_CATALOG_ROOT="/catalog",
+                    OMNIS_MANAGED_TASKS="1",
+                    OMNIS_MODEL_TEST_SOURCE_ROOT="/opt/omnis/model-test",
+                )
+                expected_mounts.append(
+                    {
+                        "type": "bind",
+                        "source": f"{env['OMNIS_STATE_ROOT']}/catalog",
+                        "target": "/catalog",
+                    }
+                )
         mounts = service.get("volumes")
         if (
             not isinstance(mounts, list)
@@ -847,7 +864,11 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
     if native_fields(record):
-        for key in ("provider_identity", "runtime_dir_identity"):
+        for key in (
+            "provider_identity",
+            "runtime_dir_identity",
+            *(("catalog_identity",) if "catalog_identity" in record else ()),
+        ):
             identity = record.get(key)
             if (
                 type(identity) is not list
@@ -921,6 +942,9 @@ def _bound_instance(
         (record.get("format") == 4)
         != (getattr(runtime.receipt, "profile", None) == "p4a-codex-auth")
         or bool(native_fields(record)) != (runtime.native is True)
+        or type(getattr(runtime, "model_test", None)) is not bool
+        or ("catalog_identity" in record) != runtime.model_test
+        or (runtime.model_test and record.get("format") != 4)
         or (
             native_fields(record) and record["runtime_image_id"] != runtime.receipt.runtime_image_id
         )
@@ -1118,6 +1142,7 @@ def start_instance(
             or os.path.lexists(root / "postgres")
             or os.path.lexists(root / "provider")
             or os.path.lexists(root / "native-ipc")
+            or os.path.lexists(root / "catalog")
         ):
             raise StartError("UNOWNED_STATE_RECOVERY_REQUIRED", 4)
         if restarting is None:
@@ -1176,6 +1201,8 @@ def start_instance(
             if restarting is None:
                 ensure_private(root / "provider")
                 ensure_private(root / "native-ipc")
+                if getattr(runtime, "model_test", False) is True:
+                    ensure_private(root / "catalog")
             record.update(
                 format=4 if getattr(runtime.receipt, "profile", None) == "p4a-codex-auth" else 3,
                 runtime_image_id=runtime.receipt.runtime_image_id,
@@ -1185,6 +1212,8 @@ def start_instance(
             )
             if record["format"] == 4:
                 record["auth"] = None
+            if getattr(runtime, "model_test", False) is True:
+                record["catalog_identity"] = private_identity(root / "catalog")
         restart_intent = None
         if restarting is not None:
             record["system_id"] = restarting["system_id"]

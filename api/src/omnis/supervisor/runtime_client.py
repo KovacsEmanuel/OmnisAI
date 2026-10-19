@@ -416,7 +416,13 @@ class RuntimeClient:
             if op == "settings" and _settings_stop_serial != self._stop_serial:
                 raise RuntimeUnavailable("Settings overtaken by Stop")
             if (
-                op == "settings"
+                op == "launch"
+                and _settings_stop_serial is not None
+                and _settings_stop_serial != self._stop_serial
+            ):
+                raise RuntimeUnavailable("Launch overtaken by Stop")
+            if (
+                op in {"settings", "launch"}
                 and authority is not None
                 and authority.generation != self.generation
             ):
@@ -763,10 +769,27 @@ class RuntimeClient:
         return await self._exchange("status")
 
     async def launch_inert(self, service: "InstanceService", owner: UUID) -> dict[str, object]:
-        authority = await service.runtime_authority(
-            owner, self.epoch, self.generation, inert_probe=True
-        )
-        return await self._exchange("launch", authority)
+        from omnis.modules.instance.domain import ControlCode, ControlConflict
+
+        stop_serial = self._stop_serial
+        try:
+            authority = await service.runtime_authority(
+                owner, self.epoch, self.generation, inert_probe=True
+            )
+        except ControlConflict as error:
+            if error.code != ControlCode.GENERATION_CONFLICT or not self._initial_management_bind:
+                raise
+            current = await service.owned_status(owner, self.epoch)
+            if (
+                not current.admission_open
+                or current.shutdown_command_id is not None
+                or current.generation != self.generation + 1
+            ):
+                raise RuntimeUnavailable("Initial OPEN generation required") from None
+            authority = await service.runtime_authority(
+                owner, self.epoch, current.generation, inert_probe=True
+            )
+        return await self._exchange("launch", authority, _settings_stop_serial=stop_serial)
 
     async def renew(
         self, service: "InstanceService", owner: UUID, *, management: bool = False

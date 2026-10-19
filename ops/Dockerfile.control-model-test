@@ -1,0 +1,13 @@
+# Fixed Codex control profile adds only the complete synthetic first-party source.
+FROM python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMNIS_WEB_ROOT=/opt/omnis/web
+WORKDIR /opt/omnis
+COPY api/requirements.txt /opt/omnis/requirements.txt
+RUN python -m pip install --no-cache-dir --require-hashes -r /opt/omnis/requirements.txt
+COPY api/omnis_api-0.1.0-py3-none-any.whl /opt/omnis/omnis_api-0.1.0-py3-none-any.whl
+RUN python -m pip install --no-deps /opt/omnis/omnis_api-0.1.0-py3-none-any.whl
+COPY web/ /opt/omnis/web/
+COPY model-test/ /opt/omnis/model-test/
+RUN chmod -R a+rX /opt/omnis/web/ /opt/omnis/model-test/
+USER 65532:65532
+CMD ["python", "-I", "-m", "omnis.serve"]

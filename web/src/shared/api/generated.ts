@@ -138,6 +138,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/model-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Model Test */
+        get: operations["read_model_test_api_v1_model_test_get"];
+        /** Start Model Test */
+        put: operations["start_model_test_api_v1_model_test_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/catalog": {
         parameters: {
             query?: never;
@@ -741,6 +759,76 @@ export interface components {
             scope: components["schemas"]["ScopeEntry"][];
             /** Workflow Profile Ref */
             workflow_profile_ref: null;
+        };
+        /** ModelTestRequest */
+        ModelTestRequest: {
+            /**
+             * Consent
+             * @constant
+             */
+            consent: true;
+            /** Operation Id */
+            operation_id: string;
+        };
+        /** ModelTestView */
+        ModelTestView: {
+            /**
+             * Calls Limit
+             * @default 1
+             * @constant
+             */
+            calls_limit: 1;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Input Tokens */
+            input_tokens?: number | null;
+            /** Observed Effort */
+            observed_effort?: string | null;
+            /** Observed Model */
+            observed_model?: string | null;
+            /** Operation Id */
+            operation_id: string | null;
+            /** Output Tokens */
+            output_tokens?: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Reasoning Tokens */
+            reasoning_tokens?: number | null;
+            /**
+             * Requested Effort
+             * @default xhigh
+             * @constant
+             */
+            requested_effort: "xhigh";
+            /**
+             * Requested Model
+             * @default gpt-6.1-sol
+             * @constant
+             */
+            requested_model: "gpt-6.1-sol";
+            /**
+             * Requested Provider
+             * @default openai-codex
+             * @constant
+             */
+            requested_provider: "openai-codex";
+            /** Response Text */
+            response_text?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "AVAILABLE" | "UNAVAILABLE" | "PENDING" | "COMPLETE" | "UNKNOWN" | "ERROR";
+            /** System Message */
+            system_message: string;
+            /** User Message */
+            user_message: string;
+            /**
+             * Wall Seconds
+             * @default 300
+             * @constant
+             */
+            wall_seconds: 300;
         };
         /** OAuthChallenge */
         OAuthChallenge: {
@@ -1744,6 +1832,185 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_model_test_api_v1_model_test_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    start_model_test_api_v1_model_test_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Content Too Large */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };

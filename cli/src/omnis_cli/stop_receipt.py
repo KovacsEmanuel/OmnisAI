@@ -115,6 +115,7 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
             "ipc",
         }
         | ({"provider", "runtime_dir", "runtime_ipc"} if native else set())
+        | ({"catalog"} if "catalog_identity" in record else set())
     ):
         raise StartError("STOP_INVENTORY_INVALID", 4)
     for key, expected in (
@@ -138,6 +139,10 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
             ("runtime_dir", "runtime_dir_identity"),
             ("runtime_ipc", "runtime_ipc"),
         )
+    ):
+        raise StartError("STOP_INVENTORY_INVALID", 4)
+    if "catalog_identity" in record and encoded(inventory["catalog"]) != encoded(
+        record["catalog_identity"]
     ):
         raise StartError("STOP_INVENTORY_INVALID", 4)
     containers = inventory["containers"]
@@ -198,7 +203,8 @@ def validate_inventory(inventory: dict[str, object], record: dict[str, object]) 
         ipc["api"] != record["api_socket"]
         or ipc["control"] != record["control_socket"]
         or not digest(ipc["cap_digest"])
-        or len(encoded(inventory)) > 2900
+        or len(encoded(inventory))
+        > (3000 if record.get("format") == 4 and "catalog_identity" in record else 2900)
     ):
         raise StartError("STOP_INVENTORY_INVALID", 4)
 

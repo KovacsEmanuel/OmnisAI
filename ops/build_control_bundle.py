@@ -114,6 +114,20 @@ def build_bundle(
         "web/omnis-web.json": source,
     }
     if runtime_metadata is not None:
+        if profile == "p4a-codex-auth":
+            from omnis_cli.model_test_source import PACKAGE, PACKAGE_FILES
+
+            repository = Path(__file__).resolve().parents[1]
+            payloads["ops/Dockerfile"] = _canonical_file(
+                Path(__file__).with_name("Dockerfile.control-model-test")
+            )
+            payloads["model-test/profile.yaml"] = _canonical_file(
+                repository / "profiles" / (PACKAGE + ".yaml")
+            )
+            for name in PACKAGE_FILES:
+                payloads["model-test/skills/" + PACKAGE + "/" + name] = _canonical_file(
+                    repository / "skills" / PACKAGE / name
+                )
         from omnis_cli.native_artifacts import METADATA, closure
 
         for name in METADATA:

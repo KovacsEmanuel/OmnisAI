@@ -106,6 +106,7 @@ def test_emergency_auth_identity_before_any_signal():
 
 class SettingsTopologyTest(ProductAttestationTest):
     def native(self):
+        self.runtime.model_test = False
         self.runtime.receipt.profile = "p4a-settings-offline"
         self.runtime.receipt.runtime_image_id = "sha256:" + "2" * 64
         self.runtime.release = self.root / "release"
@@ -185,7 +186,7 @@ class SettingsTopologyTest(ProductAttestationTest):
                 ],
             )
             self.assertTrue((fixture.root / "provider").is_dir())
-            self.assertLessEqual(len(encoded(inventory)), 2900)
+            self.assertLessEqual(len(encoded(inventory)), 3000 if "catalog" in inventory else 2900)
             self.assertLessEqual(len(encoded(grant)), 3600)
             from uuid import uuid4
 
@@ -244,6 +245,7 @@ class SettingsTopologyTest(ProductAttestationTest):
             for key, field in (
                 ("provider", "provider_identity"),
                 ("runtime_dir", "runtime_dir_identity"),
+                *((("catalog", "catalog_identity"),) if "catalog" in maximum else ()),
             ):
                 maximum[key] = record[field] = [u64, u64, 4294967294, 4294967294, 448]
             for key in ("socket", "lock", "file"):
@@ -260,49 +262,50 @@ class SettingsTopologyTest(ProductAttestationTest):
                 supervisor_epoch=9223372036854775807,
                 docker_id="d" * 128,
             )
-            grant = fixture.grant(maximum)
-            grant.update(
-                generation=record["stop_generation"],
-                owner_epoch=record["supervisor_epoch"],
-                daemon_id=record["docker_id"],
-            )
-            validate_inventory(maximum, record)
-            validate_grant(grant, record, maximum)
-            command = {
-                k: v for k, v in grant.items() if k not in {"version", "state", "owner_uuid"}
-            }
-            command["op"] = "arm_stop"
-            _stop_binding(command)
-            frame = (
-                json.dumps({"version": 1, "capability": "0" * 64, "command": command}).encode()
-                + b"\n"
-            )
-            self.assertLessEqual(len(frame), 4096)
-            self.assertLessEqual(len(encoded(maximum)), 2900)
-            print("AUTH_PRODUCER_SIZES", len(encoded(maximum)), len(encoded(grant)), len(frame))
-            reply_frame = (
-                json.dumps(
-                    {"ok": True, "correlation_id": record["stop_command"], "grant": grant}
-                ).encode()
-                + b"\n"
-            )
-            self.assertLessEqual(len(reply_frame), 4096)
-            print("AUTH_REPLY_FRAME_BYTES", len(reply_frame))
-            _stop_grant(
-                {"ok": True, "correlation_id": record["stop_command"], "grant": grant}, command
-            )
-            # Exact inventory cap, using its existing variable-width ticks field;
-            # no new extension field, codec or larger protocol limit.
-            pad = 2900 - len(encoded(maximum))
-            record["forwarder"]["start_ticks"] += "0" * pad
-            maximum["forwarder"]["start_ticks"] = record["forwarder"]["start_ticks"]
-            maximum["forwarder"]["identity"] = fingerprint(record["forwarder"])
-            self.assertEqual(len(encoded(maximum)), 2900)
-            validate_inventory(maximum, record)
+            limit = 3000 if "catalog" in maximum else 2900
+            # Exercise both maximum legal identities and the exact admitted sublimit;
+            # only the existing variable-width ticks field supplies the padding.
+            for size in (len(encoded(maximum)), limit):
+                record["forwarder"]["start_ticks"] += "0" * (size - len(encoded(maximum)))
+                maximum["forwarder"]["start_ticks"] = record["forwarder"]["start_ticks"]
+                maximum["forwarder"]["identity"] = fingerprint(record["forwarder"])
+                self.assertEqual(len(encoded(maximum)), size)
+                grant = fixture.grant(maximum)
+                grant.update(
+                    generation=record["stop_generation"],
+                    owner_epoch=record["supervisor_epoch"],
+                    daemon_id=record["docker_id"],
+                )
+                validate_inventory(maximum, record)
+                validate_grant(grant, record, maximum)
+                self.assertLessEqual(len(encoded(grant)), 3600)
+                command = {
+                    k: v for k, v in grant.items() if k not in {"version", "state", "owner_uuid"}
+                }
+                command["op"] = "arm_stop"
+                _stop_binding(command)
+                frame = (
+                    json.dumps({"version": 1, "capability": "0" * 64, "command": command}).encode()
+                    + b"\n"
+                )
+                self.assertLessEqual(len(frame), 4096)
+                self.assertLessEqual(len(encoded(maximum)), limit)
+                print("AUTH_PRODUCER_SIZES", len(encoded(maximum)), len(encoded(grant)), len(frame))
+                reply_frame = (
+                    json.dumps(
+                        {"ok": True, "correlation_id": record["stop_command"], "grant": grant}
+                    ).encode()
+                    + b"\n"
+                )
+                self.assertLessEqual(len(reply_frame), 4096)
+                print("AUTH_REPLY_FRAME_BYTES", len(reply_frame))
+                _stop_grant(
+                    {"ok": True, "correlation_id": record["stop_command"], "grant": grant}, command
+                )
             record["forwarder"]["start_ticks"] += "0"
             maximum["forwarder"]["start_ticks"] = record["forwarder"]["start_ticks"]
             maximum["forwarder"]["identity"] = fingerprint(record["forwarder"])
-            self.assertEqual(len(encoded(maximum)), 2901)
+            self.assertEqual(len(encoded(maximum)), limit + 1)
             with self.assertRaises(StartError):
                 validate_inventory(maximum, record)
         finally:

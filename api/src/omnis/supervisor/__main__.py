@@ -35,7 +35,10 @@ async def run() -> None:
         raise ValueError("Managed tasks require explicit native preparation opt-in")
     catalog_root = None
     if raw_catalog is not None:
-        if not raw_catalog or probe != "1" or not raw_runtime:
+        normal_model_test = (
+            os.environ.get("OMNIS_MODEL_TEST_SOURCE_ROOT") == "/opt/omnis/model-test"
+        )
+        if not raw_catalog or not raw_runtime or (probe != "1" and not normal_model_test):
             raise ValueError("Invalid explicit native preparation opt-in")
         from omnis.modules.runs.native_preparation import existing_private_root
 
@@ -62,6 +65,7 @@ async def run() -> None:
     service = InstanceService(engine)
     owner = uuid4()
     epoch = None
+    task_owner = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -100,7 +104,7 @@ async def run() -> None:
             else:
                 await runtime.status()
         preparation = None
-        task_owner = None
+
         if catalog_root is not None and runtime is not None:
             from omnis.modules.runs.native_preparation import NativePreparation
 
@@ -112,6 +116,14 @@ async def run() -> None:
                 task_owner = NativeTaskOwner(
                     ManagedAdmission(engine, catalog_root), service, owner, epoch, runtime
                 )
+        if task_owner is not None and runtime is not None:
+
+            async def drain_model_test() -> bool:
+                assert runtime is not None and task_owner is not None
+                await task_owner.close_model_test()
+                return await runtime.drain()
+
+            service.runtime_drain = drain_model_test
         async with LocalControl(
             Path(raw_directory),
             service,
@@ -120,6 +132,8 @@ async def run() -> None:
             native_prepare=preparation.prepare if preparation is not None else None,
             native_task=task_owner.handle if task_owner is not None else None,
         ) as control:
+            if task_owner is not None:
+                control.model_test = task_owner.model_test
             if runtime is not None and probe is None:
                 from omnis.modules.settings.provider_models import SettingsControl
 
@@ -162,6 +176,8 @@ async def run() -> None:
             nominal_close = True
     finally:
         try:
+            if task_owner is not None:
+                await task_owner.close_model_test()
             if runtime is not None:
                 try:
                     if not await runtime.drain():

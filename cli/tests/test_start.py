@@ -34,6 +34,7 @@ class StartTest(unittest.TestCase):
         }
         runtime = Mock(
             native=True,
+            model_test=False,  # Stock native SOURCE topology, without shipped model-test source.
             receipt=SimpleNamespace(
                 project="omnis-local-" + "a" * 32,
                 image_id="sha256:" + "b" * 64,

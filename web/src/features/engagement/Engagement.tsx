@@ -8,10 +8,11 @@ import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
 import { engagementCopy as copy } from './copy';
 import { Wizard } from './Wizard';
+import { ModelTest } from './ModelTest';
 import styles from './Engagement.module.css';
 
 export function NewEngagement() {
-  return <Wizard />;
+  return <><ModelTest /><Wizard /></>;
 }
 export function Engagement() {
   const { id = '', surface = 'overview' } = useParams();
@@ -47,6 +48,7 @@ export function Engagement() {
         {[[copy.overview, 'overview'], [copy.stream, 'stream'], [copy.findings, 'findings'], [copy.coverage, 'coverage'], [copy.reports, 'reports'], [copy.setup, 'setup']].map(([label, path]) => <NavLink key={path} to={`/engagements/${id}/${path}`}>{label}</NavLink>)}
       </nav>
       {surface === 'setup' && <Wizard key={id} id={id} />}
+      {full && <ModelTest />}
       {!full && surface !== 'setup' && <p>{copy.unavailable} — {copy.future}</p>}
       {full && <section className={styles.panel}><div className={styles.core}>
         <dl className={styles.details}>

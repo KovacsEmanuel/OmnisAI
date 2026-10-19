@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
+from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_models import SettingsControl
 
 # Existing 4s non-runtime work on each side of the 6s launch/refusal wait; not authority.
@@ -248,6 +249,7 @@ class ControlRequest(StrictBody):
         | ArmStopCommand
         | NativePrepareCommand
         | NativeTaskCommand
+        | ModelTestControl
         | SettingsControl,
         Field(discriminator="op"),
     ]

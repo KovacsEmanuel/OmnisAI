@@ -39,6 +39,7 @@ from omnis.modules.instance.schemas import (
 )
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
+from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.provider_models import SettingsControl
 from omnis.security.sessions import PairingConflict
@@ -69,6 +70,7 @@ class LocalControl:
         self.native_prepare = native_prepare
         self.native_task = native_task
         self.settings: Callable[[SettingsControl], Awaitable[dict[str, object]]] | None = None
+        self.model_test: Callable[[ModelTestControl], Awaitable[dict[str, object]]] | None = None
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -145,10 +147,23 @@ class LocalControl:
         | ArmStopCommand
         | NativePrepareCommand
         | NativeTaskCommand
+        | ModelTestControl
         | SettingsControl,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, ModelTestControl):
+            if self.model_test is None:
+                return {"ok": False, "error": "TASK_UNAVAILABLE"}
+            try:
+                return {"ok": True, "model_test": await self.model_test(command)}
+            except CatalogError as error:
+                return {
+                    "ok": False,
+                    "error": "COMMAND_CONFLICT"
+                    if error.reason == "COMMAND_CONFLICT"
+                    else "TASK_UNAVAILABLE",
+                }
         if isinstance(command, SettingsControl):
             if self.settings is None:
                 return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
@@ -283,6 +298,11 @@ class LocalControl:
                             if isinstance(
                                 body.command, NativeTaskCommand
                             ) and body.command.action in {"model_test_prepare", "model_test_start"}:
+                                timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
+                            if (
+                                isinstance(body.command, ModelTestControl)
+                                and body.command.action == "provision"
+                            ):
                                 timeout.reschedule(started + MODEL_TEST_PREPARE_WAIT_SECONDS)
                             response = await self._dispatch(body.command)
             except (

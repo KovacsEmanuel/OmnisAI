@@ -75,8 +75,10 @@ class Fixture:
             stack.callback(os.close, state_guard)
             yield (data_fd, state_fd), (data_guard, state_guard)
 
-    def __init__(self, *, native=False, auth=False):
+    def __init__(self, *, native=False, auth=False, model_test=False):
         assert not auth or native
+        assert not model_test or auth
+        self.model_test = model_test
         self.auth = auth
         self.native = native
         self.temp = tempfile.TemporaryDirectory(prefix="s4o-", dir=os.environ["TMPDIR"])
@@ -93,6 +95,8 @@ class Fixture:
         ):
             path.mkdir(mode=0o700)
         (self.root / "postgres").chmod(0o711)
+        if model_test:
+            (self.root / "catalog").mkdir(mode=0o700)
         (self.root / "db-password").write_text("a" * 48)
         (self.root / "db-password").chmod(0o600)
         self.sockets = {}
@@ -216,6 +220,21 @@ class Fixture:
             )
         if auth:
             manifest["profile"] = "p4a-codex-auth"
+        if model_test:
+            from omnis_cli.model_test_source import PACKAGE, SOURCE_FILES
+
+            repository = Path(__file__).resolve().parents[2]
+            for name in sorted(SOURCE_FILES):
+                source = repository / (
+                    "profiles/" + PACKAGE + ".yaml"
+                    if name == "model-test/profile.yaml"
+                    else name.removeprefix("model-test/")
+                )
+                target = release / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                raw = source.read_bytes()
+                target.write_bytes(raw)
+                manifest["files"][name] = hashlib.sha256(raw).hexdigest()
         (release / "release.json").write_text(json.dumps(manifest))
         digest = hashlib.sha256((release / "release.json").read_bytes()).hexdigest()
         self.digest = digest
@@ -316,11 +335,14 @@ class Fixture:
                 from omnis_cli.start import auth_listener
 
                 self.record["auth"] = auth_listener(self.root, self.record["forwarder"])
+            if model_test:
+                self.record["catalog_identity"] = private_identity(self.root / "catalog")
         write_record(self.root / "startup.json", self.record)
         self.runtime = _load_runtime(self.data, self.record, time.monotonic() + 15)
 
     def item(self, role, cid, pid):
         runtime = SimpleNamespace(
+            model_test=self.model_test,
             receipt=SimpleNamespace(
                 project=self.project,
                 image_id=self.image,

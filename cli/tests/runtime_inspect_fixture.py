@@ -55,6 +55,12 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
             env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
     if role == "supervisor" and getattr(runtime.receipt, "profile", None):
         env["OMNIS_RUNTIME_DIR"] = "/runtime"
+        if getattr(runtime, "model_test", False) is True:
+            env.update(
+                OMNIS_NATIVE_PREPARATION_CATALOG_ROOT="/catalog",
+                OMNIS_MANAGED_TASKS="1",
+                OMNIS_MODEL_TEST_SOURCE_ROOT="/opt/omnis/model-test",
+            )
     mounts = []
     if db:
         mounts = [
@@ -67,11 +73,15 @@ def container_item(runtime, role, cid, root, control, port, state="running"):
             mounts.append((str(root / "http"), "/run/omnis-http", True))
         elif getattr(runtime.receipt, "profile", None):
             mounts.append((str(root / "native-ipc"), "/runtime", True))
+            if getattr(runtime, "model_test", False) is True:
+                mounts.append((str(root / "catalog"), "/catalog", True))
     elif role == "runtime":
         mounts = [
             (str(root / "native-ipc"), "/runtime", True),
             (str(root / "provider"), "/state/provider", True),
         ]
+        if getattr(runtime, "model_test", False) is True:
+            mounts.append((str(root / "native-ipc"), "/state/tmp", True))
     name = runtime.receipt.project + "-" + role + ("-1" if role in ROLES[:3] else "")
     return {
         "Id": cid,

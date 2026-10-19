@@ -75,6 +75,13 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         from .native_artifacts import FILES
 
         base = base | FILES
+    model_test = native and "model-test/profile.yaml" in files
+    if model_test:
+        from .model_test_source import SOURCE_FILES
+
+        if raw["profile"] != "p4a-codex-auth":
+            raise ReleaseError("Invalid model test profile")
+        base = base | SOURCE_FILES
     if (
         not base <= set(files)
         or not len(base) <= len(files) <= 128
@@ -83,6 +90,10 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     ):
         raise ReleaseError("Unsupported release file set")
     expected_dirs = {"api", "cli", "ops", "web", "web/assets"} | ({"native"} if native else set())
+    if model_test:
+        from .model_test_source import SOURCE_DIRS
+
+        expected_dirs |= SOURCE_DIRS
     found: set[str] = set()
     for parent, dirs, entries in os.walk(root, followlinks=False):
         relative = Path(parent).relative_to(root)

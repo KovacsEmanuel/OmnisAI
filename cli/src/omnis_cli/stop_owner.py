@@ -61,6 +61,7 @@ class _View(ControlRuntime):
         self.release, self.digest, self.receipt = runtime.release, runtime.digest, runtime.receipt
         self.host, self.pg_image = runtime.host, runtime.pg_image
         self.attempt = runtime.attempt
+        self.model_test = runtime.model_test
         self.uncertain, self.family_drained = False, True
 
     def run(
@@ -114,6 +115,7 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
         raise StartError("STOP_RELEASE_INVALID", 4)
     runtime.release = data_home / "omnis/releases/0.1.0"
     manifest, runtime.files = _manifest(runtime.release)
+    runtime.model_test = "model-test/profile.yaml" in runtime.files
     runtime.digest = hashlib.sha256(manifest).hexdigest()
     receipt = _record(data_home / "omnis/image.json", runtime.digest, complete=True)
     if receipt is None:
@@ -311,9 +313,13 @@ def prepare_stop_inventory(
             runtime_dir=record["runtime_dir_identity"],
             runtime_ipc=record["runtime_ipc"],
         )
+    if "catalog_identity" in record:
+        inventory["catalog"] = record["catalog_identity"]
     validate_inventory(inventory, record)
     # Leave room for the fixed arm-stop command and correlated 4096-byte reply.
-    if len(encoded(inventory)) > 2900:
+    if len(encoded(inventory)) > (
+        3000 if record.get("format") == 4 and "catalog_identity" in record else 2900
+    ):
         raise StartError("STOP_INVENTORY_FRAME_LIMIT", 4)
     view.check_daemon()
     return inventory
@@ -407,6 +413,10 @@ def _ipc_progress(
         if (
             private_identity(root / "provider") != inventory["provider"]
             or private_identity(root / "native-ipc") != inventory["runtime_dir"]
+            or (
+                "catalog" in inventory
+                and private_identity(root / "catalog") != inventory["catalog"]
+            )
         ):
             raise StartError("STOP_IPC_DRIFT", 4)
     fds: list[int] = []

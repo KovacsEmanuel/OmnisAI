@@ -69,6 +69,10 @@ def check_native_paths(root: Path, record: dict[str, object] | None = None) -> N
         or record["format"] not in (3, 4)
         or private_identity(root / "provider") != record.get("provider_identity")
         or private_identity(root / "native-ipc") != record.get("runtime_dir_identity")
+        or (
+            "catalog_identity" in record
+            and private_identity(root / "catalog") != record["catalog_identity"]
+        )
     ):
         raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
 
@@ -77,10 +81,29 @@ def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str
     """Finite installed-wheel template, selected only by the sealed image profile."""
     root = Path(env["OMNIS_STATE_ROOT"])
     check_native_paths(root)
-    ipc = {"type": "bind", "source": str(root / "native-ipc"), "target": "/runtime"}
+    ipc: dict[str, object] = {
+        "type": "bind",
+        "source": str(root / "native-ipc"),
+        "target": "/runtime",
+    }
+    model_test = getattr(runtime, "model_test", False) is True
+    supervisor_env = {"OMNIS_RUNTIME_DIR": "/runtime"}
+    supervisor_volumes: list[dict[str, object]] = [ipc]
+    if model_test:
+        record = read_record(root / "startup.json")
+        if private_identity(root / "catalog") != record.get("catalog_identity"):
+            raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
+        supervisor_env.update(
+            OMNIS_NATIVE_PREPARATION_CATALOG_ROOT="/catalog",
+            OMNIS_MANAGED_TASKS="1",
+            OMNIS_MODEL_TEST_SOURCE_ROOT="/opt/omnis/model-test",
+        )
+        supervisor_volumes.append(
+            {"type": "bind", "source": str(root / "catalog"), "target": "/catalog"}
+        )
     return {
         "services": {
-            "supervisor": {"environment": {"OMNIS_RUNTIME_DIR": "/runtime"}, "volumes": [ipc]},
+            "supervisor": {"environment": supervisor_env, "volumes": supervisor_volumes},
             "runtime": {
                 "image": runtime.receipt.runtime_image_id,
                 "pull_policy": "never",
@@ -98,6 +121,7 @@ def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str
                 "volumes": [
                     ipc,
                     {"type": "bind", "source": str(root / "provider"), "target": "/state/provider"},
+                    *([{**ipc, "target": "/state/tmp"}] if model_test else []),
                 ],
             },
         }
@@ -141,6 +165,7 @@ class ControlRuntime:
         except FileNotFoundError:
             raise StartError("RELEASE_REQUIRED") from None
         self.digest = hashlib.sha256(manifest).hexdigest()
+        self.model_test = "model-test/profile.yaml" in self.files
         receipt = _record(data_home / "omnis/image.json", self.digest, complete=True)
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
@@ -457,11 +482,15 @@ class ControlRuntime:
                 expected.add(("bind", str(root / "http"), "/run/omnis-http", True))
             elif self.native:
                 expected.add(("bind", str(root / "native-ipc"), "/runtime", True))
+                if self.model_test:
+                    expected.add(("bind", str(root / "catalog"), "/catalog", True))
         elif role == "runtime" and self.native:
             expected = {
                 ("bind", str(root / "native-ipc"), "/runtime", True),
                 ("bind", str(root / "provider"), "/state/provider", True),
             }
+            if self.model_test:
+                expected.add(("bind", str(root / "native-ipc"), "/state/tmp", True))
         elif role not in {"migrate", "reconcile"}:
             raise StartError("CONTAINER_ROLE_INVALID", 3)
         expected_command = {
@@ -632,6 +661,12 @@ class ControlRuntime:
                 expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
         if role == "supervisor" and self.native:
             expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
+            if self.model_test:
+                expected_env.update(
+                    OMNIS_NATIVE_PREPARATION_CATALOG_ROOT="/catalog",
+                    OMNIS_MANAGED_TASKS="1",
+                    OMNIS_MODEL_TEST_SOURCE_ROOT="/opt/omnis/model-test",
+                )
         if actual_env != expected_env:
             raise StartError("CONTROL_CONFIGURATION_MISMATCH", 4)
         if role == "reconcile" and (

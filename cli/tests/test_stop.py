@@ -99,6 +99,7 @@ def private_stop_fixture() -> Iterator[
         }
         runtime = SimpleNamespace(
             native=False,
+            model_test=False,  # This stock control SOURCE fixture has no model-test package.
             receipt=SimpleNamespace(
                 project=project, image_id=record["image_id"], docker_id=record["docker_id"]
             ),

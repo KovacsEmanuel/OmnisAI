@@ -20,6 +20,7 @@ from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.schemas import MODEL_TEST_PREPARE_WAIT_SECONDS, NativeTaskCommand
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs.managed_admission import ManagedAdmission
+from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.candidate_catalog import uuid_string
 from omnis.modules.settings.catalog_models import CatalogError
@@ -44,6 +45,21 @@ class NativeTaskOwner:
     ) -> None:
         self.domain, self.service, self.owner = domain, service, owner
         self.epoch, self.runtime = epoch, runtime
+        self.model_test_task: asyncio.Task[None] | None = None
+        self.model_test_closing = False
+
+    async def model_test(self, command: ModelTestControl) -> dict[str, object]:
+        from omnis.modules.runs.model_test_operation import handle
+
+        return await handle(self, command)
+
+    async def close_model_test(self) -> None:
+        self.model_test_closing = True
+        task = self.model_test_task
+        if task is not None:
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
 
     async def _instance(self, connection: AsyncConnection, command: NativeTaskCommand) -> None:
         actual = (

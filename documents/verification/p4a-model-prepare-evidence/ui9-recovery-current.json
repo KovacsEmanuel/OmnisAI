@@ -90,9 +90,10 @@
       "live_now": false
     }
   },
-  "db_proof_boundary": "Exact original CID psql BEGIN READ ONLY/ROLLBACK, no DB writes; zero model-test records, same confirmation id/digest and unpublished head. Not successful native/publication/inference.",
+  "db_proof_boundary": "Exact original CID psql BEGIN READ ONLY/ROLLBACK, no DB writes; zero model-test records, same confirmation id/digest and unpublished head. Additional census confirms all five managed tables empty, no instance_stop_fence; instance generation1/admission_open=true/shutdown=null/quiesced=null. Not successful native/publication/inference.",
+  "resource_label_limit": "labels_match above tests only org.omnis.bundle_sha256 equality. That field is not part of the ordinary DB role contract: false for DB is not an attestation failure or a complete topology verdict. Exact original CID/project/image and running identity were checked separately.",
   "backup": {
-    "state": "BACKUP_CREATED_RESTORE_NOT_RUN",
+    "state": "PASS_SCOPED_REAL_BACKUP_RESTORE",
     "root": "/home/kali/.omnis-p2-ui9/recovery/same-instance-mtpbajof",
     "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
     "db_cid": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
@@ -102,7 +103,7 @@
     "metadata_files": 39,
     "metadata_sha256": "f515a1aacaaaa8120d2cde2d93e64e7b51a90265637cf858bef93ff5dadc1f0b",
     "metadata_unchanged": true,
-    "restore": "NOT_RUN",
+    "restore": "PASS_SCOPED: pg_restore18.6 exit0 in one fresh isolated fixture;21tables/39rows and39metadata files match archive; original confirmation/head preserved. Original report ui9-backup-restore.json SHA226540183e2e3097fe6543a7ef634feb1fecaae54ab7fe47c79133627ab818b0. Parent independently verified counts, backup hashes, exact CID/project/network/volume/socket absence, same daemon and retained PGDATA.",
     "excludes": "credentials/provider/personal profiles/raw runtime logs/live physical PGDATA; logical dump and catalog/lifecycle only",
     "inverse": "No live state modified; retain originals and do not restore over UI9 before tested recovery plan"
   },
@@ -112,5 +113,5 @@
     "parent_source_tests": "22PASS6.68s/exit0, pinned Python3.13.15, Ruff check/format/diff0; seven reviewed bindings match",
     "canonical": "NOT_RUN"
   },
-  "next": "Minimum supported same-instance recovery contract through original owners, backup restore on disposable fixture, implementation/reviews/QA before live recovery. No service stop/start/restart or live state writes performed."
+  "next": "Minimum supported same-instance recovery contract through original owners; proposed IDLE-only prerequisite rejected because authenticated runtime disconnection invokes stop. Focused feasibility correction pending, then implementation/reviews/QA before live recovery. No service stop/start/restart or live state writes performed."
 }

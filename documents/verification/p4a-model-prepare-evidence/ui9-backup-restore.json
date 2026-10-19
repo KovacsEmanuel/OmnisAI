@@ -1,0 +1,818 @@
+{
+  "attempts": {
+    "gate_timeout_seconds": 300,
+    "outer_terminal_session": "proc_6addaab48257",
+    "physical_fixtures": 1,
+    "preflight": 2,
+    "preflight_failure": {
+      "exit": 1,
+      "reason": "Scratch COPY-column parser rejected completion_sha256; corrected before DB creation; retained original extraction/logs",
+      "root": "/home/kali/.hermes/cache/scratch/br-1inb64an"
+    },
+    "restore_invocations": 1
+  },
+  "backup": {
+    "dump_sha256": "cb5f302ab4f4eb31a58516828ef482b5e184cea9ea0d7ebc4cc68f7e5bdcf255",
+    "manifest_sha256": "44627fdb4fe1fd0be00b0083e5b4329cb3988b2482c04f4ad01317cd046fa707",
+    "root": "/home/kali/.omnis-p2-ui9/recovery/same-instance-mtpbajof",
+    "tar_sha256": "f515a1aacaaaa8120d2cde2d93e64e7b51a90265637cf858bef93ff5dadc1f0b",
+    "unchanged": true
+  },
+  "cleanup_readback": {
+    "exact_cid_absent": true,
+    "image_retained": true,
+    "password_retained_private": true,
+    "pgdata_retained": true,
+    "proc_unix_no_owned_socket": true,
+    "project_containers_empty": true,
+    "project_networks_empty": true,
+    "project_volumes_empty": true,
+    "same_daemon": true,
+    "socket_absent": true
+  },
+  "cleanup_readback_commands": [
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "inspect",
+        "c72fb355cb68c61896bd6b42ad995a316afab4021ae8764949c61fbe2caf8066",
+        "--format",
+        "{{.Id}}"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--filter",
+        "label=com.docker.compose.project=omnis-p01-f06c68eb9c6546cba5f4d1273f9d18c9",
+        "--format",
+        "{{.ID}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "network",
+        "ls",
+        "--filter",
+        "label=com.docker.compose.project=omnis-p01-f06c68eb9c6546cba5f4d1273f9d18c9",
+        "--format",
+        "{{.ID}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "volume",
+        "ls",
+        "--filter",
+        "label=com.docker.compose.project=omnis-p01-f06c68eb9c6546cba5f4d1273f9d18c9",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "info",
+        "--format",
+        "{{.ID}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "image",
+        "inspect",
+        "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "--format",
+        "{{.Id}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "--host",
+        "unix:///run/docker.sock",
+        "inspect",
+        "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+        "--format",
+        "{{json .State}}"
+      ],
+      "exit": 0
+    }
+  ],
+  "comparison": {
+    "all_table_counts_and_hashes_match_archive": true,
+    "catalog_all_manifest_hashes_match": true,
+    "catalog_confirmation_refs_and_selection": "All referenced draft/snapshot/review/evaluation refs equal restored ledger and request; same owner/group",
+    "catalog_files": 39,
+    "catalog_private_sources_and_candidate_material": "Existing read_material validator; no compiler/PURE/runtime/model executed",
+    "schema_normalization": "Only pg_dump/restore version banners and random backslash restrict/unrestrict guards removed; remaining schema bytes exact",
+    "table_hash_format": "SHA256 of lexicographically sorted PostgreSQL COPY text rows including LF; all original columns; UTC/ISO/extra_float_digits=3",
+    "tables": 21,
+    "total_rows": 39
+  },
+  "family_receipt": {
+    "code": 0,
+    "family_drained": true,
+    "schema_version": 1
+  },
+  "head": "a783da4ebe65b3aed98215010648424537bc3584",
+  "limits": [
+    "Logical per-database restore, not physical PGDATA restore or cluster role/credential recreation; destination role omnis was created NOLOGIN only in fixture",
+    "Original live table hashes not queried; archive-to-restored comparison is complete, parent owns any live comparison",
+    "No UI9 service mutation, wrapper/credential/provider access, model execution, full canonical, lifecycle recovery or visual acceptance",
+    "Timeout/uncertainty branches were not exercised; successful family receipt/readback is evidence only for this completed run",
+    "One-shot scratch procedure, not a reusable product backup/recovery command; retain private artifacts and synthetic password with PGDATA",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "original_db_container_readback": {
+    "id": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+    "live_sql": "NOT_RUN_PARENT_OWNS_COMPARISON",
+    "same_as_recorded_before": true,
+    "state": {
+      "ExitCode": 0,
+      "FinishedAt": "0001-01-01T00:00:00Z",
+      "OOMKilled": false,
+      "Pid": 3263318,
+      "Running": true,
+      "StartedAt": "2026-10-19T09:33:52.79054208Z",
+      "Status": "running"
+    }
+  },
+  "owner": {
+    "elapsed_seconds": 13.453,
+    "exit": 0
+  },
+  "repo_changes": false,
+  "resource": {
+    "container_id": "c72fb355cb68c61896bd6b42ad995a316afab4021ae8764949c61fbe2caf8066",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "project": "omnis-p01-f06c68eb9c6546cba5f4d1273f9d18c9",
+    "root": "/home/kali/.hermes/cache/scratch/br-u50mpoyl/t/db-8cafb8025edf4784",
+    "schema_version": 1,
+    "system_identifier": "7698370562700951582"
+  },
+  "restored": {
+    "catalog_envelopes_checked": 10,
+    "catalog_metadata_files_verified": 39,
+    "commands": [
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis_test"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis_test"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis_test"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "pg_restore",
+          "--version"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "pg_restore",
+          "--exit-on-error",
+          "--single-transaction",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "pg_dump",
+          "--schema-only",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "psql",
+          "-X",
+          "-qAt",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-h",
+          "/var/run/postgresql",
+          "-U",
+          "omnis_test",
+          "-d",
+          "omnis"
+        ],
+        "exit": 0
+      }
+    ],
+    "confirmation": {
+      "digest": "cad9fea273ffc3e6bedd507265f80069f11b06514b493cef064fc8b9851d38ab",
+      "id": "c9cf2e31-f8b5-4a4f-8524-9587eefa0bba",
+      "kind": "operator-confirmation"
+    },
+    "confirmation_selection_match": true,
+    "fixture_manifest": "/home/kali/.hermes/cache/scratch/br-u50mpoyl/t/db-8cafb8025edf4784/fixture.json",
+    "head": {
+      "draft_id": "c7187431-1110-4081-af66-c95f1b2d91f8",
+      "generation": 1,
+      "owner_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+      "profile_key": "records-mapping-contract",
+      "publication_id": null
+    },
+    "model_test_records": 0,
+    "resolved_index_sha256": "24d0dea93f66cea3fa9cc123e8a730be867ba96e283cb12a79120146f4754314",
+    "resource_manifest": "/home/kali/.hermes/cache/scratch/br-u50mpoyl/resource-manifest.json",
+    "restore_version": "pg_restore (PostgreSQL) 18.6 (Debian 18.6-1.pgdg12+2)",
+    "schema_exact_normalized_match": true,
+    "schema_restored_sha256": "26e69998246dd2903b5d9790191614e5d8206ace207cb571e4f15c5c20b1dbc7",
+    "schema_revision": "0013_mission_revisions",
+    "status": "PASS",
+    "tables": {
+      "alembic_version": {
+        "count": 1,
+        "sha256": "5d7e4d2fe2c23d6abbc45c8cdd150edf79ae25e3a1c001d4ee4d6500c8b3b372"
+      },
+      "catalog_command": {
+        "count": 7,
+        "sha256": "fabb41058a527731a8b798d47ff3019819485c12d455a5c5700d384c975c76ac"
+      },
+      "catalog_identity": {
+        "count": 8,
+        "sha256": "c8336852541fc80cff24526b5163bbb11daecb2d3879631d9ff5ef867ebfebf5"
+      },
+      "catalog_publication_head": {
+        "count": 1,
+        "sha256": "eadc57d86e128fe988f98a909dd180b8704ac78c038bce99e8f12470e486ec0e"
+      },
+      "catalog_record": {
+        "count": 10,
+        "sha256": "b5d4199251c3a99dcfa529b96e4f3b5a977553a6ab8f6d0865e28a0a99b9c8a1"
+      },
+      "catalog_reservation": {
+        "count": 8,
+        "sha256": "0a3c669d653fc0812491c02b3856ec896c167c8e707ac5cfcf29b64d12e4bf2b"
+      },
+      "engagement": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "engagement_revision": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "instance_command": {
+        "count": 1,
+        "sha256": "dc73648f66166a6ef100f0caf188b4078d84f9e49d5adfeec76187efcf766dcf"
+      },
+      "instance_control": {
+        "count": 1,
+        "sha256": "efcd61fd6220de205f99bf326994a3449c9982fae7fa214eb48b9cde8d35d0da"
+      },
+      "instance_stop_fence": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "instance_stop_reconciliation": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "managed_inbox": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "managed_mission_revision": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "managed_record": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "managed_run": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "managed_task": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "pairing_challenge": {
+        "count": 1,
+        "sha256": "09145f9c42ceb55c5027559189cd37b783254997ef4820449ac69d5d3bcd141a"
+      },
+      "pairing_issuance": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "supervisor_lease": {
+        "count": 1,
+        "sha256": "b58a14902b05e43f29f979896c6183846fbbcbceacce3d738bc4507519e2d6ef"
+      },
+      "ui_session": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "retained_data_root": "/home/kali/.hermes/cache/scratch/br-u50mpoyl/t/db-8cafb8025edf4784/data",
+  "retained_files": {
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/gate-selection.json": {
+      "mode": "0o600",
+      "sha256": "3e1da58bc2898b76132bc2cff0b0fc17ae4bbaef17fd39ab37af0dc0e516c310"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/owner-result.json": {
+      "mode": "0o600",
+      "sha256": "ecdb8fe70721811c6fb6aa9575f0076eee9c51b45fd549a2312a37a158ecfefc"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/resource-manifest.json": {
+      "mode": "0o600",
+      "sha256": "00da3bd3be403ac29e8873a7671610a47bb186488798839d6a629c918e128731"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/restored-data-result.json": {
+      "mode": "0o600",
+      "sha256": "3f2a7d61442fc1f141c3712890fb7a4529d4d42c8638b95071ec8a9e8c45b99f"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/t/db-8cafb8025edf4784/fixture.json": {
+      "mode": "0o600",
+      "sha256": "aca79f9f18cbbc51c64de6b575d6db8f093db13e3751b03744fdd6dc9765e8b3"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/t/db-8cafb8025edf4784/gate.log.result.json": {
+      "mode": "0o600",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    },
+    "/home/kali/.hermes/cache/scratch/br-u50mpoyl/table-readback.json": {
+      "mode": "0o600",
+      "sha256": "66ebb918d208a5895ea338ca4bd9e342cc144c7f4f27de7343741574a4135971"
+    },
+    "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/backup-restore-preflight.json": {
+      "mode": "0o600",
+      "sha256": "29cd1b17e76cff662dae7c4562e6720f060b03221d0b11ad936844155b24140e"
+    },
+    "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/restore-backup.py": {
+      "mode": "0o664",
+      "sha256": "128100eb8ccb4fce56f95e168f17ad0cb6048f0f8d94ca5c977705df8db21905"
+    }
+  },
+  "retained_metadata_root": "/home/kali/.hermes/cache/scratch/br-u50mpoyl/metadata",
+  "scope": "Operational QA only; no product acceptance or same-instance recovery claimed",
+  "status": "PASS_SCOPED_REAL_BACKUP_RESTORE"
+}

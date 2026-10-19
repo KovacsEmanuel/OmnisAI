@@ -1,0 +1,11 @@
+{
+  "finding": "SAFETY-CATALOG-01",
+  "source_patch_sha256": "bc04ca57b034c915d185331edc19043be2192109e50bf2935a3f4ee7fe63f5e4",
+  "command": "umask 077; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py test_model_test_catalog_lifecycle.py::test_catalog_authority_matches_sealed_topology > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-catalog-green.log 2>&1",
+  "exit": 0,
+  "summary": [
+    "24 passed in 6.60s"
+  ],
+  "source_unchanged": true,
+  "scope": "Parent actual current-wheel24 source normal/shared/emergency valid/omitted/foreign/type/unknown controls; synthetic Engine and effect-entry abort sentinel. No OCI/PG/native/provider or independent approval."
+}

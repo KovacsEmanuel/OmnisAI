@@ -1,0 +1,137 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Focused complementary SOURCE re-review of the exact8path delta and affected normal provisioning/lifecycle callers, combined with explicitly retained original functional/normative coverage. Not installed/live acceptance or parent adjudication.",
+  "snapshot": {
+    "root": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-final",
+    "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+    "patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+    "patch_bytes": 139877,
+    "manifest_sha256": "34dd4d54bc1861bddab580fe44515b4ca10af7912da089dd4742c3dfa9f38000",
+    "paths": 36,
+    "source_assets": 10,
+    "binding": "PASS: detached base,36SHA256/size pairs,10asset SHA256/size pairs, exact Git changed/untracked set and exact8path delta. Complete patch reverse-check and diff-check exit0.",
+    "changed_paths": [
+      "cli/src/omnis_cli/start.py",
+      "cli/src/omnis_cli/start_runtime.py",
+      "cli/tests/runtime_inspect_fixture.py",
+      "cli/tests/test_model_test_catalog_lifecycle.py",
+      "cli/tests/test_model_test_preparation.py",
+      "cli/tests/test_settings_lifecycle.py",
+      "cli/tests/test_start.py",
+      "cli/tests/test_stop.py"
+    ]
+  },
+  "original_findings": [
+    {
+      "id": "NORM-WEBTEST-F01",
+      "severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "blocking_current_snapshot": false,
+      "reason": "The ordinary sealed model-test overlay now aliases its existing owner-bound0700native-ipc directory at /state/tmp as well as /runtime. This satisfies the unchanged normal preparation_spec=None default without a test startup flag, new root/identity, tmpfs, writable rootfs or native/Host reset. The exact config validator and full mount attestor require the same alias; legacy False keeps its original mounts.",
+      "code": [
+        "cli/src/omnis_cli/start_runtime.py:80-125",
+        "cli/src/omnis_cli/start.py:213-219",
+        "cli/src/omnis_cli/start_runtime.py:445-554",
+        "api/src/omnis/modules/runs/model_test_source.py:99-152",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:914-933",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:986-1020"
+      ],
+      "exact_controls": [
+        "Independently executed existing test_default_preparation_owner_removes_only_its_child against REVIEW-FINAL imports, exit0: emitted bind source resolves the ordinary None constructor /state/tmp locator;0755 refuses;0700 creates native-prep child; readonly child cleanup preserves parent identity and boot/lock bytes,inodes,modes; native-prep leftover refuses.",
+        "Inspected existing normal overlay/config/full-attestor controls: model-test and legacy positives; absent alias, provider-as-source, readonly alias, foreign extra alias and legacy extra alias all require exact refusal. Reused author's bounded SOURCE results rather than executing service-bearing fixtures.",
+        "Traced existing _clean_preparation: bounded owned-process drain precedes child-only removal, uncertainty remains uncertainty. Alias adds no host identity or Stop inventory field; catalog/provider/native-ipc ownership checks and certified Stop/Start remain in place."
+      ],
+      "preserved_failure": "Original HIGH blocker and0755/refusal/read-only topology failure remain valid on original patch2240be15; original report and tree untouched. New closure is only for patch84d8cf8e.",
+      "limit": "Exact extracted methods with SOURCE path-locator seam, not an actual bind mount, child native worker or genuine installed preparation."
+    },
+    {
+      "id": "SAFETY-CATALOG-01",
+      "severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED_COMPLEMENTARY",
+      "blocking_current_snapshot": false,
+      "reason": "The shared binding now requires actual bool sealed runtime.model_test, exact catalog receipt presence equality and supported authformat4. Real constructors derive bool from validated release files and the Stop view copies it. Thus legitimate old sealed False/no-catalog remains reachable; omission, foreign insertion or unknown/type-invalid metadata cannot select a permissive legacy path. This complements, not substitutes for, the independent safety review.",
+      "code": [
+        "cli/src/omnis_cli/start.py:934-967",
+        "cli/src/omnis_cli/start_runtime.py:159-175",
+        "cli/src/omnis_cli/stop_owner.py:56-65",
+        "cli/src/omnis_cli/stop_owner.py:110-164",
+        "cli/src/omnis_cli/stop_owner.py:230-248",
+        "cli/src/omnis_cli/stop.py:618-682"
+      ],
+      "exact_controls": [
+        "Reviewed24existing shared/normal/emergency cases: catalog and genuine legacy positives; omitted, omitted+replaced directory, inserted legacy catalog, absent metadata, int1 metadata and unknown receipt field negatives. Negatives require unchanged startup bytes, no unreconciled marker, no Engine POST/DELETE and no emergency drain-entry sentinel.",
+        "Parent-reproduced24controls PASS6.60s supplied by parent; meaningful author RED15FAIL9PASS retained, then GREEN169PASS729subtests on safety snapshot. Not independently rerun here because fixtures launch inert services/children outside this read-only no-services contract.",
+        "Only explicit model_test=False was added to old SOURCE fixture producers in test_start/test_stop/SettingsTopologyTest.native. Their declared stock/offline topology matches real constructor behavior. Product fallback was not loosened and assertions were not weakened."
+      ],
+      "limit": "Complementary normative/legacy reachability disposition from changed code and exact existing control review; final safety adjudication belongs to parent."
+    }
+  ],
+  "findings": [],
+  "changed_scope_coverage": [
+    "Normal preparation producer -> emitted bind -> validate_config -> exact full attestor -> default owner -> child-only cleanup and retained IPC identities.",
+    "Sealed model-test authority and old receipt compatibility through shared/normal/emergency Stop, status/restart readback and real runtime constructors.",
+    "No cap change: catalog3000only, legacy2900, grant3600, wire4096 and API8192 remain as originally scoped; alias changes only the fixed-width mount fingerprint digest.",
+    "No new Host/native/pin/environment override, owner, framework, source qualification shortcut or implicit provisioning retry. Ordinary human Publish and one certified Stop/Start remain required before Settings/model CREATE."
+  ],
+  "original_coverage_retained": {
+    "report": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm.json",
+    "sha256": "a82cf756d84bf272fa191553f5930b5efdb51588e1bbd1eb96a0615571eee424",
+    "binding": "Original report and all33original product-copy hashes independently rechecked unchanged. Final delta changes5original paths and adds3;28original paths remain byte-identical.",
+    "requirements": [
+      "Fixed synthetic panel in NewEngagement before target/scope/ROE and existing overview; independent Start.",
+      "Complete first-party9files/profile, real publication/qualification/source verification; preparation scratch blocker now closed SOURCE only.",
+      "Instance-wide persistent intent and one-call budget; duplicate/new UUID, disconnect/reload/unknown/replaced owner do not resend.",
+      "True retained response; requested versus structured technically observed model/effort orUNKNOWN; nullable usage/duration; no identity from prose.",
+      "Existing authenticated session/Origin/CSRF/fences; no browser raw prompt/private refs/SDK/tools/target/retry/fallback/auxiliary.",
+      "Finite300s owner lifetime and source trace of physical Stop/fence/drain and receive-only process-loss behavior; physical execution remains NOT_RUN.",
+      "Retained catalog identity across certified Stop/Start and exact approved conditional inventory bounds; shared authority interaction strengthened by reviewed fix."
+    ]
+  },
+  "commands": [
+    {
+      "command": "pwd; git status --short --branch; git rev-parse HEAD; git diff --stat; git ls-files --others --exclude-standard",
+      "exit": 0,
+      "result": "Requested REVIEW-FINAL detached base;21modified+15untracked=36paths"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <hashlib/json/pathlib/subprocess binding against preparation-fix.patch, preparation-fix-manifest.json, focused-review-delta.json and Git path set>",
+      "exit": 0,
+      "result": "36/36source and10/10assets match; patch139877bytes; hashes match request; exact8path delta"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <git diff --no-index original/final for the8specified delta paths, new test source printed directly>",
+      "exit": 0,
+      "result": "Only requested changed-scope bytes reviewed; no other review consulted"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <direct invocation of existing test_default_preparation_owner_removes_only_its_child with owned scratch and final cli/src+cli/tests sys.path>",
+      "exit": 0,
+      "result": "One existing test body completed; all exact positive/negative/cleanup assertions passed. Origin: review-final/cli/src/omnis_cli/start_runtime.py; omnis_hermes.runtime_host absent from sys.modules.",
+      "scratch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-norm-tmp/normal-preparation-ynrgh774",
+      "environment": "TMPDIR=own scratch; XDG_CONFIG_HOME=own absent-config; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; Python-I-B"
+    },
+    {
+      "command": "Same initial direct-test command with own.mkdir(mode=0700) before existence validation",
+      "exit": 1,
+      "result": "FileExistsError on already-existing owned scratch directory before test imports/execution; NOT_RUN product check. Corrected only scratch-directory prerequisite, then ran fresh child case above; failure preserved here."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <original own report SHA/all33copy checks, original/final path counts, subprocess.run git apply --reverse --check ../preparation-fix.patch and git diff --check with check=True>",
+      "exit": 0,
+      "result": "Original artifacts unchanged;28unchanged+5changed original paths,3new; both Git checks exit0"
+    }
+  ],
+  "reused_evidence": {
+    "source_only": "Author results read as evidence, not as independent approval. No blanket suite or new harness run.",
+    "final_wheel": "Broad run remains173PASS734subtests/1FAIL. After only the explicit legacy producer False correction, whole affected Settings suite+all preparation tests25PASS341subtests exit0, final Ruff lint/format and strict CLI23files exit0. No fictional second all-green broad run.",
+    "unchanged": "API154/web118/parent web10components,type,build4assets/full-source/DTO/Stop-frame evidence reused only within unchanged byte/behavior scope. Current23module wheel/source/copy and-Ichild origins reported checked. No counts promoted to installed acceptance."
+  },
+  "limits": [
+    "Genuine installed candidate publication/qualification/preparation, mounted/native cleanup, cross-boot manifest+catalog, browser/provider1call300s and physical Stop remain NOT_RUN; next consumer is real installed provisioning, not more fixture breadth.",
+    "Original severities and failures remain preserved; original CHANGES_REQUESTED was not overwritten or retroactively relabeled. This report proposes source closure only for the new frozen snapshot.",
+    "Known stockNone441PASS/1FAIL and canonicalNOT_RUN remain unchanged/out-of-scope; no global phase closure or absence-of-all-defects claim.",
+    "No product edits/commits/branches/delegation/services/PG/OCI/native-runtime imports/browser/provider-product calls/credentials/UI8/protected originals/global-setting changes. Only this new report and own rereview scratch written."
+  ],
+  "no_product_effects": true,
+  "parent_action": "Combine both complementary final-snapshot reviews, adjudicate finding closures, then admit the real installed provisioning/two-boot consumer under its separate authorization. Parent alone integrates/commits/closes phase."
+}

@@ -1,0 +1,252 @@
+{
+  "verdict": "SOURCE_FIX_READY_FOR_FOCUSED_REVIEW",
+  "finding": "NORM-WEBTEST-F01",
+  "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+  "preserved_safety_patch_sha256": "bc04ca57b034c915d185331edc19043be2192109e50bf2935a3f4ee7fe63f5e4",
+  "scope": "Only sealed model-test runtime: existing native-ipc0700 bind also at /state/tmp. Keep /runtime, read-only rootfs/security, exact legacy mounts and existing cleanup/Stop identity; no Host/native/pin change.",
+  "frozen_inputs": "Original developer/cap/cli/safety reports, patches, manifests and /review remain immutable; output uses new preparation-fix names only",
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-origin.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-origin.log",
+      "output_summary": "{\"modules\": 23, \"child_exit\": 0, \"origin\": \"/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-origin.json\", \"wheel_sha256\": \"0e64d61f029d6082f23b720fa8ab1101c44914c30066aac51450fd58fb3fa948\"}\n"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py",
+        "test_settings_lifecycle.py",
+        "test_model_test_preparation.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-focused-green.log",
+      "output_summary": "PARENT_WHEEL /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cli-venv/lib/python3.13/site-packages/omnis_cli/__init__.py\nTEST_ONLY_STEM s-: maximum auth-egress path bytes 103\nuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuuuuuuuuuuuu.uuuuuuu.uuuuuuuu.uuuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu...uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuuuuuuuuuuuu.uuuuuuu.uuuuuuuu..AUTH_PRODUCER_SIZES 2889 3366 3541\nAUTH_REPLY_FRAME_BYTES 3588\nAUTH_PRODUCER_SIZES 2900 3377 3552\nAUTH_REPLY_FRAME_BYTES 3599\n.uuu.uuuuuuuuuuuuuuuuuuuuu.uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu...uuuu....\n25 passed, 341 subtests passed in 7.79s\n"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "cli/src",
+        "cli/tests/test_start.py",
+        "cli/tests/test_stop.py",
+        "cli/tests/runtime_inspect_fixture.py",
+        "cli/tests/stop_owner_fixture.py",
+        "cli/tests/test_settings_lifecycle.py",
+        "cli/tests/test_model_test_topology.py",
+        "cli/tests/test_model_test_catalog_lifecycle.py",
+        "cli/tests/test_model_test_preparation.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-final-lint.log",
+      "output_summary": "All checks passed!\n"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "api/pyproject.toml",
+        "cli/src",
+        "cli/tests/test_start.py",
+        "cli/tests/test_stop.py",
+        "cli/tests/runtime_inspect_fixture.py",
+        "cli/tests/stop_owner_fixture.py",
+        "cli/tests/test_settings_lifecycle.py",
+        "cli/tests/test_model_test_topology.py",
+        "cli/tests/test_model_test_catalog_lifecycle.py",
+        "cli/tests/test_model_test_preparation.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-final-format.log",
+      "output_summary": "31 files already formatted\n"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-mypy",
+        "cli/src"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-final-mypy.log",
+      "output_summary": "Success: no issues found in 23 source files\n"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-diff-check.log",
+      "output_summary": ""
+    }
+  ],
+  "effects": "NOT_RUN deployment/services/PG/OCI/native/browser/provider; no credentials/UI8/globals/commits/branch/push/delegation",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "xhigh",
+  "findings": {
+    "NORM-WEBTEST-F01": "FIXED_SOURCE: exact model-test-only native-ipc->/state/tmp bind, constructor/validators/cleanup controls passed; mounted/native acceptance NOT_RUN",
+    "SAFETY-CATALOG-01": "Prior strict sealed-topology fix byte-identical; its shared/normal/emergency controls passed in the broad current-wheel run; focused independent re-review still required"
+  },
+  "changed_since_safety": [
+    "cli/src/omnis_cli/start_runtime.py",
+    "cli/tests/runtime_inspect_fixture.py",
+    "cli/tests/test_model_test_preparation.py",
+    "cli/tests/test_settings_lifecycle.py"
+  ],
+  "implementation": {
+    "producer": "cli/src/omnis_cli/start_runtime.py:settings_overlay",
+    "compose_validator": "cli/src/omnis_cli/start.py:validate_config reuses the exact settings_overlay runtime template, unchanged",
+    "full_attestor": "cli/src/omnis_cli/start_runtime.py:ControlRuntime.attest",
+    "synthetic_inspect": "cli/tests/runtime_inspect_fixture.py:container_item",
+    "stop_restart": "stop_owner._View copies sealed runtime.model_test; _load_runtime derives it from the sealed source manifest. Existing attestor is shared with Stop/restart/status; no new root, identity or inventory field",
+    "alias": "native-ipc0700 remains at /runtime and only model-test also binds to /state/tmp; auth-without-model-test keeps its original two exact mounts",
+    "cleanup": "Exact AST-extracted RuntimeHost._preparation_home(preparation_spec=None), _remove_preparation_home and private_paths.directory; only Path(/state/tmp) locator maps to the real emitted SOURCE bind source. Private0755 negative,0700 writable positive; readonly child removed, original IPC boot/lock bytes+inodes and private parent identity/mode unchanged; crash leftover refused. No native import, TestPreparation, actual bind mount or qualification claim",
+    "legacy_fixture": "SettingsTopologyTest.native now explicitly declares model_test=False, matching its offline sealed profile rather than adding a permissive product default"
+  },
+  "red": {
+    "exit": 1,
+    "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-red-bound.log",
+    "summary": "2 failed / 1 passed before product edits: emitted alias absent; selected normal default cannot map to emitted scratch. First attempt also had a missing SOURCE integrations locator, corrected before this RED; original first log retained."
+  },
+  "broad_current_wheel": {
+    "exit": 1,
+    "log": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-green.log",
+    "summary": "1 failed, 173 passed, 734 subtests passed in 38.41s",
+    "failure": "Legacy SettingsTopologyTest manually constructs ControlRuntime without model_test metadata; fixed only its producer to False. Product constructors already derive this bool.",
+    "selection": [
+      "test_model_test_preparation.py",
+      "test_start.py",
+      "test_start_preflight.py",
+      "test_start_attestation.py",
+      "test_start_boundaries.py",
+      "test_start_stop_boundary.py",
+      "test_restart_wiring.py",
+      "test_stop.py",
+      "test_stop_owner.py",
+      "test_stop_owner_review.py",
+      "test_stop_owner_cleanup.py",
+      "test_stop_receipt.py",
+      "test_stop_wiring.py",
+      "test_install.py",
+      "test_model_test_topology.py",
+      "test_settings_lifecycle.py",
+      "test_model_test_catalog_lifecycle.py",
+      "test_stop_mount_order.py"
+    ]
+  },
+  "after_last_edit": {
+    "focused_exit": 0,
+    "summary": "25 passed, 341 subtests passed in 7.79s",
+    "lint_exit": 0,
+    "format_exit": 0,
+    "strict_cli_mypy_exit": 0,
+    "unchanged_scope_reuse": "Broad run 173 passed/734 subtests retained outside the one corrected legacy test producer; focused run re-exercises entire affected Settings suite and all new preparation tests after that last edit. No claim of a second full run."
+  },
+  "wheel": {
+    "build_install_exit": 0,
+    "build": [
+      "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "build",
+      "--offline",
+      "--no-build-isolation",
+      "--python",
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "--wheel",
+      "--directory",
+      "cli",
+      "--out-dir",
+      "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-wheels"
+    ],
+    "install": [
+      "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "pip",
+      "install",
+      "--offline",
+      "--no-index",
+      "--no-deps",
+      "--reinstall",
+      "--link-mode",
+      "copy",
+      "--python",
+      "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cli-venv/bin/python",
+      "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-wheels/omnis_cli-0.1.0-py3-none-any.whl"
+    ],
+    "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-uv",
+    "origin": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-origin.json",
+    "sha256": "0e64d61f029d6082f23b720fa8ab1101c44914c30066aac51450fd58fb3fa948",
+    "modules_equal": 23,
+    "isolated_child_exit": 0,
+    "test_copies_equal": true,
+    "original_safety_wheel_preserved": true
+  },
+  "limits_unchanged": {
+    "catalog_inventory": 3000,
+    "legacy_inventory": 2900,
+    "grant": 3600,
+    "wire": 4096,
+    "calls": 1,
+    "seconds": 300,
+    "read_only_rootfs": true,
+    "network_none": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "nnp": true,
+    "UID_GID": "unchanged host operator uid:gid",
+    "no_Host_native_pin_schema_grant_changes": true
+  },
+  "reused": "Unchanged API154/web118/parentweb/full method/public DTO/Stop frame evidence retained within original SOURCE scope. Runtime mount fingerprint changes but retains fixed digest width and all inventory fields; no byte-shape or cap increase.",
+  "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/preparation-fix.patch",
+  "patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+  "patch_bytes": 139877,
+  "file_count": 36,
+  "manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-fix-manifest.json",
+  "manifest_sha256": "34dd4d54bc1861bddab580fe44515b4ca10af7912da089dd4742c3dfa9f38000",
+  "frozen_inputs_unchanged": {
+    "developer.patch": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+    "developer-result.json": "acfe2a3a04c02123e2edffe43e3ca0663c13bca5a4666f87008b82ed7b39dd63",
+    "cap-fix-result.json": "ac6ff17522913727f9977c7604ab30ee6f7ae5fe16377e0effb8e610ded2b17a",
+    "cli-finish-result.json": "a7dbda30035f40e428f0cbbf8e445452e67a4dbd0a194ceddb556f9ad77e3174",
+    "safety-fix-result.json": "a1d54e5121c3f4a33a9118f698a1ec63e16d0ef455b830436084b6ccaf70cd3b",
+    "safety-fix.patch": "bc04ca57b034c915d185331edc19043be2192109e50bf2935a3f4ee7fe63f5e4",
+    "tmp/safety-fix-manifest.json": "fa4e4b3300f1c695e8f28ed399c9b654dc675f86954b54925b74bd26ed0aa948",
+    "tmp/frozen-manifest.json": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+    "tmp/safety-origin.json": "561caf4e0b2aef1f33c1d90d2a014f2795667202317e8b8e22c7795470a62086",
+    "tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl": "3ee765e06390601029cedda7ac16fe6604250a62061ab7c77717c0982129716d"
+  },
+  "next_gate": "Parent freezes one shared final snapshot, reproduces both focused findings, requests complementary re-review before installed provisioning/cross-boot QA. No self-approval or deployment claim."
+}

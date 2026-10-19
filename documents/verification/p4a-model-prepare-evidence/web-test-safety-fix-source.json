@@ -1,0 +1,200 @@
+{
+  "verdict": "SOURCE_FIX_READY_FOR_FOCUSED_REVIEW",
+  "finding": "SAFETY-CATALOG-01",
+  "finding_state": "Reproduced and minimally fixed in source; independent focused re-review REQUIRED, not self-approved",
+  "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+  "branch": "work/p2-webtest-5o53dewr",
+  "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "reviewed_input_patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+  "requested_development": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "fallback": false
+  },
+  "fix": {
+    "product_path": "cli/src/omnis_cli/start.py:_bound_instance",
+    "behavior": "Require sealed runtime.model_test to be an actual bool, catalog_identity presence to match it EXACTLY, and model-test topology to use existing auth format4. Existing native/auth/image/instance/directory/type checks remain intact. Unknown metadata fails closed rather than defaulting to legacy.",
+    "scope": "Three predicate clauses in the existing shared owner; no new profile/helper/owner/codec, no cap/grant/provider/source/API/web change.",
+    "legacy_compatibility": "Genuine old sealed auth runtime derives model_test=False from its validated installed manifest; absent catalog field remains valid. Inserted catalog identity cannot grant catalog authority or3000budget.",
+    "construction_trace": "ControlRuntime.__init__ derives model_test from validated _manifest files; stop_owner._load_runtime derives it from the same sealed files; _View copies it. No supported production constructor lacked it. Two old SOURCE owner oracles omitted the newly required bool and were completed explicitly to match their stock/no-model-test topology. No test expectations or guards were relaxed."
+  },
+  "changed_this_fix": [
+    "cli/src/omnis_cli/start.py",
+    "cli/tests/test_model_test_catalog_lifecycle.py",
+    "cli/tests/test_start.py",
+    "cli/tests/test_stop.py"
+  ],
+  "caller_trace": [
+    "Normal prepare_stop_inventory -> stop_owner._static -> _bound_instance before read-only OCI attestation and lifecycle effects; per-stage _execute repeats _static.",
+    "stop._emergency_stop -> typed receipt/_check_pgdata -> _bound_instance before UNCERTAIN journal/marker writes, emergency inventory and _emergency_drain; emergency inventory also repeats binding.",
+    "stop.stop_instance binds preflight and locked receipt before normal/emergency selection; verify_running binds before resource/dashboard readback.",
+    "verify_stop_completion -> _static; stop.readback_stopped, isolated Stop owner, restart.prepare_restart, start stopped/reuse gate and status retained readback reuse this binding."
+  ],
+  "test_boundary": "SOURCE: existing Fixture actual sealed-release/runtime metadata constructor and read-only _View/StopEngine against synthetic Engine; owned inert forwarder/process-family fixture. Actual shared/normal/emergency product consumers, real receipt/filesystem checks. Emergency drain is an abort sentinel: matching catalog AND genuine legacy positives reach it, invalid inputs never do. No real lifecycle drain/signals/OCI/native/PG/provider effects.",
+  "tests": {
+    "new_controls": "24cases: shared _bound_instance, normal prepare_stop_inventory and actual _emergency_stop across valid catalog, valid old sealed legacy auth, omitted field, omitted+replaced directory, foreign legacy insertion, absent runtime metadata, integer-instead-of-bool metadata and unknown receipt field. Existing wrong/missing/swapped/boolean identity controls retained.",
+    "negative_assertions": "Invalid inputs must raise StartError before drain, leave startup.json byte-identical, create no unreconciled marker and emit no Engine POST/DELETE. No xfail/skip/any/ignore/assertion weakening.",
+    "positive_precondition_correction": "Initial new emergency positive used a FINALIZED fixture, correctly refused by existing emergency guard. Before product edit, corrected only emergency input to a legitimate unfinalized STOPPING receipt; matching positives then pass while the actual authority defects remain RED."
+  },
+  "red_green": [
+    {
+      "check": "Parent exact reviewer reproduction",
+      "artifact": "tmp/parent-catalog-red/result.json",
+      "result": "Old guard accepts omission, omission+replacement and inserted legacy field; actual emergency reaches effect-entry sentinel. Parent script/output preserved, not edited or re-executed against /review."
+    },
+    {
+      "check": "Initial own new test run before product edit",
+      "exit": 1,
+      "result": "17FAILED/7PASS in7.43s; includes2invalid emergency-positive prerequisites. Full tool output retained at /home/kali/.hermes/cache/terminal-output/out-1792398843-3207310-29e0.log."
+    },
+    {
+      "check": "Corrected own meaningful RED before product edit",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py",
+        "test_model_test_catalog_lifecycle.py::test_catalog_authority_matches_sealed_topology"
+      ],
+      "exit": 1,
+      "result": "15FAILED/9PASS in7.20s; valid catalog/legacy positives pass; omitted/foreign/unknown typed authority reaches acceptance/drain or journal mutation",
+      "log": "tmp/safety-red.log"
+    },
+    {
+      "check": "Current rebuilt wheel focused GREEN",
+      "exit": 0,
+      "result": "24PASS in6.63s"
+    },
+    {
+      "check": "First full changed-guard caller suite",
+      "process": "proc_cb9e4d408c92",
+      "exit": 1,
+      "result": "57FAILED/150PASS/651subtests in35.51s. Diagnosed one shared prerequisite: two SOURCE owner oracles omitted sealed model_test metadata; real supported constructors already supply it. Completed only their stock False metadata, no changed expectations or permissive product fallback."
+    },
+    {
+      "check": "Focused old native start/restart/emergency positives plus24new cases after oracle completion",
+      "exit": 0,
+      "result": "27PASS in6.98s"
+    },
+    {
+      "check": "Final full affected current-wheel caller suite",
+      "process": "proc_e17bfa4d217e",
+      "exit": 0,
+      "result": "169PASS/729subtests in39.30s after LAST edit",
+      "log": "tmp/safety-green.log"
+    }
+  ],
+  "commands": [
+    {
+      "command": "UV_CACHE_DIR=tmp/uv-cache /home/kali/.local/share/omnis-toolchains/uv-0.12.19 build --offline --no-build-isolation --python /home/kali/OmnisAI/api/.venv/bin/python --wheel --directory cli --out-dir tmp/wheels && same uv pip install --offline --no-index --no-deps --reinstall --link-mode copy --python tmp/cli-venv/bin/python tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl",
+      "exit": 0,
+      "result": "Wheel rebuilt/reinstalled AFTER product predicate edit; later edits affect only test metadata, not wheel source"
+    },
+    {
+      "command": "Pinned Python zip/source/installed byte equality for all23modules plus bounded10s tmp/cli-venv/bin/python -I -B import/config child with owned absent XDG_CONFIG_HOME",
+      "exit": 0,
+      "artifact": "tmp/safety-origin.json",
+      "result": "23modules byte-equal; parent and python-I child origins are own current installed wheel"
+    },
+    {
+      "command": "RUFF_CACHE_DIR=tmp/ruff /home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml cli/src cli/tests/test_start.py cli/tests/test_stop.py cli/tests/runtime_inspect_fixture.py cli/tests/stop_owner_fixture.py cli/tests/test_settings_lifecycle.py cli/tests/test_model_test_topology.py cli/tests/test_model_test_catalog_lifecycle.py",
+      "exit": 0,
+      "result": "Final affected lint PASS after LAST edit; earlier B010 on malicious metadata setattr corrected with explicit __dict__ injection, no ignore"
+    },
+    {
+      "command": "Same pinned interpreter/cache/config: ruff format --check on same CLI product and7affected test paths",
+      "exit": 0,
+      "result": "30files already formatted after LAST edit"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/mypy-cli-safety",
+        "cli/src"
+      ],
+      "exit": 0,
+      "result": "Strict CLI product/import closure23files, no issues after LAST edit"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py"
+      ],
+      "exit": 0,
+      "result": "169PASS/729subtests; existing affected start/restart/stop/receipt/release/settings/model-test selections, all changed guard callers rerun, not old145PASS transferred",
+      "stdout": "tmp/safety-green.log"
+    },
+    {
+      "command": "git diff --check; exact frozen-review patch/manifest/path binding and new safety output integrity",
+      "exit": 0,
+      "result": "New outputs only; no frozen reviewer input overwritten"
+    }
+  ],
+  "command_cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "path_expansion": {
+    "tmp": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp"
+  },
+  "runner_environment": "Unchanged prior correct isolated wheel/test copy runner; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, PYTHONDONTWRITEBYTECODE=1, XDG_CONFIG_HOME=owned absent tmp/cli-absent-config, TMPDIR=owned tmp; only legacy owned fixture stem shortened s- for103byte AF_UNIX path. Product path caps unchanged.",
+  "wheel_sha256": "3ee765e06390601029cedda7ac16fe6604250a62061ab7c77717c0982129716d",
+  "reused_unchanged": "154API/118web/parent finalweb, full method/preparation/public/Stop sizing retained in original reports. No shape/cap/model/output changes and no duplicate remeasurement. Exact catalog3000/legacy2900/+1 and grant3600/wire4096 assertions still pass inside affected CLI regression.",
+  "frozen_review_inputs": "Original /review, developer.patch, tmp/frozen-manifest.json, developer-result.json, cap-fix-result.json and cli-finish-result.json remain unchanged. New safety-fix.patch is COMPLETE delta from base, not an incremental patch to the old artifact. No parent-owned links removed.",
+  "next_gate": "Parent merges findings and freezes a shared reviewer snapshot; focused independent re-review of SAFETY-CATALOG-01 and any resulting legitimate owner/oracle metadata prerequisite REQUIRED. No waiting or polling of ongoing normative review.",
+  "effects_NOT_RUN": [
+    "Product services/Docker/PG/native/browser/provider/deployment",
+    "Independent focused re-review and final acceptance",
+    "Genuine installed qualification/preparation/cross-boot/panel/real-model1call300s/phase2 closure"
+  ],
+  "safety_limits": "No commits/branch/push/delegation/globals, no credentials/UI8/private-root or protected-original reads/copies/hashes. Development settings unchanged. Source test doubles and effect-entry sentinel are not live drain/inference proof.",
+  "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/safety-fix.patch",
+  "patch_sha256": "bc04ca57b034c915d185331edc19043be2192109e50bf2935a3f4ee7fe63f5e4",
+  "patch_bytes": 128942,
+  "path_sha_manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/safety-fix-manifest.json",
+  "manifest_sha256": "fa4e4b3300f1c695e8f28ed399c9b654dc675f86954b54925b74bd26ed0aa948",
+  "changed_file_count": 35,
+  "freeze": {
+    "status": "PASS",
+    "changed_since_review": [
+      "cli/src/omnis_cli/start.py",
+      "cli/tests/test_model_test_catalog_lifecycle.py",
+      "cli/tests/test_start.py",
+      "cli/tests/test_stop.py"
+    ],
+    "old_paths_unchanged": 31,
+    "new_inseparable_fixture_paths": [
+      "cli/tests/test_start.py",
+      "cli/tests/test_stop.py"
+    ],
+    "full_source_assets_unchanged": 10,
+    "patch_parser_entries": 35,
+    "current_wheel_source_installed_modules": 23,
+    "final_test_copy_equal": true,
+    "git_diff_check_exit": 0,
+    "frozen_review_inputs_unchanged": {
+      "developer.patch": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+      "tmp/frozen-manifest.json": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+      "developer-result.json": "acfe2a3a04c02123e2edffe43e3ca0663c13bca5a4666f87008b82ed7b39dd63",
+      "cap-fix-result.json": "ac6ff17522913727f9977c7604ab30ee6f7ae5fe16377e0effb8e610ded2b17a",
+      "cli-finish-result.json": "a7dbda30035f40e428f0cbbf8e445452e67a4dbd0a194ceddb556f9ad77e3174"
+    },
+    "no_review_checkout_writes": true,
+    "no_parent_links_removed": true
+  },
+  "artifact_sha256": {
+    "tmp/safety-origin.json": "561caf4e0b2aef1f33c1d90d2a014f2795667202317e8b8e22c7795470a62086",
+    "tmp/safety-red.log": "6ee192cf38d1b65886a5af83f1db7cd8a17882be7f1daec9623654421a06e6d2",
+    "tmp/safety-green.log": "15da20a3730b5d173c4ccf3ac8db8a1449dd80fb71ef282a49e79a4319be0423",
+    "tmp/parent-catalog-red/result.json": "ea052aca1b1d8176114075496be065f29947d5ebc94dde8245a1c4e8b04b34c5",
+    "review-safety.json": "1b0c89ca9961208f54000ba9849f54800b60e45e43c0516f8705eccbbccc87e9"
+  }
+}

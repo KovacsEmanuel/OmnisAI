@@ -1,0 +1,79 @@
+{
+  "snapshot": {
+    "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+    "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-final",
+    "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/preparation-fix.patch",
+    "patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/preparation-fix-manifest.json",
+    "manifest_sha256": "34dd4d54bc1861bddab580fe44515b4ca10af7912da089dd4742c3dfa9f38000",
+    "binding": "PASS: detached base, complete patch/manifest hashes, exact36file path set and all36file/10source-asset sizes+SHA256; computed delta equals supplied8paths, none removed"
+  },
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Completed focused complementary SOURCE re-review: SAFETY-CATALOG-01, shared normal/emergency/retained lifecycle binding, genuine legacy compatibility, and security/identity/cleanup consequences of the model-test-only native-ipc alias at /state/tmp. Not installed acceptance, normative review substitution, integration or phase closure.",
+  "original_finding_dispositions": [
+    {
+      "id": "SAFETY-CATALOG-01",
+      "severity": "HIGH",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "original_failure_preserved": "review-safety.json SHA256 1b0c89ca9961208f54000ba9849f54800b60e45e43c0516f8705eccbbccc87e9 and original source/reproducer remain unchanged; prior accepted omission/replacement/insertion was a genuine defect, not relabeled green",
+      "fix": "start.py:945-947 requires a real bool, exact equality of catalog_identity presence with sealed runtime.model_test, and supported format4. Existing strict identity/profile checks remain. ControlRuntime.__init__:168 and stop_owner._load_runtime:118 derive bool from validated manifest; _View:64 copies it. Genuine legacyFalse/no-catalog is accepted; absent/unknown metadata is not silently treated as legacy.",
+      "independent_controls": "catalog_replay.py exit0,16controls: matching catalog and legacy each pass normal _static and reach emergency effect-entry abort sentinel; omission, omission+physical replacement, inserted legacy catalog, absent metadata and integer metadata each refuse with IMAGE_PROFILE_MISMATCH on both channels; unknown receipt field refuses RECOVERY_REQUIRED on both. Every refusal preserves journal bytes, creates no unreconciled marker and never reaches the effect sentinel. Actual instance.json reader and schema/path/binding guards; emergency socket/OCI read-only oracles are explicit doubles.",
+      "callers_checked": "stop.py:398,629,662 binds before emergency journal writes/selection; normal stop_owner._static:161-171 is used before inventory, per-stage effects and verify_stop_completion:675. readback_stopped:202, explicit Start stopped gate, restart.prepare_restart:55, status STOPPING/STOPPED and isolated owner reuse those guards. No pending effect replay or receipt promotion added.",
+      "limits": "SOURCE disposition only; full OCI Stop/retained restart and process-loss behavior were not executed here. Parent adjudicates final closure."
+    },
+    {
+      "id": "NORM-WEBTEST-F01",
+      "severity": "HIGH",
+      "disposition": "APPROVED_COMPLEMENTARY_SOURCE_SCOPED",
+      "interaction": "Parent-supplied normative blocker retained at HIGH; this reviewer independently checked its alias safety/cleanup interaction, not another review verdict. Normative reviewer and parent decide its full reachability disposition.",
+      "fix": "start_runtime.settings_overlay:121-125 aliases only the existing owner-bound native-ipc0700directory at /state/tmp when the sealed model_test bool is true. /runtime and provider binds remain; no new host directory, identity, inventory field, tmpfs, writable rootfs, environment or Host/native/pin modification.",
+      "controls_and_trace": "validate_config:213-219 compares the exact emitted runtime template. Full attest:487-493 includes the exact alias only for model-test, retaining mount count, strict RW/rprivate checks and existing security restrictions. Reviewed source controls reject missing/wrong-source/read-only/extra/legacy aliases on both validators. Independent single default-preparation test passed1/0.13s: exact AST-extracted ordinary None constructor and cleanup use the actual emitted SOURCE locator;0755fails,0700works, only the fresh child is removed, boot/lock bytes+inodes and parent identity/mode survive, leftover refuses. Native runtime was not imported. Dockerfile.hermes:32-35 keeps /state root-owned0755, compatible with private_paths ancestor checks.",
+      "limits": "SOURCE locator/constructor/cleanup proof, not an actual bind mount, native qualification, installed preparation or cross-boot proof."
+    }
+  ],
+  "findings": [],
+  "changed_scope_coverage": [
+    "Exact8path delta reviewed: start.py, start_runtime.py, runtime_inspect_fixture.py, test_model_test_catalog_lifecycle.py, test_model_test_preparation.py, test_settings_lifecycle.py, test_start.py, test_stop.py",
+    "Unknown or foreign catalog authority now refuses before BOTH normal/emergency effects; valid old sealedFalse topology remains compatible. ExplicitFalse fixes only old SOURCE producers; genuine production constructors already set bool.",
+    "Alias names the same identity already retained as runtime_dir; mount attestation covers it and Stop uses the same source/runtime metadata. Native preparation cleanup is child-root identity checked, fd-based/no-follow and performed after worker drainage; it does not chmod/delete the native-ipc parent or sibling boot/lock. Leftover refusal and unchanged Start enumeration remain conservative.",
+    "Catalog3000/legacy2900/grant3600/wire4096 guards are byte-unchanged from original reviewed source. Injected catalog receipt can no longer reach effect authority on a sealed legacy runtime. No public/profile/grant authority was added."
+  ],
+  "original_unchanged_coverage_retained": {
+    "reference": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety.json",
+    "reference_sha256": "1b0c89ca9961208f54000ba9849f54800b60e45e43c0516f8705eccbbccc87e9",
+    "coverage": [
+      "Test model accessible in NewEngagement before target/scope/ROE and separately in existing overview/Start",
+      "Authenticated session/Origin/CSRF, strict public request/DTO, no raw browser prompt/model/private refs, escaped response and session-epoch fencing",
+      "Instance-wide durable one-shot1call/300s; persist intent before dispatch; duplicate/newUUID no refill; read/reload/unknown/restart no resend",
+      "Authority/epoch/initial OPEN bind and concurrent Stop source trace with unchanged short grants/exchange limits",
+      "Finite supervisor task and actual Host/native physical Stop/revoke/abort/join/drain source trace, never a physical-run claim",
+      "Retained actual response versus requested/technically observed config orUNKNOWN, nullable duration/usage",
+      "Full sealed first-party9files/profile, existing human Publish/NO_MODEL preparation chain, isolated immutable candidate and explicit provisioning Stop/Start",
+      "StopGrant exact retention/readback/restart and fixed frame caps; catalog presence blocker superseded only by the scoped disposition above"
+    ],
+    "rule": "Unchanged bytes and original proof limits retained, not re-audited or promoted to installed/live evidence; no unreviewed requirement is certified by focused closure"
+  },
+  "commands": [
+    {"command": "pwd; git status --short --branch; git rev-parse HEAD; git diff --stat; git ls-files --others --exclude-standard", "exit": 0},
+    {"command": "Pinned Python -I -B stdlib exact base/complete-patch/manifest/all36file+10asset/path-set verification and difflib comparison with original /review; compare actual delta with tmp/focused-review-delta.json", "exit": 0, "result": "PASS; exact8paths"},
+    {"command": "XDG_CONFIG_HOME=rereview-safety-tmp/absent-config /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-safety-tmp/catalog_replay.py > rereview-safety-tmp/catalog-result.json", "exit": 0, "result": "16controls:2normal accepts,2positive effect-entry abort sentinels,10IMAGE_PROFILE_MISMATCH,2RECOVERY_REQUIRED"},
+    {"command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 XDG_CONFIG_HOME=rereview-safety-tmp/absent-config TMPDIR=rereview-safety-tmp /home/kali/OmnisAI/api/.venv/bin/python -I -B -c <explicit review-final/cli/src and cli/tests sys.path; pytest.main --noconftest -p no:cacheprovider --basetemp=rereview-safety-tmp/preparation-unit -q cli/tests/test_model_test_preparation.py::test_default_preparation_owner_removes_only_its_child>", "exit": 0, "result": "SOURCE_ORIGIN review-final/cli/src/omnis_cli/start_runtime.py;1passed in0.13s"},
+    {"command": "Pinned stdlib parse catalog-result.json and aggregate control results; hash original own report", "exit": 0, "result": "16controls verified; original report unchanged"},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "reused_evidence": "Read safety-fix-result.json and preparation-fix-result.json as author evidence only. Meaningful safetyRED15FAIL9PASS and169PASS729subtests preserved. Latest broad run remains173PASS734subtests/1FAIL; after test-only explicitFalse producer fix, affected Settings+preparation25PASS341subtests and final lint/format/strict CLI23files exit0 are reused in their exact stated scope, not a fictional second broad all-green. API154/web118/parentweb/full-source/DTO/Stop-frame evidence unchanged. No blanket suite rerun.",
+  "limits": [
+    "No genuine installed source/preparation, operator auth/HUMAN TTY Publish, PG/OCI/native/browser/provider, physical Stop/process-loss or cross-boot execution. All remainNOT_RUN; real installed provisioning consumer is next after both independent source reviews/parent admission.",
+    "Independent controls are SOURCE only with declared emergency read-only oracles and effect-entry abort sentinel. Single cleanup test extracts exact method bodies and substitutes only the container locator, not a native launch/mount.",
+    "Existing stockNone runtime441PASS/1FAIL and canonicalNOT_RUN remain unchanged/out-of-scope. No universal absence-of-defects claim.",
+    "No other review read or author consultation/delegation. Parent owns adjudication/integration/commits; this report does not close the phase."
+  ],
+  "evidence": {
+    "catalog_result": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-safety-tmp/catalog-result.json",
+    "catalog_result_sha256": "3fa16332e95f50fd8e3ec9d36a38e4315a98e8e9b130d623e0ce70e25052e975",
+    "preparation_result": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-safety-tmp/preparation-result.txt"
+  },
+  "no_product_effects": true,
+  "writes": ["/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-safety.json", "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/rereview-safety-tmp/"],
+  "prohibited_actions": "No product edits/commits/branch changes, services/sockets/PG/OCI/native/browser/provider calls, credentials/UI8/protected-original reads, global settings or delegation. Originals preserved."
+}

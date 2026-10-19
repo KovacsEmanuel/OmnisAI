@@ -1,0 +1,9 @@
+{
+  "bundle": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/artifact-build/bundle",
+  "release_sha256": "3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6",
+  "payloads": 25,
+  "profile": "p4a-codex-auth",
+  "source_commit": "4370a403b806f28d510c3e404d1b884792d6551e",
+  "source_patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+  "scope": "Real current builder plus exact installer manifest readback; BUILD_ONLY, no OCI/installed/live proof"
+}

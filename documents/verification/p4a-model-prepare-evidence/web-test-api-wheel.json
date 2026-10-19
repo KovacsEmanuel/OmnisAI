@@ -1,0 +1,9 @@
+{
+  "wheel": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/artifact-build/wheels/omnis_api-0.1.0-py3-none-any.whl",
+  "sha256": "0da140737adde64e225cac1c3543c64ee515a550aa8873060dc2d388d05f4425",
+  "package_paths": 99,
+  "all_source_bytes_match": true,
+  "build_exit": 0,
+  "input_binding": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/artifact-build/source-binding.json",
+  "scope": "Offline real API wheel from isolated frozen API input copy; native closure3260 validated without runtime import. No code review approval, install, OCI/PG/native/browser/provider proof."
+}

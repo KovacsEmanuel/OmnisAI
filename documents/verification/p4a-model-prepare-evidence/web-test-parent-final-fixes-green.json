@@ -1,0 +1,14 @@
+{
+  "source_patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+  "command": "umask 077; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py test_model_test_catalog_lifecycle.py test_model_test_preparation.py > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-final-fixes-green.log 2>&1",
+  "exit": 0,
+  "summary": [
+    ".AUTH_PRODUCER_SIZES 2969 3446 3627",
+    "AUTH_REPLY_FRAME_BYTES 3674",
+    "AUTH_PRODUCER_SIZES 3000 3477 3658",
+    "AUTH_REPLY_FRAME_BYTES 3705",
+    "33 passed in 9.45s"
+  ],
+  "source_unchanged": true,
+  "scope": "Parent final current-wheel catalog authority and complete Stop caps plus normal preparation producer/mount attestation/default AST owner scratch/cleanup/legacy controls. SOURCE synthetic Engine and mapped default-path locator; no mounted/native/PG/provider proof or independent approval."
+}

@@ -1,0 +1,54 @@
+{
+  "decision": "ACCEPTED_SOURCE_SCOPED_NOT_INSTALLED",
+  "source_commit": "4370a403b806f28d510c3e404d1b884792d6551e",
+  "source_patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+  "source_manifest_sha256": "34dd4d54bc1861bddab580fe44515b4ca10af7912da089dd4742c3dfa9f38000",
+  "source_paths": 36,
+  "reviews": {
+    "norm": {
+      "report": "web-test-rereview-norm.json",
+      "sha256": "6b8c11ae23dbb181cbabbe163295723e148dddefd14b639602dd43e9a10d09dc",
+      "patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a"
+    },
+    "safety": {
+      "report": "web-test-rereview-safety.json",
+      "sha256": "285ae305182b5ef9ef8ee8d72d7d0542442ab0c1d415ed9c2627e3546e48bddd",
+      "patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a"
+    }
+  },
+  "finding_dispositions": {
+    "SAFETY-CATALOG-01": "CLOSED_SOURCE_SCOPED: actual sealed bool/catalog presence equality before both lifecycle paths; parent24then final33controls; no false legacy default",
+    "NORM-WEBTEST-F01": "CLOSED_SOURCE_SCOPED: exact same-root private scratch alias normal producer/attestor/default cleanup; parent final33controls; mounted/native proof remains NOT_RUN"
+  },
+  "parent_integrated_API": {
+    "command": "api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_operation.py api/tests/test_model_test_routes.py api/tests/test_model_test_source.py -q --basetemp=<owned>/parent-integrated-api",
+    "passed": 8,
+    "seconds": 6.78,
+    "exit": 0,
+    "boundary": "SOURCE API/UDS with declared storage/runtime doubles"
+  },
+  "retained_failures": "Initial two HIGH CHANGES_REQUESTED original reports remain immutable; broad173PASS734subtests/1FAIL retains failure. Only legacy test producer False changed afterward; whole affected Settings/preparation25PASS341subtests after last edit, plus parent33current-wheel controls. Not a fictional full second broad green. StockNone/runtime441PASS1FAIL and canonicalNOT_RUN remain.",
+  "artifact": {
+    "bundle": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/artifact-build/bundle",
+    "release_sha256": "3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6",
+    "payloads": 25,
+    "profile": "p4a-codex-auth",
+    "source_commit": "4370a403b806f28d510c3e404d1b884792d6551e",
+    "source_patch_sha256": "84d8cf8e73e76a2c1f3a081e528f3baf8af5a39d5376b26608c95643079a776a",
+    "scope": "Real current builder plus exact installer manifest readback; BUILD_ONLY, no OCI/installed/live proof"
+  },
+  "budget": {
+    "product_calls_spent": 0,
+    "first_call_limit": 1,
+    "wall_seconds": 300,
+    "targets_tools_retry_fallback_auxiliary": "FORBIDDEN"
+  },
+  "next_admitted_effect": "Fresh isolated UI9 port8766 via original install/install-image/start owners; genuine source publication/preparation and cross-boot consumer after its no-effect/resource preflight. Human TTY Publish and candidate auth belong to operator. No UI8 copy/adoption/upgrade or global change.",
+  "NOT_RUN": [
+    "fresh candidate installed/runtime proof",
+    "genuine operator Publish/native preparation",
+    "cross-boot/browser response",
+    "real provider1call300s",
+    "full canonical/phase2 closure"
+  ]
+}

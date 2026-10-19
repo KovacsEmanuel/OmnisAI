@@ -85,8 +85,10 @@ async def test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg(
             original = (
                 await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
             ).scalar_one()
+        before_update = time.monotonic()
         with pytest.raises(ControlConflict, match="LEASE_LOST"):
             await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup="launch")
+        assert time.monotonic() - before_update >= 0.3
         async with engine.connect() as conn:
             assert (
                 await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))

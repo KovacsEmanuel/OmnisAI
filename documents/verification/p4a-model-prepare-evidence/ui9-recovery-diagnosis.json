@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "scope": "UI9 supervisor idle exit and existing same-installation recovery; read-only source review with memory-only checks",
+  "repository": "/home/kali/OmnisAI",
+  "head": "01ca4e8b6a2586ce2cc65c5e8c94447e57a3f855",
+  "verdict": {
+    "historical_root_cause": "UNKNOWN",
+    "demonstrated_behavior": "Exit 3 is the supervisor's deliberate sanitized failure mapping, not a unique crash diagnosis. Loss of current lease, schema/DB availability or runtime exchange can reach it even with no native/model work.",
+    "fail_fast_after_authority_or_channel_loss": "EXPECTED_CONSERVATIVE_BEHAVIOR",
+    "idle_trigger_product_defect": "NOT_DEMONSTRATED",
+    "existing_supported_recovery_to_READY_from_current_state": false,
+    "product_journey": "BLOCKED before native preparation; no new profile, deadline enlargement, service retry or mutation authorized by this report"
+  },
+  "observations": {
+    "resource_evidence": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/ui9-resources-observed.json",
+    "supervisor": {
+      "cid": "bcd1288a8948e370b7a7df2544bcf6cec82af327d32b5601b4330dc55108db0f",
+      "state": "exited",
+      "exit_code": 3,
+      "oom_killed": false,
+      "started_at": "2026-10-19T09:34:05.745632816Z",
+      "finished_at": "2026-10-19T12:25:22.236651034Z"
+    },
+    "other_services": "API, DB and runtime containers running at parent's observation, not proof of healthy control or live native work",
+    "wrapper_status": {"exit_code": 4, "state": "UNAVAILABLE", "reason": "RECOVERY_REQUIRED"},
+    "journal": {"phase": "READY", "unreconciled_marker_present": false},
+    "parent_supplied_readonly_db": {
+      "evidence": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/ui9-db-observed.json",
+      "provenance": "Parent reported exact-owned DB BEGIN READ ONLY / ROLLBACK, exit 0; not repeated by this reviewer",
+      "lease_epoch": 1,
+      "lease_owner_present": true,
+      "lease_expires_at": "2026-10-19T10:19:13.624088Z",
+      "lease_live": false,
+      "confirmation": "same saved id/digest",
+      "head_generation": 1,
+      "publication_ref": null,
+      "model_test_records": 0
+    },
+    "diagnostics_limit": "Parent reports only finite READY/UNAVAILABLE log markers and no matching suspend/timejump/OOM journal pattern in its bounded window. Raw logs were not read or printed. Neither expiry time nor absence of matching journal entries proves the initiating cause."
+  },
+  "findings": [
+    {
+      "id": "UI9-D1",
+      "classification": "DEMONSTRATED_SOURCE_BEHAVIOR",
+      "claim": "The normal supervisor has no total idle-lifetime expiry. Every approximately one-second cycle rechecks schema, heartbeats the DB lease, quiesces and requests runtime status. IDLE is accepted in the normal non-probe branch. A raised error escapes the loop and reaches exit 3; no generic reconnect/retry exists there.",
+      "evidence": [
+        "api/src/omnis/supervisor/__main__.py:152-175",
+        "api/src/omnis/supervisor/__main__.py:203-216",
+        "api/src/omnis/modules/instance/service.py:224-234",
+        "api/src/omnis/modules/instance/service.py:256-280"
+      ]
+    },
+    {
+      "id": "UI9-D2",
+      "classification": "CONDITIONAL_MECHANISM_NOT_HISTORICAL_CAUSE",
+      "claim": "A runtime stream read gap exceeding 2.5 seconds makes RuntimeHost emit RUNTIME_DENIED with id=null. The next client exchange requires its own request id, so it rejects the uncorrelated frame, closes the channel and raises RuntimeUnavailable. Ordinary exchanges also have a 2-second timeout. The supervisor normally sends status each one-second cycle; no observation proves such a gap or timeout occurred in UI9.",
+      "evidence": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:1331-1340",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:1392-1410",
+        "api/src/omnis/supervisor/runtime_client.py:489",
+        "api/src/omnis/supervisor/runtime_client.py:533-541",
+        "api/src/omnis/supervisor/runtime_client.py:612-623",
+        "api/tests/test_contract_method_pg.py:4510-4565"
+      ],
+      "existing_test_limit": "Existing held-idle/released-same-boot real-UDS regression was inspected, not executed because it creates IPC/private runtime metadata outside this read-only task. It does not establish this incident's cause."
+    },
+    {
+      "id": "UI9-D3",
+      "classification": "DIAGNOSTIC_AMBIGUITY",
+      "claim": "SUPERVISOR_UNAVAILABLE merges OSError, ValueError (including RuntimeUnavailable), TimeoutError, SQLAlchemyError and domain conflicts. Cleanup can replace the first error: failed runtime drain raises before service.release. Thus owner_present=true with an expired lease is compatible with, but does not identify, several paths; exit 3 and the current DB row cannot select one.",
+      "evidence": [
+        "api/src/omnis/supervisor/__main__.py:177-198",
+        "api/src/omnis/supervisor/__main__.py:203-216",
+        "api/src/omnis/supervisor/runtime_client.py:29-30",
+        "api/src/omnis/supervisor/runtime_client.py:811-826"
+      ]
+    },
+    {
+      "id": "UI9-R1",
+      "classification": "DEMONSTRATED_RECOVERY_BOUNDARY",
+      "claim": "Existing Start cannot recover this READY journal with an exited supervisor. It takes verify_running, which requires every recorded service Running=true and refuses with RECOVERY_REQUIRED/4. No restart subcommand exists; restart.py is only the internal STOPPED-to-Start reconciliation path.",
+      "evidence": [
+        "cli/src/omnis_cli/start.py:970-999",
+        "cli/src/omnis_cli/start.py:1122-1147",
+        "cli/src/omnis_cli/main.py:21-60",
+        "cli/src/omnis_cli/restart.py:43-65"
+      ]
+    },
+    {
+      "id": "UI9-R2",
+      "classification": "EXISTING_CONTAINMENT_NOT_RECOVERY",
+      "claim": "Existing Stop attempts verify_running first. With this failed service it enters emergency Stop, durably marks UNCERTAIN/unreconciled before inventory/drain and returns failure. That path removes only exactly attested resources and preserves PGDATA, but does not manufacture FINALIZE/STOPPED or provide a supported next Start. It may also refuse before teardown if exact identity/IPC checks fail. Do not run stop merely as a recovery experiment.",
+      "evidence": [
+        "cli/src/omnis_cli/stop.py:266-307",
+        "cli/src/omnis_cli/stop.py:310-382",
+        "cli/src/omnis_cli/stop.py:385-420",
+        "cli/src/omnis_cli/stop.py:663-690",
+        "cli/src/omnis_cli/start.py:1122-1123",
+        "cli/README.md:139-145"
+      ]
+    },
+    {
+      "id": "UI9-R3",
+      "classification": "EXISTING_NORMAL_RESTART_PREREQUISITES_UNMET",
+      "claim": "The data-preserving normal path is verified SHUTDOWN, quiescence, FINALIZE, Stop grant and COMPLETED host receipt, then STOPPED and a new explicit Start with DB-only reconciliation ACK before supervisor acquisition/OPEN. Current READY/exited control has no such receipt. Reusing stop_reconcile requires that authentic grant/completion; absence of native work does not create it. Direct supervisor restart would acquire a new epoch and, if admission is open, close/increment its generation, rather than restore the journal's old authority.",
+      "evidence": [
+        "cli/src/omnis_cli/stop.py:713-797",
+        "cli/src/omnis_cli/restart.py:43-94",
+        "cli/src/omnis_cli/restart.py:97-121",
+        "cli/src/omnis_cli/restart.py:223-236",
+        "api/src/omnis/modules/instance/service.py:236-271",
+        "api/src/omnis/modules/instance/service.py:740-802",
+        "cli/src/omnis_cli/start.py:1027-1032"
+      ]
+    },
+    {
+      "id": "UI9-R4",
+      "classification": "PERSISTENT_CONFIRMATION_NOT_BOOT_AUTHORITY",
+      "claim": "Catalog confirmation is a persistent operator-confirmation record bound to owner, exact selection and catalog head, not supervisor epoch/boot. There is no reason to repeat the human confirmation solely because the supervisor died. Normal restart retains existing PGDATA/catalog directories; emergency containment does not intentionally delete them. However survival is not a demonstrated recovery to READY. Native preparation still needs the live current supervisor owner and IDLE runtime, and the same-instance source record is presently absent per parent.",
+      "evidence": [
+        "api/src/omnis/modules/settings/catalog_publication.py:179-198",
+        "api/src/omnis/modules/settings/catalog_publication.py:379-416",
+        "cli/src/omnis_cli/start.py:1198-1216",
+        "cli/tests/test_model_test_catalog_lifecycle.py:19-62",
+        "api/src/omnis/modules/runs/model_test_source.py:62-105",
+        "api/src/omnis/modules/runs/model_test_source.py:165-175"
+      ]
+    }
+  ],
+  "exact_missing_observation": {
+    "historical_cause": "The FIRST failing producer/await phase and its allowlisted exception type/domain code before RuntimeClient normalization and supervisor finally: schema read, lease heartbeat/quiesce, runtime status/renew, or cleanup. For a timeout/idle-gap claim, the corresponding observed DB-clock lease check and monotonic frame/response interval are also missing. Existing finite log markers and current expired lease do not reconstruct them.",
+    "recovery": "This is not waiting for another broad log/query: the supported lifecycle has no transition from the observed READY journal plus dead supervisor to reconciled READY without authentic completed Stop authority. The parent already supplied the minimum read-only DB facts; no duplicate DB/log reads are proposed."
+  },
+  "minimum_next_decision": {
+    "recommendation": "Keep UI9 data/catalog/confirmation and the failure evidence unchanged. Decide explicitly whether to authorize a narrowly scoped same-instance crash-recovery procedure/product slice with verified backup/restore and durable reconciliation, or leave this journey BLOCKED. Do not replace the installation/profile or pretend normal Stop-to-Start is currently admissible.",
+    "scope_if_authorized": "Only original UI9 identities/PGDATA/catalog and existing owners; establish exact state and no unresolved work, preserve confirmation/head/source, reconcile new lease/generation plus host journal before OPEN, prove readiness/readback, then resume Publish -> native preparation -> normal Stop/Start -> Test model. This is a contract decision and future work, not an existing executable command or authorization from this report.",
+    "existing_command_only_for_separate_containment_decision": "/home/kali/.omnis-p2-ui9/omnis stop --json",
+    "containment_warning": "NOT EXECUTED and NOT a recovery recommendation. Expected current branch is emergency UNCERTAIN/RECOVERY_REQUIRED, possibly partial/no teardown if attestation fails, and future ordinary Start remains blocked.",
+    "forbidden_shortcuts": [
+      "direct docker start/restart of the supervisor as a retry",
+      "forged or edited READY/STOPPED/FINALIZE/grant receipts",
+      "deleting unreconciled state or changing lease/epoch SQL by hand",
+      "deadline enlargement without a contract decision",
+      "new installation/profile, catalog reseeding or copying confirmation to hide the failure",
+      "native/model resend or budget reset"
+    ]
+  },
+  "verification": {
+    "git": "git status --short --branch; git diff --stat; git rev-parse HEAD; git diff --cached --stat; git diff --check, exit 0. Only preexisting protected untracked documents/Omnis_Notite_Originale.html was listed, not read.",
+    "memory_only_checks": {
+      "invocation": "python3 -I -B -c <in-memory AST extraction of verify_running and supervisor main, with finite source-level doubles>",
+      "exit_code": 0,
+      "checks": 6,
+      "results": [
+        {"case": "all_running", "outcome": "READY"},
+        {"case": "supervisor_exited", "outcome": [4, "RECOVERY_REQUIRED"]},
+        {"case": "normal", "exit": 0, "diagnostic": "NONE"},
+        {"case": "ValueError", "exit": 3, "diagnostic": "SUPERVISOR_UNAVAILABLE"},
+        {"case": "TimeoutError", "exit": 3, "diagnostic": "SUPERVISOR_UNAVAILABLE"},
+        {"case": "OSError", "exit": 3, "diagnostic": "SUPERVISOR_UNAVAILABLE"}
+      ],
+      "limit": "Executed exact AST functions with resource/DB/HTTP identities substituted in memory. No repository imports or live integration; verifies branch and error normalization, not historical trigger or recovery safety. No files written by checks; DB/Docker/network/runtime calls zero."
+    },
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "live_tests": "NOT_RUN",
+    "repository_changes": [],
+    "service_or_data_effects": [],
+    "report_only_write": "/home/kali/.hermes/cache/scratch/p2-resume-6o_qih8j/ui9-diagnosis.json"
+  },
+  "status_delta_for_parent": "Keep historic scoped source acceptance. Replace current operational UI9 READY claim with observed UNAVAILABLE/RECOVERY_REQUIRED; P4a/P2 continuation BLOCKED pending same-instance recovery decision. No proven idle-trigger defect and no phase-2 closure from this diagnosis."
+}

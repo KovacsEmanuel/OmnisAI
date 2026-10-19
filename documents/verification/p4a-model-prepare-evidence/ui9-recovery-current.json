@@ -1,0 +1,116 @@
+{
+  "state": "RECOVERY_AUTHORIZED_NOT_EXECUTED",
+  "source_commit": "9c3000e",
+  "operator_approval": "Da, recuperează în siguranță aceeași UI9 și continuă faza 2.",
+  "scope": "Same UI9, verified backup/restore before data mutation; retain catalog/confirmation/budget, no reset/bypass/P3/target/global/push. Approval obtained after interrupted form was rerun.",
+  "wrapper_status": {
+    "command": "/home/kali/.omnis-p2-ui9/omnis status --json",
+    "exit": 4,
+    "state": "UNAVAILABLE",
+    "reason": "RECOVERY_REQUIRED",
+    "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+    "origin": "http://127.0.0.1:8766",
+    "assessment_ready": false
+  },
+  "resources": [
+    {
+      "role": "api",
+      "id": "a39d87cd71d84d3ef919cd3b855171fd526ec92f24a93af87f4672d70b0ae8c8",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 3266276,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T09:34:06.100009399Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "labels_match": true
+    },
+    {
+      "role": "db",
+      "id": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 3263318,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T09:33:52.79054208Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "labels_match": false
+    },
+    {
+      "role": "runtime",
+      "id": "a8e3d0f57149a9659c8a89b1298e3d03b3f4a005c9b011a848ea4e1ee6d70cc3",
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "Pid": 3265071,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T09:34:02.78384263Z",
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "labels_match": true
+    },
+    {
+      "role": "supervisor",
+      "id": "bcd1288a8948e370b7a7df2544bcf6cec82af327d32b5601b4330dc55108db0f",
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Pid": 0,
+        "ExitCode": 3,
+        "OOMKilled": false,
+        "StartedAt": "2026-10-19T09:34:05.745632816Z",
+        "FinishedAt": "2026-10-19T12:25:22.236651034Z"
+      },
+      "labels_match": true
+    }
+  ],
+  "database_read_only": {
+    "heads": [
+      {
+        "generation": 1,
+        "publication_id": null
+      }
+    ],
+    "confirmation": {
+      "id": "c9cf2e31-f8b5-4a4f-8524-9587eefa0bba",
+      "kind": "operator-confirmation",
+      "digest": "cad9fea273ffc3e6bedd507265f80069f11b06514b493cef064fc8b9851d38ab"
+    },
+    "model_test_records": 0,
+    "lease": {
+      "epoch": 1,
+      "owner_present": true,
+      "expires_at": "2026-10-19T10:19:13.624088+00:00",
+      "live_now": false
+    }
+  },
+  "db_proof_boundary": "Exact original CID psql BEGIN READ ONLY/ROLLBACK, no DB writes; zero model-test records, same confirmation id/digest and unpublished head. Not successful native/publication/inference.",
+  "backup": {
+    "state": "BACKUP_CREATED_RESTORE_NOT_RUN",
+    "root": "/home/kali/.omnis-p2-ui9/recovery/same-instance-mtpbajof",
+    "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+    "db_cid": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+    "dump_exit": 0,
+    "dump_bytes": 62715,
+    "dump_sha256": "cb5f302ab4f4eb31a58516828ef482b5e184cea9ea0d7ebc4cc68f7e5bdcf255",
+    "metadata_files": 39,
+    "metadata_sha256": "f515a1aacaaaa8120d2cde2d93e64e7b51a90265637cf858bef93ff5dadc1f0b",
+    "metadata_unchanged": true,
+    "restore": "NOT_RUN",
+    "excludes": "credentials/provider/personal profiles/raw runtime logs/live physical PGDATA; logical dump and catalog/lifecycle only",
+    "inverse": "No live state modified; retain originals and do not restore over UI9 before tested recovery plan"
+  },
+  "known_fixture_fix": {
+    "commit": "9c3000e",
+    "review": "APPROVED_SCOPED",
+    "parent_source_tests": "22PASS6.68s/exit0, pinned Python3.13.15, Ruff check/format/diff0; seven reviewed bindings match",
+    "canonical": "NOT_RUN"
+  },
+  "next": "Minimum supported same-instance recovery contract through original owners, backup restore on disposable fixture, implementation/reviews/QA before live recovery. No service stop/start/restart or live state writes performed."
+}

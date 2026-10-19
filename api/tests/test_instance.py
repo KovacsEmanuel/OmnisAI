@@ -9,8 +9,10 @@ from omnis.core.db import database_engine
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("renewal", ["startup", "heartbeat"])
 async def test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg(
     migrated_database_url: URL,
+    renewal: str,
 ) -> None:
     import time
 
@@ -67,9 +69,11 @@ async def test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg(
             ).scalar_one() <= 5
         # Actual blocking UPDATE crosses the original expiry; the extension must roll back.
         async with engine.begin() as conn:
+            await conn.execute(text("CREATE SEQUENCE lease_update_entries"))
             await conn.execute(
                 text(
-                    "CREATE FUNCTION delay_lease_update() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.3); RETURN NEW; END $$"
+                    "CREATE FUNCTION delay_lease_update() RETURNS trigger LANGUAGE plpgsql AS $$ "
+                    "BEGIN PERFORM nextval('lease_update_entries'); PERFORM pg_sleep(0.3); RETURN NEW; END $$"
                 )
             )
             await conn.execute(
@@ -85,16 +89,19 @@ async def test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg(
             original = (
                 await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
             ).scalar_one()
-        before_update = time.monotonic()
         with pytest.raises(ControlConflict, match="LEASE_LOST"):
-            await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup="launch")
-        assert time.monotonic() - before_update >= 0.3
+            if renewal == "startup":
+                await service.runtime_authority(owner, epoch, 0, inert_probe=True, startup="launch")
+            else:
+                await service.heartbeat(owner, epoch)
         async with engine.connect() as conn:
+            # nextval survives rollback; elapsed time could be a pre-UPDATE wait.
+            assert (
+                await conn.execute(text("SELECT last_value, is_called FROM lease_update_entries"))
+            ).one() == (1, True)
             assert (
                 await conn.execute(text("SELECT expires_at FROM supervisor_lease WHERE id=1"))
             ).scalar_one() == original
-        with pytest.raises(ControlConflict, match="LEASE_LOST"):
-            await service.heartbeat(owner, epoch)
     finally:
         await engine.dispose()
 

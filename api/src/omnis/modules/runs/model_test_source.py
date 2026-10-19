@@ -4,10 +4,14 @@ import argparse
 import asyncio
 import base64
 import os
+import sys
+from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from omnis.modules.instance.domain import InstanceStatus
+from sqlalchemy.exc import SQLAlchemyError
+
+from omnis.modules.instance.domain import ControlConflict, InstanceStatus
 from omnis.modules.instance.schemas import NativePrepareCommand
 from omnis.modules.runs.contract_inputs import ContractInputs
 from omnis.modules.runs.model_test_models import ModelTestControl
@@ -18,6 +22,7 @@ from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.catalog_schema import load_json
 from omnis.modules.settings.skill_catalog import read_file
 from omnis.modules.tasks.managed_contract import mapping, sequence
+from omnis.supervisor.runtime_client import RuntimeUnavailable
 
 if TYPE_CHECKING:
     from omnis.supervisor.native_tasks import NativeTaskOwner
@@ -99,10 +104,37 @@ async def provision(
         if (await owner.runtime.status())["state"] != "IDLE":
             raise CatalogError("PREPARATION_BUSY")
         await save(connection, identity, "provision", {"selection_ref": command.selection_ref})
-    await owner.runtime.launch_inert(owner.service, owner.owner)
-    await owner.service.heartbeat(owner.owner, owner.epoch)
-    await owner.runtime.renew(owner.service, owner.owner)
-    await preparation.prepare(prepared)
+    phase = "LAUNCH"
+    try:
+        await owner.runtime.launch_inert(owner.service, owner.owner)
+        phase = "HEARTBEAT"
+        await owner.service.heartbeat(owner.owner, owner.epoch)
+        phase = "RENEW"
+        await owner.runtime.renew(owner.service, owner.owner)
+        phase = "PREPARE"
+        await preparation.prepare(prepared)
+    except BaseException as error:
+        # The control transport normalizes this exception after it leaves the owner.
+        with suppress(BaseException):
+            kind = next(
+                (
+                    label
+                    for cls, label in (
+                        (asyncio.CancelledError, "CANCELLED"),
+                        (TimeoutError, "TIMEOUT"),
+                        (RuntimeUnavailable, "RUNTIME_UNAVAILABLE"),
+                        (ControlConflict, "CONTROL_CONFLICT"),
+                        (SQLAlchemyError, "DB_ERROR"),
+                        (OSError, "OS_ERROR"),
+                        (ValueError, "VALUE_ERROR"),
+                    )
+                    if isinstance(error, cls)
+                ),
+                "OTHER",
+            )
+            sys.stderr.write(f"MODEL_TEST_PROVISION_FAILURE phase={phase} error={kind}\n")
+            sys.stderr.flush()
+        raise
     inputs = ContractInputs(owner.domain.engine, root)
     context = await inputs.create_method_context(
         {

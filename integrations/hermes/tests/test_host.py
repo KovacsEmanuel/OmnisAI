@@ -9,9 +9,111 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "phase,reason,kind",
+    [
+        ("SPAWN", "os", "OS_ERROR"),
+        ("HANDSHAKE", "Native ready deadline", "READY_TIMEOUT"),
+        ("HANDSHAKE", "Native RPC deadline", "RPC_TIMEOUT"),
+        ("HANDSHAKE", "Native transport unavailable", "TRANSPORT"),
+        ("HANDSHAKE", "PRIVATE_EXCEPTION_TEXT", "OTHER"),
+        ("HANDSHAKE", "unknown", "OTHER"),
+        ("HANDSHAKE", "protocol_subclass", "OTHER"),
+        ("HANDSHAKE", "string_subclass", "OTHER"),
+        ("HANDSHAKE", "cancel", "CANCELLED"),
+        ("HANDSHAKE", "timeout", "TIMEOUT"),
+        ("POST_HANDSHAKE", "expired", "VALUE_ERROR"),
+        (None, "positive", None),
+    ],
+)
+@pytest.mark.parametrize("write_failure", [False, True])
+async def test_launch_failure_diagnostic_precedes_stop(
+    monkeypatch,
+    capsys,
+    phase,
+    reason,
+    kind,
+    write_failure,
+):
+    from omnis_hermes import runtime_host as module
+    from omnis_hermes.runtime_protocol import ProtocolError
+
+    class PRIVATE_EXCEPTION_CLASS(Exception):
+        pass
+
+    errors = {
+        "os": OSError("PRIVATE_EXCEPTION_TEXT"),
+        "unknown": PRIVATE_EXCEPTION_CLASS("PRIVATE_EXCEPTION_TEXT"),
+        "cancel": asyncio.CancelledError("PRIVATE_EXCEPTION_TEXT"),
+        "timeout": TimeoutError("PRIVATE_EXCEPTION_TEXT"),
+    }
+    primary = errors.get(reason, ProtocolError(reason))
+    if reason == "protocol_subclass":
+
+        class PRIVATE_PROTOCOL_CLASS(ProtocolError):
+            pass
+
+        primary = PRIVATE_PROTOCOL_CLASS("Native ready deadline")
+    elif reason == "string_subclass":
+
+        class PRIVATE_STRING_CLASS(str):
+            pass
+
+        primary = ProtocolError(PRIVATE_STRING_CLASS("Native ready deadline"))
+    host = module.RuntimeHost(Path("/nonexistent"))
+    process = Mock()
+    spawn = AsyncMock(return_value=process)
+    peer = Mock(handshake=AsyncMock(return_value={}))
+    captured = []
+
+    async def stop():
+        captured.append(capsys.readouterr().err)
+
+    host.stop = AsyncMock(side_effect=stop)
+    if phase == "SPAWN":
+        spawn.side_effect = primary
+    elif phase == "HANDSHAKE":
+        peer.handshake.side_effect = primary
+    elif phase == "POST_HANDSHAKE":
+
+        async def expired(**kwargs):
+            host.state = "STOPPING"
+            return {}
+
+        peer.handshake.side_effect = expired
+    monkeypatch.setattr(module.asyncio, "create_subprocess_exec", spawn)
+    monkeypatch.setattr(module, "NativePeer", Mock(return_value=peer))
+    with monkeypatch.context() as io:
+        if write_failure:
+            io.setattr(sys, "stderr", Mock(write=Mock(side_effect=OSError("PRIVATE_IO"))))
+        body: dict[str, object] = {
+            "generation": 0,
+            "epoch": 1,
+            "deadline_ns": time.monotonic_ns() + 4_000_000_000,
+        }
+        if phase is None:
+            await host._launch(body)
+            assert host.state == "READY"
+            host.stop.assert_not_awaited()
+        else:
+            with pytest.raises(
+                ValueError if phase == "POST_HANDSHAKE" else type(primary)
+            ) as raised:
+                await host._launch(body)
+            if phase != "POST_HANDSHAKE":
+                assert raised.value is primary
+            host.stop.assert_awaited_once()
+    expected = f"RUNTIME_LAUNCH_FAILURE phase={phase} error={kind}\n" if not write_failure else ""
+    assert captured == ([] if phase is None else [expected])
+    output = capsys.readouterr()
+    assert output.err == "" and output.out == ""
 
 
 @pytest.mark.parametrize(
@@ -129,7 +231,7 @@ async def test_fixed_native_argv_does_not_import_a_writable_cwd_package():
             "from pathlib import Path\nPath('shadow-executed').write_text('synthetic')\n" + fixture
         )
         # Replace only the unavailable OCI interpreter, preserving product flags.
-        argv = (sys.executable, *NATIVE_COMMAND[1:])
+        argv = (sys.executable, "-B", *NATIVE_COMMAND[1:])
         async with RuntimeHost(ipc, _test_launch=TestLaunch(argv, work)) as host:
             try:
                 await host._launch(
@@ -159,7 +261,14 @@ async def test_watchdog_stops_while_all_native_pending_slots_are_saturated():
         async with RuntimeHost(
             root,
             _test_launch=TestLaunch(
-                (sys.executable, str(Path(__file__).with_name("peer_fixture.py")), "stall"), root
+                (
+                    sys.executable,
+                    "-I",
+                    "-B",
+                    str(Path(__file__).with_name("peer_fixture.py")),
+                    "stall",
+                ),
+                root,
             ),
         ) as host:
             await host._launch(
@@ -218,7 +327,14 @@ async def test_private_host_launch_watchdog_stop_and_environment():
         host = RuntimeHost(
             root,
             _test_launch=TestLaunch(
-                (sys.executable, str(Path(__file__).with_name("peer_fixture.py")), "normal"), root
+                (
+                    sys.executable,
+                    "-I",
+                    "-B",
+                    str(Path(__file__).with_name("peer_fixture.py")),
+                    "normal",
+                ),
+                root,
             ),
         )
         async with host:

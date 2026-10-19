@@ -32,7 +32,7 @@ from .native_preparation_contract import (
     validate_result,
 )
 from .native_preparation_worker import PATHS, regular_bytes
-from .runtime_protocol import MAX_FRAME, NativePeer, encode
+from .runtime_protocol import MAX_FRAME, NativePeer, ProtocolError, encode
 
 NATIVE_COMMAND = ("/opt/hermes/venv/bin/python", "-I", "-m", "tui_gateway.entry")
 NATIVE_CWD = Path("/state/work")
@@ -253,6 +253,7 @@ class RuntimeHost:
         if lifeline is not None:
             environment["OMNIS_MODEL_LIFELINE_FD"] = str(lifeline)
             environment["HERMES_HOME"] = "/state/provider"
+        phase = "SPAWN"
         try:
             self.process = await asyncio.create_subprocess_exec(
                 *command,
@@ -268,14 +269,45 @@ class RuntimeHost:
             if lifeline is not None:
                 os.close(lifeline)
                 lifeline = None
+            phase = "HANDSHAKE"
             self.peer = NativePeer(self.process, timeout=0.8)
             remaining = (self.deadline_ns - time.monotonic_ns()) / 1_000_000_000
             async with asyncio.timeout(remaining):
                 self.capabilities = await self.peer.handshake(ready_timeout=remaining)
+            phase = "POST_HANDSHAKE"
             if time.monotonic_ns() >= self.deadline_ns or self.state != "STARTING":
                 raise ValueError("Authority expired during launch")
             self.state = "READY"
-        except BaseException:
+        except BaseException as error:
+            # Do not retain native stderr or let diagnostics replace the launch failure.
+            with suppress(BaseException):
+                kind = next(
+                    (
+                        label
+                        for cls, label in (
+                            (asyncio.CancelledError, "CANCELLED"),
+                            (TimeoutError, "TIMEOUT"),
+                            (OSError, "OS_ERROR"),
+                            (ValueError, "VALUE_ERROR"),
+                        )
+                        if isinstance(error, cls)
+                    ),
+                    "OTHER",
+                )
+                if isinstance(error, ProtocolError):
+                    kind = "OTHER"
+                    if (
+                        type(error) is ProtocolError
+                        and len(error.args) == 1
+                        and type(error.args[0]) is str
+                    ):
+                        kind = {
+                            "Native ready deadline": "READY_TIMEOUT",
+                            "Native RPC deadline": "RPC_TIMEOUT",
+                            "Native transport unavailable": "TRANSPORT",
+                        }.get(error.args[0], "OTHER")
+                sys.stderr.write(f"RUNTIME_LAUNCH_FAILURE phase={phase} error={kind}\n")
+                sys.stderr.flush()
             await self.stop()
             raise
         finally:

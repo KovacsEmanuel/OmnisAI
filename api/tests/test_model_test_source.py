@@ -1,8 +1,11 @@
 """Complete shipped synthetic bytes; publication/storage remain explicit SOURCE doubles."""
 
+import asyncio
 import base64
 import shutil
 import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,6 +17,7 @@ import pytest
 from omnis.modules.instance.domain import ControlCode, ControlConflict
 from omnis.modules.instance.service import RuntimeAuthority
 from omnis.modules.runs.model_test_source import PACKAGE, verify_shipped
+from omnis.modules.settings import candidate_store
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.tasks.managed_contract import mapping, sequence
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
@@ -86,3 +90,107 @@ async def test_normal_inert_launch_initial_open_bind_and_stop_fence(
     with pytest.raises(RuntimeUnavailable, match="Initial OPEN generation required"):
         await client.launch_inert(service, owner)
     denied.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("phase", ["LAUNCH", "HEARTBEAT", "RENEW", "PREPARE", None])
+@pytest.mark.parametrize("mode", ["error", "cancel", "write_failure", "flush_failure"])
+async def test_provision_failure_diagnostic_preserves_phase_and_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    phase: str | None,
+    mode: str,
+) -> None:
+    from omnis.modules.runs import model_test_source as source
+
+    class PRIVATE_EXCEPTION_CLASS(Exception):
+        pass
+
+    primary = (
+        asyncio.CancelledError("PRIVATE_EXCEPTION_TEXT")
+        if mode == "cancel"
+        else PRIVATE_EXCEPTION_CLASS("PRIVATE_EXCEPTION_TEXT")
+    )
+    preparation = Mock(build=AsyncMock(return_value=(None, {})), prepare=AsyncMock())
+    runtime = Mock(
+        status=AsyncMock(return_value={"state": "IDLE"}),
+        launch_inert=AsyncMock(),
+        renew=AsyncMock(),
+    )
+    service = Mock(heartbeat=AsyncMock())
+
+    @asynccontextmanager
+    async def commit(*args: object) -> AsyncIterator[Mock]:
+        yield Mock()
+
+    service.native_preparation_commit = commit
+    owner = Mock(
+        domain=Mock(
+            root=Path("/synthetic"), prepare_method=AsyncMock(return_value={"manifest_ref": {}})
+        ),
+        runtime=runtime,
+        service=service,
+        epoch=1,
+        model_test_closing=False,
+    )
+    command = Mock(
+        selection_ref={
+            "kind": "execution-selection",
+            "id": str(uuid4()),
+            "revision": 1,
+            "digest": "a" * 64,
+        }
+    )
+    status = Mock(instance_id=uuid4(), generation=0)
+    monkeypatch.setenv("OMNIS_MODEL_TEST_SOURCE_ROOT", "/opt/omnis/model-test")
+    monkeypatch.setattr(source, "NativePreparation", Mock(return_value=preparation))
+    monkeypatch.setattr(candidate_store, "lock", AsyncMock())
+    monkeypatch.setattr(source, "load", AsyncMock(return_value=None))
+    monkeypatch.setattr(source, "save", AsyncMock())
+    monkeypatch.setattr(source, "verify_shipped", Mock())
+    monkeypatch.setattr(
+        source,
+        "ContractInputs",
+        Mock(
+            return_value=Mock(
+                create_method_context=AsyncMock(return_value={"context_ref": {}}),
+                create_input=AsyncMock(return_value={"input_ref": {}}),
+            )
+        ),
+    )
+    calls = {
+        "LAUNCH": runtime.launch_inert,
+        "HEARTBEAT": service.heartbeat,
+        "RENEW": runtime.renew,
+        "PREPARE": preparation.prepare,
+    }
+    if phase is not None:
+        calls[phase].side_effect = primary
+    with monkeypatch.context() as io:
+        if mode in {"write_failure", "flush_failure"}:
+            import sys
+
+            stream = Mock()
+            getattr(stream, "write" if mode == "write_failure" else "flush").side_effect = OSError(
+                "PRIVATE_IO"
+            )
+            io.setattr(sys, "stderr", stream)
+        if phase is None:
+            assert await source.provision(owner, command, status) == {
+                "status": "PREPARED_RESTART_REQUIRED"
+            }
+        else:
+            with pytest.raises(type(primary)) as raised:
+                await source.provision(owner, command, status)
+            assert raised.value is primary
+    output = capsys.readouterr()
+    kind = "CANCELLED" if mode == "cancel" else "OTHER"
+    expected = (
+        f"MODEL_TEST_PROVISION_FAILURE phase={phase} error={kind}\n"
+        if phase is not None and mode not in {"write_failure", "flush_failure"}
+        else ""
+    )
+    assert output.err == expected and output.out == ""
+    names = list(calls)
+    completed = len(names) if phase is None else names.index(phase) + 1
+    assert [call.await_count for call in calls.values()] == [1] * completed + [0] * (4 - completed)

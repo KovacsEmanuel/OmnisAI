@@ -4,6 +4,7 @@ import asyncio
 import os
 import signal
 import sys
+from contextlib import suppress
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -14,7 +15,7 @@ from omnis.modules.engagements.service import EngagementNotFound, EngagementServ
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
 from omnis.supervisor.case_slot import CaseSlot
-from omnis.supervisor.runtime_client import RuntimeClient
+from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 from omnis.transport.local_control import LocalControl
 
 
@@ -155,24 +156,53 @@ async def run() -> None:
                 try:
                     await asyncio.wait_for(stop.wait(), timeout=1)
                 except TimeoutError:
-                    if await readiness_reason(engine) is not None:
-                        raise ValueError("Control schema unavailable") from None
-                    await service.heartbeat(owner, epoch)
-                    await service.quiesce(owner, epoch)
-                    if runtime is not None:
-                        runtime_state = (await runtime.status())["state"]
-                        if runtime_state == "READY":
-                            await runtime.renew(service, owner)
-                        elif runtime_state == "MANAGEMENT":
-                            await runtime.renew(service, owner, management=True)
-                        elif probe == "1":
-                            observed = await service.owned_status(owner, epoch)
-                            if (
-                                runtime_state != "STOPPED"
-                                or observed.shutdown_command_id is None
-                                or observed.quiesced_generation != observed.generation
-                            ):
-                                raise ValueError("Runtime unavailable") from None
+                    phase = "READINESS"
+                    try:
+                        if await readiness_reason(engine) is not None:
+                            raise ValueError("Control schema unavailable") from None
+                        phase = "HEARTBEAT"
+                        await service.heartbeat(owner, epoch)
+                        phase = "QUIESCE"
+                        await service.quiesce(owner, epoch)
+                        if runtime is not None:
+                            phase = "RUNTIME_STATUS"
+                            runtime_state = (await runtime.status())["state"]
+                            if runtime_state == "READY":
+                                phase = "RENEW"
+                                await runtime.renew(service, owner)
+                            elif runtime_state == "MANAGEMENT":
+                                phase = "RENEW"
+                                await runtime.renew(service, owner, management=True)
+                            elif probe == "1":
+                                observed = await service.owned_status(owner, epoch)
+                                if (
+                                    runtime_state != "STOPPED"
+                                    or observed.shutdown_command_id is None
+                                    or observed.quiesced_generation != observed.generation
+                                ):
+                                    raise ValueError("Runtime unavailable") from None
+                    except BaseException as error:
+                        # Observe before LocalControl exit or drain can mask the first failure.
+                        with suppress(BaseException):
+                            kind = next(
+                                (
+                                    label
+                                    for cls, label in (
+                                        (asyncio.CancelledError, "CANCELLED"),
+                                        (TimeoutError, "TIMEOUT"),
+                                        (RuntimeUnavailable, "RUNTIME_UNAVAILABLE"),
+                                        (ControlConflict, "CONTROL_CONFLICT"),
+                                        (SQLAlchemyError, "DB_ERROR"),
+                                        (OSError, "OS_ERROR"),
+                                        (ValueError, "VALUE_ERROR"),
+                                    )
+                                    if isinstance(error, cls)
+                                ),
+                                "OTHER",
+                            )
+                            sys.stderr.write(f"SUPERVISOR_FAILURE phase={phase} error={kind}\n")
+                            sys.stderr.flush()
+                        raise
             nominal_close = True
     finally:
         try:

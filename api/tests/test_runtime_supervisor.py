@@ -1,6 +1,7 @@
 """Supervisor wiring: no runtime in P0; explicit inert launch, no OPEN."""
 
 import asyncio
+import sys
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -109,6 +110,7 @@ async def test_case_consumer_restores_before_launch_and_archives_before_release(
 @pytest.mark.asyncio
 async def test_supervisor_runtime_is_opt_in_and_drained_before_release(
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     assert hasattr(consumer, "RuntimeClient"), "runtime opt-in wiring missing"
     engine = Mock()
@@ -167,6 +169,7 @@ async def test_supervisor_runtime_is_opt_in_and_drained_before_release(
     client.close.assert_awaited_once()
     assert service.runtime_drain == client.drain
     service.open.assert_not_called()
+    assert capsys.readouterr().err == ""
 
 
 @pytest.mark.asyncio
@@ -245,6 +248,106 @@ async def test_supervisor_does_not_silently_continue_after_unexpected_runtime_lo
     else:
         await consumer.run()
     assert client.renew.await_count == 1  # Initial post-launch refresh only; no resurrection.
+    client.drain.assert_awaited_once()
+    client.close.assert_awaited_once()
+    engine.dispose.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("drained", [True, False])
+@pytest.mark.parametrize("phase", ["READINESS", "HEARTBEAT", "QUIESCE", "RUNTIME_STATUS", "RENEW"])
+@pytest.mark.parametrize("mode", ["error", "cancel", "write_failure"])
+async def test_loop_failure_is_recorded_before_control_exit_and_drain(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    drained: bool,
+    phase: str,
+    mode: str,
+) -> None:
+    from omnis.supervisor.runtime_client import RuntimeUnavailable
+
+    primary = (
+        asyncio.CancelledError("PRIVATE_EXCEPTION_TEXT")
+        if mode == "cancel"
+        else RuntimeUnavailable("PRIVATE_EXCEPTION_TEXT")
+    )
+    engine = Mock(dispose=AsyncMock())
+    service = Mock(
+        acquire=AsyncMock(return_value=1),
+        owned_status=AsyncMock(return_value=Mock(generation=0)),
+        heartbeat=AsyncMock(),
+        quiesce=AsyncMock(),
+        release=AsyncMock(),
+    )
+    client = Mock(
+        connect=AsyncMock(),
+        status=AsyncMock(return_value={"state": "READY"}),
+        renew=AsyncMock(),
+        drain=AsyncMock(return_value=drained),
+        close=AsyncMock(),
+    )
+    readiness = AsyncMock(return_value=None)
+    if phase == "READINESS":
+        readiness.side_effect = [None, primary]
+    elif phase == "HEARTBEAT":
+        service.heartbeat.side_effect = primary
+    elif phase == "QUIESCE":
+        service.quiesce.side_effect = [None, primary]
+    elif phase == "RUNTIME_STATUS":
+        client.status.side_effect = [{"state": "IDLE"}, primary]
+    else:
+        client.renew.side_effect = primary
+    captured: list[str] = []
+
+    @asynccontextmanager
+    async def control(*args: object, **kwargs: object) -> AsyncIterator[Mock]:
+        try:
+            yield Mock()
+        finally:
+            captured.append(capsys.readouterr().err)
+
+    class OneCycle:
+        def set(self) -> None:
+            pass
+
+        def is_set(self) -> bool:
+            return False
+
+        async def wait(self) -> None:
+            raise TimeoutError
+
+    monkeypatch.setattr(asyncio, "Event", OneCycle)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", readiness)
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.setattr(consumer, "LocalControl", control)
+    monkeypatch.setattr(consumer, "RuntimeClient", lambda *args, **kwargs: client)
+    monkeypatch.setenv("OMNIS_DATABASE_URL", "synthetic")
+    monkeypatch.setenv("OMNIS_CONTROL_DIR", "/synthetic")
+    monkeypatch.setenv("OMNIS_RUNTIME_DIR", "/synthetic-runtime")
+    for name in (
+        "OMNIS_RUNTIME_INERT_PROBE",
+        "OMNIS_RUNTIME_CASE_ID",
+        "OMNIS_RUNTIME_STATE_ROOT",
+        "OMNIS_NATIVE_PREPARATION_CATALOG_ROOT",
+        "OMNIS_MANAGED_TASKS",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    with monkeypatch.context() as io:
+        if mode == "write_failure":
+            io.setattr(sys, "stderr", Mock(write=Mock(side_effect=OSError("PRIVATE_IO"))))
+        with pytest.raises(type(primary) if drained else ValueError) as raised:
+            await consumer.run()
+    if drained:
+        assert raised.value is primary
+        service.release.assert_awaited_once()
+    else:
+        assert raised.value.__context__ is primary
+        service.release.assert_not_awaited()
+    kind = "CANCELLED" if mode == "cancel" else "RUNTIME_UNAVAILABLE"
+    expected = f"SUPERVISOR_FAILURE phase={phase} error={kind}\n" if mode != "write_failure" else ""
+    assert captured == [expected]
+    assert capsys.readouterr().err == ""
     client.drain.assert_awaited_once()
     client.close.assert_awaited_once()
     engine.dispose.assert_awaited_once()

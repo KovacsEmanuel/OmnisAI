@@ -1,0 +1,34 @@
+{
+  "source_origin": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review/cli/src/omnis_cli/start.py",
+  "cases": [
+    {
+      "case": "valid",
+      "normal_shared_pre_effect_guard": "ACCEPTED",
+      "emergency_shared_pre_effect_guard": "ACCEPTED"
+    },
+    {
+      "case": "missing_catalog_receipt",
+      "normal_shared_pre_effect_guard": "ACCEPTED",
+      "emergency_shared_pre_effect_guard": "ACCEPTED"
+    },
+    {
+      "case": "missing_receipt_and_replaced_catalog",
+      "normal_shared_pre_effect_guard": "ACCEPTED",
+      "emergency_shared_pre_effect_guard": "ACCEPTED"
+    },
+    {
+      "case": "legacy_auth_with_catalog_receipt",
+      "normal_shared_pre_effect_guard": "ACCEPTED",
+      "emergency_shared_pre_effect_guard": "ACCEPTED"
+    },
+    {
+      "case": "boolean_catalog_identity",
+      "guard": "RECOVERY_REQUIRED"
+    },
+    {
+      "case": "emergency_missing_receipt_replaced_catalog",
+      "result": "REACHED_EFFECT_ENTRY_SENTINEL"
+    }
+  ],
+  "effects": "NONE; only own scratch directories/files; load_instance double, actual schema/path/binding guards; no runtime fixture or native import"
+}

@@ -1,0 +1,106 @@
+{
+  "snapshot": {
+    "root": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review",
+    "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+    "patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+    "patch_bytes": 124231,
+    "manifest_sha256": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+    "paths": 33,
+    "binding": "PASS: detached base, exact changed/untracked path set, all 33 SHA256/size pairs, all 10 first-party asset SHA256/size pairs, reverse patch check"
+  },
+  "verdict": "CHANGES_REQUESTED",
+  "status": "Completed functional/normative SOURCE review of all 33 paths and relevant callers. One concrete normal-provisioning blocker; no installed acceptance claim.",
+  "covered_requirements": [
+    {
+      "requirement": "Fixed synthetic panel before target/scope/ROE and on an existing engagement; independent of Start",
+      "assessment": "SOURCE conforms",
+      "code": ["web/src/features/engagement/Engagement.tsx:14-15", "web/src/features/engagement/Engagement.tsx:40-51", "web/src/features/engagement/ModelTest.tsx:36-53", "web/src/app/App.tsx:36-42"],
+      "evidence": "Read NewEngagement/Wizard placement, overview caller and route exports; new component tests explicitly cover no saved engagement and read-only reload. Existing parent web evidence reused, not represented as browser execution by this reviewer."
+    },
+    {
+      "requirement": "Normal sealed complete first-party source and genuine Publish/qualification/preparation, followed by ordinary Stop/Start before Settings/model CREATE",
+      "assessment": "BLOCKED by NORM-WEBTEST-F01",
+      "code": ["ops/build_control_bundle.py:116-130", "ops/Dockerfile.control-model-test:7-11", "cli/src/omnis_cli/release.py:78-109", "cli/src/omnis_cli/start_runtime.py:80-125", "api/src/omnis/supervisor/__main__.py:108-151", "api/src/omnis/modules/runs/model_test_source.py:85-152"],
+      "evidence": "All 10 shipped asset hashes match. Traced real candidate/publication CLI, human stdin+stderr TTY confirmation, selection, exact source recheck, NativePreparation -> ContractInputs -> ManagedAdmission. Runbook uses producer outputs and fresh immutable candidate0.1.0, not UI8 adoption. The newly reached preparation scratch prerequisite is absent in the installed topology."
+    },
+    {
+      "requirement": "Instance-wide persistent intent, one budget, duplicate/new UUID cannot refill; disconnect/reload/restart never resends",
+      "assessment": "SOURCE conforms for admitted operation, subject to provisioning blocker",
+      "code": ["api/src/omnis/modules/runs/model_test_operation.py:28-59", "api/src/omnis/modules/runs/model_test_operation.py:150-268", "api/src/omnis/supervisor/native_tasks.py:325-379", "api/src/omnis/modules/runs/model_test.py:568-782"],
+      "evidence": "Instance-derived stable ledger key and transaction lock precede task creation. Existing operation ID replays readback; different ID conflicts. SENT packet is retained before IPC; later polls use RECEIVE, not SEND. Replaced owner has no background task and reports retained receipt or UNKNOWN without restarting. No in-memory refill mechanism found in this scoped flow."
+    },
+    {
+      "requirement": "Retained response and technically observed model/effort versus requested; no identity inference from response prose; nullable usage/duration",
+      "assessment": "SOURCE conforms",
+      "code": ["api/src/omnis/modules/runs/model_test_operation.py:83-147", "api/src/omnis/modules/runs/model_test_models.py:54-73", "api/src/omnis/modules/runs/model_test.py:784-909", "integrations/hermes/upstream/managed-source/agent/turn_api_request.py:299-360", "web/src/shared/api/modelTest.ts:5-19", "web/src/features/engagement/ModelTest.tsx:42-53"],
+      "evidence": "Projection follows retained provider-receipt ref to observed output/model/effort. Native producer takes identity from structured terminal response, not output_text or requested config. Missing data stays null/UNKNOWN; React renders text, not HTML. COMPLETE panel says response received, not verified inference or assessment PASS."
+    },
+    {
+      "requirement": "Existing session/Origin/CSRF/fences; no browser prompts/private refs/SDK/tools/target/retry/fallback/auxiliary",
+      "assessment": "SOURCE conforms in the reviewed entry path",
+      "code": ["api/src/omnis/api.py:64-70", "api/src/omnis/security/host_origin.py:104-208", "api/src/omnis/modules/runs/model_test_models.py:11-51", "api/src/omnis/modules/runs/model_test_routes.py:23-112", "web/src/shared/api/client.ts:46-61", "api/src/omnis/modules/runs/model_test.py:615-708"],
+      "evidence": "Independent ASGI source checks pass valid fixed request and deny missing session, foreign Origin, wrong CSRF, prompt/private extras, nonliteral consent, duplicate JSON keys. Data approval binds the two shown fixed strings; existing native producer has empty tools and finite endpoint/no retry. No provider or native runtime invoked by reviewer."
+    },
+    {
+      "requirement": "Finite 300s owner task; physical Stop/fence/drain and process-loss receive-only",
+      "assessment": "SOURCE trace covered; physical execution NOT_RUN",
+      "code": ["api/src/omnis/supervisor/native_tasks.py:48-62", "api/src/omnis/modules/runs/model_test_operation.py:233-268", "api/src/omnis/supervisor/__main__.py:119-126", "api/src/omnis/modules/instance/service.py:390-435", "integrations/hermes/src/omnis_hermes/runtime_host.py:859-873", "integrations/hermes/src/omnis_hermes/runtime_host.py:1163-1265", "integrations/hermes/src/omnis_hermes/runtime_host.py:1403-1410"],
+      "evidence": "Trace includes cancellation/join of tracked task before existing runtime drain; native close revokes child lifetime, validates close/join, pins/signals owned processes and checks namespace drain. Authenticated UDS loss also stops Host family. Readback after process replacement uses DB receipt/UNKNOWN, not renewed effect authority. No widening of unrelated exchange/grant deadlines is present in patch."
+    },
+    {
+      "requirement": "Catalog identity retained across certified Stop/Start; approved conditional3000 only, legacy2900/grant3600/wire4096/API8192 unchanged",
+      "assessment": "SOURCE conforms for reviewed validators and caller closure",
+      "code": ["cli/src/omnis_cli/start.py:109-116", "cli/src/omnis_cli/start.py:833-963", "cli/src/omnis_cli/start.py:1197-1213", "cli/src/omnis_cli/start_runtime.py:64-102", "cli/src/omnis_cli/stop_owner.py:313-323", "cli/src/omnis_cli/stop_receipt.py:100-208", "cli/src/omnis_cli/restart.py:43-94", "api/src/omnis/modules/instance/stop_contract.py:42-69"],
+      "evidence": "Inspected prepare/validate grant/inventory, _View/_load_runtime, physical IPC identity cleanup and restart readback callers; catalog is retained, not removed with IPC. Reused declared current exact3000/+1 and legacy2900/+1 source evidence. No live grant issued."
+    }
+  ],
+  "findings": [
+    {
+      "id": "NORM-WEBTEST-F01",
+      "severity": "HIGH",
+      "blocking": true,
+      "path": "cli/src/omnis_cli/start_runtime.py",
+      "line": 116,
+      "case": "Fresh ordinary p4a-codex-auth candidate built by the changed bundle builder, legitimately qualified/published, provisioned while Host is IDLE as required. model_test_source.provision calls real NativePreparation.prepare at line105. Even granting a successful inert launch, the worker must call RuntimeHost._preparation_home, whose normal parent is /state/tmp. The installed runtime has read_only=true, only /runtime and /state/provider writable binds, no /state/tmp mount, and its attestation rejects Tmpfs. Dockerfile.hermes merely creates /state/tmp in the image; it does not give that path writable private runtime storage.",
+      "expected": "Legitimate NO_MODEL preparation creates and drains its private temporary home, commits the genuine receipt and unbound manifest, and returns PREPARED_RESTART_REQUIRED. The next ordinary Stop/Start can preserve that manifest for the panel.",
+      "actual": "The required preparation home cannot be created in the read-only image filesystem. Additionally, the ordinary image mkdir path is not explicitly chmod0700, while the first guard requires exactly0700. A source reproduction using the exact AST-extracted _preparation_home and private_paths.directory on an owned0755 image-shaped parent refuses 'Private directory required' before creating any home; a writable0700 parent is accepted. Provision intent has already committed at model_test_source.py:101, so a repeat is TASK_INDETERMINATE rather than repairing this missing prerequisite. No source record/AVAILABLE panel can result through this normal producer path.",
+      "evidence": [
+        "api/src/omnis/modules/runs/model_test_source.py:99-105",
+        "api/src/omnis/modules/runs/native_preparation.py:356-365",
+        "cli/src/omnis_cli/start_runtime.py:104-125",
+        "cli/src/omnis_cli/start_runtime.py:486-490",
+        "cli/src/omnis_cli/start_runtime.py:541",
+        "ops/Dockerfile.hermes:18-35",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:914-933",
+        "integrations/hermes/src/omnis_hermes/private_paths.py:9-18",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm-tmp/preparation-scratch-result.json"
+      ],
+      "minimal_fix": "Give the existing preparation owner a writable canonical0700 scratch parent through the normal sealed topology, preferably reusing the existing private runtime mount, and retain strict source/cleanup/identity/read-only-root checks. Do not switch the whole rootfs writable or use a test startup flag/Host reset. Add a small check against the actual normal parent/mount contract, then genuine installed provisioning after focused re-review."
+    }
+  ],
+  "commands": [
+    {"command": "pwd; git status --short --branch; git rev-parse HEAD; git diff --stat; git ls-files --others --exclude-standard", "exit": 0, "result": "Requested detached base;19 modified+14 untracked product paths"},
+    {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <hashlib/json/pathlib binding check against frozen-manifest.json, developer.patch and git changed/untracked paths>", "exit": 0, "result": "Exact base/patch/manifest,124231 patch bytes,33/33 file hashes/sizes and exact path set"},
+    {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <all source_assets SHA256/size comparisons against frozen-manifest.json>", "exit": 0, "result": "10/10 exact first-party assets"},
+    {"command": "git apply --reverse --check ../developer.patch; git diff --check; /home/kali/OmnisAI/api/.venv/bin/python -I -B --version", "exit": 0, "result": "Reverse patch and whitespace checks pass; Python3.13.15"},
+    {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm-tmp/source-check.py", "exit": 0, "result": "5 passed in1.37s; API origin bound to REVIEW. ASGI/session/readiness/runtime/storage doubles; exact source/foreign source and initial launch fence checks. Native runtime imports explicitly refused; no services/DB/provider.", "artifact": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm-tmp/source-check.json"},
+    {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm-tmp/preparation-scratch.py", "exit": 0, "result": "Exact extracted-method0755 refusal and writable0700 positive. Read-only mount closure is source inspection, not a mounted/installed reproduction.", "artifact": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-norm-tmp/preparation-scratch-result.json"}
+  ],
+  "reused_evidence": {
+    "boundary": "Developer and cap-fix reports are input evidence, not independent verdicts. Their counts are not independently re-executed by this reviewer.",
+    "API": "154SOURCE declared tests reused; independent bounded5above added",
+    "web": "118SOURCE and parent final10components/type/build4assets reused; frontend/generated contracts/diff/callers inspected",
+    "CLI": "Current copied wheel145PASS/729subtests and strict lint/format/mypy, exact catalog3000/+1 and legacy2900/+1 source consumers reused",
+    "bounds": "Full first-party source/preparation/v6/SDK/public/Stop frame measurements reused; all10first-party asset bytes independently rebound"
+  },
+  "limits": [
+    "Source-only single-operator/local-app review, not absence-of-all-defects certification or global phase acceptance.",
+    "Operator auth/HUMAN TTY Publish, genuine installed qualification/preparation, catalog+manifest across two boots, real browser/provider1call/300s and physical Stop remain NOT_RUN. This is not used as a circular reason to refuse source review.",
+    "NORM-WEBTEST-F01 proves the source prerequisite/mount mismatch and private-directory negative, not a live container failure; no native runtime module was imported.",
+    "Known stockNone runtime441PASS/1FAIL and canonicalNOT_RUN were not rerun, repaired or promoted; the new required normal preparation path is assessed independently.",
+    "omnis-review-qa skill_view lookup failed; its exact local .hermes/skills/omnis-review-qa/SKILL.md was read directly. ponytail:ponytail-review loaded. No other review or author consulted.",
+    "No product file edit, commit, branch, delegation, service, browser, Docker/PG/native/provider-product call, credential/protected-original/global-setting access. Only this fresh report and own review-norm-tmp scratch written."
+  ],
+  "no_product_effects": true,
+  "parent_action": "Adjudicate NORM-WEBTEST-F01 and have the assigned author minimally fix the admitted normal preparation scratch prerequisite; focused re-review on changed snapshot before real installed QA. Reviewer does not integrate or close phase."
+}

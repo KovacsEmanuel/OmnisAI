@@ -1,0 +1,47 @@
+{
+  "verdict": "SOURCE_READY_FOR_REVIEW",
+  "acceptance": "Pending parent two complementary independent exact-byte reviews, then first installed consumer; no installed/live/phase2 closure claim",
+  "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+  "branch": "work/p2-webtest-5o53dewr",
+  "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/developer.patch",
+  "patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+  "patch_bytes": 124231,
+  "path_sha_manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/frozen-manifest.json",
+  "manifest_sha256": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+  "changed_file_count": 33,
+  "current_stage_report": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/cap-fix-result.json",
+  "current_stage_report_sha256": "ac6ff17522913727f9977c7604ab30ee6f7ae5fe16377e0effb8e610ded2b17a",
+  "delivered_source": "Small instance-wide fixed synthetic Test model in NewEngagement and existing engagement workflow, independent of target Start/ROE; strict authenticated/CSRF readback, tracked owner operation, one-call/no-refill, actual receipt projection with UNKNOWN. Finite normal first-party source/catalog provisioning and retained certified Stop/restart topology. SOURCE/control proof only, no live response claimed.",
+  "current_fix": "Operator-approved3000byte sublimit only for existing format4 retained catalog receipt; legacy inventory2900, transport4096, grant3600/API8192 unchanged. Exactly two product guards and existing exact-bound test updated; no other bytes changed since blocked snapshot.",
+  "evidence": {
+    "CLI_current_wheel": "145PASS/729subtests/exit0; full original15file+newcatalog selection,23source/wheel/installed modules byte-equal, parent/python-I child origins verified",
+    "CLI_static": "Final Ruff lint0/format-check0 across28files; strict product mypy0 across23files",
+    "Stop_maximum": "catalog2969PASS; exact3000PASS (grant3477,request3658,reply3705);3001refused. Legacy exact2900PASS/2901refused. API schema/control constructors0, two actual consumers PASS.",
+    "API_unchanged": "154SOURCE tests and prior scoped typing retained; not rerun",
+    "web_unchanged": "Parent final typecheck0,10component tests0,actual build0/manifest4;7source path binding matches current bytes. Prior118web/lint/tooling/contracts/design evidence reused.",
+    "other_bounds_unchanged": "Exact full source/NativePreparation/v6/SDK bound and public LocalControl53290/65536 proof reused;10source assets unchanged"
+  },
+  "preserved_history": {
+    "reports": [
+      "developer-result-first.json",
+      "developer-result-second.json",
+      "cli-finish-result.json"
+    ],
+    "blocked_report_sha256": "a7dbda30035f40e428f0cbbf8e445452e67a4dbd0a194ceddb556f9ad77e3174",
+    "blocked_patch_sha256": "7c81e83da4f264e50f6b67b32ca75136a443490ed39224a28785ffe2a0ae3dd0",
+    "blocked_patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cap-fix-input.patch",
+    "blocked_manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cap-fix-input-manifest.json",
+    "parent_RED": "tmp/parent-stop-bound-red.json",
+    "note": "All earlier failed/WIP/harness attempts remain explicit in original reports; cap report records intentional RED->GREEN. No nested historical essay copies."
+  },
+  "provisioning_runbook": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/provisioning-commands.txt",
+  "runbook_note": "Finite existing producer CLI commands unchanged; historical inventory-blocker banner superseded by this authorized fix, not permission to execute effects. Fresh isolated0.1.0 candidate root, human TTY Publish and candidate-owned auth required; no UI8 grant adoption/upgrade.",
+  "remaining_NOT_RUN": [
+    "Two complementary parent independent source reviews on this exact patch",
+    "Fresh isolated candidate install and genuine publication/qualification/native preparation/PG",
+    "Normal installed cross-boot catalog/manifest retention and browser panel",
+    "Approved explicit real-model1call/300s, full canonical/phase2 closure"
+  ],
+  "effects": "No product provider calls, Docker/PG/native/browser/deployment, protected/private-root/credential reads, commits/branch/push/delegation/global changes. First1call budget unused. No parent dependency links removed."
+}

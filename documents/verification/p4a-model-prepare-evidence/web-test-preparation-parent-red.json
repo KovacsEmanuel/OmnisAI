@@ -1,0 +1,12 @@
+{
+  "finding": "NORM-WEBTEST-F01",
+  "parent_reproduction": "CONFIRMED_SOURCE_PREREQUISITE",
+  "command": "umask 077; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-preparation-red/preparation_scratch.py > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-preparation-red/stdout.json",
+  "exit": 0,
+  "negative_0755": "Private directory required",
+  "positive_0700_writable": "PASS",
+  "seam": "Identical AST-extracted original product functions, native not imported; reviewer driver only owned scratch locator relocated; image readonly mount mismatch inspected, not live mounted proof",
+  "original_driver_sha256": "781d5914bd64f9c24c6bb06ac12c48f303e3dc8f39a3a486a611e31ee906bcbb",
+  "relocated_driver_sha256": "6d7b943669a13aacc775a3fabc71f35a84894a1417b68a0c18f564ee761384e4",
+  "product_effects": false
+}

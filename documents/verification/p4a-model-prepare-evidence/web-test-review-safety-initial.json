@@ -1,0 +1,111 @@
+{
+  "snapshot": {
+    "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review",
+    "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+    "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/developer.patch",
+    "patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+    "manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/frozen-manifest.json",
+    "manifest_sha256": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+    "binding": "PASS: detached base, patch hash, manifest hash, exact33 changed-path set and all33file/10source-asset sizes and SHA256 verified before review"
+  },
+  "verdict": "CHANGES_REQUESTED",
+  "status": "COMPLETED_SOURCE_SAFETY_REVIEW; not installed acceptance or phase closure",
+  "scope": "Single-operator local application. Complementary authority/epoch/concurrency/Stop, native lifetime, trust-boundary and catalog ownership review of the frozen change and relevant full callers. No unrelated repository audit.",
+  "findings": [
+    {
+      "id": "SAFETY-CATALOG-01",
+      "severity": "HIGH",
+      "blocking": true,
+      "path": "cli/src/omnis_cli/start.py",
+      "line": 941,
+      "case": "On a sealed model-test installation, omit catalog_identity from an otherwise valid format4 lifecycle record and replace catalog with another same-owner0700directory. The reverse case is a legacy auth installation with a newly inserted well-typed catalog_identity. These are receipt-integrity controls, not an arbitrary-code/multiuser attack claim.",
+      "expected": "Before BOTH normal and emergency lifecycle effects, bind catalog receipt presence exactly to the sealed installed model-test topology, and check the retained identity. Legacy/no-catalog authority must remain2900bytes; catalog3000must not be selected merely by an injected optional field.",
+      "actual": "native_fields:109-115 derives the extra field set from untrusted presence; _pgdata_receipt:866-880 and check_native_paths:69-75 validate catalog only when present. _bound_instance:941-949 binds native/auth format but never compares presence with runtime.model_test. Thus omission skips identity checking after catalog replacement, while insertion on a legacy auth runtime is accepted and meets the3000predicate in both Stop guards. Normal _static and emergency shared guards accept all these shapes. The full emergency selector reaches _emergency_drain after omission/replacement; the reproducer aborts at that effect-entry sentinel.",
+      "evidence": {
+        "reproducer": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/catalog_probe.py",
+        "result": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/catalog-result.json",
+        "exit": 0,
+        "observations": [
+          "Matching format4/model-test receipt: actual _static and emergency shared guards ACCEPTED",
+          "Missing catalog receipt: both guards ACCEPTED",
+          "Missing receipt plus physically replaced own catalog directory: both guards ACCEPTED",
+          "Legacy auth runtime plus catalog receipt: both guards ACCEPTED",
+          "Boolean catalog identity control: RECOVERY_REQUIRED",
+          "Actual _emergency_stop -> _emergency_inventory -> _emergency_drain: REACHED_EFFECT_ENTRY_SENTINEL for missing receipt plus replaced catalog"
+        ],
+        "boundary": "Actual CLI schema, filesystem identity and runtime/receipt-binding code imported from REVIEW. load_instance is a valid synthetic immutable projection. For the final emergency selector only, read-only socket/OCI oracles are declared doubles and _emergency_drain is an abort sentinel. No services, sockets, signals, Docker or effects executed; normal full OCI teardown NOT_RUN.",
+        "callers": [
+          "stop.py:397-419 and659-682: shared checks precede emergency selection/effects",
+          "stop_owner.py:161-171,234,555-558: same missing binding on normal inventory/per-stage preflight",
+          "stop_owner.py:667-684,917-950: retained completion and isolated owner reuse the same binding",
+          "start.py:1130-1136 and stop.py:190-205: stopped/restart readback uses that binding",
+          "start_runtime.py:455-485: OCI attestation checks mount path/topology, not the omitted retained directory identity",
+          "stop_receipt.py:206-207; stop_owner.py:320-322:3000predicate uses format4plus field presence"
+        ]
+      },
+      "minimal_fix": "Add one shared sealed-topology/receipt presence check at _bound_instance: catalog_identity presence must equal runtime.model_test, with supported format4/auth. Keep current exact identity/type checks and all frame caps. Add missing-field and foreign-profile controls through normal and emergency pre-effect consumers, not only missing-directory tests. No new owner/profile/framework is needed."
+    }
+  ],
+  "covered_requirements": [
+    {
+      "requirement": "Panel before any target/scope/ROE and in existing engagement, independent of Start",
+      "assessment": "SOURCE_REVIEWED: NewEngagement mounts ModelTest before Wizard; existing overview mounts it separately. Public GET/PUT has no engagement dependency. Real browser/accessibility acceptance NOT_RUN.",
+      "code": "web/src/features/engagement/Engagement.tsx:14-16,50-51; api/src/omnis/modules/runs/model_test_routes.py:79-112"
+    },
+    {
+      "requirement": "Authenticated session/Origin/CSRF, strict public inputs, no raw prompts/model/private refs or rendered HTML",
+      "assessment": "SOURCE_REVIEWED: existing LocalBoundary covers the new API; strict request permits only canonical operation_id and exact true consent. Private provisioning is not exposed by the HTTP route. DTO projection excludes private refs; React renders provider text as text. readPrivate epoch checks fence late results and logout/private-cache clearing. No additional concrete blocker identified in these inspected paths.",
+      "code": "api/src/omnis/security/host_origin.py:104-244; model_test_models.py:11-73; model_test_routes.py:23-76; web/src/features/engagement/ModelTest.tsx:14-53; web/src/features/bootstrap/useBrowserSession.ts:29-58,113-134"
+    },
+    {
+      "requirement": "Instance-wide one-shot1call/300s, persist intent, duplicate/newUUID no refill, reload/restart/unknown no resend",
+      "assessment": "SOURCE_REVIEWED: deterministic instance ledger keys, instance/lease/fence transaction plus fixed-test advisory lock, durable operation before create_task, and conflicting IDs refused. Read path does not run the worker. Existing ModelTest reserve/mark_sent precedes native SEND; subsequent packets are RECEIVE, and boot/fence mismatch returns retained accounting without dispatch. Process-loss response recovery is bounded to retained accounting, not a new send. Real overlapping PG transactions and installed process loss NOT_RUN.",
+      "code": "model_test_operation.py:28-60,150-230,233-268; instance/service.py:131-195; supervisor/native_tasks.py:325-379; runs/model_test.py:538-782"
+    },
+    {
+      "requirement": "Authority/epoch/initial-bind and concurrent Stop",
+      "assessment": "SOURCE_REVIEWED: launch initial bind requires current OPEN generation exactly+1, same epoch and IDLE on the existing serialized stream. Stop serial rejects overtaken launches. Owner checks before/after committed writes retain shutdown/fence denial; ordinary4s/prepare14s and existing short native grants are unchanged. No live race test was run.",
+      "code": "supervisor/runtime_client.py:377-449,771-792; modules/instance/service.py:131-195,390-436; supervisor/native_tasks.py:64-69,272-379"
+    },
+    {
+      "requirement": "Finite supervisor task, physical Stop/drain and native teardown rather than names alone",
+      "assessment": "SOURCE_TRACE_ONLY: tracked task has300s timeout and2s terminal-persistence bound; supervisor shutdown cancels/joins it before runtime drain. Runtime drain performs stop plus status readback. Actual Host revokes the lifeline, requests native CLOSE, signals pinned owned processes and requires namespace drainage; native close revokes child, aborts socket and joins Future. Native request timer/shutdown and strict no-retry wire frontier were read. No physical teardown/live guarantee inferred from source or existing doubles.",
+      "code": "supervisor/native_tasks.py:48-62; supervisor/__main__.py:119-126,177-198; supervisor/runtime_client.py:811-817; integrations/hermes/src/omnis_hermes/runtime_host.py:1163-1265,1403-1406; upstream/managed-source/agent/subagent_lifecycle.py:355-423; upstream/managed-source/run_agent.py:1042-1072; upstream/managed-source/agent/turn_api_request.py:204-377"
+    },
+    {
+      "requirement": "True retained response; requested versus technically observed orUNKNOWN; nullable duration/usage",
+      "assessment": "SOURCE_REVIEWED: public projection uses persisted provider receipt output_text/model/effort/usage, not prose or requested identity. Native receipt takes terminal response model/reasoning/usage after exact request validation. Missing accounting remainsUNKNOWN, usage/duration remain nullable. UI uses text rendering and explicit UNKNOWN. Provider behavior NOT_RUN.",
+      "code": "model_test_operation.py:83-147; runs/model_test.py:784-909; upstream/managed-source/agent/turn_api_request.py:299-377; web/src/features/engagement/ModelTest.tsx:43-53"
+    },
+    {
+      "requirement": "Normal sealed full first-party source, existing human Publish/preparation chain, isolated immutable candidate and explicit provisioning Stop/Start",
+      "assessment": "SOURCE_REVIEWED: bundle contains exact full9files/profile; release admits that source set only on native auth profile. No native test-startup opt-in added to ordinary overlay. Provision validates shipped package/profile against genuine selection/preparation, persists intent before launch and retains unbound manifest. Runbook keeps human TTY Publish, fresh0.1.0root and ordinary Stop/Start before Settings. Genuine installed producer outputs remainNOT_RUN. Catalog authority requirement is BLOCKED by SAFETY-CATALOG-01.",
+      "code": "ops/build_control_bundle.py:114-135; ops/Dockerfile.control-model-test; cli/src/omnis_cli/release.py:72-96; cli/src/omnis_cli/start_runtime.py:81-111; api/src/omnis/modules/runs/model_test_source.py:39-152; tmp/provisioning-commands.txt"
+    },
+    {
+      "requirement": "Catalog ownership/mount drift before normal/emergency effects; retained StopGrant/readback/restart; catalog-only3000",
+      "assessment": "CHANGES_REQUESTED: existing exact identities, mount/environment attestation, durable grant equality, per-stage checks and completion-only restart are retained, but absence/foreign presence is not bound to sealed topology. This defeats catalog ownership and allows legacy auth to select the larger sublimit. Full native/source/public frame measurements and cap controls are reused as declared SOURCE evidence, not rerun or promoted to installed acceptance.",
+      "code": "cli/src/omnis_cli/start.py:109-115,833-964; start_runtime.py:64-75,445-485; stop_owner.py:161-325,397-421,540-735,875-955; stop_receipt.py:65-209; restart.py:43-94"
+    }
+  ],
+  "commands": [
+    {"command": "pwd; git status --short --branch; git rev-parse HEAD; git diff --stat; git ls-files --others --exclude-standard", "exit": 0, "result": "Detached expected base;19modified+14untracked product paths"},
+    {"command": "python -B -c <stdlib exact base/patch/manifest/path-set/all33file and10asset SHA256+size verification>", "exit": 0, "result": "bindingPASS;33paths;10assets;none absent"},
+    {"command": "git diff -- api/src/omnis/supervisor api/src/omnis/transport/local_control.py cli/src/omnis_cli ops", "exit": 0},
+    {"command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c <explicit REVIEW/cli/src origin check>", "exit": 0, "result": "Python3.13.15; start/stop imported from REVIEW, not main"},
+    {"command": "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/absent-config /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/catalog_probe.py", "exit": 0, "result": "First shared-guard positive/negative reproduction exposed blocker; own scratch only"},
+    {"command": "XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/absent-config /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/catalog_probe.py > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/catalog-result.json", "exit": 0, "result": "Final reproduction additionally reaches emergency effect-entry abort sentinel; no actual effect"},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "reused_evidence": "developer-result.json and cap-fix-result.json read as author evidence, not independent approval:154API SOURCE,118web SOURCE, parent10components/type/build4assets, CLI145PASS/729subtests and lint/format/mypy. Legacy2900/+1 and catalog maximum2969/exact3000/+1, grant3600/wire4096/API8192 and exact full source/preparation/v6/SDK/public measurements retained in declared scope. No broad rerun solely for counts.",
+  "limits": [
+    "Source/state/safety review only; no genuine installed preparation, human auth/Publish, PG concurrency, cross-boot/browser/provider or physical process-loss/Stop exercise. These remainNOT_RUN, not circular prerequisites for source review.",
+    "No native runtime imported. Read-only native code trace is not an installed producer or drain proof. Catalog reproducer uses explicit synthetic immutable-instance/socket/OCI seams and halts at effect entry.",
+    "Existing stockNone runtime441PASS/1FAIL and canonicalNOT_RUN are unchanged/out-of-scope; no hidden green or repair attempted.",
+    "omnis-review-qa skill tool lookup failed; repository .hermes/skills/omnis-review-qa/SKILL.md was read directly. ponytail:ponytail-review loaded. No other review read, no author consultation or delegation.",
+    "No universal absence-of-defects claim. Parent adjudicates and assigned author fixes; this report does not integrate or close the phase."
+  ],
+  "no_product_effects": true,
+  "writes": ["/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety.json", "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/review-safety-tmp/"],
+  "prohibited_actions": "No product edits, commits, branch changes, delegation, services, browser, Docker, PG, native/provider calls, credential/protected-original reads or global-setting changes."
+}

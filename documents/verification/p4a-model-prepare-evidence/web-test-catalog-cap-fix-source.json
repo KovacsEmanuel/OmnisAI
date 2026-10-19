@@ -1,0 +1,359 @@
+{
+  "verdict": "SOURCE_READY_FOR_REVIEW",
+  "acceptance": "Source gates complete in the admitted scope; NOT independent-review approval, installed/live PASS or phase2 closure",
+  "base": "5d21826ec476c572f7f3f3ed563dd78497a46d05",
+  "branch": "work/p2-webtest-5o53dewr",
+  "checkout": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "prior_patch_sha256": "7c81e83da4f264e50f6b67b32ca75136a443490ed39224a28785ffe2a0ae3dd0",
+  "requested_development": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "fallback": false
+  },
+  "operator_scope": {
+    "approval": "Parent reports explicit operator clarify approval: Da, doar aceast\u0103 ajustare intern\u0103",
+    "rule": "3000-byte inventory only when existing validated lifecycle receipt format==4 AND catalog_identity is present; format4 maps to existing p4a-codex-auth profile through start._bound_instance. No new request flag/profile/codec.",
+    "unchanged": {
+      "legacy_no_catalog_inventory": 2900,
+      "transport_request_reply": 4096,
+      "grant": 3600,
+      "API_inventory_schema": 8192,
+      "model_calls": 1,
+      "model_wall_seconds": 300
+    },
+    "unchanged_semantics": "Identity widths/types, catalog retention, grant/authority fences, Stop ownership, DATA qualification, SENT/no resend, provider output and model settings unchanged. No Host/native/API/web/source/profile edit."
+  },
+  "delta_this_stage": [
+    "cli/src/omnis_cli/stop_receipt.py: validate_inventory conditional inventory sublimit only",
+    "cli/src/omnis_cli/stop_owner.py: prepare_stop_inventory matching conditional sublimit only",
+    "cli/tests/test_settings_lifecycle.py: existing consuming exact-bound regression covers complete maximum and exact conditional cap through grant/CLI frame/reply; cap+1 denial retained"
+  ],
+  "minimality": "Two existing guards use the same short receipt-derived predicate; no helper/framework/codec or data deletion. Existing bound consumer loops over maximum legal shape and exact cap instead of duplicating its complete grant/frame assertions.",
+  "caller_trace": [
+    "stop.stop_instance -> prepare_stop_inventory -> validate_inventory -> control.request/_stop_binding arm_stop -> validate_grant -> run_stop_owner -> verify_stop_completion -> _publish_stopped",
+    "stop_owner.run_stop_owner and isolated _entry both rebuild/validate inventory; _entry rechecks it before _execute/admission, then verifies completion",
+    "stop_owner.verify_stop_completion validates retained inventory and grant; stop.readback_stopped and _publish_stopped use it",
+    "start.start_instance STOPPED gate, restart.prepare_restart and status.status readback all consume the same completion/inventory validators",
+    "Production search located exactly two2900inventory size guards, both changed conditionally; control4096 and grant3600 guards unchanged"
+  ],
+  "red_green": {
+    "parent_red": "tmp/parent-stop-bound-red.json, exit1 on blocked patch7c81e83d",
+    "own_red_command": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py",
+      "test_model_test_catalog_lifecycle.py::test_catalog_uses_existing_stop_restart_and_frame_consumer[test_native_inventory_and_control_exact_frame_budgets]"
+    ],
+    "own_red_exit": 1,
+    "own_red_result": "1FAIL/0.40s before product edit; exact maximum2969 rejected at validate_inventory2900 guard",
+    "green": "Current wheel full original15file+newcatalog selection145PASS/729subtests in24.96s, exit0; finite schema/bound consumer2PASS in0.60s, exit0",
+    "negative_controls": "Catalog3001 rejected; legacy2901 rejected. Wrong/missing/swapped/boolean catalog pre-effect refusal and original Stop/fence/lifecycle regressions remain passing. No xfail/skip/ignore/relaxed assertions."
+  },
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--python",
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "--wheel",
+        "--directory",
+        "cli",
+        "--out-dir",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/wheels"
+      ],
+      "env": {
+        "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/uv-cache"
+      },
+      "exit": 0,
+      "result": "Current CLI wheel rebuilt AFTER final product edit"
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+        "pip",
+        "install",
+        "--offline",
+        "--no-index",
+        "--no-deps",
+        "--reinstall",
+        "--link-mode",
+        "copy",
+        "--python",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cli-venv/bin/python",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl"
+      ],
+      "env": {
+        "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/uv-cache"
+      },
+      "exit": 0,
+      "result": "Private reinstall only; no product install/global changes"
+    },
+    {
+      "command": "Pinned Python stdlib checks all23wheel modules equal current CLI source and installed copy; source tests copied byte-identically. Parent import path and bounded10s python-I child config/import origin confirmed with owned absent XDG_CONFIG_HOME.",
+      "exit": 0,
+      "artifact": "tmp/cap-fix-origin.json"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "cli/src",
+        "cli/tests/runtime_inspect_fixture.py",
+        "cli/tests/stop_owner_fixture.py",
+        "cli/tests/test_settings_lifecycle.py",
+        "cli/tests/test_model_test_topology.py",
+        "cli/tests/test_model_test_catalog_lifecycle.py"
+      ],
+      "env": {
+        "RUFF_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/ruff"
+      },
+      "exit": 0,
+      "result": "Final lint after LAST edit: all checks passed"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "cli/src",
+        "cli/tests/runtime_inspect_fixture.py",
+        "cli/tests/stop_owner_fixture.py",
+        "cli/tests/test_settings_lifecycle.py",
+        "cli/tests/test_model_test_topology.py",
+        "cli/tests/test_model_test_catalog_lifecycle.py"
+      ],
+      "env": {
+        "RUFF_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/ruff"
+      },
+      "exit": 0,
+      "result": "28files already formatted; no subsequent edit"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/mypy-cli-cap-fix",
+        "cli/src"
+      ],
+      "exit": 0,
+      "result": "Strict actual CLI product/import closure23files, no issues; no any/ignore/skip/config relaxation; no subsequent edit"
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py"
+      ],
+      "process": "proc_819e521451e8",
+      "exit": 0,
+      "result": "145passed,729subtests passed in24.96s; actual current wheel in parent and isolated child paths",
+      "selection": [
+        "test_start.py",
+        "test_start_preflight.py",
+        "test_start_attestation.py",
+        "test_start_boundaries.py",
+        "test_start_stop_boundary.py",
+        "test_restart_wiring.py",
+        "test_stop.py",
+        "test_stop_owner.py",
+        "test_stop_owner_review.py",
+        "test_stop_owner_cleanup.py",
+        "test_stop_receipt.py",
+        "test_stop_wiring.py",
+        "test_install.py",
+        "test_model_test_topology.py",
+        "test_settings_lifecycle.py",
+        "test_model_test_catalog_lifecycle.py"
+      ],
+      "runner_env": {
+        "XDG_CONFIG_HOME": "tmp/cli-absent-config",
+        "TMPDIR": "tmp",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "pytest_args": "-p no:cacheprovider --noconftest -q -s --basetemp=tmp/cli-finish-green",
+      "declared_harness_seam": "Unchanged prior runner shortens only test-owned TemporaryDirectory sl04-data- prefix to s-, making canonical scratch auth-egress103bytes instead of111; no product/socket cap or assertions altered."
+    },
+    {
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/measure-stop-cap-fix.py"
+      ],
+      "exit": 0,
+      "result": "2actual exact-bound consumers PASS; real schema/control constructors and serializers, re-raised negative validator refusals",
+      "artifact": "tmp/cap-fix-frames.json"
+    },
+    {
+      "command": "git diff --check and current delta versus blocked33path manifest; parent final7web binding and10full source assets hash equality",
+      "exit": 0,
+      "result": "Only the admitted3files changed;30others,7web paths and10source assets unchanged; original BLOCKED report hash retained"
+    }
+  ],
+  "command_cwd": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/work",
+  "command_path_expansion": {
+    "tmp": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp"
+  },
+  "wheel": {
+    "path": "tmp/wheels/omnis_cli-0.1.0-py3-none-any.whl",
+    "sha256": "f51713dd31ae3377eb7936d809c57ebd562ff07a0ed3c23eb8f9addda5f8d9dd",
+    "byte_equal_modules": 23,
+    "parent_origin": "tmp/cli-venv/lib/python3.13/site-packages/omnis_cli/__init__.py",
+    "child_argv": [
+      "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cli-venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import omnis_cli,omnis_cli.stop_owner,omnis_cli.stop_receipt,omnis_cli.config;print(omnis_cli.__file__);print(omnis_cli.stop_receipt.__file__);print(omnis_cli.config.load_config())"
+    ],
+    "child_exit": 0,
+    "origin_proof": "tmp/cap-fix-origin.json"
+  },
+  "measured_frames": {
+    "artifact": "tmp/cap-fix-frames.json",
+    "cases": [
+      {
+        "catalog": false,
+        "inventory": 2889,
+        "accepted": true,
+        "grant": 3366,
+        "CLI_arm_stop": 3541,
+        "reply": 3588
+      },
+      {
+        "catalog": false,
+        "inventory": 2900,
+        "accepted": true,
+        "grant": 3377,
+        "CLI_arm_stop": 3552,
+        "reply": 3599
+      },
+      {
+        "catalog": false,
+        "inventory": 2901,
+        "accepted": false,
+        "reason": "STOP_INVENTORY_INVALID"
+      },
+      {
+        "catalog": true,
+        "inventory": 2969,
+        "accepted": true,
+        "grant": 3446,
+        "ControlRequest_compact": 3480,
+        "CLI_arm_stop": 3627,
+        "reply": 3674
+      },
+      {
+        "catalog": true,
+        "inventory": 3000,
+        "accepted": true,
+        "grant": 3477,
+        "ControlRequest_compact": 3511,
+        "CLI_arm_stop": 3658,
+        "reply": 3705
+      },
+      {
+        "catalog": true,
+        "inventory": 3001,
+        "accepted": false,
+        "reason": "STOP_INVENTORY_INVALID"
+      }
+    ],
+    "constructors": "Existing Fixture.grant, validate_inventory, _stop_binding/_stop_grant, ArmStopCommand/StopGrant/ControlRequest, default json.dumps response+correlation+newline. Complete maximum-width identities and strict values retained.",
+    "proof_boundary": "SOURCE synthetic Engine/namespace-process-family fixture, not real OCI/native/PG. Fixture identities/grants and stream observations are declared doubles; actual product authority was never issued. API imported only for unchanged schema constructors."
+  },
+  "reused_unchanged_evidence": {
+    "API": "154SOURCE tests and strict scoped evidence retained in original reports; not rerun, API bytes unchanged",
+    "full_source": "tmp/final-sizing/final-measurement-output.json exact unmodified package/profile, graph/preparation/v6/SDK bounds reused;10source assets unchanged, not remeasured",
+    "public_DTO": "tmp/public-bound-finish.json worst actual LocalControl reply53290/65536 and real receipt/DTO/control constructors reused; API/web unchanged",
+    "web": "Parent tmp/parent-web-final/result.json typecheck0 and10targeted components0; tmp/parent-web-final/build-result.json real build0 and manifest4. Parent7source bindings match current bytes. Earlier118web/lint6tooling/contracts/design remain scoped and reused.",
+    "web_failure_preserved": "Parent foreground Vite refusal exit-1 remains in result.json; corrected real bounded-background build exit0 in build-result.json, not relabeled.",
+    "historical_failures": "Original75FAIL/112PASS, subsequent path-prerequisite33FAIL/131PASS, blocked max2969 test and all earlier WIP/failures remain in original reports. This stage has intentional RED then all admitted GREEN, without erasing prior attempts."
+  },
+  "preserved_reports": {
+    "blocked": "cli-finish-result.json",
+    "blocked_sha256": "a7dbda30035f40e428f0cbbf8e445452e67a4dbd0a194ceddb556f9ad77e3174",
+    "older": [
+      "developer-result-first.json",
+      "developer-result-second.json"
+    ],
+    "parent_red": "tmp/parent-stop-bound-red.json"
+  },
+  "provisioning_handoff": "Existing tmp/provisioning-commands.txt commands/actual-output request builders remain unchanged. Its historical catalog-bound blocker banner is superseded only by this approved scoped fix; effects remain prohibited until parent exact-byte reviews and admission. Fresh isolated candidate0.1.0 root, HUMAN TTY Publish confirmation, genuine NativePreparation, certified Stop/Start and candidate-owned auth remain required; UI8 grant is never copied/adopted.",
+  "still_NOT_RUN": [
+    "Two complementary independent exact-byte source reviews (parent next gate)",
+    "Fresh candidate image/install/normal installed consumer",
+    "Genuine operator Publish/qualification/native preparation/PG",
+    "Installed cross-boot catalog+manifest readback/browser panel",
+    "Explicit real provider1call/300s and full phase2/canonical closure"
+  ],
+  "effects_and_limits": {
+    "product_provider_calls": 0,
+    "product_Docker_PG_native_browser_deployment": "NOT_RUN",
+    "commits_branches_push_delegation_globals": "NONE; parent integrates/commits",
+    "credentials_UI8_private_root_protected_originals": "NOT_READ_COPIED_HASHED",
+    "parent_dependency_links": "Not removed/altered; exact nonproduct paths excluded at freeze",
+    "owned_processes": "Bounded CLI test job observed exited0; original fixtures awaited/reaped their inert children; no product service launched",
+    "conclusion": "SOURCE_READY_FOR_REVIEW is a bounded evidence state, not a claim of no possible defects or installed/live success. First next consumer is parent-reviewed installed provisioning/cross-boot/panel, not additional breadth."
+  },
+  "patch": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/developer.patch",
+  "patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+  "patch_bytes": 124231,
+  "path_sha_manifest": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/frozen-manifest.json",
+  "manifest_sha256": "dd022433c5481769096e7e1235625b389ad5937730d2cca630567525eda60890",
+  "changed_file_count": 33,
+  "freeze": {
+    "status": "PASS",
+    "delta_paths": [
+      "cli/src/omnis_cli/stop_owner.py",
+      "cli/src/omnis_cli/stop_receipt.py",
+      "cli/tests/test_settings_lifecycle.py"
+    ],
+    "prior_other_paths_unchanged": 30,
+    "parent_web_bound_paths_unchanged": 7,
+    "full_source_assets_unchanged": 10,
+    "patch_parser_entries": 33,
+    "git_diff_check_exit": 0,
+    "prior_blocked_report_preserved_sha256": "a7dbda30035f40e428f0cbbf8e445452e67a4dbd0a194ceddb556f9ad77e3174",
+    "prior_blocked_patch_copy": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cap-fix-input.patch",
+    "prior_blocked_manifest_copy": "/home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/cap-fix-input-manifest.json",
+    "CLI_evidence_current_source_binding": "all23module hashes match final source",
+    "parent_links": "not touched"
+  },
+  "artifact_sha256": {
+    "tmp/cap-fix-origin.json": "9e2ea3f7d3a3159761e15daaec5955f9b0f7b349237c90e2aba114b1e1db594d",
+    "tmp/cap-fix-frames.json": "012e86793acb5864053375ab67b50ccccdeca05b36ba5d9b00b232d5fc4bbd09",
+    "tmp/measure-stop-cap-fix.py": "201c3f3259659aecf7886eea555055a0e11fd9899affd3c449cf2cddee4f6caa",
+    "tmp/run-cli-finish.py": "1198eb833d0b62427c17b643fb570dd8a8cec2cdad3d9dc350aeea4aaf74bcd9",
+    "tmp/parent-stop-bound-red.json": "bf69599a8105f3e13799f6301e617ae3421c81500c34fe9b933f2954468e8d0b",
+    "tmp/parent-web-final/input-binding.json": "ce0353fedb2208639d24b21f937765cf781d76d7a797cbc6e595fdd57c4efb3c",
+    "tmp/parent-web-final/result.json": "681dea7e414e44ad3a1cce068ed53d27b8cf68dfc230eaaf0e3b6080ec1b54fb",
+    "tmp/parent-web-final/build-result.json": "6093e967372254b639c80c7ce7db466194cdcd517c5d22ed2b3848b9058a8349"
+  }
+}

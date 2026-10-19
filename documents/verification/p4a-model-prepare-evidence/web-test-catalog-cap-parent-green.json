@@ -1,0 +1,18 @@
+{
+  "source_patch_sha256": "2240be1543b60663000e972f791215426419c51b4d15c1f097670f49f6fd0fb1",
+  "command": "umask 077; /home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/run-cli-finish.py test_model_test_catalog_lifecycle.py test_settings_lifecycle.py::SettingsTopologyTest::test_native_inventory_and_control_exact_frame_budgets > /home/kali/.hermes/cache/scratch/p2-webtest-5o53dewr/tmp/parent-stop-bound-green.log 2>&1",
+  "exit": 0,
+  "summary": [
+    ".AUTH_PRODUCER_SIZES 2969 3446 3627",
+    "AUTH_REPLY_FRAME_BYTES 3674",
+    "AUTH_PRODUCER_SIZES 3000 3477 3658",
+    "AUTH_REPLY_FRAME_BYTES 3705",
+    ".....AUTH_PRODUCER_SIZES 2889 3366 3541",
+    "AUTH_REPLY_FRAME_BYTES 3588",
+    "AUTH_PRODUCER_SIZES 2900 3377 3552",
+    "AUTH_REPLY_FRAME_BYTES 3599",
+    "7 passed in 3.04s"
+  ],
+  "source_unchanged": true,
+  "scope": "Parent actual current-wheel catalog Stop/receipt/restart plus four identity refusals, maximum/exact3000/+1 and legacy2900/+1, unchanged grant/wire checks; SOURCE synthetic Engine and inert namespace family, not OCI/PG/native/provider."
+}

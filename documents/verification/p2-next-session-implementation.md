@@ -4,169 +4,163 @@
 
 ## Prompt pentru următoarea implementare
 
-**HANDOFF_ONLY — DOAR ÎN SESIUNEA FRESH**, activat prin cererea explicită a operatorului, nu prin închiderea sarcinii UI.
+**HANDOFF_ONLY — DOAR ÎN SESIUNEA FRESH.** Operatorul a clarificat explicit: **finalizarea fazei 2 cu Test model simplu după logare, fără P3**. Pregătirea acestui prompt nu reia execuția; starea produsului rămâne cea din checkpointul de pauză. Copierea lui într-o sesiune nouă cu cerere de executare constituie reluarea.
 
 ```text
 Lucrează în /home/kali/OmnisAI.
 /ponytail:ponytail full
 
-MANDAT
-Acest prompt este recuperare, nu continuare automată după simplificarea UI.
-Aplică-l numai când operatorul cere explicit reluarea P4a/P2-live.
-Continuă secvențial restul fazei 2 conform planului §7–8/§19:
-P4a/G04a → P2-live/G02-live. Primul apel reușit nu închide faza 2.
-Fără P3, trafic target, provideri/catalog/editor extinse, r1/P0,
-profiluri personale, modificări globale, push sau buget nelimitat.
-Respectă SOUL, AGENTS.md, CONTRIBUTING.md; nu le modifica pentru a evita gates.
-Încarcă Ponytail full/audit/review și skill-urile de proiect relevante.
-Audit read-only numai pe traseele afectate și criteriile restante.
+REZULTATUL CERUT
+Închide verificat faza 2: P4a/G04a → P2-live/G02-live, fără P3.
+Prioritatea vizibilă: după autentificarea operatorului, Provider → Model →
+Connect → Test model → răspuns real afișat în web. Test model trebuie să poată
+fi folosit înainte de completarea scope/ROE și separat de Start assessment.
+Apoi simplifică Setup/ROE și încheie obligațiile restante și canonicalul final.
+Un răspuns reușit nu închide singur faza 2. Nu promite închiderea dacă lipsesc
+probe ori autorizări; raportează precis BLOCKED/NOT_RUN, fără rezultat inventat.
 
-STARE DE RELUARE
-Verifică Git: branch checkpoint/p2-batch2-pause-20261015;
-UI922dc9f și remediul prerequisite e0d23d6 sunt integrate, nu se reimportă.
-Citește CURRENT din README, p4a-minim.md, p2-integration-b06cm.md,
-implementation-status.md și p4a-oauth-evidence/preauth-ui-recovery.json,
-plus plan §7–8/§19. Dovezile curente: simple-connect-installed.json,
-simple-connect-visible-through-challenge.json și cele șase originale
-simple-connect-author/review/rereview*.json. NORM-F01 închis scoped;
-worktree autor p4a-simple-aeqwhv_2/work curat/a64df8a, deja integrat.
-clean-ui-installed.json și probele neafectate rămân istorice/scoped.
-Singurul untracked cunoscut: documents/Omnis_Notite_Originale.html.
-NU citi/copia/hash/modifica acel HTML sau tools/development/ponytail.json.
-Păstrează munca străină și FAIL/UNKNOWN/INDETERMINATE. Fără reset/stash/push.
+CONTEXT MINIM, NU RELUAREA ARHIVEI
+Verifică Git/status/diff/HEAD; branch așteptat checkpoint/p2-batch2-pause-20261015.
+Checkpoint de pauză14622ab, produs4370a40, adjudecare/reviewuri cd08bdd.
+Commiturile documentare ulterioare nu sunt implementare sau reluare automată.
+Citește AGENTS.md, CONTRIBUTING.md, primul CURRENT din README,
+documents/verification/{p4a-minim.md,implementation-status.md},
+p4a-model-prepare-evidence/{web-test-ui9-paused.json,web-test-parent-source-acceptance.json}
+și planul documents/Omnis_Implementation_Plan.md §7–8/§19;
+consultă arhitectura/UI spec numai pentru contractul afectat.
+Folosește skill-urile relevante la nevoie, nu întreg catalogul în fiecare agent.
+Nu citi/hash/copia/modifica/stage documents/Omnis_Notite_Originale.html sau
+tools/development/ponytail.json; păstrează orice muncă străină.
+Reutilizează P2-inert/G02-inert și aprobările pe bytes/calleri neafectați.
+Cele două HIGH SAFETY-CATALOG-01/NORM-WEBTEST-F01 sunt închise SOURCE scoped;
+nu relansa discovery, vechii autori, reviewurile ori probele neschimbate.
 
-ARTEFACT ACTUAL / PAUZĂ
-/home/kali/.omnis-p2-ui9, wrapper /home/kali/.omnis-p2-ui9/omnis,
-http://127.0.0.1:8766, generation1/epoch1, READY/assessmentfalse,
-instance d6a018ed-d3ad-462e-b5a2-d7997db9d704,
-release3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6.
-Originalele consumer/topologie/assets și checkpointul ui9-paused sunt în
-p4a-model-prepare-evidence. Confirm TTY realc9cf2e31 este salvat, dar
-head1/publicationnull și ModelTest UNAVAILABLE/operationnull/response null.
-Nu relua nimic fără cerere explicită. După reluare verifică starea/refs;
-prima acțiune neexecutată este Publish exact al selecției din
-state/omnis/catalog/requests/operator-confirm.json, nu încă un confirm.
-Urmează snapshot/execution-selection și model_test_source provision prin
-ownerul conectat, real native preparation, Stop/Start fără reseed și auth
-operator în Chrome normal în candidatul nou. Primul1call300s încă neconsumat.
-Nu copia grantul vechi. Niciun autor/reviewer/probe writer activ la pauză;
-serviciile UI9 se păstrează, cererea nu este shutdown.
+PUNCTUL EXACT DE RELUARE
+Candidatul actual: /home/kali/.omnis-p2-ui9;
+folosește exclusiv wrapperul /home/kali/.omnis-p2-ui9/omnis pentru lifecycle.
+Ultimul readback, NU stare live garantată: http://127.0.0.1:8766,
+instance d6a018ed-d3ad-462e-b5a2-d7997db9d704, READY/generation1/epoch1,
+assessment_ready=false, ModelTest UNAVAILABLE/operation_id=null/response=null.
+Release/pin/identitățile complete sunt în checkpoint; verifică înainte de efecte.
+Codul Test model/bridge normal este deja integrat și instalat, nu de rescris.
+CLI/OCI/HTTP/scratch0700 și calificările STATIC/PURE reale au trecut;
+acestea nu sunt pregătire nativă, browser complet sau inferență.
+Confirmarea umană TTY c9cf2e31-f8b5-4a4f-8524-9587eefa0bba este salvată.
+Publicarea NU s-a făcut: head generation1/publication_ref=null.
+Selecția exactă: UI9/state/omnis/catalog/requests/operator-confirm.json.
+Native preparation, cross-boot, auth UI9 și prima inferență sunt NOT_RUN.
+UI8/8765 are doar readbackul auth istoric; nu copia/adopta grantul, contul,
+sesiunile, datele sau profilul Chrome/Hermes personal. Nu porni candidații vechi.
+La pauză nu existau writeri activi; serviciile UI9 erau păstrate pornite.
+Artefactele esențiale sunt în Git și UI9; scratch poate expira. Dacă un input
+pin-uit lipsește, restaurează numai din proveniența atestată, nu din profilul personal.
 
-ARTEFACT VECHI / ISTORIC, NU ȚINTA IMPLICITĂ DE RELUARE
-/home/kali/.omnis-p2-ui8, origin http://127.0.0.1:8765, generation3/epoch2,
-instance cebb549c-2a72-40fe-89fd-877f62b1b4d6,
-release SHA256 660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a.
-Mediul CLI și ownerii sunt în recovery/intent.json; parsează privat.
-Reobservă readiness, contul/datele și browserul înainte de orice efect.
-Profilul QA UI3/debug9226 este istoric; nu îl lansa pentru testul actual.
-Operatorul deschide Chrome normal și face auth; nu automatiza profilul său,
-nu citi/copia cookies/credentiale/sesiuni și nu substitui browserul testing.
-Ulterior operatorul a cerut Stop/Start cu loguri și auth în Chrome-ul său normal:
-operator-chrome-restart.json păstrează Stop0, primul PORT_CONFLICT/TIME_WAIT,
-Start distinct0/READY/generation3/epoch2/date identice/logging existent activ.
-Nu porni Chrome testing și nu copia credentialele Hermes personale.
-UI6 este STOPPED/generation2/date păstrate. UI5 are resursele fizice absente,
-dar rămâne UNCERTAIN/RECOVERY_REQUIRED după supervisor exit3/cauză UNKNOWN.
-UI7 la fel: supervisor exit3/OOMfalse în pauză, Stop original exit4/9.554s,
-exact4CIDs/proiect/rețele absente și identitățile datelor păstrate;
-logic UNCERTAIN/RECOVERY_REQUIRED, nu READY/STOPPED reconciliat.
-Nu o adopta/reporni și nu șterge markerul. Dacă defectul reapare pe instanța
-actuală, capturează motivul finit prin ownerul existent înainte de cleanup;
-nu inventa retrospectiv cauza și nu relansa la orb.
-
-CE NU SE REIA
-UI simplă: două re-reviewuri scoped, make check-web final115unit/6tooling/audit0,
-QA instalată1440/1280/390/320, tastatură,4assets, Diagnostic pliat,
-un singur click real read/save/connect și tab oficial deschis, exit0 până la CHALLENGE.
-Nu relansa polishul, read/save sau probele unknown/logout neafectate;
-aprobarea estetică rămâne distinctă. Nu adăuga provideri/modele/catalog nou.
-P2-inert/G02-inert și SEND PG/native controlat7a2ac5a sunt acceptate scoped
-(1PASS/35,72s/exit0/family_drained=true), nu inferență provider live.
-Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
-numai pe logica neschimbată. Niciun candidat vechi nu se reimportă.
-
-PRIMII PAȘI ȘI RESTANȚE — NUMAI DUPĂ RELUARE EXPLICITĂ
-Test model web din plan§8/UI§3 este implementat și integrat4370a40,
-review final APPROVED_SCOPED, instalat UI9. Nu reatribui cod/discovery;
-worktree-ul autor și review-final sunt copii frozen, nu writeri activi.
-Auth0ba07c05 a UI8 rămâne doar ultimul readback istoric, nu grant transferabil.
-Prima frontieră rămasă este Publish/provision real după confirmarea salvată,
-apoi restart/persistență, auth uman nou, browser și prima probă1call300s.
-Nu există răspuns real de model; Setup simplificat nici nu a început.
-Lista de mai jos păstrează obligațiile existente; fixtureNone se adjudecă
-înainte de canonical, nu se ignoră pentru că alte teste au trecut,
-nu este motiv să relansăm locatorul sau toate probele istorice.
-1. Reutilizează e0d23d6 și cele două reviewuri din p4a-minim.md:
-   HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source
-   este inputul MANAGEMENT explicit, validat înainte de provisioning și la AST.
-   Nu este no-input GREEN. Nu relansa remediul locatorului sau9AST neafectate.
-   Adjudecă următorul FAIL real: test_public_turn_denies_before_native_dependencies_and_preserves_stock_control
-   din integrations/hermes/tests/test_model_terminal.py trimite function(None,None),
-   dar native conversation_loop citește agent.__dict__ înaintea tripwire-ului stock.
-   Check-runtime:9AST PASS,441PASS/1FAIL25.64s/exit2; izolat1FAIL0.06s/exit1.
-   Test/producer/adaptor relevante sunt neschimbate de e0d23d6. Reproducer→fix minim
-   al fixture-ului/callerului legitim dacă se confirmă→regresii/review; fără skip,
-   produs auth modificat preventiv sau assertions slăbite. Nu este bug UI demonstrat.
-   Dacă alegi installed_browser.mjs mode=session, repară întâi callerul care
-   pornește Home și apoi cere identitatea Runtime; nu schimba ruta produsului.
-2. Păstrează QA vizibilă: fereastră headed efectiv în față, URL comunicat,
-   fără înlocuire cu headless/screenshot-only. La preluarea operatorului,
-   oprește automatizarea și reobservă înainte de continuare.
-   Testul actual folosește Chrome normal deschis de operator; fără pornire
-   Chrome testing, control CDP sau capturi ale profilului personal.
-   Pin153 și cele două SIGTRAP ale Chromium145 sunt istoric QA, nu pași actuali.
-   Connect0e4e7c98-e19d-4436-ab7f-e9876cb19d20
-   a produs CHALLENGE și tab oficial auth.openai.com confirmat efectiv deschis,
-   apoi controlul a fost lăsat operatorului. Formularul a rămas fără răspuns;
-   readback3682.983s mai târziu: INDETERMINATE/configuredfalse/selectionnull,
-   oauthNONE/challengeabsent/auth&reachableNOT_VERIFIED/inferencefalse.
-   Cauză UNKNOWN, nu expiry cert din timp; markerii finiți lipsesc.
-   Nu retrimite Connect sau refresh automat. Verifică operația exactă/starea
-   locală prin ownerii existenți și decide frontiera necesară înainte de efect.
-   UI veche7d9d7d7b… este CANCELLED/ABSENT; nici acel ID nu se reia.
-   Pentru orice deschidere ulterioară verifică tabul real, nu doar click ACK.
-   Operatorul face autentificarea/confirmarea contului Codex numai în web.
-   Nu solicita/copia parole, tokenuri sau coduri în chat,
-   capturi, loguri ori Git. Save nu este auth; LOCAL_PRESENT se verifică
-   prin operația care îl produce și nu înseamnă inference_ready.
-3. Buget confirmat/neconsumat: cont Codex ales de operator, gpt-6.1-sol/xhigh,
-   date sintetice, maximum1apel/300s pentru prima probă, fără retry/fallback.
-   Nu extinde acest acord la alte calls; auth/consimțământ încă nefinalizate.
-   Cererea de web simplu nu autorizează pornirea acestei probe în fundal.
-   Prima inferență trece exclusiv prin callerul legitim deja existent:
-   native_tasks.py/_model_test_prepare și _model_test_send → ModelTest,
-   cu producerii reali ai inputurilor, nu un apel SDK auxiliar sau helper fals.
-   Verifică legătura și limitele complete înainte de a atribui cod.
-   DATA, reserve/SENT durabile, usage/receipt/readback, Stop și no-retry/fallback
-   rămân obligatorii. Subscripția se monitorizează fără promisiunea unui plafon
-   garantat de output; plafoanele API și celelalte protecții rămân.
-4. Continuă criteriile live aplicabile: copil nativ + skill publicat/pin-uit,
-   identitate/mapping autentic înainte de acces, requested/effective model/effort,
-   inventar Brain/copil și auxiliare/no hidden calls, lineage/compresie sau
-   refuz explicit conform canonului, rezultat/inbox/consum/recovery și Stop.
-   Reutilizează părțile inerte neafectate; nu transforma un PASS sintetic ori
-   primul răspuns în închiderea G04a/G02-live. Fără alte familii/demo/editor.
-5. Canonical final real pe snapshotul final, după preflight fără efecte:
-   exportă inputul HERMES_NATIVE_SOURCE MANAGEMENT de mai sus;
+EXECUTĂ ÎN ACEASTĂ ORDINE
+1. Preflight fără efecte: argv/grammar, biblioteci/pin/source, UID/căi/mounturi,
+   artefactul exact și ownerul/cleanupul existente. Citește schema producerului,
+   nu inventa refs/câmpuri/rezultate. Reobservă status/head/receipts fără mutații;
+   nu repeta publicarea/provisionarea sau apelul dacă starea s-a schimbat.
+2. Dacă selecția/head/confirmarea încă se potrivesc, finalizează Publish exact
+   prin catalog_publication și verifică readbackul real. Nu cere încă un yes
+   pentru aceeași confirmare validă și nu simula autoritatea umană prin PTY.
+   Obține snapshot/execution-selection reale prin ownerii existenți. Apoi
+   api/src/omnis/modules/runs/model_test_source.py provision prin controlul
+   supervisorului deja conectat → pregătire Hermes nativă reală. Nu înlocui
+   cu fixture, prewarm, SDK paralel sau flags de test. Pierderea răspunsului
+   cere readback/reconciliere, nu resend sau ștergerea intentului pentru retry.
+3. Probează normal Stop → Start prin wrapperul original, fără reseed/Save
+   repetat care ascunde pierderea datelor; verifică bootul nou și păstrarea
+   sursei/configurației. Nu reseta bugetul prin altă instanță. Dacă un fix
+   schimbă release-ul, nu suprascrie instalarea imuabilă și nu migra datele
+   operatorului fără procedură/autorizație; păstrează probele vechi și recovery.
+4. Lasă operatorul să facă pairing/auth/consent în Chrome normal. Pregătește
+   serviciul și canalul TTY numai când sunt gata; nu expune coduri/tokenuri în
+   chat, capturi, argv, env, Git sau loguri. Nu automatiza/atașa CDP/captura
+   profilul personal și nu substitui Chrome testing pentru loginul operatorului.
+   Reobservă selecția și auth reală prin owner: Save ≠ auth ≠ inferență.
+5. După auth, probează fluxul simplu Test model în web, fără Setup obligatoriu,
+   fără Start assessment și fără trafic către ținte. Primul buget aprobat,
+   încă neconsumat la pauză: cont Codex ales de operator,
+   openai-codex/gpt-6.1-sol/xhigh, date sintetice, maximum1apel/300s.
+   Numai acțiune explicită; fără retry/fallback/auxiliare/tool calls sau probe
+   SDK suplimentare. Reload/timeout/răspuns pierdut nu acordă un apel nou.
+   După primul eșec nu încerca iar automat, nici cu UUID/instanță nouă.
+   UI trebuie să arate răspunsul real, starea/failure sincer, durata/usage
+   disponibile și requested versus effective observat ori UNKNOWN, nu din
+   afirmațiile modelului. Verifică reload/readback fără al doilea apel.
+   Dovada browser se face pe build/API/DB reale, cu click/focus/tastatură și
+   viewporturi afectate, fără a inspecta profilul personal. Refolosește probele
+   neafectate; nu cheltui apelul numai pentru screenshot sau un observer nou.
+6. Simplifică Setup/ROE prin componentele existente:
+   web/src/features/engagement/{Wizard.tsx,WizardSections.tsx,Engagement.tsx}.
+   Folosește limbaj uman pentru scop/excluderi, obiectiv, conturi de test,
+   permisiuni și limite; detaliile tehnice în Avansat unde este potrivit.
+   Păstrează câmpurile/datele salvate, validările, CAS/conflictele, accesibilitatea
+   și stările UNKNOWN/UNAVAILABLE. ROE se generează determinist din opțiunile
+   operatorului, nu este inventat de model; niciun drept/scope lărgit implicit.
+   Nu pretinde autentificare de țintă dacă există numai câmpuri declarative.
+7. Încheie numai restul G04a/G02-live/G-MODEL/G-DATA-EARLY din plan §7–8:
+   pachet real publicat/pin-uit și copil nativ; mapping autentic pre-access,
+   identitate/lineage și inventar Brain/copil/auxiliare, compresie ori refuz
+   explicit conform contractului; request model calificat, reserve→SENT
+   durabile, caps/VALIDATION și no hidden calls; rezultat/inbox/delivered versus
+   admitted/consumed, duplicate/lost reply/recovery receive-only și Stop fără
+   inferență nouă. Păstrează UNKNOWN unde observația nu există; fără efecte
+   target. H01–H08 și cele8rânduri §7.1 se reconciliază la dovezile lor, nu se
+   rerulează automat și nu se reduc la primul răspuns sau la un număr de teste.
+   Dacă alte probe obligatorii cer mai multe inferențe, cere înainte un buget
+   finit explicit agregat; grantul1call nu le autorizează. Nu le ascunde/omite.
+   Brain chat complet/STEER, identități target, catalog/editor larg și P3 nu
+   devin condiții noi ale acestei faze.
+8. Rezolvă blockerul canonic cunoscut înaintea gate-ului complet:
+   integrations/hermes/tests/test_model_terminal.py:
+   test_public_turn_denies_before_native_dependencies_and_preserves_stock_control
+   a apelat function(None,None), iar native conversation_loop accesează
+   agent.__dict__ înaintea tripwire-ului stock. Reproduce pe sursa pin-uită și
+   repară minim callerul/fixture-ul legitim dacă se confirmă; nu presupune
+   defect de produs, nu slăbi assertion/guard și nu folosi skip.
+   Istoric441PASS/1FAIL rămâne; targeted PASS nu înseamnă canonical trecut.
+9. Pe snapshotul final integrat, rulează canonicalul real, după preflight:
    make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19
-   --check al runnerului PG PROVIZIONEAZĂ; nu este dry-run.
-   Respectă argv, opt-in, source/library/toolchain și ownership existente.
-   Cleanup prin ownerii originali, exact readback și date păstrate.
+   make test este alias: nu dubla aceeași suită pentru același snapshot.
+   Respectă Node24.21.0/npm11.19.0/Python3.13.15/uv0.12.19 și inputul
+   HERMES_NATIVE_SOURCE MANAGEMENT atestat în registru. Verifică accesul real
+   înainte de provisioning; --check al ops/run_test_db_gate.py este EFECTFUL,
+   nu dry-run. Folosește runnerul/family owner/DB izolat deja existente,
+   loguri private, freeze inputs, readback/cleanup exact și date păstrate.
+   Nu rula gate-ul pe datele UI9/operatorului. Raportează gate/exit/settlement,
+   nu doar ieșirea make; după note-only rerulează doar verificările docs.
 
-MOD DE LUCRU
-Un developer în worktree din HEAD local; orchestratorul integrează/acceptă.
-Dezvoltare și review: openai-codex/gpt-6.1-sol/xhigh, fără downgrade/fallback.
-Node24.21.0/npm11.19.0, Python3.13.15/uv0.12.19 pentru componentele pin-uite.
-RED → fix minim → GREEN, review independent pe bytes exacți; două reviewuri
-complementare pentru authority/model dispatch/Stop/secrete/cross-runtime.
-Nu adăuga owner/contabil/framework/dependency/harness fără nevoie demonstrată.
-Nu mări granturi/calls/deadline-uri/limite ca să obții verde; nu reseta contorul
-ciclurilor numai harness. După două fără progres restrânge frontiera probei.
-Commit local după fiecare schimbare coerentă, stage numai fișierele intenționate,
-verifică commit/status și actualizează CURRENT în loc/registrul existent.
-Continuă fără handoff după fiecare fix; oprește la faza2 verificată, intervenția
-necesară a operatorului, blocker real ori limită de siguranță/buget. Raport scurt
-în română, PASS/FAIL/BLOCKED/NOT_RUN distincte, fără promisiune gap-free.
+REMEDIERE FĂRĂ COMPLICAȚII
+Folosește codul și callerii existenți, cea mai mică schimbare completă;
+fără framework, SDK/backend/owner/registry/harness/dependență nouă fără defect
+concret. Înaintea verificării: cerință → consumer → risc → decizie; control
+pozitiv și negativ pe același canal, nu încă un raport de admitere.
+Un orchestrator integrează/acceptă, un dezvoltator scrie în worktree din HEAD
+local verificat; parentul nu devine al doilea autor. Reviewer independent,
+QA pe consumerul real, fără roluri suplimentare de decor.
+Development/review openai-codex/gpt-6.1-sol/xhigh, fără fallback.
+Pentru defect: reproduce RED → fix minim cu toți callerii/tests/fixtures/config/
+exports afectate → GREEN → review independent exact. Două reviewuri complementare
+când schimbi authority/dispatch/Stop/secrete/cross-runtime; re-review focalizat
+al findings și QA pe artefactul real după blocante. Reutilizează scope neschimbat.
+Păstrează catalog Stop3000/legacy2900/grant3600/wire4096, fără alte creșteri de
+limite/deadline/grant, compresii sau identități eliminate ca să iasă verde.
+Nu crea audituri/rapoarte/verifieri recursivi; după două cicluri numai harness
+fără progres restrânge proba ori raportează blockerul, fără reset prin sesiune.
+Commit local după fiecare schimbare coerentă, numai paths intenționate, cu
+comenzi/rezultate/limite/rationale și readback Git. Fără push/reset/amend/stash,
+modificări globale, date/conturi personale sau trafic țintă. Nu adăuga cron.
+
+ÎNCHIDERE
+Nu preda după fiecare fix/review; continuă până la rezultat verificat, intervenție
+umană necesară, blocker real, stop sau limită de siguranță/buget/context.
+Final în română: pot sau nu pot folosi modelul după logare, URL/pașii simpli,
+ce este efectiv PASS/FAIL/BLOCKED/NOT_RUN și reviewuit, commituri, resurse/date
+păstrate, ce rămâne. Actualizează CURRENT/harta în loc și registrul existent.
+Faza2 CLOSED numai cu toate obligațiile aplicabile și canonical final trecute;
+altfel NOT_CLOSED cu motiv precis, nu doar „teste verzi”. STOP înainte de P3.
+Explică simplu; finalul numește ce ai omis/neexecutat și riscul rămas.
 ```
 
 ## Arhivă — promptul P2-inert anterior, inactiv

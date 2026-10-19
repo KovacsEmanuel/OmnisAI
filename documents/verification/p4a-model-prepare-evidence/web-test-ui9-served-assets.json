@@ -1,0 +1,27 @@
+{
+  "result": "EXACT_INSTALLED_ASSETS",
+  "origin": "http://127.0.0.1:8766",
+  "assets": [
+    {
+      "path": "/",
+      "sha256": "91a90de18107239b8c43001e0c4e600c5a1411e7f0cc42aa0c685d0203b97188",
+      "bytes": 578
+    },
+    {
+      "path": "/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "bytes": 4386
+    },
+    {
+      "path": "/assets/index-CCTUDgFi.css",
+      "sha256": "2eaad5343d259fb5ec67d35ca495ad3b8195856c546a30254824b42b54a3ada0",
+      "bytes": 135443
+    },
+    {
+      "path": "/assets/index-DLugYhQ_.js",
+      "sha256": "eb033eac628dfa993e4cb6c3be1bb35096a59af9ff2bc0cb40f1c59488e540c2",
+      "bytes": 386514
+    }
+  ],
+  "limits": "Original bounded http_probe through attested owned loopback forwarder; not browser/native/model proof"
+}

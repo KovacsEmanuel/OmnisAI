@@ -1,0 +1,86 @@
+{
+  "state": "PAUSED_OPERATOR_CONFIRMATION_SAVED_NOT_PUBLISHED",
+  "observed_at_utc": "2026-10-19T09:56:04.843253+00:00",
+  "authority": "Latest user requests stop and explanation; no continuation without explicit resume",
+  "source_commit": "4370a403b806f28d510c3e404d1b884792d6551e",
+  "acceptance_notes_commit": "cd08bdd1fb3e14dd001de622c4725498c17f54d7",
+  "root": "/home/kali/.omnis-p2-ui9",
+  "wrapper": "/home/kali/.omnis-p2-ui9/omnis",
+  "release_digest": "3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6",
+  "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+  "status": {
+    "command": "/home/kali/.omnis-p2-ui9/omnis status --json",
+    "exit": 0,
+    "state": "READY",
+    "origin": "http://127.0.0.1:8766",
+    "generation": 1,
+    "supervisor_epoch": 1,
+    "dashboard_ready": true,
+    "assessment_ready": false
+  },
+  "genuine_installed_qualification": {
+    "capture_review_freeze": true,
+    "STATIC": "STATIC_PASS",
+    "PURE": "PURE_PASS",
+    "target_or_model_IO": "NONE_ADMITTED",
+    "owner_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+    "snapshot_ref": {
+      "digest": "6dc9402664a5c8b4263c76bf7d7416189172986fdb32339d5ef3f4e607aa34da",
+      "id": "a5e259c8-8d23-4842-97d2-eda0caf26542",
+      "kind": "candidate-snapshot",
+      "revision": 1
+    }
+  },
+  "operator_confirmation": {
+    "actual_TTY_exit": 0,
+    "ref": {
+      "digest": "cad9fea273ffc3e6bedd507265f80069f11b06514b493cef064fc8b9851d38ab",
+      "id": "c9cf2e31-f8b5-4a4f-8524-9587eefa0bba",
+      "kind": "operator-confirmation",
+      "revision": 1
+    },
+    "request": "/home/kali/.omnis-p2-ui9/state/omnis/catalog/requests/operator-confirm.json",
+    "state": "SAVED_ONLY_NOT_PUBLICATION_NOT_AUTH_NOT_MODEL"
+  },
+  "latest_publication_readback": {
+    "CLI": "catalog_publication head --request /catalog/requests/head.json --catalog-root /catalog",
+    "exit": 0,
+    "generation": 1,
+    "publication_ref": null
+  },
+  "latest_model_readback": {
+    "channel": "Installed API ModelTestControl read via same existing supervisor owner",
+    "exit": 0,
+    "status": "UNAVAILABLE",
+    "operation_id": null,
+    "response_text": null
+  },
+  "product_calls_spent": 0,
+  "approved_first_budget": "1call/300s remains unused; no retry/fallback/target/tools; pause is not new permission",
+  "processes": {
+    "author_preparation_fix": "proc_358886178d04 exited0",
+    "norm_rereview": "proc_3d18c57fc9d6 exited0",
+    "safety_rereview": "proc_e2c44d6b54f0 exited0",
+    "installed_driver": "proc_ac377a5f7d53 exited0",
+    "operator_TTY_window": "proc_39cc3fd94a50 exited0",
+    "implementation_or_probe_writers": "NONE_ACTIVE",
+    "services": "UI9 four owned services retained running; not shutdown request"
+  },
+  "previous_container_states": {
+    "baseline_count": 17,
+    "present_same_state": true,
+    "no_old_UI8_auth_or_data_copy": true
+  },
+  "remaining": [
+    "Publish exact already-confirmed selection only after explicit resume; check head/refs no automatic confirm replay",
+    "Existing model_test_source provision genuine published execution-selection; normal owner/native preparation not yet exercised",
+    "Original CLI Stop/Start cross-boot proof without reseed; inspect new boot and retained source",
+    "Operator pairing/auth in normal Chrome for new root, no copying UI8 grant",
+    "Real Test model one-shot visible response plus browser/persistence/Stop/scoped checks",
+    "Simplified Setup/ROE NOT_STARTED",
+    "Remaining G04a/G02-live obligations and full canonical; stockNone prior441PASS1FAIL retained"
+  ],
+  "phase2": "NOT_CLOSED",
+  "excluded": "No P3/target/global/push/new slice; Brain chat remains later and is not a new phase2 gate",
+  "recovery": "Essential code/reviews/decisions versioned; installed25payload bundle/CLI/runtime-inputs/catalog/receipts durable under UI9, scratch work/review trees retained but expiring. No shutdown/off-device-backup claim."
+}

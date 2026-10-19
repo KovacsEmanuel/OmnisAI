@@ -1,0 +1,187 @@
+{
+  "outcome": "INSTALLED_READY_TOPOLOGY_READBACK_PASS_NOT_NATIVE_PREPARATION",
+  "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+  "generation": 1,
+  "epoch": 1,
+  "release_digest": "3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6",
+  "manifest_payloads": 25,
+  "physical_default_scratch": {
+    "uid": 1000,
+    "same_root": true,
+    "mode": 448,
+    "writable": true,
+    "preparation_not_preseeded": true
+  },
+  "resources": {
+    "api": {
+      "id": "a39d87cd71d84d3ef919cd3b855171fd526ec92f24a93af87f4672d70b0ae8c8",
+      "image": "sha256:6d85c6daf6713d4e16e719c200313b1aa9c4c7e6468aea619b1fbe17a7cd5b2a",
+      "running": true,
+      "pid": 3266276,
+      "readonly": true,
+      "mode": "omnis-local-1cd0889919714ee4a8f10a9a7dd59bd6_control",
+      "ports": {},
+      "user": "1000:1000",
+      "cmd": [
+        "python",
+        "-I",
+        "-m",
+        "omnis.serve"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "Destination": "/run/omnis-control",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/runtime-ipc",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/run/omnis-http",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/http",
+          "Type": "bind"
+        }
+      ]
+    },
+    "db": {
+      "id": "370840d746ee5fd98b0bd81b108a9bdfb9175171da97b34316f57a79cc3fc060",
+      "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "running": true,
+      "pid": 3263318,
+      "readonly": false,
+      "mode": "omnis-local-1cd0889919714ee4a8f10a9a7dd59bd6_control",
+      "ports": {},
+      "user": "",
+      "cmd": [
+        "postgres"
+      ],
+      "cap_drop": null,
+      "security": null,
+      "mounts": [
+        {
+          "Destination": "/var/lib/postgresql",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/postgres",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/run/secrets/db_password",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/db-password",
+          "Type": "bind"
+        }
+      ]
+    },
+    "runtime": {
+      "id": "a8e3d0f57149a9659c8a89b1298e3d03b3f4a005c9b011a848ea4e1ee6d70cc3",
+      "image": "sha256:bf6634fbe8d04d8d108918328a0816e6e5ff3f8c183f2556b89d2c268d4b383a",
+      "running": true,
+      "pid": 3265071,
+      "readonly": true,
+      "mode": "none",
+      "ports": {},
+      "user": "1000:1000",
+      "cmd": [
+        "/opt/hermes/venv/bin/python",
+        "-I",
+        "-m",
+        "omnis_hermes.runtime_host"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "Destination": "/runtime",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/native-ipc",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/state/provider",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/provider",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/state/tmp",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/native-ipc",
+          "Type": "bind"
+        }
+      ]
+    },
+    "supervisor": {
+      "id": "bcd1288a8948e370b7a7df2544bcf6cec82af327d32b5601b4330dc55108db0f",
+      "image": "sha256:6d85c6daf6713d4e16e719c200313b1aa9c4c7e6468aea619b1fbe17a7cd5b2a",
+      "running": true,
+      "pid": 3266170,
+      "readonly": true,
+      "mode": "omnis-local-1cd0889919714ee4a8f10a9a7dd59bd6_control",
+      "ports": {},
+      "user": "1000:1000",
+      "cmd": [
+        "python",
+        "-I",
+        "-m",
+        "omnis.supervisor"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "Destination": "/run/omnis-control",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/runtime-ipc",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/runtime",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/native-ipc",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/catalog",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.omnis-p2-ui9/state/omnis/catalog",
+          "Type": "bind"
+        }
+      ]
+    }
+  },
+  "limits": "Exact four owned running services and changed runtime mount/privacy observed through inspect and live namespace. Reader uses stat/access only, no native import/prewarm or directory creation. Genuine publication/preparation/cross-boot/provider/browser still NOT_RUN; assessment false."
+}

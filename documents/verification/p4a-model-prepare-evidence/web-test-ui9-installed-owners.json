@@ -1,0 +1,86 @@
+{
+  "outcome": "OWNERS_RETURNED_ZERO_REQUIRES_INDEPENDENT_READBACK",
+  "stages": [
+    {
+      "stage": "install",
+      "exit": 0,
+      "seconds": 0.391,
+      "stdout_sha256": "0595071f7a4b762b4991a0b7a1398c989ef69be0a45636f0bd66a63fa15c9a87",
+      "stderr_bytes": 0
+    },
+    {
+      "stage": "image",
+      "exit": 0,
+      "seconds": 21.268,
+      "stdout_sha256": "0c34a48cc78baf1378c7370d3cd17374ecd5ad5a5f1df02623a1dc789f03be08",
+      "stderr_bytes": 0
+    },
+    {
+      "stage": "start",
+      "exit": 0,
+      "seconds": 22.731,
+      "stdout_sha256": "a5df10a2cc0bfb4738f91096169158cbad7962b55bd06a84a5168b1b4f0340aa",
+      "stderr_bytes": 0,
+      "json_keys": [
+        "admission_open",
+        "api_ready",
+        "assessment_ready",
+        "browser_opened",
+        "control_ready",
+        "dashboard_ready",
+        "generation",
+        "instance_id",
+        "origin",
+        "reason",
+        "release",
+        "reused",
+        "schema",
+        "state",
+        "supervisor_epoch"
+      ],
+      "projection": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+        "origin": "http://127.0.0.1:8766",
+        "generation": 1,
+        "dashboard_ready": true,
+        "assessment_ready": false
+      }
+    },
+    {
+      "stage": "status",
+      "exit": 0,
+      "seconds": 4.419,
+      "stdout_sha256": "1a55a20d6211e32956ec331e3648bd30d0539a49ce9ec418f23ee8e81a378144",
+      "stderr_bytes": 0,
+      "json_keys": [
+        "admission_open",
+        "api_ready",
+        "assessment_ready",
+        "browser_opened",
+        "control_ready",
+        "dashboard_ready",
+        "generation",
+        "instance_id",
+        "origin",
+        "reason",
+        "release",
+        "schema",
+        "state",
+        "supervisor_epoch"
+      ],
+      "projection": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "d6a018ed-d3ad-462e-b5a2-d7997db9d704",
+        "origin": "http://127.0.0.1:8766",
+        "generation": 1,
+        "dashboard_ready": true,
+        "assessment_ready": false
+      }
+    }
+  ],
+  "calls": 0,
+  "root": "/home/kali/.omnis-p2-ui9"
+}

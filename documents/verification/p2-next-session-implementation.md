@@ -1,6 +1,6 @@
 # Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**CURRENT = AUTH_SAVED / WEB_MODEL_TEST_IN_PROGRESS; nu handoff sau închidere faza2.** Test model integrat4370a40,36căi/patch84d8cf8e, [ambele re-reviewuri APPROVED_SCOPED/adjudecare](p4a-minim.md). SAFETY-CATALOG-01/NORM-WEBTEST-F01 CLOSED_SOURCE, originale HIGH/FAIL păstrate. Părinte33controale finale/8API integrate PASS; API99file wheel și bundle25payloaduri3d5960bb… verificate, nu instalate. Primul pas următor este consumerul normal UI9 nou/izolat8766, nu discovery/review/altă suită SOURCE. Operator Publish TTY și auth rămân; fără overwrite/adopție/copiere grant UI8. Primul1apel300s neconsumat, catalog3000/legacy2900/grant3600/wire4096 intacte. Setup simplu/restG04a/G02-live, stockNone/canonical restante; verifică Git/CURRENT, nu relua arhiva.
+**CURRENT = PAUSED_OPERATOR / UI9_READY_CONFIRMATION_SAVED_NOT_PUBLISHED; faza2 NOT_CLOSED.** Operatorul cere oprire și explicație; fără continuare până la cerere explicită. [Checkpoint](p4a-model-prepare-evidence/web-test-ui9-paused.json)/[registru](p4a-minim.md): cod4370a40/36căi/patch84d8cf8e integrat și APPROVED_SCOPED; UI9 nouă/izolată READY8766/generation1/epoch1/assessmentfalse, CLI/OCI/4HTTP/scratch alias0700 și STATIC/PURE reale trecute. Human TTY confirm0 salvatc9cf2e31, **Publish NOT_RUN/head1/publicationnull**. ModelTest UNAVAILABLE/operationnull/response null; native preparation/cross-boot/auth nou/browser complet/inferență NOT_RUN. Primul1apel300s neconsumat. Niciun writer activ;4servicii păstrate pornite, nu shutdown cerut. Esențialele cod/review/decizii sunt în Git, bundle/CLI/runtime-inputs/catalog/receipts în `/home/kali/.omnis-p2-ui9`; scratch se păstrează dar expiră. După reluare, prima acțiune neexecutată este Publish al selecției deja confirmate cu readback, apoi provision prin ownerul existent; nu un alt yes/discovery/review sau copiere grant UI8. Setup/restG04a/G02-live/stockNone/canonical restante; fără P3/target/global/push.
 
 ## Prompt pentru următoarea implementare
 
@@ -35,7 +35,24 @@ Singurul untracked cunoscut: documents/Omnis_Notite_Originale.html.
 NU citi/copia/hash/modifica acel HTML sau tools/development/ponytail.json.
 Păstrează munca străină și FAIL/UNKNOWN/INDETERMINATE. Fără reset/stash/push.
 
-ARTEFACT ACTUAL
+ARTEFACT ACTUAL / PAUZĂ
+/home/kali/.omnis-p2-ui9, wrapper /home/kali/.omnis-p2-ui9/omnis,
+http://127.0.0.1:8766, generation1/epoch1, READY/assessmentfalse,
+instance d6a018ed-d3ad-462e-b5a2-d7997db9d704,
+release3d5960bb2df086d8b6010a6bc2cb39edec9e8443b3b735118b2d65a6443426b6.
+Originalele consumer/topologie/assets și checkpointul ui9-paused sunt în
+p4a-model-prepare-evidence. Confirm TTY realc9cf2e31 este salvat, dar
+head1/publicationnull și ModelTest UNAVAILABLE/operationnull/response null.
+Nu relua nimic fără cerere explicită. După reluare verifică starea/refs;
+prima acțiune neexecutată este Publish exact al selecției din
+state/omnis/catalog/requests/operator-confirm.json, nu încă un confirm.
+Urmează snapshot/execution-selection și model_test_source provision prin
+ownerul conectat, real native preparation, Stop/Start fără reseed și auth
+operator în Chrome normal în candidatul nou. Primul1call300s încă neconsumat.
+Nu copia grantul vechi. Niciun autor/reviewer/probe writer activ la pauză;
+serviciile UI9 se păstrează, cererea nu este shutdown.
+
+ARTEFACT VECHI / ISTORIC, NU ȚINTA IMPLICITĂ DE RELUARE
 /home/kali/.omnis-p2-ui8, origin http://127.0.0.1:8765, generation3/epoch2,
 instance cebb549c-2a72-40fe-89fd-877f62b1b4d6,
 release SHA256 660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a.
@@ -68,16 +85,16 @@ P2-inert/G02-inert și SEND PG/native controlat7a2ac5a sunt acceptate scoped
 Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
 numai pe logica neschimbată. Niciun candidat vechi nu se reimportă.
 
-PRIMII PAȘI ȘI RESTANȚE
-Acțiunea curentă este mai întâi Test model web din plan§8/UI§3, nu un alt Connect:
-auth0ba07c05-bf1b-45a3-bd65-c82f7f81e93d este CONFIRMED/LOCAL_PRESENT/oauthSAVED.
-Un singur autor p2-webtest-5o53dewr/work stabilește normal-installed producerul,
-ownerul, materialul complet/dimensiunile și consumerul real înainte de cod.
-ModelTest privat există, dar normal supervisor nu are catalog/managed opt-in,
-iar web nu are ruta/panoul: această lipsă de produs nu se acoperă cu fixture
-sau SDK direct. După contractul admis: RED/GREEN, două reviewuri, QA reală și
-prima probă1call/300s; apoi Setup simplu și restul live. Lista de mai jos este
-restul obligațiilor existente; fixtureNone se adjudecă înainte de canonical,
+PRIMII PAȘI ȘI RESTANȚE — NUMAI DUPĂ RELUARE EXPLICITĂ
+Test model web din plan§8/UI§3 este implementat și integrat4370a40,
+review final APPROVED_SCOPED, instalat UI9. Nu reatribui cod/discovery;
+worktree-ul autor și review-final sunt copii frozen, nu writeri activi.
+Auth0ba07c05 a UI8 rămâne doar ultimul readback istoric, nu grant transferabil.
+Prima frontieră rămasă este Publish/provision real după confirmarea salvată,
+apoi restart/persistență, auth uman nou, browser și prima probă1call300s.
+Nu există răspuns real de model; Setup simplificat nici nu a început.
+Lista de mai jos păstrează obligațiile existente; fixtureNone se adjudecă
+înainte de canonical, nu se ignoră pentru că alte teste au trecut,
 nu este motiv să relansăm locatorul sau toate probele istorice.
 1. Reutilizează e0d23d6 și cele două reviewuri din p4a-minim.md:
    HERMES_NATIVE_SOURCE=/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared/runtime-source

@@ -199,6 +199,51 @@ class InstanceService:
                 not instance.admission_open and not (inert_probe or management)
             ):
                 raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
+            if type(startup) is dict:
+                from omnis.modules.runs.managed_admission import ManagedAdmission
+                from omnis.modules.runs.model_test import ModelTest
+                from omnis.modules.settings.candidate_catalog import uuid_string
+                from omnis.modules.settings.candidate_store import reference
+                from omnis.modules.settings.catalog_schema import canonical
+                from omnis.modules.tasks import managed_store
+                from omnis.modules.tasks.managed_contract import authority, mapping, record
+
+                context = record(startup["context"], "model-test-context")
+                c = mapping(context["payload"])
+                if authority(c.get("authority")) != {
+                    "instance_id": str(instance.instance_id),
+                    "owner": str(owner),
+                    "epoch": epoch,
+                    "generation": generation,
+                }:
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                who = uuid_string(c["owner_id"])
+                _, retained = await managed_store.owned(connection, who, reference(context))
+                receipt = await managed_store.command_receipt(
+                    connection, who, uuid_string(c["preparation_id"])
+                )
+                body = mapping(receipt["payload"])
+                if (
+                    body["owner_id"] != who
+                    or body["command_id"] != c["preparation_id"]
+                    or body["operation"]
+                    != (
+                        "model_test_start"
+                        if startup["protocol"] == "omnis-managed-admission-v6"
+                        else "model_test_prepare"
+                    )
+                    or canonical(body["result_refs"])
+                    != canonical({"context_ref": reference(context)})
+                    or canonical(retained) != canonical(context)
+                ):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                # Authenticate the complete producer bytes, not self-resealed input claims.
+                expected, _ = await ModelTest(ManagedAdmission(self.engine)).dispatch(
+                    connection, who, retained, True
+                )
+                if canonical(expected) != canonical(startup):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                await self._require_owner(connection, lease, owner, epoch)
             started = time.monotonic_ns()
             now = read_datetime(
                 (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()

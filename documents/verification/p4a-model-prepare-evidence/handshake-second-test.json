@@ -1,0 +1,134 @@
+{
+  "state": "SECOND_HANDSHAKE_TEST_COMPLETED_NO_TIMEOUT_CHANGE",
+  "source_commit": "3de38bc",
+  "root": "/home/kali/.omnis-p2-fixed",
+  "wrapper": "/home/kali/.omnis-p2-fixed/omnis",
+  "operator_confirmation": {
+    "exit": 0,
+    "channel": "operator real xterm TTY"
+  },
+  "publication_head": {
+    "draft_ref": {
+      "digest": "3d50991af57d9866f76eb75a059c4e22eba1ffbf05f6dc6ee7459fd76652f81c",
+      "id": "a3130ae4-f8f3-47a8-8482-810f52490e5b",
+      "kind": "source-draft",
+      "revision": 1
+    },
+    "generation": 2,
+    "profile_key": "records-mapping-contract",
+    "publication_ref": {
+      "digest": "659e1376ad0f896e9eba333f837d8bca68fe7617dc1e24c8dfefbe3b275f7f81",
+      "id": "b19ca2a5-369e-4e3c-8492-857be718c62d",
+      "kind": "catalog-publication",
+      "revision": 1
+    }
+  },
+  "provision": {
+    "exit": 137,
+    "seconds": 10.075,
+    "prepared_restart_required": false,
+    "stderr_bytes": 0,
+    "stdout_bytes": 32
+  },
+  "first_failures": {
+    "supervisor": {
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 3,
+        "OOMKilled": false,
+        "FinishedAt": "2026-10-19T18:59:06.44812949Z"
+      },
+      "finite_markers": [
+        "MODEL_TEST_PROVISION_FAILURE phase=LAUNCH error=RUNTIME_UNAVAILABLE",
+        "SUPERVISOR_FAILURE phase=RUNTIME_STATUS error=RUNTIME_UNAVAILABLE"
+      ]
+    },
+    "runtime": {
+      "state": {
+        "Status": "running",
+        "Running": true,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "FinishedAt": "0001-01-01T00:00:00Z"
+      },
+      "finite_markers": [
+        "RUNTIME_LAUNCH_FAILURE phase=HANDSHAKE error=TIMEOUT"
+      ]
+    }
+  },
+  "database_frontier": {
+    "catalog": {
+      "evaluation-receipt": 2,
+      "contract-input-context": 1,
+      "run-snapshot": 1,
+      "contract-case-records": 1,
+      "source-draft": 2,
+      "model-test-provision": 1,
+      "execution-selection": 1,
+      "technical-review": 1,
+      "candidate-snapshot": 1,
+      "operator-confirmation": 1,
+      "catalog-publication": 1,
+      "evaluation-admission": 1
+    },
+    "commands": {
+      "evaluate": 2,
+      "capture": 1,
+      "fixed-model-test-provision": 1,
+      "confirm": 1,
+      "select": 1,
+      "admit-evaluation-records": 1,
+      "freeze": 1,
+      "publish": 1,
+      "snapshot": 1,
+      "review": 1
+    },
+    "managed_rows": 0,
+    "lease": {
+      "epoch": 1,
+      "expires": "2026-10-19T18:59:07.144166+00:00",
+      "live": false
+    }
+  },
+  "requested_second_test": {
+    "driver_exit": 0,
+    "wall_seconds": 10.54,
+    "stdout_bytes": 329,
+    "stderr_bytes": 0,
+    "observed": {
+      "launch_window_ms": 4500,
+      "rpc_timeout_ms": 800,
+      "handshake_ok": false,
+      "commands_retried": 0,
+      "model_calls": 0,
+      "outcome": "TIMEOUT",
+      "handshake_end_ms": 4501.963,
+      "passive_ready_outcome": "READY_AFTER_FAILURE",
+      "child_exit": 0,
+      "settled_ms": 8267.782,
+      "events": [
+        {
+          "phase": "NATIVE_READY",
+          "ms": 7563.668,
+          "result": "READY"
+        }
+      ]
+    }
+  },
+  "test_boundary": {
+    "requested": "User asks a second real test before any timeout change",
+    "script_sha256": "e9548bb98e069d0d3fe7d841c889c88d2f2bfb48a1404919a10a92379de00586",
+    "original_window_ms": 4500,
+    "rpc_timeout_ms": 800,
+    "passive_observation_until_seconds": 8,
+    "test_process_fuse_seconds": 10,
+    "scope": "Installed native entrypoint and NativePeer, same NATIVE_ENV; no original provision replay, DB grant, model, target or code change; test-only timeout wrapper adds a bounded process fuse"
+  },
+  "parent_cleanup": "Docker top after test: original Host PID3695953 only; child_exit0; no diagnostic child left",
+  "decision": "Native READY was observed after7.563668s while the unchanged4.5s test window expired at4.501963s; zero initialization RPC calls started. In this measured run startup completed late rather than remaining permanently stuck. No timeout/grant/product changes made by this test; actual original owner remaining budget and all historical causes are not inferred.",
+  "model_calls": 0,
+  "current_product": "UNAVAILABLE after prior supervisor exit3; no provisioning resend or model call",
+  "phase2": "NOT_CLOSED",
+  "next": "Adjudicate a bounded startup-only correction from the measured timing, respecting existing lease/Stop/public budgets. Do not raise global timeouts or revive recovery work."
+}

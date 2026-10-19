@@ -216,6 +216,7 @@ async def test_startup_authenticates_complete_retained_producer_before_lease_wri
     for case in (
         "boolean_epoch",
         "missing_authority",
+        "missing_owner_id",
         "extra_context_field",
         "material_empty",
         "foreign_owner",
@@ -234,6 +235,8 @@ async def test_startup_authenticates_complete_retained_producer_before_lease_wri
             c["authority"] = {**authority, "epoch": True}
         elif case == "missing_authority":
             del c["authority"]
+        elif case == "missing_owner_id":
+            del c["owner_id"]
         elif case == "extra_context_field":
             c["untrusted"] = True
         elif case == "material_empty":

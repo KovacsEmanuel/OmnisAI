@@ -217,7 +217,7 @@ class InstanceService:
                     "generation": generation,
                 }:
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
-                who = uuid_string(c["owner_id"])
+                who = uuid_string(c.get("owner_id"))
                 _, retained = await managed_store.owned(connection, who, reference(context))
                 receipt = await managed_store.command_receipt(
                     connection, who, uuid_string(c["preparation_id"])

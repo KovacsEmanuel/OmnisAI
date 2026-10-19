@@ -59,7 +59,14 @@ async function settings(page, context, expect, origin, mode, manifestText, captu
   const providers = page.getByRole('navigation', { name: 'Settings navigation' }).getByRole('link', { name: 'Providers', exact: true });
   await providers.focus(); await expect(providers).toBeFocused(); await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'Provider configuration' })).toBeVisible();
-  for (const [name, value] of Object.entries(selection)) await expect(page.getByLabel(name[0].toUpperCase() + name.slice(1), { exact: true })).toHaveValue(value);
+  for (const name of ['provider', 'model']) await expect(page.getByLabel(name[0].toUpperCase() + name.slice(1), { exact: true })).toHaveValue(selection[name]);
+  const diagnostic = page.getByText('Diagnostic', { exact: true });
+  await expect(page.getByRole('button', { name: 'Read native configuration' })).toBeHidden();
+  await expect(page.getByLabel('Effort', { exact: true })).toHaveCount(0);
+  await page.getByLabel('Provider', { exact: true }).focus();
+  await page.keyboard.press('Tab'); await expect(page.getByLabel('Model', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Connect Codex' })).toBeFocused();
+  await page.keyboard.press('Tab'); await expect(diagnostic).toBeFocused();
   const operations = [];
   const observed = [];
   page.on('request', request => {
@@ -69,6 +76,7 @@ async function settings(page, context, expect, origin, mode, manifestText, captu
   });
   async function operation(action, configured) {
     const button = page.getByRole('button', { name: action === 'save' ? 'Save selection' : 'Read native configuration' });
+    if (!await button.isVisible()) await diagnostic.click();
     await button.focus(); await expect(button).toBeFocused();
     const pending = page.waitForResponse(response => response.url() === `${origin}${route}` && response.request().method() === 'PUT');
     await page.keyboard.press('Enter');
@@ -134,7 +142,9 @@ async function settings(page, context, expect, origin, mode, manifestText, captu
   }
   assertJourney(mode, operations);
   assert.deepEqual(observed, operations);
+  if (!await page.getByRole('button', { name: 'Save selection' }).isVisible()) await diagnostic.click();
   await expect(page.getByRole('button', { name: 'Save selection' })).toBeDisabled();
+  await expect(page.getByText('Requested effort: xhigh. Readback effort: xhigh.', { exact: true })).toBeVisible();
   for (const [label, width, height] of [['desktop', 1440, 1000], ['mobile', 390, 844]]) {
     await page.setViewportSize({ width, height });
     await expect(page.getByLabel('Pairing code')).toHaveCount(0);

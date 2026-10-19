@@ -21,9 +21,9 @@
 .providerSafety p { margin: 4px 0; }
 .providerInstructions { margin-top: 16px; border-top: 1px solid var(--color-divider); }
 .providerInstructions summary { min-height: 44px; padding: 12px 0; cursor: pointer; color: var(--color-primary); }
-.providerSelection { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+.providerSelection { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
 .providerSelection > label { min-width: 0; margin: 0; }
-.providerSelection select { min-width: 0; }
+.providerSelection select { min-width: 0; min-height: 44px; }
 .providerStates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; margin: 16px 0; }
 .providerStates p { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 10px 12px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); color: var(--color-secondary); background: var(--surface-shell); font-size: 13px; }
 .providerStates p::before { content: ''; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--color-secondary); }
@@ -32,7 +32,7 @@
 .providerFeedback p { margin: 8px 0 0; }
 .providerFeedback a { display: inline-flex; align-items: center; min-height: 44px; }
 .providerActions { margin-top: 16px; }
-.providerActions button { min-width: 44px; max-width: 100%; background: var(--color-surface); border-color: var(--surface-hairline); }
+.providerActions button { min-width: 44px; min-height: 44px; max-width: 100%; background: var(--color-surface); border-color: var(--surface-hairline); }
 .providerActions .providerConnect { background: var(--color-selected); border-color: color-mix(in srgb, var(--color-text) 15%, transparent); font-weight: 600; padding: 5px 7px 5px 20px; }
 @media (max-width: 600px) { .core { padding: 20px; } .heading h1 { margin-block: 12px; } }
 @media (max-width: 700px) { .providerSelection, .providerStates { grid-template-columns: minmax(0, 1fr); } .providerActions button { flex: 1 1 100%; } }

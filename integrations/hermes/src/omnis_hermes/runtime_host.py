@@ -1363,7 +1363,13 @@ class RuntimeHost:
             while True:
                 correlation = None
                 try:
-                    raw = await asyncio.wait_for(reader.readuntil(b"\n"), 2.5)
+                    if authenticated and self.owner_writer is writer:
+                        # An idle owner has no frame deadline; the lease watchdog still runs.
+                        raw = await reader.readexactly(1)
+                        if raw != b"\n":
+                            raw += await asyncio.wait_for(reader.readuntil(b"\n"), 2.5)
+                    else:
+                        raw = await asyncio.wait_for(reader.readuntil(b"\n"), 2.5)
                     if len(raw) > MAX_FRAME:
                         raise ValueError("Frame limit")
                     body = loads(raw, MAX_FRAME)

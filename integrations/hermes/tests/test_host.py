@@ -181,14 +181,24 @@ def test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness():
 
 
 @pytest.mark.asyncio
-async def test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server():
+@pytest.mark.parametrize("authenticated", [False, True])
+async def test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server(authenticated):
     """Real local IPC/asyncio consumer; no native/provider subprocess."""
     from omnis_hermes.runtime_host import RuntimeHost
 
     with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="b05-") as name:
         root = Path(name)
         host = await RuntimeHost(root).__aenter__()
-        reader, writer = await asyncio.open_unix_connection(str(root / "runtime.sock"))
+        if authenticated:
+            from omnis.supervisor.runtime_client import RuntimeClient
+
+            client = RuntimeClient(root, generation=0, epoch=1)
+            await client.connect()
+            assert (await client.status())["state"] == "IDLE"
+            reader, writer = client.reader, client.writer
+            assert reader is not None and writer is not None
+        else:
+            reader, writer = await asyncio.open_unix_connection(str(root / "runtime.sock"))
         exiting = None
         try:
             async with asyncio.timeout(0.5):
@@ -211,6 +221,157 @@ async def test_host_exit_closes_a_live_idle_uds_client_before_waiting_for_server
         # The exact own endpoint/lock is reusable, not merely disconnected.
         async with RuntimeHost(root):
             pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("observe_wire", [False, True])
+async def test_authenticated_idle_uds_has_no_unsolicited_frame(observe_wire):
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="idle-") as name:
+        root = Path(name)
+        async with RuntimeHost(root) as host:
+            client = RuntimeClient(root, generation=0, epoch=1)
+            await client.connect()
+            try:
+                assert (await client.status())["state"] == "IDLE"
+                assert (await client.status())["state"] == "IDLE"
+                owner, deadline = host.owner_writer, host.deadline_ns
+                assert owner is not None and client.reader is not None
+                if observe_wire:
+                    with pytest.raises(TimeoutError):
+                        await asyncio.wait_for(client.reader.read(1), 2.8)
+                else:
+                    await asyncio.sleep(2.8)
+                assert (await client.status())["state"] == "IDLE"
+                assert host.owner_writer is owner and host.deadline_ns == deadline == 0
+                assert host.process is None and host.preparation_process is None
+                assert not host.managed_finals and host.settings_task is None
+            finally:
+                await client.close()
+            async with asyncio.timeout(0.5):
+                while host.clients:
+                    await asyncio.sleep(0)
+            assert host.owner_writer is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "invalid",
+    [
+        "unknown",
+        "type",
+        "auth",
+        "newline",
+        "oversize",
+        "overflow",
+        "eof",
+        "partial-eof",
+        "max-frame",
+        "oversize-valid",
+    ],
+)
+async def test_owned_uds_frame_validation_and_eof(invalid):
+    from omnis_hermes.runtime_host import MAX_FRAME, RuntimeHost
+
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="idle-") as name:
+        root = Path(name)
+        async with RuntimeHost(root) as host:
+            client = RuntimeClient(root, generation=0, epoch=1)
+            await client.connect()
+            try:
+                assert (await client.status())["state"] == "IDLE"
+                reader, writer = client.reader, client.writer
+                assert reader is not None and writer is not None
+                body = {
+                    "version": 1,
+                    "id": str(uuid4()),
+                    "boot": host.boot,
+                    "capability": host.capability,
+                    "generation": 0,
+                    "epoch": 1,
+                    "op": "status",
+                }
+                if invalid == "unknown":
+                    body["op"] = "unknown"
+                elif invalid == "type":
+                    body["op"] = []
+                elif invalid == "auth":
+                    body["capability"] = "wrong"
+                raw = json.dumps(body).encode() + b"\n"
+                if invalid in {"max-frame", "oversize-valid"}:
+                    size = MAX_FRAME + (invalid == "oversize-valid")
+                    raw = raw[:-1].ljust(size - 1, b" ") + b"\n"
+                if invalid == "newline":
+                    raw = b"\n"
+                elif invalid in {"oversize", "overflow"}:
+                    raw = b" " * (MAX_FRAME + 1) + (b"\n" if invalid == "oversize" else b"")
+                elif invalid in {"eof", "partial-eof"}:
+                    raw = b"" if invalid == "eof" else b"{"
+                writer.write(raw)
+                await writer.drain()
+                if invalid in {"eof", "partial-eof"}:
+                    writer.write_eof()
+                    assert await asyncio.wait_for(reader.read(), 0.5) == b""
+                    async with asyncio.timeout(0.5):
+                        while host.clients:
+                            await asyncio.sleep(0)
+                    assert host.owner_writer is None
+                elif invalid == "max-frame":
+                    accepted = json.loads(await asyncio.wait_for(reader.readline(), 0.5))
+                    assert accepted["ok"] is True and accepted["id"] == body["id"]
+                else:
+                    denied = json.loads(await asyncio.wait_for(reader.readline(), 3.1))
+                    assert denied["ok"] is False and denied["error"] == "RUNTIME_DENIED"
+                    assert denied["id"] == (
+                        body["id"] if invalid in {"unknown", "type", "auth"} else None
+                    )
+                    if invalid not in {"oversize", "overflow"}:
+                        assert (await client.status())["state"] == "IDLE"
+                assert host.process is None and host.deadline_ns == 0
+            finally:
+                await client.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["unauth-idle", "unauth-partial", "owned-partial"])
+async def test_uds_frame_deadline_is_not_reset_by_partial_bytes(mode):
+    from omnis_hermes.runtime_host import RuntimeHost
+
+    from omnis.supervisor.runtime_client import RuntimeClient
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"], prefix="idle-") as name:
+        root = Path(name)
+        async with RuntimeHost(root) as host:
+            client = RuntimeClient(root, generation=0, epoch=1)
+            await client.connect()
+            try:
+                if mode == "owned-partial":
+                    assert (await client.status())["state"] == "IDLE"
+                reader, writer = client.reader, client.writer
+                assert reader is not None and writer is not None
+                started = time.monotonic()
+                if mode == "owned-partial":
+                    writer.write(b"{")
+                    await writer.drain()
+                if mode != "unauth-idle":
+                    await asyncio.sleep(1.4)
+                    writer.write(b" ")
+                    await writer.drain()
+                async with asyncio.timeout_at(started + 3.1):
+                    denied = json.loads(await reader.readline())
+                assert time.monotonic() - started >= 2.3
+                assert denied["ok"] is False and denied["error"] == "RUNTIME_DENIED"
+                assert denied["id"] is None
+                assert host.deadline_ns == 0 and host.process is None
+                if mode != "owned-partial":
+                    assert host.owner_writer is None
+            finally:
+                await client.close()
 
 
 @pytest.mark.asyncio
@@ -313,7 +474,8 @@ async def test_host_refuses_unsafe_paths_exclusive_owner_and_wrong_peer():
 
 
 @pytest.mark.asyncio
-async def test_private_host_launch_watchdog_stop_and_environment():
+@pytest.mark.parametrize("termination", ["expiry", "stop", "disconnect"])
+async def test_private_host_launch_watchdog_stop_and_environment(termination):
     assert importlib.util.find_spec("omnis_hermes.runtime_host") is not None, (
         "runtime owner missing"
     )
@@ -360,21 +522,40 @@ async def test_private_host_launch_watchdog_stop_and_environment():
             try:
                 denied = await request("session.create")
                 assert denied["ok"] is False and host.process is None
-                launched = await request("launch", deadline_ns=time.monotonic_ns() + 400_000_000)
+                grant = time.monotonic_ns() + (
+                    400_000_000 if termination == "expiry" else 4_500_000_000
+                )
+                launched = await request("launch", deadline_ns=grant)
                 assert launched["ok"] is True and launched["state"] == "READY"
                 assert launched["generation"] == 1 and launched["epoch"] == 1
                 process = host.process
                 assert process is not None
                 pid = process.pid
-                await asyncio.sleep(0.7)
-                status = await request("status")
-                assert status["state"] == "UNCERTAIN"  # no OCI namespace containment proof
+                if termination == "expiry":
+                    await asyncio.wait_for(process.wait(), 1)
+                await asyncio.sleep(2.8)
+                assert host.deadline_ns == grant
+                if termination != "expiry":
+                    assert process.returncode is None and host.state == "READY"
+                    if termination == "stop":
+                        assert (await request("stop"))["ok"] is True
+                    else:
+                        writer.write_eof()
+                        assert await asyncio.wait_for(reader.read(), 1) == b""
+                    await asyncio.wait_for(process.wait(), 1)
+                if termination != "disconnect":
+                    status = await request("status")
+                    assert status["ok"] is True
+                    assert status["state"] == "UNCERTAIN"  # no OCI namespace containment proof
+                    renewed = await request(
+                        "renew", deadline_ns=time.monotonic_ns() + 1_000_000_000
+                    )
+                    assert renewed["ok"] is False  # never resurrect expired authority
+                    stopped = await request("stop")
+                    assert stopped["drained"] is False
                 assert process.returncode is not None
                 assert not Path(f"/proc/{pid}").exists()
-                renewed = await request("renew", deadline_ns=time.monotonic_ns() + 1_000_000_000)
-                assert renewed["ok"] is False  # never resurrect expired authority
-                stopped = await request("stop")
-                assert stopped["drained"] is False
+                assert host.state == "UNCERTAIN" and not host._owned_pids()
             finally:
                 writer.close()
                 await writer.wait_closed()

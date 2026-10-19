@@ -1,0 +1,366 @@
+{
+  "review_id": "STARTUP10-SAFETY-269b044",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Independent source safety review; no PostgreSQL, installed-native or product-runtime approval.",
+  "base": "d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7",
+  "head": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "canonical_authorization": "b3641ccf9b2fa56c90678dd76235487272e18f93 (read only; not merged in candidate)",
+  "snapshot": {
+    "changed_file_count": 17,
+    "all_author_hashes_match": true,
+    "clean_before_and_after": true,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564",
+        "matches_author": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "6c3a6f73874d49c241f3c923954986a02ac41468cedfb83dc696e456703627f3",
+        "matches_author": true
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_test_routes.py",
+        "sha256": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630",
+        "matches_author": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+        "matches_author": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb",
+        "matches_author": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+        "matches_author": true
+      },
+      {
+        "path": "api/tests/test_instance.py",
+        "sha256": "3dc5c17016a8b647e03cd2441184ce1cd65b1b9c999a90c00a655fb1ac83937a",
+        "matches_author": true
+      },
+      {
+        "path": "api/tests/test_model_prepare_sync_source.py",
+        "sha256": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6",
+        "matches_author": true
+      },
+      {
+        "path": "api/tests/test_model_test_prepare_source.py",
+        "sha256": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+        "matches_author": true
+      },
+      {
+        "path": "api/tests/test_model_test_source.py",
+        "sha256": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+        "matches_author": true
+      },
+      {
+        "path": "api/tests/test_runtime_service.py",
+        "sha256": "a907eeaccd8ed605ddb2f4c848de20fde64a1ba3d8cab281c784c088f22a9682",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "sha256": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/tests/peer_fixture.py",
+        "sha256": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_bootstrap_inventory.py",
+        "sha256": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_client.py",
+        "sha256": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67",
+        "matches_author": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_startup_budget.py",
+        "sha256": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f",
+        "matches_author": true
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "STARTUP10-SAFE-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "status": "CONFIRMED_SOURCE_REPRODUCED",
+      "title": "Raw startup context obtains ten-second authority and eleven-second lease before strict validation/binding",
+      "locations": [
+        "api/src/omnis/modules/instance/service.py:181-216",
+        "api/src/omnis/supervisor/runtime_client.py:688-699",
+        "api/src/omnis/modules/runs/model_test.py:25-76"
+      ],
+      "requirement": "startup:object must strictly deny malformed/type/forged context before startup-only authority or lease effects; a qualified DATA envelope is not current owner authority.",
+      "mechanism": "runtime_authority calls qualify(), which checks the outer field set, digest envelope, requested/purpose and seven refs, but not the context field set/authority scalar types/current instance-owner binding or full material. The new UPDATE therefore commits through its normal path for invalid startup data. RuntimeClient.managed uses the same partial qualifier, so the actual client-to-Host path reaches the lease write before the Host refuses.",
+      "reproducer": {
+        "file": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/test_safety_review.py",
+        "test": "test_reproduce_malformed_raw_startup_at_real_service_and_uds",
+        "sha256": "af622295e231784b13b55de01b1e391e42df73bd65363087ea2713297d464e41",
+        "steps": [
+          "Build the existing complete v5 fixture using prepared_source() and produce(); retain real seven-record/material structure.",
+          "Use the real InstanceService with only its locked-storage seam replaced by a deterministic clock/lease fixture. Valid matching control receives grant10 and lease11.",
+          "Recompute the ordinary content digest after changing authority.epoch to true, deleting authority, adding an unknown context key, clearing material, or substituting a foreign authority.owner.",
+          "Each mutation still receives grant10 and executes the lease11 UPDATE. The first four fail Host data validation; foreign owner passes Host data validation.",
+          "Send boolean-epoch case through the real RuntimeClient.managed and real RuntimeHost UDS. RuntimeUnavailable is returned only after one new lease UPDATE; no native process is created."
+        ],
+        "observations": {
+          "cases": [
+            {
+              "case": "valid",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": true
+            },
+            {
+              "case": "boolean_epoch",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": false
+            },
+            {
+              "case": "missing_authority",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": false
+            },
+            {
+              "case": "extra_context_field",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": false
+            },
+            {
+              "case": "material_empty",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": false
+            },
+            {
+              "case": "foreign_owner",
+              "service_granted_10": true,
+              "lease_written_11": true,
+              "host_data_validation_accepts": true
+            }
+          ],
+          "uds": {
+            "result": "RuntimeUnavailable",
+            "lease_write_before_host_refusal": true,
+            "native_process_created": false,
+            "endpoints_absent": true
+          }
+        }
+      },
+      "impact": "Malformed/nonmatching bootstrap data can prolong the current owner lease and obtain the special grant at its producer. Host rejection limits impact: no unauthorized model/native execution was observed or claimed. The source producer violates the explicitly required pre-effect strictness.",
+      "minimal_remedy": "Before the UPDATE, validate the context exact fields/types, material/record contract and bind its instance_id/owner/epoch/generation to the locked instance/current owner. Strengthen or reuse the existing API-side validator without importing the optional native adapter or introducing a generic authority bypass. Keep valid v5/v6 positives and require malformed/foreign negatives to leave the lease unchanged; Host refusal must remain defense in depth.",
+      "required_recheck": "Parent reproduce on frozen source, add failing pre-UPDATE malformed/foreign tests, minimal fix, affected SOURCE regression and focused independent re-review. Real PG proves actual rollback/nonmutation later."
+    }
+  ],
+  "executed": [
+    {
+      "id": "adapter",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+      "interpreter_version": "3.13.15",
+      "interpreter_flags": [
+        "-I",
+        "-B"
+      ],
+      "python_c": "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in ('api/src', 'integrations/hermes/src', 'integrations/hermes/tests')];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'integrations/hermes/tests/test_startup_budget.py', 'integrations/hermes/tests/test_client.py', 'integrations/hermes/tests/test_bootstrap_inventory.py', 'integrations/hermes/tests/test_protocol.py', '--basetemp=/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/adapter', '-q', '--tb=no']))",
+      "exit": 0,
+      "passed": 115,
+      "summary": "115 passed in 25.20s",
+      "sha256": "c14cb147531cfc1d1429a84cecca0d9234675693e9ae97fcd00c38bd838244bc",
+      "path": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/adapter.log"
+    },
+    {
+      "id": "api",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+      "interpreter_version": "3.13.15",
+      "interpreter_flags": [
+        "-I",
+        "-B"
+      ],
+      "python_c": "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in ('api/src', 'api/tests', 'integrations/hermes/src')];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_model_prepare_sync_source.py', 'api/tests/test_runtime_service.py', '--basetemp=/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/api', '-q', '--tb=no']))",
+      "exit": 0,
+      "passed": 25,
+      "summary": "25 passed in 68.90s (0:01:08)",
+      "sha256": "7aedcef15c61b58475419596fddd189e904ceeba347c7e900ae3ee600f7e7457",
+      "path": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/api.log"
+    },
+    {
+      "id": "custom",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+      "interpreter_version": "3.13.15",
+      "interpreter_flags": [
+        "-I",
+        "-B"
+      ],
+      "python_c": "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in ('api/src', 'api/tests', 'integrations/hermes/src')];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', '/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/test_safety_review.py', '--basetemp=/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/custom', '-q', '--tb=short']))",
+      "exit": 0,
+      "passed": 12,
+      "summary": "12 passed in 1.51s",
+      "sha256": "cda20d8220f522e3c348fe4ecdaa4a3367cab65b804304cb7ced4196c1e860be",
+      "path": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/custom.log"
+    },
+    {
+      "id": "extra",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+      "interpreter_version": "3.13.15",
+      "interpreter_flags": [
+        "-I",
+        "-B"
+      ],
+      "python_c": "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in ('api/src', 'api/tests', 'integrations/hermes/src')];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', '/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/test_safety_review.py', '-k', 'exact_legacy or management_never', '--basetemp=/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/extra', '-q', '--tb=short']))",
+      "exit": 0,
+      "passed": 3,
+      "summary": "3 passed, 12 deselected in 1.74s",
+      "sha256": "e4e7343fca0bb0cc135338c3e0767d83b547bbaa1d0a1986b9a4601e4577c534",
+      "path": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/extra.log"
+    },
+    {
+      "id": "replay",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "interpreter": "/home/kali/OmnisAI/api/.venv/bin/python",
+      "interpreter_version": "3.13.15",
+      "interpreter_flags": [
+        "-I",
+        "-B"
+      ],
+      "python_c": "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in ('api/src', 'api/tests', 'integrations/hermes/src')];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_model_test_prepare_source.py', '-k', 'replay or expired or forged or malformed or authority', '--basetemp=/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/replay', '-q', '--tb=no']))",
+      "exit": 0,
+      "passed": 23,
+      "summary": "23 passed, 112 deselected in 10.81s",
+      "sha256": "dacf2964e2dbf79e4e23a580067eb3b786172405bb24a83d094d5ed48906f98a",
+      "path": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/replay.log"
+    }
+  ],
+  "counts": {
+    "executed_test_invocations": 5,
+    "passed_test_items": 178,
+    "important_interpretation": "The custom reproducer test passing confirms F01, not safety acceptance. custom ran its original twelve tests; extra ran only the three appended tests on final probe bytes."
+  },
+  "requirements_evidence": [
+    {
+      "requirement": "Positive slow bootstrap / over-deadline refusal",
+      "result": "PASS_SOURCE_SYNTHETIC",
+      "evidence": "adapter startup_eight (~8s) and startup_over; API v5/v6 fast/cold/over/expiry through LocalControl/control_task/RuntimeClient/Host. Storage, Settings and final model response are explicitly doubles."
+    },
+    {
+      "requirement": "Expired lease cannot revive across blocking UPDATE or fence",
+      "result": "PASS_SOURCE_SIMULATED; REAL_PG_NOT_RUN",
+      "evidence": "Actual _require_owner compares retained original LeaseRecord after UPDATE, after stop-fence and in heartbeat. Custom clock cuts after update and after fence raise ControlConflict; simulated transaction rolls back. Static real-PG trigger test exists but was not executed."
+    },
+    {
+      "requirement": "Heartbeat non-additive and ordinary lease default",
+      "result": "PASS_SOURCE_SIMULATED_AND_STATIC",
+      "evidence": "GREATEST(expires_at, clock_timestamp()+5s), original post-update owner check; custom preserves eleven-second expiry without adding eleven seconds. acquire remains clock+5s. No second heartbeat owner."
+    },
+    {
+      "requirement": "One original absolute deadline through management drain and launch",
+      "result": "PASS_SOURCE",
+      "evidence": "Real Host._managed refuses already-expired management before saved-read; controlled drain crossing original request deadline refuses before _launch, retains original deadline. Existing cold positive checks one grant, no reserve/model calls."
+    },
+    {
+      "requirement": "Stop/EOF closes startup child, no resend or invented success",
+      "result": "PASS_SOURCE_SYNTHETIC",
+      "evidence": "Adapter stop/cancel and API v5/v6 stop/disconnect pass. drain returns False; client stream closure causes Host connected-helper cancel/join; process reaped and sockets/locks absent. Non-PID1 Host state remains UNCERTAIN, not certified STOPPED."
+    },
+    {
+      "requirement": "Legacy scope limits",
+      "result": "PASS_SOURCE_AND_STATIC",
+      "evidence": "Exact Host ordinary5s accepts,5s+1ns rejects; managed4.5s+1ns rejects; launch10s accepts and10s+1ns rejects. SEND/STATUS/malformed CREATE long grants reject at Host. Source frame deadline2.5 and frame65536 unchanged; handshake ordinary RPC0.8 and init min3.2/remaining unchanged."
+    },
+    {
+      "requirement": "Extended caller waits only bootstrap",
+      "result": "PASS_SOURCE_AND_STATIC",
+      "evidence": "19s owner only model_test_prepare/model_test_start; authenticated LocalControl20s only those and provision; clients21s only corresponding operations. Ordinary4s/2s/frame2.5 unchanged; no global knob."
+    },
+    {
+      "requirement": "Malformed / forged raw startup producer input",
+      "result": "FAIL",
+      "finding": "STARTUP10-SAFE-F01"
+    },
+    {
+      "requirement": "Replay does not become new model authority",
+      "result": "SCOPED_EXISTING_TESTS_PASS",
+      "evidence": "23 passed, 112 deselected in 10.81s",
+      "limit": "No new replay finding claimed; no DB concurrency/physical replay proof in this review."
+    },
+    {
+      "requirement": "No implicit provider/target/bootstrap scope expansion",
+      "result": "STATIC_NO_NEW_PATH",
+      "evidence": "Diff confined to seventeen declared files; no new owner, protocol field, schema, migration, dependency, upstream pin or web change. Supervisor main unchanged. No model/target effects executed."
+    }
+  ],
+  "cleanup": {
+    "tracked_edits": false,
+    "commits_created": false,
+    "owned_scratch": "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr",
+    "owned_sockets_remaining": 0,
+    "source_pyc_count_after": 0,
+    "synthetic_children": "Existing executed tests assert actual process exit/reap and no Host-owned clients; no installed/personal children touched.",
+    "git_diff_check_exit": 0
+  },
+  "limits": [
+    "No PostgreSQL/Docker/OCI/installed Hermes/native provider/browser/current operator root/personal profiles/protected HTML/recovery effects.",
+    "PG author test was inspected, not executed; transaction-lock timing and rollback evidence here are simulations, not physical PostgreSQL proof.",
+    "Full API source suite is delegated to parent; this review ran affected safety/cold/replay subset plus115 adapter tests.",
+    "Native model initialization responses and Settings/storage in composed SOURCE cases are test doubles; no model call permission or inference proof.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No tracked skill update allowed in this read-only review. Proposed reusable note: do not reuse a DATA qualifier as an authority precondition unless its complete strict input/current-owner binding is checked before the first lease write."
+  ],
+  "next": "Reproduce/adjudicate F01; fix smallest producer-validation boundary and re-review exact changed bytes. Keep P2/G02/P4a NOT_CLOSED and physical consumer proof NOT_RUN.",
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/test_safety_review.py",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/input-observations.json",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/adapter.log",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/api.log",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/custom.log",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/extra.log",
+    "/home/kali/.hermes/cache/scratch/saf10-8n9lwkmr/replay.log",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-safety.json"
+  ]
+}

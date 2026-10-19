@@ -1,0 +1,21 @@
+{
+  "exit": 0,
+  "source_unchanged": true,
+  "scratch": "/home/kali/.hermes/cache/scratch/s10p-crv1ynpt",
+  "owner_log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/pg-owner.log",
+  "command": [
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/qa-venv/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "api/tests/test_instance.py",
+    "-q",
+    "--tb=no",
+    "--basetemp",
+    "/home/kali/.hermes/cache/scratch/s10p-crv1ynpt/pytest"
+  ],
+  "scope": "four test_instance.py cases on private PG18.6; NOT full test-sl04-pg or canonical"
+}

@@ -1,0 +1,229 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "review_type": "Independent read-only, proportional imports-only delta review",
+  "base": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "head": "060b754be18850f7fbbe5aa3bf711d98c3444f20",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+  "findings": [],
+  "scope": [
+    "api/src/omnis/modules/runs/model_test_models.py",
+    "api/tests/test_model_test_operation.py"
+  ],
+  "acceptance": [
+    {
+      "criterion": "Ordinary no-opt-in API/runtime-client/supervisor imports remain catalog-free",
+      "result": "PASS",
+      "evidence": "Unchanged startup guard: three fresh -I -B children, candidate_catalog import refusal hook; API create_app().routes also succeeds. Guard byte-identical to base."
+    },
+    {
+      "criterion": "Explicit provision invokes the original catalog validator",
+      "result": "PASS",
+      "evidence": "test_provision_uses_catalog_validator wraps the real candidate_catalog.valid_ref. Valid execution-selection accepted; revision=True rejected INVALID_REQUEST; run-snapshot kind rejected Published selection required. Import remains after private-provisioning operation_id denial."
+    },
+    {
+      "criterion": "No lost repository consumer of the old module-level valid_ref alias",
+      "result": "PASS_REPOSITORY_SCOPED",
+      "evidence": "All tracked Python model_test_models occurrences inspected: six production caller files import only model classes, and two test files import model classes. No alias consumer or explicit export found; no fixture/config/export edits required. Unobserved downstream users outside this repository are not certified."
+    },
+    {
+      "criterion": "Public OpenAPI and three DTO schemas unchanged",
+      "result": "PASS",
+      "evidence": {
+        "base_vs_head_vs_fresh_head_identical": true,
+        "sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97",
+        "baseline_method": "Exact git-show baseline module executed in memory under original qualified module name; all other product files identical by diff inventory",
+        "child_exit_codes": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "criterion": "No validation/authority/policy/source-fingerprint change",
+      "result": "PASS",
+      "evidence": "Product ASTs are identical after removing only the same candidate_catalog valid_ref ImportFrom node. candidate_catalog and its source-fingerprint closure are unchanged; only two declared files differ."
+    }
+  ],
+  "independent_tests": {
+    "result": "18 passed in 8.27s",
+    "exit_code": 0,
+    "collected": 18,
+    "composition": {
+      "unchanged_startup_cases": 3,
+      "model_test_operation_cases_including_new_validator": 5,
+      "model_test_routes_ASGI_doubled_backend": 2,
+      "openapi_and_committed_contract": 8
+    },
+    "python": "3.13.15",
+    "source_paths": [
+      "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src",
+      "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests",
+      "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src"
+    ],
+    "isolation": "-I -B; stripped environment; plugin autoload off, explicit pytest_asyncio; cacheprovider disabled; private HOME/TMPDIR/XDG_CACHE_HOME and pytest basetemp",
+    "effects": "SOURCE/ASGI doubles; existing test-owned local UDS only, joined startup subprocesses; no native/provider/PG/OCI work"
+  },
+  "schema": {
+    "base_vs_head_vs_fresh_head_identical": true,
+    "sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97",
+    "baseline_method": "Exact git-show baseline module executed in memory under original qualified module name; all other product files identical by diff inventory",
+    "child_exit_codes": [
+      0,
+      0,
+      0
+    ]
+  },
+  "hashes": {
+    "api/pyproject.toml": "4b66abf6cf25ddae264fce4f3a4c109fb3e89db636ac6705676b6169267adead",
+    "api/src/omnis/modules/runs/model_test_models.py": "a368f01d7e56f4333bc9c3489cf2843864e225f059bfcd59df67da36da38df2e",
+    "api/src/omnis/modules/settings/candidate_catalog.py": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e",
+    "api/tests/test_contract_export.py": "4fa1c89322b7650b19ab67712a6c0320bc6281ada3082b26ccd49210ac7f809c",
+    "api/tests/test_model_test_operation.py": "7da7d1a1c8ffe18f3c2574334f377b78b92c92732d1e3bf7586c6091f9fec69f",
+    "api/tests/test_model_test_prepare_source.py": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+    "api/tests/test_model_test_routes.py": "f5d3b9e57d1b9832e7fd3c90178d9fec998721dd302c9a5ada95bae4d901cde5",
+    "api/tests/test_model_test_source.py": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+    "api/tests/test_native_preparation_startup.py": "696e8ed08c6d378f2b1ed2e9592b0f0847fff7ea86e2e5f7f6d12033f34e507e",
+    "api/tests/test_openapi.py": "6f9ab6494081d538d522cd326ffafa0300e853cc9bc2918038694aed82f55e56",
+    "contracts/omnis.openapi.json": "c26eb6d85fd7286d5cb6ea6c40e46508a34557a588ece1fd20fe6f230b730863"
+  },
+  "caller_trace": {
+    "api/src/omnis/modules/instance/schemas.py": [
+      {
+        "line": 9,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl"
+      }
+    ],
+    "api/src/omnis/modules/runs/model_test_operation.py": [
+      {
+        "line": 15,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestView"
+      }
+    ],
+    "api/src/omnis/modules/runs/model_test_routes.py": [
+      {
+        "line": 16,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView"
+      }
+    ],
+    "api/src/omnis/modules/runs/model_test_source.py": [
+      {
+        "line": 17,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl"
+      }
+    ],
+    "api/src/omnis/supervisor/native_tasks.py": [
+      {
+        "line": 23,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl"
+      }
+    ],
+    "api/src/omnis/transport/local_control.py": [
+      {
+        "line": 42,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl"
+      }
+    ],
+    "api/tests/test_model_test_operation.py": [
+      {
+        "line": 16,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestControl"
+      },
+      {
+        "line": 206,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestRequest"
+      }
+    ],
+    "api/tests/test_model_test_routes.py": [
+      {
+        "line": 12,
+        "text": "from omnis.modules.runs.model_test_models import ModelTestView"
+      }
+    ]
+  },
+  "author_evidence": "Author report read for provenance; broader 167 SOURCE tests, quality checks and historical RED are author evidence, not claimed as independent reruns. All nine author green_hashes independently matched.",
+  "commands": [
+    {
+      "label": "collection",
+      "command": "env -i PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/cache PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_preparation_startup.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"', '\"'\"'api/tests/test_model_test_routes.py'\"'\"', '\"'\"'api/tests/test_openapi.py'\"'\"', '\"'\"'api/tests/test_contract_export.py::test_committed_contract_matches_current_routes'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/pytest'\"'\"', '\"'\"'--collect-only'\"'\"']))'",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0,
+      "elapsed_seconds": 2.229,
+      "log": "/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/collection.log",
+      "log_sha256": "3a75174efe9ecb66943167c94e1d8928f5fd9f3d81944fd28c5454e1b3e14d7f"
+    },
+    {
+      "label": "static-snapshot",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import ast, hashlib, json, pathlib, subprocess\nroot=pathlib.Path.cwd()\nbase='\"'\"'269b044c8aa520e8f18b63dd1ffabbe25ff491ca'\"'\"'\nhead='\"'\"'060b754be18850f7fbbe5aa3bf711d98c3444f20'\"'\"'\nchanged=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--name-only'\"'\"',base,head],text=True).splitlines()\nassert changed==['\"'\"'api/src/omnis/modules/runs/model_test_models.py'\"'\"','\"'\"'api/tests/test_model_test_operation.py'\"'\"']\nreport=json.loads(pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix-author.json'\"'\"').read_text())\nfiles=set(report['\"'\"'green_hashes'\"'\"'])|{'\"'\"'api/src/omnis/modules/settings/candidate_catalog.py'\"'\"','\"'\"'contracts/omnis.openapi.json'\"'\"'}\nhashes={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in sorted(files)}\nassert all(hashes[p]==h for p,h in report['\"'\"'green_hashes'\"'\"'].items())\np='\"'\"'api/src/omnis/modules/runs/model_test_models.py'\"'\"'\na=ast.parse(subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+p],text=True))\nb=ast.parse((root/p).read_text())\nclass RemoveImport(ast.NodeTransformer):\n def visit_ImportFrom(self,node):\n  if node.module=='\"'\"'omnis.modules.settings.candidate_catalog'\"'\"':\n   assert [(n.name,n.asname) for n in node.names]==[('\"'\"'valid_ref'\"'\"',None)]\n   return None\n  return node\nassert ast.dump(RemoveImport().visit(a))==ast.dump(RemoveImport().visit(b))\nguard='\"'\"'api/tests/test_native_preparation_startup.py'\"'\"'\nassert subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',base+'\"'\"':'\"'\"'+guard])==(root/guard).read_bytes()\ntracked=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'ls-files'\"'\"','\"'\"'--'\"'\"','\"'\"'*.py'\"'\"'],text=True).splitlines()\nconsumers={p:[{'\"'\"'line'\"'\"':i,'\"'\"'text'\"'\"':line.strip()} for i,line in enumerate((root/p).read_text().splitlines(),1) if '\"'\"'model_test_models'\"'\"' in line] for p in tracked if '\"'\"'model_test_models'\"'\"' in (root/p).read_text()}\nassert all('\"'\"'valid_ref'\"'\"' not in entry['\"'\"'text'\"'\"'] for values in consumers.values() for entry in values)\ncaches=[str(p.relative_to(root)) for stem in ('\"'\"'api/src'\"'\"','\"'\"'integrations/hermes/src'\"'\"') for p in (root/stem).rglob('\"'\"'*.pyc'\"'\"')]\nassert not caches,caches\nprint(json.dumps({'\"'\"'changed'\"'\"':changed,'\"'\"'hashes'\"'\"':hashes,'\"'\"'AST_identical_except_import_location'\"'\"':True,'\"'\"'startup_guard_byte_identical_to_base'\"'\"':True,'\"'\"'repository_python_consumers'\"'\"':consumers,'\"'\"'source_pyc_files'\"'\"':caches},sort_keys=True))\n'",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2,
+      "log": "/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/static-snapshot.log",
+      "log_sha256": "d2bfe290137b13a8b6bb9cec8a35c0e3907f58e9890097037f0956760971ad68"
+    },
+    {
+      "label": "focused-tests",
+      "command": "env -i PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/cache PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0]=['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_preparation_startup.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"', '\"'\"'api/tests/test_model_test_routes.py'\"'\"', '\"'\"'api/tests/test_openapi.py'\"'\"', '\"'\"'api/tests/test_contract_export.py::test_committed_contract_matches_current_routes'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/pytest'\"'\"']))'",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0,
+      "elapsed_seconds": 9.609,
+      "log": "/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/focused-tests.log",
+      "log_sha256": "70416759184c21b155b4edf1630e39a53cd7dad9583d2c20d435c7c34d8ef936"
+    },
+    {
+      "label": "schema-identity",
+      "command": "env -i PATH=/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/cache PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import hashlib, json, pathlib, subprocess, sys\nroot=pathlib.Path.cwd()\nchild=\"\"\"\nimport importlib, json, pathlib, subprocess, sys, types\nroot=pathlib.Path.cwd()\nsys.path[:0]=[str(root/'\"'\"'api/src'\"'\"'),str(root/'\"'\"'integrations/hermes/src'\"'\"')]\nif sys.argv[1]=='\"'\"'base'\"'\"':\n parent=importlib.import_module('\"'\"'omnis.modules.runs'\"'\"')\n name='\"'\"'omnis.modules.runs.model_test_models'\"'\"'\n module=types.ModuleType(name)\n module.__file__=str(root/'\"'\"'api/src/omnis/modules/runs/model_test_models.py'\"'\"')\n module.__package__='\"'\"'omnis.modules.runs'\"'\"'\n sys.modules[name]=module\n setattr(parent,'\"'\"'model_test_models'\"'\"',module)\n source=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"','\"'\"'269b044c8aa520e8f18b63dd1ffabbe25ff491ca:api/src/omnis/modules/runs/model_test_models.py'\"'\"'])\n exec(compile(source,module.__file__,'\"'\"'exec'\"'\"'),module.__dict__)\nfrom omnis.api import create_app\nfrom omnis.modules.runs.model_test_models import ModelTestControl,ModelTestRequest,ModelTestView\nprint(json.dumps({'\"'\"'openapi'\"'\"':create_app().openapi(),'\"'\"'models'\"'\"':[c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]},sort_keys=True,separators=('\"'\"','\"'\"','\"'\"':'\"'\"')))\n\"\"\"\noutputs=[]\nfor mode in ('\"'\"'base'\"'\"','\"'\"'head'\"'\"','\"'\"'head-repeat'\"'\"'):\n p=subprocess.run([sys.executable,'\"'\"'-I'\"'\"','\"'\"'-B'\"'\"','\"'\"'-c'\"'\"',child,mode],capture_output=True,timeout=20)\n assert p.returncode==0, (mode,p.returncode,p.stderr.decode())\n outputs.append(p.stdout)\nassert outputs[0]==outputs[1]==outputs[2]\nassert hashlib.sha256(outputs[0]).hexdigest()=='\"'\"'409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97'\"'\"'\nprint(json.dumps({'\"'\"'base_vs_head_vs_fresh_head_identical'\"'\"':True,'\"'\"'sha256'\"'\"':hashlib.sha256(outputs[0]).hexdigest(),'\"'\"'baseline_method'\"'\"':'\"'\"'Exact git-show baseline module executed in memory under original qualified module name; all other product files identical by diff inventory'\"'\"','\"'\"'child_exit_codes'\"'\"':[0,0,0]}))\n'",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0,
+      "elapsed_seconds": 13.218,
+      "log": "/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/schema-identity.log",
+      "log_sha256": "ba6b03aadd0e64ca887d4e1aefce422514d23a1964d35e7daca42849cd5d8040"
+    },
+    {
+      "label": "final-snapshot-cleanup",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import hashlib,json,pathlib,stat,subprocess\nroot=pathlib.Path.cwd()\nexpected={'\"'\"'api/pyproject.toml'\"'\"': '\"'\"'4b66abf6cf25ddae264fce4f3a4c109fb3e89db636ac6705676b6169267adead'\"'\"', '\"'\"'api/src/omnis/modules/runs/model_test_models.py'\"'\"': '\"'\"'a368f01d7e56f4333bc9c3489cf2843864e225f059bfcd59df67da36da38df2e'\"'\"', '\"'\"'api/src/omnis/modules/settings/candidate_catalog.py'\"'\"': '\"'\"'96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e'\"'\"', '\"'\"'api/tests/test_contract_export.py'\"'\"': '\"'\"'4fa1c89322b7650b19ab67712a6c0320bc6281ada3082b26ccd49210ac7f809c'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"': '\"'\"'7da7d1a1c8ffe18f3c2574334f377b78b92c92732d1e3bf7586c6091f9fec69f'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"': '\"'\"'3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6'\"'\"', '\"'\"'api/tests/test_model_test_routes.py'\"'\"': '\"'\"'f5d3b9e57d1b9832e7fd3c90178d9fec998721dd302c9a5ada95bae4d901cde5'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"': '\"'\"'3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e'\"'\"', '\"'\"'api/tests/test_native_preparation_startup.py'\"'\"': '\"'\"'696e8ed08c6d378f2b1ed2e9592b0f0847fff7ea86e2e5f7f6d12033f34e507e'\"'\"', '\"'\"'api/tests/test_openapi.py'\"'\"': '\"'\"'6f9ab6494081d538d522cd326ffafa0300e853cc9bc2918038694aed82f55e56'\"'\"', '\"'\"'contracts/omnis.openapi.json'\"'\"': '\"'\"'c26eb6d85fd7286d5cb6ea6c40e46508a34557a588ece1fd20fe6f230b730863'\"'\"'}\nactual={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in expected}\nassert actual==expected\nhead=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],text=True).strip()\nassert head=='\"'\"'060b754be18850f7fbbe5aa3bf711d98c3444f20'\"'\"'\nstatus=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'status'\"'\"','\"'\"'--porcelain'\"'\"'],text=True)\nassert status=='\"'\"''\"'\"'\nsubprocess.run(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--check'\"'\"','\"'\"'269b044c8aa520e8f18b63dd1ffabbe25ff491ca'\"'\"',head],check=True)\nsockets=[str(p) for p in pathlib.Path('\"'\"'/home/kali/.hermes/cache/scratch/cfrev-ffbf8946'\"'\"').rglob('\"'\"'*'\"'\"') if stat.S_ISSOCK(p.lstat().st_mode)]\nassert not sockets,sockets\ncaches=[str(p.relative_to(root)) for stem in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"') for p in (root/stem).rglob('\"'\"'*.pyc'\"'\"')]\nassert not caches,caches\nprint(json.dumps({'\"'\"'head'\"'\"':head,'\"'\"'clean_worktree'\"'\"':True,'\"'\"'reviewed_hashes_unchanged'\"'\"':True,'\"'\"'remaining_owned_sockets'\"'\"':sockets,'\"'\"'source_test_pyc_files'\"'\"':caches}))\n'",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0,
+      "elapsed_seconds": 0.149,
+      "log": "/home/kali/.hermes/cache/scratch/cfrev-ffbf8946/final-snapshot-cleanup.log",
+      "log_sha256": "d23ae622d911f89f094777c52436ae9ff3c188cd027e8b37ca0957f4efbc9832"
+    }
+  ],
+  "initial_readonly_commands": [
+    {
+      "command": "git status --short --branch && git diff --stat && git rev-parse HEAD && git diff 269b044 060b754be18850f7fbbe5aa3bf711d98c3444f20 -- api/src/omnis/modules/runs/model_test_models.py api/tests/test_model_test_operation.py && git diff --name-status 269b044 060b754be18850f7fbbe5aa3bf711d98c3444f20",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check 269b044 060b754be18850f7fbbe5aa3bf711d98c3444f20 && git diff --cached --stat && git show --stat --oneline HEAD && /home/kali/OmnisAI/api/.venv/bin/python -I -B --version",
+      "workdir": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+      "exit_code": 0
+    }
+  ],
+  "cleanup": {
+    "head": "060b754be18850f7fbbe5aa3bf711d98c3444f20",
+    "clean_worktree": true,
+    "reviewed_hashes_unchanged": true,
+    "remaining_owned_sockets": [],
+    "source_test_pyc_files": []
+  },
+  "files_created": "This scratch JSON report plus five command logs in /home/kali/.hermes/cache/scratch/cfrev-ffbf8946; pytest private temporary directories retained. No product/worktree files changed; no commit.",
+  "issues_encountered": [],
+  "limits": [
+    "Approves only the exact two-file import-timing delta at 060b754, not the independent startup10 authority/owner workstream. /work was not inspected or modified.",
+    "SOURCE import/DTO/ASGI/local-UDS evidence only. No installed-wheel rebuild/import, PG, OCI, native runtime, model/provider, browser, network, profiles or global effects.",
+    "No universal API/canonical QA rerun; author broader SOURCE/quality/RED results remain separately attributed.",
+    "Baseline schema comparison executes only the exact old DTO module in memory under its original qualified name; the remainder of product source is proven unchanged by the two-file diff inventory.",
+    "The optional catalog retains its original import-time source hashing when explicit provision legitimately opts in. This change removes its ordinary startup coupling; it does not redesign catalog hashing.",
+    "No claim about root cause of native READY timing, startup10 authority acceptance, integration into parent main, or P2/B06b/G02 completion.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Existing optional-import/review workflow followed; no new reusable workflow or skill/profile edits."
+  ],
+  "status_delta": {
+    "code": "IMPLEMENTED at exact reviewed commit",
+    "proof": "PASS_SOURCE_SCOPED",
+    "review": "APPROVED_SCOPED",
+    "integration": "Parent adjudication required",
+    "global": "P2/B06b/G02 NOT_CLOSED; native timing cause unchanged/UNKNOWN by this review"
+  }
+}

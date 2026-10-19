@@ -1,0 +1,328 @@
+{
+  "review_id": "STARTUP10-SAFETY-REREVIEW-61704ee",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Focused SOURCE-only delta review. Original grant-before-validation mechanism is fixed; one newly confirmed normalization gap remains. Not PostgreSQL, installed/native, provider or model PASS.",
+  "base": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "head": "61704eee5cddc6702528bb36c17f2016ee2d2019",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "delta": [
+    "api/src/omnis/modules/instance/service.py",
+    "api/tests/test_runtime_service.py",
+    "api/tests/test_instance.py"
+  ],
+  "F01_disposition": {
+    "id": "STARTUP10-SAFE-F01",
+    "status": "CLOSED_PREUPDATE_GRANT_MECHANISM_SOURCE_SCOPED",
+    "evidence": "Original malformed/foreign context cases now fail before UPDATE; authentic producer v5/v6 positives still grant10/lease11. Existing runtime_service tests passed11. Independent real RuntimeClient.managed -> real InstanceService probe passed both v5/v6 before adding the newly discovered missing-owner negative. That probe additionally challenged boolean owner/instance, float epoch, boolean generation, typed owner/preparation IDs, unknown body/material fields, resealed records, receipt owner/operation/result refs, and lease expiry during retained graph reads.",
+    "remaining": "Do not mark the full requested review APPROVED until STARTUP10-SAFE-F02 is resolved; physical PG/installed evidence remains parent-owned NOT_RUN.",
+    "original_red": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/parent-safety-repro/input-observations.json"
+  },
+  "new_findings": [
+    {
+      "id": "STARTUP10-SAFE-F02",
+      "severity": "LOW",
+      "blocking": true,
+      "status": "CONFIRMED_SOURCE_REPRODUCED",
+      "title": "Missing context owner_id escapes as KeyError rather than normalized refusal",
+      "location": "api/src/omnis/modules/instance/service.py:220",
+      "related_locations": [
+        "api/src/omnis/supervisor/runtime_client.py:688-706",
+        "api/src/omnis/transport/local_control.py:174-184,308-323"
+      ],
+      "requirement": "Preserve complete pre-grant refusal and error normalization on malformed raw startup context; trusted-retained-byte comparison does not justify an unchecked field access before retained lookup.",
+      "reproducer": {
+        "file": "/home/kali/.hermes/cache/scratch/s10safe-recheck/test_focused_safety.py",
+        "test": "test_extra_boundary_and_original_expiry[5/6]",
+        "steps": [
+          "Generate authentic complete v5/v6 payload with existing prepared_source, real ModelTest.prepare/command_complete and dispatch.",
+          "Keep every other field and authority valid; delete context.payload.owner_id and recompute only the ordinary context content digest.",
+          "Invoke real RuntimeClient.managed with real InstanceService and instrumented storage/clock/exchange seams.",
+          "Expected CatalogError/ControlConflict is not raised: service.py:220 raises KeyError(owner_id). Both versions fail."
+        ],
+        "observed": {
+          "v5_exception": "KeyError(owner_id)",
+          "v6_exception": "KeyError(owner_id)",
+          "lease_update_count": 0,
+          "exchange_calls": 0,
+          "client_close_calls": 1,
+          "retained_graph_unchanged": true
+        },
+        "mechanism": "qualify does not require owner_id. The new direct c[\"owner_id\"] lookup precedes retained-byte rejection. RuntimeClient closes and re-raises; NativeTaskOwner handles only RuntimeUnavailable and LocalControl has no KeyError normalization. The latter conclusion is static call-chain inspection, not a new real UDS test."
+      },
+      "impact": "Denial remains pre-effect: no lease extension or downstream initialization. However the private malformed-input path leaks an implementation exception instead of the expected finite normalized refusal; this violates the explicitly retained normalization criterion. No external attacker wire control or unauthorized execution is claimed.",
+      "minimal_remedy": "Use the existing strict UUID validator on c.get(\"owner_id\") (or an equivalent existing domain-error presence guard) before lookup. No full duplicate schema or native adapter import is needed. Retain the missing-field v5/v6 regression, no-write/no-exchange/client-close checks, and authentic positives.",
+      "required_recheck": "Minimal fix plus focused SOURCE regression/re-review on exact changed bytes; no reason to rerun unchanged Stop/8s/178-test coverage."
+    }
+  ],
+  "provenance_and_order": [
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py:272-323",
+      "result": "Actual caller constructs authority from current owner/command; prepare and dispatch run inside native_preparation_commit. The transaction context exits before runtime.managed, so the new readback sees committed intent/receipt; no circular grant prerequisite."
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test.py:186-468",
+      "result": "prepare is the sole context/material producer found. It reads existing qualified source, constructs context/seven records/material itself, validates encoded bounds, stores and reads back records, then command_complete binds owner/identity/operation/request/result refs in the same transaction."
+    },
+    {
+      "path": "api/src/omnis/modules/tasks/managed_store.py:73-102,146-203,229-255; migrations/0011_managed_tasks.py:13-25",
+      "result": "Owned retrieval checks actual storage owner/run, strict refs and envelope digest; command_receipt is owner/command scoped with exactly one result. Storage records have an immutable update/delete/truncate trigger. SOURCE inspection, not physical PG proof."
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py:211-246",
+      "result": "Strict authority validates exact four fields and UUID/int types before comparing locked instance/owner/epoch/generation. Retained context plus receipt owner/command/operation/context ref are bound; exact canonical reconstruction equality rejects additional fields and bool/int substitutions. No byte-comparison waiver or BoolOwner exception."
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test.py:470-514",
+      "result": "dispatch only reads retained graph/get material, qualifies and optionally accepts a retained native-turn. It performs no persistence, source compilation/evaluation, provider/native call or runtime-authority recursion; rootless ManagedAdmission is sufficient for this method."
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py:246-268",
+      "result": "Original owner liveness is rechecked after retained reads, then lease UPDATE occurs; original lease checks/fence remain after UPDATE. Independent clock advance during graph read denied LEASE_LOST with no UPDATE in the initial two-pass custom run."
+    }
+  ],
+  "executions": [
+    {
+      "id": "runtime-regression",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10safe-recheck PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=no'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10safe-recheck/tests'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": [
+        "11 passed in 1.33s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/s10safe-recheck/runtime.log"
+    },
+    {
+      "id": "extra-initial",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10safe-recheck PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/s10safe-recheck/test_focused_safety.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10safe-recheck/extra'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": [
+        "2 passed in 2.98s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/s10safe-recheck/extra.log",
+      "limit": "Earlier probe bytes before adding missing-owner negative; covers both versions including receipt and expiry cuts. Not a PASS on final reproducer bytes."
+    },
+    {
+      "id": "missing-owner-red",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10safe-recheck PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/s10safe-recheck/test_focused_safety.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10safe-recheck/missing'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 1,
+      "result": [
+        "E   KeyError: 'owner_id'",
+        "E   KeyError: 'owner_id'",
+        "FAILED api::test_extra_boundary_and_original_expiry[5] - KeyError: 'owner_id'",
+        "FAILED api::test_extra_boundary_and_original_expiry[6] - KeyError: 'owner_id'",
+        "2 failed in 1.59s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/s10safe-recheck/missing.log"
+    },
+    {
+      "id": "missing-owner-red-final",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10safe-recheck PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/s10safe-recheck/test_focused_safety.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10safe-recheck/missing-final'\"'\"']))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 1,
+      "result": [
+        "E   KeyError: 'owner_id'",
+        "E   KeyError: 'owner_id'",
+        "FAILED api::test_extra_boundary_and_original_expiry[5] - KeyError: 'owner_id'",
+        "FAILED api::test_extra_boundary_and_original_expiry[6] - KeyError: 'owner_id'",
+        "2 failed in 1.70s"
+      ],
+      "log": "/home/kali/.hermes/cache/scratch/s10safe-recheck/missing-final.log",
+      "limit": "Final probe adds finally assertions: zero lease writes, zero exchange, exactly one close, graph unchanged even while KeyError propagates."
+    },
+    {
+      "id": "diff-check",
+      "command": "git diff --check 269b044c8aa520e8f18b63dd1ffabbe25ff491ca HEAD",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0
+    }
+  ],
+  "snapshot": {
+    "declared_files": 17,
+    "matched_author_hashes": 17,
+    "unchanged_since_original_review": 14,
+    "changed_files": 3,
+    "clean_after": true,
+    "files": [
+      {
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/src/omnis/modules/instance/service.py",
+        "sha256": "9207a249316fea99851bf7b96645b3792772cbfe3f8aabdd540f37ebb2453d71",
+        "matches_author": true,
+        "unchanged_from_oldreview": false
+      },
+      {
+        "path": "api/src/omnis/modules/runs/model_test_routes.py",
+        "sha256": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/native_tasks.py",
+        "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/src/omnis/supervisor/runtime_client.py",
+        "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/tests/test_instance.py",
+        "sha256": "4d197955dd8a40e42e143100d98045421da862b01b531f113cc8aa44601150cb",
+        "matches_author": true,
+        "unchanged_from_oldreview": false
+      },
+      {
+        "path": "api/tests/test_model_prepare_sync_source.py",
+        "sha256": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/tests/test_model_test_prepare_source.py",
+        "sha256": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/tests/test_model_test_source.py",
+        "sha256": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "api/tests/test_runtime_service.py",
+        "sha256": "62b57f7e9137d43896de2d90041b1432c876c4ad48857bd74ea04ff14ad4e328",
+        "matches_author": true,
+        "unchanged_from_oldreview": false
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "sha256": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+        "sha256": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "integrations/hermes/tests/peer_fixture.py",
+        "sha256": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_bootstrap_inventory.py",
+        "sha256": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_client.py",
+        "sha256": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      },
+      {
+        "path": "integrations/hermes/tests/test_startup_budget.py",
+        "sha256": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f",
+        "matches_author": true,
+        "unchanged_from_oldreview": true
+      }
+    ],
+    "read_dependencies": [
+      {
+        "path": "api/src/omnis/modules/runs/model_test.py",
+        "sha256": "bd8133048310c8bc85169de1ffe45f565b88f0c9b76e3343956f550730c8ebf6"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_contract.py",
+        "sha256": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc"
+      },
+      {
+        "path": "api/src/omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c"
+      },
+      {
+        "path": "api/src/omnis/modules/settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "api/src/omnis/modules/settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "api/src/omnis/migrations/versions/0011_managed_tasks.py",
+        "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10safe-recheck/extra.log",
+      "sha256": "d59d70990a256f2d6cd6acdfcd6d97dbc4b7f58c99ea7c2305ccd82440f63228",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10safe-recheck/missing-final.log",
+      "sha256": "7fc1bed1f0bd1c995ddf6e9cc912f0e4f3fb85bc7bd44d904a11a9791916a148",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10safe-recheck/missing.log",
+      "sha256": "343e3146326c262c5e3db5a7b618a59f0bf0d65ed98fa24b6797f50b555abb7b",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10safe-recheck/runtime.log",
+      "sha256": "0088996f65287d02c47b01b3b445140500e0cf78999b39b0f42c0928c345dc92",
+      "mode": "0o600"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10safe-recheck/test_focused_safety.py",
+      "sha256": "f2f66356fcc0f90ce4399f18996299b089bfc94187c373486d6624c4cc12a30a",
+      "mode": "0o600"
+    }
+  ],
+  "limits": [
+    "No PG/OCI/native process/provider/model/browser/network/operator root/profile/global/protected HTML effects.",
+    "SOURCE storage and clock/exchange are doubles; no real UDS rerun here. Original parent real-UDS RED is retained, not claimed as current GREEN.",
+    "NORM-S10-F01 oracle delta inspected for obvious safety interactions only; complementary reviewer owns it. No PG execution.",
+    "No Stop/slow8s/whole178/source canonical replay and no reopening separate catalog45af162.",
+    "No product edits, commits, integration or shared/global skill edits. Scratch-only probe, private logs and this report were created.",
+    "Initial probe pass is historical at its own bytes; final expanded malformed-input probe is FAIL.",
+    "Optional native validator clone/full duplicated schema is neither needed nor requested; the trusted producer comparison is substantively valid.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "cleanup": {
+    "tracked_edits": false,
+    "commits_created": false,
+    "scratch": "/home/kali/.hermes/cache/scratch/s10safe-recheck",
+    "source_pyc_count_after": 0,
+    "spawned_native_or_owned_uds_resources": false
+  },
+  "proposed_status_delta": {
+    "current": "STARTUP10 source fix implemented; F01 grant mechanism closed SOURCE; F02 normalization changes requested.",
+    "proof": "11 product tests pass; independent initial2 pass; final expanded2 fail. PG/installed NOT_RUN.",
+    "global": "P2/G02/P4a remain NOT_CLOSED; parent owns integration and next physical proof."
+  },
+  "reusable_note_for_parent": "After strict authority checks, use existing validators on optional lookup results for required raw fields: a direct dictionary subscript can bypass normalized refusal before authentic retained-byte comparison. No shared skill update is authorized in this read-only task."
+}

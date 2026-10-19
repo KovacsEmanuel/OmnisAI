@@ -1,0 +1,297 @@
+{
+  "status": "SOURCE_CANDIDATE_FOR_TWO_EXACT_REVIEWS; P2_NOT_CLOSED",
+  "base": "d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7",
+  "head": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "commits": [
+    "5914fc4",
+    "269b044"
+  ],
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "git_status": "clean",
+  "parent_docs": "b3641cc noted, not merged or modified",
+  "changed_paths": [
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564",
+      "size": 10482
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "6c3a6f73874d49c241f3c923954986a02ac41468cedfb83dc696e456703627f3",
+      "size": 41629
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test_routes.py",
+      "sha256": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630",
+      "size": 4285
+    },
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+      "size": 45970
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb",
+      "size": 35553
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+      "size": 14242
+    },
+    {
+      "path": "api/tests/test_instance.py",
+      "sha256": "3dc5c17016a8b647e03cd2441184ce1cd65b1b9c999a90c00a655fb1ac83937a",
+      "size": 9846
+    },
+    {
+      "path": "api/tests/test_model_prepare_sync_source.py",
+      "sha256": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6",
+      "size": 14158
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "sha256": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+      "size": 118102
+    },
+    {
+      "path": "api/tests/test_model_test_source.py",
+      "sha256": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+      "size": 7719
+    },
+    {
+      "path": "api/tests/test_runtime_service.py",
+      "sha256": "a907eeaccd8ed605ddb2f4c848de20fde64a1ba3d8cab281c784c088f22a9682",
+      "size": 6736
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4",
+      "size": 68338
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22",
+      "size": 19399
+    },
+    {
+      "path": "integrations/hermes/tests/peer_fixture.py",
+      "sha256": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2",
+      "size": 4577
+    },
+    {
+      "path": "integrations/hermes/tests/test_bootstrap_inventory.py",
+      "sha256": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387",
+      "size": 23552
+    },
+    {
+      "path": "integrations/hermes/tests/test_client.py",
+      "sha256": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67",
+      "size": 4197
+    },
+    {
+      "path": "integrations/hermes/tests/test_startup_budget.py",
+      "sha256": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f",
+      "size": 5731
+    }
+  ],
+  "ROOT_contracts": {
+    "scope": "Only existing explicit RuntimeClient.launch_inert and API-qualified v5/v6 task_model_initialize CREATE ask InstanceService for startup authority. Default/renew/settings/prepare/stage/release/status/SEND/RECEIVE retain ordinary grants. No wire field/type change; no autostart or provider connection added.",
+    "lease": "Current locked instance/owner/epoch/generation/Stop checks precede UPDATE. Startup expiry = original clock_timestamp +11s; monotonic deadline = original pre-clock-read monotonic +10s. After UPDATE, original LeaseRecord is checked against DB clock, Stop fence is checked, then original lease checked again. Expired original causes transaction rollback, never renewal from newly-written expiry. Ordinary grant still min4.5/remaining.",
+    "heartbeat": "GREATEST(existing expiry, DB-now+5s) preserves issued startup expiry, never adds to it. For ordinary live lease (at most now+5), result is same DB-now+5; after startup expiry horizon normal heartbeat settles back to5. Final original lease check rejects blocking UPDATE resurrection. Real-PG test collected only, no claim of executed DB proof.",
+    "host": "Host independently selects launch or fully validates v5/v6 CREATE in _grant; max10 only those scopes, otherwise max5 and ordinary managed max4.5. Full envelope/fence/capability validators remain. API uses existing qualify, not adapter imports. Host remains independent full native payload validator.",
+    "absolute_budget": "One unchanged deadline through management settings/auth read, management drain, launch, handshake and initialization; connected task timeout is deadline-relative. request_live captures original boot/epoch/generation/deadline, not reset after management drain. Handshake max10 with Host outer deadline; each ordinary handshake RPC still0.8 and final init min3.2/remaining.",
+    "stop": "RuntimeClient marks only held-stream startup active. drain during startup increments Stop serial and closes original stream, returns False/UNKNOWN rather than fake certified drain; Host existing connected helper cancels and joins in-flight launch/managed work on EOF. launch_inert now closes on BaseException like prepare/managed. No reconnect/retry/resend/new supervisor. Synthetic children reaped; outside PID1 final state honestly UNCERTAIN.",
+    "outer_waits": "Runtime exchange min(11, remaining+1), original 1s refusal margin. Shared owner wait19=4+(10+1)+4. Authenticated LocalControl entry-relative server20=19+1; control_task and provision HTTP-side client21=19+2. Ordinary4/2 and frame2.5/65536 unchanged; no model/Stop budget increase.",
+    "supervisor": "__main__ unchanged. Bounded11 DB lease covers its existing heartbeat -> quiesce -> stream-locked status -> ordinary renew sequence during launch. No second heartbeat owner or periodic regrant added."
+  },
+  "full_sizes": {
+    "pre_edit_reused": "documents/verification/p4a-model-prepare-evidence/web-test-input-measurement.json complete v6 payload27590/native27704/max-width Host27909/ControlRequest667; accepted unchanged input evidence reused before edits.",
+    "current_v5": {
+      "payload": 26314,
+      "native_frame": 26428,
+      "host_frame": 26593,
+      "control_request": 669
+    },
+    "current_v6": {
+      "payload": 27590,
+      "native_frame": 27704,
+      "host_frame": 27869,
+      "control_request": 667
+    },
+    "max_width_v6_host": 27909,
+    "same_width_deadline": "Actual complete Host envelope with deadline reduced by5.5s has byte-identical total size; unchanged fields. Caps payload32768/native65536/Host65536/control4096 retained.",
+    "evidence": "api-final.log; current complete producer/fixture source records retained, no shortened/stub graph."
+  },
+  "executed": [
+    {
+      "log": "red-launch.log",
+      "exit": 1,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'startup_eight'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "green-launch.log",
+      "exit": 0,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "managed.log",
+      "exit": 1,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "regressions.log",
+      "exit": 1,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'integrations/hermes/tests/test_client.py'\"'\"', '\"'\"'integrations/hermes/tests/test_bootstrap_inventory.py'\"'\"', '\"'\"'integrations/hermes/tests/test_protocol.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "api-regressions.log",
+      "exit": 1,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "adapter-regressions.log",
+      "exit": 0,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'integrations/hermes/tests/test_client.py'\"'\"', '\"'\"'integrations/hermes/tests/test_bootstrap_inventory.py'\"'\"', '\"'\"'integrations/hermes/tests/test_protocol.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "api-final.log",
+      "exit": 1,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"', '\"'\"'api/tests/test_native_task_client.py'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "adapter-final.log",
+      "exit": 0,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'integrations/hermes/src'\"'\"', '\"'\"'integrations/hermes/tests'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'integrations/hermes/tests/test_startup_budget.py'\"'\"', '\"'\"'integrations/hermes/tests/test_client.py'\"'\"', '\"'\"'integrations/hermes/tests/test_bootstrap_inventory.py'\"'\"', '\"'\"'integrations/hermes/tests/test_protocol.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "stock-final.log",
+      "exit": 0,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'"
+    },
+    {
+      "log": "pg-collection.log",
+      "exit": 0,
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10-ukz PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"', '\"'\"'api/tests'\"'\"', '\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_instance.py::test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg'\"'\"', '\"'\"'--collect-only'\"'\"', '\"'\"'-q'\"'\"']))'"
+    }
+  ],
+  "quality": {
+    "ruff": "17 changed files check/format PASS with --config api/pyproject.toml; later PG-only2line edit check/format1 PASS",
+    "mypy": "mypy-final.log: no issues in30 source files (before final PG elapsed assertion-only test edit)",
+    "diff": "git diff --check and cached diff --check exit0",
+    "PG_collection": "1 exact test collected; re-collected after elapsed-control strengthening, exit0"
+  },
+  "logs": {
+    "api-final.log": {
+      "sha256": "d4f00b94fa7484503f1690459069cda7812956be78c58e0deca34c68b74a43c6",
+      "summary": [
+        "4 failed, 239 passed in 122.44s (0:02:02)"
+      ]
+    },
+    "pg-collection.log": {
+      "sha256": "bf9f5e815291877f13aeffd7e9b893f94f05b4f6c43273a2cff5d6460f932313",
+      "summary": [
+        "1 test collected in 0.16s"
+      ]
+    },
+    "api-regressions.log": {
+      "sha256": "1f38da64d8788cf5fea6dc5b58314549fd2f551b47a0e14b6a37a2039f2b5794",
+      "summary": [
+        "8 failed, 235 passed in 125.49s (0:02:05)"
+      ]
+    },
+    "admission-doc-tests.log": {
+      "sha256": "aba5f85f9d4a4426f5c76bacd2b0a386610d8c7f62ac893bf305647752639b49",
+      "summary": []
+    },
+    "adapter-regressions.log": {
+      "sha256": "357f8322cf1b27427245edcb9b1494bace466b6894755842f09929c1de702a3b",
+      "summary": [
+        "107 passed in 26.28s"
+      ]
+    },
+    "red-launch.log": {
+      "sha256": "2b21e9f495ce7a4051f7178529a4a5791ca730c9749b66262850e9c70936e337",
+      "summary": [
+        "1 failed, 6 deselected in 1.24s"
+      ]
+    },
+    "mypy.log": {
+      "sha256": "4c4a1f687213d361065f9094b27b15c087d3754121b66f0e8580a9c699ab6426",
+      "summary": [
+        "Success: no issues found in 29 source files"
+      ]
+    },
+    "managed.log": {
+      "sha256": "eb671a47ee550d321ecfb180eb0a3a18b9f6e172adb5606b2c5283e0c4095985",
+      "summary": [
+        "2 failed, 14 passed in 75.12s (0:01:15)"
+      ]
+    },
+    "regressions.log": {
+      "sha256": "4e59845aa46893cdf1ef8a4246650c4b3ed8ed54dd4cae65db6e10fb0dd627f5",
+      "summary": [
+        "137 failed, 213 passed in 155.61s (0:02:35)"
+      ]
+    },
+    "admission-render.log": {
+      "sha256": "da395fcb3a80420a2759a91399d972bef080a5a922cf922b48f60ef752928572",
+      "summary": []
+    },
+    "admission-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": []
+    },
+    "stock-final.log": {
+      "sha256": "e0a8a2c71107924f30d2e00d4a06d979f42aa6a564257642eb1aefbf572e2ae4",
+      "summary": [
+        "12 passed in 11.26s"
+      ]
+    },
+    "mypy-final.log": {
+      "sha256": "b1e54a4dabc8d720118d6074a4c299c7b40c262f2e4f5d8f801e29a5cdfe35a5",
+      "summary": [
+        "Success: no issues found in 30 source files"
+      ]
+    },
+    "green-launch.log": {
+      "sha256": "f6a65e6526c91b9d21e426b16894f75bf0dfeca13b3f902a5c919ad88f22eec7",
+      "summary": [
+        "9 passed in 22.84s"
+      ]
+    },
+    "adapter-final.log": {
+      "sha256": "3ee39a2ccb018429570eaa3c3e9bf7da38a1316da923a654c185a4ee55848e11",
+      "summary": [
+        "115 passed in 25.27s"
+      ]
+    }
+  },
+  "test_accounting": "Adapter final115PASS. API final239PASS/4FAIL (only stock AST extractor), then exact affected parameterized test12PASS after extractor correction. Across these runs all243 selected API cases pass at their affected unchanged/product bytes; NOT claiming one entirely green final API run. Product code unchanged since api-final/adapter-final. Final second commit only strengthens unexecuted PG test.",
+  "failures_preserved": [
+    "RED real UDS eight-second launch fails RuntimeUnavailable under old Host grant ceiling.",
+    "First managed run14PASS/2FAIL because v6 source assertion incorrectly expected HOLD rather than existing AWAITING_SEND; corrected to protocol-specific existing contract, no product output change.",
+    "Mixed API/adapter collection imported adapter test_native_preparation instead of API namesake; split suites, no weakening/skip.",
+    "Broad API run exposed stock-loop AST fixture stale after preserved0939d33 diagnostics. Initial correction duplicated heartbeat (24 vs12); final extractor replaces original heartbeat with exact stock heartbeat/quiesce/status/renew body. Targeted12PASS. No supervisor/idle diagnostic product edits.",
+    "Legacy over-managed4.8s negative updated to10.8s for now-authorized CREATE; read-expired/stopped/fenced still require zero launch/call, deadline expectation reflects original request deadline installed before management work.",
+    "Initial ruff invocation without project config reported baseline-import/style errors; correct --config api/pyproject.toml check passes. No baseline style rules changed."
+  ],
+  "limits": [
+    "PG/OCI/installed native Hermes/provider/auth/model/targets NOT_RUN",
+    "No live .omnis-p2-* profiles, quarantined recovery, native upstream/pin, CLI owner, dependencies, UI, migrations, parent docs or protected HTML modified",
+    "Model one-call300s remains unconsumed",
+    "Simulated peer/storage/model reply are explicitly SOURCE, not receipts from actual Hermes",
+    "No final canonical run, no independent review or P2 closure claimed"
+  ],
+  "next_parent_consumer_recipe": [
+    "Review exact17 SHA payloads at head with two complementary reviewers; adjudicate source producer/Host scope/lease rollback/Stop and outer margins.",
+    "Execute added test_instance.py::test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg only through existing owned disposable-PG runner after parent admission; its real trigger sleeps300ms across original200ms expiry, asserts elapsed and unchanged lease after rollback. Check original expiry is live before entering operation; fail remains fail if overloaded scheduling misses it.",
+    "Build/install exact reviewed API+adapter bytes via existing owner; no upstream/pin change. Parent owns all installed permissions/data preservation/readback.",
+    "Use fresh existing explicit provision -> launch_inert on same native fixed entry/NATIVE_ENV as original failure; record one grant and absolute READY under10. No ordinary boot or model autostart. Immediately use existing ordinary heartbeat/renew; actual NativePreparation consumer follows existing path, no model/test dispatch.",
+    "Exercise validated managed CREATE sibling under normal settled management sequence using existing admitted no-inference preparation fixture. Preserve one absolute deadline through management/drain/startup and original fence; do not resend unknown outcomes.",
+    "Exercise actual installed Stop during slow startup; require either existing certified drain or honest UNKNOWN, no child or authorized effects remaining. Separate PID1 installed cleanup from SOURCE UNCERTAIN seam.",
+    "Existing H04 observer historically only measured ready_timeout<=5; do not treat its old cap as ten-second measurement or use it to silently widen product. Parent must choose existing applicable observation path and preserve historical FAIL/UNKNOWN."
+  ],
+  "reusable_lesson_for_parent_skill": "Run API and adapter pytest trees in separate interpreters when fixture module basenames collide. Extract stock tick AST by the actual heartbeat call inside diagnostic try, replacing (not duplicating) the harness heartbeat; assert exact renewal count. No global skill edits made in this source-only scope."
+}

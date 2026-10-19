@@ -1,0 +1,247 @@
+{
+  "task": "Minimal fixes STARTUP10-SAFE-F01 and NORM-S10-F01",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "base": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "normative": "b3641ccf9b2fa56c90678dd76235487272e18f93",
+  "head": "61704eee5cddc6702528bb36c17f2016ee2d2019",
+  "commits": [
+    {
+      "id": "97b11d7517fbdb1e414d7ea9258976dabee91e19",
+      "kind": "PRODUCT_AND_REGRESSION",
+      "files": [
+        "api/src/omnis/modules/instance/service.py",
+        "api/tests/test_runtime_service.py"
+      ]
+    },
+    {
+      "id": "61704eee5cddc6702528bb36c17f2016ee2d2019",
+      "kind": "ORACLE_ONLY",
+      "files": [
+        "api/tests/test_instance.py"
+      ]
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "STARTUP10-SAFE-F01",
+      "status": "FIXED_SOURCE_PENDING_INDEPENDENT_REVIEW_AND_PG",
+      "remedy": "Under existing instance/lease lock: strict managed_contract.authority bound to current instance_id/owner/epoch/generation; owned retained context exact canonical bytes; producer command receipt identity/operation/context ref; existing ModelTest.dispatch reconstructs all seven records and material; exact canonical equality before UPDATE, with owner liveness rechecked after retained reads. No new storage/owner/schema/native import or generic validator.",
+      "rationale": "Uses the expressly allowed authentic retained-producer alternative instead of copying native validation. An input selfdigest or reseal cannot manufacture stored context/producer receipt/material. Retained schema provenance is the existing trusted prepare writer; native Host validation is unchanged defense in depth.",
+      "caller_inventory": [
+        "ModelTest.prepare qualifies then stores context/seven records/model-test-material/command receipt",
+        "ModelTest.dispatch reconstructs only retained material, without source evaluation",
+        "ModelTest.accept/persist/reserve_execution qualify/read back original material; unchanged",
+        "RuntimeClient.managed prequalifies and invokes real InstanceService before exchange; unchanged",
+        "InstanceService.runtime_authority is the sole startup lease writer; corrected there"
+      ],
+      "coverage": "Authentic v5/v6 initial and restored positives grant10/lease11, 12 input mutations per version plus absent producer receipt refuse without UPDATE or retained-graph mutation. Final positive passes real RuntimeClient.managed and real service, exchange is a double. Malformed bool epoch/missing authority/extra field/material empty and four foreign authority fields covered."
+    },
+    {
+      "id": "NORM-S10-F01",
+      "status": "ORACLE_FIXED_SOURCE_CALIBRATED_PHYSICAL_PG_NOT_RUN",
+      "remedy": "Existing per-test DB now has a sequence increment in BEFORE UPDATE trigger. After LEASE_LOST require (last_value,is_called)==(1,true), surviving rollback, and original expiry unchanged. Fresh parameterized startup and heartbeat cases both cross original expiry within delayed UPDATE. Prior grant10/lease11/default4.5/5/heartbeat nonextension assertions retained.",
+      "coverage": "Old exact assertion block accepted pre-UPDATE rejection; exact new denial/readback blocks reject zero entries, two entries and changed expiry, accept exactly one rollback entry in both operation branches. Calibration is SOURCE, not PostgreSQL evidence."
+    }
+  ],
+  "executions": [
+    {
+      "id": "product-red",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10fix PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'authenticates_complete'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10fix/red'\"'\"']))'",
+      "exit": 1,
+      "result": "2 failed, 9 deselected in 1.46s: DID NOT RAISE on boolean_epoch, both v5/v6",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/red.log"
+    },
+    {
+      "id": "initial-green",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10fix PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10fix/green'\"'\"']))'",
+      "exit": 0,
+      "result": "11 passed in 1.33s; before final regression additions",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/green.log"
+    },
+    {
+      "id": "affected-final",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10fix PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10fix/affected'\"'\"']))'",
+      "exit": 0,
+      "result": "49 passed in 69.40s on final product/test bytes",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/affected.log"
+    },
+    {
+      "id": "sizes-final",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10fix PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_model_prepare_sync_source.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'fast'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'-s'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/s10fix/sizes'\"'\"']))'",
+      "exit": 0,
+      "result": "2 passed,14 deselected in7.53s; repeated fast controls only to retain exact frame metrics",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/sizes.log"
+    },
+    {
+      "id": "old-oracle",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py",
+      "exit": 0,
+      "result": "PASSED with update_calls0, before oracle edit; confirms finding",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/oracle-old.log"
+    },
+    {
+      "id": "fixed-oracle",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/s10fix/oracle-fixed.py",
+      "exit": 0,
+      "result": "8 exact-assertion calibrations; early denial not accepted for either operation",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/oracle-fixed.log"
+    },
+    {
+      "id": "pg-collection",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10fix PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in ('\"'\"'api/src'\"'\"','\"'\"'api/tests'\"'\"','\"'\"'integrations/hermes/src'\"'\"')]; raise SystemExit(pytest.main(['\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'api/tests/test_instance.py'\"'\"', '\"'\"'-k'\"'\"', '\"'\"'startup_lease'\"'\"', '\"'\"'--collect-only'\"'\"', '\"'\"'-q'\"'\"']))'",
+      "exit": 0,
+      "result": "2/4 tests collected (2 deselected) in0.12s. No fixtures executed.",
+      "log": "/home/kali/.hermes/cache/scratch/s10fix/pg-collect.log"
+    },
+    {
+      "id": "quality",
+      "commands": [
+        "/home/kali/OmnisAI/api/.venv/bin/ruff check --config api/pyproject.toml api/src/omnis/modules/instance/service.py api/tests/test_runtime_service.py api/tests/test_instance.py",
+        "/home/kali/OmnisAI/api/.venv/bin/ruff format --check --config api/pyproject.toml api/src/omnis/modules/instance/service.py api/tests/test_runtime_service.py api/tests/test_instance.py",
+        "/home/kali/OmnisAI/api/.venv/bin/mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/s10fix/mypy api/src/omnis/modules/instance/service.py api/tests/test_runtime_service.py",
+        "/home/kali/OmnisAI/api/.venv/bin/mypy --config-file api/pyproject.toml --cache-dir /home/kali/.hermes/cache/scratch/s10fix/mypy api/tests/test_instance.py",
+        "git diff --check 269b044c8aa520e8f18b63dd1ffabbe25ff491ca HEAD"
+      ],
+      "exit": 0,
+      "result": "Ruff check/format, strict mypy and diff check all pass"
+    }
+  ],
+  "payload_sizes_bytes": {
+    "v5": {
+      "payload": 26314,
+      "host": 26593,
+      "native": 26428,
+      "control": 669
+    },
+    "v6": {
+      "payload": 27590,
+      "host": 27869,
+      "native": 27704,
+      "control": 667
+    },
+    "caps": "payload32768;frames65536 unchanged"
+  },
+  "snapshot": [
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564"
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "9207a249316fea99851bf7b96645b3792772cbfe3f8aabdd540f37ebb2453d71"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test_routes.py",
+      "sha256": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630"
+    },
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5"
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb"
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502"
+    },
+    {
+      "path": "api/tests/test_instance.py",
+      "sha256": "4d197955dd8a40e42e143100d98045421da862b01b531f113cc8aa44601150cb"
+    },
+    {
+      "path": "api/tests/test_model_prepare_sync_source.py",
+      "sha256": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6"
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "sha256": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6"
+    },
+    {
+      "path": "api/tests/test_model_test_source.py",
+      "sha256": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e"
+    },
+    {
+      "path": "api/tests/test_runtime_service.py",
+      "sha256": "62b57f7e9137d43896de2d90041b1432c876c4ad48857bd74ea04ff14ad4e328"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22"
+    },
+    {
+      "path": "integrations/hermes/tests/peer_fixture.py",
+      "sha256": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2"
+    },
+    {
+      "path": "integrations/hermes/tests/test_bootstrap_inventory.py",
+      "sha256": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387"
+    },
+    {
+      "path": "integrations/hermes/tests/test_client.py",
+      "sha256": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67"
+    },
+    {
+      "path": "integrations/hermes/tests/test_startup_budget.py",
+      "sha256": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/affected.log",
+      "sha256": "2df31ce1d37cc51d2d263db15d7c00813dedc23da459f6a70198bc0231311145"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/green.log",
+      "sha256": "0088996f65287d02c47b01b3b445140500e0cf78999b39b0f42c0928c345dc92"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/mypy-pg.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/mypy.log",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/oracle-fixed.log",
+      "sha256": "824e2c08e96419ddb005b5c9e606b6e7f4aaa19be81161c0e945efc69fb4d8ac"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/oracle-old.log",
+      "sha256": "ad2a6dbc04f156fe19b895b865f45b7cb3f64a55cd7b61410cf40c80e6f09aaf"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/pg-collect.log",
+      "sha256": "89448fdeb7e05d3a854a28d78446ad62c2d75014a336608794486167db6cf47a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/red.log",
+      "sha256": "17e93b4966629754c594702b9b76bc96a36a42f2518b2e0cd3b19e42309e9aec"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/s10fix/sizes.log",
+      "sha256": "20f08b21c136683770b2052c2d76595bcfc920b10482839996b05023a346c4e7"
+    }
+  ],
+  "limits": [
+    "No PostgreSQL/OCI/installed native/provider/model/browser/UI9/operator profile/global/reset/push/protected HTML effects.",
+    "Synthetic SOURCE storage/lease/exchange/model replies are doubles; real UDS Host and finite synthetic peer children only in existing sync tests.",
+    "Physical PG rollback/frontier proof and installed-consumer QA remain parent tasks after focused independent review.",
+    "Unchanged115 adapter suite not rerun; no full API/canonical rerun claimed. Parent previously retained243PASS at269b044; final integration gate still required.",
+    "Other author owns model_test_models.py/startup-free tests; neither touched.",
+    "Retained authentic producer provenance is reused; no duplicate universal native-schema validator introduced.",
+    "No independent review performed by this author; parent should re-review exact HEAD and execute two PG parameters."
+  ],
+  "issues_preserved": [
+    "Product RED2FAIL retained. Old false-green oracle retained.",
+    "Scratch oracle-fixed.py initially had unmatched parenthesis caught by write lint; corrected before execution; no product failure hidden."
+  ],
+  "cleanup": "Worktree clean after two granular local commits. Existing SOURCE tests assert owned child reaped and private endpoints absent. No installed effects initiated.",
+  "reusable_skill_note_for_parent": "Authenticate startup DATA using strict current locked authority plus exact retained producer bytes and operation receipt before lease writes. For rollback expiry tests, elapsed duration is not UPDATE-entry evidence: use per-fixture sequence nextval and original-expiry readback. No shared/global skill edits under this delegated file scope."
+}

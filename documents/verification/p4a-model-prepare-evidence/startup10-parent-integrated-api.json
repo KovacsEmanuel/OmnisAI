@@ -1,0 +1,16 @@
+{
+  "exit": 0,
+  "summary": [
+    "253 passed in 129.93s (0:02:09)"
+  ],
+  "scope": "eight affected API source test files after integration; not full canonical",
+  "command": [
+    "/home/kali/OmnisAI/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import sys;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")];import pytest;raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_runtime_service.py', 'api/tests/test_model_prepare_sync_source.py', 'api/tests/test_model_test_source.py', 'api/tests/test_native_task_client.py', 'api/tests/test_runtime_supervisor.py', 'api/tests/test_model_test_prepare_source.py', 'api/tests/test_native_preparation_startup.py', 'api/tests/test_model_test_operation.py', '-q', '--tb=short', '--basetemp', '/home/kali/.hermes/cache/scratch/s10i-2uyt__ns/p']))"
+  ],
+  "head": "f2dd28f",
+  "log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/parent-integrated-api.log"
+}

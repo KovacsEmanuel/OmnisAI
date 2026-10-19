@@ -1,0 +1,19 @@
+{
+  "family": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "container_absent": true,
+  "network_absent": true,
+  "socket_absent": true,
+  "data_retained": true,
+  "test_summary": [
+    "4 passed in 9.98s"
+  ],
+  "daemon_matches": true,
+  "source_unchanged": true,
+  "project": "omnis-p01-f2d4eee111204bbfafb9d9978f9c43d4",
+  "container_id": "8481371714f6dfa6c1499762405c6354732a0f08ce0ba81b146137ae2aefbc2b",
+  "scope": "4 real PG tests: bounded startup lease + expiry-in-UPDATE startup/heartbeat + original lifecycle controls"
+}

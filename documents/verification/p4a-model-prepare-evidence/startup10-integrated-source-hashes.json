@@ -1,0 +1,24 @@
+{
+  "head": "f2dd28f",
+  "files": {
+    "api/src/omnis/modules/instance/schemas.py": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564",
+    "api/src/omnis/modules/instance/service.py": "b7b236e5cda6c05cad476df482bbca25a1fe69467d1384886f42f7c58b865aad",
+    "api/src/omnis/modules/runs/model_test_routes.py": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630",
+    "api/src/omnis/supervisor/native_tasks.py": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+    "api/src/omnis/supervisor/runtime_client.py": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb",
+    "api/src/omnis/transport/local_control.py": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+    "api/tests/test_instance.py": "4d197955dd8a40e42e143100d98045421da862b01b531f113cc8aa44601150cb",
+    "api/tests/test_model_prepare_sync_source.py": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6",
+    "api/tests/test_model_test_prepare_source.py": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+    "api/tests/test_model_test_source.py": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+    "api/tests/test_runtime_service.py": "a09ac395c286e83c57c9cf3b53af5205cd7f3cc2e2aee7150c1812a30d2ba19d",
+    "integrations/hermes/src/omnis_hermes/runtime_host.py": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4",
+    "integrations/hermes/src/omnis_hermes/runtime_protocol.py": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22",
+    "integrations/hermes/tests/peer_fixture.py": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2",
+    "integrations/hermes/tests/test_bootstrap_inventory.py": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387",
+    "integrations/hermes/tests/test_client.py": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67",
+    "integrations/hermes/tests/test_startup_budget.py": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f",
+    "api/src/omnis/modules/runs/model_test_models.py": "a368f01d7e56f4333bc9c3489cf2843864e225f059bfcd59df67da36da38df2e",
+    "api/tests/test_model_test_operation.py": "7da7d1a1c8ffe18f3c2574334f377b78b92c92732d1e3bf7586c6091f9fec69f"
+  }
+}

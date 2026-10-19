@@ -1,0 +1,9 @@
+{
+  "exit": 1,
+  "summary": [
+    "2 failed in 1.79s"
+  ],
+  "confirmed_missing_owner_keyerror": true,
+  "snapshot": "61704eee5cddc6702528bb36c17f2016ee2d2019",
+  "log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/parent-f02-red.log"
+}

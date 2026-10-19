@@ -1,0 +1,425 @@
+{
+  "status": "IMPLEMENTED_SOURCE_VERIFIED_PENDING_PARENT_REVIEW",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix",
+  "base": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "commit": "060b754be18850f7fbbe5aa3bf711d98c3444f20",
+  "branch": "detached HEAD; no main writes or push",
+  "scope": {
+    "changed": [
+      "api/src/omnis/modules/runs/model_test_models.py",
+      "api/tests/test_model_test_operation.py"
+    ],
+    "unchanged_startup_guard": "api/tests/test_native_preparation_startup.py",
+    "excluded": "Frozen /work and its 17-file review scope; native/CLI/web/build/protected HTML/ponytail/global/profiles"
+  },
+  "cause": "api/core.readiness -> transport.control_probe -> instance.schemas -> model_test_models imported candidate_catalog at module scope; supervisor/local_control reaches the same chain. Catalog module computes COMPILER_REVISION/EVALUATOR_REVISION by source fingerprinting during import.",
+  "fix": "Move the same valid_ref import into the explicit provision branch, after the preexisting private-provisioning operation_id denial. No validator copy/rewrite or contract change.",
+  "caller_trace": {
+    "search": "repository-wide model_test_models occurrences and valid_ref Python occurrences before editing",
+    "external_valid_ref_alias_users": [],
+    "callers": [
+      "api/src/omnis/transport/local_control.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/src/omnis/modules/runs/model_test_operation.py",
+      "api/src/omnis/modules/runs/model_test_routes.py",
+      "api/src/omnis/modules/runs/model_test_source.py",
+      "api/src/omnis/modules/instance/schemas.py"
+    ],
+    "impact": "Callers import model classes only; fixtures/config/exports need no changes."
+  },
+  "python": "3.13.15",
+  "test_environment": {
+    "PATH": "/usr/bin:/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/cf269b",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+  },
+  "explicit_source_paths": [
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src"
+  ],
+  "baseline_hashes": {
+    "api/src/omnis/modules/runs/model_test_models.py": "19fd88202cf0f0b7148a7daefdb286b7fd87384fa2801a88af5b13f094b648d2",
+    "api/tests/test_model_test_operation.py": "7af8e3337a88faf03a0761b781bf892fd2a1069e4698eb0a2d0661d00c2566c5",
+    "api/tests/test_model_test_prepare_source.py": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+    "api/tests/test_model_test_routes.py": "f5d3b9e57d1b9832e7fd3c90178d9fec998721dd302c9a5ada95bae4d901cde5",
+    "api/tests/test_model_test_source.py": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+    "api/tests/test_native_preparation_startup.py": "696e8ed08c6d378f2b1ed2e9592b0f0847fff7ea86e2e5f7f6d12033f34e507e"
+  },
+  "red_hashes": {
+    "api/src/omnis/modules/runs/model_test_models.py": "19fd88202cf0f0b7148a7daefdb286b7fd87384fa2801a88af5b13f094b648d2",
+    "api/tests/test_model_test_operation.py": "7da7d1a1c8ffe18f3c2574334f377b78b92c92732d1e3bf7586c6091f9fec69f",
+    "api/tests/test_native_preparation_startup.py": "696e8ed08c6d378f2b1ed2e9592b0f0847fff7ea86e2e5f7f6d12033f34e507e"
+  },
+  "green_hashes": {
+    "api/pyproject.toml": "4b66abf6cf25ddae264fce4f3a4c109fb3e89db636ac6705676b6169267adead",
+    "api/src/omnis/modules/runs/model_test_models.py": "a368f01d7e56f4333bc9c3489cf2843864e225f059bfcd59df67da36da38df2e",
+    "api/tests/test_contract_export.py": "4fa1c89322b7650b19ab67712a6c0320bc6281ada3082b26ccd49210ac7f809c",
+    "api/tests/test_model_test_operation.py": "7da7d1a1c8ffe18f3c2574334f377b78b92c92732d1e3bf7586c6091f9fec69f",
+    "api/tests/test_model_test_prepare_source.py": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+    "api/tests/test_model_test_routes.py": "f5d3b9e57d1b9832e7fd3c90178d9fec998721dd302c9a5ada95bae4d901cde5",
+    "api/tests/test_model_test_source.py": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+    "api/tests/test_native_preparation_startup.py": "696e8ed08c6d378f2b1ed2e9592b0f0847fff7ea86e2e5f7f6d12033f34e507e",
+    "api/tests/test_openapi.py": "6f9ab6494081d538d522cd326ffafa0300e853cc9bc2918038694aed82f55e56"
+  },
+  "red": {
+    "original_startup": "2 failed, 1 passed; exit 1; expected forbidden candidate_catalog import in API/supervisor; one config warning because first command omitted asyncio plugin",
+    "log": "/home/kali/.hermes/cache/scratch/cf269b/red.log",
+    "startup_and_new_provision_guard": "3 failed, 1 passed; exit 1; two startup imports plus spy proving module-level binding (zero observed calls); no warning"
+  },
+  "green": {
+    "affected_tests": "167 passed in 54.18s; exit0; startup 3 parameter cases and four ModelTest modules",
+    "openapi_tests": "8 passed in 2.11s; exit0",
+    "quality": "Ruff check and format, strict mypy all exit0 using unchanged api/pyproject.toml on model_test_models.py, operation test and unchanged startup guard",
+    "provision": "Real original valid_ref wrapped for observation; valid execution-selection accepted; malformed revision=True rejected INVALID_REQUEST; valid ref of wrong kind rejected Published selection required",
+    "startup": "Fresh -I -B source child refuses candidate_catalog import; create_app().routes and API/runtime_client/supervisor imports pass with original guard unchanged"
+  },
+  "schema": {
+    "before_after_identical": true,
+    "two_fresh_after_exports_identical": true,
+    "combined_openapi_and_three_model_schemas_sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97",
+    "committed_export_check_exit": 0
+  },
+  "commands": [
+    {
+      "label": "red-with-provision",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', 'api/tests/test_native_preparation_startup.py', 'api/tests/test_model_test_operation.py::test_provision_uses_catalog_validator', '-q', '--tb=short']))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_preparation_startup.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py::test_provision_uses_catalog_validator'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'",
+      "exit_code": 1,
+      "elapsed_seconds": 2.68,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/red-with-provision.log",
+      "log_sha256": "365bf2f577d988bd85570deb13077fe6cd4002f5461a15fe6a0bc8c994ca5794"
+    },
+    {
+      "label": "schema-before",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))'",
+      "exit_code": 0,
+      "elapsed_seconds": 1.385,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/schema-before.log",
+      "log_sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97"
+    },
+    {
+      "label": "green-affected",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', 'api/tests/test_native_preparation_startup.py', 'api/tests/test_model_test_operation.py', 'api/tests/test_model_test_source.py', 'api/tests/test_model_test_prepare_source.py', 'api/tests/test_model_test_routes.py', '-q', '--tb=short', '--basetemp=/home/kali/.hermes/cache/scratch/cf269b/pytest']))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_native_preparation_startup.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"', '\"'\"'api/tests/test_model_test_source.py'\"'\"', '\"'\"'api/tests/test_model_test_prepare_source.py'\"'\"', '\"'\"'api/tests/test_model_test_routes.py'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'--basetemp=/home/kali/.hermes/cache/scratch/cf269b/pytest'\"'\"']))'",
+      "exit_code": 0,
+      "elapsed_seconds": 57.329,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/green-affected.log",
+      "log_sha256": "eb34da33d49da7dfbd72bd94a45349dcb64c4ab0c7f404e12c89a7c5e306aa1b"
+    },
+    {
+      "label": "ruff-format",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "--no-cache",
+        "api/src/omnis/modules/runs/model_test_models.py",
+        "api/tests/test_model_test_operation.py",
+        "api/tests/test_native_preparation_startup.py"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check --no-cache api/src/omnis/modules/runs/model_test_models.py api/tests/test_model_test_operation.py api/tests/test_native_preparation_startup.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/ruff-format.log",
+      "log_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "label": "ruff-check",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "--no-cache",
+        "api/src/omnis/modules/runs/model_test_models.py",
+        "api/tests/test_model_test_operation.py",
+        "api/tests/test_native_preparation_startup.py"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix --no-cache api/src/omnis/modules/runs/model_test_models.py api/tests/test_model_test_operation.py api/tests/test_native_preparation_startup.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/ruff-check.log",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "label": "mypy",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--cache-dir",
+        "/home/kali/.hermes/cache/scratch/cf269b/mypy",
+        "api/src/omnis/modules/runs/model_test_models.py",
+        "api/tests/test_model_test_operation.py",
+        "api/tests/test_native_preparation_startup.py"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/cf269b/mypy api/src/omnis/modules/runs/model_test_models.py api/tests/test_model_test_operation.py api/tests/test_native_preparation_startup.py",
+      "exit_code": 0,
+      "elapsed_seconds": 9.511,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/mypy.log",
+      "log_sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+    },
+    {
+      "label": "schema-after-1",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))'",
+      "exit_code": 0,
+      "elapsed_seconds": 1.012,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/schema-after-1.log",
+      "log_sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97"
+    },
+    {
+      "label": "schema-after-2",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import json; from omnis.api import create_app; from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest, ModelTestView; print(json.dumps({\"openapi\":create_app().openapi(),\"models\": [c.model_json_schema() for c in (ModelTestControl,ModelTestRequest,ModelTestView)]}, sort_keys=True,separators=(\",\",\":\")))'",
+      "exit_code": 0,
+      "elapsed_seconds": 1.003,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/schema-after-2.log",
+      "log_sha256": "409f759396e61453b5c98a568f8618d57f3f1c987b2545b1262ed39221123b97"
+    },
+    {
+      "label": "openapi-tests",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', 'api/tests/test_openapi.py', 'api/tests/test_contract_export.py::test_committed_contract_matches_current_routes', '-q', '--tb=short']))"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import sys; sys.path[:0] = ['\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests'\"'\"', '\"'\"'/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src'\"'\"']; import pytest; raise SystemExit(pytest.main(['\"'\"'-c'\"'\"', '\"'\"'api/pyproject.toml'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'pytest_asyncio.plugin'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_openapi.py'\"'\"', '\"'\"'api/tests/test_contract_export.py::test_committed_contract_matches_current_routes'\"'\"', '\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"']))'",
+      "exit_code": 0,
+      "elapsed_seconds": 3.137,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/openapi-tests.log",
+      "log_sha256": "cea67b345c0fcf11d063bec0d93bfc2b59d070719dd87d6155e62e6c64fef126"
+    },
+    {
+      "label": "openapi-drift",
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "scripts/export_contracts.py",
+        "--check"
+      ],
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B scripts/export_contracts.py --check",
+      "exit_code": 0,
+      "elapsed_seconds": 1.051,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/openapi-drift.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "command": "git diff --check",
+      "exit_code": 0,
+      "elapsed_seconds": 0.008,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage",
+      "argv": [
+        "git",
+        "add",
+        "--",
+        "api/src/omnis/modules/runs/model_test_models.py",
+        "api/tests/test_model_test_operation.py"
+      ],
+      "command": "git add -- api/src/omnis/modules/runs/model_test_models.py api/tests/test_model_test_operation.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.01,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/stage.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "staged-review",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "elapsed_seconds": 0.009,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/staged-review.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "staged-stat",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--stat"
+      ],
+      "command": "git diff --cached --stat",
+      "exit_code": 0,
+      "elapsed_seconds": 0.006,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/staged-stat.log",
+      "log_sha256": "26670db359fbb388638f6924faea5cc92ee0ee878aedc7169df572ee22a7897a"
+    },
+    {
+      "label": "commit",
+      "argv": [
+        "git",
+        "commit",
+        "-m",
+        "fix(model-test): defer catalog validation import to provision\n\nKeep ordinary API/create_app and supervisor imports catalog-free without changing the shared valid_ref validator or payload/schema. No callers import the removed module-level alias.\n\nRED on 269b044: original startup 2 failed/1 passed; same startup plus provision-validator delegation 3 failed/1 passed. GREEN: isolated Python 3.13.15 -I -B pytest on startup and ModelTest source/prepare/routes/operation 167 passed. OpenAPI tests 8 passed; exporter --check exit0; before/after/two-fresh-process OpenAPI and model schemas identical. Ruff check/format and strict mypy using api/pyproject.toml passed on three affected/guard files.\n\nLimits: SOURCE/ASGI/local test UDS only; no PG/OCI/native/provider/network/installed/global/build effects. Independent review/integration belongs to parent. Revert this commit to restore the prior import timing; no data migration. Logs and exact commands/hashes: scratch p2-startup10-ukz326or/catalog-fix-author.json."
+      ],
+      "command": "git commit -m 'fix(model-test): defer catalog validation import to provision\n\nKeep ordinary API/create_app and supervisor imports catalog-free without changing the shared valid_ref validator or payload/schema. No callers import the removed module-level alias.\n\nRED on 269b044: original startup 2 failed/1 passed; same startup plus provision-validator delegation 3 failed/1 passed. GREEN: isolated Python 3.13.15 -I -B pytest on startup and ModelTest source/prepare/routes/operation 167 passed. OpenAPI tests 8 passed; exporter --check exit0; before/after/two-fresh-process OpenAPI and model schemas identical. Ruff check/format and strict mypy using api/pyproject.toml passed on three affected/guard files.\n\nLimits: SOURCE/ASGI/local test UDS only; no PG/OCI/native/provider/network/installed/global/build effects. Independent review/integration belongs to parent. Revert this commit to restore the prior import timing; no data migration. Logs and exact commands/hashes: scratch p2-startup10-ukz326or/catalog-fix-author.json.'",
+      "exit_code": 128,
+      "elapsed_seconds": 0.017,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/commit.log",
+      "log_sha256": "5b05d9316ee236182c70dc200158d325dd1f6ca6b4a87587ba5406c473281aec"
+    },
+    {
+      "label": "commit-readback",
+      "argv": [
+        "git",
+        "show",
+        "--stat",
+        "--oneline",
+        "HEAD"
+      ],
+      "command": "git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "elapsed_seconds": 0.006,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/commit-readback.log",
+      "log_sha256": "585a292486fdbd78a5448542546cb9f456731805c705293df6451688767e9895"
+    },
+    {
+      "label": "final-status",
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "command": "git status --short --branch",
+      "exit_code": 0,
+      "elapsed_seconds": 0.011,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/final-status.log",
+      "log_sha256": "a230293042d7df988674c5c8289dddf7d5b413edf8f62b4951c9ff0bdcf2e07f"
+    },
+    {
+      "label": "commit-with-existing-git-identity",
+      "argv": [
+        "git",
+        "commit",
+        "-m",
+        "fix(model-test): defer catalog validation import to provision\n\nKeep ordinary API/create_app and supervisor imports catalog-free without changing the shared valid_ref validator or payload/schema. No callers import the removed module-level alias.\n\nRED on 269b044: original startup 2 failed/1 passed; same startup plus provision-validator delegation 3 failed/1 passed. GREEN: isolated Python 3.13.15 -I -B pytest on startup and ModelTest source/prepare/routes/operation 167 passed. OpenAPI tests 8 passed; exporter --check exit0; before/after/two-fresh-process OpenAPI and model schemas identical. Ruff check/format and strict mypy using api/pyproject.toml passed on three affected/guard files.\n\nLimits: SOURCE/ASGI/local test UDS only; no PG/OCI/native/provider/network/installed/global/build effects. Independent review/integration belongs to parent. Revert this commit to restore the prior import timing; no data migration. Logs and exact commands/hashes: scratch p2-startup10-ukz326or/catalog-fix-author.json."
+      ],
+      "command": "git commit -m 'fix(model-test): defer catalog validation import to provision\n\nKeep ordinary API/create_app and supervisor imports catalog-free without changing the shared valid_ref validator or payload/schema. No callers import the removed module-level alias.\n\nRED on 269b044: original startup 2 failed/1 passed; same startup plus provision-validator delegation 3 failed/1 passed. GREEN: isolated Python 3.13.15 -I -B pytest on startup and ModelTest source/prepare/routes/operation 167 passed. OpenAPI tests 8 passed; exporter --check exit0; before/after/two-fresh-process OpenAPI and model schemas identical. Ruff check/format and strict mypy using api/pyproject.toml passed on three affected/guard files.\n\nLimits: SOURCE/ASGI/local test UDS only; no PG/OCI/native/provider/network/installed/global/build effects. Independent review/integration belongs to parent. Revert this commit to restore the prior import timing; no data migration. Logs and exact commands/hashes: scratch p2-startup10-ukz326or/catalog-fix-author.json.'",
+      "exit_code": 0,
+      "elapsed_seconds": 0.018,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/commit-with-existing-git-identity.log",
+      "log_sha256": "fed172181645bf2a9a63563c23d79491899efd7899cee02a9eccc41857c74da8"
+    },
+    {
+      "label": "commit-readback-final",
+      "argv": [
+        "git",
+        "show",
+        "--stat",
+        "--oneline",
+        "HEAD"
+      ],
+      "command": "git show --stat --oneline HEAD",
+      "exit_code": 0,
+      "elapsed_seconds": 0.006,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/commit-readback-final.log",
+      "log_sha256": "152193862e52a1d59b2fa1caac75a3f345cf46d1112ad58b537841d7347f2633"
+    },
+    {
+      "label": "final-status-clean",
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "command": "git status --short --branch",
+      "exit_code": 0,
+      "elapsed_seconds": 0.01,
+      "log": "/home/kali/.hermes/cache/scratch/cf269b/final-status-clean.log",
+      "log_sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+    }
+  ],
+  "issues": [
+    "First RED invocation omitted asyncio plugin: retained config warning; subsequent RED/GREEN explicitly load it.",
+    "First commit under stripped environment failed identity lookup (exit128); successful retry added HOME only for git to use existing identity; no git config changed."
+  ],
+  "limits": [
+    "Independent review and integration not performed by this author; parent requested to review exact commit/hash delta.",
+    "No PostgreSQL, OCI, native runtime, provider/model, target/network, installed profile, Node/web build, global settings, canonical make check or full API suite. Existing source/ASGI/doubled-runtime and local test UDS only.",
+    "No change to source fingerprint reader, validator, schemas, timeout, opt-in/startup guard or other startup10 files.",
+    "No new reusable workflow beyond existing omnis-api-data optional-import procedure; no skill/profile/doc modifications."
+  ],
+  "cleanup": "Test-owned IPC fixture scope exited; private TMPDIR/logs retained; no runtime/DB/container provisioning; worktree clean after local commit.",
+  "global_status": "This resolves the canonical no-opt-in import prerequisite only. P2/B06b/G02 NOT_CLOSED; no phase acceptance claimed.",
+  "rollback": "git revert 060b754be18850f7fbbe5aa3bf711d98c3444f20",
+  "original_red_command": {
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import sys; sys.path[:0] = ['/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/src', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/api/tests', '/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/catalog-fix/integrations/hermes/src']; import pytest; raise SystemExit(pytest.main(['-c', 'api/pyproject.toml', '-p', 'no:cacheprovider', 'api/tests/test_native_preparation_startup.py', '-q', '--tb=short']))"
+    ],
+    "exit_code": 1,
+    "log_sha256": "d1b97b0262febd4e85285259d187fc9650fd926a01bb095f49a43f32f727de2d"
+  }
+}

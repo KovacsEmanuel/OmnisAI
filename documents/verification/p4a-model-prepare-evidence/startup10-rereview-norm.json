@@ -1,0 +1,157 @@
+{
+  "review": "Focused independent normative re-review: NORM-S10-F01 and retained-producer CREATE admission",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "The three-file source delta is normatively acceptable. NORM-S10-F01 is closed as a source oracle defect, not as physical PostgreSQL evidence. Genuine v5/v6 producer payloads still pass the real RuntimeClient-to-InstanceService gate with storage/clock/exchange doubles. No new concrete blocker found. Complementary safety review and parent-owned real PG/installed gates remain separate.",
+  "base": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "head": "61704eee5cddc6702528bb36c17f2016ee2d2019",
+  "commits": ["97b11d7517fbdb1e414d7ea9258976dabee91e19", "61704eee5cddc6702528bb36c17f2016ee2d2019"],
+  "normative_commit": "b3641ccf9b2fa56c90678dd76235487272e18f93",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "git_status_before_and_after": "## work/p2-startup10-ukz326or",
+  "findings": [],
+  "dispositions": [
+    {
+      "id": "NORM-S10-F01",
+      "status": "CLOSED_SOURCE_ORACLE; PHYSICAL_PG_NOT_RUN",
+      "locations": ["api/tests/test_instance.py:11-15", "api/tests/test_instance.py:70-104", "api/tests/conftest.py:114-156"],
+      "evidence": "The fixture creates a fresh sequence before installing the BEFORE UPDATE trigger. The trigger executes nextval before pg_sleep(0.3). Original expiry is seeded before trigger installation, so this seed cannot consume the witness. After exact LEASE_LOST refusal, the test requires (last_value,is_called)==(1,True) and unchanged original expires_at. Both startup and heartbeat parameters receive a function-scoped fresh migrated database. Sequence advancement is not rolled back with the lease UPDATE; the is_called flag distinguishes the untouched initial last_value=1 from one genuine entry.",
+      "counterexample_disposition": "Independently ran the reviewed existing oracle-fixed.py, which compiles the exact denial/readback AST blocks from current test_instance.py. For both renewal branches it rejects before_update=(1,False), rejects two_updates=(2,True), rejects changed expiry, and accepts only one_update_rollback=(1,True) with unchanged expiry. All eight source calibrations passed, exit0. The previous elapsed-only false green therefore fails the new source oracle; no timing claim or physical PostgreSQL execution is inferred.",
+      "prior_heartbeat_gap": "CLOSED_AS_TEST_RECIPE: heartbeat is now its own fresh parameter crossing the original expiry inside the witnessed UPDATE, rather than an already-expired pre-UPDATE call. Physical execution remains pending.",
+      "remaining_gate": "Parent must execute both PostgreSQL parameters on owned disposable fixtures and read their actual refusal/witness/rollback results. No PG PASS is claimed by this review."
+    },
+    {
+      "id": "STARTUP10-SAFE-F01",
+      "status": "NORMATIVE_FIX_AND_PRODUCER_COMPATIBILITY_SATISFIED; COMPLEMENTARY_SAFETY_ADJUDICATION_SEPARATE",
+      "locations": ["api/src/omnis/modules/instance/service.py:194-268", "api/tests/test_runtime_service.py:136-294"],
+      "evidence": "Current instance/owner/epoch/generation is checked with strict managed_contract.authority before the lease write. managed_store.owned authenticates the context reference and retained bytes; the actual contract-input-command receipt must bind owner, initialization command, v5 prepare/v6 start operation and exact context result_refs. Existing ModelTest.dispatch reconstructs retained records/material, and full canonical equality precedes UPDATE. The original immutable LeaseRecord is checked again after those reads and after UPDATE. No native validator copy, schema, owner, dependency or new producer path is introduced.",
+      "non_circularity": "The authority gate does not require a native-turn, successful CREATE, provider response or post-CREATE observation. ModelTest.prepare writes the context, seven referenced records, material record and command receipt before returning. ModelTest.dispatch accepts absence of an observation. ManagedAdmission construction only retains engine/root; dispatch uses the supplied connection and retained storage, not _source, catalog evaluation, native preparation or another runtime_authority call."
+    }
+  ],
+  "requirement_matrix": [
+    {
+      "requirement": "Retained producer authentication occurs before startup lease extension in one locked transaction",
+      "status": "SOURCE_REVIEW_SATISFIED",
+      "code": ["api/src/omnis/modules/instance/service.py:194-268", "api/src/omnis/modules/instance/service.py:270-307", "api/src/omnis/modules/tasks/managed_store.py:73-102,146-161,184-203", "api/src/omnis/modules/tasks/managed_contract.py:1692-1736"],
+      "reason": "All retained reads, canonical reconstruction and pre-UPDATE original-owner recheck use the connection yielded by _locked; _locked owns engine.begin and instance/lease row locks. owned verifies owner/run/ref/digest through get; command_receipt is an owned unique stored receipt. Strict scalar checks reject bool-as-int. An exception leaves the lease transaction uncommitted."
+    },
+    {
+      "requirement": "Authentic producer -> committed intent -> CREATE remains reachable for v5 and v6",
+      "status": "SOURCE_REVIEW_AND_FOCUSED_TEST_PASS",
+      "code": ["api/src/omnis/modules/runs/model_test.py:186-218,364-468,470-514", "api/src/omnis/supervisor/native_tasks.py:272-323", "api/src/omnis/supervisor/runtime_client.py:657-706", "api/src/omnis/modules/runs/managed_admission.py:152-154"],
+      "reason": "NativeTaskOwner calls prepare then dispatch on the same producer transaction, exits native_preparation_commit before RuntimeClient.managed, and only persists the native observation afterward in another fenced transaction. The gate therefore reads already committed producer context/material/receipt in its own locked transaction, rather than waiting for a future CREATE result. Initial created=True becomes CREATE; an unobserved replay uses STATUS and no startup extension; a completed replay returns before transport. Reconstructed record order matches dispatch's fixed order and equality uses canonical encoding, not JSONB insertion order.",
+      "execution": "2 passed,9 deselected in1.43s, exit0: authentic ModelTest.prepare/dispatch v5 and v6 reach grant10/lease11, altered payloads and absent receipt refuse before UPDATE, restored genuine payload passes actual RuntimeClient.managed and actual service. Storage, DB clock/lease connection and transport exchange remain explicit doubles; not real transaction-isolation or native proof."
+    },
+    {
+      "requirement": "Rollback oracle proves UPDATE entry rather than elapsed time, for startup and heartbeat",
+      "status": "SOURCE_REVIEW_AND_CALIBRATION_PASS; PG_NOT_RUN",
+      "code": ["api/tests/test_instance.py:11-104", "api/tests/conftest.py:114-156"],
+      "reason": "Independent nontransactional sequence witness before delay, exact single-entry readback and unchanged expiry close the demonstrated early-refusal false green. Fresh function-scoped DB per parameter prevents witness carryover. Existing ordinary4.5/startup10/lease11 and heartbeat-preservation assertions remain."
+    },
+    {
+      "requirement": "Do not transfer approval to changed bytes or re-audit unchanged scope",
+      "status": "HASH_SCOPE_VERIFIED",
+      "reason": "All17 current source hashes match review-fixes-author.json. Exactly3 differ from review-norm.json at269b044; other14 are byte-unchanged and inherit only their prior scoped source review. The separate45af162 catalog import fix is not part of this worktree/delta and was not reopened."
+    }
+  ],
+  "hash_scope": {
+    "original_inventory_count": 17,
+    "changed_count": 3,
+    "unchanged_count": 14,
+    "all_author_bindings_match": true,
+    "delta": [
+      {"path": "api/src/omnis/modules/instance/service.py", "before_sha256": "6c3a6f73874d49c241f3c923954986a02ac41468cedfb83dc696e456703627f3", "sha256": "9207a249316fea99851bf7b96645b3792772cbfe3f8aabdd540f37ebb2453d71"},
+      {"path": "api/tests/test_instance.py", "before_sha256": "3dc5c17016a8b647e03cd2441184ce1cd65b1b9c999a90c00a655fb1ac83937a", "sha256": "4d197955dd8a40e42e143100d98045421da862b01b531f113cc8aa44601150cb"},
+      {"path": "api/tests/test_runtime_service.py", "before_sha256": "a907eeaccd8ed605ddb2f4c848de20fde64a1ba3d8cab281c784c088f22a9682", "sha256": "62b57f7e9137d43896de2d90041b1432c876c4ad48857bd74ea04ff14ad4e328"}
+    ],
+    "unchanged_reused": [
+      "api/src/omnis/modules/instance/schemas.py",
+      "api/src/omnis/modules/runs/model_test_routes.py",
+      "api/src/omnis/supervisor/native_tasks.py",
+      "api/src/omnis/supervisor/runtime_client.py",
+      "api/src/omnis/transport/local_control.py",
+      "api/tests/test_model_prepare_sync_source.py",
+      "api/tests/test_model_test_prepare_source.py",
+      "api/tests/test_model_test_source.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "integrations/hermes/tests/peer_fixture.py",
+      "integrations/hermes/tests/test_bootstrap_inventory.py",
+      "integrations/hermes/tests/test_client.py",
+      "integrations/hermes/tests/test_startup_budget.py"
+    ],
+    "prior_report": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm.json",
+    "current_full_inventory": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-fixes-author.json"
+  },
+  "executed": [
+    {
+      "command": "git -C /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work diff 269b044..61704ee -- api/src/omnis/modules/instance/service.py api/tests/test_runtime_service.py api/tests/test_instance.py",
+      "exit": 0,
+      "result": "Reviewed complete three-file delta and relevant producer/store/caller transaction boundaries."
+    },
+    {
+      "command": "git show b3641cc -- documents/Omnis_MVP_Architecture.md",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Read approved single absolute native startup budget and no-revival/Stop/fence contract. No HTML accessed."
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/s10rn-42Qpks PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import os,sys,pytest; from pathlib import Path; r=Path(\"/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work\"); os.chdir(r); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",str(r/\"api/pyproject.toml\"),str(r/\"api/tests/test_runtime_service.py\"),\"-k\",\"authenticates_complete\",\"-q\",\"--tb=no\",\"--basetemp=\"+os.environ[\"TMPDIR\"]+\"/pytest\"]))'",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "2 passed, 9 deselected in 1.43s",
+      "log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-producer.log",
+      "boundary": "Genuine SOURCE producer and client/service; storage/clock/exchange doubles. No PG/native/provider."
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/s10fix/oracle-fixed.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "8 exact-current-assertion calibrations: before-UPDATE, two-entry and changed-expiry negatives rejected; one-entry rollback accepted, both startup and heartbeat.",
+      "log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-oracle.log",
+      "boundary": "Reviewed existing author script rerun independently; synthetic readback calibration, not PostgreSQL."
+    },
+    {
+      "command": "git -C /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work diff --check 269b044..61704ee",
+      "exit": 0,
+      "result": "Clean"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -c 'import hashlib,json,pathlib,subprocess; r=pathlib.Path(\"/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work\"); p=r.parent; old=json.loads((p/\"review-norm.json\").read_text()); author=json.loads((p/\"review-fixes-author.json\").read_text()); expected={x[\"path\"]:x[\"sha256\"] for x in author[\"snapshot\"]}; rows=[{\"path\":x[\"path\"],\"before_sha256\":x[\"sha256\"],\"sha256\":hashlib.sha256((r/x[\"path\"]).read_bytes()).hexdigest()} for x in old[\"changed_paths\"]]; changed=[x for x in rows if x[\"before_sha256\"]!=x[\"sha256\"]]; print(json.dumps({\"head\":subprocess.check_output([\"git\",\"-C\",str(r),\"rev-parse\",\"HEAD\"],text=True).strip(),\"path_count\":len(rows),\"unchanged_count\":len(rows)-len(changed),\"all_author_hashes_match\":all(x[\"sha256\"]==expected[x[\"path\"]] for x in rows),\"delta\":changed,\"retained_unchanged\": [x[\"path\"] for x in rows if x not in changed]},indent=2))'", 
+      "exit": 0,
+      "result": "17 hashes match author; 3 changed/14 unchanged versus prior review. Hash computation executed through terminal."
+    },
+    {
+      "command": "git -C /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work status --short --branch; git -C /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work rev-parse HEAD; git status --short --branch",
+      "cwd": "/home/kali/OmnisAI",
+      "exit": 0,
+      "result": "Frozen61704eee5cddc6702528bb36c17f2016ee2d2019 clean; main retains only its preexisting untracked protected documents/Omnis_Notite_Originale.html."
+    }
+  ],
+  "artifacts": [
+    {"path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-producer.log", "sha256": "ccefc8d815007c2b58d78557820771597ca713703c81d8d49f7d6bad1a07bacd", "size": 112},
+    {"path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-oracle.log", "sha256": "824e2c08e96419ddb005b5c9e606b6e7f4aaa19be81161c0e945efc69fb4d8ac", "size": 697},
+    {"path": "/home/kali/.hermes/cache/scratch/s10fix/oracle-fixed.py", "sha256": "07d5a61f7e5ddf47a23220a518a43be113f25cc39a44cd6120402af631fc6b43", "size": 2738, "ownership": "existing author script, read and run only"}
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm.json",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-producer.log",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/rereview-norm-oracle.log"
+  ],
+  "owned_test_artifacts": "/home/kali/.hermes/cache/scratch/s10rn-42Qpks",
+  "product_files_modified": [],
+  "commits_created": [],
+  "issues_encountered": [],
+  "limits": [
+    "Read-only product review; only private scratch report/log/test fixtures written. No shared or global skill/status changes under this delegation.",
+    "No PostgreSQL/Docker/installed native/provider/auth/model/browser/network/personal-profile/protected-HTML effects executed.",
+    "No physical original-lease expiry, SQL rollback/isolation, installed CREATE/native success or P2/canonical PASS claimed.",
+    "Did not duplicate the full49 affected or115 unchanged adapter suites; only two corrected producer controls and existing eight-case oracle calibration were executed.",
+    "Other14 files retain only the previous byte-bound review scope. Relevant unchanged call sites were read solely to assess the new gate, not re-audited.",
+    "Separate complementary safety report/adjudication is required; this normative review does not replace it.",
+    "Catalog cold-import fix45af162 is separately accepted and outside the frozen candidate/delta; no known-fixed import finding raised.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "next_parent_action": "Adjudicate both complementary reports on these exact hashes, execute both fresh-DB PG parameters, then continue the authorized installed consumer gate. Keep prior failures and distinguish source approval from real PG/native acceptance.",
+  "proposed_status_delta": {"startup10_fixes": "IMPLEMENTED_SOURCE / FOCUSED_SOURCE_PASS / APPROVED_SCOPED_NORMATIVE", "physical_pg": "NOT_RUN_BY_REVIEWER", "installed_startup": "NOT_RUN_BY_REVIEWER", "P2": "NOT_CLOSED"},
+  "reusable_lesson_for_parent": "Authenticate the exact retained producer graph before lease extension using its existing dispatch reader; do not require the post-CREATE observation to authorize CREATE. An expiry rollback test needs a nontransactional single-entry UPDATE witness, not elapsed duration. Existing review skills already cover these principles; no skill edits made under read-only scope."
+}

@@ -1,0 +1,315 @@
+{
+  "review": "independent normative startup10: producer -> lease -> transport -> Host/handshake -> outer callers",
+  "verdict": "CHANGES_REQUESTED",
+  "verdict_scope": "One test-oracle blocker before crediting decisive PostgreSQL expiry proof. No confirmed production-code blocker found in the reviewed startup10 path. Not an installed QA or P2 acceptance.",
+  "base": "d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7",
+  "head": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca",
+  "normative_commit": "b3641cc",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+  "git_status": "## work/p2-startup10-ukz326or",
+  "changed_path_count": 17,
+  "changed_paths": [
+    {
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "83d452081949e705099fab4374d70af01970c67e775a526c2adb936b88901564",
+      "size": 10482
+    },
+    {
+      "path": "api/src/omnis/modules/instance/service.py",
+      "sha256": "6c3a6f73874d49c241f3c923954986a02ac41468cedfb83dc696e456703627f3",
+      "size": 41629
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test_routes.py",
+      "sha256": "fdcc61e1901696c43aab2349972745cd0e6f5b408128433045f99b411406a630",
+      "size": 4285
+    },
+    {
+      "path": "api/src/omnis/supervisor/native_tasks.py",
+      "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+      "size": 45970
+    },
+    {
+      "path": "api/src/omnis/supervisor/runtime_client.py",
+      "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb",
+      "size": 35553
+    },
+    {
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+      "size": 14242
+    },
+    {
+      "path": "api/tests/test_instance.py",
+      "sha256": "3dc5c17016a8b647e03cd2441184ce1cd65b1b9c999a90c00a655fb1ac83937a",
+      "size": 9846
+    },
+    {
+      "path": "api/tests/test_model_prepare_sync_source.py",
+      "sha256": "e97601fcd3878e75837a7061e2c15935e21e265faadc9e64058326fac14a2bd6",
+      "size": 14158
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "sha256": "3d75c58d081ecd4b2669cbb3d2eb5f0b658dc91f94d2cff28b9e4aadbd4d6bb6",
+      "size": 118102
+    },
+    {
+      "path": "api/tests/test_model_test_source.py",
+      "sha256": "3ee059d9e6f67797fe78e3d3fdcad2d0d2a16070da3b1768228aefaa0109871e",
+      "size": 7719
+    },
+    {
+      "path": "api/tests/test_runtime_service.py",
+      "sha256": "a907eeaccd8ed605ddb2f4c848de20fde64a1ba3d8cab281c784c088f22a9682",
+      "size": 6736
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "fa4669d93473accef9d0fa75c7be93ce2eed7dd0ae1f4d4158cf21613c49e7d4",
+      "size": 68338
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_protocol.py",
+      "sha256": "2721d4968531f7649ac6839441e8556ea523ce4fe43f0e4745b718d5908bdf22",
+      "size": 19399
+    },
+    {
+      "path": "integrations/hermes/tests/peer_fixture.py",
+      "sha256": "7901ec35709cafca8598a52fbdecf1264adce25c14cca05de4b93f2dc79ffce2",
+      "size": 4577
+    },
+    {
+      "path": "integrations/hermes/tests/test_bootstrap_inventory.py",
+      "sha256": "c535ffbaeb78d0a74252ca9a753e4e70b1b558773d4f608a122fa808805fd387",
+      "size": 23552
+    },
+    {
+      "path": "integrations/hermes/tests/test_client.py",
+      "sha256": "e5caa265adc4044ac9c26b1733eaeb146f8d3bbeff2093c374fde235fa40ab67",
+      "size": 4197
+    },
+    {
+      "path": "integrations/hermes/tests/test_startup_budget.py",
+      "sha256": "1512904fcc5e6a8e11fde17959793f1261e7be5003b68e0040233872b704359f",
+      "size": 5731
+    }
+  ],
+  "all_author_bindings_match": true,
+  "findings": [
+    {
+      "id": "NORM-S10-F01",
+      "severity": "MEDIUM",
+      "kind": "TEST_ORACLE_FALSE_GREEN",
+      "blocking": true,
+      "location": "api/tests/test_instance.py:87-95 (269b044)",
+      "requirement": "The decisive original-lease expiry negative must actually execute the startup lease UPDATE before rejecting and rolling back; an already-expired pre-UPDATE denial is not that proof.",
+      "observation": "The new elapsed >=0.3 assertion measures the entire runtime_authority call, not entry to delay_lease_update. With original expiry only 0.2 seconds away, a >=0.3 second delay at initial lock/DB-clock read can cause _require_owner to reject before UPDATE. Both pytest.raises(LEASE_LOST) and elapsed then pass; unchanged persisted expiry also passes because no write happened. 269b044 does not establish the claimed frontier.",
+      "reproducer": {
+        "path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py",
+        "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py",
+        "exit": 0,
+        "observed": {
+          "exact_negative_oracle": "PASSED",
+          "authority_calls": 1,
+          "update_calls": 0,
+          "denial_frontier": "BEFORE_UPDATE"
+        },
+        "boundary": "Compiles and executes the exact timing/raises AST block from the frozen PG test with a 0.31s pre-UPDATE denial seam. It demonstrates an oracle ambiguity, not an actual PostgreSQL scheduler incident or a production revival."
+      },
+      "minimal_remedy": "Keep the valid 11s startup/10s grant, heartbeat-preservation and rollback assertions. Add an independent trigger-entry witness that survives rollback (e.g. one private sequence increment in the existing BEFORE UPDATE trigger, committed before the call), require its count to advance exactly once, and retain unchanged expiry after refusal. No new owner, runner, broader fault matrix or product timeout change is needed.",
+      "acceptance": "The delayed UPDATE negative reaches its trigger and refuses with LEASE_LOST with expiry rolled back. A pre-UPDATE delayed rejection fails the frontier oracle, while the valid startup/heartbeat control remains green. Run physically only under the parent-owned disposable-PG contract."
+    }
+  ],
+  "requirement_matrix": [
+    {
+      "requirement": "Narrow current-owner startup authority",
+      "status": "SOURCE_REVIEW_SATISFIED",
+      "code": [
+        "api/src/omnis/modules/instance/service.py:154-223",
+        "api/src/omnis/supervisor/runtime_client.py:657-706",
+        "api/src/omnis/supervisor/runtime_client.py:796-835"
+      ],
+      "evidence": "Exact owner UUID, epoch/generation, inert/management exclusivity, qualified v5/v6 CREATE or literal launch; current locked lease/Stop/generation checks before UPDATE. Existing qualify is reused, no adapter dependency introduced into API. Ordinary callers use default authority."
+    },
+    {
+      "requirement": "DB-clock anchored 11s lease / monotonic 10s grant and no resurrection",
+      "status": "SOURCE_REVIEW_SATISFIED; PHYSICAL_PG_NOT_RUN; ORACLE_F01_OPEN",
+      "code": [
+        "api/src/omnis/modules/instance/service.py:194-223",
+        "api/src/omnis/modules/instance/service.py:225-262",
+        "api/src/omnis/modules/instance/service.py:301-310"
+      ],
+      "evidence": "The UPDATE expiry uses the original DB now; deadline uses the monotonic timestamp before that clock query. Both post-UPDATE owner checks use the original immutable LeaseRecord, with a Stop-fence check between them. _locked engine.begin rolls back on denial. GREATEST(existing, now+5) is not existing+5 and preserves rather than accumulates the long startup lease. Normal grants remain min(4.5, remaining)."
+    },
+    {
+      "requirement": "Host independently restricts startup scope",
+      "status": "SOURCE_REVIEW_AND_SOURCE_TEST_SATISFIED",
+      "code": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:230-246",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:1323-1372",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:689-699"
+      ],
+      "evidence": "Host validates full envelope, identity/fence and initialization payload, and grants max10 only launch or fully validated v5/v6 CREATE. Other operations keep max5 and managed max4.5. Executed startup negative controls reject long sibling/malformed grants."
+    },
+    {
+      "requirement": "One absolute budget across management read/auth, drain, launch, READY and init",
+      "status": "SOURCE_REVIEW_SATISFIED; AUTHOR_COMPOSED_SOURCE_EVIDENCE; INSTALLED_NOT_RUN",
+      "code": [
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:689-841",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:909-929",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:248-291",
+        "integrations/hermes/src/omnis_hermes/runtime_protocol.py:442-468"
+      ],
+      "evidence": "_managed captures deadline and original boot/epoch/generation once, validates live management before assigning the same deadline, rechecks after reads and drain, and passes unchanged body to _launch. _managed_connected times the whole operation against the same deadline and joins it on loss/timeout. Host outer timeout encloses READY and the three ordinary handshake RPCs; init is min(3.2, remaining). NativePeer ready cap10 alone is not treated as proof of a full10 handshake: Host supplies that enclosure."
+    },
+    {
+      "requirement": "Outer waits cover same existing operation without global widening",
+      "status": "SOURCE_REVIEW_SATISFIED",
+      "code": [
+        "api/src/omnis/modules/instance/schemas.py:12-13",
+        "api/src/omnis/supervisor/native_tasks.py:117-131",
+        "api/src/omnis/supervisor/native_tasks.py:608-623",
+        "api/src/omnis/transport/local_control.py:269-307",
+        "api/src/omnis/modules/runs/model_test_routes.py:23-29"
+      ],
+      "evidence": "Owner wait19 only model_test_prepare/start; authenticated LocalControl wait20 entry-relative for those or provision; control_task and provision client21. Runtime exchange remaining+1 capped11. Other owner/control/client paths remain4 and ordinary runtime2; Host frame2.5/MAX65536 and 0.8 handshake RPC unchanged. Provision has no invented owner19 layer: it is directly bounded by LocalControl20/client21, while its postlaunch ordinary preparation remains4."
+    },
+    {
+      "requirement": "Producer commit, persistence and no resend ordering",
+      "status": "SOURCE_REVIEW_SATISFIED",
+      "code": [
+        "api/src/omnis/supervisor/native_tasks.py:272-323",
+        "api/src/omnis/modules/runs/model_test_source.py:87-184",
+        "api/src/omnis/modules/runs/model_test_operation.py:150-268"
+      ],
+      "evidence": "Domain prepare/dispatch intent transaction commits before startup grant and IPC. Observation persists only after validated reply with current owner/instance/runtime boot. Explicit provision commits its provision intent before launch, heartbeats/renews after launch and then calls ordinary preparation. Replay does not automatically resend an unknown provision. Existing model operation300 and SEND/RECEIVE remain unchanged; no auth or inference starts merely by opening web."
+    },
+    {
+      "requirement": "Stop/control loss during startup is cancellation, not fabricated drain",
+      "status": "SOURCE_REVIEW_AND_SOURCE_TEST_SATISFIED; PID1_NOT_RUN",
+      "code": [
+        "api/src/omnis/supervisor/runtime_client.py:414-457",
+        "api/src/omnis/supervisor/runtime_client.py:796-821",
+        "api/src/omnis/supervisor/runtime_client.py:840-859",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:909-929",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:1413-1468"
+      ],
+      "evidence": "startup_active belongs to the held stream exchange. drain closes it and returns False; launch closes on BaseException. Existing connected helper now also covers launch, cancels and joins operation on EOF. Independently executed source tests cover slow success, overbudget, Stop and cancellation with synthetic peers reaped and honest UNCERTAIN outside PID1."
+    }
+  ],
+  "decisive_pg_controls": [
+    {
+      "status": "EXISTS_NOT_RUN; F01_REPAIR_REQUIRED",
+      "test": "api/tests/test_instance.py::test_startup_lease_is_bounded_preserved_and_cannot_resurrect_pg",
+      "details": "Existing physical recipe checks ordinary4.5, narrow input/foreign-owner denials, startup10/lease11 readback, heartbeat preservation, ordinary grant after startup, return to ordinary5 after test seed, and delayed startup UPDATE rollback. Collect-only is not PG proof. The return-to5 test explicitly reseeds expiry and is not evidence of naturally waiting through the whole startup horizon."
+    },
+    {
+      "status": "MISSING_FOCUSED_CONTROL",
+      "test": "Delayed ordinary heartbeat UPDATE crossing the ORIGINAL lease expiry",
+      "details": "heartbeat gained its own post-UPDATE _require_owner at service.py:310. The test currently calls heartbeat only after the original lease is already expired (test_instance.py:96-97), so it exercises pre-UPDATE refusal, not this new guard. Reuse the same private delayed-trigger witness with a fresh live original expiry, require UPDATE observed, LEASE_LOST and unchanged expiry after rollback. This is a bounded control for the changed no-revival branch, not a broad fault matrix."
+    }
+  ],
+  "executed": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git show --stat --oneline HEAD",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": "Clean frozen269b044; latest commit only2test lines"
+    },
+    {
+      "command": "git diff d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7 HEAD -- api/src/omnis/modules/instance/schemas.py api/src/omnis/modules/instance/service.py api/src/omnis/supervisor/runtime_client.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/runs/model_test_routes.py",
+      "exit": 0,
+      "result": "Read all changed API production hunks and relevant callers"
+    },
+    {
+      "command": "git diff d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7 HEAD -- integrations/hermes/src/omnis_hermes/runtime_host.py integrations/hermes/src/omnis_hermes/runtime_protocol.py api/tests/test_instance.py; git diff --check d34783dd5ff2692c0cfd10bfe22d687ed37fe8b7 HEAD",
+      "exit": 0,
+      "result": "Read adapter/PG-test diff; diff check clean"
+    },
+    {
+      "command": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys,pytest; from pathlib import Path; r=Path.cwd(); sys.path[:0]=[str(r/p) for p in (\"api/src\",\"integrations/hermes/src\",\"integrations/hermes/tests\")]; raise SystemExit(pytest.main([\"-p\",\"pytest_asyncio.plugin\",\"-p\",\"no:cacheprovider\",\"-c\",\"api/pyproject.toml\",\"integrations/hermes/tests/test_startup_budget.py\",\"-q\",\"--tb=short\"]))"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/s10n-x9llfly1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0,
+      "elapsed_seconds": 23.81843280000612,
+      "log": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-startup-tests.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py && git status --short --branch",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": "Exact timing/raises negative accepted BEFORE_UPDATE; frozen product remains clean"
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": "269b044c8aa520e8f18b63dd1ffabbe25ff491ca"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/work",
+      "exit": 0,
+      "result": "## work/p2-startup10-ukz326or"
+    }
+  ],
+  "independent_test_result": "15 passed in23.09s, exit0; SOURCE RuntimeClient/Host/private UDS + synthetic peer, no PostgreSQL/native Hermes/provider",
+  "author_evidence_not_reexecuted_as_counts": {
+    "adapter_final": "115 PASS reported by author",
+    "api_final": "239PASS/4FAIL preserved; affected stock AST fixture then12PASS. Parent owns full rerun; not represented here as an entirely green final suite.",
+    "pg": "Collected1 only, not executed"
+  },
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-startup-tests.log",
+      "sha256": "a7f7d527bfa8e0e8c4526386b93c4a28c2a2c585a741c2841352e306f87bb8e4",
+      "size": 100
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-execution.json",
+      "sha256": "9ef4abdb4f48746d3f37dac368db6ab303c55de1499404fdade0665a88ce1c34",
+      "size": 821
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py",
+      "sha256": "3f5bea51499bec77710a41e361df1ac9eb0c1cbe6df85ef784f35e2e6ccd6fcc",
+      "size": 2066
+    }
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm.json",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-startup-tests.log",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-execution.json",
+    "/home/kali/.hermes/cache/scratch/p2-startup10-ukz326or/review-norm-expiry-oracle.py"
+  ],
+  "product_files_modified": [],
+  "limits": [
+    "Read-only product review; no edits, integration, commits, deployment or status-map writes.",
+    "No PG/OCI/native pinned Hermes/provider/auth/model/browser/UI9 or protected HTML effects; no global/profile/recovery changes.",
+    "SOURCE peer and storage/model doubles are not physical lease proof or installed native receipt.",
+    "Complementary security/concurrency reviewer is separate; no exhaustive fault matrix or global safety approval.",
+    "Full API rerun is owned by parent and was not duplicated. No canonical or P2/G02 closure claimed.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "next_parent_action": "Adjudicate F01 with this exact oracle counterexample. Minimal test-only repair plus focused review of changed bytes; add/reuse the delayed-heartbeat control before crediting physical no-revival proof. Preserve the frozen production behavior review; then parent-owned disposable-PG and exact installed slow<10/over10/Stop-loss consumer QA.",
+  "reusable_lesson_for_parent_skill": "Elapsed duration of a rejecting call does not prove the intended delayed DB UPDATE ran: an earlier slow read/lock can consume the same time. Witness trigger entry independently across rollback, and pair it with unchanged persisted expiry. No shared skill edit performed under this read-only delegation."
+}

@@ -1,14 +1,18 @@
 # Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**CURRENT = HANDOFF_ONLY / PAUZĂ până dimineață, cerută de operator după reluarea explicită.** Promptul „DOAR ÎN SESIUNEA FRESH” a fost activat în această reluare; în pauză este numai stare de recuperare, nu ordin de lansare. UI `d253ba6` acceptată pentru continuare, UI7 READY/date păstrate; prerechizit canonic `e0d23d6` integrat/reviewuit,9AST+8regresii PASS, dar check-runtime441PASS/1FAIL pe control neschimbat cu agent=None. Canonical complet NOT_RUN. Auth nefinalizată; unicul Connect a fost anulat CONFIRMED/CANCELLED/ABSENT, fără challenge. Prima probă Codex/xhigh1apel/300s autorizată/neconsumată. Nu porni altă activitate până la reluarea operatorului. Verifică Git/CURRENT; arhiva P2-inert de la final nu este coadă de reluare.
+**CURRENT = UI_SIMPLE_CONNECT_DELIVERED / WAITING_OPERATOR_AUTH, fără continuare automată.** Cererea de dimineață a schimbat livrabilul imediat la web simplu; `922dc9f` livrează Provider/Model/Connect, Diagnostic pliat, două re-reviewuri APPROVED_SCOPED și web115unit/6tooling/audit0/exit0. UI8 ultimul readback READY/date păstrate, QA instalată patru viewporturi/tastatură/un click read→save→connect→CHALLENGE și tab oficial deschis. Formularul operatorului fără răspuns; ulterior același ID INDETERMINATE/oauthNONE/challenge absent/cauzăUNKNOWN, fără retry/inferență. UI7 retrasă fizic/logicUNCERTAIN după supervisor exit3. `e0d23d6`/9AST/8regresii se reutilizează, runtime441PASS/1FAIL stock agent=None și canonical complet NOT_RUN rămân. Prima probă Codex/xhigh1apel/300s neconsumată. Promptul de mai jos se activează numai la cererea explicită de continuare live; verifică Git/CURRENT, nu relua arhiva.
 
 ## Prompt pentru următoarea implementare
+
+**HANDOFF_ONLY — DOAR ÎN SESIUNEA FRESH**, activat prin cererea explicită a operatorului, nu prin închiderea sarcinii UI.
 
 ```text
 Lucrează în /home/kali/OmnisAI.
 /ponytail:ponytail full
 
 MANDAT
+Acest prompt este recuperare, nu continuare automată după simplificarea UI.
+Aplică-l numai când operatorul cere explicit reluarea P4a/P2-live.
 Continuă secvențial restul fazei 2 conform planului §7–8/§19:
 P4a/G04a → P2-live/G02-live. Primul apel reușit nu închide faza 2.
 Fără P3, trafic target, provideri/catalog/editor extinse, r1/P0,
@@ -19,31 +23,40 @@ Audit read-only numai pe traseele afectate și criteriile restante.
 
 STARE DE RELUARE
 Verifică Git: branch checkpoint/p2-batch2-pause-20261015;
-UI d253ba6 și remediul prerequisite e0d23d6 sunt integrate, nu se reimportă.
+UI922dc9f și remediul prerequisite e0d23d6 sunt integrate, nu se reimportă.
 Citește CURRENT din README, p4a-minim.md, p2-integration-b06cm.md,
 implementation-status.md și p4a-oauth-evidence/preauth-ui-recovery.json,
-plus plan §7–8/§19. Dovezile UI: clean-ui-installed.json și reviewurile legate.
+plus plan §7–8/§19. Dovezile curente: simple-connect-installed.json,
+simple-connect-visible-through-challenge.json și cele șase originale
+simple-connect-author/review/rereview*.json. NORM-F01 închis scoped;
+worktree autor p4a-simple-aeqwhv_2/work curat/a64df8a, deja integrat.
+clean-ui-installed.json și probele neafectate rămân istorice/scoped.
 Singurul untracked cunoscut: documents/Omnis_Notite_Originale.html.
 NU citi/copia/hash/modifica acel HTML sau tools/development/ponytail.json.
 Păstrează munca străină și FAIL/UNKNOWN/INDETERMINATE. Fără reset/stash/push.
 
 ARTEFACT ACTUAL
-/home/kali/.omnis-p2-ui7, origin http://127.0.0.1:8765, generation1,
-instance af5a562c-f05b-4953-9ae8-1b30cc90165f,
-release SHA256 3e71af7f707753d91f8be9b8542074bd6efaed1a2e8c191655fc670c901ca120.
+/home/kali/.omnis-p2-ui8, origin http://127.0.0.1:8765, generation1,
+instance cebb549c-2a72-40fe-89fd-877f62b1b4d6,
+release SHA256 660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a.
 Mediul CLI și ownerii sunt în recovery/intent.json; parsează privat.
 Reobservă readiness, contul/datele și browserul înainte de orice efect.
 Browserul dedicat UI3/debug9226 este păstrat pentru operator, nu profil personal.
 UI6 este STOPPED/generation2/date păstrate. UI5 are resursele fizice absente,
 dar rămâne UNCERTAIN/RECOVERY_REQUIRED după supervisor exit3/cauză UNKNOWN.
+UI7 la fel: supervisor exit3/OOMfalse în pauză, Stop original exit4/9.554s,
+exact4CIDs/proiect/rețele absente și identitățile datelor păstrate;
+logic UNCERTAIN/RECOVERY_REQUIRED, nu READY/STOPPED reconciliat.
 Nu o adopta/reporni și nu șterge markerul. Dacă defectul reapare pe instanța
 actuală, capturează motivul finit prin ownerul existent înainte de cleanup;
 nu inventa retrospectiv cauza și nu relansa la orb.
 
 CE NU SE REIA
-UI: review + re-review scoped, make check-web final96unit/6tooling/audit0,
-QA instalată desktop/mobil/keyboard/unknown/logout/revocation trecute scoped.
-Nu reface polishul sau probele neschimbate; aprobarea estetică rămâne distinctă.
+UI simplă: două re-reviewuri scoped, make check-web final115unit/6tooling/audit0,
+QA instalată1440/1280/390/320, tastatură,4assets, Diagnostic pliat,
+un singur click real read/save/connect și tab oficial deschis, exit0 până la CHALLENGE.
+Nu relansa polishul, read/save sau probele unknown/logout neafectate;
+aprobarea estetică rămâne distinctă. Nu adăuga provideri/modele/catalog nou.
 P2-inert/G02-inert și SEND PG/native controlat7a2ac5a sunt acceptate scoped
 (1PASS/35,72s/exit0/family_drained=true), nu inferență provider live.
 Pre-auth Connect/background/reload/Cancel32.411s pe27f86d1 se reutilizează
@@ -66,14 +79,17 @@ PRIMII PAȘI ȘI RESTANȚE
 2. Păstrează QA vizibilă: fereastră headed efectiv în față, URL comunicat,
    fără înlocuire cu headless/screenshot-only. La preluarea operatorului,
    oprește automatizarea și reobservă înainte de continuare.
-   UI este acceptată pentru continuare. Reobservă browserul dedicat pin153,
-   nu /usr/bin/chromium145 (două SIGTRAP păstrate). Operatorul nu a putut
-   continua ultima autorizare: „nu apare nimic, e grayed out”. Unicul Connect
-   7d9d7d7b-9d5a-41b7-8d92-ff85ffa79bc6 a fost CHALLENGE, apoi la pauză Cancel
-   pe același ID→CONFIRMED/CANCELLED/ABSENT fără challenge. Nu relua acest ID.
-   Clickul programatic nu a confirmat tab extern; verifică efectul real al
-   deschiderii URL-ului oficial înainte de predarea controlului, nu doar ACK.
-   Cauza exactă a simptomului operatorului rămâne UNKNOWN; fără retry orb.
+   Reobservă browserul dedicat pin153, nu /usr/bin/chromium145
+   (două SIGTRAP istorice păstrate). Connect0e4e7c98-e19d-4436-ab7f-e9876cb19d20
+   a produs CHALLENGE și tab oficial auth.openai.com confirmat efectiv deschis,
+   apoi controlul a fost lăsat operatorului. Formularul a rămas fără răspuns;
+   readback3682.983s mai târziu: INDETERMINATE/configuredfalse/selectionnull,
+   oauthNONE/challengeabsent/auth&reachableNOT_VERIFIED/inferencefalse.
+   Cauză UNKNOWN, nu expiry cert din timp; markerii finiți lipsesc.
+   Nu retrimite Connect sau refresh automat. Verifică operația exactă/starea
+   locală prin ownerii existenți și decide frontiera necesară înainte de efect.
+   UI veche7d9d7d7b… este CANCELLED/ABSENT; nici acel ID nu se reia.
+   Pentru orice deschidere ulterioară verifică tabul real, nu doar click ACK.
    Operatorul face autentificarea/confirmarea contului Codex numai în web.
    Nu solicita/copia parole, tokenuri sau coduri în chat,
    capturi, loguri ori Git. Save nu este auth; LOCAL_PRESENT se verifică
@@ -81,6 +97,7 @@ PRIMII PAȘI ȘI RESTANȚE
 3. Buget confirmat/neconsumat: cont Codex ales de operator, gpt-6.1-sol/xhigh,
    date sintetice, maximum1apel/300s pentru prima probă, fără retry/fallback.
    Nu extinde acest acord la alte calls; auth/consimțământ încă nefinalizate.
+   Cererea de web simplu nu autorizează pornirea acestei probe în fundal.
    Prima inferență trece exclusiv prin callerul legitim deja existent:
    native_tasks.py/_model_test_prepare și _model_test_send → ModelTest,
    cu producerii reali ai inputurilor, nu un apel SDK auxiliar sau helper fals.

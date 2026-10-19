@@ -1,0 +1,176 @@
+{
+  "source": "922dc9f",
+  "phase": "OPERATOR_CONTROL",
+  "status": "PASS_SCOPED_WAITING_OPERATOR_AUTH",
+  "geometry": [
+    {
+      "width": 1440,
+      "visible": "visible",
+      "focused": true,
+      "overflow": false,
+      "diagnosticOpen": false,
+      "codeCount": 0,
+      "controls": [
+        {
+          "name": "Provider",
+          "width": 518,
+          "height": 44
+        },
+        {
+          "name": "Model",
+          "width": 518,
+          "height": 44
+        },
+        {
+          "name": "Connect Codex",
+          "width": 180.6875,
+          "height": 46
+        },
+        {
+          "name": "Diagnostic",
+          "width": 1052,
+          "height": 45.75
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "visible": "visible",
+      "focused": true,
+      "overflow": false,
+      "diagnosticOpen": false,
+      "codeCount": 0,
+      "controls": [
+        {
+          "name": "Provider",
+          "width": 518,
+          "height": 44
+        },
+        {
+          "name": "Model",
+          "width": 518,
+          "height": 44
+        },
+        {
+          "name": "Connect Codex",
+          "width": 180.6875,
+          "height": 46
+        },
+        {
+          "name": "Diagnostic",
+          "width": 1052,
+          "height": 45.75
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "visible": "visible",
+      "focused": true,
+      "overflow": false,
+      "diagnosticOpen": false,
+      "codeCount": 0,
+      "controls": [
+        {
+          "name": "Provider",
+          "width": 291,
+          "height": 45
+        },
+        {
+          "name": "Model",
+          "width": 291,
+          "height": 45
+        },
+        {
+          "name": "Connect Codex",
+          "width": 291,
+          "height": 46
+        },
+        {
+          "name": "Diagnostic",
+          "width": 291,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "visible": "visible",
+      "focused": true,
+      "overflow": false,
+      "diagnosticOpen": false,
+      "codeCount": 0,
+      "controls": [
+        {
+          "name": "Provider",
+          "width": 221,
+          "height": 45
+        },
+        {
+          "name": "Model",
+          "width": 221,
+          "height": 45
+        },
+        {
+          "name": "Connect Codex",
+          "width": 221,
+          "height": 46
+        },
+        {
+          "name": "Diagnostic",
+          "width": 221,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "action": "read",
+      "operation_id": "84a48d89-1f23-4374-9183-61407452e74b"
+    },
+    {
+      "action": "save",
+      "operation_id": "6bb0625f-3655-444f-9c68-751985e6fc1c"
+    },
+    {
+      "action": "connect",
+      "operation_id": "0e4e7c98-e19d-4436-ab7f-e9876cb19d20"
+    }
+  ],
+  "inference": "NOT_RUN",
+  "prior_attempt": "simple-connect-visible-first.json",
+  "observer_correction": "Closed details descendants retained nonzero layout rects; same-browser native checkVisibility and Playwright isVisible both refused Save visibility. Screenshot inspected. Use actual visibility, not rect existence; retain exact expected visible controls and geometry assertions.",
+  "assets": [
+    {
+      "name": "assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+    },
+    {
+      "name": "assets/index-BmVV6W7l.js",
+      "sha256": "2e213c9a608174ff51e7ee759167bf2cefc8000f9068951908f3031113ff5d3f"
+    },
+    {
+      "name": "assets/index-CCTUDgFi.css",
+      "sha256": "2eaad5343d259fb5ec67d35ca495ad3b8195856c546a30254824b42b54a3ada0"
+    },
+    {
+      "name": "index.html",
+      "sha256": "3e9550ae053bb1d7d92b82df3a6e816ae43abe1c849cc46b6e5bf37b446e08c2"
+    }
+  ],
+  "keyboard": "PASS",
+  "connect": {
+    "http": 200,
+    "operation_id": "0e4e7c98-e19d-4436-ab7f-e9876cb19d20",
+    "status": "PENDING",
+    "oauth": "CHALLENGE",
+    "authenticated": "NOT_VERIFIED",
+    "challenge_present": true,
+    "inference_ready": false
+  },
+  "authorization_tab": {
+    "opened": true,
+    "origin": "https://auth.openai.com"
+  }
+}

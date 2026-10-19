@@ -1,0 +1,162 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "report_path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-f01.json",
+  "role": "Independent normative reviewer; focused NORM-F01 re-review",
+  "model": {
+    "session_as_supplied": "openai-codex/gpt-6.1-sol",
+    "required_reasoning_effort": "xhigh",
+    "fallback_or_downgrade_requested_or_performed": false,
+    "global_configuration_read_or_changed": false
+  },
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+    "base": "6b7a7e0e6b5be9a720a5428fe2f11c2991f55a7c",
+    "branch": "work/p4a-simple-aeqwhv_2",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer-result.json",
+    "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+    "patch_sha256": "184474cae1c3a8a84e919bf80cd061d9e7f8ca812833079227ea206fa8e931ed",
+    "files_sha256": {
+      "web/src/features/engagement/ProviderSettings.tsx": "c85a0a5331cb2611b67dbe08c90690c6ac62d6a6c7665a27baf2c61efe3b3c2c",
+      "web/src/features/engagement/Engagement.module.css": "937cfa705d723dad5351e3294b9ffff00d2738facf0a20ae23e86fe949f90bc4",
+      "web/src/app/ProviderSettings.test.tsx": "8a5ecf85522c1faf874f39e5f6e0f7f997c7103e00d2c09f92c88c0817b64e69",
+      "cli/integration/installed_browser.mjs": "47d48a9dcd4d5d4892af2ecc47645d05b6557d22eebeebe5b39ad36fef56972e"
+    },
+    "initial_and_final_hashes_paths_base_match": true,
+    "git_diff_byte_equal_to_patch": true,
+    "reverse_apply_check_exit": 0,
+    "staged_paths_initial_and_final": [],
+    "worktree_or_index_entries_modified_by_reviewer": false,
+    "evidence": [
+      "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-snapshot-initial.json",
+      "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-snapshot-final.json"
+    ]
+  },
+  "scope_and_decision": {
+    "requirement": "Logout numai cu dovadă afirmativă locală: LOCAL_PRESENT, LOCAL_EXPIRED sau oauth=SAVED. LOCAL_UNKNOWN/NONE nu justifică Logout.",
+    "consumer": "Settings → ProviderSettings → api.providerOperation/client/strict decoder; aceeași rută App în controalele SOURCE.",
+    "risk": "Un rezultat local UNKNOWN afișa Logout activ fără dovada existenței unui grant.",
+    "decision": "NORM-F01 este închis în reviewul SOURCE/static pe cele patru hashuri finale. Integrarea și QA reală rămân ale părintelui.",
+    "changed_product_location": "web/src/features/engagement/ProviderSettings.tsx:123",
+    "changed_test_location": "web/src/app/ProviderSettings.test.tsx:311-337",
+    "delta_verified": "Față de copia SOURCE revizuită inițial, înlocuirea exactă a unei singure condiții produce întregul fișier final ProviderSettings. În test există numai o inserție de 28 linii pentru șase rânduri parametrizate; niciun test/assert original modificat sau șters. CSS și callerul installed-browser păstrează SHA-urile inițiale.",
+    "unchanged_scope_reused": "Conformitatea scoped anterioară pentru default/fresh/configured, read→save→readback→Connect, ID/poll/recovery, fences, no-fake-Connected, selecție/timpi/owner și disclosure/caller installed este reutilizată numai pe bytes neschimbați. Nu este un nou audit general sau un transfer de QA live.",
+    "new_unnecessary_product_accessories": []
+  },
+  "finding_dispositions": [
+    {
+      "id": "NORM-F01",
+      "previous_severity": "MEDIUM/P2",
+      "previous_disposition": "OPEN",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "file_line": "web/src/features/engagement/ProviderSettings.tsx:123",
+      "fix": "Condiția este acum oauth === SAVED OR authenticated === LOCAL_PRESENT OR authenticated === LOCAL_EXPIRED; LOCAL_UNKNOWN singur nu mai afișează Logout.",
+      "independent_original_reproducer": "REVIEW logout needs affirmative grant evidence, not LOCAL_UNKNOWN alone",
+      "reproducer_result": "PASS pe bytes finali, cu același control independent nemodificat care a produs FAIL pe snapshotul inițial.",
+      "positive_controls": [
+        "LOCAL_PRESENT/NONE → Logout enabled, original independent control PASS și noua regresie autor PASS",
+        "LOCAL_EXPIRED/NONE → Logout enabled, original independent control PASS și noua regresie autor PASS",
+        "LOCAL_UNKNOWN/SAVED → Logout visible/enabled, noua regresie autor PASS"
+      ],
+      "negative_controls": [
+        "ABSENT/NONE → Logout absent, independent și autor PASS",
+        "NOT_VERIFIED/NONE → Logout absent, independent și autor PASS",
+        "LOCAL_UNKNOWN/NONE → Logout absent, independent și autor PASS; statusul uman unknown și diagnosticul local sunt păstrate"
+      ],
+      "guard_assessment": "Neschimbate byte-exact: disabled={!authReady || pending || unknown}, handlerul perform(logout), validarea statusului în decoder și definițiile unknown/pending/authReady. Delta restrânge numai vizibilitatea și nu adaugă o cale de dispatch ori relaxează fences. Acest aspect este verificat static prin delta exactă, nu prezentat ca o nouă probă live sau ca toate interleavings testate.",
+      "blocking_in_this_review": false
+    }
+  ],
+  "findings": [],
+  "historical_reports": {
+    "initial_norm": {
+      "path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm.json",
+      "sha256_before_and_after": "83d32483c8b255a3cb7f56a5365fd299b1e77187a8607df737de0e069aaeea91",
+      "verdict_preserved": "CHANGES_REQUESTED",
+      "unchanged": true,
+      "historical_control_result_preserved": "6 PASS/1 FAIL în review-controls.json; nu a fost suprascris de rezultatul nou"
+    },
+    "initial_safety": {
+      "path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety.json",
+      "verdict_as_supplied_by_parent": "APPROVED_SCOPED pe snapshotul inițial",
+      "reviewer_did_not_write_or_reissue": true,
+      "limit": "Acest re-review norm nu se substituie reviewerului safety și nu reemite aprobarea sa pentru bytes noi."
+    },
+    "developer_initial_artifacts": "developer-initial.patch și developer-result-initial.json nu au fost scrise de reviewer; raportul/patchul final au fost numai citite."
+  },
+  "verification": {
+    "tmpdir": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp",
+    "tmpdir_mode_verified": "0700",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "shell_environment": {
+      "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp",
+      "NODE_ENV": "test",
+      "explicit_in_every_npm_vitest_shell": true
+    },
+    "source_copy": {
+      "root": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/web",
+      "updated_byte_exact": [
+        "web/src/features/engagement/ProviderSettings.tsx",
+        "web/src/app/ProviderSettings.test.tsx"
+      ],
+      "original_independent_control_unchanged_sha256": "2aef7145b2da3c3bb62aadfe3e4ea6797b23689964d513babe26a48cbe55612d",
+      "cacheDir": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/vite-cache",
+      "configLoader": "runner",
+      "envDir": false,
+      "dependencies": "Symlink existent în copia scratch către dependențe instalate; fără instalări, fără schimbări de config/dependencies/cache în worktree. Nu s-a executat un tracer OS universal al scrierilor.",
+      "delta_artifact": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-delta.diff",
+      "copy_evidence": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-copy.json",
+      "initial_source_preserved_in": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-initial-source"
+    },
+    "commands": [
+      {
+        "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --name-only; Python SHA256/paths/base/git-diff-byte-comparison",
+        "exit": 0,
+        "result": "Exact patru paths, baza/hashuri/patch corecte înainte și după; zero staged."
+      },
+      {
+        "command": "Python difflib + old.replace(exact_old_condition, exact_new_condition) == final_source + test insertion-only + CSS/caller SHA checks",
+        "exit": 0,
+        "result": "Delta este numai condiția cerută și regresia șase stări. Guardul disabled și restul ProviderSettings sunt byte-identice."
+      },
+      {
+        "command": "export PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:$PATH; export TMPDIR=/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp; export NODE_ENV=test; npm test -- --config vitest.config.mjs --configLoader runner src/app/ReviewNorm.test.tsx src/app/ProviderSettings.test.tsx -t 'REVIEW|NORM-F01' --reporter=default --reporter=json --outputFile.json=$TMPDIR/f01-controls.json",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/web",
+        "exit": 0,
+        "counts": {
+          "enumerated": 33,
+          "executed": 13,
+          "passed": 13,
+          "failed": 0,
+          "skipped_unchanged_author_cases": 20,
+          "original_independent_controls_passed": 7,
+          "new_author_regression_rows_passed": 6
+        },
+        "json": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-controls.json",
+        "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/f01-controls.log",
+        "limit": "SOURCE fetch doubles prin App/client/strict decoder reale, nu installed/browser/auth/provider QA. Cele șase rânduri noi verifică zero efecte non-GET."
+      },
+      {
+        "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch && git diff --check && git status --short --branch",
+        "exit": 0,
+        "result": "Frozen final rămas identic; patch aplicabil invers; patru modificări preexistente, index fără staged."
+      }
+    ],
+    "unexpected_execution_failures": [],
+    "full_suite_reexecuted": false
+  },
+  "limits": [
+    "APPROVED_SCOPED este compoziția reviewului norm anterior pe bytes neschimbați cu fixul NORM-F01 verificat acum. Nu certifică universal corectitudinea sau absența tuturor gap-urilor.",
+    "Nu s-au rerulat cele 20 cazuri originale, oracle-ul installed-browser, full web suite, lint/type/contracts/design/build sau canonical. Dovezile autorului/părintelui pentru acestea sunt context, nu execuții revendicate de reviewer.",
+    "Fără servere, browser, PG, OCI, provider, auth live, inferență, install, commit, push sau delegare. UI7/UI8 neatinse.",
+    "Worktree/index read-only; scrieri numai în review-norm-tmp și noul review-norm-f01.json. Rapoarte/loguri anterioare păstrate.",
+    "Fără citire/modificare de credentiale/private receipts/loguri, .env, protected files, SOUL, skills, memory sau configurație globală."
+  ],
+  "handoff": {
+    "AICI": "P4a Provider→Model→Connect: candidat final norm APPROVED_SCOPED; NORM-F01 CLOSED_SOURCE_SCOPED.",
+    "integration_and_commit": "NOT_RUN; decizia și execuția aparțin orchestratorului.",
+    "installed_real_qa": "NOT_RUN; după adjudecarea blockerelor, părintele probează consumerul real pe bytes finali.",
+    "auth_inference_phase2": "Fără aprobare/efecte suplimentare; faza2 nu este închisă prin acest raport."
+  }
+}

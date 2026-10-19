@@ -1,0 +1,231 @@
+{
+  "verdict": "PASS_UI_ONE_CLICK_THROUGH_CHALLENGE_AUTH_INDETERMINATE_PHASE2_NOT_CLOSED",
+  "source_commit": "922dc9f",
+  "release_sha256": "660cb2df9b0c89c0e1fcc5960cdd59bbfac70a77890e440b9b0aff85cb33949a",
+  "root": "/home/kali/.omnis-p2-ui8",
+  "origin": "http://127.0.0.1:8765",
+  "evidence_scope": "Installed real API/PG/native read->save->Connect, single click, not provider account login or inference proof.",
+  "source_checks": {
+    "make_check_web_exit": 0,
+    "web_unit_pass": 115,
+    "web_unit_files": 13,
+    "audit_vulnerabilities": 0,
+    "trusted_assets": 4,
+    "review": "Complementary final APPROVED_SCOPED, NORM-F01 reproduced/minimally fixed and re-reviewed."
+  },
+  "visible_scope": {
+    "geometry_count": 4,
+    "widths": [
+      320,
+      390,
+      1280,
+      1440
+    ],
+    "keyboard": "PASS",
+    "commands": [
+      {
+        "action": "read",
+        "operation_id": "84a48d89-1f23-4374-9183-61407452e74b"
+      },
+      {
+        "action": "save",
+        "operation_id": "6bb0625f-3655-444f-9c68-751985e6fc1c"
+      },
+      {
+        "action": "connect",
+        "operation_id": "0e4e7c98-e19d-4436-ab7f-e9876cb19d20"
+      }
+    ],
+    "challenge_observation": {
+      "http": 200,
+      "operation_id": "0e4e7c98-e19d-4436-ab7f-e9876cb19d20",
+      "status": "PENDING",
+      "oauth": "CHALLENGE",
+      "authenticated": "NOT_VERIFIED",
+      "challenge_present": true,
+      "inference_ready": false
+    },
+    "authorization_tab": {
+      "opened": true,
+      "origin": "https://auth.openai.com"
+    },
+    "screenshots": "UI8/recovery/screens/providers-{1440,1280,390,320}.png; captured only before Connect, no secret screenshots."
+  },
+  "post_operator_wait": {
+    "clarification_outcome": "timed_out; no operator confirmation received",
+    "observed_seconds_since_qa_final": 3682.983,
+    "auth_readback": {
+      "http": 200,
+      "operation_id": "0e4e7c98-e19d-4436-ab7f-e9876cb19d20",
+      "status": "INDETERMINATE",
+      "configured": false,
+      "selection": null,
+      "authenticated": "NOT_VERIFIED",
+      "reachable": "NOT_VERIFIED",
+      "inference_ready": false,
+      "oauth": "NONE",
+      "challenge_present": false
+    },
+    "runtime_diagnostic_markers": [],
+    "runtime_log_read_exit": 0,
+    "runtime_log_bytes": 59,
+    "reason": "UNKNOWN. Elapsed time alone does not establish exclusive expiry/error cause. No resend or new Connect issued. No account authorization success or local grant presence claimed."
+  },
+  "instance_readback": {
+    "exit": 0,
+    "status": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 1,
+      "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+      "origin": "http://127.0.0.1:8765",
+      "reason": null,
+      "release": "0.1.0",
+      "schema": "0013_mission_revisions",
+      "state": "READY",
+      "supervisor_epoch": 1
+    }
+  },
+  "resources_readback": {
+    "project": "omnis-local-b50fe370434f41219059a45e73a800c1",
+    "resources": [
+      {
+        "cid": "3918cfa8d3064e1ff25ba74d11f37419e6f827569c9c3ec0c1f329cb2a83597b",
+        "service": "api",
+        "status": "running",
+        "exit_code": 0,
+        "oom_killed": false
+      },
+      {
+        "cid": "ba446b980b4dfb2be7001a56c90e4e7996d87cb4fad7fe8c2da6a5676de8317b",
+        "service": "supervisor",
+        "status": "running",
+        "exit_code": 0,
+        "oom_killed": false
+      },
+      {
+        "cid": "5cd0fce35c70c7e6a0937bc451eae64f177c4dc07cc220a4c33c2f94209c32af",
+        "service": "runtime",
+        "status": "running",
+        "exit_code": 0,
+        "oom_killed": false
+      },
+      {
+        "cid": "f8268b6f0064866182493f0e10540ccaffee531a449f32a4e6c8336c0f5f2acf",
+        "service": "db",
+        "status": "running",
+        "exit_code": 0,
+        "oom_killed": false
+      }
+    ]
+  },
+  "install_steps": {
+    "install": {
+      "step": "install",
+      "exit": 0,
+      "seconds": 0.324,
+      "command": [
+        "/home/kali/.omnis-p2-ui8/cli/bin/omnis",
+        "install",
+        "--bundle",
+        "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/bundle"
+      ]
+    },
+    "image": {
+      "step": "image",
+      "exit": 0,
+      "seconds": 10.393,
+      "command": [
+        "/home/kali/.omnis-p2-ui8/cli/bin/omnis",
+        "install-image",
+        "--runtime-context",
+        "/home/kali/.hermes/cache/scratch/of-n9n2qc5w/prepared"
+      ]
+    },
+    "start": {
+      "step": "start",
+      "exit": 0,
+      "seconds": 21.417,
+      "command": [
+        "/home/kali/.omnis-p2-ui8/cli/bin/omnis",
+        "start",
+        "--no-open",
+        "--port",
+        "8765",
+        "--json",
+        "--startup-timeout",
+        "180",
+        "--cleanup-timeout",
+        "100"
+      ],
+      "status": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 1,
+        "supervisor_epoch": 1,
+        "admission_open": true,
+        "dashboard_ready": true,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    },
+    "status": {
+      "step": "status",
+      "exit": 0,
+      "seconds": 3.722,
+      "command": [
+        "/home/kali/.omnis-p2-ui8/cli/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "status": {
+        "state": "READY",
+        "reason": null,
+        "instance_id": "cebb549c-2a72-40fe-89fd-877f62b1b4d6",
+        "generation": 1,
+        "supervisor_epoch": 1,
+        "admission_open": true,
+        "dashboard_ready": true,
+        "assessment_ready": false,
+        "origin": "http://127.0.0.1:8765"
+      }
+    }
+  },
+  "old_ui7": {
+    "stop_exit": 4,
+    "stop_seconds": 9.554,
+    "supervisor_exit": 3,
+    "oom_killed": false,
+    "finite_owner_markers": {
+      "SUPERVISOR_READY": 1,
+      "SUPERVISOR_UNAVAILABLE": 1
+    },
+    "cause": "UNKNOWN",
+    "readback": {
+      "exact_cids_present": [],
+      "exact_cids_unconfirmed": [],
+      "project_containers": [],
+      "project_networks": [],
+      "retained_data_identity": {
+        "state/omnis/postgres": true,
+        "state/omnis/provider": true,
+        "data/omnis": true
+      },
+      "listener8765": false,
+      "logical_state": "UNCERTAIN_RECOVERY_REQUIRED_NOT_RECONCILED"
+    },
+    "policy": "No adoption/restart or uncertainty-marker clearing; data retained."
+  },
+  "limits": [
+    "Full make check NOT_RUN; inherited independent runtime None stock-control failure remains.",
+    "No Omnis inference, target traffic, P3, personal profile, global configuration or push. First authorized1call/300s budget unused.",
+    "No visual fidelity certification or universal accessibility/reliability claim; screenshot inspection found only nonblocking separator/copy polish.",
+    "First native-details rect oracle FAIL and reviewer NODE_ENV/TMPDIR launch incidents preserved in originals; source not changed to satisfy observers.",
+    "UI8/browser retained for operator. All implementation/review/QA processes exited; no automatic continuation or retry."
+  ]
+}

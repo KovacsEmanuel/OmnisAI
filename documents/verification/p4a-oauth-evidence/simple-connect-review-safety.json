@@ -1,0 +1,220 @@
+{
+  "verdict": "APPROVED_SCOPED",
+  "report_path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety.json",
+  "scope": "Review independent SOURCE, complementar safety/concurență/UI. Aprobarea privește exclusiv snapshotul frozen declarat, nu integrarea, QA installed, contul, inferența sau închiderea P4a/P2.",
+  "reviewer": {
+    "provider": "openai-codex",
+    "model": "gpt-6.1-sol",
+    "requested_reasoning": "xhigh",
+    "fallback_downgrade_delegation": "NONE",
+    "configuration_changes": "NONE"
+  },
+  "snapshot": {
+    "base": "6b7a7e0e6b5be9a720a5428fe2f11c2991f55a7c",
+    "branch": "work/p4a-simple-aeqwhv_2",
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+    "author_manifest": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer-result.json",
+    "files_sha256": {
+      "web/src/features/engagement/ProviderSettings.tsx": "bdb6a7a2547de25d18dedfe6408209972c5fbeebc9773202b6ae25dfa710593b",
+      "web/src/features/engagement/Engagement.module.css": "937cfa705d723dad5351e3294b9ffff00d2738facf0a20ae23e86fe949f90bc4",
+      "web/src/app/ProviderSettings.test.tsx": "6257d8f0f4016cc710696778c5072dd416015b6d845c3c375c00b6aff1d57b93",
+      "cli/integration/installed_browser.mjs": "47d48a9dcd4d5d4892af2ecc47645d05b6557d22eebeebe5b39ad36fef56972e"
+    },
+    "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+    "patch_sha256": "6443ce08de98f141aeb4cbb2f1486f5c22e1ac57b3410fef3f45b2fc642d85e5",
+    "initial_integrity": {
+      "base_match": true,
+      "four_paths_exact": true,
+      "four_hashes_match": true,
+      "index_empty": true,
+      "patch_hash_match": true,
+      "patch_equals_git_diff_binary_full_index": true,
+      "git_apply_reverse_check_exit": 0
+    },
+    "final_integrity": {
+      "base_match": true,
+      "four_paths_exact": true,
+      "four_hashes_unchanged": true,
+      "index_empty": true,
+      "patch_equals_git_diff_binary_full_index": true,
+      "scratch_web_snapshot_matches_three_frozen_web_files": true,
+      "exit": 0
+    }
+  },
+  "findings": [],
+  "finding_count": 0,
+  "decision_basis": [
+    {
+      "requirement": "Provider → Model → Connect, fără read/save manuale, exact un Connect după readback confirmat.",
+      "consumer": "Settings → ProviderSettings → api.providerCommand/providerOperation → owner Settings existent",
+      "risk": "Auth înaintea confirmării salvării sau operații duplicate.",
+      "source": [
+        "web/src/features/engagement/Settings.tsx:11",
+        "web/src/features/engagement/ProviderSettings.tsx:55-83",
+        "web/src/shared/api/client.ts:59-75",
+        "web/src/shared/api/providers.ts:7-28"
+      ],
+      "evidence": "Control pozitiv existent fresh read→save→connect cu trei ID-uri distincte; control pending read/save; double-click existent și control independent cu Connect PENDING→SAVED rapid. Readback save cu ID greșit sau effort high este refuzat, cu zero Connect inclusiv după recovery.",
+      "decision": "PASS_SOURCE_SCOPED; nicio lansare auth/inferență observată în aceste probe sintetice înaintea clickului. Preparation este inițial null; effectul continuă numai intenția clickului și numai CONFIRMED pe ID-ul pasului curent."
+    },
+    {
+      "requirement": "Unknown/401/logout/abort/unmount opresc continuarea; recovery fără resend.",
+      "consumer": "ProviderSettings perform/recover/query și BrowserSession.readPrivate",
+      "risk": "Held/late save sau poll să reînvie o intenție expirată ori neautorizată.",
+      "source": [
+        "web/src/features/engagement/ProviderSettings.tsx:23-64",
+        "web/src/features/engagement/ProviderSettings.tsx:79-99",
+        "web/src/features/bootstrap/useBrowserSession.ts:29-40",
+        "web/src/features/bootstrap/useBrowserSession.ts:49-58",
+        "web/src/features/bootstrap/useBrowserSession.ts:113-134"
+      ],
+      "evidence": "Teste existente held late save după unmount/401/logout, lost save reply, expiry30s, BUSY/INDETERMINATE/UNAVAILABLE și recovery. Probă independentă: GET al readului pending eșuează, apoi un GET confirmă configured; rămâne numai read, zero save/Connect automat.",
+      "decision": "PASS_SOURCE_SCOPED. Epoch/signal din ownerul existent și cleanupul componentei păstrează bariera; recovery golește preparation și folosește GET al aceluiași ID, nu PUT."
+    },
+    {
+      "requirement": "Cancel same-ID ascunde imediat codul față de cached/late challenge; reload și background polling fără replay.",
+      "consumer": "ProviderSettings observed/cancelling/query și UI challenge/Cancel/recovery",
+      "risk": "Cod OAuth expus după intenția de anulare, poll pe current schimbător ori resend.",
+      "source": [
+        "web/src/features/engagement/ProviderSettings.tsx:29-46",
+        "web/src/features/engagement/ProviderSettings.tsx:71-77",
+        "web/src/features/engagement/ProviderSettings.tsx:115-124"
+      ],
+      "evidence": "Controale existente pentru Cancel same-ID, held late GET/cached CHALLENGE, recovery până la CANCELLED, reload GET failure, limita900s și polling500ms cu focusManager=false. Reload al unui known UNAVAILABLE recuperează ID-ul exact, zero PUT.",
+      "decision": "PASS_SOURCE_SCOPED. 30000ms/900000ms/500ms și retry=false sunt păstrate. Testul background este SOURCE/focusManager, nu dovadă de tab nativ ascuns."
+    },
+    {
+      "requirement": "Două selectoare+Connect+status uman; Diagnostic pliat nu ascunde active warnings/challenge/Cancel/recovery.",
+      "consumer": "ProviderSettings JSX/CSS și callerul installed_browser Settings",
+      "risk": "Controale inaccesibile după disclosure sau readiness afirmată nejustificat.",
+      "source": [
+        "web/src/features/engagement/ProviderSettings.tsx:101-141",
+        "web/src/features/engagement/Engagement.module.css:22-38",
+        "cli/integration/installed_browser.mjs:62-79",
+        "cli/integration/installed_browser.mjs:145-147"
+      ],
+      "evidence": "Testul implicit verifică details închis și ordinea Provider→Model→Connect→Diagnostic; Effort nu mai este selector. Challenge/Cancel/recovery și textele operative sunt în afara details. Callerul Settings deschide Diagnostic pentru acțiunile tehnice și după reload, fără schimbarea mode=session/Home→Runtime.",
+      "decision": "PASS_SOURCE_SCOPED; configured/SAVED rămân explicit model not tested, axele provider/inference nu devin ready. Local logout este condiționat de observația locală/SAVED, nu de configured singur. Geometria/focusul browserului real și estetica rămân NOT_RUN."
+    },
+    {
+      "requirement": "Un singur owner/session; numai selecția existentă, fără backend/DTO/fallback/buget nou.",
+      "consumer": "Settings API/supervisor/runtime_host/management_http existente",
+      "risk": "Al doilea writer sau bypass al readbackului nativ.",
+      "source": [
+        "api/src/omnis/modules/settings/provider_routes.py:33-109",
+        "api/src/omnis/modules/settings/provider_models.py:9-27",
+        "api/src/omnis/supervisor/runtime_client.py:703-760",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:285-358",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:428-443",
+        "integrations/hermes/src/omnis_hermes/management_http.py:96-125",
+        "integrations/hermes/src/omnis_hermes/management_auth.py:27-70"
+      ],
+      "evidence": "Read-only trace: save include GET nativ și comparație exactă înainte de CONFIRMED; OAuth terminal include local auth_read; frontend folosește ownerul și DTO-urile existente. Diff-ul este strict cele patru fișiere, fără alte modificări.",
+      "decision": "PASS_STATIC_SCOPED, nu integrare sau execuție backend/native. Nu s-a introdus catalog, model fallback ori autoritate nouă."
+    }
+  ],
+  "verification": {
+    "toolchain": {
+      "bin": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+      "node": "24.21.0",
+      "npm": "11.19.0",
+      "version_commands_exit": 0,
+      "installs": "NONE"
+    },
+    "scratch": {
+      "path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp",
+      "mode": "0700",
+      "method": "Copie explicită web/src, web/tests, package.json și tsconfig.json; node_modules symlink numai în scratch către dependențele existente. Configul propriu setează envDir=false și cacheDir propriu. Frozen worktree și indexul nu au fost editate.",
+      "config": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/vitest.config.mjs",
+      "config_sha256": "bf69289264832e1b5993c2d83be33d6535edfe0b11e3aa5bd0b05014cf6ee68e",
+      "additional_tests": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/web/src/app/ProviderSettings.safety-review.test.tsx",
+      "additional_tests_sha256": "afa7141fc4086a0f0e65294670893b9daab3a8662e37d05c30a26d76f6ee5ac8"
+    },
+    "commands": [
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+        "exit": 0,
+        "limit": "Read-only check, nu apply. Compararea SHA/paths/base/diff s-a făcut suplimentar prin hashlib și git read-only, inițial și la final."
+      },
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/web",
+        "environment": "PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:$PATH; TMPDIR=/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp; NODE_ENV=test",
+        "command": "node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config $TMPDIR/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/provider-correct-env.json",
+        "exit": 0,
+        "passed": 20,
+        "failed": 0,
+        "skipped": 0,
+        "result": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/provider-correct-env.json"
+      },
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/web",
+        "environment": "PATH=/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:$PATH; TMPDIR=/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp; NODE_ENV=test",
+        "command": "node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config $TMPDIR/vitest.config.mjs --configLoader runner src/app/ProviderSettings.safety-review.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/provider-safety.json",
+        "exit": 0,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "result": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/provider-safety.json"
+      },
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --check cli/integration/installed_browser.mjs",
+        "exit": 0,
+        "limit": "Sintaxă SOURCE; nu browser."
+      },
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --test cli/integration/test_installed_browser.mjs",
+        "exit": 0,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "limit": "Oracle SOURCE pozitiv/negativ; nu execută journey-ul installed/browser."
+      },
+      {
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "command": "git diff --check",
+        "exit": 0
+      }
+    ],
+    "passed_counts": { "vitest_existing": 20, "vitest_independent_safety": 4, "node_oracle": 4, "total_source_tests": 28 },
+    "failed_attempts_and_execution_incidents": [
+      {
+        "command": "node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config $TMPDIR/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/provider-existing.json",
+        "exit": 1,
+        "failed": 20,
+        "passed": 0,
+        "reason": "Primul launcher a omis NODE_ENV=test din scriptul real npm test; React production nu are React.act. Eroare de lansare SOURCE, nu defect de produs. Rerunul corect reproduce scriptul cu NODE_ENV=test și trece20/20.",
+        "result": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety-tmp/provider-existing.json"
+      },
+      {
+        "command": "export NODE_ENV=test; node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config $TMPDIR/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/provider-correct-env.json",
+        "exit": 1,
+        "counts": "NOT_AVAILABLE; nu există rezultatul JSON în scratch-ul propriu pentru această tentativă",
+        "reason": "Exporturile PATH/TMPDIR din apelul anterior nu au persistat în următorul tool shell. Tentativa a folosit TMPDIR moștenit /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp, nu directorul propriu0700; a fost o abatere de launcher a reviewerului. Următorul apel a fixat explicit PATH/TMPDIR/NODE_ENV și a produs20PASS. Nu pretind izolare strictă TMPDIR pentru această tentativă eșuată.",
+        "observed_source_launcher_log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/provider-correct-env.log",
+        "handling": "Nu s-au șters/restaurat artefacte ale părintelui și nu s-a auditat tmp-ul lui. Eventuale alte scrieri de cache ale tentativei eșuate nu sunt certificate ca absente. Frozen bytes/index au rămas identice la readback."
+      }
+    ]
+  },
+  "instructions_consulted": {
+    "read": ["AGENTS.md", "CONTRIBUTING.md", "README.md", ".hermes/skills/omnis-review-qa/SKILL.md", ".hermes/skills/omnis-project-status/SKILL.md", "documents/Omnis_MVP_Architecture.md:98-105,128-135", "documents/Omnis_Implementation_Plan.md:RF02,P4a-minim"],
+    "ponytail_review": "skill_view(name=ponytail-review) a returnat not found; căutările de nume nu au găsit fișierul. Regulile Ponytail full furnizate în cerere au fost aplicate; fișierul protejat tools/development/ponytail.json nu a fost citit/hashuit/copiat/modificat."
+  },
+  "limits": [
+    "APPROVED_SCOPED fără findings blocante identificate în scope; probele nu demonstrează absența tuturor gap-urilor posibile.",
+    "Toate probele executate sunt SOURCE/API fetch doubles sau oracle Node. Installed/browser/visual/viewport/native-keyboard QA rămân NOT_RUN și aparțin orchestratorului după reviewuri.",
+    "Nu s-au pornit servere, browser, PG, OCI, autentificare provider, inferență sau install; UI7 nu a fost adoptată/repornită, UI8 nu a fost atinsă.",
+    "Fără commit/push/delegare și fără modificări de worktree/index, SOUL/skills/memory/global config. Fișierele frozen și patchul au fost reconfirmate identice la final.",
+    "Nu s-au citit credentiale .env/auth/cookies, private receipts/loguri sau documentul HTML protejat. Management auth și BrowserSession au fost citite numai ca sursă de cod în scope.",
+    "Nu am rerulat suita web integrală, canonical make test/check, build/lint/typecheck ori backend/native live. Nu transfer probele autorului ca execuții independente ale reviewerului.",
+    "Abaterea TMPDIR a unei tentative SOURCE eșuate este păstrată explicit mai sus; verdictul privește sursa frozen, nu certifică execuția reviewerului drept complet lipsită de incidente.",
+    "Reticle NOT_RUN pentru acest review SOURCE; Chisel BLOCKED_NO_GO/nefolosit."
+  ],
+  "handoff": {
+    "AICI": "UI Provider→Model→Connect implementată în snapshotul frozen, neintegrată; safety review APPROVED_SCOPED;24Vitest+4Node SOURCE PASS.",
+    "next_owner": "Orchestratorul adjudecă reviewurile complementare și incidentul de launcher, decide integrarea/commitul și execută browserul real pe artefactul acceptat.",
+    "not_authorized_by_this_report": ["cont/auth live", "inferență", "faza2", "push", "reluare UI7", "adopție UI8"]
+  }
+}

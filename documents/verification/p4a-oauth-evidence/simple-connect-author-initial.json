@@ -1,0 +1,84 @@
+{
+  "verdict": "SOURCE_SCOPED_READY_FOR_INDEPENDENT_REVIEW",
+  "base": "6b7a7e0e6b5be9a720a5428fe2f11c2991f55a7c",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+  "branch": "work/p4a-simple-aeqwhv_2",
+  "frozen": true,
+  "integration": "NOT_RUN: orchestrator owns review, integration and commits; no commit, branch change, push or delegation performed",
+  "model": {"session": "openai-codex/gpt-6.1-sol", "required_effort": "xhigh", "downgrade_or_fallback": false, "product_selection": "openai-codex/gpt-6.1-sol/xhigh"},
+  "scope_fileSHA256": {
+    "web/src/features/engagement/ProviderSettings.tsx": "bdb6a7a2547de25d18dedfe6408209972c5fbeebc9773202b6ae25dfa710593b",
+    "web/src/features/engagement/Engagement.module.css": "937cfa705d723dad5351e3294b9ffff00d2738facf0a20ae23e86fe949f90bc4",
+    "web/src/app/ProviderSettings.test.tsx": "6257d8f0f4016cc710696778c5072dd416015b6d845c3c375c00b6aff1d57b93",
+    "cli/integration/installed_browser.mjs": "47d48a9dcd4d5d4892af2ecc47645d05b6557d22eebeebe5b39ad36fef56972e"
+  },
+  "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+  "patchSHA256": "6443ce08de98f141aeb4cbb2f1486f5c22e1ac57b3410fef3f45b2fc642d85e5",
+  "patch_reverse_check": {"command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch", "exit": 0},
+  "reach_points": [
+    {"path": "web/src/app/App.tsx", "reach": "Existing Settings route, BrowserSessionProvider and auth/unmount boundary; unchanged"},
+    {"path": "web/src/features/engagement/Settings.tsx", "reach": "Existing Providers navigation and ProviderSettings render; unchanged"},
+    {"path": "web/src/features/engagement/ProviderSettings.tsx", "reach": "Connect handler, existing perform/readPrivate/query, read/save/connect continuation, exact-ID poll/recover, Cancel, local grant diagnostic/logout"},
+    {"path": "web/src/features/engagement/Engagement.module.css", "reach": "Providers selection grid, existing mobile media rules, 44px native control minimums"},
+    {"path": "web/src/app/ProviderSettings.test.tsx", "reach": "App route SOURCE fetch doubles; default native disclosure visibility/tab order and 20 scoped regressions"},
+    {"path": "web/tests/fixtures.ts", "reach": "Existing synthetic health/instance DTOs reused, unchanged"},
+    {"path": "web/src/features/bootstrap/BrowserSession.tsx", "reach": "Existing session context, unchanged"},
+    {"path": "web/src/features/bootstrap/useBrowserSession.ts", "reach": "Existing readPrivate, epoch, 401/logout fencing; unchanged"},
+    {"path": "web/src/features/bootstrap/Bootstrap.tsx", "reach": "Existing Runtime browser logout used by late-save regression; unchanged"},
+    {"path": "web/src/shared/api/client.ts", "reach": "Existing providerCommand PUT/providerOperation GET; unchanged"},
+    {"path": "web/src/shared/api/providers.ts", "reach": "Strict decoder and exact requestedSelection; unchanged"},
+    {"path": "cli/integration/installed_browser.mjs", "reach": "Settings modes explicitly open Diagnostic for technical actions and check default native tab order; mode=session/Home-to-Runtime untouched"},
+    {"path": "cli/integration/test_installed_browser.mjs", "reach": "Existing four SOURCE journey/oracle tests; unchanged"},
+    {"path": "api/src/omnis/modules/settings/provider_routes.py", "reach": "Existing authenticated Settings API-to-supervisor path inspected read-only"},
+    {"path": "api/src/omnis/modules/settings/provider_models.py", "reach": "Existing six-action/selection/readback DTOs inspected read-only"},
+    {"path": "api/src/omnis/supervisor/runtime_client.py", "reach": "Existing management authority, command and status callers inspected read-only"},
+    {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "reach": "Existing management owner, finite config/OAuth flow and terminal local auth readback inspected read-only"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_server.py", "reach": "Native sparse config/readback prerequisites inspected read-only"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_http.py", "reach": "Existing save already includes native GET readback before CONFIRMED; inspected read-only"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_auth.py", "reach": "Existing read_only grant projection, no refresh; inspected read-only"}
+  ],
+  "behavior": {
+    "default": "Provider, Model, Connect Codex, one short status. Single native closed Diagnostic contains technical read/save/auth_read, exact requested/readback effort and readiness axes. Recovery/challenge/Cancel/operative safety remain outside.",
+    "fresh": "Explicit Connect: read with own ID, save only if unconfigured with a new ID, wait for CONFIRMED strict readback, then connect with another ID. No manual technical steps.",
+    "configured": "Already confirmed strictly decoded selection is reused, without unnecessary save.",
+    "ownership": "Existing perform/readPrivate/query remain the only command/poll path. One click-preparation ref and synchronous busy guard, no dependency/framework/generic state machine/new owner.",
+    "interruptions": "Lost response/error/BUSY/INDETERMINATE/UNAVAILABLE/401/logout/unmount/abort/expiry stop preparation. Recovery GET is same known ID, clears preparation and never continues Connect. Reload discovers current once and pins known nonconfirmed operations to exact IDs. Only zero-ID UNAVAILABLE/NONE means empty fresh current.",
+    "limits": "30000ms config, 900000ms OAuth, 500ms background polling, retry=false retained. Expired timer is not rearmed while already-expired recovery is in progress.",
+    "auth": "No command/auth_read/refresh/inference on mount; existing current GET is local operation recovery only. Fixed device URL requires explicit operator click, no popup effect or secret input. Configured/SAVED never means provider/inference ready. Backend already does terminal local auth readback, so no extra frontend auth_read was added.",
+    "controls": "Logout appears only with SAVED/local grant evidence. Same-ID Cancel hides challenge immediately and waits for confirmed drain. Cache/late/reload/error/expiry/background regressions retained. Exact only supported selection remains openai-codex/gpt-6.1-sol/xhigh."
+  },
+  "verification": {
+    "environment": "Node24.21.0/npm11.19.0 from /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin. No installs. Existing web and anti-slop deps borrowed via owned symlinks, removed at freeze. Vite/Vitest cacheDir under /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp with configLoader=runner; repository configs unchanged.",
+    "RED": [
+      {"command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx -t SOURCE", "exit": 1, "failed": 3, "skipped": 7, "log": "tmp/red.log", "reason": "Fresh Connect disabled/manual flow; default technical controls and Effort exposed."},
+      {"command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx -t 'reload of an unavailable known'", "exit": 1, "failed": 1, "skipped": 19, "log": "tmp/reload-red.log", "reason": "Known unavailable current mistaken for empty fresh current; corrected zero-ID sentinel."}
+    ],
+    "GREEN": [
+      {"command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/final-provider-unit.json", "exit": 0, "passed": 20, "failed": 0, "snapshot": "final frozen source", "log": "tmp/final-provider-unit.log"},
+      {"command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner --reporter=default --reporter=json --outputFile.json=$TMPDIR/all-unit.json", "exit": 0, "passed": 109, "failed": 0, "files_passed": 13, "snapshot": "Before final one-line known nonconfirmed operation pin broadening; affected 20 Provider cases rerun after last edit", "log": "tmp/all-unit.log"},
+      {"command": "npm run typecheck && npm run lint && NODE_ENV=production node node_modules/vite/bin/vite.js build --config ../../tmp/vite.config.mjs --configLoader runner && node scripts/build-manifest.mjs", "exit": 0, "snapshot": "final source", "result": "168 transformed modules, trusted manifest 4 files"},
+      {"command": "PYTHONDONTWRITEBYTECODE=1 make test-contracts API_PY=/home/kali/OmnisAI/api/.venv/bin/python", "exit": 0, "tooling_passed": 6, "log": "tmp/contracts-gate.log", "limit": "Read-only SOURCE export, no DB/API service"},
+      {"command": "npm run check:contracts && npm run check:design", "exit": 0},
+      {"command": "npm audit --include=dev", "exit": 0, "vulnerabilities": 0, "log": "tmp/audit.log"},
+      {"command": "node --check cli/integration/installed_browser.mjs && node --test cli/integration/test_installed_browser.mjs && git diff --check", "exit": 0, "oracle_tests_passed": 4, "snapshot": "final source"}
+    ],
+    "intermediate_failures": [
+      {"exit": 1, "failed": 5, "passed": 5, "log": "tmp/unit-first.log", "reason": "Doubleclick reproduced duplicate read before preparation consumed; fixed synchronous preparation guard. Four tests needed await on mounted Diagnostic."},
+      {"command": "npm run lint", "exit": 1, "reason": "Initial missing anti-slop tsx prerequisite; existing deps borrowed via owned symlink, removed at freeze."},
+      {"exit": 1, "log": "tmp/lint.log", "reason": "Continuation effect dependency warning; effect now consumes this click preparation once per committed render, no lint ignore."},
+      {"exit": 1, "failed": 3, "passed": 16, "log": "tmp/unit-third.log", "reason": "Two denial fixtures lacked strict required correlation_id and were corrected. Expiry reproduced expired timer rearming during recovery; product timer guard fixed minimally."},
+      {"tool": "execute_code", "status": "BLOCKED", "reason": "Unattended single-query policy refused report assembly, zero tool calls/effects; mandatory artifacts produced with normal terminal/write_file instead."}
+    ],
+    "web_gate": "All check-web components exercised with explicit scratch-cache Vite/Vitest config and borrowed read-only API interpreter. Literal make check-web NOT_RUN because defaults follow shared node_modules cache. Not canonicalPG, installed QA or live proof.",
+    "log_root": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2"
+  },
+  "limits": [
+    "Independent review NOT_RUN and integration/commits remain orchestrator-owned. No phasePASS claim.",
+    "Browser/visual/real geometry QA at 320/390/1280/1440 NOT_RUN by developer; CSS retains responsive media rules and 44px minimums. Native visibility/tab order checked only in SOURCE jsdom; installed caller adapted, not exercised.",
+    "API/PG/native/provider/OCI/browser/live actions NO_EFFECT; no UI7 resume or lifecycle/resource changes, no inference or model budget consumption.",
+    "Existing independent runtime controlNone failure remains unfixed, explicitly not rerun; no SOURCE/web failure attributed to it.",
+    "Installed Settings caller retains historical diagnostic read/save journey. New default one-click Connect is independently SOURCE-tested, not claimed as installed QA.",
+    "No API/DTO/backend/native/ops/Makefile/pin/global styles/tokens/credential/protected-document modifications; no new provider/model catalog."
+  ],
+  "next": "Orchestrator reviews exact frozen bytes/patch, then decides integration and visible browser QA; no automatic live continuation."
+}

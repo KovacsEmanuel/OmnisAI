@@ -1,0 +1,112 @@
+{
+  "verdict": "SOURCE_NORM_F01_FIX_READY_FOR_FOCUSED_REREVIEW",
+  "base": "6b7a7e0e6b5be9a720a5428fe2f11c2991f55a7c",
+  "worktree": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+  "branch": "work/p4a-simple-aeqwhv_2",
+  "frozen": true,
+  "integration": "NOT_RUN; orchestrator owns finding acceptance, review, integration and commits. No commit, push, branch change or delegation.",
+  "model": {"session": "openai-codex/gpt-6.1-sol", "required_effort": "xhigh", "fallback_or_downgrade": false, "product_selection": "openai-codex/gpt-6.1-sol/xhigh"},
+  "scope_fileSHA256": {
+    "web/src/features/engagement/ProviderSettings.tsx": "c85a0a5331cb2611b67dbe08c90690c6ac62d6a6c7665a27baf2c61efe3b3c2c",
+    "web/src/features/engagement/Engagement.module.css": "937cfa705d723dad5351e3294b9ffff00d2738facf0a20ae23e86fe949f90bc4",
+    "web/src/app/ProviderSettings.test.tsx": "8a5ecf85522c1faf874f39e5f6e0f7f997c7103e00d2c09f92c88c0817b64e69",
+    "cli/integration/installed_browser.mjs": "47d48a9dcd4d5d4892af2ecc47645d05b6557d22eebeebe5b39ad36fef56972e"
+  },
+  "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+  "patchSHA256": "184474cae1c3a8a84e919bf80cd061d9e7f8ca812833079227ea206fa8e931ed",
+  "initial_artifacts_preserved_byte_exact": {
+    "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer-initial.patch",
+    "patchSHA256": "6443ce08de98f141aeb4cbb2f1486f5c22e1ac57b3410fef3f45b2fc642d85e5",
+    "report": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer-result-initial.json",
+    "reportSHA256": "2a0bbc1e98a96fea31142e7e4cddb39754380110d23069aa3fb7c804dc5b0d69",
+    "method": "Read initial artifacts, copied with no-clobber before remedy, cmp exit0 for each; archive SHA256 unchanged at final freeze. Complete initial evidence/failures remain in archived report and its referenced logs, not overwritten or transferred as final-snapshot evidence."
+  },
+  "finding_disposition": {
+    "id": "NORM-F01",
+    "review_norm": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm.json",
+    "initial_norm_verdict": "CHANGES_REQUESTED",
+    "review_safety": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-safety.json",
+    "initial_safety_verdict": "APPROVED_SCOPED on initial snapshot only; no automatic transfer to edited bytes",
+    "disposition": "REPRODUCED_AND_MINIMALLY_FIXED_PENDING_INDEPENDENT_REREVIEW",
+    "cause": "LOCAL_UNKNOWN is not affirmative presence evidence. management_auth.py:44-50 emits it on non-missing exceptions and invalid credential shape, as well as invalid metadata at :59-67. CONFIRMED certifies readback, not grant presence. No new backend regression is claimed.",
+    "fix": "Only ProviderSettings.tsx:123 visibility condition changed to oauth=SAVED OR authenticated=LOCAL_PRESENT OR authenticated=LOCAL_EXPIRED. Existing disabled/auth/pending/unknown guards and handlers unchanged. LOCAL_UNKNOWN without SAVED remains human status/Diagnostic, not Logout.",
+    "delta_scope": ["web/src/features/engagement/ProviderSettings.tsx:123", "web/src/app/ProviderSettings.test.tsx:311-337"],
+    "regression": "Six rows through real App/client/strict decoder with SOURCE fetch doubles. LOCAL_PRESENT/NONE, LOCAL_EXPIRED/NONE, LOCAL_UNKNOWN/SAVED show enabled Logout; ABSENT/NONE, NOT_VERIFIED/NONE, LOCAL_UNKNOWN/NONE hide it. All six require zero non-GET effects. LOCAL_UNKNOWN/NONE also asserts human unknown status and local Diagnostic remain visible.",
+    "unchanged": "CSS and installed Settings caller SHA256 unchanged from initial snapshot. No helper/DTO/backend/state-machine/command-flow/timeout/poll/retry/selection/budget change. Reviewer and parent artifacts untouched.",
+    "acceptance_owner": "Orchestrator and focused independent reviewer; author does not close finding or approve integration."
+  },
+  "reach_points": [
+    {"path": "web/src/app/App.tsx", "reach": "Existing Settings route and BrowserSessionProvider/auth boundary; unchanged"},
+    {"path": "web/src/features/engagement/Settings.tsx", "reach": "Providers navigation and existing ProviderSettings render; unchanged"},
+    {"path": "web/src/features/engagement/ProviderSettings.tsx", "reach": "Existing read/save/connect, perform/readPrivate/query and exact-ID recovery; NORM-F01 changes only Logout visibility"},
+    {"path": "web/src/features/engagement/Engagement.module.css", "reach": "Original slice two-column/mobile selection rules and 44px minimums; unchanged during remedy"},
+    {"path": "web/src/app/ProviderSettings.test.tsx", "reach": "26 App-route SOURCE tests: original20 plus six affirmative-grant visibility rows"},
+    {"path": "web/tests/fixtures.ts", "reach": "Existing synthetic health/instance fixtures, unchanged"},
+    {"path": "web/src/features/bootstrap/BrowserSession.tsx", "reach": "Existing context, unchanged"},
+    {"path": "web/src/features/bootstrap/useBrowserSession.ts", "reach": "Existing readPrivate/epoch/401/logout fences, unchanged"},
+    {"path": "web/src/features/bootstrap/Bootstrap.tsx", "reach": "Existing real Runtime browser-logout caller in late-save regression, unchanged"},
+    {"path": "web/src/shared/api/client.ts", "reach": "Existing providerCommand PUT and providerOperation GET, unchanged"},
+    {"path": "web/src/shared/api/providers.ts", "reach": "Existing strict decoder/selection, re-read for remedy; unchanged"},
+    {"path": "cli/integration/installed_browser.mjs", "reach": "Original slice Settings diagnostics/readback/tab-order adaptation; no remedy change and mode=session/Home-to-Runtime untouched"},
+    {"path": "cli/integration/test_installed_browser.mjs", "reach": "Existing SOURCE oracle tests unchanged, not rerun for visibility-only remedy"},
+    {"path": "api/src/omnis/modules/settings/provider_routes.py", "reach": "Existing authenticated supervisor caller, inspected in original slice; unchanged"},
+    {"path": "api/src/omnis/modules/settings/provider_models.py", "reach": "Existing six-action and exact selection/readback DTOs; unchanged"},
+    {"path": "api/src/omnis/supervisor/runtime_client.py", "reach": "Existing authority/settings/status path; unchanged"},
+    {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "reach": "Existing owner, finite config/OAuth and terminal local auth readback; unchanged"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_server.py", "reach": "Existing sparse native config/readback prerequisites; unchanged"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_http.py", "reach": "Existing save includes native GET readback before CONFIRMED; unchanged"},
+    {"path": "integrations/hermes/src/omnis_hermes/management_auth.py", "reach": "LOCAL_UNKNOWN producer re-read for NORM-F01; source only, no credentials or effects; unchanged"}
+  ],
+  "behavior_and_budget": {
+    "default": "Provider, Model, Connect Codex and one short status. Single closed native Diagnostic holds technical read/save/auth_read, exact requested/readback xhigh and readiness axes. Operative warnings/challenge/Cancel/recovery remain outside.",
+    "connect": "Fresh explicit click: read with own ID, optional save with new ID, wait for strict CONFIRMED native readback, connect with new ID. Already confirmed selection reused without unnecessary save. Existing perform/readPrivate/query remain only command/poll owner; no new dependency or generic abstraction.",
+    "interruption": "Lost response/error/BUSY/INDETERMINATE/UNAVAILABLE/401/logout/unmount/abort/expiry stop preparation. Exact-ID GET recovery clears preparation, never retries command or continues Connect. Initial current discovery pins known nonconfirmed operation IDs; only zero-ID UNAVAILABLE/NONE means empty current.",
+    "timings": "30000ms config, 900000ms OAuth, 500ms background poll and retry=false unchanged.",
+    "auth": "No command/auth_read/refresh/inference on mount; existing current GET is local recovery. Fixed https://auth.openai.com/codex/device requires operator click, no popup effect/credential input. Configured/SAVED never imply provider/inference readiness. No new local readback added; backend already reads locally on terminal auth.",
+    "grant_controls": "Logout requires LOCAL_PRESENT, LOCAL_EXPIRED or oauth=SAVED; LOCAL_UNKNOWN alone stays status/Diagnostic only. Existing same-ID Cancel hides challenge immediately and waits for confirmed settlement. No inference call or model budget consumed.",
+    "scope_exclusions": "No new provider/model/catalog, fallback, API/DTO/backend/native/ops/Makefile/pin/global style/token/protected-document/global configuration/skill/memory changes. No UI7/lifecycle/resource work."
+  },
+  "verification": {
+    "environment": "Node24.21.0/npm11.19.0 from /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin. PATH/TMPDIR explicitly set per test/gate shell; TMPDIR=/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp. Existing dependencies only, no installs; only own worktree dependency symlinks removed after use, shared dependencies/caches not cleaned. Scratch configLoader=runner keeps Vite/Vitest cacheDir inside own TMPDIR; repository configs unchanged.",
+    "RED": {
+      "command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx -t NORM-F01 --reporter=default --reporter=json --outputFile.json=$TMPDIR/norm-f01-red.json",
+      "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work/web",
+      "exit": 1, "passed": 5, "failed": 1, "skipped": 20,
+      "failed_case": "LOCAL_UNKNOWN/NONE: expected Logout absent, received enabled button",
+      "before_product_fix": true,
+      "json": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/norm-f01-red.json",
+      "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/norm-f01-red.log"
+    },
+    "GREEN": [
+      {
+        "command": "npm test -- --config ../../tmp/vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/norm-f01-green.json",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work/web",
+        "exit": 0, "passed": 26, "failed": 0, "skipped": 0,
+        "snapshot": "final frozen bytes after last product/test edit",
+        "json": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/norm-f01-green.json",
+        "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/norm-f01-green.log"
+      },
+      {
+        "command": "npm run lint && npm run typecheck && npm run check:contracts && npm run check:design && NODE_ENV=production node node_modules/vite/bin/vite.js build --config ../../tmp/vite.config.mjs --configLoader runner && node scripts/build-manifest.mjs",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work/web",
+        "exit": 0,
+        "snapshot": "final frozen bytes after last product/test edit",
+        "result": "Lint/type/contracts/design pass; production build168modules, trusted manifest4files. Existing package-build constituents executed with explicit scratch-cache config, no weakened checks.",
+        "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/tmp/norm-f01-web-gates.log"
+      },
+      {"command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch; git diff --check", "exit": 0, "result": "Final full patch from original base matches frozen worktree. Exactly initial four modified paths, no remaining own dependency symlinks."}
+    ],
+    "new_unexpected_execution_failures": [],
+    "artifact_edit_incident": "One report patch attempt rejected an ambiguous verification-key context atomically, no files modified. Report re-read and replaced with this current complete report; product/test bytes stayed frozen.",
+    "historical_evidence": "Complete initial RED/GREEN, intermediate execution failures,109web tests, contracts/audit/CLI evidence are byte-exact in developer-result-initial.json and referenced initial logs. They are historical, not rerun or transferred as final edited-snapshot evidence.",
+    "not_run": ["full web unit suite", "fullcanonical", "PG", "API service", "native", "OCI", "browser", "provider", "inference", "install", "focused independent re-review"]
+  },
+  "limits": [
+    "SOURCE fetch doubles only, not installed/browser/live proof. Six visibility rows have zero non-GET effects; real provider/native/API services not executed.",
+    "Initial normative and safety review reports were read and left byte-untouched. Final fix requires focused independent re-review; no self-acceptance, phasePASS or integration verdict.",
+    "Browser/visual/geometry QA at320/390/1280/1440 remains NOT_RUN by developer and orchestrator-owned after review. Existing installed Settings journey remains diagnostic/manual, not new one-click installed proof.",
+    "Runtime controlNone failure remains explicitly unfixed and not rerun. UI7/resources not adopted or resumed; API/PG/native/provider/OCI/browser/live NO_EFFECT.",
+    "No commits/push/delegation/global/protected-file modifications; source frozen after one-line fix and regression."
+  ],
+  "next": "Focused independent re-review NORM-F01 against final four hashes/patch; orchestrator decides finding acceptance, integration/commit and subsequent visible browser QA. No automatic live continuation."
+}

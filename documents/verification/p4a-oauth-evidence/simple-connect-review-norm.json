@@ -1,0 +1,204 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "report_path": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm.json",
+  "role": "independent read-only normative/compliance/simplicity reviewer",
+  "language": "ro",
+  "model": {
+    "session_as_supplied": "openai-codex/gpt-6.1-sol",
+    "required_reasoning_effort": "xhigh",
+    "fallback_or_downgrade_requested_or_performed": false,
+    "global_configuration_read_or_changed": false
+  },
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+    "base": "6b7a7e0e6b5be9a720a5428fe2f11c2991f55a7c",
+    "branch": "work/p4a-simple-aeqwhv_2",
+    "manifest": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer-result.json",
+    "patch": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch",
+    "patch_sha256": "6443ce08de98f141aeb4cbb2f1486f5c22e1ac57b3410fef3f45b2fc642d85e5",
+    "files_sha256": {
+      "web/src/features/engagement/ProviderSettings.tsx": "bdb6a7a2547de25d18dedfe6408209972c5fbeebc9773202b6ae25dfa710593b",
+      "web/src/features/engagement/Engagement.module.css": "937cfa705d723dad5351e3294b9ffff00d2738facf0a20ae23e86fe949f90bc4",
+      "web/src/app/ProviderSettings.test.tsx": "6257d8f0f4016cc710696778c5072dd416015b6d845c3c375c00b6aff1d57b93",
+      "cli/integration/installed_browser.mjs": "47d48a9dcd4d5d4892af2ecc47645d05b6557d22eebeebe5b39ad36fef56972e"
+    },
+    "initial_and_final_match": true,
+    "diff_byte_equal_to_declared_patch": true,
+    "reverse_apply_check_exit": 0,
+    "modified_paths_exactly_declared_four": true,
+    "staged_paths_initial_and_final": [],
+    "reviewer_changed_worktree_or_index_entries": false,
+    "source_copy_provider_and_author_tests_byte_equal": true,
+    "integrity_evidence": [
+      "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/snapshot-initial.json",
+      "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/snapshot-final.json"
+    ]
+  },
+  "requirement_consumer_risk_decision": {
+    "requirement": "Provider → Model → Connect printr-un singur click explicit, inclusiv fresh unconfigured; read/save/readback interne, ID separat per pas, fără replay sau reluare automată după pierderea certitudinii. Logout numai justificat de dovadă locală.",
+    "consumer": "Settings → ProviderSettings → api.providerCommand/providerOperation → SettingsControl → RuntimeClient → RuntimeHost management owner → management_http/config_operation/local_auth",
+    "risk": "Precondiții ascunse, Connect prematur/duplicat, readback nevalid, continuare după unknown, sau afișarea unei acțiuni de deconectare fără dovada existenței unui grant.",
+    "decision": "Fluxul read/save/connect și adaptarea disclosure sunt susținute scoped; integrarea așteaptă remedierea NORM-F01 și re-review focalizat. Niciun verdict installed/auth/inference/live/faza2."
+  },
+  "findings": [
+    {
+      "id": "NORM-F01",
+      "severity": "MEDIUM/P2",
+      "blocking": true,
+      "disposition": "OPEN",
+      "file": "web/src/features/engagement/ProviderSettings.tsx",
+      "line": 123,
+      "title": "LOCAL_UNKNOWN singur afișează Logout activ fără dovadă de grant local",
+      "problem": "Condiția exclude numai NOT_VERIFIED și ABSENT. Un readback CONFIRMED/configured=true/authenticated=LOCAL_UNKNOWN/oauth=NONE afișează și activează Log out of Codex locally. LOCAL_UNKNOWN nu confirmă prezența unui grant: producerul real îl emite inclusiv când resolve(read_only=True) ridică o excepție diferită de codex_auth_missing sau întoarce o formă invalidă. CONFIRMED certifică readbackul operației, nu existența grantului. Nu afirm că această eligibilitate este o regresie nou introdusă: condiția anterioară permitea și ea LOCAL_UNKNOWN; noul contract de afișare rămâne însă nesatisfăcut pe linia modificată.",
+      "producer_references": [
+        "integrations/hermes/src/omnis_hermes/management_auth.py:44-50",
+        "integrations/hermes/src/omnis_hermes/management_auth.py:59-67",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py:351-355",
+        "web/src/shared/api/providers.ts:11-17"
+      ],
+      "violated_obligation": "Deconectare numai când dovada locală o justifică; configured singur sau un rezultat de citire UNKNOWN nu constituie dovadă de grant.",
+      "reproduction": [
+        "În App pe /settings/providers, răspunde la session cu sesiune validă și la provider/current cu un DTO strict valid: ID cunoscut, CONFIRMED, selecția exactă, configured=true, authenticated=LOCAL_UNKNOWN, oauth=NONE, challenge=null, reachable=NOT_VERIFIED, inference_ready=false.",
+        "Așteaptă readbackul query-ului. Fără auth_read/Connect/SAVED, DOM conține butonul Log out of Codex locally, fără atribut disabled.",
+        "Controlul SOURCE independent care cere absența butonului eșuează exact pe LOCAL_UNKNOWN. LOCAL_PRESENT și LOCAL_EXPIRED îl păstrează activ; ABSENT și NOT_VERIFIED îl ascund."
+      ],
+      "reproduction_artifact": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/web/src/app/ReviewNorm.test.tsx:52-63",
+      "test_result": "7 controale independente: 6 PASS, 1 FAIL; eșecul este numai LOCAL_UNKNOWN fără SAVED.",
+      "minimal_remedy": "Folosește o allowlist explicită pentru prezență locală afirmativă (LOCAL_PRESENT/LOCAL_EXPIRED), păstrând cazul oauth=SAVED cerut de contract. LOCAL_UNKNOWN fără SAVED rămâne status/diagnostic, nu Logout afișat. Adaugă regresia pozitivă/negativă în testul existent; fără backend/DTO/helper/state-machine nou.",
+      "if_skipped": "Interfața oferă deconectare pentru o stare în care producerul nu a confirmat niciun grant, contrar contractului de evidență locală."
+    }
+  ],
+  "scoped_assessment": [
+    {
+      "requirement": "Fresh unconfigured funcționează cu un click, nu cu read/save manuale",
+      "result": "PASS_SOURCE_SCOPED",
+      "code": "ProviderSettings.tsx:55-83",
+      "evidence": "Testul default SOURCE și pending read/save trec. Secvență read → save → connect, ID-uri distincte, selection exactă. Backendul real produce PENDING și ulterior CONFIRMED numai după readback."
+    },
+    {
+      "requirement": "Selecție configured confirmată: fără save/read redundante și fără Connect duplicat",
+      "result": "PASS_SOURCE_SCOPED",
+      "code": "ProviderSettings.tsx:66-80",
+      "evidence": "Control independent pe default/dublu-click trimite numai ['connect']; regresia de polling existentă păstrează aceeași proprietate."
+    },
+    {
+      "requirement": "Legitimitatea producerilor și ordinea save/readback → Connect",
+      "result": "PASS_STATIC_AND_SOURCE_SCOPED",
+      "code": "management_server.py:61-101; management_http.py:96-126; runtime_host.py:335-358,428-438; provider_routes.py:33-62; client.ts:59-75",
+      "evidence": "Config gol este acceptat ca unconfigured; native save deține writerul și verifică readbackul, apoi clientul management face GET și compară selecția. Strict decoder refuză effort diferit; controlul independent high în reply-ul save oprește chain la ['read','save'], unknown, Connect disabled. Terminal OAuth are auth_read local intern în owner; nu este necesar auth_read manual în UI."
+    },
+    {
+      "requirement": "ID exact, poll/recovery, stop după unknown/lost save/401/logout/unmount/expiry",
+      "result": "PASS_SOURCE_SCOPED",
+      "code": "ProviderSettings.tsx:23-99; useBrowserSession.ts:29-40,113-125",
+      "evidence": "20 teste autor PASS: pending read/save, lost save, BUSY/INDETERMINATE/UNAVAILABLE, reload known unavailable, 401/logout/unmount late-save, expiry, challenge/cancel/background și cache. Recovery golește preparation și folosește ID-ul cunoscut; nu retrimite comanda. Nu pretind acoperire exhaustivă a tuturor interleavings."
+    },
+    {
+      "requirement": "Default două selectoare + Connect + status; Diagnostic native pliat; controls active la vedere",
+      "result": "PASS_SOURCE_AND_STATIC_SCOPED",
+      "code": "ProviderSettings.tsx:101-141; Engagement.module.css:22-38",
+      "evidence": "Testul default verifică tab order Provider → Model → Connect → Diagnostic și native details închis. Challenge/link fix, Cancel/recovery/status și safety rămân în afara disclosure. Efortul și axele sunt în Diagnostic. Geometria reală/estetica nu sunt probate."
+    },
+    {
+      "requirement": "Fără fake Connected/inference-ready, catalog nou sau schimbări de backend/model/buget",
+      "result": "PASS_STATIC_AND_SOURCE_SCOPED",
+      "code": "ProviderSettings.tsx:112-133; providers.ts:6-28; patch inventory",
+      "evidence": "Statusul spune saved locally/model not tested, nu Connected. Readiness rămâne NOT_VERIFIED/false. Numai selecția existentă openai-codex/gpt-6.1-sol/xhigh. Patchul atinge numai cele patru căi declarate."
+    },
+    {
+      "requirement": "Caller installed-browser adaptat fără oracle slăbit",
+      "result": "PASS_STATIC_AND_ORACLE_SOURCE_SCOPED",
+      "code": "cli/integration/installed_browser.mjs:62-99,107-147; cli/integration/test_installed_browser.mjs:6-32",
+      "evidence": "Acțiunile tehnice deschid disclosure, inclusiv după reload. Verificarea selectului Effort este înlocuită de Requested/Readback effort exact; body-ul save și DTO-ul integral rămân assertate. Controalele negative păstrează wrong ID/effort/axes/extra fields/replay/cancel-ID/status/reason. 4 oracle tests PASS. Journey instalat rămâne diagnostic/manual, nu dovadă a noului default one-click. mode=session/Home→Runtime nu a fost redeschis sau exercitat."
+    },
+    {
+      "requirement": "30s/900s/500ms și single-session owner",
+      "result": "PASS_STATIC_AND_SOURCE_SCOPED",
+      "code": "ProviderSettings.tsx:29-46; BrowserSession.tsx:5-14; useBrowserSession.ts:9-17,113-125",
+      "evidence": "30000/900000/500 și retry=false rămân. Se reutilizează BrowserSession/readPrivate și command/status API; nu apare owner nou. Expiry și background polling au controale SOURCE trecute."
+    },
+    {
+      "requirement": "Logout numai justificat de dovadă locală",
+      "result": "FAIL_SOURCE_REPRODUCED",
+      "evidence": "NORM-F01"
+    }
+  ],
+  "simplicity": {
+    "unnecessary_new_product_accessories": [],
+    "inventory": [
+      "busy ref: justificat pentru garda sincronă înainte de rerender/dublu-click",
+      "preparation ref read/save: justificat pentru continuarea exclusiv a clickului curent și abandon la recovery",
+      "continuing flag intern: distinge continuarea permisă de o nouă comandă a operatorului; fără API/backend nou",
+      "native details și regulile CSS locale: reutilizează platforma și media rules existente",
+      "fixtures/helpers noi numai în testele SOURCE; fără dependențe/framework/catalog sau owner suplimentar"
+    ],
+    "remedy_scope": "O condiție de vizibilitate și o regresie în testul existent; nu este necesară rescrierea fluxului."
+  },
+  "verification": {
+    "tmpdir": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp",
+    "tmpdir_initial_mode": "0700",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "toolchain_bin": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin",
+    "test_strategy": "Copie SOURCE numai web/src și web/tests plus package.json/tsconfig.json în scratch propriu; node_modules existent împrumutat prin symlink în scratch, fără instalare. Config scratch cu envDir=false, cacheDir propriu și configLoader=runner. ProviderSettings și testele autorului comparate byte-exact cu frozen după teste. Nu a fost rulat un tracer OS universal al scrierilor.",
+    "commands": [
+      {
+        "command": "git status --short --branch; git diff --stat; git rev-parse HEAD; git diff --name-only; git diff --cached --name-only",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "exit": 0,
+        "result": "Baza/ramura corecte, exact patru modified, zero staged."
+      },
+      {
+        "command": "Python hashlib SHA256 + declared paths/base + git diff --binary --full-index byte comparison, initial/final",
+        "exit": 0,
+        "result": "Toate cele patru SHA-uri și patchul identice; niciun mismatch."
+      },
+      {
+        "command": "git apply --reverse --check /home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/developer.patch; git diff --check",
+        "exit": 0
+      },
+      {
+        "command": "npm test -- --config vitest.config.mjs --configLoader runner src/app/ProviderSettings.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/provider-unit.json",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/web",
+        "exit": 0,
+        "tests": { "total": 20, "passed": 20, "failed": 0, "skipped": 0 },
+        "json": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/provider-unit.json",
+        "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/provider-unit.log"
+      },
+      {
+        "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --check cli/integration/installed_browser.mjs && /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --test cli/integration/test_installed_browser.mjs",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/work",
+        "exit": 0,
+        "tests": { "total": 4, "passed": 4, "failed": 0, "skipped": 0 },
+        "limit": "Parser/oracle SOURCE, nu browser/installed QA."
+      },
+      {
+        "command": "npm test -- --config vitest.config.mjs --configLoader runner src/app/ReviewNorm.test.tsx --reporter=default --reporter=json --outputFile.json=$TMPDIR/review-controls.json",
+        "cwd": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/web",
+        "exit": 1,
+        "tests": { "total": 7, "passed": 6, "failed": 1, "skipped": 0 },
+        "failed_test": "REVIEW logout needs affirmative grant evidence, not LOCAL_UNKNOWN alone",
+        "json": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/review-controls.json",
+        "log": "/home/kali/.hermes/cache/scratch/p4a-simple-aeqwhv_2/review-norm-tmp/review-controls.log",
+        "limit": "API fetch doubles prin App/client/decoder reale, nu autentificare/provider reale. Controalele rămân în scratch, frozen nealterat."
+      }
+    ]
+  },
+  "limits": [
+    "Review SOURCE/static pe snapshotul exact; nu aprobare de integrare și nu QA installed/visual/auth/provider/live/inference/faza2.",
+    "Nu server/browser/PG/OCI/install/network effects; UI7 nu a fost adoptată/repornită, UI8 neatinsă. Starea operațională este cea furnizată de părinte, nu inspectată.",
+    "Nu au fost citite .env, auth stores, cookies, private receipts sau loguri private. management_auth.py este cod sursă al producerului, nu credentiale.",
+    "documents/Omnis_Notite_Originale.html și tools/development/ponytail.json nu au fost citite/copiate/hashuite/modificate. Fără SOUL/skills/memory/globalconfig modificat.",
+    "Fără commit/push/delegare și fără modificări în fișierele frozen/index. Numai raport și probe în scratchul propriu.",
+    "Nu am rerulat întregul web/canonical, build/lint/typecheck sau porțile backend. Declarațiile de verificare ale autorului nu sunt prezentate drept execuțiile reviewerului.",
+    "README/harta conțin status UI7 anterior; pentru acest review prevalează starea și autoritatea explicit furnizate de părinte. Nu s-a făcut audit istoric/general ori actualizare de status versionată.",
+    "Reticle NOT_RUN în acest contract SOURCE/no-browser; Chisel BLOCKED_NO_GO. Niciuna nu este tratată drept aprobare."
+  ],
+  "handoff": {
+    "AICI": "P4a Provider→Model→Connect: candidat implementat; probe SOURCE scoped; review CHANGES_REQUESTED NORM-F01.",
+    "integration": "NOT_RUN; numai orchestratorul decide și comite.",
+    "installed_browser_qa": "NOT_RUN; se execută de părinte după blocker și re-review pe bytes finali.",
+    "phase2": "NOT_CLOSED; acest review nu autorizează cont/inferență sau continuare live.",
+    "next": "Autorul remediază minimal NORM-F01, păstrând controls pozitive/negative; teste afectate și re-review focalizat pe noul hash, apoi orchestratorul decide integrarea și proba reală."
+  }
+}

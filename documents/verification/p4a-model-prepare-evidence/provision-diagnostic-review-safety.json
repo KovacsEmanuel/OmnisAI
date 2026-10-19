@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "review_role": "independent safety-complementary read-only SOURCE review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Finite failure diagnostics, secret boundaries, preservation of primary exceptions/cancellation, and unchanged authority/effect semantics in the diagnostic delta only",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+  "head": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "base": "d0f519a77ccc3f628201276a3cf70061582ac6da",
+  "manifest": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/author.json",
+  "findings": [],
+  "source_integrity": {
+    "before": "7/7 manifest SHA256 matched before execution",
+    "after": "7/7 manifest SHA256 matched after execution",
+    "head_unchanged": true,
+    "worktree_clean_before_and_after": true,
+    "files": [
+      {"path": "api/src/omnis/modules/runs/model_test_source.py", "sha256": "27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1"},
+      {"path": "api/src/omnis/supervisor/__main__.py", "sha256": "4dda12a8ea3d8f3b5aa1c1d12a2a33359a9e716137fbc3991f4f3130771b4228"},
+      {"path": "api/tests/test_model_test_source.py", "sha256": "e075d696a40b72af27f5caeb56c8536e59acfc6d28b097074081bbdaac29cf03"},
+      {"path": "api/tests/test_runtime_supervisor.py", "sha256": "079d43951ba01cee6b58ba53ec722a8d72f89fe17242fd3d00ac5e2df138fe37"},
+      {"path": "integrations/hermes/src/omnis_hermes/runtime_host.py", "sha256": "10086246b0fe06b523380b7310f3829ec8f5c3f9afcbd4322f8367c7fd89544e"},
+      {"path": "integrations/hermes/tests/test_host.py", "sha256": "ba631cbca4978c6565f3b34c5f6947ea1e51ea4725c182431d1cc4a6f596b398"},
+      {"path": "integrations/hermes/tests/test_startup_budget.py", "sha256": "94e95e81b5fce8c7298f753af40193b0fe82083d14c2c73e8675b91a11f5b3a4"}
+    ]
+  },
+  "requirements": [
+    {
+      "requirement": "Finite output; no exception text/class name, arbitrary representation, payload, capability or DSN",
+      "status": "PASS_SOURCE_SCOPED",
+      "locations": ["api/src/omnis/modules/runs/model_test_source.py:107-137", "api/src/omnis/supervisor/__main__.py:159-205", "integrations/hermes/src/omnis_hermes/runtime_host.py:256-312"],
+      "evidence": "All output interpolation operands are local literal phase/kind values. Existing actual-consumer tests compare complete stderr lines. Independent exact-handler execution uses exception arguments whose str/repr/hash/equality raise, with exact expected finite output and unchanged exception identity. Computed maximum line lengths are 71, 66 and 64 UTF-8 bytes respectively, including newline.",
+      "limit": "Bounded content is not a nonblocking-I/O guarantee. A physically blocked existing stderr sink was not exercised. No general sanitization claim for unchanged surrounding code."
+    },
+    {
+      "requirement": "ProtocolError reason classification is exact and fail-closed",
+      "status": "PASS_SOURCE_SCOPED",
+      "location": "integrations/hermes/src/omnis_hermes/runtime_host.py:297-308",
+      "evidence": "Exact ProtocolError with one exact str argument maps only Native ready deadline -> READY_TIMEOUT, Native RPC deadline -> RPC_TIMEOUT and Native transport unavailable -> TRANSPORT. Unknown string, absent/multiple args, opaque object args, str subclass and ProtocolError subclass with throwing args property yield OTHER without invoking arbitrary repr/str/hash/equality or subclass args access.",
+      "limit": "TRANSPORT remains a normalized transport category, not proof of EOF or historical root cause."
+    },
+    {
+      "requirement": "Diagnostic failures do not replace the primary exception or cancellation",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Existing actual provision/supervisor/Host tests verify identity and cleanup ordering. Independent exact-handler controls cover write and flush failures raised as OSError, CancelledError, KeyboardInterrupt and SystemExit, paired with ordinary primary exception and primary CancelledError. All preserve the original object through bare raise.",
+      "limit": "Unchanged cleanup may still replace the primary: supervisor drain=false raises Runtime drain uncertain with the primary as context and skips release. This behavior was exercised by existing tests and is not newly introduced or approved as a universal preservation guarantee. Host stop/finally failures remain baseline behavior."
+    },
+    {
+      "requirement": "Zero authority/effect, retry, wake, Stop, grant or timeout changes beyond observation",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Whole-module AST comparison against the exact base is identical after removing only phase assignments, the three known diagnostic wrappers/blocks, and the explicitly enumerated new imports. All surrounding payload construction, DSN handling, subprocess configuration, authority checks, call ordering, timeout/grant constants, success behavior, cleanup and exception propagation remain identical. Model provision caller remains model_test_operation.py:154-157. No new success output.",
+      "limit": "AST comparison excludes import declarations only after verifying the exact allowed additions. This proves the reviewed source delta, not universal runtime effects or cold performance."
+    },
+    {
+      "requirement": "Raw native stderr remains discarded",
+      "status": "PASS_SOURCE_SCOPED",
+      "location": "integrations/hermes/src/omnis_hermes/runtime_protocol.py:313-316",
+      "evidence": "runtime_protocol.py SHA256 is identical at base and head: ba53093ec1c03bf4512b2690ca284c1f423e3d77782041e16faf8793c1fc84ed. Executed actual NativePeer._stderr with a synthetic async stream yielding a sentinel then EOF: exactly two read(8192) calls, no stdout/stderr. No real child or native process was started by this control.",
+      "limit": "Real native stderr transport/lifecycle and installed provisioning were not run by this reviewer."
+    }
+  ],
+  "execution": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+    "python": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "flags": ["-I", "-B"],
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/sf-rkzx2f7z",
+    "private_directory_mode": "0700",
+    "log_creation_umask": "0077",
+    "tests": [
+      {
+        "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import sys;sys.path[:0]=['api/src','integrations/hermes/src','api/tests'];import pytest;raise SystemExit(pytest.main(['-c','api/pyproject.toml','api/tests/test_model_test_source.py','api/tests/test_runtime_supervisor.py','-q','--tb=no','-p','no:cacheprovider','--basetemp=/home/kali/.hermes/cache/scratch/sf-rkzx2f7z/api']))"],
+        "exit_code": 0,
+        "result": "59 passed in 1.44s",
+        "log": "/home/kali/.hermes/cache/scratch/sf-rkzx2f7z/api.log"
+      },
+      {
+        "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "-c", "import sys;sys.path[:0]=['api/src','integrations/hermes/src'];import pytest;raise SystemExit(pytest.main(['-c','api/pyproject.toml','integrations/hermes/tests/test_host.py','-k','diagnostic','-q','--tb=no','-p','no:cacheprovider','--basetemp=/home/kali/.hermes/cache/scratch/sf-rkzx2f7z/adapter']))"],
+        "exit_code": 0,
+        "result": "24 passed, 15 deselected in 0.17s",
+        "log": "/home/kali/.hermes/cache/scratch/sf-rkzx2f7z/adapter.log"
+      },
+      {
+        "argv": ["/home/kali/OmnisAI/api/.venv/bin/python", "-I", "-B", "/home/kali/.hermes/cache/scratch/sf-rkzx2f7z/safety_probe.py"],
+        "exit_code": 0,
+        "result": "PASS_SOURCE_SCOPED: 136 checks; 3 production modules",
+        "probe_sha256": "d9609aa8edaa1c4b512c986e8349f8746f9ab542dfef161954c6db0f33a803d9",
+        "limit": "Exact diagnostic AST handlers executed with real error classes; not whole-consumer execution. Existing pytest tests provide separate real function execution with declared SOURCE doubles."
+      },
+      {
+        "command": "NativePeer._stderr synthetic AsyncMock stream control under python -I -B",
+        "exit_code": 0,
+        "result": "PASS; read size 8192, two reads, empty stdout/stderr"
+      },
+      {"command": "git diff --check", "exit_code": 0, "result": "clean"}
+    ],
+    "resource_effects": "No installs, PG, Docker, native Hermes, provider calls, browser, installed-root access, service launches, global/profile edits or protected HTML edits. Test processes were separate and joined; only owned private scratch helper/log/tmp files were created. No product edits or commits."
+  },
+  "issues_encountered": [
+    {
+      "issue": "Initial manifest filename manifestauthor.json was absent; actual supplied manifest was author.json. Initial abbreviated base token dd0f519a failed Git lookup.",
+      "disposition": "Used the discovered author.json and its exact validated base d0f519a77ccc3f628201276a3cf70061582ac6da; no source identifier silently repaired."
+    },
+    {
+      "issue": "Independent scratch probe initially supplied an opaque object directly to ControlConflict, whose constructor expects an object with code.value; probe exited 1 before checks completed.",
+      "disposition": "Corrected only the synthetic fixture to SimpleNamespace(value=Toxic()); reran successfully with 136 checks. This was a probe setup failure, not a product finding. No real secrets were involved."
+    },
+    {
+      "issue": "Parent/author tracks baseline optional-catalog startup import failures.",
+      "disposition": "NOT_RERUN here; retained as existing limitation, not attributed to the diagnostic delta and not presented as PASS."
+    }
+  ],
+  "limits": [
+    "Approval is bound to these seven exact hashes and the diagnostic-only safety scope; parent adjudicates integration and complementary normative review.",
+    "No broad runtime audit, canonical suite, installed artifact, cold native launch, PostgreSQL, Docker or provider proof.",
+    "Existing test_startup_budget.py was reviewed statically but not executed here; author evidence is not counted as independent execution.",
+    "Synchronous stderr may block or partially write; these tests verify finite content and failure-preservation, not sink scheduling guarantees.",
+    "Cancellation during later baseline cleanup is not redefined. Cleanup uncertainty and original refusal/exit behavior remain intact.",
+    "Recovery branch 3a96b9f is excluded. No root-cause fix, retry authorization or P2/P4a completion claim.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No global/project skills changed in this read-only assignment."
+  ],
+  "proposed_status_delta": {
+    "diagnostic_slice": {"code": "IMPLEMENTED_SOURCE", "proof": "PASS_SOURCE_SCOPED", "review": "APPROVED_SCOPED_SAFETY"},
+    "installed_provisioning": {"proof": "NOT_RUN_BY_THIS_REVIEW", "historical_failure": "UNCHANGED"},
+    "P2": "NOT_CLOSED",
+    "next": "Parent adjudication of both exact-snapshot reviews; any installed consumer remains a separately authorized bounded proof, not implied by this report."
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "state": "DIAGNOSTIC_INSTALLED_AWAITING_HUMAN_PUBLICATION_CONFIRMATION",
+  "source_commit": "0939d33",
+  "reviewed_source": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "reviews": {
+    "norm": "APPROVED_SCOPED",
+    "safety": "APPROVED_SCOPED"
+  },
+  "parent_tests": {
+    "api": "59PASS1.21s/exit0",
+    "adapter": "41PASS1deselected5.37s/exit0",
+    "binding": "all7files equal reviewed snapshot"
+  },
+  "limits": [
+    "Diagnostic only, historical cause UNKNOWN",
+    "Unchanged detached-family case NOT_RUN in focused suite",
+    "Two catalog-free startup baseline failures retained, canonical NOT_RUN",
+    "No recovery code integrated or installed"
+  ],
+  "bundle": {
+    "scope": "BUILD_ONLY_REVIEW_PENDING_NOT_INSTALLED",
+    "source": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+    "bundle": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/build/bundle",
+    "runtime_context": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/build/prepared",
+    "payloads": 25,
+    "native_closure": 3260,
+    "changed": [
+      "api/omnis_api-0.1.0-py3-none-any.whl",
+      "native/build-manifest.json",
+      "native/requirements-artifacts.txt"
+    ],
+    "release_sha256": "1147a5f24eee3e0988852da6d594c1074f519298347910911d02166b1dab066d",
+    "unchanged_native_and_dependencies": true
+  },
+  "installed_producers": [
+    {
+      "path": "api/src/omnis/modules/runs/model_test_source.py",
+      "sha256": "27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1"
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "4dda12a8ea3d8f3b5aa1c1d12a2a33359a9e716137fbc3991f4f3130771b4228"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "10086246b0fe06b523380b7310f3829ec8f5c3f9afcbd4322f8367c7fd89544e"
+    }
+  ],
+  "image_install": {
+    "stage": "diagnostic_image_install",
+    "exit": 0,
+    "seconds": 63.07
+  },
+  "root": "/home/kali/.omnis-p2-model",
+  "wrapper": "/home/kali/.omnis-p2-model/omnis",
+  "instance_id": "3d09774f-e48d-4710-b46c-83dc3a533b22",
+  "origin": "http://127.0.0.1:8766",
+  "last_observed_start": {
+    "start_exit": 0,
+    "status_exit": 0,
+    "state": "READY",
+    "generation": 1,
+    "supervisor_epoch": 1,
+    "assessment_ready": false
+  },
+  "qualification": [
+    "STATIC_PASS",
+    "PURE_PASS"
+  ],
+  "publication_head": {
+    "draft_ref": {
+      "digest": "9f2152f1436e258c9750bcc543f784216869bfb54512c21597df59e40283da97",
+      "id": "7eaa1d1f-73b2-44fe-9119-93334627b452",
+      "kind": "source-draft",
+      "revision": 1
+    },
+    "generation": 1,
+    "profile_key": "records-mapping-contract",
+    "publication_ref": null
+  },
+  "confirmation": {
+    "request": "/home/kali/.omnis-p2-model/state/omnis/catalog/requests/operator-confirm.json",
+    "terminal_process": "proc_d7e9a5c28b7f",
+    "visible_window_id": 83886100,
+    "last_process_state": "running",
+    "receipt": "/home/kali/.omnis-p2-model/recovery/confirmation-terminal-exit.json",
+    "result": "NOT_OBSERVED_YET_DO_NOT_REISSUE"
+  },
+  "prior_failed_instance": "/home/kali/.omnis-p2-reset",
+  "prior_retirement": {
+    "containers_absent": {
+      "api": true,
+      "db": true,
+      "runtime": true,
+      "supervisor": true
+    },
+    "network_absent": true,
+    "data_same": {
+      "postgres": true,
+      "catalog": true,
+      "provider": true
+    },
+    "logical_uncertainty_retained": true,
+    "socket_paths_absent": true
+  },
+  "next": "Read exact human confirmation result without replay; if valid Publish/readback/snapshot/select then one diagnostic provision. No model call before native preparation/restart/auth; no retry of old provision intent.",
+  "model_calls": 0,
+  "first_inference_budget": "original 1call/300s still unused; no extra allowance from new instance",
+  "phase2": "NOT_CLOSED"
+}

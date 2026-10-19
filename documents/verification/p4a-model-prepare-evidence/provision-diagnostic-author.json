@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "verdict": "SOURCE_SCOPED_DIAGNOSTIC_DELTA_READY_FOR_TWO_REVIEWS",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+  "head": "1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "base": "d0f519a77ccc3f628201276a3cf70061582ac6da",
+  "python": "3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]",
+  "files": [
+    {
+      "path": "api/src/omnis/modules/runs/model_test_source.py",
+      "sha256": "27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1"
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "4dda12a8ea3d8f3b5aa1c1d12a2a33359a9e716137fbc3991f4f3130771b4228"
+    },
+    {
+      "path": "api/tests/test_model_test_source.py",
+      "sha256": "e075d696a40b72af27f5caeb56c8536e59acfc6d28b097074081bbdaac29cf03"
+    },
+    {
+      "path": "api/tests/test_runtime_supervisor.py",
+      "sha256": "079d43951ba01cee6b58ba53ec722a8d72f89fe17242fd3d00ac5e2df138fe37"
+    },
+    {
+      "path": "integrations/hermes/src/omnis_hermes/runtime_host.py",
+      "sha256": "10086246b0fe06b523380b7310f3829ec8f5c3f9afcbd4322f8367c7fd89544e"
+    },
+    {
+      "path": "integrations/hermes/tests/test_host.py",
+      "sha256": "ba631cbca4978c6565f3b34c5f6947ea1e51ea4725c182431d1cc4a6f596b398"
+    },
+    {
+      "path": "integrations/hermes/tests/test_startup_budget.py",
+      "sha256": "94e95e81b5fce8c7298f753af40193b0fe82083d14c2c73e8675b91a11f5b3a4"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/api-final.log",
+      "sha256": "4598221ee5308f30ef3407a525d9962bd9dd960744b22c6abbf231c05658c5c0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-supervisor.log",
+      "sha256": "e563d38638e4dc2b352be411e48a1b66744a234299478f50daef4c0ab898e7e0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/baseline-startup.log",
+      "sha256": "c5903b951088dc84b12436b7a2e0bd5bb45a19dc172174d038aecb4186fa87c9"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-producers.log",
+      "sha256": "07a33e336f450e0d1dd0df3a041a5b4fe11f20e051c8ce500acca2096bd9160f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/mypy.log",
+      "sha256": "a7682b8f46b93ce33bc2ddbef4be9f9dab3e431d54a6638fe62c2cb5680e3d3d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers.log",
+      "sha256": "19edede36e57b6851df401d11217d30a650b41dc779d4d341fd3f5e2f056bb58"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-supervisor.log",
+      "sha256": "b362ef056d6f4223a2968706879dcd3857ee23f6a5d16e2ebd8cf34153686b97"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/regression.log",
+      "sha256": "5d2bf76d34f9c59dda9d4dd3da5031d42dafc4425c3fcc4c85de2220dc5474b7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers-valid.log",
+      "sha256": "dd315309f435970900c36cab261f9cae5f86178d673bc71b8a3b3b9cd8b9b661"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/mypy-final.log",
+      "sha256": "e317872697c2cbfdefa321527a6efe73290dff3a390b0fa8723b87092eccba6a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/adapter-final.log",
+      "sha256": "49bde951779ba5c0bde8e1775fe588090194cebf4465acef2f8425ebf77bc148"
+    }
+  ],
+  "scope": {
+    "production_files": [
+      "api/src/omnis/modules/runs/model_test_source.py",
+      "api/src/omnis/supervisor/__main__.py",
+      "integrations/hermes/src/omnis_hermes/runtime_host.py"
+    ],
+    "tests": [
+      "api/tests/test_model_test_source.py",
+      "api/tests/test_runtime_supervisor.py",
+      "integrations/hermes/tests/test_host.py",
+      "integrations/hermes/tests/test_startup_budget.py"
+    ],
+    "new_source_files": [],
+    "behavior": "Finite phase + fixed error bucket on existing stderr, once on failure before cleanup/normalization; original raise, refusal, cleanup, limits and authority order unchanged. No success diagnostics.",
+    "host_protocol_allowlist": {
+      "Native ready deadline": "READY_TIMEOUT",
+      "Native RPC deadline": "RPC_TIMEOUT",
+      "Native transport unavailable": "TRANSPORT"
+    },
+    "unknown_protocol": "OTHER; exact ProtocolError type and exact str argument required. TRANSPORT is already-normalized and does not distinguish EOF from other transport faults.",
+    "not_changed": [
+      "raw native stderr discard",
+      "schema/endpoints",
+      "CLI/release/pin",
+      "owner/retry/recovery",
+      "timeouts/grants",
+      "provider/native upstream"
+    ]
+  },
+  "tests": [
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_runtime_supervisor.py\", \"-k\", \"recorded_before\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-supervisor\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-supervisor.log",
+      "exit_code": 1,
+      "summary": "2 failed, 7 deselected: missing finite marker before control exit/drain",
+      "observed_summary": "2 failed, 7 deselected in 0.41s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_runtime_supervisor.py\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-supervisor\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-supervisor.log",
+      "exit_code": 0,
+      "summary": "9 passed",
+      "observed_summary": "9 passed in 0.44s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_model_test_source.py\", \"integrations/hermes/tests/test_host.py\", \"-k\", \"diagnostic\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers.log",
+      "exit_code": 1,
+      "summary": "15 model fixture setup failures (invalid selection ref), 9 Host missing-marker failures; corrected test fixture only before valid RED",
+      "observed_summary": "24 failed, 11 passed, 17 deselected in 0.92s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_model_test_source.py\", \"integrations/hermes/tests/test_host.py\", \"-k\", \"diagnostic\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers-valid\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/red-producers-valid.log",
+      "exit_code": 1,
+      "summary": "17 failed missing markers, 18 passed",
+      "observed_summary": "17 failed, 18 passed, 17 deselected in 0.82s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_model_test_source.py\", \"api/tests/test_runtime_supervisor.py\", \"integrations/hermes/tests/test_host.py\", \"-k\", \"diagnostic or recorded_before\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-producers\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/green-producers.log",
+      "exit_code": 0,
+      "summary": "37 passed, 24 deselected",
+      "observed_summary": "37 passed, 24 deselected in 1.20s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_model_test_source.py\", \"api/tests/test_runtime_supervisor.py\", \"api/tests/test_native_preparation_startup.py\", \"integrations/hermes/tests/test_host.py\", \"integrations/hermes/tests/test_startup_budget.py\", \"-k\", \"not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/regression\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/regression.log",
+      "exit_code": 1,
+      "summary": "96 passed, 3 failed, 1 deselected: mixed-suite test_native_preparation name collision plus 2 baseline startup failures",
+      "observed_summary": "3 failed, 96 passed, 1 deselected in 7.58s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\",\"api/tests\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"api/tests/test_model_test_source.py\", \"api/tests/test_runtime_supervisor.py\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache-api\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/api-final\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/api-final.log",
+      "exit_code": 0,
+      "summary": "59 passed in 1.10s",
+      "observed_summary": "59 passed in 1.10s"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import sys; sys.path[:0]=[\"api/src\",\"integrations/hermes/src\"]; import pytest; raise SystemExit(pytest.main([\"-c\", \"api/pyproject.toml\", \"integrations/hermes/tests/test_host.py\", \"integrations/hermes/tests/test_startup_budget.py\", \"-k\", \"not test_real_detached_family_is_killed_and_exactly_reaped_in_owned_harness\", \"-q\", \"--tb=short\", \"-o\", \"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache-adapter\", \"--basetemp=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/adapter-final\"]))"
+      ],
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/adapter-final.log",
+      "exit_code": 0,
+      "summary": "41 passed, 1 deselected in 5.24s",
+      "observed_summary": "41 passed, 1 deselected in 5.24s"
+    }
+  ],
+  "quality": [
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "RUFF_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/ruff"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src/omnis/modules/runs/model_test_source.py",
+        "api/src/omnis/supervisor/__main__.py",
+        "api/tests/test_model_test_source.py",
+        "api/tests/test_runtime_supervisor.py",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "integrations/hermes/tests/test_host.py",
+        "integrations/hermes/tests/test_startup_budget.py"
+      ],
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "RUFF_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/ruff"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src/omnis/modules/runs/model_test_source.py",
+        "api/src/omnis/supervisor/__main__.py",
+        "api/tests/test_model_test_source.py",
+        "api/tests/test_runtime_supervisor.py",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py",
+        "integrations/hermes/tests/test_host.py",
+        "integrations/hermes/tests/test_startup_budget.py"
+      ],
+      "exit_code": 0,
+      "result": "7 files already formatted"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "environment": {
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/mypy"
+      },
+      "argv": [
+        "/home/kali/OmnisAI/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "api/src/omnis/modules/runs/model_test_source.py",
+        "api/src/omnis/supervisor/__main__.py",
+        "api/tests/test_model_test_source.py",
+        "api/tests/test_runtime_supervisor.py",
+        "integrations/hermes/src/omnis_hermes/runtime_host.py"
+      ],
+      "exit_code": 0,
+      "result": "Success: no issues found in 5 source files",
+      "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/mypy-final.log"
+    },
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "baseline_failure": {
+    "cwd": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/work",
+    "environment": {
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa"
+    },
+    "argv": [
+      "/home/kali/OmnisAI/api/.venv/bin/python",
+      "-I",
+      "-B",
+      "-c",
+      "import pytest; raise SystemExit(pytest.main([\"-c\",\"api/pyproject.toml\",\"/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/baseline/api/tests/test_native_preparation_startup.py\",\"-q\",\"--tb=short\",\"-o\",\"cache_dir=/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/cache-baseline\"]))"
+    ],
+    "private_log": "/home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/baseline-startup.log",
+    "exit_code": 1,
+    "result": "2 failed, 1 passed in 1.20s",
+    "cause": "Preexisting model_test_models imports candidate_catalog via instance.schemas; same failure on d0f519a export, not introduced by this delta. No repair in this scope.",
+    "export_command": "git archive HEAD api/src api/tests/test_native_preparation_startup.py | tar -x -C /home/kali/.hermes/cache/scratch/p2-provision-et24h62i/qa/baseline",
+    "export_head": "d0f519a77ccc3f628201276a3cf70061582ac6da"
+  },
+  "coverage": [
+    "All 4 provisioning phases, all 5 supervisor loop phases, all 3 launch phases",
+    "Primary identity retained through ordinary failures/cancellation and diagnostic I/O failure",
+    "Supervisor marker observed inside LocalControl exit before drain; drain false still masks primary exactly as baseline and skips release",
+    "Exact finite lines exclude synthetic exception text and arbitrary class names; no payload/capability/DSN fields",
+    "Actual RuntimeHost._launch catch and stop callback; real synthetic child EOF/stall plus existing slow-ready positive",
+    "No diagnostic on normal positive; native child stderr synthetic sentinel discarded unchanged",
+    "ProtocolError exact reason allowlist plus unknown/class/str-subclass controls"
+  ],
+  "issues": [
+    {
+      "issue": "Initial model diagnostic fixture used invalid empty selection_ref",
+      "disposition": "Corrected valid synthetic selection; reran RED before production model edits"
+    },
+    {
+      "issue": "Mixed API/adapter test path imported wrong test_native_preparation module",
+      "disposition": "Followed separate API vs adapter test processes; final API 59 and adapter 41 pass"
+    },
+    {
+      "issue": "mypy explicit-export errors in tests",
+      "disposition": "Imported sys/candidate_store directly, no ignores; final mypy passes"
+    },
+    {
+      "issue": "Report assembly encountered deduplicated read_file metadata instead of content",
+      "disposition": "Read exact log summary lines via terminal; no product edit or rerun"
+    }
+  ],
+  "limits": [
+    "SOURCE tests and synthetic local peers only; no installed/native Hermes/model/provider/PG/Docker/browser/network effects",
+    "One existing detached-family test deselected: nested fixtures do not use -I -B and are outside allowed edit scope; no claim full adapter suite",
+    "Existing optional-catalog startup failures remain confirmed on baseline",
+    "No artifact build/deployment or installed normal provisioning. Both API and adapter exact artifacts are required for next consumer; CLI-only patch cannot reach RuntimeHost",
+    "Historical primary root cause UNKNOWN; successful diagnostics do not prove P2 or cold timing",
+    "Two independent reviews, parent integration and meaningful normal installed consumer remain pending",
+    "No global/project skills modified: scope permits only existing producers/affected tests; reused existing diagnostic guidance"
+  ],
+  "git_clean_after_commit": true,
+  "revert": "git revert 1c0fa73b5060c38afceabdb8f0601e2732ccec91",
+  "next_consumer": "Original normal installed provisioning with exact API + adapter artifact after parent reviews; no repeat of direct native startup diagnostic or prewarm."
+}

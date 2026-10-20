@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/home/kali/.omnis-p2-openfix/omnis",
+    "start",
+    "--no-open",
+    "--port",
+    "8767",
+    "--json"
+  ],
+  "exit": 0,
+  "seconds": 20.416,
+  "preflight_history": "Prior read-only port preflight nonzero; no Start executed. Later no listener and existing preflight passed. Original reason not retained; no TIME_WAIT attribution.",
+  "result": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 3,
+    "instance_id": "2d8ef3c3-82d2-4a96-b464-009fe25edefc",
+    "origin": "http://127.0.0.1:8767",
+    "reason": null,
+    "release": "0.1.0",
+    "reused": false,
+    "schema": "0013_mission_revisions",
+    "state": "READY",
+    "supervisor_epoch": 2
+  }
+}

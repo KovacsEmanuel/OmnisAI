@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/home/kali/.omnis-p2-openfix/omnis",
+    "stop",
+    "--json"
+  ],
+  "exit": 0,
+  "seconds": 16.3,
+  "result": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "dashboard_ready": false,
+    "generation": 2,
+    "instance_id": "2d8ef3c3-82d2-4a96-b464-009fe25edefc",
+    "origin": "http://127.0.0.1:8767",
+    "reason": null,
+    "state": "STOPPED"
+  }
+}

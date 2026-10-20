@@ -1,0 +1,12 @@
+{
+  "old_container_ids": {
+    "api": "c9eed8519f925862ca60e1fee943b8d784541d40a033b9c16bcf90e9d5af46a9",
+    "db": "3fe178cdef55b090c35f9247f39fc6528ef9e6c761da3765c86670cf7e4114b8",
+    "runtime": "eda69ea3d79a82df058e038379c0f3dad2234636c2a514cda15ec47b711c117b",
+    "supervisor": "8b26f017657df1951bd7e2e6fab5fed22b63242398e9d6f3f4acfaa42706abf5"
+  },
+  "project_containers_absent": true,
+  "network_absent": true,
+  "storage_identity_unchanged": true,
+  "stop_exit": 0
+}

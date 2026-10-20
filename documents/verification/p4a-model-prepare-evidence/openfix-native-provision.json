@@ -1,0 +1,23 @@
+{
+  "exit": 0,
+  "seconds": 11.115,
+  "stdout_bytes": 40,
+  "stderr_bytes": 0,
+  "prepared_restart_required": true,
+  "command": [
+    "docker",
+    "--config",
+    "/home/kali/.omnis-p2-openfix/docker",
+    "--host",
+    "unix:///run/docker.sock",
+    "exec",
+    "8b26f017657df1951bd7e2e6fab5fed22b63242398e9d6f3f4acfaa42706abf5",
+    "python",
+    "-I",
+    "-B",
+    "-m",
+    "omnis.modules.runs.model_test_source",
+    "--request",
+    "/catalog/requests/provision.json"
+  ]
+}

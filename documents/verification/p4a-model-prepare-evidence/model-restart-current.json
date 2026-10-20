@@ -1,5 +1,5 @@
 {
-  "state": "NEW_INSTALLED_READY_QUALIFIED_AWAITING_HUMAN_CONFIRMATION",
+  "state": "NEW_CANDIDATE_PREPARED_RESTARTED_AWAITING_OPERATOR_AUTH",
   "integrated_product": "771ae3a",
   "reviewed_commit": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
   "old_instance": {
@@ -22,7 +22,7 @@
   "acceptance": {
     "reviews": "both APPROVED_SCOPED",
     "integrated_source_tests": "71PASS7.27s/exit0",
-    "installed_fix": "ARTIFACT_IDENTITY_AND_READY_PASS; MODEL_START_AFTER_RESTART_NOT_RUN"
+    "installed_fix": "INERT_PREPARATION_AND_RESTART_PERSISTENCE_PASS; REAL_MODEL_START_NOT_RUN"
   },
   "operator_decision": "Instalare nouă izolată; păstrează actuala și continuă faza 2",
   "new_candidate": {
@@ -32,17 +32,86 @@
     "report_expected": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/installed-candidate.json",
     "instance_id": "2d8ef3c3-82d2-4a96-b464-009fe25edefc",
     "release_sha256": "b60ee78c54f6d5b80cf9abcdb9b9d0e328391e32b9f49dc60e528075eea8c4a6",
-    "supervisor_container": "8b26f017657df1951bd7e2e6fab5fed22b63242398e9d6f3f4acfaa42706abf5",
-    "qualification": "STATIC_PASS/PURE_PASS/NO_MODEL/UNPUBLISHED",
-    "head_generation": 1,
+    "supervisor_container": "0fae374d287ebae0a25195f28d77f823f4b63a53067e653a01ab35714839425d",
+    "qualification": "STATIC_PASS/PURE_PASS/PUBLISHED",
+    "head_generation": 2,
     "confirmation_request": "/home/kali/.omnis-p2-openfix/state/omnis/catalog/requests/operator-confirm.json",
     "confirmation_command_id": "0e8141e5-7ecb-44e6-a38e-27a8766e8150",
     "confirmation_process": "proc_093067f0b39c",
     "confirmation_process_pid": 571914,
     "confirmation_receipt": "/home/kali/.omnis-p2-openfix/recovery/confirmation-terminal-exit.json",
     "confirmation_output": "/home/kali/.omnis-p2-openfix/state/omnis/catalog/requests/confirmed.json",
-    "confirmed": false,
-    "next": "Read original confirmation result; do not relaunch or replay yes. After durable confirmation, existing Publish/readback/snapshot/select, one provision, exact Stop/Start and persistence readback. Then operator Chrome auth and original finite model test. Old8766 stays untouched."
+    "confirmed": true,
+    "next": "Operator pairs and authenticates Codex on8767 in normal Chrome. Do not repeat confirm/Publish/provision. Read actual auth and model operation before original aggregate1call300s test. Old8766 retained; no credential copy.",
+    "confirmation_ref": {
+      "digest": "a98515e8adc4640f39fcc4cafae87fefe521a0bda6fc8fbd0a7d74baacb80694",
+      "id": "808de194-2fc0-46a4-b60b-a5dacd82cd8d",
+      "kind": "operator-confirmation",
+      "revision": 1
+    },
+    "publication_ref": {
+      "digest": "0df609b5b90853e390e235d1ec7ddb01079a58ff7bfa439e8bc065fdf451c210",
+      "id": "fb0ea10b-0a7f-42c3-9bfa-9c905f9104f9",
+      "kind": "catalog-publication",
+      "revision": 1
+    },
+    "selection_ref": {
+      "digest": "2d061b6069500cf51043b89c992fa48420ea21c77dbf4bd9161cf85bb6c33439",
+      "id": "405da095-374d-4bf2-985a-45862973e3ee",
+      "kind": "execution-selection",
+      "revision": 1
+    },
+    "provision": {
+      "exit": 0,
+      "total_seconds": 11.115,
+      "status": "PREPARED_RESTART_REQUIRED"
+    },
+    "restart": {
+      "stop_exit": 0,
+      "stop_seconds": 16.3,
+      "start_exit": 0,
+      "start_seconds": 20.416,
+      "generation": 3,
+      "supervisor_epoch": 2,
+      "source_and_preparation_identical": true,
+      "storage_and_pg_identity_preserved": true,
+      "containers": {
+        "api": {
+          "id": "c21cc559328aa58395036c5536737f96c31c085ae780c682178a0ec584c33534",
+          "image": "sha256:a31f1ed4e5c05b08108e0e3e1e2743e76d02937221b3edb8df059b503ca83b3d",
+          "pid": 609457,
+          "started_at": "2026-10-20T06:39:29.961569122Z",
+          "new_container": true
+        },
+        "supervisor": {
+          "id": "0fae374d287ebae0a25195f28d77f823f4b63a53067e653a01ab35714839425d",
+          "image": "sha256:a31f1ed4e5c05b08108e0e3e1e2743e76d02937221b3edb8df059b503ca83b3d",
+          "pid": 609329,
+          "started_at": "2026-10-20T06:39:29.596436781Z",
+          "new_container": true
+        },
+        "runtime": {
+          "id": "b599327b5ec6e68e36bf98368a58891bf9d87835bca37b20ce6a316c74358ef1",
+          "image": "sha256:bf0fd67140530d57214679a217e205461ed49ef26982c5586691efd8627f3a5c",
+          "pid": 608245,
+          "started_at": "2026-10-20T06:39:26.543161366Z",
+          "new_container": true
+        },
+        "db": {
+          "id": "5bd6ec5fa1aa21030fd6c633d56554d9bdbeb6a19f746382cb1366be9aab5fac",
+          "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+          "pid": 606487,
+          "started_at": "2026-10-20T06:39:18.617913573Z",
+          "new_container": true
+        }
+      },
+      "port_preflight_limit": "Prior read-only port preflight nonzero; no Start executed. Later no listener and existing preflight passed. Original reason not retained; no TIME_WAIT attribution."
+    },
+    "model_test": {
+      "status": "AVAILABLE",
+      "operation_id": null,
+      "response_text": null
+    }
   },
   "model_budget": {
     "aggregate_max_calls": 1,

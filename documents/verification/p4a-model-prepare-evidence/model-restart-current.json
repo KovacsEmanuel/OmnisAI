@@ -1,0 +1,42 @@
+{
+  "state": "SOURCE_FIX_ACCEPTED_NEW_ISOLATED_INSTALL_AUTHORIZED",
+  "integrated_product": "771ae3a",
+  "reviewed_commit": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
+  "old_instance": {
+    "root": "/home/kali/.omnis-p2-startup10",
+    "origin": "http://127.0.0.1:8766",
+    "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "state": "READY_WITH_MODEL_START_REFUSAL",
+    "auth_observed": "CONFIRMED/SAVED/LOCAL_PRESENT",
+    "selection": "openai-codex/gpt-6.1-sol/xhigh",
+    "model_operation_id_observed_after_click": null,
+    "ui_observed": "UNKNOWN — verifica aceeasi operatie; nu retrimite",
+    "kept_unchanged": true
+  },
+  "diagnosis": {
+    "mechanism": "Initial inherited shutdown quiescence called the newly bound close_model_test hook and irreversibly closed the fresh owner. Repeated pre-OPEN heartbeat quiescence can repeat the same error. The read projection still said AVAILABLE.",
+    "parent_reproducer": "Full supervisor.run with real InstanceService.quiesce and real NativeTaskOwner; DB/transport doubles. Original 1FAIL/1PASS; corrected2PASS.",
+    "fix": "Initial drain before control exposure and before model-close hook; skip only already-drained startup generation. New-generation Stop retains close/cancel/join/drain. No latch reset.",
+    "limits": "Original HTTP status/inner failure was not logged. Source reproduction plus actual closed→OPEN history establish this sufficient deterministic defect; not an audit of every possible HTTP refusal."
+  },
+  "acceptance": {
+    "reviews": "both APPROVED_SCOPED",
+    "integrated_source_tests": "71PASS7.27s/exit0",
+    "installed_fix": "NOT_RUN"
+  },
+  "operator_decision": "Instalare nouă izolată; păstrează actuala și continuă faza 2",
+  "new_candidate": {
+    "root": "/home/kali/.omnis-p2-openfix",
+    "port": 8767,
+    "state": "BUILD_INSTALL_QUALIFICATION_IN_PROGRESS",
+    "report_expected": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/installed-candidate.json"
+  },
+  "model_budget": {
+    "aggregate_max_calls": 1,
+    "wall_seconds": 300,
+    "admitted_calls": 0,
+    "no_retry_fallback_or_auxiliary_inference": true,
+    "new_root_does_not_reset_budget": true
+  },
+  "phase2": "NOT_CLOSED"
+}

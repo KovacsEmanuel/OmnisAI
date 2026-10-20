@@ -1,0 +1,12 @@
+{
+  "head": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
+  "exit": 0,
+  "summary": [
+    "2 passed in 0.80s"
+  ],
+  "observations": [
+    "{'historical_shutdown': False, 'closing_at_ready': False, 'runtime_drains_at_ready': 0}",
+    "{'historical_shutdown': True, 'closing_at_ready': False, 'runtime_drains_at_ready': 1}"
+  ],
+  "scope": "SOURCE full supervisor wiring, real quiesce and close with DB/transport doubles; not installed PASS"
+}

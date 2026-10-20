@@ -1,0 +1,21 @@
+{
+  "head": "771ae3a",
+  "exit": 0,
+  "summary": [
+    "71 passed in 7.27s"
+  ],
+  "command": [
+    "/home/kali/OmnisAI/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,pytest;from pathlib import Path;r=Path.cwd();sys.path[:0]=[str(r/p) for p in (\"api/src\",\"api/tests\",\"integrations/hermes/src\")];raise SystemExit(pytest.main(['-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_runtime_supervisor.py', 'api/tests/test_model_test_operation.py', 'api/tests/test_runtime_service.py', 'api/tests/test_provider_settings_source.py', 'api/tests/test_native_preparation.py::test_supervisor_catalog_optin_refuses_without_inert_runtime', '-q', '--tb=short', '--basetemp', '/home/kali/.hermes/cache/scratch/lgi-y1ys3924/p']))"
+  ],
+  "source_hashes": {
+    "api/src/omnis/supervisor/__main__.py": "2c46ed47d0478680160b1a9710ae7fd1e466133608f1328d2a0fa9b7c20a56db",
+    "api/tests/test_runtime_supervisor.py": "c48648b7a7c68dd2b9716573afa4e78c132b6d77f0797bfa488cdb3a84a89f23",
+    "api/tests/test_model_test_operation.py": "ac48b7668265f0335c0fab1759f1e949768b939b4716b383ff6326529ea6e467"
+  },
+  "preflight_issue": "Initial whole-map equality rejected normative7paths versus author/safety3paths; each full manifest subsequently matched actual source, before tests/build/effects.",
+  "scope": "Five affected source consumer targets after integration; no PG/installed/model or canonical"
+}

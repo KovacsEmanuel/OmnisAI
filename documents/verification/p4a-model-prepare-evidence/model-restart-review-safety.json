@@ -1,0 +1,97 @@
+{
+  "review_id": "P2-MODELCLICK-LATCH-SAFETY",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent SOURCE safety review: historical startup quiescence versus current Stop, generation read/commit interleavings, model task cancellation/join and supervisor finalization. Not installed/runtime acceptance.",
+  "head": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
+  "base": "2d3435eea7d665c022164f9084f8cc31d72f4f25",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+  "branch": "work/p2-model-start-after-restart",
+  "git_clean_before_and_after": true,
+  "changed_sha256": {
+    "api/src/omnis/supervisor/__main__.py": "2c46ed47d0478680160b1a9710ae7fd1e466133608f1328d2a0fa9b7c20a56db",
+    "api/tests/test_runtime_supervisor.py": "c48648b7a7c68dd2b9716573afa4e78c132b6d77f0797bfa488cdb3a84a89f23",
+    "api/tests/test_model_test_operation.py": "ac48b7668265f0335c0fab1759f1e949768b939b4716b383ff6326529ea6e467"
+  },
+  "findings": [],
+  "blocking_counterexample": null,
+  "minimal_fix_required": null,
+  "checks": [
+    {
+      "id": "SAFE-HISTORICAL-ISOLATION",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Initial real InstanceService.quiesce runs before LocalControl startup and before binding close_model_test. NativeTaskOwner construction creates no task. Both historical STOPPED and virgin startup remain open at control entry and across two idle heartbeat ticks; no old latch is reset.",
+      "locations": ["api/src/omnis/supervisor/__main__.py:78-139", "api/tests/test_runtime_supervisor.py:21-181", "api/src/omnis/supervisor/native_tasks.py:46-62"]
+    },
+    {
+      "id": "SAFE-NEW-GENERATION-STOP",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "New OPEN and SHUTDOWN each advance generation. SHUTDOWN clears quiescence. The skip is restricted to the captured startup generation. Reviewer test exercises Stop before OPEN and Stop after a changed-generation read; the real quiesce uses current locked state and joins a task with an asynchronous cancellation finalizer before runtime drain or the simulated quiescence UPDATE.",
+      "locations": ["api/src/omnis/supervisor/__main__.py:168-175", "api/src/omnis/modules/instance/service.py:422-511", "test_safety_generation.py::test_current_stop_generation_is_not_exempt[stop_before_open]", "test_safety_generation.py::test_current_stop_generation_is_not_exempt[stop_after_changed_read]"]
+    },
+    {
+      "id": "SAFE-STALE-STARTUP-READ",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Forced read/commit interleaving returns the old startup snapshot after real service OPEN/SHUTDOWN methods have run against simulated records. That heartbeat skips quiesce but writes no receipt; shutdown remains unquiesced. The next heartbeat observes the new generation and closes/joins before drain. A stale read delays observation by a tick, not admission fencing. Unchanged native_preparation_commit and runtime_authority reject shutdown and stale generation under instance/lease locks.",
+      "locations": ["api/src/omnis/modules/instance/service.py:132-152", "api/src/omnis/modules/instance/service.py:194-201", "test_safety_generation.py::test_current_stop_generation_is_not_exempt[stale_startup_read]"]
+    },
+    {
+      "id": "SAFE-FAILURE-FINALIZER",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Reviewer false-drain case raises SHUTDOWN_INCOMPLETE without any quiescence UPDATE, then closes runtime/releases/disposes through the unchanged finalizer. Existing tests cover LocalControl startup failure and early exit with actual NativeTaskOwner close, and loop failures/cancellation at readiness, heartbeat, quiesce, runtime status and renewal. No new swallowing of model-task join or outer cancellation was introduced.",
+      "locations": ["api/src/omnis/supervisor/__main__.py:193-239", "api/src/omnis/modules/instance/service.py:488-511", "api/src/omnis/supervisor/native_tasks.py:56-62", "test_safety_generation.py::test_current_stop_generation_is_not_exempt[drain_false]"]
+    },
+    {
+      "id": "SAFE-NO-REVIVAL-NO-RESEND",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Existing operation test now proves the closed owner refuses TASK_UNAVAILABLE. A distinct new owner/epoch reads the retained operation as UNKNOWN without increasing synthetic send/read count. No budget, grant, runtime authority, effect guard or retry code changed.",
+      "locations": ["api/tests/test_model_test_operation.py:171-184", "api/src/omnis/modules/runs/model_test_operation.py:150-230"]
+    }
+  ],
+  "executions": [
+    {
+      "name": "independent_existing_source_regressions",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/p2-modelclick-latch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/src\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/tests\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"--tb=short\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp=/home/kali/.hermes/cache/scratch/p2-modelclick-latch/safety-pytest\",\"api/tests/test_runtime_supervisor.py\",\"api/tests/test_model_test_operation.py\",\"api/tests/test_runtime_service.py\"]))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "output": "59 passed in 6.98s",
+      "limits": "Real source consumers, private UDS in existing operation test; simulated DB, runtime transport and provider seams. No PG/native/model calls."
+    },
+    {
+      "name": "independent_forced_generation_cuts",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/p2-modelclick-latch PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/src\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/tests\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"--tb=short\",\"-p\",\"no:cacheprovider\",\"-p\",\"pytest_asyncio.plugin\",\"--basetemp=/home/kali/.hermes/cache/scratch/p2-modelclick-latch/safety-interleave-pytest\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_safety_generation.py\"]))'",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "output": "4 passed in 0.99s",
+      "limits": "Deterministic generation-read cut injection with real service/supervisor methods, simulated records/lease/locks/transport. Not overlapping PostgreSQL transactions or physical crash evidence."
+    },
+    {
+      "name": "final_identity",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --check && sha256sum api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py /home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_safety_generation.py",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "result": "Exact frozen HEAD and all three author hashes matched; clean worktree; diff check clean."
+    }
+  ],
+  "artifacts_created": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_safety_generation.py",
+      "sha256": "8410931519b388258bff75f5d3f0bedbffae4ae0554c85516a6ada735dc137bf",
+      "purpose": "Four independent bounded SOURCE safety cases."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/review-safety.json",
+      "purpose": "Snapshot-bound independent safety report."
+    }
+  ],
+  "issues_encountered": [],
+  "limits": [
+    "Installed deployment, live roots, PostgreSQL, OCI, browser, provider/model effects and real process-restart acceptance: NOT_RUN by scope.",
+    "No universal crash matrix or entire-runtime audit; no source-safety rejection inferred from missing physical evidence.",
+    "Source tests substitute persistence, owner lease and transport; concurrency evidence is forced interleaving, not real DB lock overlap.",
+    "No tracked edits, commits, dependency installs, global/profile/skill changes or budget re-admission/retry.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Complementary normative review and integration/deployment decision remain with parent.",
+    "Frozen README and status map describe older differing live checkpoints; neither was treated as current live proof. No status-map mutation in this read-only review."
+  ],
+  "parent_handoff": "Accept safety only for the exact three hashes above. Keep installed Test model acceptance NOT_RUN and model budget unchanged until separately authorized. No source fix requested.",
+  "reusable_lesson_for_parent": "Trace repeated quiescence as well as initial startup before attaching an irreversible process-local close hook. Keep strict hooks installed before control exposure; a stale-generation skip must not emit a quiescence receipt. Skill edit deferred because this reviewer is restricted to private scratch."
+}

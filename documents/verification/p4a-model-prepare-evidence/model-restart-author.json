@@ -1,0 +1,142 @@
+{
+  "status": "SOURCE_PASS_REVIEW_PENDING",
+  "head": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
+  "base": "2d3435eea7d665c022164f9084f8cc31d72f4f25",
+  "worktree": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+  "branch": "work/p2-model-start-after-restart",
+  "changed_sha256": {
+    "api/src/omnis/supervisor/__main__.py": "2c46ed47d0478680160b1a9710ae7fd1e466133608f1328d2a0fa9b7c20a56db",
+    "api/tests/test_runtime_supervisor.py": "c48648b7a7c68dd2b9716573afa4e78c132b6d77f0797bfa488cdb3a84a89f23",
+    "api/tests/test_model_test_operation.py": "ac48b7668265f0335c0fab1759f1e949768b939b4716b383ff6326529ea6e467"
+  },
+  "git_clean": true,
+  "contract": {
+    "criterion": "Fresh supervisor owner survives inherited STOPPED quiescence and pre-OPEN heartbeat ticks; new same-process shutdown closes, cancels and joins before quiescence.",
+    "files": [
+      "api/src/omnis/supervisor/__main__.py",
+      "api/tests/test_runtime_supervisor.py",
+      "api/tests/test_model_test_operation.py"
+    ],
+    "scope": "SOURCE and synthetic DB/transport only; no installed mutation/deployment, model call, native/PG/CLI lifecycle, pins, grants, root, dependencies, docs or global changes.",
+    "rollback": "git revert 7b26bb889227bf8e3a1428b9ec108164e08eab77"
+  },
+  "finding": "The model-close drain hook was bound before startup quiescence. The real quiesce calls its drain even when the inherited generation is already quiesced. Binding only after that call is insufficient: pre-OPEN heartbeat ticks repeat the same historical quiescence.",
+  "fix": "Move initial quiesce before LocalControl starts serving and before binding close hook. Capture startup generation and do not repeat its completed quiescence against the fresh model owner. A new generation uses the existing strict close/cancel/join hook; finalizer remains unchanged.",
+  "trace": {
+    "early_control": "LocalControl.__aenter__ starts serving before returning; moved initial quiesce before entering it, so no OPEN/model admission overlaps historical drain. Callback/hook wiring occurs before the first later await.",
+    "tick_race": "If an owned_status read sees startup generation just before concurrent OPEN/SHUTDOWN, this tick skips quiesce entirely, never writes a premature receipt; next tick observes changed generation and closes normally. DB Stop fences unchanged.",
+    "finalizer": "Unchanged close_model_test then runtime.drain then close/release/dispose; startup failure and early-close covered."
+  },
+  "commands": [
+    {
+      "name": "original_red",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/src\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/tests\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"-s\",\"-p\",\"no:cacheprovider\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_startup_close.py\"]))'",
+      "exit": 1,
+      "result": "1 failed, 1 passed in 0.69s",
+      "log": "author-original-red.log"
+    },
+    {
+      "name": "regression_red_first",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"-p\",\"no:cacheprovider\",\"api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence\"]))'",
+      "exit": 1,
+      "result": "4 failed, 2 passed; includes fixture TypeError from dataclasses.replace on Pydantic record, corrected to model_copy before product edit",
+      "log": "author-regression-red.log"
+    },
+    {
+      "name": "regression_red_corrected",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"--tb=short\",\"-p\",\"no:cacheprovider\",\"api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence\"]))'",
+      "exit": 1,
+      "result": "3 failed, 3 passed in 0.73s on original product",
+      "log": "author-regression-red2.log"
+    },
+    {
+      "name": "original_green",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"-s\",\"-p\",\"no:cacheprovider\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_startup_close.py\"]))'",
+      "exit": 0,
+      "result": "2 passed in 0.64s; historical true closing_at_ready false, drains 1",
+      "log": "author-original-green.log"
+    },
+    {
+      "name": "initial_green",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"--tb=short\",\"-p\",\"no:cacheprovider\",\"api/tests/test_runtime_supervisor.py\",\"api/tests/test_model_test_operation.py\"]))'",
+      "exit": 0,
+      "result": "48 passed in 5.94s",
+      "log": "author-green.log"
+    },
+    {
+      "name": "overbroad_selection",
+      "command": "mkdir -p /home/kali/.hermes/cache/scratch/mlt && TMPDIR=/home/kali/.hermes/cache/scratch/mlt /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main(['\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_supervisor.py'\"'\"', '\"'\"'api/tests/test_local_control.py'\"'\"', '\"'\"'api/tests/test_native_preparation.py::test_supervisor_catalog_optin_refuses_without_inert_runtime'\"'\"']))'",
+      "exit": 1,
+      "result": "81 passed, 9 fixture errors in 8.42s: OMNIS_TEST_DATABASE_URL required. No DB fixture ran. No PG effects authorized or executed. Those tests intentionally not rerun with a database.",
+      "log": "author-final-consumers.log"
+    },
+    {
+      "name": "final_source_consumers",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/mlt /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"api/src\",\"api/tests\",\"integrations/hermes/src\"]; raise SystemExit(pytest.main(['\"'\"'-q'\"'\"', '\"'\"'--tb=short'\"'\"', '\"'\"'-p'\"'\"', '\"'\"'no:cacheprovider'\"'\"', '\"'\"'api/tests/test_runtime_supervisor.py'\"'\"', '\"'\"'api/tests/test_model_test_operation.py'\"'\"', '\"'\"'api/tests/test_runtime_service.py'\"'\"', '\"'\"'api/tests/test_provider_settings_source.py'\"'\"', '\"'\"'api/tests/test_native_preparation.py::test_supervisor_catalog_optin_refuses_without_inert_runtime'\"'\"']))'",
+      "exit": 0,
+      "result": "71 passed in 7.13s after last edit",
+      "log": "author-source-consumers.log"
+    },
+    {
+      "name": "final_quality",
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python3.13 -I -m ruff check --config api/pyproject.toml --no-fix api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py && /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -m ruff format --config api/pyproject.toml --check api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py && /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -m mypy --config-file api/pyproject.toml --no-incremental api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py",
+      "exit": 0,
+      "result": "Ruff check pass, 3 formatted files, strict mypy no issues in 3 files",
+      "log": "author-final-quality.log"
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff HEAD^ HEAD --check",
+      "exit": 0,
+      "result": "clean"
+    }
+  ],
+  "logs": {
+    "author-original-green.log": {
+      "sha256": "ff61a7534ed31d37702eb659515f3dda311b2a3a4d3e444f06f0bd6dab9ceb28",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-original-green.log"
+    },
+    "author-quality.log": {
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-quality.log"
+    },
+    "author-original-red.log": {
+      "sha256": "64c9ddadf1f84fc43938abd8fddbae2a12a6b58c7a01e1a507c16b91679d297d",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-original-red.log"
+    },
+    "author-source-consumers.log": {
+      "sha256": "050191975c022f7bfaf42a9cdac2abc9cc786b978381900dc9c21e2d192c8abc",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-source-consumers.log"
+    },
+    "author-final-quality.log": {
+      "sha256": "c5c6c08982e5f414e59975e25c54efb6a40f89b31dc568fac65ec8b686aedfd3",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-final-quality.log"
+    },
+    "author-regression-red.log": {
+      "sha256": "5e4405b5011c2ef3e863390f2373d05ef11317b2d82f36ec0b224952dabb1cb1",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-regression-red.log"
+    },
+    "author-green.log": {
+      "sha256": "00f64601b26fa70b44e540c7f3e2dd735f426c74345b1f8d224bc77735ed10b4",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-green.log"
+    },
+    "author-regression-red2.log": {
+      "sha256": "68c335dd0f77e9008547bce8f21b60243c074b39de570bf3be51b79c138bb100",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-regression-red2.log"
+    },
+    "author-final-consumers.log": {
+      "sha256": "fc553a73f6a39cf2a1a4ff974c349de60618ee8c213852129deb67c147f472da",
+      "path": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/author-final-consumers.log"
+    }
+  },
+  "tests_added": "6 parametrizations using real supervisor.run, real InstanceService.open/shutdown/quiesce and NativeTaskOwner close, synthetic DB/transport; two historical idle ticks, active task canceled/joined before drain, post-close start denied, startup LocalControl failure and early exit. Existing operation Stop test now instantiates a different owner/epoch instead of clearing old latch; persisted operation remains UNKNOWN without redispatch.",
+  "limits": [
+    "No real PostgreSQL/native/provider/browser/deployment verification; existing accepted parent 253 API/4 real PG results not rerun or promoted.",
+    "No full canonical/historical matrix.",
+    "New lifecycle test mocks persistence, lease ownership and Stop-fence IO; it is ordering/cancellation proof, not fresh DB authorization proof.",
+    "Model-test AVAILABLE/read projection unchanged.",
+    "Independent complementary reviews pending parent; no integration claim."
+  ],
+  "remaining_consumer": "Parent: two complementary reviews on exact commit/hashes, integrate then authorized installed-consumer Test model acceptance through real owners without resubmitting prior intent or bypassing immutable-release guard.",
+  "recommended_skill_lesson": "Trace repeated quiescence as well as initial startup before binding irreversible process-local close hooks. Separate inherited generation drain from new-process shutdown, and install strict hooks before control exposure. Skill update deferred to parent because author file scope excludes docs/skills/global."
+}

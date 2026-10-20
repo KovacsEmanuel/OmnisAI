@@ -1,0 +1,111 @@
+{
+  "review": "independent-normative-model-owner-lifetime",
+  "verdict": "APPROVED_SCOPED",
+  "findings": [],
+  "scope": {
+    "kind": "SOURCE_ONLY",
+    "base": "2d3435eea7d665c022164f9084f8cc31d72f4f25",
+    "head": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
+    "worktree": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+    "changed_files": [
+      "api/src/omnis/supervisor/__main__.py",
+      "api/tests/test_runtime_supervisor.py",
+      "api/tests/test_model_test_operation.py"
+    ],
+    "affected_callers_read": [
+      "InstanceService.acquire/owned_status/open/shutdown/quiesce/native_preparation_commit/runtime_authority",
+      "LocalControl.__aenter__/_dispatch/__aexit__",
+      "NativeTaskOwner.__init__/model_test/close_model_test",
+      "model_test_operation.handle/run"
+    ],
+    "criterion": "A fresh process owner survives inherited shutdown quiescence and pre-OPEN heartbeat ticks; a new Stop generation still closes, cancels and joins before runtime drain/quiescence."
+  },
+  "sha256": {
+    "api/src/omnis/supervisor/__main__.py": "2c46ed47d0478680160b1a9710ae7fd1e466133608f1328d2a0fa9b7c20a56db",
+    "api/tests/test_runtime_supervisor.py": "c48648b7a7c68dd2b9716573afa4e78c132b6d77f0797bfa488cdb3a84a89f23",
+    "api/tests/test_model_test_operation.py": "ac48b7668265f0335c0fab1759f1e949768b939b4716b383ff6326529ea6e467",
+    "api/src/omnis/modules/instance/service.py": "b7b236e5cda6c05cad476df482bbca25a1fe69467d1384886f42f7c58b865aad",
+    "api/src/omnis/supervisor/native_tasks.py": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5",
+    "api/src/omnis/transport/local_control.py": "bb1177e1c6fff1c584da4971d662a3fb80b960872b5dc11fcd76d16bd79bd502",
+    "api/src/omnis/modules/runs/model_test_operation.py": "455f9c5e36211bcb05b0ade94b34c566de5cbf145ab6210d1c4441ecae0781aa"
+  },
+  "requirement_dispositions": [
+    {
+      "requirement": "Historical quiescence must not permanently close the fresh model owner",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "__main__.py:119-131 constructs the fresh owner, awaits initial real quiesce using runtime.drain, and only then installs the irreversible close hook. Lines 169-175 skip only the already-handled startup generation when a task owner exists. Original two-case reproducer and six added lifecycle cases pass."
+    },
+    {
+      "requirement": "No newly introduced pre-READY model admission",
+      "status": "PASS_STATIC_ORDER_SCOPED",
+      "evidence": "Initial quiesce now completes before LocalControl construction/entry. The strict drain hook is installed before __aenter__ can serve. LocalControl.model_test starts as None; its assignment after __aenter__ and SUPERVISOR_READY have no intervening await. Supervisor startup still never calls open. Existing DB owner/generation/shutdown/fence checks are unchanged. This is not a newly executed live admission proof."
+    },
+    {
+      "requirement": "New OPEN/Stop generations retain strict drain and cannot be lost",
+      "status": "PASS_SOURCE_AND_STATIC_SCOPED",
+      "evidence": "InstanceService.open:439 and shutdown:475-476 monotonically increment generation. A generation different from startup always follows the original quiesce path. An old owned_status snapshot can skip one tick, but cannot write a false receipt or skip the next changed generation. Quiesce re-reads under its own DB locks and closes/cancels/joins before runtime drain and receipt update. The added stop cases exercise real open/shutdown/quiesce methods and real close_model_test with synthetic persistence and transport."
+    },
+    {
+      "requirement": "Finalizer and P0/non-model behavior remain intact",
+      "status": "PASS_SOURCE_SCOPED",
+      "evidence": "Finalizer close_model_test -> runtime.drain -> runtime.close -> release/dispose remains byte-unchanged. Startup-failure and early-close cases pass. When task_owner is None, the heartbeat branch always calls quiesce as before; no new generation read is required for P0. Existing source opt-in, runtime-loss and case-owner tests pass."
+    },
+    {
+      "requirement": "Tests do not hide the irreversible close latch or claim real DB/model success",
+      "status": "PASS_REVIEW_SCOPED",
+      "evidence": "New regression keeps supervisor.run, InstanceService.open/shutdown/quiesce and NativeTaskOwner close real. Persistence/lease validation, Stop-fence I/O, LocalControl transport and runtime are doubles; the active task is synthetic. The operation test removes direct latch reset and explicitly constructs a different owner/epoch, checks old-owner refusal and retained UNKNOWN without additional sends. Its mocked service is not proof of fresh DB authority."
+    }
+  ],
+  "commands": [
+    {
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git show --stat --oneline HEAD",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "result": "Clean work/p2-model-start-after-restart; HEAD 7b26bb889227bf8e3a1428b9ec108164e08eab77; exactly three changed files relative to base."
+    },
+    {
+      "command": "git diff 2d3435eea7d665c022164f9084f8cc31d72f4f25 7b26bb889227bf8e3a1428b9ec108164e08eab77 -- api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py && git diff --cached --stat",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "result": "Exact delta reviewed; no staged changes."
+    },
+    {
+      "command": "mkdir -m 700 -p /home/kali/.hermes/cache/scratch/mlnorm && TMPDIR=/home/kali/.hermes/cache/scratch/mlnorm /home/kali/OmnisAI/api/.venv/bin/python3.13 -I -B -c 'import sys,pytest; sys.path[:0]=[\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/src\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/api/tests\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work/integrations/hermes/src\"]; raise SystemExit(pytest.main([\"-q\",\"--tb=short\",\"-p\",\"no:cacheprovider\",\"--basetemp=/home/kali/.hermes/cache/scratch/mlnorm/pytest\",\"api/tests/test_runtime_supervisor.py\",\"/home/kali/.hermes/cache/scratch/p2-modelclick-latch/test_startup_close.py\"]))' && git diff 2d3435eea7d665c022164f9084f8cc31d72f4f25 HEAD --check && sha256sum api/src/omnis/supervisor/__main__.py api/tests/test_runtime_supervisor.py api/tests/test_model_test_operation.py && git status --short --branch",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "result": "45 passed in 1.32s; diff check clean; all three hashes match author.json; worktree remains clean."
+    },
+    {
+      "command": "sha256sum api/src/omnis/modules/instance/service.py api/src/omnis/supervisor/native_tasks.py api/src/omnis/transport/local_control.py api/src/omnis/modules/runs/model_test_operation.py && git diff --name-only 2d3435eea7d665c022164f9084f8cc31d72f4f25 HEAD && git rev-parse HEAD",
+      "cwd": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/work",
+      "exit": 0,
+      "result": "Caller hashes recorded; changed inventory and frozen HEAD unchanged."
+    }
+  ],
+  "retained_evidence_not_rerun": {
+    "author": "author.json records original RED 1 fail/1 pass, GREEN 2 pass, final SOURCE 71 pass and Ruff/mypy exit 0; these are author evidence, not newly executed independent results.",
+    "overscope_failure": "Author's 9 PostgreSQL fixture errors remain retained; no database attempt or replacement green in this review.",
+    "unchanged": "Existing startup10/idle and PostgreSQL evidence stays at its original scope; no historical matrix rerun or new certification."
+  },
+  "limits": [
+    "No blocking defect found in the exact reviewed delta; this verdict is not absolute absence of bugs.",
+    "No real PostgreSQL, Docker, native process, provider/model, network, browser or installed-consumer execution. No live root/container/credential inspection or mutation; no resubmitted ModelTest intent.",
+    "The new lifecycle tests replace LocalControl and persistence/transport seams. They establish ordering and cancellation, not transactional concurrency, real authority, actual model usability or installed end-to-end behavior.",
+    "test_model_test_operation.py was reviewed but not rerun independently because its lifetime cases use actual local UDS transport; its recorded author result remains separate.",
+    "No canonical gate, lint/mypy rerun, deployment or integration. Readiness of the existing installed release does not verify these changed bytes; immutable 0.1.0 replacement restrictions remain binding.",
+    "Status documentation contains older CURRENT text; no live status claim was inferred from it. Parent-supplied current status was not reobserved.",
+    "Complementary safety review and integration/deployment adjudication belong to the parent."
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/review-norm.json",
+    "/home/kali/.hermes/cache/scratch/mlnorm/pytest (private pytest temporary fixtures)"
+  ],
+  "product_files_modified": [],
+  "commits_created": [],
+  "tool_applicability": {"Reticle": "NOT_APPLICABLE", "Chisel": "BLOCKED_NO_GO"},
+  "status_delta_for_parent": {
+    "current_slice": "Fresh-owner latch fix: IMPLEMENTED / independent SOURCE 45 PASS / APPROVED_SCOPED normative",
+    "installed_acceptance": "NOT_RUN on new artifact; existing readiness is not fix acceptance",
+    "global": "P4a PARTIAL; P2/G02 NOT_CLOSED; no change to historical P0/P1 scoped acceptance"
+  }
+}

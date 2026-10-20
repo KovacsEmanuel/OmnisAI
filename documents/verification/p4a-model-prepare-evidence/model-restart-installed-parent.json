@@ -1,0 +1,12 @@
+{
+  "instance_id": "2d8ef3c3-82d2-4a96-b464-009fe25edefc",
+  "origin": "http://127.0.0.1:8767",
+  "containers_running": 4,
+  "source_producer_matches": true,
+  "source_sha256": "2c46ed47d0478680160b1a9710ae7fd1e466133608f1328d2a0fa9b7c20a56db",
+  "index_http": 200,
+  "served_index_matches": true,
+  "confirmation_request_matches": true,
+  "confirmation_not_started": true,
+  "source_parent": "771ae3a"
+}

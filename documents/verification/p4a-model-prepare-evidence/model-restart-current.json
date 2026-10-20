@@ -1,5 +1,5 @@
 {
-  "state": "SOURCE_FIX_ACCEPTED_NEW_ISOLATED_INSTALL_AUTHORIZED",
+  "state": "NEW_INSTALLED_READY_QUALIFIED_AWAITING_HUMAN_CONFIRMATION",
   "integrated_product": "771ae3a",
   "reviewed_commit": "7b26bb889227bf8e3a1428b9ec108164e08eab77",
   "old_instance": {
@@ -22,14 +22,27 @@
   "acceptance": {
     "reviews": "both APPROVED_SCOPED",
     "integrated_source_tests": "71PASS7.27s/exit0",
-    "installed_fix": "NOT_RUN"
+    "installed_fix": "ARTIFACT_IDENTITY_AND_READY_PASS; MODEL_START_AFTER_RESTART_NOT_RUN"
   },
   "operator_decision": "Instalare nouă izolată; păstrează actuala și continuă faza 2",
   "new_candidate": {
     "root": "/home/kali/.omnis-p2-openfix",
     "port": 8767,
-    "state": "BUILD_INSTALL_QUALIFICATION_IN_PROGRESS",
-    "report_expected": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/installed-candidate.json"
+    "state": "READY",
+    "report_expected": "/home/kali/.hermes/cache/scratch/p2-modelclick-latch/installed-candidate.json",
+    "instance_id": "2d8ef3c3-82d2-4a96-b464-009fe25edefc",
+    "release_sha256": "b60ee78c54f6d5b80cf9abcdb9b9d0e328391e32b9f49dc60e528075eea8c4a6",
+    "supervisor_container": "8b26f017657df1951bd7e2e6fab5fed22b63242398e9d6f3f4acfaa42706abf5",
+    "qualification": "STATIC_PASS/PURE_PASS/NO_MODEL/UNPUBLISHED",
+    "head_generation": 1,
+    "confirmation_request": "/home/kali/.omnis-p2-openfix/state/omnis/catalog/requests/operator-confirm.json",
+    "confirmation_command_id": "0e8141e5-7ecb-44e6-a38e-27a8766e8150",
+    "confirmation_process": "proc_093067f0b39c",
+    "confirmation_process_pid": 571914,
+    "confirmation_receipt": "/home/kali/.omnis-p2-openfix/recovery/confirmation-terminal-exit.json",
+    "confirmation_output": "/home/kali/.omnis-p2-openfix/state/omnis/catalog/requests/confirmed.json",
+    "confirmed": false,
+    "next": "Read original confirmation result; do not relaunch or replay yes. After durable confirmation, existing Publish/readback/snapshot/select, one provision, exact Stop/Start and persistence readback. Then operator Chrome auth and original finite model test. Old8766 stays untouched."
   },
   "model_budget": {
     "aggregate_max_calls": 1,
@@ -38,5 +51,6 @@
     "no_retry_fallback_or_auxiliary_inference": true,
     "new_root_does_not_reset_budget": true
   },
-  "phase2": "NOT_CLOSED"
+  "phase2": "NOT_CLOSED",
+  "observer_limit": "Initial installer census comparison failed after acknowledged product stage; exact first sample not retained, cause UNKNOWN. Later canonical old-CID/state/mount readbacks match; no effectful stage repeated."
 }

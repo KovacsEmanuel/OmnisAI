@@ -1,0 +1,12 @@
+{
+  "old_container_ids": [
+    "47be1429e01f9c21236b84869d515aa448d7d339604661227782a56f8b051b5b",
+    "adec43658aa2b558d601c6acc5467701c2db0eed1a6e04f945185baeffb055bc",
+    "9ea2a5d27d4ae8af1a9570a7ce380396376a1205ee421a3be6ec019415d85792",
+    "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18"
+  ],
+  "project_containers_absent": true,
+  "network_absent": true,
+  "storage_identity_unchanged": true,
+  "stop_exit": 0
+}

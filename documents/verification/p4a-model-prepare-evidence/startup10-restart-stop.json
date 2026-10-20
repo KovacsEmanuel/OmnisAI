@@ -1,0 +1,21 @@
+{
+  "state": "RETURNED",
+  "command": [
+    "/home/kali/.omnis-p2-startup10/omnis",
+    "stop",
+    "--json"
+  ],
+  "exit": 0,
+  "seconds": 14.21,
+  "result": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "dashboard_ready": false,
+    "generation": 2,
+    "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "origin": "http://127.0.0.1:8766",
+    "reason": null,
+    "state": "STOPPED"
+  }
+}

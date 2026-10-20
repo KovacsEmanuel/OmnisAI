@@ -1,5 +1,5 @@
 {
-  "state": "READY_AWAITING_OPERATOR_PUBLICATION_CONFIRMATION",
+  "state": "NATIVE_PREPARED_RESTARTED_AVAILABLE_AWAITING_OPERATOR_AUTH",
   "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
   "root": "/home/kali/.omnis-p2-startup10",
   "wrapper": "/home/kali/.omnis-p2-startup10/omnis",
@@ -12,15 +12,63 @@
   "confirmation_command_id": "fb83e546-c08f-47ed-9796-d5db81bc188e",
   "confirmation_receipt": "/home/kali/.omnis-p2-startup10/recovery/confirmation-terminal-exit.json",
   "confirmation_output": "/home/kali/.omnis-p2-startup10/state/omnis/catalog/requests/confirmed.json",
-  "observed_terminal_receipt": null,
-  "observed_confirmation_output_nonempty": false,
-  "next": "Read exact original confirmation receipt and committed confirmation. Never launch another confirm or repeat saved yes. Then existing Publish/readback/snapshot/select/provision once; require PREPARED_RESTART_REQUIRED before same-root Stop/Start. Operator Chrome auth and first1call/300s after ready, never copied.",
+  "observed_terminal_receipt": {
+    "exit": 0,
+    "channel": "operator real xterm TTY"
+  },
+  "observed_confirmation_output_nonempty": true,
+  "next": "Operator pairs their normal Chrome locally if required, then Provider openai-codex -> Model gpt-6.1-sol -> Connect Codex and completes device authorization personally. Do not copy credentials. Read current auth/operation before original single1call300s browser test; no new provision, publication or confirm. Test model is currently on /engagements/new before Setup/ROE; Settings provider page has no test button.",
   "budget_consumed_model_calls": 0,
   "phase2": "NOT_CLOSED",
   "limits": [
-    "Inert installed READY is not native bootstrap10 success",
-    "No model response, authenticated browser, setup polish or final canonical",
-    "Prior roots remain retained/uncertain; no recovery framework",
-    "Capture logging failure repaired via read-only committed receipt lookup, not capture resend"
-  ]
+    "Real installed inert startup/preparation and same-root restart passed; model CREATE/SEND/provider response still NOT_RUN",
+    "AVAILABLE is readiness of prepared source, not authenticated account or proven inference",
+    "UI consolidation/polish, Setup/ROE and remainingG04a/G02-live/canonical remain open; noP3",
+    "Old roots and historical failures are not reconciled by this success"
+  ],
+  "confirmation_ref": {
+    "digest": "967f28564ad1595b4afad3ee5cc251ce298c9816b27670a7ee6d8cca8873e18e",
+    "id": "0ad7c201-2ec8-4e78-b901-591fe59b19f4",
+    "kind": "operator-confirmation",
+    "revision": 1
+  },
+  "publication_ref": {
+    "digest": "a58fbb72d2f5b064fc02e9776ad406330724b8960ef6e3a8d21ab8dd501b33d1",
+    "id": "e7e3655c-8e33-44e9-9ef9-5963a02ec46d",
+    "kind": "catalog-publication",
+    "revision": 1
+  },
+  "selection_ref": {
+    "digest": "6c547b5215c2ba116c286c9b35aceb2a0b8a2948dccde21d41a485bb18d84f32",
+    "id": "0ee22170-c528-4d34-bf28-f28ce8dcd285",
+    "kind": "execution-selection",
+    "revision": 1
+  },
+  "provision": {
+    "exit": 0,
+    "seconds": 9.471,
+    "status": "PREPARED_RESTART_REQUIRED"
+  },
+  "restart": {
+    "stop_exit": 0,
+    "stop_seconds": 14.21,
+    "start_exit": 0,
+    "start_seconds": 17.795,
+    "generation": 3,
+    "supervisor_epoch": 2,
+    "old_containers_retired": true,
+    "new_container_ids": {
+      "supervisor": "bc222b045b8b7e4d77931ce4d3f05220ab2d3e9e3449b60f11482c8bcff1be84",
+      "api": "d77180feb680a1c75b8f50050904bfdd16e78a9db3e7ab473be84a685b004695",
+      "runtime": "b354a854a9c12c3da19a7a9117d393871edc0737599471b8582d4b00cbbf4a8b",
+      "db": "faf62de22e494c0ffdfe512b45b7098e1cfe81dcb16dd26b5bfb5293fb236a8d"
+    },
+    "storage_and_database_identity_preserved": true,
+    "prepared_records_byte_equal": true
+  },
+  "model_test": {
+    "status": "AVAILABLE",
+    "operation_id": null,
+    "response_text": null
+  }
 }

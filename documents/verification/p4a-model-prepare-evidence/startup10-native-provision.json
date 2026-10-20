@@ -1,0 +1,21 @@
+{
+  "state": "RETURNED",
+  "command": [
+    "docker",
+    "exec",
+    "58223c8bb568245f4d279dd07e8b34bd36a7da910ff56a4d8f0ad7119bf70c18",
+    "python",
+    "-I",
+    "-B",
+    "-m",
+    "omnis.modules.runs.model_test_source",
+    "--request",
+    "/catalog/requests/provision.json"
+  ],
+  "model_inference_authorized": false,
+  "exit": 0,
+  "seconds": 9.471,
+  "stdout_bytes": 40,
+  "stderr_bytes": 0,
+  "prepared_restart_required": true
+}

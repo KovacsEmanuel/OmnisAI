@@ -1,0 +1,30 @@
+{
+  "state": "RETURNED",
+  "command": [
+    "/home/kali/.omnis-p2-startup10/omnis",
+    "start",
+    "--no-open",
+    "--port",
+    "8766",
+    "--json"
+  ],
+  "exit": 0,
+  "seconds": 17.795,
+  "result": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 3,
+    "instance_id": "0ac1e235-83dc-48af-8bd7-a8689d1eb113",
+    "origin": "http://127.0.0.1:8766",
+    "reason": null,
+    "release": "0.1.0",
+    "reused": false,
+    "schema": "0013_mission_revisions",
+    "state": "READY",
+    "supervisor_epoch": 2
+  }
+}

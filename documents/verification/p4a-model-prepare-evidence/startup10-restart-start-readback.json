@@ -1,0 +1,34 @@
+{
+  "containers": {
+    "supervisor": {
+      "id": "bc222b045b8b7e4d77931ce4d3f05220ab2d3e9e3449b60f11482c8bcff1be84",
+      "image": "sha256:0fd042d9c568d7e52ced61e5dd680c848696dbb0ad48ed65042f27044b4914a4",
+      "pid": 404021,
+      "started_at": "2026-10-20T04:40:44.432641982Z",
+      "new_container": true
+    },
+    "api": {
+      "id": "d77180feb680a1c75b8f50050904bfdd16e78a9db3e7ab473be84a685b004695",
+      "image": "sha256:0fd042d9c568d7e52ced61e5dd680c848696dbb0ad48ed65042f27044b4914a4",
+      "pid": 404110,
+      "started_at": "2026-10-20T04:40:44.789496856Z",
+      "new_container": true
+    },
+    "runtime": {
+      "id": "b354a854a9c12c3da19a7a9117d393871edc0737599471b8582d4b00cbbf4a8b",
+      "image": "sha256:905e3180e8cd810033336fd74379b1c4ffd5fceeb05ced97076691d1b0372de5",
+      "pid": 402960,
+      "started_at": "2026-10-20T04:40:41.710420769Z",
+      "new_container": true
+    },
+    "db": {
+      "id": "faf62de22e494c0ffdfe512b45b7098e1cfe81dcb16dd26b5bfb5293fb236a8d",
+      "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "pid": 401301,
+      "started_at": "2026-10-20T04:40:34.583833861Z",
+      "new_container": true
+    }
+  },
+  "old_containers_retired": true,
+  "storage_identity_unchanged": true
+}

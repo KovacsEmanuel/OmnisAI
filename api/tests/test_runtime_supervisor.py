@@ -4,13 +4,181 @@ import asyncio
 import sys
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import MethodType
 from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
 
 from omnis.supervisor import __main__ as consumer
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("historical_shutdown", [False, True])
+@pytest.mark.parametrize("ending", ["stop", "startup-failure", "early-close"])
+async def test_fresh_model_owner_survives_historical_quiescence(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    historical_shutdown: bool,
+    ending: str,
+) -> None:
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    from omnis.modules.instance.records import InstanceRecord, LeaseRecord
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.runs.model_test_models import ModelTestControl
+    from omnis.modules.settings.catalog_models import CatalogError
+    from omnis.supervisor.native_tasks import NativeTaskOwner
+
+    engine = Mock(dispose=AsyncMock())
+    service = InstanceService(engine)
+    state = InstanceRecord(
+        id=1,
+        instance_id=uuid4(),
+        generation=2 if historical_shutdown else 0,
+        admission_open=False,
+        shutdown_command_id=uuid4() if historical_shutdown else None,
+        quiesced_generation=2 if historical_shutdown else None,
+        quiesced_at=datetime.now(UTC) if historical_shutdown else None,
+    )
+    lease = LeaseRecord(
+        id=1, owner=uuid4(), epoch=2, expires_at=datetime.now(UTC) + timedelta(seconds=5)
+    )
+    connection = Mock(spec=AsyncConnection, execute=AsyncMock())
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
+        yield connection, state, lease
+
+    monkeypatch.setattr(service, "_locked", locked)
+    monkeypatch.setattr(service, "_require_owner", AsyncMock())
+    monkeypatch.setattr(service, "acquire", AsyncMock(return_value=2))
+    monkeypatch.setattr(service, "owned_status", AsyncMock(side_effect=lambda *args: state))
+    monkeypatch.setattr(service, "heartbeat", AsyncMock())
+    monkeypatch.setattr(service, "_receipt", AsyncMock(return_value=None))
+    monkeypatch.setattr(service, "_record", AsyncMock())
+    monkeypatch.setattr(service, "_stop_fence", AsyncMock())
+    monkeypatch.setattr(service, "_finalized_epoch", AsyncMock(return_value=1))
+    release = AsyncMock()
+    monkeypatch.setattr(service, "release", release)
+    runtime = Mock(
+        connect=AsyncMock(),
+        status=AsyncMock(return_value={"state": "IDLE"}),
+        drain=AsyncMock(return_value=True),
+        close=AsyncMock(),
+        boot=str(uuid4()),
+    )
+    owners: list[NativeTaskOwner] = []
+    task_joined = False
+
+    async def active() -> None:
+        nonlocal task_joined
+        try:
+            await asyncio.Future[None]()
+        finally:
+            task_joined = True
+
+    @asynccontextmanager
+    async def control(*args: object, **kwargs: object) -> AsyncIterator[Mock]:
+        callback = kwargs["native_task"]
+        assert isinstance(callback, MethodType)
+        owner = callback.__self__
+        assert isinstance(owner, NativeTaskOwner)
+        owners.append(owner)
+        assert runtime.drain.await_count == int(historical_shutdown)
+        assert not owner.model_test_closing
+        if ending == "startup-failure":
+            raise ValueError("SOURCE startup failure")
+        yield Mock()
+
+    class Cycles:
+        cycles = 0
+
+        def set(self) -> None:
+            pass
+
+        def is_set(self) -> bool:
+            self.cycles += 1
+            if self.cycles <= 3:
+                assert not owners[0].model_test_closing
+            return ending == "early-close" or self.cycles > 3
+
+        async def wait(self) -> None:
+            nonlocal state
+            if self.cycles == 3:
+                owner = owners[0]
+                opened = await service.open(uuid4(), state.generation, owner.owner, owner.epoch)
+                state = state.model_copy(
+                    update={
+                        "generation": opened,
+                        "admission_open": True,
+                        "shutdown_command_id": None,
+                        "quiesced_generation": None,
+                        "quiesced_at": None,
+                    }
+                )
+                owner.model_test_task = asyncio.create_task(active())
+                await asyncio.sleep(0)
+                shutdown_id = uuid4()
+                stopped = await service.shutdown(
+                    shutdown_id, state.generation, owner.owner, owner.epoch
+                )
+                state = state.model_copy(
+                    update={
+                        "generation": stopped,
+                        "admission_open": False,
+                        "shutdown_command_id": shutdown_id,
+                        "quiesced_generation": None,
+                        "quiesced_at": None,
+                    }
+                )
+
+                async def drained() -> bool:
+                    assert owner.model_test_closing
+                    assert owner.model_test_task is not None
+                    assert owner.model_test_task.done() and task_joined
+                    with pytest.raises(CatalogError, match="TASK_UNAVAILABLE"):
+                        await owner.model_test(
+                            ModelTestControl(
+                                op="model_test", action="start", operation_id=str(uuid4())
+                            )
+                        )
+                    return True
+
+                runtime.drain.side_effect = drained
+            raise TimeoutError
+
+    monkeypatch.setattr(asyncio, "Event", Cycles)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.setattr(consumer, "RuntimeClient", lambda *args, **kwargs: runtime)
+    monkeypatch.setattr(consumer, "LocalControl", control)
+    for key in ("OMNIS_RUNTIME_INERT_PROBE", "OMNIS_RUNTIME_CASE_ID", "OMNIS_RUNTIME_STATE_ROOT"):
+        monkeypatch.delenv(key, raising=False)
+    for key, value in {
+        "OMNIS_DATABASE_URL": "synthetic",
+        "OMNIS_CONTROL_DIR": "/synthetic-control",
+        "OMNIS_RUNTIME_DIR": "/synthetic-runtime",
+        "OMNIS_NATIVE_PREPARATION_CATALOG_ROOT": str(tmp_path),
+        "OMNIS_MODEL_TEST_SOURCE_ROOT": "/opt/omnis/model-test",
+        "OMNIS_MANAGED_TASKS": "1",
+    }.items():
+        monkeypatch.setenv(key, value)
+    if ending == "startup-failure":
+        with pytest.raises(ValueError, match="SOURCE startup failure"):
+            await consumer.run()
+    else:
+        await consumer.run()
+    assert owners[0].model_test_closing
+    assert runtime.drain.await_count == int(historical_shutdown) + (2 if ending == "stop" else 1)
+    if ending == "stop":
+        assert task_joined
+    runtime.close.assert_awaited_once()
+    release.assert_awaited_once()
+    engine.dispose.assert_awaited_once()
 
 
 @pytest.mark.asyncio

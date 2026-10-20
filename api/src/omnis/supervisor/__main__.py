@@ -67,6 +67,7 @@ async def run() -> None:
     owner = uuid4()
     epoch = None
     task_owner = None
+    startup_generation = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -77,6 +78,7 @@ async def run() -> None:
         epoch = await service.acquire(owner)
         if raw_runtime is not None:
             status = await service.owned_status(owner, epoch)
+            startup_generation = status.generation
             runtime = RuntimeClient(Path(raw_runtime), generation=status.generation, epoch=epoch)
             await runtime.connect()
             service.runtime_drain = runtime.drain
@@ -117,6 +119,8 @@ async def run() -> None:
                 task_owner = NativeTaskOwner(
                     ManagedAdmission(engine, catalog_root), service, owner, epoch, runtime
                 )
+        # Drain inherited shutdown before exposing this fresh process owner.
+        await service.quiesce(owner, epoch)
         if task_owner is not None and runtime is not None:
 
             async def drain_model_test() -> bool:
@@ -150,7 +154,6 @@ async def run() -> None:
                     )
 
                 control.settings = settings_command
-            await service.quiesce(owner, epoch)
             print("SUPERVISOR_READY", flush=True)
             while not stop.is_set():
                 try:
@@ -163,7 +166,13 @@ async def run() -> None:
                         phase = "HEARTBEAT"
                         await service.heartbeat(owner, epoch)
                         phase = "QUIESCE"
-                        await service.quiesce(owner, epoch)
+                        # The startup generation was already drained without closing this owner.
+                        if (
+                            task_owner is None
+                            or (await service.owned_status(owner, epoch)).generation
+                            != startup_generation
+                        ):
+                            await service.quiesce(owner, epoch)
                         if runtime is not None:
                             phase = "RUNTIME_STATUS"
                             runtime_state = (await runtime.status())["state"]

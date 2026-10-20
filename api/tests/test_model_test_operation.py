@@ -176,11 +176,10 @@ async def test_operation_outlives_four_seconds_disconnect_and_no_refill(
             "status"
         ] == "UNKNOWN"
         before = len(reads)
-        owner.model_test_closing = (
-            False  # SOURCE process replacement, no runtime authority is reused.
-        )
-        owner.model_test_task = None
-        assert (await owner.model_test(request))["status"] == "UNKNOWN"
+        with pytest.raises(CatalogError, match="TASK_UNAVAILABLE"):
+            await owner.model_test(request)
+        replacement = NativeTaskOwner(owner.domain, service, uuid4(), owner.epoch + 1, runtime)
+        assert (await replacement.model_test(request))["status"] == "UNKNOWN"
         assert len(reads) == before
         return
     await asyncio.wait_for(task, 6)

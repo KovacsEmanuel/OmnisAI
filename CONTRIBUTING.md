@@ -6,7 +6,7 @@ Direcția noului produs și limita înainte de T0 sunt în AGENTS/README; Hermes
 
 Skill-urile de dezvoltare trăiesc în `.hermes/skills/`, versionate împreună cu proiectul. Hermes le descoperă numai în proiectele trusted și numai când sesiunea este legată de checkout; în rest nu încarcă această metodologie peste alte proiecte.[1]
 
-`AGENTS.md` este locul regulilor de proiect: reviewul independent pe bytes exacți duce la remediere, rerulare și re-review când apar blocante, până la acceptare scoped sau raportarea unui blocker real. `SOUL.md` rămâne identitatea globală și păstrează același principiu general, fără a pretinde absența absolută a gap-urilor. Istoric, loaderul instalat a fost verificat inclusiv din subdirectorul `tests/documentation`; citirea/scanarea bytes curenți rămâne NOT_RUN până la QA fresh descrisă în tools/development/README.md. Nu adăugăm o a doua sursă `.hermes.md`.[2]
+`AGENTS.md` este locul regulilor de proiect: reviewul independent pe bytes exacți duce la remediere, rerulare și re-review când apar blocante, până la acceptare scoped sau raportarea unui blocker real. `SOUL.md` rămâne identitatea globală și păstrează același principiu general, fără a pretinde absența absolută a gap-urilor. [Inventarul calificat](tools/development/skills-manifest.json) leagă citirea/scanarea de SHA-urile verificate; [QA nativă](documents/verification/api-key-migration-evidence/governance-native-load.json) acoperă AGENTS din root/subdirector, cele 13 skill-uri și 20 de fișiere de suport, fără inferență sau schimbarea profilului personal. Nu adăugăm o a doua sursă `.hermes.md` și nu pretindem reîncărcarea promptului TUI deja deschis.[2]
 
 După revizuirea skill-urilor, activarea pe un checkout nou se face cu:
 

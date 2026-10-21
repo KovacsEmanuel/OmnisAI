@@ -294,5 +294,69 @@
     "Canonical architecture/plan/stack/UI and product code unchanged; five contracts before T0 remain open.",
     "Global SOUL/config and personal credentials not modified.",
     "Source author exited before parent took explicitly transferred one-line assertion narrowing; no parallel writer."
-  ]
+  ],
+  "qualification_closure": {
+    "verdict": "APPROVED_SCOPED",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "snapshot": {
+      "base_commit": "4e2d8d611d0fa025728bb8b2e9f251ffd591e878",
+      "files": {
+        "CONTRIBUTING.md": "3f6a64e6787010766c4657b0df523f14068cc7dc5bcdeea892176b3a79a8b091",
+        "tests/documentation/test_governance.py": "68aff2a6f086fdd07fbde03f3d845f6f6b6a014f5c29650a37aab7b967b23566",
+        "tools/development/README.md": "c2a7aa12c4a4a2dfd35870186fdce3496d0615d3bff53ea3fe9052d9cf9e02a5",
+        "tools/development/skills-manifest.json": "618957d35c2c54c883b7189aa76bd2f8e0285739ace59f08772858200e0af7f0",
+        "documents/verification/api-key-migration-evidence/governance-native-load.json": "ec873a2d703333b69ba4f2fe98d2a3bf7c550fd564c53af4c29e76058841b7f1"
+      },
+      "checks": [
+        {
+          "command": [
+            "python",
+            "-B",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/documentation",
+            "-v"
+          ],
+          "exit": 0,
+          "summary": [
+            "",
+            "----------------------------------------------------------------------",
+            "Ran 80 tests in 1.547s",
+            "",
+            "OK"
+          ]
+        },
+        {
+          "command": [
+            "python",
+            "-B",
+            "scripts/render_docs.py",
+            "--check"
+          ],
+          "exit": 0,
+          "summary": [
+            "OK Omnis_Implementation_Plan.html",
+            "OK Omnis_MVP_Architecture.html",
+            "OK Omnis_UI_UX_Spec.html",
+            "OK Omnis_Stack_Baseline.html",
+            "OK Omnis_Implementation_Readiness_Review.html"
+          ]
+        }
+      ]
+    },
+    "original_sha256": "b125e14ba31b0f7401849774b5e0fec49af1164ecd5fb73675b3058c71b94e6e",
+    "original_text": "**APPROVED_SCOPED** — fără defecte identificate în enum, procedură sau afirmațiile de calificare.\n\nCele cinci hashuri corespund exact [qualification-freeze.json](/home/kali/.hermes/cache/scratch/omnis-governance-edit-sft1enkq/qualification-freeze.json), SHA-256 `ea94b74b63606dedb6ad8bbb9bfcdd9e47f6b36487f04ce4a2f2156e8d4d532c`, baza `4e2d8d611d0fa025728bb8b2e9f251ffd591e878`.\n\nAdăugarea exclusivă a `caution` reflectă producătorul instalat: high → caution; carantina blochează dangerous și erorile scannerului. Cerințele de hash/evidence rămân intacte. Rezultatele 12 safe/1 caution și toate cele patru findings sunt păstrate; nu există conversie la safe sau bypass.\n\nLogurile consemnează RED 4 teste/1 eșec, GREEN 80 PASS și 5 documente sincronizate. Nu am rerulat verificările.\n\nLimite: review static, read-only; fără execuție nativă/helperi, modificări, secrete sau redeschiderea celor 36 de fișiere. Documentul protejat exclus. Aprobarea privește candidatul înghețat, nu integrarea, runtime-ul, T0 sau reîncărcarea TUI.",
+    "native_qa_evidence": "documents/verification/api-key-migration-evidence/governance-native-load.json",
+    "native_qa_status": "PASS_SCOPED",
+    "native_read_count": 13,
+    "linked_support_read_count": 20,
+    "scanner_safe_count": 12,
+    "scanner_caution_count": 1,
+    "caution_preserved": true,
+    "retained_enum_red": "Actual native caution rejected by old metadata test enum;4tests/1failure. Add only caution; full80PASS and renderer5/exit0 after final edits. No scanner bypass or repeated native execution for metadata.",
+    "adjudication": "Parent accepts development-instruction scope only. All original blockers closed. No product/canonical/T0 acceptance."
+  }
 }

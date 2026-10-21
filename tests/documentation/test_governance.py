@@ -50,7 +50,7 @@ class GovernanceTests(unittest.TestCase):
         for entry in manifest["skills"]:
             self.assertEqual(entry["sha256"], hashlib.sha256(paths[entry["path"]].read_bytes()).hexdigest())
             self.assertIn(entry["native_read"], {"NOT_RUN", "PASS"})
-            self.assertIn(entry["scanner_verdict"], {"NOT_RUN", "safe", "BLOCKED"})
+            self.assertIn(entry["scanner_verdict"], {"NOT_RUN", "safe", "caution", "BLOCKED"})
             if entry["native_read"] != "NOT_RUN" or entry["scanner_verdict"] != "NOT_RUN":
                 self.assertEqual(entry.get("tested_sha256"), entry["sha256"])
                 self.assertTrue(entry.get("checked_at_utc"))

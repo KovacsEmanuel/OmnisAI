@@ -1,0 +1,51 @@
+# omnis-review-qa: ipc-process-packaging
+
+Rețete tematice păstrate din procedura anterioară. Încarcă numai pentru frontiera concretă afectată; nu sunt preflight universal sau autorizație de efecte. Dovezile istorice rămân la reviziile lor.
+
+Resolve an evidence/task link's operation, identity and snapshot explicitly; opening the destination page while retaining incompatible filters can display another object's evidence. Include a prior-selection/empty-filter regression.
+
+Exercise rerenders as well as initial clicks: a stopped/paused run must not regain an active phase after finding review or filtering. Recheck current evidence availability in every consumer (finding, operation inspector, coverage and newly exported reports), while preserving historical verdicts and saved report snapshots. Download and parse the actual export; a preview count is not evidence that its bytes match.
+
+No universal 'verified' badge. Challenge a verifier only for a concrete false-green defect or canonical acceptance obligation, not recursive report/harness audits. Match exact structured diagnostic identifiers/severity/source, not a substring in an exception stack; require positive and negative controls on the SAME evidence channel. An arbitrary failure or always-rejecting observer must not pass the negative control. Add a regression for a demonstrated false-green mechanism before trusting the repaired gate. A mock-only test or filename assertion cannot certify the product. Do not weaken safety or approve a review because it agrees with the implementer.
+
+For a later-stage denial authored through YAML, keep earlier fields valid and preserve the intended literal type: quote all-digit hexadecimal pins and other string identifiers. An unquoted 40-digit pin becomes an integer and can hit INTEGER_LIMIT before the compatibility guard; that is not INCOMPATIBLE_HERMES evidence. Compare a real positive, the original encoding failure and the quoted identical literal on the same installed consumer before repairing the harness. Change encoding, not the identifier or expected reason; preserve the failed report and write the corrected run separately, without replaying unchanged product gates.
+
+Measure an exact denial reason through the public parser or installed CLI before encoding it in an oracle. Trace exception inheritance and every enclosing handler: a callback's `CatalogError(ValueError)` can be caught and normalized to another public reason. Pair the same otherwise-valid integer control with wire and programmatic invalid inputs; keep those boundaries distinct, preserve refusal/state/replay assertions, and fix only the disproved expectation unless the product contract itself requires a separate change.
+
+Test the producer of a safety flag as well as its consumer: injecting `uncertain=true` proves the cleanup predicate, not that signal exit, lost ACK or decoding failure actually sets it. Exercise the real failure boundary where safe, then pass its observed state into the cleanup oracle; label substituted daemon/resource seams rather than claiming an end-to-end effect.
+
+- Trigger a process signal test only after observing the intended owner phase (handler installed/worker admitted or a post-handshake marker), not an arbitrary delay from `Popen`: an early default SIGTERM can erase the receipt before the cleanup path runs. Keep the early-signal uncertainty as a separate negative, and never turn a missing receipt into PASS by sleeping longer.
+- Before crediting an FD leak oracle, identify the descriptors it owns and quiesce any test peer whose accepted socket may close asynchronously. A global `/proc/self/fd` count can decrease between snapshots even when the product has not closed an owned FD; do not replace equality with a weaker `<=` assertion or infer the lost socket's owner without evidence.
+
+If a successful temporary verifier's own creation/deletion triggers another ad-hoc nudge, compare the tested source hashes once and retain its explicit nonzero test count and scoped PASS. Do not create a verifier for the verifier or replay unchanged checks to satisfy the ledger; continue the actual owned canonical gate separately.
+
+For a read-only Python QA helper import, invoke the interpreter with explicit `-I -B` or set `sys.dont_write_bytecode=True` before the import: `-I` implies `-E`, so `PYTHONDONTWRITEBYTECODE` alone is ignored and can write `__pycache__` outside the owned scope. Include import caches in the write boundary; if a forbidden cache was created, preserve the artifact and execution FAIL rather than deleting it or replaying effects to manufacture a clean run. This controls Python bytecode writes only, not arbitrary native syscalls or helper side effects.
+
+When rejecting private child stdout/stderr, keep raw bytes out of pytest assertion operands: assertion rewriting can interpolate them even in `--tb=line`. Preserve private output files and strict refusal, but raise only a sanitized reason through an explicit condition. Exercise empty-output acceptance and a synthetic nonempty marker refusal on the real pytest exception/line/short report channel; private file modes do not sanitize a rewritten assertion. This does not certify deliberate `--showlocals`/`--showargs` output.
+
+For a confirmed host NSS path failure blocking a real audit or hash-locked dependency install, use the bounded [private NSS procedure](private-nss-audit.md). Keep helper review and targeted positives distinct from the canonical suite; do not change the host or bypass audit/hash results.
+
+For exception-based test guards, record each attempted violation to an independent parent-owned channel **before** raising. Test a child that catches the exception and exits successfully: its report must still fail the clean verdict. Require observer readiness, known event tags and positive/negative controls; missing evidence is not zero attempts. Fail closed if recording fails, and distinguish Python audit events from native syscalls/OS confinement.
+
+Read persisted exception traceback metadata through the built-in `BaseException.__dict__["__traceback__"]` descriptor, not an overridable exception attribute. Challenge a subclass returning private strings/objects as `tb_lineno`; retain only the genuine integer caller line or null, preserve the primary error and uncertainty if diagnostic persistence fails, and do not promote that caller location or a normalized EOF into an internal root-cause claim.
+
+When typing a test observer/decoder, preserve unknown fields before leak/completeness assertions. A parser that strips unrecognized fields can manufacture a clean result. Exercise an unexpected synthetic marker at both top-level and nested payload positions, while rejecting wrong types; this evidence-preserving test policy does not replace strict allowlists on production inputs.
+
+- Before accepting a truncated or delayed review delivery, obtain the complete snapshot-bound report through a verifiable scratch JSON handle and read it back after the child completes. Missing text is not an empty findings list; persist the adjudicated verdict, concrete findings and limits in versioned slice notes before scratch expires. Do not poll a running child's transcript or report to wait for completion.
+
+## No-rerun at a composed consumer
+
+- When a fix moves denial ahead of setup, keep the original regression but add a bounded late-sink control that actually reaches cleanup. Likewise, a worker joined only by the test finalizer does not prove it was drained before the product returned: observe the latched outcome and join boundary, challenge the after-poll interrupt window, and report timed-out cleanup separately from terminal denial. Do not replace these controls with a growing verifier framework.
+
+## Settled IPC and process identity
+
+- For frozen output retirement, inspect every enclosing error handler: an inner graceful close can detach the writer before an outer abort sees it. Exercise real UDS backpressure with pending bytes and release the peer only after the failed call; require zero pending output at the actual owner fence exit and no complete frame afterward. Detached reader/writer and `is_closing()` alone do not prove discard. Preserve ordinary non-frozen close behavior and the original deadlines.
+- Capture a no-rerun observation baseline only after authentic native drain, then validate counts/overlap against the entire settled log before offline replay. Preserve strict byte equality afterward; do not filter normal EXIT events or tolerate extra work during drain. Close IPC across offline readers and use the original owner's retirement path. If historical baseline bytes were not retained, do not attribute the old difference exclusively to a normal exit append.
+- Before a long offline-reader interval in an owned restart probe, close the IPC channel only after confirmed native drain; reconnect through the same original owner for fresh final Stop/status. A real Host can emit an uncorrelated idle-denial frame on a retained channel even when drained. Keep a real UDS positive and bad-drain refusal; closing the channel must not forgive uncertainty or replace resource retirement.
+- Before initial offline preparation, retain the original boot/capability needed by its receipt, not an idle transport. Close at that initial caller, reconnect and compare both identities before launch; leave later intentional replacement/recovery paths unchanged. Prove the held-idle refusal and same-identity positive through real UDS without starting native work.
+- Identify each replacement process by boot and host-visible PID/starttime, and verify old identities are absent before restart. A namespace inode may be recycled after its lifetime ends; do not require cross-lifetime inequality or accept an unchanged PID/starttime merely because its namespace differs. Preserve independent private-namespace attestation and Host/native namespace equality within each boot.
+
+## Batch failure and QA exit boundaries
+
+## Verification
+All named acceptance criteria accounted for, blocking findings resolved, regressions rerun and intended changes committed. Retained failures/limits are searchable in Git or concise versioned notes, not hidden in temporary transcripts.

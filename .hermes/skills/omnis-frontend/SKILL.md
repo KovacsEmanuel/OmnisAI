@@ -1,7 +1,7 @@
 ---
 name: omnis-frontend
 description: "Use when building Omnis UI from a visual reference."
-version: 0.1.5
+version: 0.1.6
 author: Julien Thibeaut (upstream), OmnisAI, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -23,7 +23,7 @@ Read the relevant UI/UX flow and data/state contract. Use `vision_analyze` for a
 ## Procedure
 1. Establish the operator's task and primary surface (operate/monitor/configure/inspect), reference viewport and hierarchy. Extract layout, density, typography, spacing and interaction vocabulary from evidence, not memory. Identify functional constraints and uncertainties; no invented business metrics or branded assets.
    Map the reference's page boundaries before styling: central Dashboard, selected Engagement and global Settings have separate navigation/content scopes. Keep Skills/Runtime under Settings and the full Brain stream on its engagement surface; an overview summarizes rather than duplicating every detail panel. Synchronize global scope selection on desktop and mobile.
-2. Write a fidelity checklist for the reference's composition, density, type scale, pills, card treatment and component order before changing tokens. A palette match or navigation reshuffle is not a layout match. Preserve explicitly requested metric cards, distributions and reference-led headers instead of deleting them through generic minimalism rules; derive every demonstrated count from one labelled synthetic model. When the user requests a coordinated multi-view prototype iteration, complete that linked flow for review, not just its data model. Visual approval remains required before product implementation. Keep one current baseline.
+2. Write a fidelity checklist for the reference's composition, density, type scale, pills, card treatment and component order before changing tokens. A palette match or navigation reshuffle is not a layout match. Preserve explicitly requested metric cards, distributions and reference-led headers instead of deleting them through generic minimalism rules; derive every demonstrated count from one labelled synthetic model. When the user requests a coordinated multi-view prototype iteration, complete that linked flow for review, not just its data model. Reuse the accepted UI/UX §0 baseline; request approval for a changed visual direction. Keep one current baseline.
 3. Reuse existing primitives and tokens. Native buttons, links, forms and tables first; use existing Radix widgets for complex interaction. Do not mix primitive systems in one surface. Use fixed layering tokens, visible focus, named icon buttons and safe areas.
 4. Model loading/empty/error/stale/unknown/unavailable distinctly. Actions reflect authoritative persisted state. Keep critical identity, scope, snapshot and Stop information readable; do not truncate it to make the layout cleaner.
 5. Preserve Stop without confirmation, including an equivalent control inside an overlay that makes the topbar inert. Confirm genuinely destructive data changes; Start keeps its preflight. STOPPING/PAUSING are not STOPPED/PAUSED until confirmed.
@@ -34,24 +34,11 @@ Read the relevant UI/UX flow and data/state contract. Use `vision_analyze` for a
    Capture screens reached through real navigation, including re-entry from a long page or an existing wizard's final step. Direct-load screenshots can hide retained scroll, obscured tabs or leaked draft-step state.
 
 ## Pitfalls
-
-Gate initial form controls on accepted hydration/readback, not Query `isPending`: cached data can make the query successful while the first guarded GET still waits. Reproduce with populated projection/draft cache keys and a held initial GET; require no blank fields or actionable Next before hydration, exact values afterward, visible initial errors and editable hydrated background refresh without losing local edits.
-
-Preserve native first-entry tab order: do not focus `main` unconditionally on mount, which makes the first Tab bypass the skip link. Reset scroll/focus only on an actual client route transition; test initial Tab/skip independently from post-navigation focus.
-
-Before crediting a reload/resize screenshot, await the intended route's authenticated content and exact object identity, not just document load or absence of overflow. A bootstrap/loading capture can satisfy geometry checks while proving nothing about the named target screen.
-
-A Playwright `fullPage` capture after scrolling can paint a fixed, off-viewport skip link over an unrelated form field in the stitched image. Before filing an obstruction or changing CSS, compare a viewport-only capture at the same scroll/focus state and the link's live `getBoundingClientRect()`/activeElement. Keep the real skip-link keyboard path; a stitched screenshot alone is not an overlay reproducer.
-
-Serialize browser-auth transitions and fence every asynchronous continuation, including direct readbacks outside Query. Cancel pending session/instance reads on expiry/logout and pause polling during pairing/logout; reproduce held older responses arriving after a newer denial or confirmed logout, allowing Query notification batches to flush before assertions.
-
-Use an explicit loopback network policy rather than assuming Internet connectivity determines localhost availability. Exercise the browser offline flag and Query pause behavior; display paused/aged/error observations as unverified or stale, and never claim a previous confirmed response when the first request failed.
-
-Classify visible elements by provenance: explicit user request, existing baseline contract, reference-only example, or synthetic design copy. Do not promote mock examples into new product requirements. Keep simulation selectors and evidence/replay/retest preview tools in labelled, default-collapsed design controls; persistent availability/error/Stop feedback must remain outside them.
-
-An automation-green screen can still be visually poor. Existing DESIGN.md is a technical token record, not renewed visual approval. The upstream AlertDialog rule does not apply to emergency Stop; its Tailwind and animation defaults are not adopted. Avoid unnecessary new components and visual-only rewrites of safety behavior.
-
-Distinguish a trusted pre-mutation size refusal from an unknown write and from a received write receipt whose GET confirmation failed. Keep explicit `BODY_TOO_LARGE` editable without automatic retry; preserve the stale receipt barrier through subsequent local edits. Test POST and PUT: receipt → failed GET → edit must retain disabled Save/Next and exact-readback recovery, then require explicit compare/keep/discard before a new CAS write. A corrected form identical to the saved payload should still have Save disabled; use a genuinely dirty control to test recovery rather than weakening that invariant.
+Keep synthetic/reference copy separate from product requirements; automation success is not aesthetic approval. Preserve Stop without confirmation, authoritative hydration/stale/unknown state, native keyboard order and cleanup.
 
 ## Verification
-Actual reference comparison plus interaction evidence and honest current-data states. The user approves the visual direction; tests establish specified behaviors, not taste. No UI changes are made by installing this skill.
+Actual reference comparison plus interaction evidence and honest current-data states. Reuse the accepted baseline; the user approves a changed visual direction, while tests establish behaviors.
+
+## Referințe la cerere
+
+- [ui-state-and-capture](references/ui-state-and-capture.md)

@@ -109,7 +109,7 @@ class ProjectStatusSkillTests(unittest.TestCase):
                        "NOT-RUN", "Următoarea felie", "Scope", "Cleanup"):
             self.assertIn(marker, body)
 
-    def test_chat_handoff_ends_with_an_actual_status_matrix(self):
+    def test_real_handoff_has_actual_matrix_without_per_response_cadence(self):
         path = ROOT / ".hermes/skills/omnis-project-status/templates/handoff.md"
         body = path.read_text(encoding="utf-8")
         headers = [
@@ -124,6 +124,9 @@ class ProjectStatusSkillTests(unittest.TestCase):
                        "ORIENT", "CLOSE", "fără editări"):
             self.assertIn(marker, body)
         self.assertIn("matrix directly in chat", self.skill())
+        self.assertIn("Nu este obligatorie pentru fiecare răspuns scurt", body)
+        self.assertIn("milestone", body)
+        self.assertNotIn("La finalul fiecărei sarcini Omnis", body)
 
     def test_delivery_review_and_contributing_route_to_status(self):
         for relative in (".hermes/skills/omnis-delivery/SKILL.md",
@@ -153,9 +156,11 @@ class ProductDeliveryFocusTests(unittest.TestCase):
                 self.assertTrue("CONTRIBUTING.md" in text, "Missing execution contract link: " + name)
                 self.assertTrue("Execuție orientată spre produs" in text, "Missing execution contract: " + name)
 
-    def test_active_p2_prompt_has_fresh_session_ceiling_and_finite_exit(self):
+    def test_historical_p2_prompt_retains_evidence_but_cannot_resume(self):
         path = ROOT / "documents/verification/p2-next-session-implementation.md"
         prompt = path.read_text(encoding="utf-8")
+        self.assertIn("ISTORIC / NEEXECUTABIL", prompt)
+        self.assertIn("nu autorizează reluarea", prompt)
         for marker in ("DOAR ÎN SESIUNEA FRESH", "HANDOFF_ONLY",
                        "orchestrator", "dezvoltator", "reviewer", "QA",
                        "finite2-coherent-factory-feasibility.json",

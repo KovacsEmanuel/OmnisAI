@@ -1,10 +1,13 @@
 # Sesiune fresh — restul P4a/G04a și P2-live/G02-live
 
-**CURRENT — pregătire nativă FAIL și al doilea test executat fără modificarea timeoutului; faza2 NOT_CLOSED.** [Dovadă actuală](p4a-model-prepare-evidence/handshake-second-test.json)/[registru](p4a-minim.md). Instanța `/home/kali/.omnis-p2-fixed`, wrapper propriu, UUID2a6b89fd-5c36-4b77-94a9-b1dcb4dab796/8766/release1552956c: confirmare TTY0 salvată, Publish/head2 și selecția reale; unicul provision10.075s/exec137 a produs LAUNCH/RUNTIME_UNAVAILABLE și Host HANDSHAKE/TIMEOUT, supervisor3/OOMfalse. Nu mai aștepta/reemite confirmarea și nu retrimite provision. La cererea operatorului s-a verificat separat exact entrypointul/NativePeer instalat, NO_MODEL: fereastra neschimbată4.5s expiră la4.502s, READY observat pasiv la7.564s, zero RPC/call retry/model, childexit0/Host-only după cleanup. Nu este același owner DB sau o explicație universală a istoricului; această verificare nu autorizează implicit creșteri globale de limite. Adjudecă numai corecția bounded a pornirii, ținând cont de lease/Stop/bugetele callerilor; nu reînvia recovery. Bugetul model1call300s neconsumat, restP2/Setup/canonical restante; fără P3/target/global/push. CURRENT înlocuiește locatoarele istorice din promptul de mai jos.
+**ISTORIC / NEEXECUTABIL:** acest prompt păstrează mandatul și probele vechi P2/Codex/openfix; copierea lui sau o notificare întârziată nu autorizează reluarea. Citește [unicul CURRENT din README](../../README.md): discuția celor cinci contracte înainte de T0, fără implementarea migrării. Orice instrucțiune de continuare de mai jos aparține numai sesiunii istorice.
+
+
+**ISTORIC — pregătire nativă FAIL și al doilea test executat fără modificarea timeoutului; faza2 NOT_CLOSED.** [Dovadă actuală](p4a-model-prepare-evidence/handshake-second-test.json)/[registru](p4a-minim.md). Instanța `/home/kali/.omnis-p2-fixed`, wrapper propriu, UUID2a6b89fd-5c36-4b77-94a9-b1dcb4dab796/8766/release1552956c: confirmare TTY0 salvată, Publish/head2 și selecția reale; unicul provision10.075s/exec137 a produs LAUNCH/RUNTIME_UNAVAILABLE și Host HANDSHAKE/TIMEOUT, supervisor3/OOMfalse. Nu mai aștepta/reemite confirmarea și nu retrimite provision. La cererea operatorului s-a verificat separat exact entrypointul/NativePeer instalat, NO_MODEL: fereastra neschimbată4.5s expiră la4.502s, READY observat pasiv la7.564s, zero RPC/call retry/model, childexit0/Host-only după cleanup. Nu este același owner DB sau o explicație universală a istoricului; această verificare nu autorizează implicit creșteri globale de limite. Adjudecă numai corecția bounded a pornirii, ținând cont de lease/Stop/bugetele callerilor; nu reînvia recovery. Bugetul model1call300s neconsumat, restP2/Setup/canonical restante; fără P3/target/global/push. ISTORIC înlocuiește locatoarele istorice din promptul de mai jos.
 
 ## Prompt pentru următoarea implementare
 
-**HANDOFF_ONLY — DOAR ÎN SESIUNEA FRESH.** Operatorul a clarificat explicit: **finalizarea fazei 2 cu Test model simplu după logare, fără P3**. Pregătirea acestui prompt nu reia execuția; starea produsului rămâne cea din checkpointul de pauză. Copierea lui într-o sesiune nouă cu cerere de executare constituie reluarea.
+**HANDOFF_ONLY — DOAR ÎN SESIUNEA FRESH.** Operatorul a clarificat explicit: **finalizarea fazei 2 cu Test model simplu după logare, fără P3**. Pregătirea acestui prompt nu reia execuția; starea produsului rămâne cea din checkpointul de pauză. Regula de reluare de atunci este păstrată ca istoric; nu reprezintă autoritate curentă.
 
 ```text
 Lucrează în /home/kali/OmnisAI.
@@ -23,7 +26,7 @@ CONTEXT MINIM, NU RELUAREA ARHIVEI
 Verifică Git/status/diff/HEAD; branch așteptat checkpoint/p2-batch2-pause-20261015.
 Checkpoint de pauză14622ab, produs4370a40, adjudecare/reviewuri cd08bdd.
 Commiturile documentare ulterioare nu sunt implementare sau reluare automată.
-Citește AGENTS.md, CONTRIBUTING.md, primul CURRENT din README,
+Citește AGENTS.md, CONTRIBUTING.md, primul ISTORIC din README,
 documents/verification/{p4a-minim.md,implementation-status.md},
 p4a-model-prepare-evidence/{web-test-ui9-paused.json,web-test-parent-source-acceptance.json}
 și planul documents/Omnis_Implementation_Plan.md §7–8/§19;
@@ -157,7 +160,7 @@ Nu preda după fiecare fix/review; continuă până la rezultat verificat, inter
 umană necesară, blocker real, stop sau limită de siguranță/buget/context.
 Final în română: pot sau nu pot folosi modelul după logare, URL/pașii simpli,
 ce este efectiv PASS/FAIL/BLOCKED/NOT_RUN și reviewuit, commituri, resurse/date
-păstrate, ce rămâne. Actualizează CURRENT/harta în loc și registrul existent.
+păstrate, ce rămâne. Actualizează ISTORIC/harta în loc și registrul existent.
 Faza2 CLOSED numai cu toate obligațiile aplicabile și canonical final trecute;
 altfel NOT_CLOSED cu motiv precis, nu doar „teste verzi”. STOP înainte de P3.
 Explică simplu; finalul numește ce ai omis/neexecutat și riscul rămas.
@@ -178,7 +181,7 @@ Datele de mai jos păstrează checkpointul istoric. P2-inert a fost între timp 
 
 ## 2. Prima acțiune executabilă — QA caps/VALIDATION/deadline-B
 
-Roluri: **orchestrator** pentru scope/adjudecare/integrat/commit; un **dezvoltator** pe fișierele produsului/testelor; **reviewer** independent pe snapshotul exact; **QA** pe consumerul real după blocante. Admitere: **cerință → consumer → risc → decizie**. Citește AGENTS/CONTRIBUTING, README CURRENT, [registrul](p2-integration-b06cm.md) CURRENT/D1–D3 și numai secțiunile relevante din plan/arhitectură. Filtrează rapoartele la manifest/verdict/final_results/limite; nu vărsa istoricul sau logurile brute integral.
+Roluri: **orchestrator** pentru scope/adjudecare/integrat/commit; un **dezvoltator** pe fișierele produsului/testelor; **reviewer** independent pe snapshotul exact; **QA** pe consumerul real după blocante. Admitere: **cerință → consumer → risc → decizie**. Citește AGENTS/CONTRIBUTING, README ISTORIC, [registrul](p2-integration-b06cm.md) ISTORIC/D1–D3 și numai secțiunile relevante din plan/arhitectură. Filtrează rapoartele la manifest/verdict/final_results/limite; nu vărsa istoricul sau logurile brute integral.
 
 1. Verifică40hashuri din raportul autorului caps și ambele verdicturi pe aceiași bytes. Refolosește89SOURCE/quality și reviewurile neschimbate; nu le rerula doar pentru reluarea sesiunii. Cele99teste vechi rămân în targetul afectat, nu devin o etapă QA separată.
 2. **preflight fără efecte** pentru argv/selecție/source/library/toolchain/UID/căi și oracle. `--check` din runner este **efectful**, nu dry-run. Citește implementarea și folosește help/collection/metadata înainte de efecte. API/CLI Python3.13.15, uv0.12.19, Node24.21.0, npm11.19.0; PATH fixat include `/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin` și `/home/kali/.local/share/omnis-toolchains/bin`.

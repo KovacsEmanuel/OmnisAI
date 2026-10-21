@@ -5,7 +5,8 @@ Assigned role and permitted actions in THIS session; approval of an option is no
 Goal / observable behavior:
 Plan ticket and acceptance gate:
 Work admission: requirement → actual product consumer → concrete risk → decision changed by PASS/FAIL (or mandatory integrity/cleanup):
-Base commit:
+Same acceptance row: last product progress; harness-only cycles 0/1/2 across sessions; next decision:
+Base commit / frozen blob/diff identity (candidate is not acceptance):
 Global status orientation: active SL/B, predecessor gate and relevant row in documents/verification/implementation-status.md:
 Inputs and authoritative files:
 Allowed files/worktree (single writer):

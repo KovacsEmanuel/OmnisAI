@@ -1,12 +1,12 @@
 # Dezvoltarea OmnisAI
 
-Acest fișier descrie modul de lucru; arhitectura și planul din `documents/` rămân singurul baseline de produs. Regula obligatorie de istoric granular este în [AGENTS.md](AGENTS.md).
+Direcția noului produs și limita înainte de T0 sunt în AGENTS/README; Hermes/Codex sunt unelte de dezvoltare, nu dependențe ale noului runtime. Acest fișier descrie modul de lucru; arhitectura și planul din `documents/` rămân singurul baseline de produs. Regula obligatorie de istoric granular este în [AGENTS.md](AGENTS.md).
 
-## Hermes: configurare mică, skill-uri la cerere
+## Unelte de dezvoltare: Hermes/Codex, skill-uri la cerere
 
 Skill-urile de dezvoltare trăiesc în `.hermes/skills/`, versionate împreună cu proiectul. Hermes le descoperă numai în proiectele trusted și numai când sesiunea este legată de checkout; în rest nu încarcă această metodologie peste alte proiecte.[1]
 
-`AGENTS.md` este locul regulilor de proiect: reviewul independent pe bytes exacți duce la remediere, rerulare și re-review când apar blocante, până la acceptare scoped sau raportarea unui blocker real. `SOUL.md` rămâne identitatea globală și păstrează același principiu general, fără a pretinde absența absolută a gap-urilor. Loaderul instalat a fost verificat direct: încarcă regula inclusiv din subdirectorul `tests/documentation`. Nu adăugăm o a doua sursă `.hermes.md`.[2]
+`AGENTS.md` este locul regulilor de proiect: reviewul independent pe bytes exacți duce la remediere, rerulare și re-review când apar blocante, până la acceptare scoped sau raportarea unui blocker real. `SOUL.md` rămâne identitatea globală și păstrează același principiu general, fără a pretinde absența absolută a gap-urilor. Istoric, loaderul instalat a fost verificat inclusiv din subdirectorul `tests/documentation`; citirea/scanarea bytes curenți rămâne NOT_RUN până la QA fresh descrisă în tools/development/README.md. Nu adăugăm o a doua sursă `.hermes.md`.[2]
 
 După revizuirea skill-urilor, activarea pe un checkout nou se face cu:
 
@@ -14,7 +14,7 @@ După revizuirea skill-urilor, activarea pe un checkout nou se face cu:
 hermes skills trust /cale/catre/OmnisAI
 ```
 
-După activare, pornește o sesiune legată explicit de repo:
+Dacă folosești Hermes pentru dezvoltare, după activare pornește o sesiune legată explicit de repo (Codex rămâne de asemenea tooling valid):
 
 ```sh
 python scripts/hermes_dev.py
@@ -33,19 +33,13 @@ Păstrăm modelul/providerul, politica de aprobări, limitele globale de delegar
 3. **Implementare minimă:** o felie verticală, fără refactor independent sau dependență oportunistă.
 4. **Review:** conformitate, apoi corectitudine/securitate. Pentru cod relevant, reviewer independent read-only. Părintele reproduce constatările importante.
 5. **Commit imediat:** schimbare coerentă + teste/documentație necesară, cu motiv, verificări, încercări eșuate relevante și rollback.
-6. **Readback:** SHA/diff/status; raport scurt cu ce este implementat, verificat, neexecutat și blocat, urmat de statusul global prin `omnis-project-status`.
+6. **Readback:** SHA/diff/status; raport scurt cu ce este implementat, verificat, neexecutat și blocat, cu status prin `omnis-project-status` la predarea relevantă.
 
 Template-ul de sarcină și roluri este în [.hermes/skills/omnis-delivery/templates/task.md](.hermes/skills/omnis-delivery/templates/task.md). Nu folosim un prompt monolitic de „expert perfect”; lucrăm cu criterii falsificabile și rezultate măsurabile.
 
 ### Echipă proporțională cu felia de implementare
 
-[Contractul de echipă](.hermes/skills/omnis-delivery/templates/team-slice.md) are implicit **un autor + cel puțin un reviewer independent read-only pe snapshotul exact integrat**. Arhitectul este necesar numai pentru decizii/interfețe nerezolvate; al doilea dezvoltator numai pentru workstreamuri cu fișiere și criterii efectiv independente, pe worktree-uri din HEAD local. Nu inventăm un rol de teste/cercetare pentru a completa echipa. **Două reviewuri independente complementare sunt obligatorii** când se schimbă authority/epoch/concurrency/model dispatch/Stop, frontiere de efecte/secrete sau contracte cross-runtime: conformitate/ordine/persistență/readback și autorizare/concurență/input/failure/cleanup, după caz.
-
-QA pe consumatorul real este obligatorie când acesta este nou sau afectat, după remedierea blocantelor; reviewerul independent o poate executa cu un contract QA separat, fără un agent suplimentar universal. Browserul este necesar numai pentru UI afectată: clickuri, tastatură/focus, reload și viewporturi pe build/API/DB proprii; un screenshot sau un test componentă nu înlocuiește parcursul. API/CLI se probează prin consumatorul real; pentru documentare sau consumatori neschimbați nu relansăm browserul. Părintele transferă byte-exact, adjudecă toate findings, verifică resursele, face commiturile și închide registrul; copilul nu certifică propria integrare.
-
-Definim o acceptance row, seam producer/consumer, control pozitiv și negativ pe același canal, comenzi și buget. Preflightul determinist relevant rulează o dată; **testele afectate rulează după ultima editare relevantă**, iar re-reviewul focalizat urmărește bytes și call-sites schimbate, nu întregul harness. Manifestul distinge source unchanged/distribution changed: aprobarea comportamentului neschimbat rămâne în scope, fără transfer la source/distribuție schimbate; parser/reapply/build și readbackul identității artefactului schimbat rămân necesare. O listă nouă goală nu închide findings originale fără dispoziție/repro. **Canonicalul complet rulează pe produsul final la integration/phase boundary**, nu pentru fiecare fix, Markdown sau reminder verify-on-stop; suitele țintite nu devin `make check`.
-
-După două cicluri review/remediere numai harness fără progres pe aceeași acceptance row, păstrăm WIP/BLOCKED și restrângem reproducerul/frontiera probei. Numărul și dispozițiile se păstrează între sesiuni; o sesiune nouă sau redenumirea oracle-ului nu resetează contorul. Findings noi de securitate rămân blockers explicite, nu excepții de buget. Lipsa unei probe păstrează `BLOCKED/NOT_RUN`, nu un PASS prin numărul agenților.
+Aplică [team-slice](.hermes/skills/omnis-delivery/templates/team-slice.md), sursa pentru ownership, FREEZE, review și QA. Commitul candidat verificat nu este acceptare; părintele integrează și comite granular. Developerul desemnat remediază findings reproduse/adjudecate de părinte.
 
 ## Execuție orientată spre produs
 
@@ -64,6 +58,8 @@ Acest contract elimină munca auxiliară fără rezultat, nu probele obligatorii
 - Pregătește înaintea lansării deadline-ul bounded, ownerul/fixture-ul fresh, settlementul/cleanupul exact și lista mică de câmpuri nesensibile care pot fi citite la eșec. Nu inventa expected fields, targeturi CLI, DSN-uri sau cauza unui FAIL neobservat. Pe un preflight FAIL nu lansa consumerul; repară numai prerechizitul demonstrat, apoi consemnează o tentativă distinctă.
 - După primul eșec de harness, localizează mecanismul și restrânge proba înainte de încă un efect. După două cicluri numai harness fără progres pe aceeași acceptance row, oprește acea frontieră ca BLOCKED/NOT_RUN; fără al treilea verifier, buget resetat prin sesiune nouă sau abandonarea findingului. Nu trece cu felii dependente peste un blocker de siguranță.
 
+În aceeași acceptance row din task se păstrează: ultimul progres de produs, cicluri harness-only 0/1/2 și următoarea decizie; acestea se transferă între sesiuni, fără registru sau infrastructură nouă.
+
 ### Continuitate și dovezi
 
 - Un commit coerent nu încheie mandatul. Continuă următoarea felie admisă fără reaprobări cosmetice; predare numai la rezultatul cerut, blocker real, limita de autorizație, cererea utilizatorului ori imposibilitatea sigură de a continua în buget/context. Nu transforma fiecare fix/review/raport în checkpoint separat al conversației.
@@ -72,9 +68,7 @@ Acest contract elimină munca auxiliară fără rezultat, nu probele obligatorii
 
 ## Status global la orientare și predare
 
-Încarcă [omnis-project-status](.hermes/skills/omnis-project-status/SKILL.md) la început pentru **ORIENT/read-only** și la finalul fiecărei felii, subfaze, faze ori prompt de review pentru **CLOSE/predare**. [Harta globală MVP/post-MVP](documents/verification/implementation-status.md) păstrează toate SL-urile și E1–E4, fundațiile, milestone-urile și capabilitățile execution-unscheduled, ca proiecție a planului, nu backlog concurent.
-
-La închidere, actualizează numai diferențele justificate prin Git și dovezi versionate: cod, probe și review sunt axe independente. Reviewerul read-only transmite delta părintelui; nu își aprobă integrarea. Fără schimbare factuală nu sunt necesare scrieri sau commit gol. **La finalul fiecărei sarcini Omnis, inclusiv documentare/pregătire, utilizatorul primește direct în chat o matrice compactă de status**, cu felia curentă marcată AICI, implementare/probe/review separate și pasul următor. Documentele păstrează harta și dovezile pentru agenți și implementare; linkul lor nu înlocuiește matricea din chat. Un skill nu este exit hook ori enforcement; nu instalăm cron/plugin/autocommit și nu pretindem că indexul sesiunii curente se reîncarcă automat.
+[omnis-project-status](.hermes/skills/omnis-project-status/SKILL.md) definește ORIENT minim și CLOSE la predare reală/milestone/schimbare de status sau cerere. Matricea se afișează atunci direct în chat; nu la fiecare răspuns scurt. Harta păstrează cod/probe/review distincte și toate SL/E ca proiecție, nu backlog concurent. Read-only nu cere editări, teste docs sau commit gol. Notificările întârziate nu redeschid munca.
 
 ## Acoperirea implementării
 
@@ -83,7 +77,8 @@ La închidere, actualizează numai diferențele justificate prin Git și dovezi 
 | Orientare și status global la fiecare predare/review | `omnis-project-status` |
 | Felie verticală, TDD, coordonare, reluare | `omnis-delivery` |
 | API, PostgreSQL, migrații, evenimente/evidence | `omnis-api-data` |
-| Hermes nativ, copii, Settings, skills per run, recuperare | `omnis-hermes-runtime` |
+| Runtime nou API-key-only | `omnis-delivery`, `omnis-api-data`, `omnis-review-qa` |
+| Mentenanță istorică Hermes, numai la cerere explicită | `omnis-hermes-runtime` (LEGACY) |
 | Scope/egress/auth, validatori, fault injection/evaluare | `omnis-safety-evaluation` |
 | Review independent, regresii, QA și raportare sinceră | `omnis-review-qa` |
 | Interfață de la referință, React și stări reale | `omnis-frontend` |

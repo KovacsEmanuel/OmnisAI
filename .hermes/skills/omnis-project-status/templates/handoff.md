@@ -1,8 +1,8 @@
 # Predare în chat — matricea statusului global Omnis
 
-## Obligatoriu la închiderea unei sarcini
+## La predare reală, milestone, schimbare de status sau cerere
 
-Afișează matricea **direct în chat**, la finalul răspunsului în care termini o sarcină Omnis: implementare, review, documentare sau pregătire de handoff. Un link către documente **nu înlocuiește matricea**. Nu este necesară la fiecare apel de tool sau mesaj intermediar.
+Raportează rezultatul, snapshotul, dovezile/review-ul, blockerul și pasul următor. Afișează matricea **direct în chat** la aceste ocazii; linkul către documente **nu înlocuiește matricea** când aceasta este cerută. Nu este obligatorie pentru fiecare răspuns scurt sau orientare read-only.
 
 Înlocuiește placeholders cu fapte verificate. Folosește în mod normal 6–8 rânduri, nu toate cele 36 de subfelii; extinde numai la cererea utilizatorului sau când rândurile agregate ar ascunde un blocker. Arată explicit **AICI** la felia curentă. Datele DEMO, documentele și testele de structură nu devin produs implementat.
 
@@ -27,7 +27,7 @@ Dacă un subagent încă lucrează, folosește **În review**, nu aprobat. Lipsa
 
 `documents/verification/implementation-status.md` păstrează harta completă; registrele feliei păstrează detaliile probelor și deciziilor. Acestea sunt memoria de lucru **pentru agenți**, nu un substitut pentru statusul vizibil utilizatorului.
 
-- **ORIENT:** citește Git/harta și publică matricea; **fără editări** sau commit gol numai pentru a putea răspunde în chat.
+- **ORIENT:** citește Git/CURRENT/contractul afectat; matrice numai la ocaziile de mai sus; **fără editări** sau commit gol numai pentru a putea răspunde în chat.
 - **CLOSE:** actualizează în documente numai schimbările factuale autorizate, verifică/comite și apoi publică matricea în chat. Nu genera un raport documentar nou la fiecare prompt fără un motiv factual.
 - Scope, revizie testată/revizuită, comenzi/exit, constatări/adjudecare și cleanup rămân în registrul existent sau mesajul commitului, nu în memoria globală.
 - Reviewerul read-only transmite delta părintelui; nu își comite/aprobă propria integrare.

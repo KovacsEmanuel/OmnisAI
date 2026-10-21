@@ -1,7 +1,7 @@
 ---
 name: omnis-reticle
 description: "Use when verifying Omnis UI runtime with Reticle."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -13,7 +13,7 @@ metadata:
 # Omnis Reticle QA
 
 ## When to Use
-Prove a declared consequence in an owned, instrumented local development app or rerun the synthetic acceptance smoke. This is not visual design approval, a pentest executor or a globally registered Hermes MCP capability.
+Prove a declared consequence in an owned, instrumented local development app; synthetic smoke only for a changed integration/tool or a demonstrated defect. This is not visual design approval, a pentest executor or a globally registered Hermes MCP capability.
 
 ## Prerequisites
 Read `tools/development/reticle/README.md`, `upstream.json` and the actual verdict evidence. Use the pinned isolated npm/Python environments; run commands through `terminal`. Source and npm publication commits differ; do not rely on a version string alone.

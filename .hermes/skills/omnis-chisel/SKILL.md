@@ -1,7 +1,7 @@
 ---
 name: omnis-chisel
 description: "Use when evaluating Chisel for Omnis file tooling."
-version: 0.1.0
+version: 0.1.1
 author: OmnisAI (KovacsEmanuel), Hermes Agent
 license: MIT
 platforms: [linux]
@@ -13,7 +13,7 @@ metadata:
 # Chisel adoption gate
 
 ## When to Use
-A task proposes Chisel for compact file edits/search or reevaluates a new upstream release. This skill is an Omnis-authored evaluation procedure, not a copy of Chisel's license or an active MCP installation.
+Only an explicitly authorized adoption reevaluation of Chisel; do not load for ordinary development. Unavailability does not block native file tools. This skill is an Omnis-authored evaluation procedure, not a copy of Chisel's license or an active MCP installation.
 
 ## Current prerequisite: NO-GO
 Read `tools/development/chisel/README.md` and `audit.json`. The audited release failed real root/read-only/subprocess/body-limit controls. It is not enabled on Omnis. Keep native Hermes file/search/patch tools as the default; do not instantiate Chisel over the repo, home or runtime profile.

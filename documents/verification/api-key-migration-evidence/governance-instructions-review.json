@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "scope": "Omnis development instructions only; source acceptance, not T0/product/runtime acceptance",
+  "base_commit": "837970d8e29811eb0f9ef4612aab9b90ea3c4b8e",
+  "source_snapshot": {
+    "base": "837970d8e29811eb0f9ef4612aab9b90ea3c4b8e",
+    "changes": [
+      {
+        "path": ".hermes/skills/omnis-accessibility/SKILL.md",
+        "old_sha256": "b822c28d6fbc23b2c00d0a07b79a4adbfa9e984620a3cf15ac455ec3eed990b8",
+        "new_sha256": "4c8e26eb86ca61ae397502bd9119529c804e2b996a3b296d754030a0a92a9e38",
+        "old_bytes": 3472,
+        "new_bytes": 2971
+      },
+      {
+        "path": ".hermes/skills/omnis-anti-slop/SKILL.md",
+        "old_sha256": "8f92416e5515f8e05441d5e3629eeadaf68390827c5cdd1de8ef55e9e2b6e1f8",
+        "new_sha256": "a88e768e28bc06c12a2ceccfd3b7d47b36024de82fbc74a8c035c32e47291bec",
+        "old_bytes": 2543,
+        "new_bytes": 2690
+      },
+      {
+        "path": ".hermes/skills/omnis-api-data/SKILL.md",
+        "old_sha256": "2878ee73689628dd097be0e41f1060a71d28d16a86ed3bb4f67ed7ffa4789ea1",
+        "new_sha256": "2531deb4f23868526304ca8b2c93e1691ba35c9961cd08150005c455436724d9",
+        "old_bytes": 25320,
+        "new_bytes": 3551
+      },
+      {
+        "path": ".hermes/skills/omnis-chisel/SKILL.md",
+        "old_sha256": "46b9b05abc7615eebee55f0b5c90312bafc3f065580c1557dd409383053f7b4b",
+        "new_sha256": "9a705db77e621eab45bec01f3ef4df01185b9f8dd15f065f7695b65a6be18d89",
+        "old_bytes": 2939,
+        "new_bytes": 2997
+      },
+      {
+        "path": ".hermes/skills/omnis-delivery/SKILL.md",
+        "old_sha256": "23a714febdc066dc120625d0f7c0246e84f82fd49b9be68369e87a12fe3eabef",
+        "new_sha256": "de3207ca942ac1984c6584eade12cab9c3c5f50d65534a4f9e052328f129a2c1",
+        "old_bytes": 9488,
+        "new_bytes": 7826
+      },
+      {
+        "path": ".hermes/skills/omnis-delivery/templates/task.md",
+        "old_sha256": "54f937e13919604445aef9ced914f82c0f0ffb4abe5ae7f2775e3ef6a6fc5786",
+        "new_sha256": "1f182e0ec1c0eeff7c76a7769dfd255c97ca46d73e8ba0e528242c5832ce7fd3",
+        "old_bytes": 3004,
+        "new_bytes": 3164
+      },
+      {
+        "path": ".hermes/skills/omnis-delivery/templates/team-slice.md",
+        "old_sha256": "43b5b4e347084e45780d18b886d173a1c71242db09f3abf19bf3b5735103e92b",
+        "new_sha256": "af142ee89e4a374b69d257eb04af260a22d8eee960722b8fdcb0e2a5c027d91f",
+        "old_bytes": 6479,
+        "new_bytes": 7135
+      },
+      {
+        "path": ".hermes/skills/omnis-frontend/SKILL.md",
+        "old_sha256": "12e58054c932d29b96cce39fe00b0439d3ec514be2ada8d7da328b3e5aedc32b",
+        "new_sha256": "06b58e92ba892d596f7eecf8c1a03368de71d3ba1e02c8b0f1f3ca87a350c007",
+        "old_bytes": 8224,
+        "new_bytes": 5156
+      },
+      {
+        "path": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+        "old_sha256": "5b5012de3a4e569600bf831778f4fe7909ab329b7a86ec1d2e3a06e09e4d36a4",
+        "new_sha256": "10673c9e68602e1b17765e728fd76a2f3d08ca8eeac63c3fecb6f24a6bcef77c",
+        "old_bytes": 17444,
+        "new_bytes": 3790
+      },
+      {
+        "path": ".hermes/skills/omnis-project-status/SKILL.md",
+        "old_sha256": "0b23394190a06baaafa0921422d3e22a19af32b59c84270a8e411892c9242d4d",
+        "new_sha256": "cdb5383cf3c48c5edc7d27854e2dc0162f6784e12e3f010f37a9f1d0c704ad12",
+        "old_bytes": 9005,
+        "new_bytes": 8770
+      },
+      {
+        "path": ".hermes/skills/omnis-project-status/templates/handoff.md",
+        "old_sha256": "dd5a9a94e083f0c8d8ac35e0640fcd538b3066f456d18af1d44306934851112c",
+        "new_sha256": "ec95a02db8e242332399fe2c1932d3fcbd531d198725be7e90195c9ff8f9d9cb",
+        "old_bytes": 3949,
+        "new_bytes": 4026
+      },
+      {
+        "path": ".hermes/skills/omnis-release-ops/SKILL.md",
+        "old_sha256": "452f7502b793396ee91711e29be1f982a1188e89aec2658a2254641881a0ba9d",
+        "new_sha256": "043c93046f791b20618995055cb3e994ec6815f6e0dae66b9fb6e74ae21638c9",
+        "old_bytes": 22217,
+        "new_bytes": 3418
+      },
+      {
+        "path": ".hermes/skills/omnis-reticle/SKILL.md",
+        "old_sha256": "0d4edde783dc84d3511e046d11f55f7f44aa653af840f84d84f65ce956f61a6f",
+        "new_sha256": "2d54cf5b709a1d9f614357fd9feba7c85cdc48b9db1a457aa2d52bc0aa8fb20d",
+        "old_bytes": 3289,
+        "new_bytes": 3327
+      },
+      {
+        "path": ".hermes/skills/omnis-review-qa/SKILL.md",
+        "old_sha256": "4f96f0b63e45fad13b8160cf9ed0de89ce653514c7fbebab89e576114e082580",
+        "new_sha256": "415bbc4403e7d1164349f0d978da0c0f6cdd5ed218aeb543b36c9f33bd7bcf0a",
+        "old_bytes": 41780,
+        "new_bytes": 7177
+      },
+      {
+        "path": "AGENTS.md",
+        "old_sha256": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+        "new_sha256": "a48ca993eb4cbc51fdccff2e3eb367db16a52fc3ea25f4106f3de1671474102e",
+        "old_bytes": 6786,
+        "new_bytes": 6058
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "old_sha256": "f4944134a126e1ad8c29ae5cecd730b991e4126fe36f9feed4e8096a784edea2",
+        "new_sha256": "0c0cb6a367eb10e2f61d97f91bb8d90c2385c0b751cda482a2894c5669e18ae6",
+        "old_bytes": 19291,
+        "new_bytes": 16717
+      },
+      {
+        "path": "README.md",
+        "old_sha256": "106a73552b34a12ee331e2f881a1a2d19d4d61006678221ec00153a9ff5fdbe5",
+        "new_sha256": "524694444fb0c1669d8381a3cfafd26b6f0a35854fb1ce2ca5deaf24b8b1e5cc",
+        "old_bytes": 40051,
+        "new_bytes": 40977
+      },
+      {
+        "path": "documents/verification/implementation-status.md",
+        "old_sha256": "14e6d8eb1877f6a12edb9caaed30e04307db3aa1bcfce55c8a665fab432e7d8b",
+        "new_sha256": "24022cff071ffb96f082d4d227a45f0ab2a4df0111eb6ae567749ad9ca9596af",
+        "old_bytes": 62866,
+        "new_bytes": 63215
+      },
+      {
+        "path": "documents/verification/p2-next-session-implementation.md",
+        "old_sha256": "bf14cceb145d8621c0d698ab631a54930f5a22c2fd169a5031e96a7de3ab630a",
+        "new_sha256": "e2d4e994e2fffabd5a9789324d7ed0002175e5054c6c21a73ad83826444d065e",
+        "old_bytes": 22705,
+        "new_bytes": 23103
+      },
+      {
+        "path": "tests/documentation/test_project_status.py",
+        "old_sha256": "368d523eb9561e5dcfe9831cb2c35a438e8cb788abb66eb89b3240dcdbd0c2ae",
+        "new_sha256": "4d48495b9fe99877a815d8d8b44e4bdb8cd392837747929157314ee66acb89ea",
+        "old_bytes": 8970,
+        "new_bytes": 9285
+      },
+      {
+        "path": "tests/documentation/test_resume_status.py",
+        "old_sha256": "46e2aa7b7ef8d5a4695bcf3b7d63c0cd00a0e4e756c18c44f33dd760fbb2cd36",
+        "new_sha256": "b421a450d4484bcc488ae395e55ce2d6b9c0630b4d5ef2c7b98732613694a02f",
+        "old_bytes": 1852,
+        "new_bytes": 3237
+      },
+      {
+        "path": "tools/development/README.md",
+        "old_sha256": "d898d533c0c9a4b5e346458f6601ef182a7c31f03da0d541f2a671999ea235a7",
+        "new_sha256": "48d73f893d5156f91763d681bfc2cb5db3559194127e36b5cc97fa84f487a7a2",
+        "old_bytes": 4536,
+        "new_bytes": 5762
+      },
+      {
+        "path": "tools/development/skills-manifest.json",
+        "old_sha256": "0bdd8aa3c03af15b94d339b092868e7f56911362b20c14e6aa09c058b24828d8",
+        "new_sha256": "d1ee535e965901be315df823c06e71de8b4491b9d2cb94683479b26a99bbefe7",
+        "old_bytes": 5510,
+        "new_bytes": 4354
+      },
+      {
+        "path": ".hermes/skills/omnis-accessibility/references/focus-geometry.md",
+        "old_sha256": null,
+        "new_sha256": "96391c81ebe16d0fbdd2e9316980bec27fc7aa711f9057ba6c616848e1053509",
+        "new_bytes": 773
+      },
+      {
+        "path": ".hermes/skills/omnis-api-data/references/postgresql-transactions.md",
+        "old_sha256": null,
+        "new_sha256": "2a396604f9fbef4c6239e0d5c85e3f67174c0f014a19e54086cdff6424aee8c1",
+        "new_bytes": 16224
+      },
+      {
+        "path": ".hermes/skills/omnis-api-data/references/retained-native-contracts.md",
+        "old_sha256": null,
+        "new_sha256": "9a2b738eba9347c4bb5f9adc9e0b97886ec3004e24247f8ae678a669b42c21fb",
+        "new_bytes": 6705
+      },
+      {
+        "path": ".hermes/skills/omnis-delivery/references/historical-p0-transfer.md",
+        "old_sha256": null,
+        "new_sha256": "d0042b8546d19eed1c6bcbebe30f2bc4fa636b81acf5daf6222db90f3afe6603",
+        "new_bytes": 1528
+      },
+      {
+        "path": ".hermes/skills/omnis-frontend/references/ui-state-and-capture.md",
+        "old_sha256": null,
+        "new_sha256": "addbf5301fabc7173964987e4588e0feda734345e0c9ad43e67a8c3fe137e52e",
+        "new_bytes": 3879
+      },
+      {
+        "path": ".hermes/skills/omnis-hermes-runtime/references/legacy-native.md",
+        "old_sha256": null,
+        "new_sha256": "ae1bffaaed05df8bf8cefb2e8b126003ca494b29251d7f9edb80d84261482efc",
+        "new_bytes": 6635
+      },
+      {
+        "path": ".hermes/skills/omnis-hermes-runtime/references/sdk-preparation.md",
+        "old_sha256": null,
+        "new_sha256": "7039dc880ea3960128f8570d91c459389492d690b061ce8471789f5db5947d54",
+        "new_bytes": 8267
+      },
+      {
+        "path": ".hermes/skills/omnis-release-ops/references/packaging-platform.md",
+        "old_sha256": null,
+        "new_sha256": "0931fdad418c85bbbb445ca48ac6703d560044b5ba1feb6fa70bb1889f36340b",
+        "new_bytes": 19061
+      },
+      {
+        "path": ".hermes/skills/omnis-release-ops/references/process-startup.md",
+        "old_sha256": null,
+        "new_sha256": "b8de2e72ee7af4511729f1610f35721ce214c8ca7635609183f59c4a2b556edc",
+        "new_bytes": 912
+      },
+      {
+        "path": ".hermes/skills/omnis-review-qa/references/ipc-process-packaging.md",
+        "old_sha256": null,
+        "new_sha256": "d8c605879d27002c9eef3d82a3befa8a77b9245069e0da155af8cafe84162840",
+        "new_bytes": 10231
+      },
+      {
+        "path": ".hermes/skills/omnis-review-qa/references/postgresql-fixtures.md",
+        "old_sha256": null,
+        "new_sha256": "0802c1c9069c8ca590599f76deaf668ae317944f1d18e3cf8db744b1c5a5b942",
+        "new_bytes": 4294
+      },
+      {
+        "path": ".hermes/skills/omnis-review-qa/references/ui-browser.md",
+        "old_sha256": null,
+        "new_sha256": "82e17ebbea9a4c1ff00f04c388916127a89220aebd10b402f9a4658097d8d1a7",
+        "new_bytes": 20467
+      },
+      {
+        "path": "tests/documentation/test_governance.py",
+        "old_sha256": null,
+        "new_sha256": "7c23f46cd3cfd698f1c6d12b2dcc2d050336f4c8a257c51efc81e7b6603cf1fd",
+        "new_bytes": 3556
+      }
+    ],
+    "qa_helper_sha256": "f73d6dea7bc5bae5e4fdaa6b8c794975de4cb7eaef5c5e85e4e7591c1035acdf"
+  },
+  "reviews": [
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "verdict": "CHANGES_REQUESTED",
+      "original_sha256": "7665654c0920cadc1db6be90f4964df306b4e0fbaef0d6ebb5a7c853aac4cb90",
+      "original_text": "**CHANGES_REQUESTED** — două constatări concrete.\n\nSnapshot verificat: HEAD `837970d8e29811eb0f9ef4612aab9b90ea3c4b8e`, integrat **necomis**, 36 de fișiere, inclusiv 13 noi. Hashurile vechi/noi și dimensiunile corespund manifestului; identitatea a rămas stabilă.\n\n- Manifest SHA256: `841c729a40e54dd3c471a5dc45b3f7df75d9c964f8560466027fd2abb713de84`\n- Helper QA SHA256: `013ac310eb4d4d436d7aecd40ae42fe73efba83aa4e24c96f30f56da5637c04a`\n\n1. **MEDIUM — două linkuri rupte după relocare.**  \n   [packaging-platform.md:40](/home/kali/OmnisAI/.hermes/skills/omnis-release-ops/references/packaging-platform.md:40) și [ipc-process-packaging.md:26](/home/kali/OmnisAI/.hermes/skills/omnis-review-qa/references/ipc-process-packaging.md:26).  \n   **Reproducer:** rezolvarea relativă produce `references/references/startup-failure-boundaries.md`, respectiv `references/references/private-nss-audit.md`; ambele inexistente. Fișierele corecte există în același director cu referința. Încalcă cerința păstrării unor legături utilizabile către procedurile mutate. **Remediu minim:** eliminarea prefixului suplimentar `references/` din cele două destinații.\n\n2. **MEDIUM — negativul path-escape poate trece prin „not found”.**  \n   [loader_qa.py:53](/home/kali/.hermes/cache/scratch/omnis-governance-edit-sft1enkq/loader_qa.py:53).  \n   **Reproducer:** `omnis-delivery/../SKILL.md` nu există, iar verificarea acceptă orice `success=false`. Un loader fără controalele traversal/containment ar putea refuza prin ramura „file not found”, după care helperul ar publica `linked_path_escape_refused=true`. Este o lacună a oracle-ului QA, nu un bypass demonstrat al loaderului instalat. Încalcă cerința ca negativul să probeze refuzul vizat. **Remediu minim:** o destinație existentă în afara skillului, precum `../omnis-review-qa/SKILL.md`, și verificarea motivului nativ de traversal.\n\nAm acoperit toate cele 36 de căi, comparația cu baza, corpurile/template-urile, referințele mutate, callerii, manifestul, cele trei teste și helperul. Lecțiile relevante sunt conservate. Ownershipul, reviewul, commitul candidat și QA sunt coerente; T0 rămâne neînceput, canonul vechi este recunoscut explicit, iar continuările vechi sunt istorice. Nu am identificat schimbări de produs/canon sau slăbirea guardurilor existente.\n\nVerificările proprii de integritate și `git diff --check` au trecut. Logurile furnizate consemnează 79 PASS și 5 HTML sincronizate; nu am rerulat suitele. Inventarul curent are 13 intrări corecte, toate cu calificare nativă/scanner **NOT_RUN**.\n\nFără editări, commituri, agenți sau execuție nativă/produs. HTML-ul protejat și credentialele nu au fost citite. Urmează remedii minimale, freeze nou și re-review focalizat; QA și integrarea rămân părintelui."
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "verdict": "APPROVED_SCOPED",
+      "original_sha256": "e61464dbe6bc955ae5e2ec2e3e59229c3c007d29a69a22ff7d4543d4f40589d9",
+      "original_text": "**APPROVED_SCOPED** — ambele constatări MEDIUM sunt închise pentru sursa examinată. Scope-ul neschimbat al reviewului inițial este păstrat.\n\n1. **Linkurile rupte — REMEDIAT.** În [packaging-platform.md:40](/home/kali/OmnisAI/.hermes/skills/omnis-release-ops/references/packaging-platform.md:40) și [ipc-process-packaging.md:26](/home/kali/OmnisAI/.hermes/skills/omnis-review-qa/references/ipc-process-packaging.md:26), delta elimină exclusiv prefixele suplimentare. Destinațiile există; regresia verifică ambele legături.\n2. **Falsul pozitiv „not found” — REMEDIAT în helper.** [loader_qa.py:53](/home/kali/.hermes/cache/scratch/omnis-governance-edit-sft1enkq/loader_qa.py:53) folosește o destinație existentă în afara skillului și cere simultan `success is False` și mesajul nativ exact: `Path traversal ('..') is not allowed.` Controalele locale disting refuzul corect de „not found” și de succes.\n\nSnapshot verificat în `/home/kali/OmnisAI`, integrat **necomis**:\n\n- HEAD/bază: `837970d8e29811eb0f9ef4612aab9b90ea3c4b8e`\n- Manifest SHA256: `63c776769805545ce2868702d7c138a70e732e43e4f51871befd7f4c3fa5c072`\n- Helper SHA256: `f73d6dea7bc5bae5e4fdaa6b8c794975de4cb7eaef5c5e85e4e7591c1035acdf`\n\nToate cele **36 de fișiere** corespund manifestului; exact trei diferă față de freeze-ul inițial. Identitatea finală este stabilă.\n\nVerificare proprie: `python -B -m unittest discover -s tests/documentation -p test_governance.py -v` — **4 PASS, exit 0**; `git diff --check` — **exit 0**. Dovezile salvate confirmă RED cu două subteste eșuate, GREEN4, full80, integrated80 și verificarea HTML.\n\n**Limite păstrate:** QA nativă și scannerul celor 13 skilluri rămân **NOT_RUN**; fără acceptare runtime/produs. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Fără modificări sau commituri; fișierul protejat, credentialele și configurația globală privată nu au fost citite. Urmează QA nativă autorizată și adjudecarea/commitul părintelui."
+    }
+  ],
+  "finding_dispositions": {
+    "relocated_reference_links": "reproduced, assigned developer RED→GREEN, focused re-review approved",
+    "qa_false_not_found": "reproduced, parent-owned observation helper corrected to existing escape target plus exact reason, focused re-review approved"
+  },
+  "checks": [
+    {
+      "command": "python -B -m unittest discover -s tests/documentation -v",
+      "exit": 0,
+      "tests": 80,
+      "note": "After link repair; final assertion narrowing had focused4PASS and unchanged remaining scope."
+    },
+    {
+      "command": "python -B scripts/render_docs.py --check",
+      "exit": 0,
+      "outputs": 5
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "native_qa_at_source_checkpoint": {
+    "status": "INCOMPLETE",
+    "first_attempt_exit": 1,
+    "reason": "Observer demanded surrounding terminal newline; installed prompt_builder._read_context_file strips surrounding whitespace. Exact stripped complete text was observed; no blocked content. Narrow observer correction/review and final fresh execution remain separate."
+  },
+  "limits": [
+    "Instructions cannot guarantee future model compliance.",
+    "Canonical architecture/plan/stack/UI and product code unchanged; five contracts before T0 remain open.",
+    "Global SOUL/config and personal credentials not modified.",
+    "Source author exited before parent took explicitly transferred one-line assertion narrowing; no parallel writer."
+  ]
+}

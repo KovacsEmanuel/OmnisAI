@@ -1,120 +1,117 @@
 {
-  "count": 12,
+  "count": 13,
+  "scope": "Current project-local DEVELOPMENT skill inventory; not a product runtime catalog",
+  "base_commit": "837970d8e29811eb0f9ef4612aab9b90ea3c4b8e",
+  "qualification": "NOT_RUN: fresh native loader/scanner QA required on integrated exact bytes; old 12-entry qualification is historical in Git",
   "skills": [
     {
       "name": "omnis-accessibility",
-      "version": "0.1.1",
+      "version": "0.1.3",
       "path": ".hermes/skills/omnis-accessibility/SKILL.md",
-      "sha256": "726e0841b8257fb43ba442deb68c47a1b31bab0903c1a21570d7314389ea91c9",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "checked_at_utc": "2026-09-25T16:25:49.909254+00:00",
-      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
+      "sha256": "4c8e26eb86ca61ae397502bd9119529c804e2b996a3b296d754030a0a92a9e38",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-anti-slop",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-anti-slop/SKILL.md",
-      "sha256": "8f92416e5515f8e05441d5e3629eeadaf68390827c5cdd1de8ef55e9e2b6e1f8",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "sha256": "a88e768e28bc06c12a2ceccfd3b7d47b36024de82fbc74a8c035c32e47291bec",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-api-data",
-      "version": "0.1.3",
+      "version": "0.1.29",
       "path": ".hermes/skills/omnis-api-data/SKILL.md",
-      "sha256": "01d9757555ff22bce2431a9959abf5ebfdefd3aaa2cf646160b8f4dae441830e",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "verification_note": "Native skill_view reloaded 0.1.3; installed skills_guard scan_skill(source=project) returned safe with zero findings. Other entries retain their recorded snapshots."
+      "sha256": "2531deb4f23868526304ca8b2c93e1691ba35c9961cd08150005c455436724d9",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-chisel",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-chisel/SKILL.md",
-      "sha256": "46b9b05abc7615eebee55f0b5c90312bafc3f065580c1557dd409383053f7b4b",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "sha256": "9a705db77e621eab45bec01f3ef4df01185b9f8dd15f065f7695b65a6be18d89",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-delivery",
-      "version": "0.1.1",
+      "version": "0.1.7",
       "path": ".hermes/skills/omnis-delivery/SKILL.md",
-      "sha256": "b7d01a5f41675ad48d35ff2260628f93ce9317b5b4eec9f9ecf6fc3fee05fe80",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "checked_at_utc": "2026-09-25T21:43:18.163855+00:00",
-      "verification_note": "Native skill_view reloaded 0.1.1. Installed skills_guard returned safe with one unchanged low informational agent_config_ref at SKILL.md:19 (read AGENTS.md); baseline/current findings compared exactly, zero new findings. Other entries retain their recorded snapshots."
+      "sha256": "de3207ca942ac1984c6584eade12cab9c3c5f50d65534a4f9e052328f129a2c1",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-frontend",
-      "version": "0.1.2",
+      "version": "0.1.6",
       "path": ".hermes/skills/omnis-frontend/SKILL.md",
-      "sha256": "53d53d544bbb2a29259e332223f3b0c3b8cce73cf7fa4151c34a0727763424a5",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "checked_at_utc": "2026-09-25T16:25:49.878043+00:00",
-      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
+      "sha256": "06b58e92ba892d596f7eecf8c1a03368de71d3ba1e02c8b0f1f3ca87a350c007",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-frontend-performance",
       "version": "0.1.0",
       "path": ".hermes/skills/omnis-frontend-performance/SKILL.md",
       "sha256": "abeb04205409150ff50fd2a619d7bc6bf7580452025524ed471ece1df2031336",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-hermes-runtime",
-      "version": "0.1.0",
+      "version": "0.1.12",
       "path": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
-      "sha256": "9216ce0b161ab1b94dfc7fcde882d21fb7354d182ae567328db905735f9ab147",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "sha256": "10673c9e68602e1b17765e728fd76a2f3d08ca8eeac63c3fecb6f24a6bcef77c",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
+    },
+    {
+      "name": "omnis-project-status",
+      "version": "0.1.4",
+      "path": ".hermes/skills/omnis-project-status/SKILL.md",
+      "sha256": "cdb5383cf3c48c5edc7d27854e2dc0162f6784e12e3f010f37a9f1d0c704ad12",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-release-ops",
-      "version": "0.1.1",
+      "version": "0.1.16",
       "path": ".hermes/skills/omnis-release-ops/SKILL.md",
-      "sha256": "4f381e9e3bc434f16d996cc741733d87270a8fb5177f6d202f9697a8e2bf21b8",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "verification_note": "Native skill_view reloaded 0.1.1; installed skills_guard scan_skill(source=project) returned safe with zero findings. Other entries retain their recorded snapshots."
+      "sha256": "043c93046f791b20618995055cb3e994ec6815f6e0dae66b9fb6e74ae21638c9",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-reticle",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "path": ".hermes/skills/omnis-reticle/SKILL.md",
-      "sha256": "0d4edde783dc84d3511e046d11f55f7f44aa653af840f84d84f65ce956f61a6f",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "sha256": "2d54cf5b709a1d9f614357fd9feba7c85cdc48b9db1a457aa2d52bc0aa8fb20d",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-review-qa",
-      "version": "0.1.3",
+      "version": "0.1.44",
       "path": ".hermes/skills/omnis-review-qa/SKILL.md",
-      "sha256": "19e75faa3f1e30e0f6b9170e13f4dec7ac2ad9582a8612f27c626cf42388e838",
-      "native_read": true,
-      "scanner_verdict": "safe",
-      "checked_at_utc": "2026-09-25T16:25:49.886162+00:00",
-      "verification_note": "Native skill_view reloaded this revision; installed skills_guard scanned the directory with zero findings after dd63520. Other entries retain their recorded verification snapshots."
+      "sha256": "415bbc4403e7d1164349f0d978da0c0f6cdd5ed218aeb543b36c9f33bd7bcf0a",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     },
     {
       "name": "omnis-safety-evaluation",
       "version": "0.1.0",
       "path": ".hermes/skills/omnis-safety-evaluation/SKILL.md",
       "sha256": "25b245bf657f23c6a864c6198284a1ba9e5a269bc3af0c91bddb1a02910df3f8",
-      "native_read": true,
-      "scanner_verdict": "safe"
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN"
     }
   ],
-  "scope": "Project-local development skills, not the assessment runtime catalog",
-  "checked_at_utc": "2026-09-25T10:43:06.335319+00:00",
-  "hermes": "0.21.5 / ee5ee84a (installed native loader; fresh checkout-bound process)",
   "limitations": [
-    "Current already-open session prompt/catalog was not rewritten",
-    "Native Reticle/Chisel MCP servers were not globally registered",
-    "Chisel is an adoption gate, explicitly NO-GO",
-    "Initial checked_at_utc snapshot predates the supplied UI reference; current prototype status is in the UI specification. Product app remains unimplemented."
+    "Static hashes verify inventory identity only, not loading, scanning, model compliance or product acceptance.",
+    "Already-open session catalogs are not claimed refreshed.",
+    "Parent updates native results only after fresh no-inference repo-bound QA; see tools/development/README.md."
   ]
 }

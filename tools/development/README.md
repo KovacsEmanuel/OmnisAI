@@ -12,21 +12,24 @@ Aceste unelte sunt separate de aplicație și de catalogul runtime de pentest. N
 
 ## Intrarea standard
 
-[Inventarul verificat al celor 12 skill-uri](skills-manifest.json) include versiuni, digesturi și rezultatul încărcării prin loaderul Hermes real. Acesta este un snapshot de verificare, nu un auto-installer sau catalog de pentest; după modificarea unui skill, rerulează verificarea înainte să actualizezi snapshotul.
+[Inventarul curent al celor 13 skill-uri](skills-manifest.json) enumeră versiunile și SHA-256 ale bytes actuali. `native_read` și `scanner_verdict` sunt **NOT_RUN** pentru acest inventar: modificarea metadata nu reînnoiește calificarea. Snapshotul anterior cu12intrări/loader Hermes0.21.5 și scanările sale sunt dovezi istorice recuperabile din Git, nu QA a bytes noi.
 
-După instalarea dependențelor documentare și a pachetului anti-slop din lock:
+Hermes/Codex rămân unelte de dezvoltare; noul produs API-key-only nu cere Hermes runtime. Launcherul `python -B scripts/hermes_dev.py --check` proiectează cwd/argv fără model; nu îi da secrete în argv. În candidatul exportat fără Git, verificarea repo-bound reală revine integrării.
+
+Pentru editări ale instrucțiunilor:
 
 ```sh
-# Într-un checkout nou; environment dedicat documentelor/uneltelor.
-uv venv .venv
-uv pip install --python .venv/bin/python -r documents/requirements-docs.txt
-npm --prefix tools/development/anti-slop ci --include=dev --ignore-scripts --no-fund
-PATH="$PWD/.venv/bin:$PATH" make check
+python -B -m unittest discover -s tests/documentation -v
+python -B scripts/render_docs.py --check
 ```
 
-Folosește un mediu Python izolat pentru instalare; comanda de mai sus nu cere modificarea environmentului Hermes. `make check` verifică documentele, launcher-ele și controalele anti-slop, nu pretinde că testează aplicația încă neimplementată. Proba completă Reticle este separată/opt-in, conform README-ului ei; Chisel nu are un gate „verde” ascuns în check.
+Acestea sunt verificări de drift/integritate documentară, nu acceptare de produs sau dovadă că modelele vor respecta instrucțiunile. `make check` actual include consumatori API/DB/web/runtime și efecte disposable; folosește-l numai la frontiera relevantă cu autorizația/prerechizitele sale, nu pentru metadata. Anti-slop se instalează din lock numai când mediul necesar lipsește; smoke-ul se repetă la schimbarea uneltei/configurației ori defect concret. Reticle este opt-in pentru UI instrumentată afectată; Chisel rămâne NO-GO. Browserul se folosește pentru UI afectată, nu pentru această editare de proceduri.
 
-Regresia browser a documentelor/prototipului rămâne separată și se rulează la schimbări de UI. Aspectul prototipului `df17a29` a fost acceptat explicit; pornirea implementării este separată și se cere în sesiunea nouă. Nu confundăm smoke-uri de unelte cu testele viitoare React/FastAPI/PostgreSQL/Hermes ale produsului.
+### QA nativă de făcut de părinte după integrare
+
+Într-un proces fresh legat explicit de checkoutul trusted integrat, fără chat/inferență, verifică descoperirea exactă a celor13nume și citirea bytes fiecărui `SKILL.md` prin loaderul nativ, plus scannerul instalat pe directoarele curente. Include AGENTS/contextul din root și dintr-un subdirector relevant. Citește schema/API-ul loaderului instalat înainte de execuție; nu inventa un CLI sau verifier nou și nu activa skills de produs/importate.
+
+Înregistrează HEAD, versiunile loaderului/scannerului, comanda reală/exit, rezultatele per skill și limitele. Compară SHA manifestului cu fișierele integrate înainte și după. Numai după proba efectivă actualizează `native_read` (`PASS`/`NOT_RUN`), `scanner_verdict` (`safe`/`BLOCKED`/`NOT_RUN`), `tested_sha256` identic cu SHA verificat, `checked_at_utc`, `evidence` și calificarea globală conform probei exact-snapshot; păstrează NOT_RUN pentru orice parte neexercitată. Recalculează count/path/version/SHA pentru toate cele13fișiere dacă se schimbă bytes la integrare. QA părintelui și review-urile independente nu sunt predeclarate aici.
 
 ## Actualizare și rollback
 

@@ -2,6 +2,12 @@
 
 **Orientare globală:** [harta de implementare și review MVP/post-MVP](implementation-status.md) proiectează starea pe planul canonic și separă codul, probele și aprobarea de review. [Contractul/probele skillului de predare](project-status-skill.md) privesc procesul de dezvoltare, nu runtime-ul produsului.
 
+**Direcție nouă aprobată — analiză, nu implementare:** [migrarea API-key-only și primul pentest de laborator](api-key-runtime-migration-analysis.md) mapează exact codul, distribuția, arhitectura/planul și toate SL/E după eliminarea Hermes runtime/Codex subscription din noul scope. Include analizele Sol 6.1, diferențele adjudecate și separarea M-LAB de M1/harnessul aprofundat. Canonul trebuie amendat explicit înaintea implementării; probele istorice nu certifică SDK-ul sau noul produs. Toolingul Hermes/Codex de dezvoltare rămâne separat.
+
+## Registre anterioare — statusuri la reviziile citate
+
+Etichetele CURRENT/actual din registrele următoare sunt checkpointuri istorice, nu instrucțiuni de reluare a vechii integrări peste decizia API-key-only. Constatările și limitele lor se păstrează; noua analiză nu le rescrie ca PASS și nu autorizează efecte.
+
 **CURRENT — handoff fresh C10:** [reluare exactă și prompt](p2-c10-session-handoff-20261012.md), [checkpoint versionat17hashes/probe/cleanup](p2-bound-predicates-checkpoint.json), [review normativ SOURCE](p2-bound-predicates-evidence/normative-source-rereview.json), [review security SOURCE](p2-bound-predicates-evidence/security-source-rereview.json). `8ea28b2` este WIP comis separat, neintegrat;2PG/native PASS și135SOURCE/21native-build nu înlocuiesc re-reviewul delta6 C10-NATIVE-F01 încă NOT_RUN sau canonicalul final. F01–F04 închise numai SOURCE pe2ca0477; FAIL-urile/limita legacy și restB06b/G02/P2 păstrate. Această reluare înlocuiește instrucțiunile history din handofful anterior, nu acceptările sale istorice.
 
 **C11 same-Host actual:** [consumer/FAIL-uri și limite](p2-method-lost-reply.md), [receipt exact](p2-method-lost-reply-close.json); d7a51f3 integrat byte-exact/reviewedscoped, F01/N01 închise, final autentic recuperat fără redispatch și un caz nativ post-Stop PASS. Fulltarget FAIL302/303 păstrat/cauzaUNKNOWN; canonical NOT_RUN, B06b/P2 neînchise.

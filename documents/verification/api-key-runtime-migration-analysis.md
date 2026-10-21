@@ -303,6 +303,161 @@ Schimbarea indexului `documents/verification/README.md`, observată la final de 
 
 Preflightul CLI a avut o eroare de gramatică: `codex sandbox linux --help` a încercat executabilul `linux` și a ieșit 101, înaintea oricărei inferențe. Helpul real a arătat gramatica corectă; `codex -c sandbox_mode=\"read-only\" sandbox -- /usr/bin/true` a trecut exit0. Nu s-a dezactivat sandboxul și nu s-au modificat setări globale. Cele trei procese de analiză au fost urmărite și încheiate exact; doar launcherul a salvat rapoartele. Nu au fost executate teste/builduri/servicii/DB/Docker/provider calls de produs/target și nu au fost citite credentiale.
 
+## 11. Verificare suplimentară: regresii și precizia amendamentului
+
+**Bază a suplimentului:** `59253358147a427b66471b5b6f13c5e5690c58ea`. Mandatul ulterior cere verificarea propunerii, auditul instrucțiunilor și propunerea de cleanup înainte de implementare. Nu autorizează în această felie editarea AGENTS/SOUL, schimbarea configurației globale sau ștergerea produsului. Secțiunile11–14 sunt adjudecarea părintelui pe constatări citite, nu un nou plan concurent și nu o promisiune de zero regresii.
+
+| Analiză suplimentară | Configurație observată / proces | Verdict și original |
+|---|---|---|
+| Claritatea migrării/regresii | Sol6.1 `xhigh`, read-only, approval never; sesiune`01a1601e-4db5-7d43-8d0e-53c200abed30`, `proc_b04fe1de205f`, exit0 | **READY_FOR_CANON_AMENDMENT**, nu READY_FOR_IMPLEMENTATION; [raport original în câmpul original_text](api-key-migration-evidence/regressions-sol-xhigh.json), SHA al textului`addbcb2022fa3c3507444f8803df2a14eacbf19762c8c7e4f0115a3a80488145` |
+| Instrucțiuni/skills/echipă | Sol6.1 `medium`, read-only, approval never; sesiune`01a1601e-4ee9-7181-ba48-ce923d7cf738`, `proc_8ad28a6e642c`, exit0 | Recomandă echipa proporțională și clarificarea regulilor, nu alt rol permanent; [raport](api-key-migration-evidence/governance-sol-medium.md), SHA`c58c32440c5658f7329d881907fbafd22ce4b07a50b695ab7ec6f0ccf2c0cceb` |
+
+Nu au fost găsite blocante noi pentru începerea T0. Findingul MEDIUM de outcome/proiecție din noul raport este **același defect actual** din §2/auditul anterior, nu locatorul LOW al primului review: `model_test_operation.projection/view` pierde statusul providerului. Rămâne deschis pentru remediere prin consumerul T1; nicio probă live nouă nu a fost executată.
+
+Păstrare: raportul de guvernanță și inventarul sunt copii byte-exact. Raportul de regresii are trei hard-break-uri Markdown cu spații finale; primul `git diff --cached --check` a refuzat copia `.md` cu exit2 înainte de commit. Textul original este păstrat lossless în `original_text` din JSON, verificat prin re-encodare UTF-8/SHA, fără normalizare sau slăbirea verificării whitespace. Numai copia `.md` nou creată de părinte a fost retrasă; originalul și sursele produsului nu au fost modificate.
+
+### Cinci contracte obligatoriu de închis în T0 înainte de atribuirea T1
+
+1. **Operația de sistem/dispatch v2:** reprezentare persistentă aleasă, producerul rootului, ownership, command ID + payload digest, config snapshot, instance/generation/epoch, deadline/stări, replay/conflict/reconciliere, resolverul Ref și ordinea lockurilor. Adăugarea unui enum sau `hermes=False` nu satisface acest contract.
+2. **Seiful și transferul cheii:** traseu write-only UI/API→owner, limite/redactare, bootstrap/unlock/LOCKED, ref opac, consistență secret-file↔DB, rotație/revocare/restaurare. Scrierea atomică a unui fișier nu face atomică perechea DB–filesystem.
+3. **Selecția și caps:** roluri inițiale finite, override→default, conexiune/revizie credential/model/parametri, unitatea verificabilă a limitei de input și agregarea între roluri/conexiuni. Usage după răspuns nu este cap pre-send; rezerva validatorului trebuie fixată.
+4. **Outcome/API:** starea operației separată de provider status, requested/observed, output bounded, usage/cost observat/estimat/necunoscut și condiția unei noi încercări explicite după reconciliere.
+5. **Distribuție/compatibilitate:** identitate release/profil, owner de execuție, provider egress și inventarul istoricului suportat. Istoric încă nesuportat rămâne arhivat/indisponibil explicit; nu compatibility PASS. Control network intern nu capătă automat acces provider prin scoaterea Hermes.
+
+Acestea sunt decizii de contract ale amendamentului, nu cerința de a implementa anticipat toate modulele. Pinul și proba clientului vin cu T1; Runnerul, rolurile și tool loop-ul cu T2. Nu începe un developer cu lacunele acestea mascate drept „detalii de implementare”.
+
+Matricea de regresii a reviewerului leagă11 frontiere de consumerii și testele existente: Save/auth, seif, test independent de catalog, scope authority, caps/usage, owner/Stop, outcome, model-per-role, DATA, cititor istoric și installed CLI/distribuție. Exemple ce trebuie păstrate/adaptate, nu declarate trecute: `test_provider_settings_api_source.py`, `test_model_test_operation.py`, `test_model_budget_pg.py`, `test_model_admission_pg.py`, `test_stop_fence.py`, `test_managed_lifecycle.py`, `test_managed_composition.py`, testele web ProviderSettings/ModelTest și `cli/integration/test_release.py`. Testele noi ale seifului/resolverului SDK nu există deja prin aceste nume.
+
+Părintele a confirmat suplimentar dependența care face nesigur un delete-all: `modules/runs/managed_admission.py:1165` importă readerul din `native_preparation.py`; acesta importă `RuntimeClient`. În CLI, `_manifest` folosește încă `native_artifacts` și `model_test_source`. Fișierele întregi nu sunt orphan acum.
+
+## 12. Auditul instrucțiunilor și schimbările propuse înainte de cod
+
+**Acoperire:** [inventarul înghețat](api-key-migration-evidence/governance-source-inventory.json) are53 assets tracked din `.hermes/skills`, `skills` și `profiles`, plus6 instrucțiuni relevante, total59. Raportul enumeră toate căile citite integral; părintele a comparat programatic lista cu inventarul:59distincte/59așteptate, zero lipsuri și zero drift SHA. Acoperă13skills de dezvoltare,3skills de produs,2profile și fișierele lor de suport, AGENTS/CONTRIBUTING, SOUL default și cele3 skills globale selectate. Nu este auditul tuturor skillurilor globale de email/media sau al altor profiluri.
+
+Surse suplimentare inspectate de părinte: launcherul Hermes instalat, funcțiile relevante din `agent/prompt_builder.py`, manifestul dezvoltării și documentația oficială. Singurul context file găsit în arborele propriu, excluzând dependențe/builduri, este AGENTS.md; nu am găsit un override care să-l înlocuiască. SOUL-ul folosit este `/home/kali/.hermes/SOUL.md`. Fișierele personale de credentiale nu au fost inspectate.
+
+### Constatări adjudecate
+
+- **Nu lipsește regula product-first.** Ea există deja în CONTRIBUTING, delivery, team-slice și SOUL. Problema este aplicarea, plus contradicțiile și rețetele istorice încărcate fără legătură cu taskul. Nu o rezolvăm prin încă trei copii ale aceleiași reguli.
+- **AGENTS are stare veche:** încă trimite la prototip și aprobare de structură, deși există acceptări ulterioare. Corecția trebuie făcută explicit, prin protecția normală a fișierului, nu printr-un `.hermes.md` sau override alternativ.
+- **Skillul runtime vechi contrazice direcția:** `omnis-hermes-runtime:16` interzice înlocuirea Hermes. Se retrage din rutarea noului produs; lecțiile istorice utile rămân în referințe legacy.
+- **Ownerul fixului este ambiguu:** AGENTS spune că părintele remediază, în timp ce team/SOUL desemnează developerul. Părintele reproduce/adjudecă; autorul desemnat scrie fixul. Transferul de autorat se declară, fără scrieri paralele ascunse.
+- **Commit și acceptare trebuie separate:** template-ul spune commit înainte de review, alte texte enumeră review înainte de commit. Regula propusă este identitate înghețată pentru review; un commit candidat pe workbranch nu este acceptare. În checkout comun părintele comite granular, integrarea/închiderea necesitând reviewul și QA aplicabile. Nu se impune un commit gol sau recertificarea fiecărui commit de documentare.
+- **CURRENT și rapoartele nu trebuie să fie cozi de execuție:** un CURRENT/pas următor pe sursa activă, restul istoric. Matrice globală la milestone/handoff/schimbare de stare sau cerere, nu obligatoriu pentru orice răspuns scurt. Schimbarea regulii de raportare este propusă aici, nu aplicată tacit.
+- **Skillurile mari nu sunt toate injectate la startup**, dar încărcarea unuia aduce și toate incidentele lui. Păstrăm în corp invariants/procedura actuală; mutăm rețetele în referințe tematice, încărcate pentru o frontieră concretă. Nu deducem timpul pierdut ori economia din bytes.
+- **Triage importat rămâne carantinat:** instrucțiunile despre evidence ca autoritate și «never redact» nu sunt policy Omnis. Originalul/licența/notices se păstrează, fără activare; un viitor loader SDK nu trebuie să încarce orice SKILL.md doar fiindcă este în repo.
+
+### Dispoziție pentru toate skillurile și suportul
+
+| Sursă | Schimbare propusă | Ce nu se taie |
+|---|---|---|
+| omnis-accessibility | Rețete UI particulare în referință; scenarii după widget/call path afectat | Focus, keyboard, Stop și accesibilitate reală |
+| omnis-anti-slop | Instalare/smoke numai la prerechizit lipsă sau schimbarea uneltei/configului; verificări TS afectate | Regulile executabile de boundary parsing |
+| omnis-api-data | Runtime neutru; DB/contracts/transactions în corp, cazuri native/fixture în referințe | Integritate, migrații, replay și readeri istorici |
+| omnis-chisel | NO-GO, numai reevaluare explicită; nu se încarcă la fiecare task | Refuzul adopției nesigure; nu se activează pentru a compensa retragerea Hermes |
+| omnis-delivery + task/team | Un singur workflow/pointer, ownerul fixului clar, contract scurt | TDD, review, QA, commituri granulare și limitele mandatului |
+| omnis-frontend-performance | KEEP, deja bazat pe măsurare | Nu optimizare speculativă |
+| omnis-frontend | Baseline vizual acceptat reutilizat; aprobare pentru direcție schimbată; cazuri particulare în referințe | Stări reale, source/DTO/client și funcționalitate, focus/Stop |
+| omnis-hermes-runtime | RETIRE din rutarea nouă; referință legacy pentru istorie | Mapping/Stop/data lessons încă aplicabile, fără obligație de runtime Hermes |
+| omnis-project-status + handoff | ORIENT minim; history/worktrees numai pentru conflict; matrix la predări relevante | Cod/probe/review distincte și status onest |
+| omnis-release-ops | Artefact nou/runtime neutru; recipe-uri de platformă în referințe | Identitate, installed consumer, backup/restore și cleanup |
+| omnis-reticle | Smoke doar la schimbare/defect/aplicabilitate reală | TOOLING_ONLY≠produs, neinstrumentat≠verificat |
+| omnis-review-qa | Politica echipei prin team-slice; recipe-uri UI/PG/IPC/NSS în referințe | Reviews independente, toate findings concrete, probe pe artefact și limite |
+| omnis-safety-evaluation | KEEP invariants runtime-neutre, scenarii la consumerul lor | Scope/sink/auth/DATA/oracle/replay, fără vot LLM |
+| skills/bug-bounty-triage | QUARANTINE, adaptare separată înainte de utilizare | Original bytes, licență, NOTICE/provenance |
+| skills/recon-mapping-contract | KEEP istoric; versiune nouă numai cu consumer | CONTRACT/PURE nu devine SECURITY prin redenumire |
+| skills/records-mapping-contract | KEEP istoric; compatibilitate nouă într-o revizie nouă | Ref/digest/schema și lipsa reexecuției |
+| Cele2 profile și suportul CONTRACT | KEEP ca date/fixtures istorice | Nu sunt profile personale sau agenți executabili |
+| Licențe/upstream/provenance ale celor3 skills UI | KEEP pasiv | Nu se importă preferințe upstream drept reguli obligatorii |
+| Referințe startup-failure/private-NSS | KEEP la cerere, nu preflight universal | Ownership și interdicția bypassului |
+| AGENTS/CONTRIBUTING | EDIT în T0: stare, autoritate, fix-owner și pointere unice | Siguranță, scope, Git granular, review și efecte autorizate |
+| SOUL default | Propus: scoate paragraful specific Omnis duplicat; scurtează procedura detaliată numai păstrând principiile globale cerute de operator | Nu anulează preferințele globale product-first, review și respectarea mandatului. Fără editare globală acum |
+| Global development-toolchain-integration | Principii generice în corp, situații Omnis/user-specific în proiect sau referințe | Distincția developer inference vs product effects |
+| Global agentic-security-platform-design | Runtime ales prin cerință; Hermes docs numai pentru scope Hermes | Modelul nu deține autorizația/verdictul, evaluare reală |
+| Global hermes-agent | KEEP pentru folosirea Hermes la dezvoltare | Nu devine autoritatea tehnologică a produsului |
+
+Nu creăm câte un skill nou pentru fiecare incident. Preferăm referințe tematice existente și retragerea rutării legacy, nu două proceduri active pentru aceeași operație.
+
+### Două discrepanțe suplimentare verificate de părinte
+
+`tools/development/skills-manifest.json` este un snapshot istoric cu12intrări, nu inventarul curent: sunt13skills, lipsește `omnis-project-status`, iar numai5hashuri din manifest corespund bytes actuali. Nu rescriem vechile verdicte de scanare; după ajustarea skillurilor, se produce un readback nou al loaderului, iar README-ul uneltelor trebuie să distingă inventarul curent de snapshotul vechi.
+
+Referința globală `hermes-agent/references/project-context-files.md` descrie plafon fix20.000caractere și înlocuirea patternurilor scanate. Sursa instalată `agent/prompt_builder.py:1045–1066` are cap dinamic când lipsește override-ul explicit; `:83–109` blochează fișierul de proiect la un finding și tratează diferit SOUL user-authored. Documentația oficială curentă confirmă aceste diferențe. Se propune corectarea referinței la adoptarea instrucțiunilor; nu creșterea capului ca remediu pentru instrucțiuni prea ample. Nu am executat loaderul sau modificat configurarea în acest audit.
+
+## 13. Echipa și bucla de implementare recomandate
+
+**Nu adoptăm echipa fixă «1 orchestrator +2devs +2review +1QA» pentru fiecare felie.** Template-ul actual are deja un autor implicit și dev2 condiționat. Pentru migrarea care schimbă secrete/model dispatch/Stop sunt necesare: orchestrator, un developer, două reviewuri independente complementare și etapa QA reală. QA poate fi executată de unul dintre reviewerii nonautori, după închiderea blocantelor și cu mandat de execuție separat. Al doilea developer apare numai după înghețarea interfeței, cu fișiere și criterii independente; nu pentru a completa organigrama.
+
+Graph/loop engineering este responsabilitatea de organizare a orchestratorului, nu încă un agent permanent:
+
+```text
+ORIENT → ADMIT → DEVELOP → FREEZE → REVIEW → REAL_QA → ACCEPT/CLOSE
+                    ↑                 │          │
+                    └── fix același owner ───────┘
+                         │
+                BLOCKED / mandat nou pentru scope nou
+```
+
+| Stare | Owner / condiție de ieșire |
+|---|---|
+| ORIENT | Orchestrator: Git, un CURRENT, contractul și callerii afectați; fără istorie integrală implicită |
+| ADMIT | O cerință observabilă, producer/input reale, caller, fișiere, verificare decisivă, buget/limite. Cele5 contracte T0 de mai sus trebuie fixate pentru T1 |
+| DEVELOP | Un developer scrie cod și teste: RED→GREEN minimal. Nu expandează scope-ul la funcții viitoare |
+| FREEZE | Commit candidat sau blobs/diff înghețate; toți reviewerii și QA primesc aceiași bytes/artefact. Candidat nu înseamnă acceptare |
+| REVIEW | Un reviewer implicit; două perspective obligatorii pentru frontierele sensibile. Finding = scenariu/repro/criteriu/remediu, nu preferință sau completitudine universală |
+| REAL_QA | Nonautor, după blocante: primul consumer real afectat, pozitiv/negativ, readback/cleanup. Preflightul fără efecte poate fi făcut devreme |
+| ACCEPT/CLOSE | Părinte adjudecă, integrează/comite granular și verifică. Canonical la frontiera potrivită, status delta, apoi următoarea felie admisă dacă mandatul continuă |
+
+Reguli de oprire a cercului, folosind taskul/registrul existente, fără infrastructură nouă:
+
+1. Înainte de test/delegare: «ce cerință, ce consumer, ce risc, ce decizie se schimbă?». Dacă nu există răspuns și nu este integritate/cleanup obligatoriu, nu se execută.
+2. Un test RED al comportamentului cerut este progres; un nou observer care nu ajunge la consumer nu este livrare.
+3. După un finding real: reproducere/adjudecare de părinte, fix de autorul desemnat, affected checks, re-review focalizat, QA afectată. Nu reaudita scope-ul neschimbat.
+4. În aceeași acceptance row: ultimul progres de produs, cicluri harness-only0/1/2, următoarea decizie. După2fără avans, restrânge frontiera sau raportează BLOCKED; nu redenumi încercarea și nu adăuga al treilea verifier. Safety finding rămâne blocant.
+5. Commiturile mici nu impun handoff la fiecare pas; notificările întârziate/reminderele nu redeschid munca. Nu rerula pentru un nou nume de raport.
+6. Prima probă reală bounded urmează minimum SOURCE și reviewurile cerute, nu întreaga bibliotecă de fixtures viitoare. Nu există plafon arbitrar de teste care să taie o regresie justificată.
+
+### Textul minim propus pentru AGENTS, neaplicat
+
+Se păstrează regulile actuale de secrete, autorizație, Git/rollback, protejarea WIP, verificare și citare. Se înlocuiesc pasajele contradictorii și se adaugă pointerele, nu un manual nou:
+
+> Direcția aprobată a noului produs este API-key-only prin OpenRouter/OrcaRouter, fără Hermes runtime și fără Codex subscription/OAuth. Hermes/Codex sunt unelte de dezvoltare distincte. Canonul este amendat explicit înainte de implementare; alegerea tehnologiei nu autorizează conturi, buget sau trafic.
+>
+> Baseline-ul vizual și structura acceptate se citesc din UI/UX și arhitectură. O aprobare nouă se cere pentru schimbarea direcției, nu pentru reluarea nejustificată a prototipului.
+>
+> Orchestratorul admite scope-ul, identifică primul producer/consumer, atribuie un singur autor, adjudecă și integrează. Developerul desemnat scrie codul și remedierile; transferul de autorat este explicit. Review și QA sunt independente de autor. Politica echipei și identitatea snapshotului sunt în team-slice.
+>
+> Fiecare acțiune de verificare trebuie să schimbe o decizie a criteriului curent sau să fie integritate/cleanup obligatoriu. Aplică limita de două cicluri harness-only din CONTRIBUTING, fără reset prin sesiune nouă. Nu introduce un framework, verifier sau owner paralel pentru a menține mișcarea fără progres.
+>
+> La început citește CURRENT și numai contractele/callerii afectați. Skills specializate se încarcă după frontieră; referințele legacy nu sunt mandate active. La final păstrează un rezultat verificabil, commiturile și pasul următor, fără promisiunea că instrucțiunile garantează comportamentul viitor.
+
+Surse unice propuse: **AGENTS = autoritate/invariante/Git; CONTRIBUTING = admiterea muncii și loop; team-slice = ownership/review/QA; skillul specializat = procedura domeniului; project-status = proiecția stării; SOUL = identitate/principii globale compacte.** Actualizarea acestor fișiere se face coerent, inclusiv template-uri/testele documentare/manifestul, și se verifică într-o sesiune fresh repo-bound fără inferență. Editarea unui fișier nu dovedește că o sesiune deja deschisă și-a reîncărcat promptul. Fără override paralel, auto-commit hook, cron sau framework nou.
+
+### Ce preluăm din cercetarea consultată și ce respingem
+
+[OpenAI Harness engineering](https://openai.com/index/harness-engineering/) recomandă context navigabil și feedback din aplicația reală; [exemplul de loop engineering](https://developers.openai.com/cookbook/examples/agents_sdk/agent_improvement_loop) conectează traces→feedback→eval→schimbare→verificare. [Anthropic Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) susține alegerea patternului simplu și paralelizarea muncii independente. Sunt surse ale vendorilor, nu dovadă de eficacitate pentru Omnis; articolul Anthropic însuși avertizează că toolingul a evoluat.
+
+Preluăm principiile, **nu** instalarea HALO/Promptfoo, agenți de doc-gardening, bucle nelimitate, auto-merge sau cron. Pentru Omnis acum, o eroare observată trebuie să producă un reproducer relevant și o schimbare minimă în același workflow; un nou serviciu care optimizează workflowul ar recrea problema. Documentația [Hermes Context files](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) și loaderul instalat fundamentează verificarea încărcării, nu o garanție de obediență.
+
+## 14. Retragere și cleanup: ce se șterge, când și ce rămâne
+
+**DELETE-NOW în acest mandat: nimic.** Analiza nu este autorizație de ștergere. Criteriul final nu este «zero apariții ale cuvântului Hermes în Git», ci **zero dependență executabilă de runtime-ul Hermes în noul produs**, plus instrucțiuni actuale fără mandate contradictorii.
+
+| Moment / categorie | Ce se retrage sau adaptează | Dovada înainte de eliminare |
+|---|---|---|
+| T0 — instrucțiuni active | Obligațiile native/OAuth din canon, mandatele vechi de reluare/CURRENT și rutarea skillului Hermes-runtime. Texte obsolete se înlocuiesc/etichetează în loc; nu toate rapoartele se șterg | Contract aprobat, linkuri/rutare/teste documentare actualizate, loader fresh. Nu pretinde runtime nou |
+| După T1/T2 — calleri nativi | `supervisor/native_tasks.py`, `runtime_client.py`, `case_slot.py`; producția specială din `runs/model_test*.py`/native_preparation | Callerii noi folosesc ownerul/SDK/transportul nou; readerii extrași/păstrați fără launch. Niciun fișier nu este demonstrat orphan doar din nume |
+| După noul release instalat | `integrations/hermes` runtime, native patches/source mirrors/override/wheel; `ops/prepare_hermes_runtime.py`, Dockerfile.hermes/control-model-test; ramura auth/Codex din forwarder | Artefactul nou se construiește, pornește, citește, testează și se oprește fără acestea; lock/manifest/SBOM/CI nu le includ, vechile comenzi nu pot reactiva un executor ascuns |
+| Distribuție/CLI — MODIFY, nu delete | `start`, `start_runtime`, `compose`, `release`, `instance`, `restart`, `status`, `stop`, bundle/Compose/Makefile și browser→API forwarder | Profile/schema/inventar/Stop/date reale; formatul nou și citirea metadatelor vechi au condiții distincte |
+| Teste/fixtures | Native-only active gates retrase după înlocuire; regresii de auth/ledger/DATA/Stop/history păstrate/adaptate; fixtures vechi necesare receive-only rămân | Consumer nou demonstrat și regresia veche acoperită ori limita arhivării explicită. Nu eliminăm assertions pentru a obține green |
+| Istoric/licențe/date V1 | KEEP migrații0001–0013, rezultate/UNKNOWN, provenance/notices/licențe, checker/composer identities și readerii declarați suportați | Fără rerun/recompunere pentru citire. Fără retroactive PASS și fără rescrierea releases |
+| Dev tooling | KEEP `.hermes/skills`, `scripts/hermes_dev.py`, toolurile Hermes/Codex și controalele de dezvoltare, cu rutare neutră | Nu sunt montate investigatorului sau benchmarkului; nu se confundă cu runtime-ul produsului |
+| Date/instalări personale | EXCLUS: `.omnis*`, PGDATA/profiluri/grants, imagini/arhive existente, `.env`/auth, worktrees străine, HTML-ul untracked | Orice retragere operațională cere alt scope, ownership, backup și inversă. Nu `reset --hard`, `clean -fd`, Docker prune sau delete-all |
+
+Inventarul read-only al părintelui găsește100fișiere tracked sub `integrations/hermes` și referințe în producție, teste și distribuție; căutarea lexicală este doar un indice, nu dovadă de orfanitate. `native_preparation.py` și `RuntimeClient` sunt încă tranzitiv necesare readerului examinat. Așadar eliminarea codului vechi este o felie de migrare cu probe, nu housekeeping înaintea înlocuitorului.
+
+**Concluzie a suplimentului:** direcția și analiza pot ghida amendamentul canonic. Nu este necesar încă un audit general al acelorași bytes. Următoarea activitate este T0, inclusiv clarificarea instrucțiunilor; primul consumer de cod ulterior este **Settings→conexiune OpenRouter/seif→operație sistem→transport nou→test finit→outcome/readback**. Nu sunt prerequisite de reluat vechile startup/idle/latch, editorul complet, toate combinațiile per-role, OrcaRouter live, browserul sau întreaga suită de metodologie înaintea acestui consumer. Un nou blocker real de siguranță rămâne blocant, dar nu extinde automat scope-ul la orice scenariu imaginabil.
+
 ## Surse primare pentru biblioteca și providerii propuși
 
 - [OpenAI Agents SDK — Models](https://openai.github.io/openai-agents-python/models/)

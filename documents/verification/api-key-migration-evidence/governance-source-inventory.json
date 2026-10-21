@@ -1,0 +1,421 @@
+{
+  "product_head": "59253358147a427b66471b5b6f13c5e5690c58ea",
+  "project_asset_count": 53,
+  "additional_instruction_count": 6,
+  "scope": "All tracked project development/product skills, supporting files and profiles; AGENTS/CONTRIBUTING plus active-default SOUL and relevant loaded global workflow skills. No other profiles or secrets.",
+  "files": [
+    {
+      "path": ".hermes/skills/omnis-accessibility/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-accessibility/SKILL.md",
+      "sha256": "b822c28d6fbc23b2c00d0a07b79a4adbfa9e984620a3cf15ac455ec3eed990b8",
+      "bytes": 3472,
+      "lines": 35
+    },
+    {
+      "path": ".hermes/skills/omnis-accessibility/references/LICENSE.txt",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-accessibility/references/LICENSE.txt",
+      "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b",
+      "bytes": 1072,
+      "lines": 21
+    },
+    {
+      "path": ".hermes/skills/omnis-accessibility/references/upstream.json",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-accessibility/references/upstream.json",
+      "sha256": "bbc16fd3df9c0f6cf990938db540be97ba0c0fbc677248d0c7cb499bb84d3893",
+      "bytes": 590,
+      "lines": 17
+    },
+    {
+      "path": ".hermes/skills/omnis-accessibility/references/upstream.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-accessibility/references/upstream.md",
+      "sha256": "549261e8a53b53a1a20c0ddbf736821e5fc0876ad82eee76e0efab8e9ee9dadf",
+      "bytes": 4718,
+      "lines": 136
+    },
+    {
+      "path": ".hermes/skills/omnis-anti-slop/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-anti-slop/SKILL.md",
+      "sha256": "8f92416e5515f8e05441d5e3629eeadaf68390827c5cdd1de8ef55e9e2b6e1f8",
+      "bytes": 2543,
+      "lines": 33
+    },
+    {
+      "path": ".hermes/skills/omnis-api-data/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-api-data/SKILL.md",
+      "sha256": "2878ee73689628dd097be0e41f1060a71d28d16a86ed3bb4f67ed7ffa4789ea1",
+      "bytes": 25320,
+      "lines": 104
+    },
+    {
+      "path": ".hermes/skills/omnis-chisel/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-chisel/SKILL.md",
+      "sha256": "46b9b05abc7615eebee55f0b5c90312bafc3f065580c1557dd409383053f7b4b",
+      "bytes": 2939,
+      "lines": 34
+    },
+    {
+      "path": ".hermes/skills/omnis-delivery/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/SKILL.md",
+      "sha256": "23a714febdc066dc120625d0f7c0246e84f82fd49b9be68369e87a12fe3eabef",
+      "bytes": 9488,
+      "lines": 50
+    },
+    {
+      "path": ".hermes/skills/omnis-delivery/templates/task.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/task.md",
+      "sha256": "54f937e13919604445aef9ced914f82c0f0ffb4abe5ae7f2775e3ef6a6fc5786",
+      "bytes": 3004,
+      "lines": 38
+    },
+    {
+      "path": ".hermes/skills/omnis-delivery/templates/team-slice.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-delivery/templates/team-slice.md",
+      "sha256": "43b5b4e347084e45780d18b886d173a1c71242db09f3abf19bf3b5735103e92b",
+      "bytes": 6479,
+      "lines": 34
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend-performance/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend-performance/SKILL.md",
+      "sha256": "abeb04205409150ff50fd2a619d7bc6bf7580452025524ed471ece1df2031336",
+      "bytes": 2951,
+      "lines": 33
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend-performance/references/LICENSE.txt",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend-performance/references/LICENSE.txt",
+      "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b",
+      "bytes": 1072,
+      "lines": 21
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend-performance/references/upstream.json",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend-performance/references/upstream.json",
+      "sha256": "e1e45d8a4c9e33469fb4f74e5aec383ff46d17dc8f0f1f7174488c1f247b9138",
+      "bytes": 595,
+      "lines": 17
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend-performance/references/upstream.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend-performance/references/upstream.md",
+      "sha256": "0a2d654902bc04263ce68c8c02967ef03f17b482e855360a5463211d99d7baa9",
+      "bytes": 5565,
+      "lines": 151
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend/SKILL.md",
+      "sha256": "12e58054c932d29b96cce39fe00b0439d3ec514be2ada8d7da328b3e5aedc32b",
+      "bytes": 8224,
+      "lines": 57
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend/references/LICENSE.txt",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend/references/LICENSE.txt",
+      "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b",
+      "bytes": 1072,
+      "lines": 21
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend/references/upstream.json",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend/references/upstream.json",
+      "sha256": "4e4e1900b8e5590b9b85cbacd7dc443be585ee0a9f6c3d0444a1a166cf9055af",
+      "bytes": 581,
+      "lines": 17
+    },
+    {
+      "path": ".hermes/skills/omnis-frontend/references/upstream.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-frontend/references/upstream.md",
+      "sha256": "fea3322f36d58fdafafce2aef56e4556dd2ac7b20876b7dff7d8be7f25fa597f",
+      "bytes": 3419,
+      "lines": 85
+    },
+    {
+      "path": ".hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-hermes-runtime/SKILL.md",
+      "sha256": "5b5012de3a4e569600bf831778f4fe7909ab329b7a86ec1d2e3a06e09e4d36a4",
+      "bytes": 17444,
+      "lines": 83
+    },
+    {
+      "path": ".hermes/skills/omnis-project-status/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-project-status/SKILL.md",
+      "sha256": "0b23394190a06baaafa0921422d3e22a19af32b59c84270a8e411892c9242d4d",
+      "bytes": 9005,
+      "lines": 84
+    },
+    {
+      "path": ".hermes/skills/omnis-project-status/templates/handoff.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-project-status/templates/handoff.md",
+      "sha256": "dd5a9a94e083f0c8d8ac35e0640fcd538b3066f456d18af1d44306934851112c",
+      "bytes": 3949,
+      "lines": 33
+    },
+    {
+      "path": ".hermes/skills/omnis-release-ops/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-release-ops/SKILL.md",
+      "sha256": "452f7502b793396ee91711e29be1f982a1188e89aec2658a2254641881a0ba9d",
+      "bytes": 22217,
+      "lines": 73
+    },
+    {
+      "path": ".hermes/skills/omnis-release-ops/references/startup-failure-boundaries.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-release-ops/references/startup-failure-boundaries.md",
+      "sha256": "13ee0d8e4d78ec6c431aaeed1edf330bbf1c303c010b9ad08d556b7fe65145a7",
+      "bytes": 7842,
+      "lines": 111
+    },
+    {
+      "path": ".hermes/skills/omnis-reticle/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-reticle/SKILL.md",
+      "sha256": "0d4edde783dc84d3511e046d11f55f7f44aa653af840f84d84f65ce956f61a6f",
+      "bytes": 3289,
+      "lines": 34
+    },
+    {
+      "path": ".hermes/skills/omnis-review-qa/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-review-qa/SKILL.md",
+      "sha256": "4f96f0b63e45fad13b8160cf9ed0de89ce653514c7fbebab89e576114e082580",
+      "bytes": 41780,
+      "lines": 161
+    },
+    {
+      "path": ".hermes/skills/omnis-review-qa/references/private-nss-audit.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-review-qa/references/private-nss-audit.md",
+      "sha256": "207f032466658c2014a859501fe04ee22ab171478e263edd4cf6830c1979d3f0",
+      "bytes": 2848,
+      "lines": 13
+    },
+    {
+      "path": ".hermes/skills/omnis-safety-evaluation/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/.hermes/skills/omnis-safety-evaluation/SKILL.md",
+      "sha256": "25b245bf657f23c6a864c6198284a1ba9e5a269bc3af0c91bddb1a02910df3f8",
+      "bytes": 3422,
+      "lines": 35
+    },
+    {
+      "path": "profiles/recon-mapping-contract.yaml",
+      "absolute": "/home/kali/OmnisAI/profiles/recon-mapping-contract.yaml",
+      "sha256": "0e101dc7a41daad7ce49178518ea22119d71590612d18198d7a27528473a35e0",
+      "bytes": 710,
+      "lines": 30
+    },
+    {
+      "path": "profiles/records-mapping-contract.yaml",
+      "absolute": "/home/kali/OmnisAI/profiles/records-mapping-contract.yaml",
+      "sha256": "dccfd61692a495858f22477b4413a45aeb500644f99b3925cf54bbfd0ea42ffd",
+      "bytes": 721,
+      "lines": 30
+    },
+    {
+      "path": "skills/bug-bounty-triage/LICENSE",
+      "absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage/LICENSE",
+      "sha256": "77fb0a32a0a2bc739cb0340cde3f827d06a686307314fcc164c65a95bc6a6a38",
+      "bytes": 1069,
+      "lines": 21
+    },
+    {
+      "path": "skills/bug-bounty-triage/NOTICE.md",
+      "absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage/NOTICE.md",
+      "sha256": "bb4835856a93f8a6f0844e5dec6160dea17c4c8b2e839e5e34355d23f3cd8c27",
+      "bytes": 5211,
+      "lines": 81
+    },
+    {
+      "path": "skills/bug-bounty-triage/README.upstream.md",
+      "absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage/README.upstream.md",
+      "sha256": "942f730f91d57212b8da7f7c20e5e0064337d1118705f044d596be56c2bda3f4",
+      "bytes": 2978,
+      "lines": 85
+    },
+    {
+      "path": "skills/bug-bounty-triage/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage/SKILL.md",
+      "sha256": "6c7a275d199f9ebe5192980f4ce3843360ae51b89b1fefa9d9789ac87b523002",
+      "bytes": 25795,
+      "lines": 380
+    },
+    {
+      "path": "skills/bug-bounty-triage/provenance.json",
+      "absolute": "/home/kali/OmnisAI/skills/bug-bounty-triage/provenance.json",
+      "sha256": "3c9826c3d630e6a4c2c0f598ae549e6a9e778c153e05ab46b83e4cee2e969a08",
+      "bytes": 10656,
+      "lines": 305
+    },
+    {
+      "path": "skills/recon-mapping-contract/NOTICE.md",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/NOTICE.md",
+      "sha256": "2bd9673d53e4d720eb0d578ea2fec7959dda45111d51d3c32cc436914fbe4c84",
+      "bytes": 294,
+      "lines": 3
+    },
+    {
+      "path": "skills/recon-mapping-contract/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/SKILL.md",
+      "sha256": "b5e548a02c995cef6a670334b4b84a32ddb544eff386c50a5e1721f3963db2f3",
+      "bytes": 1134,
+      "lines": 32
+    },
+    {
+      "path": "skills/recon-mapping-contract/omnis.yaml",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/omnis.yaml",
+      "sha256": "724d30b81808bc04f4ec439886d5c87780daacb14c3252103fcc7fb9ee0a30fa",
+      "bytes": 2121,
+      "lines": 76
+    },
+    {
+      "path": "skills/recon-mapping-contract/references/methodology.md",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/references/methodology.md",
+      "sha256": "1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6",
+      "bytes": 225,
+      "lines": 3
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/procedures/map-capture.yaml",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/procedures/map-capture.yaml",
+      "sha256": "cb123a11ccd40f77bdf037b3676eff88d4aee939a2eb57b786ae46d129c2af50",
+      "bytes": 2902,
+      "lines": 125
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/schemas/capture.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/schemas/capture.schema.json",
+      "sha256": "81c8e2156627523c83d0d4ecb046c4df8dd1885715ea83489d15ccccace357e3",
+      "bytes": 247,
+      "lines": 14
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/schemas/empty.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/schemas/empty.schema.json",
+      "sha256": "35e963cf4db6c7c9fcc004fe76763b51496c3c9eab7f52b2eab51bfd633eedd0",
+      "bytes": 106,
+      "lines": 5
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/schemas/operations.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/schemas/operations.schema.json",
+      "sha256": "931112e626f89d684969b8a83f1b0b2b867711a29a4a445fc550e0501de5b763",
+      "bytes": 1140,
+      "lines": 53
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/schemas/records.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/schemas/records.schema.json",
+      "sha256": "9945fc1202e1e44f182cd2bd068ab131443a022b3d439e61c01bb8d5ef2d9fe9",
+      "bytes": 969,
+      "lines": 47
+    },
+    {
+      "path": "skills/recon-mapping-contract/templates/schemas/surface_map.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/recon-mapping-contract/templates/schemas/surface_map.schema.json",
+      "sha256": "5e6851f1e6fe985b178968579497ff294ad3590204369eb3a0883ff62e1b594c",
+      "bytes": 1139,
+      "lines": 52
+    },
+    {
+      "path": "skills/records-mapping-contract/NOTICE.md",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/NOTICE.md",
+      "sha256": "f727730b395c300f5f903b8b0dc2233420a37f7c2e22974b9497fbb8d56b5149",
+      "bytes": 237,
+      "lines": 3
+    },
+    {
+      "path": "skills/records-mapping-contract/SKILL.md",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/SKILL.md",
+      "sha256": "8d1f1e60f6dd7be8134f048c0c3a710f37cd3a8bd2b4702387c863852c0f53d2",
+      "bytes": 1410,
+      "lines": 26
+    },
+    {
+      "path": "skills/records-mapping-contract/omnis.yaml",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/omnis.yaml",
+      "sha256": "ba7e00b39ee27547df2979db9d652750121ce62bd19b2846ab551839ba29a561",
+      "bytes": 2033,
+      "lines": 73
+    },
+    {
+      "path": "skills/records-mapping-contract/references/methodology.md",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/references/methodology.md",
+      "sha256": "8b77f73679f7bf078867f3285cac9e7cfda378da83a15f8654f574981fab6b46",
+      "bytes": 294,
+      "lines": 3
+    },
+    {
+      "path": "skills/records-mapping-contract/templates/procedures/map-records.yaml",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/procedures/map-records.yaml",
+      "sha256": "25e9a7c66cf18f2c0a7fa496d26a2d70dfe55951e42bfbd85491f0ff28d1f9b9",
+      "bytes": 3069,
+      "lines": 135
+    },
+    {
+      "path": "skills/records-mapping-contract/templates/schemas/empty.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/empty.schema.json",
+      "sha256": "0ec88a6379846cc3bd324ab82724d338c37b7b04e1c2fc6339ca0e6eab94d590",
+      "bytes": 93,
+      "lines": 1
+    },
+    {
+      "path": "skills/records-mapping-contract/templates/schemas/operations.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/operations.schema.json",
+      "sha256": "305efbb6935d35dcdca55e49156f498040e54cd91592747dad2a28c0311f0a3e",
+      "bytes": 587,
+      "lines": 1
+    },
+    {
+      "path": "skills/records-mapping-contract/templates/schemas/records.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/records.schema.json",
+      "sha256": "e15df4eac22723144b13f0b99aed13361a778c9b9960bcffa49e82043fe3a475",
+      "bytes": 505,
+      "lines": 1
+    },
+    {
+      "path": "skills/records-mapping-contract/templates/schemas/surface_map.schema.json",
+      "absolute": "/home/kali/OmnisAI/skills/records-mapping-contract/templates/schemas/surface_map.schema.json",
+      "sha256": "07385c3f69d81812f988c99907719235f587b73a9c8bb3835deb56664288ea6f",
+      "bytes": 586,
+      "lines": 1
+    },
+    {
+      "path": "/home/kali/OmnisAI/AGENTS.md",
+      "absolute": "/home/kali/OmnisAI/AGENTS.md",
+      "sha256": "690e2eb9a74422d27e56569e77177422d6d968dc674fb5b782de43e66c9c9b54",
+      "bytes": 6786,
+      "lines": 39
+    },
+    {
+      "path": "/home/kali/OmnisAI/CONTRIBUTING.md",
+      "absolute": "/home/kali/OmnisAI/CONTRIBUTING.md",
+      "sha256": "f4944134a126e1ad8c29ae5cecd730b991e4126fe36f9feed4e8096a784edea2",
+      "bytes": 19291,
+      "lines": 153
+    },
+    {
+      "path": "/home/kali/.hermes/SOUL.md",
+      "absolute": "/home/kali/.hermes/SOUL.md",
+      "sha256": "91b0d9f26ec383d5e8054585352accc2731b08947f3f8fe45079dd5b521bb9ce",
+      "bytes": 4382,
+      "lines": 11
+    },
+    {
+      "path": "/home/kali/.hermes/skills/software-development/development-toolchain-integration/SKILL.md",
+      "absolute": "/home/kali/.hermes/skills/software-development/development-toolchain-integration/SKILL.md",
+      "sha256": "6b455f7d11519ccaddbb6ab2f6e3d381f166358a655612a88e5d2c7c9b8faffb",
+      "bytes": 57585,
+      "lines": 148
+    },
+    {
+      "path": "/home/kali/.hermes/skills/software-development/agentic-security-platform-design/SKILL.md",
+      "absolute": "/home/kali/.hermes/skills/software-development/agentic-security-platform-design/SKILL.md",
+      "sha256": "83228daf6ae8acbb629f0c0010cf7ce376e3827bbc134373eb8848e7dc937c39",
+      "bytes": 38661,
+      "lines": 96
+    },
+    {
+      "path": "/home/kali/.hermes/skills/autonomous-ai-agents/hermes-agent/SKILL.md",
+      "absolute": "/home/kali/.hermes/skills/autonomous-ai-agents/hermes-agent/SKILL.md",
+      "sha256": "a111466ce81ccdad8bccc7f670c7946df9d9f8b639399f28bd2958f5bce92c56",
+      "bytes": 13183,
+      "lines": 213
+    }
+  ]
+}

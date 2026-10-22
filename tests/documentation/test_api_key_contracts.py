@@ -1,0 +1,87 @@
+"""Approved API-key contracts: documentary guards, not runtime certification."""
+import json
+import re
+import unittest
+
+from test_amendment_contracts import DOCS, document, section
+
+
+def runtime_contract(text):
+    operation = section(text, "## 5. Runtime API-key-only și autoritatea execuției")
+    fields = {
+        "SystemOperationV1": ("operation_id", "command_id", "payload_digest", "config_snapshot_ref",
+                              "instance_id", "generation", "owner_epoch", "cancel_epoch", "deadline",
+                              "PENDING", "RUNNING", "STOPPING", "FINISHED", "NEEDS_RECONCILIATION"),
+        "RuntimeTaskAttemptV2": ("run_id", "task_id", "attempt_id", "role", "capability_ids", "fencing_epoch"),
+    }
+    for name, required in fields.items():
+        rows = re.findall(rf"(?m)^\| `{name}` \|[^\n]+$", operation)
+        assert len(rows) == 1, name
+        for token in required:
+            assert token in rows[0], (name, token)
+    for token in ("system_operation", "nu un managed-run fictiv", "409", "receive-only",
+                  "InstanceControl → lease/fence → conexiune → operație → ledger → dispatch"):
+        assert token in operation, token
+    dispatch = section(text, "### 5.2. Model admission înainte de inferență")
+    for token in ("ModelDispatchV2", "SYSTEM_OPERATION", "RUN", "SENT", "UNKNOWN",
+                  "payload final", "conexiuni reutilizate", "fără retry/fallback implicit",
+                  "300", "G-MODEL"):
+        assert token in dispatch, token
+    vault = section(text, "### 8.1. Stocare criptată comună și transfer write-only")
+    for token in ("AEAD", "cheie master", "LOCKED", "write-only", "fsync", "DB",
+                  "revocare", "backup", "same-UID", "niciodată regenerată automat"):
+        assert token in vault, token
+    selection = section(text, "### 5.3. Selecția modelelor, consum și HOLD")
+    for token in ("ModelSelectionSnapshotV2", "MONITOR", "fără plafon total LLM",
+                  "BRAIN", "INVESTIGATOR", "VALIDATOR", "HOLD", "reluare manuală",
+                  "fără rezervă financiară VALIDATION", "limitele target"):
+        assert token in selection, token
+    outcome = section(text, "### 5.4. Outcome și API")
+    for token in ("ModelOutcomeV2", "requested", "observed", "INCOMPLETE", "UNKNOWN",
+                  "TRUNCATED", "cost_observed", "cost_estimate", "nu se adună"):
+        assert token in outcome, token
+    compatibility = section(text, "### 5.5. Distribuție și compatibilitate")
+    for token in ("instanță separată", "receive-only", "0001–0013", "NOT_RUN",
+                  "fără reluarea", "licențe", "Hermes/Codex"):
+        assert token in compatibility, token
+
+
+class ApiKeyContracts(unittest.TestCase):
+    def test_runtime_contracts_have_real_roots_and_truthful_outcomes(self):
+        runtime_contract(document("MVP_Architecture"))
+
+    def test_missing_authority_secret_or_monitoring_guard_is_detected(self):
+        original = document("MVP_Architecture")
+        runtime_contract(original)
+        for marker in ("config_snapshot_ref", "niciodată regenerată automat",
+                       "fără plafon total LLM", "conexiuni reutilizate", "cost_observed"):
+            with self.subTest(marker=marker), self.assertRaises(AssertionError):
+                runtime_contract(original.replace(marker, "REMOVED_GUARD"))
+
+    def test_sandbox_is_execution_capability_not_prompt_permission(self):
+        tools = section(document("MVP_Architecture"), "### 9.6. Unelte reale și invocări atribuite")
+        for token in ("SANDBOX_EXEC", "shell", "workspace", "fără Docker socket",
+                      "promptul nu acordă", "Stop", "G-TOOLS"):
+            self.assertIn(token, tools)
+
+    def test_product_library_is_candidate_and_legacy_is_not_active(self):
+        baseline = json.loads((DOCS / "Omnis_Stack_Baseline.versions.json").read_text())
+        policy = baseline["api_key_runtime"]
+        self.assertEqual(policy["providers"], ["OpenRouter", "OrcaRouter"])
+        self.assertEqual(policy["agent_library"]["package"], "openai-agents")
+        self.assertEqual(policy["agent_library"]["status"], "CANDIDATE_NOT_ADMITTED")
+        self.assertIsNone(policy["agent_library"]["selected_version"])
+        self.assertEqual(policy["llm_accounting"], "MONITOR")
+        self.assertEqual(baseline["runtimes"]["hermes"]["product_scope"], "LEGACY_ONLY")
+
+    def test_lab_uses_triage_and_validator_without_trusting_imported_skills(self):
+        lab = section(document("MVP_Architecture"), "### 11.0. M-LAB — IDOR/BOLA, triage și validator")
+        for token in ("TriageAssessmentV1", "orchestratorului", "QUARANTINED",
+                      "CANDIDATE_SOURCE_PENDING", "never redact", "first-party",
+                      "vulnerable/fixed/benign", "auth-invalid", "PACKAGE_EVAL",
+                      "nu este CONFIRMED", "nu întregul MVP/M1"):
+            self.assertIn(token, lab)
+
+
+if __name__ == "__main__":
+    unittest.main()

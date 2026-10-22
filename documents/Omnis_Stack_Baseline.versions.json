@@ -1,5 +1,17 @@
 {
   "schema_version": 1,
+  "api_key_runtime": {
+    "status": "T0_SPECIFIED_NOT_IMPLEMENTED",
+    "providers": ["OpenRouter", "OrcaRouter"],
+    "authentication": "API_KEYS_ONLY",
+    "agent_library": {"package": "openai-agents", "status": "CANDIDATE_NOT_ADMITTED", "selected_version": null},
+    "client_package": "openai",
+    "llm_accounting": "MONITOR",
+    "vault": "LOCAL_AEAD_AUTOUNLOCK_PRIVATE_MASTER_KEY",
+    "legacy_policy": "READERS_AND_MIGRATIONS_RETAINED_NO_RUNTIME_REEXECUTION",
+    "first_consumer": "T1_SETTINGS_SYSTEM_OPERATION_MODEL_TEST",
+    "pin_admission": "T1 client/crypto; T2 Agent/Runner; no install or latest selection in T0"
+  },
   "verified_at_utc": "2026-09-25T07:00:09.121772+00:00",
   "status": "PARTIAL_WITH_EXPLICIT_PROXY_SECURITY_BLOCKER",
   "scope": "planning_and_disposable_dependency_probes_not_application",
@@ -34,7 +46,8 @@
     "hermes": {
       "version": "0.21.5",
       "commit": "ee5ee84a345204a3b1d6ef6ba1ab747e602867b9",
-      "policy": "unchanged; separate controlled runtime environment"
+      "policy": "historical pin only; retire executable product dependency after replacement proof",
+      "product_scope": "LEGACY_ONLY"
     }
   },
   "frontend_runtime": {
@@ -1400,7 +1413,7 @@
   },
   "remaining_gates": [
     "patched/upstream-safe proxy with HTTPS confinement proof",
-    "exact native Hermes child binding/lineage/wake tests",
+    "API-key runtime owner/dispatch/Stop and SDK tool-loop proof; native Hermes gates are historical",
     "database connection and migrations",
     "browser executor image hardening",
     "provider consent and live account tests",

@@ -1,6 +1,7 @@
 """Supervisor-owned local Settings transactions; Save never contacts a provider."""
 
 import asyncio
+import os
 from collections.abc import Callable
 from hashlib import sha256
 from typing import Literal
@@ -67,7 +68,15 @@ class ProviderSettingsOwner:
             task.exception()  # Observe orphan failures without exposing their payload/traceback.
 
     async def _vault_write(self, action: Callable[[], None]) -> None:
-        task = asyncio.create_task(asyncio.to_thread(action))
+        reservation = self.vault.reserve_write()
+
+        def write() -> None:
+            try:
+                action()
+            finally:
+                os.close(reservation)
+
+        task = asyncio.create_task(asyncio.to_thread(write))
         self.writes.add(task)
         task.add_done_callback(self._write_finished)
         # Control timeout rolls back DB, but cannot cancel a filesystem syscall.
@@ -75,10 +84,11 @@ class ProviderSettingsOwner:
 
     async def drain(self) -> bool:
         pending = {task for task in self.writes if not task.done()}
-        if not pending:
-            return True
-        _, remaining = await asyncio.wait(pending, timeout=1)
-        return not remaining
+        if pending:
+            _, remaining = await asyncio.wait(pending, timeout=1)
+            if remaining:
+                return False
+        return self.vault.quiescent()
 
     async def connections(self, db: AsyncConnection) -> list[ConnectionRevision]:
         rows = (

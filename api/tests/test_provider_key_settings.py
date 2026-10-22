@@ -1,9 +1,14 @@
 """T1 Settings contract and real PostgreSQL owner consumer; no provider calls."""
 
+from __future__ import annotations
+
 import asyncio
 import json
+import multiprocessing
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha256
+from multiprocessing.connection import Connection
 from pathlib import Path
 from uuid import uuid4
 
@@ -12,7 +17,9 @@ from sqlalchemy import text
 from sqlalchemy.engine import URL
 
 from omnis.core.db import database_engine
+from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
+from omnis.modules.settings import provider_vault
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import ProviderSettingsOwner, SettingsConflict
 from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault, VaultLocked
@@ -82,6 +89,104 @@ def test_final_wire_size_and_secret_repr() -> None:
 def test_invalid_secrets_are_bounded(secret: str) -> None:
     with pytest.raises(ValueError):
         KeySettingsControl.model_validate(save(str(uuid4()), secret=secret))
+
+
+def _predecessor_writer(
+    data: Path, keys: Path, reference: CredentialRef, phase: str, channel: Connection[str, str]
+) -> None:
+    async def run() -> None:
+        engine = database_engine("postgresql+psycopg://unused")  # No connection is opened.
+        vault = ProviderVault(data, keys, reference.instance_id)
+        owner = ProviderSettingsOwner(InstanceService(engine), uuid4(), 1, vault)
+        entered = threading.Event()
+
+        def pause() -> None:
+            channel.send("ready")
+            entered.set()
+            assert channel.poll(10), "SOURCE release deadline"
+            assert channel.recv() == "release"
+
+        original = provider_vault._durable
+
+        def durable(path: Path, value: bytes) -> None:
+            pause()
+            original(path, value)
+
+        loop = asyncio.get_running_loop()
+        loop.set_default_executor(ThreadPoolExecutor(max_workers=1))
+        queued = loop.run_in_executor(None, pause) if phase == "queued" else None
+        with pytest.MonkeyPatch.context() as patch:
+            if phase == "active":
+                patch.setattr(provider_vault, "_durable", durable)
+            control = asyncio.create_task(
+                owner._vault_write(lambda: vault.put(reference, "synthetic-predecessor"))
+            )
+            try:
+                async with asyncio.timeout(3):
+                    while not entered.is_set() or not owner.writes:
+                        await asyncio.sleep(0.001)
+                control.cancel()
+                with pytest.raises(asyncio.CancelledError):
+                    await control
+                channel.send("cancelled")
+                if queued is not None:
+                    await queued
+                await asyncio.gather(*owner.writes)
+                assert vault.contains(reference)
+                channel.send("done")
+            finally:
+                await asyncio.gather(control, return_exceptions=True)
+                await engine.dispose()
+
+    try:
+        asyncio.run(run())
+    finally:
+        channel.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("phase", ["active", "queued"])
+async def test_successor_drain_accounts_for_cross_process_writers(
+    tmp_path: Path, phase: str
+) -> None:
+    data, keys = tmp_path / "vault", tmp_path / "keys"
+    data.mkdir(mode=0o700)
+    keys.mkdir(mode=0o700)
+    reference = CredentialRef(str(uuid4()), str(uuid4()), 1, "openrouter")
+    vault = ProviderVault(data, keys, reference.instance_id)
+    vault.bootstrap()
+    before = (data / "vault.json").read_bytes()
+    engine = database_engine("postgresql+psycopg://unused")
+    successor = ProviderSettingsOwner(InstanceService(engine), uuid4(), 2, vault)
+    context = multiprocessing.get_context("spawn")
+    parent, child = context.Pipe()
+    predecessor = context.Process(
+        target=_predecessor_writer, args=(data, keys, reference, phase, child)
+    )
+    predecessor.start()
+    child.close()
+    try:
+        for expected in ("ready", "cancelled"):
+            assert await asyncio.to_thread(parent.poll, 5)
+            assert parent.recv() == expected
+        assert not successor.writes
+        assert not await successor.drain()
+        assert (data / "vault.json").read_bytes() == before
+    finally:
+        parent.send("release")
+        await asyncio.to_thread(predecessor.join, 10)
+        if predecessor.is_alive():
+            predecessor.kill()
+            await asyncio.to_thread(predecessor.join, 3)
+        parent.close()
+        await engine.dispose()
+    assert predecessor.exitcode == 0
+    assert await successor.drain()
+    assert vault.contains(reference)
+    settled = (data / "vault.json").read_bytes()
+    assert settled != before
+    await asyncio.sleep(0.05)
+    assert (data / "vault.json").read_bytes() == settled
 
 
 @pytest.mark.asyncio
@@ -290,8 +395,9 @@ async def test_damaged_vault_stays_locked_with_committed_local_revoke(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("phase", ["active", "pre_lock"])
 async def test_cancelled_save_keeps_writer_owned_until_quiescent(
-    migrated_database_url: URL, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    migrated_database_url: URL, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, phase: str
 ) -> None:
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)
@@ -304,16 +410,27 @@ async def test_cancelled_save_keeps_writer_owned_until_quiescent(
     keys.mkdir(mode=0o700)
     vault = ProviderVault(data, keys, str(status.instance_id))
     owner = ProviderSettingsOwner(service, process, epoch, vault)
+    vault.bootstrap()
     entered, release = threading.Event(), threading.Event()
     original = vault.put
 
     def slow_put(reference: object, secret: str) -> None:
         entered.set()
-        assert release.wait(5)
+        assert release.wait(10)
         assert isinstance(reference, CredentialRef)
         original(reference, secret)
 
-    monkeypatch.setattr(vault, "put", slow_put)
+    original_durable = provider_vault._durable
+
+    def slow_durable(path: Path, value: bytes) -> None:
+        entered.set()
+        assert release.wait(10)
+        original_durable(path, value)
+
+    if phase == "active":
+        monkeypatch.setattr(provider_vault, "_durable", slow_durable)
+    else:
+        monkeypatch.setattr(vault, "put", slow_put)
     command = KeySettingsControl.model_validate(save(str(uuid4())))
     task = asyncio.create_task(owner.handle(command))
     try:
@@ -326,8 +443,27 @@ async def test_cancelled_save_keeps_writer_owned_until_quiescent(
         assert not await owner.drain()
         with pytest.raises(ValueError, match="writer"):
             await owner.handle(KeySettingsControl.model_validate(save(str(uuid4()))))
+        await service.release(process, epoch)
+        process = uuid4()
+        epoch = await service.acquire(process)
+        assert epoch == owner.epoch + 1
+        successor = ProviderSettingsOwner(
+            service, process, epoch, ProviderVault(data, keys, str(status.instance_id))
+        )
+        service.runtime_drain = successor.drain
+        assert not successor.writes
+        with pytest.raises(ControlConflict, match="SHUTDOWN_INCOMPLETE"):
+            await service.quiesce(process, epoch)
+        assert (await service.owned_status(process, epoch)).quiesced_generation is None
         release.set()
         assert await owner.drain()
+        await service.quiesce(process, epoch)
+        quiesced = await service.owned_status(process, epoch)
+        assert quiesced.quiesced_generation == quiesced.generation
+        settled = (data / "vault.json").read_bytes()
+        with pytest.raises(ControlConflict, match="LEASE_LOST"):
+            await owner.handle(KeySettingsControl.model_validate(save(str(uuid4()))))
+        assert (data / "vault.json").read_bytes() == settled
         async with engine.connect() as db:
             assert (
                 await db.execute(text("SELECT count(*) FROM provider_connection_revision"))

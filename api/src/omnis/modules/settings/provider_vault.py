@@ -103,20 +103,37 @@ class ProviderVault:
     def _aad(self, reference: object) -> bytes:
         return b"omnis-vault-v1:" + canonical(reference)
 
-    @contextmanager
-    def _writer(self) -> Iterator[None]:
+    def _lock(self, name: str, operation: int) -> int:
         descriptor = None
         try:
             self._paths()
             descriptor = os.open(
-                self.directory / "vault.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600
+                self.directory / name, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600
             )
             check_private_file(os.fstat(descriptor))
-            fcntl.flock(descriptor, fcntl.LOCK_EX)
+            fcntl.flock(descriptor, operation)
         except (OSError, ValueError):
             if descriptor is not None:
                 os.close(descriptor)
             raise VaultLocked() from None
+        return descriptor
+
+    def reserve_write(self) -> int:
+        """Register before scheduling; the filesystem worker closes this fd, not its DB caller."""
+        return self._lock("vault.pending", fcntl.LOCK_SH | fcntl.LOCK_NB)
+
+    def quiescent(self) -> bool:
+        # Called under the DB admission fence; no new admitted writer can register here.
+        try:
+            descriptor = self._lock("vault.pending", fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except VaultLocked:
+            return False
+        os.close(descriptor)
+        return True
+
+    @contextmanager
+    def _writer(self) -> Iterator[None]:
+        descriptor = self._lock("vault.lock", fcntl.LOCK_EX)
         try:
             yield
         finally:

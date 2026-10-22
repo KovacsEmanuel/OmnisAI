@@ -39,6 +39,7 @@ from .start import (
     native_fields,
     service_ids,
     service_roles,
+    vault_fields,
     verify_running,
 )
 from .start import _publish_forwarder as _defer_guard_interrupts
@@ -134,7 +135,7 @@ def _stopping_record(record: dict[str, object]) -> None:
     completed = record.get("teardown_completed")
     finalized = record.get("finalized_generation")
     if (
-        set(record) != STOP_FIELDS | native_fields(record)
+        set(record) != STOP_FIELDS | native_fields(record) | vault_fields(record)
         or type(record.get("phase")) is not str
         or record["phase"] not in {"STOPPING", "STOPPED"}
         or record.get("stop_generation") is not None
@@ -276,9 +277,10 @@ def _emergency_inventory(
         command = record.get("open_command")
         if (
             set(record)
-            != (READY_FIELDS | native_fields(record)) - {"generation", "supervisor_epoch"}
+            != (READY_FIELDS | native_fields(record) | vault_fields(record))
+            - {"generation", "supervisor_epoch"}
             or type(record.get("format")) is not int
-            or record["format"] not in (2, 3, 4)
+            or record["format"] not in (2, 3, 4, 5)
             or not isinstance(command, str)
         ):
             raise StartError("RECOVERY_REQUIRED", 4)

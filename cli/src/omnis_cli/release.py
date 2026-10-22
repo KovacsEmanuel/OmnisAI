@@ -3,6 +3,7 @@
 import ctypes
 import fcntl
 import hashlib
+import io
 import json
 import os
 import re
@@ -10,6 +11,7 @@ import shutil
 import stat
 import tempfile
 from pathlib import Path
+from zipfile import BadZipFile, ZipFile
 
 from .instance import private_dir, unique_pairs
 
@@ -20,6 +22,7 @@ class ReleaseError(ValueError):
 
 _RELEASE = "0.1.0"
 _SCHEMA = "0014_provider_settings"
+PROVIDER_SETTINGS_PROFILE = "t1-provider-settings"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
     f"cli/omnis_cli-{_RELEASE}-py3-none-any.whl",
@@ -55,14 +58,17 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     if not isinstance(raw, dict):
         raise ReleaseError("Invalid release manifest")
     native = type(raw.get("format")) is int and raw["format"] == 2
+    provider_settings = type(raw.get("format")) is int and raw["format"] == 3
     fields = {"format", "release", "schema", "platform", "files"}
-    if set(raw) != fields | ({"profile"} if native else set()):
+    if set(raw) != fields | ({"profile"} if native or provider_settings else set()):
         raise ReleaseError("Invalid release manifest")
     if native and raw["profile"] not in {"p4a-settings-offline", "p4a-codex-auth"}:
         raise ReleaseError("Unsupported release profile")
+    if provider_settings and raw["profile"] != PROVIDER_SETTINGS_PROFILE:
+        raise ReleaseError("Unsupported release profile")
     if (
         type(raw["format"]) is not int
-        or raw["format"] not in (1, 2)
+        or raw["format"] not in (1, 2, 3)
         or raw["release"] != _RELEASE
         or raw["schema"] != _SCHEMA
         or raw["platform"] != "linux/amd64"
@@ -122,6 +128,24 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         from .native_artifacts import closure
 
         closure(result)
+    if provider_settings:
+        required = {
+            "omnis/modules/settings/provider_key_models.py",
+            "omnis/modules/settings/provider_key_routes.py",
+            "omnis/modules/settings/provider_key_service.py",
+            "omnis/modules/settings/provider_vault.py",
+            "omnis/migrations/versions/0014_provider_settings.py",
+        }
+        try:
+            with ZipFile(io.BytesIO(result[f"api/omnis_api-{_RELEASE}-py3-none-any.whl"])) as wheel:
+                if not required <= set(
+                    wheel.namelist()
+                ) or b"Requires-Dist: cryptography==50.0.1\n" not in wheel.read(
+                    f"omnis_api-{_RELEASE}.dist-info/METADATA"
+                ):
+                    raise ReleaseError("Provider Settings production closure required")
+        except (BadZipFile, KeyError):
+            raise ReleaseError("Provider Settings wheel required") from None
     return source, result
 
 

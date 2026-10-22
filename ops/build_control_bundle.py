@@ -14,7 +14,7 @@ from pathlib import Path
 from zipfile import is_zipfile
 
 from omnis_cli.instance import private_dir, unique_pairs
-from omnis_cli.release import _bytes, _manifest, _put, publish_directory
+from omnis_cli.release import PROVIDER_SETTINGS_PROFILE, _bytes, _manifest, _put, publish_directory
 
 
 class BundleError(ValueError):
@@ -37,10 +37,12 @@ def build_bundle(
     runtime_metadata: Path | None = None,
     profile: str = "p4a-settings-offline",
 ) -> None:
-    if profile not in {"p4a-settings-offline", "p4a-codex-auth"} or (
+    if profile not in {"p4a-settings-offline", "p4a-codex-auth", PROVIDER_SETTINGS_PROFILE} or (
         profile == "p4a-codex-auth" and runtime_metadata is None
     ):
         raise BundleError("Native metadata required for auth profile")
+    if profile == PROVIDER_SETTINGS_PROFILE and runtime_metadata is not None:
+        raise BundleError("Provider Settings forbids native runtime metadata")
     if not output.is_absolute() or output.exists() or output.is_symlink():
         raise BundleError("Output must be a new absolute directory")
     private_dir(output.parent)
@@ -175,6 +177,8 @@ def build_bundle(
     }
     if runtime_metadata is not None:
         manifest.update(format=2, profile=profile)
+    elif profile == PROVIDER_SETTINGS_PROFILE:
+        manifest.update(format=3, profile=profile)
     stage = Path(tempfile.mkdtemp(prefix=".bundle-", dir=output.parent))
     try:
         for name, content in payloads.items():
@@ -200,7 +204,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--profile",
-        choices=("p4a-settings-offline", "p4a-codex-auth"),
+        choices=("p4a-settings-offline", "p4a-codex-auth", PROVIDER_SETTINGS_PROFILE),
         default="p4a-settings-offline",
     )
     args = parser.parse_args()

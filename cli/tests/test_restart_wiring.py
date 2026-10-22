@@ -25,6 +25,9 @@ class RestartWiringTest(unittest.TestCase):
     def test_db_only_then_correlated_reconciliation_ack_then_supervisor(self):
         self.restart()
 
+    def test_provider_settings_restart_retains_ciphertext_key_and_pending_lock(self):
+        self.restart(provider_settings=True)
+
     def test_lost_mixed_wrong_ack_nonzero_oom_and_cancel_retain_db_no_retry(self):
         for fault in (
             "lost",
@@ -59,8 +62,26 @@ class RestartWiringTest(unittest.TestCase):
     def test_restart_forwarder_failure_reaps_held_child_without_database_teardown(self):
         self.restart("forwarder-fault")
 
-    def restart(self, fault=None):
+    def restart(self, fault=None, *, provider_settings=False):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
+            retained = {}
+            if provider_settings:
+                from omnis_cli.start_runtime import private_identity
+
+                runtime.provider_settings = True
+                runtime.receipt.profile = "t1-provider-settings"
+                old["format"] = 5
+                for name, field in (
+                    ("vault", "vault_identity"),
+                    ("vault-key", "vault_key_identity"),
+                ):
+                    (root / name).mkdir(mode=0o700)
+                    old[field] = private_identity(root / name)
+                for name in ("vault/ciphertext", "vault/vault.pending", "vault-key/master.key"):
+                    path = root / name
+                    path.write_bytes(b"SOURCE retained synthetic bytes")
+                    path.chmod(0o600)
+                    retained[path] = (path.stat().st_ino, path.read_bytes())
             # Owner proof is synthetic; DB/OCI/HTTP/forwarder seams are enumerated below.
             # Real owner/client/forwarder and death probes run separately.
             journal = root / "startup.json"
@@ -397,3 +418,7 @@ class RestartWiringTest(unittest.TestCase):
                     self.assertEqual(result["state"], "READY")
                     self.assertEqual(read_record(journal)["phase"], "READY")
                     self.assertEqual(read_record(journal)["generation"], 3)
+                    if provider_settings:
+                        self.assertEqual(read_record(journal)["format"], 5)
+                        for path, expected in retained.items():
+                            self.assertEqual((path.stat().st_ino, path.read_bytes()), expected)

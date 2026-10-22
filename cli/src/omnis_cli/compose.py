@@ -13,7 +13,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from .instance import private_dir, private_file, unique_pairs
-from .release import _installed_pointer, _manifest, publish_directory
+from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, publish_directory
 
 _BASE = "python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a"
 _DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -113,6 +113,8 @@ def _validate_image(
         or config.get("User") != "65532:65532"
         or labels.get("org.omnis.project") != project
         or labels.get("org.omnis.bundle_sha256") != manifest_sha
+        or profile == PROVIDER_SETTINGS_PROFILE
+        and labels.get("org.omnis.profile") != profile
         or runtime
         and (
             result.get("Os") != "linux"
@@ -136,9 +138,12 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     if not isinstance(raw, dict):
         raise ImageInstallError("Invalid image receipt")
     native = type(raw.get("format")) is int and raw["format"] == 2
+    provider_settings = type(raw.get("format")) is int and raw["format"] == 3
     extra = (
         ({"profile", "runtime_tag"} | ({"runtime_image_id"} if complete else set()))
         if native
+        else {"profile"}
+        if provider_settings
         else set()
     )
     if set(raw) != extra | (
@@ -164,7 +169,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     docker_id = raw["docker_id"]
     if (
         type(raw["format"]) is not int
-        or raw["format"] not in (1, 2)
+        or raw["format"] not in (1, 2, 3)
         or raw["release"] != "0.1.0"
         or not isinstance(project, str)
         or not _PROJECT.fullmatch(project)
@@ -183,6 +188,8 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     ):
         raise ImageInstallError("Image receipt/release mismatch")
     runtime_tag, runtime_image = raw.get("runtime_tag"), raw.get("runtime_image_id")
+    if provider_settings and raw.get("profile") != PROVIDER_SETTINGS_PROFILE:
+        raise ImageInstallError("Invalid Provider Settings image receipt")
     if native and (
         raw.get("profile") not in {"p4a-settings-offline", "p4a-codex-auth"}
         or runtime_tag != f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
@@ -198,7 +205,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         digest,
         docker_host,
         docker_id,
-        raw["profile"] if native else None,
+        raw["profile"] if native or provider_settings else None,
         runtime_tag,
         runtime_image,
     )
@@ -222,7 +229,9 @@ def _put_record(path: Path, receipt: ImageReceipt, *, complete: bool) -> None:
         "docker_host": receipt.docker_host,
         "docker_id": receipt.docker_id,
     }
-    if receipt.profile is not None:
+    if receipt.profile == PROVIDER_SETTINGS_PROFILE:
+        record.update(format=3, profile=receipt.profile)
+    elif receipt.profile is not None:
         record.update(format=2, profile=receipt.profile, runtime_tag=receipt.runtime_tag)
         if complete:
             record["runtime_image_id"] = receipt.runtime_image_id
@@ -362,7 +371,12 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
                 raise ImageInstallError("Unsafe install lock")
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             return _install_locked(
-                root, bundle, manifest_sha, runtime_context=runtime_context, payloads=payloads
+                root,
+                bundle,
+                manifest_sha,
+                runtime_context=runtime_context,
+                payloads=payloads,
+                profile=json.loads(manifest).get("profile"),
             )
         finally:
             os.close(fd)
@@ -377,6 +391,7 @@ def _install_locked(
     *,
     runtime_context: Path | None = None,
     payloads: dict[str, bytes] | None = None,
+    profile: str | None = None,
 ) -> ImageReceipt:
     host = _preflight(bundle)
     docker_id = _docker_id(bundle, host)
@@ -384,16 +399,22 @@ def _install_locked(
     intent_path = root / "image-installing.json"
     prior = _record(receipt_path, manifest_sha, complete=True)
     if prior is not None:
-        if (prior.profile is not None) != (runtime_context is not None):
+        if prior.profile != profile:
+            raise ImageInstallError("Image profile mismatch")
+        if (prior.profile in {"p4a-settings-offline", "p4a-codex-auth"}) != (
+            runtime_context is not None
+        ):
             raise ImageInstallError("Image profile mismatch")
         if prior.docker_host != host or prior.docker_id != docker_id:
             raise ImageInstallError("Installed image belongs to another Docker endpoint")
         if (
-            _validate_image(prior.tag, bundle, prior.project, manifest_sha, host=host)
+            _validate_image(
+                prior.tag, bundle, prior.project, manifest_sha, host=host, profile=prior.profile
+            )
             != prior.image_id
         ):
             raise ImageInstallError("Installed image unavailable")
-        if prior.profile is not None and (
+        if prior.profile in {"p4a-settings-offline", "p4a-codex-auth"} and (
             prior.runtime_tag is None
             or _validate_image(
                 prior.runtime_tag,
@@ -423,7 +444,7 @@ def _install_locked(
         manifest_sha,
         host,
         docker_id,
-        json.loads(_manifest(bundle)[0])["profile"] if runtime_context is not None else None,
+        profile,
         f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
         if runtime_context is not None
         else None,
@@ -463,6 +484,11 @@ def _install_locked(
         f"org.omnis.project={intent.project}",
         "--label",
         f"org.omnis.bundle_sha256={manifest_sha}",
+        *(
+            ["--label", f"org.omnis.profile={PROVIDER_SETTINGS_PROFILE}"]
+            if intent.profile == PROVIDER_SETTINGS_PROFILE
+            else []
+        ),
         "-f",
         str(bundle / "ops/Dockerfile"),
         "-t",
@@ -474,11 +500,15 @@ def _install_locked(
     )
     if result.returncode:
         # A failed build can still leave a tag. Never turn it into success.
-        candidate = _validate_image(intent.tag, bundle, intent.project, manifest_sha, host=host)
+        candidate = _validate_image(
+            intent.tag, bundle, intent.project, manifest_sha, host=host, profile=intent.profile
+        )
         if candidate is not None:
             raise ImageInstallError("Control image build outcome uncertain; recovery required")
         raise ImageInstallError("Control image build failed")
-    image_id = _validate_image(intent.tag, bundle, intent.project, manifest_sha, host=host)
+    image_id = _validate_image(
+        intent.tag, bundle, intent.project, manifest_sha, host=host, profile=intent.profile
+    )
     if image_id is None:
         raise ImageInstallError("Build acknowledged without image readback")
     if _docker_id(bundle, host) != docker_id:

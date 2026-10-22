@@ -51,6 +51,7 @@ from .start_runtime import (
     SAFE_PATH,
     ControlRuntime,
     check_native_paths,
+    check_vault_paths,
     private_identity,
     settings_overlay,
 )
@@ -114,6 +115,14 @@ def native_fields(record: dict[str, object]) -> set[str]:
             | ({"catalog_identity"} if "catalog_identity" in record else set())
         )
     return set()
+
+
+def vault_fields(record: dict[str, object]) -> set[str]:
+    return (
+        {"vault_identity", "vault_key_identity"}
+        if type(record.get("format")) is int and record["format"] == 5
+        else set()
+    )
 
 
 def auth_listener(root: Path, identity: dict[str, object]) -> dict[str, object]:
@@ -343,6 +352,16 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                         "target": "/run/omnis-http",
                     }
                 )
+        if role == "supervisor" and getattr(runtime, "provider_settings", False) is True:
+            expected_environment.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+            expected_mounts.extend(
+                {
+                    "type": "bind",
+                    "source": f"{env['OMNIS_STATE_ROOT']}/{name}",
+                    "target": "/" + name,
+                }
+                for name in ("vault", "vault-key")
+            )
         if role == "supervisor" and runtime.native is True:
             expected_environment["OMNIS_RUNTIME_DIR"] = "/runtime"
             expected_mounts.append(
@@ -847,9 +866,12 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
     if (
         type(phase) is not str
         or phase not in fields
-        or set(record) not in tuple(value | native_fields(record) for value in fields[phase])
+        or set(record)
+        not in tuple(
+            value | native_fields(record) | vault_fields(record) for value in fields[phase]
+        )
         or type(record.get("format")) is not int
-        or record["format"] not in (2, 3, 4)
+        or record["format"] not in (2, 3, 4, 5)
         or type(value) is not list
         or len(value) != 2
         or any(type(part) is not int or part < 0 for part in value)
@@ -863,6 +885,16 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
         )
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
+    for key in vault_fields(record):
+        identity = record.get(key)
+        if (
+            type(identity) is not list
+            or len(identity) != 5
+            or any(type(v) is not int or v < 0 for v in identity)
+            or identity[1] == 0
+            or identity[2:] != [os.getuid(), os.getgid(), 0o700]
+        ):
+            raise StartError("RECOVERY_REQUIRED", 4)
     if native_fields(record):
         for key in (
             "provider_identity",
@@ -907,6 +939,8 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
 
 
 def _check_pgdata(root: Path, record: dict[str, object]) -> None:
+    if vault_fields(record):
+        check_vault_paths(root, record)
     if native_fields(record):
         check_native_paths(root, record)
     if _pgdata_identity(root) != _pgdata_receipt(record):
@@ -915,10 +949,10 @@ def _check_pgdata(root: Path, record: dict[str, object]) -> None:
 
 def _ready_record(record: dict[str, object]) -> None:
     if (
-        set(record) != READY_FIELDS | native_fields(record)
+        set(record) != READY_FIELDS | native_fields(record) | vault_fields(record)
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
-        or record["format"] not in (2, 3, 4)
+        or record["format"] not in (2, 3, 4, 5)
         or type(record.get("generation")) is not int
         or type(record.get("supervisor_epoch")) is not int
         or type(record.get("containers")) is not dict
@@ -942,6 +976,7 @@ def _bound_instance(
         (record.get("format") == 4)
         != (getattr(runtime.receipt, "profile", None) == "p4a-codex-auth")
         or bool(native_fields(record)) != (runtime.native is True)
+        or bool(vault_fields(record)) != (getattr(runtime, "provider_settings", False) is True)
         or type(getattr(runtime, "model_test", None)) is not bool
         or ("catalog_identity" in record) != runtime.model_test
         or (runtime.model_test and record.get("format") != 4)
@@ -1143,6 +1178,8 @@ def start_instance(
             or os.path.lexists(root / "provider")
             or os.path.lexists(root / "native-ipc")
             or os.path.lexists(root / "catalog")
+            or os.path.lexists(root / "vault")
+            or os.path.lexists(root / "vault-key")
         ):
             raise StartError("UNOWNED_STATE_RECOVERY_REQUIRED", 4)
         if restarting is None:
@@ -1197,6 +1234,15 @@ def start_instance(
             "containers": {},
             "pgdata_identity": restarting["pgdata_identity"] if restarting is not None else None,
         }
+        if getattr(runtime, "provider_settings", False) is True:
+            if restarting is None:
+                ensure_private(root / "vault")
+                ensure_private(root / "vault-key")
+            record.update(
+                format=5,
+                vault_identity=private_identity(root / "vault"),
+                vault_key_identity=private_identity(root / "vault-key"),
+            )
         if runtime.native is True:
             if restarting is None:
                 ensure_private(root / "provider")

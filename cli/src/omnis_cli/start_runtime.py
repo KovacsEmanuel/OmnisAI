@@ -26,7 +26,7 @@ from pathlib import Path
 from .compose import ImageReceipt, _checked_socket, _one_image, _record
 from .instance import private_dir, private_file
 from .lifecycle import StartError, mapping, read_record, remaining
-from .release import _installed_pointer, _manifest
+from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest
 
 POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
@@ -75,6 +75,36 @@ def check_native_paths(root: Path, record: dict[str, object] | None = None) -> N
         )
     ):
         raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
+
+
+def check_vault_paths(root: Path, record: dict[str, object] | None = None) -> None:
+    if record is None:
+        record = read_record(root / "startup.json")
+    if (
+        type(record.get("format")) is not int
+        or record["format"] != 5
+        or private_identity(root / "vault") != record.get("vault_identity")
+        or private_identity(root / "vault-key") != record.get("vault_key_identity")
+    ):
+        raise StartError("VAULT_PATH_IDENTITY_MISMATCH", 4)
+
+
+def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str, object]:
+    if not runtime.provider_settings or runtime.native or runtime.model_test:
+        raise StartError("IMAGE_PROFILE_MISMATCH", 4)
+    root = Path(env["OMNIS_STATE_ROOT"])
+    check_vault_paths(root)
+    return {
+        "services": {
+            "supervisor": {
+                "environment": {"OMNIS_VAULT_DIR": "/vault", "OMNIS_VAULT_KEY_DIR": "/vault-key"},
+                "volumes": [
+                    {"type": "bind", "source": str(root / name), "target": "/" + name}
+                    for name in ("vault", "vault-key")
+                ],
+            }
+        }
+    }
 
 
 def settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) -> dict[str, object]:
@@ -170,9 +200,9 @@ class ControlRuntime:
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
         self.receipt: ImageReceipt = receipt
-        if ("native/source-manifest.json" in self.files) != (
-            receipt.profile is not None
-        ) or json.loads(manifest).get("profile") != receipt.profile:
+        if ("native/source-manifest.json" in self.files) != (self.native) or json.loads(
+            manifest
+        ).get("profile") != receipt.profile:
             raise StartError("IMAGE_PROFILE_MISMATCH")
         # The finite profile below selects both the four-role template and its
         # independently installed runtime image. No ambient configuration opts in.
@@ -208,6 +238,8 @@ class ControlRuntime:
             or config.get("Cmd") != ["python", "-I", "-m", "omnis.serve"]
             or labels.get("org.omnis.project") != receipt.project
             or labels.get("org.omnis.bundle_sha256") != self.digest
+            or self.provider_settings
+            and labels.get("org.omnis.profile") != PROVIDER_SETTINGS_PROFILE
         ):
             raise StartError("IMAGE_IDENTITY_MISMATCH")
         if self.native:
@@ -410,13 +442,23 @@ class ControlRuntime:
         return rows
 
     @property
+    def provider_settings(self) -> bool:
+        return getattr(self.receipt, "profile", None) == PROVIDER_SETTINGS_PROFILE
+
+    @property
     def native(self) -> bool:
         return getattr(self.receipt, "profile", None) in {"p4a-settings-offline", "p4a-codex-auth"}
 
     def compose(
         self, env: dict[str, str], *args: str, effect: bool = False
     ) -> subprocess.CompletedProcess[str]:
-        overlay = settings_overlay(self, env) if self.native else None
+        overlay = (
+            provider_settings_overlay(self, env)
+            if self.provider_settings
+            else settings_overlay(self, env)
+            if self.native
+            else None
+        )
         return self.run(
             "compose",
             "--project-name",
@@ -456,6 +498,8 @@ class ControlRuntime:
         mounts = item.get("Mounts")
         if self.native:
             check_native_paths(root)
+        if self.provider_settings:
+            check_vault_paths(root)
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
         actual: set[tuple[object, object, object, object]] = set()
@@ -480,6 +524,10 @@ class ControlRuntime:
             expected = {("bind", str(control), "/run/omnis-control", role == "supervisor")}
             if role == "api":
                 expected.add(("bind", str(root / "http"), "/run/omnis-http", True))
+            elif self.provider_settings:
+                expected.update(
+                    ("bind", str(root / name), "/" + name, True) for name in ("vault", "vault-key")
+                )
             elif self.native:
                 expected.add(("bind", str(root / "native-ipc"), "/runtime", True))
                 if self.model_test:
@@ -659,6 +707,8 @@ class ControlRuntime:
                 expected_env["OMNIS_CONTROL_DIR"] = "/run/omnis-control"
             if role == "api":
                 expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
+        if role == "supervisor" and self.provider_settings:
+            expected_env.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
         if role == "supervisor" and self.native:
             expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
             if self.model_test:

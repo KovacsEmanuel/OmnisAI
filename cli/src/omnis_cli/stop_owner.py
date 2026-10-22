@@ -125,7 +125,9 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
     runtime.deadline, runtime.uncertain, runtime.family_drained = deadline, False, True
     engine = StopEngine(runtime.host, receipt.docker_id, deadline)
     engine.check_daemon()
-    if ("native/source-manifest.json" in runtime.files) != runtime.native:
+    if ("native/source-manifest.json" in runtime.files) != runtime.native or json.loads(
+        manifest
+    ).get("profile") != receipt.profile:
         raise StartError("IMAGE_PROFILE_MISMATCH", 4)
     if runtime.native:
         attest_runtime_image(engine.image(str(receipt.runtime_image_id)), receipt, runtime.digest)

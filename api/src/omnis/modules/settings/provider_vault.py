@@ -1,9 +1,12 @@
 """Owner-only AEAD revisions. Files become durable before callers publish DB refs."""
 
+import fcntl
 import hmac
 import json
 import os
 import secrets
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -98,6 +101,25 @@ class ProviderVault:
     def _aad(self, reference: object) -> bytes:
         return b"omnis-vault-v1:" + canonical(reference)
 
+    @contextmanager
+    def _writer(self) -> Iterator[None]:
+        descriptor = None
+        try:
+            self._paths()
+            descriptor = os.open(
+                self.directory / "vault.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600
+            )
+            check_private_file(os.fstat(descriptor))
+            fcntl.flock(descriptor, fcntl.LOCK_EX)
+        except (OSError, ValueError):
+            if descriptor is not None:
+                os.close(descriptor)
+            raise VaultLocked() from None
+        try:
+            yield
+        finally:
+            os.close(descriptor)
+
     def _encrypt(self, key: bytes, value: bytes, reference: object) -> str:
         nonce = secrets.token_bytes(12)
         return (nonce + AESGCM(key).encrypt(nonce, value, self._aad(reference))).hex()
@@ -164,6 +186,10 @@ class ProviderVault:
 
     def bootstrap(self) -> None:
         """Explicit first Save only; an orphan key or existing ciphertext is never replaced."""
+        with self._writer():
+            self._bootstrap()
+
+    def _bootstrap(self) -> None:
         try:
             path, key_path = self._paths()
             if path.exists() or path.is_symlink() or key_path.exists() or key_path.is_symlink():
@@ -195,6 +221,11 @@ class ProviderVault:
             raise VaultLocked() from None
 
     def put(self, reference: CredentialRef, secret: str) -> None:
+        # A fenced-out process can still finish a syscall: never lose a successor's refs.
+        with self._writer():
+            self._put(reference, secret)
+
+    def _put(self, reference: CredentialRef, secret: str) -> None:
         secret = _secret(secret)
         key, data, entries = self._load()
         ref = asdict(reference)

@@ -2,11 +2,14 @@
 
 import json
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
+from omnis.modules.settings import provider_vault
 from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault, VaultLocked
 
 CANARY = "synthetic-secret-canary-not-a-provider-key"
@@ -116,3 +119,38 @@ def test_failed_replace_keeps_old_revision(tmp_path: Path, monkeypatch: pytest.M
         vault.put(CredentialRef(instance, reference.secret_id, 2, "openrouter"), CANARY + "2")
     assert (data / "vault.json").read_bytes() == previous
     assert ProviderVault(data, keys, instance).get(reference) == CANARY
+
+
+def test_separate_vault_owners_serialize_complete_read_modify_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    data, keys = vault_paths(tmp_path)
+    instance = str(uuid4())
+    first = ProviderVault(data, keys, instance)
+    second = ProviderVault(data, keys, instance)
+    first.bootstrap()
+    one = CredentialRef(instance, str(uuid4()), 1, "openrouter")
+    two = CredentialRef(instance, str(uuid4()), 1, "orcarouter")
+    entered, release = threading.Event(), threading.Event()
+    original = provider_vault._durable
+
+    def blocked(path: Path, value: bytes) -> None:
+        if not entered.is_set():
+            entered.set()
+            assert release.wait(3)
+        original(path, value)
+
+    monkeypatch.setattr(provider_vault, "_durable", blocked)
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        left = workers.submit(first.put, one, CANARY)
+        assert entered.wait(2)
+        right = workers.submit(second.put, two, CANARY + "2")
+        try:
+            threading.Event().wait(0.1)
+            assert not right.done()
+        finally:
+            release.set()
+        left.result(timeout=3)
+        right.result(timeout=3)
+    assert first.get(one) == CANARY
+    assert second.get(two) == CANARY + "2"

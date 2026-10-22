@@ -1,6 +1,6 @@
 # Omnis — hartă globală de implementare și review
 
-Stare activă: [unicul CURRENT din README](../../README.md). T0 documentar este CLOSED_SCOPED, cu două reviewuri APPROVED_SCOPED, 87 teste docs și cititoare HTML verificate; cele cinci contracte sunt în canon, nu implementate; [registru](api-key-runtime-t0.md), [prompt T1 HANDOFF_ONLY](api-key-runtime-t1-prompt.md). T1 NOT_STARTED, M-LAB/T1–T6 runtime NOT_RUN. Checkpointurile de mai jos sunt istorice; tabelele SL/E proiectează noul consumer și păstrează separat dovezile vechi, fără transfer de PASS.
+Stare activă: [unicul CURRENT din README](../../README.md). T0 documentar este CLOSED_SCOPED, cu două reviewuri APPROVED_SCOPED, 87 teste docs și cititoare HTML verificate; [registru](api-key-runtime-t0.md). Operatorul a activat explicit [promptul T1](api-key-runtime-t1-prompt.md): **T1 ÎN LUCRU / NOT_ACCEPTED**, contractul/inputurile și efectele locale autorizate sunt în [registrul consumerului](api-key-runtime-t1.md). Codul nou încă NOT_IMPLEMENTED, probele NOT_RUN, review NOT_REVIEWED; rândurile de mai jos nu primesc PASS din admitere. T2–T6/M-LAB și E1–E4 rămân în plan, fără lansare automată. Checkpointurile de mai jos sunt istorice; tabelele SL/E păstrează separat dovezile vechi, fără transfer de PASS.
 
 
 ## Rol și surse

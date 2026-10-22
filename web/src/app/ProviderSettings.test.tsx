@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { App } from './App';
+// Historical OAuth UI remains covered, but is not mounted by product Settings.
+vi.mock('../features/engagement/ProviderSettings', async () => import('../features/engagement/LegacyProviderSettings'));
 import { health, instance } from '../../tests/fixtures';
 
 const selection = { provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' };

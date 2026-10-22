@@ -8,10 +8,12 @@ import { decodeProvider } from './providers';
 import type { ProviderCommand } from './providers';
 import { catalogSelection, decodeCatalogInspection, decodeCatalogPage } from './catalog';
 import { decodeModelTest } from './modelTest';
+import { decodeKeySettings } from './providerKeys';
+import type { KeyCommand } from './providerKeys';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -43,6 +45,20 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async providerKeys(command: string | null = null, signal?: AbortSignal) {
+    if (command !== null && !isUuid(command)) throw new ApiError('INVALID_INPUT');
+    const response = await request(command ? `/api/v1/settings/providers/commands/${command}` : '/api/v1/settings/providers', {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeKeySettings(value, command);
+  },
+  async saveProviderKeys(payload: KeyCommand, csrf: string, signal?: AbortSignal) {
+    const response = await request('/api/v1/settings/providers', { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeKeySettings(value, payload.command_id);
+  },
   async modelTest(signal?: AbortSignal) {
     const response = await request('/api/v1/model-test', {}, signal);
     const value = await body(response);

@@ -23,7 +23,8 @@ await test('QA-SETTINGS-FOCUS-01: rendered pending PUT and GET retain native foc
   try {
     browser = await chromium.launch();
     console.log(`SOURCE Chromium ${browser.version()}; built App; synthetic HTTP; loopback only`);
-    for (const moved of [false, true]) await t.test(`operator moved focus=${moved}`, async () => {
+    for (const scenario of ['retained', 'moved', 'stale']) await t.test(`selection save: ${scenario}`, async () => {
+      const moved = scenario === 'moved', stale = scenario === 'stale';
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
       const put = Promise.withResolvers();
       const readback = Promise.withResolvers();
@@ -41,10 +42,12 @@ await test('QA-SETTINGS-FOCUS-01: rendered pending PUT and GET retain native foc
             if (request.method() === 'PUT') {
               const body = request.postDataJSON(); writes.push(body);
               await put.promise;
+              if (stale) return route.fulfill({ status: 409, json: { error: { code: 'REVISION_CONFLICT', correlation_id: id } } });
               return route.fulfill({ json: { ...after, command_id: body.command_id } });
             }
             if (request.method() === 'GET') {
               if (writes.length) {
+                if (stale) { reading = true; await readback.promise; return route.fulfill({ json: current }); }
                 if (!reading) { reading = true; await readback.promise; }
                 else { refreshing = true; await refresh.promise; }
               }
@@ -92,6 +95,26 @@ await test('QA-SETTINGS-FOCUS-01: rendered pending PUT and GET retain native foc
         await paint(page);
         assert.equal(writes.length, 1, 'no duplicate PUT while write pending');
         put.resolve();
+        if (stale) {
+          await check(page.getByText(/Settings changed/)).toBeVisible();
+          await check(save).toBeDisabled();
+          await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
+          await check.poll(() => reading).toBe(true);
+          await paint(page);
+          console.log(JSON.stringify({ phase: 'stale reload GET pending', puts: writes.length,
+            ...await save.evaluate(button => ({ disabled: button.disabled, ariaDisabled: button.getAttribute('aria-disabled') })) }));
+          assert.equal(await save.evaluate(button => button.disabled), true, 'native disabled must survive stale + pending reload');
+          await save.evaluate(button => { button.click(); button.form.requestSubmit(); });
+          await paint(page);
+          assert.equal(writes.length, 1, 'stale reload must not admit another PUT');
+          readback.resolve();
+          await check(page.getByText('Current settings loaded.', { exact: true })).toBeVisible();
+          await check(save).toBeEnabled();
+          assert.equal(writes.length, 1);
+          assert.deepEqual(unexpected, []);
+          assert.deepEqual(errors, []);
+          return;
+        }
         await check.poll(() => reading).toBe(true);
         await paint(page);
         await check(focus).toBeFocused();

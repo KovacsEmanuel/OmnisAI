@@ -36,8 +36,9 @@ export function ProviderSettings() {
     if (!authReady) { controller.current?.abort(); if (keyInput.current) keyInput.current.value = ''; setValidKey(false); }
   }, [authReady]);
   const view = current.data;
-  const disabled = !authReady || sending || !!pending || stale || current.isError || current.isFetching || !view;
+  const hardDisabled = !authReady || stale || current.isError || !view;
   const selectionPending = sending || current.isFetching;
+  const disabled = hardDisabled || !!pending || selectionPending;
   const connection = view?.connections.find(item => item.provider === provider);
   async function reload(recover = false) {
     if (!authReady || busy.current || (pending && !recover)) return;
@@ -106,8 +107,8 @@ export function ProviderSettings() {
     </form>
     {view && <>
       <SelectionForm key={JSON.stringify(view)} view={view} disabled={disabled} save={save} />
-      {/* Native disabled drops Chromium focus on paint; submit guards still block busy activation. */}
-      <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" form="provider-model-selection" disabled={(disabled && !selectionPending) || !view.connections.some(item => item.enabled && item.credential_present)} aria-disabled={selectionPending || undefined}>Save model selection</button></div>
+      {/* Only transient busy states use ARIA to retain focus; hard barriers stay native. */}
+      <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" form="provider-model-selection" disabled={hardDisabled || (!!pending && !selectionPending) || !view.connections.some(item => item.enabled && item.credential_present)} aria-disabled={selectionPending || undefined}>Save model selection</button></div>
     </>}
   </section>;
 }

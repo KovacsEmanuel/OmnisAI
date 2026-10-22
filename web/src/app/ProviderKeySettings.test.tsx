@@ -118,6 +118,41 @@ it('locked and revoked remain distinct from provider or inference verification',
   expect(screen.getByText('openrouter: revoked — credential absent')).toBeInTheDocument();
   expect(screen.getByText('Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.')).toBeInTheDocument();
 });
+it.each([false, true])('SOURCE reviewer2: revision readback preserves Save focus without stealing it after operator moved=%s', async moved => {
+  const selection = { selection_id: id, revision: 1, default: selected, brain: selected, investigator: null, validator: null };
+  let current = { ...empty, vault_status: 'UNLOCKED', connections: [connection], selection };
+  let resolveWrite: (response: Response) => void = () => { throw new Error('No pending write'); };
+  const writes: Record<string, unknown>[] = [];
+  backend(body => {
+    writes.push(body);
+    current = { ...current, selection: { ...selection, revision: 2 } };
+    return new Promise<Response>(resolve => { resolveWrite = resolve; });
+  }, () => Response.json(current));
+  mount();
+  const save = await screen.findByRole('button', { name: 'Save model selection' });
+  await waitFor(() => expect(save).toBeEnabled());
+  save.focus(); expect(save).toHaveFocus();
+  fireEvent.click(save);
+  await waitFor(() => expect(writes).toHaveLength(1));
+  const elsewhere = screen.getByRole('link', { name: 'Providers' });
+  if (moved) elsewhere.focus();
+  resolveWrite(Response.json({ ...current, command_id: writes[0]!.command_id }));
+  await screen.findByText(/Saved locally/);
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save model selection' })).toBeEnabled());
+  expect(screen.getByRole('button', { name: 'Save model selection' })).toBe(save);
+  expect(moved ? elsewhere : screen.getByRole('button', { name: 'Save model selection' })).toHaveFocus();
+  // A later authoritative reload must still discard unsaved fields and override toggles.
+  fireEvent.change(screen.getByLabelText('Default model'), { target: { value: 'Unsubmitted/Draft' } });
+  fireEvent.click(screen.getByLabelText('Brain override'));
+  current = { ...current, selection: { ...selection, revision: 3, default: { ...selected, model: 'Exact/Current' } } };
+  elsewhere.focus();
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+  await screen.findByText('Current settings loaded.');
+  expect(screen.getByLabelText('Default model')).toHaveValue('Exact/Current');
+  expect(screen.getByLabelText('Brain override')).toBeChecked();
+  expect(elsewhere).toHaveFocus();
+  expect(writes).toHaveLength(1);
+});
 it('Revoke accepts the real owner receipt and current truth, including reload and remount, with exactly one PUT', async () => {
   const writes: Record<string, unknown>[] = [];
   let current = { ...revoked, connections: [{ ...revoked.connections[0], revision: 1, enabled: true }] };

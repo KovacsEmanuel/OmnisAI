@@ -103,7 +103,11 @@ export function ProviderSettings() {
       </div>
       <p className={styles.providerHint}>1–512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.</p>
     </form>
-    {view && <SelectionForm key={JSON.stringify(view)} view={view} disabled={disabled} save={save} />}
+    {view && <>
+      <SelectionForm key={JSON.stringify(view)} view={view} disabled={disabled} save={save} />
+      {/* Keep the submit control mounted while authoritative fields reset. */}
+      <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" form="provider-model-selection" disabled={disabled || !view.connections.some(item => item.enabled && item.credential_present)}>Save model selection</button></div>
+    </>}
   </section>;
 }
 function SelectionForm({ view, disabled, save }: { view: KeySettings; disabled: boolean; save: (command: KeyCommand) => Promise<void> }) {
@@ -124,7 +128,7 @@ function SelectionForm({ view, disabled, save }: { view: KeySettings; disabled: 
     if (defaultSelection) void save({ action: 'save_selection', command_id: crypto.randomUUID(), expected_revision: view.selection?.revision ?? 0,
       default: defaultSelection, brain: read('brain'), investigator: read('investigator'), validator: read('validator') });
   }
-  return <form onSubmit={submit}>
+  return <form id="provider-model-selection" onSubmit={submit}>
     <h3>Model selection</h3>
     {roles.map(role => {
       const label = role[0]!.toUpperCase() + role.slice(1);
@@ -142,6 +146,5 @@ function SelectionForm({ view, disabled, save }: { view: KeySettings; disabled: 
         </div>}
       </fieldset>;
     })}
-    <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" disabled={disabled || !available.length}>Save model selection</button></div>
   </form>;
 }

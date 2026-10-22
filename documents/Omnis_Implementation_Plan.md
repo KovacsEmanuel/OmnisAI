@@ -1,6 +1,6 @@
 # Omnis — plan de implementare API-key-only
 
-**T0 — amendament API-key-only CLOSED_SCOPED; T1 NOT_STARTED.** Fundația P0/P1 rămâne la acceptările istorice scoped (inclusiv P0.3_IMPLEMENTED_LOCAL), fără transfer la noul runtime. Unicul CURRENT este în README; [registrul T0](verification/api-key-runtime-t0.md) leagă snapshotul, reviewurile și probele documentare. CI remote NOT-RUN; fără implementare/model/target autorizate implicit.
+**T0 — amendament API-key-only CLOSED_SCOPED; T1 ÎN LUCRU / PARTIAL.** Mandatul explicit T1 și efectele locale pe resurse noi sunt în [registrul T1](verification/api-key-runtime-t1.md); Settings API/seif are numai integrare/probe/review SOURCE scoped, nu T1 acceptat. Fundația P0/P1 rămâne la acceptările istorice scoped, fără transfer la noul runtime. Unicul CURRENT este în README; [T0](verification/api-key-runtime-t0.md) păstrează acceptarea documentară. CI remote NOT-RUN; fără model/target sau etape succesoare autorizate implicit.
 
 Acest plan integrează constatări R01–R12 și amendamentele autorizate HF01–HF10, păstrate în §17. Review-urile Sol/OSS și suplimentul modular sunt surse/rațiuni istorice; recomandările înlocuite sunt adjudecate în §17, nu un plan concurent. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
@@ -674,7 +674,7 @@ Recontrol static la amendarea pornită din `3fc3d46298720a1529a922247781fab435cd
 
 ### 19.2. Următoarea felie implementabilă
 
-**T1 — Settings/seif/system operation/Test model → outcome/readback**, după acceptarea documentară T0 și activarea explicită a [promptului T1](verification/api-key-runtime-t1-prompt.md). T1 nu a început; promptul livrat nu lansează developeri. Canon: arhitectură §5–5.5/§8.1, acest plan §7–8, stack și UI afectate. Refolosește fundația și callerii API/control/supervisor existenți; fără catalog/provision/restart Hermes. SOURCE/DB/installed/live sunt probe distincte și au efectele admise explicit. Nu se reiau joburile vechi sau testele neschimbate de guvernanță.
+**T1 — Settings/seif/system operation/Test model → outcome/readback**, activat explicit după T0; [prompt](verification/api-key-runtime-t1-prompt.md), [registru](verification/api-key-runtime-t1.md). Prerechizitul Settings API/seif/0014 este integrat și revizuit SOURCE scoped; continuarea admisă este formularul web/release nou și prima probă Save/readback instalată, apoi restul operației/senderului T1. T1 rămâne PARTIAL/NOT_ACCEPTED; nu pornește T2. Canon: arhitectură §5–5.5/§8.1, acest plan §7–8, stack și UI afectate. Refolosește fundația și callerii API/control/supervisor existenți; fără catalog/provision/restart Hermes. SOURCE/DB/installed/live sunt probe distincte și au efectele admise explicit. Nu se reiau joburile vechi sau testele neschimbate de guvernanță.
 
 #### Istoric — checkpointuri fără autoritate de continuare
 

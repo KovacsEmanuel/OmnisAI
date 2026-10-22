@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { decodeKeySettings } from './providerKeys';
+import revoked from '../../../tests/provider-key-revoked.json';
 const id = '11111111-1111-4111-8111-111111111111';
 const view = { schema_version: 2, command_id: null, vault_status: 'LOCKED', connections: [{ connection_id: id, provider: 'openrouter', revision: 1, enabled: true, credential_present: false }], selection: null, reachable: 'NOT_VERIFIED' };
 it('decodes local presence, not reachability, and preserves stale saved selections', () => {
@@ -7,10 +8,19 @@ it('decodes local presence, not reachability, and preserves stale saved selectio
   const selected = { connection_id: id, connection_revision: 2, model: 'Exact/ID', output_tokens: 65536 };
   expect(decodeKeySettings({ ...view, selection: { selection_id: id, revision: 1, default: selected, brain: null, investigator: null, validator: null } }, null).selection?.default).toEqual(selected);
 });
+it('decodes the owner-produced revoked connection with retained ciphertext, including its exact receipt', () => {
+  expect(decodeKeySettings(revoked, null)).toEqual(revoked);
+  expect(decodeKeySettings({ ...revoked, command_id: id }, id)).toEqual({ ...revoked, command_id: id });
+});
+it('decodes global LOCKED with one present connection and another missing credential', () => {
+  const mixed = { ...view, connections: [{ ...view.connections[0], credential_present: true },
+    { ...revoked.connections[0], provider: 'orcarouter', enabled: true, credential_present: false }] };
+  expect(decodeKeySettings(mixed, null)).toEqual(mixed);
+});
 it.each([
   { ...view, secret: 'must-not-be-accepted' }, { ...view, command_id: id }, { ...view, reachable: 'READY' },
   { ...view, connections: [...view.connections, ...view.connections] },
-  { ...view, connections: [{ ...view.connections[0], credential_present: true }] },
+  { ...view, connections: [{ ...view.connections[0], credential_present: 'true' }] },
   { ...view, connections: [{ ...view.connections[0], revision: Number.MAX_SAFE_INTEGER + 1 }] },
   { ...view, selection: { selection_id: id, revision: 1, default: { connection_id: id, connection_revision: 1, model: 'with space', output_tokens: 1 }, brain: null, investigator: null, validator: null } },
 ])('rejects incompatible or secret-bearing readback without reflecting values', bad => {

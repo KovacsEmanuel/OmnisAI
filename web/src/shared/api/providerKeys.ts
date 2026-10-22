@@ -22,8 +22,7 @@ export function decodeKeySettings(value: unknown, command: string | null): KeySe
   const connections = value.connections.map((item): components['schemas']['ConnectionView'] => {
     if (!isRecord(item) || !keys(item, ['connection_id', 'provider', 'revision', 'enabled', 'credential_present']) ||
       !isUuid(item.connection_id) || !revision(item.revision) || (item.provider !== 'openrouter' && item.provider !== 'orcarouter') ||
-      typeof item.enabled !== 'boolean' || typeof item.credential_present !== 'boolean' ||
-      (item.credential_present && (!item.enabled || value.vault_status !== 'UNLOCKED'))) throw new ApiError('INVALID_RESPONSE');
+      typeof item.enabled !== 'boolean' || typeof item.credential_present !== 'boolean') throw new ApiError('INVALID_RESPONSE');
     return { connection_id: item.connection_id, provider: item.provider, revision: item.revision, enabled: item.enabled, credential_present: item.credential_present };
   });
   if (new Set(connections.map(item => item.provider)).size !== connections.length || new Set(connections.map(item => item.connection_id)).size !== connections.length) throw new ApiError('INVALID_RESPONSE');

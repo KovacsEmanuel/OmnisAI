@@ -23,6 +23,7 @@ from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs.model_test_routes import router as model_test_router
 from omnis.modules.settings.catalog_inspection_routes import router as catalog_inspection_router
+from omnis.modules.settings.provider_key_routes import router as provider_key_router
 from omnis.modules.settings.provider_routes import router as provider_router
 from omnis.security.host_origin import LocalBoundary, error_response, local_origin
 from omnis.security.routes import router as session_router
@@ -66,6 +67,7 @@ def create_app() -> FastAPI:
     app.include_router(engagement_router)
     app.include_router(dashboard_router)
     app.include_router(provider_router)
+    app.include_router(provider_key_router)
     app.include_router(model_test_router)
     app.include_router(catalog_inspection_router)
 

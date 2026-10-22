@@ -154,3 +154,19 @@ def test_separate_vault_owners_serialize_complete_read_modify_write(
         right.result(timeout=3)
     assert first.get(one) == CANARY
     assert second.get(two) == CANARY + "2"
+
+
+def test_presence_distinguishes_empty_orphan_locked_and_missing_ref(tmp_path: Path) -> None:
+    data, keys = vault_paths(tmp_path)
+    instance = str(uuid4())
+    vault = ProviderVault(data, keys, instance)
+    assert ProviderVault(data, keys, instance).status == "UNCONFIGURED"
+    vault.bootstrap()
+    reference = CredentialRef(instance, str(uuid4()), 1, "openrouter")
+    assert ProviderVault(data, keys, instance).status == "UNLOCKED"
+    assert not vault.contains(reference)
+    vault.put(reference, CANARY)
+    assert vault.contains(reference)
+    (keys / "master.key").unlink()
+    assert ProviderVault(data, keys, instance).status == "LOCKED"
+    assert not vault.contains(reference)

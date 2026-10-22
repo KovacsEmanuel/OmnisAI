@@ -454,6 +454,7 @@ class InstanceService:
     ) -> AsyncIterator[AsyncConnection]:
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
+            await self._stop_fence(connection)
             if not instance.admission_open or instance.shutdown_command_id is not None:
                 raise ControlConflict(ControlCode.INSTANCE_SHUTTING_DOWN)
             self._require_generation(instance, generation)

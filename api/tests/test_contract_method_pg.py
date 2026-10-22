@@ -1808,7 +1808,7 @@ def historical_installed_journey(request: pytest.FixtureRequest, tmp_path: Path)
         raise AssertionError("HISTORICAL_CURRENT_UPGRADE_FAILED")
     after = snapshot()
     if (
-        after.get("alembic_version") != [{"version_num": "0013_mission_revisions"}]
+        after.get("alembic_version") != [{"version_num": "0014_provider_settings"}]
         or after.get("managed_mission_revision") != []
         or any(
             canonical(after[name]) != canonical(rows)
@@ -1945,7 +1945,7 @@ def historical_installed_journey(request: pytest.FixtureRequest, tmp_path: Path)
     checkpoint(
         status="PASS_INSTALLED_DOMAIN_HISTORY_SCOPED",
         old_schema="0012_contract_methods",
-        current_schema="0013_mission_revisions",
+        current_schema="0014_provider_settings",
         handoff=str(handoffs[0]),
         retained_refs="EXACT_ORIGINAL",
         consumed=1,

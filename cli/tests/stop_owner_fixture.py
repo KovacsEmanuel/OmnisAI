@@ -200,7 +200,7 @@ class Fixture:
         manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0013_mission_revisions",
+            "schema": "0014_provider_settings",
             "platform": "linux/amd64",
             "files": files,
         }
@@ -280,7 +280,7 @@ class Fixture:
                 "version": 1,
                 "instance_id": instance,
                 "release": "0.1.0",
-                "schema": "0013_mission_revisions",
+                "schema": "0014_provider_settings",
                 "project": self.project,
                 "origin": f"http://127.0.0.1:{self.port}",
             },

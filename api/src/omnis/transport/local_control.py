@@ -41,6 +41,8 @@ from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.settings.provider_key_models import KeySettingsControl
+from omnis.modules.settings.provider_key_service import SettingsConflict
 from omnis.modules.settings.provider_models import SettingsControl
 from omnis.security.sessions import PairingConflict
 
@@ -70,6 +72,9 @@ class LocalControl:
         self.native_prepare = native_prepare
         self.native_task = native_task
         self.settings: Callable[[SettingsControl], Awaitable[dict[str, object]]] | None = None
+        self.provider_settings: (
+            Callable[[KeySettingsControl], Awaitable[dict[str, object]]] | None
+        ) = None
         self.model_test: Callable[[ModelTestControl], Awaitable[dict[str, object]]] | None = None
         self.directory = directory
         self.service = service
@@ -148,10 +153,20 @@ class LocalControl:
         | NativePrepareCommand
         | NativeTaskCommand
         | ModelTestControl
+        | KeySettingsControl
         | SettingsControl,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, KeySettingsControl):
+            if self.provider_settings is None:
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+            try:
+                return {"ok": True, "provider_settings": await self.provider_settings(command)}
+            except SettingsConflict as error:
+                return {"ok": False, "error": error.code}
+            except (OSError, ValueError, TimeoutError):
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
         if isinstance(command, ModelTestControl):
             if self.model_test is None:
                 return {"ok": False, "error": "TASK_UNAVAILABLE"}

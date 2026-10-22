@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.managed_schema import MANAGED_TABLES, MISSION_REVISION_GUARD
+from omnis.core.provider_schema import PROVIDER_TABLES
 
 type ColumnSpec = tuple[str, bool, str | None]
 type ConstraintSpec = tuple[str, str, str, bool, bool]
@@ -375,6 +376,7 @@ AUTHORITY_TABLES.update(
 
 
 AUTHORITY_TABLES.update(MANAGED_TABLES)
+AUTHORITY_TABLES.update(PROVIDER_TABLES)
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
@@ -472,6 +474,15 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             "engagement_revision_immutable",
             "reject_engagement_revision_mutation",
             "Engagement revisions are immutable",
+        ),
+        *(
+            (
+                table,
+                "provider_settings_no_change",
+                "provider_settings_immutable",
+                "provider Settings history is immutable",
+            )
+            for table in PROVIDER_TABLES
         ),
         *(
             (table, "catalog_immutable", "catalog_immutable", "immutable catalog ledger")

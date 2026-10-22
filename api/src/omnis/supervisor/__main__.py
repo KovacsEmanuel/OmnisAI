@@ -67,6 +67,7 @@ async def run() -> None:
     owner = uuid4()
     epoch = None
     task_owner = None
+    provider_owner = None
     startup_generation = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
@@ -76,6 +77,19 @@ async def run() -> None:
         if await readiness_reason(engine) is not None:
             raise ValueError("Control schema unavailable")
         epoch = await service.acquire(owner)
+        raw_vault = os.environ.get("OMNIS_VAULT_DIR")
+        raw_keys = os.environ.get("OMNIS_VAULT_KEY_DIR")
+        if raw_vault is not None or raw_keys is not None:
+            if not raw_vault or not raw_keys or raw_runtime is not None:
+                raise ValueError("API-key Settings requires distinct explicit owner-only storage")
+            from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
+            from omnis.modules.settings.provider_vault import ProviderVault
+
+            identity = str((await service.owned_status(owner, epoch)).instance_id)
+            provider_owner = ProviderSettingsOwner(
+                service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
+            )
+            service.runtime_drain = provider_owner.drain
         if raw_runtime is not None:
             status = await service.owned_status(owner, epoch)
             startup_generation = status.generation
@@ -137,6 +151,14 @@ async def run() -> None:
             native_prepare=preparation.prepare if preparation is not None else None,
             native_task=task_owner.handle if task_owner is not None else None,
         ) as control:
+            if provider_owner is not None:
+                from omnis.modules.settings.provider_key_models import KeySettingsControl
+
+                async def provider_command(command: KeySettingsControl) -> dict[str, object]:
+                    assert provider_owner is not None
+                    return (await provider_owner.handle(command)).model_dump(mode="json")
+
+                control.provider_settings = provider_command
             if task_owner is not None:
                 control.model_test = task_owner.model_test
             if runtime is not None and probe is None:
@@ -215,6 +237,8 @@ async def run() -> None:
             nominal_close = True
     finally:
         try:
+            if provider_owner is not None and not await provider_owner.drain():
+                raise ValueError("Credential writer drain uncertain")
             if task_owner is not None:
                 await task_owner.close_model_test()
             if runtime is not None:

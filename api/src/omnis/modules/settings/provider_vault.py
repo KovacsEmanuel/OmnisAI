@@ -184,6 +184,25 @@ class ProviderVault:
             return True
         return False
 
+    @property
+    def status(self) -> Literal["LOCKED", "UNLOCKED", "UNCONFIGURED"]:
+        if not self.locked:
+            return "UNLOCKED"
+        try:
+            path, key_path = self._paths()
+            if not os.path.lexists(path) and not os.path.lexists(key_path):
+                return "UNCONFIGURED"
+        except (OSError, ValueError):
+            return "LOCKED"
+        return "LOCKED"
+
+    def contains(self, reference: CredentialRef) -> bool:
+        try:
+            self.get(reference)
+        except VaultLocked:
+            return False
+        return True
+
     def bootstrap(self) -> None:
         """Explicit first Save only; an orphan key or existing ciphertext is never replaced."""
         with self._writer():

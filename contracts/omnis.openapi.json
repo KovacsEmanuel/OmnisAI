@@ -526,6 +526,37 @@
         "title": "CatalogPin",
         "type": "object"
       },
+      "ConnectionView": {
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "credential_present": {
+            "title": "Credential Present",
+            "type": "boolean"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/Provider"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "connection_id",
+          "provider",
+          "revision",
+          "enabled",
+          "credential_present"
+        ],
+        "title": "ConnectionView",
+        "type": "object"
+      },
       "ConstraintKind": {
         "enum": [
           "READ_ONLY",
@@ -1049,6 +1080,9 @@
           "PAIRING_RATE_LIMITED",
           "INVALID_INPUT",
           "ENGAGEMENT_CONFLICT",
+          "COMMAND_CONFLICT",
+          "REVISION_CONFLICT",
+          "CONNECTION_UNAVAILABLE",
           "NOT_FOUND",
           "METHOD_NOT_ALLOWED",
           "HTTP_ERROR",
@@ -1170,6 +1204,10 @@
         "title": "HealthReady",
         "type": "object"
       },
+      "Identity": {
+        "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+        "type": "string"
+      },
       "InstanceView": {
         "properties": {
           "admission_open": {
@@ -1244,6 +1282,68 @@
         "title": "InstanceView",
         "type": "object"
       },
+      "KeySettingsView": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/ConnectionView"
+            },
+            "maxItems": 2,
+            "title": "Connections",
+            "type": "array"
+          },
+          "reachable": {
+            "const": "NOT_VERIFIED",
+            "default": "NOT_VERIFIED",
+            "title": "Reachable",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 2,
+            "default": 2,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectionView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vault_status": {
+            "enum": [
+              "LOCKED",
+              "UNLOCKED",
+              "UNCONFIGURED"
+            ],
+            "title": "Vault Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "vault_status",
+          "connections",
+          "selection"
+        ],
+        "title": "KeySettingsView",
+        "type": "object"
+      },
       "LegacyEngagementDraft": {
         "additionalProperties": false,
         "properties": {
@@ -1298,6 +1398,38 @@
         "title": "LegacyEngagementDraft",
         "type": "object",
         "x-max-canonical-payload-bytes": 1000000
+      },
+      "ModelSelection": {
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[!-~]+$",
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "maximum": 65536.0,
+            "minimum": 1.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "model",
+          "output_tokens"
+        ],
+        "title": "ModelSelection",
+        "type": "object"
       },
       "ModelTestRequest": {
         "additionalProperties": false,
@@ -1557,6 +1689,11 @@
         "title": "PairingBody",
         "type": "object"
       },
+      "PositiveRevision": {
+        "maximum": 9.223372036854776e+18,
+        "minimum": 1.0,
+        "type": "integer"
+      },
       "Preference": {
         "additionalProperties": false,
         "properties": {
@@ -1687,6 +1824,13 @@
         ],
         "title": "ProjectionEnvelope",
         "type": "object"
+      },
+      "Provider": {
+        "enum": [
+          "openrouter",
+          "orcarouter"
+        ],
+        "type": "string"
       },
       "ProviderCommand": {
         "additionalProperties": false,
@@ -1852,6 +1996,11 @@
         "title": "ReadinessReason",
         "type": "string"
       },
+      "Revision": {
+        "maximum": 9.223372036854776e+18,
+        "minimum": 0.0,
+        "type": "integer"
+      },
       "RevisionPage": {
         "additionalProperties": false,
         "properties": {
@@ -1886,6 +2035,33 @@
         "title": "RevisionPage",
         "type": "object"
       },
+      "RevokeConnection": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "revoke_connection",
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "connection_id",
+          "expected_revision"
+        ],
+        "title": "RevokeConnection",
+        "type": "object"
+      },
       "RunMetric": {
         "additionalProperties": false,
         "properties": {
@@ -1907,6 +2083,104 @@
           }
         },
         "title": "RunMetric",
+        "type": "object"
+      },
+      "SaveConnection": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "save_connection",
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/Provider"
+          },
+          "secret": {
+            "format": "password",
+            "title": "Secret",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "connection_id",
+          "expected_revision",
+          "provider",
+          "secret"
+        ],
+        "title": "SaveConnection",
+        "type": "object"
+      },
+      "SaveSelection": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "save_selection",
+            "title": "Action",
+            "type": "string"
+          },
+          "brain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "default": {
+            "$ref": "#/components/schemas/ModelSelection"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "investigator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "validator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "expected_revision",
+          "default",
+          "brain",
+          "investigator",
+          "validator"
+        ],
+        "title": "SaveSelection",
         "type": "object"
       },
       "ScopeAccess": {
@@ -1959,6 +2233,60 @@
           "access"
         ],
         "title": "ScopeEntry",
+        "type": "object"
+      },
+      "SelectionView": {
+        "additionalProperties": false,
+        "properties": {
+          "brain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default": {
+            "$ref": "#/components/schemas/ModelSelection"
+          },
+          "investigator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "selection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "validator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "selection_id",
+          "revision",
+          "default",
+          "brain",
+          "investigator",
+          "validator"
+        ],
+        "title": "SelectionView",
         "type": "object"
       },
       "SessionView": {
@@ -3638,6 +3966,308 @@
           }
         },
         "summary": "Operation"
+      }
+    },
+    "/api/v1/settings/providers": {
+      "get": {
+        "operationId": "read_settings_api_v1_settings_providers_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySettingsView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Settings"
+      },
+      "put": {
+        "operationId": "save_settings_api_v1_settings_providers_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "discriminator": {
+                  "mapping": {
+                    "revoke_connection": "#/components/schemas/RevokeConnection",
+                    "save_connection": "#/components/schemas/SaveConnection",
+                    "save_selection": "#/components/schemas/SaveSelection"
+                  },
+                  "propertyName": "action"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/SaveConnection"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RevokeConnection"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SaveSelection"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySettingsView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Save Settings"
+      }
+    },
+    "/api/v1/settings/providers/commands/{command_id}": {
+      "get": {
+        "operationId": "read_command_api_v1_settings_providers_commands__command_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "command_id",
+            "required": true,
+            "schema": {
+              "title": "Command Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySettingsView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Command"
       }
     },
     "/health/live": {

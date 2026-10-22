@@ -16,12 +16,12 @@ start = importlib.import_module("omnis_cli.start")
 
 
 class SchemaCompatibilityTest(unittest.TestCase):
-    def test_database_identity_accepts_only_0013(self):
+    def test_database_identity_accepts_only_0014(self):
         identity = str(uuid4())
         queries = {
             "SELECT system_identifier FROM pg_control_system()": "12345",
             "SELECT instance_id FROM instance_control WHERE id = 1": identity,
-            "SELECT version_num FROM alembic_version": "0013_mission_revisions",
+            "SELECT version_num FROM alembic_version": "0014_provider_settings",
         }
 
         def psql(ident, query):
@@ -32,6 +32,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         runtime = SimpleNamespace(psql=psql)
         self.assertEqual(start.database_identity(runtime, "private-db"), ("12345", identity))
         for previous in (
+            "0013_mission_revisions",
             "0012_contract_methods",
             "0011_managed_tasks",
             "0010_catalog_publications",
@@ -45,22 +46,23 @@ class SchemaCompatibilityTest(unittest.TestCase):
                 (error.exception.reason, error.exception.code), ("SCHEMA_UPDATE_REQUIRED", 3)
             )
 
-    def test_private_instance_accepts_only_0013(self):
+    def test_private_instance_accepts_only_0014(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             root = Path(name)
             record = {
                 "version": 1,
                 "instance_id": str(uuid4()),
                 "release": "0.1.0",
-                "schema": "0013_mission_revisions",
+                "schema": "0014_provider_settings",
                 "project": "omnis-local-1",
                 "origin": "http://127.0.0.1:8765",
             }
             path = root / "instance.json"
             path.write_text(json.dumps(record))
             path.chmod(0o600)
-            self.assertEqual(load_instance(root).schema, "0013_mission_revisions")
+            self.assertEqual(load_instance(root).schema, "0014_provider_settings")
             for previous in (
+                "0013_mission_revisions",
                 "0012_contract_methods",
                 "0011_managed_tasks",
                 "0010_catalog_publications",

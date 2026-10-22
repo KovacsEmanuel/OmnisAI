@@ -56,7 +56,7 @@ def private_stop_fixture() -> Iterator[
                 "version": 1,
                 "instance_id": instance_id,
                 "release": "0.1.0",
-                "schema": "0013_mission_revisions",
+                "schema": "0014_provider_settings",
                 "project": project,
                 "origin": f"http://127.0.0.1:{port}",
             },
@@ -1004,7 +1004,7 @@ class StopTest(unittest.TestCase):
                 if "SELECT instance_id FROM instance_control" in query:
                     return str(record["instance_id"])
                 if "SELECT version_num FROM alembic_version" in query:
-                    return "0013_mission_revisions"
+                    return "0014_provider_settings"
                 if "SELECT generation" in query:
                     if "supervisor_lease" in query:
                         return f"2|f|{record['stop_command']}|2|1|{lease_epoch}"

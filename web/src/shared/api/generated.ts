@@ -241,6 +241,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Settings */
+        get: operations["read_settings_api_v1_settings_providers_get"];
+        /** Save Settings */
+        put: operations["save_settings_api_v1_settings_providers_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/providers/commands/{command_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Command */
+        get: operations["read_command_api_v1_settings_providers_commands__command_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -462,6 +497,16 @@ export interface components {
             /** Revision */
             revision: number;
         };
+        /** ConnectionView */
+        ConnectionView: {
+            connection_id: components["schemas"]["Identity"];
+            /** Credential Present */
+            credential_present: boolean;
+            /** Enabled */
+            enabled: boolean;
+            provider: components["schemas"]["Provider"];
+            revision: components["schemas"]["PositiveRevision"];
+        };
         /** @enum {string} */
         ConstraintKind: "READ_ONLY" | "EXCLUDE_FEATURE" | "REQUIRE_CRITERION";
         /** DashboardData */
@@ -681,7 +726,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
+        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "COMMAND_CONFLICT" | "REVISION_CONFLICT" | "CONNECTION_UNAVAILABLE" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
         /** ErrorDetail */
         ErrorDetail: {
             code: components["schemas"]["ErrorCode"];
@@ -719,6 +764,7 @@ export interface components {
             dashboard_reason: components["schemas"]["ReadinessReason"] | components["schemas"]["DashboardReason"] | null;
             reason: components["schemas"]["ReadinessReason"] | null;
         };
+        Identity: string;
         /** InstanceView */
         InstanceView: {
             /** Admission Open */
@@ -745,6 +791,30 @@ export interface components {
             /** Supervisor Ready */
             supervisor_ready: boolean;
         };
+        /** KeySettingsView */
+        KeySettingsView: {
+            command_id: components["schemas"]["Identity"] | null;
+            /** Connections */
+            connections: components["schemas"]["ConnectionView"][];
+            /**
+             * Reachable
+             * @default NOT_VERIFIED
+             * @constant
+             */
+            reachable: "NOT_VERIFIED";
+            /**
+             * Schema Version
+             * @default 2
+             * @constant
+             */
+            schema_version: 2;
+            selection: components["schemas"]["SelectionView"] | null;
+            /**
+             * Vault Status
+             * @enum {string}
+             */
+            vault_status: "LOCKED" | "UNLOCKED" | "UNCONFIGURED";
+        };
         /** LegacyEngagementDraft */
         LegacyEngagementDraft: {
             assessment_mode: components["schemas"]["AssessmentMode"];
@@ -759,6 +829,15 @@ export interface components {
             scope: components["schemas"]["ScopeEntry"][];
             /** Workflow Profile Ref */
             workflow_profile_ref: null;
+        };
+        /** ModelSelection */
+        ModelSelection: {
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            /** Model */
+            model: string;
+            /** Output Tokens */
+            output_tokens: number;
         };
         /** ModelTestRequest */
         ModelTestRequest: {
@@ -858,6 +937,7 @@ export interface components {
             /** Code */
             code: string;
         };
+        PositiveRevision: number;
         /** Preference */
         Preference: {
             /** Effort */
@@ -916,6 +996,8 @@ export interface components {
             /** Through Cursor */
             through_cursor?: null;
         };
+        /** @enum {string} */
+        Provider: "openrouter" | "orcarouter";
         /** ProviderCommand */
         ProviderCommand: {
             /**
@@ -985,6 +1067,7 @@ export interface components {
          * @enum {string}
          */
         ReadinessReason: "DATABASE_UNAVAILABLE" | "SCHEMA_INCOMPATIBLE";
+        Revision: number;
         /** RevisionPage */
         RevisionPage: {
             /** Has More */
@@ -993,6 +1076,17 @@ export interface components {
             items: components["schemas"]["EngagementView"][];
             /** Next Page */
             next_page: number | null;
+        };
+        /** RevokeConnection */
+        RevokeConnection: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "revoke_connection";
+            command_id: components["schemas"]["Identity"];
+            connection_id: components["schemas"]["Identity"];
+            expected_revision: components["schemas"]["PositiveRevision"];
         };
         /** RunMetric */
         RunMetric: {
@@ -1011,6 +1105,37 @@ export interface components {
             /** Value */
             value?: null;
         };
+        /** SaveConnection */
+        SaveConnection: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "save_connection";
+            command_id: components["schemas"]["Identity"];
+            connection_id: components["schemas"]["Identity"];
+            expected_revision: components["schemas"]["Revision"];
+            provider: components["schemas"]["Provider"];
+            /**
+             * Secret
+             * Format: password
+             */
+            secret: string;
+        };
+        /** SaveSelection */
+        SaveSelection: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "save_selection";
+            brain: components["schemas"]["ModelSelection"] | null;
+            command_id: components["schemas"]["Identity"];
+            default: components["schemas"]["ModelSelection"];
+            expected_revision: components["schemas"]["Revision"];
+            investigator: components["schemas"]["ModelSelection"] | null;
+            validator: components["schemas"]["ModelSelection"] | null;
+        };
         /** @enum {string} */
         ScopeAccess: "ATTACKABLE" | "VISIT_ONLY" | "BLOCKED";
         /** ScopeEntry */
@@ -1024,6 +1149,15 @@ export interface components {
             path_prefix: string;
             /** Port */
             port: number;
+        };
+        /** SelectionView */
+        SelectionView: {
+            brain: components["schemas"]["ModelSelection"] | null;
+            default: components["schemas"]["ModelSelection"];
+            investigator: components["schemas"]["ModelSelection"] | null;
+            revision: components["schemas"]["PositiveRevision"];
+            selection_id: components["schemas"]["Identity"];
+            validator: components["schemas"]["ModelSelection"] | null;
         };
         /** SessionView */
         SessionView: {
@@ -2392,6 +2526,261 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_settings_api_v1_settings_providers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeySettingsView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_settings_api_v1_settings_providers_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveConnection"] | components["schemas"]["RevokeConnection"] | components["schemas"]["SaveSelection"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeySettingsView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Content Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_command_api_v1_settings_providers_commands__command_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                command_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeySettingsView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

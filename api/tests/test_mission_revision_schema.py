@@ -18,7 +18,7 @@ from omnis.core.schema import AUTHORITY_TABLES, authority_schema_matches
 def test_mission_revision_head_keeps_historical_chain() -> None:
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == SCHEMA_REVISION == "0013_mission_revisions"
+    assert scripts.get_current_head() == SCHEMA_REVISION == "0014_provider_settings"
     revision = scripts.get_revision("0013_mission_revisions")
     assert revision is not None and revision.down_revision == "0012_contract_methods"
 
@@ -131,6 +131,18 @@ def source_catalog_connection(
             "reject_engagement_revision_mutation",
             "Engagement revisions are immutable",
         ),
+        **{
+            table: (
+                "provider_settings_no_change",
+                "provider_settings_immutable",
+                "provider Settings history is immutable",
+            )
+            for table in (
+                "provider_connection_revision",
+                "provider_selection_revision",
+                "provider_settings_command",
+            )
+        },
         **{
             table: ("catalog_immutable", "catalog_immutable", "immutable catalog ledger")
             for table in (

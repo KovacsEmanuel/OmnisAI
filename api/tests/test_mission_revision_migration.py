@@ -210,7 +210,7 @@ async def test_pg_mission_revision_upgrade_preserves_rows_fks_and_reopen(
     engine = database_engine(empty_database_url.render_as_string(hide_password=False))
     try:
         async with engine.connect() as connection:
-            assert await schema_reason_on(connection) is None
+            assert await schema_reason_on(connection) is ReadinessReason.SCHEMA_INCOMPATIBLE
     finally:
         await engine.dispose()
 

@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0013_mission_revisions",
+            "schema": "0014_provider_settings",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -299,16 +299,20 @@ class InstallTest(unittest.TestCase):
         self.assertFalse((self.root / "instance.json").exists())
         self.assertEqual(install_release(self.bundle, self.data_home), result)
 
-    def test_mission_schema_bundle_is_admitted_and_old_heads_are_refused(self):
-        self.manifest["schema"] = "0013_mission_revisions"
+    def test_settings_schema_bundle_is_admitted_and_old_heads_are_refused(self):
+        self.manifest["schema"] = "0014_provider_settings"
         self.write_manifest()
         installed = install_release(self.bundle, self.data_home)
         self.assertEqual(
             json.loads((installed / "release.json").read_text())["schema"],
-            "0013_mission_revisions",
+            "0014_provider_settings",
         )
         before = (installed / "release.json").read_bytes()
-        for previous in ("0012_contract_methods", "0009_catalog_candidates"):
+        for previous in (
+            "0013_mission_revisions",
+            "0012_contract_methods",
+            "0009_catalog_candidates",
+        ):
             with self.subTest(schema=previous):
                 self.manifest["schema"] = previous
                 self.write_manifest()

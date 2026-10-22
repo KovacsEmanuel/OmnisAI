@@ -55,7 +55,7 @@ from .start_runtime import (
     settings_overlay,
 )
 
-EXPECTED_SCHEMA = "0013_mission_revisions"
+EXPECTED_SCHEMA = "0014_provider_settings"
 READY_FIELDS = {
     "format",
     "phase",

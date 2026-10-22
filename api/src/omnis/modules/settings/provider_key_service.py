@@ -213,12 +213,6 @@ class ProviderSettingsOwner:
             if str(status.instance_id) != self.vault.instance_id:
                 raise SettingsConflict("CONNECTION_UNAVAILABLE")
             async with self.service.admission(status.generation, self.owner, self.epoch) as db:
-                if isinstance(request, SaveConnection):
-                    # Explicit admitted Save only; broken existing data stays LOCKED.
-                    await self._vault_write(self.vault.bootstrap)
-                    digest = await asyncio.to_thread(
-                        self.vault.command_digest, request.command_id, command.wire()
-                    )
                 if isinstance(request, (SaveConnection, RevokeConnection)):
                     heads = await self.connections(db)
                     current = next(
@@ -237,6 +231,12 @@ class ProviderSettingsOwner:
                             raise SettingsConflict("CONNECTION_UNAVAILABLE")
                         if current is not None and current.provider != request.provider:
                             raise SettingsConflict("CONNECTION_UNAVAILABLE")
+                        # Revoked heads still retain credential refs; only empty DB history is initial.
+                        if not heads:
+                            await self._vault_write(self.vault.bootstrap)
+                        digest = await asyncio.to_thread(
+                            self.vault.command_digest, request.command_id, command.wire()
+                        )
                         row = ConnectionRevision(
                             connection_id=request.connection_id,
                             provider=request.provider,

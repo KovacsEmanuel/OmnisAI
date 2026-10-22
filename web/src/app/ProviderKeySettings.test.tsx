@@ -103,6 +103,13 @@ it('clears an unsubmitted secret from the detached input on unmount', async () =
   mounted.unmount();
   expect(input).toHaveValue('');
 });
+it('does not describe an inaccessible configured key as absent when the vault is locked', async () => {
+  backend(() => { throw new Error('No write'); }, () => Response.json({ ...empty, vault_status: 'LOCKED', connections: [{ ...connection, credential_present: false }] }));
+  mount();
+  await screen.findByText('openrouter: configured — credential unavailable (vault LOCKED)');
+  expect(screen.getByRole('button', { name: 'Rotate API key' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Revoke locally' })).toBeEnabled();
+});
 it('locked and revoked remain distinct from provider or inference verification', async () => {
   backend(() => { throw new Error('no write'); }, () => Response.json({ ...empty, vault_status: 'LOCKED', connections: [{ ...connection, enabled: false, credential_present: false }] }));
   mount();

@@ -87,7 +87,7 @@ export function ProviderSettings() {
     <p>Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.</p>
     <output aria-live="polite">{sending ? 'Operation pending; no success confirmed.' : pending ? `Outcome unknown. Command ${pending}. Recover its exact receipt before another mutation.` : notice || (current.isError ? 'Read failed. Current settings are not confirmed.' : !view ? 'Loading current settings…' : '')}</output>
     {notice && pending && !sending && <p>{notice}</p>}
-    {view && <><p>Vault: {view.vault_status}</p>{view.connections.map(item => <p key={item.connection_id}>{item.provider}: {item.enabled ? 'configured' : 'revoked'} — credential {item.credential_present ? 'present' : 'absent'}</p>)}</>}
+    {view && <><p>Vault: {view.vault_status}</p>{view.connections.map(item => <p key={item.connection_id}>{item.provider}: {item.enabled ? 'configured' : 'revoked'} — credential {item.credential_present ? 'present' : item.enabled && view.vault_status === 'LOCKED' ? 'unavailable (vault LOCKED)' : 'absent'}</p>)}</>}
     <div className={`${formStyles.actions} ${styles.providerActions}`}>
       {pending ? <button type="button" disabled={!authReady || sending} onClick={() => void reload(true)}>Recover exact receipt</button> :
         <button type="button" disabled={!authReady || sending} onClick={() => void reload()}>Reload current settings</button>}

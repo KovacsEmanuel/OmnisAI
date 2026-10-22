@@ -190,6 +190,83 @@ async def test_successor_drain_accounts_for_cross_process_writers(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["shutdown", "queued", "active"])
+async def test_failed_submit_settles_reservation_without_late_unowned_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    data, keys = tmp_path / "vault", tmp_path / "keys"
+    data.mkdir(mode=0o700)
+    keys.mkdir(mode=0o700)
+    reference = CredentialRef(str(uuid4()), str(uuid4()), 1, "openrouter")
+    vault = ProviderVault(data, keys, reference.instance_id)
+    vault.bootstrap()
+    before = (data / "vault.json").read_bytes()
+    engine = database_engine("postgresql+psycopg://unused")  # SOURCE: no DB connection.
+    owner = ProviderSettingsOwner(InstanceService(engine), uuid4(), 1, vault)
+    successor = ProviderSettingsOwner(InstanceService(engine), uuid4(), 2, vault)
+    entered, release, unblock = threading.Event(), threading.Event(), threading.Event()
+    loop = asyncio.get_running_loop()
+    pool = ThreadPoolExecutor(max_workers=2 if failure == "active" else 1)
+    loop.set_default_executor(pool)
+    blocker = loop.run_in_executor(None, unblock.wait, 10) if failure == "active" else None
+
+    def write() -> None:
+        entered.set()
+        if failure == "active":
+            assert release.wait(10), "SOURCE active writer release deadline"
+        vault.put(reference, "synthetic-submit-failure")
+
+    def refuse_start(thread: threading.Thread) -> None:
+        if failure == "active":
+            unblock.set()
+            assert entered.wait(3), "SOURCE already-started writer deadline"
+        raise RuntimeError("can't start new thread")
+
+    try:
+        if failure == "shutdown":
+            pool.shutdown()
+        with monkeypatch.context() as patch:
+            if failure != "shutdown":
+                patch.setattr(threading.Thread, "start", refuse_start)
+            with pytest.raises(RuntimeError, match="after shutdown|can't start new thread"):
+                await owner._vault_write(write)
+        await asyncio.sleep(0)
+        assert not owner.writes
+        assert (data / "vault.json").read_bytes() == before
+        if failure == "active":
+            assert entered.is_set()
+            assert not await successor.drain()
+        else:
+            assert not entered.is_set()
+            assert await successor.drain()
+        release.set()
+        if failure == "queued":
+            # A real failed Thread.start left the original work item in this pool's queue.
+            await loop.run_in_executor(None, lambda: None)
+        pool.shutdown(wait=True)
+        if blocker is not None:
+            assert await blocker
+        assert await successor.drain()
+        if failure == "active":
+            assert vault.get(reference) == "synthetic-submit-failure"
+        else:
+            assert not entered.is_set()
+            assert (data / "vault.json").read_bytes() == before
+        loop.set_default_executor(ThreadPoolExecutor(max_workers=1))
+        recovered = CredentialRef(reference.instance_id, str(uuid4()), 1, "openrouter")
+        await owner._vault_write(lambda: vault.put(recovered, "synthetic-recovered"))
+        assert vault.get(recovered) == "synthetic-recovered"
+        assert await successor.drain()
+    finally:
+        release.set()
+        unblock.set()
+        pool.shutdown(wait=True)
+        if blocker is not None:
+            await blocker
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_save_rotate_revoke_replay_selection_and_no_secret_in_db(
     migrated_database_url: URL, tmp_path: Path
 ) -> None:

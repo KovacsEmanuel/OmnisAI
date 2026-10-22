@@ -3,6 +3,7 @@
 import asyncio
 import os
 from collections.abc import Callable
+from concurrent.futures import Future
 from hashlib import sha256
 from typing import Literal
 from uuid import UUID, uuid4
@@ -69,14 +70,25 @@ class ProviderSettingsOwner:
 
     async def _vault_write(self, action: Callable[[], None]) -> None:
         reservation = self.vault.reserve_write()
+        ownership = Future[None]()
 
         def write() -> None:
+            if not ownership.set_running_or_notify_cancel():
+                return
             try:
                 action()
             finally:
                 os.close(reservation)
 
-        task = asyncio.create_task(asyncio.to_thread(write))
+        async def schedule() -> None:
+            try:
+                await asyncio.to_thread(write)
+            finally:
+                # Failed submit can leave write queued; revoke its claim before releasing the fd.
+                if ownership.cancel():
+                    os.close(reservation)
+
+        task = asyncio.create_task(schedule())
         self.writes.add(task)
         task.add_done_callback(self._write_finished)
         # Control timeout rolls back DB, but cannot cancel a filesystem syscall.

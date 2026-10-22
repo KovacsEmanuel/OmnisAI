@@ -1,0 +1,66 @@
+"""Focused SOURCE counterexample: successor drain misses predecessor writer.
+No DB/service/provider/installed effects; all files synthetic under owned TMPDIR.
+"""
+import asyncio
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import threading
+from unittest.mock import patch
+from uuid import uuid4
+
+sys.path.insert(0, "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/src/api/src")
+from omnis.modules.settings import provider_vault
+from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
+from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault
+
+async def main():
+    with tempfile.TemporaryDirectory(prefix="reviewer2-", dir=os.environ["TMPDIR"]) as root:
+        data, keys = Path(root) / "vault", Path(root) / "keys"
+        data.mkdir(mode=0o700)
+        keys.mkdir(mode=0o700)
+        instance = str(uuid4())
+        vault = ProviderVault(data, keys, instance)
+        vault.bootstrap()
+        predecessor = ProviderSettingsOwner(None, uuid4(), 1, vault)
+        successor = ProviderSettingsOwner(None, uuid4(), 2, ProviderVault(data, keys, instance))
+        ref = CredentialRef(instance, str(uuid4()), 1, "openrouter")
+        before = hashlib.sha256((data / "vault.json").read_bytes()).hexdigest()
+        entered, release = threading.Event(), threading.Event()
+        original = provider_vault._durable
+        def pause_before_replace(path, value):
+            entered.set()
+            if not release.wait(6):
+                raise RuntimeError("SOURCE probe deadline")
+            original(path, value)
+        with patch.object(provider_vault, "_durable", pause_before_replace):
+            control_task = asyncio.create_task(predecessor._vault_write(lambda: vault.put(ref, "synthetic-reviewer2-key")))
+            try:
+                async with asyncio.timeout(2):
+                    while not entered.is_set():
+                        await asyncio.sleep(0.001)
+                control_task.cancel()
+                try:
+                    await control_task
+                except asyncio.CancelledError:
+                    pass
+                predecessor_drained = await predecessor.drain()
+                successor_drained = await successor.drain()
+                assert not predecessor_drained
+                assert successor_drained
+                assert not vault.contains(ref)
+                release.set()
+                assert await predecessor.drain()
+                assert vault.contains(ref)
+                changed = hashlib.sha256((data / "vault.json").read_bytes()).hexdigest() != before
+                assert changed
+                print(json.dumps({"scope": "SOURCE_NO_DB_TAKEOVER_EXECUTED", "predecessor_drain": predecessor_drained, "successor_drain_while_old_writer_active": successor_drained, "ciphertext_changed_after_successor_drain": changed}))
+            finally:
+                release.set()
+                await asyncio.gather(control_task, return_exceptions=True)
+                await predecessor.drain()
+
+asyncio.run(main())

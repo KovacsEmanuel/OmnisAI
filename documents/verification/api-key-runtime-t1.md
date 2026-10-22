@@ -50,6 +50,25 @@ Comenzi reale de bază, cu TMPDIR owned și căi toolchain exacte verificate în
 
 **Provider live: NOT_RUN, acord separat restant.** Operatorul introduce cheia numai în web după reviewurile/guardurile necesare și aprobă conexiunea/modelul/parametrii/inputul sintetic/testul finit. Nu acceptăm chei în chat/argv, nu fabricăm răspuns. Reticle: NOT_INTEGRATED până la o probă UI instrumentată admisă; Chisel: BLOCKED_NO_GO.
 
+## Prerechizit Settings — candidat neintegrat, review CHANGES_REQUESTED
+
+Worktree `impl/api-key-runtime-t1`, candidat `686d342a1e5887e5b40ae97bc122f162a2faaa0d`, tree `b2aa3f828740fc29be903e60cf6b8308971de037`, peste baza `b35c4de9aa968a48c7565e5685eefd0aa6b09f70`. Commituri izolate `1146957` (AEAD), `61e8805` (flock), `686d342` (Settings API/UDS/supervisor/PG și 0014). Părintele a verificat toate cele 42 de bloburi/SHA din manifest; 0001–0013 sunt neschimbate. **PARTIAL / NOT_INTEGRATED / CHANGES_REQUESTED**, nu T1 livrat sau acceptare a prerechizitului.
+
+Consumer SOURCE real: `/api/v1/settings/providers` → control privat → supervisor → seif/DB și receipt/readback; fără UI nouă, sender sau apel model. Ultima probă proprie a developerului, citită direct: targetul `test-provider-settings-pg` prin runnerul existent, **21 PASS/10.68s/exit0/family_drained=true**. Autounlock/reload aici folosesc obiect/app noi, nu restart instalat. Părintele a citit receipturile și confirmat absența celor **8 CID-uri proprii**, cu PGDATA păstrate. Primele unitare au folosit scratch implicit, apoi TMPDIR owned explicit; abaterea rămâne consemnată. Auditul a cerut înlocuirea certifi afectat cu versiunea fixată în lockul candidatului; nu este o admitere a clientului model de produs.
+
+Două reviewuri independente pe același FREEZE au cerut remedii. [Original R1](api-key-runtime-t1-evidence/reviewer1-settings-api-review.md), [reproducer original R2](api-key-runtime-t1-evidence/reviewer2-source-probe.txt); copii byte-exact. Părintele a reprodus SOURCE F01/F02 și defectul R2, fără DB nouă/provider; a confirmat și callerii F03 din sursă. Aceste reproduceri nu sunt probe installed sau takeover PG.
+
+| Finding | Dispoziție și remediu necesar |
+|---|---|
+| R1-F01 HIGH | OPEN: cu referințe DB existente și ambele fișiere lipsă, Save recreează cheia. Bootstrap trebuie condiționat de prima configurare reală; altfel LOCKED, fără fișiere noi. |
+| R1-F02 HIGH | OPEN: tip numeric/listă în asocierea AEAD poate provoca AttributeError în UUID și bloca inclusiv revoke. Validare strictă → LOCKED, readback și revoke durabile. |
+| R1-F03 MEDIUM | OPEN: control_topology și restaurarea negativei installed_start au rămas la 0013 în locul headului 0014. Păstrează comparația strictă și restaurează valoarea originală. |
+| R2-F01 MEDIUM / siguranță | OPEN: drain al ownerului nou vede numai inventarul propriu, deși writerul vechi schimbă ulterior ciphertextul. Barieră cross-owner, inclusiv worker vechi programat înainte de flock; fără quiescență falsă sau inversarea lockurilor DB. |
+
+Remediile sunt atribuite aceluiași rol developer unic în worktree, în commituri minimale separate; apoi re-review focalizat. Senderul/UI și installed QA așteaptă închiderea blockerelor de siguranță. Ciclul harness-only pentru driverul SOURCE de schemă este **1**; eșecurile CLI largi rămân, fără rerun orb. Părintele a reprodus separat pe baza neschimbată b35c4de cele două FAIL-uri ReadyJournal/Status (14 teste, 2 FAIL, exit1); sunt preexistente, nu regresii noi ale bumpului, dar nu devin green sau dispensă de canonical.
+
+Rest T1: SystemOperation/Dispatch/Outcome V2, sender/relay, usage/Cancel/restart/no-resend, web/decoder, backup/restore/reactivare și distribuție; toate probele installed/browser/provider/canonical încă NOT_RUN. Readerii istorici instalați pentru drafturi/revizii, catalog/proveniență/publications, task/result/check/qualification/inbox și ledger/ModelTest V1 sunt **NOT_RUN**, nu incompatibilitate sau compatibilitate demonstrată. Nu s-a pornit T2.
+
 ## Recovery și rollback
 
-La admitere nu există efecte produs sau date create în afara rootului scratch gol. Git revert pentru commituri în ordinea dependențelor; acesta nu restaurează DB/seif/chei. Se păstrează backupul privat și identitățile before/after pentru orice efect ulterior. Următorul pas admis este developerul unic T1; T2 și restul roadmap-ului rămân neîncepute.
+La admitere rootul scratch era gol; efectele proprii ulterioare sunt consemnate mai sus. Git revert pentru commituri în ordinea dependențelor; acesta nu restaurează DB/seif/chei. Se păstrează datele/logurile private și identitățile before/after. Recuperare: CURRENT → acest registru → Git/status și predarea developerului din `ot1-0zxf62th/logs/developer-handoff.md`; nu relua toate probele. Următorul pas admis: remedii/re-review ale blockerelor, apoi continuarea T1, nu T2 sau predare automată după fiecare commit.

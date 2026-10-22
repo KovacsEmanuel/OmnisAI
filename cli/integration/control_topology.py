@@ -21,6 +21,7 @@ from pathlib import Path
 from omnis_cli.compose import _docker_id, _one_image, _preflight, _record, _validate_image
 from omnis_cli.instance import private_dir
 from omnis_cli.release import _installed_pointer, _manifest
+from omnis_cli.start import EXPECTED_SCHEMA
 
 _POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
@@ -917,7 +918,7 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
         _docker(host, "container", "rm", job_id, cwd=scratch)
         if (
             _psql(host, release, project, empty_env, env, "SELECT version_num FROM alembic_version")
-            != "0013_mission_revisions"
+            != EXPECTED_SCHEMA
         ):
             raise AssertionError("Installed migration revision mismatch")
         if (

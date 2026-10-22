@@ -15,6 +15,7 @@ from uuid import UUID
 from installed_pair_open import command, opener_outcome, prove, tty_default, tty_pair
 from omnis_cli.control import request
 from omnis_cli.lifecycle import process_identity, write_record
+from omnis_cli.start import EXPECTED_SCHEMA
 from omnis_cli.start_runtime import ControlRuntime
 
 
@@ -612,6 +613,8 @@ def run_installed_start(
             assert secret not in (root / "forwarder.log").read_text()
         # A real incompatible schema is refused without remigration.
         db = record["containers"]["db"]
+        original_schema = runtime.psql(db, "SELECT version_num FROM alembic_version")
+        assert original_schema == EXPECTED_SCHEMA
         runtime.psql(db, "UPDATE alembic_version SET version_num='synthetic_incompatible'")
         try:
             assert invoke(["start", "--no-open", "--json"], 3)["reason"] == "SCHEMA_UPDATE_REQUIRED"
@@ -620,7 +623,8 @@ def run_installed_start(
                 == "synthetic_incompatible"
             )
         finally:
-            runtime.psql(db, "UPDATE alembic_version SET version_num='0013_mission_revisions'")
+            runtime.psql(db, f"UPDATE alembic_version SET version_num='{original_schema}'")
+            assert runtime.psql(db, "SELECT version_num FROM alembic_version") == original_schema
         assert not select.select([sink], [], [], 0)[0], (
             "Startup/status contacted the provider/proxy sentinel"
         )

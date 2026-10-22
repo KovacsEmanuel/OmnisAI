@@ -674,7 +674,7 @@ Recontrol static la amendarea pornită din `3fc3d46298720a1529a922247781fab435cd
 
 ### 19.2. Următoarea felie implementabilă
 
-**T1 — Settings/seif/system operation/Test model → outcome/readback**, activat explicit după T0; [prompt](verification/api-key-runtime-t1-prompt.md), [registru](verification/api-key-runtime-t1.md). Prerechizitul Settings API/seif/0014 este integrat și revizuit SOURCE scoped; continuarea admisă este formularul web/release nou și prima probă Save/readback instalată, apoi restul operației/senderului T1. T1 rămâne PARTIAL/NOT_ACCEPTED; nu pornește T2. Canon: arhitectură §5–5.5/§8.1, acest plan §7–8, stack și UI afectate. Refolosește fundația și callerii API/control/supervisor existenți; fără catalog/provision/restart Hermes. SOURCE/DB/installed/live sunt probe distincte și au efectele admise explicit. Nu se reiau joburile vechi sau testele neschimbate de guvernanță.
+**T1 — Settings/seif/system operation/Test model → outcome/readback**, activat explicit după T0; [prompt](verification/api-key-runtime-t1-prompt.md), [registru](verification/api-key-runtime-t1.md). Settings API/seif/0014 și formularul/release-ul nou sunt integrate și revizuite SOURCE scoped; prima QA Save/readback instalată/browser este în curs, apoi continuă restul operației/senderului T1. T1 rămâne PARTIAL/NOT_ACCEPTED; nu pornește T2. Canon: arhitectură §5–5.5/§8.1, acest plan §7–8, stack și UI afectate. Refolosește fundația și callerii API/control/supervisor existenți; fără catalog/provision/restart Hermes. SOURCE/DB/installed/live sunt probe distincte și au efectele admise explicit. Nu se reiau joburile vechi sau testele neschimbate de guvernanță.
 
 #### Istoric — checkpointuri fără autoritate de continuare
 

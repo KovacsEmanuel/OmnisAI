@@ -29,7 +29,7 @@ test-db-contract:
 .PHONY: test-instance-drain-pg
 test-instance-drain-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_instance.py -q --tb=short
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_instance.py api/tests/test_control_regressions.py::test_quiesce_owner_expiry_during_update_lock_wait_rolls_back -q --tb=short
 
 .PHONY: test-dashboard
 .PHONY: test-provider-settings-pg

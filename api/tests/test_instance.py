@@ -182,7 +182,7 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("cut", ["settlement", "refusal", "takeover", "generation"])
+@pytest.mark.parametrize("cut", ["settlement", "refusal", "takeover", "generation", "expired"])
 async def test_quiescence_drains_without_sql_locks_and_revalidates_pg(
     migrated_database_url: URL, cut: str
 ) -> None:
@@ -208,6 +208,12 @@ async def test_quiescence_drains_without_sql_locks_and_revalidates_pg(
                 text("INSERT INTO drain_settlement VALUES (:generation)"),
                 {"generation": closed},
             )
+            if cut == "expired":
+                await connection.execute(
+                    text(
+                        "UPDATE supervisor_lease SET expires_at = clock_timestamp() - interval '1 second' WHERE id = 1"
+                    )
+                )
             if cut == "generation":
                 await connection.execute(
                     text("UPDATE instance_control SET generation = generation + 1 WHERE id = 1")
@@ -224,7 +230,7 @@ async def test_quiescence_drains_without_sql_locks_and_revalidates_pg(
         else:
             reason = (
                 "LEASE_LOST"
-                if cut == "takeover"
+                if cut in {"takeover", "expired"}
                 else ("GENERATION_CONFLICT" if cut == "generation" else "SHUTDOWN_INCOMPLETE")
             )
             with pytest.raises(ControlConflict, match=reason):

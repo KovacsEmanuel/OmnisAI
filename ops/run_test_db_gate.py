@@ -1035,6 +1035,7 @@ def main() -> int:
         choices=(
             "check-components",
             "test-db-contract",
+            "test-instance-drain-pg",
             "test-provider-settings-pg",
             "test-migrations",
             "test-e2e",

@@ -12,7 +12,7 @@
 
 ## 1. Verdict de arhitectură
 
-**T0 documentar IN_REVIEW; runtime API-key-only NOT_IMPLEMENTED/NOT_RUN.** Cele cinci contracte au acordul operatorului: SystemOperation/dispatch v2, seif criptat/autounlock, default/override și consum MONITOR fără plafon LLM total, outcome fidel, distribuție/compatibilitate. Credit/quota → HOLD și Resume manual; shell/scripturi/workspace în sandbox pentru workerii engagementului, nu acces host sau drepturi prin prompt. OpenAI Agents SDK rămâne candidat până la admiterea pinului cu consumerul.
+**T0 documentar CLOSED_SCOPED; runtime API-key-only NOT_IMPLEMENTED/NOT_RUN.** Cele cinci contracte au acordul operatorului: SystemOperation/dispatch v2, seif criptat/autounlock, default/override și consum MONITOR fără plafon LLM total, outcome fidel, distribuție/compatibilitate. Credit/quota → HOLD și Resume manual; shell/scripturi/workspace în sandbox pentru workerii engagementului, nu acces host sau drepturi prin prompt. OpenAI Agents SDK rămâne candidat până la admiterea pinului cu consumerul.
 
 **VISUAL_ACCEPTED pentru df17a29 rămâne.** Fundația P0/P1 și guvernanța acceptate au dovezi istorice scoped; nu sunt relansate sau declarate nou runtime PASS. Ordinea nouă: T0 → Settings/Test model → agent/rol/tool loop → HTTP/evidence/auth → M-LAB IDOR/BOLA + triage + validator → M1 raport/retest → harness extins. Statusul final/reviewul exact sunt în [registrul T0](verification/api-key-runtime-t0.md). Nu există mandat de implementare T1 în această sesiune.
 
@@ -104,7 +104,7 @@ DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verifica
 
 | Gate | Owner / consumer | Închidere necesară |
 |---|---|---|
-| T0 | Canon/documente → atribuirea T1 | Reviewuri complementare pe snapshot exact, renderer/tests/HTML, tracking și prompt; încă IN_REVIEW |
+| T0 | Canon/documente → atribuirea T1 | Două reviewuri APPROVED_SCOPED pe a5619d0, 87 teste docs PASS, renderer/HTML verificate; închidere documentară în registru, nu launch T1 |
 | G-PROVIDER/G04a/G-MODEL | T1 Settings/seif/system operation/sender | Cheie/model/date/acord explicit, pin client/crypto, no echo/restart/Stop/send/outcomes reale; NOT_RUN |
 | G-RUNTIME | T2 Agent/Runner/task/tool/inbox | Pin SDK admis, callback autentic, rezultat tool consumat, HOLD/Resume/restart/no-resend; NOT_RUN |
 | G-DATA-EARLY | T1 sintetic, T3 înainte de target data | Payload final și output/error/log/cross-context la sender; vechiul NO-IO nu certifică noua rută |

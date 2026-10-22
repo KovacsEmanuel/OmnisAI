@@ -1,0 +1,306 @@
+{
+  "scope": "OFFLINE_CANONICAL_READERS_ONLY_NOT_PRODUCT_UI",
+  "reviewed_head": "a5619d0238976d75763bea4618d747ed62e7a377",
+  "passed": true,
+  "checks": [
+    {
+      "document": "Omnis_Implementation_Plan",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "h1": 1,
+        "broken": [],
+        "contracts": [
+          "SL01",
+          "SL02",
+          "SL03",
+          "SL04",
+          "SL05",
+          "SL06",
+          "SL07",
+          "SL08",
+          "SL09",
+          "SL10",
+          "SL11",
+          "SL12",
+          "SL13",
+          "SL14",
+          "SL15",
+          "SL16",
+          "SL17",
+          "SL18",
+          "SL19",
+          "SL20",
+          "SL21",
+          "SL22",
+          "SL23",
+          "SL24",
+          "SL25",
+          "SL26",
+          "SL27",
+          "SL28",
+          "SL29",
+          "SL30",
+          "SL31",
+          "SL32",
+          "SL33",
+          "SL34",
+          "SL35",
+          "SL36"
+        ]
+      }
+    },
+    {
+      "document": "Omnis_Implementation_Plan",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "h1": 1,
+        "broken": [],
+        "contracts": [
+          "SL01",
+          "SL02",
+          "SL03",
+          "SL04",
+          "SL05",
+          "SL06",
+          "SL07",
+          "SL08",
+          "SL09",
+          "SL10",
+          "SL11",
+          "SL12",
+          "SL13",
+          "SL14",
+          "SL15",
+          "SL16",
+          "SL17",
+          "SL18",
+          "SL19",
+          "SL20",
+          "SL21",
+          "SL22",
+          "SL23",
+          "SL24",
+          "SL25",
+          "SL26",
+          "SL27",
+          "SL28",
+          "SL29",
+          "SL30",
+          "SL31",
+          "SL32",
+          "SL33",
+          "SL34",
+          "SL35",
+          "SL36"
+        ]
+      }
+    },
+    {
+      "document": "Omnis_Implementation_Plan",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "h1": 1,
+        "broken": [],
+        "contracts": [
+          "SL01",
+          "SL02",
+          "SL03",
+          "SL04",
+          "SL05",
+          "SL06",
+          "SL07",
+          "SL08",
+          "SL09",
+          "SL10",
+          "SL11",
+          "SL12",
+          "SL13",
+          "SL14",
+          "SL15",
+          "SL16",
+          "SL17",
+          "SL18",
+          "SL19",
+          "SL20",
+          "SL21",
+          "SL22",
+          "SL23",
+          "SL24",
+          "SL25",
+          "SL26",
+          "SL27",
+          "SL28",
+          "SL29",
+          "SL30",
+          "SL31",
+          "SL32",
+          "SL33",
+          "SL34",
+          "SL35",
+          "SL36"
+        ]
+      }
+    },
+    {
+      "document": "Omnis_MVP_Architecture",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_MVP_Architecture",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_MVP_Architecture",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_UI_UX_Spec",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_UI_UX_Spec",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_UI_UX_Spec",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Stack_Baseline",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Stack_Baseline",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Stack_Baseline",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Implementation_Readiness_Review",
+      "width": 1440,
+      "passed": true,
+      "data": {
+        "width": 1440,
+        "content": 1440,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Implementation_Readiness_Review",
+      "width": 390,
+      "passed": true,
+      "data": {
+        "width": 390,
+        "content": 390,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    },
+    {
+      "document": "Omnis_Implementation_Readiness_Review",
+      "width": 320,
+      "passed": true,
+      "data": {
+        "width": 320,
+        "content": 320,
+        "h1": 1,
+        "broken": [],
+        "contracts": []
+      }
+    }
+  ],
+  "javascript_errors": [],
+  "unexpected_network": [],
+  "captures": [
+    "/home/kali/.hermes/cache/scratch/omnis-t0-fsUkdEIa/Omnis_Implementation_Plan-1440.png",
+    "/home/kali/.hermes/cache/scratch/omnis-t0-fsUkdEIa/Omnis_Implementation_Plan-390.png",
+    "/home/kali/.hermes/cache/scratch/omnis-t0-fsUkdEIa/Omnis_MVP_Architecture-1440.png",
+    "/home/kali/.hermes/cache/scratch/omnis-t0-fsUkdEIa/Omnis_MVP_Architecture-390.png"
+  ]
+}

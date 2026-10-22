@@ -1,6 +1,6 @@
 # Omnis — plan de implementare API-key-only
 
-**T0 — amendament API-key-only în verificare; T1 NOT_STARTED.** Fundația P0/P1 este păstrată la acceptările istorice scoped (inclusiv P0.3_IMPLEMENTED_LOCAL); acestea nu certifică noul runtime. Starea de acceptare curentă este unicul CURRENT din README și [registrul T0](verification/api-key-runtime-t0.md). CI remote NOT-RUN; fără implementare/model/target autorizate implicit.
+**T0 — amendament API-key-only CLOSED_SCOPED; T1 NOT_STARTED.** Fundația P0/P1 rămâne la acceptările istorice scoped (inclusiv P0.3_IMPLEMENTED_LOCAL), fără transfer la noul runtime. Unicul CURRENT este în README; [registrul T0](verification/api-key-runtime-t0.md) leagă snapshotul, reviewurile și probele documentare. CI remote NOT-RUN; fără implementare/model/target autorizate implicit.
 
 Acest plan integrează constatări R01–R12 și amendamentele autorizate HF01–HF10, păstrate în §17. Review-urile Sol/OSS și suplimentul modular sunt surse/rațiuni istorice; recomandările înlocuite sunt adjudecate în §17, nu un plan concurent. Review-ul inițial este disponibil în istoricul Git la `b12e179`, nu ca document concurent în directorul curent. Planul închide ordinea de livrare și criteriile; nu prezintă documentele, prototipul sau probele de dependențe ca aplicație funcțională. Nu autorizează scanări sau cheltuieli la provideri.
 
@@ -78,7 +78,7 @@ TDD pe felii verticale: RED → GREEN → refactor; fără „toate testele la f
 
 ## 4. Etape și dependențe revizuite
 
-**G-DESIGN — VISUAL_ACCEPTED / P0.1–P0.4 autorizate:** utilizatorul a acceptat prototipul `df17a29` și a confirmat structura `api/`, `web/`, `cli/` și contractul `omnis` din arhitectură §4/§12. `api/`, bootstrapul `web/` și primul increment `cli/` au fost introduse incremental; launcherul complet rămâne neimplementat. Nu redeschidem designul fără motiv/cerere. Această poartă nu înlocuiește G00–G08, acordul de cont/model/buget sau autorizarea țintelor.
+**G-DESIGN — VISUAL_ACCEPTED / df17a29.** Structura api/web/cli și contractul omnis sunt acceptate; fundația are probe istorice P0/P1, nu se redeschide implicit. Afirmațiile vechi despre launcher neimplementat/G00 deschis sunt snapshoturi istorice, nu statusul curent. T0 nu aprobă o estetică nouă și nu înlocuiește acordul provider/date/ținte.
 
 ### Ordine verificabilă
 

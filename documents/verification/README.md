@@ -2,7 +2,7 @@
 
 **Orientare globală:** [harta de implementare și review MVP/post-MVP](implementation-status.md) proiectează starea pe planul canonic și separă codul, probele și aprobarea de review. [Contractul/probele skillului de predare](project-status-skill.md) privesc procesul de dezvoltare, nu runtime-ul produsului.
 
-**T0 API-key-only — amendament documentar în review:** [registru/decizii/probe](api-key-runtime-t0.md) și [prompt T1 HANDOFF_ONLY](api-key-runtime-t1-prompt.md). Canonul este amendat după cele cinci contracte aprobate, cu consum MONITOR/HOLD, seif persistent, workeri sandboxați și M-LAB IDOR/BOLA + triage + validator. Implementarea nu este lansată. [Analiza migrării](api-key-runtime-migration-analysis.md) rămâne proveniență și inventar, nu plan concurent; probele istorice nu certifică noul runtime. Extinderile funcționale/skills/UI rămân în planul canonic, nu sunt eliminate după migrare.
+**T0 API-key-only — CLOSED_SCOPED documentar:** [registru/decizii/probe](api-key-runtime-t0.md) și [prompt T1 HANDOFF_ONLY](api-key-runtime-t1-prompt.md). Canonul este amendat după cele cinci contracte aprobate, cu consum MONITOR/HOLD, seif persistent, workeri sandboxați și M-LAB IDOR/BOLA + triage + validator. Implementarea nu este lansată. [Analiza migrării](api-key-runtime-migration-analysis.md) rămâne proveniență și inventar, nu plan concurent; probele istorice nu certifică noul runtime. Extinderile funcționale/skills/UI rămân în planul canonic, nu sunt eliminate după migrare.
 
 ## Registre anterioare — statusuri la reviziile citate
 

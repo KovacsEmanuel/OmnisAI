@@ -1,6 +1,6 @@
 # Omnis — hartă globală de implementare și review
 
-Stare activă: [unicul CURRENT din README](../../README.md). T0 documentar este IN_REVIEW, cele cinci contracte sunt aprobate și canonul este amendat în candidat; [registru](api-key-runtime-t0.md), [prompt T1 HANDOFF_ONLY](api-key-runtime-t1-prompt.md). T1 NOT_STARTED, M-LAB/T1–T6 runtime NOT_RUN. Checkpointurile de mai jos sunt istorice; tabelele SL/E proiectează noul consumer și păstrează separat dovezile vechi, fără transfer de PASS.
+Stare activă: [unicul CURRENT din README](../../README.md). T0 documentar este CLOSED_SCOPED, cu două reviewuri APPROVED_SCOPED, 87 teste docs și cititoare HTML verificate; cele cinci contracte sunt în canon, nu implementate; [registru](api-key-runtime-t0.md), [prompt T1 HANDOFF_ONLY](api-key-runtime-t1-prompt.md). T1 NOT_STARTED, M-LAB/T1–T6 runtime NOT_RUN. Checkpointurile de mai jos sunt istorice; tabelele SL/E proiectează noul consumer și păstrează separat dovezile vechi, fără transfer de PASS.
 
 
 ## Rol și surse
@@ -151,6 +151,7 @@ Ordinea de mai jos păstrează ID-urile canonice; **nu este o coadă strict lini
 
 | Milestone / gate | Stare de închidere | De ce / ce lipsește |
 |---|---|---|
+| T0 / canon API-key-only | CLOSED_SCOPED documentar / APPROVED_SCOPED | Două reviewuri independente, 87 teste docs, renderer și cititoare HTML; [registru](api-key-runtime-t0.md). T1 NOT_STARTED, [prompt](api-key-runtime-t1-prompt.md) HANDOFF_ONLY; nu runtime/M-LAB PASS. |
 | M0 / G00 | PASS_LOCAL_RECORDED / CLOSED (VM single-user) | Traseele instalate Start/Stop/Start explicit și Pair/Open au fost adjudecate pe bytes de consumator neschimbați, cu negative locale și cleanup/readback exact. Inerția provider/target este verificată structural/topologic, nu prin captură universală a traficului. Nu este un deployment persistent în profilul operatorului, release distribuit sau aprobare pentru model/țintă. Receipturile FAIL/UNCERTAIN istorice rămân, CI remote NOT_VERIFIED, iar peerul LAN/IPv6/alt UID `NEED_TO_TEST_PUBLIC_EXPOSURE` înainte de alt host/UID. [Evidență SL04](p04-stop-recovery.md), [Plan §5](../Omnis_Implementation_Plan.md) |
 | Runtime nou / T1–T2 | NOT_RUN / NOT_REVIEWED | Settings/seif/system operation și Agent/Runner/tool loop nu sunt livrate. Vechile G02/P4a native sunt istorice: [P4a](p4a-minim.md), [canonical inert](p2-inert-final-canonical-pass.json); nu se reiau din această hartă. |
 | G01 / experiența web reală | PASS_LOCAL_RECORDED / CLOSED_SCOPED (draft inert) | B02+B03+B04: create/edit/Save→GET/reload/restart real backend+PostgreSQL, două taburi/409, refuzuri Host/Origin/CSRF și ref-uri, keyboard/mobil, Start blocat; `make check` exit0/drained și QA live exit0 pe `ddb42d2` cu cleanup exact. Negativul editării cu run activ este NOT_RUN până la B06; CI remote/rollout/model/țintă nu intră în acest PASS. [Receipt](p1-web-b04-gate.json) |

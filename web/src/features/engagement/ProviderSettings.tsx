@@ -31,7 +31,7 @@ export function ProviderSettings() {
   const current = useQuery({ queryKey, queryFn: ({ signal }) => readPrivate(() => api.providerKeys(null, signal), signal),
     enabled: authReady && !sending && !pending && !stale, retry: false, gcTime: 0, networkMode: 'always',
     refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: 'always' });
-  useEffect(() => () => { controller.current?.abort(); if (keyInput.current) keyInput.current.value = ''; }, []);
+  useEffect(() => { const input = keyInput.current; return () => { controller.current?.abort(); if (input) input.value = ''; }; }, []);
   useEffect(() => {
     if (!authReady) { controller.current?.abort(); if (keyInput.current) keyInput.current.value = ''; setValidKey(false); }
   }, [authReady]);

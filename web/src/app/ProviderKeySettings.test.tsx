@@ -94,6 +94,15 @@ it('CAS rejection is stale, not success; explicit reload is required before anot
   fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
   await screen.findByText('Current settings loaded.');
 });
+it('clears an unsubmitted secret from the detached input on unmount', async () => {
+  backend(() => { throw new Error('No mutation admitted'); }, () => Response.json(empty));
+  const mounted = mount();
+  const input = await screen.findByLabelText('API key');
+  await waitFor(() => expect(input).toBeEnabled());
+  fireEvent.change(input, { target: { value: 'synthetic-unsent-key' } });
+  mounted.unmount();
+  expect(input).toHaveValue('');
+});
 it('locked and revoked remain distinct from provider or inference verification', async () => {
   backend(() => { throw new Error('no write'); }, () => Response.json({ ...empty, vault_status: 'LOCKED', connections: [{ ...connection, enabled: false, credential_present: false }] }));
   mount();

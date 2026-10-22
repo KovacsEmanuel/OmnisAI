@@ -37,6 +37,7 @@ export function ProviderSettings() {
   }, [authReady]);
   const view = current.data;
   const disabled = !authReady || sending || !!pending || stale || current.isError || current.isFetching || !view;
+  const selectionPending = sending || current.isFetching;
   const connection = view?.connections.find(item => item.provider === provider);
   async function reload(recover = false) {
     if (!authReady || busy.current || (pending && !recover)) return;
@@ -105,8 +106,8 @@ export function ProviderSettings() {
     </form>
     {view && <>
       <SelectionForm key={JSON.stringify(view)} view={view} disabled={disabled} save={save} />
-      {/* Keep the submit control mounted while authoritative fields reset. */}
-      <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" form="provider-model-selection" disabled={disabled || !view.connections.some(item => item.enabled && item.credential_present)}>Save model selection</button></div>
+      {/* Native disabled drops Chromium focus on paint; submit guards still block busy activation. */}
+      <div className={`${formStyles.actions} ${styles.providerActions}`}><button type="submit" form="provider-model-selection" disabled={(disabled && !selectionPending) || !view.connections.some(item => item.enabled && item.credential_present)} aria-disabled={selectionPending || undefined}>Save model selection</button></div>
     </>}
   </section>;
 }

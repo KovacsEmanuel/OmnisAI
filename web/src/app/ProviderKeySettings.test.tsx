@@ -134,6 +134,14 @@ it.each([false, true])('SOURCE reviewer2: revision readback preserves Save focus
   save.focus(); expect(save).toHaveFocus();
   fireEvent.click(save);
   await waitFor(() => expect(writes).toHaveLength(1));
+  await screen.findByText('Operation pending; no success confirmed.');
+  expect(save).not.toBeDisabled();
+  expect(save).toHaveAttribute('aria-disabled', 'true');
+  const command = sessionStorage.getItem('omnis-provider-settings-command');
+  fireEvent.click(save); fireEvent.click(save);
+  fireEvent.submit(document.getElementById('provider-model-selection')!);
+  expect(writes).toHaveLength(1);
+  expect(sessionStorage.getItem('omnis-provider-settings-command')).toBe(command);
   const elsewhere = screen.getByRole('link', { name: 'Providers' });
   if (moved) elsewhere.focus();
   resolveWrite(Response.json({ ...current, command_id: writes[0]!.command_id }));

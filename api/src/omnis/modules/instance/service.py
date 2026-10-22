@@ -489,27 +489,32 @@ class InstanceService:
     async def quiesce(self, owner: UUID, epoch: int) -> None:
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
-            if not instance.admission_open and instance.shutdown_command_id is not None:
-                if self.runtime_drain is not None:
-                    try:
-                        async with asyncio.timeout(2.5):
-                            drained = await self.runtime_drain()
-                    except (OSError, ValueError, TimeoutError):
-                        raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE) from None
-                    if drained is not True:
-                        raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
-                    await self._require_owner(connection, lease, owner, epoch)
-                # P0 (runtime unset) has no producer or background writer. Lock acquisition
-                # drains the only supported work: committed, transactional inert admissions.
-                await connection.execute(
-                    text(
-                        "UPDATE instance_control SET quiesced_generation = generation, quiesced_at = clock_timestamp() "
-                        "WHERE id = 1 AND quiesced_generation IS DISTINCT FROM generation"
-                    )
+            if instance.admission_open or instance.shutdown_command_id is None:
+                return
+            generation = instance.generation
+            shutdown = instance.shutdown_command_id
+        # Settlement needs these same rows; drain only after the closed state is committed.
+        if self.runtime_drain is not None:
+            try:
+                async with asyncio.timeout(2.5):
+                    drained = await self.runtime_drain()
+            except (OSError, ValueError, TimeoutError):
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE) from None
+            if drained is not True:
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+        async with self._locked() as (connection, instance, lease):
+            await self._require_owner(connection, lease, owner, epoch)
+            self._require_generation(instance, generation)
+            if instance.admission_open or instance.shutdown_command_id != shutdown:
+                raise ControlConflict(ControlCode.SHUTDOWN_INCOMPLETE)
+            await connection.execute(
+                text(
+                    "UPDATE instance_control SET quiesced_generation = generation, quiesced_at = clock_timestamp() "
+                    "WHERE id = 1 AND quiesced_generation IS DISTINCT FROM generation"
                 )
-                # An UPDATE table-lock wait can outlive the lease checked above.
-                # Roll back the quiescence receipt before transaction commit.
-                await self._require_owner(connection, lease, owner, epoch)
+            )
+            # An UPDATE table-lock wait can outlive the lease checked above.
+            await self._require_owner(connection, lease, owner, epoch)
 
     async def finalize(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
         async with self._locked() as (connection, instance, lease):

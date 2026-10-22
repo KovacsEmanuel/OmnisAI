@@ -182,6 +182,66 @@ async def test_shutdown_serializes_with_real_admission_and_requires_explicit_res
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("cut", ["settlement", "refusal", "takeover", "generation"])
+async def test_quiescence_drains_without_sql_locks_and_revalidates_pg(
+    migrated_database_url: URL, cut: str
+) -> None:
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    owner = uuid4()
+    replacement = uuid4()
+    epoch = await service.acquire(owner)
+    generation = await service.open(uuid4(), 0, owner, epoch)
+    closed = await service.shutdown(uuid4(), generation, owner, epoch)
+    async with engine.begin() as connection:
+        await connection.execute(text("CREATE TABLE drain_settlement (generation bigint NOT NULL)"))
+
+    async def drain() -> bool:
+        # The real settlement transaction uses the same authority rows as the sender.
+        async with service._locked() as (connection, instance, lease):
+            await service._require_owner(connection, lease, owner, epoch)
+            assert instance.generation == closed
+            await connection.execute(
+                text("INSERT INTO drain_settlement VALUES (:generation)"),
+                {"generation": closed},
+            )
+            if cut == "generation":
+                await connection.execute(
+                    text("UPDATE instance_control SET generation = generation + 1 WHERE id = 1")
+                )
+        if cut == "takeover":
+            await service.release(owner, epoch)
+            await service.acquire(replacement)
+        return cut != "refusal"
+
+    service.runtime_drain = drain
+    try:
+        if cut == "settlement":
+            await service.quiesce(owner, epoch)
+        else:
+            reason = (
+                "LEASE_LOST"
+                if cut == "takeover"
+                else ("GENERATION_CONFLICT" if cut == "generation" else "SHUTDOWN_INCOMPLETE")
+            )
+            with pytest.raises(ControlConflict, match=reason):
+                await service.quiesce(owner, epoch)
+        async with engine.connect() as connection:
+            assert (
+                await connection.execute(text("SELECT count(*) FROM drain_settlement"))
+            ).scalar_one() == 1
+            quiesced = (
+                await connection.execute(text("SELECT quiesced_generation FROM instance_control"))
+            ).scalar_one()
+            assert quiesced == (closed if cut == "settlement" else None)
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
 async def test_expired_owner_is_fenced_and_takeover_never_reopens(
     migrated_database_url: URL,
 ) -> None:

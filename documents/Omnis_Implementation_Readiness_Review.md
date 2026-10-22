@@ -1,4 +1,4 @@
-# Omnis — re-review și readiness pentru implementare
+# Omnis — readiness API-key-only și dovezi istorice
 
 **Registru: review istoric 25 septembrie 2026 + status curent HF01–HF10 · Nu validare a produsului complet**
 
@@ -12,11 +12,11 @@
 
 ## 1. Verdict de arhitectură
 
-**VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.** Utilizatorul a aprobat aspectul și cere auditul final. Auditul a aliniat structura/contractul `omnis`, noul UI și succesiunea livrării; punctul de reluare este **P0.1, plan §19**, după mesajul explicit de pornire. Această sesiune nu implementează aplicația. Excepția administrativă INSTRUCTIONS_UPDATE_BLOCKED este declarată în README: AGENTS.md a rămas nemodificat după expirarea aprobării interactive, nu a fost ocolită protecția. **NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.** Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.
+**T0 documentar IN_REVIEW; runtime API-key-only NOT_IMPLEMENTED/NOT_RUN.** Cele cinci contracte au acordul operatorului: SystemOperation/dispatch v2, seif criptat/autounlock, default/override și consum MONITOR fără plafon LLM total, outcome fidel, distribuție/compatibilitate. Credit/quota → HOLD și Resume manual; shell/scripturi/workspace în sandbox pentru workerii engagementului, nu acces host sau drepturi prin prompt. OpenAI Agents SDK rămâne candidat până la admiterea pinului cu consumerul.
 
-Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.
+**VISUAL_ACCEPTED pentru df17a29 rămâne.** Fundația P0/P1 și guvernanța acceptate au dovezi istorice scoped; nu sunt relansate sau declarate nou runtime PASS. Ordinea nouă: T0 → Settings/Test model → agent/rol/tool loop → HTTP/evidence/auth → M-LAB IDOR/BOLA + triage + validator → M1 raport/retest → harness extins. Statusul final/reviewul exact sunt în [registrul T0](verification/api-key-runtime-t0.md). Nu există mandat de implementare T1 în această sesiune.
 
-## 2. Ce s-a revizuit
+## 2. Scope curent și surse istorice
 
 - [Plan v2](Omnis_Implementation_Plan.md): etape, dependențe, backlog, porți și protocol de evaluare.
 - [Arhitectura v1](Omnis_MVP_Architecture.md): granițe, RPC/binding, proxy/HTTPS, auth, date, stări, SSE și raportare.
@@ -25,13 +25,13 @@ Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un enga
 
 Au existat review-uri independente pentru versiunile propuse și riscurile de arhitectură, apoi o a doua lectură independentă a documentelor revizuite și a UI/toolingului. Rezultatele lor sunt constatări, nu autoritate de a marca testele aplicației drept trecute. Snapshoturile citite de review pot preceda ultimele corecții; starea livrată este cea verificată de părinte după integrare.
 
-## 3. Toate recomandările inițiale
+## 3. Istoric — toate recomandările inițiale
 
 Tabelul R01–R12 din plan a fost verificat programatic: fiecare ID apare exact o dată. Secvențierea Settings/browser/primul finding, probele Hermes, revocarea scope-ului, efectele necunoscute, regula business, auth concurent, negative evidence, persistența artefactelor, E2E/baseline, suportul recon, toate copiile datelor și raport/retest sunt acum decizii sau porți explicite.
 
 **Stare: rezolvate în specificație, NEÎNCEPUTE în aplicație.** Aceasta nu este o declarație că 12 probleme de cod au fost remediate într-un produs existent.
 
-## 4. Corecții suplimentare din re-review
+## 4. Istoric — corecții suplimentare din re-review
 
 | ID | Constatare | Rezolvare în baseline / probă obligatorie |
 |---|---|---|
@@ -70,7 +70,7 @@ Recontrolul [pinurilor](verification/preimplementation-pins.json) a găsit toate
 
 **Relectură independentă după amendamente:** pe `7e90c09` nu a identificat blocaje substanțiale de specificație rămase în secțiunile verificate. A verificat ordinea etapelor, dimensiunea P0.1, separarea policy/reviziilor și raportul istoric versus evidence curente. Excepția AGENTS rămâne declarată; acest verdict nu închide gates runtime. Rezultatul comenzilor finale ale părintelui este păstrat în [preimplementation-check.json](verification/preimplementation-check.json), cu scope și limite, separat de probele aplicației încă inexistente.
 
-## 5. Decizii schimbate de execuție reală
+## 5. Probe istorice de dependențe, fără transfer la runtime-ul nou
 
 ### Frontend
 
@@ -88,7 +88,7 @@ Rezolvarea `mitmproxy 12.2.3` a reușit, dar metadatele advisories au marcat dep
 
 Nu afirmăm că fiecare advisory este exploatabil în Omnis; nici nu alegem o frontieră nouă de securitate pe baza absenței unui exploit demonstrat. API crypto nu a fost coborât, iar proxyul afectat nu a fost pornit.
 
-## 6. UI și documente
+## 6. Istoric UI și documente — baseline vizual păstrat
 
 Review-ul a identificat Stop inaccesibil în overlay-uri, stare inert rămasă după resize, focus pierdut la Stop/Start, identitate/epoch incoerente în inspector, Pause fără stări intermediare, touch targets sub prag și ancore imbricate în cuprinsul rendererului. Acestea au regresii dedicate în remedierea UI/tooling.
 
@@ -100,26 +100,25 @@ Placementul anterior amesteca nivelurile global și engagement și a fost corect
 
 DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verificarea documentară a folosit Playwright Python 1.60.0 și Chromium 145.0.7632.159 de pe host; nu certifică executorul planificat Playwright 1.63.0 sau imaginea lui. Prototipul este etichetat DEMO, cu conexiuni/form submit blocate; rendererul este numai pentru Markdown trusted al proiectului, nu pentru target evidence.
 
-## 7. Necunoscute păstrate vizibil
+## 7. Gates curente și limite
 
-| Gate | Owner | Închidere necesară |
+| Gate | Owner / consumer | Închidere necesară |
 |---|---|---|
-| G-DESIGN | Operator | VISUAL_ACCEPTED pentru df17a29; START_PENDING_NEW_SESSION confirmă structura/contractul `omnis` și pornirea feliei, nu execuția live |
-| L01–L10 / G-OPS | Integrare + operare | P0-control și L05-control/L08-core reale, apoi extensiile SSE/runtime/execuție în fazele lor; startup/readiness/pairing/stop/recovery, toate probele aplicației NEÎNCEPUTE |
-| G-DEPENDENCIES / B01e | Integrare/executori | B01e-build remediat/admis pentru harness izolat, apoi B01e-integrated/G-NET; fără derogare pentru buildul respins |
-| G-RUNTIME / H01–H08 | Integrare Hermes | Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord |
-| G-DATA-EARLY | API/securitate | Proiecție model-facing și markeri înainte de date de țintă către provider |
-| G-NET / G03 | Broker/executori | Trasee blocate măsurate, subrequest attribution, limits, scope și lease fail-closed |
-| G-PROVIDER | Operator + integrare | Cont/model eligibil, data policy și buget explicit; ambii provideri până la MVP final |
-| G00 DB/build | Backend/dev environment | Lockuri finale de produs, migrații și DB reală; imaginile nu sunt certificate prin metadata |
-| G08 | Evaluare/operator | Corpus sigilat, threshold fixat, rezultate reale, baseline și retest |
+| T0 | Canon/documente → atribuirea T1 | Reviewuri complementare pe snapshot exact, renderer/tests/HTML, tracking și prompt; încă IN_REVIEW |
+| G-PROVIDER/G04a/G-MODEL | T1 Settings/seif/system operation/sender | Cheie/model/date/acord explicit, pin client/crypto, no echo/restart/Stop/send/outcomes reale; NOT_RUN |
+| G-RUNTIME | T2 Agent/Runner/task/tool/inbox | Pin SDK admis, callback autentic, rezultat tool consumat, HOLD/Resume/restart/no-resend; NOT_RUN |
+| G-DATA-EARLY | T1 sintetic, T3 înainte de target data | Payload final și output/error/log/cross-context la sender; vechiul NO-IO nu certifică noua rută |
+| G03a/G-NET/G-AUTH-HTTP/G-TOOLS | T3 HTTP/evidence/auth/sandbox | Efect atribuit, principal A/B/validator, deny la sink/host/secrete/Stop, captură și readback; NOT_RUN |
+| B01e/G03b | Browser/scannere/proxy la consumerul lor | Build proxy respins rămâne respins; HTTP trusted A05 nu depinde de el; fără derogare pentru celelalte rute |
+| G-M-LAB | T4 IDOR/BOLA + triage + validator | Discovery proprie, triage persistat fără autoritate, oracle/replay vulnerable/fixed/benign/shared/auth-invalid; NOT_RUN |
+| Skilluri triage/validator | Candidatul de metodologie T4 | Original triage QUARANTINED; validator extern CANDIDATE_SOURCE_PENDING; sursă/licență/revizie/review/eval sau first-party evaluat |
+| M1/G05a/G06a | T5 findings/report/retest | Nu închis de M-LAB; export real și retest cu evidence noi |
+| G08/G-DATA/G-OPS | T6 evaluare și distribuție | Held-out, restore/release/istoric supported pe artefact fără Hermes; CI remote separat |
 
-Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste probe nu există declarație de MVP funcțional. Configurația de rețea/seccomp și calitatea testelor de vulnerabilitate nu pot fi certificate printr-un document.
+Nu există blocker de alegere a direcției pentru T0. Pinurile, seiful, egressul, sandboxul și readerii au probe restante la consumerii lor; documentul nu le certifică. Runtime/framework nou, conturi și trafic nu sunt autorizate prin review documentar.
 
 ## 8. Concluzie și controlul schimbării
 
-**Pregătit tehnic pentru începerea P0.1 la cererea din sesiunea nouă**, nu pentru un assessment sau MVP declarat funcțional. Contractul primei felii și al P0-control este în plan §19, iar DAG-ul din §4 separă datele B02, P1-web, P2-inert, configurarea P4a și live. Arborele `api/` + `web/` + `cli/` există numai ca plan, nu ca schelet gol. UI-ul acceptat și matricea §16/contractele arhitectură §9 împiedică portarea numai a culorilor sau inventarea de date în produs. Browserul/auth și primul finding rămân înaintea editorului complet Skills; proxyul respins/bindingul/confinarea/live provider rămân porți reale.
+T0 pregătește un singur consumer: **Settings → seif/conexiune → SystemOperation → transport → Test model → outcome/consum/readback**. T1 nu cere engagement/catalog/Publish și nu livrează singur motor agentic sau pentest. Aplicarea/acceptarea documentelor nu lansează developerii; promptul de implementare este predat separat.
 
-**Înaintea predării fără excepții**, statusul vizual istoric din AGENTS.md ar trebui aliniat printr-o aprobare separată. Auditul nu a putut face acea scriere protejată; documentele permise au starea actuală și limitarea explicită, fără modificarea regulilor de siguranță sau auto-autorizarea implementării.
-
-Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.
+Checkpointurile de mai sus cu START_PENDING_NEW_SESSION/NEÎNCEPUT/INSTRUCTIONS_UPDATE_BLOCKED sunt istorice, nu starea actuală a fundației sau guvernanței. T0 nu șterge acele probe și nu transformă vechile FAIL/UNKNOWN în PASS. Orice schimbare viitoare de contract/pin/scope cere motiv, consumer și probe, fără repetarea auditului general ori slăbirea guardurilor.

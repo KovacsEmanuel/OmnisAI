@@ -17,8 +17,9 @@ def current_resume_markers(readme, contributing, plan):
 def active_resume(readme, status, old_prompt):
     assert readme.count("**CURRENT —") == 1
     current = readme.split("**CURRENT —", 1)[1].split("\n\n", 1)[0]
-    assert "cinci contracte înainte de T0" in current
-    assert "T0 nu a început" in current
+    assert "T0" in current and "cinci contracte aprobate" in current
+    assert "T1 nu a început" in current
+    assert "promptul nu autorizează lansarea" in current
     assert "nu relua joburile Codex/openfix/P2" in current
     assert "unicul CURRENT din README" in status
     assert "ISTORIC / NEEXECUTABIL" in old_prompt
@@ -40,7 +41,8 @@ class ResumeStatusTests(unittest.TestCase):
             "documents/verification/p2-next-session-implementation.md")]
         active_resume(*sources)
         for index, old, new in (
-            (0, "T0 nu a început", "începe implementarea"),
+            (0, "T1 nu a început", "începe implementarea"),
+            (0, "promptul nu autorizează lansarea", "lansează developerul"),
             (0, "nu relua joburile Codex/openfix/P2", "reia openfix"),
             (2, "ISTORIC / NEEXECUTABIL", "ACTIV"),
         ):

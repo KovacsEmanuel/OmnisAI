@@ -10,19 +10,19 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 @media print{@page{size:A4;margin:18mm}.sidebar,.mobile-nav,.skip,.topline{display:none}.page{margin:0;padding:0}body{background:white;font-size:12pt;line-height:1.5}h1{font-size:26pt}h2{font-size:20pt;break-after:avoid}h3{font-size:14pt;break-after:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;table-layout:fixed;font-size:12pt}td,th{min-width:0;padding:7px}pre,pre code{font-size:12pt;white-space:pre-wrap;background:#f0f0ed;color:#222}code{font-size:12pt}a{color:inherit}p,li{orphans:3;widows:3}footer{font-size:12pt}}
 </style></head>
 <body><a class="skip" href="#content">Sari la conținut</a>
-<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-ce-s-a-revizuit">2. Ce s-a revizuit</a></li><li><a href="#3-toate-recomandarile-initiale">3. Toate recomandările inițiale</a></li><li><a href="#4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</a></li><li><a href="#5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</a></li><li><a href="#6-ui-si-documente">6. UI și documente</a></li><li><a href="#7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
-<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-ce-s-a-revizuit">2. Ce s-a revizuit</a></li><li><a href="#3-toate-recomandarile-initiale">3. Toate recomandările inițiale</a></li><li><a href="#4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</a></li><li><a href="#5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</a></li><li><a href="#6-ui-si-documente">6. UI și documente</a></li><li><a href="#7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav></details>
+<aside class="sidebar"><p class="wordmark">OMNIS</p><p class="note">Baseline de implementare<br>Document, nu aplicație.</p><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-scope-curent-si-surse-istorice">2. Scope curent și surse istorice</a></li><li><a href="#3-istoric-toate-recomandarile-initiale">3. Istoric — toate recomandările inițiale</a></li><li><a href="#4-istoric-corectii-suplimentare-din-re-review">4. Istoric — corecții suplimentare din re-review</a></li><li><a href="#5-probe-istorice-de-dependente-fara-transfer-la-runtime-ul-nou">5. Probe istorice de dependențe, fără transfer la runtime-ul nou</a></li><li><a href="#6-istoric-ui-si-documente-baseline-vizual-pastrat">6. Istoric UI și documente — baseline vizual păstrat</a></li><li><a href="#7-gates-curente-si-limite">7. Gates curente și limite</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav><p class="note">Offline · Ctrl+P pentru print<br>Markdown este sursa editabilă.</p></aside>
+<details class="mobile-nav"><summary>OMNIS · Cuprins</summary><nav aria-label="Cuprins"><ul><li><a href="#1-verdict-de-arhitectura">1. Verdict de arhitectură</a></li><li><a href="#2-scope-curent-si-surse-istorice">2. Scope curent și surse istorice</a></li><li><a href="#3-istoric-toate-recomandarile-initiale">3. Istoric — toate recomandările inițiale</a></li><li><a href="#4-istoric-corectii-suplimentare-din-re-review">4. Istoric — corecții suplimentare din re-review</a></li><li><a href="#5-probe-istorice-de-dependente-fara-transfer-la-runtime-ul-nou">5. Probe istorice de dependențe, fără transfer la runtime-ul nou</a></li><li><a href="#6-istoric-ui-si-documente-baseline-vizual-pastrat">6. Istoric UI și documente — baseline vizual păstrat</a></li><li><a href="#7-gates-curente-si-limite">7. Gates curente și limite</a></li><li><a href="#8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</a></li></ul></nav></details>
 <div class="page"><main id="content" tabindex="-1"><div class="topline"><span>OMNIS / IMPLEMENTATION BASELINE</span><span class="status">Specificat · starea implementării în document</span></div>
-<h1 id="omnis-re-review-si-readiness-pentru-implementare">Omnis — re-review și readiness pentru implementare</h1>
+<h1 id="omnis-readiness-api-key-only-si-dovezi-istorice">Omnis — readiness API-key-only și dovezi istorice</h1>
 <p><strong>Registru: review istoric 25 septembrie 2026 + status curent HF01–HF10 · Nu validare a produsului complet</strong></p>
 <p><strong>Status curent:</strong> P0.1/P0.2/P0.3_IMPLEMENTED_LOCAL; P0.4 parțial cu <a href="verification/p04-installed-start.md">SL02 start headless instalat</a>. <a href="verification/p04-deep-remediation.md">Remedierea aprofundată</a> are <strong>REMEDIATION_PASS / READY_FOR_SL03: YES</strong> în scope de dezvoltare: corecții comise, reviewuri independente adjudecate și make check → check-installed-start <strong>exit0/exit0 pe c914fda</strong>, 308 hashuri stabile, wheel/bundle actuale și readback exact/date păstrate. <a href="verification/p04-deep-remediation-matrix.json">Matrice26/26</a>: 19 COVERED scoped, 3 PARTIAL, 4 DEFERRED_BY_SCOPE; M03/config, M21/crash-recovery și M22/parser rămân obligații explicite. <a href="verification/p04-pre-sl03-deep-review.md">Auditul și FAIL-urile istorice</a> și <a href="verification/p04-start-remediation.md">SC01/SC02</a> păstrează dovezile la reviziile lor. SL03 pair/open și SL04 stop/recovery nu au fost începute; G00 deschis, CI remote NOT_RUN, <code>assessment_ready=false</code>. Două recuperări incerte rămân RECOVERY_PENDING separat, fără stop/adopție/rescue sau ALL_CLEAN. Integrarea DB/runnerul și ownerul existent se păstrează; HF01–HF10 și restul MVP rămân specificații pentru consumatorii lor.</p>
 <p><strong>Deep review de flux/livrare:</strong> <a href="verification/omnis-deep-review.md">adjudecarea curentă</a> păstrează F01–F04 și clarificările ulterioare, probele și limitele re-review-ului. Traseul de implementare este detaliat în plan §2.1/§4.2–4.3; contractele de bootstrap/eval/pre-run/model admission/replan sunt în arhitectură, nu într-un plan paralel. Continuarea P0.4 rămâne condiționată de prerechizitele §19.2, fără refactor preventiv.</p>
 <p><strong>Notițele originale, NS01–NS19:</strong> <a href="verification/omnis-skill-pattern-amendment.md">adjudecare și probe</a>. Patternul general (arhitectură §9.9), completitudinea/reviewerul (§9.10) și JS/discovery (§11.1) se livrează conform planului §4.4 și ticketurilor B06/B10d/B15/B18a.r/B14b. Prima BOLA, scope-ul P0 și limitele runtime rămân explicite; aceste amendamente nu închid G00.</p>
 <p><strong>Secțiunile 1–8 de mai jos sunt auditul istoric preimplementare</strong>, inclusiv START_PENDING_NEW_SESSION/P0.1, probele/numerele și arborele atunci necreat. Nu descriu starea prezentă, nu anulează autorizările P0.1–P0.4 ulterioare și nu sunt al doilea plan. Registrele RR/PA păstrează istoricul, nu primesc retroactiv PASS runtime din testele documentare.</p>
 <h2 id="1-verdict-de-arhitectura">1. Verdict de arhitectură</h2>
-<p><strong>VISUAL_ACCEPTED pentru prototipul df17a29; START_PENDING_NEW_SESSION pentru implementare.</strong> Utilizatorul a aprobat aspectul și cere auditul final. Auditul a aliniat structura/contractul <code>omnis</code>, noul UI și succesiunea livrării; punctul de reluare este <strong>P0.1, plan §19</strong>, după mesajul explicit de pornire. Această sesiune nu implementează aplicația. Excepția administrativă INSTRUCTIONS_UPDATE_BLOCKED este declarată în README: AGENTS.md a rămas nemodificat după expirarea aprobării interactive, nu a fost ocolită protecția. <strong>NO-GO pentru trafic target până la G-DEPENDENCIES, G-RUNTIME și G-NET.</strong> Planul v2 și arhitectura v1, cu amendamentele §12, rămân singura bază. „Final” nu înseamnă integrare nativă sau eficacitate demonstrată.</p>
-<p>Direcția rămâne cea cerută: local-first, UI progresivă, un operator/un engagement activ, Hermes nativ, recon/browser/JS/post-auth, hartă, ipoteze, validator, bucle și raport. Trei familii inițiale complete, nu un GET vândut ca MVP și nu un catalog nelimitat. Settings complet și ambii provideri rămân în livrarea finală, dar nu pe drumul critic al primului finding.</p>
-<h2 id="2-ce-s-a-revizuit">2. Ce s-a revizuit</h2>
+<p><strong>T0 documentar IN_REVIEW; runtime API-key-only NOT_IMPLEMENTED/NOT_RUN.</strong> Cele cinci contracte au acordul operatorului: SystemOperation/dispatch v2, seif criptat/autounlock, default/override și consum MONITOR fără plafon LLM total, outcome fidel, distribuție/compatibilitate. Credit/quota → HOLD și Resume manual; shell/scripturi/workspace în sandbox pentru workerii engagementului, nu acces host sau drepturi prin prompt. OpenAI Agents SDK rămâne candidat până la admiterea pinului cu consumerul.</p>
+<p><strong>VISUAL_ACCEPTED pentru df17a29 rămâne.</strong> Fundația P0/P1 și guvernanța acceptate au dovezi istorice scoped; nu sunt relansate sau declarate nou runtime PASS. Ordinea nouă: T0 → Settings/Test model → agent/rol/tool loop → HTTP/evidence/auth → M-LAB IDOR/BOLA + triage + validator → M1 raport/retest → harness extins. Statusul final/reviewul exact sunt în <a href="verification/api-key-runtime-t0.md">registrul T0</a>. Nu există mandat de implementare T1 în această sesiune.</p>
+<h2 id="2-scope-curent-si-surse-istorice">2. Scope curent și surse istorice</h2>
 <ul>
 <li><a href="Omnis_Implementation_Plan.md">Plan v2</a>: etape, dependențe, backlog, porți și protocol de evaluare.</li>
 <li><a href="Omnis_MVP_Architecture.md">Arhitectura v1</a>: granițe, RPC/binding, proxy/HTTPS, auth, date, stări, SSE și raportare.</li>
@@ -30,10 +30,10 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <li><a href="Omnis_UI_UX_Spec.md">UI/UX</a>, <a href="../DESIGN.md">DESIGN.md</a>, <a href="Omnis_UI_Prototype.html">prototip</a> și renderer/teste documentare.</li>
 </ul>
 <p>Au existat review-uri independente pentru versiunile propuse și riscurile de arhitectură, apoi o a doua lectură independentă a documentelor revizuite și a UI/toolingului. Rezultatele lor sunt constatări, nu autoritate de a marca testele aplicației drept trecute. Snapshoturile citite de review pot preceda ultimele corecții; starea livrată este cea verificată de părinte după integrare.</p>
-<h2 id="3-toate-recomandarile-initiale">3. Toate recomandările inițiale</h2>
+<h2 id="3-istoric-toate-recomandarile-initiale">3. Istoric — toate recomandările inițiale</h2>
 <p>Tabelul R01–R12 din plan a fost verificat programatic: fiecare ID apare exact o dată. Secvențierea Settings/browser/primul finding, probele Hermes, revocarea scope-ului, efectele necunoscute, regula business, auth concurent, negative evidence, persistența artefactelor, E2E/baseline, suportul recon, toate copiile datelor și raport/retest sunt acum decizii sau porți explicite.</p>
 <p><strong>Stare: rezolvate în specificație, NEÎNCEPUTE în aplicație.</strong> Aceasta nu este o declarație că 12 probleme de cod au fost remediate într-un produs existent.</p>
-<h2 id="4-corectii-suplimentare-din-re-review">4. Corecții suplimentare din re-review</h2>
+<h2 id="4-istoric-corectii-suplimentare-din-re-review">4. Istoric — corecții suplimentare din re-review</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -148,7 +148,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>Recontrolul <a href="verification/preimplementation-pins.json">pinurilor</a> a găsit toate cele 33 de versiuni exacte solicitate în registre; nu a reinstalat/admis un lock nou. Checkoutul Hermes instalat corespunde SHA-ului baseline; documentația oficială de integrare a fost recitită, fără probă RPC/provider și fără schimbarea pinului. Scope-ul rămâne local-first, nu un redesign de stack sau permisiune de trafic.</p>
 <p><strong>Relectură independentă după amendamente:</strong> pe <code>7e90c09</code> nu a identificat blocaje substanțiale de specificație rămase în secțiunile verificate. A verificat ordinea etapelor, dimensiunea P0.1, separarea policy/reviziilor și raportul istoric versus evidence curente. Excepția AGENTS rămâne declarată; acest verdict nu închide gates runtime. Rezultatul comenzilor finale ale părintelui este păstrat în <a href="verification/preimplementation-check.json">preimplementation-check.json</a>, cu scope și limite, separat de probele aplicației încă inexistente.</p>
-<h2 id="5-decizii-schimbate-de-executie-reala">5. Decizii schimbate de execuție reală</h2>
+<h2 id="5-probe-istorice-de-dependente-fara-transfer-la-runtime-ul-nou">5. Probe istorice de dependențe, fără transfer la runtime-ul nou</h2>
 <h3 id="frontend">Frontend</h3>
 <p>Cercetarea de metadata nu a prins conflictul de declarații TypeScript între Vitest 5.0.1 și jest-dom 7.0.1. <code>tsc --noEmit</code> l-a reprodus (TS2428). Baseline-ul selectează Vitest 4.1.11; același typecheck strict și testul de dialog/router au trecut. Nu am folosit <code>skipLibCheck</code>, <code>--force</code> sau <code>--legacy-peer-deps</code> pentru a ascunde incompatibilitatea.</p>
 <p>Mediul moștenit production a făcut <code>React.act</code> indisponibil în primul test; scripturile de test cer acum <code>NODE_ENV=test</code> și instalarea include explicit devDependencies. Buildul Vite a trecut cu warnings <code>use client</code> consemnate, nu ca build perfect fără warnings.</p>
@@ -157,73 +157,77 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h3 id="proxy-blocaj-real-ramas">Proxy — blocaj real rămas</h3>
 <p>Rezolvarea <code>mitmproxy 12.2.3</code> a reușit, dar metadatele advisories au marcat dependențe <strong>cryptography, h2, msgpack și tornado</strong>. Capurile pachetului împiedică selectarea simplă a versiunilor remediate. Buildul este <strong>REJECTED_FOR_TARGET_USE</strong>, nu aprobat cu un warning. B01e are owner, cale upstream/patch minimal auditat și suită obligatorie înainte de P3.</p>
 <p>Nu afirmăm că fiecare advisory este exploatabil în Omnis; nici nu alegem o frontieră nouă de securitate pe baza absenței unui exploit demonstrat. API crypto nu a fost coborât, iar proxyul afectat nu a fost pornit.</p>
-<h2 id="6-ui-si-documente">6. UI și documente</h2>
+<h2 id="6-istoric-ui-si-documente-baseline-vizual-pastrat">6. Istoric UI și documente — baseline vizual păstrat</h2>
 <p>Review-ul a identificat Stop inaccesibil în overlay-uri, stare inert rămasă după resize, focus pierdut la Stop/Start, identitate/epoch incoerente în inspector, Pause fără stări intermediare, touch targets sub prag și ancore imbricate în cuprinsul rendererului. Acestea au regresii dedicate în remedierea UI/tooling.</p>
 <p><strong>Verificarea iterației UI acceptate a trecut:</strong> 22 teste documentation/model la livrarea df17a29; regenerare și <code>render_docs.py --check</code> pentru cele cinci cititoare; <strong>116 verificări Chromium</strong> pentru prototip și documente, fără eșecuri, erori JavaScript sau requesturi HTTP(S) neașteptate. Pe lângă Stop/modal/drawer/focus, PAUSING/drain/Resume și context/epoch, suita verifică Brain stream, linkuri probatorii după filtre incompatibile, finding detail, evidence indisponibilă cu verdict păstrat, pixeli de focus și repoziționarea findingului pe mobil. Include reduced-motion, forced-colors și un stress test CSS zoom 200% (nu certificare pentru zoomul nativ al browserului). Raportul este în <a href="verification/browser-check.json">browser-check.json</a>. Nu este certificare WCAG, test screen-reader/cross-browser sau E2E al aplicației inexistente.</p>
 <p>Referința <code>omnis-cockpit-v5.html</code> este interpretată în UI/UX §0: cockpit cald monocrom, fără sidebar permanent/brain graph/council, Brain stream și finding inspector cu validator/evidence. Comparația vizuală a fost făcută pe randări reale desktop 1440 și mobil 390. Review-urile independente au identificat legături care pierdeau contextul și focus invizibil/scroll păstrat; regresiile RED→GREEN și remedierile sunt în commituri. Toate datele rămân explicit sintetice. <strong>Aprobarea vizuală a venit ulterior de la utilizator („arata bine. bravo”); nu este dedusă din testele sau review-ul automat.</strong></p>
 <p>Placementul anterior amesteca nivelurile global și engagement și a fost corectat după feedback: <strong>Dashboard central → engagement selectat</strong>, cu <strong>Settings separat</strong> și <strong>Brain stream în tab propriu</strong>. Selectorul global de stări și previewurile evidence/replay/retest sunt în panouri demo pliante, nu în fluxul de operare. UI/UX §0 distinge cererea utilizatorului, baseline-ul, exemplele din template și copy-ul sintetic. Review-ul reordonării a reprodus step leakage în New engagement, identitate Stop/selecție globală lipsă în drawer și taburi acoperite după navigare; toate au regresii și remedieri verificate. Rutele au fost inspectate și după clickuri reale, nu numai prin încărcare directă.</p>
 <p>DESIGN.md a trecut CLI 0.4.0 fără erori/warnings și are export DTCG. Verificarea documentară a folosit Playwright Python 1.60.0 și Chromium 145.0.7632.159 de pe host; nu certifică executorul planificat Playwright 1.63.0 sau imaginea lui. Prototipul este etichetat DEMO, cu conexiuni/form submit blocate; rendererul este numai pentru Markdown trusted al proiectului, nu pentru target evidence.</p>
-<h2 id="7-necunoscute-pastrate-vizibil">7. Necunoscute păstrate vizibil</h2>
+<h2 id="7-gates-curente-si-limite">7. Gates curente și limite</h2>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
 <th>Gate</th>
-<th>Owner</th>
+<th>Owner / consumer</th>
 <th>Închidere necesară</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>G-DESIGN</td>
-<td>Operator</td>
-<td>VISUAL_ACCEPTED pentru df17a29; START_PENDING_NEW_SESSION confirmă structura/contractul <code>omnis</code> și pornirea feliei, nu execuția live</td>
+<td>T0</td>
+<td>Canon/documente → atribuirea T1</td>
+<td>Reviewuri complementare pe snapshot exact, renderer/tests/HTML, tracking și prompt; încă IN_REVIEW</td>
 </tr>
 <tr>
-<td>L01–L10 / G-OPS</td>
-<td>Integrare + operare</td>
-<td>P0-control și L05-control/L08-core reale, apoi extensiile SSE/runtime/execuție în fazele lor; startup/readiness/pairing/stop/recovery, toate probele aplicației NEÎNCEPUTE</td>
+<td>G-PROVIDER/G04a/G-MODEL</td>
+<td>T1 Settings/seif/system operation/sender</td>
+<td>Cheie/model/date/acord explicit, pin client/crypto, no echo/restart/Stop/send/outcomes reale; NOT_RUN</td>
 </tr>
 <tr>
-<td>G-DEPENDENCIES / B01e</td>
-<td>Integrare/executori</td>
-<td>B01e-build remediat/admis pentru harness izolat, apoi B01e-integrated/G-NET; fără derogare pentru buildul respins</td>
-</tr>
-<tr>
-<td>G-RUNTIME / H01–H08</td>
-<td>Integrare Hermes</td>
-<td>Child binding/lineage, skill pin, surse auth, wake/Stop și efecte de crash, inclusiv live cu acord</td>
+<td>G-RUNTIME</td>
+<td>T2 Agent/Runner/task/tool/inbox</td>
+<td>Pin SDK admis, callback autentic, rezultat tool consumat, HOLD/Resume/restart/no-resend; NOT_RUN</td>
 </tr>
 <tr>
 <td>G-DATA-EARLY</td>
-<td>API/securitate</td>
-<td>Proiecție model-facing și markeri înainte de date de țintă către provider</td>
+<td>T1 sintetic, T3 înainte de target data</td>
+<td>Payload final și output/error/log/cross-context la sender; vechiul NO-IO nu certifică noua rută</td>
 </tr>
 <tr>
-<td>G-NET / G03</td>
-<td>Broker/executori</td>
-<td>Trasee blocate măsurate, subrequest attribution, limits, scope și lease fail-closed</td>
+<td>G03a/G-NET/G-AUTH-HTTP/G-TOOLS</td>
+<td>T3 HTTP/evidence/auth/sandbox</td>
+<td>Efect atribuit, principal A/B/validator, deny la sink/host/secrete/Stop, captură și readback; NOT_RUN</td>
 </tr>
 <tr>
-<td>G-PROVIDER</td>
-<td>Operator + integrare</td>
-<td>Cont/model eligibil, data policy și buget explicit; ambii provideri până la MVP final</td>
+<td>B01e/G03b</td>
+<td>Browser/scannere/proxy la consumerul lor</td>
+<td>Build proxy respins rămâne respins; HTTP trusted A05 nu depinde de el; fără derogare pentru celelalte rute</td>
 </tr>
 <tr>
-<td>G00 DB/build</td>
-<td>Backend/dev environment</td>
-<td>Lockuri finale de produs, migrații și DB reală; imaginile nu sunt certificate prin metadata</td>
+<td>G-M-LAB</td>
+<td>T4 IDOR/BOLA + triage + validator</td>
+<td>Discovery proprie, triage persistat fără autoritate, oracle/replay vulnerable/fixed/benign/shared/auth-invalid; NOT_RUN</td>
 </tr>
 <tr>
-<td>G08</td>
-<td>Evaluare/operator</td>
-<td>Corpus sigilat, threshold fixat, rezultate reale, baseline și retest</td>
+<td>Skilluri triage/validator</td>
+<td>Candidatul de metodologie T4</td>
+<td>Original triage QUARANTINED; validator extern CANDIDATE_SOURCE_PENDING; sursă/licență/revizie/review/eval sau first-party evaluat</td>
+</tr>
+<tr>
+<td>M1/G05a/G06a</td>
+<td>T5 findings/report/retest</td>
+<td>Nu închis de M-LAB; export real și retest cu evidence noi</td>
+</tr>
+<tr>
+<td>G08/G-DATA/G-OPS</td>
+<td>T6 evaluare și distribuție</td>
+<td>Held-out, restore/release/istoric supported pe artefact fără Hermes; CI remote separat</td>
 </tr>
 </tbody>
 </table></div>
-<p>Owner înseamnă rol de implementare, nu o persoană inventată. Fără aceste probe nu există declarație de MVP funcțional. Configurația de rețea/seccomp și calitatea testelor de vulnerabilitate nu pot fi certificate printr-un document.</p>
+<p>Nu există blocker de alegere a direcției pentru T0. Pinurile, seiful, egressul, sandboxul și readerii au probe restante la consumerii lor; documentul nu le certifică. Runtime/framework nou, conturi și trafic nu sunt autorizate prin review documentar.</p>
 <h2 id="8-concluzie-si-controlul-schimbarii">8. Concluzie și controlul schimbării</h2>
-<p><strong>Pregătit tehnic pentru începerea P0.1 la cererea din sesiunea nouă</strong>, nu pentru un assessment sau MVP declarat funcțional. Contractul primei felii și al P0-control este în plan §19, iar DAG-ul din §4 separă datele B02, P1-web, P2-inert, configurarea P4a și live. Arborele <code>api/</code> + <code>web/</code> + <code>cli/</code> există numai ca plan, nu ca schelet gol. UI-ul acceptat și matricea §16/contractele arhitectură §9 împiedică portarea numai a culorilor sau inventarea de date în produs. Browserul/auth și primul finding rămân înaintea editorului complet Skills; proxyul respins/bindingul/confinarea/live provider rămân porți reale.</p>
-<p><strong>Înaintea predării fără excepții</strong>, statusul vizual istoric din AGENTS.md ar trebui aliniat printr-o aprobare separată. Auditul nu a putut face acea scriere protejată; documentele permise au starea actuală și limitarea explicită, fără modificarea regulilor de siguranță sau auto-autorizarea implementării.</p>
-<p>Un rezultat nou din P2/P3 poate cere amendament, dar acesta trebuie să numească motivul, alternativa, impactul de scope și testul. Nu prezentăm un plan ca dovadă de siguranță, cost sau performanță și nu compensăm o probă ratată cu date simulate.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>bcf148511798ecc6cd7a24790ec480542e61732f9b0450e26fb961be375e932e</code>.</p></footer>
+<p>T0 pregătește un singur consumer: <strong>Settings → seif/conexiune → SystemOperation → transport → Test model → outcome/consum/readback</strong>. T1 nu cere engagement/catalog/Publish și nu livrează singur motor agentic sau pentest. Aplicarea/acceptarea documentelor nu lansează developerii; promptul de implementare este predat separat.</p>
+<p>Checkpointurile de mai sus cu START_PENDING_NEW_SESSION/NEÎNCEPUT/INSTRUCTIONS_UPDATE_BLOCKED sunt istorice, nu starea actuală a fundației sau guvernanței. T0 nu șterge acele probe și nu transformă vechile FAIL/UNKNOWN în PASS. Orice schimbare viitoare de contract/pin/scope cere motiv, consumer și probe, fără repetarea auditului general ori slăbirea guardurilor.</p>
+<footer><div class="links"><a href="Omnis_Implementation_Readiness_Review.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>fd4a3d9e30f09420772c122d6a19fff471871b25d2637fbb3fb540b525800f10</code>.</p></footer>
 </main></div></body></html>

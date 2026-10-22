@@ -17,6 +17,7 @@ Canonul de comportament este [arhitectura](../Omnis_MVP_Architecture.md), ordine
 - Distribuție nouă în instanță separată, cititori/migrații/date/licențe păstrate. Hermes executabil retras numai după înlocuitori/consumeri instalați verificați; toolingul de dezvoltare nu se elimină.
 - Workerii pot primi shell/scripturi/workspace **în sandbox**, în execuția engagementului, cu G-TOOLS/G-NET/Stop înainte de folosire; nu drepturi prin prompt sau acces la host.
 - M-LAB: IDOR/BOLA + triage al candidatului (skill al orchestratorului inițial) + validator/replay/oracle. `skills/bug-bounty-triage/SKILL.md` rămâne original QUARANTINED; instrucțiunile «never redact»/evidence-as-authority/tool grants nu intră în policy. Validatorul extern menționat nu a fost furnizat/identificat: CANDIDATE_SOURCE_PENDING. Adoptare numai după sursă/licență/revizie/review/eval; metodologia first-party evaluată este fallbackul de conținut, nu ocolirea validării.
+- Steering ulterior al operatorului: migrarea nu închide produsul. Plan §15.1 și UI/UX §7.1 păstrează funcțiile/skills/toolurile și evoluția UI/grafică prin SL/E existente; polish neblocant cu funcția, direcție vizuală nouă numai cu acord. Promptul T1 păstrează această continuitate fără lansarea etapelor succesoare.
 
 ## Dovezi ale autorului — încă fără acceptare finală
 
@@ -25,6 +26,8 @@ Cerință → consumer → risc → decizie: contractele aprobate → implementa
 - RED: `python -B -m unittest discover -s tests/documentation -p test_api_key_contracts.py -v`, exit 1, 4 teste, 3 failures + 1 error pentru contracte/registry absente în canonul vechi. Log privat: `/home/kali/.hermes/cache/scratch/omnis-t0-fsUkdEIa/contracts-red.log`.
 - O comandă intermediară nu a pornit testele: variabila shell T0_WORK nu a fost disponibilă în apelul paralel, redirecționarea a refuzat `/architecture-docs.log`. Corectat folosind calea absolută owned; fără sudo, efecte produs sau retry de consumer. NOT_RUN, nu FAIL de produs.
 - Primul GREEN: renderer + `--check` exit 0; `python -B -m unittest discover -s tests/documentation -v`, 84 PASS/exit 0. După delta de titlu/triage: **85 PASS/exit 0**, renderer/check și `git diff --check` exit 0. Acoperire documentară numai; nu runtime/crypto/egress/SDK live. Plan/UI/readiness și reviewul integrat urmează înainte de acceptarea T0.
+- Candidat arhitectură/stack: `6632b8b05197d9e05410b74fa02984b0a7dee467`, fără acceptare T0. RED al noii ordini de plan: 86 teste, 6 failures + 1 error/exit 1, pentru DAG/heading/consumer/gates încă vechi; `plan-red.log` în același scratch.
+- Editarea protejată AGENTS a fost inițial refuzată prin timeout de aprobare, fără bypass sau modificări parțiale. Operatorul a răspuns ulterior explicit «Da, aprob explicit această modificare în AGENTS.md»; apelul normal patch a reușit. Celelalte reguli și skillurile calificate nu au fost schimbate.
 
 Reviewurile, verificările finale și dispozițiile findingurilor se completează pe snapshotul înghețat. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Guvernanța 9eda496/4e2d8d6 rămâne evidență istorică scoped; nu relansăm loaderul skillurilor nemodificate.
 

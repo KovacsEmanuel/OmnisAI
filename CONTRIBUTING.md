@@ -1,6 +1,6 @@
 # Dezvoltarea OmnisAI
 
-Direcția noului produs și limita înainte de T0 sunt în AGENTS/README; Hermes/Codex sunt unelte de dezvoltare, nu dependențe ale noului runtime. Acest fișier descrie modul de lucru; arhitectura și planul din `documents/` rămân singurul baseline de produs. Regula obligatorie de istoric granular este în [AGENTS.md](AGENTS.md).
+Direcția API-key-only și limita mandatului curent sunt în AGENTS/README; acceptarea documentară T0 nu pornește T1. Hermes/Codex sunt unelte de dezvoltare, nu dependențe ale noului runtime. Acest fișier descrie modul de lucru; arhitectura și planul din `documents/` rămân singurul baseline de produs. Regula obligatorie de istoric granular este în [AGENTS.md](AGENTS.md).
 
 ## Unelte de dezvoltare: Hermes/Codex, skill-uri la cerere
 

@@ -112,8 +112,8 @@ class SkillPatternContracts(unittest.TestCase):
         for gate in ["G-SKILL", "G-METHOD", "G-JS"]:
             self.assertIn(gate, closure)
         dag = section(plan, "### Ordine verificabilă")
-        first = re.findall(r"(?m)^\| P5a\+P6a \| ([^|]+) \|", dag)
-        self.assertEqual(first, ["P3-auth"])
+        first = re.findall(r"(?m)^\| T4 \| ([^|]+) \|", dag)
+        self.assertEqual(first, ["T1, T2, T3"])
         self.assertIn("CHECK_ONLY", route)
         self.assertIn("B15j.2", route)
         self.assertIn("B18a.r", route)

@@ -13,8 +13,8 @@ class FlowContracts(unittest.TestCase):
                       "retry", "fallback", "VALIDATION", "G-MODEL", "B07"]:
             self.assertTrue(token in model, f"Missing model contract: {token}")
         plan = document("Implementation_Plan")
-        self.assertLess(plan.index("**B06m / G-MODEL**"), plan.index("## 8. P4a"))
-        live = re.findall(r"(?m)^\| P2-live \|.*$", plan)
+        self.assertLess(plan.index("**B06m / G-MODEL**"), plan.index("## 8. T1"))
+        live = re.findall(r"(?m)^\| T1 \|.*$", plan)
         self.assertEqual(len(live), 1)
         self.assertIn("G-MODEL", live[0])
         owner = re.findall(r"(?m)^\| `policy/` \|.*$", architecture)
@@ -61,7 +61,7 @@ class FlowContracts(unittest.TestCase):
         self.assertNotIn("Orice role/revision/input străin sau stale blochează consumul.", architecture)
         plan = document("Implementation_Plan")
         focused = re.findall(r"(?m)^\| P-FOCUS \| ([^|]+) \|", plan)
-        self.assertEqual(focused, ["P5a+P6a, P-LOOP"])
+        self.assertEqual(focused, ["T5, P-LOOP"])
         self.assertIn("ResultQualification", document("UI_UX_Spec"))
 
 
@@ -71,7 +71,7 @@ class FlowContracts(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertIn("G-DATA-EARLY-RESEARCH", rows[0])
         self.assertNotIn("+ G-DATA +", rows[0])
-        for token in ["G-HERMES-BOUND-CORE", "B14c.1", "B14c.2", "G-DATA-EARLY-MAINTENANCE"]:
+        for token in ["G-RUNTIME-BOUND-CORE", "B14c.1", "B14c.2", "G-DATA-EARLY-MAINTENANCE"]:
             self.assertIn(token, plan)
         contexts = section(document("MVP_Architecture"), "### 9.7. Emitent și context înainte de primul copil")
         self.assertIn("MAINTENANCE_JOB", contexts)
@@ -91,7 +91,7 @@ class FlowContracts(unittest.TestCase):
             self.assertEqual(len(cells), 6, row)
             self.assertTrue(all(cells), row)
         closure = section(plan, "### 4.3. Închiderea milestone-urilor, fără scurtături")
-        for gate in ["G-MODEL", "G-FOCUS", "G-RESEARCH", "G-WORDLIST", "G-IMPROVE", "G-HERMES-BOUND", "G08"]:
+        for gate in ["G-MODEL", "G-FOCUS", "G-RESEARCH", "G-WORDLIST", "G-IMPROVE", "G-RUNTIME-BOUND", "G08"]:
             self.assertIn(gate, closure)
 
 

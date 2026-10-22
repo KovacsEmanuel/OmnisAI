@@ -1,5 +1,7 @@
 # Omnis — analiza migrării API-key-only și primul pentest de laborator
 
+**Dispoziție T0 ulterioară:** operatorul a aprobat cele cinci contracte și amendarea canonului; [registrul T0](api-key-runtime-t0.md) fixează acceptarea, nu această analiză istorică. Diferențe deliberate: consum LLM MONITOR fără plafon total/rezervă financiară, HOLD/Resume manual; seif criptat/autounlock; workeri cu shell/scripturi în sandbox; M-LAB IDOR/BOLA + triage + validator. Formulările „propus/neînceput/contracte de ales” de mai jos descriu analiza la snapshoturile ei, nu mandatul curent. Ordinea și viitoarele extensii rămân numai în planul canonic.
+
 ## 0. Decizie, mandat și limită
 
 **Bază analizată:** `39ab04f13d66fcba9a4cadb02338fb9fae9fa3e8`, branch `checkpoint/p2-batch2-pause-20261015`. Direcția aprobată în conversație: **fără Hermes runtime și fără Codex subscription/OAuth în noul produs; OpenRouter/OrcaRouter prin API keys; orchestrator AI, roluri și skills Omnis; un model implicit sau model-per-rol.** Folosirea Hermes/Codex pentru dezvoltare este separată și nu se elimină.

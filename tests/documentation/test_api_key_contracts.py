@@ -82,6 +82,31 @@ class ApiKeyContracts(unittest.TestCase):
                       "nu este CONFIRMED", "nu întregul MVP/M1"):
             self.assertIn(token, lab)
 
+    def test_delivery_lab_and_hold_are_in_plan_ui_and_readiness(self):
+        plan = document("Implementation_Plan")
+        first = section(plan, "## 8. T1 — Settings și Test model independent")
+        for token in ("system_operation", "fără engagement", "G-MODEL", "LOCKED",
+                      "readback", "T2", "nu tool loop"):
+            self.assertIn(token, first)
+        lab = section(plan, "## 11. T4 — M-LAB IDOR/BOLA cu triage și validator")
+        for token in ("triage", "CANDIDATE_SOURCE_PENDING", "PACKAGE_EVAL",
+                      "fixed", "benign", "auth-invalid", "T5", "nu întregul MVP"):
+            self.assertIn(token, lab)
+        for name in ("Implementation_Plan", "UI_UX_Spec", "Implementation_Readiness_Review"):
+            text = document(name)
+            for token in ("API-key-only", "M-LAB", "HOLD", "MONITOR"):
+                self.assertIn(token, text, (name, token))
+
+    def test_post_migration_product_and_ui_roadmap_reuses_existing_slices(self):
+        plan = section(document("Implementation_Plan"), "### 15.1. După migrare — funcționalități, skills, tooluri și UI")
+        for token in ("nu finalul produsului", "IDOR/BOLA", "triage", "validator",
+                      "T5", "T6", "E1–E4", "shell", "df17a29", "acord separat",
+                      "Nu amânăm usability", "sursă/licență/digest"):
+            self.assertIn(token, plan)
+        ui = section(document("UI_UX_Spec"), "### 7.1. Evoluția UI după migrare")
+        for token in ("§15.1", "T1", "T4", "T5", "T6", "unknown/stale", "Stop"):
+            self.assertIn(token, ui)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,7 +17,7 @@ import re
 import markdown
 
 DOCUMENTS = [
-    ("Omnis_Implementation_Plan", "Omnis — plan de implementare v2"),
+    ("Omnis_Implementation_Plan", "Omnis — plan de implementare API-key-only"),
     ("Omnis_MVP_Architecture", "Omnis — arhitectura API-key-only"),
     ("Omnis_UI_UX_Spec", "Omnis — specificație UI/UX"),
     ("Omnis_Stack_Baseline", "Omnis — stack și versiuni"),

@@ -80,19 +80,22 @@ class BaselineContracts(unittest.TestCase):
         section = document_section(plan, '### Ordine verificabilă')
         rows = re.findall(r'^\| ([A-Za-z0-9+-]+) \| ([^|]+) \|', section, re.M)
         graph = {name: set() if deps.strip() == '—' else set(deps.strip().split(', ')) for name, deps in rows}
-        expected = {'P0-control', 'P1-data', 'P1-web', 'P2-inert', 'P4a-minim', 'P2-live',
-                    'B01e-build', 'P3a', 'P3-auth', 'P3b', 'P5a+P6a', 'P5b+P6b', 'P4b', 'P7', 'P8',
+        expected = {'T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6',
+                    'B01e-build', 'P3b', 'P5b+P6b', 'P4b', 'P7', 'P8',
                     'P-LOOP', 'P-FOCUS', 'P-PATH', 'P-JEV', 'P-WORDLIST', 'P-RESEARCH', 'P-MAINT'}
         self.assertEqual(set(graph), expected)
         self.assertEqual(len(rows), len(graph))
         self.assertTrue(all(deps <= expected for deps in graph.values()))
         self.assertEqual(len(tuple(TopologicalSorter(graph).static_order())), len(expected))
-        self.assertIn('P1-data', graph['P2-inert'])
-        self.assertEqual(graph['P2-live'], {'P2-inert', 'P4a-minim'})
-        self.assertIn('B01e-build', graph['P3a'])
-        self.assertEqual(graph['P5a+P6a'], {'P3-auth'})
-        self.assertEqual(graph['P-LOOP'], {'P5a+P6a'})
-        self.assertEqual(graph['P-FOCUS'], {'P5a+P6a', 'P-LOOP'})
+        self.assertEqual(graph['T1'], {'T0'})
+        self.assertEqual(graph['T2'], {'T1'})
+        self.assertEqual(graph['T3'], {'T0'})
+        self.assertEqual(graph['T4'], {'T1', 'T2', 'T3'})
+        self.assertEqual(graph['T5'], {'T4'})
+        self.assertEqual(graph['T6'], {'T5'})
+        self.assertIn('B01e-build', graph['P3b'])
+        self.assertEqual(graph['P-LOOP'], {'T5'})
+        self.assertEqual(graph['P-FOCUS'], {'T5', 'P-LOOP'})
         self.assertEqual(graph['P-PATH'], {'P-LOOP', 'P5b+P6b'})
         self.assertIn('P3b', graph['P5b+P6b'])
         self.assertIn('P-WORDLIST', graph['P5b+P6b'])

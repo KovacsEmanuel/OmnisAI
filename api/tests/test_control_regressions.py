@@ -209,15 +209,19 @@ async def test_quiesce_owner_expiry_during_update_lock_wait_rolls_back(
     service = InstanceService(engine)
     owner = uuid4()
     checked = asyncio.Event()
+    owner_checks = 0
     original = service._require_owner
     task: asyncio.Task[None] | None = None
 
     async def observed(
         connection: AsyncConnection, lease: LeaseRecord, expected_owner: UUID, epoch: int
     ) -> None:
+        nonlocal owner_checks
         await original(connection, lease, expected_owner, epoch)
         await connection.execute(text("SET LOCAL statement_timeout = 10000"))
-        checked.set()
+        owner_checks += 1
+        if owner_checks == 2:  # Only the second transaction has reached pre-UPDATE.
+            checked.set()
 
     try:
         epoch = await service.acquire(owner)

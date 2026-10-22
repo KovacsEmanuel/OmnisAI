@@ -77,6 +77,29 @@ def test_existing_data_never_recreates_a_missing_or_wrong_key(tmp_path: Path, da
         assert (data / "vault.json").read_bytes() == before
 
 
+@pytest.mark.parametrize("field", ["instance_id", "secret_id"])
+@pytest.mark.parametrize("invalid", [123, []])
+def test_untrusted_uuid_association_types_lock_without_escaping(
+    tmp_path: Path, field: str, invalid: object
+) -> None:
+    data, keys = vault_paths(tmp_path)
+    instance = str(uuid4())
+    vault = ProviderVault(data, keys, instance)
+    vault.bootstrap()
+    reference = CredentialRef(instance, str(uuid4()), 1, "openrouter")
+    vault.put(reference, CANARY)
+    path = data / "vault.json"
+    payload = json.loads(path.read_text())
+    payload["entries"][0]["ref"][field] = invalid
+    path.write_text(json.dumps(payload))
+    before = path.read_bytes()
+    assert vault.status == "LOCKED"
+    assert not vault.contains(reference)
+    with pytest.raises(VaultLocked):
+        vault.get(reference)
+    assert path.read_bytes() == before
+
+
 def test_aead_binds_instance_namespace_id_and_revision(tmp_path: Path) -> None:
     data, keys = vault_paths(tmp_path)
     instance = str(uuid4())

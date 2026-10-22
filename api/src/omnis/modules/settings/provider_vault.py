@@ -38,7 +38,9 @@ class CredentialRef:
 
     def __post_init__(self) -> None:
         if (
-            str(UUID(self.instance_id)) != self.instance_id
+            type(self.instance_id) is not str
+            or type(self.secret_id) is not str
+            or str(UUID(self.instance_id)) != self.instance_id
             or str(UUID(self.secret_id)) != self.secret_id
             or type(self.revision) is not int
             or not 1 <= self.revision <= 9223372036854775807

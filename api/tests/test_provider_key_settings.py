@@ -204,8 +204,18 @@ async def test_save_rotate_revoke_replay_selection_and_no_secret_in_db(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "missing_both",
+        "instance_id_number",
+        "instance_id_list",
+        "secret_id_number",
+        "secret_id_list",
+    ],
+)
 async def test_damaged_vault_stays_locked_with_committed_local_revoke(
-    migrated_database_url: URL, tmp_path: Path
+    migrated_database_url: URL, tmp_path: Path, damage: str
 ) -> None:
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)
@@ -225,8 +235,14 @@ async def test_damaged_vault_stays_locked_with_committed_local_revoke(
     try:
         initial = await owner.handle(KeySettingsControl.model_validate(save(connection)))
         assert initial.vault_status == "UNLOCKED"
-        (data / "vault.json").unlink()
-        (keys / "master.key").unlink()
+        if damage == "missing_both":
+            (data / "vault.json").unlink()
+            (keys / "master.key").unlink()
+        else:
+            field, kind = damage.rsplit("_", 1)
+            payload = json.loads((data / "vault.json").read_text())
+            payload["entries"][0]["ref"][field] = 123 if kind == "number" else []
+            (data / "vault.json").write_text(json.dumps(payload))
         before = {path: path.read_bytes() for root in (data, keys) for path in root.iterdir()}
         with pytest.raises(VaultLocked):
             await owner.handle(KeySettingsControl.model_validate(save(connection, 1)))

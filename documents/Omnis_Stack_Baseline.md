@@ -26,22 +26,24 @@ Python 3.13 se apropie de trecerea la suport numai de securitate; release-ul 3.1
 
 ## 3. Frontend
 
-**Consumator real P0.3:** `web/package.json`/`package-lock.json` folosesc subsetul necesar din pinurile de mai jos; nicio versiune selectată nu a fost schimbată. React/Router/Query și buildul sunt exercitate prin [probe de produs locale](verification/p03-local-bootstrap.md), separat de smoke-urile istorice. Radix rămâne disponibil ca alegere pentru widgeturi complexe, fără instalare inutilă în formularul nativ de bootstrap. Oxlint/React/a11y refolosesc unealta development fixată; aceasta nu intră în bundle. E2E folosește Playwright 1.63.0 și Chromium 153.0.8010.12/build 1243, nu browserul/executorul personal. Gate-urile și setup-ul sunt în [web/README.md](../web/README.md).
+**Consumator real P0.3:** `web/package.json`/`package-lock.json` au folosit subsetul necesar fără schimbarea pinurilor inițiale; amendamentul de securitate T1 de mai jos actualizează numai Vite/Vitest. React/Router/Query și buildul sunt exercitate prin [probe de produs locale](verification/p03-local-bootstrap.md), separat de smoke-urile istorice. Radix rămâne disponibil ca alegere pentru widgeturi complexe, fără instalare inutilă în formularul nativ de bootstrap. Oxlint/React/a11y refolosesc unealta development fixată; aceasta nu intră în bundle. E2E folosește Playwright 1.63.0 și Chromium 153.0.8010.12/build 1243, nu browserul/executorul personal. Gate-urile și setup-ul sunt în [web/README.md](../web/README.md).
 
 | Rol | Pachete și pinuri |
 |---|---|
 | UI | `react==19.3.0`, `react-dom==19.3.0` |
-| Limbaj și build | `typescript==5.9.3`, `vite==8.3.1`, `@vitejs/plugin-react==6.1.1` |
+| Limbaj și build | `typescript==5.9.3`, `vite==8.3.5`, `@vitejs/plugin-react==6.1.1` |
 | Navigare | `react-router==8.4.0`, declarative mode, fără framework/SSR |
 | Server state | `@tanstack/react-query==5.103.2` |
 | Primitive accesibile | `radix-ui==1.6.7`; CSS Modules + variabilele DESIGN.md |
 | Tipuri | `@types/react==19.3.0`, `@types/react-dom==19.3.0`, `@types/node==24.13.6` |
 | Contract API | `openapi-typescript==7.13.0`, numai schema Omnis locală |
-| Test runner | **`vitest==4.1.11`**, `jsdom==30.1.1` |
+| Test runner | **`vitest==4.1.12`**, `jsdom==30.1.1` |
 | Testing Library | `@testing-library/react==16.3.3`, `@testing-library/dom==10.4.2`, `@testing-library/jest-dom==7.0.1`, `@testing-library/user-event==14.6.7` |
 | Browser E2E | `@playwright/test==1.63.0`; buildul browserului se fixează împreună |
 
 În acest tabel, `==` înseamnă pin exact descriptiv; în `package.json` se scrie valoarea simplă `"19.3.0"`, fără `^` sau `~`.
+
+**Amendament T1 — patchuri de securitate ale toolchainului, nu redesign:** `T1-WEB-AUDIT-01` a găsit vulnerabilități în Vite8.3.1/Vitest4.1.11; selectăm exact **Vite8.3.5/Vitest4.1.12**, pe aceleași ramuri, fără `audit fix --force`, override ori excepție de gate. Metadata oficială [Vite](https://registry.npmjs.org/vite/8.3.5)/[Vitest](https://registry.npmjs.org/vitest/4.1.12), licențele MIT, SRI, engines/peers și compatibilitatea reală sunt legate de [registrul T1](verification/api-key-runtime-t1.md). TypeScript, React/Router/Query, pluginul și Playwright rămân neschimbate. Registry metadata și rezultatele inițiale de mai jos/JSON sunt păstrate la versiunile observate atunci, nu rescrise ca probe ale noilor patchuri; selecția actuală și proveniența amendamentului sunt separate în JSON. Auditul curat nu este installed QA sau acceptare T1.
 
 ### Două alegeri care diferă de latest
 

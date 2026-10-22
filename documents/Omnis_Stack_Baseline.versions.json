@@ -59,7 +59,7 @@
   },
   "frontend_build": {
     "typescript": "5.9.3",
-    "vite": "8.3.1",
+    "vite": "8.3.5",
     "@vitejs/plugin-react": "6.1.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -67,13 +67,36 @@
     "openapi-typescript": "7.13.0"
   },
   "frontend_tests": {
-    "vitest": "4.1.11",
+    "vitest": "4.1.12",
     "@testing-library/react": "16.3.3",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/user-event": "14.6.7",
     "jsdom": "30.1.1",
     "@playwright/test": "1.63.0"
+  },
+  "frontend_security_patch_t1": {
+    "status": "SELECTED_SECURITY_PATCHES",
+    "scope": "build_and_test_toolchain_only",
+    "reason": "T1-WEB-AUDIT-01; same-branch security patches, without force, overrides or audit exceptions",
+    "previous_pins": {"vite": "8.3.1", "vitest": "4.1.11"},
+    "selected_pins": {"vite": "8.3.5", "vitest": "4.1.12"},
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "evidence": "verification/api-key-runtime-t1.md",
+    "historical_metadata": "Original registry observations and probes below remain at their original versions",
+    "registry": {
+      "vite": {
+        "source_url": "https://registry.npmjs.org/vite/8.3.5",
+        "license": "MIT",
+        "integrity": "sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ=="
+      },
+      "vitest": {
+        "source_url": "https://registry.npmjs.org/vitest/4.1.12",
+        "license": "MIT",
+        "integrity": "sha512-5eWdz2yb3ajxWF3C8C4TjkXl7FGm3n2E/VlazALrQHzK7nYMSGFnCZto0bbPNl77AwkOZVLk0YnBAejUu0NiWA=="
+      }
+    }
   },
   "frontend_product": {
     "phase": "P0.3",

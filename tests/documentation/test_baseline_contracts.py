@@ -125,8 +125,24 @@ class BaselineContracts(unittest.TestCase):
     def test_frontend_probe_matches_selected_pins(self):
         baseline = json.loads((DOCS / "Omnis_Stack_Baseline.versions.json").read_text(encoding="utf-8"))
         package = json.loads((DOCS / "verification/stack-probe-inputs/web/package.json").read_text(encoding="utf-8"))
+        amendment = baseline["frontend_security_patch_t1"]
+        self.assertEqual(amendment["status"], "SELECTED_SECURITY_PATCHES")
+        self.assertEqual(amendment["scope"], "build_and_test_toolchain_only")
+        self.assertEqual(amendment["previous_pins"], {"vite": "8.3.1", "vitest": "4.1.11"})
+        self.assertEqual(amendment["selected_pins"], {"vite": "8.3.5", "vitest": "4.1.12"})
+        self.assertEqual(amendment["selected_pins"], {
+            "vite": baseline["frontend_build"]["vite"],
+            "vitest": baseline["frontend_tests"]["vitest"],
+        })
+        current_package = json.loads((ROOT / "web/package.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            {name: current_package["devDependencies"][name] for name in amendment["selected_pins"]},
+            amendment["selected_pins"],
+        )
         self.assertEqual(package["dependencies"], baseline["frontend_runtime"])
-        self.assertEqual(package["devDependencies"], baseline["frontend_build"] | baseline["frontend_tests"])
+        # The disposable probe retains its original pins, not the later product security patches.
+        self.assertEqual(package["devDependencies"],
+                         baseline["frontend_build"] | baseline["frontend_tests"] | amendment["previous_pins"])
         self.assertEqual(package["engines"]["node"], baseline["runtimes"]["node"]["selected"])
 
     def test_rejected_proxy_is_not_marked_ready(self):

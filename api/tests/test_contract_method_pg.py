@@ -1982,6 +1982,11 @@ def test_historical_review_gate_precedes_database_fixture(
 ) -> None:
     assert callable(globals().get("historical_installed_journey")), "HISTORICAL_JOURNEY_MISSING"
     monkeypatch.delenv("OMNIS_HISTORY_REVIEWED", raising=False)
+    source = tmp_path / "source-prerequisite"
+    source.mkdir()
+    (source / "run_agent.py").write_text("# SOURCE prerequisite, never executed\n")
+    monkeypatch.setattr(sys.modules[__name__], "PIN", source)
+    monkeypatch.setattr(sys.modules[__name__], "LIBRARIES", source)
 
     def forbidden_fixture(name: str) -> object:
         raise AssertionError("DATABASE_ACQUIRED_BEFORE_REVIEW")

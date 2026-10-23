@@ -171,7 +171,7 @@ def build_bundle(
     manifest = {
         "format": 1,
         "release": "0.1.0",
-        "schema": "0014_provider_settings",
+        "schema": "0015_model_test_v2",
         "platform": "linux/amd64",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }

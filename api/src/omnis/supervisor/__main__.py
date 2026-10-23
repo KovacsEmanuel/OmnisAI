@@ -94,7 +94,7 @@ async def run() -> None:
             service.runtime_drain = provider_owner.drain
             raw_egress = os.environ.get("OMNIS_MODEL_EGRESS_DIR")
             if raw_egress is not None:
-                if raw_egress != "/run/omnis-model":
+                if raw_egress != "/vault":
                     raise ValueError("Release-bound model egress required")
                 from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
                 from omnis.supervisor.model_sender import ModelSender
@@ -149,6 +149,7 @@ async def run() -> None:
         await service.quiesce(owner, epoch)
         if model_owner is not None:
             await model_owner.reconcile()
+            model_owner.closing = False  # Fresh process only, before exposing control/admission.
         if task_owner is not None and runtime is not None:
 
             async def drain_model_test() -> bool:

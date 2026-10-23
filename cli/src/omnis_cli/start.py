@@ -56,7 +56,7 @@ from .start_runtime import (
     settings_overlay,
 )
 
-EXPECTED_SCHEMA = "0014_provider_settings"
+EXPECTED_SCHEMA = "0015_model_test_v2"
 READY_FIELDS = {
     "format",
     "phase",
@@ -353,7 +353,11 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                     }
                 )
         if role == "supervisor" and getattr(runtime, "provider_settings", False) is True:
-            expected_environment.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+            expected_environment.update(
+                OMNIS_VAULT_DIR="/vault",
+                OMNIS_VAULT_KEY_DIR="/vault-key",
+                OMNIS_MODEL_EGRESS_DIR="/vault",
+            )
             expected_mounts.extend(
                 {
                     "type": "bind",
@@ -551,6 +555,7 @@ def launch_forwarder(
     ownership: ForwarderOwnership | None = None,
     stop_attempt: str | None = None,
     auth: bool = False,
+    model: bool = False,
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
     # The private intent and caller holder exist before birth. The tuple is NOT
     # the ownership transfer: finally/close and tuple unpacking remain interruptible.
@@ -575,6 +580,7 @@ def launch_forwarder(
                         "--port",
                         str(port),
                         *(["--auth-directory", str(root / "native-ipc")] if auth else []),
+                        *(["--model-directory", str(root / "vault")] if model else []),
                         *(["--stop-attempt", stop_attempt] if stop_attempt is not None else []),
                     ],
                     cwd=root,
@@ -1456,6 +1462,7 @@ def start_instance(
                 ownership=owner,
                 stop_attempt=str(record["attempt"]),
                 **({"auth": True} if record["format"] == 4 else {}),
+                **({"model": True} if record["format"] == 5 else {}),
             )
             if record["format"] == 4:
                 record["auth"] = auth_listener(root, forwarder)

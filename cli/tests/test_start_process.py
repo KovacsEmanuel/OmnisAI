@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from omnis_cli.lifecycle import StartError
@@ -18,6 +19,8 @@ from omnis_cli.start_runtime import ControlRuntime
 class StartupProcessTest(unittest.TestCase):
     def runtime(self, deadline):
         runtime = ControlRuntime.__new__(ControlRuntime)
+        runtime.receipt = SimpleNamespace(profile=None)
+        runtime.model_test = False
         runtime.deadline = deadline
         runtime.uncertain = False
         runtime.family_drained = True
@@ -828,6 +831,7 @@ class StartupProcessTest(unittest.TestCase):
                 calls = []
 
                 class Runtime:
+                    native = False
                     deadline = 0
                     uncertain = False
                     family_drained = True
@@ -869,6 +873,7 @@ class StartupProcessTest(unittest.TestCase):
         calls = []
 
         class Runtime:
+            native = False
             deadline = 0
             uncertain = True
             family_drained = True

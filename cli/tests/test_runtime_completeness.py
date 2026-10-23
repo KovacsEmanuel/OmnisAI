@@ -32,6 +32,7 @@ class RuntimeCompletenessTest(unittest.TestCase):
         (self.root / "db-password").write_text("a" * 48)
         (self.root / "db-password").chmod(0o600)
         self.runtime = ControlRuntime.__new__(ControlRuntime)
+        self.runtime.model_test = False
         self.runtime.receipt = SimpleNamespace(
             project="omnis-local-" + "b" * 32,
             image_id="sha256:" + "c" * 64,

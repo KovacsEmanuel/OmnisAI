@@ -119,6 +119,7 @@ class StatusTest(unittest.TestCase):
         write_record(journal, record)
         installed = SimpleNamespace(
             native=False,
+            model_test=False,
             receipt=SimpleNamespace(
                 project=record["project"],
                 image_id=record["image_id"],
@@ -159,7 +160,7 @@ class StatusTest(unittest.TestCase):
             with self.subTest(field=field):
                 changed = {**record, "stop_generation": None, field: value}
                 write_record(journal, changed, replace=True)
-                with patch("omnis_cli.status.ControlRuntime"):
+                with patch("omnis_cli.status.ControlRuntime", return_value=installed):
                     code, status, _ = self.run_status()
                 self.assertEqual((code, status["reason"]), (4, "RECOVERY_REQUIRED"))
                 self.assertEqual(status["state"], "UNAVAILABLE")

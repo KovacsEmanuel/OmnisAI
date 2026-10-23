@@ -34,6 +34,7 @@ class ReadyJournalTest(unittest.TestCase):
         )
         self.runtime = SimpleNamespace(
             native=False,
+            model_test=False,
             digest="b" * 64,
             host="unix:///run/docker.sock",
             receipt=SimpleNamespace(

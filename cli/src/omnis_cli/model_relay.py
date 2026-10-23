@@ -157,6 +157,8 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                         while not done.is_set():
                             await asyncio.sleep(0.01)
                     if not connection.closed and scope not in fenced:
+                        if not rows:
+                            raise OSError("Model upstream DNS unavailable")
                         connection.address = auth_addresses(rows)[0]
                         status = "OK"
                 else:

@@ -12,7 +12,72 @@ from uuid import uuid4
 
 import pytest
 
+from omnis.supervisor.model_relay import Relay, RelayFailure
 from omnis.supervisor.model_relay_protocol import Scope, decode, encode
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("answer", ["empty", "error", "nonglobal", "malformed"])
+async def test_dns_failure_closes_open_and_allows_explicit_new_attempt(
+    monkeypatch: pytest.MonkeyPatch, answer: str
+) -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "cli/src"))
+    forwarder = importlib.import_module("omnis_cli.forwarder")
+    calls = 0
+
+    def dns(*args: object, **kwargs: object) -> list[tuple[object, ...]]:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            if answer == "empty":
+                return []
+            if answer == "error":
+                raise socket.gaierror("owned DNS failure")
+            return [
+                (
+                    socket.AF_INET,
+                    socket.SOCK_STREAM,
+                    socket.IPPROTO_TCP,
+                    "",
+                    ("127.0.0.1" if answer == "nonglobal" else "invalid", 443),
+                )
+            ]
+        return [(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))]
+
+    monkeypatch.setattr(socket, "getaddrinfo", dns)
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+        root = Path(name)
+        root.chmod(0o700)
+        broker = await forwarder.start_auth_forwarder(root, model=True)
+        relay = Relay(root / "model-egress.sock")
+        scope = Scope(
+            str(uuid4()),
+            "METADATA_COMMAND",
+            str(uuid4()),
+            str(uuid4()),
+            1,
+            1,
+            1,
+            (datetime.now(UTC) + timedelta(seconds=30)).isoformat(),
+            "openrouter",
+        )
+        try:
+            if answer in {"empty", "error"}:
+                assert await relay.rpc("OPEN", scope, str(uuid4())) == ("UPSTREAM_UNAVAILABLE", b"")
+                assert not relay.failed
+                assert calls == 1  # No implicit retry after an upstream failure.
+                assert await relay.rpc("OPEN", scope, str(uuid4())) == ("OK", b"")
+                assert calls == 2
+            else:
+                with pytest.raises(RelayFailure):
+                    await relay.rpc("OPEN", scope, str(uuid4()))
+                assert relay.failed
+                assert calls == 1
+            await relay.rpc("FENCE", scope)
+            assert await relay.rpc("DRAIN", scope) == ("OK", b"")
+        finally:
+            broker.close()
+            await broker.wait_closed()
 
 
 @pytest.mark.asyncio

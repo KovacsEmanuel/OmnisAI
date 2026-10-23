@@ -758,6 +758,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                         if physical_phase == "connect":
                             assert action_reply is not None
                             assert connect_scope is not None
+                            assert datetime.now(UTC) < min(
+                                utc(connect_scope.deadline), utc(connect_deadline)
+                            )
                             assert action_reply.json()["state"] == "FINISHED"
                             assert action_reply.json()["finish_reason"] == "CANCELLED"
                             assert (
@@ -863,6 +866,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         writer.write(encode(late) + b"post-ack-replay")
                         await writer.drain()
                         relay_denied = decode(await asyncio.wait_for(reader.readline(), 1))
+                        assert datetime.now(UTC) < late_deadline
                         assert relay_denied == {
                             **{
                                 k: late[k]

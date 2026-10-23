@@ -77,6 +77,8 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
         "unsafe_usage",
         "coerced_usage",
         "invalid_reasoning",
+        "secret_long",
+        "secret_cross",
         "stop_at_body",
         "revoke_at_body",
         "cancel_at_body",
@@ -109,6 +111,13 @@ async def test_api_pg_sdk_protocol_and_replay(
         service, process, epoch, ProviderVault(vault_dir, keys, str(initial.instance_id))
     )
     connection_id = str(uuid4())
+    secret = (
+        "Bcanary-" + "Z" * 504
+        if scenario == "secret_long"
+        else "canary-" + "Q" * 24
+        if scenario == "secret_cross"
+        else "synthetic-not-provider-key"
+    )
     await settings.handle(
         KeySettingsControl.model_validate(
             {
@@ -119,7 +128,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     "connection_id": connection_id,
                     "expected_revision": 0,
                     "provider": "openrouter",
-                    "secret": "synthetic-not-provider-key",
+                    "secret": secret,
                 },
             }
         )
@@ -201,6 +210,10 @@ async def test_api_pg_sdk_protocol_and_replay(
                         ],
                         "usage": {"prompt_tokens": 9, "completion_tokens": 7, "total_tokens": 16},
                     }
+                if first.startswith("POST") and scenario.startswith("secret_"):
+                    echoed = ("x" * 250 if scenario == "secret_cross" else "") + secret
+                    payload["model"] = echoed
+                    payload["id"] = echoed
                 if scenario == "unknown_usage":
                     payload.pop("usage", None)
                 if first.startswith("POST"):
@@ -389,7 +402,22 @@ async def test_api_pg_sdk_protocol_and_replay(
                     value["result_state"] == "COMPLETED"
                     and value["response_text"] == "OMNIS_MODEL_TEST_OK"
                 )
-                assert value["observed_model"] == "fixture/observed"
+                if scenario.startswith("secret_"):
+                    expected_model = (
+                        ("x" * 250 if scenario == "secret_cross" else "") + "[REDACTED]"
+                    )[:256]
+                    assert value["observed_model"] == expected_model
+                    async with engine.connect() as db:
+                        stored = (
+                            (await db.execute(text("SELECT payload FROM model_record_v2")))
+                            .scalars()
+                            .all()
+                        )
+                    retained = json.dumps(stored) + result.text
+                    leaked = secret in retained or secret[:6] in retained
+                    assert not leaked
+                else:
+                    assert value["observed_model"] == "fixture/observed"
                 assert value["input_tokens"] == (
                     None
                     if scenario

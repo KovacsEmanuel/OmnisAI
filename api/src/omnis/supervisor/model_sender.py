@@ -321,8 +321,8 @@ class ModelSender:
                     if state == "COMPLETED"
                     else "ACK_OR_COMPLETION_UNVERIFIED",
                     "200",
-                    completion.model[:256].replace(secret, "[REDACTED]"),
-                    completion.id[:256].replace(secret, "[REDACTED]"),
+                    completion.model.replace(secret, "[REDACTED]")[:256],
+                    completion.id.replace(secret, "[REDACTED]")[:256],
                     content.replace(secret, "[REDACTED]") if content is not None else None,
                     counts[0],
                     counts[1],

@@ -16,6 +16,41 @@ async def guard() -> AsyncIterator[None]:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("length,offset", [(512, 0), (31, 250)])
+async def test_redacts_before_bounding_response_identifiers(length: int, offset: int) -> None:
+    secret = "canary-" + "Z" * (length - 7)
+    echoed = "x" * offset + secret
+    payload = {
+        "id": echoed,
+        "model": echoed,
+        "object": "chat.completion",
+        "created": 0,
+        "choices": [
+            {"index": 0, "message": {"role": "assistant", "content": ACK}, "finish_reason": "stop"}
+        ],
+    }
+    sender = ModelSender(Path("/nonexistent-owned-fixture"))
+    await sender.http.aclose()
+    sender.http = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, content=json.dumps(payload))
+        )
+    )
+    try:
+        reply = await sender.send(
+            ENDPOINTS["openrouter"],
+            secret,
+            Projection(model="fixture/model", output_tokens=64),
+            guard,
+        )
+        leaked = any(secret[:6] in (value or "") for value in (reply.model, reply.response_id))
+        assert not leaked
+        assert reply.result_state == "COMPLETED"
+    finally:
+        await sender.close()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("component", ["prompt_tokens", "completion_tokens", "reasoning_tokens"])
 @pytest.mark.parametrize("value", [-1, 9007199254740992, True, "9", 1.5])
 async def test_original_usage_is_not_coerced(component: str, value: object) -> None:

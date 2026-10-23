@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+
 from omnis.supervisor import __main__ as consumer
 
 
@@ -23,12 +24,13 @@ async def test_fresh_model_owner_survives_historical_quiescence(
     historical_shutdown: bool,
     ending: str,
 ) -> None:
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
     from omnis.modules.instance.records import InstanceRecord, LeaseRecord
     from omnis.modules.instance.service import InstanceService
     from omnis.modules.runs.model_test_models import ModelTestControl
     from omnis.modules.settings.catalog_models import CatalogError
     from omnis.supervisor.native_tasks import NativeTaskOwner
-    from sqlalchemy.ext.asyncio import AsyncConnection
 
     engine = Mock(dispose=AsyncMock())
     service = InstanceService(engine)

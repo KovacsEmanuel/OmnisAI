@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+
 from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs.managed_admission import ManagedAdmission
 from omnis.modules.runs.model_test import REQUESTED
@@ -210,25 +211,34 @@ async def test_operation_outlives_four_seconds_disconnect_and_no_refill(
 
 
 def test_public_request_and_private_fields_are_strict() -> None:
-    from omnis.modules.runs.model_test_models import ModelTestRequest
     from pydantic import ValidationError
+
+    from omnis.modules.runs.model_test_models import ModelTestRequest
 
     with pytest.raises(ValidationError):
         ModelTestRequest.model_validate(
-            {"operation_id": str(uuid4()), "consent": True, "prompt": "secret"}
+            {
+                "operation_id": str(uuid4()),
+                "expected_selection_revision": 1,
+                "consent": True,
+                "prompt": "secret",
+            }
         )
     with pytest.raises(ValidationError):
         ModelTestControl(
             op="model_test",
             action="start",
             operation_id=str(uuid4()),
+            expected_selection_revision=1,
+            consent=True,
             selection_ref={},
         )
 
 
 def test_provision_uses_catalog_validator(monkeypatch: pytest.MonkeyPatch) -> None:
-    from omnis.modules.settings import candidate_catalog
     from pydantic import ValidationError
+
+    from omnis.modules.settings import candidate_catalog
 
     validate = Mock(wraps=candidate_catalog.valid_ref)
     monkeypatch.setattr(candidate_catalog, "valid_ref", validate)

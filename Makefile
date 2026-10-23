@@ -122,7 +122,7 @@ test-contract-method-native-pg:
 
 test-contract-method-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py -q --tb=line
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py -m 'not legacy_native' -q --tb=line
 
 test-managed-admission-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
@@ -172,6 +172,7 @@ test-b06a-pure:
 # Explicit historical Hermes adapter/AST controls, not an API-key release prerequisite.
 # OAuth AST requires HERMES_NATIVE_SOURCE from prepare_hermes_runtime.py (MANAGEMENT).
 check-runtime:
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_contract_method_pg.py api/tests/test_contract_method_producer.py -m legacy_native -q
 	$(API_PY) -I -B -c 'import runpy,sys; sys.path.insert(0,"integrations/hermes/src"); sys.argv=["integrations/hermes/tests/test_native_build.py","-v"]; runpy.run_path(sys.argv[0],run_name="__main__")'
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -c 'import sys,pytest; sys.path.insert(0,"integrations/hermes/src"); raise SystemExit(pytest.main(["-c","api/pyproject.toml","integrations/hermes/tests/test_protocol.py","integrations/hermes/tests/test_client.py","integrations/hermes/tests/test_host.py","integrations/hermes/tests/test_startup_budget.py","integrations/hermes/tests/test_native_h02.py","integrations/hermes/tests/test_bootstrap_inventory.py","integrations/hermes/tests/test_native_preparation.py","integrations/hermes/tests/test_managed_admission.py","integrations/hermes/tests/test_managed_build.py","integrations/hermes/tests/test_model_prepare_lifecycle.py","integrations/hermes/tests/test_managed_native_source.py","integrations/hermes/tests/test_model_terminal.py","integrations/hermes/tests/test_prompt_bundle.py","integrations/hermes/tests/test_managed_composition.py","integrations/hermes/tests/test_c03_case_input.py","integrations/hermes/tests/test_c03_records.py","integrations/hermes/tests/test_contract_method.py","api/tests/test_runtime_service.py","api/tests/test_runtime_supervisor.py","-q"]))'
 	$(API_PY) -I -m ruff check --config api/pyproject.toml --no-fix integrations/hermes/src integrations/hermes/tests
@@ -207,7 +208,7 @@ typecheck-api:
 	@env -u PYTHONPATH -u MYPYPATH $(API_PY) -I -m mypy --config-file api/pyproject.toml --no-incremental --output=json $(API_CHECK_PATHS)
 
 test-api:
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests --ignore=api/tests/test_migrations.py --ignore=api/tests/test_web_e2e.py --ignore=api/tests/test_cli_status.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests --ignore=api/tests/test_migrations.py --ignore=api/tests/test_web_e2e.py --ignore=api/tests/test_cli_status.py -q -m 'not legacy_native'
 
 test-migrations:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_UV="$(UV)" $(API_PY) -I -m pytest api/tests/test_migrations.py -q

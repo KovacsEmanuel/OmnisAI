@@ -42,6 +42,7 @@ dev = [
 testpaths = ["tests"]
 asyncio_mode = "strict"
 pythonpath = ["src", "../integrations/hermes/src"]
+markers = ["legacy_native: explicit historical native execution or retained-private provenance"]
 
 [tool.ruff]
 required-version = "==0.16.9"

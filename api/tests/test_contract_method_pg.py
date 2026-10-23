@@ -6345,6 +6345,7 @@ def require_h04_observation(
         ), "H04_USABLE_FINAL_OR_APPROVAL"
 
 
+@pytest.mark.legacy_native
 @pytest.mark.parametrize("case", H04_CASES)
 def test_h04_actual_source_observer(tmp_path: Path, case: str) -> None:
     """Full pinned SOURCE real AIAgent; generated installed hook, not OCI evidence."""
@@ -7531,6 +7532,7 @@ def test_h04_real_reader_cache_controls(
         assert cache.is_file()  # Preserve unknown bytes; never delete for green.
 
 
+@pytest.mark.legacy_native
 def test_h04_rejects_exact_retained_batch2_reader_before_origin(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -7551,6 +7553,56 @@ def test_h04_rejects_exact_retained_batch2_reader_before_origin(
     with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
         batch2_current_reader(handle, expected_sha256=expected)
     assert not calls
+
+
+def test_h04_rejects_synthetic_stale_reader_before_origin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fresh SOURCE inventory mismatch, not retained-private provenance."""
+    import shutil
+    import zipfile
+
+    source = tmp_path / "source"
+    installed = tmp_path / "reader/lib/python3.13/site-packages"
+    raw = b"# synthetic stale SOURCE inventory\n"
+    for base in (source / "api/src", installed):
+        path = base / "omnis/__init__.py"
+        path.parent.mkdir(parents=True)
+        path.write_bytes(raw)
+    wheel = tmp_path / "synthetic.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr("omnis/__init__.py", raw)
+    python = tmp_path / "reader/bin/python"
+    python.parent.mkdir()
+    python.symlink_to(Path(sys.executable).resolve())
+    shutil.copyfile(Path(sys.prefix) / "pyvenv.cfg", python.parent.parent / "pyvenv.cfg")
+    handle = tmp_path / "synthetic-reader.json"
+    handle.write_bytes(
+        canonical(
+            {
+                "schema_version": 1,
+                "status": "READY_CURRENT_ONLY_PREREQUISITES",
+                "root": str(tmp_path),
+                "current": {
+                    "tag": "current",
+                    "commit": "a" * 40,
+                    "source": str(source),
+                    "wheel": str(wheel),
+                    "wheel_sha256": sha(wheel.read_bytes()),
+                    "python": str(python),
+                    "files": [{"path": "api/src/omnis/__init__.py", "sha256": sha(raw)}],
+                },
+            }
+        )
+    )
+    handle.chmod(0o600)
+
+    def forbidden(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+        raise AssertionError("H04_STALE_READER_ORIGIN_REACHED")
+
+    monkeypatch.setattr(subprocess, "run", forbidden)
+    with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
+        batch2_current_reader(handle, expected_sha256=sha(handle.read_bytes()))
 
 
 def batch2_persisted_correspondence(back: dict[str, object]) -> None:

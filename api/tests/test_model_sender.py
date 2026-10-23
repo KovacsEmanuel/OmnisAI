@@ -1,5 +1,6 @@
 import asyncio
 import json
+import ssl
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
@@ -33,6 +34,167 @@ async def guard() -> AsyncIterator[Authority]:
         ),
         (now + timedelta(seconds=0.4)).isoformat(),
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "error",
+    [
+        pytest.param("eof", id="eof"),
+        pytest.param("cert", id="cert"),
+        pytest.param("network", id="network"),
+        pytest.param("timeout", id="timeout"),
+        pytest.param("broken", id="broken"),
+        pytest.param("write", id="write"),
+        pytest.param("cancel", id="cancel"),
+        pytest.param("relay", id="relay"),
+        pytest.param("control", id="control"),
+    ],
+)
+async def test_tls_wrap_failure_closes_raw_and_preserves_control(
+    monkeypatch: pytest.MonkeyPatch, error: str
+) -> None:
+    from unittest.mock import AsyncMock, Mock
+
+    from anyio import BrokenResourceError, EndOfStream
+    from anyio.abc import ByteStream
+    from anyio.streams.tls import TLSStream
+
+    from omnis.supervisor.model_sender import Stream
+
+    faults: dict[str, BaseException] = {
+        "eof": EndOfStream(),
+        "cert": ssl.SSLCertVerificationError("fixture certificate"),
+        "network": ConnectionResetError("fixture reset"),
+        "timeout": TimeoutError("fixture deadline"),
+        "broken": BrokenResourceError(),
+        "write": httpcore.WriteError("fixture write"),
+        "cancel": asyncio.CancelledError(),
+        "relay": RelayFailure("fixture relay uncertainty"),
+        "control": RuntimeError("fixture DB/control uncertainty"),
+    }
+    raw = Mock(spec=ByteStream)
+    raw.aclose = AsyncMock()
+    fault = faults[error]
+    monkeypatch.setattr(TLSStream, "wrap", AsyncMock(side_effect=fault))
+    expected = type(fault) if error in {"cancel", "relay", "control"} else httpcore.ConnectError
+    with pytest.raises(expected) as caught:
+        await Stream(raw).start_tls(ssl.create_default_context(), "openrouter.ai", 1)
+    raw.aclose.assert_awaited_once()
+    if error in {"cancel", "relay", "control"}:
+        assert caught.value is fault
+
+
+@pytest.mark.asyncio
+async def test_tls_cleanup_failure_is_fatal(monkeypatch: pytest.MonkeyPatch) -> None:
+    from unittest.mock import AsyncMock, Mock
+
+    from anyio import EndOfStream
+    from anyio.abc import ByteStream
+    from anyio.streams.tls import TLSStream
+
+    from omnis.supervisor.model_sender import Stream
+
+    raw = Mock(spec=ByteStream)
+    raw.aclose = AsyncMock(side_effect=RelayFailure("RELAY_DRAIN_UNCERTAIN"))
+    monkeypatch.setattr(TLSStream, "wrap", AsyncMock(side_effect=EndOfStream()))
+    with pytest.raises(RelayFailure, match="^RELAY_DRAIN_UNCERTAIN$"):
+        await Stream(raw).start_tls(ssl.create_default_context(), "openrouter.ai", 1)
+    raw.aclose.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_tls_handshake_cut_allows_explicit_healthy_metadata_attempt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib
+    import os
+    import socket
+    import sys
+    import tempfile
+    from dataclasses import replace
+
+    from test_model_test_v2 import tls_contexts
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "cli/src"))
+    forwarder = importlib.import_module("omnis_cli.forwarder")
+    tasks: set[asyncio.Task[None]] = set()
+    connected: list[object] = []
+    requests: list[bytes] = []
+
+    async def peer(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        task = asyncio.current_task()
+        assert task is not None
+        tasks.add(task)
+        try:
+            if writer.get_extra_info("ssl_object") is None:
+                assert await reader.read(65536)  # Cut the actual ClientHello handshake.
+                return
+            requests.append(await reader.readuntil(b"\r\n\r\n"))
+            writer.write(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\n{}")
+            await writer.drain()
+            await reader.read()
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            tasks.discard(task)
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+        root = Path(name)
+        root.chmod(0o700)
+        server_context, client_context = tls_contexts(root)
+        cut = await asyncio.start_server(peer, "127.0.0.1", 0)
+        healthy = await asyncio.start_server(peer, "127.0.0.1", 0, ssl=server_context)
+        original = asyncio.get_running_loop().sock_connect
+
+        async def connect(sock: socket.socket, target: str | tuple[object, ...]) -> None:
+            if sock.family == socket.AF_UNIX:
+                await original(sock, target)
+            else:
+                assert target == ("8.8.8.8", 443)
+                server = cut if not connected else healthy
+                address = server.sockets[0].getsockname()
+                connected.append(address)
+                await original(sock, address)
+
+        def dns(*args: object, **kwargs: object) -> list[tuple[object, ...]]:
+            return [(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))]
+
+        monkeypatch.setattr(socket, "getaddrinfo", dns)
+        monkeypatch.setattr(asyncio.get_running_loop(), "sock_connect", connect)
+        broker = await forwarder.start_auth_forwarder(root, model=True)
+        sender = ModelSender(root / "model-egress.sock", client_context)
+        async with guard() as authority:
+            scope = authority.scope
+
+        @asynccontextmanager
+        async def current_guard() -> AsyncIterator[Authority]:
+            yield Authority(scope, (datetime.now(UTC) + timedelta(seconds=0.4)).isoformat())
+
+        try:
+            with pytest.raises(SendDenied, match="^METADATA_UNAVAILABLE$"):
+                await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", current_guard)
+            assert len(connected) == 1 and not requests  # No implicit second handshake.
+            relay = sender.transport.backend.relay
+            assert not relay.failed
+            assert await relay.rpc("DRAIN", scope) == ("OK", b"")
+            scope = replace(scope, id=str(uuid4()))
+            assert (
+                await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", current_guard)
+                == {}
+            )
+            assert len(connected) == 2 and len(requests) == 1
+            assert requests[0].startswith(b"GET /api/v1/models HTTP/1.1\r\n")
+            await sender.drain()
+        finally:
+            await sender.close()
+            broker.close()
+            await broker.wait_closed()
+            for server in (cut, healthy):
+                server.close()
+                await server.wait_closed()
+            if tasks:
+                await asyncio.wait_for(asyncio.gather(*tuple(tasks)), 2)
 
 
 @pytest.mark.asyncio

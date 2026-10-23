@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import httpcore
 import httpx
-from anyio import EndOfStream
+from anyio import BrokenResourceError, ClosedResourceError, EndOfStream
 from anyio.abc import ByteStream
 from anyio.streams.tls import TLSStream
 from openai import APIConnectionError, APIStatusError, AsyncOpenAI
@@ -65,15 +65,30 @@ class Stream(httpcore.AsyncNetworkStream):
     ) -> httpcore.AsyncNetworkStream:
         if server_hostname not in {httpx.URL(v).host for v in ENDPOINTS.values()}:
             raise SendDenied("ENDPOINT_DENIED")
-        async with asyncio.timeout(timeout):
-            return Stream(
-                await TLSStream.wrap(
+        wrapped = None
+        try:
+            async with asyncio.timeout(timeout):
+                wrapped = await TLSStream.wrap(
                     self.stream,
                     hostname=server_hostname,
                     ssl_context=ssl_context,
                     standard_compatible=False,
                 )
-            )
+        except (
+            EndOfStream,
+            BrokenResourceError,
+            ClosedResourceError,
+            OSError,
+            httpcore.NetworkError,
+            httpcore.TimeoutException,
+        ):
+            raise httpcore.ConnectError("UPSTREAM_UNAVAILABLE") from None
+        finally:
+            # The pool cannot own a TLS stream until the handshake returns it.
+            if wrapped is None:
+                await self.aclose()
+        assert wrapped is not None
+        return Stream(wrapped)
 
     async def aclose(self) -> None:
         await self.stream.aclose()

@@ -88,6 +88,7 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
         "revoke_at_body",
         "cancel_at_body",
         "relay_cancel_dns",
+        "relay_cancel_connect",
         "relay_revoke_dns",
         "relay_stop_dns",
         "relay_expiry_connect",
@@ -325,8 +326,9 @@ async def test_api_pg_sdk_protocol_and_replay(
         server.close()
         await server.wait_closed()
     sender = ModelSender(socket, client_context)
-    from omnis.supervisor.model_relay_protocol import Scope, decode, encode
+    from omnis.supervisor.model_relay_protocol import Scope, decode, encode, utc, validate
 
+    model_opens: list[tuple[Scope, str]] = []
     model_writes: list[tuple[Scope, str, int, str]] = []
     fence_acks: list[tuple[str, Scope]] = []
     original_rpc = sender.transport.backend.relay.rpc
@@ -341,15 +343,19 @@ async def test_api_pg_sdk_protocol_and_replay(
         timeout: float = 1,
         write_deadline: str | None = None,
     ) -> tuple[str, bytes]:
+        if action == "OPEN" and scope.kind == "MODEL_DISPATCH":
+            assert write_deadline is not None
+            model_opens.append((scope, write_deadline))
         if action == "WRITE" and scope.kind == "MODEL_DISPATCH":
-            assert connection is not None and write_deadline is not None
-            model_writes.append((scope, connection, sequence, write_deadline))
             if physical_phase == "write":
                 physical_entered.set()
                 await asyncio.sleep(1)  # Expire local IPC/guard alone, never concurrent Cancel.
         reply = await original_rpc(
             action, scope, connection, sequence, data, size, timeout, write_deadline
         )
+        if action == "WRITE" and scope.kind == "MODEL_DISPATCH" and reply[0] == "OK":
+            assert connection is not None and write_deadline is not None
+            model_writes.append((scope, connection, sequence, write_deadline))
         if action in {"FENCE", "DRAIN"} and reply[0] == "OK":
             fence_acks.append((action, scope))
         return reply
@@ -699,8 +705,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert len(handed) == before_handoff and len(received) == traffic
                         assert not owner.settlement_failed
                     else:
-                        assert physical_phase == "dns"
+                        assert physical_phase in {"dns", "connect"}
                         before = (await http.get("/api/v1/model-test/" + second_id)).json()
+                        connect_scope: Scope | None = None
+                        if physical_phase == "connect":
+                            assert before["operation_id"] == second_id
+                            assert before["state"] == "RUNNING"
+                            connect_scope, connect_deadline = model_opens[-1]
+                            assert datetime.now(UTC) < min(
+                                utc(connect_scope.deadline), utc(connect_deadline)
+                            )
                         action: asyncio.Task[httpx.Response] | asyncio.Task[None]
                         if "revoke" in scenario:
                             action = asyncio.create_task(
@@ -728,18 +742,30 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     },
                                 )
                             )
-                        await asyncio.sleep(0.1)
-                        # Resolver thread is still owned: neither terminal cancellation nor drain ACK is allowed.
-                        assert not action.done()
-                        assert (await http.get("/api/v1/model-test/" + second_id)).json()[
-                            "state"
-                        ] != "FINISHED"
-                        physical_release.set()
+                        if physical_phase == "dns":
+                            await asyncio.sleep(0.1)
+                            # Resolver thread is still owned: terminal/drain ACK must wait.
+                            assert not action.done()
+                            assert (await http.get("/api/v1/model-test/" + second_id)).json()[
+                                "state"
+                            ] != "FINISHED"
+                            physical_release.set()
                         action_reply = await asyncio.wait_for(action, 3)
                         if action_reply is not None:
                             assert action_reply.status_code == (
                                 200 if "revoke" in scenario else 202
                             ), action_reply.text
+                        if physical_phase == "connect":
+                            assert action_reply is not None
+                            assert connect_scope is not None
+                            assert action_reply.json()["state"] == "FINISHED"
+                            assert action_reply.json()["finish_reason"] == "CANCELLED"
+                            assert (
+                                await http.get("/api/v1/model-test/" + second_id)
+                            ).json() == action_reply.json()
+                            assert ("FENCE", connect_scope) in fence_acks
+                            assert ("DRAIN", connect_scope) in fence_acks
+                            assert not physical_release.is_set()
                         ack_counts = (len(connected), len(handed), len(received))
                         async with asyncio.timeout(3):
                             while owner.tasks:
@@ -747,6 +773,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert (await http.get("/api/v1/model-test/" + second_id)).json()[
                             "state"
                         ] == "FINISHED"
+                        physical_release.set()  # Async connect is cancellable before release.
                         await asyncio.sleep(0.05)
                         assert (len(connected), len(handed), len(received)) == ack_counts
                         assert len(connected) == before_connect
@@ -775,9 +802,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     )
                     assert second.status_code == 202
                     await asyncio.wait_for(paused.wait(), 3)
-                    captured_scope, captured_connection, captured_sequence, captured_deadline = (
-                        model_writes[-1]
-                    )
+                    captured_scope, captured_connection, captured_sequence, _ = model_writes[-1]
                     if scenario == "stop_at_body":
                         await stop_control()
                     elif scenario == "revoke_at_body":
@@ -813,21 +838,28 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert ("FENCE", captured_scope) in fence_acks
                         assert ("DRAIN", captured_scope) in fence_acks
                     ack_counts = (len(connected), len(handed), len(received))
-                    # Exact producer scope/connection/sequence replay, not a fabricated DB authority.
                     reader, writer = await asyncio.open_unix_connection(socket, limit=4096)
+                    # Adversarial fixture-only deadline mutation, NOT a new DB grant after Cancel.
+                    late_now = datetime.now(UTC)
+                    late_deadline = min(
+                        utc(captured_scope.deadline), late_now + timedelta(seconds=0.4)
+                    )
+                    assert late_now < late_deadline <= late_now + timedelta(seconds=0.5)
                     late: dict[str, object] = {
                         "version": 1,
                         "action": "WRITE",
                         "request_id": str(uuid4()),
                         "connection_id": captured_connection,
                         "scope": captured_scope.wire(),
-                        "sequence": captured_sequence,
+                        "sequence": captured_sequence + 1,
                         "size": len(b"post-ack-replay"),
                         "timeout_ms": 500,
-                        "write_deadline": captured_deadline,
+                        "write_deadline": late_deadline.isoformat(),
                         "capability": (relay_directory / "model-relay.cap").read_text(),
                     }
                     try:
+                        assert validate(late) == captured_scope
+                        assert datetime.now(UTC) < late_deadline
                         writer.write(encode(late) + b"post-ack-replay")
                         await writer.drain()
                         relay_denied = decode(await asyncio.wait_for(reader.readline(), 1))

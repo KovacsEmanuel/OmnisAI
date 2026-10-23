@@ -40,7 +40,7 @@ test-model-test-v2-pg:
 .PHONY: test-provider-settings-pg
 test-provider-settings-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_key_api.py api/tests/test_provider_vault.py -q
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_key_api.py api/tests/test_provider_vault.py api/tests/test_cold_restore_pg.py -q
 
 test-dashboard:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }

@@ -19,8 +19,8 @@ endif
 check:
 	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)"
 
-# Exact former check dependencies, run by the same private DB lifecycle in CI/local.
-check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install check-runtime
+# Active API-key release checks share the same private DB lifecycle in CI/local.
+check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
 	git diff --check
 
 test-db-contract:
@@ -169,7 +169,7 @@ test-b06a-pure:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_b06a_*.py -q
 
 .PHONY: check-runtime
-# Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
+# Explicit historical Hermes adapter/AST controls, not an API-key release prerequisite.
 # OAuth AST requires HERMES_NATIVE_SOURCE from prepare_hermes_runtime.py (MANAGEMENT).
 check-runtime:
 	$(API_PY) -I -B -c 'import runpy,sys; sys.path.insert(0,"integrations/hermes/src"); sys.argv=["integrations/hermes/tests/test_native_build.py","-v"]; runpy.run_path(sys.argv[0],run_name="__main__")'

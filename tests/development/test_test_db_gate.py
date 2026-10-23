@@ -67,37 +67,85 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                     self.assertEqual(result.get("HERMES_NATIVE_SOURCE"), selected)
                     self.assertNotIn("UNRELATED_PROBE", result)
 
-    def test_canonical_oauth_source_refuses_before_any_fixture_or_toolchain_effect(self) -> None:
+    def test_canonical_preflight_never_loads_management_or_native_source(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        preflight = module["_preflight_gate"]
+        calls = []
+
+        def command(argv, _env, *, timeout):
+            calls.append(argv)
+            expected = {
+                "uv": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+                "node": "v24.21.0",
+                "npm": "11.19.0",
+                "python": "3.13.15",
+            }[Path(argv[0]).name]
+            return subprocess.CompletedProcess(argv, 0, expected + "\n", "")
+
+        with (
+            patch.dict(preflight.__globals__, {"_run": command}),
+            patch.object(runpy, "run_path", side_effect=AssertionError("native source loaded")),
+            patch.object(module["shutil"], "which", return_value="/pinned/uv"),
+            patch.object(Path, "is_file", return_value=True),
+        ):
+            self.assertEqual(preflight("uv", "check-components"), "/pinned/uv")
+        self.assertEqual(
+            [Path(argv[0]).name for argv in calls], ["uv", "node", "npm", "python", "python"]
+        )
+
+    def test_canonical_toolchain_refusal_precedes_fixture_creation(self) -> None:
         module = runpy.run_path(str(SCRIPT))
         prove = module["prove_private_fixture"]
-        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
-            source = Path(raw)
-            oauth = source / "hermes_cli/web_routers/oauth.py"
-            oauth.parent.mkdir(parents=True)
-            oauth.write_text("def _codex_full_login_worker(session_id):\n    pass\n")
-            for selected in (None, str(source)):
-                with self.subTest(source=selected):
-                    ambient = {"TMPDIR": os.environ["TMPDIR"], "HOME": str(source)}
-                    if selected is not None:
-                        ambient["HERMES_NATIVE_SOURCE"] = selected
-                    with (
-                        patch.dict(os.environ, ambient, clear=True),
-                        patch.dict(
-                            prove.__globals__,
-                            {
-                                "prepare_paths": lambda *_args: self.fail(
-                                    "fixture preparation attempted"
-                                ),
-                                "_run": lambda *_args, **_kw: self.fail(
-                                    "toolchain/process attempted"
-                                ),
-                            },
-                        ),
-                    ):
-                        with self.assertRaisesRegex(
-                            ValueError, "OAuth.*(requires|SHA256 mismatch)"
-                        ):
-                            prove("check-components", "unused-uv", 10)
+        with (
+            patch.dict(
+                os.environ, {"TMPDIR": os.environ["TMPDIR"], "HOME": os.environ["HOME"]}, clear=True
+            ),
+            patch.object(module["shutil"], "which", return_value="/pinned/uv"),
+            patch.object(Path, "is_file", return_value=True),
+            patch.dict(
+                prove.__globals__,
+                {
+                    "prepare_paths": lambda *_args: self.fail("fixture preparation attempted"),
+                    "_run": lambda argv, *_args, **_kw: subprocess.CompletedProcess(
+                        argv, 0, "wrong pin", ""
+                    ),
+                },
+            ),
+        ):
+            with self.assertRaisesRegex(module["UnsafeFixture"], "toolchain pin mismatch"):
+                prove("check-components", "uv", 10)
+
+    def test_canonical_components_keep_active_checks_and_explicit_legacy_gate(self) -> None:
+        makefile = (SCRIPT.parent.parent / "Makefile").read_text()
+        dependencies = next(
+            line for line in makefile.splitlines() if line.startswith("check-components:")
+        )
+        self.assertEqual(
+            dependencies.split()[1:],
+            [
+                "check-docs",
+                "check-development",
+                "check-api",
+                "test-api",
+                "test-migrations",
+                "check-api-wheel",
+                "check-web",
+                "test-e2e",
+                "check-cli",
+                "check-release-install",
+            ],
+        )
+        self.assertIn("check-runtime:\n", makefile)
+        self.assertIn("integrations/hermes/tests/test_native_build.py", makefile)
+        self.assertIn("api/tests/test_runtime_service.py", makefile)
+        self.assertIn("api/tests/test_runtime_supervisor.py", makefile)
+        self.assertIn("check-cli: test-cli test-cli-live", makefile)
+        self.assertIn("test-cli-live: check-cli-wheel", makefile)
+        self.assertIn("check-release-install: check-cli-wheel build-web", makefile)
+        self.assertIn(
+            "-m pytest api/tests --ignore=api/tests/test_migrations.py --ignore=api/tests/test_web_e2e.py --ignore=api/tests/test_cli_status.py -q",
+            makefile,
+        )
 
     def test_noncanonical_gate_does_not_require_oauth_source(self) -> None:
         module = runpy.run_path(str(SCRIPT))

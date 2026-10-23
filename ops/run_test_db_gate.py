@@ -10,7 +10,6 @@ import ctypes
 import json
 import os
 import re
-import runpy
 import secrets
 import shutil
 import signal
@@ -824,9 +823,6 @@ def gate_label(target: str) -> str:
 
 
 def _preflight_gate(uv: str, target: str) -> str:
-    if target == "check-components":
-        seam = runpy.run_path(str(_ROOT / "integrations/hermes/tests/test_native_build.py"))
-        seam["check_management_oauth_source"]()
     base = {"PATH": os.environ.get("PATH", ""), "HOME": os.environ["HOME"]}
     selected = shutil.which(uv)
     if selected is None:

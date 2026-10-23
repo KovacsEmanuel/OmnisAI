@@ -1037,6 +1037,7 @@ def main() -> int:
             "test-db-contract",
             "test-instance-drain-pg",
             "test-provider-settings-pg",
+            "test-model-test-v2-pg",
             "test-migrations",
             "test-e2e",
             "test-sl04-pg",

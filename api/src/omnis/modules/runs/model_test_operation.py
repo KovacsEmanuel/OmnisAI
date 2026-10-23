@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs.model_test import REQUESTED, ModelTest
 from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestView
+from omnis.modules.runs.model_test_runtime import ApiKeyModelTest as ApiKeyModelTest
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.tasks import managed_store

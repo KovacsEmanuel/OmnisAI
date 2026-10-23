@@ -68,6 +68,8 @@ async def run() -> None:
     epoch = None
     task_owner = None
     provider_owner = None
+    model_owner = None
+    model_sender = None
     startup_generation = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
@@ -90,6 +92,16 @@ async def run() -> None:
                 service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
             )
             service.runtime_drain = provider_owner.drain
+            raw_egress = os.environ.get("OMNIS_MODEL_EGRESS_DIR")
+            if raw_egress is not None:
+                if raw_egress != "/run/omnis-model":
+                    raise ValueError("Release-bound model egress required")
+                from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+                from omnis.supervisor.model_sender import ModelSender
+
+                model_sender = ModelSender(Path(raw_egress) / "model-egress.sock")
+                model_owner = ApiKeyModelTest(provider_owner, model_sender)
+                service.runtime_drain = model_owner.drain
         if raw_runtime is not None:
             status = await service.owned_status(owner, epoch)
             startup_generation = status.generation
@@ -135,6 +147,8 @@ async def run() -> None:
                 )
         # Drain inherited shutdown before exposing this fresh process owner.
         await service.quiesce(owner, epoch)
+        if model_owner is not None:
+            await model_owner.reconcile()
         if task_owner is not None and runtime is not None:
 
             async def drain_model_test() -> bool:
@@ -159,6 +173,8 @@ async def run() -> None:
                     return (await provider_owner.handle(command)).model_dump(mode="json")
 
                 control.provider_settings = provider_command
+            if model_owner is not None:
+                control.model_test = model_owner.handle
             if task_owner is not None:
                 control.model_test = task_owner.model_test
             if runtime is not None and probe is None:
@@ -237,6 +253,10 @@ async def run() -> None:
             nominal_close = True
     finally:
         try:
+            if model_owner is not None and not await model_owner.drain():
+                raise ValueError("Model operation drain uncertain")
+            if model_sender is not None:
+                await model_sender.close()
             if provider_owner is not None and not await provider_owner.drain():
                 raise ValueError("Credential writer drain uncertain")
             if task_owner is not None:

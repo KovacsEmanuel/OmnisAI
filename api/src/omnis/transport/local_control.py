@@ -40,6 +40,7 @@ from omnis.modules.instance.schemas import (
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.modules.runs.model_test_store import ModelConflict
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import SettingsConflict
@@ -172,6 +173,8 @@ class LocalControl:
                 return {"ok": False, "error": "TASK_UNAVAILABLE"}
             try:
                 return {"ok": True, "model_test": await self.model_test(command)}
+            except ModelConflict as error:
+                return {"ok": False, "error": error.code}
             except CatalogError as error:
                 return {
                     "ok": False,

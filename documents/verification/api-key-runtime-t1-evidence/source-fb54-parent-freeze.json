@@ -1,0 +1,51 @@
+{
+  "base": "80c3ecd7d4618bf998cc573bf4a7c36834283e91",
+  "commit": "fb54beace973b7c49422b197404f04c8baa6a9dd",
+  "tree": "d112d081cb7b3b8a34a6ab6f00f24db87685d249",
+  "clean": true,
+  "delta": [
+    {
+      "path": "api/src/omnis/supervisor/model_relay.py",
+      "old_blob": "80558e289b4dbb1beb69fcb15f5b1575ac813ddf",
+      "blob": "6118e04b4fc09146f4066387285fac46c311789c",
+      "sha256": "119545816f6a6fcda866d65737e489eb3a63a1281bc56cb0e3d6e16cc6be3255"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "old_blob": "a46634f18a42b4f4007cfc82dc051b31fef991c8",
+      "blob": "b1bd97ba39898135619c9dcdec4a4c54df528ab8",
+      "sha256": "a8b1568a4d2e78b60c11a217edf12a3b9b9229bb6a0b267ee661365b4fd86e91"
+    },
+    {
+      "path": "api/tests/test_model_relay_protocol.py",
+      "old_blob": "c3a01247d8fbf7822a033acb1f96f5bee380f847",
+      "blob": "0cb46f19001b194a1d6a0001854b4d8ea58c2e30",
+      "sha256": "433fa6e72443d03256ba167ce249455d7aedde50e7bae7f0424b6a17b896a423"
+    },
+    {
+      "path": "api/tests/test_model_relay_scopes.py",
+      "old_blob": "d0c346c4639b3e4511c76e65279c97feed72f3f4",
+      "blob": "488881037fdb8640c77e97cedf74bdf7d071fee1",
+      "sha256": "6c4a0f17671c077a4c081367f83ccf927e118849b691e9f07bcb0bfebcc378a9"
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "old_blob": "12b91f6e06835961daa1bcfa659c976baccbec5d",
+      "blob": "3925c976a48d528a65213d39e58d956c46dfe558",
+      "sha256": "20c6f8880cbdbaa1a42c673507cc1a148f3ab40cfa9cbf82d942ee68f46e742d"
+    },
+    {
+      "path": "cli/src/omnis_cli/model_relay.py",
+      "old_blob": "e76b39e8930cc06d24476d846f0762d628b66288",
+      "blob": "0d072a045f57e71fa048f383d94a55136c988ff8",
+      "sha256": "d3824e8b17b882d1ac106f3d04ba78edf569ade82ae40672a249ee5915ef6822"
+    },
+    {
+      "path": "cli/tests/test_start.py",
+      "old_blob": "e72f9def8e4d2b07307efd73d0111d83391fc745",
+      "blob": "1174ad0f66e330375125e48c40922daa310db2a1",
+      "sha256": "b2470e8dbe9342f7521f976be8056696fe6d1c595a4487f761552d587701c022"
+    }
+  ],
+  "proof_boundary": "SOURCE corrections only; final PG and physical Cancel proof BLOCKED/NOT_RUN; no integration"
+}

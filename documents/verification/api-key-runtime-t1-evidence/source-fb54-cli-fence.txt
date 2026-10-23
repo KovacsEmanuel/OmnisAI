@@ -1,0 +1,7 @@
+SELECTED /home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/src/omnis_cli/model_relay.py
+test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver (test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.072s
+
+OK

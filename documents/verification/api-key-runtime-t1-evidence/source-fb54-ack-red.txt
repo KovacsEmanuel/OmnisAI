@@ -1,0 +1,22 @@
+...FFF                                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_missing_scoped_ack_prevents_quiescence[bool_version] ___________
+api/tests/test_model_relay_protocol.py:164: in test_missing_scoped_ack_prevents_quiescence
+    with pytest.raises(RelayFailure, match="RELAY_.*UNCERTAIN"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RelayFailure
+__________ test_missing_scoped_ack_prevents_quiescence[bool_sequence] __________
+api/tests/test_model_relay_protocol.py:164: in test_missing_scoped_ack_prevents_quiescence
+    with pytest.raises(RelayFailure, match="RELAY_.*UNCERTAIN"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RelayFailure
+___________ test_missing_scoped_ack_prevents_quiescence[bool_epoch] ____________
+api/tests/test_model_relay_protocol.py:164: in test_missing_scoped_ack_prevents_quiescence
+    with pytest.raises(RelayFailure, match="RELAY_.*UNCERTAIN"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RelayFailure
+=========================== short test summary info ============================
+FAILED api/tests/test_model_relay_protocol.py::test_missing_scoped_ack_prevents_quiescence[bool_version]
+FAILED api/tests/test_model_relay_protocol.py::test_missing_scoped_ack_prevents_quiescence[bool_sequence]
+FAILED api/tests/test_model_relay_protocol.py::test_missing_scoped_ack_prevents_quiescence[bool_epoch]
+3 failed, 3 passed, 23 deselected in 0.12s

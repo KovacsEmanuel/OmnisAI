@@ -1,0 +1,20 @@
+FF..                                                                     [100%]
+=================================== FAILURES ===================================
+_____ test_dns_failure_closes_open_and_allows_explicit_new_attempt[empty] ______
+api/tests/test_model_relay_scopes.py:54: in test_dns_failure_closes_open_and_allows_explicit_new_attempt
+    assert await relay.rpc("OPEN", scope, str(uuid4())) == ("UPSTREAM_UNAVAILABLE", b"")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api/src/omnis/supervisor/model_relay.py:131: in rpc
+    raise RelayFailure("RELAY_CONTROL_UNCERTAIN") from None
+E   omnis.supervisor.model_relay.RelayFailure: RELAY_CONTROL_UNCERTAIN
+_____ test_dns_failure_closes_open_and_allows_explicit_new_attempt[error] ______
+api/tests/test_model_relay_scopes.py:54: in test_dns_failure_closes_open_and_allows_explicit_new_attempt
+    assert await relay.rpc("OPEN", scope, str(uuid4())) == ("UPSTREAM_UNAVAILABLE", b"")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api/src/omnis/supervisor/model_relay.py:131: in rpc
+    raise RelayFailure("RELAY_CONTROL_UNCERTAIN") from None
+E   omnis.supervisor.model_relay.RelayFailure: RELAY_CONTROL_UNCERTAIN
+=========================== short test summary info ============================
+FAILED api/tests/test_model_relay_scopes.py::test_dns_failure_closes_open_and_allows_explicit_new_attempt[empty]
+FAILED api/tests/test_model_relay_scopes.py::test_dns_failure_closes_open_and_allows_explicit_new_attempt[error]
+2 failed, 2 passed, 1 deselected in 0.13s

@@ -23,6 +23,52 @@ function mount(settings = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider>{settings && <ProviderSettings />}<ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
 }
+it.each([
+  [null, 'NOT_REQUESTED', /selecția implicită nu este salvată.*Save model selection.*Refresh model metadata/],
+  [1, 'NOT_REQUESTED', /metadatele modelului nu sunt READY.*Refresh model metadata/],
+  [1, 'FAILED', /metadatele modelului nu sunt READY.*Refresh model metadata/],
+  [1, 'PENDING', /Metadatele modelului se încarcă.*Așteaptă.*READY/],
+  [1, 'READY', null],
+] as const)('explains the model gate for selection %s and metadata %s without automatic mutations', async (revision, metadata, hint) => {
+  sessionStorage.clear();
+  const mutations: string[] = [];
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (init?.method && init.method !== 'GET') mutations.push(init.method + ' ' + path);
+    return Response.json(path === '/api/v1/model-test'
+      ? { ...available, selection_revision: revision, metadata_state: metadata, reason: metadata === 'FAILED' ? 'METADATA_UNAVAILABLE' : null }
+      : path === '/api/session' ? session : health);
+  }));
+  mount();
+  const send = await screen.findByRole('button', { name: 'Trimite testul modelului' });
+  const refresh = screen.getByRole('button', { name: 'Refresh model metadata' });
+  await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
+  expect(send).toBeDisabled();
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('checkbox'));
+  await waitFor(() => expect(send).toHaveAttribute('aria-disabled', 'false'));
+  if (hint) {
+    expect(screen.getByText(hint)).toBeVisible();
+    expect(send).toHaveAccessibleDescription(hint);
+    expect(refresh).toHaveAccessibleDescription(hint);
+    expect(send).toBeDisabled();
+    await user.click(send);
+  } else {
+    expect(send).toBeEnabled();
+    expect(send).not.toHaveAttribute('aria-describedby');
+    expect(screen.queryByText(/selecția implicită nu este salvată|metadatele modelului nu sunt READY|Metadatele modelului se încarcă/)).not.toBeInTheDocument();
+  }
+  if (revision === null) expect(refresh).toBeDisabled();
+  else expect(refresh).toBeEnabled();
+  expect(refresh).toHaveAttribute('aria-disabled', String(metadata === 'PENDING'));
+  expect(screen.getByText(/Observat:/)).toHaveTextContent('UNKNOWN');
+  expect(screen.getByText(/Usage UNKNOWN/)).toBeVisible();
+  expect(screen.getByRole('status')).toHaveTextContent('NOT_VERIFIED');
+  if (metadata === 'FAILED') expect(screen.getByRole('status')).toHaveTextContent('METADATA_UNAVAILABLE');
+  expect(mutations).toEqual([]);
+  expect(sessionStorage.getItem('omnis-model-test-operation')).toBeNull();
+  expect(sessionStorage.getItem('omnis-model-test-metadata')).toBeNull();
+});
 it('Settings save refreshes current selection without rewriting the active requested snapshot', async () => {
   const invalidation = vi.spyOn(QueryClient.prototype, 'invalidateQueries');
   sessionStorage.clear();

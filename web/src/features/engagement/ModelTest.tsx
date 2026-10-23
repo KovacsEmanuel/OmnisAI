@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { ApiError, isUuid } from '../../shared/api/errors';
@@ -21,6 +21,7 @@ export function ModelTest() {
   const [consent, setConsent] = useState(false);
   const [notice, setNotice] = useState('');
   const busy = useRef(false);
+  const gateHintId = useId();
   const key = ['private', 'model-test', operation, metadataCommand];
   const authReady = !!session.data && !session.isError && transition === 'idle';
   const query = useQuery({ queryKey: key,
@@ -39,6 +40,11 @@ export function ModelTest() {
   const hardDisabled = !authReady || query.isError || !observed || uncertain;
   const working = sending || query.isFetching;
   const canStart = !hardDisabled && !working && !active && observed?.metadata_state === 'READY' && !!observed.selection_revision && consent;
+  const gateHint = hardDisabled || active || sending ? null
+    : !observed?.selection_revision ? 'Testul nu poate fi trimis: selecția implicită nu este salvată. Configurează și salvează selecția implicită în Settings → Providers (Save model selection), apoi apasă „Refresh model metadata”.'
+    : observed.metadata_state === 'PENDING' ? 'Metadatele modelului se încarcă. Așteaptă starea READY înainte de a trimite testul; nu repeta Refresh.'
+    : observed.metadata_state !== 'READY' ? 'Testul nu poate fi trimis: metadatele modelului nu sunt READY. Apasă „Refresh model metadata” și așteaptă starea READY înainte de a trimite testul.'
+    : null;
   async function mutate(action: 'start' | 'refresh' | 'cancel') {
     if (busy.current || !session.data || !authReady || !observed || working) return;
     if (action === 'start' && !canStart) return;
@@ -106,9 +112,10 @@ export function ModelTest() {
     <p>Operation: {observed?.operation_id ?? operation ?? 'none'} · {observed?.state ?? 'not started'}</p>
     <output aria-live="polite">{sending ? 'În curs…' : notice || (query.isError ? 'UNKNOWN — read the same operation; no resend.' : `${observed?.result_state ?? 'NOT_VERIFIED'} ${observed?.reason ?? ''}`)}</output>
     <label><input type="checkbox" checked={consent} disabled={hardDisabled || active} aria-disabled={working} onChange={event => { if (!working) setConsent(event.target.checked); }} /> I approve this fixed synthetic input and one finite call using the saved default.</label>
+    {gateHint && <p id={gateHintId} className={styles.providerHint}>{gateHint}</p>}
     <div className={styles.providerActions}>
-      <button disabled={hardDisabled || active || !observed?.selection_revision} aria-disabled={working || observed?.metadata_state === 'PENDING'} onClick={() => { void mutate('refresh'); }}>Refresh model metadata</button>
-      <button disabled={hardDisabled || active || !consent || observed?.metadata_state !== 'READY'} aria-disabled={working} onClick={() => { void mutate('start'); }}>Trimite testul modelului</button>
+      <button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !observed?.selection_revision} aria-disabled={working || observed?.metadata_state === 'PENDING'} onClick={() => { void mutate('refresh'); }}>Refresh model metadata</button>
+      <button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !consent || observed?.metadata_state !== 'READY'} aria-disabled={working} onClick={() => { void mutate('start'); }}>Trimite testul modelului</button>
       <button disabled={!authReady || !active} aria-disabled={working} onClick={() => { void mutate('cancel'); }}>Cancel test</button>
       <button disabled={!authReady} aria-disabled={working} onClick={() => { if (!working) void read(); }}>Citește starea testului</button>
     </div>

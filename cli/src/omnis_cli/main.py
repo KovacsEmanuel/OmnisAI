@@ -52,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
+    backup_parser = commands.add_parser("backup", help="Cold STOPPED snapshot (T1: at most 1 GiB)")
+    backup_parser.add_argument("--output", type=Path, required=True)
     image_parser = commands.add_parser(
         "install-image", help="Explicitly build the pinned local images"
     )
@@ -61,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         config = load_config()
-        if args.command in {None, "start", "stop", "status", "pair", "open"}:
+        if args.command in {None, "start", "stop", "status", "pair", "open", "backup", "restore"}:
             config.check_instance(state_dir(), getattr(args, "port", None))
     except StartError as exc:
         if getattr(args, "json", False):
@@ -97,6 +99,10 @@ def main(argv: list[str] | None = None) -> int:
             startup_timeout=args.startup_timeout,
             cleanup_timeout=args.cleanup_timeout,
         )
+    if args.command == "backup":
+        from .backup import cold_command
+
+        return cold_command("backup", args.output)
     if args.command == "status":
         return status(as_json=args.json)
     if args.command == "pair":

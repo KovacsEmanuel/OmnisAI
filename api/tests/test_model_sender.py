@@ -356,3 +356,158 @@ async def test_original_usage_is_not_coerced(component: str, value: object) -> N
         assert reply.reason == "USAGE_INVALID"
     finally:
         await sender.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "mode", ["healthy", "veto", "connect_expiry", "backpressure", "partial", "closed"]
+)
+async def test_sdk_tcp_readiness_outside_guard_and_current_write_veto(
+    monkeypatch: pytest.MonkeyPatch, mode: str
+) -> None:
+    """SOURCE lock-double, public SDK and actual broker/owned TLS; not SQL proof."""
+    import importlib
+    import os
+    import socket
+    import sys
+    import tempfile
+
+    from test_model_test_v2 import tls_contexts
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "cli/src"))
+    forwarder = importlib.import_module("omnis_cli.forwarder")
+    admission = asyncio.Lock()
+    guards = 0
+    connect_under_guard: list[bool] = []
+    async_writes: list[int] = []
+    requests: list[bytes] = []
+    tasks: set[asyncio.Task[None]] = set()
+    upstream: list[socket.socket] = []
+    handoffs: list[bool] = []
+    async with guard() as authority:
+        scope = authority.scope
+
+    @asynccontextmanager
+    async def current_guard() -> AsyncIterator[Authority]:
+        nonlocal guards
+        async with admission:
+            guards += 1
+            if mode == "veto" and connect_under_guard:
+                raise SendDenied("SOURCE_STOP_OR_REVOKE")
+            yield Authority(scope, (datetime.now(UTC) + timedelta(seconds=0.4)).isoformat())
+
+    async def peer(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        task = asyncio.current_task()
+        assert task is not None
+        tasks.add(task)
+        try:
+            headers = await reader.readuntil(b"\r\n\r\n")
+            length = next(
+                int(line.split(b":", 1)[1])
+                for line in headers.split(b"\r\n")
+                if line.lower().startswith(b"content-length:")
+            )
+            requests.append(await reader.readexactly(length))
+            body = json.dumps(
+                {
+                    "id": "source-owned",
+                    "object": "chat.completion",
+                    "created": 0,
+                    "model": "fixture/model",
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {"role": "assistant", "content": ACK},
+                            "finish_reason": "stop",
+                        }
+                    ],
+                }
+            ).encode()
+            writer.write(
+                b"HTTP/1.1 200 OK\r\nContent-Length: "
+                + str(len(body)).encode()
+                + b"\r\n\r\n"
+                + body
+            )
+            await writer.drain()
+            await reader.read()
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            tasks.discard(task)
+
+    with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+        root = Path(name)
+        root.chmod(0o700)
+        server_context, client_context = tls_contexts(root)
+        server = await asyncio.start_server(peer, "127.0.0.1", 0, ssl=server_context)
+        address = server.sockets[0].getsockname()
+        loop = asyncio.get_running_loop()
+        original_connect, original_send = loop.sock_connect, loop.sock_sendall
+
+        async def connect(sock: socket.socket, target: str | tuple[object, ...]) -> None:
+            if sock.family == socket.AF_UNIX:
+                await original_connect(sock, target)
+            else:
+                assert target == ("8.8.8.8", 443)
+                connect_under_guard.append(admission.locked())
+                upstream.append(sock)
+                if mode == "connect_expiry":
+                    await asyncio.sleep(1)
+                await asyncio.sleep(0.02)  # Actual readiness wait must not own admission.
+                await original_connect(sock, address)
+
+        async def send(sock: socket.socket, data: bytes) -> None:
+            if sock.family != socket.AF_UNIX:
+                async_writes.append(len(data))
+            await original_send(sock, data)
+
+        def dns(*args: object, **kwargs: object) -> list[tuple[object, ...]]:
+            return [(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))]
+
+        monkeypatch.setattr(socket, "getaddrinfo", dns)
+        monkeypatch.setattr(loop, "sock_connect", connect)
+        monkeypatch.setattr(loop, "sock_sendall", send)
+        original_handoff = socket.socket.send
+
+        def handoff(sock: socket.socket, data: bytes, flags: int = 0) -> int:
+            if any(sock is item for item in upstream):
+                handoffs.append(admission.locked())
+                if mode == "backpressure":
+                    raise BlockingIOError("owned full send buffer")
+                if mode == "closed":
+                    raise BrokenPipeError("owned closed peer")
+                if mode == "partial":
+                    return original_handoff(sock, data[:1], flags)
+            return original_handoff(sock, data, flags)
+
+        monkeypatch.setattr(socket.socket, "send", handoff)
+        broker = await forwarder.start_auth_forwarder(root, model=True)
+        sender = ModelSender(root / "model-egress.sock", client_context)
+        try:
+            reply = await sender.send(
+                ENDPOINTS["openrouter"],
+                "source-secret",
+                Projection(model="fixture/model", output_tokens=64),
+                current_guard,
+            )
+            assert connect_under_guard == [False]
+            assert not async_writes
+            assert guards >= (1 if mode == "connect_expiry" else 2)
+            assert reply.result_state == ("COMPLETED" if mode == "healthy" else "UNKNOWN")
+            assert len(requests) == (1 if mode == "healthy" else 0)
+            if mode == "healthy":
+                assert handoffs and all(handoffs)
+            elif mode in {"veto", "connect_expiry"}:
+                assert not handoffs
+            else:
+                assert handoffs == [True]  # Partial/backpressure/closed never retries.
+            await sender.drain()
+        finally:
+            await sender.close()
+            broker.close()
+            await broker.wait_closed()
+            server.close()
+            await server.wait_closed()
+            if tasks:
+                await asyncio.wait_for(asyncio.gather(*tuple(tasks)), 2)

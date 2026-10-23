@@ -120,8 +120,10 @@ class Backend(httpcore.AsyncNetworkBackend):
         async with CURRENT.get().guard() as authority:
             scope = authority.scope
         identity = str(uuid4())
-        # DNS has no write authority and never runs under SQL locks; connect waits for WRITE.
-        status, _ = await self.relay.rpc("OPEN", scope, identity, timeout=2.5)
+        # Readiness waits outside admission; each later ciphertext handoff rechecks CURRENT.
+        status, _ = await self.relay.rpc(
+            "OPEN", scope, identity, timeout=2.5, write_deadline=authority.write_deadline
+        )
         if status != "OK":
             raise httpcore.ConnectError("UPSTREAM_UNAVAILABLE")
         return Stream(CipherStream(self.relay, identity, scope, lambda: CURRENT.get().guard()))

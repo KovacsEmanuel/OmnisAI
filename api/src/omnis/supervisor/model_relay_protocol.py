@@ -140,7 +140,7 @@ def validate(value: dict[str, object]) -> Scope:
     cap = value["capability"]
     if not isinstance(cap, str) or len(cap) != 64 or any(c not in "0123456789abcdef" for c in cap):
         raise ValueError("Invalid relay capability")
-    if action == "WRITE":
+    if action in ("OPEN", "WRITE"):
         utc(value["write_deadline"])
     elif value["write_deadline"] is not None:
         raise ValueError("Unexpected relay write window")

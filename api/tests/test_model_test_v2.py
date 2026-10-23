@@ -90,8 +90,9 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
         "relay_cancel_dns",
         "relay_revoke_dns",
         "relay_stop_dns",
-        "relay_cancel_connect",
-        "relay_cancel_write",
+        "relay_expiry_connect",
+        "relay_expiry_write",
+        "settlement_before_cancel",
     ],
 )
 async def test_api_pg_sdk_protocol_and_replay(
@@ -271,11 +272,12 @@ async def test_api_pg_sdk_protocol_and_replay(
     server = await asyncio.start_server(serve, "127.0.0.1", 0, ssl=server_context)
     address = server.sockets[0].getsockname()
     original_connect = asyncio.get_running_loop().sock_connect
-    original_send = asyncio.get_running_loop().sock_sendall
+    original_send = network_socket.socket.send
     physical_phase = ""
     physical_entered, physical_release = threading.Event(), threading.Event()
     connected: list[object] = []
     handed: list[int] = []
+    upstream_sockets: list[network_socket.socket] = []
 
     def controlled_dns(host: str, port: int, **kwargs: object) -> list[tuple[object, ...]]:
         assert host == "openrouter.ai" and port == 443
@@ -300,6 +302,7 @@ async def test_api_pg_sdk_protocol_and_replay(
             await original_connect(sock, destination)
         else:
             assert destination == ("8.8.8.8", 443)
+            upstream_sockets.append(sock)
             if physical_phase == "connect":
                 physical_entered.set()
                 while not physical_release.is_set():
@@ -307,16 +310,13 @@ async def test_api_pg_sdk_protocol_and_replay(
             await original_connect(sock, address)
             connected.append(address)
 
-    async def controlled_send(sock: network_socket.socket, data: bytes) -> None:
-        if sock.family != network_socket.AF_UNIX and physical_phase == "write":
-            physical_entered.set()
-            while not physical_release.is_set():
-                await asyncio.sleep(0.01)
-        await original_send(sock, data)
-        if sock.family != network_socket.AF_UNIX:
-            handed.append(len(data))
+    def controlled_send(sock: network_socket.socket, data: bytes, flags: int = 0) -> int:
+        size = original_send(sock, data, flags)
+        if any(sock is upstream for upstream in upstream_sockets):
+            handed.append(size)
+        return size
 
-    monkeypatch.setattr(asyncio.get_running_loop(), "sock_sendall", controlled_send)
+    monkeypatch.setattr(network_socket.socket, "send", controlled_send)
     dns_patch = patch.object(network_socket, "getaddrinfo", controlled_dns)
     connect_patch = patch.object(asyncio.get_running_loop(), "sock_connect", controlled_connect)
     dns_patch.start()
@@ -325,6 +325,36 @@ async def test_api_pg_sdk_protocol_and_replay(
         server.close()
         await server.wait_closed()
     sender = ModelSender(socket, client_context)
+    from omnis.supervisor.model_relay_protocol import Scope, decode, encode
+
+    model_writes: list[tuple[Scope, str, int, str]] = []
+    fence_acks: list[tuple[str, Scope]] = []
+    original_rpc = sender.transport.backend.relay.rpc
+
+    async def model_rpc(
+        action: str,
+        scope: Scope,
+        connection: str | None = None,
+        sequence: int = 0,
+        data: bytes = b"",
+        size: int = 0,
+        timeout: float = 1,
+        write_deadline: str | None = None,
+    ) -> tuple[str, bytes]:
+        if action == "WRITE" and scope.kind == "MODEL_DISPATCH":
+            assert connection is not None and write_deadline is not None
+            model_writes.append((scope, connection, sequence, write_deadline))
+            if physical_phase == "write":
+                physical_entered.set()
+                await asyncio.sleep(1)  # Expire local IPC/guard alone, never concurrent Cancel.
+        reply = await original_rpc(
+            action, scope, connection, sequence, data, size, timeout, write_deadline
+        )
+        if action in {"FENCE", "DRAIN"} and reply[0] == "OK":
+            fence_acks.append((action, scope))
+        return reply
+
+    monkeypatch.setattr(sender.transport.backend.relay, "rpc", model_rpc)
     owner = ApiKeyModelTest(settings, sender)
     service.runtime_drain = owner.drain
     monkeypatch.setenv("OMNIS_CONTROL_DIR", str(control_dir))
@@ -580,6 +610,18 @@ async def test_api_pg_sdk_protocol_and_replay(
                 }:
                     assert value["reason"] == "USAGE_INVALID"
                 assert len(received) == traffic
+                if scenario == "settlement_before_cancel":
+                    # The real terminal settlement wins before this stale mutation is sent.
+                    terminal = value
+                    stale = await http.post(
+                        "/api/v1/model-test/" + operation + "/cancel",
+                        headers=headers,
+                        json={"command_id": str(uuid4()), "expected_state_revision": 2},
+                    )
+                    assert stale.status_code == 409
+                    assert stale.json()["error"]["code"] == "REVISION_CONFLICT"
+                    assert (await http.get("/api/v1/model-test/" + operation)).json() == terminal
+                    assert len(received) == traffic and not owner.tasks
                 replay = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert replay.status_code == 202 and replay.json() == value
                 conflict = await http.put(
@@ -639,58 +681,77 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                     ).status_code == 202
                     assert await asyncio.to_thread(physical_entered.wait, 2)
-                    before = (await http.get("/api/v1/model-test/" + second_id)).json()
-                    action: asyncio.Task[httpx.Response] | asyncio.Task[None]
-                    if "revoke" in scenario:
-                        action = asyncio.create_task(
-                            http.put(
-                                "/api/v1/settings/providers",
-                                headers=headers,
-                                json={
-                                    "action": "revoke_connection",
-                                    "command_id": str(uuid4()),
-                                    "connection_id": connection_id,
-                                    "expected_revision": 1,
-                                },
-                            )
-                        )
-                    elif "stop" in scenario:
-                        action = asyncio.create_task(stop_control())
+                    if scenario.startswith("relay_expiry_"):
+                        # No competing Cancel: readiness/IPC expires under its own authority.
+                        async with asyncio.timeout(3):
+                            while owner.tasks:
+                                await asyncio.sleep(0.01)
+                        expired = (await http.get("/api/v1/model-test/" + second_id)).json()
+                        assert expired["state"] == "FINISHED"
+                        assert expired["result_state"] == "UNKNOWN"
+                        assert expired["usage_state"] == "UNKNOWN"
+                        assert expired["cost_observed"] is None
+                        expired_counts = (len(connected), len(handed), len(received))
+                        physical_release.set()
+                        await asyncio.sleep(0.05)
+                        assert (len(connected), len(handed), len(received)) == expired_counts
+                        assert len(connected) == before_connect + (physical_phase == "write")
+                        assert len(handed) == before_handoff and len(received) == traffic
+                        assert not owner.settlement_failed
                     else:
-                        action = asyncio.create_task(
-                            http.post(
-                                "/api/v1/model-test/" + second_id + "/cancel",
-                                headers=headers,
-                                json={
-                                    "command_id": str(uuid4()),
-                                    "expected_state_revision": before["state_revision"],
-                                },
+                        assert physical_phase == "dns"
+                        before = (await http.get("/api/v1/model-test/" + second_id)).json()
+                        action: asyncio.Task[httpx.Response] | asyncio.Task[None]
+                        if "revoke" in scenario:
+                            action = asyncio.create_task(
+                                http.put(
+                                    "/api/v1/settings/providers",
+                                    headers=headers,
+                                    json={
+                                        "action": "revoke_connection",
+                                        "command_id": str(uuid4()),
+                                        "connection_id": connection_id,
+                                        "expected_revision": 1,
+                                    },
+                                )
                             )
-                        )
-                    await asyncio.sleep(0.1)
-                    if physical_phase == "dns":
+                        elif "stop" in scenario:
+                            action = asyncio.create_task(stop_control())
+                        else:
+                            action = asyncio.create_task(
+                                http.post(
+                                    "/api/v1/model-test/" + second_id + "/cancel",
+                                    headers=headers,
+                                    json={
+                                        "command_id": str(uuid4()),
+                                        "expected_state_revision": before["state_revision"],
+                                    },
+                                )
+                            )
+                        await asyncio.sleep(0.1)
                         # Resolver thread is still owned: neither terminal cancellation nor drain ACK is allowed.
                         assert not action.done()
                         assert (await http.get("/api/v1/model-test/" + second_id)).json()[
                             "state"
                         ] != "FINISHED"
-                    if physical_phase == "dns":
                         physical_release.set()
-                    action_reply = await asyncio.wait_for(action, 3)
-                    physical_release.set()  # Connect/write remain held through the bounded authority window and Cancel ACK.
-                    if action_reply is not None:
-                        assert action_reply.status_code in (200, 202), action_reply.text
-                    async with asyncio.timeout(3):
-                        while owner.tasks:
-                            await asyncio.sleep(0.01)
-                    assert (await http.get("/api/v1/model-test/" + second_id)).json()[
-                        "state"
-                    ] == "FINISHED"
-                    assert len(connected) == before_connect + (
-                        1 if physical_phase == "write" else 0
-                    )
-                    assert len(handed) == before_handoff and len(received) == traffic
-                    assert not owner.settlement_failed
+                        action_reply = await asyncio.wait_for(action, 3)
+                        if action_reply is not None:
+                            assert action_reply.status_code == (
+                                200 if "revoke" in scenario else 202
+                            ), action_reply.text
+                        ack_counts = (len(connected), len(handed), len(received))
+                        async with asyncio.timeout(3):
+                            while owner.tasks:
+                                await asyncio.sleep(0.01)
+                        assert (await http.get("/api/v1/model-test/" + second_id)).json()[
+                            "state"
+                        ] == "FINISHED"
+                        await asyncio.sleep(0.05)
+                        assert (len(connected), len(handed), len(received)) == ack_counts
+                        assert len(connected) == before_connect
+                        assert len(handed) == before_handoff and len(received) == traffic
+                        assert not owner.settlement_failed
                 if scenario.endswith("at_body"):
                     from omnis.supervisor.model_sender import Stream
 
@@ -714,6 +775,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     )
                     assert second.status_code == 202
                     await asyncio.wait_for(paused.wait(), 3)
+                    captured_scope, captured_connection, captured_sequence, captured_deadline = (
+                        model_writes[-1]
+                    )
                     if scenario == "stop_at_body":
                         await stop_control()
                     elif scenario == "revoke_at_body":
@@ -741,6 +805,49 @@ async def test_api_pg_sdk_protocol_and_replay(
                             headers=headers,
                         )
                         assert cancelled.status_code == 202
+                        assert cancelled.json()["state"] == "FINISHED"
+                        assert cancelled.json()["finish_reason"] == "CANCELLED"
+                        assert (
+                            await http.get("/api/v1/model-test/" + second_id)
+                        ).json() == cancelled.json()
+                        assert ("FENCE", captured_scope) in fence_acks
+                        assert ("DRAIN", captured_scope) in fence_acks
+                    ack_counts = (len(connected), len(handed), len(received))
+                    # Exact producer scope/connection/sequence replay, not a fabricated DB authority.
+                    reader, writer = await asyncio.open_unix_connection(socket, limit=4096)
+                    late: dict[str, object] = {
+                        "version": 1,
+                        "action": "WRITE",
+                        "request_id": str(uuid4()),
+                        "connection_id": captured_connection,
+                        "scope": captured_scope.wire(),
+                        "sequence": captured_sequence,
+                        "size": len(b"post-ack-replay"),
+                        "timeout_ms": 500,
+                        "write_deadline": captured_deadline,
+                        "capability": (relay_directory / "model-relay.cap").read_text(),
+                    }
+                    try:
+                        writer.write(encode(late) + b"post-ack-replay")
+                        await writer.drain()
+                        relay_denied = decode(await asyncio.wait_for(reader.readline(), 1))
+                        assert relay_denied == {
+                            **{
+                                k: late[k]
+                                for k in (
+                                    "version",
+                                    "request_id",
+                                    "connection_id",
+                                    "scope",
+                                    "sequence",
+                                )
+                            },
+                            "status": "DENIED",
+                            "size": 0,
+                        }
+                    finally:
+                        writer.close()
+                        await writer.wait_closed()
                     release.set()
                     async with asyncio.timeout(4):
                         while (after := (await http.get("/api/v1/model-test/" + second_id)).json())[
@@ -749,6 +856,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                             await asyncio.sleep(0.02)
                     assert after["result_state"] == "UNKNOWN"
                     assert after["usage_state"] == "UNKNOWN" and after["cost_observed"] is None
+                    await asyncio.sleep(0.05)
+                    assert (len(connected), len(handed), len(received)) == ack_counts
                     assert (
                         len(received) == traffic
                     )  # Reused TLS headers can arrive; no second body.

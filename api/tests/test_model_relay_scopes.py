@@ -24,6 +24,15 @@ async def test_dns_failure_closes_open_and_allows_explicit_new_attempt(
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "cli/src"))
     forwarder = importlib.import_module("omnis_cli.forwarder")
     calls = 0
+    connects: list[object] = []
+    original_connect = asyncio.get_running_loop().sock_connect
+
+    async def owned_connect(sock: socket.socket, target: str | tuple[object, ...]) -> None:
+        if sock.family == socket.AF_UNIX:
+            await original_connect(sock, target)
+        else:
+            assert target == ("8.8.8.8", 443)
+            connects.append(target)  # Mock readiness; never connect to this DNS placeholder.
 
     def dns(*args: object, **kwargs: object) -> list[tuple[object, ...]]:
         nonlocal calls
@@ -45,6 +54,7 @@ async def test_dns_failure_closes_open_and_allows_explicit_new_attempt(
         return [(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))]
 
     monkeypatch.setattr(socket, "getaddrinfo", dns)
+    monkeypatch.setattr(asyncio.get_running_loop(), "sock_connect", owned_connect)
     with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
         root = Path(name)
         root.chmod(0o700)
@@ -61,16 +71,26 @@ async def test_dns_failure_closes_open_and_allows_explicit_new_attempt(
             (datetime.now(UTC) + timedelta(seconds=30)).isoformat(),
             "openrouter",
         )
+
+        async def opening() -> tuple[str, bytes]:
+            return await relay.rpc(
+                "OPEN",
+                scope,
+                str(uuid4()),
+                write_deadline=(datetime.now(UTC) + timedelta(seconds=0.4)).isoformat(),
+            )
+
         try:
             if answer in {"empty", "error"}:
-                assert await relay.rpc("OPEN", scope, str(uuid4())) == ("UPSTREAM_UNAVAILABLE", b"")
+                assert await opening() == ("UPSTREAM_UNAVAILABLE", b"")
                 assert not relay.failed
                 assert calls == 1  # No implicit retry after an upstream failure.
-                assert await relay.rpc("OPEN", scope, str(uuid4())) == ("OK", b"")
+                assert await opening() == ("OK", b"")
                 assert calls == 2
+                assert connects == [("8.8.8.8", 443)]
             else:
                 with pytest.raises(RelayFailure):
-                    await relay.rpc("OPEN", scope, str(uuid4()))
+                    await opening()
                 assert relay.failed
                 assert calls == 1
             await relay.rpc("FENCE", scope)
@@ -146,7 +166,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
                     "size": len(data),
                     "timeout_ms": 1000,
                     "write_deadline": (datetime.now(UTC) + timedelta(seconds=0.4)).isoformat()
-                    if action == "WRITE"
+                    if action in ("OPEN", "WRITE")
                     else None,
                     "capability": (root / "model-relay.cap").read_text(),
                 }

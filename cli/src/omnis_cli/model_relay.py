@@ -117,6 +117,10 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     seconds=3600
                 ):
                     raise ValueError("Model relay scope expired/fenced")
+                end = utc(frame["write_deadline"]) if action in ("OPEN", "WRITE") else now
+                if action in ("OPEN", "WRITE"):
+                    if not now < end <= min(utc(scope.deadline), now + timedelta(seconds=0.5)):
+                        raise ValueError("Model relay authority window expired")
                 if action == "OPEN":
                     if (
                         identity in connections
@@ -153,14 +157,23 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     )
                     owner._resolver = connection.resolver
                     connection.resolver.start()
-                    async with asyncio.timeout(2):
+                    async with asyncio.timeout((end - datetime.now(UTC)).total_seconds()):
                         while not done.is_set():
                             await asyncio.sleep(0.01)
-                    if not connection.closed and scope not in fenced:
+                        if connection.closed or scope in fenced:
+                            raise ValueError("Model relay fenced before connect")
+                        if datetime.now(UTC) >= end:
+                            raise TimeoutError("Model relay connect window expired")
                         if not rows:
                             raise OSError("Model upstream DNS unavailable")
                         connection.address = auth_addresses(rows)[0]
-                        status = "OK"
+                        family, kind, protocol, _canon, address = connection.address
+                        connection.socket = socket.socket(family, kind, protocol)
+                        connection.socket.setblocking(False)
+                        await asyncio.get_running_loop().sock_connect(connection.socket, address)
+                        if connection.closed or scope in fenced or datetime.now(UTC) >= end:
+                            raise TimeoutError("Model relay connect window uncertain")
+                    status = "OK"
                 else:
                     connection = connections.get(identity)
                     if connection is None or connection.closed or connection.tasks:
@@ -179,26 +192,18 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     connection.scope = scope  # Reused TLS writes use CURRENT operation, not OPEN's.
                     loop = asyncio.get_running_loop()
                     if action == "WRITE":
-                        end = utc(frame["write_deadline"])
-                        if not now < end <= min(utc(scope.deadline), now + timedelta(seconds=0.5)):
-                            raise ValueError("Model relay authority window expired")
-                        remaining = (end - now).total_seconds()
-                        async with asyncio.timeout(remaining):
-                            if connection.socket is None:
-                                assert connection.address is not None
-                                family, kind, protocol, _canon, address = connection.address
-                                connection.socket = socket.socket(family, kind, protocol)
-                                connection.socket.setblocking(False)
-                                await loop.sock_connect(connection.socket, address)
-                            # No queue/copy task survives this bounded write window.
-                            if scope in fenced or connection.closed or datetime.now(UTC) >= end:
-                                raise ValueError("Model relay fenced before handoff")
-                            connection.sent += len(body)
-                            if connection.sent > 4 * 1024 * 1024:
-                                raise ValueError("Model relay write limit")
-                            await loop.sock_sendall(connection.socket, body)
-                            if datetime.now(UTC) >= end:
-                                raise ValueError("Model relay handoff window uncertain")
+                        if connection.socket is None:
+                            raise ValueError("Model relay has no prepared upstream")
+                        if scope in fenced or connection.closed or datetime.now(UTC) >= end:
+                            raise ValueError("Model relay fenced before handoff")
+                        connection.sent += len(body)
+                        if connection.sent > 4 * 1024 * 1024:
+                            raise ValueError("Model relay write limit")
+                        # One nonblocking syscall: partial/backpressure is uncertain, never resumed.
+                        if connection.socket.send(body) != len(body):
+                            raise OSError("Model relay partial handoff")
+                        if datetime.now(UTC) >= end:
+                            raise TimeoutError("Model relay handoff window uncertain")
                         status = "OK"
                     elif action == "READ":
                         if connection.socket is None:
@@ -223,7 +228,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                 connection is not None
                 and connection.scope == scope
                 and frame is not None
-                and frame.get("action") == "WRITE"
+                and frame.get("action") in ("OPEN", "WRITE")
             ):
                 connection.close()
         finally:

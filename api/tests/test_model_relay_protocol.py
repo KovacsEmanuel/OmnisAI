@@ -39,12 +39,21 @@ def test_final_wire_maxima_and_packaging_are_bounded() -> None:
     value = frame()
     raw = encode(value)
     validate(decode(raw))
-    assert len(raw) <= 4096
+    assert len(raw) == 699 <= 4096
     assert b"f" * 64 in raw
     root = Path(__file__).resolve().parents[2]
     assert (root / "api/src/omnis/supervisor/model_relay_protocol.py").read_bytes() == (
         root / "cli/src/omnis_cli/model_relay_protocol.py"
     ).read_bytes()
+
+
+@pytest.mark.parametrize("action", ["OPEN", "WRITE"])
+@pytest.mark.parametrize("deadline", [None, True, "invalid", "2026-10-23T12:00:00+01:00"])
+def test_effect_requires_existing_utc_authority_window(action: str, deadline: object) -> None:
+    candidate = frame()
+    candidate.update(action=action, size=0, sequence=0, write_deadline=deadline)
+    with pytest.raises(ValueError):
+        validate(candidate)
 
 
 @pytest.mark.parametrize(

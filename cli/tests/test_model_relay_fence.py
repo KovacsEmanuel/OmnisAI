@@ -76,7 +76,11 @@ class PhysicalFenceTest(unittest.IsolatedAsyncioTestCase):
                             "sequence": sequence,
                             "size": 0,
                             "timeout_ms": 1000,
-                            "write_deadline": None,
+                            "write_deadline": (
+                                datetime.now(UTC) + timedelta(seconds=0.4)
+                            ).isoformat()
+                            if action == "OPEN"
+                            else None,
                             "capability": cap,
                         }
                         try:

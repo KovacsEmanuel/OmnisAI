@@ -1,0 +1,146 @@
+{
+  "status": "BLOCKED_WIP_NOT_READY_NOT_ACCEPTED",
+  "base": "0299082dd652db35f533a22d2cd61f5629708935",
+  "commit": "80c3ecd7d4618bf998cc573bf4a7c36834283e91",
+  "tree": "02045ec990426bc1ed7e08d69f69ebcae733951b",
+  "clean": true,
+  "delta": [
+    {
+      "path": "Makefile",
+      "blob": "d3500b4f0f4eeaa9b2656ca4e1db109ba46f7594",
+      "sha256": "8492669fc8f08d2c681f17fcdd12d8724c3f3795783a101c0019cf9eac3f3346"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test_runtime.py",
+      "blob": "5b59da5d84d622c87a997034547987ba9ee47cf9",
+      "sha256": "4410430abdfa732582c6989e771bcdb3926ad641d242d60f8c618568b5af81bf"
+    },
+    {
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "blob": "9dc710d7ed2e1b2b04ae37723e88994329bee3ef",
+      "sha256": "3ece718b89def93b9ae589d9962d75818b02db4ab820d39d1cafab18d08cf9a3"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_relay.py",
+      "blob": "80558e289b4dbb1beb69fcb15f5b1575ac813ddf",
+      "sha256": "f0ac8156808bfab6a81811ce368978d15c5752534ec7f60f119eaa43f664dd98"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_relay_protocol.py",
+      "blob": "223ad129c2c2118f2df91748da79e021bc3296bf",
+      "sha256": "892ce05449e435aca9563815077a52010478d3088f4499ea10aa705de873e5d5"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "blob": "a46634f18a42b4f4007cfc82dc051b31fef991c8",
+      "sha256": "0508aef59e1e8b11a93021d1f9ccc3ae3032f44533033de6f677e6e0c3ebbbe1"
+    },
+    {
+      "path": "api/tests/test_model_relay_protocol.py",
+      "blob": "c3a01247d8fbf7822a033acb1f96f5bee380f847",
+      "sha256": "c046f045dc67855f8e172f7c4b398cf9ce525ab01528d771b9559cfd2fbcf40b"
+    },
+    {
+      "path": "api/tests/test_model_relay_scopes.py",
+      "blob": "d0c346c4639b3e4511c76e65279c97feed72f3f4",
+      "sha256": "e12d2ea8988c32b49dff8546e0f0774967980f188ca9175567110409d9c19e8d"
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "blob": "12b91f6e06835961daa1bcfa659c976baccbec5d",
+      "sha256": "c5cbb0dd44ad4ad76d5d2d4c1980b2ff455dd93e0fec0f6a93b13819b166d0fa"
+    },
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "ec18dab14e296b96066ebe0f8bc124948de1cc6d",
+      "sha256": "11adc0f3715ccb5a939114d312aaac43785b4a598607ceb64aeb8cdc8b9c1d9d"
+    },
+    {
+      "path": "cli/src/omnis_cli/forwarder.py",
+      "blob": "ebe1cddb438e96f6665a624c4070764735aef058",
+      "sha256": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0"
+    },
+    {
+      "path": "cli/src/omnis_cli/model_relay.py",
+      "blob": "e76b39e8930cc06d24476d846f0762d628b66288",
+      "sha256": "922ddf589b5a6775c400b0a21138ea812c16d4595853582fdd23f63d97483ccb"
+    },
+    {
+      "path": "cli/src/omnis_cli/model_relay_protocol.py",
+      "blob": "223ad129c2c2118f2df91748da79e021bc3296bf",
+      "sha256": "892ce05449e435aca9563815077a52010478d3088f4499ea10aa705de873e5d5"
+    },
+    {
+      "path": "cli/src/omnis_cli/start.py",
+      "blob": "7b3bb60f5b7fae4581fd4872ea8d6853d5738b3d",
+      "sha256": "aaa81753b226569579974b93cafa11d6d8eaf670abb9e4188ab9beea26afcfe9"
+    },
+    {
+      "path": "cli/tests/test_model_relay_fence.py",
+      "blob": "fed8b953164335059038d1f6d2f96c41363fe36c",
+      "sha256": "3f65654827343fd691eb751090fcbbffbf9179aaf13d96d182726acdb7c30a13"
+    }
+  ],
+  "max_tested_control_frame_bytes": 699,
+  "fixtures": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-1ee4a6ec8446429e",
+      "project": "omnis-p01-20dc2a6abd2e400b8b998efc65f90ffc",
+      "container_id": "a97d8740064c76daa8600c3b7ab24cbc953d93ad1ea22d25276dd010cf6a8c0b",
+      "container_absent": true,
+      "project_networks_absent": true,
+      "socket_empty": true,
+      "data_retained": true,
+      "password_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "gate_log": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-1ee4a6ec8446429e/gate.log"
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-b4eb525368364525",
+      "project": "omnis-p01-07e91cc764fe4dfb85ca92d8ec8a6409",
+      "container_id": "1dd0d4d61198c4eade708659c339a7361a631b96919218aa6376dd341574706a",
+      "container_absent": true,
+      "project_networks_absent": true,
+      "socket_empty": true,
+      "data_retained": true,
+      "password_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "gate_log": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-b4eb525368364525/gate.log"
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-f3872c984c94453e",
+      "project": "omnis-p01-f2159e5a76e143ba91c5dbb7a968db8d",
+      "container_id": "3a2a28f2385d760e1cca20f708f57fd9aa43469fea823eba1844649591c3e1c8",
+      "container_absent": true,
+      "project_networks_absent": true,
+      "socket_empty": true,
+      "data_retained": true,
+      "password_retained": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "gate_log": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-f3872c984c94453e/gate.log"
+    }
+  ],
+  "commands": {
+    "pg": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH UV_CACHE_DIR=../core-uv-cache TMPDIR=../rf api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-test-v2-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 300",
+    "unit": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py api/tests/test_model_sender.py -q --tb=short"
+  },
+  "last_source_unit_pass": 48,
+  "last_mypy_files": 277,
+  "last_ruff_format_files": 358,
+  "pg_boundaries": "First production-relay 21 PASS/62.42s. Extended first 24 PASS/2 FAIL. Last PG 47 PASS/2 FAIL, 75.70s. No PG rerun after last strict-ACK/conservative-window edits. Two harness-only cycles consumed for connect/write Cancel rows. No third harness.",
+  "cli": "Final focused source run 52 executed/7 FAIL CONFIG_INVALID before startup; profile-only 25 PASS earlier. Earlier forwarder-pattern run 32 executed/4 ERROR missing startup journal. Not a green CLI lifecycle gate.",
+  "required_next": "Parent reviews/adjudicates minimal protocol/lifecycle delta and blocked connect/write acceptance; independently exercises real consumer only after safe admission. No new immutable bundle exists.",
+  "prohibitions_preserved": "No Main/product edits outside listed delta, no original95 reseal, no installed/browser/native/provider/canonical/backup/T2/push; prior sourceOwnerLoss2 cycles remain exhausted and unattributed."
+}

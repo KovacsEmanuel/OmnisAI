@@ -1,0 +1,46 @@
+{
+  "scope": "parent_frozen15_and_physical3_WIP_NOT_ACCEPTANCE",
+  "source": "80c3ecd7d4618bf998cc573bf4a7c36834283e91",
+  "tree": "02045ec990426bc1ed7e08d69f69ebcae733951b",
+  "cleanup": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-1ee4a6ec8446429e",
+      "cid": "a97d8740064c76daa8600c3b7ab24cbc953d93ad1ea22d25276dd010cf6a8c0b",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-b4eb525368364525",
+      "cid": "1dd0d4d61198c4eade708659c339a7361a631b96919218aa6376dd341574706a",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rf/db-f3872c984c94453e",
+      "cid": "3a2a28f2385d760e1cca20f708f57fd9aa43469fea823eba1844649591c3e1c8",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true,
+      "receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      }
+    }
+  ]
+}

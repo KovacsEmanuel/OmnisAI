@@ -1,0 +1,18 @@
+env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short
+.................FF.......                                               [100%]
+=================================== FAILURES ===================================
+__________ test_api_pg_sdk_protocol_and_replay[relay_cancel_connect] ___________
+api/tests/test_model_test_v2.py:686: in test_api_pg_sdk_protocol_and_replay
+    assert len(connected) == before_connect + (
+E   AssertionError: assert 2 == (1 + 0)
+E    +  where 2 = len([('127.0.0.1', 41463), ('127.0.0.1', 41463)])
+___________ test_api_pg_sdk_protocol_and_replay[relay_cancel_write] ____________
+api/tests/test_model_test_v2.py:689: in test_api_pg_sdk_protocol_and_replay
+    assert len(handed) == before_handoff and len(received) == traffic
+E   assert (6 == 5)
+E    +  where 6 = len([1535, 80, 221, 649, 338, 1535])
+=========================== short test summary info ============================
+FAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_connect]
+FAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_write]
+2 failed, 24 passed in 75.61s (0:01:15)
+make: *** [Makefile:38: test-model-test-v2-pg] Error 1

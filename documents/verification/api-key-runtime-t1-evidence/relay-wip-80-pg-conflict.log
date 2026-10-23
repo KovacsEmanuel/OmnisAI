@@ -1,0 +1,20 @@
+env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py -q --tb=short
+.................FF..............................                        [100%]
+=================================== FAILURES ===================================
+__________ test_api_pg_sdk_protocol_and_replay[relay_cancel_connect] ___________
+api/tests/test_model_test_v2.py:682: in test_api_pg_sdk_protocol_and_replay
+    assert action_reply.status_code in (200, 202), action_reply.text
+E   AssertionError: {"error":{"code":"REVISION_CONFLICT","correlation_id":"d195fe61-5707-4cdc-8ee9-f6e37bc9b192","field_errors":[]}}
+E   assert 409 in (200, 202)
+E    +  where 409 = <Response [409 Conflict]>.status_code
+___________ test_api_pg_sdk_protocol_and_replay[relay_cancel_write] ____________
+api/tests/test_model_test_v2.py:682: in test_api_pg_sdk_protocol_and_replay
+    assert action_reply.status_code in (200, 202), action_reply.text
+E   AssertionError: {"error":{"code":"REVISION_CONFLICT","correlation_id":"0e9d78c1-9f81-44c1-8b58-4b37d62f69e1","field_errors":[]}}
+E   assert 409 in (200, 202)
+E    +  where 409 = <Response [409 Conflict]>.status_code
+=========================== short test summary info ============================
+FAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_connect]
+FAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_write]
+2 failed, 47 passed in 75.70s (0:01:15)
+make: *** [Makefile:38: test-model-test-v2-pg] Error 1

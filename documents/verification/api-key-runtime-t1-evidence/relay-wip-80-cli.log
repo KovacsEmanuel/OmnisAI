@@ -1,0 +1,97 @@
+======================================================================
+FAIL: test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict (test_start.StartTest.test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 335, in test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict
+    self.check_cleanup_journal_error([])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 374, in check_cleanup_journal_error
+    self.assertEqual(code, 4)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 2 != 4
+
+======================================================================
+FAIL: test_cleanup_journal_error_does_not_downgrade_uncertainty (test_start.StartTest.test_cleanup_journal_error_does_not_downgrade_uncertainty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 332, in test_cleanup_journal_error_does_not_downgrade_uncertainty
+    self.check_cleanup_journal_error(["forwarder"])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 374, in check_cleanup_journal_error
+    self.assertEqual(code, 4)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 2 != 4
+
+======================================================================
+FAIL: test_fresh_instance_identity_is_durable_before_open_can_commit (test_start.StartTest.test_fresh_instance_identity_is_durable_before_open_can_commit)
+An OPEN ACK cut must leave an instance ID for a later fenced Stop.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 244, in test_fresh_instance_identity_is_durable_before_open_can_commit
+    self.assertEqual((code, result["reason"]), (4, "CUT_AFTER_OPEN_WOULD_BE_SAFE"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (2, 'CONFIG_INVALID') != (4, 'CUT_AFTER_OPEN_WOULD_BE_SAFE')
+
+First differing element 0:
+2
+4
+
+- (2, 'CONFIG_INVALID')
++ (4, 'CUT_AFTER_OPEN_WOULD_BE_SAFE')
+
+======================================================================
+FAIL: test_fresh_pgdata_identity_is_durable_before_first_mount (test_start.StartTest.test_fresh_pgdata_identity_is_durable_before_first_mount)
+The first Compose create must see the original, fsynced bind-root identity.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 173, in test_fresh_pgdata_identity_is_durable_before_first_mount
+    self.assertEqual((code, result["reason"]), (3, "SYNTHETIC_CUT_BEFORE_FIRST_MOUNT"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (2, 'CONFIG_INVALID') != (3, 'SYNTHETIC_CUT_BEFORE_FIRST_MOUNT')
+
+First differing element 0:
+2
+3
+
+- (2, 'CONFIG_INVALID')
++ (3, 'SYNTHETIC_CUT_BEFORE_FIRST_MOUNT')
+
+======================================================================
+FAIL: test_missing_release_is_actionable_and_does_not_create_state (test_start.StartTest.test_missing_release_is_actionable_and_does_not_create_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 386, in test_missing_release_is_actionable_and_does_not_create_state
+    self.assertIn("RELEASE_REQUIRED", out.getvalue() + err.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'RELEASE_REQUIRED' not found in '{"assessment_ready": false, "browser_opened": false, "dashboard_ready": false, "reason": "CONFIG_INVALID", "state": "REFUSED"}\n'
+
+======================================================================
+FAIL: test_native_normal_start_orders_runtime_before_owner_and_open (test_start.StartTest.test_native_normal_start_orders_runtime_before_owner_and_open)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 123, in test_native_normal_start_orders_runtime_before_owner_and_open
+    self.assertEqual((code, result["state"]), (0, "READY"), result)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (2, 'REFUSED') != (0, 'READY')
+
+First differing element 0:
+2
+0
+
+- (2, 'REFUSED')
++ (0, 'READY') : {'state': 'REFUSED', 'reason': 'CONFIG_INVALID', 'dashboard_ready': False, 'assessment_ready': False, 'browser_opened': False}
+
+======================================================================
+FAIL: test_verifying_journal_starts_after_subprocess_attestation_before_http (test_start.StartTest.test_verifying_journal_starts_after_subprocess_attestation_before_http)
+Phase ordering only; Docker/readiness are substituted, not a live gate.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/cli/tests/test_start.py", line 327, in test_verifying_journal_starts_after_subprocess_attestation_before_http
+    self.assertEqual(code, 3)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: 2 != 3
+
+----------------------------------------------------------------------
+Ran 52 tests in 5.660s
+
+FAILED (failures=7)

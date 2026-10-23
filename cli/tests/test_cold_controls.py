@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 import test_cold_backup as fixtures
-from omnis_cli.lifecycle import StartError, read_record, write_record
+from omnis_cli.lifecycle import StartError, mapping, read_record, write_record
 from omnis_cli.main import main
 from omnis_cli.start_runtime import ControlRuntime
 
@@ -90,6 +90,70 @@ class ColdControlsTest(unittest.TestCase):
                 ):
                     self.assertEqual(main(["backup", "--output", str(output)]), 4)
                 self.assertEqual((root / "startup.json").read_bytes(), before)
+
+    def test_restore_rejects_canonical_tar_collisions_before_extraction(self):
+        fixture = fixtures.ColdBackupTest()
+        cold = fixture.module()
+        for alias in (
+            None,
+            "18/docker/base/16384/123",
+            "18//docker/base/16384/123",
+            "18/docker/./base/16384/123",
+        ):
+            with self.subTest(alias=alias), fixture.source() as (base, root, old, runtime):
+                with (
+                    patch.object(cold, "ControlRuntime", return_value=runtime),
+                    patch.object(cold, "archive", side_effect=fixture.archive),
+                    patch.object(cold, "cold_identity", return_value=old["system_id"]),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    snapshot = base / "snapshot"
+                    self.assertEqual(main(["backup", "--output", str(snapshot)]), 0)
+                    with tarfile.open(snapshot / "postgres.tar", "a") as out:
+                        for name, content in [
+                            ("18/docker/base/16384/123", b"FIRST"),
+                            *([(alias, b"LAST")] if alias is not None else []),
+                        ]:
+                            entry = tarfile.TarInfo(name)
+                            entry.size, entry.mode = len(content), 0o600
+                            out.addfile(entry, io.BytesIO(content))
+                    manifest = read_record(snapshot / "manifest.json")
+                    files = mapping(manifest["files"])
+                    files["postgres.tar"] = cold.digest(
+                        snapshot / "postgres.tar", cold.ARCHIVE_LIMIT
+                    )
+                    manifest["files"] = files
+                    write_record(snapshot / "manifest.json", manifest, replace=True)
+                    original = {p.name: p.read_bytes() for p in snapshot.iterdir()}
+                    source = (root / "startup.json").read_bytes()
+                    parent = base / "target"
+                    parent.mkdir(mode=0o700)
+                    output = io.StringIO()
+                    with (
+                        patch.dict(os.environ, {"XDG_STATE_HOME": str(parent)}),
+                        patch.object(
+                            cold,
+                            "archive",
+                            side_effect=fixture.archive
+                            if alias is None
+                            else AssertionError("extraction before collision refusal"),
+                        ) as extraction,
+                        contextlib.redirect_stdout(output),
+                    ):
+                        code = main(["restore", "--backup", str(snapshot)])
+                    self.assertEqual(code, 0 if alias is None else 4)
+                    if alias is None:
+                        self.assertEqual(extraction.call_count, 1)
+                        self.assertEqual(
+                            (parent / "omnis/postgres/18/docker/base/16384/123").read_bytes(),
+                            b"FIRST",
+                        )
+                    else:
+                        extraction.assert_not_called()
+                        self.assertIn("COLD_ARCHIVE_INVALID", output.getvalue())
+                        self.assertFalse((parent / "omnis").exists())
+                    self.assertEqual(original, {p.name: p.read_bytes() for p in snapshot.iterdir()})
+                    self.assertEqual(source, (root / "startup.json").read_bytes())
 
     def test_archive_rejects_links_traversal_special_duplicate_and_expansion(self):
         fixture = fixtures.ColdBackupTest()

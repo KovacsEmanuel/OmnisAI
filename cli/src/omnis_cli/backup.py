@@ -189,7 +189,7 @@ def digest(path: Path, limit: int) -> dict[str, object]:
 
 
 def validate_tar(path: Path, deadline: float) -> None:
-    names: set[str] = set()
+    names: set[tuple[str, ...]] = set()
     size = 0
     with tarfile.open(path, mode="r:") as source:
         for member in source:
@@ -203,7 +203,7 @@ def validate_tar(path: Path, deadline: float) -> None:
                 or parts[0] != "18"
                 or any(p in {".", ".."} for p in parts)
                 or name.startswith("/")
-                or name in names
+                or parts in names
                 or len(names) >= 100000
                 or not (member.isfile() or member.isdir())
                 or member.pax_headers
@@ -211,11 +211,11 @@ def validate_tar(path: Path, deadline: float) -> None:
                 or member.size < 0
             ):
                 raise StartError("COLD_ARCHIVE_INVALID", 4)
-            names.add(name)
+            names.add(parts)
             size += member.size
             if size > ARCHIVE_LIMIT:
                 raise StartError("COLD_ARCHIVE_LIMIT", 4)
-    if not {"18/docker/PG_VERSION", "18/docker/global/pg_control"} <= names:
+    if not {("18", "docker", "PG_VERSION"), ("18", "docker", "global", "pg_control")} <= names:
         raise StartError("COLD_ARCHIVE_INVALID", 4)
 
 

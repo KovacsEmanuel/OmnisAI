@@ -1,0 +1,33 @@
+{
+  "stop": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "dashboard_ready": false,
+    "generation": 6,
+    "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+    "origin": "http://127.0.0.1:48769",
+    "reason": null,
+    "state": "STOPPED"
+  },
+  "status": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": false,
+    "dashboard_ready": false,
+    "generation": 6,
+    "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+    "origin": "http://127.0.0.1:48769",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0015_model_test_v2",
+    "state": "STOPPED"
+  },
+  "exact_same_daemon_original_cids_project_network_absent": true,
+  "listener_unavailable": true,
+  "target_data_directory_identities_preserved": true,
+  "source_keyless_longtarget_snapshot_data_retained": true,
+  "no_global_or_foreign_cleanup": true,
+  "free_disk_bytes": 8384954368
+}

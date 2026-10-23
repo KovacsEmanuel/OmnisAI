@@ -1,0 +1,28 @@
+{
+  "receipt": {
+    "project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+    "tag": "omnis-control-f8e59c57ad1c4b2586543dba8d99ea23:0.1.0",
+    "image_id": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+    "manifest_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "profile": "t1-provider-settings",
+    "runtime_tag": null,
+    "runtime_image_id": null
+  },
+  "image_readback": {
+    "id": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+    "architecture": "amd64",
+    "user": "65532:65532",
+    "labels": {
+      "org.omnis.bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+      "org.omnis.profile": "t1-provider-settings",
+      "org.omnis.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23"
+    }
+  },
+  "same_daemon": true,
+  "product_containers_and_network_absent": true,
+  "runtime_image_absent": true,
+  "scope": "normal image installed; product Start/browser/physical restore not yet run",
+  "prior_parent_readback_exit1": "incorrect UID-only expectation; actual source Dockerfile and observed image both65532:65532; corrected readback only, no install/build replay"
+}

@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "purpose": "original nonsensitive scoped reports/readbacks; no runtime data/secrets/raw private logs",
+  "source_root": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o",
+  "source_head": "91d3e4ead63430eb59b4e028a00197a84526e786",
+  "source_tree": "0cb2e229c56e16c31f5e0133fd0c03ae9b62e335",
+  "release_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+  "artifact_count": 23,
+  "artifacts": [
+    {
+      "name": "reviewer-cold1-5ffa.md",
+      "source": "logs/reviewer-cold1-5ffa.md",
+      "bytes": 7881,
+      "sha256": "d1331a6838c17d87f597a41ed40d175473a68e3f0ca03bf99562e88eeead826c"
+    },
+    {
+      "name": "reviewer-cold2-5ffa.md",
+      "source": "logs/reviewer-cold2-5ffa.md",
+      "bytes": 6989,
+      "sha256": "c2deb2f8836008717be58f72c3ac7ed6a642abf5ea02a26d47d4830dab3efd92"
+    },
+    {
+      "name": "reviewer-cold-fix1-fd1459b.md",
+      "source": "logs/reviewer-cold-fix1-fd1459b.md",
+      "bytes": 8750,
+      "sha256": "46d25e12f3c45112fa2cfb90a0bc2c1590613ad71cd23cef5ce53354ec58de0a"
+    },
+    {
+      "name": "reviewer-cold-fix2-fd1459b.md",
+      "source": "logs/reviewer-cold-fix2-fd1459b.md",
+      "bytes": 8577,
+      "sha256": "0cd5afef57e677d2b0147abfaf0c82f3c96baab10a229c5e308f90f2d3b4c17a"
+    },
+    {
+      "name": "reviewer-canonical-fixture-91d3.md",
+      "source": "logs/reviewer-canonical-fixture-91d3.md",
+      "bytes": 6784,
+      "sha256": "5370bbd1bbabda1d599c16c1f1d9e2ee36cd67679a5c5dcbd4cb48559d3f8996"
+    },
+    {
+      "name": "reviewer-t1-candidate-distribution.md",
+      "source": "logs/reviewer-t1-candidate-distribution.md",
+      "bytes": 6328,
+      "sha256": "9c1850bc683bf65a842f3a406c7faf623ab6c748108cdf79a3feff2426b9f8bc"
+    },
+    {
+      "name": "narrow-settings-91d3-readback.json",
+      "source": "logs/narrow-settings-91d3-readback.json",
+      "bytes": 734,
+      "sha256": "2b25183bf2774fe939350224e00efe0aa789befbfe732c0efe5a57753431256f"
+    },
+    {
+      "name": "narrow-pure-91d3-readback.json",
+      "source": "logs/narrow-pure-91d3-readback.json",
+      "bytes": 741,
+      "sha256": "ea6249fc77fd9d04fd4a350028ae118fdbbb1ecc560a8a36f0c89abda79ec1a1"
+    },
+    {
+      "name": "canonical3-failure-summary.json",
+      "source": "logs/canonical3-failure-summary.json",
+      "bytes": 11291,
+      "sha256": "9f349ccc2d142bf1bbd81efc24b804d44a495bba4109341d9c4871c474fc5824"
+    },
+    {
+      "name": "canonical3-parent-readback.json",
+      "source": "logs/canonical3-parent-readback.json",
+      "bytes": 390,
+      "sha256": "228bb9ad3357d982d9f95a7341cc65cc7ad53f1d6f3858c12c4bd6c3827de79e"
+    },
+    {
+      "name": "rca-canonical3-91d3.md",
+      "source": "logs/rca-canonical3-91d3.md",
+      "bytes": 7913,
+      "sha256": "1ccf42aa6cba56d1773722e6c271b0f040058cb8eb8909a0bf380ce115ec3263"
+    },
+    {
+      "name": "rca-canonical3-91d3-groups.json",
+      "source": "logs/rca-canonical3-91d3-groups.json",
+      "bytes": 16658,
+      "sha256": "d93fbc3ba4e300d24924a5f9d66a98e0ee7620f02195f86e56917950bfafbbd7"
+    },
+    {
+      "name": "t1-candidate-source-binding.json",
+      "source": "logs/t1-candidate-source-binding.json",
+      "bytes": 22642,
+      "sha256": "7aa7ba78b1a4922d632cfdca3cccf6b1198cb39e2e2df990104c7aea7168886f"
+    },
+    {
+      "name": "image-install-readback.json",
+      "source": "qa-t1/logs/image-install-readback.json",
+      "bytes": 1318,
+      "sha256": "66aaf1a0c906ff517e422efaf8d31c5b4f80fec9868e98cad6598f65eb28169b"
+    },
+    {
+      "name": "browser-normal-attempt2-receipt.json",
+      "source": "qa-t1/logs/browser-normal-attempt2-receipt.json",
+      "bytes": 23312,
+      "sha256": "88e5349d8466cc9e30a7215f01f906ba6a4f7fb085dff74779290e6f3575cdb1"
+    },
+    {
+      "name": "normal-restart-readback.json",
+      "source": "qa-t1/logs/normal-restart-readback.json",
+      "bytes": 2651,
+      "sha256": "669e3f0990ee0ad9249486f2d528857c4a1bf4c783d9898a6b7008c2e47f92c1"
+    },
+    {
+      "name": "cold-backup-readback.json",
+      "source": "qa-t1/logs/cold-backup-readback.json",
+      "bytes": 724,
+      "sha256": "e71c5efcffd931949f9e9f489ed2a9e97367813a420d650081d2858596fb27eb"
+    },
+    {
+      "name": "physical-restore-no-key-readback.json",
+      "source": "qa-t1/rn/logs/physical-restore-no-key-readback.json",
+      "bytes": 2603,
+      "sha256": "eee749d51bbc41ebb0f8c068ad803527849c605bf8c45eeae9ac20f5c1f934c1"
+    },
+    {
+      "name": "physical-restore-keyed-readback.json",
+      "source": "qa-t1/rk/logs/physical-restore-keyed-readback.json",
+      "bytes": 6575,
+      "sha256": "6baad1bb6ebe811d4d879069ab4c6945ffef9034ac9ad602c36845e1dbbeac47"
+    },
+    {
+      "name": "reactivate-receipt.json",
+      "source": "qa-t1/rk/logs/reactivate-receipt.json",
+      "bytes": 19495,
+      "sha256": "06d45063d7d9be896aff205a137e9ae4dbb874c3fd966917bcc419c0fc184eef"
+    },
+    {
+      "name": "final-stop-readback.json",
+      "source": "qa-t1/rk/logs/final-stop-readback.json",
+      "bytes": 976,
+      "sha256": "d9ab1fc2c4ae014e7e065ffb046e9264b0b3d974ab4eb914a5939252d771892a"
+    },
+    {
+      "name": "browser-normal-receipt.json",
+      "source": "qa-t1/qa-attempt1/browser-normal-receipt.json",
+      "bytes": 4829,
+      "sha256": "a53c68badadb17cbc0a9e94f5f6a094f78e249ceeae9100cec53bca2fd75d40a"
+    },
+    {
+      "name": "reactivate-preflight-failure.json",
+      "source": "qa-t1/rk/logs/reactivate-preflight-failure.json",
+      "bytes": 2282,
+      "sha256": "b90a023df8978ff86fd11ed1a7f65990b059a7f1d21e51ce6c36ca3cdc963f09"
+    }
+  ]
+}

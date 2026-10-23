@@ -1,0 +1,165 @@
+{
+  "origin": "http://127.0.0.1:48769",
+  "instance": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+  "cases": [
+    {
+      "id": "NO_MODEL_LEDGER_CHANGE",
+      "status": "PASS",
+      "detail": "Read-only owned schema0015 counts+hashes for model record/command/dispatch/event unchanged"
+    },
+    {
+      "id": "PROVIDER_METADATA",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "MODEL_INFERENCE",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "RESTART",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "BACKUP",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "SCREEN_READER",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "AESTHETIC_APPROVAL",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pairing"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "channel": "context-read"
+    }
+  ],
+  "screenshots": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/logs/browser-normal-failure.png"
+  ],
+  "limits": [
+    "Real model admission/outcome NOT_RUN",
+    "No metadata refresh, provider, DNS, live or fake inference",
+    "Stop reachability only; no Stop activation",
+    "Chromium only; no screen-reader or aesthetic approval",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO"
+  ],
+  "cleanup": {
+    "fixture": "PRESERVED_NO_REVOKE_NO_DELETE",
+    "auth": "SESSION_REVOKED_MEMORY_ONLY",
+    "context": "CLOSED",
+    "browser": "CLOSED"
+  },
+  "findings": [],
+  "error": {
+    "phase": "pair-dashboard",
+    "name": "ExpectError",
+    "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Dashboard', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'Dashboard', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Dashboard', exact: true })\n"
+  },
+  "status": "INCOMPLETE",
+  "last_saved_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNCONFIGURED",
+    "connections": [],
+    "selection": null,
+    "reachable": "NOT_VERIFIED"
+  },
+  "diagnostic": {
+    "path": "/",
+    "controls": [
+      "Skip to content",
+      "Omnis",
+      "Home",
+      "Engagement",
+      "Settings",
+      "New engagement",
+      "Refresh dashboard"
+    ]
+  },
+  "external_attempts": 0,
+  "forbidden_attempts": [],
+  "save_actions": [],
+  "case_counts": {
+    "PASS": 1,
+    "NOT_RUN": 6
+  },
+  "model_census": {
+    "before": {
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "after": {
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "unchanged": true
+  },
+  "settings_counts": {
+    "before": {
+      "provider_connection_revision": 0,
+      "provider_selection_revision": 0,
+      "provider_settings_command": 0
+    },
+    "after": {
+      "provider_connection_revision": 0,
+      "provider_selection_revision": 0,
+      "provider_settings_command": 0
+    }
+  },
+  "bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+  "control_image": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+  "source_identity": "integration-src91d3e4e/tree0cb2; unchanged production source fd1459b",
+  "seconds": 15.97,
+  "preflight_failures": [
+    {
+      "status": "FAIL",
+      "phase": "NO_EFFECTS_JS_ADAPTATION",
+      "reason": "First source-seam check expected one failure-screenshot string, actual source has two. Corrected exact count before pair/browser/Save; original terminal failure retained."
+    }
+  ]
+}

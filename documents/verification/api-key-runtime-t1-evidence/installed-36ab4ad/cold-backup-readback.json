@@ -1,0 +1,25 @@
+{
+  "snapshot": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/backups/source-after-normal-restart",
+  "exact_private_file_set": [
+    "completion.json",
+    "db-password",
+    "manifest.json",
+    "postgres.tar",
+    "startup.json",
+    "vault.json"
+  ],
+  "sizes": {
+    "completion.json": 3582,
+    "db-password": 49,
+    "postgres.tar": 68116480,
+    "startup.json": 2064,
+    "vault.json": 510
+  },
+  "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+  "system_id": "7699849294761226284",
+  "master_key_not_exported": true,
+  "ciphertext_present": true,
+  "source_remains_stopped": true,
+  "helpers_and_network_absent": true,
+  "observer_read_only_manifest_and_metadata_no_credential_contents": true
+}

@@ -69,7 +69,18 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "scenario", ["complete", "unknown_usage", "stop_at_body", "revoke_at_body", "cancel_at_body"]
+    "scenario",
+    [
+        "complete",
+        "unknown_usage",
+        "negative_usage",
+        "unsafe_usage",
+        "coerced_usage",
+        "invalid_reasoning",
+        "stop_at_body",
+        "revoke_at_body",
+        "cancel_at_body",
+    ],
 )
 async def test_api_pg_sdk_protocol_and_replay(
     migrated_database_url: URL,
@@ -192,6 +203,24 @@ async def test_api_pg_sdk_protocol_and_replay(
                     }
                 if scenario == "unknown_usage":
                     payload.pop("usage", None)
+                if first.startswith("POST"):
+                    if scenario in {"negative_usage", "unsafe_usage", "coerced_usage"}:
+                        payload["usage"] = {
+                            "prompt_tokens": {
+                                "negative_usage": -1,
+                                "unsafe_usage": 9007199254740992,
+                                "coerced_usage": "9",
+                            }[scenario],
+                            "completion_tokens": 7,
+                            "total_tokens": 16,
+                        }
+                    elif scenario == "invalid_reasoning":
+                        payload["usage"] = {
+                            "prompt_tokens": 9,
+                            "completion_tokens": 7,
+                            "total_tokens": 16,
+                            "completion_tokens_details": {"reasoning_tokens": True},
+                        }
                 raw = json.dumps(payload).encode()
                 writer.write(
                     b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "
@@ -361,12 +390,31 @@ async def test_api_pg_sdk_protocol_and_replay(
                     and value["response_text"] == "OMNIS_MODEL_TEST_OK"
                 )
                 assert value["observed_model"] == "fixture/observed"
-                assert value["input_tokens"] == (None if scenario == "unknown_usage" else 9)
+                assert value["input_tokens"] == (
+                    None
+                    if scenario
+                    in {"unknown_usage", "negative_usage", "unsafe_usage", "coerced_usage"}
+                    else 9
+                )
                 assert value["output_tokens"] == (None if scenario == "unknown_usage" else 7)
                 assert value["usage_state"] == (
-                    "UNKNOWN" if scenario == "unknown_usage" else "KNOWN"
+                    "UNKNOWN"
+                    if scenario == "unknown_usage"
+                    else "PARTIAL"
+                    if scenario
+                    in {"negative_usage", "unsafe_usage", "coerced_usage", "invalid_reasoning"}
+                    else "KNOWN"
                 )
                 assert value["cost_observed"] is None  # Unknown is not zero.
+                assert value["reasoning_tokens"] is None
+                assert not owner.settlement_failed and not owner.tasks
+                if scenario in {
+                    "negative_usage",
+                    "unsafe_usage",
+                    "coerced_usage",
+                    "invalid_reasoning",
+                }:
+                    assert value["reason"] == "USAGE_INVALID"
                 assert len(received) == traffic
                 replay = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert replay.status_code == 202 and replay.json() == value

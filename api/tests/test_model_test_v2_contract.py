@@ -4,7 +4,25 @@ from uuid import uuid4
 import pytest
 
 from omnis.modules.instance.schemas import ControlRequest
+from omnis.modules.runs.model_test_contract import ModelTestView, Outcome
 from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestRequest
+
+
+@pytest.mark.parametrize("field", ["input_tokens", "output_tokens", "reasoning_tokens"])
+def test_usage_bounds_match_public_and_outcome(field: str) -> None:
+    from typing import Annotated
+
+    from pydantic import TypeAdapter
+
+    for model in (ModelTestView, Outcome):
+        info = model.model_fields[field]
+        adapter = TypeAdapter(Annotated[info.annotation, *info.metadata])
+        assert adapter.validate_python(9007199254740991) == 9007199254740991
+        assert adapter.validate_python(0) == 0
+        assert adapter.validate_python(None) is None
+        for invalid in (-1, 9007199254740992, True, "9", 1.5):
+            with pytest.raises(ValueError):
+                adapter.validate_python(invalid)
 
 
 def test_complete_new_command_frames_are_bounded() -> None:

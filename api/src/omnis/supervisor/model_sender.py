@@ -192,6 +192,7 @@ class Reply:
     output_tokens: int | None = None
     reasoning_tokens: int | None = None
     cost: str | None = None
+    usage_invalid: bool = False
 
 
 def failure_code(status: int, body: object) -> str:
@@ -274,7 +275,26 @@ class ModelSender:
                 parsed: object = json.loads(raw)
                 if isinstance(parsed, dict) and "error" in parsed:
                     return Reply("FAILED", failure_code(200, parsed), "200")
-                completion = ChatCompletion.model_validate_json(raw)
+                # Usage is optional evidence; SDK coercion must not turn invalid originals into facts.
+                raw_usage = parsed.pop("usage", None) if isinstance(parsed, dict) else None
+                usage = raw_usage if isinstance(raw_usage, dict) else {}
+                details = usage.get("completion_tokens_details")
+                original = [
+                    usage.get("prompt_tokens"),
+                    usage.get("completion_tokens"),
+                    details.get("reasoning_tokens") if isinstance(details, dict) else None,
+                ]
+                counts = [
+                    v if type(v) is int and 0 <= v <= 9007199254740991 else None for v in original
+                ]
+                invalid_usage = (
+                    (raw_usage is not None and not isinstance(raw_usage, dict))
+                    or (details is not None and not isinstance(details, dict))
+                    or any(
+                        v is not None and n is None for v, n in zip(original, counts, strict=True)
+                    )
+                )
+                completion = ChatCompletion.model_validate_json(json.dumps(parsed))
                 if not completion.choices:
                     return Reply("INCOMPLETE", "RESPONSE_INCOMPLETE", "200")
                 choice = completion.choices[0]
@@ -286,8 +306,7 @@ class ModelSender:
                     and content.strip() == ACK
                     else "INCOMPLETE"
                 )
-                usage = completion.usage
-                extra: object = usage.model_extra if usage else None
+                extra: object = usage
                 cost = None
                 if isinstance(extra, dict) and type(extra.get("cost")) in (int, float, str):
                     try:
@@ -298,17 +317,18 @@ class ModelSender:
                         cost = None
                 return Reply(
                     state,
-                    None if state == "COMPLETED" else "ACK_OR_COMPLETION_UNVERIFIED",
+                    ("USAGE_INVALID" if invalid_usage else None)
+                    if state == "COMPLETED"
+                    else "ACK_OR_COMPLETION_UNVERIFIED",
                     "200",
                     completion.model[:256].replace(secret, "[REDACTED]"),
                     completion.id[:256].replace(secret, "[REDACTED]"),
                     content.replace(secret, "[REDACTED]") if content is not None else None,
-                    usage.prompt_tokens if usage else None,
-                    usage.completion_tokens if usage else None,
-                    usage.completion_tokens_details.reasoning_tokens
-                    if usage and usage.completion_tokens_details
-                    else None,
+                    counts[0],
+                    counts[1],
+                    counts[2],
                     cost,
+                    invalid_usage,
                 )
         except APIStatusError as error:
             return Reply(

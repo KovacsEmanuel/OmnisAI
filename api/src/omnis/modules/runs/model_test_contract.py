@@ -138,9 +138,9 @@ class Outcome(KeyDTO):
     captured_bytes: int = Field(default=0, ge=0)
     reason_code: str | None = None
     usage_state: Literal["KNOWN", "PARTIAL", "UNKNOWN"] = "UNKNOWN"
-    input_tokens: int | None = Field(default=None, ge=0)
-    output_tokens: int | None = Field(default=None, ge=0)
-    reasoning_tokens: int | None = Field(default=None, ge=0)
+    input_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
+    output_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
+    reasoning_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
     cost_observed: str | None = None
     cost_estimate: str | None = None
     currency: str | None = None
@@ -168,9 +168,9 @@ class ModelTestView(KeyDTO):
     output_state: Literal["COMPLETE", "TRUNCATED", "ABSENT"] = "ABSENT"
     response_text: str | None = None
     usage_state: Literal["KNOWN", "PARTIAL", "UNKNOWN"] = "UNKNOWN"
-    input_tokens: int | None = Field(default=None, ge=0)
-    output_tokens: int | None = Field(default=None, ge=0)
-    reasoning_tokens: int | None = Field(default=None, ge=0)
+    input_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
+    output_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
+    reasoning_tokens: int | None = Field(default=None, strict=True, ge=0, le=9007199254740991)
     cost_observed: str | None = None
     system_message: str = SYSTEM
     user_message: str = USER

@@ -713,9 +713,14 @@ class ApiKeyModelTest:
                 "captured_bytes": len(retained.encode()),
                 "reason_code": reply.reason,
                 "usage_state": "KNOWN"
-                if reply.input_tokens is not None and reply.output_tokens is not None
+                if reply.input_tokens is not None
+                and reply.output_tokens is not None
+                and not reply.usage_invalid
                 else "PARTIAL"
-                if reply.input_tokens is not None or reply.output_tokens is not None
+                if any(
+                    v is not None
+                    for v in (reply.input_tokens, reply.output_tokens, reply.reasoning_tokens)
+                )
                 else "UNKNOWN",
                 "input_tokens": reply.input_tokens,
                 "output_tokens": reply.output_tokens,

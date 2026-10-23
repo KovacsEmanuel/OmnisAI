@@ -63,6 +63,19 @@ def prepare_restart(
     owner = mapping(json.loads(completion, object_pairs_hook=unique_pairs))
     if owner.get("state") != "COMPLETED":
         raise StartError("RESTART_RECEIPT_INVALID", 4)
+    return _prepare_reconciliation(root, stopped, attempt, raw, completion)
+
+
+def _prepare_reconciliation(
+    root: Path, stopped: dict[str, object], attempt: str, raw: bytes, completion: bytes
+) -> dict[str, object]:
+    """Common immutable history/intent; callers own normal-Stop or restore admission."""
+    command = uuid(stopped.get("stop_command"))
+    uuid(attempt)
+    path = root / f"restart-{command}.json"
+    if os.path.lexists(path):
+        raise StartError("RESTART_RECONCILIATION_REQUIRED", 4)
+    owner = mapping(json.loads(completion, object_pairs_hook=unique_pairs))
     saved = root / f"stopped-{command}.json"
     if not os.path.lexists(saved):
         _put(saved, raw)

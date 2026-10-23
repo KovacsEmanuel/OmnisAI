@@ -136,6 +136,8 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
             ],
         )
         self.assertIn("check-runtime:\n", makefile)
+        runtime = makefile.split("check-runtime:\n", 1)[1].split("\n\ntest:", 1)[0]
+        self.assertLess(runtime.index("test_native_build.py"), runtime.index("-m legacy_native"))
         self.assertIn("integrations/hermes/tests/test_native_build.py", makefile)
         self.assertIn("api/tests/test_runtime_service.py", makefile)
         self.assertIn("api/tests/test_runtime_supervisor.py", makefile)

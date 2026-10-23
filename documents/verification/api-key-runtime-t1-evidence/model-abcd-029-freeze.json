@@ -1,0 +1,271 @@
+{
+  "status": "CANDIDATE_NOT_ACCEPTED",
+  "base": "63f26fb5ec2beb781763c588187225791524571c",
+  "commit": "0299082dd652db35f533a22d2cd61f5629708935",
+  "tree": "67e357837033ffe1f1534d8ed77ccd7893f3241a",
+  "delta_count": 11,
+  "delta": [
+    {
+      "path": "api/src/omnis/modules/runs/model_test_contract.py",
+      "blob": "f465fa353ebf9f42baadf38f4b66ba56754e2501",
+      "sha256": "354900679851958e08aea012ab50622a8429acb1b5611b336a964abf52de2968"
+    },
+    {
+      "path": "api/src/omnis/modules/runs/model_test_runtime.py",
+      "blob": "dff032fa0efa28857a28ca2406d4ae17e8f32f8f",
+      "sha256": "0048f2ea74c6f7dc36a09ec2332e8a59c9e6dfb729c6c3117efe8c12861c1a10"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "blob": "c078d55e8110c1bab44293490b2a6fcd7a8e76f8",
+      "sha256": "990c7d1cf0080c5e5a2b72ca294106b8ba61121a4c651c9089bb5aca77bfe95b"
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "blob": "e24f136570e661c73e082a1ab14e3f420958c826",
+      "sha256": "1b7f1090d86855d939e54c3a221b4917c6078b2500cb0d21ac7ba6b9261327b3"
+    },
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "86a0f5673d7b09209a0cd4c11ddbc792e005a785",
+      "sha256": "1378fafda1cdd466dd3de1a7d9c086843ff16c427f06615553d435a64f9a21de"
+    },
+    {
+      "path": "api/tests/test_model_test_v2_contract.py",
+      "blob": "7e5c6c86b8f237263c62eca970562fad5329a8a1",
+      "sha256": "71c0b49e4a8e38cfeaee37310937dca45de0f56bd8d9678e93d49c44067181c0"
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "blob": "b76ea664a83cb2a9934fbc0288928034c6764002",
+      "sha256": "7c274d4021dead0d0bee0fe3b92f4c9fc19050469bdb1dfd1a6d83cef16a3d61"
+    },
+    {
+      "path": "web/src/app/ModelTest.test.tsx",
+      "blob": "056953b3e0202715b4cc1abcb958355be959da85",
+      "sha256": "477181b1130448d170440f774e201e9f7459059c1dba0fafcab8af9f76c2548b"
+    },
+    {
+      "path": "web/src/features/engagement/ModelTest.tsx",
+      "blob": "fd80f02cd5f5e2230bf93c6ecfce6b5f577daa7e",
+      "sha256": "aaafbbd33270f499cfc64410c6918749b3a311a4b5f14df40029e0b14cf58103"
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "blob": "0b60b7a0bb10dfc41cb96ee349016f0580ca04e4",
+      "sha256": "d27ca1d7c6aa640c3cbe24444181f342e89b82d3c91eb62f9bab9d46e9a0c396"
+    },
+    {
+      "path": "web/src/shared/api/client.ts",
+      "blob": "a7b6240c6da3ea117d0b3c82749e05c426bc9e0b",
+      "sha256": "72f32f259fc1f9c741e3de8298f391f845db5f2bee629fab5722962a91ce1787"
+    }
+  ],
+  "commits": [
+    "0299082dd652db35f533a22d2cd61f5629708935 test(model-test): type the usage-bound validator explicitly",
+    "f0753c247688ecaa416ebe3cc99e86879799db1d test(model-test): assert immediate Settings cache invalidation",
+    "311092fe72895280f3d5958a24a932b4bdc443b7 fix(model-test): reconcile refused intents without forgetting uncertain sends",
+    "4351da41924a0c85b45bee3cbf18b5451b53c2b9 fix(model-test): settle expected network and stream outages normally",
+    "45aca4516922492bd8f3b9854c41ef147bc8b5e6 fix(model-test): redact full response identifiers before truncating",
+    "69d2713148706f4ff05458e9cc81bdc0337df739 fix(model-test): validate original usage without losing ACK completion"
+  ],
+  "checks": [
+    {
+      "command": "TMPDIR=../m4 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-test-v2-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 300",
+      "exit": 0,
+      "count": 21,
+      "seconds": 55.31,
+      "artifact": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/m4/db-f01c67b14e35492f/gate.log"
+    },
+    {
+      "command": "make lint-api typecheck-api",
+      "exit": 0,
+      "artifact": "abcd-final-api-quality.log"
+    },
+    {
+      "command": "make test-contracts",
+      "exit": 0,
+      "artifact": "abcd-final-web-quality.log",
+      "limit": "combined make test-contracts lint-web subsequently exited 2 at missing tsx; contract/typecheck completed successfully"
+    },
+    {
+      "command": "make lint-web",
+      "exit": 0,
+      "artifact": "abcd-final-web-lint.log",
+      "prerequisite": "pinned npm ci --ignore-scripts --no-audit --no-fund --cache ../core-npm-cache in tools/development/anti-slop; no manifest change"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_sender.py api/tests/test_model_test_v2_contract.py -q --tb=short --basetemp=$TMPDIR/a4-final",
+      "exit": 0,
+      "count": 27,
+      "artifact": "abcd-final-source.log"
+    },
+    {
+      "command": "npm --prefix web test -- src/app/ModelTest.test.tsx src/shared/api/client.test.ts src/shared/api/providerKeys.test.ts",
+      "exit": 0,
+      "count": 28,
+      "artifact": "abcd-final-web-tests.log"
+    }
+  ],
+  "pg": {
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/m4/db-f01c67b14e35492f",
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "cid": "2410cc211980c01f592e4b9ba617651c806b05ea5d27697c8c9cfed805811bec",
+    "project": "omnis-p01-3ff6b455952642f19318f93bf7243ab7",
+    "version": "18.6",
+    "network": "none",
+    "family_drained": true,
+    "exact_cid_absent": true,
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "socket_directory_empty": true,
+    "data_retained": true,
+    "password_retained_no_bytes_read": true
+  },
+  "red_green": {
+    "A": "abcd-a-red.log -> abcd-a-green.log; original usage 15 negative cases through real SDK",
+    "B": "abcd-b-red.log -> abcd-b-green.log; two canary prefix booleans only",
+    "D": "abcd-d-red.log -> abcd-d-green.log; real UDS refusal + ResponseStream siblings",
+    "C": "abcd-c-red.log -> abcd-c-final.log; exact GET/cancel identity, refusal vs unknown no resend; abcd-c-settings-red3.log -> abcd-c-final.log for immediate Settings invalidation"
+  },
+  "failed_attempts_preserved": [
+    "initial Ruff invocation without explicit config gave import-order errors; real config passed",
+    "strict mypy initially required return type and TypeAdapter annotation; corrected in commits",
+    "Settings probe initially expected aria-disabled=false but component omits false; then polling masked invalidation absence; final immediate-caller assertion has real RED/GREEN",
+    "initial readPrivate recovery call lacked required AbortSignal; corrected, final TS pass",
+    "lint-web missing pinned local tsx; pinned local npm ci restored prerequisite, lint exit0"
+  ],
+  "open": [
+    "R2NEW01 relay physical sink / ACK drain remains HIGH; no relay edits",
+    "metadata PENDING owner-loss harness has two carried cycles: SHUTDOWN_INCOMPLETE / GENERATION_CONFLICT, cause not attributed; do not rerun or claim crash pass",
+    "native graph unadapted; crash SENT proof NOT_RUN; broad CLI failure unadjudicated",
+    "independent focused R1/R2 re-review and parent browser QA still required",
+    "original 95 bundle/reports immutable; no rebuild, no integration or push; previous three fixes remain candidate"
+  ],
+  "artifacts": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-a-green.log",
+      "sha256": "b72a658a9e79529f91fd1a362712c0b31af897de90fa05b9ad5cc2f8b4f7aa7e"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-a-mypy.log",
+      "sha256": "749f1c72b92f3ab711385d3bba213ab49221b1e728af388bd79f36b5806c16a7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-a-red.log",
+      "sha256": "57d2816bf6f59c18ee5b7e937e50804685a9b034e03c407f09b256b7d29c5c68"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-api-mypy.log",
+      "sha256": "8d7bf602f13e60ea3f21990deb72f4e0c3930b72feeb67b0bede1623424a9ead"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-b-green.log",
+      "sha256": "332cbd024eeb28ef76a56257fdd77563a636d38c93344a272c59454dcc6dd677"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-b-red.log",
+      "sha256": "661d32cdeedaf5198245c5fda840b7a2b8a001a5101df400907ca74c0ac281f7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-final-green.log",
+      "sha256": "a5a2bbdce03a19fceef064ba02f08468439c5b7d194161fdb1bd1b0bad11141a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-final.log",
+      "sha256": "01af67d48a9fef01e75a0fe3d8ab14a4ab018b8622dd2c08659af65472b55ed9"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-green.log",
+      "sha256": "8f31fdfbdc1a97508f934577c99f51a2a27eecf8ee1fe3e65048c0e141d48aec"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-green2.log",
+      "sha256": "150b47cd923c01a7e999c37205abe0e177aca1980399a013c1358b011c731c41"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-green3.log",
+      "sha256": "9c35b31266e55e74a28c4c66b021187fe72d2f400622a62d4a44344a807b3d71"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-green4.log",
+      "sha256": "765dcfd28ed57f51a94c8793d49e7b1cc9887027e17944f7290600c2d4391d26"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-red.log",
+      "sha256": "5ed289414ccfb324b5bd78a9aa2b589c18ee7a9a5094bc62b3559d31f57e75ad"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-settings-red.log",
+      "sha256": "b02e2df77a0288f5ac6938f7e98fc2e7a6ab369f4e28f7088ad8dcf7455af4b6"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-settings-red2.log",
+      "sha256": "e2602496c41e8231be8586247b4aca6bbb0b920d9f2998d7fb8359076900e0e6"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-c-settings-red3.log",
+      "sha256": "8e84b5cb88368984cac8a0535c7c6105b572fd0ba77469f9f46a2a4ddf29e981"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-contract-generate.log",
+      "sha256": "ccf8826f7307764470a53a29973780851c57fa8133495a4020ac038ff3435698"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-d-green.log",
+      "sha256": "53782a81e1c3c5e15b4e3672683b2b66ad5f2c4c0f2a1a0eda3eba730ae9d02c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-d-red.log",
+      "sha256": "3716a20af953ea62ba4aa409282993b47b9209b52d2962bab9d3703f6eb9af0f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-api-quality.log",
+      "sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-pg.log",
+      "sha256": "4815ba74bb8394d500ebfcbb26a2c25598205f3efeee943131ab72673962432a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-source.log",
+      "sha256": "797ca13cb43d1cc57e72d41741c2e0f10f8fa1b114732eaf55ab55cd6ec325ba"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-web-lint.log",
+      "sha256": "8c44c485ca5c12a69aff34f74c821de94598e1a370456a864f9d127fd25c429a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-web-quality.log",
+      "sha256": "87ea221d274be0c911958a619d65625442a027f38f3fc67135313103d4c3b4d2"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-final-web-tests.log",
+      "sha256": "e2b7e1832e6faf6cfc0aa6434e90b17c4fe07b38c53ff53ac90d9895b281397a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-lint-prerequisite.log",
+      "sha256": "b35979c0477d925a2d9c324fa0c7fb5584a555e98a4b0ba5eea350582049a79c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-pg-collection.log",
+      "sha256": "91776e02ef7f98c19323acc680c7513269f41b5d4edd3981d228ee4cf0e55efd"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-web-typecheck-final.log",
+      "sha256": "fa268149717bddb17ae174999b01341b57f53ad9af4d425b8f1ba31302ca6b57"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/abcd-web-typecheck.log",
+      "sha256": "73c9eab238e2373ce6cd000ac6e441a7980eff98eb33349125f35775399ca1e0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/m4/db-f01c67b14e35492f/gate.log",
+      "sha256": "ea89ca91f3648b574868225705329cc5dbca5e66e786c25ec26163014adde905"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/m4/db-f01c67b14e35492f/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    }
+  ]
+}

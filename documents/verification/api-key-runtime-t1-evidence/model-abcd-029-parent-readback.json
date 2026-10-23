@@ -1,0 +1,15 @@
+{
+  "source": "0299082dd652db35f533a22d2cd61f5629708935",
+  "tree": "67e357837033ffe1f1534d8ed77ccd7893f3241a",
+  "delta11_exact": true,
+  "physical_owned_pg_absent": true,
+  "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/m4/db-f01c67b14e35492f",
+  "cid": "2410cc211980c01f592e4b9ba617651c806b05ea5d27697c8c9cfed805811bec",
+  "data_password_retained_metadata_only": true,
+  "socket_empty": true,
+  "receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  }
+}

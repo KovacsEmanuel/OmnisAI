@@ -1,0 +1,11 @@
+{
+  "boundary": "NO_DB_NO_PROVIDER_PREFLIGHT",
+  "source": "878895d3a4dda1f50c394dd01a711ac79acd1586",
+  "target": "test-model-test-v2-pg",
+  "uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "docker_endpoint": "unix:///run/docker.sock",
+  "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb amd64",
+  "fresh_parent_root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg",
+  "review_required_before_execution": true
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "source": "fea84e2d987d56db3a3f701f0b3d396f7fe21a64",
+  "files": [
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/freeze.txt",
+      "archived": "readiness-878-author-freeze.txt",
+      "sha256": "8d0049d639521de82d9a63561360655c0755996e8313a6f2f8f01f24cd6e0bd3"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-878-freeze.json",
+      "archived": "readiness-878-parent-freeze.json",
+      "sha256": "ee227fdb7b47eeca9c6b57efc79757a0b3f345ab12dc872f24bab39c529df58c"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/red-readiness.log",
+      "archived": "readiness-878-red.json",
+      "sha256": "51c0d9dc7469d1b3eb265f408a5b3301c4a23bd2c6df7820e8e102caec86bf10",
+      "original_sha256": "780231a172bd3791e4b5589d86a97aaf174e94db89f0089eeb38dffb448168e1",
+      "format": "UTF8_JSON_PAYLOAD"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/green-final.log",
+      "archived": "readiness-878-green.txt",
+      "sha256": "84a6f4c91a685eb71383c3facbdb296742dd4a7b696475132b597de82b299db1"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/quality-final-pass.log",
+      "archived": "readiness-878-quality.json",
+      "sha256": "adc14905c7bed05309a2b7b1cb0d6d37404e92e9fac0e70808bcf70f5b262cf4",
+      "original_sha256": "d0d5f2534f789b6cc3574e350d3daf9a5750918528992c8b81acb35b02ab05dc",
+      "format": "UTF8_JSON_PAYLOAD"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/cli-final.log",
+      "archived": "readiness-878-cli.txt",
+      "sha256": "a3cd7cf18e5a38ab9e5332c44dc9aae7b369388049dc4c0fcbe24fd7b073ac46"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer1-878-review.md",
+      "archived": "reviewer1-878-review.md",
+      "sha256": "cc14867b78860cbd5ee6cf3e6dba752a29a2d809d70ae619574ffac0f66bb6bd"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer2-878-review.md",
+      "archived": "reviewer2-878-review.md",
+      "sha256": "626ef9290c65528e19b8dd6e9c12c34b2bb42f51f1e87aa4a05ccf4e31ec860a"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-oracle-378-freeze.json",
+      "archived": "parent-oracle-378-freeze.json",
+      "sha256": "2175ec710203c0dbc5bd56881e0da063cdacbf0b37ae26b9f57d55e2f41ea000"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/oracle-final-collect.log",
+      "archived": "oracle-378-collect.txt",
+      "sha256": "277e1e4fb401b6e82553263e6175c13b378b1d91c8b8fe764e3dc45b2d65b439"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/oracle-final-quality.log",
+      "archived": "oracle-378-quality.txt",
+      "sha256": "2a0733d243f149d5310315c3cff77ab259afcf00e9b4cf4cfb3b40f5c9e89a7f"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer1-oracle-378-review.md",
+      "archived": "reviewer1-oracle-378-review.md",
+      "sha256": "357054902b7e8f1d632dab9dbdee5742410401a3a05ab399be7f83bae5f19793"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer2-oracle-378-review.md",
+      "archived": "reviewer2-oracle-378-review.md",
+      "sha256": "2813c537753894d6da86bb3ce6976ab589df26709d9be5612c75453d3da33aeb"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-oracle-fea-freeze.json",
+      "archived": "parent-oracle-fea-freeze.json",
+      "sha256": "031372f31e0e3276396f41fb20e2ad56beac1ca5fa4e3001e79d19be15dee151"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/oracle-time-counterexample.log",
+      "archived": "oracle-fea-counterexample.txt",
+      "sha256": "dce4a6947ea2b490daf56aef4cc3f13e75cf5dce9f7bb64ad90bf86da05ae78e"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/oracle-time-collect.log",
+      "archived": "oracle-fea-collect.txt",
+      "sha256": "41ef9b920a33b41dd2c22e0943480a71114b20e55946e346baac2fa31143c6f7"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/oracle-time-quality.log",
+      "archived": "oracle-fea-quality.txt",
+      "sha256": "85c54231004b4d2a1191f01c36c3689e0a7cc52165f46e442000313df2e37cd0"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer1-oracle-fea-review.md",
+      "archived": "reviewer1-oracle-fea-review.md",
+      "sha256": "9be02c7991f2d9ec83b69810b366444f3eeb032e2b25e49fa95bc937cf3231e0"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/reviewer2-oracle-fea-review.md",
+      "archived": "reviewer2-oracle-fea-review.md",
+      "sha256": "fd4f5e7ebd3af0bf8f68d2e3ad337f00eaf07b655682f015c87825488ff7bd22"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-878-pg-preflight.json",
+      "archived": "parent-878-pg-preflight.json",
+      "sha256": "a1e066aacddf1eee522049b48b45bc37af87f1c2dc3ad948600988a158d9cb06"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-fea-model-pg.log",
+      "archived": "parent-fea-model-pg.txt",
+      "sha256": "56cf6bb73d31fcc42ae0f97a4c78f99f16299ec626f20cb3e81f2420f056986a"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg/db-e01bbf21312149dd/gate.log",
+      "archived": "parent-fea-pg-target.txt",
+      "sha256": "43d26ee5f790ef479d6912a0f9374da2b634f97eab5ee14d4264b1ed78701f39"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg/db-e01bbf21312149dd/gate.log.result.json",
+      "archived": "parent-fea-pg-result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg/db-e01bbf21312149dd/fixture.json",
+      "archived": "parent-fea-pg-fixture.json",
+      "sha256": "b159ea55d3eabd94c9a437df158a080a0c1751d191a3dbec12c4e1f5a6ef83b5"
+    },
+    {
+      "original": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/logs/parent-fea-pg-cleanup.json",
+      "archived": "parent-fea-pg-cleanup.json",
+      "sha256": "b4c895902973aab23dcac7cd67cad7d0d3608594a40a3c05c5b3428cffa44e5d"
+    }
+  ],
+  "retained_data": true,
+  "retained_password_metadata_only": true,
+  "password_contents_read": false,
+  "socket_empty": true,
+  "archive_format_note": "Two raw logs retain exact original UTF-8 bytes in JSON content to preserve inherited whitespace without weakening git diff --check; all other originals are byte-identical files."
+}

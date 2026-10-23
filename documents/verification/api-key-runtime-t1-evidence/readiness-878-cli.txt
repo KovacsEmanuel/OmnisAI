@@ -1,0 +1,13 @@
+test_model_allowlist_is_distinct_from_historical_oauth (test_model_forwarder.ModelRelayTest.test_model_allowlist_is_distinct_from_historical_oauth) ... ok
+test_model_relay_boot_is_inert_and_owned_socket_drains (test_model_forwarder.ModelRelayTest.test_model_relay_boot_is_inert_and_owned_socket_drains) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.016s
+
+OK
+test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver (test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.075s
+
+OK

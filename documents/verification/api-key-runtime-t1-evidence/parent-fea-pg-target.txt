@@ -1,0 +1,3 @@
+env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py -q --tb=short
+......................................................................   [100%]
+70 passed in 91.04s (0:01:31)

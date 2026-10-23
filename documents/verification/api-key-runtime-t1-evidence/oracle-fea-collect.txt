@@ -1,0 +1,33 @@
+CWD: /home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src
+RAW ARGV: ['env', '-u', 'PYTHONPATH', '-u', 'MYPYPATH', '-u', 'PYTEST_ADDOPTS', '-u', 'PYTEST_PLUGINS', '-u', 'OMNIS_TEST_DATABASE_URL', '-u', 'OMNIS_TEST_FIXTURE', '-u', 'OMNIS_DATABASE_URL', 'PYTEST_DISABLE_PLUGIN_AUTOLOAD=1', 'api/.venv/bin/python', '-I', '-B', '-m', 'pytest', '-p', 'pytest_asyncio.plugin', '-p', 'no:cacheprovider', '-c', 'api/pyproject.toml', 'api/tests/test_model_test_v2.py', 'api/tests/test_model_test_v2_contract.py', 'api/tests/test_model_test_v2_migration.py', '--collect-only', '-q', '--tb=short']
+tests/test_model_test_v2.py::test_production_consumer_exists
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[unknown_usage]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[negative_usage]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[unsafe_usage]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[coerced_usage]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[invalid_reasoning]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[secret_long]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[secret_cross]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[metadata_refused]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[metadata_eof]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[stop_at_body]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[revoke_at_body]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[cancel_at_body]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_dns]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_cancel_connect]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_revoke_dns]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_stop_dns]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_expiry_connect]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[relay_expiry_write]
+tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settlement_before_cancel]
+tests/test_model_test_v2_contract.py::test_usage_bounds_match_public_and_outcome[input_tokens]
+tests/test_model_test_v2_contract.py::test_usage_bounds_match_public_and_outcome[output_tokens]
+tests/test_model_test_v2_contract.py::test_usage_bounds_match_public_and_outcome[reasoning_tokens]
+tests/test_model_test_v2_contract.py::test_complete_new_command_frames_are_bounded
+tests/test_model_test_v2_contract.py::test_no_caller_authority_or_coerced_consent
+tests/test_model_test_v2_migration.py::test_model_schema_empty_and_upgrade[None]
+tests/test_model_test_v2_migration.py::test_model_schema_empty_and_upgrade[0014_provider_settings]
+
+28 tests collected in 1.30s
+EXIT_CODE: 0

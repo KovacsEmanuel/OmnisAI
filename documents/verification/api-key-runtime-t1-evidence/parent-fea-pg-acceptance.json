@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "decision": "ACCEPTED_RCA_READINESS_SOURCE_PRIVATE_PG_SCOPED",
+  "product_commit": "878895d3a4dda1f50c394dd01a711ac79acd1586",
+  "oracle_commits": [
+    "37877c83ac2525f5480c5e5db091ea429eeec43b",
+    "fea84e2d987d56db3a3f701f0b3d396f7fe21a64"
+  ],
+  "tested_head": "fea84e2d987d56db3a3f701f0b3d396f7fe21a64",
+  "tested_tree": "0c92f4852572673498a18ac60a92563c9dbe633c",
+  "branch": "impl/api-key-runtime-t1-model",
+  "integrated_into_main": false,
+  "reviews": {
+    "product": ["reviewer1-878-review.md", "reviewer2-878-review.md"],
+    "oracle_changes_requested": ["reviewer1-oracle-378-review.md", "reviewer2-oracle-378-review.md"],
+    "oracle_final_approved": ["reviewer1-oracle-fea-review.md", "reviewer2-oracle-fea-review.md"],
+    "temporal_findings": "CLOSED_SOURCE_SCOPED after post-ACK freshness checks; unchanged approved scope reused"
+  },
+  "real_consumer": {
+    "working_directory": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src",
+    "environment": {
+      "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+      "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/core-uv-cache",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg"
+    },
+    "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-test-v2-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 180",
+    "process_session": "proc_cc6d55f83d65",
+    "exit_code": 0,
+    "passed": 70,
+    "elapsed_test_seconds": 91.04,
+    "family_drained": true,
+    "count_boundary": "Mixed existing target: API/real private PostgreSQL/SDK controlled TLS and protocol/scope pure tests, not 70 PG-only cases",
+    "evidence": ["parent-fea-model-pg.txt", "parent-fea-pg-target.txt", "parent-fea-pg-result.json", "parent-fea-pg-fixture.json", "parent-fea-pg-cleanup.json"]
+  },
+  "scope": [
+    "TCP preparation outside SQL admission; one nonblocking host send under current WRITE guard",
+    "Expiry CONNECT/WRITE without concurrent Cancel; separate terminal-wins stale CAS 409",
+    "Admitted Cancel during held TCP connect before OPEN expiry, FINISHED/CANCELLED, exact readback and scoped FENCE/DRAIN before release",
+    "Admitted body-stage cancellation and stable post-ACK physical counters",
+    "Late WRITE uses real producer scope/connection, next sequence and adversarial fixture-only deadline, still valid at DENIED ACK; not a newly issued DB authority"
+  ],
+  "cleanup": {
+    "exact_owned_cid_absent": true,
+    "exact_project_containers_and_networks_absent": true,
+    "same_daemon_readback": true,
+    "socket_empty": true,
+    "data_retained": true,
+    "password_retained_metadata_only": true,
+    "password_contents_read": false
+  },
+  "historical_harness_only_counter": 2,
+  "post_product_fix_oracle_only_commits": ["37877c8", "fea84e2"],
+  "historical_failures_and_unknown_interleaving_retained": true,
+  "R2_NEW_01": "Current source/private-PG scenarios validated; finding not closed for untested final-artifact/lifecycle/crash boundaries",
+  "not_run_or_not_claimed": [
+    "Full T1 acceptance or integration",
+    "New final bundle, installed/browser ModelTest, lifecycle restart and crash with SENT unsettled",
+    "Canonical legacy/native-bound gate, broad CLI closure and untested installed historical readers",
+    "Backup/restore/reactivation",
+    "Real provider/inference, live WAN availability, T2 or later phases, push"
+  ],
+  "risk": "Existing DNS+TCP preparation window remains at most 0.5 seconds; slow scheduling/network can fail conservatively. No live WAN calibration or universal absence-of-races claim."
+}

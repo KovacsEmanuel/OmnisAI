@@ -1,0 +1,4 @@
+cwd: /home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src
+argv: make --no-print-directory lint-api typecheck-api API_CHECK_PATHS=api/tests/test_model_test_v2.py
+exit_code: 0
+[][]

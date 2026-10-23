@@ -1,0 +1,22 @@
+{
+  "boundary": "LIVE_EXACT_OWNED_CLEANUP_READBACK",
+  "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "cid": "62a144ce7d62a0a05af4aab9ebe95ea50f678214a8bf6b1e08acf9c46ee1f782",
+  "cid_absent": true,
+  "project": "omnis-p01-ac49388b7d344ea5a880dd956d860d23",
+  "project_cids_absent": true,
+  "project_networks_absent": true,
+  "retained_root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/rca-pg/db-e01bbf21312149dd",
+  "root_exists": true,
+  "entries": [
+    "gate.log.result.json",
+    "npm_config_userconfig",
+    "xdg-config",
+    "data",
+    "npm_config_globalconfig",
+    "fixture.json",
+    "socket",
+    "gate.log",
+    "password"
+  ]
+}

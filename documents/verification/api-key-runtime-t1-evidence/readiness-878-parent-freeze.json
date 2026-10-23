@@ -1,0 +1,63 @@
+{
+  "base": "fb54beace973b7c49422b197404f04c8baa6a9dd",
+  "commit": "878895d3a4dda1f50c394dd01a711ac79acd1586",
+  "tree": "f666a1b26d9fd530291227f7da1f766bd86f6e9b",
+  "clean": true,
+  "delta": [
+    {
+      "path": "api/src/omnis/supervisor/model_relay_protocol.py",
+      "old_blob": "223ad129c2c2118f2df91748da79e021bc3296bf",
+      "blob": "12aeeb92fc2faf71a451c58a8dc961e49b45d832",
+      "sha256": "fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e"
+    },
+    {
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "old_blob": "b1bd97ba39898135619c9dcdec4a4c54df528ab8",
+      "blob": "ae10c5e0054aedecc8d1da4df39d5b394ebe9413",
+      "sha256": "7143dfa027ef89f7d8a3e275e2af0076096013b41ab089f929d12c901a3f8f89"
+    },
+    {
+      "path": "api/tests/test_model_relay_protocol.py",
+      "old_blob": "0cb46f19001b194a1d6a0001854b4d8ea58c2e30",
+      "blob": "5e2de2c14f06959154c37ca32d3f957f083f1494",
+      "sha256": "cad91fe2071e7ebb3acedcb804dfc8905df018f03cce01d113325dbd84c8e34b"
+    },
+    {
+      "path": "api/tests/test_model_relay_scopes.py",
+      "old_blob": "488881037fdb8640c77e97cedf74bdf7d071fee1",
+      "blob": "a2c8d3ebdef4c6c22fa6140a045295cc2fe5984e",
+      "sha256": "148f19140e5c2c880afa9737d768e1c34fa86acb32a615ead46c6e8989e7e9f1"
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "old_blob": "3925c976a48d528a65213d39e58d956c46dfe558",
+      "blob": "ccf54389eb48a453786de4ceb3cd7df5fe50652a",
+      "sha256": "d2b419ed932cac3e458286fb8cec2414eb3de7b5528de819dbd4ee562a71e917"
+    },
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "old_blob": "ec18dab14e296b96066ebe0f8bc124948de1cc6d",
+      "blob": "388c264737bcd6453c9d73c72349a2d540d16a6a",
+      "sha256": "5f6532a34e2d854894652e3ecae8a5544f83b1a02b56a98f31cbe44995025848"
+    },
+    {
+      "path": "cli/src/omnis_cli/model_relay.py",
+      "old_blob": "0d072a045f57e71fa048f383d94a55136c988ff8",
+      "blob": "99d3d48fdc2845a27a911afc917cfdfad786f932",
+      "sha256": "42f1da73b00a7b006f0d171a19f6f4e5f8345fc96d81ec3a429209a0f735d85f"
+    },
+    {
+      "path": "cli/src/omnis_cli/model_relay_protocol.py",
+      "old_blob": "223ad129c2c2118f2df91748da79e021bc3296bf",
+      "blob": "12aeeb92fc2faf71a451c58a8dc961e49b45d832",
+      "sha256": "fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e"
+    },
+    {
+      "path": "cli/tests/test_model_relay_fence.py",
+      "old_blob": "fed8b953164335059038d1f6d2f96c41363fe36c",
+      "blob": "ffe383fb8d34bce24ef449fb1dee670da25a8b99",
+      "sha256": "2388f1ebfe699bb9fda4da526e3ff0e7fce32a89ca920d65e49828c53cb2e4b0"
+    }
+  ],
+  "scope": "RCA network readiness vs local guarded handoff; corrected oracle; no PG yet"
+}

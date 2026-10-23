@@ -5164,7 +5164,7 @@ async def readuntil(separator):
 async def exercise():
     await foreign()
     budgets = {'budget-bool': True, 'budget-nan': float('nan'), 'budget-inf': float('inf'),
-               'budget-zero': 0, 'budget-negative': -0.1, 'budget-over': 5.0001,
+               'budget-zero': 0, 'budget-negative': -0.1, 'budget-over': 10.0001,
                'budget-string': 'PRIVATE_HOST_SENTINEL', 'budget-list': []}
     for kwargs in ({}, {'ready_timeout': budgets.get(sys.argv[2], 0.0012345)}):
         peer = SimpleNamespace(timeout=0.001, ready=asyncio.get_running_loop().create_future())

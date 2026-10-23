@@ -15,7 +15,15 @@ import httpcore
 from anyio import EndOfStream
 from anyio.abc import ByteStream
 
-from omnis.supervisor.model_relay_protocol import Authority, Scope, decode, encode, utc
+from omnis.supervisor.model_relay_protocol import (
+    MAX_INT,
+    Authority,
+    Scope,
+    decode,
+    encode,
+    integer,
+    utc,
+)
 
 
 class RelayFailure(RuntimeError):
@@ -107,6 +115,9 @@ class Relay:
                     "size",
                 }:
                     raise RelayFailure("RELAY_ACK_INVALID")
+                integer(reply["version"], 1, 1)
+                integer(reply["sequence"], 0, MAX_INT)
+                Scope.parse(reply["scope"])
                 if any(
                     reply[k] != request[k]
                     for k in ("version", "request_id", "connection_id", "scope", "sequence")

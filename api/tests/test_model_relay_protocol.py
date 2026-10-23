@@ -99,7 +99,10 @@ def test_scope_extra_and_cancel_epoch_overflow_are_denied() -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mode", ["missing", "drain_upstream"])
+@pytest.mark.parametrize(
+    "mode",
+    ["missing", "drain_upstream", "valid", "bool_version", "bool_sequence", "bool_epoch"],
+)
 async def test_missing_scoped_ack_prevents_quiescence(mode: str) -> None:
     import os
 
@@ -112,19 +115,25 @@ async def test_missing_scoped_ack_prevents_quiescence(mode: str) -> None:
 
         async def no_ack(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
             request = decode(await reader.readline())
-            if mode == "drain_upstream":
+            if mode != "missing":
                 reply = {
                     k: request[k]
                     for k in ("version", "request_id", "connection_id", "scope", "sequence")
                 }
+                if mode == "bool_version":
+                    reply["version"] = True
+                elif mode == "bool_sequence":
+                    reply["sequence"] = False
+                elif mode == "bool_epoch":
+                    reply["scope"] = {**Scope.parse(reply["scope"]).wire(), "owner_epoch": True}
                 writer.write(
                     encode(
                         {
                             **reply,
                             "size": 0,
-                            "status": "OK"
-                            if request["action"] == "FENCE"
-                            else "UPSTREAM_UNAVAILABLE",
+                            "status": "UPSTREAM_UNAVAILABLE"
+                            if mode == "drain_upstream" and request["action"] == "DRAIN"
+                            else "OK",
                         }
                     )
                 )
@@ -148,11 +157,15 @@ async def test_missing_scoped_ack_prevents_quiescence(mode: str) -> None:
         )
         relay.scopes.add(scope)
         try:
-            with pytest.raises(RelayFailure, match="RELAY_.*UNCERTAIN"):
+            if mode == "valid":
                 await relay.drain()
-            assert scope in relay.scopes
-            if mode == "missing":
-                assert relay.failed
+                assert not relay.scopes and not relay.failed
+            else:
+                with pytest.raises(RelayFailure, match="RELAY_.*UNCERTAIN"):
+                    await relay.drain()
+                assert scope in relay.scopes
+                if mode != "drain_upstream":
+                    assert relay.failed
         finally:
             server.close()
             await server.wait_closed()

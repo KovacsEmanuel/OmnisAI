@@ -167,7 +167,9 @@ async def test_ready_denies_missing_instance_column(
     "mutation",
     [
         "ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton",
-        "ALTER TABLE instance_control DROP CONSTRAINT instance_control_instance_id_key",
+        # Exact named shape drifts without dropping the key referenced by current FKs.
+        "ALTER TABLE instance_control RENAME CONSTRAINT instance_control_instance_id_key "
+        "TO stale_instance_control_instance_id_key",
         "ALTER TABLE instance_control ALTER COLUMN admission_open SET DEFAULT true",
         "ALTER TABLE instance_control ALTER COLUMN quiesced_generation TYPE text",
     ],

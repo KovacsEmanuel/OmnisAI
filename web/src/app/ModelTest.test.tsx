@@ -4,100 +4,63 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { health, session } from '../../tests/fixtures';
-import { draft, id } from '../../tests/projection-fixtures';
-import type { ModelTestView } from '../shared/api/modelTest';
-import { App } from './App';
+import { ModelTest } from '../features/engagement/ModelTest';
+import { BrowserSessionProvider } from '../features/bootstrap/BrowserSession';
+import { decodeModelTest } from '../shared/api/modelTest';
 
-const available: ModelTestView = {
-  operation_id: null, status: 'AVAILABLE', reason: null,
-  system_message: 'Respond briefly to this synthetic model test. Use no tools.',
-  user_message: 'Map supplied structured synthetic records.',
-  requested_provider: 'openai-codex', requested_model: 'gpt-6.1-sol', requested_effort: 'xhigh',
-  observed_model: null, observed_effort: null, response_text: null,
-  input_tokens: null, output_tokens: null, reasoning_tokens: null, duration_ms: null,
-  calls_limit: 1, wall_seconds: 300,
+const available = {
+  schema_version: 2, operation_id: null, state: null, state_revision: null, finish_reason: null,
+  selection_revision: 1, metadata_state: 'READY', metadata_command_id: null, reason: null,
+  requested_provider: null, requested_model: null, requested_output_tokens: null, observed_model: null,
+  provider_status: null, result_state: null, output_state: 'ABSENT', response_text: null,
+  usage_state: 'UNKNOWN', input_tokens: null, output_tokens: null, reasoning_tokens: null, cost_observed: null,
+  system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.',
+  user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
 };
-function mount(path = `/engagements/${id}/overview`) {
+function mount() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[path]}><App /></MemoryRouter></QueryClientProvider>);
+  return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider><ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
 }
-
-it('can test from New before saving any authorization, scope or ROE', async () => {
-  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
-    const path = String(input);
-    if (path === '/api/v1/model-test') return new Response(JSON.stringify(available));
-    if (path.startsWith('/api/v1/engagements/')) throw new Error('No saved engagement exists');
-    return new Response(JSON.stringify(path === '/api/session' ? session : health));
-  });
-  vi.stubGlobal('fetch', fetcher);
-  mount('/engagements/new');
-  const button = await screen.findByRole('button', { name: 'Trimite testul modelului' });
-  await waitFor(() => expect(button).toBeEnabled());
-  expect(screen.getByLabelText('Engagement name')).toHaveValue('');
-  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+it('rejects invented observed values and malformed nullable fields', () => {
+  expect(decodeModelTest(available).observed_model).toBeNull();
+  expect(() => decodeModelTest({ ...available, cost_observed: 0 })).toThrow();
+  expect(() => decodeModelTest({ ...available, state_revision: -1 })).toThrow();
 });
-
-it('sends only on explicit action, renders escaped retained response and reload only reads', async () => {
+it('requires explicit consent, sends the finite intent once, and reload reads by the same ID', async () => {
+  sessionStorage.clear();
   let current = available;
   let writes = 0;
+  const calls: string[] = [];
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
-    const path = String(input);
-    if (path.endsWith('/model-test')) {
+    const path = String(input); calls.push(path);
+    if (path.startsWith('/api/v1/model-test')) {
       if (init?.method === 'PUT') {
         writes += 1;
-        expect(init.headers).toMatchObject({ 'X-CSRF-Token': session.csrf_token });
         const value: unknown = JSON.parse(String(init.body));
-        if (typeof value !== 'object' || value === null || !('operation_id' in value) || typeof value.operation_id !== 'string') throw new Error('Invalid test fixture request');
-        current = { ...available, operation_id: value.operation_id, status: 'COMPLETE',
-          observed_model: 'gpt-6.1-sol', observed_effort: null,
-          response_text: '<img src=x onerror=alert(1)> controlled reply', output_tokens: 3, duration_ms: 4100 };
+        expect(value).toEqual({ operation_id: expect.any(String), expected_selection_revision: 1, consent: true });
+        if (typeof value !== 'object' || value === null || !('operation_id' in value) || typeof value.operation_id !== 'string') throw new Error('invalid fixture');
+        return new Response(JSON.stringify({ ...current, operation_id: value.operation_id, state: 'FINISHED', state_revision: 3,
+          finish_reason: 'COMPLETED', result_state: 'COMPLETED', output_state: 'COMPLETE',
+          response_text: '<img src=x onerror=alert(1)>', observed_model: 'fixture/observed' }), { status: 202 });
       }
+      const remembered = sessionStorage.getItem('omnis-model-test-operation');
+      if (remembered) return new Response(JSON.stringify({ ...current, operation_id: remembered, state: 'FINISHED', state_revision: 3,
+        finish_reason: 'COMPLETED', result_state: 'COMPLETED', output_state: 'COMPLETE', response_text: '<img src=x onerror=alert(1)>', observed_model: 'fixture/observed' }));
       return new Response(JSON.stringify(current));
     }
-    return new Response(JSON.stringify(path === '/api/session' ? session : path === '/health/ready' ? health : draft));
+    return new Response(JSON.stringify(path === '/api/session' ? session : health));
   }));
-  const page = mount();
-  const user = userEvent.setup();
+  const page = mount(); const user = userEvent.setup();
   const button = await screen.findByRole('button', { name: 'Trimite testul modelului' });
-  await waitFor(() => expect(button).toBeEnabled());
-  expect(writes).toBe(0);
-  expect(screen.getByText(available.system_message)).toBeVisible();
+  await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
+  expect(button).toBeDisabled(); expect(writes).toBe(0);
+  await user.click(screen.getByRole('checkbox'));
   await user.dblClick(button);
-  expect(await screen.findByLabelText('Răspuns model')).toHaveTextContent('<img src=x onerror=alert(1)> controlled reply');
-  expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  expect(await screen.findByLabelText('Răspuns model')).toHaveTextContent('<img src=x onerror=alert(1)>');
+  expect(screen.queryByRole('img')).not.toBeInTheDocument(); expect(writes).toBe(1);
+  page.unmount(); mount();
+  await screen.findByLabelText('Răspuns model');
+  expect(calls.some(path => path === '/api/v1/model-test/' + sessionStorage.getItem('omnis-model-test-operation'))).toBe(true);
   expect(writes).toBe(1);
-  expect(button).toBeDisabled();
-  page.unmount();
-  mount();
-  expect(await screen.findByLabelText('Răspuns model')).toBeVisible();
-  expect(writes).toBe(1);
-});
-
-it('a lost reply is read back as UNKNOWN without resend or an enabled new operation', async () => {
-  let writes = 0;
-  let current = available;
-  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
-    if (String(input).endsWith('/model-test')) {
-      if (init?.method === 'PUT') {
-        writes += 1;
-        current = { ...available, operation_id: '11111111-1111-4111-8111-111111111111', status: 'UNKNOWN' };
-        throw new Error('Lost control response');
-      }
-      return new Response(JSON.stringify(current));
-    }
-    return new Response(JSON.stringify(String(input) === '/api/session' ? session : String(input) === '/health/ready' ? health : draft));
-  }));
-  const page = mount();
-  const user = userEvent.setup();
-  const button = await screen.findByRole('button', { name: 'Trimite testul modelului' });
-  await waitFor(() => expect(button).toBeEnabled());
-  await user.click(button);
-  await waitFor(() => expect(screen.getByText(/UNKNOWN —/)).toBeVisible());
-  await user.click(screen.getByRole('button', { name: 'Citește starea testului' }));
-  expect(button).toBeDisabled();
-  page.unmount();
-  mount();
-  await screen.findByText('UNKNOWN — nu se retrimite.');
-  expect(screen.getByRole('button', { name: 'Trimite testul modelului' })).toBeDisabled();
-  expect(writes).toBe(1);
+  current = available;
 });

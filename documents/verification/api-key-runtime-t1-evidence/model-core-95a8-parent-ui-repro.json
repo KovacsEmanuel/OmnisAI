@@ -1,0 +1,23 @@
+{
+  "source_commit": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "scope": "pure frozen TypeScript/hook/API doubles, NOT_BROWSER_NOT_NETWORK",
+  "unsafe_backend_view_rejected_by_actual_decoder": true,
+  "definitive_refusal": {
+    "error_code": "REVISION_CONFLICT",
+    "start_calls": 1,
+    "read_calls": 1,
+    "remembered_nonexistent_id": true,
+    "uncertain": true,
+    "refresh_disabled": true,
+    "reload_refresh_disabled": true
+  },
+  "uncertain_no_resend_control": {
+    "error_code": "API_UNAVAILABLE",
+    "start_calls": 1,
+    "read_calls": 1,
+    "remembered_nonexistent_id": true,
+    "uncertain": true,
+    "refresh_disabled": true,
+    "reload_refresh_disabled": true
+  }
+}

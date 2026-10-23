@@ -1,0 +1,12 @@
+{
+  "source_commit": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "scope": "actual frozen relay, synthetic TLS hello, held DNS double, numeric connect rerouted only to owned loopback; NOT_API_CANCEL_NOT_PG_NOT_PROVIDER",
+  "sdk_equivalent_local_uds_closed": true,
+  "relay_dns_and_client_still_owned_after_local_close": true,
+  "upstream_connect_after_local_close": true,
+  "upstream_hello_after_local_close": true,
+  "provider_traffic": false,
+  "owned_listener_socket_removed": true,
+  "owned_tcp_server_closed": true,
+  "owned_resolver_thread_drained": true
+}

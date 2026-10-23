@@ -1,0 +1,29 @@
+{
+  "scope": "pure diagnostic doubles, NOT_SQL_NOT_NETWORK_NOT_PROVIDER",
+  "source_commit": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "usage": [
+    {
+      "provider_input": 9,
+      "reply_state": "COMPLETED",
+      "reply_input": 9,
+      "outcome_accepted": true
+    },
+    {
+      "provider_input": -1,
+      "reply_state": "COMPLETED",
+      "reply_input": -1,
+      "outcome_accepted": false
+    },
+    {
+      "provider_input": 9007199254740992,
+      "reply_state": "COMPLETED",
+      "reply_input": 9007199254740992,
+      "outcome_accepted": true
+    }
+  ],
+  "secret_prefix_leak_256": true,
+  "secret_cutoff_leak_6": true,
+  "metadata_failed_result_saved": true,
+  "metadata_exception_escaped": "ConnectError",
+  "settlement_failed_latch": true
+}

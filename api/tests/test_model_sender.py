@@ -1,18 +1,91 @@
+import asyncio
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpcore
 import httpx
 import pytest
 
 from omnis.modules.runs.model_test_contract import ACK, ENDPOINTS, Projection
-from omnis.supervisor.model_sender import ModelSender
+from omnis.supervisor.model_sender import ModelSender, ResponseStream, SendDenied
 
 
 @asynccontextmanager
 async def guard() -> AsyncIterator[None]:
     yield
+
+
+@pytest.mark.asyncio
+async def test_refused_owned_socket_is_a_normal_metadata_outage(tmp_path: Path) -> None:
+    sender = ModelSender(tmp_path / "missing")
+    try:
+        with pytest.raises(SendDenied, match="^METADATA_UNAVAILABLE$"):
+            await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)
+        reply = await sender.send(
+            ENDPOINTS["openrouter"],
+            "fixture-secret",
+            Projection(model="fixture/model", output_tokens=64),
+            guard,
+        )
+        assert reply.result_state == "UNKNOWN" and reply.reason == "RESULT_UNKNOWN"
+    finally:
+        await sender.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "error", [httpcore.ReadError, httpcore.RemoteProtocolError, httpcore.ReadTimeout]
+)
+async def test_streaming_outage_is_sanitized(error: type[Exception]) -> None:
+    async def broken() -> AsyncIterator[bytes]:
+        yield b"{"
+        raise error("private diagnostic must not escape")
+
+    sender = ModelSender(Path("/nonexistent-owned-fixture"))
+    await sender.http.aclose()
+    sender.http = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(
+                200, stream=ResponseStream(httpcore.Response(200, content=broken()), 131072)
+            )
+        )
+    )
+    try:
+        with pytest.raises(SendDenied, match="^METADATA_UNAVAILABLE$"):
+            await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)
+        reply = await sender.send(
+            ENDPOINTS["openrouter"],
+            "fixture-secret",
+            Projection(model="fixture/model", output_tokens=64),
+            guard,
+        )
+        assert reply.result_state == "UNKNOWN" and reply.reason == "RESULT_UNKNOWN"
+    finally:
+        await sender.close()
+
+
+@pytest.mark.asyncio
+async def test_metadata_does_not_swallow_control_failures_or_cancellation() -> None:
+    sender = ModelSender(Path("/nonexistent-owned-fixture"))
+
+    async def fail(request: httpx.Request) -> httpx.Response:
+        raise RuntimeError("control failure")
+
+    await sender.http.aclose()
+    sender.http = httpx.AsyncClient(transport=httpx.MockTransport(fail))
+    try:
+        with pytest.raises(RuntimeError, match="control failure"):
+            await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)
+        task = asyncio.create_task(
+            sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)
+        )
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    finally:
+        await sender.close()
 
 
 @pytest.mark.asyncio

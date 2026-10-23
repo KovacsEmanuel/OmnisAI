@@ -236,6 +236,15 @@ class ModelSender:
                 raise SendDenied("METADATA_PROVIDER_REJECTED")
             value: object = response.json()
             return value
+        except (
+            httpcore.NetworkError,
+            httpcore.ProtocolError,
+            httpcore.TimeoutException,
+            httpx.NetworkError,
+            httpx.ProtocolError,
+            httpx.TimeoutException,
+        ):
+            raise SendDenied("METADATA_UNAVAILABLE") from None
         finally:
             CURRENT.reset(token)
 
@@ -334,7 +343,16 @@ class ModelSender:
             return Reply(
                 "FAILED", failure_code(error.status_code, error.body), str(error.status_code)
             )
-        except (APIConnectionError, httpx.HTTPError, SendDenied, ValidationError, ValueError):
+        except (
+            APIConnectionError,
+            httpx.HTTPError,
+            httpcore.NetworkError,
+            httpcore.ProtocolError,
+            httpcore.TimeoutException,
+            SendDenied,
+            ValidationError,
+            ValueError,
+        ):
             return Reply("UNKNOWN", "RESULT_UNKNOWN")
         finally:
             CURRENT.reset(token)

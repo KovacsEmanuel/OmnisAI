@@ -79,6 +79,8 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
         "invalid_reasoning",
         "secret_long",
         "secret_cross",
+        "metadata_refused",
+        "metadata_eof",
         "stop_at_body",
         "revoke_at_body",
         "cancel_at_body",
@@ -159,6 +161,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     assert len(bytes(socket)) <= 107
     received: list[tuple[str, bytes]] = []
     tasks: set[asyncio.Task[None]] = set()
+    metadata_outage = scenario in {"metadata_refused", "metadata_eof"}
 
     async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
@@ -178,6 +181,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                 except asyncio.IncompleteReadError:
                     return
                 received.append((first, body))
+                if metadata_outage:
+                    return  # Real TLS peer EOF before any response bytes.
                 if first == "GET /api/v1/models HTTP/1.1":
                     payload: dict[str, object] = {
                         "data": [
@@ -248,6 +253,9 @@ async def test_api_pg_sdk_protocol_and_replay(
             tasks.discard(task)
 
     server = await asyncio.start_unix_server(serve, socket, ssl=server_context)
+    if scenario == "metadata_refused":
+        server.close()
+        await server.wait_closed()
     sender = ModelSender(socket, client_context)
     owner = ApiKeyModelTest(settings, sender)
     service.runtime_drain = owner.drain
@@ -347,6 +355,27 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 )
                             )
                         ).one() == before_rows
+                if metadata_outage:
+                    failed_command = str(uuid4())
+                    failed = await http.post(
+                        "/api/v1/model-test/capabilities",
+                        json={"command_id": failed_command, "expected_selection_revision": 1},
+                        headers=headers,
+                    )
+                    assert failed.status_code == 202
+                    async with asyncio.timeout(5):
+                        while owner.tasks:
+                            await asyncio.sleep(0.02)
+                    failed_receipt = (
+                        await http.get("/api/v1/model-test/capabilities/" + failed_command)
+                    ).json()
+                    assert failed_receipt["metadata_state"] == "FAILED"
+                    assert failed_receipt["reason"] == "METADATA_UNAVAILABLE"
+                    assert not owner.settlement_failed
+                    assert len(received) == (1 if scenario == "metadata_eof" else 0)
+                    metadata_outage = False
+                    if scenario == "metadata_refused":
+                        server = await asyncio.start_unix_server(serve, socket, ssl=server_context)
                 refresh_a = str(uuid4())
                 refresh_intent = {"command_id": refresh_a, "expected_selection_revision": 1}
                 refresh = await http.post(
@@ -361,7 +390,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                     ] == "PENDING":
                         await asyncio.sleep(0.02)
                 receipt_a = (await http.get("/api/v1/model-test")).json()
-                traffic = 2
+                traffic = 3 if scenario == "metadata_eof" else 2
+                if scenario in {"metadata_refused", "metadata_eof"}:
+                    assert (
+                        await http.get("/api/v1/model-test/capabilities/" + failed_command)
+                    ).json() == failed_receipt
                 if scenario == "complete":
                     refresh_b = await http.post(
                         "/api/v1/model-test/capabilities",

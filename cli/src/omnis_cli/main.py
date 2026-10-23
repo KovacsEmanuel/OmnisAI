@@ -54,6 +54,11 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
     backup_parser = commands.add_parser("backup", help="Cold STOPPED snapshot (T1: at most 1 GiB)")
     backup_parser.add_argument("--output", type=Path, required=True)
+    restore_parser = commands.add_parser(
+        "restore", help="Restore into a new XDG state root; leave STOPPED"
+    )
+    restore_parser.add_argument("--backup", type=Path, required=True)
+    restore_parser.add_argument("--master-key-file", type=Path)
     image_parser = commands.add_parser(
         "install-image", help="Explicitly build the pinned local images"
     )
@@ -103,6 +108,10 @@ def main(argv: list[str] | None = None) -> int:
         from .backup import cold_command
 
         return cold_command("backup", args.output)
+    if args.command == "restore":
+        from .backup import cold_command
+
+        return cold_command("restore", args.backup, args.master_key_file)
     if args.command == "status":
         return status(as_json=args.json)
     if args.command == "pair":

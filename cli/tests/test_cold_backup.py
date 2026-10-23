@@ -95,3 +95,55 @@ class ColdBackupTest(unittest.TestCase):
             self.assertEqual(
                 read_record(snapshot / "manifest.json")["instance_id"], record["instance_id"]
             )
+
+    def test_restore_new_identity_stopped_separate_key_and_no_overwrite(self):
+        module = self.module()
+        with self.source() as (base, root, old, runtime):
+            with (
+                patch.object(module, "ControlRuntime", return_value=runtime),
+                patch.object(module, "archive", side_effect=self.archive),
+                patch.object(module, "cold_identity", return_value=old["system_id"]),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                self.assertEqual(main(["backup", "--output", str(base / "snapshot")]), 0)
+                target_parent = base / "new"
+                target_parent.mkdir(mode=0o700)
+                with patch.dict(os.environ, {"XDG_STATE_HOME": str(target_parent)}):
+                    self.assertEqual(main(["restore", "--backup", str(base / "snapshot")]), 0)
+                    target = target_parent / "omnis"
+                    self.assertFalse((target / "startup.json").exists())
+                    self.assertFalse((target / "vault-key/master.key").exists())
+                    marker = read_record(target / "restore.json")
+                    self.assertEqual(marker["state"], "STOPPED")
+                    self.assertNotEqual(marker["pgdata_identity"], old["pgdata_identity"])
+                    self.assertEqual(
+                        (target / "restore-source/startup.json").read_bytes(),
+                        (root / "startup.json").read_bytes(),
+                    )
+                    self.assertEqual(
+                        module.admit_restore(runtime, target)["instance_id"], old["instance_id"]
+                    )
+                    self.assertEqual(main(["restore", "--backup", str(base / "snapshot")]), 4)
+                second = base / "keyed"
+                second.mkdir(mode=0o700)
+                key = base / "separate.key"
+                key.write_bytes(b"K" * 32)
+                key.chmod(0o600)
+                with patch.dict(os.environ, {"XDG_STATE_HOME": str(second)}):
+                    self.assertEqual(
+                        main(
+                            [
+                                "restore",
+                                "--backup",
+                                str(base / "snapshot"),
+                                "--master-key-file",
+                                str(key),
+                            ]
+                        ),
+                        0,
+                    )
+                    self.assertEqual(
+                        (second / "omnis/vault-key/master.key").read_bytes(), b"K" * 32
+                    )
+                    marker = module.admit_restore(runtime, second / "omnis")
+                    self.assertEqual(marker["instance_id"], old["instance_id"])

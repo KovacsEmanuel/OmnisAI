@@ -25,6 +25,12 @@ class RestartWiringTest(unittest.TestCase):
     def test_db_only_then_correlated_reconciliation_ack_then_supervisor(self):
         self.restart()
 
+    def test_restored_root_first_explicit_start_reconciles_before_supervisor(self):
+        self.restart(provider_settings=True, restored=True)
+
+    def test_restored_root_lost_reconciliation_ack_never_resends(self):
+        self.restart("lost", provider_settings=True, restored=True)
+
     def test_provider_settings_restart_retains_ciphertext_key_and_pending_lock(self):
         self.restart(provider_settings=True)
 
@@ -62,7 +68,7 @@ class RestartWiringTest(unittest.TestCase):
     def test_restart_forwarder_failure_reaps_held_child_without_database_teardown(self):
         self.restart("forwarder-fault")
 
-    def restart(self, fault=None, *, provider_settings=False):
+    def restart(self, fault=None, *, provider_settings=False, restored=False):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             retained = {}
             if provider_settings:
@@ -104,8 +110,38 @@ class RestartWiringTest(unittest.TestCase):
             completion_raw = (json.dumps(completion, indent=3) + "\r\n").encode()
             receipt_path(root, old).write_bytes(completion_raw)
             receipt_path(root, old).chmod(0o600)
-            (root / "forwarder.log").write_text("prior\n")
-            (root / "forwarder.log").chmod(0o600)
+            if restored:
+                from omnis_cli import backup as cold
+                from stopped_fixture import completed_fixture
+                from test_cold_backup import ColdBackupTest
+
+                receipt_path(root, old).unlink()
+                runtime.release = base / "d/omnis/releases/0.1.0"
+                (root / "db-password").write_text("a" * 48 + "\n")
+                with (
+                    patch.dict(os.environ, {"XDG_RUNTIME_DIR": ""}),
+                    completed_fixture(root, control, old, runtime),
+                    patch.object(cold, "archive", side_effect=ColdBackupTest().archive),
+                    patch.object(cold, "cold_identity", return_value=old["system_id"]),
+                ):
+                    cold.backup(runtime, root, base / "snapshot")
+                    destination = base / "n"
+                    destination.mkdir(mode=0o700)
+                    with patch.dict(
+                        os.environ,
+                        {
+                            "XDG_STATE_HOME": str(destination),
+                            "XDG_CONFIG_HOME": str(base / "config"),
+                        },
+                    ):
+                        cold.restore(runtime, destination / "omnis", base / "snapshot", None)
+                root, control = destination / "omnis", destination / "omnis/runtime-ipc"
+                journal = root / "startup.json"
+                completion_raw = (root / "restore-source/completion.json").read_bytes()
+                grant = json.loads(completion_raw)["grant"]
+            if not restored:
+                (root / "forwarder.log").write_text("prior\n")
+                (root / "forwarder.log").chmod(0o600)
             events, resources, requests = [], {}, []
             children = []
             db, job = "1" * 64, "2" * 64
@@ -260,7 +296,8 @@ class RestartWiringTest(unittest.TestCase):
             )
             opened = {**closed, "admission_open": True, "generation": 3}
 
-            def forwarder(_root, _port, _deadline, *, ownership, stop_attempt):
+            def forwarder(_root, _port, _deadline, *, ownership, stop_attempt, model=False):
+                self.assertEqual(model, provider_settings)
                 self.assertEqual(stop_attempt, read_record(journal)["attempt"])
                 self.assertEqual(read_record(intent_path)["state"], "ACKED")
                 events.append("forwarder")
@@ -312,7 +349,7 @@ class RestartWiringTest(unittest.TestCase):
                     patch.dict(
                         os.environ,
                         {
-                            "XDG_STATE_HOME": str(base / "s"),
+                            "XDG_STATE_HOME": str(root.parent),
                             "XDG_DATA_HOME": str(base / "d"),
                             "XDG_RUNTIME_DIR": "",
                             "XDG_CONFIG_HOME": str(base / "config"),
@@ -382,10 +419,14 @@ class RestartWiringTest(unittest.TestCase):
                     restart = None
                 if restart is not None:
                     scope.enter_context(patch.object(restart, "write_record", side_effect=saved))
+                if restored:
+                    scope.enter_context(
+                        patch("omnis_cli.backup.cold_identity", return_value=old["system_id"])
+                    )
                 code, result = start.start_result(None)
                 if fault == "forwarder-fault":
                     self.assertEqual(children[0].returncode, 0, "Restart abandoned its held child")
-                self.assertEqual(code, 4 if fault else 0)
+                self.assertEqual(code, 4 if fault else 0, result)
                 self.assertEqual(copy_path.read_bytes(), old_raw)
                 self.assertEqual(read_record(intent_path)["old_stop_command"], old["stop_command"])
                 if fault:
@@ -410,8 +451,11 @@ class RestartWiringTest(unittest.TestCase):
                             "reconcile",
                             "remove-reconcile",
                             "create-services",
-                            "start-services",
-                            "forwarder",
+                            *(
+                                ["forwarder", "start-services"]
+                                if provider_settings
+                                else ["start-services", "forwarder"]
+                            ),
                             "open",
                         ],
                     )

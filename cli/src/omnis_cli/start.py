@@ -1102,6 +1102,7 @@ def start_instance(
     startup_timeout: int | None = None,
     cleanup_timeout: int | None = None,
 ) -> dict[str, object]:
+    from .backup import admit_restore, prepare_restore
     from .restart import prepare_restart, reconcile_database
     from .stop import _integer, _preflight_record, readback_stopped
 
@@ -1122,12 +1123,15 @@ def start_instance(
     # after Stop releases the local lock must not turn that old Start into a
     # fresh explicit restart.
     initial_phase = None
+    initial_restore = None
     if os.path.lexists(root / "startup.json"):
         initial_record = read_record(root / "startup.json")
         _preflight_record(initial_record)
         config.check_port(initial_record.get("port"), port)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
+    if initial_phase is None and os.path.lexists(root / "restore.json"):
+        initial_restore = read_record(root / "restore.json")
     if initial_phase == "STOPPING":
         raise StartError("INSTANCE_SHUTTING_DOWN", 4)
     deadline = time.monotonic() + startup_seconds
@@ -1163,6 +1167,7 @@ def start_instance(
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         restarting: dict[str, object] | None = None
+        restored = False
         if os.path.lexists(journal):
             record = read_record(journal)
             _preflight_record(record)
@@ -1178,6 +1183,12 @@ def start_instance(
                 restarting = record
             else:
                 return verify_running(runtime, root, control, record, selected)
+        if not os.path.lexists(journal) and os.path.lexists(root / "restore.json"):
+            if initial_restore is None or read_record(root / "restore.json") != initial_restore:
+                raise StartError("RESTORE_ADMISSION_CHANGED", 4)
+            restarting = admit_restore(runtime, root)
+            config.check_port(restarting["port"], port)
+            restored = True
         if restarting is None and (
             os.path.lexists(root / "instance.json")
             or os.path.lexists(root / "postgres")
@@ -1216,7 +1227,7 @@ def start_instance(
                 )
                 if any(item.name not in allowed for item in path.iterdir()):
                     raise StartError("PREEXISTING_IPC_REFUSED", 4)
-        if restarting is not None:
+        if restarting is not None and not restored:
             previous_log = root / "forwarder.log"
             archive = root / f"forwarder-{restarting['attempt']}.log"
             if os.path.lexists(previous_log):
@@ -1270,15 +1281,17 @@ def start_instance(
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
             try:
-                restart_intent = prepare_restart(
-                    runtime, root, control, restarting, str(record["attempt"])
+                restart_intent = (
+                    prepare_restore(runtime, root, str(record["attempt"]))
+                    if restored
+                    else prepare_restart(runtime, root, control, restarting, str(record["attempt"]))
                 )
             except (OSError, ValueError, KeyboardInterrupt):
                 raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
         runtime.attempt = str(record["attempt"])
         owner = ForwarderOwnership()
         try:
-            write_record(journal, record, replace=restarting is not None)
+            write_record(journal, record, replace=restarting is not None and not restored)
             ensure_private(control)
             ensure_private(root / "http")
             if restarting is None:

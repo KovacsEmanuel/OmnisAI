@@ -1,7 +1,8 @@
 """Fixed DB-only Stop reconciliation job. Host attestation remains the host's job.
 
 Input is one JSON document on stdin, terminated by EOF, at most 16 KiB. No
-Docker access, arbitrary SQL, input paths or command arguments are supported.
+Docker access, arbitrary SQL or input paths are supported. The only argument
+is the fixed --restore mode selected by the host's validated restore intent.
 """
 
 import asyncio
@@ -46,7 +47,7 @@ def read_request(fd: int = 0) -> StopReconciliation:
     )
 
 
-async def execute(request: StopReconciliation) -> dict[str, object]:
+async def execute(request: StopReconciliation, *, restore: bool = False) -> dict[str, object]:
     expected = os.environ.get("OMNIS_EXPECTED_SYSTEM_ID", "")
     database_url = os.environ.get("OMNIS_DATABASE_URL", "")
     if not re.fullmatch(r"[0-9]{1,20}", expected) or expected != request.system_identifier:
@@ -56,7 +57,7 @@ async def execute(request: StopReconciliation) -> dict[str, object]:
     engine = database_engine(database_url)
     try:
         async with asyncio.timeout(10):
-            return await InstanceService(engine).reconcile_stop(request)
+            return await InstanceService(engine).reconcile_stop(request, restore=restore)
     finally:
         async with asyncio.timeout(2):
             await engine.dispose()
@@ -80,11 +81,11 @@ def _run_job() -> int:
     signal.signal(signal.SIGALRM, deadline)
     signal.alarm(JOB_SECONDS)
     try:
-        if len(sys.argv) != 1:
+        if sys.argv[1:] not in ([], ["--restore"]):
             raise ValueError("Arguments forbidden")
         request = read_request()
         correlation = str(request.reconciliation_id)
-        receipt = asyncio.run(execute(request))
+        receipt = asyncio.run(execute(request, restore=sys.argv[1:] == ["--restore"]))
         response: dict[str, object] = {
             "ok": True,
             "correlation_id": correlation,

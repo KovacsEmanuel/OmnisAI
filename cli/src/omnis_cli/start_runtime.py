@@ -517,8 +517,10 @@ class ControlRuntime:
         return _network_identity(item, self.receipt.project, self.attempt, allowed)
 
     def attest(
-        self, ident: str, role: str, root: Path, control: Path, port: int
+        self, ident: str, role: str, root: Path, control: Path, port: int, *, restore: bool = False
     ) -> dict[str, object]:
+        if restore and role != "reconcile":
+            raise StartError("CONTAINER_ROLE_INVALID", 3)
         self.check_daemon()
         item = self.inspect("container", ident)
         if item is None:
@@ -581,6 +583,8 @@ class ControlRuntime:
             "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
             "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
+        if restore:
+            expected_command.append("--restore")
         state = mapping(item.get("State"))
         networks = mapping(net.get("Networks"))
         network_name = "none" if role == "runtime" else self.receipt.project + "_control"

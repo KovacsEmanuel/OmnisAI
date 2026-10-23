@@ -812,13 +812,32 @@ class InstanceService:
         self,
         connection: AsyncConnection,
         request: StopReconciliation,
+        *,
+        restore: bool = False,
     ) -> None:
         if not await self._reconciliation_receipt(connection, request):
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         if await self._grant(connection) is not None:
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        if (
+            restore
+            and (
+                await connection.execute(
+                    text(
+                        "SELECT EXISTS (SELECT 1 FROM ("
+                        "SELECT DISTINCT ON (provider) enabled FROM public.provider_connection_revision "
+                        "WHERE instance_id=:instance ORDER BY provider, revision DESC"
+                        ") AS heads WHERE enabled)"
+                    ),
+                    {"instance": request.grant.instance_id},
+                )
+            ).scalar_one()
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
 
-    async def reconcile_stop(self, request: StopReconciliation) -> dict[str, object]:
+    async def reconcile_stop(
+        self, request: StopReconciliation, *, restore: bool = False
+    ) -> dict[str, object]:
         """Correlate host evidence, not attest it; never acquire, OPEN or renew.
 
         An absent fence is insufficient. Exact historical replay additionally
@@ -837,6 +856,18 @@ class InstanceService:
                     request.grant.model_dump(mode="json")
                 ):
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                if restore:
+                    # Append inactive heads in this closed transaction; vault/history stay immutable.
+                    await connection.execute(
+                        text(
+                            "INSERT INTO public.provider_connection_revision "
+                            "(instance_id,connection_id,provider,revision,enabled,secret_id,credential_revision) "
+                            "SELECT instance_id,connection_id,provider,revision + 1,FALSE,secret_id,credential_revision "
+                            "FROM (SELECT DISTINCT ON (provider) * FROM public.provider_connection_revision "
+                            "WHERE instance_id=:instance ORDER BY provider, revision DESC) AS heads WHERE enabled"
+                        ),
+                        {"instance": request.grant.instance_id},
+                    )
                 await connection.execute(
                     text(
                         "INSERT INTO instance_stop_reconciliation "
@@ -874,13 +905,13 @@ class InstanceService:
                 ).scalar_one_or_none()
                 if removed != 1:
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
-            await self._reconciled_readback(connection, request)
+            await self._reconciled_readback(connection, request, restore=restore)
         # Commit has completed. A takeover in this gap causes refusal, never a
         # successful acknowledgement tied to an old generation or new owner.
         async with self._locked() as (connection, instance, lease):
             await self._reconciliation_context(connection, request)
             await self._closed_stop(connection, instance, lease, request.grant)
-            await self._reconciled_readback(connection, request)
+            await self._reconciled_readback(connection, request, restore=restore)
         return request.model_dump(mode="json")
 
     async def command_readback(

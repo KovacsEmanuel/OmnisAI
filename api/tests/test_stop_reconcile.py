@@ -201,7 +201,7 @@ def test_job_hard_deadline_survives_a_blocked_async_client(tmp_path: Path) -> No
 import omnis.stop_reconcile as job
 sys.argv = ["stop_reconcile"]
 job.JOB_SECONDS = 1
-async def blocked(request):
+async def blocked(request, *, restore=False):
     time.sleep(30)
 job.execute = blocked
 raise SystemExit(job.main())
@@ -255,7 +255,7 @@ async def dispose():
         await cancel()
 class Service:
     def __init__(self, engine): pass
-    async def reconcile_stop(self, request):
+    async def reconcile_stop(self, request, *, restore=False):
         if mode == "cancel_db":
             await cancel()
         return request.model_dump(mode="json")

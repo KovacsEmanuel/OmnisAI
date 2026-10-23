@@ -575,8 +575,10 @@ def prepare_restore(runtime: ControlRuntime, root: Path, attempt: str) -> dict[s
     completion = private_bytes(root / "restore-source/completion.json", 16384)
     command = uuid(current["stop_command"])
     _put(root / f"stop-{command}.json", completion)  # Byte-exact provenance only.
-    intent = _prepare_reconciliation(root, current, attempt, raw, completion)
     marker = read_record(root / "restore.json")
+    intent = _prepare_reconciliation(
+        root, current, attempt, raw, completion, restore_id=uuid(marker["restore_id"])
+    )
     marker["state"] = "STARTING"
     write_record(root / "restore.json", marker, replace=True)
     return intent

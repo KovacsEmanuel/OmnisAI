@@ -178,9 +178,18 @@ class RestartWiringTest(unittest.TestCase):
                     events.append("start-services")
                 elif args[0] == "create":
                     events.append("create-reconcile")
+                    suffix = ("--restore",) if restored else ()
+                    expected = (
+                        runtime.receipt.image_id,
+                        "python",
+                        "-I",
+                        "-m",
+                        "omnis.stop_reconcile",
+                        *suffix,
+                    )
                     self.assertEqual(
-                        args[-5:],
-                        (runtime.receipt.image_id, "python", "-I", "-m", "omnis.stop_reconcile"),
+                        args[-len(expected) :],
+                        expected,
                     )
                     self.assertIn("--interactive", args)
                     self.assertNotIn("--tty", args)
@@ -260,7 +269,9 @@ class RestartWiringTest(unittest.TestCase):
                     self.fail(f"Unexpected effect {args[0]}")
                 return subprocess.CompletedProcess(args, 0, "", "")
 
-            def attest(cid, role, *_args):
+            def attest(cid, role, *_args, restore=False):
+                if role == "reconcile" and _args:
+                    self.assertEqual(restore, restored)
                 self.assertEqual(resources[cid], role)
                 return {
                     "State": {

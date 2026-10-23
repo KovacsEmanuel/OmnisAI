@@ -1,0 +1,41 @@
+{
+  "head": "f26beb4e9f7611dbec0b0c1a15f03e1761fc8317",
+  "tree": "539364a3d9bee80bab5e2398f65c2c7ead03b870",
+  "exit": 0,
+  "seconds_outer": 149.716,
+  "source_files_unchanged": true,
+  "checkout_clean": true,
+  "remaining_owned_ipc_sockets": [],
+  "junit": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "308",
+      "time": "147.830",
+      "timestamp": "2026-10-23T20:18:15.471264+03:00",
+      "hostname": "ke"
+    }
+  ],
+  "raw_log_sha256": "7bf117f755340a396a275323aa1269df3569c5c98e5fca6ecfff61dcd550f0c8",
+  "junit_sha256": "0c73d863453af6775364492ca315086b985302ca3d13612164faf1513ee395ad",
+  "scope": "Existing affected SOURCE8 on integrated imports; not PG/native/provider/browser/canonical/installed/T1",
+  "reviews_adjudicated": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer1-canonical4-f26beb4.md",
+      "sha256": "b7393ecafa5041427e2937ca1b3a7d458336f95c56bebd6191dcdbd89cd3cafc",
+      "verdict": "APPROVED_TEST_SOURCE_SCOPED",
+      "parent_adjudicated": "no concrete blocking findings; scoped approval accepted"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer2-canonical4-f26beb4.md",
+      "sha256": "728ce641457f6370f8c1c55c1773e66b8d98df1b171602a14c2cc5f9f5e1ad54",
+      "verdict": "APPROVED_TEST_GATE_SOURCE_SCOPED",
+      "parent_adjudicated": "no concrete blocking findings; scoped approval accepted"
+    }
+  ],
+  "canonical5": "NOT_RUN_NOT_ADMITTED",
+  "T1": "PARTIAL_NOT_ACCEPTED",
+  "counter2": "unchanged"
+}

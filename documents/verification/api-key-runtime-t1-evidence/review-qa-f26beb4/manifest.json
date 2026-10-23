@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "source": "f26beb4e9f7611dbec0b0c1a15f03e1761fc8317",
+  "tree": "539364a3d9bee80bab5e2398f65c2c7ead03b870",
+  "documentary_review_snapshot": "b77ef607c06f2af6eff708f6c793a4737b8f3fb6",
+  "scope": "Two adjudicated complementary SOURCE approvals, scoped documentary approval, and independent parent affected SOURCE QA only; not canonical/runtime/T1 acceptance",
+  "artifact_count": 6,
+  "total_original_bytes": 73106,
+  "artifacts": [
+    {
+      "path": "reviewer1-canonical4-f26beb4.md",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer1-canonical4-f26beb4.md",
+      "bytes": 8522,
+      "sha256": "b7393ecafa5041427e2937ca1b3a7d458336f95c56bebd6191dcdbd89cd3cafc"
+    },
+    {
+      "path": "reviewer2-canonical4-f26beb4.md",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer2-canonical4-f26beb4.md",
+      "bytes": 8346,
+      "sha256": "728ce641457f6370f8c1c55c1773e66b8d98df1b171602a14c2cc5f9f5e1ad54"
+    },
+    {
+      "path": "c4fix-parent-source-admission.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source-admission.json",
+      "bytes": 6834,
+      "sha256": "3aac659f28ab40f42100ce6cda58b257fe0a388f990ce3041f81dc795264f611"
+    },
+    {
+      "path": "c4fix-parent-source-result.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source-result.json",
+      "bytes": 1594,
+      "sha256": "35522cebad36f813d26b2eb8a31506cba7c165cc4b1c373b615869d69f677f3f"
+    },
+    {
+      "path": "c4fix-parent-source.log",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source.log",
+      "bytes": 651,
+      "sha256": "7bf117f755340a396a275323aa1269df3569c5c98e5fca6ecfff61dcd550f0c8"
+    },
+    {
+      "path": "c4fix-parent-source.xml",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source.xml",
+      "bytes": 47159,
+      "sha256": "0c73d863453af6775364492ca315086b985302ca3d13612164faf1513ee395ad"
+    }
+  ],
+  "parent_pytest": "308PASS/0FAIL/0SKIP147.84s/exit0",
+  "parent_origin": "integration-src",
+  "canonical5": "NOT_RUN_NOT_ADMITTED",
+  "T1": "PARTIAL_NOT_ACCEPTED"
+}

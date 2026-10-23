@@ -1,0 +1,149 @@
+{
+  "head": "f26beb4e9f7611dbec0b0c1a15f03e1761fc8317",
+  "tree": "539364a3d9bee80bab5e2398f65c2c7ead03b870",
+  "scope": "Existing affected SOURCE8 on integrated imports; not PG/native/provider/browser/canonical/installed/T1",
+  "cwd": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api",
+  "argv": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,pathlib; r=pathlib.Path('/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src'); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes; assert pathlib.Path(omnis.__file__).resolve().is_relative_to(r); assert pathlib.Path(omnis_hermes.__file__).resolve().is_relative_to(r); print(\"ORIGINS\",omnis.__file__,omnis_hermes.__file__); import pytest; sys.exit(pytest.main(sys.argv[1:]))",
+    "-c",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/pyproject.toml",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--junitxml=/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source.xml",
+    "tests/test_contract_denominator.py",
+    "tests/test_result_qualification.py",
+    "tests/test_model_sender.py",
+    "tests/test_model_test_operation.py",
+    "tests/test_model_test_prepare_source.py",
+    "tests/test_model_test_routes.py",
+    "tests/test_runtime_supervisor.py",
+    "tests/test_stop_schema.py"
+  ],
+  "bounded_argv": [
+    "/usr/bin/timeout",
+    "--signal=INT",
+    "--kill-after=10s",
+    "240s",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,pathlib; r=pathlib.Path('/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src'); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; import omnis,omnis_hermes; assert pathlib.Path(omnis.__file__).resolve().is_relative_to(r); assert pathlib.Path(omnis_hermes.__file__).resolve().is_relative_to(r); print(\"ORIGINS\",omnis.__file__,omnis_hermes.__file__); import pytest; sys.exit(pytest.main(sys.argv[1:]))",
+    "-c",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/pyproject.toml",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--junitxml=/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-parent-source.xml",
+    "tests/test_contract_denominator.py",
+    "tests/test_result_qualification.py",
+    "tests/test_model_sender.py",
+    "tests/test_model_test_operation.py",
+    "tests/test_model_test_prepare_source.py",
+    "tests/test_model_test_routes.py",
+    "tests/test_runtime_supervisor.py",
+    "tests/test_stop_schema.py"
+  ],
+  "env": {
+    "HOME": "/home/kali/.hermes/cache/scratch/c4p-ytn9ir2j/home",
+    "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/c4p-ytn9ir2j/config",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/c4p-ytn9ir2j/tmp",
+    "PATH": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/.venv/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin:/usr/bin:/bin",
+    "LC_ALL": "C.UTF-8",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "fixture": "/home/kali/.hermes/cache/scratch/c4p-ytn9ir2j",
+  "reviews": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer1-canonical4-f26beb4.md",
+      "sha256": "b7393ecafa5041427e2937ca1b3a7d458336f95c56bebd6191dcdbd89cd3cafc",
+      "verdict": "APPROVED_TEST_SOURCE_SCOPED",
+      "parent_adjudicated": "no concrete blocking findings; scoped approval accepted"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer2-canonical4-f26beb4.md",
+      "sha256": "728ce641457f6370f8c1c55c1773e66b8d98df1b171602a14c2cc5f9f5e1ad54",
+      "verdict": "APPROVED_TEST_GATE_SOURCE_SCOPED",
+      "parent_adjudicated": "no concrete blocking findings; scoped approval accepted"
+    }
+  ],
+  "files": [
+    {
+      "path": "api/tests/test_contract_denominator.py",
+      "blob": "705aa78f3d36ad2d58024e90c39fcc05f687e211",
+      "sha256": "fc6369ad1c4fa0667c4c2fa199ba443de1efd248059be8ff5c2a4927a788a67d",
+      "test_definitions": 4,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_result_qualification.py",
+      "blob": "ef4fa61a41be361be1610bbc12a55374bd8514e1",
+      "sha256": "13d27617160c772c9a05ff52c8b466a3b4007d7d4df9c70d14c1cbe55ea2c7c4",
+      "test_definitions": 6,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "blob": "fc98f110c09cdce70b80c8acc5ab78d421cc65fd",
+      "sha256": "bbc4f1bf54b4bbe6ba4effe583ccc23bd33d7686ae14986c4d050e0735d529c1",
+      "test_definitions": 9,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_operation.py",
+      "blob": "5a9b54e64fd64c023db8a014dc5adcf08840acab",
+      "sha256": "c9e6236cbbf3ac35bd427385303fc70db6c0f60d0f8466322d545c13ab013660",
+      "test_definitions": 3,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "blob": "09eff0007a27e995f290c2a283cc15b9c0f5d34a",
+      "sha256": "1b47e85dd6730712d1512262a61d2cb749e2adabb5e2ed98461a639828f0a82a",
+      "test_definitions": 26,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_routes.py",
+      "blob": "75ddae1d8d586db13e8396b3d8bf00aaf919ad94",
+      "sha256": "3fa9c27f10df16473d4567106990e692d35f381b39fa2332c847d936b05747c0",
+      "test_definitions": 2,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_runtime_supervisor.py",
+      "blob": "da1414f8f58248cb214c9f4aefd29135495d0c51",
+      "sha256": "7ddf17f38132edd60fe0d5eacd86ac9553ed0489b10535e0c87eb3fe4d2d7e00",
+      "test_definitions": 5,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_stop_schema.py",
+      "blob": "4b91ab9e5e4e9e713c1873ba6af222c38821b16c",
+      "sha256": "bbd2d7d064bd9000be341e8e3fb590d00d8cfff33dab7babfb054e7eed9ad9a9",
+      "test_definitions": 3,
+      "decorators_unchanged": true
+    }
+  ],
+  "preflight": {
+    "interpreter_and_pytest": "3.13.15 9.1.1 1.4.0",
+    "fresh_private_HOME_has_no_hermes_scratch": true,
+    "TMPDIR_separate_and_owned": true,
+    "shortest_ipc_fixture_max_path_below108": true,
+    "frozen_clean": true,
+    "existing_author_command_adapted_only_root_and_output": true
+  },
+  "limits": "SOURCE doubles and local test-owned UDS/toy children only; no product deadline change. Both prior counter2 remain unchanged; no canonical5 admission."
+}

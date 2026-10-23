@@ -10,6 +10,7 @@ from uuid import uuid4
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from omnis.core.persistence import read_datetime
 from omnis.modules.runs import model_test_store as store
 from omnis.modules.runs.model_test_contract import (
     ENDPOINTS,
@@ -37,6 +38,7 @@ class ApiKeyModelTest:
         self.tasks: set[asyncio.Task[None]] = set()
         self.closing = False
         self.settlement_failed = False
+        settings.model_drain = self.drain_models
 
     def spawn(self, coroutine: Coroutine[None, None, None]) -> None:
         task = asyncio.create_task(coroutine)
@@ -50,15 +52,21 @@ class ApiKeyModelTest:
 
     async def drain(self) -> bool:
         self.closing = True
+        return await self.drain_models() and await self.settings.drain()
+
+    async def drain_models(self) -> bool:
         for task in self.tasks:
             task.cancel()
         if self.tasks:
             _, pending = await asyncio.wait(self.tasks, timeout=1.5)
             if pending:
                 return False
-        return not self.settlement_failed and await self.settings.drain()
+        await self.sender.drain()
+        if not self.settlement_failed:
+            await self.reconcile(cancelled=True)
+        return not self.settlement_failed
 
-    async def reconcile(self) -> None:
+    async def reconcile(self, *, cancelled: bool = False) -> None:
         # New process never schedules inherited work, even a PENDING pre-send attempt.
         async with self.service.engine.begin() as db:
             rows = (
@@ -66,9 +74,19 @@ class ApiKeyModelTest:
                     await db.execute(
                         text(
                             "SELECT operation_id::text FROM system_operation "
-                            "WHERE instance_id=:instance AND state <> 'FINISHED'"
+                            "WHERE instance_id=:instance AND state <> 'FINISHED' "
+                            + (
+                                "AND execution_owner_id=:owner AND owner_epoch=:epoch "
+                                if cancelled
+                                else ""
+                            )
+                            + "FOR UPDATE"
                         ),
-                        {"instance": self.instance},
+                        {
+                            "instance": self.instance,
+                            "owner": str(self.settings.owner),
+                            "epoch": self.settings.epoch,
+                        },
                     )
                 )
                 .scalars()
@@ -78,7 +96,8 @@ class ApiKeyModelTest:
                 op = await store.operation(db, self.instance, identity)
                 assert op is not None
                 dispatch = await store.dispatch(db, self.instance, identity)
-                await self.settle(db, op, dispatch, Reply("UNKNOWN", "OWNER_LOST"), "OWNER_LOST")
+                reason = "CANCELLED" if cancelled else "OWNER_LOST"
+                await self.settle(db, op, dispatch, Reply("UNKNOWN", reason), reason)
 
     async def latest(
         self, db: AsyncConnection, kind: str, command_id: str | None = None
@@ -111,6 +130,8 @@ class ApiKeyModelTest:
                 )
                 if result is not None:
                     metadata["reason"] = result.get("reason")
+                if result is None and request["owner_epoch"] != self.settings.epoch:
+                    metadata.update(metadata_state="FAILED", reason="OWNER_LOST")
                 if request["selection_revision"] != metadata["selection_revision"]:
                     metadata["metadata_state"] = "NOT_REQUESTED"
             op = await store.operation(db, self.instance, identity)
@@ -368,7 +389,30 @@ class ApiKeyModelTest:
             else:
                 for task in self.tasks:
                     task.cancel()
+        if command.action == "cancel" and not await self.drain_models():
+            raise store.ModelConflict("CONTROL_UNAVAILABLE")
         return await self.view(command.operation_id)
+
+    @asynccontextmanager
+    async def physical_window(self, db: AsyncConnection, deadline: datetime) -> AsyncIterator[None]:
+        began = asyncio.get_running_loop().time()
+        row = (
+            await db.execute(
+                text(
+                    "SELECT clock_timestamp(), expires_at FROM supervisor_lease "
+                    "WHERE id=1 AND owner=:owner AND epoch=:epoch AND expires_at>clock_timestamp()"
+                ),
+                {"owner": self.settings.owner, "epoch": self.settings.epoch},
+            )
+        ).one_or_none()
+        if row is None:
+            raise SendDenied("LEASE_LOST")
+        now, expires = read_datetime(row[0]), read_datetime(row[1])
+        end = began + min(0.5, (expires - now).total_seconds(), (deadline - now).total_seconds())
+        if asyncio.get_running_loop().time() >= end:
+            raise SendDenied("DEADLINE_OR_LEASE_LOST")
+        async with asyncio.timeout_at(end):
+            yield
 
     @asynccontextmanager
     async def metadata_guard(
@@ -382,7 +426,8 @@ class ApiKeyModelTest:
                     raise SendDenied("OWNER_CLOSED")
                 if await self.settings.require_selection(db, selection.default) != connection:
                     raise SendDenied("CONNECTION_REVOKED")
-                yield
+                async with self.physical_window(db, datetime.now(UTC) + timedelta(seconds=15)):
+                    yield
 
     async def refresh(
         self,
@@ -511,10 +556,38 @@ class ApiKeyModelTest:
                         )
                     )
                 )
-                await store.resolve(
-                    db, self.instance, snapshot.capabilities_ref, "model-capabilities-v2"
+                capabilities = Capabilities.model_validate_json(
+                    json.dumps(
+                        await store.resolve(
+                            db, self.instance, snapshot.capabilities_ref, "model-capabilities-v2"
+                        )
+                    )
                 )
-                await store.resolve(db, self.instance, op.input_projection_ref, "model-input-v2")
+                projection = Projection.model_validate(
+                    await store.resolve(
+                        db, self.instance, op.input_projection_ref, "model-input-v2"
+                    )
+                )
+                ledger = (
+                    await db.execute(
+                        text(
+                            "SELECT state FROM model_dispatch_event_v2 WHERE instance_id=:instance AND dispatch_attempt_id=:id ORDER BY sequence DESC LIMIT 1"
+                        ),
+                        {"instance": self.instance, "id": dispatch.dispatch_attempt_id},
+                    )
+                ).scalar_one()
+                if (
+                    ledger != "SENT"
+                    or dispatch.owner_epoch != op.owner_epoch
+                    or dispatch.instance_generation != op.generation
+                    or dispatch.technical_caps.output_tokens != projection.output_tokens
+                    or dispatch.projection_digest != op.input_projection_ref.digest
+                    or snapshot.endpoint != ENDPOINTS[snapshot.connection.provider]
+                    or capabilities.choice != snapshot.selection.default
+                    or capabilities.connection != snapshot.connection
+                    or projection.output_tokens > capabilities.max_output_tokens
+                ):
+                    raise SendDenied("PERMIT_OR_CONFIG_DENIED")
                 if (
                     await self.settings.require_selection(db, snapshot.selection.default)
                     != snapshot.connection
@@ -523,7 +596,8 @@ class ApiKeyModelTest:
                 await asyncio.to_thread(
                     self.settings.vault.get, snapshot.connection.credential(self.instance)
                 )
-                yield
+                async with self.physical_window(db, op.deadline):
+                    yield
 
     async def run(self, identity: str) -> None:
         reply = Reply("UNKNOWN", "RESULT_UNKNOWN")
@@ -636,7 +710,7 @@ class ApiKeyModelTest:
                 "output_tokens": reply.output_tokens,
                 "reasoning_tokens": reply.reasoning_tokens,
                 "cost_observed": reply.cost,
-                "currency": "USD" if reply.cost is not None else None,
+                "currency": None,
                 "recorded_at": datetime.now(UTC),
             }
         )

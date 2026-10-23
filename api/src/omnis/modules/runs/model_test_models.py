@@ -40,6 +40,13 @@ class ModelTestControl(BaseModel):
     operation_id: str | None = None
     selection_ref: dict[str, object] | None = Field(default=None, repr=False)
 
+    @field_validator("consent", mode="before")
+    @classmethod
+    def explicit_private_consent(cls, value: object) -> object:
+        if value is not None and value is not True:
+            raise ValueError("Explicit consent required")
+        return value
+
     @model_validator(mode="after")
     def shape(self) -> Self:
         if self.operation_id is not None and str(UUID(self.operation_id)) != self.operation_id:
@@ -71,6 +78,15 @@ class ModelTestControl(BaseModel):
             or self.operation_id is not None
         ):
             raise ValueError("Refresh command and selection required")
+        allowed = {
+            "start": {"operation_id", "expected_selection_revision", "consent"},
+            "read": {"operation_id"},
+            "provision": {"selection_ref"},
+            "cancel": {"operation_id", "command_id", "expected_state_revision"},
+            "refresh": {"command_id", "expected_selection_revision"},
+        }
+        if set(self.model_dump(exclude_none=True)) - {"op", "action"} - allowed[self.action]:
+            raise ValueError("Invalid command shape")
         if len(self.model_dump_json().encode()) > 3600:
             raise ValueError("Model command too large")
         return self

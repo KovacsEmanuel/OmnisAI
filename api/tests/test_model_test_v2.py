@@ -2,7 +2,10 @@
 
 import asyncio
 import json
+import os
 import ssl
+import subprocess
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -65,11 +68,15 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scenario", ["complete", "unknown_usage", "stop_at_body", "revoke_at_body", "cancel_at_body"]
+)
 async def test_api_pg_sdk_protocol_and_replay(
     migrated_database_url: URL,
     ipc_directory: Path,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    scenario: str,
 ) -> None:
     # RED is the absent production consumer, not a fabricated repository response.
     assert hasattr(model_test_operation, "ApiKeyModelTest"), "T1 production consumer missing"
@@ -183,6 +190,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                         ],
                         "usage": {"prompt_tokens": 9, "completion_tokens": 7, "total_tokens": 16},
                     }
+                if scenario == "unknown_usage":
+                    payload.pop("usage", None)
                 raw = json.dumps(payload).encode()
                 writer.write(
                     b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "
@@ -205,6 +214,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     sessions = SessionStore(engine)
     await sessions.register(code_digest("synthetic-pairing"), issuance_id=uuid4())
     grant = await sessions.exchange("synthetic-pairing")
+    released = False
     try:
         async with LocalControl(control_dir, service, process, epoch) as control:
 
@@ -266,7 +276,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                     and value["response_text"] == "OMNIS_MODEL_TEST_OK"
                 )
                 assert value["observed_model"] == "fixture/observed"
-                assert value["input_tokens"] == 9 and value["output_tokens"] == 7
+                assert value["input_tokens"] == (None if scenario == "unknown_usage" else 9)
+                assert value["output_tokens"] == (None if scenario == "unknown_usage" else 7)
+                assert value["usage_state"] == (
+                    "UNKNOWN" if scenario == "unknown_usage" else "KNOWN"
+                )
                 assert value["cost_observed"] is None  # Unknown is not zero.
                 assert len(received) == 2
                 replay = await http.put("/api/v1/model-test", json=intent, headers=headers)
@@ -277,7 +291,67 @@ async def test_api_pg_sdk_protocol_and_replay(
                     headers=headers,
                 )
                 assert conflict.status_code == 409 and len(received) == 2
-                await service.shutdown(uuid4(), generation, process, epoch)
+                if scenario.endswith("at_body"):
+                    from omnis.supervisor.model_sender import Stream
+
+                    paused, release = asyncio.Event(), asyncio.Event()
+                    original_write = Stream.write
+
+                    async def write(
+                        stream: Stream, buffer: bytes, timeout: float | None = None
+                    ) -> None:
+                        if buffer.startswith(b"{"):
+                            paused.set()
+                            await release.wait()
+                        await original_write(stream, buffer, timeout)
+
+                    monkeypatch.setattr(Stream, "write", write)
+                    second_id = str(uuid4())
+                    second = await http.put(
+                        "/api/v1/model-test",
+                        json={**intent, "operation_id": second_id},
+                        headers=headers,
+                    )
+                    assert second.status_code == 202
+                    await asyncio.wait_for(paused.wait(), 3)
+                    if scenario == "stop_at_body":
+                        await service.shutdown(uuid4(), generation, process, epoch)
+                    elif scenario == "revoke_at_body":
+                        await settings.handle(
+                            KeySettingsControl.model_validate(
+                                {
+                                    "op": "provider_settings",
+                                    "request": {
+                                        "action": "revoke_connection",
+                                        "command_id": str(uuid4()),
+                                        "connection_id": connection_id,
+                                        "expected_revision": 1,
+                                    },
+                                }
+                            )
+                        )
+                    else:
+                        before = (await http.get("/api/v1/model-test/" + second_id)).json()
+                        cancelled = await http.post(
+                            "/api/v1/model-test/" + second_id + "/cancel",
+                            json={
+                                "command_id": str(uuid4()),
+                                "expected_state_revision": before["state_revision"],
+                            },
+                            headers=headers,
+                        )
+                        assert cancelled.status_code == 202
+                    release.set()
+                    async with asyncio.timeout(4):
+                        while (after := (await http.get("/api/v1/model-test/" + second_id)).json())[
+                            "state"
+                        ] != "FINISHED":
+                            await asyncio.sleep(0.02)
+                    assert after["result_state"] == "UNKNOWN"
+                    assert after["usage_state"] == "UNKNOWN" and after["cost_observed"] is None
+                    assert len(received) == 2  # Reused TLS headers can arrive; no second body.
+                if scenario != "stop_at_body":
+                    await service.shutdown(uuid4(), generation, process, epoch)
                 await service.quiesce(process, epoch)
                 assert (await http.get("/api/v1/model-test/" + operation)).json() == value
                 assert len(received) == 2
@@ -286,10 +360,71 @@ async def test_api_pg_sdk_protocol_and_replay(
                         await db.execute(
                             text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'")
                         )
-                    ).scalar_one() == 1
+                    ).scalar_one() == (2 if scenario.endswith("at_body") else 1)
                     assert (
                         await db.execute(text("SELECT count(*) FROM system_operation"))
-                    ).scalar_one() == 1
+                    ).scalar_one() == (2 if scenario.endswith("at_body") else 1)
+                if scenario == "complete":
+                    await service.release(process, epoch)
+                    released = True
+                    script = """
+import asyncio,json,sys
+from pathlib import Path
+config=json.loads(sys.stdin.buffer.read())
+sys.path.insert(0, config["source"])
+from uuid import uuid4
+from omnis.core.db import database_engine
+from omnis.modules.instance.service import InstanceService
+from omnis.modules.settings.provider_vault import ProviderVault
+from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
+from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.supervisor.model_sender import ModelSender
+async def main():
+    engine=database_engine(config["database"])
+    service=InstanceService(engine)
+    owner=uuid4()
+    epoch=await service.acquire(owner)
+    status=await service.owned_status(owner,epoch)
+    settings=ProviderSettingsOwner(service,owner,epoch,ProviderVault(Path(config["vault"]),Path(config["keys"]),str(status.instance_id)))
+    sender=ModelSender(Path(config["socket"]))
+    runtime=ApiKeyModelTest(settings,sender)
+    try:
+        await runtime.reconcile()
+        view=await runtime.handle(ModelTestControl(op="model_test",action="start",operation_id=config["operation"],expected_selection_revision=1,consent=True))
+        print(json.dumps(view))
+    finally:
+        await runtime.drain()
+        await sender.close()
+        await service.release(owner,epoch)
+        await engine.dispose()
+asyncio.run(main())
+"""
+                    child = await asyncio.to_thread(
+                        subprocess.run,
+                        [sys.executable, "-I", "-B", "-c", script],
+                        input=json.dumps(
+                            {
+                                "source": str(Path(__file__).resolve().parents[1] / "src"),
+                                "database": migrated_database_url.render_as_string(
+                                    hide_password=False
+                                ),
+                                "vault": str(vault_dir),
+                                "keys": str(keys),
+                                "socket": str(socket),
+                                "operation": operation,
+                            }
+                        ).encode(),
+                        cwd=tmp_path,
+                        env={"PATH": os.environ["PATH"], "TMPDIR": os.environ["TMPDIR"]},
+                        capture_output=True,
+                        timeout=15,
+                    )
+                    assert child.returncode == 0
+                    assert json.loads(child.stdout) == value
+                    assert (
+                        len(received) == 2
+                    )  # A new OS process and fencing owner read/replay only.
     finally:
         await owner.drain()
         await sender.close()
@@ -297,6 +432,7 @@ async def test_api_pg_sdk_protocol_and_replay(
         await server.wait_closed()
         if tasks:
             await asyncio.wait_for(asyncio.gather(*tasks), 2)
-        await service.release(process, epoch)
+        if not released:
+            await service.release(process, epoch)
         await engine.dispose()
     assert not socket.exists() and not tasks

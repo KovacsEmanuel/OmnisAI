@@ -79,7 +79,8 @@ def upgrade() -> None:
         FOREIGN KEY(instance_id,operation_id) REFERENCES public.system_operation(instance_id,operation_id)
     );
     CREATE FUNCTION public.model_v2_immutable() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN
-        RAISE EXCEPTION 'model V2 history is immutable'; END;$$;
+        RAISE EXCEPTION 'model V2 history is immutable';
+        END;$$;
     CREATE TRIGGER model_v2_no_change BEFORE UPDATE OR DELETE OR TRUNCATE ON public.model_record_v2
         FOR EACH STATEMENT EXECUTE FUNCTION public.model_v2_immutable();
     CREATE TRIGGER model_v2_no_change BEFORE UPDATE OR DELETE OR TRUNCATE ON public.model_command_v2

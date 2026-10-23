@@ -6,7 +6,7 @@ import ssl
 from collections.abc import AsyncIterable, AsyncIterator, Callable, Iterable
 from contextlib import AbstractAsyncContextManager
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -28,7 +28,7 @@ class SendDenied(ValueError):
 class Permit:
     url: str
     body: dict[str, object] | None
-    secret: str
+    secret: str = field(repr=False)
     guard: Callable[[], AbstractAsyncContextManager[None]]
     response_limit: int
 
@@ -162,6 +162,10 @@ class Transport(httpx.AsyncBaseTransport):
                 extensions=request.extensions,
             )
         )
+        encoding = dict(response.headers).get(b"content-encoding", b"identity")
+        if encoding != b"identity":
+            await response.aclose()
+            raise SendDenied("ENCODED_RESPONSE_DENIED")
         if not isinstance(response.stream, AsyncIterable):
             await response.aclose()
             raise SendDenied("RESPONSE_UNAVAILABLE")
@@ -209,11 +213,13 @@ def failure_code(status: int, body: object) -> str:
 
 class ModelSender:
     def __init__(self, path: Path, context: ssl.SSLContext | None = None) -> None:
+        self.transport = Transport(path, context or ssl.create_default_context())
         self.http = httpx.AsyncClient(
-            transport=Transport(path, context or ssl.create_default_context()),
+            transport=self.transport,
             trust_env=False,
             follow_redirects=False,
             timeout=15,
+            headers={"Accept-Encoding": "identity"},
         )
 
     async def metadata(
@@ -286,7 +292,7 @@ class ModelSender:
                 if isinstance(extra, dict) and type(extra.get("cost")) in (int, float, str):
                     try:
                         amount = Decimal(str(extra["cost"]))
-                        if amount.is_finite() and amount >= 0:
+                        if amount.is_finite() and amount >= 0 and len(str(amount)) <= 128:
                             cost = str(amount)
                     except InvalidOperation:
                         cost = None
@@ -294,9 +300,9 @@ class ModelSender:
                     state,
                     None if state == "COMPLETED" else "ACK_OR_COMPLETION_UNVERIFIED",
                     "200",
-                    completion.model,
-                    completion.id,
-                    content,
+                    completion.model[:256].replace(secret, "[REDACTED]"),
+                    completion.id[:256].replace(secret, "[REDACTED]"),
+                    content.replace(secret, "[REDACTED]") if content is not None else None,
                     usage.prompt_tokens if usage else None,
                     usage.completion_tokens if usage else None,
                     usage.completion_tokens_details.reasoning_tokens
@@ -312,6 +318,9 @@ class ModelSender:
             return Reply("UNKNOWN", "RESULT_UNKNOWN")
         finally:
             CURRENT.reset(token)
+
+    async def drain(self) -> None:
+        await self.transport.aclose()
 
     async def close(self) -> None:
         await self.http.aclose()

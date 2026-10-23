@@ -173,7 +173,7 @@ class LocalControl:
                 return {"ok": False, "error": "TASK_UNAVAILABLE"}
             try:
                 return {"ok": True, "model_test": await self.model_test(command)}
-            except ModelConflict as error:
+            except (ModelConflict, SettingsConflict) as error:
                 return {"ok": False, "error": error.code}
             except CatalogError as error:
                 return {

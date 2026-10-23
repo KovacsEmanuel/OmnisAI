@@ -65,6 +65,7 @@ async def control_exchange(command: ModelTestControl) -> dict[str, object]:
                     "OPERATION_ACTIVE",
                     "NOT_FOUND",
                     "OPERATION_FINISHED",
+                    "CONNECTION_UNAVAILABLE",
                 }
                 if isinstance(code, str) and code in allowed:
                     raise ModelConflict(code)

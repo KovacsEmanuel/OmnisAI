@@ -2,7 +2,7 @@
 
 import asyncio
 import os
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from concurrent.futures import Future
 from hashlib import sha256
 from typing import Literal
@@ -61,6 +61,7 @@ class ProviderSettingsOwner:
     ) -> None:
         self.service, self.owner, self.epoch, self.vault = service, owner, epoch, vault
         self.lock = asyncio.Lock()
+        self.model_drain: Callable[[], Awaitable[bool]] | None = None
         self.writes: set[asyncio.Task[None]] = set()
 
     def _write_finished(self, task: asyncio.Task[None]) -> None:
@@ -327,4 +328,7 @@ class ProviderSettingsOwner:
                         "result": result.model_dump_json(),
                     },
                 )
-            return result
+        if isinstance(request, (SaveConnection, RevokeConnection)) and self.model_drain is not None:
+            if not await self.model_drain():
+                raise ValueError("Model drain uncertain after committed connection change")
+        return result

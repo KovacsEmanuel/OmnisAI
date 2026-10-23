@@ -2,34 +2,52 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from uuid import uuid4
 
 import httpcore
 import httpx
 import pytest
 
 from omnis.modules.runs.model_test_contract import ACK, ENDPOINTS, Projection
+from omnis.supervisor.model_relay import RelayFailure
+from omnis.supervisor.model_relay_protocol import Authority, Scope
 from omnis.supervisor.model_sender import ModelSender, ResponseStream, SendDenied
 
 
 @asynccontextmanager
-async def guard() -> AsyncIterator[None]:
-    yield
+async def guard() -> AsyncIterator[Authority]:
+    now = datetime.now(UTC)
+    yield Authority(
+        Scope(
+            str(uuid4()),
+            "METADATA_COMMAND",
+            str(uuid4()),
+            str(uuid4()),
+            1,
+            1,
+            1,
+            (now + timedelta(seconds=15)).isoformat(),
+            "openrouter",
+        ),
+        (now + timedelta(seconds=0.4)).isoformat(),
+    )
 
 
 @pytest.mark.asyncio
-async def test_refused_owned_socket_is_a_normal_metadata_outage(tmp_path: Path) -> None:
+async def test_missing_broker_is_control_failure_not_provider_outage(tmp_path: Path) -> None:
     sender = ModelSender(tmp_path / "missing")
     try:
-        with pytest.raises(SendDenied, match="^METADATA_UNAVAILABLE$"):
+        with pytest.raises(RelayFailure, match="^RELAY_CONTROL_UNCERTAIN$"):
             await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)
-        reply = await sender.send(
-            ENDPOINTS["openrouter"],
-            "fixture-secret",
-            Projection(model="fixture/model", output_tokens=64),
-            guard,
-        )
-        assert reply.result_state == "UNKNOWN" and reply.reason == "RESULT_UNKNOWN"
+        with pytest.raises(RelayFailure, match="^RELAY_CONTROL_UNCERTAIN$"):
+            await sender.send(
+                ENDPOINTS["openrouter"],
+                "fixture-secret",
+                Projection(model="fixture/model", output_tokens=64),
+                guard,
+            )
     finally:
         await sender.close()
 

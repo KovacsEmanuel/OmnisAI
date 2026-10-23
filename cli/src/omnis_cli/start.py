@@ -1419,6 +1419,20 @@ def start_instance(
                 raise StartError("SERVICE_SET_MISMATCH", 3)
             record["containers"] = ids
             write_record(journal, record, replace=True)
+            forwarder: dict[str, object] = {}
+            inode = 0
+            if record["format"] == 5:
+                # Inert broker precedes inherited-work drain; no Supervisor/dashboard startup cycle.
+                _, _, forwarder, inode = launch_forwarder(
+                    root,
+                    selected,
+                    deadline,
+                    ownership=owner,
+                    stop_attempt=str(record["attempt"]),
+                    model=True,
+                )
+                record.update(forwarder=forwarder, listener_inode=inode)
+                write_record(journal, record, replace=True)
             if runtime.native is True:
                 runtime.run("start", ids["supervisor"], effect=True)
                 runtime.run("start", ids["api"], effect=True)
@@ -1455,15 +1469,15 @@ def start_instance(
                 raise StartError("RESTART_ADMISSION_CONFLICT", 4)
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
-            _, _, forwarder, inode = launch_forwarder(
-                root,
-                selected,
-                deadline,
-                ownership=owner,
-                stop_attempt=str(record["attempt"]),
-                **({"auth": True} if record["format"] == 4 else {}),
-                **({"model": True} if record["format"] == 5 else {}),
-            )
+            if record["format"] != 5:
+                _, _, forwarder, inode = launch_forwarder(
+                    root,
+                    selected,
+                    deadline,
+                    ownership=owner,
+                    stop_attempt=str(record["attempt"]),
+                    **({"auth": True} if record["format"] == 4 else {}),
+                )
             if record["format"] == 4:
                 record["auth"] = auth_listener(root, forwarder)
             record.update(

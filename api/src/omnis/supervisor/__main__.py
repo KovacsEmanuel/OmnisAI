@@ -146,9 +146,10 @@ async def run() -> None:
                     ManagedAdmission(engine, catalog_root), service, owner, epoch, runtime
                 )
         # Drain inherited shutdown before exposing this fresh process owner.
-        await service.quiesce(owner, epoch)
         if model_owner is not None:
             await model_owner.reconcile()
+        await service.quiesce(owner, epoch)
+        if model_owner is not None:
             model_owner.closing = False  # Fresh process only, before exposing control/admission.
         if task_owner is not None and runtime is not None:
 

@@ -27,6 +27,8 @@ from omnis.modules.runs.model_test_contract import (
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_key_models import SelectionView
 from omnis.modules.settings.provider_key_service import ConnectionRevision, ProviderSettingsOwner
+from omnis.supervisor.model_relay import RelayFailure
+from omnis.supervisor.model_relay_protocol import Authority, Scope
 from omnis.supervisor.model_sender import ModelSender, Reply, SendDenied
 
 
@@ -61,12 +63,53 @@ class ApiKeyModelTest:
             _, pending = await asyncio.wait(self.tasks, timeout=1.5)
             if pending:
                 return False
-        await self.sender.drain()
+        try:
+            await self.sender.drain()
+        except (RelayFailure, OSError, ValueError, TimeoutError):
+            self.settlement_failed = True
         if not self.settlement_failed:
             await self.reconcile(cancelled=True)
         return not self.settlement_failed
 
     async def reconcile(self, *, cancelled: bool = False) -> None:
+        # Read inherited scopes without SQL locks; host drain must precede terminal reconciliation.
+        async with self.service.engine.connect() as db:
+            identities = (
+                (
+                    await db.execute(
+                        text(
+                            "SELECT operation_id::text FROM system_operation WHERE instance_id=:instance AND state <> 'FINISHED'"
+                        ),
+                        {"instance": self.instance},
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for identity in identities:
+                op = await store.operation(db, self.instance, identity)
+                assert op is not None
+                dispatch = await store.dispatch(db, self.instance, identity)
+                snapshot = Snapshot.model_validate(
+                    await store.resolve(
+                        db, self.instance, op.config_snapshot_ref, "model-selection-snapshot-v2"
+                    )
+                )
+                self.sender.transport.backend.relay.scopes.add(
+                    Scope(
+                        self.instance,
+                        "MODEL_DISPATCH",
+                        dispatch.dispatch_attempt_id,
+                        op.execution_owner_id,
+                        op.generation,
+                        op.owner_epoch,
+                        dispatch.cancel_epoch,
+                        op.deadline.isoformat(),
+                        snapshot.connection.provider,
+                    )
+                )
+        if identities:
+            await self.sender.drain()
         # New process never schedules inherited work, even a PENDING pre-send attempt.
         async with self.service.engine.begin() as db:
             rows = (
@@ -265,6 +308,8 @@ class ApiKeyModelTest:
                                 "selection_revision": selection.revision,
                                 "generation": status.generation,
                                 "owner_epoch": self.settings.epoch,
+                                "execution_owner_id": str(self.settings.owner),
+                                "deadline": (datetime.now(UTC) + timedelta(seconds=15)).isoformat(),
                             },
                         )
                         await store.command(
@@ -405,7 +450,7 @@ class ApiKeyModelTest:
         )
 
     @asynccontextmanager
-    async def physical_window(self, db: AsyncConnection, deadline: datetime) -> AsyncIterator[None]:
+    async def physical_window(self, db: AsyncConnection, deadline: datetime) -> AsyncIterator[str]:
         began = asyncio.get_running_loop().time()
         row = (
             await db.execute(
@@ -423,12 +468,18 @@ class ApiKeyModelTest:
         if asyncio.get_running_loop().time() >= end:
             raise SendDenied("DEADLINE_OR_LEASE_LOST")
         async with asyncio.timeout_at(end):
-            yield
+            yield (
+                now + timedelta(seconds=max(0, end - asyncio.get_running_loop().time() - 0.02))
+            ).isoformat()
 
     @asynccontextmanager
     async def metadata_guard(
-        self, connection: ConnectionRevision, selection: SelectionView, generation: int
-    ) -> AsyncIterator[None]:
+        self,
+        command: str,
+        connection: ConnectionRevision,
+        selection: SelectionView,
+        generation: int,
+    ) -> AsyncIterator[Authority]:
         async with self.settings.lock:
             async with self.service.admission(
                 generation, self.settings.owner, self.settings.epoch
@@ -437,8 +488,30 @@ class ApiKeyModelTest:
                     raise SendDenied("OWNER_CLOSED")
                 if await self.settings.require_selection(db, selection.default) != connection:
                     raise SendDenied("CONNECTION_REVOKED")
-                async with self.physical_window(db, datetime.now(UTC) + timedelta(seconds=15)):
-                    yield
+                request = await self.latest(db, "metadata-request", command)
+                if (
+                    request is None
+                    or request["owner_epoch"] != self.settings.epoch
+                    or request["generation"] != generation
+                    or request["execution_owner_id"] != str(self.settings.owner)
+                ):
+                    raise SendDenied("METADATA_AUTHORITY_DENIED")
+                deadline = str(request["deadline"])
+                async with self.physical_window(db, datetime.fromisoformat(deadline)) as end:
+                    yield Authority(
+                        Scope(
+                            self.instance,
+                            "METADATA_COMMAND",
+                            command,
+                            str(self.settings.owner),
+                            generation,
+                            self.settings.epoch,
+                            1,
+                            deadline,
+                            connection.provider,
+                        ),
+                        end,
+                    )
 
     async def refresh(
         self,
@@ -460,7 +533,7 @@ class ApiKeyModelTest:
                 raw = await self.sender.metadata(
                     ENDPOINTS[connection.provider],
                     secret,
-                    lambda: self.metadata_guard(connection, selection, generation),
+                    lambda: self.metadata_guard(command, connection, selection, generation),
                 )
                 if not isinstance(raw, dict) or not isinstance(raw.get("data"), list):
                     raise SendDenied("METADATA_UNSUPPORTED")
@@ -509,11 +582,20 @@ class ApiKeyModelTest:
         except (ValueError, OSError, TimeoutError):
             result["reason"] = "METADATA_UNAVAILABLE"
         finally:
+            task = asyncio.current_task()
+            if task is not None and task.cancelling():
+                try:
+                    await self.sender.drain()
+                except (RelayFailure, OSError, ValueError, TimeoutError):
+                    self.settlement_failed = True
+            if self.sender.transport.backend.relay.failed or self.settlement_failed:
+                self.settlement_failed = True
+                raise RelayFailure("RELAY_CONTROL_UNCERTAIN")
             async with self.service.engine.begin() as db:
                 await store.put(db, self.instance, "metadata-result", result)
 
     @asynccontextmanager
-    async def write_guard(self, identity: str) -> AsyncIterator[None]:
+    async def write_guard(self, identity: str) -> AsyncIterator[Authority]:
         async with self.settings.lock:
             async with self.service.engine.connect() as lookup:
                 original = await store.operation(lookup, self.instance, identity)
@@ -607,8 +689,21 @@ class ApiKeyModelTest:
                 await asyncio.to_thread(
                     self.settings.vault.get, snapshot.connection.credential(self.instance)
                 )
-                async with self.physical_window(db, op.deadline):
-                    yield
+                async with self.physical_window(db, op.deadline) as end:
+                    yield Authority(
+                        Scope(
+                            self.instance,
+                            "MODEL_DISPATCH",
+                            dispatch.dispatch_attempt_id,
+                            op.execution_owner_id,
+                            op.generation,
+                            op.owner_epoch,
+                            dispatch.cancel_epoch,
+                            op.deadline.isoformat(),
+                            snapshot.connection.provider,
+                        ),
+                        end,
+                    )
 
     async def run(self, identity: str) -> None:
         reply = Reply("UNKNOWN", "RESULT_UNKNOWN")
@@ -662,6 +757,14 @@ class ApiKeyModelTest:
         except (ValueError, OSError):
             reply = Reply("UNKNOWN", "AUTHORITY_OR_TRANSPORT_UNAVAILABLE")
         finally:
+            if finish in {"CANCELLED", "DEADLINE"}:
+                try:
+                    await self.sender.drain()
+                except (RelayFailure, OSError, ValueError, TimeoutError):
+                    self.settlement_failed = True
+            if self.sender.transport.backend.relay.failed or self.settlement_failed:
+                self.settlement_failed = True
+                raise RelayFailure("RELAY_DRAIN_UNCERTAIN")
             async with self.service.engine.begin() as db:
                 op = await store.operation(db, self.instance, identity)
                 assert op is not None

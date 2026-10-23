@@ -110,9 +110,12 @@ async def _copy(
         destination.close()
 
 
-async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
+async def start_forwarder(
+    directory: Path, *, port: int, deferred_api: bool = False
+) -> ForwarderListener:
     """Bind only IPv4 loopback after validating the one allowed upstream path."""
-    upstream_path = private_api_socket(directory)
+    private_dir(directory)
+    upstream_path = directory / "api.sock" if deferred_api else private_api_socket(directory)
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("Invalid local port")
     active = 0
@@ -135,6 +138,7 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
         upstream: asyncio.StreamWriter | None = None
         try:
             async with asyncio.timeout(15):
+                private_api_socket(directory)
                 server, channel = await asyncio.wait_for(
                     asyncio.open_unix_connection(str(upstream_path)), timeout=2
                 )
@@ -312,8 +316,12 @@ async def start_auth_forwarder(directory: Path, *, model: bool = False) -> Forwa
     No DNS at startup. A cancelled resolver is not killed: its result is revoked,
     its daemon thread remains owned, and drain refuses while it is outstanding.
     """
+    if model:
+        from .model_relay import start_model_forwarder
+
+        return await start_model_forwarder(directory)
     private_dir(directory)
-    path = directory / ("model-egress.sock" if model else "auth-egress.sock")
+    path = directory / "auth-egress.sock"
     if os.path.lexists(path):
         raise ValueError("Auth socket already exists")
     closing, uncertain = asyncio.Event(), asyncio.Event()
@@ -458,7 +466,7 @@ async def run(
         raise ValueError("Explicit local port required")
     if stop_attempt is not None and str(UUID(stop_attempt)) != stop_attempt:
         raise ValueError("Invalid Stop attempt")
-    listener = await start_forwarder(directory, port=port)
+    listener = await start_forwarder(directory, port=port, deferred_api=model_directory is not None)
     auth = None
     model_relay = None
     try:

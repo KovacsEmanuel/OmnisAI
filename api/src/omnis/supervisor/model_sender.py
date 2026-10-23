@@ -9,15 +9,21 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from uuid import uuid4
 
 import httpcore
 import httpx
+from anyio import EndOfStream
+from anyio.abc import ByteStream
+from anyio.streams.tls import TLSStream
 from openai import APIConnectionError, APIStatusError, AsyncOpenAI
 from openai.types.chat import ChatCompletion
 from pydantic import ValidationError
 
 from omnis.modules.runs.model_test_contract import ACK, ENDPOINTS, Projection
 from omnis.modules.runs.model_test_store import digest
+from omnis.supervisor.model_relay import CipherStream, Relay, RelayFailure
+from omnis.supervisor.model_relay_protocol import Authority
 
 
 class SendDenied(ValueError):
@@ -29,7 +35,7 @@ class Permit:
     url: str
     body: dict[str, object] | None
     secret: str = field(repr=False)
-    guard: Callable[[], AbstractAsyncContextManager[None]]
+    guard: Callable[[], AbstractAsyncContextManager[Authority]]
     response_limit: int
 
 
@@ -37,16 +43,19 @@ CURRENT: ContextVar[Permit] = ContextVar("omnis-model-write-permit")
 
 
 class Stream(httpcore.AsyncNetworkStream):
-    def __init__(self, stream: httpcore.AsyncNetworkStream) -> None:
+    def __init__(self, stream: ByteStream) -> None:
         self.stream = stream
 
     async def read(self, max_bytes: int, timeout: float | None = None) -> bytes:
-        return await self.stream.read(max_bytes, timeout)
+        try:
+            async with asyncio.timeout(timeout):
+                return await self.stream.receive(max_bytes)
+        except EndOfStream:
+            return b""
 
     async def write(self, buffer: bytes, timeout: float | None = None) -> None:
-        # Includes reused TLS streams and each headers/body write; no response wait under SQL locks.
-        async with CURRENT.get().guard(), asyncio.timeout(0.5):
-            await self.stream.write(buffer, timeout)
+        async with asyncio.timeout(timeout):
+            await self.stream.send(buffer)
 
     async def start_tls(
         self,
@@ -56,27 +65,28 @@ class Stream(httpcore.AsyncNetworkStream):
     ) -> httpcore.AsyncNetworkStream:
         if server_hostname not in {httpx.URL(v).host for v in ENDPOINTS.values()}:
             raise SendDenied("ENDPOINT_DENIED")
-        async with CURRENT.get().guard():
-            pass  # Validate before TLS too; do not hold SQL authority while waiting for its response.
-        return Stream(await self.stream.start_tls(ssl_context, server_hostname, timeout))
+        async with asyncio.timeout(timeout):
+            return Stream(
+                await TLSStream.wrap(
+                    self.stream,
+                    hostname=server_hostname,
+                    ssl_context=ssl_context,
+                    standard_compatible=False,
+                )
+            )
 
     async def aclose(self) -> None:
         await self.stream.aclose()
 
     def get_extra_info(self, info: str) -> object:
-        value: object = self.stream.get_extra_info(info)
-        return value
+        return None
 
 
 class Backend(httpcore.AsyncNetworkBackend):
     def __init__(self, path: Path) -> None:
         if not path.is_absolute() or len(bytes(path)) > 107:
             raise ValueError("Explicit bounded private egress socket required")
-        self.path = path
-        backend = httpcore.AnyIOBackend()
-        if not isinstance(backend, httpcore.AsyncNetworkBackend):
-            raise ValueError("Public network backend unavailable")
-        self.backend = backend
+        self.relay = Relay(path)
 
     async def connect_tcp(
         self,
@@ -92,11 +102,14 @@ class Backend(httpcore.AsyncNetworkBackend):
             or local_address is not None
         ):
             raise SendDenied("ENDPOINT_DENIED")
-        async with CURRENT.get().guard():
-            pass  # Private relay only; it receives TLS, never a caller-controlled CONNECT.
-        return Stream(
-            await self.backend.connect_unix_socket(str(self.path), timeout, socket_options)
-        )
+        async with CURRENT.get().guard() as authority:
+            scope = authority.scope
+        identity = str(uuid4())
+        # DNS has no write authority and never runs under SQL locks; connect waits for WRITE.
+        status, _ = await self.relay.rpc("OPEN", scope, identity, timeout=2.5)
+        if status != "OK":
+            raise httpcore.ConnectError("UPSTREAM_UNAVAILABLE")
+        return Stream(CipherStream(self.relay, identity, scope, lambda: CURRENT.get().guard()))
 
     async def sleep(self, seconds: float) -> None:
         raise SendDenied("RETRY_DENIED")
@@ -122,8 +135,9 @@ class Transport(httpx.AsyncBaseTransport):
     def __init__(self, path: Path, context: ssl.SSLContext) -> None:
         if context.verify_mode != ssl.CERT_REQUIRED or not context.check_hostname:
             raise ValueError("Verified provider TLS required")
+        self.backend = Backend(path)
         self.pool = httpcore.AsyncConnectionPool(
-            network_backend=Backend(path),
+            network_backend=self.backend,
             ssl_context=context,
             retries=0,
             max_connections=1,
@@ -224,7 +238,10 @@ class ModelSender:
         )
 
     async def metadata(
-        self, endpoint: str, secret: str, guard: Callable[[], AbstractAsyncContextManager[None]]
+        self,
+        endpoint: str,
+        secret: str,
+        guard: Callable[[], AbstractAsyncContextManager[Authority]],
     ) -> object:
         permit = Permit(endpoint + "/models", None, secret, guard, 2097152)
         token = CURRENT.set(permit)
@@ -247,13 +264,15 @@ class ModelSender:
             raise SendDenied("METADATA_UNAVAILABLE") from None
         finally:
             CURRENT.reset(token)
+            if self.transport.backend.relay.failed:
+                raise RelayFailure("RELAY_CONTROL_UNCERTAIN")
 
     async def send(
         self,
         endpoint: str,
         secret: str,
         projection: Projection,
-        guard: Callable[[], AbstractAsyncContextManager[None]],
+        guard: Callable[[], AbstractAsyncContextManager[Authority]],
     ) -> Reply:
         permit = Permit(
             endpoint + "/chat/completions", projection.request_body(), secret, guard, 131072
@@ -356,8 +375,11 @@ class ModelSender:
             return Reply("UNKNOWN", "RESULT_UNKNOWN")
         finally:
             CURRENT.reset(token)
+            if self.transport.backend.relay.failed:
+                raise RelayFailure("RELAY_CONTROL_UNCERTAIN")
 
     async def drain(self) -> None:
+        await self.transport.backend.relay.drain()
         await self.transport.aclose()
 
     async def close(self) -> None:

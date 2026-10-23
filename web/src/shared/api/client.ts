@@ -13,7 +13,7 @@ import type { KeyCommand } from './providerKeys';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -59,19 +59,48 @@ export const api = {
     if (!response.ok) throw decodeError(value);
     return decodeKeySettings(value, payload.command_id);
   },
-  async modelTest(signal?: AbortSignal) {
-    const response = await request('/api/v1/model-test', {}, signal);
+  async modelTest(signal?: AbortSignal, operationId: string | null = null) {
+    if (operationId !== null && !isUuid(operationId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(operationId ? `/api/v1/model-test/${operationId}` : '/api/v1/model-test', {}, signal);
     const value = await body(response);
     if (!response.ok) throw decodeError(value);
-    return decodeModelTest(value);
+    const result = decodeModelTest(value);
+    if (operationId !== null && result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
+    return result;
   },
-  async startModelTest(operationId: string, csrf: string, signal?: AbortSignal) {
+  async startModelTest(operationId: string, revision: number, csrf: string, signal?: AbortSignal) {
     if (!isUuid(operationId)) throw new ApiError('INVALID_INPUT');
     const response = await request('/api/v1/model-test', { method: 'PUT', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf,
-    }, body: JSON.stringify({ operation_id: operationId, consent: true }) }, signal);
+    }, body: JSON.stringify({ operation_id: operationId, expected_selection_revision: revision, consent: true }) }, signal);
     const value = await body(response);
     if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
+  async modelCapabilities(commandId: string, signal?: AbortSignal) {
+    if (!isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/capabilities/${commandId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.metadata_command_id !== commandId || result.operation_id !== null) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
+  async refreshModelCapabilities(commandId: string, revision: number, csrf: string) {
+    if (!isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/model-test/capabilities', { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify({ command_id: commandId, expected_selection_revision: revision }) });
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.metadata_command_id !== commandId || result.operation_id !== null) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
+  async cancelModelTest(operationId: string, commandId: string, revision: number, csrf: string) {
+    if (!isUuid(operationId) || !isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/${operationId}/cancel`, { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify({ command_id: commandId, expected_state_revision: revision }) });
+    const value = await body(response); if (!response.ok) throw decodeError(value);
     const result = decodeModelTest(value);
     if (result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
     return result;

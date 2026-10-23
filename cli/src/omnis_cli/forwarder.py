@@ -110,9 +110,12 @@ async def _copy(
         destination.close()
 
 
-async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
+async def start_forwarder(
+    directory: Path, *, port: int, deferred_api: bool = False
+) -> ForwarderListener:
     """Bind only IPv4 loopback after validating the one allowed upstream path."""
-    upstream_path = private_api_socket(directory)
+    private_dir(directory)
+    upstream_path = directory / "api.sock" if deferred_api else private_api_socket(directory)
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("Invalid local port")
     active = 0
@@ -135,6 +138,7 @@ async def start_forwarder(directory: Path, *, port: int) -> ForwarderListener:
         upstream: asyncio.StreamWriter | None = None
         try:
             async with asyncio.timeout(15):
+                private_api_socket(directory)
                 server, channel = await asyncio.wait_for(
                     asyncio.open_unix_connection(str(upstream_path)), timeout=2
                 )
@@ -250,7 +254,7 @@ def auth_addresses(rows: list[AuthAddress]) -> list[AuthAddress]:
     return rows
 
 
-def tls_destination(record: bytes) -> str:
+def tls_destination(record: bytes, *, model: bool = False) -> str:
     """Only the two product-owned TLS names; no caller URL, CONNECT or proxy."""
     if (
         len(record) < 9
@@ -298,17 +302,24 @@ def tls_destination(record: bytes) -> str:
             ):
                 raise ValueError("Invalid TLS name")
             names.append(value[5:].decode("ascii"))
-    if len(names) != 1 or names[0] not in ("auth.openai.com", "chatgpt.com"):
+    allowed = (
+        ("openrouter.ai", "api.orcarouter.ai") if model else ("auth.openai.com", "chatgpt.com")
+    )
+    if len(names) != 1 or names[0] not in allowed:
         raise ValueError("Finite TLS destination denied")
     return names[0]
 
 
-async def start_auth_forwarder(directory: Path) -> ForwarderListener:
+async def start_auth_forwarder(directory: Path, *, model: bool = False) -> ForwarderListener:
     """Private raw TLS relay; fixed TCB client enforces the OAuth L7 contract.
 
     No DNS at startup. A cancelled resolver is not killed: its result is revoked,
     its daemon thread remains owned, and drain refuses while it is outstanding.
     """
+    if model:
+        from .model_relay import start_model_forwarder
+
+        return await start_model_forwarder(directory)
     private_dir(directory)
     path = directory / "auth-egress.sock"
     if os.path.lexists(path):
@@ -342,8 +353,8 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                 if size > 8192:
                     raise ValueError("TLS hello limit")
                 hello = header + await reader.readexactly(size)
-                destination = tls_destination(hello)
-            async with asyncio.timeout(300 if destination == "chatgpt.com" else 15):
+                destination = tls_destination(hello, model=model)
+            async with asyncio.timeout(300 if model or destination == "chatgpt.com" else 15):
                 result: list[AuthAddress] = []
                 done = threading.Event()
 
@@ -385,16 +396,16 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
                         _copy(
                             reader,
                             upstream,
-                            limit=_MAX_REQUEST_BYTES,
-                            idle_seconds=300 if destination == "chatgpt.com" else 10,
+                            limit=4 * 1024 * 1024 if model else _MAX_REQUEST_BYTES,
+                            idle_seconds=300 if model or destination == "chatgpt.com" else 10,
                         )
                     ),
                     asyncio.create_task(
                         _copy(
                             remote,
                             writer,
-                            limit=_MAX_REQUEST_BYTES,
-                            idle_seconds=300 if destination == "chatgpt.com" else 10,
+                            limit=4 * 1024 * 1024 if model else _MAX_REQUEST_BYTES,
+                            idle_seconds=300 if model or destination == "chatgpt.com" else 10,
                         )
                     ),
                 )
@@ -427,7 +438,7 @@ async def start_auth_forwarder(directory: Path) -> ForwarderListener:
         raw_listener.listen(1)
         raw_listener.setblocking(False)
         server = await asyncio.start_unix_server(
-            handle, sock=raw_listener, start_serving=False, cleanup_socket=False
+            handle, sock=raw_listener, start_serving=False, cleanup_socket=model
         )
         owner = ForwarderListener(server, clients, closing, uncertain)
         info = path.lstat()
@@ -449,18 +460,28 @@ async def run(
     *,
     stop_attempt: str | None = None,
     auth_directory: Path | None = None,
+    model_directory: Path | None = None,
 ) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("Explicit local port required")
     if stop_attempt is not None and str(UUID(stop_attempt)) != stop_attempt:
         raise ValueError("Invalid Stop attempt")
-    listener = await start_forwarder(directory, port=port)
+    listener = await start_forwarder(directory, port=port, deferred_api=model_directory is not None)
     auth = None
+    model_relay = None
     try:
         if auth_directory is not None:
             if auth_directory != directory.parent / "native-ipc" or stop_attempt is None:
                 raise ValueError("Invalid auth directory")
             auth = await start_auth_forwarder(auth_directory)
+        if model_directory is not None:
+            if (
+                model_directory != directory.parent / "vault"
+                or stop_attempt is None
+                or auth_directory is not None
+            ):
+                raise ValueError("Invalid release-bound model directory")
+            model_relay = await start_auth_forwarder(model_directory, model=True)
     except BaseException:
         listener.close()
         await listener.wait_closed()
@@ -478,10 +499,14 @@ async def run(
         listener.close()
         if auth is not None:
             auth.close()
+        if model_relay is not None:
+            model_relay.close()
         try:
             await asyncio.wait_for(
                 asyncio.gather(
-                    listener.wait_closed(), *([auth.wait_closed()] if auth is not None else [])
+                    listener.wait_closed(),
+                    *([auth.wait_closed()] if auth is not None else []),
+                    *([model_relay.wait_closed()] if model_relay is not None else []),
                 ),
                 timeout=20,
             )
@@ -523,6 +548,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--stop-attempt")
     parser.add_argument("--auth-directory", type=Path)
+    parser.add_argument("--model-directory", type=Path)
     args = parser.parse_args(argv)
     try:
         asyncio.run(
@@ -531,6 +557,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.port,
                 stop_attempt=args.stop_attempt,
                 auth_directory=args.auth_directory,
+                model_directory=args.model_directory,
             )
         )
     except (OSError, ValueError, TimeoutError):

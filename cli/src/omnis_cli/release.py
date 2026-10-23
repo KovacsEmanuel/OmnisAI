@@ -21,7 +21,7 @@ class ReleaseError(ValueError):
 
 
 _RELEASE = "0.1.0"
-_SCHEMA = "0014_provider_settings"
+_SCHEMA = "0015_model_test_v2"
 PROVIDER_SETTINGS_PROFILE = "t1-provider-settings"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
@@ -135,13 +135,23 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             "omnis/modules/settings/provider_key_service.py",
             "omnis/modules/settings/provider_vault.py",
             "omnis/migrations/versions/0014_provider_settings.py",
+            "omnis/migrations/versions/0015_model_test_v2.py",
+            "omnis/modules/runs/model_test_runtime.py",
+            "omnis/modules/runs/model_test_contract.py",
+            "omnis/modules/runs/model_test_store.py",
+            "omnis/supervisor/model_sender.py",
         }
         try:
             with ZipFile(io.BytesIO(result[f"api/omnis_api-{_RELEASE}-py3-none-any.whl"])) as wheel:
-                if not required <= set(
-                    wheel.namelist()
-                ) or b"Requires-Dist: cryptography==50.0.1\n" not in wheel.read(
-                    f"omnis_api-{_RELEASE}.dist-info/METADATA"
+                if not required <= set(wheel.namelist()) or any(
+                    ("Requires-Dist: " + dependency + "\n").encode()
+                    not in wheel.read(f"omnis_api-{_RELEASE}.dist-info/METADATA")
+                    for dependency in (
+                        "cryptography==50.0.1",
+                        "openai==2.24.0",
+                        "httpx==0.28.1",
+                        "httpcore==1.0.9",
+                    )
                 ):
                     raise ReleaseError("Provider Settings production closure required")
         except (BadZipFile, KeyError):

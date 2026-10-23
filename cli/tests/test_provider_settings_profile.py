@@ -78,7 +78,11 @@ class ProviderSettingsProfileTest(unittest.TestCase):
         supervisor = overlay["services"]["supervisor"]
         self.assertEqual(
             supervisor["environment"],
-            {"OMNIS_VAULT_DIR": "/vault", "OMNIS_VAULT_KEY_DIR": "/vault-key"},
+            {
+                "OMNIS_VAULT_DIR": "/vault",
+                "OMNIS_VAULT_KEY_DIR": "/vault-key",
+                "OMNIS_MODEL_EGRESS_DIR": "/vault",
+            },
         )
         self.assertEqual(
             supervisor["volumes"],
@@ -155,7 +159,11 @@ class ProviderSettingsProfileTest(unittest.TestCase):
         valid = fixture.config()
         fixture.runtime.receipt.profile = PROFILE
         supervisor = valid["services"]["supervisor"]
-        supervisor["environment"].update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+        supervisor["environment"].update(
+            OMNIS_VAULT_DIR="/vault",
+            OMNIS_VAULT_KEY_DIR="/vault-key",
+            OMNIS_MODEL_EGRESS_DIR="/vault",
+        )
         supervisor["volumes"].extend(
             {"type": "bind", "source": str(fixture.root / name), "target": "/" + name}
             for name in ("vault", "vault-key")
@@ -188,7 +196,11 @@ class ProviderSettingsProfileTest(unittest.TestCase):
         candidate["Mounts"] = [
             row for row in candidate["Mounts"] if row["Destination"] != "/runtime"
         ]
-        candidate["Config"]["Env"] += ["OMNIS_VAULT_DIR=/vault", "OMNIS_VAULT_KEY_DIR=/vault-key"]
+        candidate["Config"]["Env"] += [
+            "OMNIS_VAULT_DIR=/vault",
+            "OMNIS_VAULT_KEY_DIR=/vault-key",
+            "OMNIS_MODEL_EGRESS_DIR=/vault",
+        ]
         for name in ("vault", "vault-key"):
             candidate["Mounts"].append(
                 {
@@ -280,10 +292,16 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                 "omnis/modules/settings/provider_key_service.py",
                 "omnis/modules/settings/provider_vault.py",
                 "omnis/migrations/versions/0014_provider_settings.py",
+                "omnis/migrations/versions/0015_model_test_v2.py",
+                "omnis/modules/runs/model_test_runtime.py",
+                "omnis/modules/runs/model_test_contract.py",
+                "omnis/modules/runs/model_test_store.py",
+                "omnis/supervisor/model_sender.py",
             ):
                 wheel.writestr(name, "# SOURCE synthetic closure\n")
             wheel.writestr(
-                "omnis_api-0.1.0.dist-info/METADATA", "Requires-Dist: cryptography==50.0.1\n"
+                "omnis_api-0.1.0.dist-info/METADATA",
+                "Requires-Dist: cryptography==50.0.1\nRequires-Dist: openai==2.24.0\nRequires-Dist: httpx==0.28.1\nRequires-Dist: httpcore==1.0.9\n",
             )
         fixture.manifest.update(format=3, profile=PROFILE)
         name = "api/omnis_api-0.1.0-py3-none-any.whl"

@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-instance-drain-pg test-provider-settings-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract test-instance-drain-pg test-provider-settings-pg test-model-test-v2-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -19,8 +19,8 @@ endif
 check:
 	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)"
 
-# Exact former check dependencies, run by the same private DB lifecycle in CI/local.
-check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install check-runtime
+# Active API-key release checks share the same private DB lifecycle in CI/local.
+check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install
 	git diff --check
 
 test-db-contract:
@@ -32,6 +32,11 @@ test-instance-drain-pg:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_instance.py api/tests/test_control_regressions.py::test_quiesce_owner_expiry_during_update_lock_wait_rolls_back -q --tb=short
 
 .PHONY: test-dashboard
+.PHONY: test-model-test-v2-pg
+test-model-test-v2-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py -q --tb=short
+
 .PHONY: test-provider-settings-pg
 test-provider-settings-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
@@ -164,7 +169,7 @@ test-b06a-pure:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_b06a_*.py -q
 
 .PHONY: check-runtime
-# Deterministic adapter/AST controls only; not the installed PG/OCI B05 gate.
+# Explicit historical Hermes adapter/AST controls, not an API-key release prerequisite.
 # OAuth AST requires HERMES_NATIVE_SOURCE from prepare_hermes_runtime.py (MANAGEMENT).
 check-runtime:
 	$(API_PY) -I -B -c 'import runpy,sys; sys.path.insert(0,"integrations/hermes/src"); sys.argv=["integrations/hermes/tests/test_native_build.py","-v"]; runpy.run_path(sys.argv[0],run_name="__main__")'

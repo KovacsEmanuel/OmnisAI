@@ -45,7 +45,12 @@ class SchemaCompatibilityTest(unittest.TestCase):
             key: None for key in ("host", "release", "project", "empty_env", "env")
         }
         env["EXPECTED_SCHEMA"] = start.EXPECTED_SCHEMA
-        for revision in (start.EXPECTED_SCHEMA, "0013_mission_revisions", "synthetic_incompatible"):
+        for revision in (
+            start.EXPECTED_SCHEMA,
+            "0014_provider_settings",
+            "0013_mission_revisions",
+            "synthetic_incompatible",
+        ):
             env["_psql"] = lambda *args, revision=revision: revision
             if revision == start.EXPECTED_SCHEMA:
                 exec(code, env)
@@ -116,7 +121,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         queries = {
             "SELECT system_identifier FROM pg_control_system()": "12345",
             "SELECT instance_id FROM instance_control WHERE id = 1": identity,
-            "SELECT version_num FROM alembic_version": "0014_provider_settings",
+            "SELECT version_num FROM alembic_version": "0015_model_test_v2",
         }
 
         def psql(ident, query):
@@ -127,6 +132,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         runtime = SimpleNamespace(psql=psql)
         self.assertEqual(start.database_identity(runtime, "private-db"), ("12345", identity))
         for previous in (
+            "0014_provider_settings",
             "0013_mission_revisions",
             "0012_contract_methods",
             "0011_managed_tasks",
@@ -141,22 +147,23 @@ class SchemaCompatibilityTest(unittest.TestCase):
                 (error.exception.reason, error.exception.code), ("SCHEMA_UPDATE_REQUIRED", 3)
             )
 
-    def test_private_instance_accepts_only_0014(self):
+    def test_private_instance_accepts_only_0015(self):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             root = Path(name)
             record = {
                 "version": 1,
                 "instance_id": str(uuid4()),
                 "release": "0.1.0",
-                "schema": "0014_provider_settings",
+                "schema": "0015_model_test_v2",
                 "project": "omnis-local-1",
                 "origin": "http://127.0.0.1:8765",
             }
             path = root / "instance.json"
             path.write_text(json.dumps(record))
             path.chmod(0o600)
-            self.assertEqual(load_instance(root).schema, "0014_provider_settings")
+            self.assertEqual(load_instance(root).schema, "0015_model_test_v2")
             for previous in (
+                "0014_provider_settings",
                 "0013_mission_revisions",
                 "0012_contract_methods",
                 "0011_managed_tasks",

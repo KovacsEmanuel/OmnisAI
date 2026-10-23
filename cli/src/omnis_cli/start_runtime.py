@@ -97,7 +97,11 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
     return {
         "services": {
             "supervisor": {
-                "environment": {"OMNIS_VAULT_DIR": "/vault", "OMNIS_VAULT_KEY_DIR": "/vault-key"},
+                "environment": {
+                    "OMNIS_VAULT_DIR": "/vault",
+                    "OMNIS_VAULT_KEY_DIR": "/vault-key",
+                    "OMNIS_MODEL_EGRESS_DIR": "/vault",
+                },
                 "volumes": [
                     {"type": "bind", "source": str(root / name), "target": "/" + name}
                     for name in ("vault", "vault-key")
@@ -708,7 +712,11 @@ class ControlRuntime:
             if role == "api":
                 expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
         if role == "supervisor" and self.provider_settings:
-            expected_env.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+            expected_env.update(
+                OMNIS_VAULT_DIR="/vault",
+                OMNIS_VAULT_KEY_DIR="/vault-key",
+                OMNIS_MODEL_EGRESS_DIR="/vault",
+            )
         if role == "supervisor" and self.native:
             expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
             if self.model_test:

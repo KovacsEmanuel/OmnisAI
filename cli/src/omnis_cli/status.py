@@ -8,6 +8,7 @@ import sys
 import time
 from pathlib import Path
 
+from .backup import admit_restore
 from .config import load_config
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, state_dir
@@ -34,6 +35,7 @@ def status(*, as_json: bool) -> int:
         print(json.dumps(refused, sort_keys=True) if as_json else f"Omnis: REFUSED ({exc.reason})")
         return exc.code
     unreconciled = os.path.lexists(root / "unreconciled.json")
+    restored = os.path.lexists(root / "restore.json") and not os.path.lexists(root / "startup.json")
     record: dict[str, object] | None = None
     preflight_error: OSError | ValueError | None = None
     if not unreconciled and os.path.lexists(root / "startup.json"):
@@ -73,7 +75,7 @@ def status(*, as_json: bool) -> int:
             origin=instance.origin,
             reason="CONTROL_UNAVAILABLE",
         )
-        if not unreconciled and preflight_error is None:
+        if not unreconciled and preflight_error is None and not restored:
             try:
                 current = request(control_dir(root), {"op": "status"})
                 if current["instance_id"] != instance.instance_id:
@@ -111,6 +113,36 @@ def status(*, as_json: bool) -> int:
             ),
         )
         exit_code = preflight_error.code if isinstance(preflight_error, StartError) else 4
+    elif restored:
+        try:
+            data = os.environ.get("XDG_DATA_HOME")
+            runtime = ControlRuntime(
+                Path(data) if data else Path.home() / ".local/share", time.monotonic() + 30
+            )
+            marker = read_record(root / "restore.json")
+            admitted = admit_restore(runtime, root)
+            config.check_port(admitted["port"])
+            if runtime.ids() or runtime.network(set()) is not None:
+                raise StartError("RESTORE_RESOURCE_CONFLICT", 4)
+            if (
+                admit_restore(runtime, root) != admitted
+                or read_record(root / "restore.json") != marker
+            ):
+                raise StartError("LIFECYCLE_CHANGED", 4)
+            result.update(
+                state="RESTORED_STOPPED",
+                provenance="RESTORE_ADMISSION",
+                restore_id=marker["restore_id"],
+                admission_open=False,
+                reason=None,
+            )
+            exit_code = 0
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            result.update(
+                state="UNAVAILABLE",
+                reason=exc.reason if isinstance(exc, StartError) else "RESTORE_ADMISSION_INVALID",
+            )
+            exit_code = exc.code if isinstance(exc, StartError) else 4
     elif record is not None:
         # Installed lifecycle receipts opt into HTTP only after exact ownership.
         # Legacy status-only locators remain conservative and never contact a port.

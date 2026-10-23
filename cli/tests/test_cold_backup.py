@@ -3,6 +3,7 @@
 import contextlib
 import importlib
 import io
+import json
 import os
 import tarfile
 import unittest
@@ -95,6 +96,86 @@ class ColdBackupTest(unittest.TestCase):
             self.assertEqual(
                 read_record(snapshot / "manifest.json")["instance_id"], record["instance_id"]
             )
+
+    def test_restore_status_is_read_only_and_refuses_invalid_admission(self):
+        module = self.module()
+        status = importlib.import_module("omnis_cli.status")
+        with self.source() as (base, root, old, runtime):
+            with (
+                patch.object(module, "archive", side_effect=self.archive),
+                patch.object(module, "cold_identity", return_value=old["system_id"]),
+            ):
+                module.backup(runtime, root, base / "snapshot")
+                parent = base / "new"
+                parent.mkdir(mode=0o700)
+                target = parent / "omnis"
+                with patch.dict(os.environ, {"XDG_STATE_HOME": str(parent)}):
+                    module.restore(runtime, target, base / "snapshot", None)
+                    original = (target / "restore.json").read_bytes()
+                    before = {
+                        p.relative_to(target): p.read_bytes()
+                        for p in target.rglob("*")
+                        if p.is_file()
+                    }
+                    for mutation in (None, "marker", "resource", "startup"):
+                        with self.subTest(mutation=mutation), contextlib.ExitStack() as scope:
+                            scope.enter_context(
+                                patch.object(status, "ControlRuntime", return_value=runtime)
+                            )
+                            scope.enter_context(
+                                patch.object(
+                                    status, "request", side_effect=AssertionError("No control IO")
+                                )
+                            )
+                            scope.enter_context(
+                                patch.object(
+                                    runtime,
+                                    "run",
+                                    side_effect=AssertionError("No effects"),
+                                    create=True,
+                                )
+                            )
+                            scope.enter_context(
+                                patch.object(
+                                    runtime,
+                                    "ids",
+                                    return_value=["f" * 64] if mutation == "resource" else [],
+                                )
+                            )
+                            if mutation == "marker":
+                                (target / "restore.json").write_bytes(
+                                    original.replace(b"STOPPED", b"STARTING")
+                                )
+                            elif mutation == "startup":
+                                (target / "startup.json").write_text("{}")
+                                (target / "startup.json").chmod(0o600)
+                            output = io.StringIO()
+                            with contextlib.redirect_stdout(output):
+                                code = main(["status", "--json"])
+                            result = json.loads(output.getvalue())
+                            if mutation is None:
+                                self.assertEqual(
+                                    (code, result["state"]), (0, "RESTORED_STOPPED"), result
+                                )
+                                self.assertEqual(result["provenance"], "RESTORE_ADMISSION")
+                                self.assertEqual(result["instance_id"], old["instance_id"])
+                                self.assertNotIn("generation", result)
+                                self.assertNotIn("supervisor_epoch", result)
+                                self.assertFalse(result["admission_open"])
+                                self.assertEqual(
+                                    before,
+                                    {
+                                        p.relative_to(target): p.read_bytes()
+                                        for p in target.rglob("*")
+                                        if p.is_file()
+                                    },
+                                )
+                            else:
+                                self.assertNotEqual(code, 0)
+                                self.assertNotEqual(result["state"], "RESTORED_STOPPED")
+                            (target / "restore.json").write_bytes(original)
+                            if mutation == "startup":
+                                (target / "startup.json").unlink()
 
     def test_restore_new_identity_stopped_separate_key_and_no_overwrite(self):
         module = self.module()

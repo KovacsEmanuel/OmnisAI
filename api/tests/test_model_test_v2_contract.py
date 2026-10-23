@@ -12,6 +12,7 @@ def test_complete_new_command_frames_are_bounded() -> None:
     maximum = 9223372036854775807
     for payload in (
         {"action": "read", "operation_id": identity},
+        {"action": "read", "command_id": command},
         {
             "action": "start",
             "operation_id": identity,

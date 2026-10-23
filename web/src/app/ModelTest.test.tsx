@@ -26,6 +26,31 @@ it('rejects invented observed values and malformed nullable fields', () => {
   expect(() => decodeModelTest({ ...available, cost_observed: 0 })).toThrow();
   expect(() => decodeModelTest({ ...available, state_revision: -1 })).toThrow();
 });
+it('remembers a lost metadata command and reload reads only that receipt', async () => {
+  sessionStorage.clear();
+  const calls: string[] = [];
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input); calls.push(path);
+    if (path.startsWith('/api/v1/model-test')) {
+      if (init?.method === 'POST') { writes += 1; throw new Error('lost reply'); }
+      const command = sessionStorage.getItem('omnis-model-test-metadata');
+      if (path === '/api/v1/model-test/capabilities/' + command) return new Response(JSON.stringify({ ...available, metadata_command_id: command }));
+      return new Response(JSON.stringify(available));
+    }
+    return new Response(JSON.stringify(path === '/api/session' ? session : health));
+  }));
+  const page = mount(); const user = userEvent.setup();
+  const button = await screen.findByRole('button', { name: 'Refresh model metadata' });
+  await waitFor(() => expect(button).toBeEnabled());
+  await user.dblClick(button);
+  await waitFor(() => expect(writes).toBe(1));
+  const command = sessionStorage.getItem('omnis-model-test-metadata');
+  expect(command).toMatch(/^[0-9a-f-]{36}$/);
+  page.unmount(); mount();
+  await waitFor(() => expect(calls).toContain('/api/v1/model-test/capabilities/' + command));
+  expect(writes).toBe(1);
+});
 it('requires explicit consent, sends the finite intent once, and reload reads by the same ID', async () => {
   sessionStorage.clear();
   let current = available;

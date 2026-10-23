@@ -6,24 +6,26 @@ import { useSession } from '../bootstrap/BrowserSession';
 import styles from './Engagement.module.css';
 
 const storage = 'omnis-model-test-operation';
-function remembered() {
-  try { const id = sessionStorage.getItem(storage); return isUuid(id) ? id : null; }
+const metadataStorage = 'omnis-model-test-metadata';
+function remembered(key = storage) {
+  try { const id = sessionStorage.getItem(key); return isUuid(id) ? id : null; }
   catch { return null; }
 }
 export function ModelTest() {
   const { session, transition, readPrivate } = useSession();
   const client = useQueryClient();
   const [operation, setOperation] = useState(remembered);
+  const [metadataCommand, setMetadataCommand] = useState(() => remembered(metadataStorage));
   const [sending, setSending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [consent, setConsent] = useState(false);
   const [notice, setNotice] = useState('');
   const busy = useRef(false);
-  const key = ['private', 'model-test', operation];
+  const key = ['private', 'model-test', operation, metadataCommand];
   const authReady = !!session.data && !session.isError && transition === 'idle';
   const query = useQuery({ queryKey: key,
-    queryFn: ({ signal }) => readPrivate(() => api.modelTest(signal, operation), signal),
-    enabled: authReady && !sending, retry: false,
+    queryFn: ({ signal }) => readPrivate(() => metadataCommand ? api.modelCapabilities(metadataCommand, signal) : api.modelTest(signal, operation), signal),
+    enabled: authReady && !sending, retry: false, placeholderData: previous => previous,
     refetchInterval: query => (query.state.data?.state && query.state.data.state !== 'FINISHED') || query.state.data?.metadata_state === 'PENDING' ? 1000 : false,
     refetchOnWindowFocus: false });
   const observed = query.data;
@@ -38,20 +40,26 @@ export function ModelTest() {
     if (action === 'cancel' && (!active || !observed.operation_id || !observed.state_revision)) return;
     busy.current = true; setSending(true); setNotice('');
     let identity = operation;
+    let metadataIdentity = metadataCommand;
     try {
       let value;
       if (action === 'start' && observed.selection_revision) {
         identity = crypto.randomUUID();
         // Store only identity before sending; reload and lost replies never repeat a mutation.
         sessionStorage.setItem(storage, identity); setOperation(identity);
+        sessionStorage.removeItem(metadataStorage); setMetadataCommand(null); metadataIdentity = null;
         value = await api.startModelTest(identity, observed.selection_revision, session.data.csrf_token);
         setConsent(false);
       } else if (action === 'refresh' && observed.selection_revision) {
-        value = await api.refreshModelCapabilities(crypto.randomUUID(), observed.selection_revision, session.data.csrf_token);
+        const current = await api.modelTest();
+        if (!current.selection_revision) throw new ApiError('INVALID_RESPONSE');
+        metadataIdentity = crypto.randomUUID();
+        sessionStorage.setItem(metadataStorage, metadataIdentity); setMetadataCommand(metadataIdentity);
+        value = await api.refreshModelCapabilities(metadataIdentity, current.selection_revision, session.data.csrf_token);
       } else if (observed.operation_id && observed.state_revision) {
         value = await api.cancelModelTest(observed.operation_id, crypto.randomUUID(), observed.state_revision, session.data.csrf_token);
       }
-      if (value) client.setQueryData(['private', 'model-test', identity], value);
+      if (value) client.setQueryData(['private', 'model-test', identity, metadataIdentity], value);
     } catch (error) {
       setConsent(false);
       setUncertain(true);

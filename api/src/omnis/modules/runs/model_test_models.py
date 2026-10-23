@@ -66,6 +66,8 @@ class ModelTestControl(BaseModel):
             self.expected_selection_revision is None or self.consent is not True
         ):
             raise ValueError("Revision and explicit consent required")
+        if self.action == "read" and self.operation_id is not None and self.command_id is not None:
+            raise ValueError("Read one identity only")
         if self.action == "cancel" and (
             self.operation_id is None
             or self.command_id is None
@@ -80,7 +82,7 @@ class ModelTestControl(BaseModel):
             raise ValueError("Refresh command and selection required")
         allowed = {
             "start": {"operation_id", "expected_selection_revision", "consent"},
-            "read": {"operation_id"},
+            "read": {"operation_id", "command_id"},
             "provision": {"selection_ref"},
             "cancel": {"operation_id", "command_id", "expected_state_revision"},
             "refresh": {"command_id", "expected_selection_revision"},

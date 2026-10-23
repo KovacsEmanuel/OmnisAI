@@ -305,9 +305,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 )
                             )
                         ).one() == before_rows
+                refresh_a = str(uuid4())
+                refresh_intent = {"command_id": refresh_a, "expected_selection_revision": 1}
                 refresh = await http.post(
                     "/api/v1/model-test/capabilities",
-                    json={"command_id": str(uuid4()), "expected_selection_revision": 1},
+                    json=refresh_intent,
                     headers=headers,
                 )
                 assert refresh.status_code == 202
@@ -316,6 +318,34 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "metadata_state"
                     ] == "PENDING":
                         await asyncio.sleep(0.02)
+                receipt_a = (await http.get("/api/v1/model-test")).json()
+                traffic = 2
+                if scenario == "complete":
+                    refresh_b = await http.post(
+                        "/api/v1/model-test/capabilities",
+                        json={"command_id": str(uuid4()), "expected_selection_revision": 1},
+                        headers=headers,
+                    )
+                    assert refresh_b.status_code == 202
+                    async with asyncio.timeout(5):
+                        while owner.tasks:
+                            await asyncio.sleep(0.02)
+                    replay_a = await http.post(
+                        "/api/v1/model-test/capabilities", json=refresh_intent, headers=headers
+                    )
+                    assert replay_a.status_code == 202 and replay_a.json() == receipt_a
+                    read_a = await http.get("/api/v1/model-test/capabilities/" + refresh_a)
+                    assert read_a.status_code == 200 and read_a.json() == receipt_a
+                    assert (
+                        await http.get("/api/v1/model-test/capabilities/" + str(uuid4()))
+                    ).status_code == 404
+                    changed = await http.post(
+                        "/api/v1/model-test/capabilities",
+                        json={**refresh_intent, "expected_selection_revision": 2},
+                        headers=headers,
+                    )
+                    assert changed.status_code == 409 and len(received) == 2
+                    traffic = 3
                 admitted = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert admitted.status_code == 202, admitted.text
                 async with asyncio.timeout(5):
@@ -337,7 +367,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     "UNKNOWN" if scenario == "unknown_usage" else "KNOWN"
                 )
                 assert value["cost_observed"] is None  # Unknown is not zero.
-                assert len(received) == 2
+                assert len(received) == traffic
                 replay = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert replay.status_code == 202 and replay.json() == value
                 conflict = await http.put(
@@ -345,7 +375,43 @@ async def test_api_pg_sdk_protocol_and_replay(
                     json={**intent, "expected_selection_revision": 2},
                     headers=headers,
                 )
-                assert conflict.status_code == 409 and len(received) == 2
+                assert conflict.status_code == 409 and len(received) == traffic
+                if scenario == "complete":
+                    await settings.handle(
+                        KeySettingsControl.model_validate(
+                            {
+                                "op": "provider_settings",
+                                "request": {
+                                    "action": "save_selection",
+                                    "command_id": str(uuid4()),
+                                    "expected_revision": 1,
+                                    "default": {
+                                        "connection_id": connection_id,
+                                        "connection_revision": 1,
+                                        "model": "fixture/model",
+                                        "output_tokens": 63,
+                                    },
+                                    "brain": None,
+                                    "investigator": None,
+                                    "validator": None,
+                                },
+                            }
+                        )
+                    )
+                    assert (
+                        await http.get("/api/v1/model-test/capabilities/" + refresh_a)
+                    ).json() == receipt_a
+                    assert (
+                        await http.post(
+                            "/api/v1/model-test/capabilities", json=refresh_intent, headers=headers
+                        )
+                    ).json() == receipt_a
+                    value = (await http.get("/api/v1/model-test/" + operation)).json()
+                    assert (
+                        value["selection_revision"] == 2
+                        and value["metadata_state"] == "NOT_REQUESTED"
+                    )
+                    assert len(received) == traffic
                 if scenario.endswith("at_body"):
                     from omnis.supervisor.model_sender import Stream
 
@@ -404,12 +470,14 @@ async def test_api_pg_sdk_protocol_and_replay(
                             await asyncio.sleep(0.02)
                     assert after["result_state"] == "UNKNOWN"
                     assert after["usage_state"] == "UNKNOWN" and after["cost_observed"] is None
-                    assert len(received) == 2  # Reused TLS headers can arrive; no second body.
+                    assert (
+                        len(received) == traffic
+                    )  # Reused TLS headers can arrive; no second body.
                 if scenario != "stop_at_body":
                     await service.shutdown(uuid4(), generation, process, epoch)
                 await service.quiesce(process, epoch)
                 assert (await http.get("/api/v1/model-test/" + operation)).json() == value
-                assert len(received) == 2
+                assert len(received) == traffic
                 async with engine.connect() as db:
                     assert (
                         await db.execute(
@@ -447,6 +515,9 @@ async def main():
     try:
         await runtime.reconcile()
         view=await runtime.handle(ModelTestControl(op="model_test",action="start",operation_id=config["operation"],expected_selection_revision=1,consent=True))
+        replay=await runtime.handle(ModelTestControl(op="model_test",action="refresh",command_id=config["refresh"],expected_selection_revision=1))
+        read=await runtime.handle(ModelTestControl(op="model_test",action="read",command_id=config["refresh"]))
+        assert replay == read == config["receipt"]
         print(json.dumps(view))
     finally:
         await runtime.drain()
@@ -468,6 +539,8 @@ asyncio.run(main())
                                 "keys": str(keys),
                                 "socket": str(socket),
                                 "operation": operation,
+                                "refresh": refresh_a,
+                                "receipt": receipt_a,
                             }
                         ).encode(),
                         cwd=tmp_path,
@@ -478,7 +551,7 @@ asyncio.run(main())
                     assert child.returncode == 0
                     assert json.loads(child.stdout) == value
                     assert (
-                        len(received) == 2
+                        len(received) == traffic
                     )  # A new OS process and fencing owner read/replay only.
     finally:
         await owner.drain()

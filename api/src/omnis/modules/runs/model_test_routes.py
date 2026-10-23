@@ -75,6 +75,12 @@ async def control_exchange(command: ModelTestControl) -> dict[str, object]:
                     raise ValueError("Invalid provisioning result")
                 return {"status": "PREPARED_RESTART_REQUIRED"}
             result = ModelTestView.model_validate(response.get("model_test"))
+            if (
+                command.action in {"read", "refresh"}
+                and command.command_id is not None
+                and result.metadata_command_id != command.command_id
+            ):
+                raise ValueError("Metadata command mismatch")
             if command.operation_id is not None and result.operation_id != command.operation_id:
                 raise ValueError("Operation mismatch")
             return result.model_dump(mode="json")
@@ -116,6 +122,17 @@ async def result(command: ModelTestControl, request: Request) -> ModelTestView |
 )
 async def read_model_test(request: Request) -> ModelTestView | JSONResponse:
     return await result(ModelTestControl(op="model_test", action="read"), request)
+
+
+@router.get(
+    "/capabilities/{command_id}",
+    response_model=ModelTestView,
+    responses=error_responses(401, 404, 422, 503),
+)
+async def read_capabilities(command_id: Identity, request: Request) -> ModelTestView | JSONResponse:
+    return await result(
+        ModelTestControl(op="model_test", action="read", command_id=command_id), request
+    )
 
 
 @router.get(

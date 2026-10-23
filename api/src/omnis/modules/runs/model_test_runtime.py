@@ -115,14 +115,20 @@ class ApiKeyModelTest:
         ).scalar_one_or_none()
         return {str(k): v for k, v in payload.items()} if isinstance(payload, dict) else None
 
-    async def view(self, identity: str | None = None) -> dict[str, object]:
+    async def view(
+        self, identity: str | None = None, command_id: str | None = None
+    ) -> dict[str, object]:
         async with self.service.engine.connect() as db:
             selection = await self.settings.selection(db)
-            request = await self.latest(db, "metadata-request")
+            request = await self.latest(db, "metadata-request", command_id)
+            if command_id is not None and request is None:
+                raise store.ModelConflict("NOT_FOUND")
             metadata: dict[str, object] = {
                 "selection_revision": selection.revision if selection else None
             }
             if request is not None:
+                if command_id is not None:
+                    metadata["selection_revision"] = request["selection_revision"]
                 result = await self.latest(db, "metadata-result", str(request["command_id"]))
                 metadata.update(
                     metadata_command_id=request["command_id"],
@@ -134,6 +140,8 @@ class ApiKeyModelTest:
                     metadata.update(metadata_state="FAILED", reason="OWNER_LOST")
                 if request["selection_revision"] != metadata["selection_revision"]:
                     metadata["metadata_state"] = "NOT_REQUESTED"
+            if command_id is not None:
+                return ModelTestView.model_validate(metadata).model_dump(mode="json")
             op = await store.operation(db, self.instance, identity)
             if identity is not None and op is None:
                 raise store.ModelConflict("NOT_FOUND")
@@ -189,7 +197,7 @@ class ApiKeyModelTest:
 
     async def handle(self, command: ModelTestControl) -> dict[str, object]:
         if command.action == "read":
-            return await self.view(command.operation_id)
+            return await self.view(command.operation_id, command.command_id)
         if command.action == "provision":
             raise store.ModelConflict("ROOT_CONTEXT_UNAVAILABLE")
         identity = command.operation_id if command.action == "start" else command.command_id
@@ -199,7 +207,7 @@ class ApiKeyModelTest:
             async with self.service.engine.connect() as db:
                 repeated, previous = await store.replay(db, self.instance, identity, request_digest)
             if repeated:
-                return await self.view(previous)
+                return await self.view(previous, identity if command.action == "refresh" else None)
             if self.closing or self.settlement_failed:
                 raise store.ModelConflict("CONTROL_UNAVAILABLE")
             status = await self.service.owned_status(self.settings.owner, self.settings.epoch)
@@ -391,7 +399,10 @@ class ApiKeyModelTest:
                     task.cancel()
         if command.action == "cancel" and not await self.drain_models():
             raise store.ModelConflict("CONTROL_UNAVAILABLE")
-        return await self.view(command.operation_id)
+        return await self.view(
+            command.operation_id,
+            command.command_id if command.action == "refresh" else None,
+        )
 
     @asynccontextmanager
     async def physical_window(self, db: AsyncConnection, deadline: datetime) -> AsyncIterator[None]:

@@ -77,10 +77,22 @@ export const api = {
     if (result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
     return result;
   },
+  async modelCapabilities(commandId: string, signal?: AbortSignal) {
+    if (!isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/capabilities/${commandId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.metadata_command_id !== commandId || result.operation_id !== null) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
   async refreshModelCapabilities(commandId: string, revision: number, csrf: string) {
+    if (!isUuid(commandId)) throw new ApiError('INVALID_INPUT');
     const response = await request('/api/v1/model-test/capabilities', { method: 'POST', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify({ command_id: commandId, expected_selection_revision: revision }) });
-    const value = await body(response); if (!response.ok) throw decodeError(value); return decodeModelTest(value);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.metadata_command_id !== commandId || result.operation_id !== null) throw new ApiError('INVALID_RESPONSE');
+    return result;
   },
   async cancelModelTest(operationId: string, commandId: string, revision: number, csrf: string) {
     if (!isUuid(operationId) || !isUuid(commandId)) throw new ApiError('INVALID_INPUT');

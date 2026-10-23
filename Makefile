@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-instance-drain-pg test-provider-settings-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-db-contract test-instance-drain-pg test-provider-settings-pg test-model-test-v2-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)

@@ -126,11 +126,13 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
         previous = {signum: signal.getsignal(signum) for signum in (signal.SIGTERM, signal.SIGINT)}
         module = runpy.run_path(str(SCRIPT))
         main = module["main"]
-        with patch.object(
-            sys, "argv", [str(SCRIPT), "--check", "--target", "test-catalog-candidates-pg"]
-        ), patch.dict(
-            main.__globals__, {"prove_private_fixture": lambda *args: args}
-        ), patch.object(module["signal"], "signal"):
+        with (
+            patch.object(
+                sys, "argv", [str(SCRIPT), "--check", "--target", "test-catalog-candidates-pg"]
+            ),
+            patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
+            patch.object(module["signal"], "signal"),
+        ):
             try:
                 result = main()
             except SystemExit as denial:
@@ -289,6 +291,42 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 self.assertNotEqual(completed.returncode, 0)
                 self.assertIn("verification", completed.stdout + completed.stderr)
 
+    def test_model_test_pg_refuses_unsafe_make_flags_before_recipes(self) -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            (root / "Makefile").write_bytes((SCRIPT.parent.parent / "Makefile").read_bytes())
+            shell = root / "shell"
+            shell.write_text('#!/bin/sh\ntouch "' + str(root / "effect") + '"\nexec /bin/sh "$@"\n')
+            shell.chmod(0o700)
+            env = {
+                k: v
+                for k, v in os.environ.items()
+                if k not in {"MAKEFLAGS", "MFLAGS", "OMNIS_TEST_FIXTURE"}
+            }
+            for flag in ("-n", "-t", "-q", "-i"):
+                with self.subTest(flag=flag):
+                    completed = subprocess.run(
+                        ["make", flag, "test-model-test-v2-pg", f"SHELL={shell}"],
+                        cwd=root,
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
+                    )
+                    self.assertEqual(completed.returncode, 2)
+                    self.assertIn("Unsafe Make flags", completed.stderr)
+                    self.assertFalse((root / "effect").exists())
+            missing = subprocess.run(
+                ["make", "test-model-test-v2-pg"],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            self.assertEqual(missing.returncode, 2)
+            self.assertIn("Dedicated PostgreSQL fixture required", missing.stderr)
+
     def test_gate_process_propagates_failure_without_a_database(self) -> None:
         module = runpy.run_path(str(SCRIPT))
         self.assertTrue("run_gate" in module, "The runner must execute the real gate")
@@ -375,9 +413,10 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
 
         real_popen = subprocess.Popen
         for startup_delay in (0, 0.5):
-            with self.subTest(startup_delay=startup_delay), tempfile.TemporaryDirectory(
-                dir=os.environ["TMPDIR"]
-            ) as name:
+            with (
+                self.subTest(startup_delay=startup_delay),
+                tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name,
+            ):
                 module = runpy.run_path(str(SCRIPT))
                 root = Path(name)
                 ready = root / "command-ready"

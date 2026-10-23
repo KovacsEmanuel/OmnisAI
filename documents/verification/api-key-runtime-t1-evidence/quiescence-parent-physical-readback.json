@@ -1,0 +1,28 @@
+{
+  "scope": "parent_physical_readback_quiesce_prerequisite",
+  "checks": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/core-oracle-tmp/db-4a0b1d76f3d94b89",
+      "cid": "69452821dd0c3f0f0911343fc68426d5ca455f4332d11cb276429b4469f6ac89",
+      "daemon_matches": true,
+      "container_network_absent": true,
+      "data_password_retained_no_bytes_read": true,
+      "socket_empty": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/qpg/db-b2ec7603b93c4cdb",
+      "cid": "ad4cc8d1df1df5ffae00df7441834ab8c770cb0008d8f18a96ab4e475f009e71",
+      "daemon_matches": true,
+      "container_network_absent": true,
+      "data_password_retained_no_bytes_read": true,
+      "socket_empty": true
+    }
+  ],
+  "frozen_source_blobs": {
+    "Makefile": "cdd1803fa674695ea4da2946ce02994b2a7d1832",
+    "api/src/omnis/modules/instance/service.py": "df0d3b4437d13fc800cef32d730011ff622f608f",
+    "api/tests/test_instance.py": "9ff7a9239869645432c798b899d27c1becc5ec27",
+    "ops/run_test_db_gate.py": "f13121588fddfbc13449bc10bbabac07c766dca9",
+    "api/tests/test_control_regressions.py": "74f6932ddfceb9d329aae6c5f81d77eaa0de2cad"
+  }
+}

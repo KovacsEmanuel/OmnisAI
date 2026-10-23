@@ -1,0 +1,31 @@
+{
+  "source_commit": "b25e7992ddf83c832db9a574c5505948d7a34950",
+  "scope": "independent_parent_real_PG_quiesce_prerequisite_NOT_T1",
+  "argv": [
+    "api/.venv/bin/python",
+    "-I",
+    "-B",
+    "ops/run_test_db_gate.py",
+    "--check",
+    "--target",
+    "test-instance-drain-pg",
+    "--uv",
+    "/home/kali/.local/share/omnis-toolchains/bin/uv",
+    "--timeout-seconds",
+    "180"
+  ],
+  "cwd": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src",
+  "started_utc": "2026-10-22T23:57:24.009974+00:00",
+  "env_overrides": {
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/qpg",
+    "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/core-uv-cache",
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin"
+  },
+  "prior_preflight": {
+    "exit_code": 2,
+    "reason": "ambient node22.22.0/npm9.2.0 mismatch; existing pinned PATH preflight now passed; no fixture effects",
+    "original": "parent-quiesce-pg.log"
+  },
+  "exit_code": 0,
+  "ended_utc": "2026-10-22T23:57:56.841634+00:00"
+}

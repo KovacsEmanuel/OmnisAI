@@ -8023,6 +8023,7 @@ class H03ExchangeObservation:
         }
         for fn in (
             RuntimeClient._exchange,
+            RuntimeClient._exchange_locked,
             source._object,
             source._unique,
             source.validate_bootstrap_inventory,

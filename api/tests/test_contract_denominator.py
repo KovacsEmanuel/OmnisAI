@@ -1,6 +1,7 @@
 """Real private CLI and producers; persistence/material SQL seams are SOURCE doubles."""
 
 import json
+import os
 from copy import deepcopy
 from pathlib import Path
 from typing import cast
@@ -39,9 +40,7 @@ def fixture() -> tuple[SQLDouble, Data, bytes]:
     from fixtures.c03_records import records_seed
 
     # SOURCE material bytes only; no compile/evaluate/native/DB.
-    with TemporaryDirectory(
-        prefix="denominator-", dir=str(Path.home() / ".hermes/cache/scratch")
-    ) as directory:
+    with TemporaryDirectory(prefix="denominator-", dir=os.environ["TMPDIR"]) as directory:
         seed = records_seed(Path(directory) / "seed")
         raw = (seed.package / "templates/schemas/records.schema.json").read_bytes()
         procedure = dto(

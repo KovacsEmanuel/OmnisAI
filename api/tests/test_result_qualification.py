@@ -3,6 +3,7 @@
 import asyncio
 import importlib
 import json
+import os
 import sys
 from collections.abc import Callable
 from copy import deepcopy
@@ -74,7 +75,7 @@ def source_fixture(monkeypatch: pytest.MonkeyPatch) -> tuple[QualificationSQLDou
     from omnis.modules.settings.skill_catalog import compile_catalog
     from test_managed_contract import ref
 
-    with TemporaryDirectory(dir=str(Path.home() / ".hermes/cache/scratch")) as directory:
+    with TemporaryDirectory(dir=os.environ["TMPDIR"]) as directory:
         seed = records_seed(Path(directory) / "seed")
         compiled = compile_catalog((seed.package,), seed.profile)
         retained, sources, _ = capture([str(seed.package)], str(seed.profile))

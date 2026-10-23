@@ -85,6 +85,15 @@ async def control_exchange(command: ModelTestControl) -> dict[str, object]:
 
 
 async def result(command: ModelTestControl, request: Request) -> ModelTestView | JSONResponse:
+    if command.action in {"start", "refresh", "cancel"}:
+        try:
+            json.loads(
+                await request.body(),
+                object_pairs_hook=unique_json_object,
+                parse_constant=reject_json_constant,
+            )
+        except (ValueError, UnicodeError, RecursionError):
+            return error_response("INVALID_INPUT", 422)
     try:
         return ModelTestView.model_validate(await control_exchange(command))
     except ModelConflict as error:
@@ -169,14 +178,6 @@ async def start_model_test(
     body: ModelTestRequest,
     request: Request,
 ) -> ModelTestView | JSONResponse:
-    try:
-        json.loads(
-            await request.body(),
-            object_pairs_hook=unique_json_object,
-            parse_constant=reject_json_constant,
-        )
-    except (ValueError, UnicodeError, RecursionError):
-        return error_response("INVALID_INPUT", 422)
     return await result(
         ModelTestControl(
             op="model_test",

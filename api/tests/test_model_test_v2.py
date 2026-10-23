@@ -215,10 +215,12 @@ async def test_api_pg_sdk_protocol_and_replay(
     await sessions.register(code_digest("synthetic-pairing"), issuance_id=uuid4())
     grant = await sessions.exchange("synthetic-pairing")
     released = False
+    commands: list[ModelTestControl] = []
     try:
         async with LocalControl(control_dir, service, process, epoch) as control:
 
             async def model_command(command: ModelTestControl) -> dict[str, object]:
+                commands.append(command)
                 try:
                     return await owner.handle(command)
                 except ValidationError as error:
@@ -250,6 +252,59 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert (await http.get("/api/v1/model-test")).status_code == 200
                 refused = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert refused.status_code == 409 and not received
+                if scenario == "complete":
+                    before_commands = len(commands)
+                    async with engine.connect() as db:
+                        before_rows = (
+                            await db.execute(
+                                text(
+                                    "SELECT (SELECT count(*) FROM model_record_v2), "
+                                    "(SELECT count(*) FROM model_command_v2), "
+                                    "(SELECT count(*) FROM system_operation), "
+                                    "(SELECT count(*) FROM model_dispatch_v2), "
+                                    "(SELECT count(*) FROM model_dispatch_event_v2)"
+                                )
+                            )
+                        ).one()
+                    for method, path, body in (
+                        (
+                            "POST",
+                            "/api/v1/model-test/capabilities",
+                            {
+                                "command_id": str(uuid4()),
+                                "expected_selection_revision": 1,
+                            },
+                        ),
+                        (
+                            "POST",
+                            f"/api/v1/model-test/{operation}/cancel",
+                            {
+                                "command_id": str(uuid4()),
+                                "expected_state_revision": 1,
+                            },
+                        ),
+                        ("PUT", "/api/v1/model-test", intent),
+                    ):
+                        field = next(iter(body))
+                        for invalid in ('"duplicate"', "NaN", "Infinity", "-Infinity"):
+                            raw = (
+                                "{" + json.dumps(field) + ":" + invalid + "," + json.dumps(body)[1:]
+                            )
+                            denied = await http.request(method, path, content=raw, headers=headers)
+                            assert denied.status_code == 422, denied.text
+                            assert len(commands) == before_commands and not received
+                    async with engine.connect() as db:
+                        assert (
+                            await db.execute(
+                                text(
+                                    "SELECT (SELECT count(*) FROM model_record_v2), "
+                                    "(SELECT count(*) FROM model_command_v2), "
+                                    "(SELECT count(*) FROM system_operation), "
+                                    "(SELECT count(*) FROM model_dispatch_v2), "
+                                    "(SELECT count(*) FROM model_dispatch_event_v2)"
+                                )
+                            )
+                        ).one() == before_rows
                 refresh = await http.post(
                     "/api/v1/model-test/capabilities",
                     json={"command_id": str(uuid4()), "expected_selection_revision": 1},

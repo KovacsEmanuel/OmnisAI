@@ -16,7 +16,7 @@ def test_usage_bounds_match_public_and_outcome(field: str) -> None:
 
     for model in (ModelTestView, Outcome):
         info = model.model_fields[field]
-        adapter = TypeAdapter(Annotated[info.annotation, *info.metadata])
+        adapter: TypeAdapter[object] = TypeAdapter(Annotated[info.annotation, *info.metadata])
         assert adapter.validate_python(9007199254740991) == 9007199254740991
         assert adapter.validate_python(0) == 0
         assert adapter.validate_python(None) is None

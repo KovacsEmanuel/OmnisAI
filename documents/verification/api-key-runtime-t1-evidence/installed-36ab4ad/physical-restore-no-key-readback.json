@@ -1,0 +1,81 @@
+{
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 5,
+    "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+    "origin": "http://127.0.0.1:48769",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0015_model_test_v2",
+    "state": "READY",
+    "supervisor_epoch": 3
+  },
+  "new_cids": [
+    "74b30524fa68",
+    "a1a996997901",
+    "4c0c4fda7771"
+  ],
+  "fresh_paired_readback": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "LOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 2,
+        "enabled": false,
+        "credential_present": false
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "vault_locked_without_master_and_no_regeneration": true,
+  "connection_new_inactive_head_revision2": true,
+  "all7_original_history_ref_selection_command_model_hashes_preserved": true,
+  "original_rows_census": {
+    "provider_connection_revision": "1:7dc2078905315215b7d2fac6d93a850c",
+    "provider_selection_revision": "1:a753231a3be8029958ab0de6016b5ba9",
+    "provider_settings_command": "2:45ac8ad774382f4e6c16dbcbccb0a430",
+    "model_record_v2": "0:d751713988987e9331980363e24189ce",
+    "model_command_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+  },
+  "no_settings_writes_by_observer": true,
+  "no_provider_model_operations": true,
+  "auth_revoked": true
+}

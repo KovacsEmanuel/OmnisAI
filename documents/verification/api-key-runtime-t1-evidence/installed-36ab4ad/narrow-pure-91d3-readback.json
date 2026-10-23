@@ -1,0 +1,19 @@
+{
+  "source": "91d3e4ead63430eb59b4e028a00197a84526e786",
+  "frozen_inputs_unchanged": 1856,
+  "target": "test-b06b-pure-probe-pg",
+  "passed": 37,
+  "seconds": 250.32,
+  "scope": "existingmixedPURE/PGregression; originalrelease_dependencyrefusal nowpassescurrenthead0015; notnativework orcanonicalPASS",
+  "result": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "cid": "9cdcfb4f7d4a51169d10f9cb941a5674b0e6fe1bae82d6da1f5bb845d5f83f77",
+  "project": "omnis-p01-7e401682fa9747f6b5e62b387b471c36",
+  "fixture": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/cg/db-67b645c4f7fc40fa",
+  "exact_daemon_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true
+}

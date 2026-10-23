@@ -1,0 +1,583 @@
+{
+  "source": "fd1459b2edd0fa4f6cb895f964ff0d027f5b9dce",
+  "tree": "18799fcb8dac08697e8eac61e30607c249c5c2fb",
+  "release_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+  "bundle": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/artifacts/bundle-t1-candidate",
+  "payload_count": 10,
+  "profile": "t1-provider-settings",
+  "schema": "0015_model_test_v2",
+  "normal_distribution_no_lab_adapter": true,
+  "modules": {
+    "api": [
+      {
+        "path": "omnis/__init__.py",
+        "sha256": "b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a"
+      },
+      {
+        "path": "omnis/api.py",
+        "sha256": "0c960b63c51d6de1f67d5362ff5aa634d12b37205ce9778faaac94c4394b372c"
+      },
+      {
+        "path": "omnis/core/db.py",
+        "sha256": "1c94b63a99f35538b6974b8d1d384b3e30b4f92f57cf1dfd639d2704ce7e6d71"
+      },
+      {
+        "path": "omnis/core/errors.py",
+        "sha256": "0bf275ba6039c8ef73e02bd7157befb622884a49f5b073e09ec9354d4dc90983"
+      },
+      {
+        "path": "omnis/core/managed_schema.py",
+        "sha256": "fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0"
+      },
+      {
+        "path": "omnis/core/model_schema.py",
+        "sha256": "070604c9bbdd3d7d7486d76c63bd92da6b40d92e604950524c35dd3034c0e464"
+      },
+      {
+        "path": "omnis/core/paths.py",
+        "sha256": "370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb"
+      },
+      {
+        "path": "omnis/core/persistence.py",
+        "sha256": "56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788"
+      },
+      {
+        "path": "omnis/core/provider_schema.py",
+        "sha256": "f1cfaf786e6404a50f2d7b371c64301144b95f1837197259f202c73b4c8badf4"
+      },
+      {
+        "path": "omnis/core/readiness.py",
+        "sha256": "e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08"
+      },
+      {
+        "path": "omnis/core/schema.py",
+        "sha256": "3c7a2455ac08c05bc258675382d86d33573f9dfec6452a84801b67230f1ca43f"
+      },
+      {
+        "path": "omnis/core/web_assets.py",
+        "sha256": "2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c"
+      },
+      {
+        "path": "omnis/migrate.py",
+        "sha256": "51ea504c03c9bd08c1242cdaf6fd05a09b67b7effe0c12a68a717bde20440426"
+      },
+      {
+        "path": "omnis/migrations/__init__.py",
+        "sha256": "c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3"
+      },
+      {
+        "path": "omnis/migrations/env.py",
+        "sha256": "478014f66b4c6e3079e35245e91f9264497219ed31de395cfeec7a5d55e07d98"
+      },
+      {
+        "path": "omnis/migrations/versions/0001_instance_control.py",
+        "sha256": "25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673"
+      },
+      {
+        "path": "omnis/migrations/versions/0002_local_sessions.py",
+        "sha256": "37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5"
+      },
+      {
+        "path": "omnis/migrations/versions/0003_instance_lifecycle.py",
+        "sha256": "cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30"
+      },
+      {
+        "path": "omnis/migrations/versions/0004_pairing_receipts.py",
+        "sha256": "4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8"
+      },
+      {
+        "path": "omnis/migrations/versions/0005_stop_fence.py",
+        "sha256": "1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406"
+      },
+      {
+        "path": "omnis/migrations/versions/0006_stop_reconciliation.py",
+        "sha256": "ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607"
+      },
+      {
+        "path": "omnis/migrations/versions/0007_engagement_drafts.py",
+        "sha256": "0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc"
+      },
+      {
+        "path": "omnis/migrations/versions/0008_engagement_edit.py",
+        "sha256": "63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7"
+      },
+      {
+        "path": "omnis/migrations/versions/0009_catalog_candidates.py",
+        "sha256": "9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371"
+      },
+      {
+        "path": "omnis/migrations/versions/0010_catalog_publications.py",
+        "sha256": "48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea"
+      },
+      {
+        "path": "omnis/migrations/versions/0011_managed_tasks.py",
+        "sha256": "ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d"
+      },
+      {
+        "path": "omnis/migrations/versions/0012_contract_methods.py",
+        "sha256": "679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c"
+      },
+      {
+        "path": "omnis/migrations/versions/0013_mission_revisions.py",
+        "sha256": "dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185"
+      },
+      {
+        "path": "omnis/migrations/versions/0014_provider_settings.py",
+        "sha256": "21e9f41efe3c01e3a731e98d2083bfbece3e05ded6600e5ae87e7db5f20786f0"
+      },
+      {
+        "path": "omnis/migrations/versions/0015_model_test_v2.py",
+        "sha256": "2367b8b207fbfc961125d8e39f77f823a9e0cb3ccf62b7919369b05048fd233f"
+      },
+      {
+        "path": "omnis/modules/coverage/__init__.py",
+        "sha256": "466e4c014a42ede84c60051304b1ff6a4e62552c8ee578f78bb28bddaaae353a"
+      },
+      {
+        "path": "omnis/modules/coverage/denominator.py",
+        "sha256": "7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e"
+      },
+      {
+        "path": "omnis/modules/engagements/dashboard.py",
+        "sha256": "112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb"
+      },
+      {
+        "path": "omnis/modules/engagements/routes.py",
+        "sha256": "a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0"
+      },
+      {
+        "path": "omnis/modules/engagements/schemas.py",
+        "sha256": "e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143"
+      },
+      {
+        "path": "omnis/modules/engagements/service.py",
+        "sha256": "74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd"
+      },
+      {
+        "path": "omnis/modules/instance/domain.py",
+        "sha256": "c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f"
+      },
+      {
+        "path": "omnis/modules/instance/models.py",
+        "sha256": "c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc"
+      },
+      {
+        "path": "omnis/modules/instance/records.py",
+        "sha256": "17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222"
+      },
+      {
+        "path": "omnis/modules/instance/schemas.py",
+        "sha256": "d0e36768396c92e462e2e188d7b419bf24174fca496bb3876d696ede98119896"
+      },
+      {
+        "path": "omnis/modules/instance/service.py",
+        "sha256": "00b89e8d2546c0242085d0cb87fdc42eba19dbe5adc433011e95b48f1230c090"
+      },
+      {
+        "path": "omnis/modules/instance/stop_contract.py",
+        "sha256": "5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9"
+      },
+      {
+        "path": "omnis/modules/runs/__init__.py",
+        "sha256": "745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754"
+      },
+      {
+        "path": "omnis/modules/runs/contract_inputs.py",
+        "sha256": "012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74"
+      },
+      {
+        "path": "omnis/modules/runs/managed_admission.py",
+        "sha256": "0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494"
+      },
+      {
+        "path": "omnis/modules/runs/model_dispatch.py",
+        "sha256": "75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b"
+      },
+      {
+        "path": "omnis/modules/runs/model_projection.py",
+        "sha256": "8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7"
+      },
+      {
+        "path": "omnis/modules/runs/model_protocol.py",
+        "sha256": "10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b"
+      },
+      {
+        "path": "omnis/modules/runs/model_test.py",
+        "sha256": "bd8133048310c8bc85169de1ffe45f565b88f0c9b76e3343956f550730c8ebf6"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_contract.py",
+        "sha256": "354900679851958e08aea012ab50622a8429acb1b5611b336a964abf52de2968"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_models.py",
+        "sha256": "997f132206d912015895c1f213537213187a9d5ae156dfbe66bd9a52fdac181f"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_operation.py",
+        "sha256": "588b8c1345df353d12cf9aa3f07f36a80d355f754a73069b270730a251344d73"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_routes.py",
+        "sha256": "f55b596c73212eacb51bbf6b6e65bba88f27af12ad66c70e4ae9b3f43d0776df"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_runtime.py",
+        "sha256": "4410430abdfa732582c6989e771bcdb3926ad641d242d60f8c618568b5af81bf"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_source.py",
+        "sha256": "27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1"
+      },
+      {
+        "path": "omnis/modules/runs/model_test_store.py",
+        "sha256": "d63030052cc481cc7ae0d68eb15290e631c52e686ae05fa1d3970fa01de90176"
+      },
+      {
+        "path": "omnis/modules/runs/native_preparation.py",
+        "sha256": "f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2"
+      },
+      {
+        "path": "omnis/modules/runs/native_preparation_models.py",
+        "sha256": "5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062"
+      },
+      {
+        "path": "omnis/modules/runs/plan_snapshot.py",
+        "sha256": "695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c"
+      },
+      {
+        "path": "omnis/modules/runs/pure_probe.py",
+        "sha256": "50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4"
+      },
+      {
+        "path": "omnis/modules/settings/candidate_catalog.py",
+        "sha256": "96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e"
+      },
+      {
+        "path": "omnis/modules/settings/candidate_index.py",
+        "sha256": "69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2"
+      },
+      {
+        "path": "omnis/modules/settings/candidate_material.py",
+        "sha256": "3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391"
+      },
+      {
+        "path": "omnis/modules/settings/candidate_resolution.py",
+        "sha256": "870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc"
+      },
+      {
+        "path": "omnis/modules/settings/candidate_store.py",
+        "sha256": "24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_inspection.py",
+        "sha256": "51b0498640229c6949a2799c35b7f494e53930100e063bb5155a8d8fc453311f"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_inspection_models.py",
+        "sha256": "31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_inspection_routes.py",
+        "sha256": "28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_models.py",
+        "sha256": "86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_publication.py",
+        "sha256": "24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c"
+      },
+      {
+        "path": "omnis/modules/settings/catalog_schema.py",
+        "sha256": "66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b"
+      },
+      {
+        "path": "omnis/modules/settings/provider_key_models.py",
+        "sha256": "45a84252e95b14a57e72d01ea1a6e680370b945e96988f07fca6c47f72f99f45"
+      },
+      {
+        "path": "omnis/modules/settings/provider_key_routes.py",
+        "sha256": "166f672ef511441e9ba9410585c81f95cfd8c6ba475a4c64d638a030973f7bfb"
+      },
+      {
+        "path": "omnis/modules/settings/provider_key_service.py",
+        "sha256": "ac99cb333a8a6ff3a6355a50d334b1f4476f47536056da76b1be888d110e9c38"
+      },
+      {
+        "path": "omnis/modules/settings/provider_models.py",
+        "sha256": "20fe531b466ce434cfbd471957d09f4d7970b3420a96f71a13471fb522bbdfda"
+      },
+      {
+        "path": "omnis/modules/settings/provider_routes.py",
+        "sha256": "c29d29157bda7598b935e8088a0a93592d4ca696ded8c9135c05f6a93bc85cde"
+      },
+      {
+        "path": "omnis/modules/settings/provider_vault.py",
+        "sha256": "baebe4e5316fc756d72a4dbdcca65e25479d61bf976e02d0701aa755571b69de"
+      },
+      {
+        "path": "omnis/modules/settings/publication_models.py",
+        "sha256": "59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5"
+      },
+      {
+        "path": "omnis/modules/settings/publication_store.py",
+        "sha256": "cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9"
+      },
+      {
+        "path": "omnis/modules/settings/skill_catalog.py",
+        "sha256": "4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb"
+      },
+      {
+        "path": "omnis/modules/tasks/contract_case_input.py",
+        "sha256": "71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543"
+      },
+      {
+        "path": "omnis/modules/tasks/criterion_checks.py",
+        "sha256": "779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a"
+      },
+      {
+        "path": "omnis/modules/tasks/execution_selection.py",
+        "sha256": "f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3"
+      },
+      {
+        "path": "omnis/modules/tasks/managed_composition.py",
+        "sha256": "8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1"
+      },
+      {
+        "path": "omnis/modules/tasks/managed_contract.py",
+        "sha256": "6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc"
+      },
+      {
+        "path": "omnis/modules/tasks/managed_store.py",
+        "sha256": "45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c"
+      },
+      {
+        "path": "omnis/modules/tasks/method_checker_identity.py",
+        "sha256": "79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1"
+      },
+      {
+        "path": "omnis/modules/tasks/method_checks.py",
+        "sha256": "0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2"
+      },
+      {
+        "path": "omnis/modules/tasks/mission_revisions.py",
+        "sha256": "5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97"
+      },
+      {
+        "path": "omnis/modules/tasks/module_registry.py",
+        "sha256": "32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2"
+      },
+      {
+        "path": "omnis/modules/tasks/result_qualification.py",
+        "sha256": "31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427"
+      },
+      {
+        "path": "omnis/owner.py",
+        "sha256": "bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930"
+      },
+      {
+        "path": "omnis/policy/budgets.py",
+        "sha256": "467963d569eae665d047a1aef4f8f3a4b843c817310f5697abf4acf5a13372ec"
+      },
+      {
+        "path": "omnis/policy/model_configuration.py",
+        "sha256": "2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25"
+      },
+      {
+        "path": "omnis/policy/model_context.py",
+        "sha256": "88b6b694690485503b567cf3b4b3b0798d82a6e9a3c00457432e24b6d6414237"
+      },
+      {
+        "path": "omnis/policy/model_dispatch_contract.py",
+        "sha256": "b83e7473ae62da655e7afa6884ca05fa26265e4f3e58644ffdbc025471636cf0"
+      },
+      {
+        "path": "omnis/policy/model_projection.py",
+        "sha256": "29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7"
+      },
+      {
+        "path": "omnis/policy/ready_model_configuration.py",
+        "sha256": "44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2"
+      },
+      {
+        "path": "omnis/security/host_origin.py",
+        "sha256": "6c33efd8391339c0f574ad9a147e3080857327f84bc4b32cf5f3fdd04ea8b551"
+      },
+      {
+        "path": "omnis/security/routes.py",
+        "sha256": "015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d"
+      },
+      {
+        "path": "omnis/security/sessions.py",
+        "sha256": "c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc"
+      },
+      {
+        "path": "omnis/serve.py",
+        "sha256": "ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345"
+      },
+      {
+        "path": "omnis/stop_reconcile.py",
+        "sha256": "fdbb15561def1a2c5afddcee08c4ef0bcd2dcfcd4c7aec5ce0d7c7400d638fec"
+      },
+      {
+        "path": "omnis/supervisor/__main__.py",
+        "sha256": "3ece718b89def93b9ae589d9962d75818b02db4ab820d39d1cafab18d08cf9a3"
+      },
+      {
+        "path": "omnis/supervisor/case_slot.py",
+        "sha256": "e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba"
+      },
+      {
+        "path": "omnis/supervisor/model_relay.py",
+        "sha256": "119545816f6a6fcda866d65737e489eb3a63a1281bc56cb0e3d6e16cc6be3255"
+      },
+      {
+        "path": "omnis/supervisor/model_relay_protocol.py",
+        "sha256": "fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e"
+      },
+      {
+        "path": "omnis/supervisor/model_sender.py",
+        "sha256": "7143dfa027ef89f7d8a3e275e2af0076096013b41ab089f929d12c901a3f8f89"
+      },
+      {
+        "path": "omnis/supervisor/native_tasks.py",
+        "sha256": "29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5"
+      },
+      {
+        "path": "omnis/supervisor/runtime_client.py",
+        "sha256": "f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb"
+      },
+      {
+        "path": "omnis/transport/control_probe.py",
+        "sha256": "dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d"
+      },
+      {
+        "path": "omnis/transport/local_control.py",
+        "sha256": "ea007a080e91070576ee6d6139a777c46046bc6382dd15f7eed9c0f62242ceac"
+      },
+      {
+        "path": "omnis/worker.py",
+        "sha256": "59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1"
+      }
+    ],
+    "cli": [
+      {
+        "path": "omnis_cli/__init__.py",
+        "sha256": "43a7d0ce58e04bcfeb7391c1216ad4ad90f82006b18b29879712f00770a2cfac"
+      },
+      {
+        "path": "omnis_cli/backup.py",
+        "sha256": "07947958e5b0a3d1487d2b94b0158170a5924cd2032feaedb3d1957c1d3cfd4b"
+      },
+      {
+        "path": "omnis_cli/browser.py",
+        "sha256": "95e5ca9bfd16ee6e8782ec11a24ffed1e6b8e7ba99d5c7ec5807e0cfbad3a737"
+      },
+      {
+        "path": "omnis_cli/compose.py",
+        "sha256": "77de763d82f6482b1610721b3aeaebab91763d24bb641e2d8c7ba70a08f231c5"
+      },
+      {
+        "path": "omnis_cli/config.py",
+        "sha256": "4c1aba346a35889544d12a11eec7fd61f26d2b4b336e1d1ff03b2177dc6c91c0"
+      },
+      {
+        "path": "omnis_cli/control.py",
+        "sha256": "b54eb495d18347db449a8e24be9817c399372471c9cf49591e655b290257cf67"
+      },
+      {
+        "path": "omnis_cli/forwarder.py",
+        "sha256": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0"
+      },
+      {
+        "path": "omnis_cli/health.py",
+        "sha256": "f856e7d420a2111546d171aae1cc3e53baf4671a6270cfedeb18caa2a4d603c8"
+      },
+      {
+        "path": "omnis_cli/instance.py",
+        "sha256": "97163f1e7111f84e50c62f347e0277308ab210f6efe9efc6bb9e61f5bb4aa319"
+      },
+      {
+        "path": "omnis_cli/lifecycle.py",
+        "sha256": "2b3b08b97d09da2a0f5a5a408044757e4b7dd145665b2a227752dec4aae84562"
+      },
+      {
+        "path": "omnis_cli/main.py",
+        "sha256": "4c8a6f53202952e51dcbe0008762fcd75bdcacebce4b4ce2845d7b15ad330c3f"
+      },
+      {
+        "path": "omnis_cli/model_relay.py",
+        "sha256": "42f1da73b00a7b006f0d171a19f6f4e5f8345fc96d81ec3a429209a0f735d85f"
+      },
+      {
+        "path": "omnis_cli/model_relay_protocol.py",
+        "sha256": "fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e"
+      },
+      {
+        "path": "omnis_cli/model_test_source.py",
+        "sha256": "d6fa0aaa9f6b1765beab9bb1a78caabb7f705047842af9237f42f5889e6911a0"
+      },
+      {
+        "path": "omnis_cli/native_artifacts.py",
+        "sha256": "5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c"
+      },
+      {
+        "path": "omnis_cli/pairing.py",
+        "sha256": "e9a23037dd811503810d2fcf4fd216a6959df6acba5441bab50aebe6d3434482"
+      },
+      {
+        "path": "omnis_cli/release.py",
+        "sha256": "372d13dc7d9135c4ba4f1029c0ed4dd89ebd9d8e9a813ec52dca8e2f929d2aa4"
+      },
+      {
+        "path": "omnis_cli/restart.py",
+        "sha256": "22c378e48e8e84f31d2e3f318b3d7762f2f01a77ac6c7332a07a7ed048d5bac2"
+      },
+      {
+        "path": "omnis_cli/start.py",
+        "sha256": "6696d599ea428bea11b7144515acae5a22cda26437ebc4e463851cd0301c5e59"
+      },
+      {
+        "path": "omnis_cli/start_runtime.py",
+        "sha256": "42b130beda1de23bebae2b09e4cd3adf7c4b13b1203085e620894c47ba3c566c"
+      },
+      {
+        "path": "omnis_cli/status.py",
+        "sha256": "8cdebb77343f2360d8463f416343c0a325c530a2402b37f48295fbfbd3cf7d63"
+      },
+      {
+        "path": "omnis_cli/stop.py",
+        "sha256": "0bfa0d57ac98616ce8fe44abe76f6532b887aa57e745328e39fe5646220c91e7"
+      },
+      {
+        "path": "omnis_cli/stop_engine.py",
+        "sha256": "d8d99cf01f8bd71c1d3fb032b5077d2f648f7a622464cf572fd92e2e3116445f"
+      },
+      {
+        "path": "omnis_cli/stop_owner.py",
+        "sha256": "981db4298b9add1fa4a7a6ebe108da434960ba0778b72a0503c01b53b9eedb08"
+      },
+      {
+        "path": "omnis_cli/stop_receipt.py",
+        "sha256": "585a3b4f97a7985fb1feb2ef7918be9537d2f7f53e0d412d2533f398e9a3aef7"
+      },
+      {
+        "path": "omnis_cli/verified.py",
+        "sha256": "54a49edac3b343f3a2a79321be17f98f8fd3c3962518868daf0c82e5392a8222"
+      }
+    ]
+  },
+  "limits": [
+    "distribution_review_pending",
+    "new_PG_cases_not_yet_executed",
+    "installed_restore_not_run",
+    "canonical2_failed_in_historical_fixture_schema_expectation",
+    "live_not_authorized"
+  ],
+  "build_attempt_notes": [
+    "API interpreter cannot import independent CLI builder; corrected to CLI environment",
+    "first bundle refused without explicit resolved OMNIS_UV and exact no-header/no-annotate locked export; corrected inputs only, original failed log retained"
+  ]
+}

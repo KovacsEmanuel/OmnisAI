@@ -1,0 +1,469 @@
+{
+  "origin": "http://127.0.0.1:48769",
+  "instance": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+  "cases": [
+    {
+      "id": "PAIR_DASHBOARD",
+      "status": "PASS",
+      "detail": "Real installed CLI new PTY; browser pair and HttpOnly Strict cookie; Dashboard entry"
+    },
+    {
+      "id": "NAVIGATION_SURFACE",
+      "status": "PASS",
+      "detail": "Dashboard\u2192Settings\u2192Providers by keyboard; Test model visible, not hidden"
+    },
+    {
+      "id": "NO_SELECTION_GATE",
+      "status": "PASS",
+      "detail": "Persistent specific missing-selection hint; consent cannot bypass native disabled Test; no submit"
+    },
+    {
+      "id": "LOCAL_SAVE_READBACK",
+      "status": "PASS",
+      "detail": "One UI save_connection HTTP200; explicit no-provider-call notice; GET+reload configured credential_present; password empty/write-only"
+    },
+    {
+      "id": "SAVED_SELECTION_RELOAD",
+      "status": "PASS",
+      "detail": "One save_selection HTTP200; GET then browser reload preserve revision1, default and all three overrides including connection revision and source"
+    },
+    {
+      "id": "SAVED_METADATA_GATE",
+      "status": "PASS",
+      "detail": "NOT_REQUESTED metadata and saved revision1; persistent specific hint referenced by Test; consent cannot bypass; no operation or invented outcome"
+    },
+    {
+      "id": "KEYBOARD_FOCUS",
+      "status": "PASS",
+      "detail": "Consent\u2192Tab\u2192Refresh native keyboard focus and visible outline; Refresh not activated"
+    },
+    {
+      "id": "DESKTOP_MOBILE_HINT",
+      "status": "PASS",
+      "detail": "Persistent missing-metadata hint in actual 1440px and 390px DOM and screenshots; native disabled Test"
+    },
+    {
+      "id": "NO_SECRET_ECHO_STORAGE_URL_CONSOLE",
+      "status": "PASS",
+      "detail": "DOM/reload/localStorage/sessionStorage/URLs/console contain neither synthetic secret nor pairing code; no raw body/header logs retained"
+    },
+    {
+      "id": "REAUTHORIZATION_GATE",
+      "status": "PASS",
+      "detail": "Real logout204\u2192session401\u2192reload pairing UI; private Settings removed; no repeat write"
+    },
+    {
+      "id": "NO_PROVIDER_OR_MODEL_SEND",
+      "status": "PASS",
+      "detail": "No model-test PUT, metadata POST or browser off-origin attempt; server cache census performed separately"
+    },
+    {
+      "id": "NO_MODEL_LEDGER_CHANGE",
+      "status": "PASS",
+      "detail": "Read-only owned schema0015 counts+hashes for model record/command/dispatch/event unchanged"
+    },
+    {
+      "id": "PROVIDER_METADATA",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "MODEL_INFERENCE",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "RESTART",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "BACKUP",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "SCREEN_READER",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    },
+    {
+      "id": "AESTHETIC_APPROVAL",
+      "status": "NOT_RUN",
+      "detail": "Outside this browser QA authorization/scope"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pairing"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/instance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test",
+      "channel": "context-read"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/providers",
+      "action": "save_connection",
+      "command_id": "0bbe3e66-723a-45f2-ab00-2a5ed159c1bc"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/providers",
+      "action": "save_selection",
+      "command_id": "c82669e0-4c02-4693-a179-14d6d5d22f16"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    }
+  ],
+  "screenshots": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/logs/browser-normal-attempt2-provider-desktop.png",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/logs/browser-normal-attempt2-model-desktop.png",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/logs/browser-normal-attempt2-provider-mobile.png",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/logs/browser-normal-attempt2-model-mobile.png"
+  ],
+  "limits": [
+    "Real model admission/outcome NOT_RUN",
+    "No metadata refresh, provider, DNS, live or fake inference",
+    "Stop reachability only; no Stop activation",
+    "Chromium only; no screen-reader or aesthetic approval",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO"
+  ],
+  "cleanup": {
+    "fixture": "PRESERVED_NO_REVOKE_NO_DELETE",
+    "auth": "SESSION_REVOKED_MEMORY_ONLY",
+    "context": "CLOSED",
+    "browser": "CLOSED"
+  },
+  "findings": [],
+  "model_before": {
+    "schema_version": 2,
+    "operation_id": null,
+    "state": null,
+    "state_revision": null,
+    "finish_reason": null,
+    "selection_revision": null,
+    "metadata_state": "NOT_REQUESTED",
+    "metadata_command_id": null,
+    "reason": null,
+    "requested_provider": null,
+    "requested_model": null,
+    "requested_output_tokens": null,
+    "observed_model": null,
+    "provider_status": null,
+    "result_state": null,
+    "output_state": "ABSENT",
+    "response_text": null,
+    "usage_state": "UNKNOWN",
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cost_observed": null,
+    "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+    "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+    "calls_limit": 1,
+    "wall_seconds": 300
+  },
+  "saved_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 1,
+        "enabled": true,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "reload_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 1,
+        "enabled": true,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "model_after": {
+    "schema_version": 2,
+    "operation_id": null,
+    "state": null,
+    "state_revision": null,
+    "finish_reason": null,
+    "selection_revision": 1,
+    "metadata_state": "NOT_REQUESTED",
+    "metadata_command_id": null,
+    "reason": null,
+    "requested_provider": null,
+    "requested_model": null,
+    "requested_output_tokens": null,
+    "observed_model": null,
+    "provider_status": null,
+    "result_state": null,
+    "output_state": "ABSENT",
+    "response_text": null,
+    "usage_state": "UNKNOWN",
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cost_observed": null,
+    "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+    "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+    "calls_limit": 1,
+    "wall_seconds": 300
+  },
+  "focus": {
+    "visible": true,
+    "outline": "solid",
+    "width": "2px"
+  },
+  "desktop_dom": {
+    "provider": "- region \"Provider configuration\":\n  - heading \"Provider configuration\" [level=2]\n  - paragraph: API keys are write-only. Save stores configuration locally; it never validates a provider or runs inference.\n  - paragraph: \"Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.\"\n  - status\n  - paragraph: \"Vault: UNLOCKED\"\n  - paragraph: \"openrouter: configured \u2014 credential present\"\n  - button \"Reload current settings\"\n  - text: Provider\n  - combobox \"Provider\":\n    - option \"OpenRouter\" [selected]\n    - option \"OrcaRouter\"\n  - text: API key\n  - textbox \"API key\"\n  - button \"Rotate API key\" [disabled]\n  - button \"Revoke locally\"\n  - paragraph: 1\u2013512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.\n  - heading \"Model selection\" [level=3]\n  - group \"Default\":\n    - text: Default\n    - paragraph: \"Default source: default \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-default \u00b7 output 128\"\n    - text: Default connection\n    - combobox \"Default connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Default model\n    - textbox \"Default model\": QA-NOT-VERIFIED-default\n    - text: Default output tokens\n    - spinbutton \"Default output tokens\": \"128\"\n  - group \"Brain\":\n    - text: Brain\n    - checkbox \"Brain override\" [checked]\n    - text: Brain override\n    - paragraph: \"Brain source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-brain \u00b7 output 96\"\n    - text: Brain connection\n    - combobox \"Brain connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Brain model\n    - textbox \"Brain model\": QA-NOT-VERIFIED-brain\n    - text: Brain output tokens\n    - spinbutton \"Brain output tokens\": \"96\"\n  - group \"Investigator\":\n    - text: Investigator\n    - checkbox \"Investigator override\" [checked]\n    - text: Investigator override\n    - paragraph: \"Investigator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-investigator \u00b7 output 80\"\n    - text: Investigator connection\n    - combobox \"Investigator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Investigator model\n    - textbox \"Investigator model\": QA-NOT-VERIFIED-investigator\n    - text: Investigator output tokens\n    - spinbutton \"Investigator output tokens\": \"80\"\n  - group \"Validator\":\n    - text: Validator\n    - checkbox \"Validator override\" [checked]\n    - text: Validator override\n    - paragraph: \"Validator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-validator \u00b7 output 64\"\n    - text: Validator connection\n    - combobox \"Validator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Validator model\n    - textbox \"Validator model\": QA-NOT-VERIFIED-validator\n    - text: Validator output tokens\n    - spinbutton \"Validator output tokens\": \"64\"\n  - button \"Save model selection\"",
+    "model": "- region \"Test model\":\n  - heading \"Test model\" [level=2]\n  - paragraph: Mesaj sintetic fix \u00b7 1 apel / 300s \u00b7 f\u0103r\u0103 tools sau trafic c\u0103tre \u021bint\u0103.\n  - paragraph: \"System: Respond only with OMNIS_MODEL_TEST_OK. Use no tools.\"\n  - paragraph: \"User: This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.\"\n  - paragraph: \"Metadata: NOT_REQUESTED \u00b7 Saved selection revision: 1\"\n  - paragraph: \"Cerut: saved default / saved default / output cap saved default\"\n  - paragraph: \"Operation: none \u00b7 not started\"\n  - status: NOT_VERIFIED\n  - checkbox \"I approve this fixed synthetic input and one finite call using the saved default.\" [checked]\n  - text: I approve this fixed synthetic input and one finite call using the saved default.\n  - paragraph: \"Testul nu poate fi trimis: metadatele modelului nu sunt READY. Apas\u0103 \u201eRefresh model metadata\u201d \u0219i a\u0219teapt\u0103 starea READY \u00eenainte de a trimite testul.\"\n  - button \"Refresh model metadata\"\n  - button \"Trimite testul modelului\" [disabled]\n  - button \"Cancel test\" [disabled]\n  - button \"Cite\u0219te starea testului\"\n  - paragraph: \"Observat: UNKNOWN \u00b7 Provider: UNKNOWN \u00b7 Output: ABSENT\"\n  - paragraph: \"Usage UNKNOWN input/output/reasoning: UNKNOWN / UNKNOWN / UNKNOWN \u00b7 Cost: UNKNOWN\"\n  - paragraph: Stop drains local operations. Cancel is not a remote cancellation or a refund. Reload only reads; a new test always requires another explicit consent and action."
+  },
+  "mobile_dom": {
+    "provider": "- region \"Provider configuration\":\n  - heading \"Provider configuration\" [level=2]\n  - paragraph: API keys are write-only. Save stores configuration locally; it never validates a provider or runs inference.\n  - paragraph: \"Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.\"\n  - status\n  - paragraph: \"Vault: UNLOCKED\"\n  - paragraph: \"openrouter: configured \u2014 credential present\"\n  - button \"Reload current settings\"\n  - text: Provider\n  - combobox \"Provider\":\n    - option \"OpenRouter\" [selected]\n    - option \"OrcaRouter\"\n  - text: API key\n  - textbox \"API key\"\n  - button \"Rotate API key\" [disabled]\n  - button \"Revoke locally\"\n  - paragraph: 1\u2013512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.\n  - heading \"Model selection\" [level=3]\n  - group \"Default\":\n    - text: Default\n    - paragraph: \"Default source: default \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-default \u00b7 output 128\"\n    - text: Default connection\n    - combobox \"Default connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Default model\n    - textbox \"Default model\": QA-NOT-VERIFIED-default\n    - text: Default output tokens\n    - spinbutton \"Default output tokens\": \"128\"\n  - group \"Brain\":\n    - text: Brain\n    - checkbox \"Brain override\" [checked]\n    - text: Brain override\n    - paragraph: \"Brain source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-brain \u00b7 output 96\"\n    - text: Brain connection\n    - combobox \"Brain connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Brain model\n    - textbox \"Brain model\": QA-NOT-VERIFIED-brain\n    - text: Brain output tokens\n    - spinbutton \"Brain output tokens\": \"96\"\n  - group \"Investigator\":\n    - text: Investigator\n    - checkbox \"Investigator override\" [checked]\n    - text: Investigator override\n    - paragraph: \"Investigator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-investigator \u00b7 output 80\"\n    - text: Investigator connection\n    - combobox \"Investigator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Investigator model\n    - textbox \"Investigator model\": QA-NOT-VERIFIED-investigator\n    - text: Investigator output tokens\n    - spinbutton \"Investigator output tokens\": \"80\"\n  - group \"Validator\":\n    - text: Validator\n    - checkbox \"Validator override\" [checked]\n    - text: Validator override\n    - paragraph: \"Validator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-validator \u00b7 output 64\"\n    - text: Validator connection\n    - combobox \"Validator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 1\" [selected]\n    - text: Validator model\n    - textbox \"Validator model\": QA-NOT-VERIFIED-validator\n    - text: Validator output tokens\n    - spinbutton \"Validator output tokens\": \"64\"\n  - button \"Save model selection\"",
+    "model": "- region \"Test model\":\n  - heading \"Test model\" [level=2]\n  - paragraph: Mesaj sintetic fix \u00b7 1 apel / 300s \u00b7 f\u0103r\u0103 tools sau trafic c\u0103tre \u021bint\u0103.\n  - paragraph: \"System: Respond only with OMNIS_MODEL_TEST_OK. Use no tools.\"\n  - paragraph: \"User: This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.\"\n  - paragraph: \"Metadata: NOT_REQUESTED \u00b7 Saved selection revision: 1\"\n  - paragraph: \"Cerut: saved default / saved default / output cap saved default\"\n  - paragraph: \"Operation: none \u00b7 not started\"\n  - status: NOT_VERIFIED\n  - checkbox \"I approve this fixed synthetic input and one finite call using the saved default.\" [checked]\n  - text: I approve this fixed synthetic input and one finite call using the saved default.\n  - paragraph: \"Testul nu poate fi trimis: metadatele modelului nu sunt READY. Apas\u0103 \u201eRefresh model metadata\u201d \u0219i a\u0219teapt\u0103 starea READY \u00eenainte de a trimite testul.\"\n  - button \"Refresh model metadata\"\n  - button \"Trimite testul modelului\" [disabled]\n  - button \"Cancel test\" [disabled]\n  - button \"Cite\u0219te starea testului\"\n  - paragraph: \"Observat: UNKNOWN \u00b7 Provider: UNKNOWN \u00b7 Output: ABSENT\"\n  - paragraph: \"Usage UNKNOWN input/output/reasoning: UNKNOWN / UNKNOWN / UNKNOWN \u00b7 Cost: UNKNOWN\"\n  - paragraph: Stop drains local operations. Cancel is not a remote cancellation or a refund. Reload only reads; a new test always requires another explicit consent and action."
+  },
+  "mobile": {
+    "width": 390,
+    "documentWidth": 390
+  },
+  "page_errors": 0,
+  "external_attempts": 0,
+  "forbidden_attempts": [],
+  "save_actions": [
+    {
+      "action": "save_connection",
+      "command_id": "0bbe3e66-723a-45f2-ab00-2a5ed159c1bc"
+    },
+    {
+      "action": "save_selection",
+      "command_id": "c82669e0-4c02-4693-a179-14d6d5d22f16"
+    }
+  ],
+  "case_counts": {
+    "PASS": 12,
+    "NOT_RUN": 6
+  },
+  "status": "COMPLETED_SCOPED",
+  "model_census": {
+    "before": {
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "after": {
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "unchanged": true
+  },
+  "settings_counts": {
+    "before": {
+      "provider_connection_revision": 0,
+      "provider_selection_revision": 0,
+      "provider_settings_command": 0
+    },
+    "after": {
+      "provider_connection_revision": 1,
+      "provider_selection_revision": 1,
+      "provider_settings_command": 2
+    }
+  },
+  "bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+  "control_image": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+  "source_identity": "integration-src91d3e4e/tree0cb2; unchanged production source fd1459b",
+  "seconds": 9.512,
+  "preflight_failures": [
+    {
+      "status": "FAIL",
+      "phase": "NO_EFFECTS_JS_ADAPTATION",
+      "reason": "First source-seam check expected one failure-screenshot string, actual source has two. Corrected exact count before pair/browser/Save; original terminal failure retained."
+    }
+  ]
+}

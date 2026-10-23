@@ -1,0 +1,14 @@
+{
+  "source": "91d3e4ead63430eb59b4e028a00197a84526e786",
+  "frozen_inputs_unchanged": 1856,
+  "result": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "verdict": "FAIL_INTERRUPTED_AFTER_ACTUAL_API_FAILURES",
+  "exact_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true,
+  "no_other_fixture_cleanup": true
+}

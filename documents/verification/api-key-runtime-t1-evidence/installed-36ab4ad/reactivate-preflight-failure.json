@@ -1,0 +1,78 @@
+{
+  "status": "BLOCKED_NO_EFFECTS",
+  "failure": {
+    "phase": "public_status_preflight",
+    "attempted_path": "/api/status",
+    "http_status": 401,
+    "driver_exit": 1,
+    "js_syntax_exit": 0,
+    "scope": "Observer path assertion before private pair, browser launch or mutation; stopped after first failure."
+  },
+  "save_count": 0,
+  "pair_invocations": 0,
+  "browser_launched": false,
+  "screenshots": [],
+  "session_http_status": 401,
+  "cases": [
+    {
+      "id": "PREFLIGHT_PUBLIC_STATUS_PATH",
+      "status": "FAIL"
+    },
+    {
+      "id": "AUTHENTICATED_UI_BEFORE",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "EXPLICIT_WEB_SAVE",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "GET_RELOAD_HEAD3",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "HISTORIC_CONNECTIONS_BEFORE_AFTER",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "SELECTION_BEFORE_AFTER",
+      "status": "NOT_RUN"
+    }
+  ],
+  "case_counts": {
+    "FAIL": 1,
+    "NOT_RUN": 5
+  },
+  "current_head_nonsecret": {
+    "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+    "provider": "openrouter",
+    "revision": 2,
+    "enabled": false
+  },
+  "readonly_census_after_failure": {
+    "provider_connection_revision": "2:bd11d5c29d5870d35caa7118bcd53018",
+    "provider_selection_revision": "1:a753231a3be8029958ab0de6016b5ba9",
+    "provider_settings_command": "2:45ac8ad774382f4e6c16dbcbccb0a430",
+    "model_record_v2": "0:d751713988987e9331980363e24189ce",
+    "model_command_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+  },
+  "db_system_id": "7699849294761226284",
+  "cleanup": {
+    "stop_invoked": false,
+    "service_mutations": false,
+    "fixture": "PRESERVED_INACTIVE_HEAD2",
+    "browser": "NOT_LAUNCHED",
+    "auth": "NO_SESSION_CREATED"
+  },
+  "driver_sha256": "ee04d130a38a1b0568fbaabb22673b26a5cdfb143947a59a88bc77c81b426214",
+  "original_procedure_sha256": "577c6a50c036920df09e9d594d04aaab8ed417202dce26b8c1c52b441abaea94",
+  "limits": [
+    "Explicit web reactivation NOT_RUN",
+    "Authenticated credential/vault readback NOT_RUN",
+    "Reticle NOT_INTEGRATED",
+    "Chisel BLOCKED_NO_GO",
+    "No provider/model effects"
+  ]
+}

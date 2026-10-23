@@ -1,0 +1,434 @@
+{
+  "origin": "http://127.0.0.1:48769",
+  "instance": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+  "cases": [
+    {
+      "id": "PRIVATE_PAIR_DASHBOARD",
+      "status": "PASS"
+    },
+    {
+      "id": "RESTORED_UNLOCKED_HEAD2_DISABLED_EXISTING_SELECTION",
+      "status": "PASS"
+    },
+    {
+      "id": "ONE_EXPLICIT_ROTATE_HTTP200_SAME_CONNECTION_HEAD3_ENABLED_WRITE_ONLY",
+      "status": "PASS"
+    },
+    {
+      "id": "GET_RELOAD_HEAD3_SELECTION1_ALL_OVERRIDES_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "id": "METADATA_NOT_REQUESTED_TEST_NOT_STARTED",
+      "status": "PASS"
+    },
+    {
+      "id": "NO_SECRET_ECHO_OR_FORBIDDEN_REQUEST",
+      "status": "PASS"
+    },
+    {
+      "id": "LOGOUT204_SESSION401",
+      "status": "PASS"
+    },
+    {
+      "id": "historic_connections_1_2_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "original_commands_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "selection_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "model4_zero_and_unchanged",
+      "status": "PASS"
+    },
+    {
+      "id": "exact_one_new_connection_revision",
+      "status": "PASS"
+    },
+    {
+      "id": "exact_one_new_settings_command",
+      "status": "PASS"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pairing"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/instance"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test",
+      "channel": "context-read"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/providers",
+      "channel": "context-read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-test",
+      "channel": "context-read"
+    }
+  ],
+  "screenshots": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/rk/logs/reactivate-before.png",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/rk/logs/reactivate-after.png"
+  ],
+  "cleanup": {
+    "fixture": "PRESERVED_NO_STOP_NO_REVOKE",
+    "logout_status": 204,
+    "session_status": 401,
+    "auth": "REVOKED",
+    "context": "CLOSED",
+    "browser": "CLOSED"
+  },
+  "limits": [
+    "Provider/model/metadata refresh NOT_RUN",
+    "Reticle NOT_INTEGRATED",
+    "Chisel BLOCKED_NO_GO",
+    "No aesthetic approval; no screen reader"
+  ],
+  "before_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 2,
+        "enabled": false,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "before_dom": "- region \"Provider configuration\":\n  - heading \"Provider configuration\" [level=2]\n  - paragraph: API keys are write-only. Save stores configuration locally; it never validates a provider or runs inference.\n  - paragraph: \"Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.\"\n  - status\n  - paragraph: \"Vault: UNLOCKED\"\n  - paragraph: \"openrouter: revoked \u2014 credential present\"\n  - button \"Reload current settings\"\n  - text: Provider\n  - combobox \"Provider\":\n    - option \"OpenRouter\" [selected]\n    - option \"OrcaRouter\"\n  - text: API key\n  - textbox \"API key\"\n  - button \"Rotate API key\" [disabled]\n  - paragraph: 1\u2013512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.\n  - heading \"Model selection\" [level=3]\n  - group \"Default\":\n    - text: Default\n    - paragraph: \"Default source: default \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-default \u00b7 output 128 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Default connection\n    - combobox \"Default connection\" [disabled]:\n      - option \"Choose connection\" [disabled]\n    - text: Default model\n    - textbox \"Default model\" [disabled]: QA-NOT-VERIFIED-default\n    - text: Default output tokens\n    - spinbutton \"Default output tokens\" [disabled]: \"128\"\n  - group \"Brain\":\n    - text: Brain\n    - checkbox \"Brain override\" [checked] [disabled]\n    - text: Brain override\n    - paragraph: \"Brain source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-brain \u00b7 output 96 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Brain connection\n    - combobox \"Brain connection\" [disabled]:\n      - option \"Choose connection\" [disabled]\n    - text: Brain model\n    - textbox \"Brain model\" [disabled]: QA-NOT-VERIFIED-brain\n    - text: Brain output tokens\n    - spinbutton \"Brain output tokens\" [disabled]: \"96\"\n  - group \"Investigator\":\n    - text: Investigator\n    - checkbox \"Investigator override\" [checked] [disabled]\n    - text: Investigator override\n    - paragraph: \"Investigator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-investigator \u00b7 output 80 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Investigator connection\n    - combobox \"Investigator connection\" [disabled]:\n      - option \"Choose connection\" [disabled]\n    - text: Investigator model\n    - textbox \"Investigator model\" [disabled]: QA-NOT-VERIFIED-investigator\n    - text: Investigator output tokens\n    - spinbutton \"Investigator output tokens\" [disabled]: \"80\"\n  - group \"Validator\":\n    - text: Validator\n    - checkbox \"Validator override\" [checked] [disabled]\n    - text: Validator override\n    - paragraph: \"Validator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-validator \u00b7 output 64 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Validator connection\n    - combobox \"Validator connection\" [disabled]:\n      - option \"Choose connection\" [disabled]\n    - text: Validator model\n    - textbox \"Validator model\" [disabled]: QA-NOT-VERIFIED-validator\n    - text: Validator output tokens\n    - spinbutton \"Validator output tokens\" [disabled]: \"64\"\n  - button \"Save model selection\" [disabled]",
+  "model_before": {
+    "schema_version": 2,
+    "operation_id": null,
+    "state": null,
+    "state_revision": null,
+    "finish_reason": null,
+    "selection_revision": 1,
+    "metadata_state": "NOT_REQUESTED",
+    "metadata_command_id": null,
+    "reason": null,
+    "requested_provider": null,
+    "requested_model": null,
+    "requested_output_tokens": null,
+    "observed_model": null,
+    "provider_status": null,
+    "result_state": null,
+    "output_state": "ABSENT",
+    "response_text": null,
+    "usage_state": "UNKNOWN",
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cost_observed": null,
+    "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+    "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+    "calls_limit": 1,
+    "wall_seconds": 300
+  },
+  "save": {
+    "action": "save_connection",
+    "command_id": "2e764cf9-5bf9-4e9a-bc87-add654998460",
+    "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+    "expected_revision": 2
+  },
+  "save_http_status": 200,
+  "after_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 3,
+        "enabled": true,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "reload_view": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 3,
+        "enabled": true,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "after_dom": "- region \"Provider configuration\":\n  - heading \"Provider configuration\" [level=2]\n  - paragraph: API keys are write-only. Save stores configuration locally; it never validates a provider or runs inference.\n  - paragraph: \"Provider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.\"\n  - status\n  - paragraph: \"Vault: UNLOCKED\"\n  - paragraph: \"openrouter: configured \u2014 credential present\"\n  - button \"Reload current settings\"\n  - text: Provider\n  - combobox \"Provider\":\n    - option \"OpenRouter\" [selected]\n    - option \"OrcaRouter\"\n  - text: API key\n  - textbox \"API key\"\n  - button \"Rotate API key\" [disabled]\n  - button \"Revoke locally\"\n  - paragraph: 1\u2013512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.\n  - heading \"Model selection\" [level=3]\n  - group \"Default\":\n    - text: Default\n    - paragraph: \"Default source: default \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-default \u00b7 output 128 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Default connection\n    - combobox \"Default connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 3\" [selected]\n    - text: Default model\n    - textbox \"Default model\": QA-NOT-VERIFIED-default\n    - text: Default output tokens\n    - spinbutton \"Default output tokens\": \"128\"\n  - group \"Brain\":\n    - text: Brain\n    - checkbox \"Brain override\" [checked]\n    - text: Brain override\n    - paragraph: \"Brain source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-brain \u00b7 output 96 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Brain connection\n    - combobox \"Brain connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 3\" [selected]\n    - text: Brain model\n    - textbox \"Brain model\": QA-NOT-VERIFIED-brain\n    - text: Brain output tokens\n    - spinbutton \"Brain output tokens\": \"96\"\n  - group \"Investigator\":\n    - text: Investigator\n    - checkbox \"Investigator override\" [checked]\n    - text: Investigator override\n    - paragraph: \"Investigator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-investigator \u00b7 output 80 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Investigator connection\n    - combobox \"Investigator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 3\" [selected]\n    - text: Investigator model\n    - textbox \"Investigator model\": QA-NOT-VERIFIED-investigator\n    - text: Investigator output tokens\n    - spinbutton \"Investigator output tokens\": \"80\"\n  - group \"Validator\":\n    - text: Validator\n    - checkbox \"Validator override\" [checked]\n    - text: Validator override\n    - paragraph: \"Validator source: override \u2014 71d286af-a570-4927-b032-56699744e8af revision 1 \u00b7 QA-NOT-VERIFIED-validator \u00b7 output 64 \u2014 stale or unavailable connection; save a new selection explicitly.\"\n    - text: Validator connection\n    - combobox \"Validator connection\":\n      - option \"Choose connection\" [disabled]\n      - option \"openrouter \u00b7 revision 3\" [selected]\n    - text: Validator model\n    - textbox \"Validator model\": QA-NOT-VERIFIED-validator\n    - text: Validator output tokens\n    - spinbutton \"Validator output tokens\": \"64\"\n  - button \"Save model selection\"",
+  "model_after": {
+    "schema_version": 2,
+    "operation_id": null,
+    "state": null,
+    "state_revision": null,
+    "finish_reason": null,
+    "selection_revision": 1,
+    "metadata_state": "NOT_REQUESTED",
+    "metadata_command_id": null,
+    "reason": null,
+    "requested_provider": null,
+    "requested_model": null,
+    "requested_output_tokens": null,
+    "observed_model": null,
+    "provider_status": null,
+    "result_state": null,
+    "output_state": "ABSENT",
+    "response_text": null,
+    "usage_state": "UNKNOWN",
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cost_observed": null,
+    "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+    "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+    "calls_limit": 1,
+    "wall_seconds": 300
+  },
+  "status": "COMPLETED_SCOPED",
+  "external_attempts": 0,
+  "forbidden_attempts": [],
+  "save_count": 1,
+  "db": {
+    "before": {
+      "provider_connection_revision": "2:bd11d5c29d5870d35caa7118bcd53018",
+      "provider_selection_revision": "1:a753231a3be8029958ab0de6016b5ba9",
+      "provider_settings_command": "2:45ac8ad774382f4e6c16dbcbccb0a430",
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "after": {
+      "provider_connection_revision": "3:4116c8cbbc23d9f5fc3f74384d790203",
+      "provider_selection_revision": "1:a753231a3be8029958ab0de6016b5ba9",
+      "provider_settings_command": "3:273acd65284c31f019bd069cd776ddac",
+      "model_record_v2": "0:d751713988987e9331980363e24189ce",
+      "model_command_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+      "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+    },
+    "historic_connection_rows_after": "2:bd11d5c29d5870d35caa7118bcd53018",
+    "original_commands_after": "2:45ac8ad774382f4e6c16dbcbccb0a430",
+    "checks": {
+      "historic_connections_1_2_unchanged": true,
+      "original_commands_unchanged": true,
+      "selection_unchanged": true,
+      "model4_zero_and_unchanged": true,
+      "exact_one_new_connection_revision": true,
+      "exact_one_new_settings_command": true
+    },
+    "system_id": "7699849294761226284",
+    "db_cid": "e1999f56ec28e3d3419d47a439614142d2d9471acba4fe246106a22e3f8734af"
+  },
+  "case_counts": {
+    "PASS": 13
+  },
+  "identity": {
+    "cli_status": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 5,
+      "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+      "origin": "http://127.0.0.1:48769",
+      "reason": null,
+      "release": "0.1.0",
+      "schema": "0015_model_test_v2",
+      "state": "READY",
+      "supervisor_epoch": 3
+    },
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "containers": [
+      "6ede60f328f1984415c38c40a4904b57783da0987784c41b6714f96783fa00ec",
+      "6148d4bac522538a865a5e81f8e576ab581405fe02eb96b167358ceb88b8c98a",
+      "e1999f56ec28e3d3419d47a439614142d2d9471acba4fe246106a22e3f8734af"
+    ],
+    "bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+    "control_image": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+    "procedure_sha256": "577c6a50c036920df09e9d594d04aaab8ed417202dce26b8c1c52b441abaea94"
+  },
+  "exits": {
+    "js_syntax": 0,
+    "pair": 0,
+    "browser": 0
+  },
+  "seconds": 12.724
+}

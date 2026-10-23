@@ -1,0 +1,144 @@
+{
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 5,
+    "instance_id": "30b886dd-f572-4d7a-aec3-ba0825cbb104",
+    "origin": "http://127.0.0.1:48769",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0015_model_test_v2",
+    "state": "READY",
+    "supervisor_epoch": 3
+  },
+  "new_cids": [
+    "6ede60f328f1",
+    "6148d4bac522",
+    "e1999f56ec28"
+  ],
+  "containers": [
+    {
+      "id": "6ede60f328f1984415c38c40a4904b57783da0987784c41b6714f96783fa00ec",
+      "running": true,
+      "labels": {
+        "com.docker.compose.config-hash": "a7207e55fc6d71e67cd53c6c58e10f4b4d6edb5511d26130d93877615670095d",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "db:service_healthy:false",
+        "com.docker.compose.image": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+        "com.docker.compose.project.config_files": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0",
+        "com.docker.compose.service": "supervisor",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+        "org.omnis.profile": "t1-provider-settings",
+        "org.omnis.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+        "org.omnis.start-attempt": "557d4c69-ae2d-4547-81bd-1b17eff71370"
+      }
+    },
+    {
+      "id": "6148d4bac522538a865a5e81f8e576ab581405fe02eb96b167358ceb88b8c98a",
+      "running": true,
+      "labels": {
+        "com.docker.compose.config-hash": "e90a2df7ca5f884067dedafd0442d530e92ddb701b89e9cfa50ab2bfec8eebb1",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "db:service_healthy:false",
+        "com.docker.compose.image": "sha256:36cd5a0f62743b64de1551fb9e948043925d9b22125c76746b5f3e1673c8c6f0",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+        "com.docker.compose.project.config_files": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0",
+        "com.docker.compose.service": "api",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.bundle_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+        "org.omnis.profile": "t1-provider-settings",
+        "org.omnis.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+        "org.omnis.start-attempt": "557d4c69-ae2d-4547-81bd-1b17eff71370"
+      }
+    },
+    {
+      "id": "e1999f56ec28e3d3419d47a439614142d2d9471acba4fe246106a22e3f8734af",
+      "running": true,
+      "labels": {
+        "com.docker.compose.config-hash": "fa2eb08f206f989e25e564abfb934bac295e7f9a32428e311fee9b8ad2cc94e7",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-f8e59c57ad1c4b2586543dba8d99ea23",
+        "com.docker.compose.project.config_files": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/qa-t1/data/omnis/releases/0.1.0",
+        "com.docker.compose.service": "db",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.start-attempt": "557d4c69-ae2d-4547-81bd-1b17eff71370"
+      }
+    }
+  ],
+  "system_id": "7699849294761226284",
+  "same_instance_and_database_system_id": true,
+  "fresh_paired_readback": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "provider": "openrouter",
+        "revision": 2,
+        "enabled": false,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "c82669e0-4c02-4693-a179-14d6d5d22f16",
+      "revision": 1,
+      "default": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-default",
+        "output_tokens": 128
+      },
+      "brain": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-brain",
+        "output_tokens": 96
+      },
+      "investigator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-investigator",
+        "output_tokens": 80
+      },
+      "validator": {
+        "connection_id": "71d286af-a570-4927-b032-56699744e8af",
+        "connection_revision": 1,
+        "model": "QA-NOT-VERIFIED-validator",
+        "output_tokens": 64
+      }
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "separate_key_unlocks_original_ciphertext": true,
+  "connection_remains_inactive_head2_until_explicit_Save": true,
+  "all7_original_history_ref_selection_command_model_hashes_preserved": true,
+  "original_rows_census": {
+    "provider_connection_revision": "1:7dc2078905315215b7d2fac6d93a850c",
+    "provider_selection_revision": "1:a753231a3be8029958ab0de6016b5ba9",
+    "provider_settings_command": "2:45ac8ad774382f4e6c16dbcbccb0a430",
+    "model_record_v2": "0:d751713988987e9331980363e24189ce",
+    "model_command_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_v2": "0:d751713988987e9331980363e24189ce",
+    "model_dispatch_event_v2": "0:d751713988987e9331980363e24189ce"
+  },
+  "no_settings_or_provider_writes_by_observer": true,
+  "auth_revoked": true
+}

@@ -1,0 +1,19 @@
+{
+  "source": "91d3e4ead63430eb59b4e028a00197a84526e786",
+  "frozen_inputs_unchanged": 1856,
+  "target": "test-provider-settings-pg",
+  "passed": 38,
+  "seconds": 35.38,
+  "scope": "mixed Settings API/vault/PG target including both real PG restore=False/True cases; not38PGonly orphysicalrestore",
+  "result": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "cid": "e76f3755441dc87c93f0d9039def19c1d86dccc4443927972e6935d3a090b700",
+  "project": "omnis-p01-870c89585f2c49ee9e10c24899a85467",
+  "fixture": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/cg/db-3def899912aa41d5",
+  "exact_daemon_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true
+}

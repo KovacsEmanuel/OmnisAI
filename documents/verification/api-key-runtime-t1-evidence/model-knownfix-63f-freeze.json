@@ -1,0 +1,125 @@
+{
+  "scope": "ONLY three known concrete ModelTest fixes; SOURCE candidate, not integrated/accepted/live/installed",
+  "base": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "commit": "63f26fb5ec2beb781763c588187225791524571c",
+  "tree": "ee0ae7b5dcfe325d577759bc6a81a1bb8a2caeaa",
+  "commits": [
+    "34eef98",
+    "c072db5",
+    "63f26fb"
+  ],
+  "cwd": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src",
+  "environment": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf",
+    "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/core-uv-cache"
+  },
+  "pg_argv": [
+    "api/.venv/bin/python",
+    "-I",
+    "-B",
+    "ops/run_test_db_gate.py",
+    "--check",
+    "--target",
+    "test-model-test-v2-pg",
+    "--uv",
+    "/home/kali/.local/share/omnis-toolchains/bin/uv",
+    "--timeout-seconds",
+    "180"
+  ],
+  "pg_runs": {
+    "boundary-red.log": 2,
+    "boundary-green.log": 0,
+    "refresh-red.log": 2,
+    "refresh-green.log": 0,
+    "final-pg.log": 2,
+    "final-pg2.log": 2,
+    "frozen-pg.log": 0
+  },
+  "final_pg": "10 passed in 30.20s; exact owner cleanup/data retention in cleanup-readback.json",
+  "checks": [
+    {
+      "argv": [
+        "make",
+        "lint-api",
+        "typecheck-api"
+      ],
+      "exit": 0,
+      "log": "frozen-api-quality.log"
+    },
+    {
+      "argv": [
+        "make",
+        "lint-api",
+        "typecheck-api",
+        "test-contracts",
+        "lint-web",
+        "typecheck-web"
+      ],
+      "exit": 0,
+      "log": "final-quality.log"
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "web",
+        "test",
+        "--",
+        "src/app/ModelTest.test.tsx",
+        "src/shared/api/client.test.ts"
+      ],
+      "exit": 0,
+      "result": "13 passed",
+      "log": "final-web-targeted.log"
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "web",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "log": "final-web-build.log"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_model_test_pg_refuses_unsafe_make_flags_before_recipes",
+        "-v"
+      ],
+      "exit": 0,
+      "log": "make-final.log"
+    }
+  ],
+  "first_fails_preserved": [
+    "boundary-red.log",
+    "refresh-red.log",
+    "refresh-web-red.log",
+    "make-red.log",
+    "affected-contract-web.log",
+    "final-pg.log",
+    "final-pg2.log"
+  ],
+  "dependency_recovery": "missing local tsx initially blocked lint; reused existing main node_modules read-only symlink (tsx4.23.12/oxlint1.78.0), removed owned symlink after checks; no install or cache cleanup",
+  "delta": "knownfix.delta.patch",
+  "limits": [
+    "PENDING/owner-loss extra probe: two harness-only failures SHUTDOWN_INCOMPLETE then GENERATION_CONFLICT; attempt patch retained, narrowed to real OS historical receipt restart. No successful pending owner-loss probe claimed.",
+    "canonical graph legacy dependency UNIMPLEMENTED",
+    "abrupt crash/unresolved SENT proof NOT_RUN",
+    "prior broad CLI failure unadjudicated",
+    "parent focused re-review required; full 95a8 reviews separate and cannot approve changed bytes",
+    "original 95a8 bundle/reports/logs preserved; no final bundle reseal"
+  ]
+}

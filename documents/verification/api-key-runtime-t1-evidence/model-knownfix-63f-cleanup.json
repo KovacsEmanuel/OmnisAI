@@ -1,0 +1,219 @@
+[
+  {
+    "log": "boundary-green.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-145cdd3e4fc34d25",
+    "project": "omnis-p01-0e03ceadccb74fa78c1953123418c990",
+    "cid": "2e1c43e31cbcf97fc52483bd0574ad828214b64a0f7b9844eddd2d8d849be01d",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n..........                                                               [100%]\n10 passed in 25.73s\n"
+  },
+  {
+    "log": "boundary-red.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-865a778c4a544a63",
+    "project": "omnis-p01-7ea095b188fc4d7d8895bf9996a1da17",
+    "cid": "bf1dbcba309fbc327de278e959b7a9ad440527f45890d25221706b4ebbb3bc76",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n.F........                                                               [100%]\n=================================== FAILURES ===================================\n________________ test_api_pg_sdk_protocol_and_replay[complete] _________________\napi/tests/test_model_test_v2.py:278: in test_api_pg_sdk_protocol_and_replay\n    assert denied.status_code == 422, denied.text\nE   AssertionError: {\"schema_version\":2,\"operation_id\":null,\"state\":null,\"state_revision\":null,\"finish_reason\":null,\"selection_revision\":1,\"metadata_state\":\"PENDING\",\"metadata_command_id\":\"58b66b30-d254-4e75-b518-e70f457dbe3f\",\"reason\":null,\"requested_provider\":null,\"requested_model\":null,\"requested_output_tokens\":null,\"observed_model\":null,\"provider_status\":null,\"result_state\":null,\"output_state\":\"ABSENT\",\"response_text\":null,\"usage_state\":\"UNKNOWN\",\"input_tokens\":null,\"output_tokens\":null,\"reasoning_tokens\":null,\"cost_observed\":null,\"system_message\":\"Respond only with OMNIS_MODEL_TEST_OK. Use no tools.\",\"user_message\":\"This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.\",\"calls_limit\":1,\"wall_seconds\":300}\nE   assert 202 == 422\nE    +  where 202 = <Response [202 Accepted]>.status_code\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]\n1 failed, 9 passed in 23.83s\nmake: *** [Makefile:38: test-model-test-v2-pg] Error 1\n"
+  },
+  {
+    "log": "final-pg.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-c656e095d80c4635",
+    "project": "omnis-p01-974f98e75f7343a3b291bde19c4d3985",
+    "cid": "d3f202f9a70611ac97b176df31b73482894df51039360371d8ec5d699b2183ce",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n.F........                                                               [100%]\n=================================== FAILURES ===================================\n________________ test_api_pg_sdk_protocol_and_replay[complete] _________________\napi/tests/test_model_test_v2.py:576: in test_api_pg_sdk_protocol_and_replay\n    assert child.returncode == 0\nE   AssertionError: assert 1 == 0\nE    +  where 1 = CompletedProcess(args=['/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/api/.venv/bin/python', '-I', '-B', '...ontrolConflict(ControlCode.SHUTDOWN_INCOMPLETE)\\nomnis.modules.instance.domain.ControlConflict: SHUTDOWN_INCOMPLETE\\n').returncode\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]\n1 failed, 9 passed in 29.45s\nmake: *** [Makefile:38: test-model-test-v2-pg] Error 1\n"
+  },
+  {
+    "log": "final-pg2.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-b818784ecca64a97",
+    "project": "omnis-p01-f9da6c05947244ee89e6f0a44aa2a1d5",
+    "cid": "2275820b821cde7d733ac7fa9d1b1babe63dfa42fa8da93dcc17474d9545fccb",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n.F........                                                               [100%]\n=================================== FAILURES ===================================\n________________ test_api_pg_sdk_protocol_and_replay[complete] _________________\napi/tests/test_model_test_v2.py:578: in test_api_pg_sdk_protocol_and_replay\n    assert child.returncode == 0\nE   AssertionError: assert 1 == 0\nE    +  where 1 = CompletedProcess(args=['/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/api/.venv/bin/python', '-I', '-B', '...ontrolConflict(ControlCode.GENERATION_CONFLICT)\\nomnis.modules.instance.domain.ControlConflict: GENERATION_CONFLICT\\n').returncode\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]\n1 failed, 9 passed in 27.24s\nmake: *** [Makefile:38: test-model-test-v2-pg] Error 1\n"
+  },
+  {
+    "log": "frozen-pg.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-6bbafee810104918",
+    "project": "omnis-p01-ce4d84c836434a4cb6e742e3595993f0",
+    "cid": "340b248ee9b36e287b80781da1f4fb768bb212eabf2c691fbb14e035bac0e20a",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n..........                                                               [100%]\n10 passed in 30.20s\n"
+  },
+  {
+    "log": "refresh-green.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-b953458c40354e3f",
+    "project": "omnis-p01-4000802fab21433c83a4ef1a0ed07f4c",
+    "cid": "0b10a149187b706f5c943de0b759e0eee09d9870bfa3499c37e536894447f82b",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n..........                                                               [100%]\n10 passed in 30.23s\n"
+  },
+  {
+    "log": "refresh-red.log",
+    "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-ba0505ee3f8e4a6e",
+    "project": "omnis-p01-0ba679cc2ddc4d5683b7d2d70d3f0370",
+    "cid": "abeef2cf05e1462fab9d1f37a4ccf12b05a6f14b4e33f0eb259e6e6afde21798",
+    "absent": true,
+    "networks_absent": true,
+    "gate_receipt": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "root_entries": [
+      {
+        "name": "data",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "socket",
+        "directory": true,
+        "size": 4096
+      },
+      {
+        "name": "password",
+        "directory": false,
+        "size": 65
+      }
+    ],
+    "gate_output": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py -q --tb=short\n.F........                                                               [100%]\n=================================== FAILURES ===================================\n________________ test_api_pg_sdk_protocol_and_replay[complete] _________________\napi/tests/test_model_test_v2.py:336: in test_api_pg_sdk_protocol_and_replay\n    assert replay_a.status_code == 202 and replay_a.json() == receipt_a\nE   AssertionError: assert (202 == 202 and {'schema_vers...n': None, ...} == {'schema_vers...n': None, ...}\nE    +  where 202 = <Response [202 Accepted]>.status_code\nE     \nE     Omitting 25 identical items, use -vv to show\nE     Differing items:\nE     {'metadata_command_id': '4e108d09-1220-478b-bea5-cc09f27e4175'} != {'metadata_command_id': '2d992f65-4f02-4626-a86a-a49328f3bf8e'}\nE     Use -v to get more diff)\n=========================== short test summary info ============================\nFAILED api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]\n1 failed, 9 passed in 23.68s\nmake: *** [Makefile:38: test-model-test-v2-pg] Error 1\n"
+  }
+]

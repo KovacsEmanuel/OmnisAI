@@ -1,0 +1,112 @@
+{
+  "source": "63f26fb5ec2beb781763c588187225791524571c",
+  "scope": "parent12delta_blobs_and_physical7PG_cleanup_Make_denials_NOT_ACCEPTANCE",
+  "files": {
+    "Makefile": {
+      "git_blob": "a546700c1782150563eefdc61bb092745e4c1fb3",
+      "sha256": "8bcb52686f61dbdfe67fbbd50d0dcb2b48a18a894f5f23ec539438c201582fdb"
+    },
+    "api/src/omnis/modules/runs/model_test_models.py": {
+      "git_blob": "44f83104ff95bedbc42d20f6e05e7b8f97314f1c",
+      "sha256": "997f132206d912015895c1f213537213187a9d5ae156dfbe66bd9a52fdac181f"
+    },
+    "api/src/omnis/modules/runs/model_test_routes.py": {
+      "git_blob": "edba7861a318d4ec6b4e9bb94d385af2d33c70f3",
+      "sha256": "f55b596c73212eacb51bbf6b6e65bba88f27af12ad66c70e4ae9b3f43d0776df"
+    },
+    "api/src/omnis/modules/runs/model_test_runtime.py": {
+      "git_blob": "1bf37b47c2c4eb68762283408c43a898c8ed01d5",
+      "sha256": "f392ad2ccbdd7416a0b5e3e891dffa3198b82b0e8c09cc4b31ad4506695fb08f"
+    },
+    "api/tests/test_model_test_v2.py": {
+      "git_blob": "7c6bedcdb66d7c15d894ee37091d9269631e92d3",
+      "sha256": "db1fdf4a3503ea3323ab2d43830abe435a5792c1412cfccd344f18a84b988cdb"
+    },
+    "api/tests/test_model_test_v2_contract.py": {
+      "git_blob": "f5d529ccad2a0eb1fe6c1bf727e580d5fd62b7b7",
+      "sha256": "3ca49c2e2e7fc630d169fdb532e1c357d4f83bdb422afa6d10ca9f44fdc2e490"
+    },
+    "contracts/omnis.openapi.json": {
+      "git_blob": "8f732611f41b807ed8ec1cca7096ab8fdf8d841b",
+      "sha256": "a6cb053ec326f82582ead4f39d2c979eb4903bba766b7ba9a15d68bda6dd9117"
+    },
+    "tests/development/test_test_db_gate.py": {
+      "git_blob": "fc8ce56c40ed3cdced510ff2b0699f6e77cc0fb8",
+      "sha256": "3aca5678be0b2acb1dc415b14154330f79280271cd11d37b48f4935e8c8501ed"
+    },
+    "web/src/app/ModelTest.test.tsx": {
+      "git_blob": "6083d4b2b2d1d41894915736af925ce8902cb2a1",
+      "sha256": "194ff26dd0e90e9a095b07d5ee02fb4d4ea08ddc783a5f130433719f8fcdde85"
+    },
+    "web/src/features/engagement/ModelTest.tsx": {
+      "git_blob": "e29e8f92473648b3230435098919a6c211a423f4",
+      "sha256": "6359f7e31ade9278c57b5ce81b16366d8392061dd11fe2d92a19cf177f8b8a5e"
+    },
+    "web/src/shared/api/client.ts": {
+      "git_blob": "cb9cce1894d2a9518afc9c5956d998af0fb50cbe",
+      "sha256": "952ba01c28648de2802077940fe5597a5bfdb9042f031c5311be806c2e2ca17c"
+    },
+    "web/src/shared/api/generated.ts": {
+      "git_blob": "26159e1689dada4d0ac4a80719481aa3b1d3f175",
+      "sha256": "3e45dd46add9cc9674693ee4a33c5199aa1221620ecfaad6ded96685d6f1d595"
+    }
+  },
+  "cleanup": [
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-145cdd3e4fc34d25",
+      "cid": "2e1c43e31cbcf97fc52483bd0574ad828214b64a0f7b9844eddd2d8d849be01d",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-865a778c4a544a63",
+      "cid": "bf1dbcba309fbc327de278e959b7a9ad440527f45890d25221706b4ebbb3bc76",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-c656e095d80c4635",
+      "cid": "d3f202f9a70611ac97b176df31b73482894df51039360371d8ec5d699b2183ce",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-b818784ecca64a97",
+      "cid": "2275820b821cde7d733ac7fa9d1b1babe63dfa42fa8da93dcc17474d9545fccb",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-6bbafee810104918",
+      "cid": "340b248ee9b36e287b80781da1f4fb768bb212eabf2c691fbb14e035bac0e20a",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-b953458c40354e3f",
+      "cid": "0b10a149187b706f5c943de0b759e0eee09d9870bfa3499c37e536894447f82b",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mf/db-ba0505ee3f8e4a6e",
+      "cid": "abeef2cf05e1462fab9d1f37a4ccf12b05a6f14b4e33f0eb259e6e6afde21798",
+      "exact_daemon": true,
+      "absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    }
+  ]
+}

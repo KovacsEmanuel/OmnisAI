@@ -345,7 +345,7 @@ def fixture_connection(database_url: URL) -> Iterator[psycopg.Connection[tuple[o
             ).fetchone()
             assert identity is not None and str(identity[0]) == receipt["system_identifier"]
             assert connection.execute("SELECT version_num FROM alembic_version").fetchall() == [
-                ("0014_provider_settings",)
+                ("0015_model_test_v2",)
             ]
             yield connection
     except psycopg.Error:

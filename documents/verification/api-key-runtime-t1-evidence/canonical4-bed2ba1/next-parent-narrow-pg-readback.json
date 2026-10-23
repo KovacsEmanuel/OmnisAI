@@ -1,0 +1,23 @@
+{
+  "source": "9d56fd0729c94d17570720aab02943f2de6141b6",
+  "result": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "passed": 133,
+  "failed": 1,
+  "deselected": 1,
+  "seconds": 72.89,
+  "failed_node": "api/tests/test_catalog_candidates_pg_compatibility.py::test_catalog_candidates_pg_installed_cli_status",
+  "failure_phase": "CLI wheel preparation stage0: offline uvbuild cannot discover required Python3.13.15 in privateHOME/PATH; beforeCLIstatusconsumer",
+  "not_product_defect_demonstrated": true,
+  "exact_same_daemon_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true,
+  "frozen_inputs_unchanged": 1856,
+  "original_raw_sha256": "4ca204b1fabfe8fd367283759ffa80c037062fdd48b8eb126b8fdc2213d4705a",
+  "fixture": "/home/kali/.hermes/cache/scratch/t1pg-az5012rx/tmp/db-0cada5d7bcef448f",
+  "cid": "336b0d3d799b0588ee9124d1a64f53d87aebf278b82d4e6841ab102479abeacb",
+  "project": "omnis-p01-630a14dee9b84fd69be2bb61fdc21b81"
+}

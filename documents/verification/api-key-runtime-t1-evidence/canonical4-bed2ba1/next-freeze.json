@@ -1,0 +1,995 @@
+{
+  "continuation_base": "ee82c547b0a5d0999ff8fb18b8b70d4558d1a27e",
+  "original_base": "91d3e4ead63430eb59b4e028a00197a84526e786",
+  "head": "a59c5c7645686c2a9991ac79d50b51b63713176f",
+  "tree": "814b41d0ea4f544872797d1ef22a4cdde5a0adb3",
+  "clean": true,
+  "candidate_only": true,
+  "scope": "test/gate-only; five continuation paths; no product edits",
+  "changed_paths": [
+    "Makefile",
+    "api/tests/test_contract_method_pg.py",
+    "api/tests/test_health.py",
+    "ops/run_test_db_gate.py",
+    "tests/development/test_test_db_gate.py"
+  ],
+  "files": [
+    {
+      "path": "Makefile",
+      "blob": "d7c3228ce936d05127b52a2a142fe97a0a2e1e71",
+      "sha256": "56cba60935bdf2f84cf934c8831ddfb6d5aca77c8ad5dfed1026aa0cc88b771f",
+      "changed_in_continuation": true
+    },
+    {
+      "path": "api/pyproject.toml",
+      "blob": "773b54b3054036274a8cee6f9f2c0b4f588b4663",
+      "sha256": "ac968637c620b2ceee545f4cd85bf0761e6b105161ace16a2e8d5332a304323d",
+      "changed_in_continuation": false
+    },
+    {
+      "path": "api/tests/test_cli_status.py",
+      "blob": "77ab924d671158bdad379d5fb32604fb720ff40c",
+      "sha256": "832696c7adec5b6f1d378159c0bde356623956c1946541793db3c7d09f1450e6",
+      "changed_in_continuation": false
+    },
+    {
+      "path": "api/tests/test_contract_method_migration.py",
+      "blob": "fb8c277527165abf683c0ebe97b25444b06e436c",
+      "sha256": "3a5fab77194c0eb573259dd75d025a8f224d606550e26865f22aaf8caa7458e3",
+      "changed_in_continuation": false
+    },
+    {
+      "path": "api/tests/test_contract_method_pg.py",
+      "blob": "d0b5ac6e0c45b201bfc1e3ce94dd1bcdb9cb530d",
+      "sha256": "56468fd4cd23ee76f325d1a0aa34a572fff4a59ca28a8a0323734394986f5ec6",
+      "changed_in_continuation": true
+    },
+    {
+      "path": "api/tests/test_contract_method_producer.py",
+      "blob": "7559e8f2fb7044bd51a6418a3335d06991ad5043",
+      "sha256": "cdaf27ef28320746bb8407da0d9996201e2e96bc7226d97cffa249df02fccb5e",
+      "changed_in_continuation": false
+    },
+    {
+      "path": "api/tests/test_health.py",
+      "blob": "14e21c710d42a8afd9deb5fa2d98493b326872ac",
+      "sha256": "22612c6bd9a839dd4323d2bc5a1192abd14a3335264a15ecd675f5d6d6eadd22",
+      "changed_in_continuation": true
+    },
+    {
+      "path": "api/tests/test_mission_revision_schema.py",
+      "blob": "059be4f58f1e9c2bccda6662aa8c903c413e3f55",
+      "sha256": "ce8b9a60167814feff8530df7391e6cedce974b140016f0fa143f29e3263cb19",
+      "changed_in_continuation": false
+    },
+    {
+      "path": "ops/run_test_db_gate.py",
+      "blob": "4c834625c77f94ac572f2c95cc065668ae3738ae",
+      "sha256": "6d8bc35430e10b1b41b78c279aba7aac152a9e253b2716c9da5af5c5afa03155",
+      "changed_in_continuation": true
+    },
+    {
+      "path": "tests/development/test_test_db_gate.py",
+      "blob": "965161512d4664293d4005e1bbbcc7d495b74a46",
+      "sha256": "1d16670600dc9d48586219c85ceb823e9d0b90a3ab6883a202c7f1d21dd6f9c4",
+      "changed_in_continuation": true
+    }
+  ],
+  "commits": [
+    "a59c5c7645686c2a9991ac79d50b51b63713176f test: admit the existing contract PG target through the unchanged fixture owner",
+    "73e960662d8b7b1b49f0b394e53008c9c26393de test: separate bounded SOURCE parser material from full current API cache imports",
+    "ed1a182743327a311517e892b7afdd9fbdaacd2d test: drift the named readiness key without breaking dependent foreign keys",
+    "8ffc989e940ad923a46fd4bd3f7d23741f5c21d9 test: keep legacy execution behind its original strict native prerequisite"
+  ],
+  "commands": [
+    {
+      "label": "legacy-order-red",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_canonical_components_keep_active_checks_and_explicit_legacy_gate",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-ymkd9jom/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-ymkd9jom/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-ymkd9jom/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-ymkd9jom/mypy"
+      },
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-legacy-order-red.log"
+    },
+    {
+      "label": "bounded-red",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+        "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+        "-k",
+        "not stale-reader",
+        "-q",
+        "--tb=short",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-fkqe2__u/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-fkqe2__u/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-fkqe2__u/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-fkqe2__u/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-fkqe2__u/mypy"
+      },
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-bounded-red.log"
+    },
+    {
+      "label": "legacy-order-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_canonical_components_keep_active_checks_and_explicit_legacy_gate",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-4vp1_pcz/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-4vp1_pcz/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-4vp1_pcz/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-4vp1_pcz/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-legacy-order-green.log"
+    },
+    {
+      "label": "health-collection",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_health.py",
+        "--collect-only",
+        "-q",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-4vwd8oe8/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-4vwd8oe8/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-4vwd8oe8/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-4vwd8oe8/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-4vwd8oe8/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-health-collection.log"
+    },
+    {
+      "label": "bounded-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+        "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+        "api/tests/test_contract_method_pg.py::test_h04_rejects_synthetic_stale_reader_before_origin",
+        "-q",
+        "--tb=short",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-0f6mu937/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-0f6mu937/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-0f6mu937/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-0f6mu937/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-0f6mu937/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-bounded-green.log"
+    },
+    {
+      "label": "fixture-format",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-gu006tne/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-gu006tne/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-gu006tne/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-gu006tne/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-fixture-format.log"
+    },
+    {
+      "label": "bounded-formatted-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+        "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+        "api/tests/test_contract_method_pg.py::test_h04_rejects_synthetic_stale_reader_before_origin",
+        "-q",
+        "--tb=short",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-p2ek39d3/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-p2ek39d3/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-p2ek39d3/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-p2ek39d3/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-p2ek39d3/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-bounded-formatted-green.log"
+    },
+    {
+      "label": "target-admission-red",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_contract_method_target_keeps_existing_owner_and_schema_consumers",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-f3ppgkb8/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-f3ppgkb8/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-f3ppgkb8/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-f3ppgkb8/mypy"
+      },
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-target-admission-red.log"
+    },
+    {
+      "label": "gate-format",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "tests/development/test_test_db_gate.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-jzfctkty/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-jzfctkty/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-jzfctkty/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-jzfctkty/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-gate-format.log"
+    },
+    {
+      "label": "target-admission-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_contract_method_target_keeps_existing_owner_and_schema_consumers",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-defzynlr/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-defzynlr/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-defzynlr/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-defzynlr/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-target-admission-green.log"
+    },
+    {
+      "label": "make-flags-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_model_test_pg_refuses_unsafe_make_flags_before_recipes",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-hd0lsf6m/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-hd0lsf6m/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-hd0lsf6m/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-hd0lsf6m/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-make-flags-green.log"
+    },
+    {
+      "label": "preflight-pin-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_canonical_toolchain_refusal_precedes_fixture_creation",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-1xlejf8n/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-1xlejf8n/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-1xlejf8n/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-1xlejf8n/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-preflight-pin-green.log"
+    },
+    {
+      "label": "preflight-boundary-green",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/development",
+        "-p",
+        "test_test_db_gate.py",
+        "-k",
+        "test_noncanonical_gate_does_not_require_oauth_source",
+        "-v"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-8uciwznt/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-8uciwznt/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-8uciwznt/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-8uciwznt/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-preflight-boundary-green.log"
+    },
+    {
+      "label": "source-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_mission_revision_schema.py",
+        "api/tests/test_contract_method_migration.py::test_method_execution_schema_is_explicit_and_chained",
+        "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup",
+        "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code",
+        "api/tests/test_contract_method_pg.py::test_historical_review_gate_precedes_database_fixture",
+        "api/tests/test_contract_method_pg.py::test_host_launch_filtered_source",
+        "api/tests/test_contract_method_pg.py::test_h04_rejects_synthetic_stale_reader_before_origin",
+        "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+        "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+        "-q",
+        "--tb=short",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-u5sr93_8/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-u5sr93_8/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-u5sr93_8/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-u5sr93_8/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-u5sr93_8/mypy"
+      },
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-source-final.log"
+    },
+    {
+      "label": "source-final-isolated",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,sys,importlib.util,pytest; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/\"api/src\"),str(r/\"api/tests\"),str(r/\"integrations/hermes/src\")]; assert pathlib.Path(importlib.util.find_spec(\"omnis\").origin).is_relative_to(r/\"api/src\"); print(\"SOURCE_ROOT\",r,flush=True); raise SystemExit(pytest.main(sys.argv[1:]))",
+        "-p",
+        "pytest_asyncio.plugin",
+        "-p",
+        "no:cacheprovider",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_mission_revision_schema.py",
+        "api/tests/test_contract_method_migration.py::test_method_execution_schema_is_explicit_and_chained",
+        "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut",
+        "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams",
+        "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer",
+        "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup",
+        "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code",
+        "api/tests/test_contract_method_pg.py::test_historical_review_gate_precedes_database_fixture",
+        "api/tests/test_contract_method_pg.py::test_host_launch_filtered_source",
+        "api/tests/test_contract_method_pg.py::test_h04_rejects_synthetic_stale_reader_before_origin",
+        "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot",
+        "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls",
+        "-q",
+        "--tb=short",
+        "--basetemp=/home/kali/.hermes/cache/scratch/nxt-b_nu27lp/tmp/t"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-b_nu27lp/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-b_nu27lp/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-b_nu27lp/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-b_nu27lp/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-source-final-isolated.log"
+    },
+    {
+      "label": "ruff-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "api/src",
+        "api/tests"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-2ljn7bqx/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-2ljn7bqx/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-2ljn7bqx/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-2ljn7bqx/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-ruff-final.log"
+    },
+    {
+      "label": "format-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "api/src",
+        "api/tests"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-wov6_oe1/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-wov6_oe1/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-wov6_oe1/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-wov6_oe1/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-format-final.log"
+    },
+    {
+      "label": "mypy-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--output=json",
+        "api/src",
+        "api/tests"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-iww6yymv/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-iww6yymv/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-iww6yymv/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-iww6yymv/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-mypy-final.log"
+    },
+    {
+      "label": "collection-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/next-collect.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-_imop0zd/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-_imop0zd/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-_imop0zd/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-_imop0zd/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-collection-final.log"
+    },
+    {
+      "label": "development-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/next-dev-tests.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-oj7hi60k/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-oj7hi60k/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-oj7hi60k/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-oj7hi60k/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-development-final.log"
+    },
+    {
+      "label": "gate-ruff-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "ops/run_test_db_gate.py",
+        "tests/development/test_test_db_gate.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-rzgtl0bm/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-rzgtl0bm/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-rzgtl0bm/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-rzgtl0bm/mypy"
+      },
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-gate-ruff-final.log"
+    },
+    {
+      "label": "gate-format-final",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "ops/run_test_db_gate.py",
+        "tests/development/test_test_db_gate.py"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-gh8bqs7w/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-gh8bqs7w/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-gh8bqs7w/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-gh8bqs7w/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-gate-format-final.log"
+    },
+    {
+      "label": "gate-lint-baseline",
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../integration-src/api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import json,pathlib,subprocess; r=pathlib.Path.cwd(); env={\"HOME\":\"/home/kali\",\"XDG_CONFIG_HOME\":\"/home/kali/.config\",\"PATH\":\"/usr/bin:/bin\"}; p=\"tests/development/test_test_db_gate.py\"; original=subprocess.run([\"git\",\"show\",\"ee82c547b0a5d0999ff8fb18b8b70d4558d1a27e:\"+p],env=env,capture_output=True,check=True).stdout; py=str(r.parent/\"integration-src/api/.venv/bin/python\"); argv=[py,\"-I\",\"-m\",\"ruff\",\"check\",\"--config\",\"api/pyproject.toml\",\"--no-fix\",\"--output-format=json\",\"--stdin-filename\",p,\"-\"]; a=subprocess.run(argv,input=original,capture_output=True); b=subprocess.run(argv,input=(r/p).read_bytes(),capture_output=True); old=json.loads(a.stdout); new=json.loads(b.stdout); key=lambda x:(x[\"code\"],x[\"message\"]); assert sorted(map(key,old))==sorted(map(key,new)) and len(new)==6; print(\"BASELINE_EXIT\",a.returncode,\"CURRENT_EXIT\",b.returncode,\"IDENTICAL_PREEXISTING_DIAGNOSTICS\",[(x[\"code\"],x[\"message\"]) for x in new]); print(\"NO_NEW_GATE_LINT_DIAGNOSTICS\")"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "HOME": "/home/kali/.hermes/cache/scratch/nxt-dpu3a5kq/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/nxt-dpu3a5kq/xdg",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/nxt-dpu3a5kq/tmp",
+        "LANG": "C.UTF-8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "MYPY_CACHE_DIR": "/home/kali/.hermes/cache/scratch/nxt-dpu3a5kq/mypy"
+      },
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/canonical-repair-src/../logs/next-gate-lint-baseline.log"
+    }
+  ],
+  "verification": {
+    "source": "221 passed in 15.37s, exit0; prior196 plus25 snapshot/cache cases",
+    "development": "30 SOURCE units in 8.478s, exit0; three Docker-config tests NOT_RUN",
+    "api_ruff": 0,
+    "api_format": 0,
+    "api_mypy": 0,
+    "extra_gate_ruff": "exit1: six B023 already on ee82c54; exact code/message multiset matches; no new diagnostics",
+    "gate_format": 0,
+    "all_default_legacy_exact_counts": {
+      "all": 3171,
+      "default": 3164,
+      "legacy": 7,
+      "narrow_pg": 134
+    },
+    "original92_current_mapping": 92,
+    "legacy_executed": 0,
+    "default_private_path": "source literal appears only in explicitly legacy-marked authentic test; synthetic default stale input now SOURCE-owned"
+  },
+  "remaining_nine": {
+    "B4": {
+      "nodes": 1,
+      "status": "FIXTURE_REPAIRED_COLLECTED_PG_NOT_RUN",
+      "criterion": "core/db.py compares exact (conname,contype,pg_get_constraintdef,convalidated,conenforced); RENAME keeps UNIQUE and referring FKs but changes canonical conname; 503 SCHEMA_INCOMPATIBLE and positive unchanged",
+      "mapping_file": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-dispositions.json"
+    },
+    "B5": {
+      "nodes": 8,
+      "status": "SOURCE_FIXED_PASS_SCOPED",
+      "parser_fixture": "three explicitly synthetic SOURCE files; no CURRENT-package completeness claim; caps unchanged",
+      "full_current_cache": "actual full copied API, genuine HISTORICAL_ORIGIN and RESTART_READER imports; unchanged inventory guards; unchecked pyc refused, marker absent, cache bytes preserved; SOURCE .pth seam, NOT final release QA"
+    }
+  },
+  "narrow_pg": {
+    "target": "test-contract-method-pg",
+    "runner_argv": [
+      "api/.venv/bin/python",
+      "-I",
+      "-B",
+      "ops/run_test_db_gate.py",
+      "--check",
+      "--target",
+      "test-contract-method-pg",
+      "--timeout-seconds",
+      "600"
+    ],
+    "recipe": "\t@test -n \"$$OMNIS_TEST_FIXTURE\" || { printf 'Dedicated PostgreSQL fixture required\\n' >&2; exit 2; }\n\tenv -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_contract_method_migration.py api/tests/test_contract_method_producer.py api/tests/test_health.py api/tests/test_mission_revision_schema.py api/tests/test_catalog_candidates_pg_compatibility.py -m 'not legacy_native' -q --tb=line",
+    "pytest_argv_template": [
+      "env",
+      "-u",
+      "PYTHONPATH",
+      "-u",
+      "MYPYPATH",
+      "-u",
+      "PYTEST_ADDOPTS",
+      "-u",
+      "PYTEST_PLUGINS",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+      "$(API_PY)",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "pytest_asyncio.plugin",
+      "-p",
+      "no:cacheprovider",
+      "-c",
+      "api/pyproject.toml",
+      "api/tests/test_contract_method_migration.py",
+      "api/tests/test_contract_method_producer.py",
+      "api/tests/test_health.py",
+      "api/tests/test_mission_revision_schema.py",
+      "api/tests/test_catalog_candidates_pg_compatibility.py",
+      "-m",
+      "not legacy_native",
+      "-q",
+      "--tb=line"
+    ],
+    "selected": 134,
+    "legacy_intersection": [],
+    "execution": "NOT_RUN"
+  },
+  "historical_evidence": {
+    "first_freeze": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/canonical-repair-freeze.json",
+    "sha256": "2ba9549b048b296406633a11fc36d37100e564ffc30e0eff26ebea4ac5dd6e0a",
+    "original_evidence_hashes_verified_unchanged": true,
+    "original_raw": {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/cg/db-dc68078aae6d4261/gate.log",
+      "sha256": "e8f9e4a19e43c4a8738256e3101e4498f46c2d6fde4b852fe84578be5c438994"
+    }
+  },
+  "evidence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-bounded-formatted-green.log",
+      "sha256": "3d31bd51871f813abb2cf798bcc01e33d3c5104badb1d51e651f2b190cb05144"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-bounded-green.log",
+      "sha256": "fd3d7de1d3c7ad4216c162048f7cb9ab865f5653ed706927c8bf21a5e15b761b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-bounded-red.log",
+      "sha256": "95e3de8e8c66d043c171f85a520a757fffed19b8f11f6fb30dd3a22c56cf82c4"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-collection-final.log",
+      "sha256": "b8e4685f941961215fde8404578e79bee0aa95754e98ae7dafe35239fb1228df"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-development-final.log",
+      "sha256": "ec94545438f40815aee5093b93d535c28ac1eb810340a04a6e64bf129e40ae55"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-fixture-format.log",
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-format-final.log",
+      "sha256": "d95c7a6c155de0712caf7227860c70747d448851ae5e881cd9be0f6d15aa3913"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-gate-format-final.log",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-gate-format.log",
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-gate-lint-baseline.log",
+      "sha256": "be3b86857c43853c977bd34d73d1bc4d536cd487e411ca34728337f5a0397b1d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-gate-ruff-final.log",
+      "sha256": "ea56e72950e794360683b66e7746dc0abc05eff2bfd637372ad49cc25a321bc1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-health-collection.log",
+      "sha256": "9dc3d72620f0a0c8622b1b289a987ef9712c304e61cd92fc0d20f3854e9e024a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-legacy-order-green.log",
+      "sha256": "cbe7bdc81fc964408b289caf85b1baf473958186fc1e7dbfd183b72554879057"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-legacy-order-red.log",
+      "sha256": "1bee7d8a84ad4ca39d17d2724f913dc79c7d8628e8212197bf096d3061cc494c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-make-flags-green.log",
+      "sha256": "e7512682c4477856a700a0896d67874bbd63a98b71b0785aa97c187e3cc56cdc"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-mypy-final.log",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-preflight-boundary-green.log",
+      "sha256": "6a42d88ce5fb9654c9fbf5194d579dfda5f2e3e2d43884f6faefad7662abc332"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-preflight-pin-green.log",
+      "sha256": "045df73578f74d73a9978a7d6cfc2297001ab473774e1ea03ac5b2d34bdb6c2a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-source-final-isolated.log",
+      "sha256": "efd7de71ecea4a21aebfd13af8199adea9839295e14c98bc36d830a657a29b6d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-source-final.log",
+      "sha256": "fdc9491e97c03888adea0fa0e3bcc93e6c85050d602ace021dfe54da6fd766fd"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-target-admission-green.log",
+      "sha256": "4670b77ee9a7d4f3e6bfa03c4636bf4be78f87d738fe1afe6502fabae17c427d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-target-admission-red.log",
+      "sha256": "e2193c7e91b75c6e2bb69fb7e078bd81164d2ff412ecc5ab0749868993882e2c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-commands.jsonl",
+      "sha256": "fbecb1b847a47bf6dd9a81d4544ec7dff92494857f07da4b9d3dd8bf26213881"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-selection.json",
+      "sha256": "c5916f430cac6c1342a339f34675fbf7e04c22ee023a3bbf39ce00aedd168be2"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-dispositions.json",
+      "sha256": "6264976f23c9e4035e7dc7232c83be8c02e2e02fe664480e7fed21bab9b1af0d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-narrow-target.json",
+      "sha256": "f0bfed77b2d627e27295c67a749b97572e59a6a7755afaff7dbbd3483dfd6cb0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-delta.patch",
+      "sha256": "4f139e06bfa7bd7afd73e464fde58d4b25994095e2d99da4ce96f0204ec16d94"
+    }
+  ],
+  "invocation_failures_preserved": [
+    "legacy-order-red exit1: original strict prerequisite followed legacy execution",
+    "bounded-red exit1: 8 failed/16 passed/1 deselected; stale private case deliberately not executed",
+    "target-admission-red exit1 from argparse invalid choice/SystemExit2",
+    "source-final exit1: own scratch --basetemp outside TMPDIR; fixed invocation only, source-final-isolated221pass",
+    "extra gate lint exit1 with six existing B023; baseline comparison exit0"
+  ],
+  "limits": [
+    "No PG/Docker/native/Hermes/provider/browser/service/build/install/download or private retained descriptor access",
+    "Seven authentic legacy/private cases preserved, collected only, never executed",
+    "B4/B2/CLI metadata runtime NOT_RUN; affected real PG and complementary exact-freeze reviews belong to parent",
+    "No full canonical/T1 PASS; original historical stderr cause remains unobserved",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; unchanged product bundle/local functional proof reused, not rerun",
+    "Only existing fixture producer and stdlib test-owned children; SOURCE proof is not installed-distribution acceptance",
+    "README/status/HTML/contracts/migrations/dependencies/profile/global Git/push/T2 untouched"
+  ],
+  "rollback": "Inspect dependencies then git revert each independent commit and rerun affected SOURCE; author caused no external effects"
+}

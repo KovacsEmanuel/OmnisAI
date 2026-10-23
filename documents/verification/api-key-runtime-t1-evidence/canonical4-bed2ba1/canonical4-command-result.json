@@ -1,0 +1,16 @@
+{
+  "head": "bed2ba1dfd7355d15cf7ef56f07e33771eb0dbbe",
+  "argv": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/ops/run_test_db_gate.py",
+    "--check",
+    "--uv",
+    "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "--timeout-seconds",
+    "7200"
+  ],
+  "exit": 2,
+  "scope": "actualdefaultcheck-components/CANONICAL_GATE throughsameowner,7200outerverificationonly,noproductdeadlinechange"
+}

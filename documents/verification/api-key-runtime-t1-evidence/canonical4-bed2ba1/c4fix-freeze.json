@@ -1,0 +1,688 @@
+{
+  "base": "bed2ba1dfd7355d15cf7ef56f07e33771eb0dbbe",
+  "head": "9353f271045fc871e25d0053e468afbb53c1173f",
+  "tree": "539364a3d9bee80bab5e2398f65c2c7ead03b870",
+  "branch": "impl/t1-canonical4-repair",
+  "candidate": "TEST_ONLY_NOT_INTEGRATED_NOT_ACCEPTED",
+  "changed_paths": [
+    "api/tests/test_contract_denominator.py",
+    "api/tests/test_model_sender.py",
+    "api/tests/test_model_test_operation.py",
+    "api/tests/test_model_test_prepare_source.py",
+    "api/tests/test_model_test_routes.py",
+    "api/tests/test_result_qualification.py",
+    "api/tests/test_runtime_supervisor.py",
+    "api/tests/test_stop_schema.py"
+  ],
+  "files": [
+    {
+      "path": "api/tests/test_contract_denominator.py",
+      "blob": "705aa78f3d36ad2d58024e90c39fcc05f687e211",
+      "sha256": "fc6369ad1c4fa0667c4c2fa199ba443de1efd248059be8ff5c2a4927a788a67d",
+      "test_definitions": 4,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_result_qualification.py",
+      "blob": "ef4fa61a41be361be1610bbc12a55374bd8514e1",
+      "sha256": "13d27617160c772c9a05ff52c8b466a3b4007d7d4df9c70d14c1cbe55ea2c7c4",
+      "test_definitions": 6,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_sender.py",
+      "blob": "fc98f110c09cdce70b80c8acc5ab78d421cc65fd",
+      "sha256": "bbc4f1bf54b4bbe6ba4effe583ccc23bd33d7686ae14986c4d050e0735d529c1",
+      "test_definitions": 9,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_operation.py",
+      "blob": "5a9b54e64fd64c023db8a014dc5adcf08840acab",
+      "sha256": "c9e6236cbbf3ac35bd427385303fc70db6c0f60d0f8466322d545c13ab013660",
+      "test_definitions": 3,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_prepare_source.py",
+      "blob": "09eff0007a27e995f290c2a283cc15b9c0f5d34a",
+      "sha256": "1b47e85dd6730712d1512262a61d2cb749e2adabb5e2ed98461a639828f0a82a",
+      "test_definitions": 26,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_model_test_routes.py",
+      "blob": "75ddae1d8d586db13e8396b3d8bf00aaf919ad94",
+      "sha256": "3fa9c27f10df16473d4567106990e692d35f381b39fa2332c847d936b05747c0",
+      "test_definitions": 2,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_runtime_supervisor.py",
+      "blob": "da1414f8f58248cb214c9f4aefd29135495d0c51",
+      "sha256": "7ddf17f38132edd60fe0d5eacd86ac9553ed0489b10535e0c87eb3fe4d2d7e00",
+      "test_definitions": 5,
+      "decorators_unchanged": true
+    },
+    {
+      "path": "api/tests/test_stop_schema.py",
+      "blob": "4b91ab9e5e4e9e713c1873ba6af222c38821b16c",
+      "sha256": "bbd2d7d064bd9000be341e8e3fb590d00d8cfff33dab7babfb054e7eed9ad9a9",
+      "test_definitions": 3,
+      "decorators_unchanged": true
+    }
+  ],
+  "commits": [
+    "c166691e785d65fc0f47b16fd317416803e58fdb test: allocate SOURCE contract material in owned TMPDIR",
+    "80f26457491a530945a7eb93bb3b810b4a8ddc06 test: bound missing-broker SOURCE socket independently of pytest IDs",
+    "7b5990b0074643506ec45c9764722efa5e0f2a96 test: give SOURCE lifetime controls strict intent and retained V1 transport",
+    "57af352cb5887ccea0bd49a71e44a66595a2fe21 test: supply the real stock-owner SOURCE closure context",
+    "5530532f315c1f13d852921253173c0057a5d9cb test: project current V2 route fixtures with valid guarded requests",
+    "5b0ef483b2eb85b15ec2db4769176a016f53b3a0 test: assert the current 0015 schema head without rewriting history",
+    "9353f271045fc871e25d0053e468afbb53c1173f test: keep strict SOURCE negatives otherwise admissible and restore root import order"
+  ],
+  "final_source": {
+    "passed": 308,
+    "failed": 0,
+    "skipped": 0,
+    "exit": 0,
+    "pytest_seconds": 138.89,
+    "command_record": "c4fix-commands.json",
+    "junit": "c4fix-all8-final.xml"
+  },
+  "canonical4_original": {
+    "sha256": "fb57e3c43f35c549514ed7530d8ab9f37c79bb0761e56d644b7d06d50ff9e00e",
+    "failed": 81,
+    "preserved": true,
+    "new_canonical": "NOT_RUN"
+  },
+  "original_disposition_counts": {
+    "test_contract_denominator.py": 19,
+    "test_model_sender.py": 1,
+    "test_model_test_operation.py": 3,
+    "test_model_test_prepare_source.py": 4,
+    "test_model_test_routes.py": 2,
+    "test_result_qualification.py": 49,
+    "test_runtime_supervisor.py": 2,
+    "test_stop_schema.py": 1
+  },
+  "mapping": [
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_private_cli_first_m2_denominator_read_and_replay",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_private_cli_first_m2_denominator_read_and_replay",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[owner-REF_UNAVAILABLE]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[owner-REF_UNAVAILABLE]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[digest-REF_MISMATCH]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[digest-REF_MISMATCH]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[bool-ref-INVALID_REQUEST]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[bool-ref-INVALID_REQUEST]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-kind-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-kind-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[caller-revision-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[caller-revision-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[purpose-claim-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[purpose-claim-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[changed-request-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[changed-request-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-read-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-read-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-operations-DENOMINATOR_INVALID]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-operations-DENOMINATOR_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-unknown-DENOMINATOR_INVALID]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-unknown-DENOMINATOR_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-revision-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-revision-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-input-provenance-INVALID_CASE_INPUT]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-input-provenance-INVALID_CASE_INPUT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-purpose-MISSION_REVISION_UNSUPPORTED]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-purpose-MISSION_REVISION_UNSUPPORTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[None]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[None]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[procedure]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[procedure]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[schema]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[schema]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[0]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[0]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[128]",
+      "current_nodeid": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[128]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_sender.py::test_missing_broker_is_control_failure_not_provider_outage",
+      "current_nodeid": "api/tests/test_model_sender.py::test_missing_broker_is_control_failure_not_provider_outage",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[complete]",
+      "current_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[complete]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[stop]",
+      "current_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[stop]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[terminal-write-fails]",
+      "current_nodeid": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[terminal-write-fails]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-expiry-stock]",
+      "current_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-expiry-stock]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-stop-stock]",
+      "current_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-stop-stock]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-expiry-stock]",
+      "current_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-expiry-stock]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-stop-stock]",
+      "current_nodeid": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-stop-stock]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_routes.py::test_instance_test_requires_no_saved_engagement",
+      "current_nodeid": "api/tests/test_model_test_routes.py::test_instance_test_requires_no_saved_engagement",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_model_test_routes.py::test_model_test_route_security_input_and_readback",
+      "current_nodeid": "api/tests/test_model_test_routes.py::test_model_test_route_security_input_and_readback",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-task_id-f0f23165-25ae-4f00-8511-70807445e70b]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-task_id-2f035a09-73d6-4840-ae28-36d815260ff3]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-988d017f-cc38-4944-8388-8ea66522e76f]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-4a37dcd4-36d5-4654-bc43-813869f82984]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-run_id-89eeff78-e884-4fd4-9bf7-ec518e8c11cb]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-run_id-ece0b502-8f25-48e3-bb4a-cdc0cab05255]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-df839bb1-129e-474b-a5b6-c08e962b2fd3]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-c1d73c20-1be1-47be-88d6-e15111608fa0]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-20bb003e-dce2-4559-aa6c-081884a4700d]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-91a9bed0-2149-4820-98d1-ad37935bcf01]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-f5a74f2a-a868-418a-b6d5-ce2ef2adc1a4]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-eb1d11e4-692f-41ed-a3ce-236a9ef42f05]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-result_id-85a484d4-6a7e-4873-b95d-1f3b4d385859]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-result_id-39940689-0368-4c41-b78f-a46932fbc94c]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-4b239ba7-8a19-4294-bab8-75999480c56c]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-b5e8113e-2f0f-4a7e-9c56-3c7a23425b76]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-run_id-f4300b89-7f1f-42fd-bb4d-5bfca06b409b]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-run_id-97aa7df8-5c2f-4892-8f69-eab47bc07118]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-1939e28b-2255-4b8a-a43b-da734410043d]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-d18d70e2-3c00-4d34-8c29-483cfdff7682]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-ticket-7f8c8ccf-46cd-4ef7-b41c-9458957464e8]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-ticket-d2a97ce9-7016-48e3-bc79-71662dd7595d]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-f6284fde-d22d-45ca-9b5a-7f34839dd8a3]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-d4915e47-7991-40d0-896f-df2c7795fecc]",
+      "mapping": "same unchanged parametrize table ordinal; UUID generated at collection, both literal IDs retained",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-release_started-1]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-release_started-1]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[owner-REF_UNAVAILABLE]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[owner-REF_UNAVAILABLE]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[foreign-result-REF_UNAVAILABLE]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[foreign-result-REF_UNAVAILABLE]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[digest-REF_MISMATCH]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[digest-REF_MISMATCH]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-ref-INVALID_REQUEST]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-ref-INVALID_REQUEST]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-schema-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-schema-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-kind-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-kind-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[decision-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[decision-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[manifest-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[manifest-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[revision-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[revision-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[conflict-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[conflict-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-read-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-read-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[decision-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[decision-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[revision-bool-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[revision-bool-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[preconditions-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[preconditions-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[missing-field-MANAGED_REJECTED]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[missing-field-MANAGED_REJECTED]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[provenance-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[provenance-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[disguised-orphan-receipt-COMMAND_CONFLICT]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[disguised-orphan-receipt-COMMAND_CONFLICT]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[namespace-REF_UNAVAILABLE]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[namespace-REF_UNAVAILABLE]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_result_qualification.py::test_qualification_receipt_failure_rolls_back_both_records",
+      "current_nodeid": "api/tests/test_result_qualification.py::test_qualification_receipt_failure_rolls_back_both_records",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-False]",
+      "current_nodeid": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-False]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-True]",
+      "current_nodeid": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-True]",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    },
+    {
+      "original_nodeid": "api/tests/test_stop_schema.py::test_stop_reconciliation_is_new_schema_authority",
+      "current_nodeid": "api/tests/test_stop_schema.py::test_stop_reconciliation_is_new_schema_authority",
+      "mapping": "literal nodeid unchanged",
+      "disposition": "PASS_SOURCE_SCOPED",
+      "evidence": "c4fix-all8-final.xml"
+    }
+  ],
+  "unresolved_source_original_failures": [],
+  "limits": [
+    "SOURCE doubles, no real PG/native/provider execution",
+    "Current installed ModelTest/crash/no-resend acceptance NOT_RUN",
+    "Full canonical/T1 acceptance NOT_CLOSED",
+    "Parent owns two complementary reviews and affected-consumer QA on frozen bytes",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "owned_scratch": "/home/kali/.hermes/cache/scratch/c4fx-h8i_cmaf",
+  "owned_ipc_socket_readback": []
+}

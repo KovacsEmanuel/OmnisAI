@@ -1,0 +1,23 @@
+{
+  "source": "9d56fd0729c94d17570720aab02943f2de6141b6",
+  "tree": "814b41d0ea4f544872797d1ef22a4cdde5a0adb3",
+  "result": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "passed": 134,
+  "deselected": 1,
+  "seconds": 80.53,
+  "scope": "mixed actualCURRENTschema/health/migration/producer/catalogcompatPG+SOURCE; genuine freshlybuiltCLIwheelinstalledstatusincluded; not134PG-only/native/model/provider/canonical",
+  "exact_same_daemon_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true,
+  "frozen_inputs_unchanged": 1856,
+  "fixture": "/home/kali/.hermes/cache/scratch/t1pg-az5012rx/tmp/db-27d11c8e21ea4bfa",
+  "cid": "94bdd7715c8db7e4757f743eaee3a093a9c5f142c4932170bbefb952b50d15eb",
+  "project": "omnis-p01-8f0e8da6da4b4973b346a1157155cc80",
+  "original_raw_sha256": "6811acfaa5126253af6dc9dd334c68abb011b67ccf743e584528c5c511cd6cb9",
+  "prior133PASS1FAILpreserved": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-parent-narrow-pg-readback.json",
+  "prerequisite_fix_withoutsourceedits": "exact3.13.15binonPATH+actualCLIall3preparestages0beforesecondfreshPG"
+}

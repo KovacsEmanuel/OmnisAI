@@ -9,15 +9,15 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
-
 from omnis.modules.instance.schemas import NativeTaskCommand
 from omnis.modules.runs.managed_admission import ManagedAdmission
 from omnis.modules.runs.model_test import REQUESTED
-from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.modules.runs.model_test_models import ModelTestControl, ModelTestView
 from omnis.modules.settings import candidate_store as records
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.tasks.managed_contract import mapping
 from omnis.supervisor.native_tasks import NativeTaskOwner
+from test_local_control import request as control_request
 
 
 @pytest.mark.asyncio
@@ -28,7 +28,6 @@ async def test_operation_outlives_four_seconds_disconnect_and_no_refill(
     ipc_directory: Path,
 ) -> None:
     from omnis.modules.runs import model_test_operation as operation
-    from omnis.modules.runs.model_test_routes import control_exchange
     from omnis.transport import local_control
     from omnis.transport.local_control import LocalControl
 
@@ -148,12 +147,23 @@ async def test_operation_outlives_four_seconds_disconnect_and_no_refill(
             )
         ),
     )
-    request = ModelTestControl(op="model_test", action="start", operation_id=command)
+    request = ModelTestControl(
+        op="model_test",
+        action="start",
+        operation_id=command,
+        expected_selection_revision=1,
+        consent=True,
+    )
     monkeypatch.setattr(local_control, "readiness_reason", AsyncMock(return_value=None))
-    monkeypatch.setenv("OMNIS_CONTROL_DIR", str(ipc_directory))
     async with LocalControl(ipc_directory, service, owner.owner, owner.epoch) as control:
         control.model_test = owner.model_test
-        result = await asyncio.wait_for(control_exchange(request), 0.5)
+        # Retained V1 owner uses private control, not the current public V2 decoder.
+        reply = await asyncio.wait_for(
+            control_request(ipc_directory, control.capability, request.model_dump(mode="json")),
+            0.5,
+        )
+        assert reply["ok"] is True
+        result = ModelTestView.model_validate(mapping(reply)["model_test"]).model_dump(mode="json")
     assert result["status"] == "PENDING"
     assert owner.model_test_task is not None
     # Client lifetime ends here; the supervisor-owned finite task remains tracked.
@@ -200,9 +210,8 @@ async def test_operation_outlives_four_seconds_disconnect_and_no_refill(
 
 
 def test_public_request_and_private_fields_are_strict() -> None:
-    from pydantic import ValidationError
-
     from omnis.modules.runs.model_test_models import ModelTestRequest
+    from pydantic import ValidationError
 
     with pytest.raises(ValidationError):
         ModelTestRequest.model_validate(
@@ -218,9 +227,8 @@ def test_public_request_and_private_fields_are_strict() -> None:
 
 
 def test_provision_uses_catalog_validator(monkeypatch: pytest.MonkeyPatch) -> None:
-    from pydantic import ValidationError
-
     from omnis.modules.settings import candidate_catalog
+    from pydantic import ValidationError
 
     validate = Mock(wraps=candidate_catalog.valid_ref)
     monkeypatch.setattr(candidate_catalog, "valid_ref", validate)

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import ssl
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -198,8 +199,10 @@ async def test_tls_handshake_cut_allows_explicit_healthy_metadata_attempt(
 
 
 @pytest.mark.asyncio
-async def test_missing_broker_is_control_failure_not_provider_outage(tmp_path: Path) -> None:
-    sender = ModelSender(tmp_path / "missing")
+async def test_missing_broker_is_control_failure_not_provider_outage(ipc_directory: Path) -> None:
+    path = ipc_directory / "missing"
+    assert len(os.fsencode(path)) < 108 and not path.exists()
+    sender = ModelSender(path)
     try:
         with pytest.raises(RelayFailure, match="^RELAY_CONTROL_UNCERTAIN$"):
             await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", guard)

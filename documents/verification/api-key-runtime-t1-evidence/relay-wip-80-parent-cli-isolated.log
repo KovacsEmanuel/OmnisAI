@@ -1,0 +1,18 @@
+PREFLIGHT_FROZEN80_PRIVATE_EMPTY_CONFIG 8
+test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict (test_start.StartTest.test_clean_resource_result_with_failed_journal_still_refuses_clean_verdict) ... ok
+test_cleanup_journal_error_does_not_downgrade_uncertainty (test_start.StartTest.test_cleanup_journal_error_does_not_downgrade_uncertainty) ... ok
+test_fresh_instance_identity_is_durable_before_open_can_commit (test_start.StartTest.test_fresh_instance_identity_is_durable_before_open_can_commit)
+An OPEN ACK cut must leave an instance ID for a later fenced Stop. ... ok
+test_fresh_pgdata_identity_is_durable_before_first_mount (test_start.StartTest.test_fresh_pgdata_identity_is_durable_before_first_mount)
+The first Compose create must see the original, fsynced bind-root identity. ... ok
+test_headless_help_does_not_advertise_delivered_commands_as_missing (test_start.StartTest.test_headless_help_does_not_advertise_delivered_commands_as_missing) ... ok
+test_missing_release_is_actionable_and_does_not_create_state (test_start.StartTest.test_missing_release_is_actionable_and_does_not_create_state) ... ok
+test_native_normal_start_orders_runtime_before_owner_and_open (test_start.StartTest.test_native_normal_start_orders_runtime_before_owner_and_open) ... ok
+test_verifying_journal_starts_after_subprocess_attestation_before_http (test_start.StartTest.test_verifying_journal_starts_after_subprocess_attestation_before_http)
+Phase ordering only; Docker/readiness are substituted, not a live gate. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.284s
+
+OK
+{"snapshot": "80c3ecd", "boundary": "SOURCE_UNIT_TEST_START_FAKE_OCI_NOT_FORMAT5_INSTALLED", "tests": 8, "failures": 0, "errors": 0, "config_isolated": true, "personal_config_read": false}

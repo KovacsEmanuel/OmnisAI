@@ -1,0 +1,26 @@
+{
+  "scope": "SOURCE_80_DIAGNOSTIC_NOT_PG_TLS_CONSUMER_QA",
+  "dns": {
+    "first_control_latched": true,
+    "healthy_explicit_open_denied_before_lookup": true
+  },
+  "tls": [
+    {
+      "error": "EndOfStream",
+      "raw_close_count": 0
+    },
+    {
+      "error": "SSLCertVerificationError",
+      "raw_close_count": 0
+    },
+    {
+      "error": "TimeoutError",
+      "raw_close_count": 0
+    }
+  ],
+  "malformed_bool_ack_accepted": [
+    "version",
+    "sequence",
+    "scope"
+  ]
+}

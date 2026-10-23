@@ -1,0 +1,286 @@
+{
+  "scope": "SOURCE/private PG/owned UDS TLS protocol only; not provider live, installed, browser or canonical",
+  "cwd": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src",
+  "environment": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc",
+    "UV_CACHE_DIR": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/core-uv-cache"
+  },
+  "verified": [
+    {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "ops/run_test_db_gate.py",
+        "--check",
+        "--target",
+        "test-model-test-v2-pg",
+        "--uv",
+        "/home/kali/.local/share/omnis-toolchains/bin/uv",
+        "--timeout-seconds",
+        "180"
+      ],
+      "exit": 0,
+      "log": "final-pg.log",
+      "receipt": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-25bb63a881a04342/gate.log.result.json",
+      "pytest_log": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-25bb63a881a04342/gate.log",
+      "result": "10 passed in 24.45s"
+    },
+    {
+      "argv": [
+        "make",
+        "lint-api",
+        "typecheck-api"
+      ],
+      "exit": 0,
+      "log": "final-api-quality.log"
+    },
+    {
+      "argv": [
+        "make",
+        "lint-web",
+        "typecheck-web",
+        "test-web",
+        "build-web"
+      ],
+      "exit": 0,
+      "log": "web-green-all.log",
+      "limit": "UI bytes unchanged since this run; final OpenAPI/web lint/types rerun separately"
+    },
+    {
+      "argv": [
+        "make",
+        "test-contracts",
+        "lint-web",
+        "typecheck-web"
+      ],
+      "exit": 0,
+      "log": "final-contract-web-quality.log"
+    },
+    {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "cli/src",
+        "cli/tests",
+        "ops/build_control_bundle.py"
+      ],
+      "exit": 0,
+      "log": "final-cli-lint.log"
+    },
+    {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--output=json",
+        "cli/src"
+      ],
+      "exit": 0,
+      "log": "final-cli-types.log"
+    },
+    {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/tests",
+        "-p",
+        "test_model_forwarder.py",
+        "-v"
+      ],
+      "exit": 0,
+      "log": "test_model_forwarder-final.log",
+      "environment": {
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/empty-config"
+      }
+    },
+    {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/tests",
+        "-p",
+        "test_provider_settings_profile.py",
+        "-v"
+      ],
+      "exit": 0,
+      "log": "test_provider_settings_profile-final.log",
+      "environment": {
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/empty-config"
+      }
+    },
+    {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/tests",
+        "-p",
+        "test_install.py",
+        "-v"
+      ],
+      "exit": 0,
+      "log": "test_install-final.log",
+      "environment": {
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/empty-config"
+      }
+    },
+    {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/tests",
+        "-p",
+        "test_schema_compatibility.py",
+        "-v"
+      ],
+      "exit": 0,
+      "log": "test_schema_compatibility-final.log",
+      "environment": {
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/empty-config"
+      }
+    },
+    {
+      "argv": [
+        "uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--wheel",
+        "api",
+        "--out-dir",
+        "../model-core-artifacts/wheels"
+      ],
+      "exit": 0,
+      "log": "api-wheel.log"
+    },
+    {
+      "argv": [
+        "uv",
+        "build",
+        "--offline",
+        "--no-config",
+        "--wheel",
+        "cli",
+        "--out-dir",
+        "../model-core-artifacts/wheels"
+      ],
+      "exit": 0,
+      "log": "cli-wheel.log"
+    },
+    {
+      "argv": [
+        "uv",
+        "export",
+        "--locked",
+        "--no-config",
+        "--directory",
+        "api",
+        "--no-dev",
+        "--no-emit-project",
+        "--no-header",
+        "--no-annotate",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/requirements.txt"
+      ],
+      "exit": 0,
+      "log": "export-final.log"
+    },
+    {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "ops/build_control_bundle.py",
+        "--api-wheel",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/wheels/omnis_api-0.1.0-py3-none-any.whl",
+        "--cli-wheel",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/wheels/omnis_cli-0.1.0-py3-none-any.whl",
+        "--requirements",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/requirements.txt",
+        "--web-root",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/runtime-src/web/dist",
+        "--output",
+        "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/bundle-model-core",
+        "--profile",
+        "t1-provider-settings"
+      ],
+      "exit": 0,
+      "log": "bundle-final.log",
+      "limit": "OMNIS_UV was the canonical realpath of the pinned uv executable"
+    },
+    {
+      "argv": [
+        "uv",
+        "audit",
+        "--preview-features",
+        "audit-command",
+        "--locked",
+        "--no-config",
+        "--directory",
+        "api",
+        "--python-version",
+        "3.13",
+        "--python-platform",
+        "linux"
+      ],
+      "exit": 0,
+      "log": "audit.log",
+      "result": "53 packages, no known vulnerabilities/adverse statuses"
+    }
+  ],
+  "preserved_failures": [
+    "red.log",
+    "first-pg.log",
+    "second-pg.log",
+    "third-pg.log",
+    "quality-first.log",
+    "lock.log",
+    "web-red.log",
+    "generate.log",
+    "anti-slop-ci.log",
+    "cli-check.log",
+    "cli-source-after-fixture-update.log",
+    "cli-focused.log",
+    "schema-red.log",
+    "bundle.log"
+  ],
+  "preflight_and_scope_limits": [
+    "Initial npm exec unexpectedly fetched unpinned Vitest5.0.5 into npm cache, then collected zero tests; never verification. Final web uses pinned offline npm ci, Vitest4.1.12/Vite8.3.5.",
+    "Initial uv offline lock lacked cached registry metadata; admitted exact locked resolution succeeded online without version upgrade.",
+    "Broad CLI: first make attempt exit124; another source run exit1. Substitution with API interpreter cannot verify sibling omnis console. Noncanonical TMPDIR paths and missing pytest were real harness prerequisites; no broad success claimed. Targeted final runs use CLI interpreter and canonical owned TMPDIR/XDG config.",
+    "First export used uv --directory relative output semantics and preserved requirements under export-first-relative-preserved; corrected absolute output and canonical OMNIS_UV produced the new bundle.",
+    "Canonical remains NOT_RUN/BLOCKED: check-components/_preflight_gate still native-management bound; deliberately no unsafe native/OAuth preparation run or global SKIP."
+  ]
+}

@@ -1,0 +1,491 @@
+{
+  "base": "b25e7992ddf83c832db9a574c5505948d7a34950",
+  "bundle": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/bundle-model-core",
+  "bundle_directory_mode": "0500",
+  "bundle_file_mode": "0400",
+  "bundle_manifest_sha256": "754ebe537cfd800f376b1cae73e12947fe7942d281bd86d594093592933ea489",
+  "bundle_sealed": true,
+  "changed_file_count": 46,
+  "changed_files": {
+    "Makefile": {
+      "git_blob": "766298fc961f5bb288e9f1ef3c93d82f36e0b39d",
+      "sha256": "1d8c07e324b2020d4e83d7e489b2aa72a9b986bb8a733c8faada00ab692cdafe"
+    },
+    "api/pyproject.toml": {
+      "git_blob": "9f8472042426adfa39906a9c2371da4777bed354",
+      "sha256": "b4cb9f85c64e410a600a911896aa9385619cf31f21a29704cc81294fcc4068cf"
+    },
+    "api/src/omnis/core/db.py": {
+      "git_blob": "9190c7c870c3fe375bb34d4d7d35ba940f1269e1",
+      "sha256": "1c94b63a99f35538b6974b8d1d384b3e30b4f92f57cf1dfd639d2704ce7e6d71"
+    },
+    "api/src/omnis/core/errors.py": {
+      "git_blob": "f3f3f3b8a74a6f2e8d3555d5097c1e626a9ede13",
+      "sha256": "0bf275ba6039c8ef73e02bd7157befb622884a49f5b073e09ec9354d4dc90983"
+    },
+    "api/src/omnis/core/model_schema.py": {
+      "git_blob": "b949eb85bdbeae841c02af3cd4166a279d2b5e7f",
+      "sha256": "070604c9bbdd3d7d7486d76c63bd92da6b40d92e604950524c35dd3034c0e464"
+    },
+    "api/src/omnis/core/schema.py": {
+      "git_blob": "558d07a69256cb1227d3158bb529442152f7244c",
+      "sha256": "3c7a2455ac08c05bc258675382d86d33573f9dfec6452a84801b67230f1ca43f"
+    },
+    "api/src/omnis/migrations/versions/0015_model_test_v2.py": {
+      "git_blob": "335f870f8a40c60e2075a00af864851893c5d3ec",
+      "sha256": "2367b8b207fbfc961125d8e39f77f823a9e0cb3ccf62b7919369b05048fd233f"
+    },
+    "api/src/omnis/modules/runs/model_test_contract.py": {
+      "git_blob": "bf4234b6e0a726bd14eba20ae908e5703328fef7",
+      "sha256": "e92d03faccbbd4f932e7b15324e7bf7d29c12d841c517f6b84876827a6b82c91"
+    },
+    "api/src/omnis/modules/runs/model_test_models.py": {
+      "git_blob": "db1564f5a25ee3859cd90fc97cdeb2e13f9e4a4a",
+      "sha256": "bb1af7b5b0b10797021ba2944bb9e1b57d96ffb01184f3afa5b6e79d861ba34d"
+    },
+    "api/src/omnis/modules/runs/model_test_operation.py": {
+      "git_blob": "a9b37b8704245cb4ec14e71d2f82c8008114d676",
+      "sha256": "588b8c1345df353d12cf9aa3f07f36a80d355f754a73069b270730a251344d73"
+    },
+    "api/src/omnis/modules/runs/model_test_routes.py": {
+      "git_blob": "e15fc18ed9d7dceb50a1c6d1c1911d3347823fbf",
+      "sha256": "420e92ef65e0d2dec70b86109cb1ec29d2011568ed248a8392a85817db86621a"
+    },
+    "api/src/omnis/modules/runs/model_test_runtime.py": {
+      "git_blob": "972c49653fd4c2022c5e1bbbfbee1b17ae14be17",
+      "sha256": "fa3ce6c87f16667167e79997f53cf2d17c5503fd4b2039093c7b0bc4400a4b76"
+    },
+    "api/src/omnis/modules/runs/model_test_store.py": {
+      "git_blob": "7bc5e0a950050b677912a32cf640add8b14107ec",
+      "sha256": "d63030052cc481cc7ae0d68eb15290e631c52e686ae05fa1d3970fa01de90176"
+    },
+    "api/src/omnis/modules/settings/provider_key_service.py": {
+      "git_blob": "9318ae3d34eba214abfab9fdc913b1c3cfbb711e",
+      "sha256": "ac99cb333a8a6ff3a6355a50d334b1f4476f47536056da76b1be888d110e9c38"
+    },
+    "api/src/omnis/supervisor/__main__.py": {
+      "git_blob": "8fb57b68e82fb695ec69799a45d0d02d0d9ceadd",
+      "sha256": "952ec8b78cac4901cd900127634cff17801d95ccdfba3b32331b95e00a080a27"
+    },
+    "api/src/omnis/supervisor/model_sender.py": {
+      "git_blob": "5b7b8f7a8617c5dc2f78a94f9d4c8ef3cd431aac",
+      "sha256": "14c4526048d29c3807e64ea93985f1eb7df3c35c566c196942c67fde7488ce56"
+    },
+    "api/src/omnis/transport/local_control.py": {
+      "git_blob": "2f15376b80a54cf084caa89dad65736695536ffb",
+      "sha256": "ea007a080e91070576ee6d6139a777c46046bc6382dd15f7eed9c0f62242ceac"
+    },
+    "api/tests/test_model_test_v2.py": {
+      "git_blob": "60d2b5c3eda1dd5362a2b4e0f069b402ae01a41b",
+      "sha256": "1e8a9216b162641979ebe1ef6c63b5e68ad911ebb782dc45c6e3aa757c7923bf"
+    },
+    "api/tests/test_model_test_v2_contract.py": {
+      "git_blob": "f50ac563263d63ce6a89f3599e0aa73acc9b9ef9",
+      "sha256": "08526496e0c77e5ce6d4c9716732371f70cb7a03749d0dd2742221ab8c2e34c1"
+    },
+    "api/tests/test_model_test_v2_migration.py": {
+      "git_blob": "8e04c51cd01e198ce2e305218cba20937cfc6e05",
+      "sha256": "61fe7496cfcc95f44755fcc5e2ddd0db9c28e24c8c7f960788f39d1c79c86d98"
+    },
+    "api/uv.lock": {
+      "git_blob": "e557f0ab189e5ab5e50e9b78714f2abed7afe4a8",
+      "sha256": "6093ca7bb6de009a93761c02ea6d44d695a5161af9d46afbe1eec8a58be69075"
+    },
+    "cli/src/omnis_cli/forwarder.py": {
+      "git_blob": "5a198d7e8451d6c7c278ef4d9067d7a039f52ede",
+      "sha256": "c93d666e9d295dbab0c9620c9bcb62c3ba7bdd098a9e206ed5e94390f9e3e2ca"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "git_blob": "bd3b42eac39b4515395d3ebb1d2ecd88f40c591c",
+      "sha256": "97163f1e7111f84e50c62f347e0277308ab210f6efe9efc6bb9e61f5bb4aa319"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "git_blob": "0a9d74537147dffd232d59cdf3501472bd3092bd",
+      "sha256": "372d13dc7d9135c4ba4f1029c0ed4dd89ebd9d8e9a813ec52dca8e2f929d2aa4"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "git_blob": "be0acc3bc167efcab526ed60c7e67fc3d447c84d",
+      "sha256": "eb8c99e8aaba1c2eb1513d0730f717497586db6f58c9445b2296127494237cec"
+    },
+    "cli/src/omnis_cli/start_runtime.py": {
+      "git_blob": "e72a10e38e8a8cd6dec8dbc5ad099f48f5b4905a",
+      "sha256": "4c2778f75b49f8c1b97a5a836adc4efbacfcc61d6f83b78adc5e6b7da7262fc2"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "git_blob": "6497273df5b349df136716d4ed181405e9f6bd98",
+      "sha256": "66110002f2843891c795ca82ce4ed423d8300bbf9878520f95a2badba46c6861"
+    },
+    "cli/tests/test_install.py": {
+      "git_blob": "98f5b164f2281e3065409a771c3692c2efa9780b",
+      "sha256": "0d54f592d7cdfe088379c1e976671c5262ca9b8e3c5032b2e713b634cdde8074"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "git_blob": "721a62d51e5f18abc879978eaf42c28750fc30dc",
+      "sha256": "7aa53645c9cde0a943749779b73256ad8a3dc32cb5fed1820985dd09b2fa4e4f"
+    },
+    "cli/tests/test_model_forwarder.py": {
+      "git_blob": "5d8d141048a8711b05533e934b79c5a475fb4db3",
+      "sha256": "0be1af65716fe28505bc823a45280f34647cd987fb8569637123a77e73193cb8"
+    },
+    "cli/tests/test_provider_settings_profile.py": {
+      "git_blob": "83a7cd47f4744bca20defaa9f087fedf67598577",
+      "sha256": "e67cc86b0133db794b9aa0d3b190423749bb044888e26aca5b8f98a0c3c0a430"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "git_blob": "c2d92bcfafc021fe0990ea9e7e062d6a2b8a2798",
+      "sha256": "be31c7e834ebd71d1b92237d16ec2cb0882a1a57c4aee5a655a4cfe2ae1109e8"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "git_blob": "3140cddf6ebeff15dd8e8b40b5118d3f170c69d5",
+      "sha256": "688867b71766582957f7e512c2b38a55fe01b2368e93e5b699a8bd71cb6e6764"
+    },
+    "cli/tests/test_status.py": {
+      "git_blob": "c6af1564cc15a9b805f4a48511bd1fc93b7fd6dc",
+      "sha256": "7bc17b64c69938c0c24e5b201f160d0d85ff7d7f8afbad6402950bf31ab5844b"
+    },
+    "cli/tests/test_stop.py": {
+      "git_blob": "9a691dd760704bfd29339396e529065a9dc6abce",
+      "sha256": "ccad6b50e5bb84791518cfc853e8222f98978cc4d31383e95b159e10f4f373ce"
+    },
+    "contracts/omnis.openapi.json": {
+      "git_blob": "ff3e3b98d116514d8c005eb232423bf80cff8498",
+      "sha256": "817b33fa6a8bc1c8f1a735e7296f0f68bdc61898ca9b2d23bc90705523198931"
+    },
+    "ops/build_control_bundle.py": {
+      "git_blob": "7bcb390323498342686c36967ff7205a1eaa8ce6",
+      "sha256": "01dce5dad0ba9e57e497327ac5d95f9263883fef3ad07079d71a7d09314489ff"
+    },
+    "ops/run_test_db_gate.py": {
+      "git_blob": "a605c40f19e89dad55807ff4adc3a5fa8dad822d",
+      "sha256": "89317c019120e486ebd1e41e955745041ce9f91db9b2e49877f945f76da269b0"
+    },
+    "web/src/app/ModelTest.test.tsx": {
+      "git_blob": "13a4016e368a90dc491e33a4a656a78854a47b63",
+      "sha256": "14c4eaf3194788dc13d99f4c4c59831a55fb691d59aff2b9edd2b8686c21befa"
+    },
+    "web/src/app/ProviderSettings.test.tsx": {
+      "git_blob": "d3a9cc5aeac200abb57a42216d3a2c4c8438639c",
+      "sha256": "3796afbfd3623cafa031b3d54b4b9865a8c53697c5bcc7566ccc24dbca86fd34"
+    },
+    "web/src/features/engagement/ModelTest.tsx": {
+      "git_blob": "bf003b1477f9f33fe19f6742602af96b89becba1",
+      "sha256": "7a9ad0cb356428f509ce83e82c403a861504c27fb58e6d0800f090ea3a00604e"
+    },
+    "web/src/features/engagement/Settings.tsx": {
+      "git_blob": "e687df8980634308c54b61d08bc276b96cd4bed1",
+      "sha256": "d588868d8be3b4c4bf6f0b689ca5121b88154fc3f6230b0ffd92615295c2ef9a"
+    },
+    "web/src/shared/api/client.ts": {
+      "git_blob": "bfcdf7e4186f49ad0416638d6b2ca5a82f0cc2ba",
+      "sha256": "33fff5374245254f80af9439a01316d51e9cb8992cc2e8ca07c05ebb63add43c"
+    },
+    "web/src/shared/api/errors.ts": {
+      "git_blob": "b4b3f2db277c81cf630be8f557859259bce0d4cf",
+      "sha256": "4efef305f7f535862341fca76f1326b36a68f55fc7d6f9b88007ee6a7bd46a04"
+    },
+    "web/src/shared/api/generated.ts": {
+      "git_blob": "6c1b8ef68887273d817a45de100eb71d8fc70fdd",
+      "sha256": "e50800b3dba249a50146907e8ec642a0c49e66a53548b1e5c428f770da87e004"
+    },
+    "web/src/shared/api/modelTest.ts": {
+      "git_blob": "4002c8bfe1ed8d25a57822be4acaa923d91659c3",
+      "sha256": "91bd7b4a9f3ca47cb0c2d4a2bf4822dea38fd7de2af433ea49adc34e3ea39280"
+    }
+  },
+  "commit": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "delta_patch": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-evidence/final.delta.patch",
+  "delta_sha256": "167565eed46f19a53bc5350bb282114881f9a4dba086921a1927b1f4944041fb",
+  "install_requires_new_private_copy_modes_0700_0600": true,
+  "limits": [
+    "canonical dependency graph adaptation UNIMPLEMENTED; management/native preflight remains active, canonical NOT_RUN",
+    "two independent reviews and installed/browser QA NOT_RUN by instruction",
+    "new OS process terminal replay tested; abrupt crash/unresolved SENT reconciliation NOT_RUN",
+    "new artifact historical reader categories NOT_RUN",
+    "provider live NOT_RUN; owned UDS/TLS synthetic protocol responses only",
+    "role override credential/capability resolution not consumed by T1 default-only test",
+    "observed router/parameters, currency, price basis/revision and cost estimate remain null when not produced",
+    "explicit refresh exact-command readback still projects latest metadata; no provider resend",
+    "broad CLI source FAIL logs retained; targeted current profile/relay/install/schema pass only"
+  ],
+  "logs": {
+    "anti-slop-ci.log": "58d9a2c467ed845f610d6ded96ba6525c93407127ea98b8a328a960dd731a9b4",
+    "api-wheel.log": "f52881867e50a08a92d389c6c16834f360e837ddf4204a9d8da331b5435bc25b",
+    "audit.log": "3238d3818c40010c62b91a884b60b8a7349d4026a6e63a146353d3ec1aaca039",
+    "backend-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "bundle-final.log": "9e7b883a6d08d13bfa6f4ac1a536fe3ae19626cdfec027a61b56270c8e4fe924",
+    "bundle.log": "2af1e6863d887981cb4b58def501e7cdb00f3e3adb4db472251c845138b63f79",
+    "cli-check.log": "5bdac73ee562f936e455ce6f26c002a0e8b468abcb126cb735792c864921fa24",
+    "cli-focused.log": "17ec3bc207275d9d0a4bebb595d48e455cf2a55935fc0342b84d261f0a335742",
+    "cli-format.log": "3a21445bb7ec5bd865e583bec08d6571c4b3b289821acb041d1505c596e90257",
+    "cli-source-after-fixture-update.log": "a9e00bcf23241fb958e7540973298a4ba6effe46f59dea9d04bd447ca7f49284",
+    "cli-wheel.log": "6b2e5cfaab2f8954199ad0ea883e14738673d66cdaf0685be8d767958a96b187",
+    "contracts-final.log": "02e08688dd4a59b526fa173503a988e3cdf3be7e312d0077b25a731e8bef1d22",
+    "core-final-pg.log": "faafd03d3bd050302114fc189600365120de8597223d19e7a7b719b42ed6db80",
+    "export-final.log": "32ea6abf5bb0216e07ee708f911213b8f6cb339b2245ea4b567a6cbd72bf1963",
+    "export.log": "bd94455f8daf0c9874f67482187a4fbae945c8675602a273869e8a2483afc583",
+    "final-api-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "final-cli-lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "final-cli-types.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "final-contract-web-quality.log": "565537b894441bcf35242a98bcf93b3a86dcdeff5d1e3afac5f4882797e0fa43",
+    "final-pg.log": "2ae302540fc120587524d7ccdd57197cc948f3788d9850c946d8325653e0ee20",
+    "first-pg.log": "9676cc9bc78eb3a04279ddc36174640733fc288c527e8f99ef58f6f125280a7a",
+    "fourth-pg.log": "8058e3166966e7a6e4d941aec1e51d469cbeb6f9d3056c1340793d0c142108bb",
+    "generate-second.log": "ccf8826f7307764470a53a29973780851c57fa8133495a4020ac038ff3435698",
+    "generate.log": "ebded19a5cf889437283c5d5fe77e0ebf3c86bb2f7d2c6013f37fc004a7c8212",
+    "lock-online.log": "9e38743dab0a11ed0145cf04bff836a7b76b1dd0673cf5218c3a97c31083f6d6",
+    "lock.log": "5f4b8fc446653f9b522cdaf23fa1046c34707f0b9e584a5a081cd3b89ada8aa6",
+    "model-relay.log": "e90eb6698053540b8ab7f5f52e89ba286767c123a9a05becc238185ddf463107",
+    "npm-ci.log": "7801cd55cd061807afe0b8a7f26f48c95c47c07f486f7f2df44219fd9687d77f",
+    "pre-freeze-api-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "quality-first.log": "fd9d215ff2502ce2dec38960461487759e30a7ed041804c5739c40b546e9cdfd",
+    "quality-second.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "red.log": "9889f574aba95a580fa2ab91c149ae7ff9ffbc655ff30d57d20968e05ebdd7bf",
+    "runtime-final-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "safety-final-pg.log": "c808046affc41d962e69b22bf391513d412e58a2717176000704c545bcbc5a84",
+    "safety-final-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "safety-pg.log": "2c35a1c5e2d90d1333fa0c7d611c1e68773ab149208ea2519888d451f92f469c",
+    "safety-quality.log": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+    "schema-green.log": "6b6c05babf787e7d510ae76847242c36fb5f49e6f53f73b0d74b0dc3bd83cbb8",
+    "schema-red.log": "6efd23857d7f0b7493a81bd735ade01a27f5ee3dd30b88c0cf84530996060b5e",
+    "second-pg.log": "cf83b8e4db6dbbac7d168bc12c54c5a9ab6136d794b3a357bc909808aad72ee1",
+    "test_install-final.log": "eac61ea85460779fa9a7a1dc681b88fe0e382051cd7fa6519f0a6243649c5438",
+    "test_model_forwarder-final.log": "ae6e17fdd37ae6c883595ab794e1efb0603495eead3dac2f7e999a52fffdf7ef",
+    "test_provider_settings_profile-final.log": "7c371edd501740ac094481e2ee435ee4ad90c1544179f2ab48d9320f92c0d8b4",
+    "test_schema_compatibility-final.log": "8a6fdd04f6de3b95b37a079d87fb3478d366450792343e73a1fe2d53d0992718",
+    "third-pg.log": "baad14e694b12e0c0b4fa60f545820872f7c8df8c5d988d4aa8ec66f6535e6f1",
+    "web-final-attempt.log": "c31680f0b71b2c1c0692c7717186ecbf3be5c56b950a5cff2cffc9812811a11b",
+    "web-full-cached.log": "ad3d22306ccb80e98cbdbe23f8300e18427a0e38b41547371081b90e50683865",
+    "web-full.log": "ad3d22306ccb80e98cbdbe23f8300e18427a0e38b41547371081b90e50683865",
+    "web-green-all.log": "3134e6c4bc3c47653e599a9d51a0d8777acf54aefe625369cdd50af18136dbec",
+    "web-green-first.log": "6aa8a102682c5321537e098a59672bc9b74f54c042bdee095f1f3ff5bc861780",
+    "web-quality-first.log": "ad3d22306ccb80e98cbdbe23f8300e18427a0e38b41547371081b90e50683865",
+    "web-red-real.log": "d120ddad036570bc66e02abc65e49acd3780cf09ef2589107a3cef5f8d15cc3d",
+    "web-red.log": "a9b89fda9e07bc33b02c190a038618b41083c92c0a41f575e19ca225c2e85c00",
+    "wire-green.log": "e8b12eb9c14e20ba6d6f42d6a6564099a0106363b2d2c716df325fb3a6e8b6f6",
+    "wire-red.log": "01c25f68968bd8efbefb7d05f4430e03656389710db74b2906d22187f14542ab"
+  },
+  "owned_pg": [
+    {
+      "absent": true,
+      "cid": "8ae201f1ae2c3658d8f1110de86746957fa4d42a95a69c7e603e9d1f2efd4229",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-c315732f3b9d4db38ce6194a78dd6067",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-25bb63a881a04342/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-25bb63a881a04342",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "354194b581deb1a62796ff6869fa88baafb18d5c362c7ac68aa9ab14fd12edc4",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 2,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-c652cb7305404f4f83ebccb1a756223a",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4eaac009b3514d42/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4eaac009b3514d42",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "3502d783a8e94ebf0f1a349acdb9d47ac3e313b430306b8a8cd8991d397c27c0",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 2,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-26fa221530fb49cb8b81c6d41d340938",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4fb2a9357f574498/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4fb2a9357f574498",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "479d5c66e8e786b228fcc4520acb2d8731ce17a4cdca867460cce43140259059",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-bf57e2d372ee444bba955c2024581a29",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-781256c093ea4d2c/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-781256c093ea4d2c",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "e823b2e3d6e29dff6c6426285c8718ed7b0b00fcb28a9fa792738b840bb9bca1",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-1776b37c3e1447f888bcdcd002623e42",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-8279d9fb817d46f5/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-8279d9fb817d46f5",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "c8c1c8e7d8b3a9144bb6424b5d61388f4371a038f1c75078010847f331ef41ef",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 2,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-04a22a024557404a96bcbe1c52af7996",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-b30e1fc588c4448e/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-b30e1fc588c4448e",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "1c4595c855965e0685e90e7a6737a3f2251b7a786769832880e2d41374acc48c",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-cc65bf38b507442e8c0c59c45dc54fa1",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-bf07bbd8a8864c49/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-bf07bbd8a8864c49",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "332aa99701eeeda5f7b88cfcc5aa777d1b4a3b2ad055e5f777f98fab261e3e8f",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-430df7d1570940b2a47442ad834fe2b5",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-c36341ac853d4a61/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-c36341ac853d4a61",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "d49557572be8b382cfab66e37c1d8439b3699889081677fa8162329afe003411",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 0,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-a321421c976f4e85afe25922c68b65fb",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-cd3a496ef7644772/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-cd3a496ef7644772",
+      "socket_empty": true
+    },
+    {
+      "absent": true,
+      "cid": "de9db748c55c3490252e52ea372398e9a8d781f401d8772d1290f4c151cd35d4",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "data_retained": true,
+      "docker_endpoint": "unix:///run/docker.sock",
+      "gate_result": {
+        "code": 2,
+        "family_drained": true,
+        "schema_version": 1
+      },
+      "networks_absent": true,
+      "password_retained_metadata_only": true,
+      "project": "omnis-p01-eafb5a64b7c5418ab2772aa213cd8210",
+      "receipt_path": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-d794942fc0f94698/gate.log.result.json",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-d794942fc0f94698",
+      "socket_empty": true
+    }
+  ],
+  "owned_pg_count": 10,
+  "payload_count": 10,
+  "sdk_license_readback": {
+    "httpcore": {
+      "license_expression": "BSD-3-Clause",
+      "license_files": {
+        "httpcore-1.0.9.dist-info/licenses/LICENSE.md": "fdcb59154c74cbaba16a11242f7740bea9f23d6feb5547917d8c5f94a80392a5"
+      },
+      "license_metadata": null,
+      "version": "1.0.9"
+    },
+    "httpx": {
+      "license_expression": null,
+      "license_files": {
+        "httpx-0.28.1.dist-info/licenses/LICENSE.md": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d"
+      },
+      "license_metadata": "BSD-3-Clause",
+      "version": "0.28.1"
+    },
+    "openai": {
+      "license_expression": null,
+      "license_files": {
+        "openai-2.24.0.dist-info/licenses/LICENSE": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
+      },
+      "license_metadata": "Apache-2.0",
+      "version": "2.24.0"
+    }
+  },
+  "status": "COMMITTED_SOURCE_VERTICAL_WIP_NOT_T1_ACCEPTANCE",
+  "tree": "ce07a7d4b8a221bd2e4938b47b8e241969f36377",
+  "wheel_bindings": {
+    "api": {
+      "file": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/bundle-model-core/api/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "1831b9fb79a074b312fd0782304fe8540fe3be75015bceeeebca0c945c83ab39",
+      "source_modules_bound": 111
+    },
+    "cli": {
+      "file": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/model-core-artifacts/bundle-model-core/cli/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "1840bfb867b55d80ab0b448993ed8eee3e39c951557fa02ff59bae5b63e6c66e",
+      "source_modules_bound": 23
+    }
+  }
+}

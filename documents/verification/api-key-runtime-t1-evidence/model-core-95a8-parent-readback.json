@@ -1,0 +1,103 @@
+{
+  "scope": "parent_source46_payload10_wheel_bindings_and_physical_ownedPG10_NOT_ACCEPTANCE",
+  "source": "95a8bf94c18f7cca973ad771fa944d209aa28cd6",
+  "tree": "ce07a7d4b8a221bd2e4938b47b8e241969f36377",
+  "payloads": [
+    "api/omnis_api-0.1.0-py3-none-any.whl",
+    "api/requirements.txt",
+    "cli/omnis_cli-0.1.0-py3-none-any.whl",
+    "ops/Dockerfile",
+    "ops/compose.yaml",
+    "web/assets/fonts-OFL-bSaZbgNk.txt",
+    "web/assets/index-97com5ii.css",
+    "web/assets/index-_mnMuQ-c.js",
+    "web/index.html",
+    "web/omnis-web.json"
+  ],
+  "wheel_modules": {
+    "api": 111,
+    "cli": 23
+  },
+  "physical_cleanup": [
+    {
+      "cid": "8ae201f1ae2c3658d8f1110de86746957fa4d42a95a69c7e603e9d1f2efd4229",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-25bb63a881a04342",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "354194b581deb1a62796ff6869fa88baafb18d5c362c7ac68aa9ab14fd12edc4",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4eaac009b3514d42",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "3502d783a8e94ebf0f1a349acdb9d47ac3e313b430306b8a8cd8991d397c27c0",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-4fb2a9357f574498",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "479d5c66e8e786b228fcc4520acb2d8731ce17a4cdca867460cce43140259059",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-781256c093ea4d2c",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "e823b2e3d6e29dff6c6426285c8718ed7b0b00fcb28a9fa792738b840bb9bca1",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-8279d9fb817d46f5",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "c8c1c8e7d8b3a9144bb6424b5d61388f4371a038f1c75078010847f331ef41ef",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-b30e1fc588c4448e",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "1c4595c855965e0685e90e7a6737a3f2251b7a786769832880e2d41374acc48c",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-bf07bbd8a8864c49",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "332aa99701eeeda5f7b88cfcc5aa777d1b4a3b2ad055e5f777f98fab261e3e8f",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-c36341ac853d4a61",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "d49557572be8b382cfab66e37c1d8439b3699889081677fa8162329afe003411",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-cd3a496ef7644772",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    },
+    {
+      "cid": "de9db748c55c3490252e52ea372398e9a8d781f401d8772d1290f4c151cd35d4",
+      "root": "/home/kali/.hermes/cache/scratch/ot1-0zxf62th/mc/db-d794942fc0f94698",
+      "absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_password_retained_metadata_only": true
+    }
+  ]
+}

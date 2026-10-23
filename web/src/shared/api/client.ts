@@ -64,7 +64,9 @@ export const api = {
     const response = await request(operationId ? `/api/v1/model-test/${operationId}` : '/api/v1/model-test', {}, signal);
     const value = await body(response);
     if (!response.ok) throw decodeError(value);
-    return decodeModelTest(value);
+    const result = decodeModelTest(value);
+    if (operationId !== null && result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
+    return result;
   },
   async startModelTest(operationId: string, revision: number, csrf: string, signal?: AbortSignal) {
     if (!isUuid(operationId)) throw new ApiError('INVALID_INPUT');
@@ -98,7 +100,10 @@ export const api = {
     if (!isUuid(operationId) || !isUuid(commandId)) throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/model-test/${operationId}/cancel`, { method: 'POST', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify({ command_id: commandId, expected_state_revision: revision }) });
-    const value = await body(response); if (!response.ok) throw decodeError(value); return decodeModelTest(value);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeModelTest(value);
+    if (result.operation_id !== operationId) throw new ApiError('INVALID_RESPONSE');
+    return result;
   },
   async catalog(after: string | null, signal?: AbortSignal) {
     if (after !== null && !isUuid(after)) throw new ApiError('INVALID_INPUT');

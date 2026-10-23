@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
@@ -7,6 +7,8 @@ import { health, session } from '../../tests/fixtures';
 import { ModelTest } from '../features/engagement/ModelTest';
 import { BrowserSessionProvider } from '../features/bootstrap/BrowserSession';
 import { decodeModelTest } from '../shared/api/modelTest';
+import { api } from '../shared/api/client';
+import { ProviderSettings } from '../features/engagement/ProviderSettings';
 
 const available = {
   schema_version: 2, operation_id: null, state: null, state_revision: null, finish_reason: null,
@@ -17,14 +19,103 @@ const available = {
   system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.',
   user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
 };
-function mount() {
+function mount(settings = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider><ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
+  return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider>{settings && <ProviderSettings />}<ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
 }
+it('Settings save refreshes current selection without rewriting the active requested snapshot', async () => {
+  sessionStorage.clear();
+  const id = '11111111-1111-4111-8111-111111111111';
+  const command = '22222222-2222-4222-8222-222222222222';
+  sessionStorage.setItem('omnis-model-test-operation', id);
+  sessionStorage.setItem('omnis-model-test-metadata', command);
+  const selected = { connection_id: id, connection_revision: 1, model: 'fixture/new', output_tokens: 64 };
+  let revision = 1; let writes = 0;
+  const settings = () => ({ schema_version: 2, command_id: null, vault_status: 'UNLOCKED', reachable: 'NOT_VERIFIED',
+    connections: [{ connection_id: id, provider: 'openrouter', revision: 1, enabled: true, credential_present: true }],
+    selection: { selection_id: id, revision, default: selected, brain: null, investigator: null, validator: null } });
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (path === '/api/v1/settings/providers') {
+      if (init?.method === 'PUT') {
+        writes += 1; revision = 2;
+        const body: unknown = JSON.parse(String(init.body));
+        if (typeof body !== 'object' || body === null || !('command_id' in body)) throw new Error('invalid fixture');
+        return Response.json({ ...settings(), command_id: body.command_id });
+      }
+      return Response.json(settings());
+    }
+    if (path === '/api/v1/model-test/capabilities/' + command) return Response.json({ ...available, metadata_command_id: command });
+    if (path === '/api/v1/model-test/' + id) return Response.json({ ...available, selection_revision: revision,
+      metadata_state: revision === 1 ? 'READY' : 'NOT_REQUESTED', operation_id: id, state: 'RUNNING', state_revision: 2,
+      requested_provider: 'openrouter', requested_model: 'fixture/original', requested_output_tokens: 64 });
+    return Response.json(path === '/api/session' ? session : health);
+  }));
+  mount(true);
+  await screen.findByText(/Saved selection revision: 1/);
+  const save = await screen.findByRole('button', { name: 'Save model selection' });
+  await waitFor(() => { expect(save).toBeEnabled(); expect(save).not.toHaveAttribute('aria-disabled', 'true'); });
+  fireEvent.click(save);
+  await waitFor(() => expect(writes).toBe(1));
+  await screen.findByText(/Saved selection revision: 2/);
+  expect(screen.getByText(/Cerut:/)).toHaveTextContent('fixture/original');
+  expect(screen.getByText(/Operation:/)).toHaveTextContent(id);
+  expect(sessionStorage.getItem('omnis-model-test-operation')).toBe(id);
+});
+it.each(['read', 'cancel'] as const)('rejects a valid response bound to another operation on %s', async action => {
+  const requested = '11111111-1111-4111-8111-111111111111';
+  const other = '22222222-2222-4222-8222-222222222222';
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ ...available,
+    operation_id: other, state: 'FINISHED', state_revision: 3, result_state: 'UNKNOWN' }))));
+  await expect(action === 'read' ? api.modelTest(undefined, requested) : api.cancelModelTest(requested, requested, 2, 'csrf')).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+});
+it.each(['REVISION_CONFLICT', 'API_UNAVAILABLE'])('reconciles only definitive nonadmission after %s without resending', async code => {
+  sessionStorage.clear();
+  let writes = 0;
+  const calls: string[] = [];
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input); calls.push(path);
+    if (path.startsWith('/api/v1/model-test')) {
+      if (init?.method === 'PUT') {
+        writes += 1;
+        if (code === 'API_UNAVAILABLE') throw new Error('lost response');
+        return new Response(JSON.stringify({ error: { code, correlation_id: '11111111-1111-4111-8111-111111111111' } }), { status: 409 });
+      }
+      if (path !== '/api/v1/model-test') return new Response(JSON.stringify({ error: { code: 'NOT_FOUND', correlation_id: '11111111-1111-4111-8111-111111111111' } }), { status: 404 });
+      return new Response(JSON.stringify({ ...available, selection_revision: writes ? 2 : 1 }));
+    }
+    return new Response(JSON.stringify(path === '/api/session' ? session : health));
+  }));
+  const page = mount(); const user = userEvent.setup();
+  await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
+  await user.click(screen.getByRole('checkbox'));
+  await user.click(screen.getByRole('button', { name: 'Trimite testul modelului' }));
+  await waitFor(() => expect(writes).toBe(1));
+  const identity = sessionStorage.getItem('omnis-model-test-operation');
+  expect(identity).not.toBeNull();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Citește starea testului' })).toHaveAttribute('aria-disabled', 'false'));
+  page.unmount(); mount();
+  await waitFor(() => expect(calls).toContain('/api/v1/model-test/' + identity));
+  await user.click(screen.getByRole('button', { name: 'Citește starea testului' }));
+  if (code === 'REVISION_CONFLICT') {
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh model metadata' })).toBeEnabled());
+    expect(sessionStorage.getItem('omnis-model-test-operation')).toBeNull();
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'Trimite testul modelului' })).toBeDisabled();
+  } else {
+    expect(sessionStorage.getItem('omnis-model-test-operation')).toBe(identity);
+    expect(screen.getByRole('button', { name: 'Refresh model metadata' })).toBeDisabled();
+  }
+  expect(writes).toBe(1);
+});
 it('rejects invented observed values and malformed nullable fields', () => {
   expect(decodeModelTest(available).observed_model).toBeNull();
   expect(() => decodeModelTest({ ...available, cost_observed: 0 })).toThrow();
   expect(() => decodeModelTest({ ...available, state_revision: -1 })).toThrow();
+  for (const field of ['input_tokens', 'output_tokens', 'reasoning_tokens']) {
+    expect(decodeModelTest({ ...available, [field]: Number.MAX_SAFE_INTEGER })).toBeDefined();
+    for (const invalid of [-1, Number.MAX_SAFE_INTEGER + 1, true, '9', 1.5]) expect(() => decodeModelTest({ ...available, [field]: invalid })).toThrow();
+  }
 });
 it('remembers a lost metadata command and reload reads only that receipt', async () => {
   sessionStorage.clear();

@@ -24,7 +24,13 @@ export function ModelTest() {
   const key = ['private', 'model-test', operation, metadataCommand];
   const authReady = !!session.data && !session.isError && transition === 'idle';
   const query = useQuery({ queryKey: key,
-    queryFn: ({ signal }) => readPrivate(() => metadataCommand ? api.modelCapabilities(metadataCommand, signal) : api.modelTest(signal, operation), signal),
+    queryFn: ({ signal }) => readPrivate(async () => {
+      if (metadataCommand) {
+        const receipt = await api.modelCapabilities(metadataCommand, signal);
+        if (receipt.metadata_state === 'PENDING') return receipt;
+      }
+      return api.modelTest(signal, operation);
+    }, signal),
     enabled: authReady && !sending, retry: false, placeholderData: previous => previous,
     refetchInterval: query => (query.state.data?.state && query.state.data.state !== 'FINISHED') || query.state.data?.metadata_state === 'PENDING' ? 1000 : false,
     refetchOnWindowFocus: false });
@@ -46,6 +52,7 @@ export function ModelTest() {
       if (action === 'start' && observed.selection_revision) {
         identity = crypto.randomUUID();
         // Store only identity before sending; reload and lost replies never repeat a mutation.
+        sessionStorage.removeItem(storage + '-refused');
         sessionStorage.setItem(storage, identity); setOperation(identity);
         sessionStorage.removeItem(metadataStorage); setMetadataCommand(null); metadataIdentity = null;
         value = await api.startModelTest(identity, observed.selection_revision, session.data.csrf_token);
@@ -54,6 +61,7 @@ export function ModelTest() {
         const current = await api.modelTest();
         if (!current.selection_revision) throw new ApiError('INVALID_RESPONSE');
         metadataIdentity = crypto.randomUUID();
+        sessionStorage.removeItem(metadataStorage + '-refused');
         sessionStorage.setItem(metadataStorage, metadataIdentity); setMetadataCommand(metadataIdentity);
         value = await api.refreshModelCapabilities(metadataIdentity, current.selection_revision, session.data.csrf_token);
       } else if (observed.operation_id && observed.state_revision) {
@@ -63,13 +71,30 @@ export function ModelTest() {
     } catch (error) {
       setConsent(false);
       setUncertain(true);
+      if (action !== 'cancel' && error instanceof ApiError && ['REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code)) {
+        const refused = action === 'start' ? identity : metadataIdentity;
+        if (refused) sessionStorage.setItem((action === 'start' ? storage : metadataStorage) + '-refused', refused);
+      }
       setNotice(error instanceof ApiError ? error.message : 'UNKNOWN — read the same operation. Do not resend.');
     } finally { busy.current = false; setSending(false); }
   }
   async function read() {
     if (!authReady || busy.current) return;
-    const result = await query.refetch();
-    if (result.data && (!result.data.state || result.data.state === 'FINISHED')) setUncertain(false);
+    busy.current = true; setSending(true);
+    try {
+      const result = await query.refetch();
+      const pointer = metadataCommand ? metadataStorage : storage;
+      const identity = metadataCommand ?? operation;
+      if (result.error instanceof ApiError && result.error.code === 'NOT_FOUND' && identity && remembered(pointer + '-refused') === identity) {
+        // Clear only a known refused ID, after its exact absence and current state are confirmed.
+        const current = await readPrivate(() => api.modelTest(undefined, metadataCommand ? operation : null), new AbortController().signal);
+        sessionStorage.removeItem(pointer); sessionStorage.removeItem(pointer + '-refused');
+        if (metadataCommand) setMetadataCommand(null); else setOperation(null);
+        client.setQueryData(['private', 'model-test', metadataCommand ? operation : null, null], current);
+        setUncertain(false); setConsent(false); setNotice('Not admitted. Current state loaded; a new test requires new consent.');
+      } else if (!result.error && result.data && (!result.data.state || result.data.state === 'FINISHED')) setUncertain(false);
+    } catch { setNotice('Current state not confirmed. Keep the same ID; do not resend.'); }
+    finally { busy.current = false; setSending(false); }
   }
   return <section className={styles.panel} aria-label="Test model"><div className={styles.core}>
     <h2>Test model</h2>

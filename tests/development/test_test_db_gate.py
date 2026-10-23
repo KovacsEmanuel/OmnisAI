@@ -112,8 +112,10 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 },
             ),
         ):
-            with self.assertRaisesRegex(module["UnsafeFixture"], "toolchain pin mismatch"):
-                prove("check-components", "uv", 10)
+            for target in ("check-components", "test-contract-method-pg"):
+                with self.subTest(target=target):
+                    with self.assertRaisesRegex(module["UnsafeFixture"], "toolchain pin mismatch"):
+                        prove(target, "uv", 10)
 
     def test_canonical_components_keep_active_checks_and_explicit_legacy_gate(self) -> None:
         makefile = (SCRIPT.parent.parent / "Makefile").read_text()
@@ -156,7 +158,7 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
         def before_db(*_args):
             raise RuntimeError("before DB")
 
-        for target in (None, "test-db-contract"):
+        for target in (None, "test-db-contract", "test-contract-method-pg"):
             with (
                 self.subTest(target=target),
                 patch.dict(
@@ -191,6 +193,37 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
         for signum, handler in previous.items():
             self.assertIs(signal.getsignal(signum), handler)
         self.assertEqual(module["gate_label"]("test-catalog-candidates-pg"), "TARGETED_GATE")
+
+    def test_contract_method_target_keeps_existing_owner_and_schema_consumers(self) -> None:
+        module = runpy.run_path(str(SCRIPT))
+        main = module["main"]
+        with (
+            patch.object(
+                sys, "argv", [str(SCRIPT), "--check", "--target", "test-contract-method-pg"]
+            ),
+            patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
+            patch.object(module["signal"], "signal"),
+        ):
+            self.assertEqual(main(), ("test-contract-method-pg", "uv", 3600))
+        self.assertEqual(module["gate_label"]("test-contract-method-pg"), "TARGETED_GATE")
+        recipe = (
+            (SCRIPT.parent.parent / "Makefile")
+            .read_text()
+            .split("test-contract-method-pg:\n", 1)[1]
+            .split("\n\n", 1)[0]
+        )
+        self.assertIn("Dedicated PostgreSQL fixture required", recipe)
+        self.assertIn("-m 'not legacy_native'", recipe)
+        self.assertEqual(
+            [word for word in recipe.split() if word.startswith("api/tests/")],
+            [
+                "api/tests/test_contract_method_migration.py",
+                "api/tests/test_contract_method_producer.py",
+                "api/tests/test_health.py",
+                "api/tests/test_mission_revision_schema.py",
+                "api/tests/test_catalog_candidates_pg_compatibility.py",
+            ],
+        )
 
     def test_gate_uses_private_operator_config_not_ambient_or_caller_config(self) -> None:
         module = runpy.run_path(str(SCRIPT))
@@ -353,10 +386,14 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 for k, v in os.environ.items()
                 if k not in {"MAKEFLAGS", "MFLAGS", "OMNIS_TEST_FIXTURE"}
             }
-            for flag in ("-n", "-t", "-q", "-i"):
-                with self.subTest(flag=flag):
+            for target, flag in (
+                (target, flag)
+                for target in ("test-model-test-v2-pg", "test-contract-method-pg")
+                for flag in ("-n", "-t", "-q", "-i")
+            ):
+                with self.subTest(target=target, flag=flag):
                     completed = subprocess.run(
-                        ["make", flag, "test-model-test-v2-pg", f"SHELL={shell}"],
+                        ["make", flag, target, f"SHELL={shell}"],
                         cwd=root,
                         env=env,
                         capture_output=True,

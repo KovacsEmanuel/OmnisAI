@@ -1045,6 +1045,7 @@ def main() -> int:
             "test-b04-e2e",
             "test-catalog-settings-e2e",
             "test-catalog-candidates-pg",
+            "test-contract-method-pg",
             "test-b06b-publish-pg",
             "test-b06b-pure-probe-pg",
             "test-native-preparation-pg",

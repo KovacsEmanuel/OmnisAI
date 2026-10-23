@@ -24,6 +24,7 @@ function mount(settings = false) {
   return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider>{settings && <ProviderSettings />}<ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
 }
 it('Settings save refreshes current selection without rewriting the active requested snapshot', async () => {
+  const invalidation = vi.spyOn(QueryClient.prototype, 'invalidateQueries');
   sessionStorage.clear();
   const id = '11111111-1111-4111-8111-111111111111';
   const command = '22222222-2222-4222-8222-222222222222';
@@ -57,6 +58,7 @@ it('Settings save refreshes current selection without rewriting the active reque
   await waitFor(() => { expect(save).toBeEnabled(); expect(save).not.toHaveAttribute('aria-disabled', 'true'); });
   fireEvent.click(save);
   await waitFor(() => expect(writes).toBe(1));
+  await waitFor(() => expect(invalidation).toHaveBeenCalledWith({ queryKey: ['private', 'model-test'] }));
   await screen.findByText(/Saved selection revision: 2/);
   expect(screen.getByText(/Cerut:/)).toHaveTextContent('fixture/original');
   expect(screen.getByText(/Operation:/)).toHaveTextContent(id);

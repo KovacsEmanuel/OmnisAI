@@ -7314,7 +7314,7 @@ def test_batch2_actual_persisted_correspondence(mutation: str | None) -> None:
 def test_h04_current_reader_source_snapshot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str | None
 ) -> None:
-    """SOURCE schema/bytes control; origin seam substituted, NOT installed acceptance."""
+    """Finite synthetic SOURCE parser fixture, NOT the full CURRENT API distribution."""
     import shutil
     import zipfile
 
@@ -7322,14 +7322,16 @@ def test_h04_current_reader_source_snapshot(
     fixture.mkdir(mode=0o700)
     source, checkout = fixture / "snapshot", fixture / "checkout"
     installed = fixture / "reader/lib/python3.13/site-packages"
-    package = ROOT / "api/src/omnis"
-    paths = sorted(p for p in package.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+    names = (
+        "omnis/__init__.py",
+        "omnis/supervisor/__init__.py",
+        "omnis/supervisor/model_protocol.py",
+    )
     files: list[dict[str, str]] = []
     wheel_path = fixture / "source-fixture.whl"
     with zipfile.ZipFile(wheel_path, "w", compression=zipfile.ZIP_DEFLATED) as wheel:
-        for path in paths:
-            name = "omnis/" + str(path.relative_to(package))
-            raw = path.read_bytes()
+        for name in names:
+            raw = b"# Finite synthetic SOURCE parser material; not import acceptance.\n"
             for target in (
                 source / "api/src" / name,
                 checkout / "api/src" / name,
@@ -7339,22 +7341,11 @@ def test_h04_current_reader_source_snapshot(
                 target.write_bytes(raw)
             wheel.writestr(name, raw)
             files.append({"path": "api/src/" + name, "sha256": sha(raw)})
-        # Exercise an additive protocol file even on a pre-Admission checkout.
-        if not any(row["path"].endswith("/model_protocol.py") for row in files):
-            name, raw = (
-                "omnis/supervisor/model_protocol.py",
-                b"# SOURCE additive protocol fixture\n",
-            )
-            for target in (
-                source / "api/src" / name,
-                checkout / "api/src" / name,
-                installed / name,
-            ):
-                target.write_bytes(raw)
-            wheel.writestr(name, raw)
-            files.append({"path": "api/src/" + name, "sha256": sha(raw)})
     if mutation in {"wheel-max", "wheel-max-plus-one"}:
         target_size = 327680 + (mutation == "wheel-max-plus-one")
+        with zipfile.ZipFile(wheel_path, "a") as wheel:
+            for index in range(2):
+                wheel.writestr(f"bounded-wheel-{index}", b" " * 131072)
         padding = target_size - wheel_path.stat().st_size
         assert 0 <= padding <= 65535
         with zipfile.ZipFile(wheel_path, "a") as wheel:
@@ -7366,8 +7357,9 @@ def test_h04_current_reader_source_snapshot(
             if mutation.startswith("aggregate-"):
                 target_size = 1179648 + (mutation == "aggregate-max-plus-one")
                 padding = target_size - sum(m.file_size for m in members)
-                assert 0 <= padding <= 131072
-                wheel.writestr("bounded-control", b" " * padding)
+                assert padding >= 0
+                for index, start in enumerate(range(0, padding, 131072)):
+                    wheel.writestr(f"bounded-control-{index}", b" " * min(131072, padding - start))
                 assert sum(m.file_size for m in wheel.infolist()) == target_size
             elif mutation == "zip-count":
                 for index in range(129 - len(members)):
@@ -7379,6 +7371,15 @@ def test_h04_current_reader_source_snapshot(
         assert wheel_path.stat().st_size <= 327680
     elif mutation == "bad-zip":
         wheel_path.write_bytes(b"not a ZIP")
+    if mutation != "bad-zip":
+        with zipfile.ZipFile(wheel_path) as wheel:
+            members = wheel.infolist()
+            assert len(members) == 129 if mutation == "zip-count" else len(members) <= 128
+            assert all(member.file_size <= 131072 for member in members)
+            assert sum(member.file_size for member in members) <= 1179648 + (
+                mutation == "aggregate-max-plus-one"
+            )
+        assert wheel_path.stat().st_size <= 327680 + (mutation == "wheel-max-plus-one")
     python = fixture / "reader/bin/python"
     python.parent.mkdir(parents=True)
     python.symlink_to(Path(sys.executable).resolve())
@@ -7424,6 +7425,9 @@ def test_h04_current_reader_source_snapshot(
         files.pop()
     elif mutation == "duplicate-row":
         files.append(dict(files[0]))
+    elif mutation == "stale-reader":
+        # A fresh stale snapshot differs only from the current checkout bytes.
+        (checkout / files[0]["path"]).write_bytes(b"# Newer SOURCE checkout\n")
     handle = fixture / "h04-current-reader.json"
     handle.write_bytes(canonical(descriptor))
     handle.chmod(0o600)
@@ -7438,11 +7442,7 @@ def test_h04_current_reader_source_snapshot(
 
     monkeypatch.setattr(sys.modules[__name__], "ROOT", checkout)
     monkeypatch.setattr(subprocess, "run", origin)
-    if mutation == "stale-reader":
-        handle = Path(
-            "/home/kali/.hermes/cache/scratch/p2-batch2-cdbfa74/installed-c6eac5f5a13440ffa6bcb35a6e853ab0/current-reader.json"
-        )
-        expected = "5f650e2e555c0e0d90d1e388367aa7fd781de15288bca62db0a936c4ea2b6007"
+
     if mutation in (None, "wheel-max", "aggregate-max"):
         assert batch2_current_reader(handle, expected_sha256=expected) == current
         assert len(calls) == 1
@@ -7456,18 +7456,17 @@ def test_h04_current_reader_source_snapshot(
 def test_h04_real_reader_cache_controls(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cache_phase: str | None
 ) -> None:
-    """Real API imports; private dependency .pth seam, not final distribution QA."""
+    """Full CURRENT API/cache import proof, separate from the finite bounded parser."""
     import py_compile
+    import shutil
     import venv
+    import zipfile
     from unittest.mock import Mock
 
-    # Reuse the existing exact ROOT/export/wheel/installed SOURCE fixture.
-    with monkeypatch.context() as fixture_patch:
-        test_h04_current_reader_source_snapshot(tmp_path, fixture_patch, None)
     fixture = tmp_path / "h04-reader"
-    handle = fixture / "h04-current-reader.json"
-    current = mapping(mapping(json.loads(handle.read_bytes()))["current"])
-    python = Path(str(current["python"]))
+    fixture.mkdir(mode=0o700)
+    exported = fixture / "snapshot"
+    python = fixture / "reader/bin/python"
     venv.EnvBuilder(system_site_packages=True, symlinks=True, with_pip=False).create(
         python.parent.parent
     )
@@ -7475,17 +7474,52 @@ def test_h04_real_reader_cache_controls(
     (installed / "source-dependencies.pth").write_text(
         str(Path(sys.prefix) / "lib/python3.13/site-packages") + "\n"
     )
-    monkeypatch.setattr(sys.modules[__name__], "ROOT", fixture / "checkout")
+    package = ROOT / "api/src/omnis"
+    for target in (exported / "api/src/omnis", installed / "omnis"):
+        shutil.copytree(package, target, ignore=shutil.ignore_patterns("__pycache__"))
+    names = {
+        "omnis/" + str(path.relative_to(package))
+        for path in package.rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    }
+    wheel = fixture / "full-current-source-control.whl"
+    with zipfile.ZipFile(wheel, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name in sorted(names):
+            archive.writestr(name, (exported / "api/src" / name).read_bytes())
+    expected = sha(wheel.read_bytes())
+    child_env = {"PATH": "/usr/bin:/bin"}
+    for variable, leaf in (("HOME", "home"), ("XDG_CONFIG_HOME", "xdg"), ("TMPDIR", "tmp")):
+        directory = fixture / leaf
+        directory.mkdir(mode=0o700)
+        child_env[variable] = str(directory)
     observed = Mock(wraps=subprocess.run)
     monkeypatch.setattr(subprocess, "run", observed)
-    expected = sha(handle.read_bytes())
     if cache_phase != "origin":
-        assert batch2_current_reader(handle, expected_sha256=expected) == current
+        batch2_reader_inventory(installed, names)
+        # No legacy ZIP caps here: actual CURRENT imports/bytes, not parser admission.
+        origin = subprocess.run(
+            [
+                str(python),
+                "-I",
+                "-B",
+                "-c",
+                batch2_reader_code(python, HISTORICAL_ORIGIN),
+                str(exported),
+                str(wheel),
+            ],
+            cwd=fixture,
+            env=child_env,
+            capture_output=True,
+            timeout=15,
+        )
+        assert origin.returncode == 0 and origin.stderr == b""
+        assert mapping(json.loads(origin.stdout))["installed_bytes"] == "EXACT_WHEEL_AND_GIT_EXPORT"
         assert observed.call_count == 1
     source = installed / "omnis/__init__.py"
     original = source.read_bytes()
     marker = tmp_path / "unattested-bytecode-entered"
     cache: Path | None = None
+    cache_bytes: bytes | None = None
     if cache_phase is not None:
         synthetic = tmp_path / "synthetic-init.py"
         synthetic.write_text(
@@ -7503,9 +7537,10 @@ def test_h04_real_reader_cache_controls(
             doraise=True,
             invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH,
         )
+        cache_bytes = cache.read_bytes()
     if cache_phase == "origin":
         with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
-            batch2_current_reader(handle, expected_sha256=expected)
+            batch2_reader_inventory(installed, names)
         assert observed.call_count == 0
     else:
         # Exercise the actual fresh reader's inert control, not a substitute import.
@@ -7515,6 +7550,7 @@ def test_h04_real_reader_cache_controls(
         child = subprocess.run(
             [str(python), "-I", "-B", "-c", code, "INSTALLED", str(audit), "--history-control"],
             cwd=fixture,
+            env=child_env,
             capture_output=True,
             timeout=15,
         )
@@ -7532,9 +7568,15 @@ def test_h04_real_reader_cache_controls(
             assert audit.read_bytes() == b""
     assert not marker.exists()
     assert source.read_bytes() == original
-    assert sha(handle.read_bytes()) == expected
+    assert sha(wheel.read_bytes()) == expected
+    with zipfile.ZipFile(wheel) as archive:
+        assert set(archive.namelist()) == names
+        for name in names:
+            assert archive.read(name) == (ROOT / "api/src" / name).read_bytes()
+            assert archive.read(name) == (exported / "api/src" / name).read_bytes()
+            assert archive.read(name) == (installed / name).read_bytes()
     if cache is not None:
-        assert cache.is_file()  # Preserve unknown bytes; never delete for green.
+        assert cache.read_bytes() == cache_bytes  # Preserve unknown bytes; never delete for green.
 
 
 @pytest.mark.legacy_native

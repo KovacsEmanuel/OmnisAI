@@ -2551,6 +2551,13 @@ def test_stock_site_actual_admission_cut(
         "qa_hashes": {"qa-sitecustomize.py": "a" * 64},
         "h04": None,
         "batch2": batch2,
+        "model_prepare": False,
+        "model_execute": False,
+        "applicability": "batch2-startup-only"
+        if startup
+        else "batch2-release-first"
+        if batch2
+        else "runtime-restart",
         "installed_native": True,
         "host": None,
         "runtime": runtime,
@@ -4364,6 +4371,13 @@ def test_h03_actual_lifecycle_source_seams(
         tmp_path=tmp_path,
         h03=not batch2,
         h04=None,
+        model_prepare=False,
+        model_execute=False,
+        applicability="batch2-startup-only"
+        if startup_mode
+        else "batch2-release-first"
+        if batch2
+        else "runtime-restart",
         installed_native=True,
         batch2=batch2 and not startup_mode,
         startup=startup_mode,

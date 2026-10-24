@@ -1,0 +1,84 @@
+{
+  "snapshot": "c6058da0868b172c1d48f9a174d7ca0d59a4862f",
+  "owner": "proc_c0c9ed5c0dd2",
+  "exit": 2,
+  "family_drained": true,
+  "docs": {
+    "passed": 87
+  },
+  "development": {
+    "passed": 56
+  },
+  "api": {
+    "failed": 9,
+    "passed": 3091,
+    "skipped": 65,
+    "deselected": 7,
+    "errors": 1,
+    "seconds": 3954.97
+  },
+  "failed_nodeids": [
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[float_revision]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[uuid_uppercase]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[duplicate]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[nested_duplicate]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[nul]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[surrogate]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[nan]",
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[oversize]",
+    "api/tests/test_b06b_publication_pg.py::test_real_pg_observed_overlap_atomic_cas[False]"
+  ],
+  "error_nodeids": [
+    "api/tests/test_b06b_publication_pg.py::test_strict_wire_denials_before_existing_replay[float_revision]"
+  ],
+  "causes_observed": [
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[float_revision]",
+      "observed_failure": "CANDIDATE_READBACK_TIMEOUT_25S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[uuid_uppercase]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[duplicate]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[nested_duplicate]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[nul]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[surrogate]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[nan]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_strict_wire_denials_before_existing_replay[oversize]",
+      "observed_failure": "CLI_HELP_TIMEOUT_15S"
+    },
+    {
+      "case": "test_real_pg_observed_overlap_atomic_cas[False]",
+      "observed_failure": "FIXTURE_ATTESTATION_UNAVAILABLE"
+    }
+  ],
+  "historical_underlying_cause": "UNKNOWN; no attribution to later startup fix",
+  "later_gate_stages": "NOT_RUN",
+  "tracked_inputs": 1907,
+  "tracked_input_drift": false,
+  "raw_log_sha256": "af7e0c15dcf69c6d584e4cd964ce2b2f6d9ecdb13856d9f9d38fc8c5b22f46cf",
+  "raw_log_private_path": "/home/kali/.hermes/cache/scratch/t1-33ee99/parent/tmp/db-d8ed1a711a0544d5/gate.log",
+  "cleanup": {
+    "exact_cid_absent": true,
+    "socket_empty": true,
+    "data_retained": true
+  },
+  "new_installed_SENT_case": "PASS within API (not listed among failures), metadata synthetic; does not close full installed supervisor/provider proof"
+}

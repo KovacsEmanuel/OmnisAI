@@ -1,0 +1,237 @@
+{
+  "artifact": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+  "origin": "http://127.0.0.1:8772",
+  "browser_revision": 1243,
+  "requests": [
+    {
+      "path": "/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-wc7DvD2Y.js",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-97com5ii.css",
+      "method": "GET"
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/pairing",
+      "method": "POST"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-wc7DvD2Y.js",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-97com5ii.css",
+      "method": "GET"
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET"
+    },
+    {
+      "path": "/api/instance",
+      "method": "GET"
+    },
+    {
+      "path": "/api/logout",
+      "method": "POST"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    }
+  ],
+  "blocked": [],
+  "screenshots": [
+    "/home/kali/.hermes/cache/scratch/t1-33ee99/evidence/ready-settings-providers.png",
+    "/home/kali/.hermes/cache/scratch/t1-33ee99/evidence/ready-settings-test-model.png",
+    "/home/kali/.hermes/cache/scratch/t1-33ee99/evidence/ready-settings-reload.png"
+  ],
+  "stages": [
+    "unpaired401",
+    "pty-pair",
+    "settings-empty",
+    "reload",
+    "logout"
+  ],
+  "assertions": {
+    "unauthenticated": {
+      "providers": 401,
+      "model_test": 401
+    },
+    "initial": {
+      "key_password_empty_enabled": true,
+      "save_key_disabled": true,
+      "save_selection_disabled": true,
+      "selection_absent": true,
+      "connection_placeholder_disabled": true,
+      "default_model_empty": true,
+      "refresh_disabled": true,
+      "test_disabled": true,
+      "hint": "Testul nu poate fi trimis: selecția implicită nu este salvată. Configurează și salvează selecția implicită în Settings → Providers (Save model selection), apoi apasă „Refresh model metadata”.",
+      "providers": {
+        "schema_version": 2,
+        "command_id": null,
+        "vault_status": "UNCONFIGURED",
+        "connections": [],
+        "selection": null,
+        "reachable": "NOT_VERIFIED"
+      },
+      "test": {
+        "metadata_state": "NOT_REQUESTED",
+        "selection_revision": null,
+        "operation_id": null,
+        "result_state": null,
+        "reason": null
+      }
+    },
+    "after_reload": {
+      "key_password_empty_enabled": true,
+      "save_key_disabled": true,
+      "save_selection_disabled": true,
+      "selection_absent": true,
+      "connection_placeholder_disabled": true,
+      "default_model_empty": true,
+      "refresh_disabled": true,
+      "test_disabled": true,
+      "hint": "Testul nu poate fi trimis: selecția implicită nu este salvată. Configurează și salvează selecția implicită în Settings → Providers (Save model selection), apoi apasă „Refresh model metadata”.",
+      "providers": {
+        "schema_version": 2,
+        "command_id": null,
+        "vault_status": "UNCONFIGURED",
+        "connections": [],
+        "selection": null,
+        "reachable": "NOT_VERIFIED"
+      },
+      "test": {
+        "metadata_state": "NOT_REQUESTED",
+        "selection_revision": null,
+        "operation_id": null,
+        "result_state": null,
+        "reason": null
+      }
+    },
+    "logout": {
+      "session": 401,
+      "providers": 401,
+      "model_test": 401
+    }
+  },
+  "provider_key_entered": false,
+  "provider_actions": 0,
+  "pair_cli_exit": 0,
+  "pair_http_status": 200,
+  "model_read_observation": {
+    "status": 200,
+    "metadata_state": "NOT_REQUESTED",
+    "selection_revision": null,
+    "reason": null
+  },
+  "settings_dom_text": "Settings\nProviders\nSkills\nRuntime & data\nProvider configuration\n\nAPI keys are write-only. Save stores configuration locally; it never validates a provider or runs inference.\n\nProvider reachable: NOT_VERIFIED. Inference: NOT_VERIFIED.\n\nVault: UNCONFIGURED\n\nReload current settings\nProvider\nOpenRouter\nOrcaRouter\nAPI key\nSave API key\n\n1–512 printable ASCII characters, no whitespace. Local revocation does not revoke the upstream key.\n\nModel selection\nDefault\n\nDefault source: not configured\n\nDefault connection\nChoose connection\nDefault model\nDefault output tokens\nBrain\nBrain override\n\nBrain source: not configured\n\nInvestigator\nInvestigator override\n\nInvestigator source: not configured\n\nValidator\nValidator override\n\nValidator source: not configured\n\nSave model selection\nTest model\n\nMesaj sintetic fix · 1 apel / 300s · fără tools sau trafic către țintă.\n\nSystem: Respond only with OMNIS_MODEL_TEST_OK. Use no tools.\n\nUser: This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.\n\nMetadata: NOT_REQUESTED · Saved selection revision: UNKNOWN\n\nCerut: saved default / saved default / output cap saved default\n\nOperation: none · not started\n\nNOT_VERIFIED\n I approve this fixed synthetic input and one finite call using the saved default.\n\nTestul nu poate fi trimis: selecția implicită nu este salvată. Configurează și salvează selecția implicită în Settings → Providers (Save model selection), apoi apasă „Refresh model metadata”.\n\nRefresh model metadataTrimite testul modeluluiCancel testCitește starea testului\n\nObservat: UNKNOWN · Provider: UNKNOWN · Output: ABSENT\n\nUsage UNKNOWN input/output/reasoning: UNKNOWN / UNKNOWN / UNKNOWN · Cost: UNKNOWN\n\nStop drains local operations. Cancel is not a remote cancellation or a refund. Reload only reads; a new test always requires another explicit consent and action.",
+  "original_locator_probe": {
+    "matches": 0,
+    "actual_label": "Default connectionChoose connection"
+  },
+  "verdict": "PASS_SCOPED",
+  "browser_closed": true,
+  "browser_profile_removed": true
+}

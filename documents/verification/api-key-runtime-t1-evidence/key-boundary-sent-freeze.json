@@ -1,0 +1,146 @@
+{
+  "base": "f26beb4e9f7611dbec0b0c1a15f03e1761fc8317",
+  "head": "be72942d82dfa6caf0c1c42c095306a5e33eaa81",
+  "commits": [
+    "f39c80783339673525eddf9f71cef75f5c840eb7",
+    "be72942d82dfa6caf0c1c42c095306a5e33eaa81"
+  ],
+  "files": {
+    "api/tests/test_model_test_v2.py": {
+      "blob": "917267660f2f65e0fe2505955927892118cdb593",
+      "sha256": "d2f5fbf7c4e293ab5831bdb0cd0e4393a2c62f5e2234b2d185c02b7c3c9fe92f"
+    },
+    "api/tests/installed_sent_probe.py": {
+      "blob": "cc23c4b1db12a0583966ca0bb9bdda75bf7626ec",
+      "sha256": "e3050cf8d148d5a575eddf223afa6ed9f047ac6ae872cd4572ebd6556d55e093"
+    }
+  },
+  "proof": "Installed API components; normal wheel modules; synthetic metadata; SIGKILL at send entry after committed SENT; fresh process receive-only reconcile UNKNOWN/OWNER_LOST. Not full installed supervisor or provider/TLS/SDK success.",
+  "bundle_release_sha256": "36ab4ad267e048ad4d5598a5a336c19d32f9d43647c131440ab7650d31a92c54",
+  "unchanged_api_modules": 113,
+  "checks": {
+    "proof_gap_collect_exit": 4,
+    "collect_count": 71,
+    "final_target_passed": 71,
+    "final_target_seconds": 116.74,
+    "final_target_exit": 0,
+    "negative_exit": 79,
+    "crash_exit": -9,
+    "recovery_exits": [
+      0,
+      0
+    ],
+    "quality_exit": 0,
+    "UV_only_red_exit": 1,
+    "UV_only_green_exit": 0
+  },
+  "cleanup": [
+    {
+      "fixture": "db-a341bdb1be90403d",
+      "container_absent": true,
+      "project_absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_retained": true,
+      "gate_result": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    },
+    {
+      "fixture": "db-5299334083d4430e",
+      "container_absent": true,
+      "project_absent": true,
+      "networks_absent": true,
+      "socket_empty": true,
+      "data_retained": true,
+      "gate_result": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      }
+    }
+  ],
+  "owned_processes_absent": [
+    2519402,
+    2519434,
+    2519530,
+    2519560,
+    2535769,
+    2535800,
+    2535892,
+    2535926
+  ],
+  "process_outputs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-0/test_installed_sent_crash_reco0/deny_send-0.stdout",
+      "sha256": "1aee4cf687050a23ea7e37147fc11f9cea8b626b3c53b60c93356bf2ad892e4a",
+      "stages": [
+        "installed",
+        "send_denied"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-0/test_installed_sent_crash_reco0/produce-1.stdout",
+      "sha256": "8bd49939bc574759a919dd89519484e5f05fc37878687dc57dbc8bed8c2f197d",
+      "stages": [
+        "installed",
+        "ready",
+        "send_entry"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-0/test_installed_sent_crash_reco0/recover-2.stdout",
+      "sha256": "c7714448ba9904840e9f8cf6b3e63d859b66fa271f74184be48bc55b12cd6473",
+      "stages": [
+        "installed",
+        "recovered"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-0/test_installed_sent_crash_reco0/recover-3.stdout",
+      "sha256": "868038f8827ec36b2810e9bb10913eeb2b6568c0e34b07248040291e06f64520",
+      "stages": [
+        "installed",
+        "recovered"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-1/test_installed_sent_crash_reco0/deny_send-0.stdout",
+      "sha256": "3139c58fe504d360fb56a9def92f0ac706eba1b5d881015421e7d4bd2e7e19a0",
+      "stages": [
+        "installed",
+        "send_denied"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-1/test_installed_sent_crash_reco0/produce-1.stdout",
+      "sha256": "20cda0205b9b04a7dee886d9a923a273e58f262d97b52102b88985bc063507f6",
+      "stages": [
+        "installed",
+        "ready",
+        "send_entry"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-1/test_installed_sent_crash_reco0/recover-2.stdout",
+      "sha256": "25e6490a59b2f09b3a6ad58b2aef052875bfe26afa19347506079ee489da1156",
+      "stages": [
+        "installed",
+        "recovered"
+      ]
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev-tmp/pytest-of-kali/pytest-1/test_installed_sent_crash_reco0/recover-3.stdout",
+      "sha256": "946979e60622109aa6129c6fde78529e06a7314368ad7f7735f920ec3fc8fea4",
+      "stages": [
+        "installed",
+        "recovered"
+      ]
+    }
+  ],
+  "review": "NOT_REVIEWED; candidate, not acceptance",
+  "historical_counters": "PENDING/metadata counter2 and connect/write counter2 unchanged; not closed by this narrower proof.",
+  "harness_only_corrections_after_first_product_proof": 1
+}

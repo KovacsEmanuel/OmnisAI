@@ -1,0 +1,59 @@
+{
+  "product_state": "STOPPED",
+  "containers": {
+    "db87047df46d228303ac051a06d7402bae4e73307f5a9932f952d0448c0825b3": {
+      "exit": 1,
+      "absent": true
+    },
+    "1a437b478a0511396440ab9aec6c7cd546d054b918ce37044959452d5bdc5b8e": {
+      "exit": 1,
+      "absent": true
+    },
+    "01a15cb410c716d691d6b2be900e3a2b4e918d0b75721c3f489ffcf24b322068": {
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "network_id": "a4d262a54982bfd2f18dfaebee07c30daaae13b33948fe6beaa46cfd55fb800c",
+  "network_absent": true,
+  "project_container_census_empty": true,
+  "forwarder_pid": 2841469,
+  "forwarder_identity_absent": true,
+  "listener_8772_absent": true,
+  "socket_paths_absent": {
+    "/home/kali/.local/share/omnis-t1-ready-33ee99/s/omnis/http/api.sock": true,
+    "/home/kali/.local/share/omnis-t1-ready-33ee99/r/omnis/control.sock": true,
+    "/home/kali/.local/share/omnis-t1-ready-33ee99/s/omnis/vault/model-egress.sock": true
+  },
+  "own_live_unix_sockets_absent": true,
+  "own_host_process_census": [],
+  "data_preserved": {
+    "postgres": {
+      "same_device_inode": [
+        2049,
+        4782338
+      ],
+      "mode": "0o711",
+      "contents_not_read": true
+    },
+    "vault": {
+      "same_device_inode": [
+        2049,
+        4782333
+      ],
+      "mode": "0o700",
+      "contents_not_read": true
+    },
+    "vault-key": {
+      "same_device_inode": [
+        2049,
+        4782334
+      ],
+      "mode": "0o700",
+      "contents_not_read": true
+    }
+  },
+  "operational_directories_preserved_private": true,
+  "browser_closed_and_no_automation_left": true,
+  "manual_cleanup_required": false
+}

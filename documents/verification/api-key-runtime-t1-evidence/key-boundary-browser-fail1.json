@@ -1,0 +1,89 @@
+{
+  "artifact": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+  "origin": "http://127.0.0.1:8772",
+  "browser_revision": 1243,
+  "requests": [
+    {
+      "path": "/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-wc7DvD2Y.js",
+      "method": "GET"
+    },
+    {
+      "path": "/assets/index-97com5ii.css",
+      "method": "GET"
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/pairing",
+      "method": "POST"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/settings/providers",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/model-test",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/session",
+      "method": "GET"
+    },
+    {
+      "path": "/api/logout",
+      "method": "POST"
+    }
+  ],
+  "blocked": [],
+  "screenshots": [],
+  "stages": [
+    "unpaired401",
+    "pty-pair"
+  ],
+  "assertions": {
+    "unauthenticated": {
+      "providers": 401,
+      "model_test": 401
+    }
+  },
+  "provider_key_entered": false,
+  "provider_actions": 0,
+  "pair_cli_exit": 0,
+  "pair_http_status": 200,
+  "verdict": "FAIL",
+  "failed_stage": "settings-empty",
+  "error_class": "TimeoutError2",
+  "emergency_logout": 204,
+  "browser_closed": true,
+  "browser_profile_removed": true
+}

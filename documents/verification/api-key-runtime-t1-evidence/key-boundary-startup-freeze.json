@@ -1,0 +1,89 @@
+{
+  "scope": "SOURCE_PRIVATE_PG_MIXED_SCOPED_NOT_CANONICAL_NOT_INSTALLED",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+  "base": "be72942d82dfa6caf0c1c42c095306a5e33eaa81",
+  "commit": "92e36082d64b8ae49437df1976876b0d66ba089f",
+  "tree": "f82811691df67b073e0bc28b16332651c26dd638",
+  "clean": true,
+  "review": "NOT_REVIEWED_REQUIRES_TWO_FOCUSED_REVIEWS",
+  "diff_sha256": "1123cbf7ef6b5990ed31616706c21456176d58a86d13829b7540be75333c19e2",
+  "files": {
+    "api/src/omnis/supervisor/__main__.py": {
+      "blob": "a4caecd0b763129ee5224e2cfb5ff4ed453f78f2",
+      "sha256": "f3ed8161421315fcebe41ae1139b00b29b5badea1f02986b3b14380d0eeb3226"
+    },
+    "api/tests/test_supervisor.py": {
+      "blob": "3db63e76778951d89ebac4ca322e7632bec7f80d",
+      "sha256": "7862a033937ec43ec43bc59f9c1fabae3016c5d254b7c6923a3ff18a89181ebd"
+    },
+    "api/tests/test_runtime_supervisor.py": {
+      "blob": "4aa85c5758ded73c497eb9a609b46750dc302a0f",
+      "sha256": "e5d55c905755f62bba808a10ef2fa43a30244471a99dac35d8995bf662a5d1bd"
+    }
+  },
+  "evidence_root": "/home/kali/.hermes/cache/scratch/t1-33ee99/fix",
+  "commands": {
+    "preflight": "api/.venv/bin/python -I -B ../fix/run_scoped.py red2 (or green)",
+    "red": "api/.venv/bin/python -I -B ../fix/run_scoped.py red2 --run",
+    "green": "api/.venv/bin/python -I -B ../fix/run_scoped.py green --run",
+    "quality": "make lint-api typecheck-api API_CHECK_PATHS='api/src/omnis/supervisor/__main__.py api/tests/test_supervisor.py api/tests/test_runtime_supervisor.py'",
+    "source": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_runtime_supervisor.py api/tests/test_native_preparation_startup.py -q --tb=short"
+  },
+  "results": {
+    "first_red": "exit1: expected failures plus test-monitor teardown stderr; retained, not clean RED",
+    "red2": "exit1: 3 failed / 3 passed, 49.92s; import/constructor missing READY with LEASE_LOST, acquire-refusal preparation expectation fails",
+    "green": "exit0: 111 passed, 115.54s; scoped run_gate selection on unchanged test-sl04-pg private fixture owner",
+    "source": "exit0: 50 passed, 4.36s",
+    "quality": "exit0: affected Ruff check/format and strict mypy",
+    "preflight": "exit0: collection and all exact API/dev dependency pins; Python 3.13.15, PG 18.6",
+    "diff_check": "exit0"
+  },
+  "cleanup": [
+    {
+      "stage": "red",
+      "project": "omnis-p01-c49cf4a25d3948d79dd93f6464f62bf9",
+      "cid": "986b260d6d2f116edc97fa1dbecc01931b5e7217405fad37ee5d278382e9c925",
+      "system_id": "7700149546061651998",
+      "root": "red/db-51e58acc64294440",
+      "owner_log": "red/owner.log",
+      "container_absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false,
+      "data_retained": true
+    },
+    {
+      "stage": "red2",
+      "project": "omnis-p01-b1b959bde40d433189cfe1fc72600fe6",
+      "cid": "225f3ab6d33758089520fa063ed96b9cba9b06b73e87f0ef68acf2da138b1257",
+      "system_id": "7700149986291302430",
+      "root": "red2/db-4389d2f2e3f247d5",
+      "owner_log": "red2/owner.log",
+      "container_absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false,
+      "data_retained": true
+    },
+    {
+      "stage": "green",
+      "project": "omnis-p01-01ad66a6e31640eda1c9b14640a411d6",
+      "cid": "93e3d0874fa10c521f4a1db583ea3393c529a7171d4ff426170a3fd2d714b04f",
+      "system_id": "7700150590989635614",
+      "root": "green/db-f0120e045fb148bd",
+      "owner_log": "green/owner.log",
+      "container_absent": true,
+      "networks_absent": true,
+      "socket_absent": true,
+      "uncertain": false,
+      "data_retained": true
+    }
+  ],
+  "limits": [
+    "DURABLE-T1-START-01 historical cause remains UNKNOWN",
+    "Declared delay, real PG lease and clocks unchanged; owner-loss denial preserved",
+    "No provider IO, no admission open in new cold cases; operations and dispatches zero",
+    "Prior harness-only cycle1 retained, not reset; product defect advanced",
+    "No shared/integration-src edit, bundle rebuild, installed rerun, canonical, T2, push or global change"
+  ]
+}

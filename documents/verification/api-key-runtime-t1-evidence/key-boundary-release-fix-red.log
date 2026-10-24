@@ -1,0 +1,89 @@
+test_image_install_timeout_cleans_recorded_tag (test_release.ReleaseBundleTest.test_image_install_timeout_cleans_recorded_tag) ... ERROR
+test_timeout_with_late_image_keeps_uncertainty_after_cleanup (test_release.ReleaseBundleTest.test_timeout_with_late_image_keeps_uncertainty_after_cleanup) ... ERROR
+
+======================================================================
+ERROR: test_image_install_timeout_cleans_recorded_tag (test_release.ReleaseBundleTest.test_image_install_timeout_cleans_recorded_tag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 539, in assert_image_install
+    result = self.run_cli_scope(
+        [cli, "install-image"],
+    ...<2 lines>...
+        timeout=420,
+    )
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+subprocess.TimeoutExpired: Command '['/synthetic/omnis']' timed out after 420 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 306, in test_image_install_timeout_cleans_recorded_tag
+    self.assert_image_install("/synthetic/omnis", {"PATH": ""}, data, scratch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 658, in assert_image_install
+    self.cleanup_image_install(data, uncertain=uncertain)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 479, in cleanup_image_install
+    _docker_id(root, record.docker_host),
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/compose.py", line 302, in _docker_id
+    response = _run("info", "--format", "{{.ID}}", cwd=bundle, host=host)
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/compose.py", line 46, in _run
+    private_dir(cwd.parent)
+    ~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/instance.py", line 21, in private_dir
+    raise InvalidInstance("Unsafe private directory")
+omnis_cli.instance.InvalidInstance: Unsafe private directory
+
+======================================================================
+ERROR: test_timeout_with_late_image_keeps_uncertainty_after_cleanup (test_release.ReleaseBundleTest.test_timeout_with_late_image_keeps_uncertainty_after_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 539, in assert_image_install
+    result = self.run_cli_scope(
+        [cli, "install-image"],
+    ...<2 lines>...
+        timeout=420,
+    )
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+subprocess.TimeoutExpired: Command '['/synthetic/omnis']' timed out after 420 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 385, in test_timeout_with_late_image_keeps_uncertainty_after_cleanup
+    self.assert_image_install("/synthetic/omnis", {"PATH": ""}, data, scratch)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 658, in assert_image_install
+    self.cleanup_image_install(data, uncertain=uncertain)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 479, in cleanup_image_install
+    _docker_id(root, record.docker_host),
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/compose.py", line 302, in _docker_id
+    response = _run("info", "--format", "{{.ID}}", cwd=bundle, host=host)
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/compose.py", line 46, in _run
+    private_dir(cwd.parent)
+    ~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/src/omnis_cli/instance.py", line 21, in private_dir
+    raise InvalidInstance("Unsafe private directory")
+omnis_cli.instance.InvalidInstance: Unsafe private directory
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.010s
+
+FAILED (errors=2)

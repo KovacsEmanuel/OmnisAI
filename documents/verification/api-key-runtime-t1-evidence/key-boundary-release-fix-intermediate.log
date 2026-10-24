@@ -1,0 +1,71 @@
+test_image_install_timeout_cleans_recorded_tag (test_release.ReleaseBundleTest.test_image_install_timeout_cleans_recorded_tag) ... FAIL
+test_timeout_with_late_image_keeps_uncertainty_after_cleanup (test_release.ReleaseBundleTest.test_timeout_with_late_image_keeps_uncertainty_after_cleanup) ... FAIL
+
+======================================================================
+FAIL: test_image_install_timeout_cleans_recorded_tag (test_release.ReleaseBundleTest.test_image_install_timeout_cleans_recorded_tag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 541, in assert_image_install
+    result = self.run_cli_scope(
+        [cli, "install-image"],
+    ...<2 lines>...
+        timeout=420,
+    )
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+subprocess.TimeoutExpired: Command '['/synthetic/omnis']' timed out after 420 seconds
+
+During handling of the above exception, another exception occurred:
+
+AssertionError: Unexpected cleanup operation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 306, in test_image_install_timeout_cleans_recorded_tag
+    with self.assertRaisesRegex(AssertionError, "uncertain"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "uncertain" does not match "Unexpected cleanup operation"
+
+======================================================================
+FAIL: test_timeout_with_late_image_keeps_uncertainty_after_cleanup (test_release.ReleaseBundleTest.test_timeout_with_late_image_keeps_uncertainty_after_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 541, in assert_image_install
+    result = self.run_cli_scope(
+        [cli, "install-image"],
+    ...<2 lines>...
+        timeout=420,
+    )
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+subprocess.TimeoutExpired: Command '['/synthetic/omnis']' timed out after 420 seconds
+
+During handling of the above exception, another exception occurred:
+
+AssertionError: Unexpected endpoint
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/cli/integration/test_release.py", line 386, in test_timeout_with_late_image_keeps_uncertainty_after_cleanup
+    with self.assertRaisesRegex(AssertionError, "uncertain"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "uncertain" does not match "Unexpected endpoint"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.009s
+
+FAILED (failures=2)

@@ -16,6 +16,66 @@ from omnis.supervisor import __main__ as consumer
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("fault", ["acquire_refused", "missing_keys", "runtime", "egress"])
+async def test_model_sender_preparation_preserves_guards_and_closes_on_acquire_refusal(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fault: str
+) -> None:
+    from omnis.modules.instance.domain import ControlCode, ControlConflict
+    from omnis.supervisor import model_sender
+
+    engine = Mock(dispose=AsyncMock())
+    refusal = ControlConflict(ControlCode.SUPERVISOR_OWNED)
+    service = Mock(
+        acquire=AsyncMock(
+            side_effect=refusal if fault == "acquire_refused" else None, return_value=1
+        ),
+        owned_status=AsyncMock(return_value=Mock(instance_id=uuid4())),
+        release=AsyncMock(),
+    )
+    senders: list[model_sender.ModelSender] = []
+    construct = model_sender.ModelSender.__init__
+
+    def prepare(sender: model_sender.ModelSender, path: Path) -> None:
+        construct(sender, path)
+        senders.append(sender)
+
+    monkeypatch.setattr(model_sender.ModelSender, "__init__", prepare)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.delenv("OMNIS_RUNTIME_DIR", raising=False)
+    for key, value in {
+        "OMNIS_DATABASE_URL": "synthetic",
+        "OMNIS_CONTROL_DIR": str(tmp_path / "control"),
+        "OMNIS_VAULT_DIR": str(tmp_path / "vault"),
+        "OMNIS_VAULT_KEY_DIR": str(tmp_path / "keys"),
+        "OMNIS_MODEL_EGRESS_DIR": "/vault",
+    }.items():
+        monkeypatch.setenv(key, value)
+    if fault == "missing_keys":
+        monkeypatch.delenv("OMNIS_VAULT_KEY_DIR")
+    elif fault == "runtime":
+        monkeypatch.setenv("OMNIS_RUNTIME_DIR", str(tmp_path / "runtime"))
+    elif fault == "egress":
+        monkeypatch.setenv("OMNIS_MODEL_EGRESS_DIR", str(tmp_path / "egress"))
+    if fault == "acquire_refused":
+        with pytest.raises(ControlConflict) as raised:
+            await consumer.run()
+        assert raised.value is refusal
+        service.acquire.assert_awaited_once()
+        assert len(senders) == 1 and senders[0].http.is_closed
+    else:
+        with pytest.raises(ValueError, match="explicit owner-only storage|Release-bound"):
+            await consumer.run()
+        assert not senders
+        service.acquire.assert_not_awaited()
+    service.owned_status.assert_not_awaited()
+    service.release.assert_not_awaited()
+    engine.dispose.assert_awaited_once()
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("historical_shutdown", [False, True])
 @pytest.mark.parametrize("ending", ["stop", "startup-failure", "early-close"])
 async def test_fresh_model_owner_survives_historical_quiescence(

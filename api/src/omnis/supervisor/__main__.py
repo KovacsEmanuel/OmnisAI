@@ -78,7 +78,6 @@ async def run() -> None:
     try:
         if await readiness_reason(engine) is not None:
             raise ValueError("Control schema unavailable")
-        epoch = await service.acquire(owner)
         raw_vault = os.environ.get("OMNIS_VAULT_DIR")
         raw_keys = os.environ.get("OMNIS_VAULT_KEY_DIR")
         if raw_vault is not None or raw_keys is not None:
@@ -87,11 +86,6 @@ async def run() -> None:
             from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
             from omnis.modules.settings.provider_vault import ProviderVault
 
-            identity = str((await service.owned_status(owner, epoch)).instance_id)
-            provider_owner = ProviderSettingsOwner(
-                service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
-            )
-            service.runtime_drain = provider_owner.drain
             raw_egress = os.environ.get("OMNIS_MODEL_EGRESS_DIR")
             if raw_egress is not None:
                 if raw_egress != "/vault":
@@ -99,7 +93,16 @@ async def run() -> None:
                 from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
                 from omnis.supervisor.model_sender import ModelSender
 
+                # Cold imports and inert client construction must not spend the execution lease.
                 model_sender = ModelSender(Path(raw_egress) / "model-egress.sock")
+        epoch = await service.acquire(owner)
+        if raw_vault is not None and raw_keys is not None:
+            identity = str((await service.owned_status(owner, epoch)).instance_id)
+            provider_owner = ProviderSettingsOwner(
+                service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
+            )
+            service.runtime_drain = provider_owner.drain
+            if model_sender is not None:
                 model_owner = ApiKeyModelTest(provider_owner, model_sender)
                 service.runtime_drain = model_owner.drain
         if raw_runtime is not None:

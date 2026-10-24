@@ -1,0 +1,1 @@
+{"admission_open": false, "assessment_ready": false, "browser_opened": false, "control_ready": false, "dashboard_ready": false, "generation": 4, "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12", "origin": "http://127.0.0.1:8772", "reason": null, "release": "0.1.0", "schema": "0015_model_test_v2", "state": "STOPPED"}

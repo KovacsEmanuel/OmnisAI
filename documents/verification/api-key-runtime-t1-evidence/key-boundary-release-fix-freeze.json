@@ -1,0 +1,156 @@
+{
+  "base": "4eb0bfc149c099380af653740329726a5a9bf38f",
+  "commit": "1ef4df28bbb0b19e3d08e7d90426dbbd4d7573e8",
+  "path": "cli/integration/test_release.py",
+  "blob": "e9b37980e236e775b10ad0811b703e207de4bea5",
+  "sha256": "cabab5d4908b3c0f9eba5e7af9b8f56fc0f241d60e98647816ae0fc20fa9e32c",
+  "diff_sha256": "0127f9596194116f30c0020aca304a8df9e2dd37646638aa79f29d367b5e96bb",
+  "diff": "/home/kali/.hermes/cache/scratch/t1-33ee99/release-fix/candidate.diff",
+  "status": "clean candidate; parent integration and two focused independent reviews pending",
+  "tests": {
+    "green-command": {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/integration",
+        "-p",
+        "test_release.py",
+        "-k",
+        "test_image_install_timeout_cleans_recorded_tag",
+        "-k",
+        "test_timeout_with_late_image_keeps_uncertainty_after_cleanup",
+        "-v"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 0
+    },
+    "private-parent-only-command": {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/integration",
+        "-p",
+        "test_release.py",
+        "-k",
+        "test_image_install_timeout_cleans_recorded_tag",
+        "-k",
+        "test_timeout_with_late_image_keeps_uncertainty_after_cleanup",
+        "-v"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 1
+    },
+    "quality-0-command": {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "api/pyproject.toml",
+        "--no-fix",
+        "ops/build_control_bundle.py",
+        "cli/integration"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 0
+    },
+    "quality-1-command": {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--config",
+        "api/pyproject.toml",
+        "--check",
+        "ops/build_control_bundle.py",
+        "cli/integration"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 0
+    },
+    "quality-2-command": {
+      "argv": [
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "mypy",
+        "--config-file",
+        "api/pyproject.toml",
+        "--no-incremental",
+        "--output=json",
+        "ops/build_control_bundle.py"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 0
+    },
+    "red-command": {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/integration",
+        "-p",
+        "test_release.py",
+        "-k",
+        "test_image_install_timeout_cleans_recorded_tag",
+        "-k",
+        "test_timeout_with_late_image_keeps_uncertainty_after_cleanup",
+        "-v"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 1
+    },
+    "release-full-command": {
+      "argv": [
+        "cli/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "cli/integration",
+        "-v"
+      ],
+      "cwd": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+      "exit": 0,
+      "manifest": "Makefile:302 (existing installed CLI prerequisite reused; all OCI/start/stop/control opt-ins absent)"
+    }
+  },
+  "web_unchanged": {
+    "web/dist/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+    "web/dist/assets/index-97com5ii.css": "9043155372f3ea05b8ba72bdf2ceb31408a9b776a4ef5af56411d9ab344d1bb9",
+    "web/dist/assets/index-wc7DvD2Y.js": "019acb79364cb0a8d6d416794aab332a73c77512340535ef7595bea5c43cf5bd",
+    "web/dist/index.html": "b8f45f812200986daaed5dc53e257436a516fe693ee7b563795cfdcd275a6ef2",
+    "web/dist/omnis-web.json": "7347d02d6c9260103b95cc955305147861674cf4a713685810b29c75327fbdb3"
+  },
+  "installed_cli_identity": "/home/kali/.hermes/cache/scratch/t1-33ee99/release-fix/evidence/cli-installed-identity.json",
+  "cleanup": "/home/kali/.hermes/cache/scratch/t1-33ee99/release-fix/evidence/cleanup.json",
+  "limits": [
+    "test-only two fixtures; product/gate/locks unchanged",
+    "Docker mocked; real bundle/installed CLI and Compose config only",
+    "no OCI runtime, PG, provider, installed-root restart or full canonical",
+    "prior counter2/PENDING/connect-write and Stop4 not reset"
+  ]
+}

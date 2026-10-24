@@ -1,0 +1,9 @@
+DISPOSABLE_INTENT project=omnis-p01-e7640f5b8bf24a17ba9138fdcc5440f4 root=/home/kali/.hermes/cache/scratch/t1-33ee99/c8/tmp/db-789ff833361c4724
+PINNED_DB_IMAGE image_id=sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb
+MISSING_BIND_DENIED create_host_path=false
+DISPOSABLE_CREATED cid=f0635b23d3d38e92203aa329b144ba2337925b120cf106b37d584fbed31dc002
+PRIVATE_DB_PROBE_OK version=18.6 network_none=true socket_private=true system_id=7700197007387136030
+CANONICAL_GATE_BEGIN target=check-components log=/home/kali/.hermes/cache/scratch/t1-33ee99/c8/tmp/db-789ff833361c4724/gate.log
+CANONICAL_GATE_EXIT code=0 log=/home/kali/.hermes/cache/scratch/t1-33ee99/c8/tmp/db-789ff833361c4724/gate.log
+OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False
+DISPOSABLE_DATA_RETAINED /home/kali/.hermes/cache/scratch/t1-33ee99/c8/tmp/db-789ff833361c4724

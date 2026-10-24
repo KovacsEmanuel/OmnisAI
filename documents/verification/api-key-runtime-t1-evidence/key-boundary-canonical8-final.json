@@ -1,0 +1,89 @@
+{
+  "verdict": "PASS_LOCAL_CANONICAL_RECORDED_NOT_T1_ACCEPTED",
+  "tested_head": "35470f12caadc3241c9c5a20953ca049b649031a",
+  "owner": "proc_6e9f052845f0",
+  "target": "check-components",
+  "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 7200",
+  "receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "pytest_original_summaries": [
+    "3109 passed, 65 skipped, 7 deselected in 3168.87s (0:52:48)",
+    "23 passed in 68.33s (0:01:08)",
+    "10 passed in 122.05s (0:02:02)",
+    "1 passed in 3.43s"
+  ],
+  "unittest_original_summaries": [
+    [
+      "87",
+      "1.617"
+    ],
+    [
+      "56",
+      "9.341"
+    ],
+    [
+      "373",
+      "86.577"
+    ],
+    [
+      "373",
+      "86.611"
+    ],
+    [
+      "73",
+      "19.026"
+    ]
+  ],
+  "web_tests": 151,
+  "web_tooling_tests": 6,
+  "web_audit_vulnerabilities": 0,
+  "tracked_inputs": 1925,
+  "tracked_drift": false,
+  "raw_log_sha256": "16373511851901fa0168c99a6bbfb583a298f4adb720ffa8d73f0ae3dd51701d",
+  "raw_log_private_path": "/home/kali/.hermes/cache/scratch/t1-33ee99/c8/tmp/db-789ff833361c4724/gate.log",
+  "fixture": {
+    "project": "omnis-p01-e7640f5b8bf24a17ba9138fdcc5440f4",
+    "cid": "f0635b23d3d38e92203aa329b144ba2337925b120cf106b37d584fbed31dc002",
+    "container_network_socket_absent": true,
+    "data_retained": true
+  },
+  "installed": {
+    "root": "/home/kali/.local/share/omnis-t1-ready-33ee99",
+    "status": {
+      "admission_open": false,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": false,
+      "dashboard_ready": false,
+      "generation": 4,
+      "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+      "origin": "http://127.0.0.1:8772",
+      "reason": null,
+      "release": "0.1.0",
+      "schema": "0015_model_test_v2",
+      "state": "STOPPED"
+    },
+    "readback_exit": 0,
+    "release_sha256": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+    "payloads": 10,
+    "modules_equal_final_source": {
+      "api": 113,
+      "cli": 26
+    },
+    "web_files_equal_canonical_build": 5,
+    "own_resources_absent": true,
+    "data_identities_preserved": true
+  },
+  "not_run": [
+    "product provider metadata/inference",
+    "normal installed active model Cancel/Stop/revoke/reuse and full crash after upstream handoff",
+    "R2-NEW-01 final",
+    "unproven installed historical-reader categories",
+    "T2/tool loop/targets/router mix",
+    "remote CI"
+  ],
+  "limits": "65 API skips and7 explicit legacy deselections unchanged; prior FAIL/UNKNOWN/counter2 retained; local audit/tests do not prove absence of all defects"
+}

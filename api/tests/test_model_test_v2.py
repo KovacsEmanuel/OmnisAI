@@ -997,3 +997,192 @@ asyncio.run(main())
             await service.release(process, epoch)
         await engine.dispose()
     assert not socket.exists() and not tasks
+
+
+@pytest.mark.asyncio
+async def test_installed_sent_crash_reconciles_without_resend(
+    migrated_database_url: URL,
+    ipc_directory: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Installed API components, synthetic metadata, real PG and receive-only relay."""
+    import hashlib
+    import importlib
+    import signal
+
+    from installed_sent_probe import PROBE, install_probe_wheel
+
+    python = await asyncio.to_thread(install_probe_wheel, tmp_path)
+    api = Path(__file__).resolve().parents[1]
+    config: dict[str, object] = {
+        "modules": {
+            str(p.relative_to(api / "src")): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in (api / "src/omnis").rglob("*.py")
+        },
+        "database": migrated_database_url.render_as_string(hide_password=False),
+        "operation": str(uuid4()),
+        "refresh": str(uuid4()),
+        "socket": str(ipc_directory / "model-egress.sock"),
+        "vault": str(tmp_path / "vault"),
+        "keys": str(tmp_path / "keys"),
+    }
+    for name in ("home", "tmp", "config", "vault", "keys"):
+        (tmp_path / name).mkdir(mode=0o700)
+    env = {
+        "PATH": os.environ["PATH"],
+        "HOME": str(tmp_path / "home"),
+        "TMPDIR": str(tmp_path / "tmp"),
+        "XDG_CONFIG_HOME": str(tmp_path / "config"),
+    }
+    children: list[int] = []
+
+    async def child(mode: str, expected: int) -> list[dict[str, object]]:
+        result = await asyncio.to_thread(
+            subprocess.run,
+            [str(python), "-I", "-B", "-c", PROBE],
+            input=json.dumps({**config, "mode": mode}).encode(),
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            timeout=20,
+        )
+        # Private diagnostics contain no stdin/DSN; don't print child tracebacks into the gate.
+        (tmp_path / f"{mode}-{len(children)}.stderr").write_bytes(result.stderr)
+        (tmp_path / f"{mode}-{len(children)}.stdout").write_bytes(result.stdout)
+        assert result.returncode == expected, f"{mode} exit {result.returncode}"
+        assert not result.stderr
+        events = [json.loads(line) for line in result.stdout.splitlines()]
+        assert events[0]["stage"] == "installed"
+        assert events[0]["prefix"] == str(tmp_path / "venv")
+        children.append(events[0]["pid"])
+        return events
+
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+
+    async def census() -> dict[str, list[object]]:
+        async with engine.connect() as db:
+            tables = (
+                (
+                    await db.execute(
+                        text(
+                            "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename"
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            result: dict[str, list[object]] = {}
+            for table in tables:
+                name = engine.dialect.identifier_preparer.quote(table)
+                result[table] = list(
+                    (
+                        await db.execute(
+                            text(f"SELECT to_jsonb(t) FROM {name} t ORDER BY to_jsonb(t)::text")
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+            return result
+
+    # Reuse the actual host relay; disallow every data-plane verb before DNS/connect.
+    monkeypatch.syspath_prepend(str(api.parent / "cli/src"))
+    host = importlib.import_module("omnis_cli.model_relay")
+    original_validate = host.validate
+    actions: list[str] = []
+
+    def receive_only(frame: dict[str, object]) -> object:
+        actions.append(str(frame["action"]))
+        if frame["action"] not in {"FENCE", "DRAIN"}:
+            raise ValueError("test forbids provider IO")
+        return original_validate(frame)
+
+    monkeypatch.setattr(host, "validate", receive_only)
+    relay = await host.start_model_forwarder(ipc_directory)
+    try:
+        before = await census()
+        negative = await child("deny_send", 79)
+        assert negative[-1] == {"stage": "send_denied"}
+        assert await census() == before and not actions
+        produced = await child("produce", -signal.SIGKILL)
+        assert [event["stage"] for event in produced] == ["installed", "ready", "send_entry"]
+        config["receipt"] = produced[1]["receipt"]
+        cut = await census()  # Separate connection, after OS death: SENT really committed.
+        assert {name for name in before if cut[name] != before[name]} == {
+            "instance_control",
+            "supervisor_lease",
+            "instance_command",
+            "provider_connection_revision",
+            "provider_selection_revision",
+            "provider_settings_command",
+            "model_record_v2",
+            "model_command_v2",
+            "system_operation",
+            "system_operation_event",
+            "model_dispatch_v2",
+            "model_dispatch_event_v2",
+        }
+        (operation,) = cut["system_operation"]
+        assert isinstance(operation, dict)
+        assert operation["state"] == "RUNNING" and operation["state_revision"] == 2
+        assert operation["outcome_ref"] is operation["finish_reason"] is None
+        assert operation["execution_owner_id"] == produced[1]["owner"]
+        assert [
+            row["state"] for row in cut["model_dispatch_event_v2"] if isinstance(row, dict)
+        ] == ["RESERVED", "SENT"]
+        assert len(cut["model_dispatch_v2"]) == 1 and len(cut["model_command_v2"]) == 2
+        assert len(cut["system_operation_event"]) == 2
+        assert not any(
+            row["kind"] in {"model-outcome-v2", "model-output-v2"}
+            for row in cut["model_record_v2"]
+            if isinstance(row, dict)
+        )
+        assert not actions
+        # Let the crashed owner's real five-second lease expire; no DB mutation/release shim.
+        async with asyncio.timeout(8):
+            while True:
+                async with engine.connect() as db:
+                    expired = (
+                        await db.execute(
+                            text(
+                                "SELECT expires_at <= clock_timestamp() FROM supervisor_lease WHERE id=1"
+                            )
+                        )
+                    ).scalar_one()
+                if expired:
+                    break
+                await asyncio.sleep(0.05)
+        recovered = await child("recover", 0)
+        assert recovered[-1]["epoch"] == int(str(produced[1]["epoch"])) + 1
+        assert recovered[-1]["owner"] != produced[1]["owner"]
+        after = await census()
+        assert actions == ["FENCE", "DRAIN"]
+        assert {name for name in cut if after[name] != cut[name]} == {
+            "instance_control",
+            "supervisor_lease",
+            "system_operation",
+            "system_operation_event",
+            "model_record_v2",
+            "model_dispatch_event_v2",
+        }
+        for table in ("model_record_v2", "system_operation_event", "model_dispatch_event_v2"):
+            assert all(row in after[table] for row in cut[table])
+        assert len(after["model_record_v2"]) == len(cut["model_record_v2"]) + 2
+        assert len(after["system_operation_event"]) == 3
+        assert [
+            row["state"] for row in after["model_dispatch_event_v2"] if isinstance(row, dict)
+        ] == ["RESERVED", "SENT", "SETTLED"]
+        assert len(after["system_operation"]) == len(after["model_dispatch_v2"]) == 1
+        reread = await child("recover", 0)
+        assert reread[-1]["view"] == recovered[-1]["view"]
+        final = await census()
+        assert {name for name in after if final[name] != after[name]} == {"supervisor_lease"}
+        assert actions == ["FENCE", "DRAIN"]
+        assert len(set(children)) == len(children)
+    finally:
+        relay.close()
+        await asyncio.wait_for(relay.wait_closed(), 3)
+        await engine.dispose()
+    assert not (ipc_directory / "model-egress.sock").exists()

@@ -1,0 +1,691 @@
+{
+  "source": "bed2ba1dfd7355d15cf7ef56f07e33771eb0dbbe",
+  "counts": {
+    "PRIVATE_HOME_SCRATCH_MISSING": 68,
+    "UDS_FIXTURE_TOO_LONG": 1,
+    "DTO_CONSENT_REVISION_MISSING": 5,
+    "SOURCE_AST_TASK_OWNER_MISSING": 4,
+    "LEGACY_ROUTE_REPLY_NOT_CURRENT": 2,
+    "OTHER_NEEDS_ATTRIBUTION": 1
+  },
+  "groups": {
+    "PRIVATE_HOME_SCRATCH_MISSING": [
+      "api/tests/test_contract_denominator.py::test_private_cli_first_m2_denominator_read_and_replay",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[owner-REF_UNAVAILABLE]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[digest-REF_MISMATCH]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[bool-ref-INVALID_REQUEST]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-kind-MANAGED_REJECTED]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[caller-revision-MANAGED_REJECTED]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[purpose-claim-MANAGED_REJECTED]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[changed-request-COMMAND_CONFLICT]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-read-COMMAND_CONFLICT]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-operations-DENOMINATOR_INVALID]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-unknown-DENOMINATOR_INVALID]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-revision-MANAGED_REJECTED]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-input-provenance-INVALID_CASE_INPUT]",
+      "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-purpose-MISSION_REVISION_UNSUPPORTED]",
+      "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[None]",
+      "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[procedure]",
+      "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[schema]",
+      "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[0]",
+      "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[128]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-task_id-f0f23165-25ae-4f00-8511-70807445e70b]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-988d017f-cc38-4944-8388-8ea66522e76f]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-run_id-89eeff78-e884-4fd4-9bf7-ec518e8c11cb]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-df839bb1-129e-474b-a5b6-c08e962b2fd3]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-20bb003e-dce2-4559-aa6c-081884a4700d]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-f5a74f2a-a868-418a-b6d5-ce2ef2adc1a4]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-result_id-85a484d4-6a7e-4873-b95d-1f3b4d385859]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-4b239ba7-8a19-4294-bab8-75999480c56c]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-run_id-f4300b89-7f1f-42fd-bb4d-5bfca06b409b]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-1939e28b-2255-4b8a-a43b-da734410043d]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-ticket-7f8c8ccf-46cd-4ef7-b41c-9458957464e8]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-f6284fde-d22d-45ca-9b5a-7f34839dd8a3]",
+      "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-release_started-1]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[owner-REF_UNAVAILABLE]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[foreign-result-REF_UNAVAILABLE]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[digest-REF_MISMATCH]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-ref-INVALID_REQUEST]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-schema-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-kind-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[decision-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[manifest-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[revision-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[conflict-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-read-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[decision-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[revision-bool-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[preconditions-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[missing-field-MANAGED_REJECTED]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[provenance-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[disguised-orphan-receipt-COMMAND_CONFLICT]",
+      "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE]",
+      "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[namespace-REF_UNAVAILABLE]",
+      "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]",
+      "api/tests/test_result_qualification.py::test_qualification_receipt_failure_rolls_back_both_records"
+    ],
+    "UDS_FIXTURE_TOO_LONG": [
+      "api/tests/test_model_sender.py::test_missing_broker_is_control_failure_not_provider_outage"
+    ],
+    "DTO_CONSENT_REVISION_MISSING": [
+      "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[complete]",
+      "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[stop]",
+      "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[terminal-write-fails]",
+      "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-False]",
+      "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-True]"
+    ],
+    "SOURCE_AST_TASK_OWNER_MISSING": [
+      "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-expiry-stock]",
+      "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-stop-stock]",
+      "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-expiry-stock]",
+      "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-stop-stock]"
+    ],
+    "LEGACY_ROUTE_REPLY_NOT_CURRENT": [
+      "api/tests/test_model_test_routes.py::test_instance_test_requires_no_saved_engagement",
+      "api/tests/test_model_test_routes.py::test_model_test_route_security_input_and_readback"
+    ],
+    "OTHER_NEEDS_ATTRIBUTION": [
+      "api/tests/test_stop_schema.py::test_stop_reconciliation_is_new_schema_authority"
+    ]
+  },
+  "rows": [
+    {
+      "node": "api/tests/test_contract_denominator.py::test_private_cli_first_m2_denominator_read_and_replay",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-4smyjg14'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[owner-REF_UNAVAILABLE]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-mve8zqoa'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[digest-REF_MISMATCH]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-3g4w7w4z'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[bool-ref-INVALID_REQUEST]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-vltn3ggz'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-kind-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-h_zke6sm'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[caller-revision-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-feykbrr4'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[purpose-claim-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-w7nvshnz'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[changed-request-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-3co8ii2n'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-read-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-qj69t90d'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-operations-DENOMINATOR_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-aft2dcd4'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-unknown-DENOMINATOR_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-gqm9vlsw'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-revision-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-wgb0v9l9'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[resealed-input-provenance-INVALID_CASE_INPUT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-kftsvezo'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_cli_denials_revalidate_semantics_before_effects[wrong-purpose-MISSION_REVISION_UNSUPPORTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-391k88lj'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[None]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-p4u6w7x4'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[procedure]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-88lg_zue'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_retained_catalog_reader_public_pins_no_execution[schema]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-h9g3dweh'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[0]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-tpwv48c_'"
+      ]
+    },
+    {
+      "node": "api/tests/test_contract_denominator.py::test_material_change_allocates_next_revision_empty_stays_unknown[128]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/denominator-1xfqbzij'"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_sender.py::test_missing_broker_is_control_failure_not_provider_outage",
+      "trace_evidence_group": "UDS_FIXTURE_TOO_LONG",
+      "exception_lines": [
+        "E           ValueError: Explicit bounded private egress socket required"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[complete]",
+      "trace_evidence_group": "DTO_CONSENT_REVISION_MISSING",
+      "exception_lines": [
+        "E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelTestControl",
+        "E         Value error, Revision and explicit consent required [type=value_error, input_value={'op': 'model_test', 'act...4248-bc57-aef03ef47ca7'}, input_type=dict]",
+        "E           For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[stop]",
+      "trace_evidence_group": "DTO_CONSENT_REVISION_MISSING",
+      "exception_lines": [
+        "E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelTestControl",
+        "E         Value error, Revision and explicit consent required [type=value_error, input_value={'op': 'model_test', 'act...4c4a-b013-d16cf6538bbc'}, input_type=dict]",
+        "E           For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_operation.py::test_operation_outlives_four_seconds_disconnect_and_no_refill[terminal-write-fails]",
+      "trace_evidence_group": "DTO_CONSENT_REVISION_MISSING",
+      "exception_lines": [
+        "E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelTestControl",
+        "E         Value error, Revision and explicit consent required [type=value_error, input_value={'op': 'model_test', 'act...4967-b1dc-f108879625ad'}, input_type=dict]",
+        "E           For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-expiry-stock]",
+      "trace_evidence_group": "SOURCE_AST_TASK_OWNER_MISSING",
+      "exception_lines": [
+        "E   NameError: name 'task_owner' is not defined"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[READY-stop-stock]",
+      "trace_evidence_group": "SOURCE_AST_TASK_OWNER_MISSING",
+      "exception_lines": [
+        "E   NameError: name 'task_owner' is not defined"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-expiry-stock]",
+      "trace_evidence_group": "SOURCE_AST_TASK_OWNER_MISSING",
+      "exception_lines": [
+        "E   NameError: name 'task_owner' is not defined"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_prepare_source.py::test_model_prepare_qa_owner_preserves_host_until_intentional_stop[MANAGEMENT-stop-stock]",
+      "trace_evidence_group": "SOURCE_AST_TASK_OWNER_MISSING",
+      "exception_lines": [
+        "E   NameError: name 'task_owner' is not defined"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_routes.py::test_instance_test_requires_no_saved_engagement",
+      "trace_evidence_group": "LEGACY_ROUTE_REPLY_NOT_CURRENT",
+      "exception_lines": [
+        "E       assert 503 == 200",
+        "E        +  where 503 = <Response [503 Service Unavailable]>.status_code"
+      ]
+    },
+    {
+      "node": "api/tests/test_model_test_routes.py::test_model_test_route_security_input_and_readback",
+      "trace_evidence_group": "LEGACY_ROUTE_REPLY_NOT_CURRENT",
+      "exception_lines": [
+        "E           assert (422 == 200)",
+        "E            +  where 422 = <Response [422 Unprocessable Entity]>.status_code"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_create_read_replay_keeps_history_no_execution",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpyhx4k3hp'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-task_id-f0f23165-25ae-4f00-8511-70807445e70b]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpbkvjbe8k'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-attempt_id-988d017f-cc38-4944-8388-8ea66522e76f]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpup1rh7x6'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-run_id-89eeff78-e884-4fd4-9bf7-ec518e8c11cb]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpq91idi8h'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-True]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpofedppd7'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-batch_index-0.0]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpea_3e2b7'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-df839bb1-129e-474b-a5b6-c08e962b2fd3]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpbpoxmor_'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_child_id-20bb003e-dce2-4559-aa6c-081884a4700d]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp4lq51eq6'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-native_session_id-f5a74f2a-a868-418a-b6d5-ce2ef2adc1a4]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpygkjsu49'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-result_id-85a484d4-6a7e-4873-b95d-1f3b4d385859]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp8206m83p'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[task-runtime_boot-None]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp8s6o6240'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-owner_id-4b239ba7-8a19-4294-bab8-75999480c56c]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmppgju7ujf'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-run_id-f4300b89-7f1f-42fd-bb4d-5bfca06b409b]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpqjigdk1t'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-runtime_boot-1939e28b-2255-4b8a-a43b-da734410043d]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp02bxo2qi'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-ticket-7f8c8ccf-46cd-4ef7-b41c-9458957464e8]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp7cj1bjwk'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-native_root_id-f6284fde-d22d-45ca-9b5a-7f34839dd8a3]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpl06qo005'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_durable_lineage_denies_create_read_replay[run-release_started-1]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp5csj73s_'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[owner-REF_UNAVAILABLE]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpybh49ca3'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[foreign-result-REF_UNAVAILABLE]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp02kstzks'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[digest-REF_MISMATCH]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpsve85198'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-ref-INVALID_REQUEST]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpm6yxz92o'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[bool-schema-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpq91w3946'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-kind-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp2fq6r6cv'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[decision-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp31ik1owe'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[manifest-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpfk8bpugl'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[revision-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpua1aq323'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[conflict-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpl4knhhet'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_request_denials_preserve_storage[wrong-read-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpjircubyx'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[decision-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp4u2c9i_f'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[revision-bool-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpqm1v9dfg'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[preconditions-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpuvxqv0rq'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[missing-field-MANAGED_REJECTED]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpure5tn49'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-artifacts-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpcazkhe40'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-value-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp9_dsxdv5'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-receipts-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpl1ehtjcu'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[provenance-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpoja06k1n'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-digest-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpubmr2pig'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-operation-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpzerornlh'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-owner-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpg4m1k8j5'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[receipt-refs-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmprnctyrwq'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[manifest-schema-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpla0mpdms'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-provenance-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp06ck95j7'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-manifest-QUALIFICATION_INVALID]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp0fof724h'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[orphan-receipt-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpr90mx5sq'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_cli_qualification_rejects_resealed_semantic_tamper_on_read_and_replay[disguised-orphan-receipt-COMMAND_CONFLICT]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp57b4td_5'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[owner-REF_UNAVAILABLE]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpcl617pm8'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[namespace-REF_UNAVAILABLE]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpd5xf6vfk'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_foreign_owner_refuses_before_external_lookup[run-digest-REF_MISMATCH]",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmp4b_g9e7b'"
+      ]
+    },
+    {
+      "node": "api/tests/test_result_qualification.py::test_qualification_receipt_failure_rolls_back_both_records",
+      "trace_evidence_group": "PRIVATE_HOME_SCRATCH_MISSING",
+      "exception_lines": [
+        "E               FileNotFoundError: [Errno 2] No such file or directory: '/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/home/.hermes/cache/scratch/tmpcc4enby6'"
+      ]
+    },
+    {
+      "node": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-False]",
+      "trace_evidence_group": "DTO_CONSENT_REVISION_MISSING",
+      "exception_lines": [
+        "E           pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelTestControl",
+        "E             Value error, Revision and explicit consent required [type=value_error, input_value={'op': 'model_test', 'act...4d14-a2fb-004fb0e1434f'}, input_type=dict]",
+        "E               For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      ]
+    },
+    {
+      "node": "api/tests/test_runtime_supervisor.py::test_fresh_model_owner_survives_historical_quiescence[stop-True]",
+      "trace_evidence_group": "DTO_CONSENT_REVISION_MISSING",
+      "exception_lines": [
+        "E           pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelTestControl",
+        "E             Value error, Revision and explicit consent required [type=value_error, input_value={'op': 'model_test', 'act...460c-8831-37e8fe8b1101'}, input_type=dict]",
+        "E               For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      ]
+    },
+    {
+      "node": "api/tests/test_stop_schema.py::test_stop_reconciliation_is_new_schema_authority",
+      "trace_evidence_group": "OTHER_NEEDS_ATTRIBUTION",
+      "exception_lines": [
+        "E       AssertionError: assert '0015_model_test_v2' == '0014_provider_settings'",
+        "E",
+        "E         - 0014_provider_settings",
+        "E         + 0015_model_test_v2"
+      ]
+    }
+  ],
+  "limit": "trace-derived failure phases, not final product attribution/no new effects or rerun"
+}

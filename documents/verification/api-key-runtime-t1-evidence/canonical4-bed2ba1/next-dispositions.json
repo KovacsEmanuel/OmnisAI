@@ -1,0 +1,554 @@
+[
+  {
+    "nodeid": "api/tests/test_contract_method_migration.py::test_method_execution_schema_is_explicit_and_chained",
+    "group": "B1_CURRENT_schema_head",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_migration.py::test_method_execution_schema_is_explicit_and_chained"
+  },
+  {
+    "nodeid": "api/tests/test_mission_revision_schema.py::test_mission_revision_head_keeps_historical_chain",
+    "group": "B1_CURRENT_schema_head",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_mission_revision_schema.py::test_mission_revision_head_keeps_historical_chain"
+  },
+  {
+    "nodeid": "api/tests/test_catalog_candidates_pg_compatibility.py::test_catalog_candidates_pg_installed_cli_status",
+    "group": "B2_CURRENT_installed_CLI_metadata",
+    "disposition": "FIXTURE_UPDATED_PG_CLI_EXECUTION_NOT_RUN",
+    "current_nodeid": "api/tests/test_catalog_candidates_pg_compatibility.py::test_catalog_candidates_pg_installed_cli_status"
+  },
+  {
+    "nodeid": "api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-immutable]",
+    "group": "B3_CURRENT_catalog_driver_rows",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-immutable]"
+  },
+  {
+    "nodeid": "api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-root_guard]",
+    "group": "B3_CURRENT_catalog_driver_rows",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_mission_revision_schema.py::test_source_exact_mission_guard_attestation[None-root_guard]"
+  },
+  {
+    "nodeid": "api/tests/test_mission_revision_schema.py::test_source_guard_attests_exact_proconfig_not_null_boolean",
+    "group": "B3_CURRENT_catalog_driver_rows",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_mission_revision_schema.py::test_source_guard_attests_exact_proconfig_not_null_boolean"
+  },
+  {
+    "nodeid": "api/tests/test_mission_revision_schema.py::test_source_mission_catalog_reads_bind_one_public_physical_oid",
+    "group": "B3_CURRENT_catalog_driver_rows",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_mission_revision_schema.py::test_source_mission_catalog_reads_bind_one_public_physical_oid"
+  },
+  {
+    "nodeid": "api/tests/test_health.py::test_ready_denies_constraint_default_or_type_drift[ALTER TABLE instance_control DROP CONSTRAINT instance_control_instance_id_key]",
+    "group": "B4_CURRENT_DDL_negative_fixture",
+    "disposition": "FIXTURE_REPAIRED_EXACT_NAMED_SHAPE; COLLECTED; PG_NOT_RUN",
+    "current_nodeid": "api/tests/test_health.py::test_ready_denies_constraint_default_or_type_drift[ALTER TABLE instance_control RENAME CONSTRAINT instance_control_instance_id_key TO stale_instance_control_instance_id_key]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[None]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[None]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[wheel-max]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max-plus-one]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[aggregate-max-plus-one]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[zip-count]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_current_reader_source_snapshot[zip-count]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[None]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[None]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[origin]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[origin]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[fresh-reader]",
+    "group": "B5_rolling_package_in_historical_bounded_reader_fixture",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; full CURRENT cache-import proof distinct from finite bounded parser; no PG/native/release acceptance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_real_reader_cache_controls[fresh-reader]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[batch2-same-False-False]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[batch2-same-False-False]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[batch2-same-True-False]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[batch2-same-True-False]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-False-False]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-False-False]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-True-False]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_stock_site_actual_admission_cut[h03-same-True-False]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal-absence-lf]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-normal-absence-lf]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-error]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-error]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-cancel]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-body-cancel]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-observer-missing]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-observer-missing]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-extra-whitespace]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-extra-whitespace]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-unexpected-output]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-absence-unexpected-output]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-warning]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-warning]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-cancelled]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-create-cancelled]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-never-started]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-never-started]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-drain-failed]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-drain-failed]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-stop-cancelled]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-stop-cancelled]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-public-exit-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-public-exit-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-engine-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-engine-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-reader-unknown]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-reader-unknown]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-mount]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-mount]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-host-pidns]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-host-pidns]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-privileged]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-privileged]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-env]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-extra-env]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-network]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-network]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-daemon-changed]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[h03-daemon-changed]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal-absence-lf]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-normal-absence-lf]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-error]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-error]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-cancel]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-body-cancel]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-observer-missing]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-observer-missing]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-extra-whitespace]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-extra-whitespace]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-unexpected-output]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-absence-unexpected-output]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-warning]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-warning]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-cancelled]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-create-cancelled]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-never-started]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-never-started]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-drain-failed]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-drain-failed]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-stop-cancelled]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-stop-cancelled]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-public-exit-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-public-exit-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-engine-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-engine-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-reader-unknown]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-reader-unknown]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-mount]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-mount]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-host-pidns]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-host-pidns]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-privileged]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-privileged]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-env]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-extra-env]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-network]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-network]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-daemon-changed]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_actual_lifecycle_source_seams[batch2-daemon-changed]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-fallthrough]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-fallthrough]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-fallthrough]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-fallthrough]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-fallthrough]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-fallthrough]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-missing-return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-fallthrough]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-fallthrough]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-active-return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-fallthrough]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-fallthrough]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-incomplete-return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-cancel]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-cancel]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-pre-acquire]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-stopped-pre-acquire]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-cancel]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_diagnostic_actual_finalizer[host-malformed-cancel]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[return]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[return]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[failure]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[failure]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[cancel]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[cancel]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[pre-acquire]",
+    "group": "C1_SOURCE_AST_cut_missing_outer_modes",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_startup_primary_shared_cleanup[pre-acquire]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-inventory]",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-inventory]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-root-lineage]",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-root-lineage]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-child-lineage]",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-child-lineage]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-false]",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-false]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-exception]",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_actual_source_observer[h04-guard-exception]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks",
+    "group": "C2_legacy_native_source_bootstrap",
+    "disposition": "PRESERVED_EXPLICIT_LEGACY_NOT_RUN",
+    "current_nodeid": "api/tests/test_contract_method_producer.py::test_batch2_native_source_to_two_checks"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_historical_review_gate_precedes_database_fixture",
+    "group": "C3_review_before_legacy_source_prerequisite",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_historical_review_gate_precedes_database_fixture"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h04_rejects_exact_retained_batch2_reader_before_origin",
+    "group": "C4_retained_private_descriptor",
+    "disposition": "ORIGINAL_PRESERVED_EXPLICIT_LEGACY_NOT_RUN; fresh synthetic default negative PASS,not authentic private provenance",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h04_rejects_exact_retained_batch2_reader_before_origin"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code[host-denied]",
+    "group": "C5_observer_misses_refactored_raise_sites",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code[host-denied]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code[expired]",
+    "group": "C5_observer_misses_refactored_raise_sites",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_h03_exchange_observation_actual_code[expired]"
+  },
+  {
+    "nodeid": "api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[budget-over]",
+    "group": "D1_private_stderr_not_observed",
+    "disposition": "SOURCE_FIXED_PASS_SCOPED; no PG/native/global PASS",
+    "current_nodeid": "api/tests/test_contract_method_pg.py::test_host_launch_filtered_source[budget-over]"
+  }
+]

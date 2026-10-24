@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "scope": "Non-sensitive original SOURCE reviews, QA134 readbacks, canonical4 FAIL and test-only candidate evidence; not T1 acceptance",
+  "canonical4_source": "bed2ba1dfd7355d15cf7ef56f07e33771eb0dbbe",
+  "test_candidate": "f26beb4e9f7611dbec0b0c1a15f03e1761fc8317",
+  "artifact_count": 16,
+  "total_original_bytes": 304227,
+  "artifacts": [
+    {
+      "path": "reviewer1-canonical-repair-9d56fd0.md",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer1-canonical-repair-9d56fd0.md",
+      "bytes": 6751,
+      "sha256": "406ef209f7447afd276cb5a429e0bc3f62ba54ca1e13274e47779d2d3ae98f61"
+    },
+    {
+      "path": "reviewer2-canonical-repair-9d56fd0.md",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/reviewer2-canonical-repair-9d56fd0.md",
+      "bytes": 7108,
+      "sha256": "859a94587de24e35879e2935602eb941384e02bf3ade4e69a467842147d9e42c"
+    },
+    {
+      "path": "next-integrated-freeze.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-integrated-freeze.json",
+      "bytes": 3589,
+      "sha256": "4f3f56dd54bb4f6c9f2cabe3ceaa544bf1ac040d92100a62f1d4d9a721756389"
+    },
+    {
+      "path": "next-freeze.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-freeze.json",
+      "bytes": 44382,
+      "sha256": "a4ebfad7c35eb248c30c7ba6396e23c1da939b34c31a90d56c2a6c9efed1cd21"
+    },
+    {
+      "path": "next-dispositions.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-dispositions.json",
+      "bytes": 34746,
+      "sha256": "6264976f23c9e4035e7dc7232c83be8c02e2e02fe664480e7fed21bab9b1af0d"
+    },
+    {
+      "path": "next-parent-narrow-pg-readback.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-parent-narrow-pg-readback.json",
+      "bytes": 1012,
+      "sha256": "6147460dbc4e5dcb3f78c4023d884fe794ae0dd74336d1817415bf3a1d1539e2"
+    },
+    {
+      "path": "next-parent-narrow-pg2-readback.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/next-parent-narrow-pg2-readback.json",
+      "bytes": 1163,
+      "sha256": "c0b71cd89011aa67aeaaa12a5d9dfb1044728c5ca3de5d3f5dffe84f58c75283"
+    },
+    {
+      "path": "canonical4-failure-summary.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/canonical4-failure-summary.json",
+      "bytes": 24152,
+      "sha256": "1d96b11f3e8a90c0d65b425fce2e83e53be48f51ab31882b833e289ba01a69b2"
+    },
+    {
+      "path": "canonical4-parent-readback.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/canonical4-parent-readback.json",
+      "bytes": 681,
+      "sha256": "e3439d6deef4f064571af495625c80da6dacee71faab480b1dd86ba50b376184"
+    },
+    {
+      "path": "canonical4-trace-groups.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/canonical4-trace-groups.json",
+      "bytes": 47219,
+      "sha256": "db1bf6d0a9e4c24ad0fd7d41df4588d94d4f70f74385825239f5ea6ebd85c7f9"
+    },
+    {
+      "path": "canonical4-command-result.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/canonical4-command-result.json",
+      "bytes": 550,
+      "sha256": "0ab2890bf583045c5d1e9a4843716f5a1cf5984f1d7a2bdc2400dc834dfbc94c"
+    },
+    {
+      "path": "c4fix-freeze.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-freeze.json",
+      "bytes": 42848,
+      "sha256": "c0b8f4c019883091f8e50268b43d8d4d3049688d80274e870e2590dd077ee2a3"
+    },
+    {
+      "path": "c4fix-commands.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-commands.json",
+      "bytes": 39057,
+      "sha256": "20b3e4bc98880abd36e89f701c28967d751a707bff0a730ddd998647576b3ce7"
+    },
+    {
+      "path": "c4fix-all8-final.log",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-all8-final.log",
+      "bytes": 663,
+      "sha256": "c4eacb437bc98c6808b899654e0bb8b590985b64f4d490f4c02eb0334ea30fef"
+    },
+    {
+      "path": "c4fix-all8-final.xml",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-all8-final.xml",
+      "bytes": 47159,
+      "sha256": "88f71dbe30865e43a7350a44800db7f680002f94d00d1f4850517a5fcef1eea2"
+    },
+    {
+      "path": "c4fix-integrated-freeze.json",
+      "source_original": "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/logs/c4fix-integrated-freeze.json",
+      "bytes": 3147,
+      "sha256": "04b0c014588e7e7b85858960c24f2a73d512d12d4352bedebe046c97f618df34"
+    }
+  ],
+  "private_raw_logs": "Not copied: disposable DSN/capabilities. Hashes and bounded non-sensitive readbacks are retained.",
+  "original_failures_preserved": true
+}

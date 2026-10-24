@@ -1,0 +1,17 @@
+{
+  "head": "bed2ba1dfd7355d15cf7ef56f07e33771eb0dbbe",
+  "tree": "6413d232bc0fda4c19efc69ab08103536fcffa56",
+  "result": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "exact_same_daemon_original_cid_project_network_absent": true,
+  "socket_empty": true,
+  "data_and_credential_retained_unread": true,
+  "tracked_inputs_unchanged": 1881,
+  "fixture": "/home/kali/.hermes/cache/scratch/t1c4-0h7htwzl/tmp/db-95238e9e47904f0e",
+  "cid": "c4e30276d01ee6dac2f2c5d3c6458a932f913bdb3e37683c2969d064f208efb4",
+  "project": "omnis-p01-1cbdd78f1b0f4836a3e9ebe7e6a4f97b",
+  "canonical": "FAIL_API_STAGE_COMPLETED_NOT_INTERRUPTED; later component stagesNOTRUN"
+}

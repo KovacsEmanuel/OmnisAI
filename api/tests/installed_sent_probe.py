@@ -9,7 +9,7 @@ from zipfile import ZipFile
 
 def install_probe_wheel(root: Path) -> Path:
     """Use the migration probe's locked/offline wheel installation pattern."""
-    uv = os.environ.get("OMNIS_UV") or shutil.which("uv")
+    uv = os.environ.get("OMNIS_UV") or os.environ.get("UV") or shutil.which("uv")
     assert uv is not None, "Pinned uv must be available"
     api = Path(__file__).resolve().parents[1]
     wheels, requirements = root / "wheels", root / "requirements.txt"

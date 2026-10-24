@@ -1,0 +1,39 @@
+{
+  "bundle": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+  "baseline": "/home/kali/.hermes/cache/scratch/t1-33ee99/artifacts/bundle-startfix",
+  "built": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/web/dist",
+  "file_count": 5,
+  "files": [
+    {
+      "path": "assets/fonts-OFL-bSaZbgNk.txt",
+      "bytes": 4386,
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "byte_exact": true
+    },
+    {
+      "path": "assets/index-97com5ii.css",
+      "bytes": 135937,
+      "sha256": "9043155372f3ea05b8ba72bdf2ceb31408a9b776a4ef5af56411d9ab344d1bb9",
+      "byte_exact": true
+    },
+    {
+      "path": "assets/index-wc7DvD2Y.js",
+      "bytes": 394850,
+      "sha256": "019acb79364cb0a8d6d416794aab332a73c77512340535ef7595bea5c43cf5bd",
+      "byte_exact": true
+    },
+    {
+      "path": "index.html",
+      "bytes": 578,
+      "sha256": "b8f45f812200986daaed5dc53e257436a516fe693ee7b563795cfdcd275a6ef2",
+      "byte_exact": true
+    },
+    {
+      "path": "omnis-web.json",
+      "bytes": 428,
+      "sha256": "7347d02d6c9260103b95cc955305147861674cf4a713685810b29c75327fbdb3",
+      "byte_exact": true
+    }
+  ],
+  "verdict": "BYTE_EXACT"
+}

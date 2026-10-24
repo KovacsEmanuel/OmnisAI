@@ -1,0 +1,176 @@
+{
+  "status": "FROZEN_CANDIDATE_PENDING_INDEPENDENT_REVIEW",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev",
+  "base": "92e36082d64b8ae49437df1976876b0d66ba089f",
+  "head": "4eb0bfc149c099380af653740329726a5a9bf38f",
+  "branch": "impl/t1-sent-recovery",
+  "clean": true,
+  "changed_files": [
+    "web/package-lock.json"
+  ],
+  "diff_stat": "web/package-lock.json | 6 +++---\n 1 file changed, 3 insertions(+), 3 deletions(-)",
+  "lock_blob": "e05c2c10484957a4e90bb67a4d78baf338ad8cf0",
+  "lock_sha256": "6e0e4fcabad117056b8a1c13fcd2af0b28fd0a28e3133c6fc782bce19036b3c7",
+  "diff_sha256": "ec91847f388bda23467ad8d7bfc8ff2dafef6a8cec088bc0a30a68001f3ab67d",
+  "bundle": {
+    "bundle": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+    "baseline": "/home/kali/.hermes/cache/scratch/t1-33ee99/artifacts/bundle-startfix",
+    "built": "/home/kali/.hermes/cache/scratch/t1-33ee99/dev/web/dist",
+    "file_count": 5,
+    "files": [
+      {
+        "path": "assets/fonts-OFL-bSaZbgNk.txt",
+        "bytes": 4386,
+        "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "byte_exact": true
+      },
+      {
+        "path": "assets/index-97com5ii.css",
+        "bytes": 135937,
+        "sha256": "9043155372f3ea05b8ba72bdf2ceb31408a9b776a4ef5af56411d9ab344d1bb9",
+        "byte_exact": true
+      },
+      {
+        "path": "assets/index-wc7DvD2Y.js",
+        "bytes": 394850,
+        "sha256": "019acb79364cb0a8d6d416794aab332a73c77512340535ef7595bea5c43cf5bd",
+        "byte_exact": true
+      },
+      {
+        "path": "index.html",
+        "bytes": 578,
+        "sha256": "b8f45f812200986daaed5dc53e257436a516fe693ee7b563795cfdcd275a6ef2",
+        "byte_exact": true
+      },
+      {
+        "path": "omnis-web.json",
+        "bytes": 428,
+        "sha256": "7347d02d6c9260103b95cc955305147861674cf4a713685810b29c75327fbdb3",
+        "byte_exact": true
+      }
+    ],
+    "verdict": "BYTE_EXACT"
+  },
+  "observed_verification": {
+    "npm_audit_original_exit": 1,
+    "npm_audit_original_high": 1,
+    "npm_ci_exit": 0,
+    "npm_audit_fixed_exit": 0,
+    "npm_audit_fixed_total": 0,
+    "npm_ls_all_exit": 0,
+    "npm_ls_undici_jsdom_exit": 0,
+    "node_engine_and_range_assertions_exit": 0,
+    "first_check_web_exit": 2,
+    "first_check_web_reason": "missing unchanged anti-slop node_modules/tsx prerequisite",
+    "anti_slop_existing_lock_ci_exit": 0,
+    "check_web_final_exit": 0,
+    "tooling_tests_passed": 6,
+    "web_tests_passed": 151,
+    "web_test_files_passed": 16,
+    "web_lint_warnings": 0,
+    "web_lint_errors": 0,
+    "bundle_byte_comparison_exit": 0,
+    "diff_check_exit": 0
+  },
+  "execution_environment": {
+    "environment": "env -i (no ambient credentials)",
+    "HOME": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps/home",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps/tmp",
+    "PATH": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin:/usr/bin:/bin",
+    "NPM_CONFIG_CACHE": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps/cache",
+    "NPM_CONFIG_USERCONFIG": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps/home/.npmrc",
+    "NPM_CONFIG_GLOBALCONFIG": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps/global.npmrc",
+    "NPM_CONFIG_REGISTRY": "https://registry.npmjs.org",
+    "NPM_CONFIG_ENGINE_STRICT": "true",
+    "NO_COLOR": "1"
+  },
+  "evidence_directory": "/home/kali/.hermes/cache/scratch/t1-33ee99/deps",
+  "evidence": {
+    "audit-red.json": {
+      "sha256": "9fc8c7ea2793496ef9ba4e32573a2131df4f73119ecfcaf67bd7e1528b8d70af",
+      "bytes": 2292
+    },
+    "audit-red.stderr": {
+      "sha256": "0c5e2568b4c79c13debcc497cf347b98e7a01e636ae2bed42cf3faa742048c94",
+      "bytes": 209
+    },
+    "audit-green.json": {
+      "sha256": "c361474eeae0da4495361cac796766a6cafeb8ef4bf98b511ff858a9f020773b",
+      "bytes": 363
+    },
+    "audit-green.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "npm-ci.log": {
+      "sha256": "c12cac735bad536c626875c3d800be6b51600379161ca035bbd9389a1d518f46",
+      "bytes": 77
+    },
+    "npm-ls-all.log": {
+      "sha256": "2bbb44c940829e112ad23a68eaf6e980ddd2488609ba5870128abfbda50aa806",
+      "bytes": 9823
+    },
+    "npm-ls-undici.log": {
+      "sha256": "7da8b9a91afecf9c1a29f77e461136ba187a2628e0878313885047e91c385a7d",
+      "bytes": 150
+    },
+    "node-compatibility.json": {
+      "sha256": "70815d888b8653efa5de6baa911013520614756405a7c84e3b63d759ef17d900",
+      "bytes": 232
+    },
+    "undici-8.11.2.registry.json": {
+      "sha256": "ecbfbf8b736927bed1954fc1905012f1b226c9eb2f4adb40f96dca1ba37ec129",
+      "bytes": 25605
+    },
+    "undici-8.12.2.registry.json": {
+      "sha256": "4bb88bc4289918aefda57ffe395500afb140c2e6ced541bb2587aed8e9758e7e",
+      "bytes": 25667
+    },
+    "jsdom-30.1.1.registry.json": {
+      "sha256": "4eb11d5899bb61b1266e38b0d6de982bc879f8735e7ee3906fd9ebfaa844426d",
+      "bytes": 26820
+    },
+    "npm-config-preflight.json": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "npm-config-preflight.stderr": {
+      "sha256": "250e369d730a46c4d41df37449a5c58c169b4b1d2ab546951a8bed0285805a95",
+      "bytes": 117
+    },
+    "check-web.log": {
+      "sha256": "e4b34d5bce492ef2b355ef70c7ab458b9d225ab8941c5899bd70560d49456ba5",
+      "bytes": 2362
+    },
+    "anti-slop-ci.log": {
+      "sha256": "573ea5baec2b5e1ae9ceacc7a01b9c9bd0a6c4eb006d77d65230e129e6126657",
+      "bytes": 76
+    },
+    "check-web-green.log": {
+      "sha256": "abd79f937b6ec0cdbe3d6f1c617737a8e1a677397ec71f1e3cbd0cbb0dd18e0c",
+      "bytes": 6090
+    },
+    "bundle-byte-comparison.json": {
+      "sha256": "5a78f552631f3d7685bcc483873e357d69470fcbf4729e1b79310887970790fb",
+      "bytes": 1211
+    },
+    "candidate.diff": {
+      "sha256": "ec91847f388bda23467ad8d7bfc8ff2dafef6a8cec088bc0a30a68001f3ab67d",
+      "bytes": 725
+    },
+    "commit-message.txt": {
+      "sha256": "e68982ba64829484f880657f878a50a1a9c26e808fe67adb713aba10975499c4",
+      "bytes": 4613
+    }
+  },
+  "original_parent_canonical6_log": {
+    "path": "/home/kali/.hermes/cache/scratch/t1-33ee99/c6-final/tmp/db-a83d0d51a88e4543/gate.log",
+    "sha256": "33252b9a849b8994469e90968fb0403352ecee5744caffb21d4e9bc296b8026b"
+  },
+  "limits": [
+    "Only one lockfile entry changed; no direct manifest, API/CLI, gate, timeout, skip or docs changes",
+    "No full canonical, PG, browser, installed restart/reinstall, exploit, provider metadata/inference, key access or push",
+    "Durable installed root not accessed; byte-identical web comparison used retained bundle artifacts",
+    "Known-advisory audit is point-in-time; candidate is not T1 acceptance"
+  ]
+}

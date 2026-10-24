@@ -1,0 +1,125 @@
+api/.venv/bin/python -I -m ruff check --config api/pyproject.toml scripts/export_contracts.py
+All checks passed!
+api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check scripts/export_contracts.py
+1 file already formatted
+api/.venv/bin/python -I scripts/export_contracts.py --check
+npm --prefix web run check:contracts
+
+> omnis-web@0.1.0 check:contracts
+> node scripts/generate-contracts.mjs --check
+
+npm --prefix web run test:tooling
+
+> omnis-web@0.1.0 test:tooling
+> node --test scripts/*.test.mjs
+
+✔ canonical check and CI include the web contract gate (13.842168ms)
+✔ web pins match the baseline, without opportunistic dependencies (1.268446ms)
+✔ TypeScript generation detects drift without rewriting it (1632.132876ms)
+✔ contract generation works inside an actual path with spaces (551.534385ms)
+✔ design export produces local tokens/fonts with provenance and detects drift (48.257126ms)
+✔ leak verifier rejects unlabelled tokens and live input values, without reflecting them (92.013407ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2265.504158
+npm --prefix web run typecheck
+
+> omnis-web@0.1.0 typecheck
+> tsc --noEmit
+
+npm --prefix web run lint
+
+> omnis-web@0.1.0 lint
+> node scripts/lint.mjs
+
+Found 0 warnings and 0 errors.
+Finished in 647ms on 65 files with 153 rules using 12 threads.
+npm --prefix web test
+
+> omnis-web@0.1.0 test
+> NODE_ENV=test vitest run
+
+
+ RUN  v4.1.12 /home/kali/.hermes/cache/scratch/t1-33ee99/dev/web
+
+ ✓ src/shared/api/drafts.test.ts (8 tests) 16ms
+ ✓ src/shared/api/client.test.ts (10 tests) 19ms
+ ✓ src/shared/api/catalog.test.ts (2 tests) 35ms
+ ✓ src/app/CatalogSettings.test.tsx (2 tests) 1000ms
+   ✓ shows retained qualification separately from material/runtime and clears it on failed refresh  636ms
+   ✓ lists published heads and keeps exact immutable selection in the reload URL without writes  360ms
+ ✓ src/app/ModelTest.test.tsx (13 tests) 2043ms
+   ✓ explains the model gate for selection null and metadata NOT_REQUESTED without automatic mutations  319ms
+   ✓ Settings save refreshes current selection without rewriting the active requested snapshot  308ms
+ ✓ src/app/Dashboard.test.tsx (3 tests) 1958ms
+   ✓ replaces cursor pages as whole snapshots instead of appending incompatible data  1547ms
+   ✓ renders the authenticated bounded dashboard from the real HTTP client  329ms
+ ✓ src/app/Engagement.test.tsx (7 tests) 2109ms
+   ✓ selects a persisted draft, preserves identity and scope, and navigates editable Setup / New without implicit writes  1562ms
+ ✓ src/app/ProjectionStates.test.tsx (8 tests) 2861ms
+   ✓ a dashboard 401 expires auth and removes every private query  879ms
+   ✓ logout cancels held selected reads, purges private data, and never accepts their late completion  623ms
+   ✓ a held old dashboard 401 cannot expire a newer paired session  699ms
+ ✓ src/shared/api/providerKeys.test.ts (10 tests) 13ms
+ ✓ src/app/App.test.tsx (12 tests) 3281ms
+   ✓ pairs a browser, reads actual instance state, and confirms logout with a session readback  1280ms
+   ✓ keeps pairing errors beside an empty field with keyboard focus  307ms
+   ✓ a held pairing readback cannot overtake confirmed logout via concurrent polling  309ms
+ ✓ src/shared/api/projections.test.ts (10 tests) 25ms
+ ✓ src/app/Shell.test.tsx (3 tests) 562ms
+ ✓ src/app/ProviderKeySettings.test.tsx (13 tests) 3599ms
+   ✓ Settings saves write-only key once through new API and reads current state after remount  788ms
+   ✓ lost reply retains command ID, clears key and recovers GET exact receipt without replay  403ms
+   ✓ SOURCE reviewer2: revision readback preserves Save focus without stealing it after operator moved=false  524ms
+   ✓ SOURCE reviewer2: revision readback preserves Save focus without stealing it after operator moved=true  338ms
+ ✓ src/app/ReceiptRecovery.test.tsx (4 tests) 2245ms
+   ✓ keeps the POST receipt barrier through edits until explicit GET reconciliation (network)  1400ms
+   ✓ keeps the PUT receipt barrier through edits until explicit GET reconciliation (network)  351ms
+ ✓ src/app/ProviderSettings.test.tsx (26 tests) 4070ms
+   ✓ SOURCE default exposes only Provider, Model, Connect in native tab order and connects fresh in one click  828ms
+   ✓ SOURCE waits for exact pending read confirmation before advancing  309ms
+ ✓ src/app/Wizard.test.tsx (20 tests) 7973ms
+   ✓ points a negative request ceiling at that field before checking the reserve relation  1482ms
+   ✓ keeps local edits actionable after a definite POST body-size refusal  2089ms
+   ✓ keeps local edits actionable after a definite PUT body-size refusal  375ms
+   ✓ creates an inert draft and confirms exact saved data with GET before reporting saved  741ms
+   ✓ edits structured context, business matrix and budgets, then reviews the confirmed revision  643ms
+   ✓ does not erase authored focused text that happens to equal the General default  325ms
+
+ Test Files  16 passed (16)
+      Tests  151 passed (151)
+   Start at  13:19:45
+   Duration  10.60s (transform 6.18s, setup 3.41s, import 9.82s, tests 31.81s, environment 19.02s)
+
+npm --prefix web run build
+
+> omnis-web@0.1.0 build
+> npm run check:contracts && npm run check:design && tsc --noEmit && NODE_ENV=production vite build && node scripts/build-manifest.mjs
+
+
+> omnis-web@0.1.0 check:contracts
+> node scripts/generate-contracts.mjs --check
+
+
+> omnis-web@0.1.0 check:design
+> node scripts/sync-design.mjs --check
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 170 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                       0.57 kB │ gzip:   0.36 kB
+dist/assets/fonts-OFL-bSaZbgNk.txt    4.38 kB │ gzip:   1.97 kB
+dist/assets/index-97com5ii.css      135.93 kB │ gzip:  90.58 kB
+dist/assets/index-wc7DvD2Y.js       394.85 kB │ gzip: 119.44 kB
+
+✓ built in 601ms
+Trusted web manifest: 4 files
+npm --prefix web audit --include=dev
+found 0 vulnerabilities

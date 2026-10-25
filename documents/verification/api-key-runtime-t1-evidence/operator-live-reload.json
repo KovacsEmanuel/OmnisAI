@@ -1,0 +1,85 @@
+{
+  "scope": "OPERATOR_DRIVEN_INSTALLED_UI_MODEL_TEST_RELOAD_SCOPED",
+  "recorded_at": "2026-10-25T20:04:47+02:00",
+  "tracking_base": "30a2475cf72127b501c0f355dd1877ca8ad619b9",
+  "candidate": "dd4f8747287496d1bb589de277455354d122892a",
+  "canonical8_product_tests": "35470f12caadc3241c9c5a20953ca049b649031a",
+  "root": "/home/kali/.local/share/omnis-t1-ready-33ee99",
+  "release_json_sha256": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+  "lifecycle": {
+    "commands": ["omnis status --json", "omnis start --no-open --json", "omnis status --json"],
+    "environment": "Exact env -i HOME/XDG/PATH/TMPDIR roots from the durable installation README.txt; no ambient provider credentials.",
+    "before": {"state": "STOPPED", "generation": 6, "exit": 0},
+    "start": {"state": "READY", "generation": 7, "supervisor_epoch": 4, "reused": false, "exit": 0},
+    "status_after_test": {
+      "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+      "origin": "http://127.0.0.1:8772",
+      "state": "READY",
+      "generation": 7,
+      "supervisor_epoch": 4,
+      "schema": "0015_model_test_v2",
+      "admission_open": true,
+      "api_ready": true,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "assessment_ready": false,
+      "exit": 0
+    },
+    "reverse_command": "omnis stop --json with the same isolated roots; NOT_EXECUTED in this observation"
+  },
+  "authentication": {
+    "browser": "Operator-chosen local Google Chrome",
+    "pairing": "Operator completed Pair; code displayed only in local terminal, never read by the agent or retained in chat/log.",
+    "copy_failure": "Operator reported whitespace/length rejection while copying from xterm. A replacement code was explicitly authorized and emitted in QTerminal; operator reported success. No product change.",
+    "browser_open_attempt": "google-chrome URL command timed out at 20s; operator opened the page manually. Local page HTTP200 and unauthenticated session HTTP401 were observed separately, not evidence of paired-session failure."
+  },
+  "configuration_ui": {
+    "initial": "Vault UNCONFIGURED; no saved connection or model selection observed after Start7 and Pair.",
+    "after_operator_save": "Vault UNLOCKED; openrouter configured; credential present; connection revision1. Key input empty after Save.",
+    "selection_revision": 1,
+    "requested_provider": "openrouter",
+    "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+    "requested_output_tokens": 128,
+    "role_overrides": "Brain/Investigator/Validator unchecked; inherit the default."
+  },
+  "effect_authority": {
+    "agent_provider_commands": "NONE",
+    "operator_actions": "Operator chose and saved the model, then exercised metadata/Test in the paired UI while the agent was instructed to observe only.",
+    "checkbox_transition_and_network_count": "NOT_OBSERVED; the first captured test view was already terminal. No claim of independently counted outbound requests.",
+    "proposed_openai_model_grant": "NOT_GRANTED; the earlier openai/gpt-4.1-mini proposal was not used.",
+    "additional_agent_provider_calls": "NOT_AUTHORIZED; require a new finite explicit grant for the exact selected connection/model/input."
+  },
+  "ui_before_and_after_operator_confirmed_ctrl_r": {
+    "operation_id": "44da4c4b-9a47-4a4a-9b31-b3f013a50ba3",
+    "metadata_state": "READY",
+    "state": "FINISHED",
+    "result_state": "COMPLETED",
+    "response_text": "OMNIS_MODEL_TEST_OK",
+    "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+    "provider_status": "200",
+    "output_state": "COMPLETE",
+    "usage_state": "KNOWN",
+    "input_tokens": 63,
+    "output_tokens": 128,
+    "reasoning_tokens": 128,
+    "cost_observed_display": "0.00012926",
+    "cost_currency": "NOT_DISPLAYED; no independent billing reconciliation",
+    "same_operation_and_displayed_result_after_reload": true,
+    "reading_boundary": "Real installed UI screenshots, transcribed visually. Not a raw authenticated API response, DB census, network trace or independently observed SENT commit. Reload was reported by the operator and followed by a fresh screenshot; no agent input was sent to the browser."
+  },
+  "screenshots": [
+    {"path": "operator-live-before-reload.png", "sha256": "ce7afcef6e07277351963c809e0d00ef36fd99138e7909f2b299c1712e0ac9ab"},
+    {"path": "operator-live-after-reload.png", "sha256": "f84cf6dfb514d11936be9cd42fcfad60b548efb63deb519c1e3095733c20a093"}
+  ],
+  "source_readback": "web/src/features/engagement/ModelTest.tsx:27-37,87-103,110-125 on candidate dd4f874: reload/read use receipt GETs; usage labels input/output/reasoning. Reasoning is not added again to output.",
+  "not_run": [
+    "restart and readback of this nonempty operation",
+    "active installed Cancel/Stop/revoke/reuse",
+    "normal installed supervisor crash after SENT and no-resend",
+    "final R2-NEW-01 physical acceptance",
+    "historical reader categories lacking their own installed proof",
+    "additional provider call, T2, targets, global changes or push"
+  ],
+  "canonical8": "Unchanged scoped evidence reused; no rerun for this UI observation/documentation.",
+  "t1": "PARTIAL / NOT_ACCEPTED; candidate remains separate from the tracking checkout"
+}

@@ -1,0 +1,7 @@
+{
+  "cleanup": "NOT_ATTEMPTED",
+  "exception": "RuntimeError",
+  "phase": "install",
+  "reason": "NONEMPTY_DOMAIN_STORE",
+  "retained": true
+}

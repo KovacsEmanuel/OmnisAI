@@ -1,0 +1,11 @@
+{
+  "cause": "host-path resolve(strict=True) on container /proc/PID/exe points at image-only /usr/local/bin/python3.13",
+  "correction": "retain pidfd; use proc start_ticks, uid, exact installed argv, kernel exe inode and readlink; Docker exact CID/image/daemon attestation remains",
+  "driver_sha256": "210a4220f2b93c4e4c3bbcee84f4f9340a4880a5f89a814f5780cfe60fdde93a",
+  "faults_issued_before_correction": 0,
+  "first_exception": "FileNotFoundError",
+  "first_exit": 1,
+  "first_failure_not_erased": true,
+  "original_failure": "fault-failure.json",
+  "same_installation": true
+}

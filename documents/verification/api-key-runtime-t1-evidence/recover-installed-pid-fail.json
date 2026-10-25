@@ -1,0 +1,7 @@
+{
+  "cleanup": "NOT_ATTEMPTED",
+  "exception": "FileNotFoundError",
+  "phase": "fault",
+  "reason": "FileNotFoundError",
+  "retained": true
+}

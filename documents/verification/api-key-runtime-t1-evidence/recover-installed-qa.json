@@ -1,0 +1,501 @@
+{
+  "T1_closed": false,
+  "adjudication": "Parent must adjudicate the two pre-fault QA-reader corrections; no unqualified QA/T1 acceptance claimed.",
+  "artifact_hashes": {
+    "api/omnis_api-0.1.0-py3-none-any.whl": "26e403514e6d98d21d4b5f2100dae2ab4a36f2eab98fb3a84c256d73dfcc3987",
+    "api/requirements.txt": "0ff023a2dd4d86fc1cec02fbbc624f2a910e8f24f0ffff6a240d7426394e12c2",
+    "cli/omnis_cli-0.1.0-py3-none-any.whl": "9f73d9944676f812f2f23c3a79814d8b2323fa721c0386dd54953e112116eb24",
+    "ops/Dockerfile": "d4a06424229b5e0aceb34c986b7ee2373872e2a3cd70e9234ff7dbd24dbd705b",
+    "ops/compose.yaml": "5cb3300a5ecb310eb0f7a5dfb3a10f4441000029951bea62de2077016f94cd65",
+    "release.json": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+    "web/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+    "web/assets/index-97com5ii.css": "9043155372f3ea05b8ba72bdf2ceb31408a9b776a4ef5af56411d9ab344d1bb9",
+    "web/assets/index-wc7DvD2Y.js": "019acb79364cb0a8d6d416794aab332a73c77512340535ef7595bea5c43cf5bd",
+    "web/index.html": "b8f45f812200986daaed5dc53e257436a516fe693ee7b563795cfdcd275a6ef2",
+    "web/omnis-web.json": "7347d02d6c9260103b95cc955305147861674cf4a713685810b29c75327fbdb3"
+  },
+  "chisel": "BLOCKED_NO_GO",
+  "cleanup": {
+    "containers_absent": {
+      "0058fc1d38d6eb5471784ea20e21d25bdbaede7a8cdaf4c4bfdfa97d93500d02": true,
+      "73f430a1bdd470372267ab24049a81e696b04acfd3bcda4711c36323b9149fc3": true,
+      "85292c8f58705b5c50040b3e7b473f64600e105481cf81f5d0930bc4c8230d51": true,
+      "abd7bc0afb64da133fd4274238113f01094efb7407afc30b43f2a9704233210c": true,
+      "c523da4bbd67ca17ec3d6a088416f52f0fc23ae1a87a3f464805bf043d465bd2": true,
+      "f925acad598b994ba563eff31f315befeec8cc2b2d63d8b56fcc656f6b68c92c": true
+    },
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "data_directories": {
+      "postgres": [
+        2049,
+        9893887,
+        1000,
+        1000,
+        457
+      ],
+      "vault": [
+        2049,
+        9893882,
+        1000,
+        1000,
+        448
+      ],
+      "vault-key": [
+        2049,
+        9893883,
+        1000,
+        1000,
+        448
+      ]
+    },
+    "docker_host": "unix:///run/docker.sock",
+    "family_drained": true,
+    "forwarder_processes": {
+      "1401413": {
+        "observed_state": "ABSENT",
+        "same_incarnation_present": false,
+        "start_ticks": "39816515"
+      },
+      "1432667": {
+        "observed_state": "ABSENT",
+        "same_incarnation_present": false,
+        "start_ticks": "39849712"
+      }
+    },
+    "image_retained": "sha256:761b643665d730913f8df7889d0c75703f1cbfef8ecc91f9b0379d3b3eb6c949",
+    "image_tag_retained": "omnis-control-c5d996e0d85c4181891d216f1182f480:0.1.0",
+    "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+    "listeners": [],
+    "loopback_port": 41175,
+    "networks_absent": {
+      "0414013e6bb1ddc2eea22b1f0ef933b67543afd11833451f966b0b32ca21ec35": true,
+      "c8ec91af4db3dacea7951f7e6887f46637bcd489ffad890c69fc5b59cf0640a1": true
+    },
+    "paths_absent": {
+      "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/r/omnis/control.cap": true,
+      "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/r/omnis/control.sock": true,
+      "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/s/omnis/http/api.sock": true
+    },
+    "project": "omnis-local-c5d996e0d85c4181891d216f1182f480",
+    "project_cids": [],
+    "release_and_data_retained": true,
+    "system_id": "7700703568560332843",
+    "system_id_proof": "actual read-only SQL at initial READY and fresh READY after recovery; final product Stop completion retains same binding",
+    "uncertain": false,
+    "verdict": "PASS"
+  },
+  "commands": {
+    "dead-recover": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "recover",
+        "--json"
+      ],
+      "elapsed_seconds": 14.773143060971051,
+      "exit": 0,
+      "result": {
+        "admission_open": false,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "dashboard_ready": false,
+        "generation": 3,
+        "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+        "origin": "http://127.0.0.1:41175",
+        "reason": null,
+        "state": "STOPPED"
+      },
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/dead-recover.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/dead-recover.stdout"
+    },
+    "healthy-recover": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "recover",
+        "--json"
+      ],
+      "elapsed_seconds": 1.9223555860226043,
+      "exit": 4,
+      "result": {
+        "assessment_ready": false,
+        "browser_opened": false,
+        "dashboard_ready": false,
+        "reason": "SUPERVISOR_NOT_DEAD",
+        "state": "UNCERTAIN"
+      },
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/healthy-recover.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/healthy-recover.stdout"
+    },
+    "install": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "install",
+        "--bundle",
+        "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/normal-bundle-r2fix"
+      ],
+      "elapsed_seconds": 0.2157933129929006,
+      "exit": 0,
+      "result": null,
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/install.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/install.stdout"
+    },
+    "install-image": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "install-image"
+      ],
+      "elapsed_seconds": 4.934351484000217,
+      "exit": 0,
+      "result": null,
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/install-image.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/install-image.stdout"
+    },
+    "start-after-recovery": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "elapsed_seconds": 15.525060676969588,
+      "exit": 0,
+      "result": {
+        "admission_open": true,
+        "api_ready": true,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "control_ready": true,
+        "dashboard_ready": true,
+        "generation": 4,
+        "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+        "origin": "http://127.0.0.1:41175",
+        "reason": null,
+        "release": "0.1.0",
+        "reused": false,
+        "schema": "0015_model_test_v2",
+        "state": "READY",
+        "supervisor_epoch": 3
+      },
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/start-after-recovery.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/start-after-recovery.stdout"
+    },
+    "start-initial": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "elapsed_seconds": 16.200326859019697,
+      "exit": 0,
+      "result": {
+        "admission_open": true,
+        "api_ready": true,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "control_ready": true,
+        "dashboard_ready": true,
+        "generation": 1,
+        "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+        "origin": "http://127.0.0.1:41175",
+        "reason": null,
+        "release": "0.1.0",
+        "reused": false,
+        "schema": "0015_model_test_v2",
+        "state": "READY",
+        "supervisor_epoch": 1
+      },
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/start-initial.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/start-initial.stdout"
+    },
+    "stop-final": {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/cli/bin/omnis",
+        "stop",
+        "--json"
+      ],
+      "elapsed_seconds": 9.547046565974597,
+      "exit": 0,
+      "result": {
+        "admission_open": false,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "dashboard_ready": false,
+        "generation": 5,
+        "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+        "origin": "http://127.0.0.1:41175",
+        "reason": null,
+        "state": "STOPPED"
+      },
+      "stderr": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/stop-final.stderr",
+      "stdout": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/evidence/stop-final.stdout"
+    }
+  },
+  "commits": [],
+  "corrections": [
+    {
+      "correction": "mandatory empty pairing singleton count=1, unissued predicate true; all provider/model zero unchanged",
+      "driver_sha256": "a6920175869553404bd7952593145999222e8e09f71a7063d35ae15ef6da33b3",
+      "first_failure_not_erased": true,
+      "first_qa_exit": 1,
+      "first_reason": "NONEMPTY_DOMAIN_STORE",
+      "old_driver_sha256": "ee945d9c3eeda1590f7af1fed8560e350175f47559d81229bcd511e390cd37eb",
+      "preserved_failure": "install-failure.json",
+      "producer": "api/src/omnis/migrations/versions/0002_local_sessions.py:21",
+      "same_installation": true
+    },
+    {
+      "cause": "host-path resolve(strict=True) on container /proc/PID/exe points at image-only /usr/local/bin/python3.13",
+      "correction": "retain pidfd; use proc start_ticks, uid, exact installed argv, kernel exe inode and readlink; Docker exact CID/image/daemon attestation remains",
+      "driver_sha256": "210a4220f2b93c4e4c3bbcee84f4f9340a4880a5f89a814f5780cfe60fdde93a",
+      "faults_issued_before_correction": 0,
+      "first_exception": "FileNotFoundError",
+      "first_exit": 1,
+      "first_failure_not_erased": true,
+      "original_failure": "fault-failure.json",
+      "same_installation": true
+    }
+  ],
+  "driver_sha256": "210a4220f2b93c4e4c3bbcee84f4f9340a4880a5f89a814f5780cfe60fdde93a",
+  "failures_retained": [
+    {
+      "cleanup": "NOT_ATTEMPTED",
+      "exception": "RuntimeError",
+      "phase": "install",
+      "reason": "NONEMPTY_DOMAIN_STORE",
+      "retained": true
+    },
+    {
+      "cleanup": "NOT_ATTEMPTED",
+      "exception": "FileNotFoundError",
+      "phase": "fault",
+      "reason": "FileNotFoundError",
+      "retained": true
+    }
+  ],
+  "fault_command": {
+    "ack": "85292c8f58705b5c50040b3e7b473f64600e105481cf81f5d0930bc4c8230d51",
+    "argv": [
+      "/usr/bin/docker",
+      "--config",
+      "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/d/omnis/releases/0.1.0/ops",
+      "--host",
+      "unix:///run/docker.sock",
+      "kill",
+      "--signal",
+      "KILL",
+      "85292c8f58705b5c50040b3e7b473f64600e105481cf81f5d0930bc4c8230d51"
+    ],
+    "exit": 0,
+    "family_drained": true,
+    "uncertain": false
+  },
+  "fault_grant": {
+    "authority": {
+      "attempt": "30add42b-a120-4f19-ac86-6b90df684030",
+      "cid": "85292c8f58705b5c50040b3e7b473f64600e105481cf81f5d0930bc4c8230d51",
+      "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "epoch": 1,
+      "fault_limit": 1,
+      "generation": 1,
+      "host": "unix:///run/docker.sock",
+      "image": "sha256:761b643665d730913f8df7889d0c75703f1cbfef8ecc91f9b0379d3b3eb6c949",
+      "instance_id": "22102af5-a9db-4c33-a174-4074fb98b6e0",
+      "owner": "5d543981-0385-46ca-9504-59c10d189482",
+      "pid_identity": {
+        "argv": [
+          "python",
+          "-I",
+          "-m",
+          "omnis.supervisor"
+        ],
+        "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+        "executable_identity": [
+          107,
+          1600455
+        ],
+        "executable_link": "/usr/local/bin/python3.13",
+        "pid": 1401468,
+        "start_ticks": "39816549"
+      },
+      "signal": "SIGKILL"
+    },
+    "claim": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/fault.claim",
+    "consumed": true,
+    "count": 1,
+    "sha256": "491661b31ae990619ddfaa3f9b8ebc761ce55692603cddfe9cd3a6ac9ceb8abc"
+  },
+  "final_completion": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/s/omnis/stop-d3675ce6-17fb-49b1-8b65-d77b075bb937.json",
+  "inputs_manifest_sha256": "2ebafa4285f008fc546cd7dfb9cd22f9d49eea3217724cc93a029be7cf52ac25",
+  "observations_limit": "Zero stores/no commands and normal topology, not universal network/syscall monitoring. Fresh image/build cache retained; no prune. No pending-SENT/provider cancellation proof.",
+  "original_OPEN": [
+    {
+      "command_id": "cc3e6a88-293c-47b4-9017-610bc2558c11",
+      "expected_generation": 0,
+      "kind": "OPEN",
+      "owner_epoch": 1,
+      "result_generation": 1
+    }
+  ],
+  "original_owner": "5d543981-0385-46ca-9504-59c10d189482",
+  "outer_elapsed_seconds": 662.0086297360249,
+  "product_budgets": [
+    180,
+    180,
+    100
+  ],
+  "product_journey_verdict": "PASS_EMPTY_MODEL_STORE_SCOPED",
+  "qa_root": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on",
+  "raw_logs": "private bounded files only, not copied to Git/chat",
+  "recovery_completion": "/home/kali/.hermes/cache/scratch/rq-bn8ic9on/s/omnis/stop-2c2a9ca9-4623-44e7-9698-7c053b4612b3.json",
+  "recovery_owner": "5ac10d7f-4536-4050-ba47-3964b512ebb6",
+  "release_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+  "repository_edits": false,
+  "restart_owner": "21210677-4d6b-4dba-b2d1-cea1cfb99201",
+  "reticle": "NOT_APPLICABLE",
+  "scenarios": {
+    "SOURCE_reviews_canonical_rerun": {
+      "status": "NOT_RUN"
+    },
+    "T1_closure_rollout": {
+      "status": "NOT_RUN"
+    },
+    "all_owned_resource_cleanup": {
+      "evidence": "final-cleanup-readback.json",
+      "status": "PASS"
+    },
+    "artifact_preflight": {
+      "evidence": "preflight.json",
+      "status": "PASS"
+    },
+    "consumed_inputs_unchanged": {
+      "bundle_files": 11,
+      "source_files": 151,
+      "status": "PASS"
+    },
+    "corrected_schema_readback": {
+      "evidence": "census-correction.json",
+      "pairing_unissued": true,
+      "status": "PASS"
+    },
+    "dead_owner_recover": {
+      "epoch": 2,
+      "evidence": "recovery-positive.json",
+      "exit": 0,
+      "generation": 3,
+      "state": "STOPPED",
+      "status": "PASS"
+    },
+    "expired_lease_readback": {
+      "evidence": "lease-expired.json",
+      "status": "PASS"
+    },
+    "explicit_restart": {
+      "epoch": 3,
+      "exit": 0,
+      "generation": 4,
+      "state": "READY",
+      "status": "PASS"
+    },
+    "final_normal_stop": {
+      "evidence": "final-stopped.json",
+      "exit": 0,
+      "generation": 5,
+      "state": "STOPPED",
+      "status": "PASS"
+    },
+    "healthy_recover_denial": {
+      "exit": 4,
+      "reason": "SUPERVISOR_NOT_DEAD",
+      "state": "UNCERTAIN",
+      "status": "PASS",
+      "zero_effect_readback": true
+    },
+    "historical_open_and_data_retention": {
+      "evidence": "restart-positive.json",
+      "status": "PASS"
+    },
+    "initial_start": {
+      "epoch": 1,
+      "generation": 1,
+      "status": "PASS"
+    },
+    "model_provider_store_empty": {
+      "counts": {
+        "model_command_v2": 0,
+        "model_dispatch_event_v2": 0,
+        "model_dispatch_v2": 0,
+        "model_record_v2": 0,
+        "provider_connection_revision": 0,
+        "provider_selection_revision": 0,
+        "provider_settings_command": 0,
+        "system_operation": 0,
+        "system_operation_event": 0
+      },
+      "evidence": "restart-ready.json",
+      "status": "PASS"
+    },
+    "new_normal_installation": {
+      "evidence": "image-readback.json",
+      "status": "PASS"
+    },
+    "operator_installation_access": {
+      "status": "NOT_RUN"
+    },
+    "original_fault_preflight": {
+      "claim_consumed_at_failure": false,
+      "evidence": "fault-preflight-diagnostic.json",
+      "exit": 1,
+      "reason": "container executable symlink resolved as a host filesystem path",
+      "status": "FAIL"
+    },
+    "original_qa_census": {
+      "evidence": "install-failure.json",
+      "exit": 1,
+      "reason": "NONEMPTY_DOMAIN_STORE; QA incorrectly expected mandatory pairing singleton empty",
+      "status": "FAIL"
+    },
+    "pending_SENT_crash": {
+      "status": "NOT_RUN"
+    },
+    "provider_calls_or_target_traffic": {
+      "status": "NOT_RUN"
+    },
+    "recovery_shutdown_finalize_sql": {
+      "evidence": "restart-ready.json",
+      "status": "PASS"
+    },
+    "single_authorized_supervisor_sigkill": {
+      "cid": "85292c8f58705b5c50040b3e7b473f64600e105481cf81f5d0930bc4c8230d51",
+      "container_exit_code": 137,
+      "count": 1,
+      "exit": 0,
+      "pidfd_exit": true,
+      "status": "PASS"
+    }
+  },
+  "scope": "new normal installed artifact; idle dead supervisor, empty model/provider stores; one physical SIGKILL",
+  "source_head": "e1b01a32b278b2368a2855083731f6273c70ba14",
+  "source_tree": "0665ae0d9616677d22d06996c36e1f4f4e5ac6a8",
+  "verdict": "NOT_CLEAN_QA_PASS_OBSERVER_FAILURES_RETAINED"
+}

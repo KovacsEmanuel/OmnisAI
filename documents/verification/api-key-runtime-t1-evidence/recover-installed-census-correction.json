@@ -1,0 +1,11 @@
+{
+  "correction": "mandatory empty pairing singleton count=1, unissued predicate true; all provider/model zero unchanged",
+  "driver_sha256": "a6920175869553404bd7952593145999222e8e09f71a7063d35ae15ef6da33b3",
+  "first_failure_not_erased": true,
+  "first_qa_exit": 1,
+  "first_reason": "NONEMPTY_DOMAIN_STORE",
+  "old_driver_sha256": "ee945d9c3eeda1590f7af1fed8560e350175f47559d81229bcd511e390cd37eb",
+  "preserved_failure": "install-failure.json",
+  "producer": "api/src/omnis/migrations/versions/0002_local_sessions.py:21",
+  "same_installation": true
+}

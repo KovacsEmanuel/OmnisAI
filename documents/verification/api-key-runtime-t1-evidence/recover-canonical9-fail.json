@@ -1,0 +1,41 @@
+{
+  "verdict": "FAIL_NOT_T1_ACCEPTED",
+  "tested_head": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "owner": "proc_d6a104f93d8d",
+  "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 7200",
+  "receipt": {"schema_version": 1, "code": 2, "family_drained": true},
+  "tracked_inputs": 1953,
+  "tracked_drift": [],
+  "documentation_tests": 87,
+  "development_tests": 56,
+  "api_audit": "53 packages; no known vulnerabilities or adverse statuses",
+  "api_original_summary": "1 failed, 3123 passed, 65 skipped, 7 deselected, 1 error in 3690.92s (1:01:30)",
+  "failed_test": "api/tests/test_c03_journey_pg.py::test_c03_published_input_cli_assignment_and_replay",
+  "failure": {
+    "exception": "subprocess.TimeoutExpired",
+    "consumer": "omnis.modules.runs.contract_inputs create-input",
+    "caller": "api/tests/test_c03_journey_pg.py:233, subprocess invocation at63",
+    "configured_cli_timeout_seconds": 25,
+    "stage": "create-input for the fresh negative-control context",
+    "underlying_cause": "UNKNOWN; no timeout/guard changed"
+  },
+  "teardown_error": {
+    "exception": "RuntimeError",
+    "message": "Cannot verify dedicated test project",
+    "caller": "api/tests/conftest.py:77,132",
+    "underlying_attestor_failure": "NOT_RETAINED by the normalized exception; not attributed to the recovery product change"
+  },
+  "downstream_migration_web_e2e_cli_release": "NOT_RUN in this invocation after test-api failed",
+  "fixture": {
+    "project": "omnis-p01-d46b554c7e94449fb4370d72d8afe0e0",
+    "cid": "0565b8e133c2994685de6e9ecf05a888bec2dc5c386c5fe24253d5b52a60498f",
+    "root": "/home/kali/.hermes/cache/scratch/c9-kihis07a/t/db-86272ea589234881",
+    "same_daemon_parent_readback": true,
+    "container_project_network_socket_absent": true,
+    "data_retained": true
+  },
+  "raw_log_private_path": "/home/kali/.hermes/cache/scratch/c9-kihis07a/t/db-86272ea589234881/gate.log",
+  "raw_log_sha256": "d5133731b9c29b3bbc3eaca38200628683c56a83d3b741e4f09082d8d2832099",
+  "next_admitted_check": "One existing test-c03-pg target on fresh owned DB, unchanged product/oracles/deadlines; includes failed case. Not an automatic full canonical retry.",
+  "limits": "The installed idle recovery proof and scoped source reviews are retained; a partial API result does not make the canonical gate PASS. No new provider call, SIGKILL grant, operator-data change or T2."
+}

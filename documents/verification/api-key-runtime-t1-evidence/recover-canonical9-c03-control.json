@@ -1,0 +1,34 @@
+{
+  "scope": "EXISTING_C03_TARGET_CURRENT_CONTROL_NOT_CANONICAL_PASS",
+  "tested_head": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "owner": "proc_9f448d2d93eb",
+  "target": "test-c03-pg",
+  "root": "/home/kali/.hermes/cache/scratch/c03-h3bakcvh",
+  "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-c03-pg --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 900",
+  "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+  "original_summary": "37 passed in 194.20s (0:03:14)",
+  "boundary": "Existing mixed SOURCE/private-PG target, including the entire previously failed C03 CLI journey; not 37 PG-only cases or installed/provider proof.",
+  "preflight": {
+    "CLI_help_exit": 0,
+    "CLI_help_wall_seconds_rounded": 1.388,
+    "collect_exit": 0,
+    "collected_tests": 37,
+    "failed_case_present": "tests/test_c03_journey_pg.py::test_c03_published_input_cli_assignment_and_replay",
+    "observer_first_exit": 1,
+    "correction": "Initial readback assertion expected api/tests prefix, but pytest rootdir is api and emits tests/. Used the already recorded successful collection; no test selection, product or oracle change and no provisioning before correction."
+  },
+  "product_and_test_changes": "NONE; CLI25s/attestor30s limits unchanged",
+  "source_inputs_compared_against_canonical9": {"count": 1953, "drift": []},
+  "fixture": {
+    "project": "omnis-p01-0a2da69517aa46ee97e38615b0eb67c8",
+    "cid": "a3888a5cadd4e777560ac546051f1bfa05567ed30b8de09e3de8927b9a482ccd",
+    "root": "/home/kali/.hermes/cache/scratch/c03-h3bakcvh/t/db-824a22b6e1284415",
+    "same_daemon_parent_readback": true,
+    "container_project_network_socket_absent": true,
+    "data_retained": true
+  },
+  "raw_log_private_path": "/home/kali/.hermes/cache/scratch/c03-h3bakcvh/t/db-824a22b6e1284415/gate.log",
+  "raw_log_sha256": "1af9e2804a9fdd6104aaff6c7e53a5acbf582d4e56a893e151c7ed7c665c234f",
+  "decision": "Current complete C03 target and teardown pass without edits. Admit one serial canonical10 on the same bytes; no retry-until-green loop. A repeated failure blocks further blind full reruns.",
+  "historical_canonical9_cause": "UNKNOWN; this passing control does not explain or erase the original timeout/teardown error"
+}

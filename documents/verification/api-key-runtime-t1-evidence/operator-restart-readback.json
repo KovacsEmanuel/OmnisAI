@@ -1,0 +1,300 @@
+{
+  "scope": "NORMAL_INSTALLED_RESTART_WITH_PERSISTED_PROVIDER_OPERATIONS_SCOPED",
+  "tracking_base": "e5069e8f4026645379484281262cef7f22ab045b",
+  "candidate": "dd4f8747287496d1bb589de277455354d122892a",
+  "root": "/home/kali/.local/share/omnis-t1-ready-33ee99",
+  "authority": "Operator resumed work and explicitly allowed temporary foreground control of the Omnis Chrome tab for reads/reload; no new provider-call budget.",
+  "before": {
+    "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+    "phase": "READY",
+    "generation": 7,
+    "supervisor_epoch": 4,
+    "containers": {
+      "api": "9da10e65029acbea23eda9f74be3985abbefd3d9fbcecd8ec8b6482db5e5d137",
+      "db": "4ea27743060862ba5264be765f5bed379240050af584868e996c35c323601c7e",
+      "supervisor": "a49c05f02dc51f2ddac671380876440a0a4196b1e1a60a2e5b9f8f19f325e266"
+    },
+    "project": "omnis-local-d3e42ecad6c94caaa6ec0340306094d7",
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_id": "sha256:9b145c30f4a9fd892182de7ca0f971ab7aaadeccb1b6d519589455d190287c18",
+    "release_digest": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+    "api_socket": [
+      2049,
+      4784200
+    ],
+    "control_socket": [
+      2049,
+      4784222
+    ],
+    "control_dir": "/home/kali/.local/share/omnis-t1-ready-33ee99/r/omnis",
+    "forwarder": {
+      "pid": 1218747,
+      "start_ticks": "38832635",
+      "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+      "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13"
+    },
+    "directory_identities": {
+      "postgres": [
+        2049,
+        4782338
+      ],
+      "vault": [
+        2049,
+        4782333
+      ],
+      "vault-key": [
+        2049,
+        4782334
+      ]
+    },
+    "container_readback": {
+      "api": {
+        "exit": 0,
+        "observed": "9da10e65029acbea23eda9f74be3985abbefd3d9fbcecd8ec8b6482db5e5d137 running 1218903"
+      },
+      "db": {
+        "exit": 0,
+        "observed": "4ea27743060862ba5264be765f5bed379240050af584868e996c35c323601c7e running 1217058"
+      },
+      "supervisor": {
+        "exit": 0,
+        "observed": "a49c05f02dc51f2ddac671380876440a0a4196b1e1a60a2e5b9f8f19f325e266 running 1218821"
+      }
+    },
+    "network": {
+      "exit": 0,
+      "observed": "ca014dfcf40b0d2695d0257fbbb233131c164a23779d2e35b597f684f4efdd94 true"
+    }
+  },
+  "stop": {
+    "command": "omnis stop --json with exact isolated installation roots",
+    "exit": 0,
+    "stdout": {
+      "admission_open": false,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "dashboard_ready": false,
+      "generation": 8,
+      "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+      "origin": "http://127.0.0.1:8772",
+      "reason": null,
+      "state": "STOPPED"
+    },
+    "stderr_bytes": 0
+  },
+  "stopped_readback": {
+    "containers": {
+      "api": {
+        "id": "9da10e65029acbea23eda9f74be3985abbefd3d9fbcecd8ec8b6482db5e5d137",
+        "exit": 1,
+        "absent": true
+      },
+      "db": {
+        "id": "4ea27743060862ba5264be765f5bed379240050af584868e996c35c323601c7e",
+        "exit": 1,
+        "absent": true
+      },
+      "supervisor": {
+        "id": "a49c05f02dc51f2ddac671380876440a0a4196b1e1a60a2e5b9f8f19f325e266",
+        "exit": 1,
+        "absent": true
+      }
+    },
+    "network_absent": true,
+    "network_exit": 1,
+    "original_forwarder_absent": true,
+    "sockets_absent": {
+      "/home/kali/.local/share/omnis-t1-ready-33ee99/s/omnis/http/api.sock": true,
+      "/home/kali/.local/share/omnis-t1-ready-33ee99/r/omnis/control.sock": true
+    },
+    "listener_8772_absent": true,
+    "data_identities_preserved": {
+      "postgres": true,
+      "vault": true,
+      "vault-key": true
+    }
+  },
+  "first_start_refusal": {
+    "command": "omnis start --no-open --json with same roots",
+    "exit": 2,
+    "stdout": {
+      "assessment_ready": false,
+      "browser_opened": false,
+      "dashboard_ready": false,
+      "reason": "PORT_CONFLICT",
+      "state": "REFUSED"
+    },
+    "stderr_bytes": 0,
+    "observation": "ss showed no listening owner and only TIME_WAIT sockets on/with8772. Journal remained STOPPED. The installed preflight_port uses bind without reuse. Original OSError errno was not exposed; no retrospective exact-errno attribution.",
+    "new_admission": "Later ss showed no sockets and installed omnis_cli.start.preflight_port(8772) returned0. Only then one new Start was admitted; no guard/deadline/port change and no automatic retry loop."
+  },
+  "start_after_port_clear": {
+    "command": "omnis start --no-open --json with same roots",
+    "exit": 0,
+    "stdout": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 9,
+      "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+      "origin": "http://127.0.0.1:8772",
+      "reason": null,
+      "release": "0.1.0",
+      "reused": false,
+      "schema": "0015_model_test_v2",
+      "state": "READY",
+      "supervisor_epoch": 5
+    },
+    "stderr_bytes": 0
+  },
+  "ready_readback": {
+    "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+    "phase": "READY",
+    "generation": 9,
+    "supervisor_epoch": 5,
+    "containers": {
+      "api": "0e6514e0ca571211bd5d483a846e5df6ef537038e4364487e6d5f1e11181eded",
+      "db": "34147d95357cea96d1a6381fd728030b0fd9b531e864b2f731fbe5a4eac2c09b",
+      "supervisor": "86a6f9c0c3289d25fd369ebe55aba590b84b4ad687584e4ef5c831b88e795764"
+    },
+    "project": "omnis-local-d3e42ecad6c94caaa6ec0340306094d7",
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "image_id": "sha256:9b145c30f4a9fd892182de7ca0f971ab7aaadeccb1b6d519589455d190287c18",
+    "release_digest": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+    "forwarder": {
+      "pid": 1273260,
+      "start_ticks": "39113444",
+      "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+      "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13"
+    },
+    "all_container_ids_replaced": true,
+    "forwarder_identity_replaced": true,
+    "same_instance_daemon_release": true,
+    "data_identities_preserved": {
+      "postgres": true,
+      "vault": true,
+      "vault-key": true
+    },
+    "containers_readback": {
+      "api": {
+        "exit": 0,
+        "observed": "0e6514e0ca571211bd5d483a846e5df6ef537038e4364487e6d5f1e11181eded running 1273449"
+      },
+      "db": {
+        "exit": 0,
+        "observed": "34147d95357cea96d1a6381fd728030b0fd9b531e864b2f731fbe5a4eac2c09b running 1271560"
+      },
+      "supervisor": {
+        "exit": 0,
+        "observed": "86a6f9c0c3289d25fd369ebe55aba590b84b4ad687584e4ef5c831b88e795764 running 1273323"
+      }
+    }
+  },
+  "ui_after_ctrl_r": {
+    "vault": "UNLOCKED",
+    "provider": "openrouter",
+    "credential": "present",
+    "connection_revision": 1,
+    "selection_revision": 1,
+    "model": "deepseek/deepseek-v4.1-flash-1017",
+    "output_tokens": 128,
+    "overrides": "none",
+    "new_pair_or_secret_save": "NONE"
+  },
+  "authenticated_api_reader": {
+    "channel": "Operator-paired Chrome, normal address navigation to GET routes, browser Save JSON into private scratch; no cookie, CSRF, key or clipboard extraction and no debugging attachment.",
+    "latest_route": "/api/v1/model-test",
+    "original_route": "/api/v1/model-test/44da4c4b-9a47-4a4a-9b31-b3f013a50ba3",
+    "original": {
+      "schema_version": 2,
+      "operation_id": "44da4c4b-9a47-4a4a-9b31-b3f013a50ba3",
+      "state": "FINISHED",
+      "state_revision": 3,
+      "finish_reason": "COMPLETED",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "76b91c09-fb75-4ef2-a7e5-cf16bc7f8edb",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+      "provider_status": "200",
+      "result_state": "COMPLETED",
+      "output_state": "COMPLETE",
+      "response_text": "OMNIS_MODEL_TEST_OK",
+      "usage_state": "KNOWN",
+      "input_tokens": 63,
+      "output_tokens": 128,
+      "reasoning_tokens": 128,
+      "cost_observed": "0.00012926",
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "latest": {
+      "schema_version": 2,
+      "operation_id": "f7426483-eb91-4f3f-9315-3bb51938e1b1",
+      "state": "FINISHED",
+      "state_revision": 3,
+      "finish_reason": "COMPLETED",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "76b91c09-fb75-4ef2-a7e5-cf16bc7f8edb",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+      "provider_status": "200",
+      "result_state": "COMPLETED",
+      "output_state": "COMPLETE",
+      "response_text": "OMNIS_MODEL_TEST_OK",
+      "usage_state": "KNOWN",
+      "input_tokens": 63,
+      "output_tokens": 12,
+      "reasoning_tokens": 3,
+      "cost_observed": "0.00001326",
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "negative": {
+      "url": "http://127.0.0.1:8772/api/v1/model-test/44da4c4b-9a47-4a4a-9b31-b3f013a50ba3",
+      "status": 401,
+      "cookies_supplied": false
+    }
+  },
+  "comparison": {
+    "original_result_and_usage_equal_to_committed_ui_evidence": true,
+    "latest_is_distinct": "f7426483-eb91-4f3f-9315-3bb51938e1b1",
+    "latest_existed_before_stop": "The retained operator-restart-before-stop.png crop of computer_use_e9d220977af3425ebf6d5e35b59506b1.png already shows this operation FINISHED/COMPLETED. Its admission/clicks were not observed; it is not attributed to this restart.",
+    "total_operation_or_network_census": "NOT_MEASURED; two retained operations read, not a claim that only two exist."
+  },
+  "agent_mutations": "Normal Stop/Start only; no metadata refresh, test, rotation/revocation or provider call initiated.",
+  "limits": [
+    "Not crash with SENT pending",
+    "Not active Cancel/Stop/revoke/reuse or final R2-NEW-01",
+    "Not independent billing/network counting",
+    "Historical readers not separately proven remain NOT_RUN",
+    "No new product code, no T2/push/global change"
+  ],
+  "artifact_sha256": {
+    "operator-restart-original-operation.json": "82371d5bb9d73620727ccaa06687e2090c408a09a8de3a8cbf162ab173f0839e",
+    "operator-restart-latest-operation.json": "b57a091c18c77422698c58efe616566c288be5e97d5101ad7e8b07bf7ede53b4"
+  },
+  "screenshots": {
+    "operator-restart-before-stop.png": "d0ad9b0cf008fe23e6a40da91c70fb5bcde18113b8364b08871bdce78dfbdccd",
+    "operator-restart-settings.png": "a4fd90d2f5c972242b4ba5450f85d4cb7ae79f9d67e588de8385a218653cfa0f"
+  },
+  "current_service": "READY generation9/supervisor_epoch5; same instance/release/data-directory identities, all three container IDs and forwarder identity replaced.",
+  "reverse": "normal omnis stop --json with the same roots; do not delete retained DB/vault/master key. Git revert affects documentation only.",
+  "t1": "PARTIAL / NOT_ACCEPTED"
+}

@@ -1,0 +1,157 @@
+{
+  "base": "dd4f8747287496d1bb589de277455354d122892a",
+  "head": "df8bd693a7d2f64811c8a1cd1231e91d93b20c43",
+  "tree": "9d0a3a1e9e5a45ffcf31cf76eea879d68b52063c",
+  "branch": "impl/t1-explicit-recovery-20261025",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/src",
+  "clean": true,
+  "diff_sha256": "ecb67ce406ced25792c367637cd1d8660cdb77f26ba1a1103bbd0da215e6fbd6",
+  "changed_paths": {
+    "api/src/omnis/modules/instance/service.py": {
+      "blob": "37b8e303819d128265bd4e1792f9c9b026930af7",
+      "sha256": "5722735f2ee7f39039386668c158fdf9b815eb9a78c24d1dcdf4f6579619e943"
+    },
+    "api/src/omnis/supervisor/__main__.py": {
+      "blob": "ab6965cb8a478dbeb6b558caea0f03b66b4e1880",
+      "sha256": "1dcc85ddfff55c498edf0fdd838461322bfe0cb8f79bb595680ddca5174105f9"
+    },
+    "api/tests/test_instance.py": {
+      "blob": "f936bbbb52e5db903967ef884201ea03c9a747b2",
+      "sha256": "81c5f986c4cd3b132d4e41cc9348ec8e0438a20a66501543f6df169730eef421"
+    },
+    "cli/README.md": {
+      "blob": "e3e8ae49f642ba713d874f0647b81de7869c638b",
+      "sha256": "d26e70fc3d6203a3ba5ec60498481b9c89acba1e74ff2a0e36c14120326c0e48"
+    },
+    "cli/src/omnis_cli/control.py": {
+      "blob": "6f85c6ef437818ec7574fddebbbc625c7509430b",
+      "sha256": "097ae2db29d27ce1fa676dac4b7230a43aacd7dcb9639916de6f39180ab0c87b"
+    },
+    "cli/src/omnis_cli/main.py": {
+      "blob": "0c1f730f69faa7a20b367f740ea5488f12dab28b",
+      "sha256": "f7fbed40a792684ff7d843a2c3eb4317c8c359c66d2249c6f6fb3b08be6d8bc1"
+    },
+    "cli/src/omnis_cli/recover.py": {
+      "blob": "42be80e4dacb6df57fa7243f1dbdda4a6d917468",
+      "sha256": "d52e48046c43b3d1181a52584657a9845de93c1b579a1b5d06a3f50c1dd8d4d5"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "blob": "9c560e39ee8128164c4f5d6d02132fa48f996086",
+      "sha256": "2e0a174d49f1f28caa496701271c6e497aab7b570b30f1814eba9fabf7502263"
+    },
+    "cli/src/omnis_cli/stop.py": {
+      "blob": "d333962a4bfb838a9c2da02c58c9da6137c03bc5",
+      "sha256": "139ed4c7e15b6cf6095897fdcc2714de0fd5943af1eb23433bd1e21256486038"
+    },
+    "cli/tests/test_recover.py": {
+      "blob": "0241d0922861bc0bf8c7698ddb3df50cb097018f",
+      "sha256": "744193b3d1e45a5535bdd3d1fa56bec2e889cde3c3840abf4c20f9f6659580b3"
+    }
+  },
+  "artifacts": {
+    "api": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "26e403514e6d98d21d4b5f2100dae2ab4a36f2eab98fb3a84c256d73dfcc3987",
+      "modules_verified": 113
+    },
+    "cli": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/cli-wheel-final/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "71b6937a5a4196dda06e7aa3a3ce984b44e099de94fec29d391a04cfe0bc2274",
+      "modules_verified": 27
+    }
+  },
+  "proofs": {
+    "red-api.txt": {
+      "sha256": "15081598790a0e8b209edd26c8e1342f8aa555e0661197a7f2caf25254b2d062"
+    },
+    "red-cli-vertical2.txt": {
+      "sha256": "c38617394fbff0e2876dcd7d145f1b5b3174adb1089e24998585875086c2f196"
+    },
+    "red-drift.txt": {
+      "sha256": "7de886584f83ce84a2ad2ea6c6a97cbf0e6b59c35428ff977c07d0a092ed2dc1"
+    },
+    "red-cap.txt": {
+      "sha256": "d345953d5e8279fb346d677b3e581648912f006e7b1f6cc3d6a90c4bde64c30f"
+    },
+    "cli-source-regression.txt": {
+      "sha256": "55ef41d630c9a8510983f5143a52165232120059c50ac7ae42ff79e6d894a7c8",
+      "tests": 380,
+      "exit": 0
+    },
+    "green-cli-final.txt": {
+      "sha256": "d2d7ea6a7d9e444a63b5c711ee8bc378fdb90f61708b5ecdc48b43d8a79b54d1",
+      "tests": 7,
+      "exit": 0
+    },
+    "cli-wheel-regression.txt": {
+      "sha256": "65e54b360e104b7528d38d9b9a2b13b555b8c161782b36bbc1a84501ae81434b",
+      "tests": 380,
+      "exit": 0
+    },
+    "api-source-regression.txt": {
+      "sha256": "2533d15f5d76d0b1842e45a471fc792d2a83a6a61d4b04efac5d155958052642"
+    },
+    "pg-preflight.txt": {
+      "sha256": "12edb3b8285002dc7517526e38f795c69d1a9650497cc63ad86c810189f0dc9e"
+    },
+    "pg-collect.txt": {
+      "sha256": "ca8ecedcdfc96a88df1c3eed7aeaadce3ce152a36fc5d2343eac907bceb75847"
+    },
+    "pg-run.txt": {
+      "sha256": "b8ee427ea1b1dccdfe2592a205a43608ae1132841b370e4751a65e74b2f757a7"
+    },
+    "ruff.txt": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "format.txt": {
+      "sha256": "4ff47a71933cda9dac7b68bef86276a56fbcd69c7a3ec166850d7042addad6ea"
+    },
+    "mypy-api-final.jsonl": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "ruff-cli-final.txt": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "format-cli-final.txt": {
+      "sha256": "e5d285e654af339bd79aedd43f7389a16ff483c0cdb5376a5926eb5a93d4a4d4"
+    },
+    "mypy-cli-current.jsonl": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "docs-render.txt": {
+      "sha256": "da395fcb3a80420a2759a91399d972bef080a5a922cf922b48f60ef752928572"
+    },
+    "docs-tests.txt": {
+      "sha256": "20825724b6e4bce29210d81724b1229bf2b59dc956e8844a312a6f12fbb7dc65",
+      "tests": 87,
+      "exit": 0
+    },
+    "build-api.txt": {
+      "sha256": "3e7f1ae2b1e5586603106ac8fa292b7f1cec6b97b69ce09bdcf05c50f9f6c87b"
+    },
+    "build-cli-final.txt": {
+      "sha256": "b72e8d6a70d921b37e1c5950829b2d62531782faf14d39e064795f998461a3e6"
+    }
+  },
+  "pg": {
+    "target": "test-instance-drain-pg",
+    "result": {
+      "schema_version": 1,
+      "code": 0,
+      "family_drained": true
+    },
+    "log": "/home/kali/.hermes/cache/scratch/db-a49179af44cb4d30/gate.log",
+    "log_sha256": "222317215379b318062db220da6da401880350021fcf5e7a68c9904636d557c7",
+    "result_path": "/home/kali/.hermes/cache/scratch/db-a49179af44cb4d30/gate.log.result.json",
+    "result_sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+    "selected_tests": 25,
+    "source_cases_in_target": 14,
+    "pg_cases_in_target": 11,
+    "recovery_owner_sql_unchanged_after_pg": true,
+    "cleanup": "exact CID/network/socket absent; PGDATA retained"
+  },
+  "review": "NOT_REVIEWED; frozen for two independent complementary reviews",
+  "physical_installed_recovery": "NOT_RUN; mandatory reviews first",
+  "operator_changes": "NONE",
+  "canonical8": "UNCHANGED_SCOPE_REUSED_NOT_RERUN"
+}

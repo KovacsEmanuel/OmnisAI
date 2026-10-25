@@ -52,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
+    recover_parser = commands.add_parser("recover", help="Recover a dead T1 supervisor to STOPPED")
+    recover_parser.add_argument("--json", action="store_true", help="Sanitized recovery result")
     backup_parser = commands.add_parser("backup", help="Cold STOPPED snapshot (T1: at most 1 GiB)")
     backup_parser.add_argument("--output", type=Path, required=True)
     restore_parser = commands.add_parser(
@@ -68,7 +70,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         config = load_config()
-        if args.command in {None, "start", "stop", "status", "pair", "open", "backup", "restore"}:
+        if args.command in {
+            None,
+            "start",
+            "stop",
+            "recover",
+            "status",
+            "pair",
+            "open",
+            "backup",
+            "restore",
+        }:
             config.check_instance(state_dir(), getattr(args, "port", None))
     except StartError as exc:
         if getattr(args, "json", False):
@@ -120,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
         return open_verified()
     if args.command == "stop":
         return stop(as_json=args.json, shutdown_timeout=args.shutdown_timeout)
+    if args.command == "recover":
+        return stop(as_json=args.json, recover=True)
     if args.command == "install":
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"

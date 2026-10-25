@@ -604,7 +604,16 @@ def _publish_stopped(
     readback_stopped(runtime, root, control, record)
 
 
-def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
+def refuse_interrupted_recovery(root: Path, record: dict[str, object]) -> None:
+    if record.get("phase") != "STOPPED" and os.path.lexists(
+        root / f"recovery-{record['attempt']}.json"
+    ):
+        raise StartError("RECOVERY_INTERRUPTED", 4)
+
+
+def stop_instance(
+    *, shutdown_timeout: int | None = None, recover: bool = False
+) -> dict[str, object]:
     from .config import _integer as config_integer
     from .config import load_config
     from .stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
@@ -620,6 +629,11 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
     if os.path.lexists(root / "startup.json"):
         preflight = read_record(root / "startup.json")
         _preflight_record(preflight)
+        refuse_interrupted_recovery(root, preflight)
+        if recover:
+            _ready_record(preflight)
+            if preflight["format"] != 5:
+                raise StartError("RECOVERY_REQUIRED", 4)
         config.check_port(preflight.get("port"))
         _check_pgdata(root, preflight)
     data = os.environ.get("XDG_DATA_HOME")
@@ -659,11 +673,18 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
+        refuse_interrupted_recovery(root, record)
         config.check_port(record.get("port"))
         _check_pgdata(root, record)
         _bound_instance(runtime, root, control, record)
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
+        if recover:
+            from .recover import recover_barrier
+
+            if record != preflight:
+                raise StartError("RECOVERY_REQUIRED", 4)
+            record = recover_barrier(runtime, root, control, record)
         if record.get("phase") == "STOPPED":
             readback_stopped(runtime, root, control, record)
         elif record.get("phase") == "STOPPING" and record.get("finalized_generation") is not None:
@@ -798,12 +819,17 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
                 verify_stop_completion(runtime, root, control, record, grant)
                 _publish_stopped(runtime, root, control, path, record)
             except ControlUnavailable:
-                if record["finalized_generation"] is None and record["teardown_completed"] == []:
+                if (
+                    not recover
+                    and record["finalized_generation"] is None
+                    and record["teardown_completed"] == []
+                ):
                     _emergency_stop(runtime, root, control, record)
                 raise StartError("STOP_UNCERTAIN", 4) from None
             except StartError as exc:
                 if (
-                    exc.reason == "LOCAL_SERVICE_COMMAND_FAILED"
+                    not recover
+                    and exc.reason == "LOCAL_SERVICE_COMMAND_FAILED"
                     and record["finalized_generation"] is None
                     and record["teardown_completed"] == []
                 ):
@@ -825,9 +851,9 @@ def stop_instance(*, shutdown_timeout: int | None = None) -> dict[str, object]:
         }
 
 
-def stop(*, as_json: bool, shutdown_timeout: int | None = None) -> int:
+def stop(*, as_json: bool, shutdown_timeout: int | None = None, recover: bool = False) -> int:
     try:
-        result = stop_instance(shutdown_timeout=shutdown_timeout)
+        result = stop_instance(shutdown_timeout=shutdown_timeout, recover=recover)
         code = 0
     except (
         OSError,

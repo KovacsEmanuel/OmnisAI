@@ -1104,7 +1104,7 @@ def start_instance(
 ) -> dict[str, object]:
     from .backup import admit_restore, prepare_restore
     from .restart import prepare_restart, reconcile_database
-    from .stop import _integer, _preflight_record, readback_stopped
+    from .stop import _integer, _preflight_record, readback_stopped, refuse_interrupted_recovery
 
     config = load_config()
     startup_seconds = config_integer(
@@ -1127,6 +1127,7 @@ def start_instance(
     if os.path.lexists(root / "startup.json"):
         initial_record = read_record(root / "startup.json")
         _preflight_record(initial_record)
+        refuse_interrupted_recovery(root, initial_record)
         config.check_port(initial_record.get("port"), port)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
@@ -1171,6 +1172,7 @@ def start_instance(
         if os.path.lexists(journal):
             record = read_record(journal)
             _preflight_record(record)
+            refuse_interrupted_recovery(root, record)
             config.check_port(record.get("port"), port)
             _check_pgdata(root, record)
             selected = record.get("port")

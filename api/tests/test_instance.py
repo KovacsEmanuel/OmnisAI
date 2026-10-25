@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -6,6 +7,366 @@ from sqlalchemy import text
 from sqlalchemy.engine import URL
 
 from omnis.core.db import database_engine
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "case",
+    [
+        "valid",
+        "profile",
+        "owner",
+        "epoch",
+        "generation",
+        "quiescence",
+        "drain",
+        "receipt",
+        "fence",
+        "already_commanded",
+        "live_lease",
+        "maximum",
+        "overflow",
+    ],
+)
+async def test_owner_loss_new_shutdown_source(case: str) -> None:
+    """SOURCE SQL double, real acquire/quiesce/shutdown guards; PG proof below."""
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+    from datetime import UTC, datetime, timedelta
+    from unittest.mock import AsyncMock, Mock
+
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
+
+    now = datetime.now(UTC)
+    identity, old_owner, owner = uuid4(), uuid4(), uuid4()
+    generation = 9223372036854775805 if case == "maximum" else 1
+    instance: dict[str, object] = dict(
+        id=1,
+        instance_id=identity,
+        admission_open=True,
+        shutdown_command_id=None,
+        generation=1,
+        quiesced_generation=None,
+        quiesced_at=None,
+    )
+    instance["generation"] = generation
+    lease: dict[str, object] = dict(
+        id=1, owner=old_owner, epoch=1, expires_at=now - timedelta(seconds=1)
+    )
+    receipts: dict[object, dict[str, object]] = {}
+    fenced = False
+
+    async def execute(statement: object, params: dict[str, object] | None = None) -> Mock:
+        query, params = str(statement), params or {}
+        result = Mock()
+        if query == "SELECT * FROM instance_control WHERE id = 1 FOR UPDATE":
+            result.mappings.return_value.one.return_value = dict(instance)
+        elif query == "SELECT * FROM supervisor_lease WHERE id = 1 FOR UPDATE":
+            result.mappings.return_value.one.return_value = dict(lease)
+        elif query == "SELECT clock_timestamp()":
+            result.scalar_one.return_value = now
+        elif query == "SELECT 1 FROM instance_stop_fence WHERE id = 1":
+            result.scalar_one_or_none.return_value = 1 if fenced else None
+        elif query.startswith("SELECT * FROM instance_command"):
+            result.mappings.return_value.one_or_none.return_value = receipts.get(params["command"])
+        elif query.startswith("SELECT 1 FROM instance_command"):
+            result.scalar_one_or_none.return_value = 1 if case == "receipt" else None
+        elif query.startswith("UPDATE supervisor_lease SET owner"):
+            lease.update(owner=params["owner"], epoch=2, expires_at=now + timedelta(seconds=5))
+            result.scalar_one.return_value = 2
+        elif query.startswith("UPDATE instance_control SET admission_open"):
+            instance.update(
+                admission_open=False,
+                generation=params.get("generation", generation + 1),
+                shutdown_command_id=params["command"],
+                quiesced_generation=None,
+                quiesced_at=None,
+            )
+        elif query.startswith("UPDATE instance_control SET quiesced_generation"):
+            instance.update(quiesced_generation=instance["generation"], quiesced_at=now)
+        elif query.startswith("INSERT INTO instance_command"):
+            receipts[params["command"]] = dict(
+                command_id=params["command"],
+                kind=params["kind"],
+                expected_generation=params["expected"],
+                result_generation=params["result"],
+                owner_epoch=params["epoch"],
+            )
+        else:
+            raise AssertionError(query)
+        return result
+
+    connection = Mock(execute=AsyncMock(side_effect=execute))
+
+    @asynccontextmanager
+    async def begin() -> AsyncIterator[Mock]:
+        yield connection
+
+    service = InstanceService(Mock(begin=begin))
+    # T1 opt-in is deliberately not a request payload or a public HTTP option.
+    service.recover_owner_loss = True
+    if case == "live_lease":
+        lease["expires_at"] = now + timedelta(seconds=5)
+        with pytest.raises(ControlConflict, match="SUPERVISOR_OWNED"):
+            await service.acquire(owner)
+        assert instance["admission_open"] is True and not receipts
+        return
+    epoch = await service.acquire(owner)
+    implicit = instance["shutdown_command_id"]
+    assert instance["admission_open"] is False
+    await service.quiesce(owner, epoch)
+    command = uuid4()
+    expected = generation + 1
+    if case == "profile":
+        service.recover_owner_loss = False
+    elif case == "owner":
+        owner = uuid4()
+    elif case == "epoch":
+        epoch += 1
+    elif case == "generation":
+        expected -= 1
+    elif case in {"quiescence", "drain"}:
+        instance["quiesced_generation"] = None
+        if case == "drain":
+            service.runtime_drain = AsyncMock(return_value=False)
+            with pytest.raises(ControlConflict, match="SHUTDOWN_INCOMPLETE"):
+                await service.quiesce(owner, epoch)
+    elif case == "fence":
+        fenced = True
+    elif case == "already_commanded":
+        instance["shutdown_command_id"] = uuid4()
+    elif case == "overflow":
+        expected = 9223372036854775807
+    if case not in {"valid", "maximum"}:
+        before = dict(instance)
+        with pytest.raises(ControlConflict):
+            await service.shutdown(command, expected, owner, epoch)
+        assert instance == before and command not in receipts
+        return
+    assert await service.shutdown(command, expected, owner, epoch) == expected + 1
+    assert implicit not in receipts
+    assert receipts[command] == dict(
+        command_id=command,
+        kind="SHUTDOWN",
+        expected_generation=expected,
+        result_generation=expected + 1,
+        owner_epoch=epoch,
+    )
+    assert instance["admission_open"] is False
+    assert await service.shutdown(command, expected, owner, epoch) == expected + 1
+    with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
+        await service.shutdown(command, expected - 1, owner, epoch)
+    with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
+        await service.shutdown(uuid4(), expected + 1, owner, epoch)
+
+
+def test_shutdown_wire_maximum_and_rejected_inputs_source() -> None:
+    import json
+
+    from pydantic import ValidationError
+
+    from omnis.modules.instance.schemas import ControlRequest, InstanceView, LifecycleCommand
+
+    command = LifecycleCommand(
+        op="shutdown",
+        instance_id=uuid4(),
+        command_id=uuid4(),
+        expected_generation=9223372036854775806,
+    )
+    frame = ControlRequest.model_validate(
+        dict(version=1, capability="f" * 64, command=command.model_dump(mode="json"))
+    )
+    encoded = json.dumps(frame.model_dump(mode="json")).encode() + b"\n"
+    assert len(encoded) <= 4096
+    assert ControlRequest.model_validate_json(encoded) == frame
+    for invalid in (True, -1, 9223372036854775807, "2", 2.0):
+        with pytest.raises(ValidationError):
+            LifecycleCommand.model_validate(
+                {**command.model_dump(mode="json"), "expected_generation": invalid}
+            )
+    view = InstanceView.model_validate(
+        dict(
+            instance_id=command.instance_id,
+            generation=9223372036854775807,
+            admission_open=False,
+            shutdown_command_id=command.command_id,
+            quiesced_generation=9223372036854775807,
+            supervisor_epoch=9223372036854775807,
+            supervisor_ready=True,
+            shutdown_finalized=True,
+            assessment_ready=False,
+            dashboard_ready=False,
+        )
+    )
+    reply = dict(
+        ok=True,
+        correlation_id=str(uuid4()),
+        result_generation=view.generation,
+        status=view.model_dump(mode="json"),
+        command_id=str(command.command_id),
+        expected_generation=command.expected_generation,
+        owner_epoch=view.supervisor_epoch,
+    )
+    assert len(json.dumps(reply).encode()) + 1 <= 4096
+
+
+@pytest.mark.asyncio
+async def test_recovery_private_shutdown_pg(
+    migrated_database_url: URL, ipc_directory: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Real CLI frame, LocalControl and PG receipts; no Docker/provider effect."""
+    import importlib
+    import json
+    import os
+    from unittest.mock import Mock
+
+    from psycopg import sql
+
+    from conftest import connect_test_database
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.service import InstanceService
+    from omnis.transport.local_control import LocalControl
+    from test_stop_fence import db_snapshot
+
+    root = Path(__file__).resolve().parents[2]
+    monkeypatch.syspath_prepend(str(root / "cli/src"))
+    client = importlib.import_module("omnis_cli.control")
+    recovery = importlib.import_module("omnis_cli.recover")
+    assert recovery.__file__ is not None
+    assert Path(recovery.__file__).resolve() == root / "cli/src/omnis_cli/recover.py"
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    service = InstanceService(engine)
+    old, owner, opened, command, finalized = (uuid4() for _ in range(5))
+    try:
+        epoch = await service.acquire(old)
+        await service.open(opened, 0, old, epoch)
+        identity = (await service.status()).instance_id
+        record = dict(
+            instance_id=str(identity),
+            generation=1,
+            supervisor_epoch=epoch,
+            open_command=str(opened),
+            containers={"db": "d" * 64, "api": "a" * 64, "supervisor": "b" * 64},
+        )
+        with connect_test_database(migrated_database_url, autocommit=True) as connection:
+            connection.execute("SET default_transaction_read_only = on")
+
+            def psql(cid: str, query: str) -> str:
+                assert cid == "d" * 64 and query.startswith("SELECT ")
+                row = connection.execute(sql.SQL(query)).fetchone()
+                assert row is not None
+                return json.dumps(row[0])
+
+            runtime = Mock(psql=psql)
+            with pytest.raises(recovery.StartError, match="RECOVERY_AUTHORITY_UNVERIFIED"):
+                recovery._owner(runtime, record)
+            with pytest.raises(ControlConflict, match="SUPERVISOR_OWNED"):
+                await service.acquire(owner)
+            async with engine.begin() as db:
+                await db.execute(
+                    text(
+                        "UPDATE supervisor_lease SET expires_at=clock_timestamp()-interval '1 second' WHERE id=1"
+                    )
+                )
+            assert recovery._owner(runtime, record) == str(old)
+            replacement = InstanceService(engine)
+            replacement.recover_owner_loss = True
+            next_epoch = await replacement.acquire(owner)
+            implicit = (await replacement.status()).shutdown_command_id
+            assert next_epoch == epoch + 1 and implicit is not None
+            with pytest.raises(ControlConflict, match="COMMAND_CONFLICT"):
+                await replacement.shutdown(command, 2, owner, next_epoch)
+
+            async def refused_drain() -> bool:
+                return False
+
+            replacement.runtime_drain = refused_drain
+            with pytest.raises(ControlConflict, match="SHUTDOWN_INCOMPLETE"):
+                await replacement.quiesce(owner, next_epoch)
+            replacement.runtime_drain = None
+            await replacement.quiesce(owner, next_epoch)
+            assert recovery._owner(runtime, record, {"shutdown_command_id": str(implicit)}) == str(
+                owner
+            )
+            async with LocalControl(ipc_directory, replacement, owner, next_epoch):
+                payload = dict(
+                    op="shutdown",
+                    instance_id=str(identity),
+                    command_id=str(command),
+                    expected_generation=2,
+                )
+                before = await db_snapshot(engine)
+                for wrong in (
+                    {**payload, "instance_id": str(uuid4())},
+                    {**payload, "expected_generation": 1},
+                ):
+                    with pytest.raises(client.ControlUnavailable):
+                        await asyncio.to_thread(
+                            client.request, ipc_directory, wrong, peer_pid=os.getpid()
+                        )
+                    assert await db_snapshot(engine) == before
+                closed = await asyncio.to_thread(
+                    client.request, ipc_directory, payload, peer_pid=os.getpid()
+                )
+                assert closed["generation"] == 3 and closed["admission_open"] is False
+                assert closed["shutdown_command_id"] == str(command)
+                committed = await db_snapshot(engine)
+                assert await asyncio.to_thread(client.request, ipc_directory, payload) == closed
+                for wrong in (
+                    {**payload, "expected_generation": 3},
+                    {**payload, "command_id": str(uuid4()), "expected_generation": 3},
+                ):
+                    with pytest.raises(client.ControlUnavailable):
+                        await asyncio.to_thread(client.request, ipc_directory, wrong)
+                    assert await db_snapshot(engine) == committed
+                await replacement.quiesce(owner, next_epoch)
+                done = await asyncio.to_thread(
+                    client.request,
+                    ipc_directory,
+                    dict(
+                        op="finalize",
+                        instance_id=str(identity),
+                        command_id=str(finalized),
+                        expected_generation=3,
+                    ),
+                )
+                assert done["shutdown_finalized"] is True
+                grant = await asyncio.to_thread(
+                    client.request,
+                    ipc_directory,
+                    dict(
+                        op="arm_stop",
+                        instance_id=str(identity),
+                        command_id=str(command),
+                        finalize_command_id=str(finalized),
+                        generation=3,
+                        owner_epoch=next_epoch,
+                        daemon_id="synthetic-pg-no-daemon",
+                        inventory={"db": "d" * 64},
+                    ),
+                )
+                assert grant["owner_uuid"] == str(owner) and grant["generation"] == 3
+                before = await db_snapshot(engine)
+                with pytest.raises(ControlConflict, match="STOP_IN_PROGRESS"):
+                    await replacement.acquire(uuid4())
+                assert await db_snapshot(engine) == before
+            async with engine.connect() as db:
+                receipts = (
+                    await db.execute(
+                        text(
+                            "SELECT command_id,kind,expected_generation,result_generation,owner_epoch FROM instance_command ORDER BY result_generation,kind"
+                        )
+                    )
+                ).all()
+                assert [tuple(row) for row in receipts] == [
+                    (opened, "OPEN", 0, 1, epoch),
+                    (finalized, "FINALIZE", 3, 3, next_epoch),
+                    (command, "SHUTDOWN", 2, 3, next_epoch),
+                ]
+                assert all(row[0] != implicit for row in receipts)
+    finally:
+        await engine.dispose()
 
 
 @pytest.mark.asyncio

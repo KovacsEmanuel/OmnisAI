@@ -100,7 +100,11 @@ def _stop_grant(reply: dict[str, object], command: dict[str, object]) -> dict[st
 
 
 def request(
-    directory: Path, command: dict[str, object], *, deadline: float | None = None
+    directory: Path,
+    command: dict[str, object],
+    *,
+    deadline: float | None = None,
+    peer_pid: int | None = None,
 ) -> dict[str, object]:
     try:
         if command.get("op") == "arm_stop":
@@ -132,7 +136,8 @@ def request(
             peer = connection.getsockopt(
                 socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
             )
-            if struct.unpack("3i", peer)[1] != os.getuid():
+            pid, uid, _ = struct.unpack("3i", peer)
+            if uid != os.getuid() or (peer_pid is not None and pid != peer_pid):
                 raise ControlUnavailable()
             payload = json.dumps({"version": 1, "capability": cap, "command": command}).encode()
             if len(payload) + 1 > 4096:

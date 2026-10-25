@@ -95,6 +95,13 @@ async def run() -> None:
 
                 # Cold imports and inert client construction must not spend the execution lease.
                 model_sender = ModelSender(Path(raw_egress) / "model-egress.sock")
+        service.recover_owner_loss = (
+            model_sender is not None
+            and raw_vault == "/vault"
+            and raw_keys == "/vault-key"
+            and raw_runtime is None
+            and probe is None
+        )
         epoch = await service.acquire(owner)
         if raw_vault is not None and raw_keys is not None:
             identity = str((await service.owned_status(owner, epoch)).instance_id)

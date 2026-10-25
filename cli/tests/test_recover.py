@@ -1,9 +1,11 @@
 """Explicit T1 recovery; synthetic daemon is never physical recovery evidence."""
 
 import contextlib
+import fcntl
 import io
 import json
 import os
+import socket
 import unittest
 from unittest.mock import patch
 
@@ -15,7 +17,7 @@ from test_stop import private_stop_fixture
 class RecoveryFixture(Fixture):
     """Existing Stop fixture; SQL/control/start doubles, real validators and owner."""
 
-    def prepare(self):
+    def prepare(self, *, live_control=False):
         import hashlib
         import time
         from dataclasses import replace
@@ -84,6 +86,8 @@ class RecoveryFixture(Fixture):
                 )
             )
         item["State"].update(Running=False, Status="exited", Pid=0, Dead=False, Error="")
+        if not live_control:
+            self.sockets["control"].close()  # Keep the original inode, not a live listener.
         # The fixture's held process is not a container. State is an explicit daemon double.
         write_record(self.root / "startup.json", self.record, replace=True)
         self.runtime = _load_runtime(self.data, self.record, time.monotonic() + 30)
@@ -122,6 +126,8 @@ class RecoveryFixture(Fixture):
         from omnis_cli.lifecycle import read_record
 
         assert args == ("start", self.ids["supervisor"]) and kwargs["effect"] is True
+        with (self.control / "control.lock").open("r+") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         assert self.journal()["phase"] == "RECOVERING"
         assert (
             read_record(self.root / ("recovery-" + self.attempt + ".json"))["original"]
@@ -213,6 +219,172 @@ class RecoverTests(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 code = main(["recover", "--json"])
         return code, json.loads(output.getvalue())
+
+    def test_busy_control_ipc_refuses_before_intent(self):
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError, socket_identity
+
+        for fault, reason in (
+            ("lock", "IPC_OWNERSHIP_UNCERTAIN"),
+            ("socket", "IPC_PEER_STILL_LIVE"),
+        ):
+            with self.subTest(fault=fault):
+                fixture = RecoveryFixture()
+                try:
+                    fixture.prepare(live_control=fault == "socket")
+                    with (fixture.control / "control.lock").open("r+") as lock:
+                        if fault == "lock":
+                            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                            with (fixture.control / "control.lock").open("r+") as challenger:
+                                with self.assertRaises(BlockingIOError):
+                                    fcntl.flock(challenger, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        else:
+                            with socket.socket(socket.AF_UNIX) as peer:
+                                peer.settimeout(0.2)
+                                peer.connect(str(fixture.control / "control.sock"))
+                        path = fixture.root / "startup.json"
+                        before = path.read_bytes()
+                        ipc = {
+                            name: (fixture.control / name).stat().st_ino
+                            for name in ("control.lock", "control.sock", "control.cap")
+                        }
+                        fixture.runtime.run.side_effect = StartError("TEST_START_INTERCEPTED", 4)
+                        with patch.object(
+                            recovery, "write_record", wraps=recovery.write_record
+                        ) as writes:
+                            code, result = self.invoke(fixture)
+                        fixture.runtime.run.assert_not_called()
+                        writes.assert_not_called()
+                        self.assertEqual((code, result["reason"]), (4, reason))
+                        self.assertEqual(result["state"], "UNCERTAIN")
+                        self.assertEqual(path.read_bytes(), before)
+                        self.assertFalse(list(fixture.root.glob("recovery-*.json")))
+                        self.assertEqual(fixture.starts, 0)
+                        self.assertEqual(fixture.ops, [])
+                        self.assertFalse(
+                            any(row.startswith(("POST", "DELETE")) for row in fixture.requests)
+                        )
+                        self.assertEqual(
+                            socket_identity(fixture.control / "control.sock"),
+                            fixture.record["control_socket"],
+                        )
+                        self.assertEqual(
+                            {name: (fixture.control / name).stat().st_ino for name in ipc}, ipc
+                        )
+                        self.assertEqual((fixture.control / "control.cap").read_text(), "b" * 64)
+                finally:
+                    fixture.close()
+
+    def test_control_ipc_becoming_busy_after_intent_prevents_start(self):
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError, read_record, socket_identity, write_record
+
+        for fault, reason in (
+            ("lock", "IPC_OWNERSHIP_UNCERTAIN"),
+            ("socket", "IPC_PEER_STILL_LIVE"),
+        ):
+            with self.subTest(fault=fault):
+                fixture = RecoveryFixture()
+                try:
+                    if fault == "socket":
+                        fixture.sockets["control"].close()
+                        (fixture.control / "control.sock").unlink()
+                        bound = socket.socket(socket.AF_UNIX)
+                        fixture.sockets["control"] = bound
+                        bound.bind(str(fixture.control / "control.sock"))
+                        (fixture.control / "control.sock").chmod(0o600)
+                        fixture.record["control_socket"] = socket_identity(
+                            fixture.control / "control.sock"
+                        )
+                    fixture.prepare(live_control=fault == "socket")
+                    with (fixture.control / "control.lock").open("r+") as lock:
+
+                        def persist(path, value, *, fault=fault, fixture=fixture, **kwargs):
+                            write_record(path, value, **kwargs)
+                            if value.get("phase") == "RECOVERING":
+                                self.assertEqual(read_record(path), value)
+                                if fault == "lock":
+                                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                                else:
+                                    fixture.sockets["control"].listen()
+
+                        fixture.runtime.run.side_effect = StartError("TEST_START_INTERCEPTED", 4)
+                        with patch.object(recovery, "write_record", side_effect=persist):
+                            code, result = self.invoke(fixture)
+                        fixture.runtime.run.assert_not_called()
+                        self.assertEqual((code, result["reason"]), (4, reason))
+                        self.assertEqual(result["state"], "UNCERTAIN")
+                        self.assertEqual(
+                            fixture.journal(), {**fixture.record, "phase": "RECOVERING"}
+                        )
+                        intent = read_record(fixture.root / f"recovery-{fixture.attempt}.json")
+                        self.assertEqual(intent["original"], fixture.record)
+                        self.assertEqual(fixture.starts, 0)
+                        self.assertEqual(fixture.ops, [])
+                        self.assertFalse(
+                            any(row.startswith(("POST", "DELETE")) for row in fixture.requests)
+                        )
+                        self.assertFalse((fixture.root / "unreconciled.json").exists())
+                    self.assertEqual(self.invoke(fixture)[1]["reason"], "RECOVERY_REQUIRED")
+                    fixture.runtime.run.assert_not_called()
+                finally:
+                    fixture.close()
+
+    def test_uncertain_control_probe_releases_lock_without_effects(self):
+        import errno
+
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError
+
+        for fault in (TimeoutError(), OSError(errno.EACCES, "denied"), "lock", "socket"):
+            with self.subTest(fault=fault):
+                fixture = RecoveryFixture()
+                try:
+                    fixture.prepare()
+                    connect = socket.socket.connect
+
+                    def probe(peer, address, *, fault=fault, fixture=fixture, connect=connect):
+                        if address == str(fixture.control / "control.sock"):
+                            self.assertGreater(peer.gettimeout(), 0)
+                            self.assertLessEqual(peer.gettimeout(), 0.2)
+                            if isinstance(fault, OSError):
+                                raise fault
+                            path = fixture.control / (
+                                "control.lock" if fault == "lock" else "control.sock"
+                            )
+                            path.rename(path.with_suffix(".retained"))
+                            if fault == "lock":
+                                path.touch(mode=0o600)
+                            else:
+                                with socket.socket(socket.AF_UNIX) as replacement:
+                                    replacement.bind(str(path))
+                                    path.chmod(0o600)
+                        return connect(peer, address)
+
+                    fixture.runtime.run.side_effect = StartError("TEST_START_INTERCEPTED", 4)
+                    with (
+                        patch.object(socket.socket, "connect", probe),
+                        patch.object(
+                            recovery, "write_record", wraps=recovery.write_record
+                        ) as writes,
+                    ):
+                        code, result = self.invoke(fixture)
+                    fixture.runtime.run.assert_not_called()
+                    writes.assert_not_called()
+                    self.assertEqual(code, 4)
+                    self.assertEqual(
+                        result["reason"],
+                        "IPC_OWNERSHIP_UNCERTAIN"
+                        if isinstance(fault, OSError)
+                        else "IPC_IDENTITY_MISMATCH",
+                    )
+                    path = fixture.control / (
+                        "control.retained" if fault == "lock" else "control.lock"
+                    )
+                    with path.open("r+") as lock:
+                        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                finally:
+                    fixture.close()
 
     def test_denials_before_intent_preserve_resources_and_journal(self):
         from dataclasses import replace
@@ -501,11 +673,18 @@ class RecoverTests(unittest.TestCase):
         self.assertEqual(fixture.starts, 0)
 
     def test_explicit_recovery_reaches_real_stop_owner_completion(self):
-        from omnis_cli.lifecycle import read_record
+        from omnis_cli.lifecycle import read_record, socket_identity
 
         fixture = RecoveryFixture()
         self.addCleanup(fixture.close)
         fixture.prepare()
+        self.assertEqual(
+            socket_identity(fixture.control / "control.sock"), fixture.record["control_socket"]
+        )
+        with socket.socket(socket.AF_UNIX) as peer:
+            peer.settimeout(0.2)
+            with self.assertRaises(ConnectionRefusedError):
+                peer.connect(str(fixture.control / "control.sock"))
         code, result = self.invoke(fixture)
         self.assertEqual((code, result["state"]), (0, "STOPPED"))
         stopped = read_record(fixture.root / "startup.json")

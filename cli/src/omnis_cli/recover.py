@@ -1,7 +1,11 @@
 """One-shot T1 owner-loss recovery to Stop, never OPEN or uncertain-effect retry."""
 
+import errno
+import fcntl
 import json
 import os
+import socket
+import stat
 import time
 from pathlib import Path
 from uuid import uuid4
@@ -123,11 +127,44 @@ def _inventory(
     listener_owned(mapping(record["forwarder"]), port, _integer(record, "listener_inode"))
     if socket_identity(root / "http/api.sock") != record["api_socket"]:
         raise StartError("IPC_IDENTITY_MISMATCH", 4)
-    if dead and os.path.lexists(control / "control.sock"):
-        if socket_identity(control / "control.sock") != record["control_socket"]:
-            raise StartError("IPC_IDENTITY_MISMATCH", 4)
     private_dir(control)
-    if os.path.lexists(control / "control.lock"):
+    if dead:
+        fd = os.open(control / "control.lock", os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or info.st_uid != os.getuid()
+                or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_nlink != 1
+                or info.st_size != 0
+            ):
+                raise StartError("UNSAFE_IPC_LOCK", 4)
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise StartError("IPC_OWNERSHIP_UNCERTAIN", 4) from None
+            path = control / "control.sock"
+            if os.path.lexists(path):
+                if socket_identity(path) != record["control_socket"]:
+                    raise StartError("IPC_IDENTITY_MISMATCH", 4)
+                with socket.socket(socket.AF_UNIX) as peer:
+                    peer.settimeout(remaining(runtime.deadline, 0.2))
+                    try:
+                        peer.connect(str(path))
+                    except OSError as exc:
+                        if exc.errno != errno.ECONNREFUSED:
+                            raise StartError("IPC_OWNERSHIP_UNCERTAIN", 4) from None
+                    else:
+                        raise StartError("IPC_PEER_STILL_LIVE", 4)
+                if socket_identity(path) != record["control_socket"]:
+                    raise StartError("IPC_IDENTITY_MISMATCH", 4)
+            after = (control / "control.lock").lstat()
+            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise StartError("IPC_IDENTITY_MISMATCH", 4)
+        finally:
+            os.close(fd)  # Probe only; the restarted supervisor must acquire its own lock.
+    elif os.path.lexists(control / "control.lock"):
         private_file(control / "control.lock", limit=0)
     if dead and os.path.lexists(control / "control.cap"):
         capability = private_file(control / "control.cap", limit=64)

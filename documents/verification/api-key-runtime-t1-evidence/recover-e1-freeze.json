@@ -1,0 +1,435 @@
+{
+  "base": "dd4f8747287496d1bb589de277455354d122892a",
+  "previous_candidate": "df8bd693a7d2f64811c8a1cd1231e91d93b20c43",
+  "head": "e1b01a32b278b2368a2855083731f6273c70ba14",
+  "tree": "0665ae0d9616677d22d06996c36e1f4f4e5ac6a8",
+  "branch": "impl/t1-explicit-recovery-20261025",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/src",
+  "clean": true,
+  "against_base": {
+    "base": "dd4f8747287496d1bb589de277455354d122892a",
+    "diff_sha256": "b7e2e7b049aaa0ca4ee1a0a9ef77e9deb428990f612e612fb4c463303348958b",
+    "changed_paths": {
+      "api/src/omnis/modules/instance/service.py": {
+        "blob": "37b8e303819d128265bd4e1792f9c9b026930af7",
+        "sha256": "5722735f2ee7f39039386668c158fdf9b815eb9a78c24d1dcdf4f6579619e943"
+      },
+      "api/src/omnis/supervisor/__main__.py": {
+        "blob": "ab6965cb8a478dbeb6b558caea0f03b66b4e1880",
+        "sha256": "1dcc85ddfff55c498edf0fdd838461322bfe0cb8f79bb595680ddca5174105f9"
+      },
+      "api/tests/test_instance.py": {
+        "blob": "f936bbbb52e5db903967ef884201ea03c9a747b2",
+        "sha256": "81c5f986c4cd3b132d4e41cc9348ec8e0438a20a66501543f6df169730eef421"
+      },
+      "cli/README.md": {
+        "blob": "e3e8ae49f642ba713d874f0647b81de7869c638b",
+        "sha256": "d26e70fc3d6203a3ba5ec60498481b9c89acba1e74ff2a0e36c14120326c0e48"
+      },
+      "cli/src/omnis_cli/control.py": {
+        "blob": "6f85c6ef437818ec7574fddebbbc625c7509430b",
+        "sha256": "097ae2db29d27ce1fa676dac4b7230a43aacd7dcb9639916de6f39180ab0c87b"
+      },
+      "cli/src/omnis_cli/main.py": {
+        "blob": "0c1f730f69faa7a20b367f740ea5488f12dab28b",
+        "sha256": "f7fbed40a792684ff7d843a2c3eb4317c8c359c66d2249c6f6fb3b08be6d8bc1"
+      },
+      "cli/src/omnis_cli/recover.py": {
+        "blob": "4d4f231cab5a355f4def81d7ed391793883dc06e",
+        "sha256": "d4eb35f53b1f085976fe24cdfe8f2c14e6e0e84236acb6517c17db6190586599"
+      },
+      "cli/src/omnis_cli/start.py": {
+        "blob": "9c560e39ee8128164c4f5d6d02132fa48f996086",
+        "sha256": "2e0a174d49f1f28caa496701271c6e497aab7b570b30f1814eba9fabf7502263"
+      },
+      "cli/src/omnis_cli/stop.py": {
+        "blob": "d333962a4bfb838a9c2da02c58c9da6137c03bc5",
+        "sha256": "139ed4c7e15b6cf6095897fdcc2714de0fd5943af1eb23433bd1e21256486038"
+      },
+      "cli/tests/test_recover.py": {
+        "blob": "a9560968754bf8f15fd6c3954fbf77e2a07e46e0",
+        "sha256": "d84c832cbb2cd012cac0db71053b30371b8071fc3eab74a1c8caa6650c9f68a2"
+      }
+    }
+  },
+  "r2fix_delta": {
+    "base": "df8bd693a7d2f64811c8a1cd1231e91d93b20c43",
+    "diff_sha256": "6d7a7eebefd431719ac3032f0e1f510db97dc2e23fcef497d68f2f0c34e240e5",
+    "changed_paths": {
+      "cli/src/omnis_cli/recover.py": {
+        "blob": "4d4f231cab5a355f4def81d7ed391793883dc06e",
+        "sha256": "d4eb35f53b1f085976fe24cdfe8f2c14e6e0e84236acb6517c17db6190586599"
+      },
+      "cli/tests/test_recover.py": {
+        "blob": "a9560968754bf8f15fd6c3954fbf77e2a07e46e0",
+        "sha256": "d84c832cbb2cd012cac0db71053b30371b8071fc3eab74a1c8caa6650c9f68a2"
+      }
+    }
+  },
+  "artifacts": {
+    "api": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/api-wheel/omnis_api-0.1.0-py3-none-any.whl",
+      "sha256": "26e403514e6d98d21d4b5f2100dae2ab4a36f2eab98fb3a84c256d73dfcc3987",
+      "modules_verified": 113,
+      "module_names": [
+        "omnis/__init__.py",
+        "omnis/api.py",
+        "omnis/core/db.py",
+        "omnis/core/errors.py",
+        "omnis/core/managed_schema.py",
+        "omnis/core/model_schema.py",
+        "omnis/core/paths.py",
+        "omnis/core/persistence.py",
+        "omnis/core/provider_schema.py",
+        "omnis/core/readiness.py",
+        "omnis/core/schema.py",
+        "omnis/core/web_assets.py",
+        "omnis/migrate.py",
+        "omnis/migrations/__init__.py",
+        "omnis/migrations/env.py",
+        "omnis/migrations/versions/0001_instance_control.py",
+        "omnis/migrations/versions/0002_local_sessions.py",
+        "omnis/migrations/versions/0003_instance_lifecycle.py",
+        "omnis/migrations/versions/0004_pairing_receipts.py",
+        "omnis/migrations/versions/0005_stop_fence.py",
+        "omnis/migrations/versions/0006_stop_reconciliation.py",
+        "omnis/migrations/versions/0007_engagement_drafts.py",
+        "omnis/migrations/versions/0008_engagement_edit.py",
+        "omnis/migrations/versions/0009_catalog_candidates.py",
+        "omnis/migrations/versions/0010_catalog_publications.py",
+        "omnis/migrations/versions/0011_managed_tasks.py",
+        "omnis/migrations/versions/0012_contract_methods.py",
+        "omnis/migrations/versions/0013_mission_revisions.py",
+        "omnis/migrations/versions/0014_provider_settings.py",
+        "omnis/migrations/versions/0015_model_test_v2.py",
+        "omnis/modules/coverage/__init__.py",
+        "omnis/modules/coverage/denominator.py",
+        "omnis/modules/engagements/dashboard.py",
+        "omnis/modules/engagements/routes.py",
+        "omnis/modules/engagements/schemas.py",
+        "omnis/modules/engagements/service.py",
+        "omnis/modules/instance/domain.py",
+        "omnis/modules/instance/models.py",
+        "omnis/modules/instance/records.py",
+        "omnis/modules/instance/schemas.py",
+        "omnis/modules/instance/service.py",
+        "omnis/modules/instance/stop_contract.py",
+        "omnis/modules/runs/__init__.py",
+        "omnis/modules/runs/contract_inputs.py",
+        "omnis/modules/runs/managed_admission.py",
+        "omnis/modules/runs/model_dispatch.py",
+        "omnis/modules/runs/model_projection.py",
+        "omnis/modules/runs/model_protocol.py",
+        "omnis/modules/runs/model_test.py",
+        "omnis/modules/runs/model_test_contract.py",
+        "omnis/modules/runs/model_test_models.py",
+        "omnis/modules/runs/model_test_operation.py",
+        "omnis/modules/runs/model_test_routes.py",
+        "omnis/modules/runs/model_test_runtime.py",
+        "omnis/modules/runs/model_test_source.py",
+        "omnis/modules/runs/model_test_store.py",
+        "omnis/modules/runs/native_preparation.py",
+        "omnis/modules/runs/native_preparation_models.py",
+        "omnis/modules/runs/plan_snapshot.py",
+        "omnis/modules/runs/pure_probe.py",
+        "omnis/modules/settings/candidate_catalog.py",
+        "omnis/modules/settings/candidate_index.py",
+        "omnis/modules/settings/candidate_material.py",
+        "omnis/modules/settings/candidate_resolution.py",
+        "omnis/modules/settings/candidate_store.py",
+        "omnis/modules/settings/catalog_inspection.py",
+        "omnis/modules/settings/catalog_inspection_models.py",
+        "omnis/modules/settings/catalog_inspection_routes.py",
+        "omnis/modules/settings/catalog_models.py",
+        "omnis/modules/settings/catalog_publication.py",
+        "omnis/modules/settings/catalog_schema.py",
+        "omnis/modules/settings/provider_key_models.py",
+        "omnis/modules/settings/provider_key_routes.py",
+        "omnis/modules/settings/provider_key_service.py",
+        "omnis/modules/settings/provider_models.py",
+        "omnis/modules/settings/provider_routes.py",
+        "omnis/modules/settings/provider_vault.py",
+        "omnis/modules/settings/publication_models.py",
+        "omnis/modules/settings/publication_store.py",
+        "omnis/modules/settings/skill_catalog.py",
+        "omnis/modules/tasks/contract_case_input.py",
+        "omnis/modules/tasks/criterion_checks.py",
+        "omnis/modules/tasks/execution_selection.py",
+        "omnis/modules/tasks/managed_composition.py",
+        "omnis/modules/tasks/managed_contract.py",
+        "omnis/modules/tasks/managed_store.py",
+        "omnis/modules/tasks/method_checker_identity.py",
+        "omnis/modules/tasks/method_checks.py",
+        "omnis/modules/tasks/mission_revisions.py",
+        "omnis/modules/tasks/module_registry.py",
+        "omnis/modules/tasks/result_qualification.py",
+        "omnis/owner.py",
+        "omnis/policy/budgets.py",
+        "omnis/policy/model_configuration.py",
+        "omnis/policy/model_context.py",
+        "omnis/policy/model_dispatch_contract.py",
+        "omnis/policy/model_projection.py",
+        "omnis/policy/ready_model_configuration.py",
+        "omnis/security/host_origin.py",
+        "omnis/security/routes.py",
+        "omnis/security/sessions.py",
+        "omnis/serve.py",
+        "omnis/stop_reconcile.py",
+        "omnis/supervisor/__main__.py",
+        "omnis/supervisor/case_slot.py",
+        "omnis/supervisor/model_relay.py",
+        "omnis/supervisor/model_relay_protocol.py",
+        "omnis/supervisor/model_sender.py",
+        "omnis/supervisor/native_tasks.py",
+        "omnis/supervisor/runtime_client.py",
+        "omnis/transport/control_probe.py",
+        "omnis/transport/local_control.py",
+        "omnis/worker.py"
+      ]
+    },
+    "cli": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/cli-wheel-r2fix/omnis_cli-0.1.0-py3-none-any.whl",
+      "sha256": "9f73d9944676f812f2f23c3a79814d8b2323fa721c0386dd54953e112116eb24",
+      "modules_verified": 27,
+      "module_names": [
+        "omnis_cli/__init__.py",
+        "omnis_cli/backup.py",
+        "omnis_cli/browser.py",
+        "omnis_cli/compose.py",
+        "omnis_cli/config.py",
+        "omnis_cli/control.py",
+        "omnis_cli/forwarder.py",
+        "omnis_cli/health.py",
+        "omnis_cli/instance.py",
+        "omnis_cli/lifecycle.py",
+        "omnis_cli/main.py",
+        "omnis_cli/model_relay.py",
+        "omnis_cli/model_relay_protocol.py",
+        "omnis_cli/model_test_source.py",
+        "omnis_cli/native_artifacts.py",
+        "omnis_cli/pairing.py",
+        "omnis_cli/recover.py",
+        "omnis_cli/release.py",
+        "omnis_cli/restart.py",
+        "omnis_cli/start.py",
+        "omnis_cli/start_runtime.py",
+        "omnis_cli/status.py",
+        "omnis_cli/stop.py",
+        "omnis_cli/stop_engine.py",
+        "omnis_cli/stop_owner.py",
+        "omnis_cli/stop_receipt.py",
+        "omnis_cli/verified.py"
+      ]
+    }
+  },
+  "installed_cli": {
+    "python": "3.13.15 (main, Sep 24 2026, 17:55:50) [Clang 22.1.3 ]",
+    "origin": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/cli-wheel-env-r2fix/lib/python3.13/site-packages/omnis_cli",
+    "recover_origin": "/home/kali/.hermes/cache/scratch/t1-explicit-recovery-u4ipsfl1/evidence/cli-wheel-env-r2fix/lib/python3.13/site-packages/omnis_cli/recover.py",
+    "installed_modules_byte_exact": 27,
+    "wheel_sha256": "9f73d9944676f812f2f23c3a79814d8b2323fa721c0386dd54953e112116eb24"
+  },
+  "proofs": {
+    "r2fix-artifact-parity.json": {
+      "sha256": "4b2cd158403b670a6138a3106dc48a7f97c2778700e0957f16f64f5a8f835324"
+    },
+    "r2fix-build-cli.txt": {
+      "sha256": "ef7fcd739f5ca2e3799b704970cac2b25ab18a8b6e56e50b838cae62a6405377"
+    },
+    "r2fix-cli-source-final.txt": {
+      "sha256": "81743042756096597bb3130f315bef764d6c637b766e9619d44847a47af33b9c",
+      "tests": 383,
+      "elapsed_seconds": 98.596,
+      "suite_result": "PASS"
+    },
+    "r2fix-cli-source-regression.txt": {
+      "sha256": "3ec09b13bf1be1b6be327563e51bf1458b3ab0ce7465472f8973ab0a1f795769",
+      "tests": 383,
+      "elapsed_seconds": 100.584,
+      "suite_result": "PASS"
+    },
+    "r2fix-cli-wheel-final.txt": {
+      "sha256": "2ea92f6d002257272487be2c2c5c7d92ea0455f8c8816a8f99a5a9fc7ee35da3",
+      "tests": 383,
+      "elapsed_seconds": 98.111,
+      "suite_result": "PASS"
+    },
+    "r2fix-format-edit.txt": {
+      "sha256": "10869b88a75066aa23546ef1f95fcd4678c3fb92a56ed46ef91688052b67976a"
+    },
+    "r2fix-format-final.txt": {
+      "sha256": "e5d285e654af339bd79aedd43f7389a16ff483c0cdb5376a5926eb5a93d4a4d4"
+    },
+    "r2fix-format.txt": {
+      "sha256": "e5d285e654af339bd79aedd43f7389a16ff483c0cdb5376a5926eb5a93d4a4d4"
+    },
+    "r2fix-green-final.txt": {
+      "sha256": "255529ed23049d2a5ef791708e4227b1ca91e02d425a47f65ac51829b0b4605e",
+      "tests": 10,
+      "elapsed_seconds": 8.986,
+      "suite_result": "PASS"
+    },
+    "r2fix-green.txt": {
+      "sha256": "c29f62509ff3084acf8c93f790d4fb8b46bd2e8bf2f57e771bb387a231262df1",
+      "tests": 9,
+      "elapsed_seconds": 8.311,
+      "suite_result": "FAIL"
+    },
+    "r2fix-installed-parity.json": {
+      "sha256": "caa5126145605812db3869ab1613aeb0daf856169c57e1e829eca95f026a171c"
+    },
+    "r2fix-mypy-final.jsonl": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "r2fix-mypy.jsonl": {
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "r2fix-red.txt": {
+      "sha256": "d088dc0540cd55980b899cbc263fe7f7e06a8753b3d294f12793e13186dae6ca",
+      "tests": 2,
+      "elapsed_seconds": 1.203,
+      "suite_result": "FAIL"
+    },
+    "r2fix-ruff-final.txt": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "r2fix-ruff.txt": {
+      "sha256": "5d21f88fef487c1cf1937be8f176c7757d29ce77d7334a3b8b006a8c78149128"
+    },
+    "r2fix-source-origin.txt": {
+      "sha256": "0e4585aa8ed5006efea572eb7d13e3a7e776d30b660ea6486884c60898db1a58"
+    },
+    "r2fix-wheel-install.txt": {
+      "sha256": "bcab08f74e000264c32fb182ebee4beb4fcb960bcfa890ef2a2b86f2e0b032b0"
+    },
+    "r2fix-wheel-origin.txt": {
+      "sha256": "9621b13c1c8613fe584a832a2dd21a64d99c07406f77e086e5eb9f472c27590b"
+    },
+    "r2fix-wheel-venv.txt": {
+      "sha256": "edeaabadcfe581cd08e3a1244f43e5c609ca0975993ee68e24c5f8db2317196d"
+    }
+  },
+  "unchanged_originals": {
+    "freeze.json": "190840bbc201956a38d9f94036c09e57870cc7750fd5b0a43d86a6aa12772fdb",
+    "reviewer1.md": "e3fbb3c6fd2e0b6e0abbcf47553c109645bce8d89de88af491d696743cf913e3",
+    "reviewer2.md": "057d40bb7415b2469f3225b02fa2b0f36e2bb6a9c9ed662f43600cc3b3d9a202",
+    "reviewer2_probe.py": "2d73077754196b914920925ae11f67db6018f8a78e9f47cfb18240d2f10faff3",
+    "reviewer2_ipc.py": "ed2e9bf140d6492086b742e1ffe4968881113fda043db5d672abb49f7495afe4",
+    "parent-r2-reproduction.txt": "c7d51467c7b18f002dba59d58b7c1588722266a345da7fc56b2d16be2810e72e"
+  },
+  "recovery_owner_sql_sha256": "df544ff739ffc1b48a13f98122e35180b8f82d54e3684f488ebdff40de82304b",
+  "unchanged_prior_paths": [
+    "api/src/omnis/modules/instance/service.py",
+    "api/src/omnis/supervisor/__main__.py",
+    "api/tests/test_instance.py",
+    "cli/README.md",
+    "cli/src/omnis_cli/control.py",
+    "cli/src/omnis_cli/main.py",
+    "cli/src/omnis_cli/start.py",
+    "cli/src/omnis_cli/stop.py"
+  ],
+  "commands": [
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn/config XDG_RUNTIME_DIR= cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_recover.py -k control_ipc -v",
+      "exit": 1,
+      "log": "r2fix-red.txt",
+      "scope": "TDD RED before product edit: two methods/four subcases reach intercepted start"
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn/config XDG_RUNTIME_DIR= cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_recover.py -v",
+      "exit": 1,
+      "log": "r2fix-green.txt",
+      "scope": "Product guards passed; two new retry assertions incorrectly expected RECOVERY_INTERRUPTED instead of existing RECOVERY_REQUIRED"
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn/config XDG_RUNTIME_DIR= cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_recover.py -v",
+      "exit": 0,
+      "log": "r2fix-green-final.txt",
+      "scope": "10 methods, before final closure-binding-only test edit; all rerun on final bytes below"
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn/config XDG_RUNTIME_DIR= cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -v",
+      "exit": 0,
+      "log": "r2fix-cli-source-final.txt",
+      "scope": "383 tests on final source"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests",
+      "exit": 0,
+      "log": "r2fix-ruff-final.txt"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check cli/src cli/tests",
+      "exit": 0,
+      "log": "r2fix-format-final.txt"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --output=json cli/src",
+      "exit": 0,
+      "log": "r2fix-mypy-final.jsonl"
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19 build --no-config --offline --wheel cli --out-dir ../evidence/cli-wheel-r2fix",
+      "exit": 0,
+      "log": "r2fix-build-cli.txt"
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19 venv --no-config --offline --no-python-downloads --python cli/.venv/bin/python ../evidence/cli-wheel-env-r2fix",
+      "exit": 0,
+      "log": "r2fix-wheel-venv.txt"
+    },
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19 pip install --no-config --offline --python ../evidence/cli-wheel-env-r2fix/bin/python --no-deps ../evidence/cli-wheel-r2fix/omnis_cli-0.1.0-py3-none-any.whl",
+      "exit": 0,
+      "log": "r2fix-wheel-install.txt"
+    },
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/r2f-zudnw0fn/config XDG_RUNTIME_DIR= ../evidence/cli-wheel-env-r2fix/bin/python -I -B -m unittest discover -s cli/tests -v",
+      "exit": 0,
+      "log": "r2fix-cli-wheel-final.txt",
+      "scope": "383 tests; recovery consumer imported from installed wheel; existing synthetic Stop-owner subprocess fixture explicitly imports source"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "verification_scope": {
+    "consumer": "main([recover,--json]) -> stop_instance(recover=True) -> recover_barrier -> both dead inventories; real flock and AF_UNIX for R2 controls",
+    "preflight_controls": "Held original OFD / original live listener independently refuse with zero start, intent and recovery journal writes; socket/lock/cap unchanged",
+    "revalidation_controls": "After real intent and RECOVERING persist/readback, either control lock becomes held or same bound socket becomes listening: zero start; intent/RECOVERING retained; retry refuses",
+    "uncertainty_controls": "Injected TimeoutError/EACCES, actual lock/socket inode replacement during probe; refuse before writes/start and original lock reacquirable after error",
+    "positive": "Dead supervisor daemon double + closed original listener/inode retained + unlocked control lock; genuine ECONNREFUSED; independent OFD can acquire at start; existing real Stop-owner/handoff/receipts/completion reach STOPPED with synthetic Engine/process-family/SQL/control/start",
+    "not_physical": "No Docker start/takeover/installed recovery acceptance from these tests",
+    "guard": "No O_CREAT; O_NOFOLLOW/O_NONBLOCK; private regular UID0600/nlink1/empty lock; LOCK_EX|LOCK_NB once; connect bounded by min(0.2s, remaining original deadline); only ECONNREFUSED admits; inode revalidation; finally closes own FD; no IPC unlink"
+  },
+  "reuse": {
+    "R1": "APPROVED_SOURCE_SCOPED on df8bd693; unchanged SQL/API/history/Stop owner reused only within original charter; new pre-effect IPC code requires focused re-review",
+    "API_wheel_sha256": "26e403514e6d98d21d4b5f2100dae2ab4a36f2eab98fb3a84c256d73dfcc3987",
+    "API_module_parity": 113,
+    "PG": "Original freeze.json/pg-gate-result.json scoped 25 cases (14 SOURCE + 11 PG), exit0/family_drained; SQL _owner byte-exact. NOT_RERUN",
+    "canonical8": "UNCHANGED_SCOPE_REUSED_NOT_RERUN"
+  },
+  "review": "R2-RECOVER-01 IMPLEMENTED_SOURCE_WHEEL_SCOPED; focused independent re-review NOT_RUN; no self-approval",
+  "physical_installed_recovery": "NOT_RUN; parent admits after focused re-review",
+  "T1": "PARTIAL / NOT_ACCEPTED",
+  "cleanup": {
+    "private_tmp": "/home/kali/.hermes/cache/scratch/r2f-zudnw0fn",
+    "empty_verified": true,
+    "fixture_cleanup": "existing close/reap/pidfd/join assertions passed; all private fixture directories removed",
+    "operator_changes": "NONE",
+    "original_freeze_and_reviews": "unchanged hashes verified"
+  },
+  "scope_exclusions": [
+    "protected HTML not read or written",
+    "no operator data or credentials",
+    "no API edits",
+    "no new PG or Docker",
+    "no provider/model/target effects",
+    "no global/profile edits",
+    "no physical QA/rollout/push",
+    "no canonical/docs rerun (unchanged)"
+  ],
+  "Reticle": "NOT_APPLICABLE",
+  "Chisel": "BLOCKED_NO_GO"
+}

@@ -1,0 +1,48 @@
+{
+  "purpose": "operator-requested pause and fresh-session handoff, no implementation",
+  "observed_before": "READY generation5, same instance; restart source/cause not attributed",
+  "stop_command": "normal installed omnis stop --json with exact isolated roots",
+  "stop_exit": 0,
+  "status": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": false,
+    "dashboard_ready": false,
+    "generation": 6,
+    "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+    "origin": "http://127.0.0.1:8772",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0015_model_test_v2",
+    "state": "STOPPED"
+  },
+  "status_exit": 0,
+  "containers_absent": {
+    "api": "ebc4d5b5a2acab77fcc79194b3605601a64e40b93c0eb98eabcdafea21af6b6b",
+    "db": "23c08f2bbad1fb19252df01d20219df08101a4c6fd06f6274c4dcb08f601326c",
+    "supervisor": "25122a6dd8e8d960ad82ad13ba44e2231042569eb3212df94161e8b22f8f3076"
+  },
+  "project_network_and_container_census_empty": true,
+  "original_forwarder_identity_absent": true,
+  "listener_8772_and_owned_UDS_absent": true,
+  "data_identities_preserved": {
+    "postgres": [
+      2049,
+      4782338
+    ],
+    "vault": [
+      2049,
+      4782333
+    ],
+    "vault-key": [
+      2049,
+      4782334
+    ]
+  },
+  "provider_configuration_after_intervening_start": "NOT_INSPECTED; do not assume the historical empty Settings state is current",
+  "secrets_read": false,
+  "provider_IO_by_this_pause": false,
+  "implementation_started": false,
+  "canonical8": "retained PASS on35470f1; delayed5/6 notifications are historical"
+}

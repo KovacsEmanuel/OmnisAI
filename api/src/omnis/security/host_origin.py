@@ -158,7 +158,10 @@ class LocalBoundary:
             try:
                 body = bytearray()
                 if mutation:
-                    body_limit = 1048576 if engagement_write else 4096
+                    registry_write = (
+                        scope["path"] == "/api/v1/settings/models" and scope["method"] == "PUT"
+                    )
+                    body_limit = 1048576 if engagement_write else 65536 if registry_write else 4096
                     async with asyncio.timeout(3):
                         while True:
                             message = await receive()

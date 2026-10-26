@@ -17,7 +17,7 @@ def test_method_execution_schema_is_explicit_and_chained() -> None:
     config = Config(str(root / "alembic.ini"))
     config.set_main_option("script_location", str(root / "src/omnis/migrations"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == "0015_model_test_v2"
+    assert scripts.get_current_head() == "0016_provider_models"
     revision = scripts.get_revision("0012_contract_methods")
     assert revision is not None
     assert revision.down_revision == "0011_managed_tasks"

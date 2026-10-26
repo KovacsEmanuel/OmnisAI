@@ -10,10 +10,12 @@ import { catalogSelection, decodeCatalogInspection, decodeCatalogPage } from './
 import { decodeModelTest } from './modelTest';
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
+import { decodeProviderModels } from './providerModels';
+import type { SaveModels } from './providerModels';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/settings/models/${string}` | `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -45,6 +47,27 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async providerModels(command: string | null = null, signal?: AbortSignal) {
+    if (command !== null && !isUuid(command)) throw new ApiError('INVALID_INPUT');
+    const response = await request(command ? `/api/v1/settings/models/commands/${command}` : '/api/v1/settings/models', {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProviderModels(value, command);
+  },
+  async providerModelPage(revision: number, after: string, signal?: AbortSignal) {
+    if (!Number.isSafeInteger(revision) || revision < 1 || !isUuid(after)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/settings/models/pages/${revision}/${after}`, {}, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProviderModels(value, null, revision, after);
+  },
+  async saveProviderModels(payload: SaveModels, csrf: string, signal?: AbortSignal) {
+    const response = await request('/api/v1/settings/models', { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response);
+    if (!response.ok) throw decodeError(value);
+    return decodeProviderModels(value, payload.command_id);
+  },
   async providerKeys(command: string | null = null, signal?: AbortSignal) {
     if (command !== null && !isUuid(command)) throw new ApiError('INVALID_INPUT');
     const response = await request(command ? `/api/v1/settings/providers/commands/${command}` : '/api/v1/settings/providers', {}, signal);

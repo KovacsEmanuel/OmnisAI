@@ -19,6 +19,7 @@ export const errorCopy: Record<ErrorCode, string> = {
   COMMAND_CONFLICT: 'This command ID already belongs to a different request. Read its receipt before another action.',
   REVISION_CONFLICT: 'Settings changed. Reload the current revision before saving.',
   CONNECTION_UNAVAILABLE: 'The selected connection is foreign, stale or revoked. No provider call was admitted.',
+  REGISTRY_FULL: 'The instance already has 64 configured models. No models were saved.',
   CAPABILITIES_REQUIRED: 'Refresh metadata explicitly for the saved default before testing.',
   OPERATION_ACTIVE: 'Another finite operation is active. No test was queued.',
   OPERATION_FINISHED: 'This operation is already finished. Read its outcome.',

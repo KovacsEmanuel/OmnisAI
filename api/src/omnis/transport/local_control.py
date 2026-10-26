@@ -44,6 +44,7 @@ from omnis.modules.runs.model_test_store import ModelConflict
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import SettingsConflict
+from omnis.modules.settings.provider_model_models import ModelRegistryControl
 from omnis.modules.settings.provider_models import SettingsControl
 from omnis.security.sessions import PairingConflict
 
@@ -55,6 +56,15 @@ def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
             raise ValueError("Duplicate JSON key")
         result[key] = value
     return result
+
+
+def decode_control_frame(frame: bytes) -> ControlRequest:
+    if len(frame) > 65536 or not frame.endswith(b"\n"):
+        raise ValueError("Invalid control frame")
+    body = ControlRequest.model_validate(json.loads(frame, object_pairs_hook=unique_object))
+    if not isinstance(body.command, ModelRegistryControl) and len(frame) > 4096:
+        raise ValueError("Oversized legacy frame")
+    return body
 
 
 class LocalControl:
@@ -74,7 +84,8 @@ class LocalControl:
         self.native_task = native_task
         self.settings: Callable[[SettingsControl], Awaitable[dict[str, object]]] | None = None
         self.provider_settings: (
-            Callable[[KeySettingsControl], Awaitable[dict[str, object]]] | None
+            Callable[[KeySettingsControl | ModelRegistryControl], Awaitable[dict[str, object]]]
+            | None
         ) = None
         self.model_test: Callable[[ModelTestControl], Awaitable[dict[str, object]]] | None = None
         self.directory = directory
@@ -111,7 +122,7 @@ class LocalControl:
             self.server = await asyncio.start_unix_server(
                 self._handle,
                 path=str(self.directory / "control.sock"),
-                limit=4096,
+                limit=65536,
                 backlog=16,
                 cleanup_socket=False,
                 start_serving=False,
@@ -155,15 +166,21 @@ class LocalControl:
         | NativeTaskCommand
         | ModelTestControl
         | KeySettingsControl
+        | ModelRegistryControl
         | SettingsControl,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
             return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
-        if isinstance(command, KeySettingsControl):
+        if isinstance(command, (KeySettingsControl, ModelRegistryControl)):
             if self.provider_settings is None:
                 return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
             try:
-                return {"ok": True, "provider_settings": await self.provider_settings(command)}
+                key = (
+                    "provider_models"
+                    if isinstance(command, ModelRegistryControl)
+                    else "provider_settings"
+                )
+                return {"ok": True, key: await self.provider_settings(command)}
             except SettingsConflict as error:
                 return {"ok": False, "error": error.code}
             except (OSError, ValueError, TimeoutError):
@@ -303,11 +320,7 @@ class LocalControl:
                         response = {"ok": False, "error": "CONTROL_DENIED"}
                     else:
                         frame = await reader.readuntil(b"\n")
-                        if len(frame) > 4096:
-                            raise ValueError("Oversized frame")
-                        body = ControlRequest.model_validate(
-                            json.loads(frame, object_pairs_hook=unique_object)
-                        )
+                        body = decode_control_frame(frame)
                         if not hmac.compare_digest(
                             body.capability.encode(), self.capability.encode()
                         ):
@@ -340,7 +353,20 @@ class LocalControl:
             except PairingConflict:
                 response = {"ok": False, "error": "PAIRING_CONFLICT"}
             response["correlation_id"] = str(uuid4())
-            writer.write(json.dumps(response).encode() + b"\n")
+            encoded = json.dumps(response).encode() + b"\n"
+            # Only the new registry reply gains a cap; legacy operations retain their contracts.
+            if "provider_models" in response and len(encoded) > 65536:
+                encoded = (
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "error": "CONTROL_UNAVAILABLE",
+                            "correlation_id": response["correlation_id"],
+                        }
+                    ).encode()
+                    + b"\n"
+                )
+            writer.write(encoded)
             await asyncio.wait_for(writer.drain(), 1)
         except (ConnectionError, TimeoutError):
             # Disconnected clients cannot undo a committed command; retry via its receipt.

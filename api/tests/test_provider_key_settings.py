@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha256
 from multiprocessing.connection import Connection
 from pathlib import Path
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -553,3 +554,481 @@ async def test_cancelled_save_keeps_writer_owned_until_quiescent(
         await asyncio.gather(task, return_exceptions=True)
         await service.release(process, epoch)
         await engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "kind,size",
+    [
+        ("model_test", 8192),
+        ("native_task", 8192),
+        ("provider_models", 256),
+        ("provider_models", 65000),
+        ("provider_models", 65536),
+    ],
+)
+async def test_control_actual_writer_preserves_old_replies_and_bounds_registry(
+    ipc_directory: Path, monkeypatch: pytest.MonkeyPatch, kind: str, size: int
+) -> None:
+    from omnis.modules.runs.model_test_contract import ModelTestView
+    from omnis.transport.local_control import LocalControl
+
+    engine = database_engine("postgresql+psycopg://unused")
+    control = LocalControl(ipc_directory, InstanceService(engine), uuid4(), 1)
+    payload: object = "a" * size
+    wire_command: dict[str, object] = {"op": "status"}
+    if kind == "model_test":
+        wire_command = {"op": "model_test", "action": "read"}
+        payload = ModelTestView(response_text="a" * size).model_dump(mode="json")
+    if kind == "provider_models" and size == 256:
+        from uuid import UUID
+
+        from omnis.modules.settings.provider_model_models import (
+            ModelEntry,
+            ModelRegistryControl,
+            ModelRegistryView,
+        )
+
+        maximum = 9223372036854775807
+        entries = [
+            ModelEntry(
+                entry_id=str(UUID(int=index + 1)),
+                revision=maximum,
+                connection_id=str(UUID(int=1)),
+                connection_revision=maximum,
+                model="\\" * 250 + "".join('"' if bit == "1" else "\\" for bit in f"{index:06b}"),
+                output_tokens=65536,
+            )
+            for index in range(64)
+        ]
+        wire_command = ModelRegistryControl.model_validate(
+            {
+                "op": "provider_models",
+                "request": {
+                    "action": "save_models",
+                    "command_id": str(UUID(int=1)),
+                    "expected_registry_revision": maximum,
+                    "connection_id": str(UUID(int=1)),
+                    "connection_revision": maximum,
+                    "models": [
+                        {
+                            "entry_id": entry.entry_id,
+                            "expected_revision": maximum,
+                            "model": entry.model,
+                            "output_tokens": 65536,
+                        }
+                        for entry in entries
+                    ],
+                },
+            }
+        ).wire()
+        entries = entries[:16]
+        payload = ModelRegistryView(
+            command_id=str(UUID(int=1)),
+            registry_revision=maximum,
+            after=None,
+            next_after=entries[-1].entry_id,
+            total=64,
+            entries=entries,
+        ).model_dump(mode="json")
+    monkeypatch.setattr(control, "_dispatch", AsyncMock(return_value={"ok": True, kind: payload}))
+    async with await asyncio.start_unix_server(
+        control._handle, path=str(ipc_directory / "reply.sock"), limit=65536
+    ):
+        reader, writer = await asyncio.open_unix_connection(
+            ipc_directory / "reply.sock", limit=100000
+        )
+        try:
+            frame = (
+                json.dumps(
+                    {"version": 1, "capability": control.capability, "command": wire_command},
+                    separators=(",", ":"),
+                ).encode()
+                + b"\n"
+            )
+            writer.write(frame)
+            await writer.drain()
+            raw = await asyncio.wait_for(reader.readuntil(b"\n"), 5)
+            reply = json.loads(raw)
+            print(f"ACTUAL_WRITER_{kind}_{size}: request={len(frame)} reply={len(raw)}")
+            if kind == "provider_models" and size == 256:
+                assert len(frame) == 41141 and len(raw) == 12096
+            if kind == "provider_models" and size == 65536:
+                assert len(raw) <= 65536 and reply["error"] == "CONTROL_UNAVAILABLE"
+            else:
+                assert reply["ok"] is True and reply[kind] == payload
+                assert len(raw) <= 65536 if kind == "provider_models" else len(raw) > 4096
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_registry_http_body_exception_is_exact_and_keeps_auth(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    from omnis.api import create_app
+
+    monkeypatch.setenv("OMNIS_HTTP_PORT", "8765")
+    app = create_app()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+    ) as http:
+        for method, path, size, expected in (
+            ("PUT", "/api/v1/settings/models", 65536, 401),
+            ("PUT", "/api/v1/settings/models", 65537, 413),
+            ("PUT", "/api/v1/settings/models/", 4097, 413),
+            ("POST", "/api/v1/settings/models", 4097, 413),
+            ("PUT", "/api/v1/settings/providers", 4097, 413),
+        ):
+            response = await http.request(
+                method,
+                path,
+                content=b" " * size,
+                headers={"Origin": "http://127.0.0.1:8765", "Content-Type": "application/json"},
+            )
+            assert response.status_code == expected
+
+
+def test_registry_authority_uses_typed_identity_revision_and_foreign_keys() -> None:
+    from omnis.core.provider_schema import PROVIDER_TABLES
+
+    assert {"provider_model_entry", "provider_model_entry_revision"} <= PROVIDER_TABLES.keys()
+    identity, identity_constraints = PROVIDER_TABLES["provider_model_entry"]
+    revision, revision_constraints = PROVIDER_TABLES["provider_model_entry_revision"]
+    assert identity["model"] == ("text", True, None)
+    assert {
+        "connection_id",
+        "connection_revision",
+        "registry_revision",
+        "output_tokens",
+    } <= revision.keys()
+    assert any(
+        row[1:3] == ("u", "UNIQUE (instance_id, connection_id, model)")
+        for row in identity_constraints
+    )
+    assert any(
+        row[1:3]
+        == (
+            "f",
+            "FOREIGN KEY (instance_id, connection_id, connection_revision) REFERENCES provider_connection_revision(instance_id, connection_id, revision)",
+        )
+        for row in revision_constraints
+    )
+    assert "entries" not in PROVIDER_TABLES["provider_model_registry_revision"][0]
+
+
+def test_registry_model_sql_bounds_match_dto_and_readiness(monkeypatch: pytest.MonkeyPatch) -> None:
+    import importlib
+    import re
+
+    from omnis.core.provider_schema import PROVIDER_TABLES
+    from omnis.modules.settings.provider_model_models import SaveModels
+
+    migration = importlib.import_module("omnis.migrations.versions.0016_provider_models")
+    statements: list[str] = []
+    monkeypatch.setattr(migration.op, "execute", statements.append)
+    migration.upgrade()  # Capture emitted DDL/backfill only; no database connection.
+    matched = re.search(r"model ~ '([^']+)'", statements[0])
+    assert matched is not None
+    pattern = matched.group(1)
+    # PostgreSQL ARE bounds stop at 255, unlike Python's regex implementation.
+    assert all(
+        int(limit) <= 255
+        for bounds in re.findall(r"\{(\d+)(?:,(\d*))?\}", pattern)
+        for limit in bounds
+        if limit
+    )
+    constraint = next(
+        row[2]
+        for row in PROVIDER_TABLES["provider_model_entry"][1]
+        if row[0] == "provider_model_entry_model_check"
+    )
+    assert constraint == f"CHECK ((model ~ '{pattern}'::text))"
+    request = {
+        "action": "save_models",
+        "command_id": str(uuid4()),
+        "expected_registry_revision": 0,
+        "connection_id": str(uuid4()),
+        "connection_revision": 1,
+    }
+    printable = "".join(chr(code) for code in range(33, 127))
+    for model, valid in (
+        ("!", True),
+        ((printable * 3)[:255], True),
+        ((printable * 3)[:256], True),
+        ("", False),
+        ("x" * 257, False),
+        ("with space", False),
+        ("x\n", False),
+        ("é", False),
+        ("\x7f", False),
+    ):
+        assert (re.fullmatch(pattern, model) is not None) == valid
+        payload = {
+            **request,
+            "models": [
+                {
+                    "entry_id": str(uuid4()),
+                    "expected_revision": 0,
+                    "model": model,
+                    "output_tokens": 64,
+                }
+            ],
+        }
+        if valid:
+            assert SaveModels.model_validate(payload).models[0].model == model
+        else:
+            with pytest.raises(ValueError):
+                SaveModels.model_validate(payload)
+
+
+def test_registry_has_separate_bounded_api_contract() -> None:
+    from omnis.api import create_app
+
+    schema = create_app().openapi()
+    assert "/api/v1/settings/models" in schema["paths"]
+    assert "SaveModels" in schema["components"]["schemas"]
+
+
+def test_registry_merge_is_additive_exact_and_revision_checked() -> None:
+    from omnis.modules.settings.provider_model_models import RegistryState, SaveModels
+    from omnis.modules.settings.provider_model_service import merge_models
+
+    connection, first, second = str(uuid4()), str(uuid4()), str(uuid4())
+    request = SaveModels.model_validate(
+        {
+            "action": "save_models",
+            "command_id": str(uuid4()),
+            "expected_registry_revision": 0,
+            "connection_id": connection,
+            "connection_revision": 1,
+            "models": [
+                {
+                    "entry_id": first,
+                    "expected_revision": 0,
+                    "model": "Exact/ID",
+                    "output_tokens": 64,
+                }
+            ],
+        }
+    )
+    state = merge_models(RegistryState(revision=0, entries=[]), request)
+    assert state.revision == 1 and state.entries[0].revision == 1
+    added = request.model_copy(
+        update={
+            "expected_registry_revision": 1,
+            "models": [
+                request.models[0].model_copy(update={"entry_id": second, "model": "exact/ID"})
+            ],
+        }
+    )
+    both = merge_models(state, added)
+    assert both.revision == 2
+    assert next(item for item in both.entries if item.entry_id == first) == state.entries[0]
+    with pytest.raises(SettingsConflict, match="REVISION_CONFLICT"):
+        merge_models(state, request)
+    with pytest.raises(SettingsConflict, match="COMMAND_CONFLICT"):
+        merge_models(
+            state,
+            added.model_copy(
+                update={"models": [added.models[0].model_copy(update={"model": "Exact/ID"})]}
+            ),
+        )
+    with pytest.raises(SettingsConflict, match="REVISION_CONFLICT"):
+        merge_models(state, request.model_copy(update={"expected_registry_revision": 1}))
+    with pytest.raises(SettingsConflict, match="COMMAND_CONFLICT"):
+        merge_models(
+            state,
+            request.model_copy(
+                update={
+                    "expected_registry_revision": 1,
+                    "connection_id": str(uuid4()),
+                    "models": [request.models[0].model_copy(update={"expected_revision": 1})],
+                }
+            ),
+        )
+
+
+def test_registry_maximum_actual_dto_and_complete_wire_budgets() -> None:
+    import json
+    from uuid import UUID
+
+    from omnis.modules.instance.schemas import ControlRequest
+    from omnis.modules.settings.provider_model_models import (
+        ModelEntry,
+        ModelRegistryControl,
+        ModelRegistryView,
+        SaveModels,
+    )
+
+    maximum = 9223372036854775807
+    identity = str(UUID(int=1))
+    models = [
+        {
+            "entry_id": str(UUID(int=index + 1)),
+            "expected_revision": maximum,
+            "model": "\\" * 250 + "".join('"' if bit == "1" else "\\" for bit in f"{index:06b}"),
+            "output_tokens": 65536,
+        }
+        for index in range(64)
+    ]
+    request = SaveModels.model_validate(
+        {
+            "action": "save_models",
+            "command_id": identity,
+            "expected_registry_revision": maximum,
+            "connection_id": identity,
+            "connection_revision": maximum,
+            "models": models,
+        }
+    )
+    control = ModelRegistryControl(op="provider_models", request=request)
+    frame = (
+        json.dumps(
+            {"version": 1, "capability": "f" * 64, "command": control.wire()}, separators=(",", ":")
+        ).encode()
+        + b"\n"
+    )
+    parsed = ControlRequest.model_validate_json(frame)
+    assert parsed.command == control
+    entries = [
+        ModelEntry(
+            entry_id=item.entry_id,
+            revision=maximum,
+            connection_id=identity,
+            connection_revision=maximum,
+            model=item.model,
+            output_tokens=65536,
+        )
+        for item in request.models[:16]
+    ]
+    view = ModelRegistryView(
+        command_id=identity,
+        registry_revision=maximum,
+        after=None,
+        next_after=entries[-1].entry_id,
+        total=64,
+        entries=entries,
+    )
+    reply = (
+        json.dumps(
+            {
+                "ok": True,
+                "provider_models": view.model_dump(mode="json"),
+                "correlation_id": identity,
+            }
+        ).encode()
+        + b"\n"
+    )
+    sizes = {
+        "body": len(request.model_dump_json().encode()),
+        "command": len(control.wire_bytes()),
+        "frame": len(frame),
+        "view": len(view.model_dump_json().encode()),
+        "reply": len(reply),
+    }
+    print("REGISTRY_MAXIMUM_BYTES=" + json.dumps(sizes, sort_keys=True))
+    assert sizes["body"] == 41001 and sizes["command"] == 41036 and sizes["frame"] == 41141
+    assert sizes["reply"] <= 65536
+    assert ModelRegistryView.model_validate_json(view.model_dump_json()) == view
+    for bad in (
+        {**request.model_dump(), "models": models + [models[0]]},
+        {**request.model_dump(), "models": [models[0], models[0]]},
+        {**request.model_dump(), "models": [{**models[0], "model": "with space"}]},
+        {**request.model_dump(), "models": [{**models[0], "model": "x\n"}]},
+        {**request.model_dump(), "models": [{**models[0], "expected_revision": True}]},
+        {**request.model_dump(), "secret": "forbidden"},
+    ):
+        with pytest.raises(ValueError):
+            SaveModels.model_validate(bad)
+
+
+def test_registry_capacity_and_bound_pages() -> None:
+    from uuid import UUID
+
+    from omnis.modules.settings.provider_model_models import (
+        ModelEntry,
+        ReadModels,
+        RegistryState,
+        SaveModels,
+    )
+    from omnis.modules.settings.provider_model_service import merge_models, page
+
+    connection = str(uuid4())
+    entries = [
+        ModelEntry(
+            entry_id=str(UUID(int=index + 1)),
+            revision=1,
+            connection_id=connection,
+            connection_revision=1,
+            model=f"Exact/{index}",
+            output_tokens=64,
+        )
+        for index in range(64)
+    ]
+    state = RegistryState(revision=1, entries=entries)
+    request = SaveModels.model_validate(
+        {
+            "action": "save_models",
+            "command_id": str(uuid4()),
+            "expected_registry_revision": 1,
+            "connection_id": str(uuid4()),
+            "connection_revision": 1,
+            "models": [
+                {
+                    "entry_id": str(uuid4()),
+                    "expected_revision": 0,
+                    "model": entries[0].model,
+                    "output_tokens": 1,
+                }
+            ],
+        }
+    )
+    with pytest.raises(SettingsConflict, match="REGISTRY_FULL"):
+        merge_models(state, request)
+    first = page(state, ReadModels(action="read"))
+    second = page(state, ReadModels(action="read", registry_revision=1, after=first.next_after))
+    assert len(first.entries) == len(second.entries) == 16 and first.total == second.total == 64
+    assert set(item.entry_id for item in first.entries).isdisjoint(
+        item.entry_id for item in second.entries
+    )
+    with pytest.raises(SettingsConflict, match="REVISION_CONFLICT"):
+        page(state, ReadModels(action="read", registry_revision=0, after=first.next_after))
+    with pytest.raises(SettingsConflict, match="NOT_FOUND"):
+        page(state, ReadModels(action="read", registry_revision=1, after=str(uuid4())))
+    with pytest.raises(ValueError):
+        ReadModels(action="read", after=first.next_after)
+    with pytest.raises(ValueError):
+        first.model_validate({**first.model_dump(), "next_after": None})
+
+
+def test_registry_frame_exception_never_relaxes_legacy_limits() -> None:
+    import json
+
+    from omnis.transport.local_control import decode_control_frame
+
+    frame = json.dumps(
+        {
+            "version": 1,
+            "capability": "f" * 64,
+            "command": {"op": "provider_models", "request": {"action": "read"}},
+        }
+    ).encode()
+    assert (
+        decode_control_frame(frame + b" " * (65535 - len(frame)) + b"\n").command.op
+        == "provider_models"
+    )
+    for invalid in (
+        frame + b" " * (65536 - len(frame)) + b"\n",
+        b'{"version":1,"version":1}\n',
+        frame.replace(b'"version": 1', b'"version": NaN') + b"\n",
+        frame.replace(b'"provider_models", "request": {"action": "read"}', b'"status"')
+        + b" " * 4096
+        + b"\n",
+    ):
+        with pytest.raises(ValueError):
+            decode_control_frame(invalid)

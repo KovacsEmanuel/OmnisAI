@@ -1100,6 +1100,7 @@
           "COMMAND_CONFLICT",
           "REVISION_CONFLICT",
           "CONNECTION_UNAVAILABLE",
+          "REGISTRY_FULL",
           "CAPABILITIES_REQUIRED",
           "OPERATION_ACTIVE",
           "OPERATION_FINISHED",
@@ -1418,6 +1419,114 @@
         "title": "LegacyEngagementDraft",
         "type": "object",
         "x-max-canonical-payload-bytes": 1000000
+      },
+      "ModelEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "entry_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[!-~]+$",
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "maximum": 65536.0,
+            "minimum": 1.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "model",
+          "output_tokens",
+          "entry_id",
+          "revision"
+        ],
+        "title": "ModelEntry",
+        "type": "object"
+      },
+      "ModelRegistryView": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/ModelEntry"
+            },
+            "maxItems": 16,
+            "title": "Entries",
+            "type": "array"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "registry_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "total": {
+            "maximum": 64.0,
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "command_id",
+          "registry_revision",
+          "after",
+          "next_after",
+          "total",
+          "entries"
+        ],
+        "title": "ModelRegistryView",
+        "type": "object"
       },
       "ModelSelection": {
         "additionalProperties": false,
@@ -2270,6 +2379,79 @@
           "secret"
         ],
         "title": "SaveConnection",
+        "type": "object"
+      },
+      "SaveModel": {
+        "additionalProperties": false,
+        "properties": {
+          "entry_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[!-~]+$",
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "maximum": 65536.0,
+            "minimum": 1.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entry_id",
+          "expected_revision",
+          "model",
+          "output_tokens"
+        ],
+        "title": "SaveModel",
+        "type": "object"
+      },
+      "SaveModels": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "save_models",
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "expected_registry_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/SaveModel"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Models",
+            "type": "array"
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "expected_registry_revision",
+          "connection_id",
+          "connection_revision",
+          "models"
+        ],
+        "title": "SaveModels",
         "type": "object"
       },
       "SaveSelection": {
@@ -4366,6 +4548,407 @@
           }
         },
         "summary": "Detail"
+      }
+    },
+    "/api/v1/settings/models": {
+      "get": {
+        "operationId": "read_models_api_v1_settings_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRegistryView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Models"
+      },
+      "put": {
+        "operationId": "save_models_api_v1_settings_models_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveModels"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRegistryView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Save Models"
+      }
+    },
+    "/api/v1/settings/models/commands/{command_id}": {
+      "get": {
+        "operationId": "read_command_api_v1_settings_models_commands__command_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "command_id",
+            "required": true,
+            "schema": {
+              "title": "Command Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRegistryView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Command"
+      }
+    },
+    "/api/v1/settings/models/pages/{registry_revision}/{after}": {
+      "get": {
+        "operationId": "read_page_api_v1_settings_models_pages__registry_revision___after__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registry_revision",
+            "required": true,
+            "schema": {
+              "title": "Registry Revision",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "after",
+            "required": true,
+            "schema": {
+              "title": "After",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRegistryView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Page"
       }
     },
     "/api/v1/settings/provider": {

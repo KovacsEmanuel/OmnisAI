@@ -7,7 +7,7 @@ import socket
 import struct
 from contextlib import suppress
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, overload
 
 from fastapi import APIRouter, Body, Request
 from starlette.responses import JSONResponse
@@ -22,20 +22,35 @@ from omnis.modules.settings.provider_key_models import (
     SaveSelection,
 )
 from omnis.modules.settings.provider_key_service import SettingsConflict
+from omnis.modules.settings.provider_model_models import ModelRegistryControl, ModelRegistryView
 from omnis.security.host_origin import error_response, reject_json_constant, unique_json_object
 from omnis.transport.control_probe import _read_capability
 
 router = APIRouter(prefix="/api/v1/settings/providers")
 
 
-async def settings_exchange(command: KeySettingsControl) -> KeySettingsView:
+@overload
+async def settings_exchange(command: KeySettingsControl) -> KeySettingsView: ...
+
+
+@overload
+async def settings_exchange(command: ModelRegistryControl) -> ModelRegistryView: ...
+
+
+async def settings_exchange(
+    command: KeySettingsControl | ModelRegistryControl,
+) -> KeySettingsView | ModelRegistryView:
     directory_raw = os.environ.get("OMNIS_CONTROL_DIR")
     if not directory_raw:
         raise ValueError("Control unavailable")
     directory = Path(directory_raw)
     async with asyncio.timeout(2):
         capability = await asyncio.to_thread(_read_capability, directory)
-        reader, writer = await asyncio.open_unix_connection(directory / "control.sock", limit=8192)
+        registry = isinstance(command, ModelRegistryControl)
+        frame_limit = 65536 if registry else 4096
+        reader, writer = await asyncio.open_unix_connection(
+            directory / "control.sock", limit=65536 if registry else 8192
+        )
         try:
             peer = writer.get_extra_info("socket").getsockopt(
                 socket.SOL_SOCKET, socket.SO_PEERCRED, 12
@@ -50,12 +65,12 @@ async def settings_exchange(command: KeySettingsControl) -> KeySettingsView:
                 ).encode()
                 + b"\n"
             )
-            if len(frame) > 4096:
+            if len(frame) > frame_limit:
                 raise ValueError("Control frame limit")
             writer.write(frame)
             await writer.drain()
             raw = await reader.readuntil(b"\n")
-            if len(raw) > 8192:
+            if len(raw) > (65536 if registry else 8192):
                 raise ValueError("Control response limit")
             reply = json.loads(
                 raw, object_pairs_hook=unique_json_object, parse_constant=reject_json_constant
@@ -69,10 +84,15 @@ async def settings_exchange(command: KeySettingsControl) -> KeySettingsView:
                     "REVISION_CONFLICT",
                     "CONNECTION_UNAVAILABLE",
                     "NOT_FOUND",
+                    "REGISTRY_FULL",
                 }:
                     raise SettingsConflict(str(reason))
                 raise ValueError("Control unavailable")
-            result = KeySettingsView.model_validate(reply.get("provider_settings"))
+            result = (
+                ModelRegistryView.model_validate(reply.get("provider_models"))
+                if registry
+                else KeySettingsView.model_validate(reply.get("provider_settings"))
+            )
             expected = command.request.command_id
             if result.command_id != expected:
                 raise ValueError("Command mismatch")

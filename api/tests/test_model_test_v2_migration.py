@@ -67,7 +67,7 @@ async def test_model_schema_empty_and_upgrade(
             ).fetchall()
             physical[name] = {"columns": columns, "constraints": constraints}
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == (
-            "0015_model_test_v2",
+            "0016_provider_models",
         )
     (tmp_path / "model-schema.json").write_text(json.dumps(physical, sort_keys=True))
     engine = database_engine(empty_database_url.render_as_string(hide_password=False))

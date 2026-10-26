@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
+from omnis.modules.settings.provider_model_models import ModelRegistryControl
 from omnis.modules.settings.provider_models import SettingsControl
 
 # Existing non-runtime sides + startup/refusal; server/client each get 1s response margin.
@@ -252,6 +253,7 @@ class ControlRequest(StrictBody):
         | NativeTaskCommand
         | ModelTestControl
         | KeySettingsControl
+        | ModelRegistryControl
         | SettingsControl,
         Field(discriminator="op"),
     ]

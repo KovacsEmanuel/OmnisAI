@@ -46,6 +46,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         }
         env["EXPECTED_SCHEMA"] = start.EXPECTED_SCHEMA
         for revision in (
+            "0015_model_test_v2",
             start.EXPECTED_SCHEMA,
             "0014_provider_settings",
             "0013_mission_revisions",
@@ -121,7 +122,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         queries = {
             "SELECT system_identifier FROM pg_control_system()": "12345",
             "SELECT instance_id FROM instance_control WHERE id = 1": identity,
-            "SELECT version_num FROM alembic_version": "0015_model_test_v2",
+            "SELECT version_num FROM alembic_version": "0016_provider_models",
         }
 
         def psql(ident, query):
@@ -154,14 +155,14 @@ class SchemaCompatibilityTest(unittest.TestCase):
                 "version": 1,
                 "instance_id": str(uuid4()),
                 "release": "0.1.0",
-                "schema": "0015_model_test_v2",
+                "schema": "0016_provider_models",
                 "project": "omnis-local-1",
                 "origin": "http://127.0.0.1:8765",
             }
             path = root / "instance.json"
             path.write_text(json.dumps(record))
             path.chmod(0o600)
-            self.assertEqual(load_instance(root).schema, "0015_model_test_v2")
+            self.assertEqual(load_instance(root).schema, "0016_provider_models")
             for previous in (
                 "0014_provider_settings",
                 "0013_mission_revisions",

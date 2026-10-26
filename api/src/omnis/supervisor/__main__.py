@@ -181,8 +181,11 @@ async def run() -> None:
         ) as control:
             if provider_owner is not None:
                 from omnis.modules.settings.provider_key_models import KeySettingsControl
+                from omnis.modules.settings.provider_model_models import ModelRegistryControl
 
-                async def provider_command(command: KeySettingsControl) -> dict[str, object]:
+                async def provider_command(
+                    command: KeySettingsControl | ModelRegistryControl,
+                ) -> dict[str, object]:
                     assert provider_owner is not None
                     return (await provider_owner.handle(command)).model_dump(mode="json")
 

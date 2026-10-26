@@ -30,6 +30,7 @@ from omnis.modules.runs import model_test_operation
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
+from omnis.modules.settings.provider_model_models import ModelRegistryControl
 from omnis.modules.settings.provider_vault import ProviderVault
 from omnis.security.sessions import SessionStore, code_digest
 from omnis.transport.local_control import LocalControl
@@ -383,7 +384,9 @@ async def test_api_pg_sdk_protocol_and_replay(
 
             control.model_test = model_command
 
-            async def provider_command(command: KeySettingsControl) -> dict[str, object]:
+            async def provider_command(
+                command: KeySettingsControl | ModelRegistryControl,
+            ) -> dict[str, object]:
                 return (await settings.handle(command)).model_dump(mode="json")
 
             control.provider_settings = provider_command

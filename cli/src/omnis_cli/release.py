@@ -21,7 +21,7 @@ class ReleaseError(ValueError):
 
 
 _RELEASE = "0.1.0"
-_SCHEMA = "0015_model_test_v2"
+_SCHEMA = "0016_provider_models"
 PROVIDER_SETTINGS_PROFILE = "t1-provider-settings"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
@@ -136,6 +136,10 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             "omnis/modules/settings/provider_vault.py",
             "omnis/migrations/versions/0014_provider_settings.py",
             "omnis/migrations/versions/0015_model_test_v2.py",
+            "omnis/migrations/versions/0016_provider_models.py",
+            "omnis/modules/settings/provider_model_models.py",
+            "omnis/modules/settings/provider_model_routes.py",
+            "omnis/modules/settings/provider_model_service.py",
             "omnis/modules/runs/model_test_runtime.py",
             "omnis/modules/runs/model_test_contract.py",
             "omnis/modules/runs/model_test_store.py",

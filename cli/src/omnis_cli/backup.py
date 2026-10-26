@@ -311,7 +311,7 @@ def snapshot_metadata(
         or manifest["profile"] != PROVIDER_SETTINGS_PROFILE
         or not runtime.provider_settings
         or manifest["release"] != "0.1.0"
-        or manifest["schema"] != "0015_model_test_v2"
+        or manifest["schema"] != "0016_provider_models"
         or manifest["release_digest"] != runtime.digest
     ):
         raise StartError("COLD_SNAPSHOT_INCOMPATIBLE", 4)

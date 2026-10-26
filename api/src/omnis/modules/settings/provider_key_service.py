@@ -5,7 +5,7 @@ import os
 from collections.abc import Awaitable, Callable
 from concurrent.futures import Future
 from hashlib import sha256
-from typing import Literal
+from typing import Literal, overload
 from uuid import UUID, uuid4
 
 from sqlalchemy import text
@@ -27,6 +27,7 @@ from omnis.modules.settings.provider_key_models import (
     SaveSelection,
     SelectionView,
 )
+from omnis.modules.settings.provider_model_models import ModelRegistryControl, ModelRegistryView
 from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault
 
 
@@ -37,6 +38,7 @@ class SettingsConflict(ValueError):
             "REVISION_CONFLICT",
             "CONNECTION_UNAVAILABLE",
             "NOT_FOUND",
+            "REGISTRY_FULL",
         }:
             raise ValueError("Invalid Settings reason")
         self.code = code
@@ -203,9 +205,21 @@ class ProviderSettingsOwner:
                 return row
         raise SettingsConflict("CONNECTION_UNAVAILABLE")
 
-    async def handle(self, command: KeySettingsControl) -> KeySettingsView:
+    @overload
+    async def handle(self, command: KeySettingsControl) -> KeySettingsView: ...
+
+    @overload
+    async def handle(self, command: ModelRegistryControl) -> ModelRegistryView: ...
+
+    async def handle(
+        self, command: KeySettingsControl | ModelRegistryControl
+    ) -> KeySettingsView | ModelRegistryView:
         # This same finite lock is also held across the final provider write, never its response.
         async with self.lock:
+            if isinstance(command, ModelRegistryControl):
+                from omnis.modules.settings.provider_model_service import handle_models
+
+                return await handle_models(self, command)
             request = command.request
             if isinstance(request, ReadSettings):
                 async with self.service.engine.connect() as db:

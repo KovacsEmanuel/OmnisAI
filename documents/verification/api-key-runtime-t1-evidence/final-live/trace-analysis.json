@@ -1,0 +1,250 @@
+{
+  "scope": "Exact pinned forwarder syscall lifetimes, raw buffers; application dispatch ledger and public results remain separate",
+  "traces": [
+    {
+      "file": "trace-1.log",
+      "sha256": "ae0bdedbcdda3d71a13198914074d4c121d4b26ff971f8178fd9008fd5f28587",
+      "bytes": 35026,
+      "lines": 446,
+      "lifetimes": [
+        {
+          "opener_pid": 151640,
+          "fd": 9,
+          "inode": "1255996",
+          "created_at": 1793023936.82687,
+          "connect": {
+            "pid": 151640,
+            "at": 1793023936.836459,
+            "line": 43,
+            "raw": "151640 1793023936.836459 connect(9<TCP:[1255996]>, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr(\"104.18.3.115\")}, 16) = -1 EINPROGRESS (Operation now in progress)"
+          },
+          "writes": [
+            {
+              "pid": 151640,
+              "at": 1793023936.881281,
+              "syscall": "sendto",
+              "result_bytes": 517,
+              "line": 46,
+              "raw": "151640 1793023936.881281 sendto(0x9, 0x13d3ffd0, 0x205, 0, 0, 0) = 0x205"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023936.922154,
+              "syscall": "sendto",
+              "result_bytes": 80,
+              "line": 52,
+              "raw": "151640 1793023936.922154 sendto(0x9, 0x7f32cd9396d0, 0x50, 0, 0, 0) = 0x50"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023936.938492,
+              "syscall": "sendto",
+              "result_bytes": 268,
+              "line": 56,
+              "raw": "151640 1793023936.938492 sendto(0x9, 0x7f32cdb02060, 0x10c, 0, 0, 0) = 0x10c"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023941.654743,
+              "syscall": "sendto",
+              "result_bytes": 913,
+              "line": 250,
+              "raw": "151640 1793023941.654743 sendto(0x9, 0x13c7bae0, 0x391, 0, 0, 0) = 0x391"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023941.690095,
+              "syscall": "sendto",
+              "result_bytes": 359,
+              "line": 253,
+              "raw": "151640 1793023941.690095 sendto(0x9, 0x7f32cdafa440, 0x167, 0, 0, 0) = 0x167"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023946.75881,
+              "syscall": "sendto",
+              "result_bytes": 913,
+              "line": 340,
+              "raw": "151640 1793023946.758810 sendto(0x9, 0x13c7bae0, 0x391, 0, 0, 0) = 0x391"
+            },
+            {
+              "pid": 151640,
+              "at": 1793023946.789621,
+              "syscall": "sendto",
+              "result_bytes": 359,
+              "line": 343,
+              "raw": "151640 1793023946.789621 sendto(0x9, 0x7f32cdafa440, 0x167, 0, 0, 0) = 0x167"
+            }
+          ],
+          "close": {
+            "pid": 151640,
+            "at": 1793023952.854889,
+            "line": 411,
+            "raw": "151640 1793023952.854889 close(9<TCP:[172.10.10.10:41640->104.18.3.115:443]>) = 0"
+          },
+          "first_line": 42
+        }
+      ],
+      "tail": [
+        "151640 1793023954.447260 close(6</home/kali/.local/share/omnis-t1-fixed-a5b8939/s/omnis/stop-forwarder-1a3bb7e4-e0c7-4e45-8bf5-387516979261-drained.json>) = 0",
+        "151640 1793023954.448534 close(4<UNIX-STREAM:[1254494->1254495]>) = 0",
+        "151640 1793023954.448742 close(5<UNIX-STREAM:[1254495]>) = 0",
+        "151640 1793023954.448975 close(3<anon_inode:[eventpoll]>) = 0",
+        "151640 1793023954.467815 +++ exited with 0 +++"
+      ]
+    },
+    {
+      "file": "trace-2.log",
+      "sha256": "d896728033974b4566363859721ff6bcbf26924e2f29fb2fe0da3ad294e2b66c",
+      "bytes": 15934,
+      "lines": 186,
+      "lifetimes": [
+        {
+          "opener_pid": 161576,
+          "fd": 9,
+          "inode": "1291243",
+          "created_at": 1793024034.800054,
+          "connect": {
+            "pid": 161576,
+            "at": 1793024034.808386,
+            "line": 75,
+            "raw": "161576 1793024034.808386 connect(9<TCP:[1291243]>, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr(\"104.18.3.115\")}, 16) = -1 EINPROGRESS (Operation now in progress)"
+          },
+          "writes": [
+            {
+              "pid": 161576,
+              "at": 1793024034.851399,
+              "syscall": "sendto",
+              "result_bytes": 517,
+              "line": 78,
+              "raw": "161576 1793024034.851399 sendto(0x9, 0x34255c30, 0x205, 0, 0, 0) = 0x205"
+            },
+            {
+              "pid": 161576,
+              "at": 1793024034.89314,
+              "syscall": "sendto",
+              "result_bytes": 80,
+              "line": 84,
+              "raw": "161576 1793024034.893140 sendto(0x9, 0x7f83af37c250, 0x50, 0, 0, 0) = 0x50"
+            },
+            {
+              "pid": 161576,
+              "at": 1793024034.914074,
+              "syscall": "sendto",
+              "result_bytes": 696,
+              "line": 87,
+              "raw": "161576 1793024034.914074 sendto(0x9, 0x34269f60, 0x2b8, 0, 0, 0) = 0x2b8"
+            },
+            {
+              "pid": 161576,
+              "at": 1793024034.933218,
+              "syscall": "sendto",
+              "result_bytes": 359,
+              "line": 90,
+              "raw": "161576 1793024034.933218 sendto(0x9, 0x7f83af53a440, 0x167, 0, 0, 0) = 0x167"
+            }
+          ],
+          "close": {
+            "pid": 161576,
+            "at": 1793024048.787313,
+            "line": 153,
+            "raw": "161576 1793024048.787313 close(9<TCP:[172.10.10.10:38170->104.18.3.115:443]>) = 0"
+          },
+          "first_line": 74
+        }
+      ],
+      "tail": [
+        "161576 1793024053.702316 close(6</home/kali/.local/share/omnis-t1-fixed-a5b8939/s/omnis/stop-forwarder-04fc462b-3998-431b-b6c0-61bbdb6d66b2-drained.json>) = 0",
+        "161576 1793024053.704087 close(4<UNIX-STREAM:[1282926->1282927]>) = 0",
+        "161576 1793024053.704723 close(5<UNIX-STREAM:[1282927]>) = 0",
+        "161576 1793024053.705015 close(3<anon_inode:[eventpoll]>) = 0",
+        "161576 1793024053.731333 +++ exited with 0 +++"
+      ]
+    },
+    {
+      "file": "trace-3.log",
+      "sha256": "2f378215b48d7f9917a1bbfb57063a58b2c49a6213936bf5c974492cfccadd18",
+      "bytes": 11953,
+      "lines": 142,
+      "lifetimes": [
+        {
+          "opener_pid": 173765,
+          "fd": 9,
+          "inode": "1342513",
+          "created_at": 1793024137.76714,
+          "connect": {
+            "pid": 173765,
+            "at": 1793024137.775652,
+            "line": 81,
+            "raw": "173765 1793024137.775652 connect(9<TCP:[1342513]>, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr(\"104.18.2.115\")}, 16) = -1 EINPROGRESS (Operation now in progress)"
+          },
+          "writes": [
+            {
+              "pid": 173765,
+              "at": 1793024137.822005,
+              "syscall": "sendto",
+              "result_bytes": 517,
+              "line": 84,
+              "raw": "173765 1793024137.822005 sendto(0x9, 0x379d1370, 0x205, 0, 0, 0) = 0x205"
+            }
+          ],
+          "close": {
+            "pid": 173765,
+            "at": 1793024137.861551,
+            "line": 90,
+            "raw": "173765 1793024137.861551 close(9<TCP:[172.10.10.10:52114->104.18.2.115:443]>) = 0"
+          },
+          "first_line": 80
+        }
+      ],
+      "tail": [
+        "173765 1793024142.503966 sendto(0x8, 0x37a0d8e0, 0x43c, 0, 0, 0) = 0x43c",
+        "173765 1793024142.509559 sendto(0x9, 0x37a21fe0, 0x232, 0, 0, 0) = 0x232",
+        "173765 1793024142.651063 sendto(0x8, 0x37a22240, 0x318, 0, 0, 0) = 0x318",
+        "173765 1793024143.432512 shutdown(12<TCP:[127.0.0.1:8773->127.0.0.1:44996]>, SHUT_WR) = 0",
+        "173765 1793024143.443747 shutdown(10<TCP:[127.0.0.1:8773->127.0.0.1:35356]>, SHUT_WR) = 0"
+      ]
+    }
+  ],
+  "stop": {
+    "active_SENT_observed": 1793023946.93295,
+    "CLI_launch": 1793023946.952,
+    "completion_observed_while_admission_open": 1793023948.077303,
+    "first_closed_barrier_observed": 1793023952.897483,
+    "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+    "finalize_journal_observed": 1793023953.305,
+    "CLI_STOPPED_ACK": 1793023956.87,
+    "same_forwarder_socket_close": 1793023952.854889,
+    "verdict": "STOP_REQUEST_DURING_ACTIVE_NO_POST_ACK_SCOPED",
+    "not_claimed": [
+      "active cancellation",
+      "active drain",
+      "public CLI ACK equals internal FENCE ACK"
+    ]
+  },
+  "crash": {
+    "same_original_pidfd": "crash-pin-before-test.json",
+    "last_guard": "sigkill-revalidated.json",
+    "pidfd_exit": "sigkill-result.json",
+    "one_dispatch_after_recover": true,
+    "post_restart_trace3_before_next_authorized_test_no_provider_connect": true,
+    "scope": "No new dispatch/SENT for crashed operation; no provider connect between trace3 attachment and separately authorized revoke test. Startup attachment gap is not observed."
+  },
+  "revoke": {
+    "active_SENT_observed": 1793024137.582018,
+    "local_public_ACK": 1793024137.895,
+    "provider_socket_closed_before_ACK": 1793024137.861551,
+    "observed_provider_send_syscalls": 1,
+    "full_HTTP_request_or_remote_cancellation": "NOT_OBSERVED",
+    "no_new_provider_connect_after_public_ACK_in_trace3": true,
+    "no_post_ACK_send_on_that_socket_lifetime": true,
+    "last_trace_record": 1793024143.443747
+  },
+  "limits": [
+    "TLS writes and connects are not HTTP request counts or billing proof.",
+    "Trace1 reused one provider TCP socket for metadata and two tests.",
+    "After external FD9 close, later raw FD9 writes are outside that socket lifetime and cannot be counted as its provider sends; accept was not traced.",
+    "Trace3 final explicit detach receipt was interrupted by QA stderr callback bug; later exact tracer absence and target TracerPid=0 verified.",
+    "No read/recv decoded buffers, cookies, provider keys or CSRF exported."
+  ]
+}

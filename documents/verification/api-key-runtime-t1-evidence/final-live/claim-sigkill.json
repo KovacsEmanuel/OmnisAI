@@ -1,0 +1,56 @@
+{
+  "kind": "sigkill",
+  "at": 1793024034.8110986,
+  "operation": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+  "identity": {
+    "cid": "2c7bceaa06417a2d73021f2700fb387912867c045da78b2eddf7fb1d11d9fb79",
+    "pid": 161632,
+    "ticks": "1512927",
+    "uid": 1000,
+    "exe_stat": [
+      71,
+      1600455
+    ],
+    "exe_metadata": "/usr/local/bin/python3.13",
+    "image": "sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0",
+    "labels": {
+      "com.docker.compose.config-hash": "021d36e80a8ee445bbacd44d93b1927bd168958b2f39e5bbc516648de2204054",
+      "com.docker.compose.container-number": "1",
+      "com.docker.compose.depends_on": "db:service_healthy:false",
+      "com.docker.compose.image": "sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0",
+      "com.docker.compose.oneoff": "False",
+      "com.docker.compose.project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
+      "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-t1-fixed-a5b8939/d/omnis/releases/0.1.0/ops/compose.yaml,-",
+      "com.docker.compose.project.environment_file": "/dev/null",
+      "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-t1-fixed-a5b8939/d/omnis/releases/0.1.0",
+      "com.docker.compose.service": "supervisor",
+      "com.docker.compose.version": "2.32.4",
+      "org.omnis.bundle_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+      "org.omnis.profile": "t1-provider-settings",
+      "org.omnis.project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
+      "org.omnis.start-attempt": "04fc462b-3998-431b-b6c0-61bbdb6d66b2"
+    },
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "instance": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+  },
+  "pending_SENT": {
+    "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+    "state": "RUNNING",
+    "revision": 2,
+    "finish_reason": null,
+    "outcome_absent": true,
+    "dispatch_id": "f28cfe07-e366-49ab-8167-38e3dea58a1d",
+    "last": "SENT",
+    "generation": 5,
+    "owner_epoch": 3,
+    "current_generation": 5,
+    "admission_open": true,
+    "shutdown_command_id": null,
+    "quiesced_generation": null,
+    "quiesced_at": null,
+    "lease_epoch": 3,
+    "lease_owner": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+    "lease_expired": false,
+    "at": "2026-10-26T14:13:54.806395+00:00"
+  }
+}

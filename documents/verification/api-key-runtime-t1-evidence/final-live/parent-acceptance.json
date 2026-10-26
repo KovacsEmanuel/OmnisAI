@@ -1,0 +1,33 @@
+{
+  "decision_owner": "parent/orchestrator",
+  "decision": "T1_CLOSED_SCOPED_LOCAL_API_KEY_CONNECTIVITY",
+  "scope": "Single operator, normal local installation, API-key Settings/SystemOperation/ModelDispatch/ModelOutcome, approved OpenRouter model and finite synthetic input; not an agent/tool/pentest loop",
+  "tested_product_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+  "reviewed_postrestart_fix": "8c527a0694465f8470b91ad7f014764e29385f64",
+  "principal_integration_commit": "0b7d675f43b937b5fa7f402b63766f5601c42fdf",
+  "merge_product_identity": "exact canonical11 product bytes; newer principal README/verification/QA-reference metadata preserved",
+  "bundle_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+  "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+  "root": "/home/kali/.local/share/omnis-t1-fixed-a5b8939",
+  "requirements": [
+    {"requirement":"write-only key/vault/local selection/LOCKED/no regeneration/persistence","disposition":"CLOSED_SCOPED","basis":"Original Settings/vault source and installed approvals retained; operator-only key entry, current exact selection and initial normal restart/autounlock verified"},
+    {"requirement":"normal installed UI -> metadata -> SystemOperation -> permit/SENT -> sender -> result/usage/readback","disposition":"CLOSED_SCOPED","basis":"Final case1 after normal same-data restart: exact model/output, COMPLETED/OMNIS_MODEL_TEST_OK, KNOWN components, unchanged reload and parent read-only DB readback"},
+    {"requirement":"final sink authority/reuse/Cancel/Stop/revocation","disposition":"CLOSED_SCOPED_COMPOSED","basis":"Reviewed deterministic SOURCE/private-PG negative controls plus original normal installed active Cancel/reused TCP, final normal Stop requested during RUNNING/SENT with no post-observed-ACK effects, and active local revocation/socket close before public ACK","limit":"Stop completion won before barrier. Active installed Stop cancellation/drain and internal FENCE/DRAIN ACK capture remain NOT_OBSERVED; not required to fabricate cancellation or repeat every interleaving"},
+    {"requirement":"normal supervisor crash after authentic pending SENT, recovery, UNKNOWN/no resend","disposition":"CLOSED_SCOPED_COMPOSED","basis":"Final case3: original pidfd, exact identity/postclaim SENT revalidation, one SIGKILL, owner gone/lease expired, normal recover STOPPED then explicit Start; same single dispatch/SENT and UNKNOWN/OWNER_LOST persisted; reviewed receive-only reconciliation unchanged","limit":"Trace attachment does not cover all startup instants. No-resend is composed from retained ledger/source path and observed trace windows, not a universal wire-request count"},
+    {"requirement":"error/incomplete/UNKNOWN/caps/duplicates/stale/foreign/lost reply/data and secret boundaries","disposition":"CLOSED_SCOPED","basis":"Existing reviewed SOURCE/PG/installed controls and full canonical11 retained; final UNKNOWN and known usage components preserved separately, no refunds or retry"},
+    {"requirement":"snapshot review/real artifact/gates/local Git integration","disposition":"CLOSED_SCOPED","basis":"Complementary scoped reviews and focused fixes retained; Canonical11 exit0/family_drained with1953inputs unchanged; normal bundle113API modules exact; principal merge keeps product bytes equal to tested candidate"}
+  ],
+  "findings": {
+    "LIVE-POST-RESTART-01": "CLOSED_SCOPED: sufficient SOURCE mechanism fixed/reviewed, installed prefix and configured provider Test after restart now pass; historical inner live cause remains unobserved",
+    "R2-NEW-01": "CLOSED_SCOPED_COMPOSED for T1 by existing deterministic guard/relay evidence and final installed journeys; no universal network or all-interleaving certification",
+    "QA_finalizer": "RETAINED_PROTOCOL_FAILURE: original runner exit1 after effects, read-only finish exit0; does not retrospectively make original runner clean and did not repeat provider effects"
+  },
+  "canonical11": {"exit":0,"family_drained":true,"inputs":1953,"drift":[]},
+  "final_live": {"test_starts":4,"metadata_refresh":1,"sigkill":1,"local_revoke":1,"provider_retry":false,"known_cost_subtotal":"0.00002532","total_cost":"UNKNOWN"},
+  "prior_live_budget_and_UNKNOWN": "Preserved without refund/reset; no attempt repeated to recreate output",
+  "final_state": {"service":"READY","generation":8,"supervisor_epoch":5,"active_operations":0,"connection_revision":2,"connection_enabled":false,"selection_revision":1,"operator_reactivation":"Required explicitly for future use; not performed by agent","QA_observers_absent":true,"data_preserved":true},
+  "evidence": ["result.json","result.md","trace-analysis.json","sigkill-revalidated.json","sigkill-result.json","final-live-parent-readback.json","final-live-parent-resources.json","../postrestart-fix/canonical11-final.json","../postrestart-fix/source/reviewer1.md","../postrestart-fix/source/reviewer2.md"],
+  "preserved_limits": ["OrcaRouter provider-live NOT_RUN; no implicit claim of every provider/model combination", "historical readers not actually exercised remain NOT_RUN without native reexecution", "installed active-Stop-cancellation NOT_OBSERVED; earlier missed case and counters/failures retained", "no provider-side cancellation, exactly-once upstream or zero-cost UNKNOWN claim", "old installations and uncertain receipts not adopted or silently reconciled", "Reticle NOT_INTEGRATED, Chisel BLOCKED_NO_GO; no broad visual/accessibility certification", "no T2, target traffic, push or remote CI authorization"],
+  "remaining_required_T1_implementation": [],
+  "next_phase": "T2 requires separate explicit mandate; not launched"
+}

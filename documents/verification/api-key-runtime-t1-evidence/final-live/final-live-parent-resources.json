@@ -1,0 +1,31 @@
+{
+  "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+  "generation": 8,
+  "epoch": 5,
+  "daemon_verified": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "retired_exact_CIDs_absent": [
+    "132907e348c7c9d2a0feb00be6675a59b7802335a89faea47958493548b59fb3",
+    "2c7bceaa06417a2d73021f2700fb387912867c045da78b2eddf7fb1d11d9fb79",
+    "7cd5d6716aef810136620f5dd23eb2f0fcfbac9d2e88a994c5e6894d62c07457",
+    "7cd9f8d27e7894942ae90913beaebec6abb2a6b05d1681c75ba03ae26bee24e0",
+    "81c1ddbcd8166ee0f30a9df44e4bc7a739fef1d20ed9638e0a233ff7dbfa1831",
+    "89a806724686887a7967ffa5c85350a021a19499152d16140b6f6b554c396541",
+    "c183e9a442c8e628f19e5dbc5294fe8e6591ef3bcd1af331081c2d18d52c971f",
+    "ec42ff017fbb1a0811353845c99c9b2c94ae2e2df93c4ebc83f2da801b0af8a8",
+    "f6ec3875a5bb400a29d6da30aa2b77a07a000f2c70ad0ff6db95a1e67b12de0c"
+  ],
+  "running_product_roles": {
+    "api": "9dbc2761e90962594388a0b2860e145d171fe350a2cec5ea09f6413fd18c6495",
+    "db": "e95a4576c17768dad76af9c078dbd57cb4b32c7fb49776f8124429c464ddac4e",
+    "supervisor": "e1e6f5e8fa740e138c708780b71c49fc358971235ac5d6d42dabf826f29be4ea"
+  },
+  "observer_pids_absent": [
+    "153563",
+    "162989",
+    "175136"
+  ],
+  "forwarder_TracerPid": 0,
+  "data_identities_preserved": true,
+  "browser_profile_lock_absent": true,
+  "no_lifecycle_or_provider_effect": true
+}

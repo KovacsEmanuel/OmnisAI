@@ -1,0 +1,10 @@
+{
+  "boundary": "QA_FINALIZER_AFTER_FOUR_PERSISTED_RESULTS",
+  "original_runner_exit": 1,
+  "error": "TypeError: Cannot read properties of null (reading stderrText)",
+  "cause": "stderr callback captures mutable tracer; detach sets tracer=null before strace prints detached",
+  "source": "qa.cjs:23",
+  "owned_process_readback_after_exit": "No exact dedicated browser/profile, reader, runner or strace live argv found",
+  "explicit_context_close_original": "NOT_REACHED",
+  "continuation": "Existing finish action only; fresh normal browser close and read-only exact operation/config/resource readback; no model effects repeated"
+}

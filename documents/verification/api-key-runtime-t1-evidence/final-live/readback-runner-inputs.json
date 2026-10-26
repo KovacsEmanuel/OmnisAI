@@ -1,0 +1,12 @@
+{
+  "hashes": {
+    "qa-readback.cjs": "4f3a2179988690b495c945709816caa915f20118c85a39df28ada217370f95db",
+    "readers.py": "5ffa085e1512f797c729d85815a98e5e0bf62e072bd4f722dcffac37da180d43"
+  },
+  "grant_sha256": "1697e06500463a6d1a32cfbb381391ff6cd7e55772445623816e27d7bbb838cd",
+  "source": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+  "expected_cases": 4,
+  "started_at": 1793024256.146,
+  "reticle": "NOT_INTEGRATED",
+  "chisel": "BLOCKED_NO_GO"
+}

@@ -1,0 +1,1344 @@
+{
+  "at": 1793024033.07,
+  "name": "2-stop-active",
+  "began": 1793023946.44,
+  "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+  "admission": {
+    "status": 202,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+      "state": "PENDING",
+      "state_revision": 1,
+      "finish_reason": null,
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": null,
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1793023946.719
+  },
+  "result": "STOP_REQUEST_DURING_ACTIVE_NO_POST_ACK_SCOPED_PENDING_TRACE",
+  "active": {
+    "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+    "state": "RUNNING",
+    "revision": 2,
+    "finish_reason": null,
+    "outcome_absent": true,
+    "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+    "last": "SENT",
+    "generation": 3,
+    "owner_epoch": 2,
+    "current_generation": 3,
+    "admission_open": true,
+    "shutdown_command_id": null,
+    "quiesced_generation": null,
+    "quiesced_at": null,
+    "lease_epoch": 2,
+    "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+    "lease_expired": false,
+    "at": "2026-10-26T14:12:26.93295+00:00"
+  },
+  "active_observed_at": 1793023946.947,
+  "stop": {
+    "code": 0,
+    "value": {
+      "admission_open": false,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "dashboard_ready": false,
+      "generation": 4,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "origin": "http://127.0.0.1:8773",
+      "reason": null,
+      "state": "STOPPED"
+    },
+    "launched": 1793023946.952,
+    "returned": 1793023956.87
+  },
+  "observations": [
+    {
+      "at": 1793023946.959,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "RUNNING",
+        "revision": 2,
+        "finish_reason": null,
+        "outcome_absent": true,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SENT",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:27.170226+00:00"
+      }
+    },
+    {
+      "at": 1793023947.287,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "RUNNING",
+        "revision": 2,
+        "finish_reason": null,
+        "outcome_absent": true,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SENT",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:27.467843+00:00"
+      }
+    },
+    {
+      "at": 1793023947.58,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "RUNNING",
+        "revision": 2,
+        "finish_reason": null,
+        "outcome_absent": true,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SENT",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:27.751057+00:00"
+      }
+    },
+    {
+      "at": 1793023947.867,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:28.077303+00:00"
+      }
+    },
+    {
+      "at": 1793023948.191,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:28.382759+00:00"
+      }
+    },
+    {
+      "at": 1793023948.495,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:28.667123+00:00"
+      }
+    },
+    {
+      "at": 1793023948.784,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:29.00039+00:00"
+      }
+    },
+    {
+      "at": 1793023949.118,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:29.354425+00:00"
+      }
+    },
+    {
+      "at": 1793023949.469,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:29.646162+00:00"
+      }
+    },
+    {
+      "at": 1793023949.758,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:29.91858+00:00"
+      }
+    },
+    {
+      "at": 1793023950.032,
+      "phase": "READY",
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:30.216027+00:00"
+      }
+    },
+    {
+      "at": 1793023950.337,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:30.540705+00:00"
+      }
+    },
+    {
+      "at": 1793023950.655,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:30.846217+00:00"
+      }
+    },
+    {
+      "at": 1793023950.97,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:31.231257+00:00"
+      }
+    },
+    {
+      "at": 1793023951.357,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:31.646152+00:00"
+      }
+    },
+    {
+      "at": 1793023951.775,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:31.982892+00:00"
+      }
+    },
+    {
+      "at": 1793023952.098,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:32.272128+00:00"
+      }
+    },
+    {
+      "at": 1793023952.391,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 3,
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "quiesced_generation": null,
+        "quiesced_at": null,
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:32.598841+00:00"
+      }
+    },
+    {
+      "at": 1793023952.718,
+      "phase": "STOPPING",
+      "stop_generation": null,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:32.897483+00:00"
+      }
+    },
+    {
+      "at": 1793023953.012,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": null,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:33.194827+00:00"
+      }
+    },
+    {
+      "at": 1793023953.305,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:33.480723+00:00"
+      }
+    },
+    {
+      "at": 1793023953.594,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:33.752219+00:00"
+      }
+    },
+    {
+      "at": 1793023953.862,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:34.029437+00:00"
+      }
+    },
+    {
+      "at": 1793023954.14,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:34.306489+00:00"
+      }
+    },
+    {
+      "at": 1793023954.417,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:34.567467+00:00"
+      }
+    },
+    {
+      "at": 1793023954.679,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:34.842314+00:00"
+      }
+    },
+    {
+      "at": 1793023954.953,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "lease_expired": false,
+        "at": "2026-10-26T14:12:35.148697+00:00"
+      }
+    },
+    {
+      "at": 1793023955.26,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": null,
+        "lease_expired": null,
+        "at": "2026-10-26T14:12:35.420311+00:00"
+      }
+    },
+    {
+      "at": 1793023955.532,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "revision": 3,
+        "finish_reason": "COMPLETED",
+        "outcome_absent": false,
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "last": "SETTLED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "current_generation": 4,
+        "admission_open": false,
+        "shutdown_command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "quiesced_generation": 4,
+        "quiesced_at": "2026-10-26T14:12:32.886742+00:00",
+        "lease_epoch": 2,
+        "lease_owner": null,
+        "lease_expired": null,
+        "at": "2026-10-26T14:12:35.689201+00:00"
+      }
+    },
+    {
+      "at": 1793023955.801,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023955.801,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    },
+    {
+      "at": 1793023956.082,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023956.082,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    },
+    {
+      "at": 1793023956.264,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023956.264,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    },
+    {
+      "at": 1793023956.443,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023956.443,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    },
+    {
+      "at": 1793023956.615,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023956.615,
+      "phase": "STOPPING",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    },
+    {
+      "at": 1793023956.788,
+      "reader_error": "Error"
+    },
+    {
+      "at": 1793023956.788,
+      "phase": "STOPPED",
+      "stop_generation": 4,
+      "finalized_generation": 4,
+      "op": null
+    }
+  ],
+  "start": {
+    "code": 0,
+    "value": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 5,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "origin": "http://127.0.0.1:8773",
+      "reason": null,
+      "release": "0.1.0",
+      "reused": false,
+      "schema": "0015_model_test_v2",
+      "state": "READY",
+      "supervisor_epoch": 3
+    },
+    "launched": 1793024015.353,
+    "returned": 1793024030.131
+  },
+  "final": {
+    "status": 200,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+      "state": "FINISHED",
+      "state_revision": 3,
+      "finish_reason": "COMPLETED",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+      "provider_status": "200",
+      "result_state": "COMPLETED",
+      "output_state": "COMPLETE",
+      "response_text": "OMNIS_MODEL_TEST_OK",
+      "usage_state": "KNOWN",
+      "input_tokens": 63,
+      "output_tokens": 15,
+      "reasoning_tokens": 6,
+      "cost_observed": "0.00001191",
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1793024030.935
+  },
+  "db": {
+    "at": "2026-10-26T14:13:52.62655+00:00",
+    "instance": {
+      "id": 1,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "admission_open": true,
+      "shutdown_command_id": null,
+      "generation": 5,
+      "quiesced_generation": null,
+      "quiesced_at": null
+    },
+    "lease": {
+      "owner": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+      "epoch": 3,
+      "expired": false
+    },
+    "operations": [
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T14:17:21.038279+00:00",
+        "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "dispatch_id": "e949c033-798c-4b7e-80c1-bdb1b4863a46",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T14:12:21.045567+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T14:12:21.064761+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T14:12:22.696079+00:00"
+          }
+        ]
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T14:17:26.680337+00:00",
+        "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T14:12:26.692918+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T14:12:26.724788+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T14:12:27.824824+00:00"
+          }
+        ]
+      }
+    ],
+    "metadata": [
+      {
+        "kind": "metadata-request",
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "state": null,
+        "reason": null,
+        "at": "2026-10-26T14:12:16.557356+00:00"
+      },
+      {
+        "kind": "metadata-result",
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "state": "READY",
+        "reason": null,
+        "at": "2026-10-26T14:12:17.532979+00:00"
+      }
+    ],
+    "record_kinds": {
+      "metadata-request": 1,
+      "model-output-v2": 2,
+      "model-capabilities-v2": 1,
+      "system-operation": 2,
+      "model-selection-snapshot-v2": 2,
+      "dispatch-owner-v2": 2,
+      "model-dispatch-v2": 2,
+      "model-permit-v2": 2,
+      "metadata-result": 1,
+      "model-input-v2": 2,
+      "model-outcome-v2": 2
+    },
+    "counts": {
+      "system_operation": 2,
+      "system_operation_event": 6,
+      "model_record_v2": 19,
+      "model_command_v2": 3,
+      "model_dispatch_v2": 2,
+      "model_dispatch_event_v2": 6,
+      "provider_connection_revision": 1,
+      "provider_selection_revision": 1,
+      "provider_settings_command": 2,
+      "ui_session": 1,
+      "pairing_challenge": 1
+    },
+    "lifecycle": [
+      {
+        "command_id": "124de311-6c30-441b-b2a0-5ad7cd479f01",
+        "kind": "OPEN",
+        "expected_generation": 0,
+        "result_generation": 1,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "95a6aeb8-5d3b-4c41-852c-7e0336f6fdf9",
+        "kind": "SHUTDOWN",
+        "expected_generation": 1,
+        "result_generation": 2,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "7b72b320-7b2e-4d2c-b68b-0ed51f71464a",
+        "kind": "FINALIZE",
+        "expected_generation": 2,
+        "result_generation": 2,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "c3608123-6cf0-4415-84cc-6241ce4cac86",
+        "kind": "OPEN",
+        "expected_generation": 2,
+        "result_generation": 3,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "kind": "SHUTDOWN",
+        "expected_generation": 3,
+        "result_generation": 4,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "ff6e2c6e-399d-42ef-b6a7-c54f0184b204",
+        "kind": "FINALIZE",
+        "expected_generation": 4,
+        "result_generation": 4,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "c1422f7e-52e4-4986-8d28-55d1e1122160",
+        "kind": "OPEN",
+        "expected_generation": 4,
+        "result_generation": 5,
+        "owner_epoch": 3
+      }
+    ],
+    "commands": [
+      {
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "operation_id": null,
+        "action": "refresh",
+        "at": "2026-10-26T14:12:16.558508+00:00"
+      },
+      {
+        "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "action": "start",
+        "at": "2026-10-26T14:12:21.046547+00:00"
+      },
+      {
+        "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "action": "start",
+        "at": "2026-10-26T14:12:26.694054+00:00"
+      }
+    ],
+    "events": [
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 1,
+        "payload": {
+          "state": "PENDING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": null,
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 1,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 2,
+        "payload": {
+          "state": "RUNNING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": null,
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 2,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 3,
+        "payload": {
+          "state": "FINISHED",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": {
+            "id": "a9a0ccf5-fdb9-4f9e-859b-d66dd6b45abb",
+            "kind": "model-outcome-v2",
+            "digest": "4cb58c683a86f832ae2adf163449df8bc4b8b66192bce58d037220f1215b89f3",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": "COMPLETED",
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 3,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 1,
+        "payload": {
+          "state": "PENDING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": null,
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 1,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 2,
+        "payload": {
+          "state": "RUNNING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": null,
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 2,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 3,
+        "payload": {
+          "state": "FINISHED",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": {
+            "id": "45014c9d-e2fb-48f6-97ca-1ec2e8f03d72",
+            "kind": "model-outcome-v2",
+            "digest": "7a92c25b21248171e5652ba485dfca348ab15d768601ec0f3187c2aa9805d733",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": "COMPLETED",
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 3,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      }
+    ]
+  }
+}

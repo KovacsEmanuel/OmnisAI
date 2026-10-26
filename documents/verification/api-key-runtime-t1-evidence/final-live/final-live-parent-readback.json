@@ -1,0 +1,93 @@
+{
+  "instance": {
+    "id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+    "generation": 8,
+    "admission_open": true
+  },
+  "operations": [
+    {
+      "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+      "state": "FINISHED",
+      "finish_reason": "COMPLETED",
+      "dispatch_id": "e949c033-798c-4b7e-80c1-bdb1b4863a46",
+      "events": [
+        "RESERVED",
+        "SENT",
+        "SETTLED"
+      ],
+      "result_state": "COMPLETED",
+      "usage_state": "KNOWN",
+      "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+      "cost_observed": "0.00001341",
+      "text": "OMNIS_MODEL_TEST_OK"
+    },
+    {
+      "operation_id": "569ef2e2-b632-41fa-8206-8a2cf509451d",
+      "state": "FINISHED",
+      "finish_reason": "CANCELLED",
+      "dispatch_id": "b045598c-5c0d-4cbe-82dc-88ae5986862d",
+      "events": [
+        "RESERVED",
+        "SENT",
+        "SETTLED"
+      ],
+      "result_state": "UNKNOWN",
+      "usage_state": "UNKNOWN",
+      "observed_model": null,
+      "cost_observed": null,
+      "text": null
+    },
+    {
+      "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+      "state": "FINISHED",
+      "finish_reason": "COMPLETED",
+      "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+      "events": [
+        "RESERVED",
+        "SENT",
+        "SETTLED"
+      ],
+      "result_state": "COMPLETED",
+      "usage_state": "KNOWN",
+      "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+      "cost_observed": "0.00001191",
+      "text": "OMNIS_MODEL_TEST_OK"
+    },
+    {
+      "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+      "state": "FINISHED",
+      "finish_reason": "OWNER_LOST",
+      "dispatch_id": "f28cfe07-e366-49ab-8167-38e3dea58a1d",
+      "events": [
+        "RESERVED",
+        "SENT",
+        "SETTLED"
+      ],
+      "result_state": "UNKNOWN",
+      "usage_state": "UNKNOWN",
+      "observed_model": null,
+      "cost_observed": null,
+      "text": null
+    }
+  ],
+  "commands": {
+    "refresh": 1,
+    "start": 4
+  },
+  "connection": {
+    "connection_id": "198d5869-5768-432f-9d34-94db8dbda1af",
+    "revision": 2,
+    "enabled": false
+  },
+  "claims": {
+    "sigkill": 1,
+    "cli": 7,
+    "start": 4,
+    "revoke": 1,
+    "refresh": 1
+  },
+  "known_cost_subtotal": "0.00002532",
+  "total_cost": "UNKNOWN",
+  "read_only": true,
+  "trace_hashes_verified": true
+}

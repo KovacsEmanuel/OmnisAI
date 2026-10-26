@@ -1,0 +1,789 @@
+{
+  "at": 1793024136.138,
+  "name": "3-crash-sent",
+  "began": 1793024034.308,
+  "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+  "admission": {
+    "status": 202,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+      "state": "PENDING",
+      "state_revision": 1,
+      "finish_reason": null,
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": null,
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1793024034.49
+  },
+  "result": "PASS_CRASH_RECOVER_SCOPED",
+  "active": {
+    "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+    "state": "RUNNING",
+    "revision": 2,
+    "finish_reason": null,
+    "outcome_absent": true,
+    "dispatch_id": "f28cfe07-e366-49ab-8167-38e3dea58a1d",
+    "last": "SENT",
+    "generation": 5,
+    "owner_epoch": 3,
+    "current_generation": 5,
+    "admission_open": true,
+    "shutdown_command_id": null,
+    "quiesced_generation": null,
+    "quiesced_at": null,
+    "lease_epoch": 3,
+    "lease_owner": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+    "lease_expired": false,
+    "at": "2026-10-26T14:13:54.663227+00:00"
+  },
+  "active_observed_at": 1793024034.68,
+  "cutProcess": {
+    "code": 0,
+    "signal": null
+  },
+  "cutOutput": [
+    {
+      "armed": true,
+      "identity": {
+        "cid": "2c7bceaa06417a2d73021f2700fb387912867c045da78b2eddf7fb1d11d9fb79",
+        "pid": 161632,
+        "ticks": "1512927",
+        "uid": 1000,
+        "exe_stat": [
+          71,
+          1600455
+        ],
+        "exe_metadata": "/usr/local/bin/python3.13",
+        "image": "sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0",
+        "labels": {
+          "com.docker.compose.config-hash": "021d36e80a8ee445bbacd44d93b1927bd168958b2f39e5bbc516648de2204054",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "db:service_healthy:false",
+          "com.docker.compose.image": "sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
+          "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-t1-fixed-a5b8939/d/omnis/releases/0.1.0/ops/compose.yaml,-",
+          "com.docker.compose.project.environment_file": "/dev/null",
+          "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-t1-fixed-a5b8939/d/omnis/releases/0.1.0",
+          "com.docker.compose.service": "supervisor",
+          "com.docker.compose.version": "2.32.4",
+          "org.omnis.bundle_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+          "org.omnis.profile": "t1-provider-settings",
+          "org.omnis.project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
+          "org.omnis.start-attempt": "04fc462b-3998-431b-b6c0-61bbdb6d66b2"
+        },
+        "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+        "instance": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+      }
+    },
+    {
+      "signal": "SIGKILL",
+      "pidfd_exit": true,
+      "operation": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72"
+    }
+  ],
+  "cutDiagnostic": "",
+  "recover": {
+    "code": 0,
+    "value": {
+      "admission_open": false,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "dashboard_ready": false,
+      "generation": 7,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "origin": "http://127.0.0.1:8773",
+      "reason": null,
+      "state": "STOPPED"
+    },
+    "launched": 1793024041.71,
+    "returned": 1793024056.31
+  },
+  "start": {
+    "code": 0,
+    "value": {
+      "admission_open": true,
+      "api_ready": true,
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": true,
+      "dashboard_ready": true,
+      "generation": 8,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "origin": "http://127.0.0.1:8773",
+      "reason": null,
+      "release": "0.1.0",
+      "reused": false,
+      "schema": "0015_model_test_v2",
+      "state": "READY",
+      "supervisor_epoch": 5
+    },
+    "launched": 1793024115.678,
+    "returned": 1793024131.554
+  },
+  "final": {
+    "status": 200,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+      "state": "FINISHED",
+      "state_revision": 3,
+      "finish_reason": "OWNER_LOST",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+      "reason": "OWNER_LOST",
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": "UNKNOWN",
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1793024132.421
+  },
+  "readback": {
+    "status": 200,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+      "state": "FINISHED",
+      "state_revision": 3,
+      "finish_reason": "OWNER_LOST",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+      "reason": "OWNER_LOST",
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": "UNKNOWN",
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1793024134.047
+  },
+  "db": {
+    "at": "2026-10-26T14:15:35.770921+00:00",
+    "instance": {
+      "id": 1,
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "admission_open": true,
+      "shutdown_command_id": null,
+      "generation": 8,
+      "quiesced_generation": null,
+      "quiesced_at": null
+    },
+    "lease": {
+      "owner": "2ce363c6-054b-4bb4-8953-ea0e17014dba",
+      "epoch": 5,
+      "expired": false
+    },
+    "operations": [
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T14:17:21.038279+00:00",
+        "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "dispatch_id": "e949c033-798c-4b7e-80c1-bdb1b4863a46",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T14:12:21.045567+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T14:12:21.064761+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T14:12:22.696079+00:00"
+          }
+        ]
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "generation": 3,
+        "owner_epoch": 2,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T14:17:26.680337+00:00",
+        "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+        "dispatch_id": "a1befd91-78c7-4a59-ae45-c0c4424811fc",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T14:12:26.692918+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T14:12:26.724788+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T14:12:27.824824+00:00"
+          }
+        ]
+      },
+      {
+        "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "OWNER_LOST",
+        "generation": 5,
+        "owner_epoch": 3,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T14:18:54.467658+00:00",
+        "execution_owner_id": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+        "dispatch_id": "f28cfe07-e366-49ab-8167-38e3dea58a1d",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T14:13:54.474311+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T14:13:54.495273+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T14:14:08.828074+00:00"
+          }
+        ]
+      }
+    ],
+    "metadata": [
+      {
+        "kind": "metadata-request",
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "state": null,
+        "reason": null,
+        "at": "2026-10-26T14:12:16.557356+00:00"
+      },
+      {
+        "kind": "metadata-result",
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "state": "READY",
+        "reason": null,
+        "at": "2026-10-26T14:12:17.532979+00:00"
+      }
+    ],
+    "record_kinds": {
+      "metadata-request": 1,
+      "model-output-v2": 2,
+      "model-capabilities-v2": 1,
+      "system-operation": 3,
+      "model-selection-snapshot-v2": 3,
+      "dispatch-owner-v2": 3,
+      "model-dispatch-v2": 3,
+      "model-permit-v2": 3,
+      "metadata-result": 1,
+      "model-input-v2": 3,
+      "model-outcome-v2": 3
+    },
+    "counts": {
+      "system_operation": 3,
+      "system_operation_event": 9,
+      "model_record_v2": 26,
+      "model_command_v2": 4,
+      "model_dispatch_v2": 3,
+      "model_dispatch_event_v2": 9,
+      "provider_connection_revision": 1,
+      "provider_selection_revision": 1,
+      "provider_settings_command": 2,
+      "ui_session": 1,
+      "pairing_challenge": 1
+    },
+    "lifecycle": [
+      {
+        "command_id": "124de311-6c30-441b-b2a0-5ad7cd479f01",
+        "kind": "OPEN",
+        "expected_generation": 0,
+        "result_generation": 1,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "95a6aeb8-5d3b-4c41-852c-7e0336f6fdf9",
+        "kind": "SHUTDOWN",
+        "expected_generation": 1,
+        "result_generation": 2,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "7b72b320-7b2e-4d2c-b68b-0ed51f71464a",
+        "kind": "FINALIZE",
+        "expected_generation": 2,
+        "result_generation": 2,
+        "owner_epoch": 1
+      },
+      {
+        "command_id": "c3608123-6cf0-4415-84cc-6241ce4cac86",
+        "kind": "OPEN",
+        "expected_generation": 2,
+        "result_generation": 3,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "31d270b5-4b45-4c3b-a84a-dae28743722f",
+        "kind": "SHUTDOWN",
+        "expected_generation": 3,
+        "result_generation": 4,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "ff6e2c6e-399d-42ef-b6a7-c54f0184b204",
+        "kind": "FINALIZE",
+        "expected_generation": 4,
+        "result_generation": 4,
+        "owner_epoch": 2
+      },
+      {
+        "command_id": "c1422f7e-52e4-4986-8d28-55d1e1122160",
+        "kind": "OPEN",
+        "expected_generation": 4,
+        "result_generation": 5,
+        "owner_epoch": 3
+      },
+      {
+        "command_id": "7c2e190e-bb16-4f64-97ee-496ea27d30e6",
+        "kind": "SHUTDOWN",
+        "expected_generation": 6,
+        "result_generation": 7,
+        "owner_epoch": 4
+      },
+      {
+        "command_id": "2661b713-298e-4cff-b169-abf8a03b7218",
+        "kind": "FINALIZE",
+        "expected_generation": 7,
+        "result_generation": 7,
+        "owner_epoch": 4
+      },
+      {
+        "command_id": "4c533046-c245-42ce-8b52-41b79429e15e",
+        "kind": "OPEN",
+        "expected_generation": 7,
+        "result_generation": 8,
+        "owner_epoch": 5
+      }
+    ],
+    "commands": [
+      {
+        "command_id": "f1dadfb0-722d-47ab-8e77-9c611771c6db",
+        "operation_id": null,
+        "action": "refresh",
+        "at": "2026-10-26T14:12:16.558508+00:00"
+      },
+      {
+        "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "action": "start",
+        "at": "2026-10-26T14:12:21.046547+00:00"
+      },
+      {
+        "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "action": "start",
+        "at": "2026-10-26T14:12:26.694054+00:00"
+      },
+      {
+        "command_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "action": "start",
+        "at": "2026-10-26T14:13:54.475158+00:00"
+      }
+    ],
+    "events": [
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 1,
+        "payload": {
+          "state": "PENDING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": null,
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 1,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 2,
+        "payload": {
+          "state": "RUNNING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": null,
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 2,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+        "state_revision": 3,
+        "payload": {
+          "state": "FINISHED",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:21.038279Z",
+          "command_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": {
+            "id": "a9a0ccf5-fdb9-4f9e-859b-d66dd6b45abb",
+            "kind": "model-outcome-v2",
+            "digest": "4cb58c683a86f832ae2adf163449df8bc4b8b66192bce58d037220f1215b89f3",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "1c11dd5d-a98f-4f21-a120-6d5c7832f679",
+          "finish_reason": "COMPLETED",
+          "payload_digest": "58d7203d0a9f65e5be9860860dd84cb677823039366843bf8c107e28fd0d65af",
+          "schema_version": 1,
+          "state_revision": 3,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "aa2537e5-d9c2-420c-ae5a-d40bba480a17",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "1feeade2-3104-4437-bd6d-1e9affe6d1f8",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 1,
+        "payload": {
+          "state": "PENDING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": null,
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 1,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 2,
+        "payload": {
+          "state": "RUNNING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": null,
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 2,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+        "state_revision": 3,
+        "payload": {
+          "state": "FINISHED",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:17:26.680337Z",
+          "command_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "generation": 3,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": {
+            "id": "45014c9d-e2fb-48f6-97ca-1ec2e8f03d72",
+            "kind": "model-outcome-v2",
+            "digest": "7a92c25b21248171e5652ba485dfca348ab15d768601ec0f3187c2aa9805d733",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "owner_epoch": 2,
+          "cancel_epoch": 1,
+          "operation_id": "64068254-d5a9-49c0-a7cc-8bc3de1fa2c2",
+          "finish_reason": "COMPLETED",
+          "payload_digest": "611f4fa217b4e9c28ffc63e57d12ec65510365e052e660f1cad156bc293f6a4a",
+          "schema_version": 1,
+          "state_revision": 3,
+          "execution_owner_id": "7b719923-95ff-4833-bdfb-032fd730aa8b",
+          "config_snapshot_ref": {
+            "id": "a63cc452-62fe-4e5f-b877-98bccc23ae9a",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "59e2b544-eb99-4665-90b3-fc2726a51db5",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "state_revision": 1,
+        "payload": {
+          "state": "PENDING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:18:54.467658Z",
+          "command_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "generation": 5,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 3,
+          "cancel_epoch": 1,
+          "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "finish_reason": null,
+          "payload_digest": "14834e0ed8ca27c749c7d99f16f11958383e7f4bfdc92f288b449c0084438f28",
+          "schema_version": 1,
+          "state_revision": 1,
+          "execution_owner_id": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+          "config_snapshot_ref": {
+            "id": "228ad6bc-9f8c-4dd3-934f-e54dcbdaafcb",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "796ccb67-38cb-48b2-9ca2-3494929359de",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "state_revision": 2,
+        "payload": {
+          "state": "RUNNING",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:18:54.467658Z",
+          "command_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "generation": 5,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": null,
+          "owner_epoch": 3,
+          "cancel_epoch": 1,
+          "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "finish_reason": null,
+          "payload_digest": "14834e0ed8ca27c749c7d99f16f11958383e7f4bfdc92f288b449c0084438f28",
+          "schema_version": 1,
+          "state_revision": 2,
+          "execution_owner_id": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+          "config_snapshot_ref": {
+            "id": "228ad6bc-9f8c-4dd3-934f-e54dcbdaafcb",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "796ccb67-38cb-48b2-9ca2-3494929359de",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      },
+      {
+        "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+        "state_revision": 3,
+        "payload": {
+          "state": "FINISHED",
+          "purpose": "SETTINGS_TEST",
+          "deadline": "2026-10-26T14:18:54.467658Z",
+          "command_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "generation": 5,
+          "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+          "outcome_ref": {
+            "id": "c86cb737-d05b-4b4e-8e9f-7cf09b05c6be",
+            "kind": "model-outcome-v2",
+            "digest": "1b3ae9eb5933447a0e143912bebbaa86e3d90481dcb718ea279cc22dc0d5174e",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "owner_epoch": 3,
+          "cancel_epoch": 1,
+          "operation_id": "d4c59b8a-ac89-48c4-ab0e-095f04a9fc72",
+          "finish_reason": "OWNER_LOST",
+          "payload_digest": "14834e0ed8ca27c749c7d99f16f11958383e7f4bfdc92f288b449c0084438f28",
+          "schema_version": 1,
+          "state_revision": 3,
+          "execution_owner_id": "50f38ab2-4532-4ec4-ba69-3d9dedb6ccdb",
+          "config_snapshot_ref": {
+            "id": "228ad6bc-9f8c-4dd3-934f-e54dcbdaafcb",
+            "kind": "model-selection-snapshot-v2",
+            "digest": "acc15aa6baf1de4db6a65a53ca88be6b1e927b939a966ce4a1faf38fbfeefe88",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          },
+          "input_projection_ref": {
+            "id": "796ccb67-38cb-48b2-9ca2-3494929359de",
+            "kind": "model-input-v2",
+            "digest": "5530be49db494daa3ab4e91303a0dd321f0d171f812edd9c3f9b66b18d39c6f6",
+            "revision": 1,
+            "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83"
+          }
+        }
+      }
+    ]
+  }
+}

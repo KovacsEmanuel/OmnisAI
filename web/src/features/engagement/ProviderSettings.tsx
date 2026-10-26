@@ -64,6 +64,7 @@ export function ProviderSettings() {
       await client.cancelQueries({ queryKey });
       submitted = true;
       await readPrivate(() => api.saveProviderKeys(command, session.data!.csrf_token, abort.signal), abort.signal);
+      await client.invalidateQueries({ queryKey: ['private', 'model-test'] });
       const value = await readPrivate(() => api.providerKeys(null, abort.signal), abort.signal);
       if (!abort.signal.aborted) { sessionStorage.removeItem(pendingKey); setPending(null); client.setQueryData(queryKey, value); setNotice('Saved locally; current settings loaded. No provider call performed.'); }
     } catch (error) {

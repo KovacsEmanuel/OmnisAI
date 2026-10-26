@@ -63,6 +63,25 @@ def prepare_restart(
     owner = mapping(json.loads(completion, object_pairs_hook=unique_pairs))
     if owner.get("state") != "COMPLETED":
         raise StartError("RESTART_RECEIPT_INVALID", 4)
+    return _prepare_reconciliation(root, stopped, attempt, raw, completion)
+
+
+def _prepare_reconciliation(
+    root: Path,
+    stopped: dict[str, object],
+    attempt: str,
+    raw: bytes,
+    completion: bytes,
+    *,
+    restore_id: str | None = None,
+) -> dict[str, object]:
+    """Common immutable history/intent; callers own normal-Stop or restore admission."""
+    command = uuid(stopped.get("stop_command"))
+    uuid(attempt)
+    path = root / f"restart-{command}.json"
+    if os.path.lexists(path):
+        raise StartError("RESTART_RECONCILIATION_REQUIRED", 4)
+    owner = mapping(json.loads(completion, object_pairs_hook=unique_pairs))
     saved = root / f"stopped-{command}.json"
     if not os.path.lexists(saved):
         _put(saved, raw)
@@ -89,6 +108,7 @@ def prepare_restart(
         "network": None,
         "job": None,
         "ack": None,
+        "restore_id": uuid(restore_id) if restore_id is not None else None,
     }
     _persist(path, intent)
     return intent
@@ -106,6 +126,12 @@ def reconcile_database(
     command = uuid(intent.get("old_stop_command"))
     path = root / f"restart-{command}.json"
     payload = mapping(intent.get("request"))
+    restore_id = intent.get("restore_id")
+    restoring = restore_id is not None
+    if restoring:
+        marker = read_record(root / "restore.json")
+        if marker.get("state") != "STARTING" or marker.get("restore_id") != uuid(restore_id):
+            raise StartError("RESTORE_ADMISSION_CHANGED", 4)
     if (
         intent.get("state") != "PREPARED"
         or intent.get("new_attempt") != record["attempt"]
@@ -169,6 +195,7 @@ def reconcile_database(
         "-I",
         "-m",
         "omnis.stop_reconcile",
+        *(("--restore",) if restoring else ()),
         env={
             "OMNIS_DATABASE_URL": env["OMNIS_DATABASE_URL"],
             "OMNIS_EXPECTED_SYSTEM_ID": str(payload["system_identifier"]),
@@ -179,7 +206,9 @@ def reconcile_database(
         raise StartError("RECONCILIATION_RESOURCE_MISMATCH", 4)
     intent["job"] = job
     _persist(path, intent, replace=True)
-    before = runtime.attest(job, "reconcile", root, control, int(str(record["port"])))
+    before = runtime.attest(
+        job, "reconcile", root, control, int(str(record["port"])), restore=restoring
+    )
     if mapping(before.get("State")).get("Status") != "created":
         raise StartError("RECONCILIATION_RESOURCE_MISMATCH", 4)
     expected_ids = {str(ids["db"]), job}
@@ -194,7 +223,9 @@ def reconcile_database(
         cap=25,
         effect=True,
     )
-    after = runtime.attest(job, "reconcile", root, control, int(str(record["port"])))
+    after = runtime.attest(
+        job, "reconcile", root, control, int(str(record["port"])), restore=restoring
+    )
     state = mapping(after.get("State"))
     expected_state = {
         "Status": "exited",

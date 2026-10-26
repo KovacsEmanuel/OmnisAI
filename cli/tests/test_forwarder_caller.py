@@ -129,7 +129,8 @@ class ForwarderCallerTest(unittest.TestCase):
                     raise OSError("synthetic pin refusal")
                 return pin(pid)
 
-            def fixture_ipc_cleanup(*args):
+            def fixture_ipc_cleanup(*args, native):
+                self.assertIs(native, False)
                 api.close()
                 (root / "http/api.sock").unlink()
                 return []

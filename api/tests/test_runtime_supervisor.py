@@ -16,6 +16,66 @@ from omnis.supervisor import __main__ as consumer
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("fault", ["acquire_refused", "missing_keys", "runtime", "egress"])
+async def test_model_sender_preparation_preserves_guards_and_closes_on_acquire_refusal(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fault: str
+) -> None:
+    from omnis.modules.instance.domain import ControlCode, ControlConflict
+    from omnis.supervisor import model_sender
+
+    engine = Mock(dispose=AsyncMock())
+    refusal = ControlConflict(ControlCode.SUPERVISOR_OWNED)
+    service = Mock(
+        acquire=AsyncMock(
+            side_effect=refusal if fault == "acquire_refused" else None, return_value=1
+        ),
+        owned_status=AsyncMock(return_value=Mock(instance_id=uuid4())),
+        release=AsyncMock(),
+    )
+    senders: list[model_sender.ModelSender] = []
+    construct = model_sender.ModelSender.__init__
+
+    def prepare(sender: model_sender.ModelSender, path: Path) -> None:
+        construct(sender, path)
+        senders.append(sender)
+
+    monkeypatch.setattr(model_sender.ModelSender, "__init__", prepare)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.delenv("OMNIS_RUNTIME_DIR", raising=False)
+    for key, value in {
+        "OMNIS_DATABASE_URL": "synthetic",
+        "OMNIS_CONTROL_DIR": str(tmp_path / "control"),
+        "OMNIS_VAULT_DIR": str(tmp_path / "vault"),
+        "OMNIS_VAULT_KEY_DIR": str(tmp_path / "keys"),
+        "OMNIS_MODEL_EGRESS_DIR": "/vault",
+    }.items():
+        monkeypatch.setenv(key, value)
+    if fault == "missing_keys":
+        monkeypatch.delenv("OMNIS_VAULT_KEY_DIR")
+    elif fault == "runtime":
+        monkeypatch.setenv("OMNIS_RUNTIME_DIR", str(tmp_path / "runtime"))
+    elif fault == "egress":
+        monkeypatch.setenv("OMNIS_MODEL_EGRESS_DIR", str(tmp_path / "egress"))
+    if fault == "acquire_refused":
+        with pytest.raises(ControlConflict) as raised:
+            await consumer.run()
+        assert raised.value is refusal
+        service.acquire.assert_awaited_once()
+        assert len(senders) == 1 and senders[0].http.is_closed
+    else:
+        with pytest.raises(ValueError, match="explicit owner-only storage|Release-bound"):
+            await consumer.run()
+        assert not senders
+        service.acquire.assert_not_awaited()
+    service.owned_status.assert_not_awaited()
+    service.release.assert_not_awaited()
+    engine.dispose.assert_awaited_once()
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("historical_shutdown", [False, True])
 @pytest.mark.parametrize("ending", ["stop", "startup-failure", "early-close"])
 async def test_fresh_model_owner_survives_historical_quiescence(
@@ -142,7 +202,11 @@ async def test_fresh_model_owner_survives_historical_quiescence(
                     with pytest.raises(CatalogError, match="TASK_UNAVAILABLE"):
                         await owner.model_test(
                             ModelTestControl(
-                                op="model_test", action="start", operation_id=str(uuid4())
+                                op="model_test",
+                                action="start",
+                                operation_id=str(uuid4()),
+                                expected_selection_revision=1,
+                                consent=True,
                             )
                         )
                     return True
@@ -179,6 +243,218 @@ async def test_fresh_model_owner_survives_historical_quiescence(
     runtime.close.assert_awaited_once()
     release.assert_awaited_once()
     engine.dispose.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("historical_shutdown", [False, True])
+@pytest.mark.parametrize("ending", ["stop", "settlement-failure", "owner-loss"])
+async def test_api_key_owner_admits_after_preopen_heartbeats(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    historical_shutdown: bool,
+    ending: str,
+) -> None:
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    from omnis.modules.instance.domain import ControlCode, ControlConflict
+    from omnis.modules.instance.records import InstanceRecord, LeaseRecord
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.runs.model_test_models import ModelTestControl
+    from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+    from omnis.modules.runs.model_test_store import ModelConflict
+    from omnis.modules.settings.provider_vault import ProviderVault
+    from omnis.supervisor import model_sender
+
+    # SOURCE storage/transport doubles; lifecycle, admission and ModelTest callback are real.
+    result = Mock(first=Mock(return_value=None), one_or_none=Mock(return_value=None))
+    result.mappings.return_value.one_or_none.return_value = None
+    result.scalars.return_value.all.return_value = []
+    connection = Mock(spec=AsyncConnection, execute=AsyncMock(return_value=result))
+
+    @asynccontextmanager
+    async def database() -> AsyncIterator[AsyncConnection]:
+        yield connection
+
+    engine = Mock(connect=database, begin=database, dispose=AsyncMock())
+    service = InstanceService(engine)
+    state = InstanceRecord(
+        id=1,
+        instance_id=uuid4(),
+        generation=2 if historical_shutdown else 0,
+        admission_open=False,
+        shutdown_command_id=uuid4() if historical_shutdown else None,
+        quiesced_generation=2 if historical_shutdown else None,
+        quiesced_at=datetime.now(UTC) if historical_shutdown else None,
+    )
+    lease = LeaseRecord(
+        id=1, owner=uuid4(), epoch=2, expires_at=datetime.now(UTC) + timedelta(seconds=5)
+    )
+
+    @asynccontextmanager
+    async def locked() -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
+        yield connection, state, lease
+
+    monkeypatch.setattr(service, "_locked", locked)
+    require_owner = AsyncMock()
+    heartbeat = AsyncMock()
+    monkeypatch.setattr(service, "_require_owner", require_owner)
+    monkeypatch.setattr(service, "acquire", AsyncMock(return_value=2))
+    monkeypatch.setattr(service, "owned_status", AsyncMock(side_effect=lambda *args: state))
+    monkeypatch.setattr(service, "heartbeat", heartbeat)
+    monkeypatch.setattr(service, "_receipt", AsyncMock(return_value=None))
+    monkeypatch.setattr(service, "_record", AsyncMock())
+    monkeypatch.setattr(service, "_stop_fence", AsyncMock())
+    monkeypatch.setattr(service, "_finalized_epoch", AsyncMock(return_value=1))
+    release = AsyncMock()
+    monkeypatch.setattr(service, "release", release)
+    sender = Mock(
+        drain=AsyncMock(),
+        close=AsyncMock(),
+        send=AsyncMock(side_effect=AssertionError("No SOURCE provider IO")),
+        metadata=AsyncMock(side_effect=AssertionError("No SOURCE metadata IO")),
+    )
+    monkeypatch.setattr(model_sender, "ModelSender", lambda path: sender)
+    monkeypatch.setattr(ProviderVault, "quiescent", lambda vault: True)
+    ctl = Mock()
+    task_joined = False
+
+    async def active() -> None:
+        nonlocal task_joined
+        try:
+            await asyncio.Future[None]()
+        finally:
+            task_joined = True
+
+    async def failed_settlement() -> None:
+        raise ValueError("SOURCE settlement failure")
+
+    def command() -> ModelTestControl:
+        return ModelTestControl(
+            op="model_test",
+            action="start",
+            operation_id=str(uuid4()),
+            expected_selection_revision=1,
+            consent=True,
+        )
+
+    @asynccontextmanager
+    async def control(*args: object, **kwargs: object) -> AsyncIterator[Mock]:
+        assert kwargs == {"native_prepare": None, "native_task": None}
+        yield ctl
+
+    class Cycles:
+        cycles = 0
+
+        def set(self) -> None:
+            pass
+
+        def is_set(self) -> bool:
+            self.cycles += 1
+            return self.cycles > 5
+
+        async def wait(self) -> None:
+            nonlocal state
+            callback = ctl.model_test
+            assert isinstance(callback, MethodType)
+            owner = callback.__self__
+            assert isinstance(owner, ApiKeyModelTest)
+            if self.cycles == 3:
+                assert heartbeat.await_count == 2
+                opened = await service.open(
+                    uuid4(), state.generation, owner.settings.owner, owner.settings.epoch
+                )
+                state = state.model_copy(
+                    update={
+                        "generation": opened,
+                        "admission_open": True,
+                        "shutdown_command_id": None,
+                        "quiesced_generation": None,
+                        "quiesced_at": None,
+                    }
+                )
+                connection.execute.reset_mock()
+                with pytest.raises(ModelConflict, match="^REVISION_CONFLICT$"):
+                    await callback(command())
+                assert any(
+                    "FROM public.provider_selection_revision" in str(call.args[0])
+                    for call in connection.execute.await_args_list
+                )  # Missing selection is reached only inside real admission, without provider IO.
+                assert sender.drain.await_count == int(historical_shutdown)
+                if ending == "stop":
+                    owner.spawn(active())
+                    await asyncio.sleep(0)
+                    shutdown_id = uuid4()
+                    stopped = await service.shutdown(
+                        shutdown_id, state.generation, owner.settings.owner, owner.settings.epoch
+                    )
+                    state = state.model_copy(
+                        update={
+                            "generation": stopped,
+                            "admission_open": False,
+                            "shutdown_command_id": shutdown_id,
+                            "quiesced_generation": None,
+                            "quiesced_at": None,
+                        }
+                    )
+                elif ending == "settlement-failure":
+                    owner.spawn(failed_settlement())
+                    await asyncio.gather(*owner.tasks, return_exceptions=True)
+                    assert owner.settlement_failed
+                else:
+                    refusal = ControlConflict(ControlCode.LEASE_LOST)
+                    require_owner.side_effect = refusal
+                    with pytest.raises(ControlConflict, match="LEASE_LOST"):
+                        await callback(command())
+                    heartbeat.side_effect = refusal
+            elif self.cycles > 3:
+                if ending == "stop":
+                    assert owner.closing and task_joined and not owner.tasks
+                else:
+                    assert owner.settlement_failed
+                with pytest.raises(ModelConflict, match="^CONTROL_UNAVAILABLE$"):
+                    await callback(command())
+            raise TimeoutError
+
+    monkeypatch.setattr(asyncio, "Event", Cycles)
+    monkeypatch.setattr(consumer, "database_engine", lambda raw: engine)
+    monkeypatch.setattr(consumer, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(consumer, "InstanceService", lambda raw: service)
+    monkeypatch.setattr(consumer, "LocalControl", control)
+    for key in (
+        "OMNIS_RUNTIME_DIR",
+        "OMNIS_RUNTIME_INERT_PROBE",
+        "OMNIS_RUNTIME_CASE_ID",
+        "OMNIS_RUNTIME_STATE_ROOT",
+        "OMNIS_NATIVE_PREPARATION_CATALOG_ROOT",
+        "OMNIS_MANAGED_TASKS",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    for key, value in {
+        "OMNIS_DATABASE_URL": "synthetic",
+        "OMNIS_CONTROL_DIR": str(tmp_path / "control"),
+        "OMNIS_VAULT_DIR": str(tmp_path / "vault"),
+        "OMNIS_VAULT_KEY_DIR": str(tmp_path / "keys"),
+        "OMNIS_MODEL_EGRESS_DIR": "/vault",
+    }.items():
+        monkeypatch.setenv(key, value)
+    if ending == "settlement-failure":
+        with pytest.raises(ValueError, match="Model operation drain uncertain"):
+            await consumer.run()
+        release.assert_not_awaited()
+    else:
+        if ending == "owner-loss":
+            with pytest.raises(ControlConflict, match="LEASE_LOST"):
+                await consumer.run()
+        else:
+            await consumer.run()
+        release.assert_awaited_once()
+        sender.close.assert_awaited_once()
+    with pytest.raises(ModelConflict, match="^CONTROL_UNAVAILABLE$"):
+        await ctl.model_test(command())
+    sender.send.assert_not_awaited()
+    sender.metadata.assert_not_awaited()
+    engine.dispose.assert_awaited_once()
+    assert not list(tmp_path.iterdir())
 
 
 @pytest.mark.asyncio

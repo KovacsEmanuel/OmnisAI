@@ -97,7 +97,11 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
     return {
         "services": {
             "supervisor": {
-                "environment": {"OMNIS_VAULT_DIR": "/vault", "OMNIS_VAULT_KEY_DIR": "/vault-key"},
+                "environment": {
+                    "OMNIS_VAULT_DIR": "/vault",
+                    "OMNIS_VAULT_KEY_DIR": "/vault-key",
+                    "OMNIS_MODEL_EGRESS_DIR": "/vault",
+                },
                 "volumes": [
                     {"type": "bind", "source": str(root / name), "target": "/" + name}
                     for name in ("vault", "vault-key")
@@ -280,9 +284,24 @@ class ControlRuntime:
         success: bool = True,
         effect: bool = False,
         stdin: bytes | None = None,
+        stdin_fd: int | None = None,
+        stdout_fd: int | None = None,
     ) -> subprocess.CompletedProcess[str]:
         if stdin is not None and (type(stdin) is not bytes or len(stdin) > 16384):
             raise StartError("COMMAND_INPUT_LIMIT", 4)
+        if stdin is not None and stdin_fd is not None:
+            raise StartError("COMMAND_INPUT_LIMIT", 4)
+        for fd in (stdin_fd, stdout_fd):
+            if fd is not None:
+                info = os.fstat(fd)
+                if (
+                    not stat.S_ISREG(info.st_mode)
+                    or info.st_uid != os.getuid()
+                    or stat.S_IMODE(info.st_mode) != 0o600
+                    or info.st_nlink != 1
+                    or info.st_size > 1024**3
+                ):
+                    raise StartError("COMMAND_BINARY_FD_INVALID", 4)
         end = time.monotonic() + remaining(self.deadline, cap)  # Check BEFORE spawn.
         # Library callers retain their signal policy. Auto-reap and SIGCHLD
         # handlers invalidate the declared owner contract; refuse before effects.
@@ -299,7 +318,11 @@ class ControlRuntime:
             argv,
             cwd=self.release,
             env={"PATH": SAFE_PATH, **(env or {})},
-            stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,
+            stdin=stdin_fd
+            if stdin_fd is not None
+            else subprocess.PIPE
+            if stdin is not None
+            else subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             start_new_session=True,
@@ -323,6 +346,7 @@ class ControlRuntime:
                     else:
                         process.stdin.close()
                 total = 0
+                binary_total = 0
                 while reader.get_map():
                     events = reader.select(remaining(end, cap))
                     if not events:
@@ -341,6 +365,14 @@ class ControlRuntime:
                         part = os.read(key.fd, min(65536, 4 * 1024 * 1024 + 1 - total))
                         if not part:
                             reader.unregister(key.fd)
+                            continue
+                        if key.data == 0 and stdout_fd is not None:
+                            binary_total += len(part)
+                            if binary_total > 1024**3:
+                                raise StartError("COLD_ARCHIVE_LIMIT", 4)
+                            view = memoryview(part)
+                            while view:
+                                view = view[os.write(stdout_fd, view) :]
                             continue
                         total += len(part)
                         if total > 4 * 1024 * 1024:
@@ -485,8 +517,10 @@ class ControlRuntime:
         return _network_identity(item, self.receipt.project, self.attempt, allowed)
 
     def attest(
-        self, ident: str, role: str, root: Path, control: Path, port: int
+        self, ident: str, role: str, root: Path, control: Path, port: int, *, restore: bool = False
     ) -> dict[str, object]:
+        if restore and role != "reconcile":
+            raise StartError("CONTAINER_ROLE_INVALID", 3)
         self.check_daemon()
         item = self.inspect("container", ident)
         if item is None:
@@ -549,6 +583,8 @@ class ControlRuntime:
             "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
             "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
+        if restore:
+            expected_command.append("--restore")
         state = mapping(item.get("State"))
         networks = mapping(net.get("Networks"))
         network_name = "none" if role == "runtime" else self.receipt.project + "_control"
@@ -708,7 +744,11 @@ class ControlRuntime:
             if role == "api":
                 expected_env.update(OMNIS_HTTP_DIR="/run/omnis-http", OMNIS_HTTP_PORT=str(port))
         if role == "supervisor" and self.provider_settings:
-            expected_env.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+            expected_env.update(
+                OMNIS_VAULT_DIR="/vault",
+                OMNIS_VAULT_KEY_DIR="/vault-key",
+                OMNIS_MODEL_EGRESS_DIR="/vault",
+            )
         if role == "supervisor" and self.native:
             expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
             if self.model_test:

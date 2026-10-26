@@ -56,7 +56,7 @@ from .start_runtime import (
     settings_overlay,
 )
 
-EXPECTED_SCHEMA = "0014_provider_settings"
+EXPECTED_SCHEMA = "0015_model_test_v2"
 READY_FIELDS = {
     "format",
     "phase",
@@ -353,7 +353,11 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                     }
                 )
         if role == "supervisor" and getattr(runtime, "provider_settings", False) is True:
-            expected_environment.update(OMNIS_VAULT_DIR="/vault", OMNIS_VAULT_KEY_DIR="/vault-key")
+            expected_environment.update(
+                OMNIS_VAULT_DIR="/vault",
+                OMNIS_VAULT_KEY_DIR="/vault-key",
+                OMNIS_MODEL_EGRESS_DIR="/vault",
+            )
             expected_mounts.extend(
                 {
                     "type": "bind",
@@ -551,6 +555,7 @@ def launch_forwarder(
     ownership: ForwarderOwnership | None = None,
     stop_attempt: str | None = None,
     auth: bool = False,
+    model: bool = False,
 ) -> tuple[subprocess.Popen[bytes], int, dict[str, object], int]:
     # The private intent and caller holder exist before birth. The tuple is NOT
     # the ownership transfer: finally/close and tuple unpacking remain interruptible.
@@ -575,6 +580,7 @@ def launch_forwarder(
                         "--port",
                         str(port),
                         *(["--auth-directory", str(root / "native-ipc")] if auth else []),
+                        *(["--model-directory", str(root / "vault")] if model else []),
                         *(["--stop-attempt", stop_attempt] if stop_attempt is not None else []),
                     ],
                     cwd=root,
@@ -1096,8 +1102,9 @@ def start_instance(
     startup_timeout: int | None = None,
     cleanup_timeout: int | None = None,
 ) -> dict[str, object]:
+    from .backup import admit_restore, prepare_restore
     from .restart import prepare_restart, reconcile_database
-    from .stop import _integer, _preflight_record, readback_stopped
+    from .stop import _integer, _preflight_record, readback_stopped, refuse_interrupted_recovery
 
     config = load_config()
     startup_seconds = config_integer(
@@ -1116,12 +1123,16 @@ def start_instance(
     # after Stop releases the local lock must not turn that old Start into a
     # fresh explicit restart.
     initial_phase = None
+    initial_restore = None
     if os.path.lexists(root / "startup.json"):
         initial_record = read_record(root / "startup.json")
         _preflight_record(initial_record)
+        refuse_interrupted_recovery(root, initial_record)
         config.check_port(initial_record.get("port"), port)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
+    if initial_phase is None and os.path.lexists(root / "restore.json"):
+        initial_restore = read_record(root / "restore.json")
     if initial_phase == "STOPPING":
         raise StartError("INSTANCE_SHUTTING_DOWN", 4)
     deadline = time.monotonic() + startup_seconds
@@ -1157,9 +1168,11 @@ def start_instance(
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         restarting: dict[str, object] | None = None
+        restored = False
         if os.path.lexists(journal):
             record = read_record(journal)
             _preflight_record(record)
+            refuse_interrupted_recovery(root, record)
             config.check_port(record.get("port"), port)
             _check_pgdata(root, record)
             selected = record.get("port")
@@ -1172,6 +1185,12 @@ def start_instance(
                 restarting = record
             else:
                 return verify_running(runtime, root, control, record, selected)
+        if not os.path.lexists(journal) and os.path.lexists(root / "restore.json"):
+            if initial_restore is None or read_record(root / "restore.json") != initial_restore:
+                raise StartError("RESTORE_ADMISSION_CHANGED", 4)
+            restarting = admit_restore(runtime, root)
+            config.check_port(restarting["port"], port)
+            restored = True
         if restarting is None and (
             os.path.lexists(root / "instance.json")
             or os.path.lexists(root / "postgres")
@@ -1210,7 +1229,7 @@ def start_instance(
                 )
                 if any(item.name not in allowed for item in path.iterdir()):
                     raise StartError("PREEXISTING_IPC_REFUSED", 4)
-        if restarting is not None:
+        if restarting is not None and not restored:
             previous_log = root / "forwarder.log"
             archive = root / f"forwarder-{restarting['attempt']}.log"
             if os.path.lexists(previous_log):
@@ -1264,15 +1283,17 @@ def start_instance(
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
             try:
-                restart_intent = prepare_restart(
-                    runtime, root, control, restarting, str(record["attempt"])
+                restart_intent = (
+                    prepare_restore(runtime, root, str(record["attempt"]))
+                    if restored
+                    else prepare_restart(runtime, root, control, restarting, str(record["attempt"]))
                 )
             except (OSError, ValueError, KeyboardInterrupt):
                 raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
         runtime.attempt = str(record["attempt"])
         owner = ForwarderOwnership()
         try:
-            write_record(journal, record, replace=restarting is not None)
+            write_record(journal, record, replace=restarting is not None and not restored)
             ensure_private(control)
             ensure_private(root / "http")
             if restarting is None:
@@ -1413,6 +1434,20 @@ def start_instance(
                 raise StartError("SERVICE_SET_MISMATCH", 3)
             record["containers"] = ids
             write_record(journal, record, replace=True)
+            forwarder: dict[str, object] = {}
+            inode = 0
+            if record["format"] == 5:
+                # Inert broker precedes inherited-work drain; no Supervisor/dashboard startup cycle.
+                _, _, forwarder, inode = launch_forwarder(
+                    root,
+                    selected,
+                    deadline,
+                    ownership=owner,
+                    stop_attempt=str(record["attempt"]),
+                    model=True,
+                )
+                record.update(forwarder=forwarder, listener_inode=inode)
+                write_record(journal, record, replace=True)
             if runtime.native is True:
                 runtime.run("start", ids["supervisor"], effect=True)
                 runtime.run("start", ids["api"], effect=True)
@@ -1449,14 +1484,15 @@ def start_instance(
                 raise StartError("RESTART_ADMISSION_CONFLICT", 4)
             record["phase"] = "FORWARDING"
             write_record(journal, record, replace=True)
-            _, _, forwarder, inode = launch_forwarder(
-                root,
-                selected,
-                deadline,
-                ownership=owner,
-                stop_attempt=str(record["attempt"]),
-                **({"auth": True} if record["format"] == 4 else {}),
-            )
+            if record["format"] != 5:
+                _, _, forwarder, inode = launch_forwarder(
+                    root,
+                    selected,
+                    deadline,
+                    ownership=owner,
+                    stop_attempt=str(record["attempt"]),
+                    **({"auth": True} if record["format"] == 4 else {}),
+                )
             if record["format"] == 4:
                 record["auth"] = auth_listener(root, forwarder)
             record.update(

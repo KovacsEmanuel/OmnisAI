@@ -237,6 +237,7 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
     import test_contract_method_pg as qa
     from omnis.modules.instance.service import RuntimeAuthority
     from omnis.supervisor import runtime_client
+    from omnis.supervisor.native_tasks import NativeTaskOwner
     from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 
     tree = ast.parse(Path(qa.__file__).read_bytes())
@@ -274,6 +275,7 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
     host = runtime_host.RuntimeHost(ipc_directory)
     done = asyncio.Event()
     service = Mock(heartbeat=AsyncMock(), quiesce=AsyncMock())
+    service.owned_status = AsyncMock(return_value=SimpleNamespace(generation=0))
     service.runtime_authority = AsyncMock(
         side_effect=lambda *a, **k: RuntimeAuthority(0, 1, clock[0] + 4_500_000_000)
     )
@@ -366,15 +368,20 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
         host.process, host.peer, host.model_preparation_close = process, peer, canonical(close)
         runtime = RuntimeClient(ipc_directory, generation=0, epoch=1)
         await runtime.connect()
+        supervisor = uuid4()
+        task_owner = NativeTaskOwner(ManagedAdmission(Mock()), service, supervisor, 1, runtime)
         scope = {
             "asyncio": SimpleNamespace(wait_for=interval),
             "done": done,
             "service": service,
-            "supervisor": uuid4(),
+            "supervisor": supervisor,
             "epoch": 1,
             "runtime": runtime,
             "model_prepare": True,
             "model_execute": False,
+            "task_owner": task_owner,
+            "startup_generation": 0,
+            "probe": None,
         }
         scope["owner"] = scope["supervisor"]
         exec(compile(ast.Module(body=[maintain], type_ignores=[]), qa.__file__, "exec"), scope)
@@ -411,7 +418,12 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
             with pytest.raises(RuntimeUnavailable):
                 await runtime.renew(service, cast(UUID, scope["supervisor"]))
             assert observation.read_bytes().count(b"prepare-close") == 2
+            if producer == "stock":
+                assert service.owned_status.await_count == 12
+                service.quiesce.assert_not_awaited()
         finally:
+            await task_owner.close_model_test()
+            assert task_owner.model_test_closing
             await runtime.close()
     assert not host.clients and host.watchdog is not None and host.watchdog.done()
     assert not (ipc_directory / "runtime.sock").exists()

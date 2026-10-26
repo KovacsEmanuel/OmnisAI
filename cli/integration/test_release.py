@@ -236,6 +236,7 @@ class ReleaseBundleTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             scratch = Path(name)
             data = scratch / "data"
+            data.mkdir(mode=0o700)
             root = data / "omnis"
             release = root / "releases/0.1.0"
             release.mkdir(parents=True, mode=0o700)
@@ -265,7 +266,9 @@ class ReleaseBundleTest(unittest.TestCase):
 
                 def command(argv, **_kwargs):
                     nonlocal removed
-                    if argv[:3] == ["docker", "--host", host] and argv[3] == "info":
+                    if argv[:2] == ["docker", "--config"]:
+                        self.assertEqual(Path(argv[2]).parent, data)
+                        self.assertEqual(argv[3:], ["--host", host, "info", "--format", "{{.ID}}"])
                         return subprocess.CompletedProcess(argv, 0, stdout="daemon-identity\n")
                     if argv[:3] == ["docker", "--host", host] and argv[3:5] == ["image", "inspect"]:
                         if removed:
@@ -312,6 +315,7 @@ class ReleaseBundleTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
             scratch = Path(name)
             data = scratch / "data"
+            data.mkdir(mode=0o700)
             root = data / "omnis"
             release = root / "releases/0.1.0"
             release.mkdir(parents=True, mode=0o700)
@@ -343,10 +347,12 @@ class ReleaseBundleTest(unittest.TestCase):
 
                 def command(argv, **_kwargs):
                     nonlocal inspected, removed
+                    if argv[:2] == ["docker", "--config"]:
+                        self.assertEqual(Path(argv[2]).parent, data)
+                        self.assertEqual(argv[3:], ["--host", host, "info", "--format", "{{.ID}}"])
+                        return subprocess.CompletedProcess(argv, 0, stdout="daemon-identity\n")
                     if argv[:3] != ["docker", "--host", host]:
                         self.fail("Unexpected endpoint")
-                    if argv[3] == "info":
-                        return subprocess.CompletedProcess(argv, 0, stdout="daemon-identity\n")
                     if argv[3:5] == ["image", "inspect"]:
                         inspected += 1
                         if inspected == 1 or removed:

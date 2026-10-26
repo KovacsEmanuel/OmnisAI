@@ -2,6 +2,39 @@
 
 `omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) are adjudecarea `P0_LOCAL_USABLE=PASS_LOCAL_RECORDED` pentru un singur operator pe această VM, nu certificarea universală a crashurilor. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) păstrează probele la reviziile lor. CI remote și peerul extern rămân pentru distribuire/portare, nu condiții ale utilizării locale.
 
+## Recuperare explicită T1 — candidat, fără autoresume
+
+`omnis recover [--json]` recuperează **numai** profilul normal `t1-provider-settings`
+cu journal READY format 5, supervisorul original existent dar oprit și lease expirată
+atestată în PostgreSQL. DB, API, forwarder, imaginea/releaseul, daemonul, rețeaua,
+socketurile și directoarele de date trebuie să corespundă instalării originale.
+O instanță sănătoasă, un supervisor absent/înlocuit, alt profil, metadata nesigură,
+Stop în curs/fence ori marker nereconciliat sunt refuzate fără pornire/teardown.
+
+Comanda persistă un intent `recovery-<attempt>.json`, verifică din nou identitățile,
+apoi pornește **o singură dată același CID**. Noul owner execută reconcilierea și
+quiescența existente cu admission închisă; produce un SHUTDOWN nou autentic,
+FINALIZE și grantul către Stop-ownerul existent. Exit 0 înseamnă exclusiv
+**STOPPED verificat**, cu resursele proprii retrase și datele păstrate. Nu înseamnă
+READY sau reluarea operațiilor; pornirea ulterioară cere separat
+`omnis start --no-open --json`. Nu se execută OPEN, Pair, Refresh, Test model,
+provider IO, pull, migrare ori upgrade în recuperare.
+
+Bugetul este `shutdown_timeout_seconds`, același deadline monotonic până la
+completion. Un ACK/readback/reap incert nu autorizează retransmiterea efectului.
+**Recuperarea întreruptă nu se reia în acest increment:** intentul rămâne, iar
+Start/Stop/recover refuză continuarea. Nu ștergeți manual intentul/socketul/capability
+pentru a forța retry. Limitele protocolului rămân neschimbate; journalul READY
+admis are generation cel mult 9223372036854775804, rezervând takeover, SHUTDOWN
+și limita existentă a cererii FINALIZE.
+
+CLI-ul nou singur nu actualizează API-ul din imagine. Candidatul necesită ambele
+wheeluri într-un bundle normal nou, după review și QA. Releaseul 0.1.0 existent
+este immutable; nu suprascrieți instalarea curentă și nu folosiți restore între
+digesturi diferite drept upgrade. Această implementare nu declară deploy ori
+acceptarea T1; instalarea durabilă nouă aprobată se face separat după gates,
+păstrând integral instalarea actuală.
+
 ## Pregătire explicită, separată de startup
 
 **Status local:** SL02 Start, SL03 Pair/Open și SL04 Stop/restart explicit au acceptare locală scoped; `make check-installed-stop` pe `ccd9a1c` și Pair/Open pe consumatori neschimbați au exit0 cu cleanup exact și date păstrate. `assessment_ready=false`. Stop incert păstrează marker/fence și cere recovery manual; cele două recuperări istorice rămân RECOVERY_PENDING, fără ALL_CLEAN. CI remote și alte hosturi/UID-uri nu sunt autorizate de acest verdict. [Evidență](../documents/verification/p04-stop-recovery.md).

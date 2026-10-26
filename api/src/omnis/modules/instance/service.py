@@ -68,6 +68,8 @@ class InstanceService:
     ) -> None:
         self.engine = engine
         self.runtime_drain = runtime_drain
+        self.recover_owner_loss = False
+        self._recovery_barrier: tuple[UUID, int, int, UUID] | None = None
 
     @asynccontextmanager
     async def case_transition(
@@ -308,15 +310,18 @@ class InstanceService:
 
     async def _close_after_owner_loss(
         self, connection: AsyncConnection, instance: InstanceRecord
-    ) -> None:
+    ) -> UUID | None:
         if instance.admission_open:
+            command = uuid4()
             await connection.execute(
                 text(
                     "UPDATE instance_control SET admission_open = false, generation = generation + 1, "
                     "shutdown_command_id = :command, quiesced_generation = NULL, quiesced_at = NULL WHERE id = 1"
                 ),
-                {"command": uuid4()},
+                {"command": command},
             )
+            return command
+        return None
 
     async def _stop_fence(self, connection: AsyncConnection) -> None:
         # The instance row is already locked. A fence has no expiry and must be
@@ -331,7 +336,7 @@ class InstanceService:
             await self._stop_fence(connection)
             if await self._live(connection, lease):
                 raise ControlConflict(ControlCode.SUPERVISOR_OWNED)
-            await self._close_after_owner_loss(connection, instance)
+            barrier = await self._close_after_owner_loss(connection, instance)
             value = (
                 await connection.execute(
                     text(
@@ -341,7 +346,14 @@ class InstanceService:
                     {"owner": owner},
                 )
             ).scalar_one()
-            return read_integer(value)
+            epoch = read_integer(value)
+        # Only this process's committed takeover can authorize the new SHUTDOWN.
+        self._recovery_barrier = (
+            (owner, epoch, instance.generation + 1, barrier)
+            if self.recover_owner_loss and barrier is not None
+            else None
+        )
+        return epoch
 
     async def heartbeat(self, owner: UUID, epoch: int) -> None:
         async with self._locked() as (connection, _, lease):
@@ -464,6 +476,8 @@ class InstanceService:
             await self._require_owner(connection, lease, owner, epoch)
 
     async def shutdown(self, command_id: UUID, expected: int, owner: UUID, epoch: int) -> int:
+        if type(expected) is not int or not 0 <= expected <= 9223372036854775806:
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         async with self._locked() as (connection, instance, lease):
             await self._require_owner(connection, lease, owner, epoch)
             previous = await self._receipt(connection, command_id, "SHUTDOWN", expected)
@@ -472,7 +486,23 @@ class InstanceService:
                 return previous
             self._require_generation(instance, expected)
             if instance.shutdown_command_id is not None:
-                raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                await self._stop_fence(connection)
+                if (
+                    not self.recover_owner_loss
+                    or self._recovery_barrier
+                    != (owner, epoch, expected, instance.shutdown_command_id)
+                    or instance.admission_open
+                    or instance.quiesced_generation != expected
+                    or instance.quiesced_at is None
+                    or (
+                        await connection.execute(
+                            text("SELECT 1 FROM instance_command WHERE command_id = :command"),
+                            {"command": instance.shutdown_command_id},
+                        )
+                    ).scalar_one_or_none()
+                    is not None
+                ):
+                    raise ControlConflict(ControlCode.COMMAND_CONFLICT)
             result = expected
             result += 1
             await connection.execute(
@@ -812,13 +842,32 @@ class InstanceService:
         self,
         connection: AsyncConnection,
         request: StopReconciliation,
+        *,
+        restore: bool = False,
     ) -> None:
         if not await self._reconciliation_receipt(connection, request):
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
         if await self._grant(connection) is not None:
             raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+        if (
+            restore
+            and (
+                await connection.execute(
+                    text(
+                        "SELECT EXISTS (SELECT 1 FROM ("
+                        "SELECT DISTINCT ON (provider) enabled FROM public.provider_connection_revision "
+                        "WHERE instance_id=:instance ORDER BY provider, revision DESC"
+                        ") AS heads WHERE enabled)"
+                    ),
+                    {"instance": request.grant.instance_id},
+                )
+            ).scalar_one()
+        ):
+            raise ControlConflict(ControlCode.COMMAND_CONFLICT)
 
-    async def reconcile_stop(self, request: StopReconciliation) -> dict[str, object]:
+    async def reconcile_stop(
+        self, request: StopReconciliation, *, restore: bool = False
+    ) -> dict[str, object]:
         """Correlate host evidence, not attest it; never acquire, OPEN or renew.
 
         An absent fence is insufficient. Exact historical replay additionally
@@ -837,6 +886,18 @@ class InstanceService:
                     request.grant.model_dump(mode="json")
                 ):
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
+                if restore:
+                    # Append inactive heads in this closed transaction; vault/history stay immutable.
+                    await connection.execute(
+                        text(
+                            "INSERT INTO public.provider_connection_revision "
+                            "(instance_id,connection_id,provider,revision,enabled,secret_id,credential_revision) "
+                            "SELECT instance_id,connection_id,provider,revision + 1,FALSE,secret_id,credential_revision "
+                            "FROM (SELECT DISTINCT ON (provider) * FROM public.provider_connection_revision "
+                            "WHERE instance_id=:instance ORDER BY provider, revision DESC) AS heads WHERE enabled"
+                        ),
+                        {"instance": request.grant.instance_id},
+                    )
                 await connection.execute(
                     text(
                         "INSERT INTO instance_stop_reconciliation "
@@ -874,13 +935,13 @@ class InstanceService:
                 ).scalar_one_or_none()
                 if removed != 1:
                     raise ControlConflict(ControlCode.COMMAND_CONFLICT)
-            await self._reconciled_readback(connection, request)
+            await self._reconciled_readback(connection, request, restore=restore)
         # Commit has completed. A takeover in this gap causes refusal, never a
         # successful acknowledgement tied to an old generation or new owner.
         async with self._locked() as (connection, instance, lease):
             await self._reconciliation_context(connection, request)
             await self._closed_stop(connection, instance, lease, request.grant)
-            await self._reconciled_readback(connection, request)
+            await self._reconciled_readback(connection, request, restore=restore)
         return request.model_dump(mode="json")
 
     async def command_readback(

@@ -10,7 +10,6 @@ import ctypes
 import json
 import os
 import re
-import runpy
 import secrets
 import shutil
 import signal
@@ -824,9 +823,6 @@ def gate_label(target: str) -> str:
 
 
 def _preflight_gate(uv: str, target: str) -> str:
-    if target == "check-components":
-        seam = runpy.run_path(str(_ROOT / "integrations/hermes/tests/test_native_build.py"))
-        seam["check_management_oauth_source"]()
     base = {"PATH": os.environ.get("PATH", ""), "HOME": os.environ["HOME"]}
     selected = shutil.which(uv)
     if selected is None:
@@ -1037,6 +1033,7 @@ def main() -> int:
             "test-db-contract",
             "test-instance-drain-pg",
             "test-provider-settings-pg",
+            "test-model-test-v2-pg",
             "test-migrations",
             "test-e2e",
             "test-sl04-pg",
@@ -1048,6 +1045,7 @@ def main() -> int:
             "test-b04-e2e",
             "test-catalog-settings-e2e",
             "test-catalog-candidates-pg",
+            "test-contract-method-pg",
             "test-b06b-publish-pg",
             "test-b06b-pure-probe-pg",
             "test-native-preparation-pg",

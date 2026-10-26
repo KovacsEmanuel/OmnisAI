@@ -152,6 +152,23 @@
         "title": "BusinessMatrixEntry",
         "type": "object"
       },
+      "CancelTestRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_state_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "command_id",
+          "expected_state_revision"
+        ],
+        "title": "CancelTestRequest",
+        "type": "object"
+      },
       "CatalogBinding": {
         "additionalProperties": false,
         "properties": {
@@ -1083,6 +1100,9 @@
           "COMMAND_CONFLICT",
           "REVISION_CONFLICT",
           "CONNECTION_UNAVAILABLE",
+          "CAPABILITIES_REQUIRED",
+          "OPERATION_ACTIVE",
+          "OPERATION_FINISHED",
           "NOT_FOUND",
           "METHOD_NOT_ALLOWED",
           "HTTP_ERROR",
@@ -1439,6 +1459,9 @@
             "title": "Consent",
             "type": "boolean"
           },
+          "expected_selection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
           "operation_id": {
             "title": "Operation Id",
             "type": "string"
@@ -1446,6 +1469,7 @@
         },
         "required": [
           "operation_id",
+          "expected_selection_revision",
           "consent"
         ],
         "title": "ModelTestRequest",
@@ -1460,21 +1484,32 @@
             "title": "Calls Limit",
             "type": "integer"
           },
-          "duration_ms": {
+          "cost_observed": {
             "anyOf": [
               {
-                "minimum": 0.0,
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Duration Ms"
+            "title": "Cost Observed"
+          },
+          "finish_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finish Reason"
           },
           "input_tokens": {
             "anyOf": [
               {
+                "maximum": 9007199254740991.0,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -1484,16 +1519,26 @@
             ],
             "title": "Input Tokens"
           },
-          "observed_effort": {
+          "metadata_command_id": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/Identity"
               },
               {
                 "type": "null"
               }
+            ]
+          },
+          "metadata_state": {
+            "default": "NOT_REQUESTED",
+            "enum": [
+              "NOT_REQUESTED",
+              "PENDING",
+              "READY",
+              "FAILED"
             ],
-            "title": "Observed Effort"
+            "title": "Metadata State",
+            "type": "string"
           },
           "observed_model": {
             "anyOf": [
@@ -1509,17 +1554,27 @@
           "operation_id": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/Identity"
               },
               {
                 "type": "null"
               }
+            ]
+          },
+          "output_state": {
+            "default": "ABSENT",
+            "enum": [
+              "COMPLETE",
+              "TRUNCATED",
+              "ABSENT"
             ],
-            "title": "Operation Id"
+            "title": "Output State",
+            "type": "string"
           },
           "output_tokens": {
             "anyOf": [
               {
+                "maximum": 9007199254740991.0,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -1528,6 +1583,17 @@
               }
             ],
             "title": "Output Tokens"
+          },
+          "provider_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Status"
           },
           "reason": {
             "anyOf": [
@@ -1543,6 +1609,7 @@
           "reasoning_tokens": {
             "anyOf": [
               {
+                "maximum": 9007199254740991.0,
                 "minimum": 0.0,
                 "type": "integer"
               },
@@ -1552,23 +1619,39 @@
             ],
             "title": "Reasoning Tokens"
           },
-          "requested_effort": {
-            "const": "xhigh",
-            "default": "xhigh",
-            "title": "Requested Effort",
-            "type": "string"
-          },
           "requested_model": {
-            "const": "gpt-6.1-sol",
-            "default": "gpt-6.1-sol",
-            "title": "Requested Model",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Model"
+          },
+          "requested_output_tokens": {
+            "anyOf": [
+              {
+                "maximum": 65536.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Output Tokens"
           },
           "requested_provider": {
-            "const": "openai-codex",
-            "default": "openai-codex",
-            "title": "Requested Provider",
-            "type": "string"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provider"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "response_text": {
             "anyOf": [
@@ -1581,23 +1664,69 @@
             ],
             "title": "Response Text"
           },
-          "status": {
-            "enum": [
-              "AVAILABLE",
-              "UNAVAILABLE",
-              "PENDING",
-              "COMPLETE",
-              "UNKNOWN",
-              "ERROR"
-            ],
-            "title": "Status",
-            "type": "string"
+          "result_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "const": 2,
+            "default": 2,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selection_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/State"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "system_message": {
+            "default": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
             "title": "System Message",
             "type": "string"
           },
+          "usage_state": {
+            "default": "UNKNOWN",
+            "enum": [
+              "KNOWN",
+              "PARTIAL",
+              "UNKNOWN"
+            ],
+            "title": "Usage State",
+            "type": "string"
+          },
           "user_message": {
+            "default": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
             "title": "User Message",
             "type": "string"
           },
@@ -1608,13 +1737,6 @@
             "type": "integer"
           }
         },
-        "required": [
-          "operation_id",
-          "status",
-          "reason",
-          "system_message",
-          "user_message"
-        ],
         "title": "ModelTestView",
         "type": "object"
       },
@@ -1996,6 +2118,33 @@
         "title": "ReadinessReason",
         "type": "string"
       },
+      "RefreshRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_selection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "command_id",
+          "expected_selection_revision"
+        ],
+        "title": "RefreshRequest",
+        "type": "object"
+      },
+      "ResultState": {
+        "enum": [
+          "NOT_SENT",
+          "COMPLETED",
+          "INCOMPLETE",
+          "FAILED",
+          "UNKNOWN"
+        ],
+        "type": "string"
+      },
       "Revision": {
         "maximum": 9.223372036854776e+18,
         "minimum": 0.0,
@@ -2306,6 +2455,16 @@
         ],
         "title": "SessionView",
         "type": "object"
+      },
+      "State": {
+        "enum": [
+          "PENDING",
+          "RUNNING",
+          "STOPPING",
+          "FINISHED",
+          "NEEDS_RECONCILIATION"
+        ],
+        "type": "string"
       }
     }
   },
@@ -3429,6 +3588,224 @@
           "required": true
         },
         "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Start Model Test"
+      }
+    },
+    "/api/v1/model-test/capabilities": {
+      "post": {
+        "operationId": "refresh_capabilities_api_v1_model_test_capabilities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Refresh Capabilities"
+      }
+    },
+    "/api/v1/model-test/capabilities/{command_id}": {
+      "get": {
+        "operationId": "read_capabilities_api_v1_model_test_capabilities__command_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "command_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Command Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
           "200": {
             "content": {
               "application/json": {
@@ -3479,7 +3856,7 @@
             },
             "description": "Not Found"
           },
-          "413": {
+          "422": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3487,7 +3864,97 @@
                 }
               }
             },
-            "description": "Content Too Large"
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Capabilities"
+      }
+    },
+    "/api/v1/model-test/{operation_id}": {
+      "get": {
+        "operationId": "read_operation_api_v1_model_test__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "422": {
             "content": {
@@ -3520,7 +3987,127 @@
             "description": "Service Unavailable"
           }
         },
-        "summary": "Start Model Test"
+        "summary": "Read Operation"
+      }
+    },
+    "/api/v1/model-test/{operation_id}/cancel": {
+      "post": {
+        "operationId": "cancel_operation_api_v1_model_test__operation_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Cancel Operation"
       }
     },
     "/api/v1/settings/catalog": {

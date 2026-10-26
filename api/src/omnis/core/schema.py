@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.managed_schema import MANAGED_TABLES, MISSION_REVISION_GUARD
+from omnis.core.model_schema import MODEL_TABLES
 from omnis.core.provider_schema import PROVIDER_TABLES
 
 type ColumnSpec = tuple[str, bool, str | None]
@@ -377,6 +378,7 @@ AUTHORITY_TABLES.update(
 
 AUTHORITY_TABLES.update(MANAGED_TABLES)
 AUTHORITY_TABLES.update(PROVIDER_TABLES)
+AUTHORITY_TABLES.update(MODEL_TABLES)
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
@@ -384,7 +386,7 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
     # historical authority contracts below remain unchanged. Never resolve the
     # extension again through the caller's search_path after this OID lookup.
     physical_oids: dict[str, int] = {}
-    for name in ("managed_mission_revision", "managed_record"):
+    for name in ("managed_mission_revision", "managed_record", *MODEL_TABLES):
         identities = (
             await connection.execute(
                 text(
@@ -411,10 +413,11 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
         mission = table == "managed_mission_revision"
-        catalog = "pg_catalog." if mission else ""
-        relation_filter = ":relation_oid" if mission else "to_regclass(:table)"
+        owned = mission or table in MODEL_TABLES
+        catalog = "pg_catalog." if owned else ""
+        relation_filter = ":relation_oid" if owned else "to_regclass(:table)"
         parameters: dict[str, str | int] = (
-            {"relation_oid": mission_oid} if mission else {"table": table}
+            {"relation_oid": physical_oids[table]} if owned else {"table": table}
         )
         columns = (
             await connection.execute(
@@ -456,6 +459,18 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             observed_constraints = {tuple(row) for row in constraints}
         if observed_constraints != expected_constraints | required:
             return False
+    index = (
+        await connection.execute(
+            text(
+                "SELECT indisunique,indisvalid,indisready,indkey::text,pg_get_expr(indpred,indrelid) "
+                "FROM pg_catalog.pg_index WHERE indexrelid=pg_catalog.to_regclass('public.model_test_one_active') "
+                "AND indrelid=:table"
+            ),
+            {"table": physical_oids["system_operation"]},
+        )
+    ).one_or_none()
+    if index is None or tuple(index) != (True, True, True, "2", "(state <> 'FINISHED'::text)"):
+        return False
     for table, name, function, message in (
         (
             "managed_record",
@@ -483,6 +498,11 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
                 "provider Settings history is immutable",
             )
             for table in PROVIDER_TABLES
+        ),
+        *(
+            (table, "model_v2_no_change", "model_v2_immutable", "model V2 history is immutable")
+            for table in MODEL_TABLES
+            if table != "system_operation"
         ),
         *(
             (table, "catalog_immutable", "catalog_immutable", "immutable catalog ledger")

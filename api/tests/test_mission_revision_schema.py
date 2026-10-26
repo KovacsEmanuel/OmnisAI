@@ -12,13 +12,20 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.db import SCHEMA_REVISION
 from omnis.core.managed_schema import MANAGED_TABLES
+from omnis.core.model_schema import MODEL_TABLES
 from omnis.core.schema import AUTHORITY_TABLES, authority_schema_matches
+
+SOURCE_OIDS = {
+    "managed_mission_revision": 42001,
+    "managed_record": 42002,
+    **{name: 42003 + index for index, name in enumerate(MODEL_TABLES)},
+}
 
 
 def test_mission_revision_head_keeps_historical_chain() -> None:
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == SCHEMA_REVISION == "0014_provider_settings"
+    assert scripts.get_current_head() == SCHEMA_REVISION == "0015_model_test_v2"
     revision = scripts.get_revision("0013_mission_revisions")
     assert revision is not None and revision.down_revision == "0012_contract_methods"
 
@@ -116,6 +123,11 @@ def source_catalog_connection(
             row[index] = value
         rows[trigger_index] = tuple(row)
     legacy = {
+        **{
+            table: ("model_v2_no_change", "model_v2_immutable", "model V2 history is immutable")
+            for table in MODEL_TABLES
+            if table != "system_operation"
+        },
         "managed_record": (
             "managed_record_no_change",
             "managed_record_immutable",
@@ -160,12 +172,20 @@ def source_catalog_connection(
         if parameters is None:
             result.one.return_value = (True, True)
             return result
+        if "FROM pg_catalog.pg_index" in query:
+            assert parameters == {"table": SOURCE_OIDS["system_operation"]}
+            result.one_or_none.return_value = (True, True, True, "2", "(state <> 'FINISHED'::text)")
+            return result
         if "FROM pg_catalog.pg_class" in query:
             table = str(parameters["table"]).removeprefix("public.")
-            oid = 42001 if table == "managed_mission_revision" else 42002
+            oid = SOURCE_OIDS[table]
             result.all.return_value = [(oid, "public", table, "r", "p")]
             return result
-        table = str(parameters.get("table", "managed_mission_revision")).removeprefix("public.")
+        table = (
+            next(name for name, oid in SOURCE_OIDS.items() if oid == parameters["relation_oid"])
+            if "relation_oid" in parameters
+            else str(parameters["table"]).removeprefix("public.")
+        )
         if "FROM pg_trigger" in query or "FROM pg_catalog.pg_trigger" in query:
             if table == "managed_mission_revision":
                 if "p.proconfig," in query:
@@ -271,8 +291,11 @@ def source_catalog_connection(
 async def test_source_exact_mission_guard_attestation(
     mutation: tuple[int, object] | None, trigger_index: int
 ) -> None:
-    assert await authority_schema_matches(source_catalog_connection(mutation, trigger_index)) is (
-        mutation is None
+    connection = source_catalog_connection(mutation, trigger_index)
+    assert await authority_schema_matches(connection) is (mutation is None)
+    assert any(
+        "p.prokind" in str(call.args[0]) and call.args[1] == {"relation_oid": 42001}
+        for call in connection.execute.call_args_list
     )
 
 
@@ -300,7 +323,11 @@ async def test_source_mission_readiness_refuses_catalog_drift(mutation: str) -> 
         assert isinstance(result, Mock)
         if parameters is None:
             return result
-        table = str(parameters.get("table", "managed_mission_revision")).removeprefix("public.")
+        table = (
+            "managed_mission_revision"
+            if parameters.get("relation_oid") == 42001
+            else str(parameters.get("table", "")).removeprefix("public.")
+        )
         if "pg_attribute" in str(statement) and table == "managed_mission_revision":
             column_rows = [(name, *spec) for name, spec in AUTHORITY_TABLES[table][0].items()]
             if mutation == "extra_column":
@@ -388,6 +415,7 @@ async def test_source_mission_catalog_reads_bind_one_public_physical_oid() -> No
     assert {call.args[1]["table"] for call in identities} == {
         "public.managed_mission_revision",
         "public.managed_record",
+        *("public." + name for name in MODEL_TABLES),
     }
     for call in identities:
         query = str(call.args[0])
@@ -396,7 +424,9 @@ async def test_source_mission_catalog_reads_bind_one_public_physical_oid() -> No
             for token in ("c.oid", "n.nspname", "c.relname", "c.relkind", "c.relpersistence")
         )
     mission_reads = [
-        call for call in calls if "relation_oid" in (call.args[1] if len(call.args) > 1 else {})
+        call
+        for call in calls
+        if (call.args[1] if len(call.args) > 1 else {}).get("relation_oid") == 42001
     ]
     assert len(mission_reads) == 3
     assert all(call.args[1]["relation_oid"] == 42001 for call in mission_reads)

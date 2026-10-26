@@ -52,6 +52,15 @@ def main(argv: list[str] | None = None) -> int:
     stop_parser = commands.add_parser("stop", help="Stop this installed instance and keep its data")
     stop_parser.add_argument("--json", action="store_true", help="Sanitized shutdown result")
     stop_parser.add_argument("--shutdown-timeout", type=int, help="Shutdown budget, 15–180 seconds")
+    recover_parser = commands.add_parser("recover", help="Recover a dead T1 supervisor to STOPPED")
+    recover_parser.add_argument("--json", action="store_true", help="Sanitized recovery result")
+    backup_parser = commands.add_parser("backup", help="Cold STOPPED snapshot (T1: at most 1 GiB)")
+    backup_parser.add_argument("--output", type=Path, required=True)
+    restore_parser = commands.add_parser(
+        "restore", help="Restore into a new XDG state root; leave STOPPED"
+    )
+    restore_parser.add_argument("--backup", type=Path, required=True)
+    restore_parser.add_argument("--master-key-file", type=Path)
     image_parser = commands.add_parser(
         "install-image", help="Explicitly build the pinned local images"
     )
@@ -61,7 +70,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         config = load_config()
-        if args.command in {None, "start", "stop", "status", "pair", "open"}:
+        if args.command in {
+            None,
+            "start",
+            "stop",
+            "recover",
+            "status",
+            "pair",
+            "open",
+            "backup",
+            "restore",
+        }:
             config.check_instance(state_dir(), getattr(args, "port", None))
     except StartError as exc:
         if getattr(args, "json", False):
@@ -97,6 +116,14 @@ def main(argv: list[str] | None = None) -> int:
             startup_timeout=args.startup_timeout,
             cleanup_timeout=args.cleanup_timeout,
         )
+    if args.command == "backup":
+        from .backup import cold_command
+
+        return cold_command("backup", args.output)
+    if args.command == "restore":
+        from .backup import cold_command
+
+        return cold_command("restore", args.backup, args.master_key_file)
     if args.command == "status":
         return status(as_json=args.json)
     if args.command == "pair":
@@ -105,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
         return open_verified()
     if args.command == "stop":
         return stop(as_json=args.json, shutdown_timeout=args.shutdown_timeout)
+    if args.command == "recover":
+        return stop(as_json=args.json, recover=True)
     if args.command == "install":
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"

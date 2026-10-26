@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from omnis_cli.compose import ImageReceipt
 from omnis_cli.lifecycle import StartError
 from omnis_cli.start_runtime import ControlRuntime
 
@@ -18,6 +19,15 @@ from omnis_cli.start_runtime import ControlRuntime
 class StartupProcessTest(unittest.TestCase):
     def runtime(self, deadline):
         runtime = ControlRuntime.__new__(ControlRuntime)
+        runtime.receipt = ImageReceipt(
+            project="omnis-local-" + "a" * 32,
+            tag="omnis:source",
+            image_id="sha256:" + "b" * 64,
+            manifest_sha256="c" * 64,
+            docker_host="unix:///run/docker.sock",
+            docker_id="synthetic-daemon",
+        )
+        runtime.model_test = False
         runtime.deadline = deadline
         runtime.uncertain = False
         runtime.family_drained = True
@@ -828,6 +838,7 @@ class StartupProcessTest(unittest.TestCase):
                 calls = []
 
                 class Runtime:
+                    native = False
                     deadline = 0
                     uncertain = False
                     family_drained = True
@@ -869,6 +880,7 @@ class StartupProcessTest(unittest.TestCase):
         calls = []
 
         class Runtime:
+            native = False
             deadline = 0
             uncertain = True
             family_drained = True

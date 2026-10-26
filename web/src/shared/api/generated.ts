@@ -156,6 +156,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/model-test/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh Capabilities */
+        post: operations["refresh_capabilities_api_v1_model_test_capabilities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/model-test/capabilities/{command_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Capabilities */
+        get: operations["read_capabilities_api_v1_model_test_capabilities__command_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/model-test/{operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Operation */
+        get: operations["read_operation_api_v1_model_test__operation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/model-test/{operation_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Operation */
+        post: operations["cancel_operation_api_v1_model_test__operation_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/catalog": {
         parameters: {
             query?: never;
@@ -360,6 +428,11 @@ export interface components {
             source_revision: number;
             /** Tenant */
             tenant: string;
+        };
+        /** CancelTestRequest */
+        CancelTestRequest: {
+            command_id: components["schemas"]["Identity"];
+            expected_state_revision: components["schemas"]["PositiveRevision"];
         };
         /** CatalogBinding */
         CatalogBinding: {
@@ -726,7 +799,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "COMMAND_CONFLICT" | "REVISION_CONFLICT" | "CONNECTION_UNAVAILABLE" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
+        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "COMMAND_CONFLICT" | "REVISION_CONFLICT" | "CONNECTION_UNAVAILABLE" | "CAPABILITIES_REQUIRED" | "OPERATION_ACTIVE" | "OPERATION_FINISHED" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
         /** ErrorDetail */
         ErrorDetail: {
             code: components["schemas"]["ErrorCode"];
@@ -846,6 +919,7 @@ export interface components {
              * @constant
              */
             consent: true;
+            expected_selection_revision: components["schemas"]["PositiveRevision"];
             /** Operation Id */
             operation_id: string;
         };
@@ -857,50 +931,68 @@ export interface components {
              * @constant
              */
             calls_limit: 1;
-            /** Duration Ms */
-            duration_ms?: number | null;
+            /** Cost Observed */
+            cost_observed?: string | null;
+            /** Finish Reason */
+            finish_reason?: string | null;
             /** Input Tokens */
             input_tokens?: number | null;
-            /** Observed Effort */
-            observed_effort?: string | null;
-            /** Observed Model */
-            observed_model?: string | null;
-            /** Operation Id */
-            operation_id: string | null;
-            /** Output Tokens */
-            output_tokens?: number | null;
-            /** Reason */
-            reason: string | null;
-            /** Reasoning Tokens */
-            reasoning_tokens?: number | null;
+            metadata_command_id?: components["schemas"]["Identity"] | null;
             /**
-             * Requested Effort
-             * @default xhigh
-             * @constant
-             */
-            requested_effort: "xhigh";
-            /**
-             * Requested Model
-             * @default gpt-6.1-sol
-             * @constant
-             */
-            requested_model: "gpt-6.1-sol";
-            /**
-             * Requested Provider
-             * @default openai-codex
-             * @constant
-             */
-            requested_provider: "openai-codex";
-            /** Response Text */
-            response_text?: string | null;
-            /**
-             * Status
+             * Metadata State
+             * @default NOT_REQUESTED
              * @enum {string}
              */
-            status: "AVAILABLE" | "UNAVAILABLE" | "PENDING" | "COMPLETE" | "UNKNOWN" | "ERROR";
-            /** System Message */
+            metadata_state: "NOT_REQUESTED" | "PENDING" | "READY" | "FAILED";
+            /** Observed Model */
+            observed_model?: string | null;
+            operation_id?: components["schemas"]["Identity"] | null;
+            /**
+             * Output State
+             * @default ABSENT
+             * @enum {string}
+             */
+            output_state: "COMPLETE" | "TRUNCATED" | "ABSENT";
+            /** Output Tokens */
+            output_tokens?: number | null;
+            /** Provider Status */
+            provider_status?: string | null;
+            /** Reason */
+            reason?: string | null;
+            /** Reasoning Tokens */
+            reasoning_tokens?: number | null;
+            /** Requested Model */
+            requested_model?: string | null;
+            /** Requested Output Tokens */
+            requested_output_tokens?: number | null;
+            requested_provider?: components["schemas"]["Provider"] | null;
+            /** Response Text */
+            response_text?: string | null;
+            result_state?: components["schemas"]["ResultState"] | null;
+            /**
+             * Schema Version
+             * @default 2
+             * @constant
+             */
+            schema_version: 2;
+            selection_revision?: components["schemas"]["PositiveRevision"] | null;
+            state?: components["schemas"]["State"] | null;
+            state_revision?: components["schemas"]["PositiveRevision"] | null;
+            /**
+             * System Message
+             * @default Respond only with OMNIS_MODEL_TEST_OK. Use no tools.
+             */
             system_message: string;
-            /** User Message */
+            /**
+             * Usage State
+             * @default UNKNOWN
+             * @enum {string}
+             */
+            usage_state: "KNOWN" | "PARTIAL" | "UNKNOWN";
+            /**
+             * User Message
+             * @default This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.
+             */
             user_message: string;
             /**
              * Wall Seconds
@@ -1067,6 +1159,13 @@ export interface components {
          * @enum {string}
          */
         ReadinessReason: "DATABASE_UNAVAILABLE" | "SCHEMA_INCOMPATIBLE";
+        /** RefreshRequest */
+        RefreshRequest: {
+            command_id: components["schemas"]["Identity"];
+            expected_selection_revision: components["schemas"]["PositiveRevision"];
+        };
+        /** @enum {string} */
+        ResultState: "NOT_SENT" | "COMPLETED" | "INCOMPLETE" | "FAILED" | "UNKNOWN";
         Revision: number;
         /** RevisionPage */
         RevisionPage: {
@@ -1169,6 +1268,8 @@ export interface components {
             /** Csrf Token */
             csrf_token: string;
         };
+        /** @enum {string} */
+        State: "PENDING" | "RUNNING" | "STOPPING" | "FINISHED" | "NEEDS_RECONCILIATION";
     };
     responses: never;
     parameters: never;
@@ -2099,6 +2200,196 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Content Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    refresh_capabilities_api_v1_model_test_capabilities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_capabilities_api_v1_model_test_capabilities__command_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                command_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2143,8 +2434,182 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Content Too Large */
-            413: {
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_operation_api_v1_model_test__operation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_operation_api_v1_model_test__operation_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

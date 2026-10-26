@@ -72,6 +72,8 @@ class _View(ControlRuntime):
         success: bool = True,
         effect: bool = False,
         stdin: bytes | None = None,
+        stdin_fd: int | None = None,
+        stdout_fd: int | None = None,
     ) -> subprocess.CompletedProcess[str]:
         raise StartError("STOP_COMMAND_EXECUTION_FORBIDDEN", 4)
 

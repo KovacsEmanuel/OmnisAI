@@ -260,6 +260,7 @@ class StartTest(unittest.TestCase):
             os.environ,
             {
                 "XDG_DATA_HOME": str(self.root / "data"),
+                "XDG_CONFIG_HOME": str(self.root / "config"),
                 "XDG_STATE_HOME": str(self.root / "state"),
                 "XDG_RUNTIME_DIR": str(self.root / "ipc"),
             },

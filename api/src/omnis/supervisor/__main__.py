@@ -68,6 +68,8 @@ async def run() -> None:
     epoch = None
     task_owner = None
     provider_owner = None
+    model_owner = None
+    model_sender = None
     startup_generation = None
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
@@ -76,7 +78,6 @@ async def run() -> None:
     try:
         if await readiness_reason(engine) is not None:
             raise ValueError("Control schema unavailable")
-        epoch = await service.acquire(owner)
         raw_vault = os.environ.get("OMNIS_VAULT_DIR")
         raw_keys = os.environ.get("OMNIS_VAULT_KEY_DIR")
         if raw_vault is not None or raw_keys is not None:
@@ -85,11 +86,34 @@ async def run() -> None:
             from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
             from omnis.modules.settings.provider_vault import ProviderVault
 
-            identity = str((await service.owned_status(owner, epoch)).instance_id)
+            raw_egress = os.environ.get("OMNIS_MODEL_EGRESS_DIR")
+            if raw_egress is not None:
+                if raw_egress != "/vault":
+                    raise ValueError("Release-bound model egress required")
+                from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+                from omnis.supervisor.model_sender import ModelSender
+
+                # Cold imports and inert client construction must not spend the execution lease.
+                model_sender = ModelSender(Path(raw_egress) / "model-egress.sock")
+        service.recover_owner_loss = (
+            model_sender is not None
+            and raw_vault == "/vault"
+            and raw_keys == "/vault-key"
+            and raw_runtime is None
+            and probe is None
+        )
+        epoch = await service.acquire(owner)
+        if raw_vault is not None and raw_keys is not None:
+            status = await service.owned_status(owner, epoch)
+            startup_generation = status.generation
+            identity = str(status.instance_id)
             provider_owner = ProviderSettingsOwner(
                 service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
             )
             service.runtime_drain = provider_owner.drain
+            if model_sender is not None:
+                model_owner = ApiKeyModelTest(provider_owner, model_sender)
+                service.runtime_drain = model_owner.drain
         if raw_runtime is not None:
             status = await service.owned_status(owner, epoch)
             startup_generation = status.generation
@@ -134,7 +158,11 @@ async def run() -> None:
                     ManagedAdmission(engine, catalog_root), service, owner, epoch, runtime
                 )
         # Drain inherited shutdown before exposing this fresh process owner.
+        if model_owner is not None:
+            await model_owner.reconcile()
         await service.quiesce(owner, epoch)
+        if model_owner is not None:
+            model_owner.closing = False  # Fresh process only, before exposing control/admission.
         if task_owner is not None and runtime is not None:
 
             async def drain_model_test() -> bool:
@@ -159,6 +187,8 @@ async def run() -> None:
                     return (await provider_owner.handle(command)).model_dump(mode="json")
 
                 control.provider_settings = provider_command
+            if model_owner is not None:
+                control.model_test = model_owner.handle
             if task_owner is not None:
                 control.model_test = task_owner.model_test
             if runtime is not None and probe is None:
@@ -189,11 +219,9 @@ async def run() -> None:
                         await service.heartbeat(owner, epoch)
                         phase = "QUIESCE"
                         # The startup generation was already drained without closing this owner.
-                        if (
-                            task_owner is None
-                            or (await service.owned_status(owner, epoch)).generation
-                            != startup_generation
-                        ):
+                        if (task_owner is None and model_owner is None) or (
+                            await service.owned_status(owner, epoch)
+                        ).generation != startup_generation:
                             await service.quiesce(owner, epoch)
                         if runtime is not None:
                             phase = "RUNTIME_STATUS"
@@ -237,6 +265,10 @@ async def run() -> None:
             nominal_close = True
     finally:
         try:
+            if model_owner is not None and not await model_owner.drain():
+                raise ValueError("Model operation drain uncertain")
+            if model_sender is not None:
+                await model_sender.close()
             if provider_owner is not None and not await provider_owner.drain():
                 raise ValueError("Credential writer drain uncertain")
             if task_owner is not None:

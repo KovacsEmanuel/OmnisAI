@@ -259,6 +259,7 @@ async def test_batch2_complete_producer_stage(
 
 
 @pytest.mark.asyncio
+@pytest.mark.legacy_native
 async def test_batch2_native_source_to_two_checks(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

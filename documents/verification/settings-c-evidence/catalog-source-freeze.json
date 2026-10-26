@@ -1,0 +1,230 @@
+{
+  "base_head": "66252862587f1f2f44cf81837372b2c855e8dfef",
+  "budgets": {
+    "catalog_command": 1261,
+    "catalog_escaped_frame": 3433,
+    "catalog_frame": 1366,
+    "catalog_reply": 38247,
+    "entry_body": 277,
+    "entry_frame": 528,
+    "entry_reply": 54151,
+    "legacy_model_reply": 9021,
+    "legacy_native_reply": 8282
+  },
+  "file_count": 26,
+  "files": [
+    {
+      "bytes": 7832,
+      "path": "api/src/omnis/api.py",
+      "sha256": "3471ce8f78f9e058f24e77c3bb63ca985fda42f8a0cd7282d809c0acd5117d84"
+    },
+    {
+      "bytes": 10793,
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "8b6a7c59119aea89e370e4cee023e2623eda440e4da391fb8c49405c250cfc29"
+    },
+    {
+      "bytes": 9303,
+      "path": "api/src/omnis/modules/runs/model_test_contract.py",
+      "sha256": "ec9f94f29e390aa68a5e4d20d49b62afbd50b9545cd9c86f047e99c52c976629"
+    },
+    {
+      "bytes": 6924,
+      "path": "api/src/omnis/modules/runs/model_test_models.py",
+      "sha256": "b1e419e8ea5ebeb7e3190a252062318d5feb858311052abc8cbd83cf77033664"
+    },
+    {
+      "bytes": 11252,
+      "path": "api/src/omnis/modules/runs/model_test_operation.py",
+      "sha256": "937456a090300e0fd9b32bd580fb1f258d11c5a0995c8935b352f3909da484bf"
+    },
+    {
+      "bytes": 10176,
+      "path": "api/src/omnis/modules/runs/model_test_routes.py",
+      "sha256": "9f18dc1546b5de423681cf79ae70a4fa366198e9f60222ad3deeb780c9efe3ba"
+    },
+    {
+      "bytes": 42593,
+      "path": "api/src/omnis/modules/runs/model_test_runtime.py",
+      "sha256": "702813e7abc5d16deb71b47520a3a380ca5c2fe4cf33e171632194dfcaeaf3f9"
+    },
+    {
+      "bytes": 8402,
+      "path": "api/src/omnis/modules/runs/model_test_store.py",
+      "sha256": "af35b7e56ef18d1af371b61a7a9456cb7c93b160bd3df044381c16ed0292416e"
+    },
+    {
+      "bytes": 5160,
+      "path": "api/src/omnis/modules/settings/provider_catalog.py",
+      "sha256": "d481bcfb7f487eaac1edc0d42856146514cac1d17be357187c99b992cae70d0c"
+    },
+    {
+      "bytes": 4284,
+      "path": "api/src/omnis/modules/settings/provider_catalog_models.py",
+      "sha256": "1a76ef8755e424eb087aaeb40f3719b4da1874fc5ba9c40a6e9019c862e30f0d"
+    },
+    {
+      "bytes": 2953,
+      "path": "api/src/omnis/modules/settings/provider_catalog_routes.py",
+      "sha256": "69d383ab5748dad07bc5609fb9f920b786410f9508876d8634c13f34592dc6ec"
+    },
+    {
+      "bytes": 10995,
+      "path": "api/src/omnis/modules/settings/provider_catalog_runtime.py",
+      "sha256": "498b43ea5f3991692083af188dda9ed5e8945cbc1b0e1bc3a64cd7dda6a9b1e4"
+    },
+    {
+      "bytes": 14990,
+      "path": "api/src/omnis/modules/settings/provider_key_service.py",
+      "sha256": "a2c60f02f06835a874d55710a4fbb733688db2e422917536418d7913cf7c51d0"
+    },
+    {
+      "bytes": 3348,
+      "path": "api/src/omnis/modules/settings/provider_model_test.py",
+      "sha256": "ce0992d0dee3912a355ef038b9149882b0ee0ca1b3cc837835188d1d85d16c07"
+    },
+    {
+      "bytes": 15228,
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "e26df7fe7f15337655cce4aba5500387c6e56a9606dadb33a4ccc3de9287f7af"
+    },
+    {
+      "bytes": 16220,
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "sha256": "b80ed026c9de4ec8e7e4543e49dcbcdfb299fddb7d3284351988f285370d43e9"
+    },
+    {
+      "bytes": 16952,
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "053cf1a02bd2665ad5ed5f0d641c5b67eee80099a4a5f8eb782f140f88d1b0d0"
+    },
+    {
+      "bytes": 9821,
+      "path": "api/tests/test_model_test_routes.py",
+      "sha256": "cf70d90d2b863e6b466a5e955dee48034b77f02113ae11f3bfda353e31ed9d96"
+    },
+    {
+      "bytes": 80182,
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "17f98d9bc1ad2e231b60489f2ea71126e56bc0e020d94c341f853bfd57c331c9"
+    },
+    {
+      "bytes": 15390,
+      "path": "api/tests/test_provider_catalog.py",
+      "sha256": "b036cbb0f4a13ea319389b76279c3d8eb97d51f778aaa0b32cdf3a2879bf3ac5"
+    },
+    {
+      "bytes": 181978,
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "61f878a73a2f831b47d2cc67fa4a2d420d753de31f787c4e7f139e1f321a66b1"
+    },
+    {
+      "bytes": 17049,
+      "path": "web/src/shared/api/client.ts",
+      "sha256": "0dc060f380da65adf0e9e70e49abefa4d9c3eb8662b4f7b67dc6caf2cf919b15"
+    },
+    {
+      "bytes": 149626,
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "c818edba67b77d74a7b34fe54a0da359591f2e9fac7f666a16be55dbf645a652"
+    },
+    {
+      "bytes": 5080,
+      "path": "web/src/shared/api/modelTest.ts",
+      "sha256": "8bd2f3dd1a6fbdc90d439035bb43f32d437c339f6455b08d870a899d1c9394a7"
+    },
+    {
+      "bytes": 4713,
+      "path": "web/src/shared/api/providerCatalog.test.ts",
+      "sha256": "f6c079d1ab7d5ce6b098dde028ccaccde0a1ab0b341daefe5a7505939b95f03f"
+    },
+    {
+      "bytes": 4646,
+      "path": "web/src/shared/api/providerCatalog.ts",
+      "sha256": "d315c034be8c07e9b92c2738827016f07cf52471e537232a2cd88fbb5e3817cb"
+    }
+  ],
+  "legacy_openapi_schemas_and_paths_unchanged": true,
+  "limits": [
+    "SOURCE/synthetic documented fixtures, not captured provider data or provider-live compatibility",
+    "Orca metadata has no documented per-model max_tokens support flag: retained as null; no automatic exact-entry eligibility is invented",
+    "No migration; existing immutable model_record_v2 and command/operation/dispatch owners reused",
+    "No real PG/native/provider/target QA effects; no UI/browser rewrite, auth change, operator data, T2/P4b closure, commit or push",
+    "Web serial SOURCE173 PASS is not default-parallel or browser/visual proof",
+    "Parent owns reviews, first bounded existing PG target, evidence/status and granular integration"
+  ],
+  "new_openapi_schemas": [
+    "CancelCatalog",
+    "CatalogModel",
+    "CatalogReason",
+    "CatalogView",
+    "EntryTestRequest",
+    "EntryTestView",
+    "RefreshCatalog",
+    "SearchCatalog"
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/scat/catalog-entry-source.patch",
+    "sha256": "93f025dff97d681dd0f9a623a7a8fc84c6eeb97a3c10aae3ca40a288fd62972d"
+  },
+  "pg": {
+    "collected": 72,
+    "collection_log": "pg-collection-final.log",
+    "effects": "NOT_RUN_REQUIRES_COMPLEMENTARY_REVIEWS",
+    "harness_only_cycles_this_row": 0,
+    "image_inspect_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "new_case": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_catalog]",
+    "runner_help_exit": 0,
+    "target": "test-model-test-v2-pg"
+  },
+  "quality": {
+    "command": "make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "exit": 0,
+    "log": "api-quality-final.log",
+    "mypy_source_files": 290
+  },
+  "budget_boundary": "Final DTOs through LocalControl encode_control_reply including correlation/envelope/newline. NUL fixture is serializer proof, not PostgreSQL/provider output proof.",
+  "red_commands": {
+    "red.log": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py -q",
+    "route-red.log": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py -q",
+    "entry-red.log": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py::test_exact_entry_admission_has_no_selection_authority -q",
+    "legacy-denial-red.log": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py::test_exact_entry_admission_has_no_selection_authority -q",
+    "ref-kind-red.log": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py::test_entry_snapshot_ref_kinds_cannot_be_reinterpreted -q",
+    "web-red.log": "npm --prefix web test -- --no-file-parallelism src/shared/api/providerCatalog.test.ts"
+  },
+  "pg_collection_command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py --collect-only -q",
+  "red_logs": [
+    "red.log",
+    "route-red.log",
+    "entry-red.log",
+    "legacy-denial-red.log",
+    "ref-kind-red.log",
+    "web-red.log"
+  ],
+  "retained_source_repairs": [
+    "Web fixture reused a consumed Response: one failed and34 passed; fixed to return a fresh Response, later173 PASS. No product assertion weakened.",
+    "Ruff loop variable and four mypy diagnostics in two test files fixed before final strict checks. No real PG QA attempted."
+  ],
+  "scope": "Settings C connection-scoped catalog/cache/local search and exact saved-entry finite ModelTest; no UI rewrite",
+  "source": {
+    "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/scat api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_catalog.py api/tests/test_model_test_routes.py api/tests/test_model_test_v2_contract.py api/tests/test_model_sender.py -k 'not tls_handshake_cut and not sdk_tcp and not missing_broker' -q -s",
+    "deselected": 8,
+    "exit": 0,
+    "log": "source-green-final.log",
+    "passed": 48,
+    "seconds": 2.33,
+    "selection_expression": "not tls_handshake_cut and not sdk_tcp and not missing_broker"
+  },
+  "status": "SOURCE_FROZEN_NOT_INTEGRATED",
+  "web": {
+    "command": "npm --prefix web test -- --no-file-parallelism",
+    "contract_command": "make test-contracts UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "contracts_lint_typecheck_exit": 0,
+    "exit": 0,
+    "files": 18,
+    "lint_command": "npm --prefix web run lint",
+    "log": "web-green.log",
+    "passed": 173,
+    "seconds": 36.24
+  }
+}

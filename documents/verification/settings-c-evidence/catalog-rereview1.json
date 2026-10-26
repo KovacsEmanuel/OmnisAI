@@ -1,0 +1,129 @@
+{
+  "report_id": "SETTINGS-C-CATALOG-ENTRY-REREVIEW1-ORIGINAL",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "mode": "Independent read-only focused four-file repair review before first PostgreSQL consumer QA",
+  "base_head": "66252862587f1f2f44cf81837372b2c855e8dfef",
+  "what_this_change_does": "Accepts both documented numeric offset/limit query orders while retaining exact release endpoint validation and constructing owned numeric requests. Rejects nonidentity Content-Encoding case-insensitively before HTTPX can decode the response; existing byte caps remain unchanged.",
+  "freeze": {
+    "path": "/home/kali/.hermes/cache/scratch/cfix/catalog-entry-fix-freeze.json",
+    "sha256": "e4c0e760c3dabac2fed58789b9ef6f1751b62fe05e3385b3fefa9a3af2431ba8",
+    "file_count": 27,
+    "initial_hash_mismatches": [],
+    "final_hash_mismatches": [],
+    "previous_freeze_sha256": "0451634a5a52103b2d32e83113cab9a9ac22b206e0d7d0197b91400aee6a192c",
+    "unchanged_previous_file_count": 23,
+    "changed_previous_files": [
+      "api/src/omnis/modules/settings/provider_catalog.py",
+      "api/src/omnis/supervisor/model_sender.py",
+      "api/tests/test_provider_catalog.py"
+    ],
+    "existing_tracked_file_added_to_manifest": "api/tests/test_model_sender.py",
+    "delta_patch_sha256": "11c002c7f4b55e582fc951f3319073f294896fa39be6f85bb45e4035b20f85ba",
+    "budgets_unchanged": true,
+    "identity_evidence": "/home/kali/.hermes/cache/scratch/settings-c-rereview1/reproducer-and-identity.json"
+  },
+  "scope": "Prompt A only. Compliance, affected correctness, domain boundaries, concrete finding dispositions and source readiness for the existing bounded consumer. No product edits, DB, services, provider/target traffic, spending, auth/Prompt B, UI, migration, commit or push.",
+  "original_reviews": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-c-review1/catalog-entry-review1.json",
+      "sha256": "154888cd531e4134b5a24b7bb270a2b4caeff7d1d7cb71c40345b865e815c748",
+      "status": "Preserved unchanged; all unaffected assessments remain valid only within their original SOURCE scope. R1-CATALOG-PAGING-01 is explicitly closed below, not erased from the historical report."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/catalog-r2-review-original.md",
+      "sha256": "e4195beeaa4b1eb46b427cf26738ffd7cd52146c69933f8e16f9e023fc3ac737",
+      "status": "Preserved unchanged; R2-CATALOG-01 repair checked here as an affected shared boundary. This report does not replace the required complementary R2 focused verdict."
+    }
+  ],
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "R1-CATALOG-PAGING-01",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": "api/src/omnis/modules/settings/provider_catalog.py:97-116",
+      "criterion": "Architecture 5.3:341: documented OpenRouter pagination traversed within release endpoint, query, page and byte bounds; no foreign continuation grant.",
+      "assessment": "Strict parse_qsl(max_num_fields=2) plus exact sorted parameter pairs removes only the erroneous ordering requirement. Exact absolute/relative base, one offset and one limit, limit=1000, expected advancing offset, nonempty rows, 32-page and 8192-offset checks remain. Only self.offset is returned; the provider URL is never followed.",
+      "red_evidence": "Read retained cfix/r1-red.log: two reversed-order cases fail while two original-order cases pass on old code. Did not replay or rewrite the retained historical RED.",
+      "green_evidence": "Independent rerun of current SOURCE includes all four absolute/relative query-order positives and duplicate/extra/foreign/fragment/loop/nonnumeric/blank negatives. Independently replayed the original fixture/a then fixture/b scenario under all four base/order combinations: next_offset=1, complete=true, reason=null, both exact entries retained."
+    },
+    {
+      "id": "R2-CATALOG-01",
+      "disposition": "REPAIR_CONFIRMED_SOURCE_SCOPED_BY_R1",
+      "code": "api/src/omnis/supervisor/model_sender.py:197-209; api/tests/test_model_sender.py:253-329",
+      "criterion": "Architecture 5.3:341: 2 MiB per upstream page, bounded before decompression/buffering.",
+      "assessment": "httpx.Headers reads header names case-insensitively and joins duplicate values, so nonidentity and mixed duplicate encodings cannot be hidden by case or overwrite. Identity value matching is case-insensitive. Rejection closes the core response before constructing HTTPX Response or reading its body; unchanged ResponseStream applies the permit byte limit for identity data. Shared POST/legacy metadata callers retain signatures and fail-closed behavior.",
+      "green_evidence": "Independent SOURCE rerun exercises the real production Transport/ResponseStream/HTTPX/metadata_page seam with a synthetic httpcore pool response and NO_IO backend: mixed/lower/upper gzip and duplicate headers refused before read and closed; Identity and absent-header exact 2097152 bytes succeed; 2097153 bytes denied. Complementary independent R2 focused disposition remains the parent's required gate."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Complete bounded documented traversal; continuation is data, not authority",
+      "code": "provider_catalog.py:97-130; provider_catalog_runtime.py:206-238; model_sender.py:267-298",
+      "assessment": "APPROVED_SOURCE_SCOPED: repaired parser produces only an owned offset; refresh supplies the fixed ENDPOINTS entry and remaining byte budget, and sender constructs fixed numeric request query. No signature, DTO, export, fixture config or extra caller migration is needed."
+    },
+    {
+      "requirement": "Untrusted response encoding and page cap before decode",
+      "code": "model_sender.py:136-149,166-209,247-298; test_model_sender.py:253-329",
+      "assessment": "APPROVED_SOURCE_SCOPED for affected repair and shared seam. Standard library parser and existing HTTPX header type suffice; no new dependency, abstraction or decompression feature. Synthetic seam evidence is not live provider compatibility or physical network confinement proof."
+    },
+    {
+      "requirement": "Exact saved-entry snapshot, revision/currentness, independent Default and retained legacy semantics",
+      "code": "Original R1 requirement_code_evidence rows 1-4 and unchanged 23/26 source files",
+      "assessment": "Original SOURCE assessments preserved at unchanged hashes, not re-reviewed from scratch and not promoted to PG/persistence/runtime acceptance. Repair does not alter snapshot model, admission, selection writes, store/schema, HTTP authority or client contracts."
+    },
+    {
+      "requirement": "Encoded control budgets and existing first real consumer",
+      "code": "test_provider_catalog.py::test_final_dto_full_writer_budgets_and_legacy_limits; test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_catalog]",
+      "assessment": "Budget values equal previous freeze and independent current execution: catalog reply38247, entry reply54151, other encoded sizes unchanged. Existing PG consumer/oracle approval inherited from original report, execution NOT_RUN; no circular requirement for a prior PG PASS."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/settings-c-rereview1 PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py api/tests/test_model_test_routes.py api/tests/test_model_test_v2_contract.py api/tests/test_model_sender.py -k 'not tls_handshake_cut and not sdk_tcp and not missing_broker' -q -s",
+      "exit": 0,
+      "result": "59 passed, 8 deselected in 2.42s",
+      "log": "/home/kali/.hermes/cache/scratch/settings-c-rereview1/source-rereview.log",
+      "budgets": {
+        "catalog_command": 1261,
+        "catalog_escaped_frame": 3433,
+        "catalog_frame": 1366,
+        "catalog_reply": 38247,
+        "entry_body": 277,
+        "entry_frame": 528,
+        "entry_reply": 54151,
+        "legacy_model_reply": 9021,
+        "legacy_native_reply": 8282
+      }
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c: original R1 two-page fixture under both bases and both query orders; current freeze/file lengths and SHA256 at entry and after tests; original report and delta hashes",
+      "exit": 0,
+      "result": "All four variants complete with both exact entries. Current27 files match freeze;23 prior entries unchanged; only declared four-file delta. Original reports unchanged.",
+      "log": "/home/kali/.hermes/cache/scratch/settings-c-rereview1/reproducer-and-identity.json"
+    },
+    {
+      "command": "git diff --check; git diff --cached --stat; git rev-parse HEAD",
+      "exit": 0,
+      "result": "Whitespace check clean, staged diff empty, HEAD remains66252862587f1f2f44cf81837372b2c855e8dfef."
+    }
+  ],
+  "readiness": {
+    "source": "APPROVED_SOURCE_SCOPED; no confirmed new defect in the four-file repair or affected caller path.",
+    "pg": "NOT_RUN. After the complementary independent focused R2 approval and parent adjudication, this review supplies no SOURCE blocker to the first existing bounded test-model-test-v2-pg consumer under its admitted effect/cleanup contract. Missing PG evidence is what that QA must establish, not a prerequisite that it already passed.",
+    "pg_attempts": 0,
+    "harness_only_cycles_this_row": 0,
+    "integration": "Candidate remains unintegrated WIP; parent owns integration, granular commits, exact consumer QA and acceptance. No global or runtime gate closed by this report."
+  },
+  "limits": [
+    "No DB, sockets, services, native/installed/browser or live provider execution. Source doubles do not prove persistence, process restart, runtime Stop/quiescence or provider compatibility.",
+    "Unchanged23 source entries and previous web/quality evidence were not rerun as a full audit; preserved only in their historical scope. No UI membership guard, auth/Prompt B, migration, T2 or P4b assessed.",
+    "Protected tempkey.txt and documents/Omnis_Notite_Originale.html were not read. No credentials, installs, product file edits, commit or push.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/settings-c-rereview1/source-rereview.log",
+    "/home/kali/.hermes/cache/scratch/settings-c-rereview1/reproducer-and-identity.json",
+    "/home/kali/.hermes/cache/scratch/settings-c-rereview1/catalog-entry-rereview1.json"
+  ],
+  "repository_files_modified": []
+}

@@ -1,0 +1,256 @@
+{
+  "report_id": "SETTINGS-C-CATALOG-ENTRY-REVIEW1-ORIGINAL",
+  "verdict": "CHANGES_REQUESTED",
+  "mode": "Independent read-only SOURCE review before first PG QA; no product writes",
+  "base_head": "66252862587f1f2f44cf81837372b2c855e8dfef",
+  "freeze": {
+    "path": "/home/kali/.hermes/cache/scratch/scat/catalog-entry-freeze.json",
+    "sha256": "0451634a5a52103b2d32e83113cab9a9ac22b206e0d7d0197b91400aee6a192c",
+    "file_count": 26,
+    "files": [
+      {
+        "bytes": 7832,
+        "path": "api/src/omnis/api.py",
+        "sha256": "3471ce8f78f9e058f24e77c3bb63ca985fda42f8a0cd7282d809c0acd5117d84"
+      },
+      {
+        "bytes": 10793,
+        "path": "api/src/omnis/modules/instance/schemas.py",
+        "sha256": "8b6a7c59119aea89e370e4cee023e2623eda440e4da391fb8c49405c250cfc29"
+      },
+      {
+        "bytes": 9303,
+        "path": "api/src/omnis/modules/runs/model_test_contract.py",
+        "sha256": "ec9f94f29e390aa68a5e4d20d49b62afbd50b9545cd9c86f047e99c52c976629"
+      },
+      {
+        "bytes": 6924,
+        "path": "api/src/omnis/modules/runs/model_test_models.py",
+        "sha256": "b1e419e8ea5ebeb7e3190a252062318d5feb858311052abc8cbd83cf77033664"
+      },
+      {
+        "bytes": 11252,
+        "path": "api/src/omnis/modules/runs/model_test_operation.py",
+        "sha256": "937456a090300e0fd9b32bd580fb1f258d11c5a0995c8935b352f3909da484bf"
+      },
+      {
+        "bytes": 10176,
+        "path": "api/src/omnis/modules/runs/model_test_routes.py",
+        "sha256": "9f18dc1546b5de423681cf79ae70a4fa366198e9f60222ad3deeb780c9efe3ba"
+      },
+      {
+        "bytes": 42593,
+        "path": "api/src/omnis/modules/runs/model_test_runtime.py",
+        "sha256": "702813e7abc5d16deb71b47520a3a380ca5c2fe4cf33e171632194dfcaeaf3f9"
+      },
+      {
+        "bytes": 8402,
+        "path": "api/src/omnis/modules/runs/model_test_store.py",
+        "sha256": "af35b7e56ef18d1af371b61a7a9456cb7c93b160bd3df044381c16ed0292416e"
+      },
+      {
+        "bytes": 5160,
+        "path": "api/src/omnis/modules/settings/provider_catalog.py",
+        "sha256": "d481bcfb7f487eaac1edc0d42856146514cac1d17be357187c99b992cae70d0c"
+      },
+      {
+        "bytes": 4284,
+        "path": "api/src/omnis/modules/settings/provider_catalog_models.py",
+        "sha256": "1a76ef8755e424eb087aaeb40f3719b4da1874fc5ba9c40a6e9019c862e30f0d"
+      },
+      {
+        "bytes": 2953,
+        "path": "api/src/omnis/modules/settings/provider_catalog_routes.py",
+        "sha256": "69d383ab5748dad07bc5609fb9f920b786410f9508876d8634c13f34592dc6ec"
+      },
+      {
+        "bytes": 10995,
+        "path": "api/src/omnis/modules/settings/provider_catalog_runtime.py",
+        "sha256": "498b43ea5f3991692083af188dda9ed5e8945cbc1b0e1bc3a64cd7dda6a9b1e4"
+      },
+      {
+        "bytes": 14990,
+        "path": "api/src/omnis/modules/settings/provider_key_service.py",
+        "sha256": "a2c60f02f06835a874d55710a4fbb733688db2e422917536418d7913cf7c51d0"
+      },
+      {
+        "bytes": 3348,
+        "path": "api/src/omnis/modules/settings/provider_model_test.py",
+        "sha256": "ce0992d0dee3912a355ef038b9149882b0ee0ca1b3cc837835188d1d85d16c07"
+      },
+      {
+        "bytes": 15228,
+        "path": "api/src/omnis/supervisor/__main__.py",
+        "sha256": "e26df7fe7f15337655cce4aba5500387c6e56a9606dadb33a4ccc3de9287f7af"
+      },
+      {
+        "bytes": 16220,
+        "path": "api/src/omnis/supervisor/model_sender.py",
+        "sha256": "b80ed026c9de4ec8e7e4543e49dcbcdfb299fddb7d3284351988f285370d43e9"
+      },
+      {
+        "bytes": 16952,
+        "path": "api/src/omnis/transport/local_control.py",
+        "sha256": "053cf1a02bd2665ad5ed5f0d641c5b67eee80099a4a5f8eb782f140f88d1b0d0"
+      },
+      {
+        "bytes": 9821,
+        "path": "api/tests/test_model_test_routes.py",
+        "sha256": "cf70d90d2b863e6b466a5e955dee48034b77f02113ae11f3bfda353e31ed9d96"
+      },
+      {
+        "bytes": 80182,
+        "path": "api/tests/test_model_test_v2.py",
+        "sha256": "17f98d9bc1ad2e231b60489f2ea71126e56bc0e020d94c341f853bfd57c331c9"
+      },
+      {
+        "bytes": 15390,
+        "path": "api/tests/test_provider_catalog.py",
+        "sha256": "b036cbb0f4a13ea319389b76279c3d8eb97d51f778aaa0b32cdf3a2879bf3ac5"
+      },
+      {
+        "bytes": 181978,
+        "path": "contracts/omnis.openapi.json",
+        "sha256": "61f878a73a2f831b47d2cc67fa4a2d420d753de31f787c4e7f139e1f321a66b1"
+      },
+      {
+        "bytes": 17049,
+        "path": "web/src/shared/api/client.ts",
+        "sha256": "0dc060f380da65adf0e9e70e49abefa4d9c3eb8662b4f7b67dc6caf2cf919b15"
+      },
+      {
+        "bytes": 149626,
+        "path": "web/src/shared/api/generated.ts",
+        "sha256": "c818edba67b77d74a7b34fe54a0da359591f2e9fac7f666a16be55dbf645a652"
+      },
+      {
+        "bytes": 5080,
+        "path": "web/src/shared/api/modelTest.ts",
+        "sha256": "8bd2f3dd1a6fbdc90d439035bb43f32d437c339f6455b08d870a899d1c9394a7"
+      },
+      {
+        "bytes": 4713,
+        "path": "web/src/shared/api/providerCatalog.test.ts",
+        "sha256": "f6c079d1ab7d5ce6b098dde028ccaccde0a1ab0b341daefe5a7505939b95f03f"
+      },
+      {
+        "bytes": 4646,
+        "path": "web/src/shared/api/providerCatalog.ts",
+        "sha256": "d315c034be8c07e9b92c2738827016f07cf52471e537232a2cd88fbb5e3817cb"
+      }
+    ],
+    "initial_hash_mismatches": [],
+    "final_hash_mismatches": []
+  },
+  "scope": "Prompt A admitted connection-scoped catalog/local search and exact saved-entry ModelTest API/PG/client only. Existing registry baseline retained. No UI/membership guard, auth/Prompt B, T2/P4b, migration, operator data, services, provider/target traffic, spending, product edits or commit.",
+  "findings": [
+    {
+      "id": "R1-CATALOG-PAGING-01",
+      "severity": "P2 / MEDIUM",
+      "file": "api/src/omnis/modules/settings/provider_catalog.py",
+      "lines": "98-106",
+      "title": "Semantically valid reordered offset/limit continuation is refused, hiding remaining catalog models",
+      "reproducer": "On a fresh CatalogIngest(\"openrouter\"), add {data:[{id:\"fixture/a\"}],total_count:2,links:{next:\"https://openrouter.ai/api/v1/models?limit=1000&offset=1\"}}. It returns None with CONTINUATION_UNSUPPORTED and keeps only fixture/a. Identical numeric query in offset=1&limit=1000 order returns 1; adding the terminal fixture/b page then yields complete=True with both entries.",
+      "observed": [
+        {
+          "query": "offset=1&limit=1000",
+          "next_offset": 1,
+          "complete": true,
+          "reason": null,
+          "entries": [
+            "fixture/a",
+            "fixture/b"
+          ]
+        },
+        {
+          "query": "limit=1000&offset=1",
+          "next_offset": null,
+          "complete": false,
+          "reason": "CONTINUATION_UNSUPPORTED",
+          "entries": [
+            "fixture/a"
+          ]
+        }
+      ],
+      "violated_criterion": "Architecture 5.3 line341 and Prompt A lines83-87: traverse all documented offset/limit/links/total_count pages within bounds, rejecting foreign/unknown/looping continuation. Query ordering is not a documented restriction, and this next URL has the same allowed endpoint and exact safe numeric query. Failing closed is correct for unknown endpoints/parameters but needlessly rejects this known continuation.",
+      "consumer_impact": "A legitimate provider continuation with the two documented query keys reversed permanently returns PARTIAL and omits later models, including a desired exact saved-entry model. Manual unverified fallback cannot supply the missing capabilities.",
+      "minimum_fix": "Parse continuation as data; validate exact allowlisted scheme/authority/path (or admitted relative path), exactly one offset and one limit, no extra/duplicate/blank parameters, expected numeric forward offset and limit1000. Retain loop/page/byte/deadline bounds and construct the owned request from validated numbers. Do not follow arbitrary next URLs. Add the reversed-order positive control beside the existing foreign/loop/extra-query negatives.",
+      "provenance": "Concrete scenario supplied by parent mid-review; independently reproduced with the current frozen production CatalogIngest. No code was changed."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Connection scoped metadata, independent of Default, persistent local search",
+      "code": "provider_catalog_runtime.py:49-135,138-267; provider_key_service.py:195-210",
+      "assessment": "SOURCE scoped: typed connection snapshot and shared owner/storeV2/sender; local16-entry pages bind command/revision/query; no selection writes. Pagination completeness has R1-CATALOG-PAGING-01."
+    },
+    {
+      "requirement": "Exact saved entry/revision, immutable output/connection/credential/catalog capability snapshot",
+      "code": "provider_model_test.py:19-84; model_test_contract.py:59-100; model_test_runtime.py:351-480,700-747",
+      "assessment": "No other confirmed SOURCE defect: registry current entry plus revision CAS; catalog record exact ref/digest; full ConnectionRevision equality; saved output cap and max_tokens support required; shared one-call finite operation and ledger; final writer checks exact current entry before egress."
+    },
+    {
+      "requirement": "Default/explicit overrides unchanged; success/currentness only exact entry",
+      "code": "model_test_runtime.py:196-251,351-480; provider_model_test.py:19-28; api/tests/test_model_test_v2.py:632-742,776-869",
+      "assessment": "Exact path creates separate EntrySnapshot and never saves selection. Result carries exact entry/connection revisions and current flag; key rotation preserves historical COMPLETED while current=False. PG assertions exist but are NOT_RUN."
+    },
+    {
+      "requirement": "Old V2 history and old API semantics retained; no migration",
+      "code": "model_test_store.py:63-115; model_test_runtime.py:188-195,274-301; model_test_operation.py:150-155; model_test_routes.py; contracts/omnis.openapi.json",
+      "assessment": "SOURCE scoped: resolver supports both immutable snapshot kinds, legacy latest filters model-selection-snapshot-v2; by-ID opposite snapshot kinds refuse NOT_FOUND. Parsed old OpenAPI paths and old components/schemas are all semantically identical. No migration in freeze. Populated legacy/exact interleaving runtime history was not executed."
+    },
+    {
+      "requirement": "First bounded real consumer with positive/negative controls",
+      "code": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_catalog]",
+      "assessment": "Existing test directly exercises paired ASGI API -> LocalControl -> real settings/ModelTest owners -> PostgreSQL + real SDK/TLS synthetic peer. Includes no-default catalog, two upstream/local pages, local name search, duplicate refresh/start/no resend, stale entry/connection and cap/manual denials with six-table census, Default/override readback, ledger states, Cancel, rotation and fresh-owner cached reads. Reviewed oracle, not executed. The entry-catalog test checks empty legacy-latest isolation, not a populated legacy/exact history interleaving; legacy V2 scenarios remain separate."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py api/tests/test_model_test_routes.py api/tests/test_model_test_v2_contract.py api/tests/test_model_sender.py -k 'not tls_handshake_cut and not sdk_tcp and not missing_broker' -q -s",
+      "exit": 0,
+      "result": "48 passed, 8 deselected in 2.36s",
+      "budget_bytes": {
+        "catalog_command": 1261,
+        "catalog_escaped_frame": 3433,
+        "catalog_frame": 1366,
+        "catalog_reply": 38247,
+        "entry_body": 277,
+        "entry_frame": 528,
+        "entry_reply": 54151,
+        "legacy_model_reply": 9021,
+        "legacy_native_reply": 8282
+      }
+    },
+    {
+      "command": "Read git-show base contracts/omnis.openapi.json and current JSON; compare each old paths and components.schemas item with Python equality",
+      "exit": 0,
+      "result": {
+        "changed_legacy_paths": [],
+        "changed_legacy_schemas": []
+      }
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -c <two synthetic CatalogIngest variants, one row then terminal second page only if continuation admitted>",
+      "exit": 0,
+      "result": "Confirmed R1-CATALOG-PAGING-01 with exact observed output above; no network/DB/services."
+    },
+    {
+      "command": "SHA256 manifest and every listed frozen file before/after review; git diff --check",
+      "exit": 0,
+      "result": "Manifest matches supplied SHA256, all26 file hashes unchanged, git diff --check clean."
+    }
+  ],
+  "qa_disposition": "Do not require a historical PG PASS to admit the first QA. Resolve/adjudicate the concrete pagination blocker, freeze changed bytes, rerun affected SOURCE and focused reviews, then parent may admit the existing bounded target test-model-test-v2-pg / entry_catalog under its effect contract. Current PG status is NOT_RUN, not FAIL.",
+  "limits": [
+    "No PG, SDK/TLS real-consumer execution, browser/visual or installed-process proof performed by reviewer.",
+    "No SOURCE result promoted to persistence/restart/provider-live acceptance; fresh-owner test is not an installed process restart.",
+    "No universal/style audit; no new migration or UI/membership implementation reviewed.",
+    "Protected tempkey.txt and documents/Omnis_Notite_Originale.html not read.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "created_files": [
+    "/home/kali/.hermes/cache/scratch/settings-c-review1/catalog-entry-review1.json"
+  ],
+  "repository_files_modified": []
+}

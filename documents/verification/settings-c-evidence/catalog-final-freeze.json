@@ -1,0 +1,349 @@
+{
+  "added_to_manifest": [
+    {
+      "before": {
+        "bytes": 19575,
+        "path": "api/tests/test_model_sender.py",
+        "sha256": "bbc4f1bf54b4bbe6ba4effe583ccc23bd33d7686ae14986c4d050e0735d529c1"
+      },
+      "path": "api/tests/test_model_sender.py",
+      "reason": "Existing tracked SOURCE test file now contains real Transport/HTTPX boundary regressions; not a newly created repository file."
+    }
+  ],
+  "base_head": "66252862587f1f2f44cf81837372b2c855e8dfef",
+  "budgets": {
+    "catalog_command": 1261,
+    "catalog_escaped_frame": 3433,
+    "catalog_frame": 1366,
+    "catalog_reply": 38247,
+    "entry_body": 277,
+    "entry_frame": 528,
+    "entry_reply": 54151,
+    "legacy_model_reply": 9021,
+    "legacy_native_reply": 8282
+  },
+  "budgets_unchanged": true,
+  "changed_from_previous_snapshot": [
+    "api/src/omnis/modules/settings/provider_catalog.py",
+    "api/src/omnis/supervisor/model_sender.py",
+    "api/tests/test_provider_catalog.py",
+    "api/tests/test_model_sender.py"
+  ],
+  "commands": [
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py::test_catalog_traversal_requires_exact_numeric_release_url_and_total -q",
+      "exit": 1,
+      "label": "r1-red",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/r1-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py -q -s",
+      "exit": 0,
+      "label": "r1-green",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/r1-green.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_model_sender.py::test_metadata_page_encoding_and_size_at_real_httpx_boundary -q",
+      "exit": 1,
+      "label": "r2-red",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/r2-red.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_model_sender.py::test_metadata_page_encoding_and_size_at_real_httpx_boundary -q",
+      "exit": 0,
+      "label": "r2-green",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/r2-green.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py api/tests/test_model_test_routes.py api/tests/test_model_test_v2_contract.py api/tests/test_model_sender.py -k 'not tls_handshake_cut and not sdk_tcp and not missing_broker' -q -s",
+      "exit": 0,
+      "label": "source-final",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/source-final.log"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "exit": 0,
+      "label": "api-quality",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/api-quality.log"
+    },
+    {
+      "command": "git diff --check && git -C /home/kali/.hermes/cache/scratch/cfix/before apply --check /home/kali/.hermes/cache/scratch/cfix/fix-delta.patch && api/.venv/bin/python -I -B -c 'import hashlib,json,pathlib,subprocess\nrepo=pathlib.Path(\"/home/kali/OmnisAI\")\nroot=pathlib.Path(\"/home/kali/.hermes/cache/scratch/cfix\")\npaths=json.loads('\"'\"'[\"api/src/omnis/api.py\", \"api/src/omnis/modules/instance/schemas.py\", \"api/src/omnis/modules/runs/model_test_contract.py\", \"api/src/omnis/modules/runs/model_test_models.py\", \"api/src/omnis/modules/runs/model_test_operation.py\", \"api/src/omnis/modules/runs/model_test_routes.py\", \"api/src/omnis/modules/runs/model_test_runtime.py\", \"api/src/omnis/modules/runs/model_test_store.py\", \"api/src/omnis/modules/settings/provider_catalog.py\", \"api/src/omnis/modules/settings/provider_catalog_models.py\", \"api/src/omnis/modules/settings/provider_catalog_routes.py\", \"api/src/omnis/modules/settings/provider_catalog_runtime.py\", \"api/src/omnis/modules/settings/provider_key_service.py\", \"api/src/omnis/modules/settings/provider_model_test.py\", \"api/src/omnis/supervisor/__main__.py\", \"api/src/omnis/supervisor/model_sender.py\", \"api/src/omnis/transport/local_control.py\", \"api/tests/test_model_test_routes.py\", \"api/tests/test_model_test_v2.py\", \"api/tests/test_provider_catalog.py\", \"contracts/omnis.openapi.json\", \"web/src/shared/api/client.ts\", \"web/src/shared/api/generated.ts\", \"web/src/shared/api/modelTest.ts\", \"web/src/shared/api/providerCatalog.test.ts\", \"web/src/shared/api/providerCatalog.ts\", \"api/tests/test_model_sender.py\"]'\"'\"')\ntracked=subprocess.check_output([\"git\",\"ls-files\",\"--\",*paths],cwd=repo,text=True).splitlines()\nuntracked=sorted(set(paths)-set(tracked))\npatch=subprocess.check_output([\"git\",\"diff\",\"--binary\",\"HEAD\",\"--\",*tracked],cwd=repo)\nfor path in untracked:\n    result=subprocess.run([\"git\",\"diff\",\"--binary\",\"--no-index\",\"--\",\"/dev/null\",path],cwd=repo,capture_output=True)\n    assert result.returncode==1,(path,result.stderr)\n    patch+=result.stdout\n(root/\"full-source.patch\").write_bytes(patch)\nprint(json.dumps({\"full_patch_sha256\":hashlib.sha256(patch).hexdigest(),\"full_patch_bytes\":len(patch),\"tracked_files\":len(tracked),\"untracked_files\":len(untracked)}))\n' && git status --short --branch && git rev-parse HEAD",
+      "exit": 0,
+      "label": "freeze-integrity",
+      "log": "/home/kali/.hermes/cache/scratch/cfix/freeze-integrity.log"
+    }
+  ],
+  "delta_patch": {
+    "bytes": 7433,
+    "path": "/home/kali/.hermes/cache/scratch/cfix/fix-delta.patch",
+    "sha256": "11c002c7f4b55e582fc951f3319073f294896fa39be6f85bb45e4035b20f85ba"
+  },
+  "file_count": 27,
+  "files": [
+    {
+      "bytes": 7832,
+      "path": "api/src/omnis/api.py",
+      "sha256": "3471ce8f78f9e058f24e77c3bb63ca985fda42f8a0cd7282d809c0acd5117d84"
+    },
+    {
+      "bytes": 10793,
+      "path": "api/src/omnis/modules/instance/schemas.py",
+      "sha256": "8b6a7c59119aea89e370e4cee023e2623eda440e4da391fb8c49405c250cfc29"
+    },
+    {
+      "bytes": 9303,
+      "path": "api/src/omnis/modules/runs/model_test_contract.py",
+      "sha256": "ec9f94f29e390aa68a5e4d20d49b62afbd50b9545cd9c86f047e99c52c976629"
+    },
+    {
+      "bytes": 6924,
+      "path": "api/src/omnis/modules/runs/model_test_models.py",
+      "sha256": "b1e419e8ea5ebeb7e3190a252062318d5feb858311052abc8cbd83cf77033664"
+    },
+    {
+      "bytes": 11252,
+      "path": "api/src/omnis/modules/runs/model_test_operation.py",
+      "sha256": "937456a090300e0fd9b32bd580fb1f258d11c5a0995c8935b352f3909da484bf"
+    },
+    {
+      "bytes": 10176,
+      "path": "api/src/omnis/modules/runs/model_test_routes.py",
+      "sha256": "9f18dc1546b5de423681cf79ae70a4fa366198e9f60222ad3deeb780c9efe3ba"
+    },
+    {
+      "bytes": 42593,
+      "path": "api/src/omnis/modules/runs/model_test_runtime.py",
+      "sha256": "702813e7abc5d16deb71b47520a3a380ca5c2fe4cf33e171632194dfcaeaf3f9"
+    },
+    {
+      "bytes": 8402,
+      "path": "api/src/omnis/modules/runs/model_test_store.py",
+      "sha256": "af35b7e56ef18d1af371b61a7a9456cb7c93b160bd3df044381c16ed0292416e"
+    },
+    {
+      "bytes": 5515,
+      "path": "api/src/omnis/modules/settings/provider_catalog.py",
+      "sha256": "1ff93c6bff783e747f9680c3a6b558979313697e7a08e259298a9f2353240b10"
+    },
+    {
+      "bytes": 4284,
+      "path": "api/src/omnis/modules/settings/provider_catalog_models.py",
+      "sha256": "1a76ef8755e424eb087aaeb40f3719b4da1874fc5ba9c40a6e9019c862e30f0d"
+    },
+    {
+      "bytes": 2953,
+      "path": "api/src/omnis/modules/settings/provider_catalog_routes.py",
+      "sha256": "69d383ab5748dad07bc5609fb9f920b786410f9508876d8634c13f34592dc6ec"
+    },
+    {
+      "bytes": 10995,
+      "path": "api/src/omnis/modules/settings/provider_catalog_runtime.py",
+      "sha256": "498b43ea5f3991692083af188dda9ed5e8945cbc1b0e1bc3a64cd7dda6a9b1e4"
+    },
+    {
+      "bytes": 14990,
+      "path": "api/src/omnis/modules/settings/provider_key_service.py",
+      "sha256": "a2c60f02f06835a874d55710a4fbb733688db2e422917536418d7913cf7c51d0"
+    },
+    {
+      "bytes": 3348,
+      "path": "api/src/omnis/modules/settings/provider_model_test.py",
+      "sha256": "ce0992d0dee3912a355ef038b9149882b0ee0ca1b3cc837835188d1d85d16c07"
+    },
+    {
+      "bytes": 15228,
+      "path": "api/src/omnis/supervisor/__main__.py",
+      "sha256": "e26df7fe7f15337655cce4aba5500387c6e56a9606dadb33a4ccc3de9287f7af"
+    },
+    {
+      "bytes": 16234,
+      "path": "api/src/omnis/supervisor/model_sender.py",
+      "sha256": "cf0f42b7545e5f3c427bac6f87bc03c314245b81fb12d464a8330cac80e47b23"
+    },
+    {
+      "bytes": 16952,
+      "path": "api/src/omnis/transport/local_control.py",
+      "sha256": "053cf1a02bd2665ad5ed5f0d641c5b67eee80099a4a5f8eb782f140f88d1b0d0"
+    },
+    {
+      "bytes": 9821,
+      "path": "api/tests/test_model_test_routes.py",
+      "sha256": "cf70d90d2b863e6b466a5e955dee48034b77f02113ae11f3bfda353e31ed9d96"
+    },
+    {
+      "bytes": 80182,
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "17f98d9bc1ad2e231b60489f2ea71126e56bc0e020d94c341f853bfd57c331c9"
+    },
+    {
+      "bytes": 16241,
+      "path": "api/tests/test_provider_catalog.py",
+      "sha256": "8483069eb9ab6ebeb62b78831f10058a838061b86dbb2104a702dc360dea793a"
+    },
+    {
+      "bytes": 181978,
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "61f878a73a2f831b47d2cc67fa4a2d420d753de31f787c4e7f139e1f321a66b1"
+    },
+    {
+      "bytes": 17049,
+      "path": "web/src/shared/api/client.ts",
+      "sha256": "0dc060f380da65adf0e9e70e49abefa4d9c3eb8662b4f7b67dc6caf2cf919b15"
+    },
+    {
+      "bytes": 149626,
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "c818edba67b77d74a7b34fe54a0da359591f2e9fac7f666a16be55dbf645a652"
+    },
+    {
+      "bytes": 5080,
+      "path": "web/src/shared/api/modelTest.ts",
+      "sha256": "8bd2f3dd1a6fbdc90d439035bb43f32d437c339f6455b08d870a899d1c9394a7"
+    },
+    {
+      "bytes": 4713,
+      "path": "web/src/shared/api/providerCatalog.test.ts",
+      "sha256": "f6c079d1ab7d5ce6b098dde028ccaccde0a1ab0b341daefe5a7505939b95f03f"
+    },
+    {
+      "bytes": 4646,
+      "path": "web/src/shared/api/providerCatalog.ts",
+      "sha256": "d315c034be8c07e9b92c2738827016f07cf52471e537232a2cd88fbb5e3817cb"
+    },
+    {
+      "bytes": 22547,
+      "path": "api/tests/test_model_sender.py",
+      "sha256": "c4668549ea0e5a12ce2fd0052de290ebc526267b6b93fea9d50164d2861dbc67"
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "fix": "Exact absolute/relative release base retained; strict parse_qsl(max_num_fields=2), exact sorted offset/limit values, no duplicate/extra parameters; only owned numeric offset returned, never URL-following. Existing page/row/total guards unchanged.",
+      "green": "r1-green.log: exit0, 11 passed; all four base/order positives complete two models; duplicate/extra/fragment/foreign/loop/nonnumeric negatives and totals/pages/caps controls retained.",
+      "id": "R1-CATALOG-PAGING-01",
+      "original_report": {
+        "bytes": 13888,
+        "path": "/home/kali/.hermes/cache/scratch/settings-c-review1/catalog-entry-review1.json",
+        "sha256": "154888cd531e4134b5a24b7bb270a2b4caeff7d1d7cb71c40345b865e815c748"
+      },
+      "red": "r1-red.log: exit1, 2 failed/2 passed; reversed-order absolute and relative URLs rejected as reproduced."
+    },
+    {
+      "disposition": "FIXED_SOURCE_AWAITING_FOCUSED_REREVIEW",
+      "fix": "Case-insensitive HTTPX Headers lookup and case-insensitive identity value; reject nonidentity/combined duplicate encodings and close core response before constructing HTTPX response. No compression support or changed byte limits.",
+      "green": "r2-green.log: exit0, 8 passed; mixed/lowercase/uppercase gzip and duplicate encoding denial before stream read, closure asserted; Identity success, absent-header exact 2097152-byte success and identity 2097153-byte RESPONSE_LIMIT.",
+      "id": "R2-CATALOG-01",
+      "original_report": {
+        "bytes": 7344,
+        "path": "/home/kali/.hermes/cache/scratch/catalog-r2-review-original.md",
+        "sha256": "e4195beeaa4b1eb46b427cf26738ffd7cd52146c69933f8e16f9e023fc3ac737"
+      },
+      "red": "r2-red.log: exit1, 3 failed/5 passed; real Transport/HTTPX allowed mixed-case gzip, uppercase GZIP and mixed-case gzip+lowercase identity duplicate to decode a valid synthetic 3000000-byte JSON page.",
+      "seam": "Only httpcore pool reply is synthetic; production Transport, ResponseStream, HTTPX decoder/client, metadata_page and CatalogIngest run. Backend connect_tcp is guarded by AsyncMock raising NO_IO; no real sockets, DB, provider or service."
+    }
+  ],
+  "full_source_patch": {
+    "bytes": 357401,
+    "path": "/home/kali/.hermes/cache/scratch/cfix/full-source.patch",
+    "sha256": "b17a72e8153559bc9945cfc127b09e4c5fade18b67caa9957d968c461cd13498"
+  },
+  "inherited_evidence": {
+    "cli_contracts_ui_persistence_schema": "Unchanged; NOT_RERUN",
+    "other_reviewed_scope": "Inherited only within original complementary reports; these repairs do not approve themselves or reopen unchanged T1 scope.",
+    "previous_freeze": "/home/kali/.hermes/cache/scratch/scat/catalog-entry-freeze.json",
+    "web": "173 serial SOURCE PASS on unchanged bytes; NOT_RERUN"
+  },
+  "integrity": {
+    "current_files_equal_after_snapshot": true,
+    "delta_apply_check_on_before_snapshot_exit": 0,
+    "diff_check_exit": 0,
+    "log": {
+      "bytes": 1579,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/freeze-integrity.log",
+      "sha256": "293234448b40b5e8bb61324feac94c73808fd2071c73308b621ee9dc3893115f"
+    }
+  },
+  "logs": [
+    {
+      "bytes": 3211,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/r1-red.log",
+      "sha256": "4a1f0f20cdbec8781bd4fea2f0a7719ba8cfd1a1eb45f239afe6b12b655fc00a"
+    },
+    {
+      "bytes": 252,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/r1-green.log",
+      "sha256": "19e9561eb32c7adc3b5840762bc7ccccc8ad2c03a2b01f87a73cfb4cafa12514"
+    },
+    {
+      "bytes": 9920,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/r2-red.log",
+      "sha256": "85c56a6f9b5c7e113eb404089a265878475bd73742bf993afeed162d5bb1fee5"
+    },
+    {
+      "bytes": 97,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/r2-green.log",
+      "sha256": "7c7443cfd4fcf0bfec6d3e611be8853034e1b6e00eef1a5beb3cb158b6d0b957"
+    },
+    {
+      "bytes": 314,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/source-final.log",
+      "sha256": "9f4c5723df917b6957856d4bdce80af3fa2f96628f31d331385e4253b393896f"
+    },
+    {
+      "bytes": 4,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/api-quality.log",
+      "sha256": "821bf06b4dcb406ea508a4a992eadc22f29850cd208ba24aea7c29148de8ccf1"
+    }
+  ],
+  "non_goals_and_limits": [
+    "No UI/snapshot model/persistence/schema/contract/HTTP authority/timeout/provider-policy changes. Exact saved-entry/current-catalog and no-Default-swap behavior unchanged.",
+    "No PG/native/installed/browser/provider-live execution. SOURCE double is not runtime/Stop or provider compatibility proof.",
+    "No auth/Prompt B, operator credentials/data, provider spending, target/global effects, installs, new scripts/harnesses, commit or push. Protected tempkey.txt and documents/Omnis_Notite_Originale.html not read.",
+    "Parent owns two focused complementary re-reviews, subsequent bounded PG admission, status and granular integration. Prior failures and original reports retained; PG attempts/cycles remain zero.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "pg": {
+    "collected": 72,
+    "collection_log": "pg-collection-final.log",
+    "effects": "NOT_RUN_REQUIRES_TWO_FOCUSED_COMPLEMENTARY_REREVIEWS",
+    "harness_only_cycles_this_row": 0,
+    "image_inspect_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "new_case": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_catalog]",
+    "runner_help_exit": 0,
+    "target": "test-model-test-v2-pg"
+  },
+  "previous_freeze": {
+    "bytes": 10444,
+    "path": "/home/kali/.hermes/cache/scratch/scat/catalog-entry-freeze.json",
+    "sha256": "0451634a5a52103b2d32e83113cab9a9ac22b206e0d7d0197b91400aee6a192c"
+  },
+  "quality": {
+    "command": "env -u PYTHONPATH -u MYPYPATH TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "exit": 0,
+    "log": {
+      "bytes": 4,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/api-quality.log",
+      "sha256": "821bf06b4dcb406ea508a4a992eadc22f29850cd208ba24aea7c29148de8ccf1"
+    },
+    "scope": "Full api/src and api/tests, unchanged strict Ruff and mypy settings."
+  },
+  "scope": "Minimal R1 query-order and R2 Content-Encoding fixes only; unchanged prior reviewed scope inherited, not reopened or newly approved.",
+  "snapshot_after": "/home/kali/.hermes/cache/scratch/cfix/after",
+  "snapshot_before": "/home/kali/.hermes/cache/scratch/cfix/before",
+  "source": {
+    "command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS TMPDIR=/home/kali/.hermes/cache/scratch/cfix PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml -p no:cacheprovider api/tests/test_provider_catalog.py api/tests/test_model_test_routes.py api/tests/test_model_test_v2_contract.py api/tests/test_model_sender.py -k 'not tls_handshake_cut and not sdk_tcp and not missing_broker' -q -s",
+    "deselected": 8,
+    "exit": 0,
+    "log": {
+      "bytes": 314,
+      "path": "/home/kali/.hermes/cache/scratch/cfix/source-final.log",
+      "sha256": "9f4c5723df917b6957856d4bdce80af3fa2f96628f31d331385e4253b393896f"
+    },
+    "passed": 59,
+    "seconds": 2.48,
+    "selection_expression": "not tls_handshake_cut and not sdk_tcp and not missing_broker"
+  },
+  "status": "SOURCE_FROZEN_NOT_INTEGRATED_PENDING_FOCUSED_COMPLEMENTARY_REREVIEWS",
+  "unchanged_previous_file_count": 23
+}

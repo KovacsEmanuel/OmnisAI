@@ -132,15 +132,17 @@ exact-entry test and English C UI rather than declaring isolated helpers complet
 Rollback is granular Git revert for source; fixture DB/vault data remain preserved,
 and no operator instance/PGDATA is adopted. No provider traffic, spending, push or auth edits.
 
-**Execution checkpoint, not complete Settings:** registry increment `a3e04a7` is integrated
-with complementary SOURCE reviews, focused SQL/test-fixture re-reviews and parent-owned
-real API/private-PG QA **53 PASS42.46s/exit0/drained** on the unchanged43-file freeze.
-[Result, original reviews/freezes and retained failures](../../documents/verification/settings-c-evidence/registry-result.json)
-record the exact scoped evidence. The invalid PostgreSQL regex bound256 and the fixture's
-missing heartbeat/skipped disposal are fixed; earlier FAILs remain. Fresh owner/readback
-is proven, not an installed process restart or browser pass. Catalog/search, exact-entry
-test, guided UI and its final assignment-membership guard remain; canonical/provider-live
-are NOT_RUN. This is continuation within Prompt A, not a handoff or T2/P4b closure.
+**Execution checkpoint, not complete Settings:** registry `a3e04a7` and catalog/exact-entry
+test `6d9c0c5` are integrated with complementary/focused SOURCE reviews and parent-owned
+real API/private-PG QA: [registry53PASS42.46s](../../documents/verification/settings-c-evidence/registry-result.json)
+and [catalog/test72PASS119.11s](../../documents/verification/settings-c-evidence/catalog-result.json),
+both exit0/drained on unchanged reviewed bytes, with exact resource cleanup/data retained.
+Original reviews/freezes and earlier failures remain. The SQL bound and test heartbeat
+issues, reversed paging-query order and mixed-case gzip cap bypass have minimal reviewed
+repairs. Catalog/test use an owned synthetic TLS peer, not an external provider. Orca's
+undocumented parameter support remains unknown. Guided UI, final assignment-membership
+guard, browser/visual/installed flow and canonical/provider-live remain NOT_RUN. This is
+continuation within Prompt A, not a handoff or T2/P4b closure.
 
 ### Official documentation checked, no API calls made
 

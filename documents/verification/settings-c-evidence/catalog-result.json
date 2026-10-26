@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Settings C second increment: connection-scoped provider catalog/local search and exact saved-entry finite ModelTest; UI not yet delivered",
+  "product_commit": "6d9c0c5",
+  "base_commit": "66252862587f1f2f44cf81837372b2c855e8dfef",
+  "tested_freeze_sha256": "e4c0e760c3dabac2fed58789b9ef6f1751b62fe05e3385b3fefa9a3af2431ba8",
+  "implementation": "IMPLEMENTED_API_CATALOG_ENTRY_TEST_SCOPED",
+  "evidence": "PASS_LOCAL_RECORDED_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
+  "review": "APPROVED_SCOPED_COMPOSED",
+  "reviews": [
+    {"report": "catalog-review1.json", "verdict": "CHANGES_REQUESTED", "finding": "R1-CATALOG-PAGING-01", "disposition": "Parent reproduced valid reversed query-order refusal; minimal query-set fix, RED2FAIL/2PASS->GREEN11; closed SOURCE by both focused re-reviews."},
+    {"report": "catalog-review2.md", "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED", "finding": "R2-CATALOG-01", "severity": "HIGH", "disposition": "Parent independently reproduced mixed-case Content-Encoding gzip bypass:2997 compressed->3000057 decoded bytes. Case-insensitive encoding rejection before HTTPX response construction, RED3FAIL/5PASS->GREEN8; closed SOURCE by both focused re-reviews."},
+    {"report": "catalog-rereview1.json", "verdict": "APPROVED_SOURCE_SCOPED", "scope": "Four-file delta,23 inherited unchanged paths; final27-file freeze"},
+    {"report": "catalog-rereview2.md", "verdict": "APPROVED_SOURCE_SCOPED", "scope": "Same frozen delta: query authority and encoding/page-size rejection before decode, stream closure; prior security scope inherited"}
+  ],
+  "qa": {
+    "process_session": "proc_0bc47a88599d",
+    "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/sc4 PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-model-test-v2-pg --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 600",
+    "outer_exit": 0,
+    "gate_exit": 0,
+    "family_drained": true,
+    "passed": 72,
+    "seconds": 119.11,
+    "new_consumer": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_catalog]",
+    "boundary": "Real paired ASGI/private UDS/Settings owner/PostgreSQL and existing ModelSender/SDK/relay with owned synthetic TLS peer; not external provider IO",
+    "observed_scope": ["Catalog refresh without a saved Default; paged normalized catalog and local search", "Saved-entry test with its own snapshot/capabilities and sink validation, without a Default mutation", "Existing durable SystemOperation/dispatch/ledger/outcome/readback path", "Existing finite-test failure, unknown usage, replay/no-resend, Cancel/revoke/Stop/recovery scenarios in the unchanged target"],
+    "fixture_root": "/home/kali/.hermes/cache/scratch/sc4/db-91b0b9c333a44d7e",
+    "project": "omnis-p01-b013b8e89099446a981bc11393a40bf0",
+    "container_id": "30c17b63081580360f1bde1ef3fd62e0091c17841cb4b1a4c47496cdc9143e4a",
+    "postgres_version": "18.6",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "system_id": "7701116387381186590",
+    "cleanup_parent_readback": {"exact_container_absent": true, "project_networks_absent": true, "socket_absent": true, "pgdata_retained": true, "all27_reviewed_source_hashes_unchanged_after_qa": true}
+  },
+  "source_evidence": {"passed": 59, "deselected": 8, "exit": 0, "quality": "Strict full api/src api/tests Ruff/mypy PASS; unchanged web173serial/contracts/tooling6/lint/typecheck evidence inherited", "maximum_complete_catalog_reply_bytes": 38247, "maximum_complete_entry_reply_bytes": 54151, "maximum_escaped_catalog_frame_bytes": 3433, "entry_frame_bytes": 528, "legacy_reply_bytes": [9021, 8282]},
+  "retained_failures": ["Original R1/R2 reports remain CHANGES_REQUESTED at their original snapshot, composed with focused final approvals rather than overwritten", "SOURCE web fixture reused a consumed Response; fixed to produce a fresh response, original failure retained in source freeze; no product oracle weakened"],
+  "pg_attempts_this_row": 1,
+  "harness_only_cycles_this_row": 0,
+  "limits": ["Synthetic documented provider schemas/TLS peer, not captured provider responses or provider-live compatibility", "Orca per-model max_tokens support is not documented and remains null: no invented inference eligibility", "No guided C UI, browser/visual/accessibility proof, full installed operator journey or canonical final gate yet", "Final new-assignment registry-membership guard remains deferred until the real guided caller is integrated, preserving the old caller in this increment", "No new migration, old API schemas/routes semantically unchanged; no Prompt B/auth policy, T2/P4b closure, operator data, real credentials, provider/target traffic, spending, global configuration or push"],
+  "rollback": "Revert this source increment after dependency inspection; registry0016 remains, no new external schema/service effect was introduced. Owned test PGDATA is retained."
+}

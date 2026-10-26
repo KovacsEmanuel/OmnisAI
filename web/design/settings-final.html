@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' file:; script-src 'unsafe-inline'; font-src data: file:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Omnis · Settings · Final design preview</title>
+<link rel="stylesheet" href="../../documents/assets/prototype-fonts.css">
+<link rel="stylesheet" href="../src/shared/styles/tokens.css">
+<style>
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+:root { color-scheme: dark; --hairline: color-mix(in srgb,var(--color-text) 8.5%,transparent); }
+html { background: var(--color-neutral); } body { margin:0; color:var(--color-text); font:14.5px/1.5 var(--font-sans); letter-spacing:-.011em; -webkit-font-smoothing:antialiased; }
+button,input,select { font:inherit; } button { min-height:44px; min-width:44px; padding:10px 18px; border:1px solid var(--hairline); border-radius:var(--radius-pill); color:var(--color-text); background:var(--color-selected); cursor:pointer; font-weight:600; }
+button:hover:not(:disabled) { background:var(--color-elevated); border-color:var(--color-border); } button:disabled { color:var(--color-secondary); cursor:not-allowed; } .secondary { background:transparent; border-color:var(--color-border); } .quiet { background:transparent; font-weight:400; }
+:focus-visible { outline:2px solid var(--color-focus); outline-offset:3px; } a { color:var(--color-primary); } h1,h2,h3,p { margin:0; } h1 { font-size:40px; line-height:1.08; font-weight:500; letter-spacing:-.035em; } h2 { font-size:21px; font-weight:500; } h3 { font-size:15px; font-weight:600; }
+small,.muted { color:var(--color-secondary); } small,.hint { font-size:13px; } .hint { color:var(--color-secondary); margin-top:10px; } .mono { font-family:var(--font-mono); font-size:12px; overflow-wrap:anywhere; }
+.skip { position:fixed; top:-100px; left:16px; z-index:30; background:var(--color-surface); padding:12px; } .skip:focus { top:8px; }
+.preview { background:var(--color-surface); border-bottom:1px solid var(--color-divider); padding:12px 32px; } .preview-inner { max-width:1116px; margin:auto; display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px; }
+.preview strong { font:600 12px var(--font-mono); color:var(--color-primary); } .preview label { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--color-secondary); } .preview small { margin-right:auto; } .preview select { width:auto; min-height:44px; font-size:12px; padding:8px; }
+.app-header { padding:24px 16px 0; } .nav { display:flex; flex-wrap:wrap; gap:6px; align-items:center; width:fit-content; max-width:100%; margin:auto; padding:6px 12px; min-height:60px; border:1px solid var(--hairline); border-radius:999px; background:var(--color-surface); box-shadow:0 1px 2px #0006,0 8px 24px -14px #0008; }
+.nav span { padding:10px 16px; color:var(--color-secondary); font-weight:600; } .nav .brand { display:flex; align-items:center; gap:11px; font-size:20px; color:var(--color-text); border-right:1px solid var(--hairline); padding:4px 24px 4px 8px; } .brand svg { width:30px; height:30px; fill:none; stroke:var(--color-primary); stroke-width:1.4; } .nav [aria-current=page] { background:var(--color-elevated); border-radius:999px; color:var(--color-text); }
+main { max-width:1180px; margin:38px auto 0; padding:0 32px 64px; } .tabs { display:flex; gap:8px; border-bottom:1px solid var(--color-divider); padding-bottom:20px; margin:24px 0 28px; } .tabs span { padding:10px 18px; border-radius:999px; color:var(--color-secondary); } .tabs [aria-current=page] { background:var(--color-selected); color:var(--color-text); }
+.workspace { max-width:900px; margin:auto; } .section-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px; } .panel { min-width:0; border:1px solid var(--hairline); border-radius:var(--radius-lg); padding:4px; background:color-mix(in srgb,var(--color-text) 3%,transparent); margin-bottom:20px; }
+.core { min-width:0; padding:24px; background:var(--color-surface); border:1px solid var(--hairline); border-radius:var(--radius-md); } .connection + .connection { border-top:1px solid var(--color-divider); padding-top:20px; margin-top:20px; }
+.connection-heading { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; margin-bottom:10px; } .connection-heading small { margin-right:auto; } details.connection-actions { margin:0; border:0; } summary { min-height:44px; padding:12px 0; cursor:pointer; color:var(--color-primary); font-size:13px; } details.connection-actions[open] { flex-basis:100%; } .danger { color:var(--color-danger); }
+.model-list,.catalog-list,.chips,.review-list { list-style:none; padding:0; margin:0; } .model-row { display:flex; flex-wrap:wrap; align-items:center; gap:12px; border-top:1px solid var(--color-divider); padding:16px 0; } .model-identity { min-width:0; flex:1 1 230px; } .model-identity strong { font-weight:500; } .model-identity small { display:block; margin-top:2px; } .model-state { color:var(--color-secondary); font-size:12px; min-width:80px; } [data-test-state=passed] .model-state { color:var(--color-primary); } [data-test-state=unknown] .model-state,[data-test-state=error] .model-state { color:var(--color-warning); }
+.row-actions { display:flex; flex-wrap:wrap; gap:6px; } .row-actions button { font-size:13px; padding:8px 14px; } .empty { padding:16px 0; color:var(--color-secondary); } .notice { padding:14px 16px; border:1px solid var(--color-border); border-radius:var(--radius-sm); margin-bottom:20px; color:var(--color-warning); font-size:13px; }
+#wizard .core { padding:28px; } .wizard-heading { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:20px; } .steps { display:flex; gap:12px; list-style:none; padding:0; margin:0 0 24px; } .steps li { flex:1; font-size:13px; color:var(--color-secondary); padding-bottom:12px; border-bottom:1px solid var(--color-divider); } .steps [aria-current=step] { color:var(--color-text); border-color:var(--color-primary); }
+.fields { display:grid; grid-template-columns:1fr 1fr; gap:20px; } .field { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:13px; font-weight:600; } input,select { min-width:0; width:100%; min-height:46px; padding:11px 13px; border:1px solid var(--color-border); border-radius:var(--radius-sm); color:var(--color-text); background:var(--color-neutral); }
+.key-saved { min-height:46px; display:flex; align-items:center; color:var(--color-primary); font-size:14px; } .actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:24px; } .actions .spacer { flex:1; }
+.search-heading { display:flex; gap:12px; align-items:end; } .search-heading .field { flex:1; } .catalog-list { max-height:280px; overflow-y:auto; border-block:1px solid var(--color-divider); margin-top:12px; } .catalog-row { display:flex; gap:12px; align-items:center; padding:12px 2px; border-bottom:1px solid var(--color-divider); } .catalog-row .model-identity { flex-basis:160px; } .catalog-row button { font-size:13px; padding:8px 14px; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; } .chips li { display:flex; align-items:center; gap:6px; max-width:100%; padding-left:12px; border:1px solid var(--color-border); border-radius:var(--radius-sm); background:var(--color-elevated); } .chips span { overflow-wrap:anywhere; font-size:13px; } .chips button { background:transparent; padding:8px 12px; }
+details { margin-top:16px; border-top:1px solid var(--color-divider); } .manual-fields { display:flex; flex-wrap:wrap; gap:12px; align-items:end; padding-bottom:12px; } .manual-fields .field { flex:1 1 220px; } .review-list li { padding:12px 0; border-bottom:1px solid var(--color-divider); } .review-list small { display:block; } .review-provider { margin-bottom:10px; color:var(--color-secondary); }
+.assignment-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:20px; } .default-field { max-width:440px; } fieldset { border:0; padding:0; margin:0; min-width:0; } #assignment-status { margin-top:12px; font-size:13px; color:var(--color-primary); } #assignment-summary { margin-top:8px; color:var(--color-secondary); } #feedback { margin:12px 0; font-size:13px; color:var(--color-primary); min-height:20px; }
+#toast { position:fixed; right:20px; bottom:20px; z-index:20; display:flex; align-items:center; gap:16px; max-width:calc(100% - 32px); padding:12px 16px; background:var(--color-elevated); border:1px solid var(--color-border); border-radius:var(--radius-md); box-shadow:0 8px 24px #0008; } #toast button { padding:6px 10px; background:transparent; }
+@media(max-width:760px) { body { font-size:16px; } .preview { padding-inline:16px; } .preview-inner { gap:6px 12px; } .preview label { flex:1 1 100%; justify-content:space-between; } .preview select { max-width:70%; } main { padding-inline:16px; margin-top:28px; } h1 { font-size:30px; } .core,#wizard .core { padding:20px; } .fields,.assignment-grid { grid-template-columns:minmax(0,1fr); } input,select { font-size:16px; } .model-identity { flex-basis:100%; } .model-state { margin-right:auto; } .catalog-row .model-identity { flex-basis:160px; } .section-heading { flex-wrap:wrap; } .connection-heading { align-items:start; } .connection-heading small { flex:1 1 140px; } .actions button { flex:1 1 auto; } .actions .spacer { display:none; } .search-heading { flex-wrap:wrap; } }
+@media(max-width:480px) { .nav { width:100%; border-radius:24px; justify-content:space-around; gap:0; padding:6px; } .nav .brand { flex:1 1 100%; justify-content:center; border:0; padding:6px; } .nav span { padding:10px 12px; font-size:13px; } .tabs { gap:2px; } .tabs span { padding:10px 14px; } .catalog-row .model-identity { flex-basis:120px; } .steps { gap:8px; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to settings</a>
+<aside class="preview" aria-label="Design preview controls"><div class="preview-inner"><strong>DESIGN PREVIEW · OFFLINE</strong><small>Sample catalog. No real keys or connections.</small><label for="scenario">View<select id="scenario"><option value="multiple">Several models</option><option value="one">One model</option><option value="empty">First setup</option><option value="catalog-error">Catalog unavailable</option><option value="locked">Vault locked</option><option value="unknown">Unconfirmed test</option></select></label><label for="test-outcome">Test result<select id="test-outcome"><option value="passed">Success</option><option value="error">Error</option><option value="unknown">Unconfirmed</option></select></label></div></aside>
+<header class="app-header"><nav class="nav" aria-label="Application navigation preview"><span class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 16s5-9 13-9 13 9 13 9-5 9-13 9S3 16 3 16Z"/><circle cx="16" cy="16" r="4"/></svg>Omnis</span><span>Home</span><span>Engagement</span><span aria-current="page">Settings</span></nav></header>
+<main id="content" tabindex="-1">
+<h1>Settings</h1><nav class="tabs" aria-label="Settings sections preview"><span aria-current="page">Models</span><span>Skills</span><span>Runtime</span></nav>
+<div class="workspace">
+  <div class="section-heading"><h2>Models</h2><button id="add-models">Add models</button></div>
+  <div id="blocking-notice" class="notice" role="status" hidden></div>
+  <section class="panel" aria-label="Configured models"><div class="core"><div id="models-list"></div><details><summary>Test details</summary><p class="hint" id="test-note">One synthetic call per test; provider charges may apply. No automatic retries.</p><p class="hint">System: <span class="mono">Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</span></p><p class="hint">User: <span class="mono">This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</span></p><p class="hint">Test limit: 128 output tokens · 300 seconds. Not a run budget.</p></details></div></section>
+  <section id="wizard" class="panel" aria-labelledby="wizard-title" hidden><div class="core">
+    <div class="wizard-heading"><h2 id="wizard-title">Add models</h2><button id="close-wizard" class="quiet">Cancel</button></div>
+    <ol class="steps" aria-label="Setup steps"><li aria-current="step">1 · Connection</li><li>2 · Models</li><li>3 · Review</li></ol>
+    <section id="step-connection" aria-label="Connection"><div class="fields"><label class="field" for="provider">Provider<select id="provider"><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label><label class="field" id="key-field" for="api-key">API key<input id="api-key" type="password" readonly placeholder="Demo field — no real keys" autocomplete="off"></label><div id="saved-key" hidden><p class="hint">API key</p><p class="key-saved">Saved key</p></div></div><p class="hint" id="connection-hint">Continue saves this key and loads the provider's model list.</p></section>
+    <section id="step-models" aria-label="Choose models" hidden>
+      <div class="search-heading"><label class="field" for="catalog-search">Search models<input id="catalog-search" type="search" maxlength="256" placeholder="Search by name or model ID" autocomplete="off"></label><button id="refresh-catalog" class="secondary">Refresh</button></div>
+      <p id="catalog-status" class="hint" role="status"></p><p id="catalog-error" class="notice" role="alert" hidden>Catalog unavailable. Retry or enter a model ID.</p>
+      <ul id="catalog-list" class="catalog-list" aria-label="Provider models"></ul><p id="no-results" class="hint" hidden>No matching models.</p><ul id="selected-list" class="chips" aria-label="Selected models"></ul>
+      <details id="manual"><summary>Enter a model ID</summary><div class="manual-fields"><label class="field" for="manual-id">Exact model ID<input id="manual-id" maxlength="256" autocomplete="off"></label><button id="add-manual" class="secondary">Add model ID</button></div><p id="manual-error" class="hint" role="status"></p></details>
+    </section>
+    <section id="step-review" aria-label="Review models" hidden><p id="review-provider" class="review-provider"></p><ul id="review-list" class="review-list"></ul><p id="default-note" class="hint"></p><label id="test-choice-field" class="field" for="test-choice" style="margin-top:20px">Model to test<select id="test-choice"></select></label><p id="test-consent" class="hint">Save &amp; test sends one synthetic call for this model. Provider charges may apply.</p><p id="test-unavailable" class="hint" hidden>Model details unavailable. Save now; refresh details before testing.</p></section>
+    <div class="actions"><button id="back" class="secondary" hidden>Back</button><span class="spacer"></span><button id="continue">Continue</button><button id="save-models" class="secondary" hidden>Save models</button><button id="save-test" aria-describedby="test-consent" hidden>Save &amp; test</button></div>
+  </div></section>
+  <p id="feedback" role="status" aria-live="polite"></p>
+  <section class="panel" aria-labelledby="assignments-heading"><div class="core"><h2 id="assignments-heading">Model assignments</h2><p class="hint">Uses configured models. Changes apply to new runs.</p><p id="assignment-summary"></p>
+    <form id="assignment-form" hidden><fieldset id="assignment-controls"><div class="field default-field"><label for="default-model">Default model</label><select id="default-model"></select></div><div class="assignment-grid"><div class="field"><label for="brain-model">Brain</label><select id="brain-model"></select></div><div class="field"><label for="investigator-model">Investigator</label><select id="investigator-model"></select></div><div class="field"><label for="validator-model">Validator</label><select id="validator-model"></select></div></div><div class="actions"><button id="save-assignments" type="submit">Save assignments</button></div></fieldset></form>
+    <p id="assignment-status" role="status" aria-live="polite"></p>
+  </div></section>
+</div>
+</main>
+<aside id="toast" aria-label="Preview notification" hidden><span id="toast-copy"></span><button id="dismiss-toast" aria-label="Dismiss notification">×</button></aside>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const providers = { openrouter: 'OpenRouter', orcarouter: 'OrcaRouter' };
+const catalog = {
+  openrouter: [['openai/gpt-4.1-mini','GPT-4.1 mini'],['anthropic/claude-sonnet-4','Claude Sonnet 4'],['google/gemini-2.5-pro','Gemini 2.5 Pro'],['qwen/qwen3-coder','Qwen3 Coder'],['meta-llama/llama-3.3-70b-instruct','Llama 3.3 70B'],['openai/gpt-4.1','GPT-4.1']],
+  orcarouter: [['openai/gpt-4.1-mini','GPT-4.1 mini'],['deepseek/deepseek-chat','DeepSeek Chat'],['mistralai/mistral-small','Mistral Small']]
+};
+const roles = ['default','brain','investigator','validator'];
+const titles = { saved:'Not tested', passed:'Test passed', checking:'Testing…', error:'Test failed', unknown:'Unconfirmed', unchecked:'Details needed' };
+let connections = new Set(), disabled = new Set(), models = [], assignments, draft;
+let step = 0, pending = new Map(), catalogState = 'idle', replaceKey = false, wizardProvider = 'openrouter';
+let catalogTimer, testTimer;
+function node(tag, text, className) { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; if (className) element.className = className; return element; }
+function button(text, action, className = 'secondary') { const element = node('button',text,className); element.type = 'button'; element.addEventListener('click',action); return element; }
+function ref(provider,id) { return provider + '|' + id; }
+function usable(model) { return !!model && !disabled.has(model.provider) && model.known; }
+function blocked() { return $('scenario').value === 'locked' || models.some(model => ['checking','unknown'].includes(model.state)); }
+function notify(text) { $('feedback').textContent = text; $('toast-copy').textContent = text; $('toast').hidden = false; }
+function available(refId) { return models.find(model => model.ref === refId && usable(model)); }
+function validAssignments() { return !!available(draft.default) && roles.slice(1).every(role => !draft[role] || !!available(draft[role])); }
+function renderAssignments() {
+  const eligible = models.filter(usable);
+  const invalid = !!assignments.default && !validAssignments();
+  const simple = models.length <= 1 && !invalid;
+  $('assignment-form').hidden = simple;
+  $('assignment-summary').hidden = !simple;
+  $('assignment-summary').textContent = eligible.length === 1 ? 'All roles use ' + eligible[0].name + '.' : 'Add a model first.';
+  if (!simple) for (const role of roles) {
+    const select = $(role + '-model'); select.replaceChildren();
+    if (role !== 'default') { const option = node('option','Use default'); option.value = ''; select.append(option); }
+    for (const model of models) {
+      const option = node('option',model.name + ' · ' + providers[model.provider] + (usable(model) ? '' : ' · Unavailable'));
+      option.value = model.ref; option.disabled = !usable(model); select.append(option);
+    }
+    select.value = draft[role] || '';
+  }
+  $('assignment-controls').disabled = blocked();
+  $('save-assignments').disabled = blocked() || !validAssignments() || JSON.stringify(draft) === JSON.stringify(assignments);
+  if (invalid) $('assignment-status').textContent = 'Choose available models for the affected roles.';
+}
+function renderModels() {
+  const list = $('models-list'); list.replaceChildren();
+  if (!connections.size) list.append(node('p','No models configured.','empty'));
+  for (const provider of connections) {
+    const group = node('section',undefined,'connection'); group.dataset.provider = provider;
+    const heading = node('div',undefined,'connection-heading'); heading.append(node('h3',providers[provider]),node('small',disabled.has(provider) ? 'Connection disabled' : 'Key saved'));
+    const addMore = button('+ Add model',() => openWizard(provider,true),'quiet'); addMore.disabled = blocked() || disabled.has(provider); heading.append(addMore);
+    const menu = node('details',undefined,'connection-actions'); menu.append(node('summary','Connection options'));
+    const replace = button(disabled.has(provider) ? 'Reconnect' : 'Replace key',() => { openWizard(provider); replaceKey = true; renderWizard(); }); replace.disabled = blocked();
+    const revoke = button('Disable connection',() => {
+      if (!window.confirm('Disable ' + providers[provider] + '? Saved models remain, but cannot be used.')) return;
+      disabled.add(provider); if (models.some(model => model.provider === provider && model.state === 'checking')) clearTimeout(testTimer); for (const model of models) if (model.provider === provider && model.state === 'checking') model.state = 'unknown';
+      if (!$('wizard').hidden && $('provider').value === provider) closeWizard();
+      renderModels(); renderAssignments(); notify('Connection disabled. Saved models were kept.');
+    },'secondary danger'); revoke.disabled = disabled.has(provider);
+    menu.append(replace,revoke); heading.append(menu); group.append(heading);
+    const rows = node('ul',undefined,'model-list');
+    for (const model of models.filter(item => item.provider === provider)) {
+      const row = node('li',undefined,'model-row'); row.dataset.savedModel = model.ref; row.dataset.testState = model.state;
+      const identity = node('div',undefined,'model-identity'); identity.append(node('strong',model.name),node('small',model.id,'mono')); row.append(identity);
+      row.append(node('span',disabled.has(provider) ? 'Unavailable' : titles[model.state],'model-state'));
+      const actions = node('div',undefined,'row-actions');
+      if (model.state === 'checking') actions.append(button('Cancel test',() => cancelTest(model)));
+      else if (model.state === 'unknown') actions.append(button('Read test status',() => notify('Still unconfirmed. No new call sent.')));
+      else { const test = button('Test',() => testModel(model)); test.setAttribute('aria-label','Test ' + model.id); test.setAttribute('aria-describedby','test-note'); test.disabled = blocked() || !usable(model); actions.append(test); }
+      row.append(actions); rows.append(row);
+    }
+    group.append(rows); list.append(group);
+  }
+  $('add-models').disabled = blocked();
+  $('blocking-notice').hidden = !blocked();
+  $('blocking-notice').textContent = $('scenario').value === 'locked' ? 'Vault locked. Restore the local master key to use saved connections.' : models.some(model => model.state === 'unknown') ? 'A test is unconfirmed. Read its status before making changes.' : 'A test is running. Cancel remains available below.';
+}
+function renderCatalog() {
+  const list = $('catalog-list'); list.replaceChildren();
+  const provider = $('provider').value, query = $('catalog-search').value.toLowerCase();
+  const matches = catalogState === 'ready' ? catalog[provider].filter(([id,name]) => (id + ' ' + name).toLowerCase().includes(query)) : [];
+  for (const [id,name] of matches) {
+    const row = node('li',undefined,'catalog-row'), identity = node('div',undefined,'model-identity'); identity.append(node('strong',name),node('small',id,'mono')); row.append(identity);
+    const exists = models.some(model => model.ref === ref(provider,id)), selected = pending.has(id);
+    const add = button(exists ? 'Added' : selected ? 'Selected' : '+ Add',() => { pending.set(id,{id,name,known:true}); renderCatalog(); renderWizard(); });
+    add.setAttribute('aria-label',(exists ? 'Added ' : selected ? 'Selected ' : 'Add ') + id); add.disabled = exists || selected; row.append(add); list.append(row);
+  }
+  $('catalog-status').textContent = catalogState === 'loading' ? 'Loading models…' : catalogState === 'ready' ? 'Example catalog · ' + providers[provider] + ' · ' + matches.length + ' results' : '';
+  $('catalog-error').hidden = catalogState !== 'error'; $('no-results').hidden = catalogState !== 'ready' || matches.length !== 0;
+  $('refresh-catalog').disabled = catalogState === 'loading';
+  $('selected-list').replaceChildren();
+  for (const model of pending.values()) { const chip = node('li'); chip.append(node('span',model.name)); const remove = button('×',() => { pending.delete(model.id); renderCatalog(); renderWizard(); },'quiet'); remove.setAttribute('aria-label','Remove selected ' + model.id); chip.append(remove); $('selected-list').append(chip); }
+}
+function renderWizard() {
+  for (const [index,id] of ['step-connection','step-models','step-review'].entries()) $(id).hidden = index !== step;
+  document.querySelectorAll('.steps li').forEach((item,index) => { if (index === step) item.setAttribute('aria-current','step'); else item.removeAttribute('aria-current'); });
+  const hasKey = connections.has($('provider').value) && !disabled.has($('provider').value) && !replaceKey;
+  $('saved-key').hidden = !hasKey; $('key-field').hidden = hasKey;
+  $('connection-hint').textContent = hasKey ? 'Uses the saved key. Continue loads this provider’s model list.' : 'Continue saves this key and loads the provider’s model list.';
+  $('back').hidden = step === 0; $('continue').hidden = step === 2; $('continue').disabled = step === 1 && (catalogState === 'loading' || pending.size === 0);
+  $('save-models').hidden = step !== 2; $('save-test').hidden = step !== 2;
+  $('review-provider').textContent = providers[$('provider').value] + ' · Saved key'; $('review-list').replaceChildren(); $('test-choice').replaceChildren();
+  for (const model of pending.values()) { const item = node('li',model.name); item.append(node('small',model.id,'mono')); $('review-list').append(item); if (model.known) { const option = node('option',model.name); option.value = model.id; $('test-choice').append(option); } }
+  $('test-choice-field').hidden = ![...pending.values()].some(model => model.known);
+  $('test-unavailable').hidden = !$('test-choice-field').hidden;
+  $('save-test').disabled = $('test-choice-field').hidden;
+  $('default-note').textContent = !assignments.default && pending.size ? [...pending.values()][0].name + ' will be the default. Change roles in Model assignments.' : 'Existing model assignments stay unchanged.';
+}
+function loadCatalog() {
+  clearTimeout(catalogTimer); catalogState = 'loading'; renderCatalog(); renderWizard();
+  catalogTimer = setTimeout(() => { catalogState = $('scenario').value === 'catalog-error' ? 'error' : 'ready'; renderCatalog(); renderWizard(); },180);
+}
+function openWizard(provider = 'openrouter',skipConnection = false) {
+  if (blocked()) return;
+  clearTimeout(catalogTimer); pending = new Map(); step = skipConnection ? 1 : 0; replaceKey = false; wizardProvider = provider; catalogState = 'idle'; $('provider').value = provider; $('catalog-search').value = ''; $('api-key').value = ''; $('manual-id').value = ''; $('manual-error').textContent = ''; $('manual').open = false; $('wizard').hidden = false; $('toast').hidden = true;
+  renderCatalog(); renderWizard(); if (skipConnection) loadCatalog(); (skipConnection ? $('catalog-search') : $('provider')).focus();
+}
+function closeWizard() { clearTimeout(catalogTimer); $('wizard').hidden = true; pending.clear(); $('api-key').value = ''; $('add-models').focus(); }
+function saveModels(test) {
+  if (!pending.size || blocked()) return;
+  if (models.length + pending.size > 64) { notify('Model limit reached. No changes saved.'); return; }
+  const provider = $('provider').value, testId = $('test-choice').value;
+  const added = [...pending.values()].filter(model => !models.some(item => item.ref === ref(provider,model.id))).map(model => ({...model,provider,ref:ref(provider,model.id),state:model.known ? 'saved' : 'unchecked'}));
+  models.push(...added);
+  if (!assignments.default && added.length) { assignments.default = added[0].ref; draft = {...assignments}; }
+  closeWizard(); renderModels(); renderAssignments(); notify('Models saved');
+  if (test) { const choice = added.find(model => model.id === testId); if (choice) testModel(choice); }
+}
+function testModel(model) {
+  if (blocked() || !usable(model)) return;
+  model.state = 'checking'; renderModels(); renderAssignments(); $('feedback').textContent = 'Testing ' + model.name + '…';
+  const cancel = [...$('models-list').querySelectorAll('button')].find(item => item.textContent === 'Cancel test'); cancel?.focus();
+  testTimer = setTimeout(() => { model.state = $('test-outcome').value; renderModels(); renderAssignments(); notify(model.state === 'passed' ? 'Model connected · ' + model.name : model.state === 'unknown' ? 'Test unconfirmed. No automatic retry.' : 'Test failed. Configuration kept.'); },650);
+}
+function cancelTest(model) { clearTimeout(testTimer); model.state = 'unknown'; renderModels(); renderAssignments(); notify('Cancelled locally. Provider status and cost are unknown.'); const read = [...$('models-list').querySelectorAll('button')].find(item => item.textContent === 'Read test status'); read?.focus(); }
+function reset() {
+  clearTimeout(testTimer); clearTimeout(catalogTimer); connections = new Set(); disabled = new Set(); models = []; assignments = {default:'',brain:'',investigator:'',validator:''};
+  const sample = $('scenario').value;
+  if (sample !== 'empty') {
+    connections.add('openrouter'); models.push({provider:'openrouter',id:catalog.openrouter[0][0],name:catalog.openrouter[0][1],known:true,state:sample === 'unknown' ? 'unknown' : 'passed',ref:ref('openrouter',catalog.openrouter[0][0])}); assignments.default = models[0].ref;
+    if (['multiple','locked'].includes(sample)) { connections.add('orcarouter'); models.push({provider:'openrouter',id:catalog.openrouter[1][0],name:catalog.openrouter[1][1],known:true,state:'saved',ref:ref('openrouter',catalog.openrouter[1][0])},{provider:'orcarouter',id:catalog.orcarouter[0][0],name:catalog.orcarouter[0][1],known:true,state:'saved',ref:ref('orcarouter',catalog.orcarouter[0][0])}); assignments.validator = models[1].ref; }
+  }
+  draft = {...assignments}; $('wizard').hidden = true; $('feedback').textContent = ''; $('assignment-status').textContent = ''; $('toast').hidden = true; renderModels(); renderAssignments(); if (sample === 'empty') openWizard();
+}
+$('add-models').addEventListener('click',() => openWizard());
+$('close-wizard').addEventListener('click',closeWizard);
+$('continue').addEventListener('click',() => {
+  if ($('wizard').hidden || blocked()) return;
+  if (step === 0) { const provider = $('provider').value; const changed = replaceKey || disabled.has(provider); connections.add(provider); disabled.delete(provider); if (changed) { for (const model of models.filter(item => item.provider === provider)) model.state = model.known ? 'saved' : 'unchecked'; notify('Key saved. Previous test results no longer apply.'); } $('api-key').value = ''; replaceKey = false; step = 1; renderModels(); renderAssignments(); loadCatalog(); $('catalog-search').focus(); }
+  else if (step === 1 && pending.size && catalogState !== 'loading') { step = 2; renderWizard(); $('save-models').focus(); }
+});
+$('back').addEventListener('click',() => { step = Math.max(0,step - 1); renderWizard(); (step === 0 ? $('provider') : $('catalog-search')).focus(); });
+$('provider').addEventListener('change',() => {
+  if (pending.size && !window.confirm('Discard selected models and change provider?')) { $('provider').value = wizardProvider; return; }
+  clearTimeout(catalogTimer); wizardProvider = $('provider').value; pending.clear(); replaceKey = false; catalogState = 'idle'; $('catalog-search').value = ''; renderCatalog(); renderWizard();
+});
+$('catalog-search').addEventListener('input',renderCatalog); $('refresh-catalog').addEventListener('click',loadCatalog);
+$('add-manual').addEventListener('click',() => { const id = $('manual-id').value; if (!id.length || id.length > 256 || !/^[!-~]+$/.test(id)) { $('manual-error').textContent = 'Use the exact model ID, without spaces.'; return; } if (models.some(model => model.ref === ref($('provider').value,id)) || pending.has(id)) { $('manual-error').textContent = 'This model is already added or selected.'; return; } const known = catalogState === 'ready' ? catalog[$('provider').value].find(item => item[0] === id) : null; pending.set(id,{id,name:known ? known[1] : id,known:!!known}); $('manual-error').textContent = ''; $('manual-id').value = ''; renderCatalog(); renderWizard(); });
+$('save-models').addEventListener('click',() => saveModels(false)); $('save-test').addEventListener('click',() => saveModels(true));
+for (const role of roles) $(role + '-model').addEventListener('change',event => { draft[role] = event.target.value; $('assignment-status').textContent = 'Unsaved changes'; $('save-assignments').disabled = blocked() || !validAssignments() || JSON.stringify(draft) === JSON.stringify(assignments); });
+$('assignment-form').addEventListener('submit',event => { event.preventDefault(); if (blocked() || !validAssignments()) return; assignments = {...draft}; renderAssignments(); $('assignment-status').textContent = 'Saved. Applies to new runs.'; });
+$('scenario').addEventListener('change',reset); $('dismiss-toast').addEventListener('click',() => { $('toast').hidden = true; });
+reset();
+</script>
+</body>
+</html>

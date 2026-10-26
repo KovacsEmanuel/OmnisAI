@@ -104,7 +104,9 @@ async def run() -> None:
         )
         epoch = await service.acquire(owner)
         if raw_vault is not None and raw_keys is not None:
-            identity = str((await service.owned_status(owner, epoch)).instance_id)
+            status = await service.owned_status(owner, epoch)
+            startup_generation = status.generation
+            identity = str(status.instance_id)
             provider_owner = ProviderSettingsOwner(
                 service, owner, epoch, ProviderVault(Path(raw_vault), Path(raw_keys), identity)
             )
@@ -217,11 +219,9 @@ async def run() -> None:
                         await service.heartbeat(owner, epoch)
                         phase = "QUIESCE"
                         # The startup generation was already drained without closing this owner.
-                        if (
-                            task_owner is None
-                            or (await service.owned_status(owner, epoch)).generation
-                            != startup_generation
-                        ):
+                        if (task_owner is None and model_owner is None) or (
+                            await service.owned_status(owner, epoch)
+                        ).generation != startup_generation:
                             await service.quiesce(owner, epoch)
                         if runtime is not None:
                             phase = "RUNTIME_STATUS"

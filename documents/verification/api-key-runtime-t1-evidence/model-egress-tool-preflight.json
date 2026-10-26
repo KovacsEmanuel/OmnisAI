@@ -1,0 +1,26 @@
+{
+  "tool": "strace7.0",
+  "tool_sha256": "705e89a26e9f6a48f2908760d78801cbaa263f9b8c6738e392fb95902479cddf",
+  "attach_existing_same_uid_confirmed": true,
+  "child_exit": 0,
+  "tracer_exit": 0,
+  "send_calls_observed": 2,
+  "same_connection_fd": true,
+  "payload_canary_absent": true,
+  "trace_sha256": "16103a1cdf5b691992b6bd3770ef932ae996a535aa9a8f1e2113061eaf62045b",
+  "argv_without_target_pid": [
+    "/home/kali/.hermes/cache/scratch/t1-trace-58ei9d1e/extracted/usr/bin/strace",
+    "-f",
+    "-ttt",
+    "-yy",
+    "-e",
+    "trace=socket,connect,accept,accept4,close,shutdown,sendto,sendmsg,sendmmsg,write,writev",
+    "-e",
+    "raw=sendto,sendmsg,sendmmsg,write,writev",
+    "-o",
+    "/home/kali/.hermes/cache/scratch/t1-trace-58ei9d1e/raw-pointer-trace.log",
+    "-p",
+    "OWNED_SYNTHETIC_PID"
+  ],
+  "scope": "tool-only loopback preflight; no product/provider attachment or safety acceptance"
+}

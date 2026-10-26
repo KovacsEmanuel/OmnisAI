@@ -1,0 +1,11 @@
+{
+  "package": "strace",
+  "version": "7.0+ds-1",
+  "url": "https://http.kali.org/kali/pool/main/s/strace/strace_7.0+ds-1_amd64.deb",
+  "resolved_url": "https://mirror1.sox.rs/kali/kali/pool/main/s/strace/strace_7.0+ds-1_amd64.deb",
+  "sha256": "3fccef3e6092284d8a065dce98fe6397f9dc1d97a6d81b050135f5ad489bf6f2",
+  "bytes": 1859716,
+  "extract_exit": 0,
+  "version_exit": 0,
+  "scope": "private QA tool only; no OS install/configuration or product attachment"
+}

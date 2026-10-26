@@ -1,0 +1,37 @@
+{
+  "new_instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+  "new_state": "READY",
+  "generation": 1,
+  "epoch": 1,
+  "origin": "http://127.0.0.1:8773",
+  "release_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+  "image_id": "sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0",
+  "payloads_verified": 10,
+  "separate_database": true,
+  "old_data_identities_unchanged": {
+    "s/omnis/postgres": [
+      2049,
+      4651561
+    ],
+    "s/omnis/vault": [
+      2049,
+      4651556
+    ],
+    "s/omnis/vault-key": [
+      2049,
+      4651557
+    ]
+  },
+  "old_containers_unchanged": {
+    "api": "exited",
+    "db": "exited",
+    "supervisor": "exited"
+  },
+  "old_normal_stop_performed": false,
+  "pairing": {
+    "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+    "challenge_live": false,
+    "active_sessions": 0
+  },
+  "provider_io": false
+}

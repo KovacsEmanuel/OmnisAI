@@ -1,0 +1,61 @@
+{
+  "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+  "ui_save_status": 200,
+  "configuration": {
+    "schema_version": 2,
+    "command_id": null,
+    "vault_status": "UNLOCKED",
+    "connections": [
+      {
+        "connection_id": "198d5869-5768-432f-9d34-94db8dbda1af",
+        "provider": "openrouter",
+        "revision": 1,
+        "enabled": true,
+        "credential_present": true
+      }
+    ],
+    "selection": {
+      "selection_id": "483c84b4-7ffc-421c-badf-b3d5ea1e523c",
+      "revision": 1,
+      "default": {
+        "connection_id": "198d5869-5768-432f-9d34-94db8dbda1af",
+        "connection_revision": 1,
+        "model": "deepseek/deepseek-v4.1-flash-1017",
+        "output_tokens": 128
+      },
+      "brain": null,
+      "investigator": null,
+      "validator": null
+    },
+    "reachable": "NOT_VERIFIED"
+  },
+  "model_test": {
+    "schema_version": 2,
+    "operation_id": null,
+    "state": null,
+    "state_revision": null,
+    "finish_reason": null,
+    "selection_revision": 1,
+    "metadata_state": "NOT_REQUESTED",
+    "metadata_command_id": null,
+    "reason": null,
+    "requested_provider": null,
+    "requested_model": null,
+    "requested_output_tokens": null,
+    "observed_model": null,
+    "provider_status": null,
+    "result_state": null,
+    "output_state": "ABSENT",
+    "response_text": null,
+    "usage_state": "UNKNOWN",
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cost_observed": null,
+    "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+    "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+    "calls_limit": 1,
+    "wall_seconds": 300
+  },
+  "provider_io": false
+}

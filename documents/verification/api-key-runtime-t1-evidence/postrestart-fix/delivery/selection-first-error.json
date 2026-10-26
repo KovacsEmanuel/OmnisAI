@@ -1,0 +1,10 @@
+{
+  "exit": 1,
+  "stage": "first Default connection selector",
+  "type": "TimeoutError",
+  "selector": "getByLabel exact Default connection",
+  "claim_present": false,
+  "save_submitted": false,
+  "provider_io": false,
+  "script_sha256": "ec289f074d1f9f14df64a6da5915cd78204bc8cb93d8df0d39250373589d09a1"
+}

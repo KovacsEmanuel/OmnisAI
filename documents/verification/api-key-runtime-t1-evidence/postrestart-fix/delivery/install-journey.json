@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "install",
+      "--bundle",
+      "/home/kali/.local/share/omnis-t1-fixed-a5b8939/bundle"
+    ],
+    "exit": 0,
+    "stdout": "Release Omnis 0.1.0 instalat; preg\u0103ti\u021bi explicit imaginea, apoi omnis start --no-open.\n",
+    "stderr_bytes": 0
+  },
+  {
+    "command": [
+      "install-image"
+    ],
+    "exit": 0,
+    "stdout": "Control image instalat\u0103: sha256:74fecc7d7fe99a515a019b11af70b586fcf2d6ec1b35c3cf5e902978806b95c0; serviciile nu au fost pornite.\n",
+    "stderr_bytes": 0
+  },
+  {
+    "command": [
+      "start",
+      "--no-open",
+      "--json"
+    ],
+    "exit": 0,
+    "stdout": "{\"admission_open\": true, \"api_ready\": true, \"assessment_ready\": false, \"browser_opened\": false, \"control_ready\": true, \"dashboard_ready\": true, \"generation\": 1, \"instance_id\": \"e10da359-a48f-40f3-ad2f-7641a3f6bb83\", \"origin\": \"http://127.0.0.1:8773\", \"reason\": null, \"release\": \"0.1.0\", \"reused\": false, \"schema\": \"0015_model_test_v2\", \"state\": \"READY\", \"supervisor_epoch\": 1}\n",
+    "stderr_bytes": 0
+  },
+  {
+    "command": [
+      "status",
+      "--json"
+    ],
+    "exit": 0,
+    "stdout": "{\"admission_open\": true, \"api_ready\": true, \"assessment_ready\": false, \"browser_opened\": false, \"control_ready\": true, \"dashboard_ready\": true, \"generation\": 1, \"instance_id\": \"e10da359-a48f-40f3-ad2f-7641a3f6bb83\", \"origin\": \"http://127.0.0.1:8773\", \"reason\": null, \"release\": \"0.1.0\", \"schema\": \"0015_model_test_v2\", \"state\": \"READY\", \"supervisor_epoch\": 1}\n",
+    "stderr_bytes": 0
+  }
+]

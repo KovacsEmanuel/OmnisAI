@@ -1,0 +1,46 @@
+{
+  "initial_status": "UNAVAILABLE",
+  "initial_reason": "LOCAL_SERVICE_COMMAND_FAILED",
+  "initial_exit": "NOT_RETAINED_SEPARATELY",
+  "journal_phase": "READY",
+  "generation": 3,
+  "expected_daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "docker_socket_exists": true,
+  "resources": {
+    "daemon": {
+      "exit": 0,
+      "stdout": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "stderr": ""
+    },
+    "api": {
+      "exit": 0,
+      "stdout": "{\"Id\":\"e6bdb89df8d0fb6aaaee48ed4f8e316862bc5070cf656211166ad2240646b334\",\"Image\":\"sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8\",\"State\":{\"Dead\":false,\"Error\":\"\",\"ExitCode\":255,\"FinishedAt\":\"2026-10-26T10:01:58.789089933Z\",\"OOMKilled\":false,\"Paused\":false,\"Pid\":0,\"Restarting\":false,\"Running\":false,\"StartedAt\":\"2026-10-26T05:55:32.523393995Z\",\"Status\":\"exited\"}}",
+      "stderr": ""
+    },
+    "db": {
+      "exit": 0,
+      "stdout": "{\"Id\":\"b90be97856b1e9d8a6c63ac387c082f61bb0dd2a1c5b70ba426a46149b1b2480\",\"Image\":\"sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb\",\"State\":{\"Dead\":false,\"Error\":\"\",\"ExitCode\":255,\"FinishedAt\":\"2026-10-26T10:01:58.78901049Z\",\"Health\":{\"FailingStreak\":0,\"Log\":[],\"Status\":\"starting\"},\"OOMKilled\":false,\"Paused\":false,\"Pid\":0,\"Restarting\":false,\"Running\":false,\"StartedAt\":\"2026-10-26T05:55:23.246534674Z\",\"Status\":\"exited\"}}",
+      "stderr": ""
+    },
+    "supervisor": {
+      "exit": 0,
+      "stdout": "{\"Id\":\"9238442d39cb2c900f5975a00833fde1d54abb9ed857743ce15e984958cde8c9\",\"Image\":\"sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8\",\"State\":{\"Dead\":false,\"Error\":\"\",\"ExitCode\":255,\"FinishedAt\":\"2026-10-26T10:01:58.792410981Z\",\"OOMKilled\":false,\"Paused\":false,\"Pid\":0,\"Restarting\":false,\"Running\":false,\"StartedAt\":\"2026-10-26T05:55:32.132079458Z\",\"Status\":\"exited\"}}",
+      "stderr": ""
+    }
+  },
+  "data_metadata": {
+    "s/omnis/postgres": [
+      2049,
+      4651561
+    ],
+    "s/omnis/vault": [
+      2049,
+      4651556
+    ],
+    "s/omnis/vault-key": [
+      2049,
+      4651557
+    ]
+  },
+  "forwarder_pid_exists": false
+}

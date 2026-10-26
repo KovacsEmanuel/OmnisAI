@@ -1,0 +1,20 @@
+{
+  "saved_boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+  "current_boot_id": "4b8b0c73-9764-4561-8567-c89d0e834ce1",
+  "listener_8773": "",
+  "restart_policies": {
+    "api": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "db": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "supervisor": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    }
+  },
+  "boot_changed": true
+}

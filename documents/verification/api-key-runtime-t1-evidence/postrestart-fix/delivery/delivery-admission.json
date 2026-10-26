@@ -1,0 +1,19 @@
+{
+  "scope": "APPROVED_SEPARATE_NORMAL_T1_FIXED_DELIVERY",
+  "source_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+  "release_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+  "new_root": "/home/kali/.local/share/omnis-t1-fixed-a5b8939",
+  "origin": "http://127.0.0.1:8773",
+  "authority": "Prior explicit separate-delivery approval after gates, followed by current operator request to continue and finalize within established limits.",
+  "gates": "Two scoped reviews, installed admission-prefix proof, Canonical11 exit0/drained/1953inputs no drift.",
+  "old_root": "/home/kali/.local/share/omnis-t1-recovery-d340a58",
+  "old_instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+  "old_current_state": "UNAVAILABLE; three exact containers exited255, original forwarder absent, changed kernel boot, restart_policy=no, port8773 has no listener; data-directory identities preserved",
+  "old_disposition": "Leave all containers/network/files/data untouched. No normal STOPPED credit and no recovery/restart/cleanup/adoption. Normal Stop effect is omitted because original serving processes no longer exist.",
+  "old_diagnostics": "/home/kali/.local/share/omnis-t1-recovery-d340a58/evidence/rollout-a5-preflight/",
+  "planned_actions": ["normal install", "normal install-image", "port preflight", "one explicit normal Start", "status and identity readback"],
+  "rollback": "Stop only the new exact instance through its own CLI when needed and authorized; preserve both roots. Old instance is not automatically restarted or declared repaired.",
+  "credential_or_provider_actions": "NONE. Operator-only new UI configuration and fresh finite provider/fault agreement required; no copy or rotation.",
+  "previous_live_consumption": {"metadata_refresh": 1, "test_starts": 4, "original_max_test_starts": 5, "sigkill": 0, "revoke": 0},
+  "state": "ADMITTED_NOT_STARTED"
+}

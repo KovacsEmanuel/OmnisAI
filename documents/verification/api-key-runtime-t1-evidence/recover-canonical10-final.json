@@ -1,0 +1,40 @@
+{
+  "verdict": "PASS_LOCAL_CANONICAL_RECORDED_NOT_T1_ACCEPTED",
+  "tested_head": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "source_tree": "0665ae0d9616677d22d06996c36e1f4f4e5ac6a8",
+  "owner": "proc_6317bed309e1",
+  "target": "check-components",
+  "command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 7200",
+  "receipt": {"schema_version": 1, "code": 0, "family_drained": true},
+  "pytest_original_summaries": [
+    "3124 passed, 65 skipped, 7 deselected in 3451.35s (0:57:31)",
+    "23 passed in 86.16s (0:01:26)",
+    "10 passed in 146.77s (0:02:26)",
+    "1 passed in 3.47s"
+  ],
+  "unittest_original_summaries": [
+    "Ran 87 tests in 1.629s",
+    "Ran 56 tests in 9.246s",
+    "Ran 383 tests in 98.040s",
+    "Ran 383 tests in 95.446s",
+    "Ran 73 tests in 19.109s"
+  ],
+  "web_tests": 151,
+  "web_audit_vulnerabilities": 0,
+  "api_audit": "53 packages; no known vulnerabilities or adverse statuses",
+  "tracked_inputs": 1953,
+  "tracked_drift": [],
+  "raw_log_private_path": "/home/kali/.hermes/cache/scratch/c10-s5954ye1/t/db-236abeae0ef14c53/gate.log",
+  "raw_log_sha256": "e4fef8c8c849d6dd356679b53e61f400ce7123e1f9c5855a13e0c99f9ac0c0a0",
+  "fixture": {
+    "project": "omnis-p01-421cfde2fe774a3583c9baa41f7de175",
+    "cid": "fbd195d2110cbc75bdc7a37e71998865fb2406526a8e3319e4dbe3ce528a01bb",
+    "root": "/home/kali/.hermes/cache/scratch/c10-s5954ye1/t/db-236abeae0ef14c53",
+    "same_daemon_parent_readback": true,
+    "container_project_network_socket_absent": true,
+    "data_retained": true
+  },
+  "prior_failure": "Canonical9 timeout and teardown error retained, cause UNKNOWN; unchanged complete C03 target passed before this single serial rerun. No product, test selection or timeout change.",
+  "not_run": ["active provider Cancel/Stop/revoke/reuse on final artifact", "normal installed pending-SENT crash/no-resend", "final R2-NEW-01", "unproven installed historical-reader categories", "T2 or targets"],
+  "limits": "Local integrated code gate, not global T1 acceptance, remote CI or proof of absence of every defect. Existing skips and explicit legacy deselections retained."
+}

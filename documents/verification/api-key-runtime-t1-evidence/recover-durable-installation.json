@@ -1,0 +1,107 @@
+{
+  "scope": "DURABLE_NORMAL_INSTALLATION_READY_OPERATOR_BOUNDARY",
+  "source_head": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "source_tree": "0665ae0d9616677d22d06996c36e1f4f4e5ac6a8",
+  "release_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+  "root": "/home/kali/.local/share/omnis-t1-recovery-d340a58",
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 1,
+    "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+    "origin": "http://127.0.0.1:8773",
+    "reason": null,
+    "release": "0.1.0",
+    "schema": "0015_model_test_v2",
+    "state": "READY",
+    "supervisor_epoch": 1
+  },
+  "status_exit": 0,
+  "status_reobserved_at": "2026-10-26T02:27:18+02:00",
+  "installation_commands": [
+    {
+      "command": [
+        "install",
+        "--bundle",
+        "/home/kali/.local/share/omnis-t1-recovery-d340a58/bundle"
+      ],
+      "exit": 0,
+      "stdout": "Release Omnis 0.1.0 instalat; pregătiți explicit imaginea, apoi omnis start --no-open.\n",
+      "stderr_bytes": 0
+    },
+    {
+      "command": [
+        "install-image"
+      ],
+      "exit": 0,
+      "stdout": "Control image instalată: sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8; serviciile nu au fost pornite.\n",
+      "stderr_bytes": 0
+    },
+    {
+      "command": [
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\"admission_open\": true, \"api_ready\": true, \"assessment_ready\": false, \"browser_opened\": false, \"control_ready\": true, \"dashboard_ready\": true, \"generation\": 1, \"instance_id\": \"62b43306-2bca-4e2f-a56e-3b4df790c6cb\", \"origin\": \"http://127.0.0.1:8773\", \"reason\": null, \"release\": \"0.1.0\", \"reused\": false, \"schema\": \"0015_model_test_v2\", \"state\": \"READY\", \"supervisor_epoch\": 1}\n",
+      "stderr_bytes": 0
+    },
+    {
+      "command": [
+        "status",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout": "{\"admission_open\": true, \"api_ready\": true, \"assessment_ready\": false, \"browser_opened\": false, \"control_ready\": true, \"dashboard_ready\": true, \"generation\": 1, \"instance_id\": \"62b43306-2bca-4e2f-a56e-3b4df790c6cb\", \"origin\": \"http://127.0.0.1:8773\", \"reason\": null, \"release\": \"0.1.0\", \"schema\": \"0015_model_test_v2\", \"state\": \"READY\", \"supervisor_epoch\": 1}\n",
+      "stderr_bytes": 0
+    }
+  ],
+  "installed_payloads_verified": 10,
+  "cli_interpreter": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+  "config_mode": "0600",
+  "control_socket_path_bytes": 70,
+  "old_installation": {
+    "root": "/home/kali/.local/share/omnis-t1-ready-33ee99",
+    "instance_id": "d9797094-80b1-4489-980b-6c30abe29e12",
+    "state": "READY",
+    "generation": 9,
+    "supervisor_epoch": 5,
+    "status_exit": 0,
+    "bundle_unchanged": "4ae4e51d41af781b4edfd9aeb5b1443a45e9c5dd5b6a62dcee4ae56404fc3cc1",
+    "data_directory_identities_retained": true,
+    "contents_not_adopted_or_copied": true
+  },
+  "browser": {
+    "kind": "local Google Chrome",
+    "profile": "/home/kali/.local/share/omnis-t1-recovery-d340a58/browser",
+    "pid": 2211262,
+    "window_id": 115343364,
+    "isolated_from_old_session": true,
+    "last_observed_ui": "Pair this browser, empty pairing input; API/database and web/control READY",
+    "later_ui_configuration": "NOT_INSPECTED after the unanswered operator prompt"
+  },
+  "operator_boundary": {
+    "prompt_outcome": "timed_out",
+    "reported_wait": "60m",
+    "new_pair_code_issued_by_agent": false,
+    "credentials_entered_or_read_by_agent": false,
+    "metadata_or_test_initiated_by_agent": false,
+    "provider_grant": "NOT_GRANTED",
+    "next_action": "operator present for Pair and write-only configuration/confirmation; then exact finite provider/fault authorization"
+  },
+  "services_left": "Both durable instances READY at readback; isolated new Chrome window remains open. No QA/gate worker left running.",
+  "not_run": [
+    "active provider Cancel/Stop/revoke/reuse",
+    "normal pending-SENT crash/no-resend",
+    "R2-NEW-01 final",
+    "unproven historical-reader categories"
+  ],
+  "t1": "PARTIAL / NOT_ACCEPTED; blocked at operator interaction/authorization boundary",
+  "readme_sha256": "5efcef91725aaa2949283c324ba623f1c09f2d4020d0404967b3eebb9b80ef7f",
+  "rollback": "Normal Stop with each installation's own isolated roots; retain DB/vault/keys. No deletion/upgrade/adoption of old data."
+}

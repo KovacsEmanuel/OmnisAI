@@ -1,0 +1,254 @@
+{
+  "at": 1792993997.379,
+  "name": "2-cancel-reuse",
+  "began": 1792993992.638,
+  "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+  "admission": {
+    "status": 202,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+      "state": "PENDING",
+      "state_revision": 1,
+      "finish_reason": null,
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "365c060e-2592-452f-b894-063052cd8d58",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": null,
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1792993992.875
+  },
+  "result": "PASS_ACTIVE_CANCEL_SCOPED",
+  "before": {
+    "status": 200,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+      "state": "RUNNING",
+      "state_revision": 2,
+      "finish_reason": null,
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "365c060e-2592-452f-b894-063052cd8d58",
+      "reason": null,
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": null,
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1792993993.177
+  },
+  "ack": {
+    "status": 202,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+      "state": "FINISHED",
+      "state_revision": 4,
+      "finish_reason": "CANCELLED",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "365c060e-2592-452f-b894-063052cd8d58",
+      "reason": "CANCELLED_OR_STOPPED",
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": "UNKNOWN",
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1792993993.546
+  },
+  "final": {
+    "status": 200,
+    "body": {
+      "schema_version": 2,
+      "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+      "state": "FINISHED",
+      "state_revision": 4,
+      "finish_reason": "CANCELLED",
+      "selection_revision": 1,
+      "metadata_state": "READY",
+      "metadata_command_id": "365c060e-2592-452f-b894-063052cd8d58",
+      "reason": "CANCELLED_OR_STOPPED",
+      "requested_provider": "openrouter",
+      "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+      "requested_output_tokens": 128,
+      "observed_model": null,
+      "provider_status": null,
+      "result_state": "UNKNOWN",
+      "output_state": "ABSENT",
+      "response_text": null,
+      "usage_state": "UNKNOWN",
+      "input_tokens": null,
+      "output_tokens": null,
+      "reasoning_tokens": null,
+      "cost_observed": null,
+      "system_message": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+      "user_message": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+      "calls_limit": 1,
+      "wall_seconds": 300
+    },
+    "observed_at": 1792993993.683
+  },
+  "db": {
+    "at": "2026-10-26T05:53:17.360913+00:00",
+    "instance": {
+      "id": 1,
+      "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+      "admission_open": true,
+      "shutdown_command_id": null,
+      "generation": 1,
+      "quiesced_generation": null,
+      "quiesced_at": null
+    },
+    "lease": {
+      "owner": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+      "epoch": 1,
+      "expired": false
+    },
+    "operations": [
+      {
+        "operation_id": "7053c35a-ef65-4c4d-ac36-fcec57755fa0",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "generation": 1,
+        "owner_epoch": 1,
+        "cancel_epoch": 1,
+        "deadline": "2026-10-26T05:58:04.672441+00:00",
+        "execution_owner_id": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+        "dispatch_id": "ed1c2a8a-51af-4a1f-8ec5-d891a6c2f586",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T05:53:04.686562+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T05:53:04.720793+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T05:53:08.516003+00:00"
+          }
+        ]
+      },
+      {
+        "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+        "state": "FINISHED",
+        "state_revision": 4,
+        "finish_reason": "CANCELLED",
+        "generation": 1,
+        "owner_epoch": 1,
+        "cancel_epoch": 2,
+        "deadline": "2026-10-26T05:58:12.850187+00:00",
+        "execution_owner_id": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+        "dispatch_id": "7d865853-83c8-42f0-8ae4-88d16a16660c",
+        "dispatch_events": [
+          {
+            "state": "RESERVED",
+            "sequence": 1,
+            "at": "2026-10-26T05:53:12.855942+00:00"
+          },
+          {
+            "state": "SENT",
+            "sequence": 2,
+            "at": "2026-10-26T05:53:12.881645+00:00"
+          },
+          {
+            "state": "SETTLED",
+            "sequence": 3,
+            "at": "2026-10-26T05:53:13.531045+00:00"
+          }
+        ]
+      }
+    ],
+    "metadata": [
+      {
+        "kind": "metadata-request",
+        "command_id": "365c060e-2592-452f-b894-063052cd8d58",
+        "state": null,
+        "reason": null,
+        "at": "2026-10-26T05:52:58.909031+00:00"
+      },
+      {
+        "kind": "metadata-result",
+        "command_id": "365c060e-2592-452f-b894-063052cd8d58",
+        "state": "READY",
+        "reason": null,
+        "at": "2026-10-26T05:53:00.127771+00:00"
+      }
+    ],
+    "record_kinds": {
+      "metadata-request": 1,
+      "model-output-v2": 1,
+      "model-capabilities-v2": 1,
+      "system-operation": 2,
+      "model-selection-snapshot-v2": 2,
+      "dispatch-owner-v2": 2,
+      "model-dispatch-v2": 2,
+      "model-permit-v2": 2,
+      "metadata-result": 1,
+      "model-input-v2": 2,
+      "model-outcome-v2": 2
+    },
+    "counts": {
+      "system_operation": 2,
+      "system_operation_event": 7,
+      "model_record_v2": 18,
+      "model_command_v2": 4,
+      "model_dispatch_v2": 2,
+      "model_dispatch_event_v2": 6,
+      "provider_connection_revision": 1,
+      "provider_selection_revision": 1,
+      "provider_settings_command": 2,
+      "ui_session": 1,
+      "pairing_challenge": 1
+    }
+  }
+}

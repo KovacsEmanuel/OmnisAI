@@ -1,0 +1,17 @@
+{
+  "at": 1792994172.244,
+  "name": "4-crash-sent",
+  "began": 1792994172.086,
+  "admission": {
+    "status": 503,
+    "body": {
+      "error": {
+        "code": "CONTROL_UNAVAILABLE",
+        "correlation_id": "f6db5814-e25b-4711-b78d-0dea30415e04",
+        "field_errors": []
+      }
+    },
+    "observed_at": 1792994172.244
+  },
+  "result": "PENDING"
+}

@@ -1,0 +1,13 @@
+{
+  "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+  "generation": 3,
+  "admission_open": true,
+  "shutdown_command_id": null,
+  "epoch": 2,
+  "lease_live": true,
+  "failed_id_operations": 0,
+  "failed_id_commands": 0,
+  "failed_id_dispatches": 0,
+  "total_operations": 3,
+  "active_operations": 0
+}

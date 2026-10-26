@@ -1,0 +1,909 @@
+{
+  "scope": "T1_FINAL_PROVIDER_LIVE_BROWSER_BATCH",
+  "verdict": "PARTIAL_BLOCKED_NOT_T1_ACCEPTANCE",
+  "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+  "origin": "http://127.0.0.1:8773",
+  "source_head": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "source_tree": "0665ae0d9616677d22d06996c36e1f4f4e5ac6a8",
+  "release_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+  "created_at": 1792994522.2088706,
+  "runner_process": {
+    "handle": "proc_bbce55d13eb6",
+    "exit": 0,
+    "meaning": "normal cleanup; does not override failed individual cases"
+  },
+  "claims": [
+    {
+      "file": "claim-cancel-f0e33c56-7116-49c5-9569-f0653ed5cec1.json",
+      "kind": "cancel",
+      "id": "f0e33c56-7116-49c5-9569-f0653ed5cec1",
+      "at": 1792993993.178,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082"
+    },
+    {
+      "file": "claim-cli-2a6d01fb-e984-434f-95e5-fdbe8a5a0739.json",
+      "kind": "cli",
+      "id": "2a6d01fb-e984-434f-95e5-fdbe8a5a0739",
+      "at": 1792994031.445,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "argv": [
+        "/home/kali/.local/share/omnis-t1-recovery-d340a58/cli/bin/omnis",
+        "stop",
+        "--json"
+      ]
+    },
+    {
+      "file": "claim-cli-a4aa0544-5956-4cd8-824d-2514ac573697.json",
+      "kind": "cli",
+      "id": "a4aa0544-5956-4cd8-824d-2514ac573697",
+      "at": 1792994271.099,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "argv": [
+        "/home/kali/.local/share/omnis-t1-recovery-d340a58/cli/bin/omnis",
+        "status",
+        "--json"
+      ]
+    },
+    {
+      "file": "claim-cli-afbb4699-db9b-4823-b644-31d319f0279a.json",
+      "kind": "cli",
+      "id": "afbb4699-db9b-4823-b644-31d319f0279a",
+      "at": 1792994050.316,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "argv": [
+        "/home/kali/.local/share/omnis-t1-recovery-d340a58/cli/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ]
+    },
+    {
+      "file": "claim-cli-e166a1fd-3b33-413c-a1c9-aa94c7688a0f.json",
+      "kind": "cli",
+      "id": "e166a1fd-3b33-413c-a1c9-aa94c7688a0f",
+      "at": 1792994026.843,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "argv": [
+        "/home/kali/.local/share/omnis-t1-recovery-d340a58/cli/bin/omnis",
+        "status",
+        "--json"
+      ]
+    },
+    {
+      "file": "claim-cli-start-after-port-clear.json",
+      "kind": "cli",
+      "action": "start",
+      "at": 1792994120.9626493,
+      "reason": "prior PORT_CONFLICT; installed no-reuse port preflight now exit0; no model retry"
+    },
+    {
+      "file": "claim-refresh-metadata.json",
+      "kind": "refresh",
+      "id": "metadata",
+      "at": 1792993978.506,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "method": "real UI Refresh click"
+    },
+    {
+      "file": "claim-start-1-normal.json",
+      "kind": "start",
+      "id": "1-normal",
+      "at": 1792993984.343,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "case": "1-normal",
+      "selection_revision": 1,
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "output_tokens": 128,
+      "method": "real UI checkbox + click"
+    },
+    {
+      "file": "claim-start-2-cancel-reuse.json",
+      "kind": "start",
+      "id": "2-cancel-reuse",
+      "at": 1792993992.636,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "case": "2-cancel-reuse",
+      "selection_revision": 1,
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "output_tokens": 128,
+      "method": "real UI checkbox + click"
+    },
+    {
+      "file": "claim-start-3-stop-start.json",
+      "kind": "start",
+      "id": "3-stop-start",
+      "at": 1792994035.007,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "case": "3-stop-start",
+      "selection_revision": 1,
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "output_tokens": 128,
+      "method": "real UI checkbox + click"
+    },
+    {
+      "file": "claim-start-4-crash-sent.json",
+      "kind": "start",
+      "id": "4-crash-sent",
+      "at": 1792994172.084,
+      "grant_sha256": "235cbc2ffe79c930478eecbca78e35d0568cead71499cc46e308f4f7fa933804",
+      "case": "4-crash-sent",
+      "selection_revision": 1,
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "output_tokens": 128,
+      "method": "real UI checkbox + click"
+    }
+  ],
+  "counts": {
+    "refresh": 1,
+    "start": 4,
+    "SIGKILL": 0,
+    "cancel": 1,
+    "revoke": 0,
+    "cli": 5
+  },
+  "http_test_attempts": 4,
+  "distinct_admitted_operations": 3,
+  "provider_request_count": "NOT_INDEPENDENTLY_MEASURED; raw TLS send counts are not HTTP request counts",
+  "known_cost_sum": "0.00009752",
+  "total_cost": "UNKNOWN; cancelled/inflight effects are not refunded or assigned zero",
+  "cases": [
+    {
+      "case": 1,
+      "name": "normal + readback/reload",
+      "verdict": "PASS_SCOPED",
+      "ui_action": "real checkbox + Test click",
+      "admission_http": 202,
+      "outcome": {
+        "operation_id": "7053c35a-ef65-4c4d-ac36-fcec57755fa0",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "requested_provider": "openrouter",
+        "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+        "requested_output_tokens": 128,
+        "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+        "provider_status": "200",
+        "result_state": "COMPLETED",
+        "output_state": "COMPLETE",
+        "response_text": "OMNIS_MODEL_TEST_OK",
+        "usage_state": "KNOWN",
+        "input_tokens": 63,
+        "output_tokens": 12,
+        "reasoning_tokens": 3,
+        "cost_observed": "0.00001326"
+      },
+      "readback_identical": true,
+      "evidence": [
+        "010-case-1-final.json",
+        "013-case-1-readback.json",
+        "011-normal-reload.png"
+      ]
+    },
+    {
+      "case": 2,
+      "name": "Cancel and observed socket reuse",
+      "verdict": "PASS_ACTIVE_CANCEL_REUSE_SCOPED",
+      "ui_action": "real checkbox + Test click; Cancel via real public API in same browser/origin",
+      "admission_http": 202,
+      "before_state": "RUNNING",
+      "cancel_http": 202,
+      "public_ack_observed_at": 1792993993.546,
+      "outcome": {
+        "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+        "state": "FINISHED",
+        "state_revision": 4,
+        "finish_reason": "CANCELLED",
+        "requested_provider": "openrouter",
+        "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+        "requested_output_tokens": 128,
+        "observed_model": null,
+        "provider_status": null,
+        "result_state": "UNKNOWN",
+        "output_state": "ABSENT",
+        "response_text": null,
+        "usage_state": "UNKNOWN",
+        "input_tokens": null,
+        "output_tokens": null,
+        "reasoning_tokens": null,
+        "cost_observed": null
+      },
+      "reuse": "same PID/FD12/socket lifetime across METADATA_COMMAND, normal MODEL_DISPATCH and cancel MODEL_DISPATCH",
+      "close_before_public_ack": true,
+      "post_ack_connect_or_send_to_provider": false,
+      "silence_window_end": 1792994035.01,
+      "internal_fence_ack": "NOT_DIRECTLY_OBSERVED; only public ACK and syscall timing",
+      "evidence": [
+        "017-cancel-public-ack.json",
+        "018-case-2-final.json",
+        "trace-1.log"
+      ]
+    },
+    {
+      "case": 3,
+      "name": "active Stop / explicit Start / readback",
+      "verdict": "NOT_OBSERVED_ACTIVE_STOP",
+      "admission_http": 202,
+      "stop_cli_exit": 0,
+      "first_start_exit": 2,
+      "first_start_reason": "PORT_CONFLICT",
+      "subsequent_start_exit": 0,
+      "subsequent_start_prerequisite": "installed preflight_port(8773) exit0 after TIME_WAIT observation; no guard change",
+      "lifecycle": "STOPPED2 -> READY3/epoch2",
+      "outcome": {
+        "operation_id": "cd801dce-841b-4a81-bb82-0d4d9ab6da55",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED",
+        "requested_provider": "openrouter",
+        "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+        "requested_output_tokens": 128,
+        "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+        "provider_status": "200",
+        "result_state": "COMPLETED",
+        "output_state": "COMPLETE",
+        "response_text": "OMNIS_MODEL_TEST_OK",
+        "usage_state": "KNOWN",
+        "input_tokens": 63,
+        "output_tokens": 83,
+        "reasoning_tokens": 74,
+        "cost_observed": "0.00008426"
+      },
+      "explanation": "Operation admitted during authentic STOPPING marker, but completed before Stop cancellation. Active Stop cannot be credited; normal lifecycle and persistence readback succeeded. No replacement Test.",
+      "evidence": [
+        "022-stop-marker.json",
+        "024-start-3-stop-start.json",
+        "025-cli-result.json",
+        "029-cli-result.json",
+        "cli-start-after-port-clear.json",
+        "031-manual-read.json"
+      ]
+    },
+    {
+      "case": 4,
+      "name": "pending SENT crash / recover / no resend",
+      "verdict": "BLOCKED_PRODUCT_ADMISSION",
+      "operation_id": "2a372e67-8243-4d05-8e5c-b417e23824a8",
+      "admission_http": 503,
+      "reason": "CONTROL_UNAVAILABLE",
+      "operation_command_dispatch_rows": 0,
+      "sigkill_claims": 0,
+      "sigkill_signals": 0,
+      "recover": "NOT_RUN",
+      "crash_no_resend": "NOT_RUN",
+      "outcome": {
+        "requested_provider": "openrouter",
+        "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+        "requested_output_tokens": 128,
+        "observed_model": null,
+        "state": null,
+        "result_state": "UNKNOWN_HTTP_FAILURE_NOT_ADMITTED_AT_READBACK",
+        "usage_state": "UNKNOWN",
+        "cost_observed": null
+      },
+      "evidence": [
+        "033-ui-or-public-model-request.json",
+        "034-start-4-crash-sent.json",
+        "035-failure-crashCase.json",
+        "fourth-exact-db-readback.json",
+        "trace-external2.log"
+      ]
+    },
+    {
+      "case": 5,
+      "name": "active connection revoke / readers",
+      "verdict": "NOT_RUN_BLOCKED",
+      "reason": "Stopped new effects after unexpected post-restart admission failure; no additional Start, no idle revoke substituted for active proof.",
+      "operation_id": null,
+      "usage_state": "NOT_RUN",
+      "cost_observed": null
+    }
+  ],
+  "traffic": [
+    {
+      "file": "trace-1.log",
+      "sha256": "ed2b431569234699c080e9fb84da136b22c3d136487ae33bbf65fc088e474a0d",
+      "lines": 535,
+      "pid": 2201914,
+      "streams": [
+        {
+          "fd": 12,
+          "connect_at": 1792993979.378617,
+          "socket_id": "25094976",
+          "address": "104.18.2.115",
+          "connect_line": 60,
+          "sends": [
+            {
+              "at": 1792993979.467684,
+              "returned_bytes": 517,
+              "line": 63
+            },
+            {
+              "at": 1792993979.536172,
+              "returned_bytes": 80,
+              "line": 70
+            },
+            {
+              "at": 1792993979.554347,
+              "returned_bytes": 268,
+              "line": 73
+            },
+            {
+              "at": 1792993986.538314,
+              "returned_bytes": 912,
+              "line": 170
+            },
+            {
+              "at": 1792993986.56448,
+              "returned_bytes": 359,
+              "line": 175
+            },
+            {
+              "at": 1792993992.911374,
+              "returned_bytes": 912,
+              "line": 268
+            },
+            {
+              "at": 1792993992.940522,
+              "returned_bytes": 359,
+              "line": 271
+            }
+          ],
+          "close_at": 1792993993.490815,
+          "metadata_sends": [
+            {
+              "at": 1792993979.467684,
+              "returned_bytes": 517,
+              "line": 63
+            },
+            {
+              "at": 1792993979.536172,
+              "returned_bytes": 80,
+              "line": 70
+            },
+            {
+              "at": 1792993979.554347,
+              "returned_bytes": 268,
+              "line": 73
+            }
+          ],
+          "normal_sends": [
+            {
+              "at": 1792993986.538314,
+              "returned_bytes": 912,
+              "line": 170
+            },
+            {
+              "at": 1792993986.56448,
+              "returned_bytes": 359,
+              "line": 175
+            }
+          ],
+          "cancel_sends": [
+            {
+              "at": 1792993992.911374,
+              "returned_bytes": 912,
+              "line": 268
+            },
+            {
+              "at": 1792993992.940522,
+              "returned_bytes": 359,
+              "line": 271
+            }
+          ]
+        },
+        {
+          "fd": 9,
+          "connect_at": 1792994035.336493,
+          "socket_id": "25109213",
+          "address": "104.18.3.115",
+          "connect_line": 474,
+          "sends": [
+            {
+              "at": 1792994035.40129,
+              "returned_bytes": 517,
+              "line": 477
+            },
+            {
+              "at": 1792994035.469513,
+              "returned_bytes": 80,
+              "line": 483
+            },
+            {
+              "at": 1792994035.50368,
+              "returned_bytes": 912,
+              "line": 486
+            },
+            {
+              "at": 1792994035.54429,
+              "returned_bytes": 359,
+              "line": 490
+            }
+          ],
+          "close_at": 1792994037.890926
+        }
+      ],
+      "last_trace_time": 1792994040.010146
+    },
+    {
+      "file": "trace-external2.log",
+      "sha256": "ca84a74bb763cf7eb7efe9374f723763498e22ad34d47ddd79fc4d0cb72042fb",
+      "lines": 169,
+      "pid": 2764266,
+      "streams": [],
+      "last_trace_time": 1792994274.874961
+    }
+  ],
+  "R2_NEW_01": "PASS_CANCEL_REUSE_OBSERVED_SCOPED; overall final frontier remains PARTIAL because active Stop/crash/revoke were not proven",
+  "diagnostics": [
+    {
+      "kind": "product",
+      "id": "LIVE-POST-RESTART-01",
+      "evidence": "034-start-4-crash-sent.json",
+      "description": "READY3/epoch2, UNLOCKED/rev1/selection1 and authentic READY metadata; new UI Start returns 503 CONTROL_UNAVAILABLE, exact ID absent from operation/command/dispatch. No retry.",
+      "cause": "NOT_CONFIRMED",
+      "source_hypothesis": "ApiKeyModelTest.drain sets closing=True; supervisor resets False once before exposing control, but periodic service.quiesce can call drain again while inherited shutdown remains before CLI OPEN. Needs assigned developer; no product edit or provider reproduction here."
+    },
+    {
+      "kind": "product-precondition",
+      "description": "First restart exit2 PORT_CONFLICT; immediate errno not exposed. Later ss showed no listener and TIME_WAIT; installed no-reuse preflight succeeded before one explicit new CLI Start."
+    },
+    {
+      "kind": "read-only-analysis",
+      "description": "Two malformed Python one-liner trace filters exited1 (unmatched parenthesis); no provider effect. Replaced with native search tool, not rerun of a case."
+    },
+    {
+      "kind": "read-only-path",
+      "description": "An initial metadata check looked at postgres/data and returned false; actual journal-owned PG root is postgres, inode4651561, verified preserved. No data-loss inference."
+    },
+    {
+      "kind": "read-only-aggregation",
+      "evidence": "analysis-first-error.json",
+      "description": "Initial final-resource parser wrongly required the API bundle label on the DB container. Corrected once to its actual project/service/attempt/image contract; no new product case or effect."
+    }
+  ],
+  "final": {
+    "status": {
+      "code": 0,
+      "value": {
+        "admission_open": true,
+        "api_ready": true,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "control_ready": true,
+        "dashboard_ready": true,
+        "generation": 3,
+        "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+        "origin": "http://127.0.0.1:8773",
+        "reason": null,
+        "release": "0.1.0",
+        "schema": "0015_model_test_v2",
+        "state": "READY",
+        "supervisor_epoch": 2
+      }
+    },
+    "journal": {
+      "api_socket": [
+        2049,
+        4653393
+      ],
+      "attempt": "87a1c270-0367-4059-8a74-e7301968ed45",
+      "containers": {
+        "api": "e6bdb89df8d0fb6aaaee48ed4f8e316862bc5070cf656211166ad2240646b334",
+        "db": "b90be97856b1e9d8a6c63ac387c082f61bb0dd2a1c5b70ba426a46149b1b2480",
+        "supervisor": "9238442d39cb2c900f5975a00833fde1d54abb9ed857743ce15e984958cde8c9"
+      },
+      "control_dir": "/home/kali/.local/share/omnis-t1-recovery-d340a58/r/omnis",
+      "control_socket": [
+        2049,
+        4653396
+      ],
+      "docker_host": "unix:///run/docker.sock",
+      "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "format": 5,
+      "forwarder": {
+        "argv": [
+          "/home/kali/.local/share/omnis-t1-recovery-d340a58/cli/bin/python",
+          "-I",
+          "-m",
+          "omnis_cli.forwarder",
+          "--socket-dir",
+          "/home/kali/.local/share/omnis-t1-recovery-d340a58/s/omnis/http",
+          "--port",
+          "8773",
+          "--model-directory",
+          "/home/kali/.local/share/omnis-t1-recovery-d340a58/s/omnis/vault",
+          "--stop-attempt",
+          "87a1c270-0367-4059-8a74-e7301968ed45"
+        ],
+        "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+        "executable": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+        "pid": 2764266,
+        "start_ticks": "43252178"
+      },
+      "generation": 3,
+      "image_id": "sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8",
+      "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+      "listener_inode": 25150794,
+      "open_command": "ae183712-dd85-41bf-988b-2462b6e0c250",
+      "pgdata_identity": [
+        2049,
+        4651561
+      ],
+      "phase": "READY",
+      "port": 8773,
+      "project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+      "release_digest": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+      "supervisor_epoch": 2,
+      "system_id": "7700746866515128363",
+      "vault_identity": [
+        2049,
+        4651556,
+        1000,
+        1000,
+        448
+      ],
+      "vault_key_identity": [
+        2049,
+        4651557,
+        1000,
+        1000,
+        448
+      ]
+    },
+    "database": {
+      "at": "2026-10-26T06:02:02.199804+00:00",
+      "instance": {
+        "id": 1,
+        "instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+        "admission_open": true,
+        "shutdown_command_id": null,
+        "generation": 3,
+        "quiesced_generation": null,
+        "quiesced_at": null
+      },
+      "lease": {
+        "owner": "76de12b8-6ffa-40d1-9095-a0b526aebb76",
+        "epoch": 2,
+        "expired": false
+      },
+      "operations": [
+        {
+          "operation_id": "7053c35a-ef65-4c4d-ac36-fcec57755fa0",
+          "state": "FINISHED",
+          "state_revision": 3,
+          "finish_reason": "COMPLETED",
+          "generation": 1,
+          "owner_epoch": 1,
+          "cancel_epoch": 1,
+          "deadline": "2026-10-26T05:58:04.672441+00:00",
+          "execution_owner_id": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+          "dispatch_id": "ed1c2a8a-51af-4a1f-8ec5-d891a6c2f586",
+          "dispatch_events": [
+            {
+              "state": "RESERVED",
+              "sequence": 1,
+              "at": "2026-10-26T05:53:04.686562+00:00"
+            },
+            {
+              "state": "SENT",
+              "sequence": 2,
+              "at": "2026-10-26T05:53:04.720793+00:00"
+            },
+            {
+              "state": "SETTLED",
+              "sequence": 3,
+              "at": "2026-10-26T05:53:08.516003+00:00"
+            }
+          ]
+        },
+        {
+          "operation_id": "a6f1c541-8298-4d84-af2d-bcaa1c6f8082",
+          "state": "FINISHED",
+          "state_revision": 4,
+          "finish_reason": "CANCELLED",
+          "generation": 1,
+          "owner_epoch": 1,
+          "cancel_epoch": 2,
+          "deadline": "2026-10-26T05:58:12.850187+00:00",
+          "execution_owner_id": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+          "dispatch_id": "7d865853-83c8-42f0-8ae4-88d16a16660c",
+          "dispatch_events": [
+            {
+              "state": "RESERVED",
+              "sequence": 1,
+              "at": "2026-10-26T05:53:12.855942+00:00"
+            },
+            {
+              "state": "SENT",
+              "sequence": 2,
+              "at": "2026-10-26T05:53:12.881645+00:00"
+            },
+            {
+              "state": "SETTLED",
+              "sequence": 3,
+              "at": "2026-10-26T05:53:13.531045+00:00"
+            }
+          ]
+        },
+        {
+          "operation_id": "cd801dce-841b-4a81-bb82-0d4d9ab6da55",
+          "state": "FINISHED",
+          "state_revision": 3,
+          "finish_reason": "COMPLETED",
+          "generation": 1,
+          "owner_epoch": 1,
+          "cancel_epoch": 1,
+          "deadline": "2026-10-26T05:58:55.217511+00:00",
+          "execution_owner_id": "d5b5541a-9f79-4ed1-96cc-ec1b9aedec06",
+          "dispatch_id": "b6de7f6d-4b1b-4a96-8974-a29725d4f955",
+          "dispatch_events": [
+            {
+              "state": "RESERVED",
+              "sequence": 1,
+              "at": "2026-10-26T05:53:55.227447+00:00"
+            },
+            {
+              "state": "SENT",
+              "sequence": 2,
+              "at": "2026-10-26T05:53:55.26536+00:00"
+            },
+            {
+              "state": "SETTLED",
+              "sequence": 3,
+              "at": "2026-10-26T05:53:56.978181+00:00"
+            }
+          ]
+        }
+      ],
+      "metadata": [
+        {
+          "kind": "metadata-request",
+          "command_id": "365c060e-2592-452f-b894-063052cd8d58",
+          "state": null,
+          "reason": null,
+          "at": "2026-10-26T05:52:58.909031+00:00"
+        },
+        {
+          "kind": "metadata-result",
+          "command_id": "365c060e-2592-452f-b894-063052cd8d58",
+          "state": "READY",
+          "reason": null,
+          "at": "2026-10-26T05:53:00.127771+00:00"
+        }
+      ],
+      "record_kinds": {
+        "metadata-request": 1,
+        "model-output-v2": 2,
+        "model-capabilities-v2": 1,
+        "system-operation": 3,
+        "model-selection-snapshot-v2": 3,
+        "dispatch-owner-v2": 3,
+        "model-dispatch-v2": 3,
+        "model-permit-v2": 3,
+        "metadata-result": 1,
+        "model-input-v2": 3,
+        "model-outcome-v2": 3
+      },
+      "counts": {
+        "system_operation": 3,
+        "system_operation_event": 10,
+        "model_record_v2": 26,
+        "model_command_v2": 5,
+        "model_dispatch_v2": 3,
+        "model_dispatch_event_v2": 9,
+        "provider_connection_revision": 1,
+        "provider_selection_revision": 1,
+        "provider_settings_command": 2,
+        "ui_session": 1,
+        "pairing_challenge": 1
+      }
+    },
+    "directories": {
+      "s/omnis/postgres": [
+        2049,
+        4651561
+      ],
+      "s/omnis/vault": [
+        2049,
+        4651556
+      ],
+      "s/omnis/vault-key": [
+        2049,
+        4651557
+      ]
+    },
+    "resources": {
+      "api": {
+        "Id": "e6bdb89df8d0fb6aaaee48ed4f8e316862bc5070cf656211166ad2240646b334",
+        "Image": "sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8",
+        "State": {
+          "Dead": false,
+          "Error": "",
+          "ExitCode": 0,
+          "FinishedAt": "0001-01-01T00:00:00Z",
+          "OOMKilled": false,
+          "Paused": false,
+          "Pid": 2764427,
+          "Restarting": false,
+          "Running": true,
+          "StartedAt": "2026-10-26T05:55:32.523393995Z",
+          "Status": "running"
+        },
+        "Labels": {
+          "com.docker.compose.config-hash": "67d070e37ecf9498fe0d8b88e38b0c0b0309297babefd0747b78779c1cbb2e71",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "db:service_healthy:false",
+          "com.docker.compose.image": "sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+          "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0/ops/compose.yaml,-",
+          "com.docker.compose.project.environment_file": "/dev/null",
+          "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0",
+          "com.docker.compose.service": "api",
+          "com.docker.compose.version": "2.32.4",
+          "org.omnis.bundle_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+          "org.omnis.profile": "t1-provider-settings",
+          "org.omnis.project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+          "org.omnis.start-attempt": "87a1c270-0367-4059-8a74-e7301968ed45"
+        }
+      },
+      "db": {
+        "Id": "b90be97856b1e9d8a6c63ac387c082f61bb0dd2a1c5b70ba426a46149b1b2480",
+        "Image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "State": {
+          "Dead": false,
+          "Error": "",
+          "ExitCode": 0,
+          "FinishedAt": "0001-01-01T00:00:00Z",
+          "Health": {
+            "FailingStreak": 0,
+            "Log": [
+              {
+                "End": "2026-10-26T08:01:50.507808921+02:00",
+                "ExitCode": 0,
+                "Output": "127.0.0.1:5432 - accepting connections\n",
+                "Start": "2026-10-26T08:01:50.319815207+02:00"
+              },
+              {
+                "End": "2026-10-26T08:01:52.666275049+02:00",
+                "ExitCode": 0,
+                "Output": "127.0.0.1:5432 - accepting connections\n",
+                "Start": "2026-10-26T08:01:52.508973794+02:00"
+              },
+              {
+                "End": "2026-10-26T08:01:54.786309387+02:00",
+                "ExitCode": 0,
+                "Output": "127.0.0.1:5432 - accepting connections\n",
+                "Start": "2026-10-26T08:01:54.668402513+02:00"
+              },
+              {
+                "End": "2026-10-26T08:01:56.915621073+02:00",
+                "ExitCode": 0,
+                "Output": "127.0.0.1:5432 - accepting connections\n",
+                "Start": "2026-10-26T08:01:56.787545118+02:00"
+              },
+              {
+                "End": "2026-10-26T08:01:59.109430342+02:00",
+                "ExitCode": 0,
+                "Output": "127.0.0.1:5432 - accepting connections\n",
+                "Start": "2026-10-26T08:01:58.917135216+02:00"
+              }
+            ],
+            "Status": "healthy"
+          },
+          "OOMKilled": false,
+          "Paused": false,
+          "Pid": 2762531,
+          "Restarting": false,
+          "Running": true,
+          "StartedAt": "2026-10-26T05:55:23.246534674Z",
+          "Status": "running"
+        },
+        "Labels": {
+          "com.docker.compose.config-hash": "acbfbcc7bf775ee9e20109ebcea1b4264de9c42a591d7bd0abe7291542bb2f5e",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+          "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0/ops/compose.yaml,-",
+          "com.docker.compose.project.environment_file": "/dev/null",
+          "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0",
+          "com.docker.compose.service": "db",
+          "com.docker.compose.version": "2.32.4",
+          "org.omnis.start-attempt": "87a1c270-0367-4059-8a74-e7301968ed45"
+        }
+      },
+      "supervisor": {
+        "Id": "9238442d39cb2c900f5975a00833fde1d54abb9ed857743ce15e984958cde8c9",
+        "Image": "sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8",
+        "State": {
+          "Dead": false,
+          "Error": "",
+          "ExitCode": 0,
+          "FinishedAt": "0001-01-01T00:00:00Z",
+          "OOMKilled": false,
+          "Paused": false,
+          "Pid": 2764342,
+          "Restarting": false,
+          "Running": true,
+          "StartedAt": "2026-10-26T05:55:32.132079458Z",
+          "Status": "running"
+        },
+        "Labels": {
+          "com.docker.compose.config-hash": "3ea7749079cfafd9271e4d376bbd48a498e9967b2c42b8bbb16b64648985fcfd",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "db:service_healthy:false",
+          "com.docker.compose.image": "sha256:f7875225007e0b0d93cc90f15d57e16aa7b3eaeeb2dd0777fa8ecd8b9e8347d8",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+          "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0/ops/compose.yaml,-",
+          "com.docker.compose.project.environment_file": "/dev/null",
+          "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-t1-recovery-d340a58/d/omnis/releases/0.1.0",
+          "com.docker.compose.service": "supervisor",
+          "com.docker.compose.version": "2.32.4",
+          "org.omnis.bundle_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+          "org.omnis.profile": "t1-provider-settings",
+          "org.omnis.project": "omnis-local-346e58f9e77b485c84d09d98e1f81242",
+          "org.omnis.start-attempt": "87a1c270-0367-4059-8a74-e7301968ed45"
+        }
+      }
+    },
+    "old_exact_containers_absent": {
+      "api": "3f647eba0569673d13cd33f918b7d03149610de6d049ebf556197d8bf5f8e07b",
+      "db": "d2682d219e1ae738a4c16ac5da2cbc68a80c17b9f2de75ef1c9be739175726fc",
+      "supervisor": "dc9d90eb6f797ee5500156a2c438029e906c07b0472d1463164c4f5e29b353bd"
+    },
+    "provider_config": {
+      "status": 200,
+      "body": {
+        "schema_version": 2,
+        "command_id": null,
+        "vault_status": "UNLOCKED",
+        "connections": [
+          {
+            "connection_id": "d411c158-4ea7-4434-90fe-b51a40cc5fa6",
+            "provider": "openrouter",
+            "revision": 1,
+            "enabled": true,
+            "credential_present": true
+          }
+        ],
+        "selection": {
+          "selection_id": "67774970-f2c1-4bb6-95e7-a6dcb0f29cc4",
+          "revision": 1,
+          "default": {
+            "connection_id": "d411c158-4ea7-4434-90fe-b51a40cc5fa6",
+            "connection_revision": 1,
+            "model": "deepseek/deepseek-v4.1-flash-1017",
+            "output_tokens": 128
+          },
+          "brain": null,
+          "investigator": null,
+          "validator": null
+        },
+        "reachable": "NOT_VERIFIED"
+      },
+      "observed_at": 1792994268.862
+    },
+    "automation_processes_absent": [
+      2751043,
+      2752635,
+      2766262
+    ],
+    "browser_context_closed": true,
+    "dedicated_profile_lock_absent": true,
+    "remaining_owned_QA_handles": [],
+    "service_left_running": true
+  },
+  "limitations": [
+    "No T1 acceptance; parent adjudicates.",
+    "No SOURCE/canonical/legacy QA rerun and no product/repository edits or commits.",
+    "No key/ciphertext/master-key/cookie/token export; session CSRF existed only inside browser page memory.",
+    "No SIGKILL, recovery, active revoke or fifth Start.",
+    "Historical readers not actually exercised remain NOT_RUN.",
+    "Internal fence/drain ACK not captured; public Cancel ACK and real syscall ordering only.",
+    "No broad visual/accessibility approval; Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO."
+  ]
+}

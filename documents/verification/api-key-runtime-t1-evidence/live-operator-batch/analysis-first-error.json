@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "exception": "KeyError org.omnis.bundle_sha256",
+  "site": "summarize.py final DB container labels",
+  "scope": "read-only aggregation, no effects; preserve original expected schema mismatch"
+}

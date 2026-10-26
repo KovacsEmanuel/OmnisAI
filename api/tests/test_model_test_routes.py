@@ -132,3 +132,106 @@ async def test_model_test_route_security_input_and_readback(
         assert response.json() == view.model_dump(mode="json")
         assert exchange.await_args is not None and exchange.await_args.args[0].action == "read"
         assert "manifest_ref" not in response.text and "capability" not in response.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["catalog", "entry"])
+async def test_new_catalog_entry_same_security_boundary_and_context(
+    monkeypatch: pytest.MonkeyPatch, kind: str
+) -> None:
+    from omnis.modules.runs import model_test_routes as tests
+    from omnis.modules.runs.model_test_contract import EntryTestView
+    from omnis.modules.settings import provider_catalog_routes as catalog
+    from omnis.modules.settings.provider_catalog_models import CatalogView
+    from omnis.security import host_origin
+
+    monkeypatch.setattr(host_origin, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(
+        SessionStore, "authenticate", AsyncMock(return_value=SimpleNamespace(csrf="a" * 64))
+    )
+    identity = str(uuid4())
+    method, path = (
+        ("POST", "/api/v1/settings/provider-catalog/search")
+        if kind == "catalog"
+        else ("PUT", "/api/v1/model-test/entries")
+    )
+    body = (
+        {"action": "search", "connection_id": identity, "connection_revision": 1, "query": ""}
+        if kind == "catalog"
+        else {
+            "operation_id": identity,
+            "entry_id": identity,
+            "expected_entry_revision": 1,
+            "expected_connection_revision": 1,
+            "catalog_command_id": identity,
+            "consent": True,
+        }
+    )
+    view = (
+        CatalogView(
+            connection_id=identity,
+            connection_revision=1,
+            provider="openrouter",
+            catalog_command_id=None,
+            state="NOT_REQUESTED",
+            query="",
+            offset=0,
+            total=0,
+            entries=[],
+        ).model_dump(mode="json")
+        if kind == "catalog"
+        else EntryTestView(
+            operation_id=identity,
+            state="PENDING",
+            state_revision=1,
+            requested_provider="openrouter",
+            requested_model="Exact/model",
+            requested_output_tokens=64,
+            entry_id=identity,
+            entry_revision=1,
+            connection_id=identity,
+            connection_revision=1,
+            current=True,
+        ).model_dump(mode="json")
+    )
+    exchange = AsyncMock(return_value=view)
+    monkeypatch.setattr(catalog if kind == "catalog" else tests, "control_exchange", exchange)
+    headers = {
+        "Origin": "http://127.0.0.1:8765",
+        "Cookie": "omnis_session=synthetic",
+        "X-CSRF-Token": "a" * 64,
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app()), base_url="http://127.0.0.1:8765"
+    ) as client:
+        for altered, expected in (
+            ({"Host": "foreign.invalid"}, 400),
+            ({"Origin": "https://foreign.invalid"}, 403),
+            ({"X-CSRF-Token": "b" * 64}, 403),
+            ({"Cookie": ""}, 401),
+        ):
+            assert (
+                await client.request(method, path, json=body, headers={**headers, **altered})
+            ).status_code == expected
+        assert (
+            await client.request(method, path + "?q=forbidden", json=body, headers=headers)
+        ).status_code == 400
+        assert (
+            await client.request(method, path, json={**body, "owner_epoch": 1}, headers=headers)
+        ).status_code == 422
+        duplicate = json.dumps(body)[:-1] + ',"' + next(iter(body)) + '":null}'
+        assert (
+            await client.request(method, path, content=duplicate, headers=headers)
+        ).status_code == 422
+        assert (
+            await client.request(
+                method, path, content=json.dumps(body) + " " * 4096, headers=headers
+            )
+        ).status_code == 413
+        exchange.assert_not_awaited()
+        response = await client.request(method, path, json=body, headers=headers)
+        assert response.status_code == (200 if kind == "catalog" else 202), response.text
+        assert response.json() == view and response.headers["cache-control"] == "no-store"
+        exchange.return_value = {**view, "connection_revision": 2}
+        assert (await client.request(method, path, json=body, headers=headers)).status_code == 503

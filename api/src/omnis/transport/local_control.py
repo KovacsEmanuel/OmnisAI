@@ -42,6 +42,7 @@ from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.runs.model_test_store import ModelConflict
 from omnis.modules.settings.catalog_models import CatalogError
+from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import SettingsConflict
 from omnis.modules.settings.provider_model_models import ModelRegistryControl
@@ -67,6 +68,25 @@ def decode_control_frame(frame: bytes) -> ControlRequest:
     return body
 
 
+def encode_control_reply(response: dict[str, object]) -> bytes:
+    encoded = json.dumps(response).encode() + b"\n"
+    if (
+        any(key in response for key in ("provider_models", "provider_catalog", "entry_model_test"))
+        and len(encoded) > 65536
+    ):
+        return (
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "CONTROL_UNAVAILABLE",
+                    "correlation_id": response["correlation_id"],
+                }
+            ).encode()
+            + b"\n"
+        )
+    return encoded
+
+
 class LocalControl:
     def __init__(
         self,
@@ -88,6 +108,9 @@ class LocalControl:
             | None
         ) = None
         self.model_test: Callable[[ModelTestControl], Awaitable[dict[str, object]]] | None = None
+        self.provider_catalog: Callable[[CatalogControl], Awaitable[dict[str, object]]] | None = (
+            None
+        )
         self.directory = directory
         self.service = service
         self.owner = owner
@@ -167,6 +190,7 @@ class LocalControl:
         | ModelTestControl
         | KeySettingsControl
         | ModelRegistryControl
+        | CatalogControl
         | SettingsControl,
     ) -> dict[str, object]:
         if await readiness_reason(self.service.engine) is not None:
@@ -185,11 +209,18 @@ class LocalControl:
                 return {"ok": False, "error": error.code}
             except (OSError, ValueError, TimeoutError):
                 return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+        if isinstance(command, CatalogControl):
+            if self.provider_catalog is None:
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+            try:
+                return {"ok": True, "provider_catalog": await self.provider_catalog(command)}
+            except (ModelConflict, SettingsConflict) as error:
+                return {"ok": False, "error": error.code}
         if isinstance(command, ModelTestControl):
             if self.model_test is None:
                 return {"ok": False, "error": "TASK_UNAVAILABLE"}
             try:
-                return {"ok": True, "model_test": await self.model_test(command)}
+                return {"ok": True, command.op: await self.model_test(command)}
             except (ModelConflict, SettingsConflict) as error:
                 return {"ok": False, "error": error.code}
             except CatalogError as error:
@@ -353,20 +384,7 @@ class LocalControl:
             except PairingConflict:
                 response = {"ok": False, "error": "PAIRING_CONFLICT"}
             response["correlation_id"] = str(uuid4())
-            encoded = json.dumps(response).encode() + b"\n"
-            # Only the new registry reply gains a cap; legacy operations retain their contracts.
-            if "provider_models" in response and len(encoded) > 65536:
-                encoded = (
-                    json.dumps(
-                        {
-                            "ok": False,
-                            "error": "CONTROL_UNAVAILABLE",
-                            "correlation_id": response["correlation_id"],
-                        }
-                    ).encode()
-                    + b"\n"
-                )
-            writer.write(encoded)
+            writer.write(encode_control_reply(response))
             await asyncio.wait_for(writer.drain(), 1)
         except (ConnectionError, TimeoutError):
             # Disconnected clients cannot undo a committed command; retry via its receipt.

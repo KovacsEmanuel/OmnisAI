@@ -7,7 +7,15 @@ from uuid import uuid4
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from omnis.modules.runs.model_test_contract import Dispatch, Operation, Ref
+from omnis.modules.runs.model_test_contract import (
+    Capabilities,
+    Dispatch,
+    EntryCapabilities,
+    EntrySnapshot,
+    Operation,
+    Ref,
+    Snapshot,
+)
 from omnis.modules.settings.provider_vault import canonical
 
 
@@ -52,13 +60,46 @@ async def resolve(
     return {str(k): v for k, v in payload.items()}
 
 
-async def operation(db: AsyncConnection, instance: str, identity: str | None) -> Operation | None:
+async def snapshot(db: AsyncConnection, instance: str, reference: Ref) -> Snapshot | EntrySnapshot:
+    if reference.kind == "model-entry-snapshot-v1":
+        return EntrySnapshot.model_validate_json(
+            json.dumps(await resolve(db, instance, reference, reference.kind))
+        )
+    return Snapshot.model_validate_json(
+        json.dumps(await resolve(db, instance, reference, "model-selection-snapshot-v2"))
+    )
+
+
+async def capabilities(
+    db: AsyncConnection, instance: str, reference: Ref
+) -> Capabilities | EntryCapabilities:
+    if reference.kind == "model-entry-capabilities-v1":
+        return EntryCapabilities.model_validate_json(
+            json.dumps(await resolve(db, instance, reference, reference.kind))
+        )
+    return Capabilities.model_validate_json(
+        json.dumps(await resolve(db, instance, reference, "model-capabilities-v2"))
+    )
+
+
+async def operation(
+    db: AsyncConnection, instance: str, identity: str | None, *, legacy_latest: bool = False
+) -> Operation | None:
     row = (
         (
             await db.execute(
                 text(
                     "SELECT * FROM system_operation WHERE instance_id=:instance "
-                    + ("AND operation_id=:id" if identity else "ORDER BY deadline DESC LIMIT 1")
+                    + (
+                        "AND operation_id=:id"
+                        if identity
+                        else (
+                            "AND config_snapshot_ref->>'kind'='model-selection-snapshot-v2' "
+                            if legacy_latest
+                            else ""
+                        )
+                        + "ORDER BY deadline DESC LIMIT 1"
+                    )
                 ),
                 {"instance": instance, "id": identity},
             )

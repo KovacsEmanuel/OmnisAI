@@ -1,4 +1,5 @@
 import asyncio
+import gzip
 import json
 import os
 import ssl
@@ -245,6 +246,85 @@ async def test_streaming_outage_is_sanitized(error: type[Exception]) -> None:
             guard,
         )
         assert reply.result_state == "UNKNOWN" and reply.reason == "RESULT_UNKNOWN"
+    finally:
+        await sender.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "headers,size,error",
+    [
+        ([(b"Content-Encoding", b"gzip")], 3000000, "ENCODED_RESPONSE_DENIED"),
+        ([(b"content-encoding", b"gzip")], 3000000, "ENCODED_RESPONSE_DENIED"),
+        ([(b"CONTENT-ENCODING", b"GZIP")], 3000000, "ENCODED_RESPONSE_DENIED"),
+        (
+            [(b"Content-Encoding", b"gzip"), (b"content-encoding", b"identity")],
+            3000000,
+            "ENCODED_RESPONSE_DENIED",
+        ),
+        (
+            [(b"content-encoding", b"gzip"), (b"Content-Encoding", b"identity")],
+            3000000,
+            "ENCODED_RESPONSE_DENIED",
+        ),
+        ([(b"Content-Encoding", b"Identity")], 128, None),
+        ([], 2097152, None),
+        ([(b"Content-Encoding", b"identity")], 2097153, "RESPONSE_LIMIT"),
+    ],
+)
+async def test_metadata_page_encoding_and_size_at_real_httpx_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+    headers: list[tuple[bytes, bytes]],
+    size: int,
+    error: str | None,
+) -> None:
+    from unittest.mock import AsyncMock
+
+    from omnis.modules.settings.provider_catalog import CatalogIngest
+
+    raw = b'{"data":[{"id":"exact"}],"total_count":1}'
+    raw += b" " * (size - len(raw))
+    wire = gzip.compress(raw, mtime=0) if error == "ENCODED_RESPONSE_DENIED" else raw
+    if error == "ENCODED_RESPONSE_DENIED":
+        assert len(wire) < 2097152 < len(raw) == 3000000
+
+    class Body:
+        closed = False
+        read = False
+
+        async def __aiter__(self) -> AsyncIterator[bytes]:
+            self.read = True
+            yield wire
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    body = Body()
+
+    async def reply(request: httpcore.Request) -> httpcore.Response:
+        assert request.method == b"GET"
+        assert request.url.target == b"/api/v1/models?offset=0&limit=1000"
+        assert httpx.Headers(request.headers)["accept-encoding"] == "identity"
+        return httpcore.Response(200, headers=headers, content=body)
+
+    sender = ModelSender(Path("/nonexistent-owned-fixture"))
+    monkeypatch.setattr(sender.transport.pool, "handle_async_request", reply)
+    monkeypatch.setattr(
+        sender.transport.backend, "connect_tcp", AsyncMock(side_effect=AssertionError("NO_IO"))
+    )
+    try:
+        if error is not None:
+            with pytest.raises(SendDenied, match=f"^{error}$"):
+                await sender.metadata_page(ENDPOINTS["openrouter"], "fixture-secret", guard, 0)
+        else:
+            value, received = await sender.metadata_page(
+                ENDPOINTS["openrouter"], "fixture-secret", guard, 0
+            )
+            assert received == len(raw) == size
+            ingest = CatalogIngest("openrouter")
+            assert ingest.add(value) is None and ingest.complete
+            assert list(ingest.entries) == ["exact"]
+        assert body.closed and body.read == (error != "ENCODED_RESPONSE_DENIED")
     finally:
         await sender.close()
 

@@ -22,6 +22,7 @@ from pydantic import ValidationError
 
 from omnis.modules.runs.model_test_contract import ACK, ENDPOINTS, Projection
 from omnis.modules.runs.model_test_store import digest
+from omnis.security.host_origin import reject_json_constant, unique_json_object
 from omnis.supervisor.model_relay import CipherStream, Relay, RelayFailure
 from omnis.supervisor.model_relay_protocol import Authority
 
@@ -193,8 +194,8 @@ class Transport(httpx.AsyncBaseTransport):
                 extensions=request.extensions,
             )
         )
-        encoding = dict(response.headers).get(b"content-encoding", b"identity")
-        if encoding != b"identity":
+        encoding = httpx.Headers(response.headers).get("content-encoding", "identity")
+        if encoding.lower() != "identity":
             await response.aclose()
             raise SendDenied("ENCODED_RESPONSE_DENIED")
         if not isinstance(response.stream, AsyncIterable):
@@ -260,7 +261,30 @@ class ModelSender:
         secret: str,
         guard: Callable[[], AbstractAsyncContextManager[Authority]],
     ) -> object:
-        permit = Permit(endpoint + "/models", None, secret, guard, 2097152)
+        value, _ = await self.metadata_page(endpoint, secret, guard)
+        return value
+
+    async def metadata_page(
+        self,
+        endpoint: str,
+        secret: str,
+        guard: Callable[[], AbstractAsyncContextManager[Authority]],
+        offset: int | None = None,
+        remaining_bytes: int = 2097152,
+    ) -> tuple[object, int]:
+        if type(remaining_bytes) is not int or not 1 <= remaining_bytes <= 2097152:
+            raise SendDenied("RESPONSE_LIMIT")
+        if endpoint not in ENDPOINTS.values() or (
+            offset is not None
+            and (
+                endpoint != ENDPOINTS["openrouter"]
+                or type(offset) is not int
+                or not 0 <= offset <= 8192
+            )
+        ):
+            raise SendDenied("ENDPOINT_DENIED")
+        suffix = "" if offset is None else f"?offset={offset}&limit=1000"
+        permit = Permit(endpoint + "/models" + suffix, None, secret, guard, remaining_bytes)
         token = CURRENT.set(permit)
         try:
             response = await self.http.get(
@@ -268,8 +292,10 @@ class ModelSender:
             )
             if response.status_code != 200:
                 raise SendDenied("METADATA_PROVIDER_REJECTED")
-            value: object = response.json()
-            return value
+            value: object = response.json(
+                object_pairs_hook=unique_json_object, parse_constant=reject_json_constant
+            )
+            return value, len(response.content)
         except (
             httpcore.NetworkError,
             httpcore.ProtocolError,

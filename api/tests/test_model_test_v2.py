@@ -8,10 +8,11 @@ import ssl
 import subprocess
 import sys
 import threading
+from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import httpx
 import pytest
@@ -76,6 +77,7 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
     "scenario",
     [
         "complete",
+        "entry_catalog",
         "unknown_usage",
         "negative_usage",
         "unsafe_usage",
@@ -146,33 +148,36 @@ async def test_api_pg_sdk_protocol_and_replay(
             }
         )
     )
-    await settings.handle(
-        KeySettingsControl.model_validate(
-            {
-                "op": "provider_settings",
-                "request": {
-                    "action": "save_selection",
-                    "command_id": str(uuid4()),
-                    "expected_revision": 0,
-                    "default": {
-                        "connection_id": connection_id,
-                        "connection_revision": 1,
-                        "model": "fixture/model",
-                        "output_tokens": 64,
+    if scenario != "entry_catalog":
+        await settings.handle(
+            KeySettingsControl.model_validate(
+                {
+                    "op": "provider_settings",
+                    "request": {
+                        "action": "save_selection",
+                        "command_id": str(uuid4()),
+                        "expected_revision": 0,
+                        "default": {
+                            "connection_id": connection_id,
+                            "connection_revision": 1,
+                            "model": "fixture/model",
+                            "output_tokens": 64,
+                        },
+                        "brain": None,
+                        "investigator": None,
+                        "validator": None,
                     },
-                    "brain": None,
-                    "investigator": None,
-                    "validator": None,
-                },
-            }
+                }
+            )
         )
-    )
     server_context, client_context = tls_contexts(tmp_path)
     socket = ipc_directory / "p"
     assert len(bytes(socket)) <= 107
     received: list[tuple[str, bytes]] = []
     tasks: set[asyncio.Task[None]] = set()
     metadata_outage = scenario in {"metadata_refused", "metadata_eof"}
+    catalog_mode = "complete"
+    catalog_entered, catalog_release = asyncio.Event(), asyncio.Event()
 
     async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
@@ -192,10 +197,49 @@ async def test_api_pg_sdk_protocol_and_replay(
                 except asyncio.IncompleteReadError:
                     return
                 received.append((first, body))
+                if scenario == "entry_catalog" and catalog_mode == "wait":
+                    catalog_entered.set()
+                    await catalog_release.wait()
                 if metadata_outage:
                     return  # Real TLS peer EOF before any response bytes.
-                if first == "GET /api/v1/models HTTP/1.1":
+                if scenario == "entry_catalog" and first.startswith("GET /api/v1/models?"):
+                    offset = 0 if "offset=0&" in first else 16
+                    assert first == f"GET /api/v1/models?offset={offset}&limit=1000 HTTP/1.1"
+                    rows = (
+                        [
+                            {
+                                "id": f"fixture/{i:02}",
+                                "name": f"Synthetic model {i}",
+                                "supported_parameters": ["max_tokens"],
+                                "top_provider": {"max_completion_tokens": 128},
+                            }
+                            for i in range(16)
+                        ]
+                        if offset == 0
+                        else [
+                            {
+                                "id": "fixture/selected",
+                                "name": "Selected exact model",
+                                "supported_parameters": ["max_tokens"],
+                                "top_provider": {"max_completion_tokens": 128},
+                            }
+                        ]
+                    )
+                    next_url = "/api/v1/models?offset=16&limit=1000" if offset == 0 else None
+                    if catalog_mode == "foreign":
+                        next_url = "https://foreign.invalid/models?offset=16&limit=1000"
+                    elif catalog_mode == "loop":
+                        next_url = "/api/v1/models?offset=0&limit=1000"
                     payload: dict[str, object] = {
+                        "data": rows,
+                        "links": {"next": next_url},
+                        "total_count": 17,
+                    }
+                    if catalog_mode == "unknown":
+                        payload.pop("total_count")
+                        payload["links"] = {"next": None}
+                elif first == "GET /api/v1/models HTTP/1.1":
+                    payload = {
                         "data": [
                             {
                                 "id": "fixture/model",
@@ -207,7 +251,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                 else:
                     assert first == "POST /api/v1/chat/completions HTTP/1.1"
                     data = json.loads(body)
-                    assert data["model"] == "fixture/model" and data["max_tokens"] == 64
+                    assert (
+                        data["model"]
+                        == ("fixture/selected" if scenario == "entry_catalog" else "fixture/model")
+                        and data["max_tokens"] == 64
+                    )
                     assert data["provider"] == {
                         "allow_fallbacks": False,
                         "require_parameters": True,
@@ -258,9 +306,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                     + raw
                 )
                 await writer.drain()
+        except ConnectionError:
+            return  # Catalog Cancel deliberately closes the authenticated synthetic peer.
         finally:
             writer.close()
-            await writer.wait_closed()
+            with suppress(ConnectionError):
+                await writer.wait_closed()
             tasks.discard(task)
 
     import importlib
@@ -371,6 +422,19 @@ async def test_api_pg_sdk_protocol_and_replay(
     grant = await sessions.exchange("synthetic-pairing")
     released = False
     commands: list[ModelTestControl] = []
+    heartbeat_stop = asyncio.Event()
+
+    async def renew(owner_id: UUID, owner_epoch: int) -> None:
+        if scenario != "entry_catalog":
+            return
+        while not heartbeat_stop.is_set():
+            await service.heartbeat(owner_id, owner_epoch)
+            try:
+                await asyncio.wait_for(heartbeat_stop.wait(), 1)
+            except TimeoutError:
+                pass
+
+    heartbeat = asyncio.create_task(renew(process, epoch))
     try:
         async with LocalControl(control_dir, service, process, epoch) as control:
 
@@ -383,6 +447,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     raise
 
             control.model_test = model_command
+            control.provider_catalog = owner.catalog_handle
 
             async def provider_command(
                 command: KeySettingsControl | ModelRegistryControl,
@@ -438,6 +503,383 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await http.put("/api/v1/model-test", json=intent, headers=headers)
                 ).status_code == 403
                 headers["X-CSRF-Token"] = grant.csrf
+                if scenario == "entry_catalog":
+                    catalog_path = "/api/v1/settings/provider-catalog"
+                    context = {"connection_id": connection_id, "connection_revision": 1}
+                    search = {"action": "search", **context}
+                    assert (await http.get("/api/v1/settings/providers")).json()[
+                        "selection"
+                    ] is None
+                    empty = await http.post(catalog_path + "/search", json=search, headers=headers)
+                    assert empty.status_code == 200 and empty.json()["state"] == "NOT_REQUESTED"
+                    assert not received
+                    ids = [str(uuid4()) for _ in range(3)]
+                    saved = await http.put(
+                        "/api/v1/settings/models",
+                        headers=headers,
+                        json={
+                            "action": "save_models",
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 0,
+                            **context,
+                            "models": [
+                                {
+                                    "entry_id": ids[0],
+                                    "expected_revision": 0,
+                                    "model": "fixture/selected",
+                                    "output_tokens": 64,
+                                },
+                                {
+                                    "entry_id": ids[1],
+                                    "expected_revision": 0,
+                                    "model": "fixture/00",
+                                    "output_tokens": 129,
+                                },
+                                {
+                                    "entry_id": ids[2],
+                                    "expected_revision": 0,
+                                    "model": "manual/model",
+                                    "output_tokens": 64,
+                                },
+                            ],
+                        },
+                    )
+                    assert saved.status_code == 200 and not received
+                    catalog_id = str(uuid4())
+                    refresh_body = {"action": "refresh", "command_id": catalog_id, **context}
+                    refreshed = await http.post(
+                        catalog_path + "/refresh", json=refresh_body, headers=headers
+                    )
+                    assert refreshed.status_code == 202
+                    async with asyncio.timeout(5):
+                        while owner.tasks:
+                            await asyncio.sleep(0.02)
+                    first = await http.post(
+                        catalog_path + "/search",
+                        json={**search, "catalog_command_id": catalog_id},
+                        headers=headers,
+                    )
+                    assert first.status_code == 200, first.text
+                    assert first.json()["state"] == "READY" and first.json()["total"] == 17
+                    assert len(first.json()["entries"]) == 16 and first.json()["next_offset"] == 16
+                    second = await http.post(
+                        catalog_path + "/search",
+                        json={**search, "catalog_command_id": catalog_id, "offset": 16},
+                        headers=headers,
+                    )
+                    assert second.status_code == 200 and [
+                        x["model"] for x in second.json()["entries"]
+                    ] == ["fixture/selected"]
+                    assert second.json()["next_offset"] is None
+                    found = await http.post(
+                        catalog_path + "/search",
+                        json={
+                            **search,
+                            "catalog_command_id": catalog_id,
+                            "query": "Selected exact",
+                        },
+                        headers=headers,
+                    )
+                    assert found.status_code == 200 and found.json()["total"] == 1
+                    assert found.json()["entries"][0]["max_output_tokens"] == 128
+                    assert (
+                        await http.post(
+                            catalog_path + "/refresh", json=refresh_body, headers=headers
+                        )
+                    ).status_code == 202
+                    assert len(received) == 2
+                    assert (
+                        await http.post(
+                            catalog_path + "/search",
+                            json={**search, "query": "x" * 257},
+                            headers=headers,
+                        )
+                    ).status_code == 422
+                    assert (
+                        await http.post(
+                            catalog_path + "/search", json={**search, "offset": 16}, headers=headers
+                        )
+                    ).status_code == 422
+                    for catalog_mode in ("foreign", "loop", "unknown"):
+                        before_traffic = len(received)
+                        command_id = str(uuid4())
+                        partial = await http.post(
+                            catalog_path + "/refresh",
+                            json={**refresh_body, "command_id": command_id},
+                            headers=headers,
+                        )
+                        assert partial.status_code == 202
+                        async with asyncio.timeout(5):
+                            while owner.tasks:
+                                await asyncio.sleep(0.02)
+                        partial_read = await http.post(
+                            catalog_path + "/search",
+                            json={**search, "catalog_command_id": command_id},
+                            headers=headers,
+                        )
+                        assert (
+                            partial_read.status_code == 200
+                            and partial_read.json()["state"] == "PARTIAL"
+                        )
+                        assert partial_read.json()["reason"] == (
+                            "TOTAL_MISMATCH"
+                            if catalog_mode == "unknown"
+                            else "CONTINUATION_UNSUPPORTED"
+                        )
+                        assert partial_read.json()["entries"][0]["max_output_tokens"] == 128
+                        assert len(received) == before_traffic + 1
+                    catalog_mode = "complete"
+                    default = {
+                        "connection_id": connection_id,
+                        "connection_revision": 1,
+                        "model": "fixture/model",
+                        "output_tokens": 37,
+                    }
+                    selection = await http.put(
+                        "/api/v1/settings/providers",
+                        headers=headers,
+                        json={
+                            "action": "save_selection",
+                            "command_id": str(uuid4()),
+                            "expected_revision": 0,
+                            "default": default,
+                            "brain": {**default, "model": "fixture/00", "output_tokens": 12},
+                            "investigator": None,
+                            "validator": {**default, "output_tokens": 23},
+                        },
+                    )
+                    assert selection.status_code == 200
+                    old_selection = selection.json()["selection"]
+                    operation_id = str(uuid4())
+                    entry_intent = {
+                        "operation_id": operation_id,
+                        "entry_id": ids[0],
+                        "expected_entry_revision": 1,
+                        "expected_connection_revision": 1,
+                        "catalog_command_id": catalog_id,
+                        "consent": True,
+                    }
+                    async with engine.connect() as db:
+                        before_denials = (
+                            await db.execute(
+                                text(
+                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event)"
+                                )
+                            )
+                        ).one()
+                    for invalid_entry in (
+                        {"expected_entry_revision": 2},
+                        {"expected_connection_revision": 2},
+                        {"entry_id": ids[1]},
+                        {"entry_id": ids[2]},
+                    ):
+                        denied = await http.put(
+                            "/api/v1/model-test/entries",
+                            json={**entry_intent, **invalid_entry},
+                            headers=headers,
+                        )
+                        assert denied.status_code == 409, denied.text
+                    async with engine.connect() as db:
+                        assert (
+                            await db.execute(
+                                text(
+                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event)"
+                                )
+                            )
+                        ).one() == before_denials
+                    before_test = len(received)
+                    admitted = await http.put(
+                        "/api/v1/model-test/entries", json=entry_intent, headers=headers
+                    )
+                    assert admitted.status_code == 202, admitted.text
+                    async with asyncio.timeout(5):
+                        while owner.tasks:
+                            await asyncio.sleep(0.02)
+                    read_path = "/api/v1/model-test/entries/" + operation_id
+                    exact = (await http.get(read_path)).json()
+                    assert (
+                        exact["result_state"] == "COMPLETED"
+                        and exact["requested_model"] == "fixture/selected"
+                    )
+                    assert (
+                        exact["entry_id"] == ids[0]
+                        and exact["entry_revision"] == 1
+                        and exact["current"] is True
+                    )
+                    assert (
+                        exact["observed_model"] == "fixture/observed"
+                        and exact["selection_revision"] is None
+                    )
+                    assert len(received) == before_test + 1
+                    assert (
+                        await http.put(
+                            "/api/v1/model-test/entries", json=entry_intent, headers=headers
+                        )
+                    ).json() == exact
+                    assert (await http.get("/api/v1/settings/providers")).json()[
+                        "selection"
+                    ] == old_selection
+                    assert (await http.get("/api/v1/model-test")).json()["operation_id"] is None
+                    async with engine.connect() as db:
+                        operation_row = (
+                            await db.execute(
+                                text(
+                                    "SELECT config_snapshot_ref FROM system_operation WHERE operation_id=:id"
+                                ),
+                                {"id": operation_id},
+                            )
+                        ).scalar_one()
+                        assert operation_row["kind"] == "model-entry-snapshot-v1"
+                        assert (
+                            await db.execute(
+                                text("SELECT state FROM model_dispatch_event_v2 ORDER BY sequence")
+                            )
+                        ).scalars().all() == ["RESERVED", "SENT", "SETTLED"]
+                        assert (
+                            await db.execute(
+                                text("SELECT count(*) FROM provider_selection_revision")
+                            )
+                        ).scalar_one() == 1
+                    catalog_mode = "wait"
+                    waiting_id = str(uuid4())
+                    waiting = await http.post(
+                        catalog_path + "/refresh",
+                        json={**refresh_body, "command_id": waiting_id},
+                        headers=headers,
+                    )
+                    assert waiting.status_code == 202
+                    await asyncio.wait_for(catalog_entered.wait(), 3)
+                    active = await http.put(
+                        "/api/v1/model-test/entries",
+                        json={**entry_intent, "operation_id": str(uuid4())},
+                        headers=headers,
+                    )
+                    assert (
+                        active.status_code == 409
+                        and active.json()["error"]["code"] == "OPERATION_ACTIVE"
+                    )
+                    cancelled = await http.post(
+                        catalog_path + "/cancel",
+                        json={
+                            "action": "cancel",
+                            **context,
+                            "catalog_command_id": waiting_id,
+                            "command_id": str(uuid4()),
+                        },
+                        headers=headers,
+                    )
+                    assert cancelled.status_code == 202 and cancelled.json()["state"] == "FAILED"
+                    assert cancelled.json()["reason"] == "CANCELLED_OR_STOPPED"
+                    assert not owner.tasks
+                    catalog_release.set()
+                    catalog_mode = "complete"
+                    before_rotation = len(received)
+                    rotated = await http.put(
+                        "/api/v1/settings/providers",
+                        headers=headers,
+                        json={
+                            "action": "save_connection",
+                            "command_id": str(uuid4()),
+                            "connection_id": connection_id,
+                            "expected_revision": 1,
+                            "provider": "openrouter",
+                            "secret": "synthetic-replacement-key",
+                        },
+                    )
+                    assert rotated.status_code == 200
+                    stale = await http.post(
+                        catalog_path + "/search",
+                        json={**search, "catalog_command_id": catalog_id},
+                        headers=headers,
+                    )
+                    assert (
+                        stale.status_code == 200
+                        and stale.json()["state"] == "STALE"
+                        and stale.json()["entries"] == []
+                    )
+                    historical = (await http.get(read_path)).json()
+                    assert (
+                        historical["result_state"] == "COMPLETED" and historical["current"] is False
+                    )
+                    assert (
+                        await http.put(
+                            "/api/v1/model-test/entries",
+                            json={**entry_intent, "operation_id": str(uuid4())},
+                            headers=headers,
+                        )
+                    ).status_code == 409
+                    assert (await http.get("/api/v1/settings/providers")).json()[
+                        "selection"
+                    ] == old_selection
+                    assert len(received) == before_rotation
+                    await service.shutdown(uuid4(), generation, process, epoch)
+                    await service.quiesce(process, epoch)
+                    assert (await http.get(read_path)).json() == historical
+                    heartbeat_stop.set()
+                    await heartbeat
+                    await owner.drain()
+                    await service.release(process, epoch)
+                    released = True
+                    fresh_process = uuid4()
+                    fresh_epoch = await service.acquire(fresh_process)
+                    heartbeat_stop.clear()
+                    fresh_heartbeat = asyncio.create_task(renew(fresh_process, fresh_epoch))
+                    fresh_settings = ProviderSettingsOwner(
+                        service,
+                        fresh_process,
+                        fresh_epoch,
+                        ProviderVault(vault_dir, keys, str(initial.instance_id)),
+                    )
+                    fresh_sender = ModelSender(socket, client_context)
+                    fresh_owner = ApiKeyModelTest(fresh_settings, fresh_sender)
+                    fresh_directory = ipc_directory / "d"
+                    fresh_directory.mkdir(mode=0o700)
+                    assert len(bytes(fresh_directory / "control.sock")) <= 107
+                    monkeypatch.setenv("OMNIS_CONTROL_DIR", str(fresh_directory))
+                    try:
+                        await fresh_owner.reconcile()
+                        async with LocalControl(
+                            fresh_directory, service, fresh_process, fresh_epoch
+                        ) as fresh_control:
+                            fresh_control.model_test = fresh_owner.handle
+                            fresh_control.provider_catalog = fresh_owner.catalog_handle
+                            fresh_app = create_app()
+                            fresh_app.state.db_engine = engine
+                            async with httpx.AsyncClient(
+                                transport=httpx.ASGITransport(app=fresh_app),
+                                base_url="http://127.0.0.1:8765",
+                                cookies={"omnis_session": grant.token},
+                            ) as fresh_http:
+                                assert (await fresh_http.get(read_path)).json() == historical
+                                cached = await fresh_http.post(
+                                    catalog_path + "/search",
+                                    json={**search, "catalog_command_id": catalog_id},
+                                    headers=headers,
+                                )
+                                assert cached.status_code == 200 and cached.json() == stale.json()
+                                inert = await fresh_http.post(
+                                    catalog_path + "/search",
+                                    json={**search, "connection_revision": 2},
+                                    headers=headers,
+                                )
+                                assert (
+                                    inert.status_code == 200
+                                    and inert.json()["state"] == "NOT_REQUESTED"
+                                )
+                                assert len(received) == before_rotation
+                    finally:
+                        heartbeat_stop.set()
+                        try:
+                            await fresh_heartbeat
+                        finally:
+                            try:
+                                assert await fresh_owner.drain()
+                            finally:
+                                try:
+                                    await fresh_sender.close()
+                                finally:
+                                    await service.release(fresh_process, fresh_epoch)
+                    return
                 assert not received  # Save, boot and read never refresh implicitly.
                 assert (await http.get("/api/v1/model-test")).status_code == 200
                 refused = await http.put("/api/v1/model-test", json=intent, headers=headers)
@@ -985,21 +1427,38 @@ asyncio.run(main())
                         len(received) == traffic
                     )  # A new OS process and fencing owner read/replay only.
     finally:
+        primary = sys.exception()
         physical_release.set()
-        await owner.drain()
-        await sender.close()
-        relay.close()
-        await relay.wait_closed()
-        dns_patch.stop()
-        connect_patch.stop()
-        server.close()
-        await server.wait_closed()
-        if tasks:
-            await asyncio.wait_for(asyncio.gather(*tasks), 2)
-        if not released:
-            await service.release(process, epoch)
-        await engine.dispose()
-    assert not socket.exists() and not tasks
+        catalog_release.set()
+        heartbeat_stop.set()
+        try:
+            try:
+                try:
+                    await heartbeat
+                finally:
+                    await owner.drain()
+            finally:
+                await sender.close()
+                relay.close()
+                await relay.wait_closed()
+                dns_patch.stop()
+                connect_patch.stop()
+                server.close()
+                await server.wait_closed()
+                if tasks:
+                    await asyncio.wait_for(asyncio.gather(*tasks), 2)
+        finally:
+            try:
+                if not released:
+                    await service.release(process, epoch)
+            except BaseException as cleanup:
+                if primary is not None:
+                    primary.add_note(f"Fixture release also failed: {type(cleanup).__name__}")
+                else:
+                    raise
+            finally:
+                await engine.dispose()
+        assert not socket.exists() and not tasks
 
 
 @pytest.mark.asyncio

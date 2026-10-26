@@ -192,6 +192,7 @@ async def run() -> None:
                 control.provider_settings = provider_command
             if model_owner is not None:
                 control.model_test = model_owner.handle
+                control.provider_catalog = model_owner.catalog_handle
             if task_owner is not None:
                 control.model_test = task_owner.model_test
             if runtime is not None and probe is None:

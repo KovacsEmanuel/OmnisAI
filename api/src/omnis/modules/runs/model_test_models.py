@@ -30,10 +30,14 @@ class ModelTestRequest(BaseModel):
 
 class ModelTestControl(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    op: Literal["model_test"]
+    op: Literal["model_test", "entry_model_test"]
     action: Literal["start", "read", "provision", "cancel", "refresh"]
     command_id: Identity | None = None
     expected_selection_revision: PositiveRevision | None = None
+    entry_id: Identity | None = None
+    expected_entry_revision: PositiveRevision | None = None
+    expected_connection_revision: PositiveRevision | None = None
+    catalog_command_id: Identity | None = None
     expected_state_revision: PositiveRevision | None = None
     consent: Literal[True] | None = None
 
@@ -62,8 +66,26 @@ class ModelTestControl(BaseModel):
             raise ValueError("No browser refs")
         elif self.action == "start" and self.operation_id is None:
             raise ValueError("Operation required")
+        entry_fields = (
+            self.entry_id,
+            self.expected_entry_revision,
+            self.expected_connection_revision,
+            self.catalog_command_id,
+        )
+        if self.op == "entry_model_test":
+            if (
+                self.action not in {"start", "read", "cancel"}
+                or self.operation_id is None
+                or self.expected_selection_revision is not None
+            ):
+                raise ValueError("Exact operation only")
+            if self.action == "start" and any(x is None for x in entry_fields):
+                raise ValueError("Exact entry and metadata context required")
+        elif any(x is not None for x in entry_fields):
+            raise ValueError("Legacy selection only")
         if self.action == "start" and (
-            self.expected_selection_revision is None or self.consent is not True
+            (self.op == "model_test" and self.expected_selection_revision is None)
+            or self.consent is not True
         ):
             raise ValueError("Revision and explicit consent required")
         if self.action == "read" and self.operation_id is not None and self.command_id is not None:
@@ -87,11 +109,36 @@ class ModelTestControl(BaseModel):
             "cancel": {"operation_id", "command_id", "expected_state_revision"},
             "refresh": {"command_id", "expected_selection_revision"},
         }
+        if self.op == "entry_model_test":
+            allowed["start"] = {
+                "operation_id",
+                "entry_id",
+                "expected_entry_revision",
+                "expected_connection_revision",
+                "catalog_command_id",
+                "consent",
+            }
         if set(self.model_dump(exclude_none=True)) - {"op", "action"} - allowed[self.action]:
             raise ValueError("Invalid command shape")
         if len(self.model_dump_json().encode()) > 3600:
             raise ValueError("Model command too large")
         return self
+
+
+class EntryTestRequest(KeyDTO):
+    operation_id: Identity
+    entry_id: Identity
+    expected_entry_revision: PositiveRevision
+    expected_connection_revision: PositiveRevision
+    catalog_command_id: Identity
+    consent: Literal[True]
+
+    @field_validator("consent", mode="before")
+    @classmethod
+    def explicit_consent(cls, value: object) -> object:
+        if value is not True:
+            raise ValueError("Explicit consent required")
+        return value
 
 
 class CancelTestRequest(KeyDTO):

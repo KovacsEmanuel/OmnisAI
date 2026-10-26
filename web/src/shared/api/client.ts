@@ -7,7 +7,10 @@ import type { Draft } from './drafts';
 import { decodeProvider } from './providers';
 import type { ProviderCommand } from './providers';
 import { catalogSelection, decodeCatalogInspection, decodeCatalogPage } from './catalog';
-import { decodeModelTest } from './modelTest';
+import { decodeEntryTest, decodeModelTest } from './modelTest';
+import type { EntryTestRequest } from './modelTest';
+import { decodeProviderCatalog } from './providerCatalog';
+import type { SearchCatalog, RefreshCatalog, CancelCatalog } from './providerCatalog';
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
 import { decodeProviderModels } from './providerModels';
@@ -47,6 +50,49 @@ async function sessionResponse(response: Response): Promise<Session> {
 }
 
 export const api = {
+  async providerCatalog(payload: SearchCatalog, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(payload.connection_id) || (payload.catalog_command_id != null && !isUuid(payload.catalog_command_id)) || Array.from(payload.query ?? '').length > 256) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/settings/provider-catalog/search', { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeProviderCatalog(value, payload);
+  },
+  async refreshProviderCatalog(payload: RefreshCatalog, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(payload.connection_id) || !isUuid(payload.command_id)) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/settings/provider-catalog/refresh', { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeProviderCatalog(value, payload);
+  },
+  async cancelProviderCatalog(payload: CancelCatalog, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(payload.connection_id) || !isUuid(payload.command_id) || !isUuid(payload.catalog_command_id)) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/settings/provider-catalog/cancel', { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeProviderCatalog(value, payload);
+  },
+  async startEntryModelTest(payload: EntryTestRequest, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(payload.operation_id) || !isUuid(payload.entry_id) || !isUuid(payload.catalog_command_id) || payload.consent !== true) throw new ApiError('INVALID_INPUT');
+    const response = await request('/api/v1/model-test/entries', { method: 'PUT', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeEntryTest(value, payload.operation_id);
+    if (result.entry_id !== payload.entry_id || result.entry_revision !== payload.expected_entry_revision || result.connection_revision !== payload.expected_connection_revision) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
+  async entryModelTest(operationId: string, signal?: AbortSignal) {
+    if (!isUuid(operationId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/entries/${operationId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeEntryTest(value, operationId);
+  },
+  async cancelEntryModelTest(operationId: string, commandId: string, revision: number, csrf: string, signal?: AbortSignal) {
+    if (!isUuid(operationId) || !isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/entries/${operationId}/cancel`, { method: 'POST', headers: {
+      'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify({ command_id: commandId, expected_state_revision: revision }) }, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeEntryTest(value, operationId);
+  },
   async providerModels(command: string | null = null, signal?: AbortSignal) {
     if (command !== null && !isUuid(command)) throw new ApiError('INVALID_INPUT');
     const response = await request(command ? `/api/v1/settings/models/commands/${command}` : '/api/v1/settings/models', {}, signal);

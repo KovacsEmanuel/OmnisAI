@@ -152,6 +152,37 @@
         "title": "BusinessMatrixEntry",
         "type": "object"
       },
+      "CancelCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "cancel",
+            "title": "Action",
+            "type": "string"
+          },
+          "catalog_command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "action",
+          "command_id",
+          "catalog_command_id"
+        ],
+        "title": "CancelCatalog",
+        "type": "object"
+      },
       "CancelTestRequest": {
         "additionalProperties": false,
         "properties": {
@@ -449,6 +480,69 @@
         "title": "CatalogInspection",
         "type": "object"
       },
+      "CatalogModel": {
+        "additionalProperties": false,
+        "properties": {
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "maximum": 65536.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Output Tokens"
+          },
+          "model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[!-~]+$",
+            "title": "Model",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CatalogReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supports_max_tokens": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supports Max Tokens"
+          }
+        },
+        "required": [
+          "model"
+        ],
+        "title": "CatalogModel",
+        "type": "object"
+      },
       "CatalogPage": {
         "additionalProperties": false,
         "properties": {
@@ -541,6 +635,125 @@
           "digest"
         ],
         "title": "CatalogPin",
+        "type": "object"
+      },
+      "CatalogReason": {
+        "enum": [
+          "SCHEMA_UNSUPPORTED",
+          "CONTINUATION_UNSUPPORTED",
+          "TOTAL_MISMATCH",
+          "CATALOG_LIMIT",
+          "METADATA_UNAVAILABLE",
+          "CANCELLED_OR_STOPPED",
+          "OWNER_LOST",
+          "CONNECTION_STALE",
+          "ROW_UNSUPPORTED"
+        ],
+        "type": "string"
+      },
+      "CatalogView": {
+        "additionalProperties": false,
+        "properties": {
+          "catalog_command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogModel"
+            },
+            "maxItems": 16,
+            "title": "Entries",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "maximum": 8192.0,
+                "minimum": 16.0,
+                "multipleOf": 16.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          },
+          "offset": {
+            "maximum": 8192.0,
+            "minimum": 0.0,
+            "multipleOf": 16.0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/Provider"
+          },
+          "query": {
+            "maxLength": 256,
+            "title": "Query",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CatalogReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "NOT_REQUESTED",
+              "PENDING",
+              "READY",
+              "PARTIAL",
+              "FAILED",
+              "STALE"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "total": {
+            "maximum": 8192.0,
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "provider",
+          "catalog_command_id",
+          "state",
+          "query",
+          "offset",
+          "total",
+          "entries"
+        ],
+        "title": "CatalogView",
         "type": "object"
       },
       "ConnectionView": {
@@ -1081,6 +1294,339 @@
           "created_at"
         ],
         "title": "EngagementView",
+        "type": "object"
+      },
+      "EntryTestRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "catalog_command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "consent": {
+            "const": true,
+            "title": "Consent",
+            "type": "boolean"
+          },
+          "entry_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "expected_entry_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "operation_id": {
+            "$ref": "#/components/schemas/Identity"
+          }
+        },
+        "required": [
+          "operation_id",
+          "entry_id",
+          "expected_entry_revision",
+          "expected_connection_revision",
+          "catalog_command_id",
+          "consent"
+        ],
+        "title": "EntryTestRequest",
+        "type": "object"
+      },
+      "EntryTestView": {
+        "additionalProperties": false,
+        "properties": {
+          "calls_limit": {
+            "const": 1,
+            "default": 1,
+            "title": "Calls Limit",
+            "type": "integer"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "cost_observed": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Observed"
+          },
+          "current": {
+            "title": "Current",
+            "type": "boolean"
+          },
+          "entry_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "entry_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "finish_reason": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "pattern": "^[A-Z_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finish Reason"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Tokens"
+          },
+          "metadata_command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata_state": {
+            "default": "NOT_REQUESTED",
+            "enum": [
+              "NOT_REQUESTED",
+              "PENDING",
+              "READY",
+              "FAILED"
+            ],
+            "title": "Metadata State",
+            "type": "string"
+          },
+          "observed_model": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Model"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_state": {
+            "default": "ABSENT",
+            "enum": [
+              "COMPLETE",
+              "TRUNCATED",
+              "ABSENT"
+            ],
+            "title": "Output State",
+            "type": "string"
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Tokens"
+          },
+          "provider_status": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "pattern": "^[A-Z_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning Tokens"
+          },
+          "requested_model": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "pattern": "^[!-~]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Model"
+          },
+          "requested_output_tokens": {
+            "anyOf": [
+              {
+                "maximum": 65536.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Output Tokens"
+          },
+          "requested_provider": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Provider"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "response_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Text"
+          },
+          "result_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "const": 2,
+            "default": 2,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selection_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/State"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "system_message": {
+            "default": "Respond only with OMNIS_MODEL_TEST_OK. Use no tools.",
+            "title": "System Message",
+            "type": "string"
+          },
+          "usage_state": {
+            "default": "UNKNOWN",
+            "enum": [
+              "KNOWN",
+              "PARTIAL",
+              "UNKNOWN"
+            ],
+            "title": "Usage State",
+            "type": "string"
+          },
+          "user_message": {
+            "default": "This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.",
+            "title": "User Message",
+            "type": "string"
+          },
+          "wall_seconds": {
+            "const": 300,
+            "default": 300,
+            "title": "Wall Seconds",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entry_id",
+          "entry_revision",
+          "connection_id",
+          "connection_revision",
+          "current"
+        ],
+        "title": "EntryTestView",
         "type": "object"
       },
       "ErrorCode": {
@@ -2227,6 +2773,33 @@
         "title": "ReadinessReason",
         "type": "string"
       },
+      "RefreshCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "refresh",
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "action",
+          "command_id"
+        ],
+        "title": "RefreshCatalog",
+        "type": "object"
+      },
       "RefreshRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2564,6 +3137,53 @@
           "access"
         ],
         "title": "ScopeEntry",
+        "type": "object"
+      },
+      "SearchCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "search",
+            "title": "Action",
+            "type": "string"
+          },
+          "catalog_command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "offset": {
+            "default": 0,
+            "maximum": 8192.0,
+            "minimum": 0.0,
+            "multipleOf": 16.0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "query": {
+            "default": "",
+            "maxLength": 256,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_id",
+          "connection_revision",
+          "action"
+        ],
+        "title": "SearchCatalog",
         "type": "object"
       },
       "SelectionView": {
@@ -4072,6 +4692,334 @@
         "summary": "Read Capabilities"
       }
     },
+    "/api/v1/model-test/entries": {
+      "put": {
+        "operationId": "start_entry_test_api_v1_model_test_entries_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Start Entry Test"
+      }
+    },
+    "/api/v1/model-test/entries/{operation_id}": {
+      "get": {
+        "operationId": "read_entry_test_api_v1_model_test_entries__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Read Entry Test"
+      }
+    },
+    "/api/v1/model-test/entries/{operation_id}/cancel": {
+      "post": {
+        "operationId": "cancel_entry_test_api_v1_model_test_entries__operation_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryTestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Cancel Entry Test"
+      }
+    },
     "/api/v1/model-test/{operation_id}": {
       "get": {
         "operationId": "read_operation_api_v1_model_test__operation_id__get",
@@ -5047,6 +5995,320 @@
           }
         },
         "summary": "Configure"
+      }
+    },
+    "/api/v1/settings/provider-catalog/cancel": {
+      "post": {
+        "operationId": "cancel_catalog_api_v1_settings_provider_catalog_cancel_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelCatalog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Cancel Catalog"
+      }
+    },
+    "/api/v1/settings/provider-catalog/refresh": {
+      "post": {
+        "operationId": "refresh_catalog_api_v1_settings_provider_catalog_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshCatalog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Refresh Catalog"
+      }
+    },
+    "/api/v1/settings/provider-catalog/search": {
+      "post": {
+        "operationId": "search_catalog_api_v1_settings_provider_catalog_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchCatalog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Search Catalog"
       }
     },
     "/api/v1/settings/provider/operations/{operation_id}": {

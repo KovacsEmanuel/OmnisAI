@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator, model_validator
 
 from omnis.modules.settings.provider_key_models import (
     Identity,
@@ -14,6 +14,7 @@ from omnis.modules.settings.provider_key_models import (
     SelectionView,
 )
 from omnis.modules.settings.provider_key_service import ConnectionRevision
+from omnis.modules.settings.provider_model_models import ModelEntry
 
 SYSTEM: Literal["Respond only with OMNIS_MODEL_TEST_OK. Use no tools."] = (
     "Respond only with OMNIS_MODEL_TEST_OK. Use no tools."
@@ -54,6 +55,48 @@ class Snapshot(KeyDTO):
     capabilities_ref: Ref
     data_policy: Literal["FIXED_SYNTHETIC_ONLY"] = "FIXED_SYNTHETIC_ONLY"
     endpoint: str
+
+    @property
+    def choice(self) -> ModelSelection:
+        return self.selection.default
+
+
+class EntryCapabilities(KeyDTO):
+    entry: ModelEntry
+    connection: ConnectionRevision
+    catalog_ref: Ref
+    max_output_tokens: int = Field(strict=True, ge=1, le=65536)
+
+    @field_validator("catalog_ref")
+    @classmethod
+    def catalog_kind(cls, value: Ref) -> Ref:
+        if value.kind != "catalog-result":
+            raise ValueError("Catalog snapshot required")
+        return value
+
+    @property
+    def choice(self) -> ModelSelection:
+        return self.entry
+
+
+class EntrySnapshot(KeyDTO):
+    schema_version: Literal[1] = 1
+    entry: ModelEntry
+    connection: ConnectionRevision
+    capabilities_ref: Ref
+    data_policy: Literal["FIXED_SYNTHETIC_ONLY"] = "FIXED_SYNTHETIC_ONLY"
+    endpoint: str
+
+    @field_validator("capabilities_ref")
+    @classmethod
+    def entry_kind(cls, value: Ref) -> Ref:
+        if value.kind != "model-entry-capabilities-v1":
+            raise ValueError("Exact entry capabilities required")
+        return value
+
+    @property
+    def choice(self) -> ModelSelection:
+        return self.entry
 
 
 class Projection(KeyDTO):
@@ -176,3 +219,45 @@ class ModelTestView(KeyDTO):
     user_message: str = USER
     calls_limit: Literal[1] = 1
     wall_seconds: Literal[300] = 300
+
+
+class EntryTestView(ModelTestView):
+    finish_reason: str | None = Field(default=None, max_length=64, pattern=r"^[A-Z_]+$")
+    reason: str | None = Field(default=None, max_length=64, pattern=r"^[A-Z_]+$")
+    requested_model: str | None = Field(
+        default=None, min_length=1, max_length=256, pattern=r"^[!-~]+$"
+    )
+    observed_model: str | None = Field(default=None, max_length=256)
+    provider_status: str | None = Field(default=None, pattern=r"^[0-9]{3}$")
+    cost_observed: str | None = Field(default=None, max_length=128)
+    entry_id: Identity
+    entry_revision: PositiveRevision
+    connection_id: Identity
+    connection_revision: PositiveRevision
+    current: bool
+
+    @model_validator(mode="after")
+    def exact_context(self) -> "EntryTestView":
+        if (
+            self.system_message != SYSTEM
+            or self.user_message != USER
+            or self.selection_revision is not None
+            or self.metadata_command_id is not None
+            or self.metadata_state != "NOT_REQUESTED"
+            or self.operation_id is None
+            or self.state is None
+            or self.state_revision is None
+            or (self.state == "FINISHED" and self.result_state is None)
+            or self.requested_model is None
+            or self.requested_provider is None
+            or self.requested_output_tokens is None
+        ):
+            raise ValueError("Exact entry context required")
+        return self
+
+    @field_validator("response_text")
+    @classmethod
+    def output_bound(cls, value: str | None) -> str | None:
+        if value is not None and len(value.encode()) > 8192:
+            raise ValueError("Output limit")
+        return value

@@ -43,3 +43,22 @@ export function decodeModelTest(value: unknown): ModelTestView {
       (result.state === 'FINISHED' && result.result_state === null)) throw new ApiError('INVALID_RESPONSE');
   return result;
 }
+
+export type EntryTestView = components['schemas']['EntryTestView'];
+export type EntryTestRequest = components['schemas']['EntryTestRequest'];
+export function decodeEntryTest(value: unknown, operationId: string): EntryTestView {
+  if (!isRecord(value)) throw new ApiError('INVALID_RESPONSE');
+  const { entry_id, entry_revision, connection_id, connection_revision, current, ...legacy } = value;
+  const decoded = decodeModelTest(legacy);
+  const entryRevision = integer(entry_revision, 1), connectionRevision = integer(connection_revision, 1);
+  if (decoded.operation_id !== operationId || !isUuid(decoded.operation_id) || !isUuid(entry_id) || !isUuid(connection_id) ||
+      entryRevision === null || connectionRevision === null || typeof current !== 'boolean' ||
+      decoded.requested_provider == null || decoded.requested_output_tokens == null || decoded.state_revision == null ||
+      decoded.selection_revision !== null || decoded.metadata_command_id !== null || decoded.metadata_state !== 'NOT_REQUESTED' ||
+      typeof decoded.requested_model !== 'string' || decoded.requested_model.length < 1 || decoded.requested_model.length > 256 || /[^!-~]/.test(decoded.requested_model) ||
+      (decoded.observed_model != null && Array.from(decoded.observed_model).length > 256) ||
+      [decoded.reason, decoded.finish_reason].some(item => item != null && (item.length > 64 || !/^[A-Z_]+$/.test(item))) ||
+      (decoded.provider_status != null && !/^[0-9]{3}$/.test(decoded.provider_status)) ||
+      (decoded.cost_observed != null && decoded.cost_observed.length > 128)) throw new ApiError('INVALID_RESPONSE');
+  return { ...decoded, entry_id, entry_revision: entryRevision, connection_id, connection_revision: connectionRevision, current };
+}

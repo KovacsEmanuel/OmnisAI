@@ -190,6 +190,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/model-test/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Start Entry Test */
+        put: operations["start_entry_test_api_v1_model_test_entries_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/model-test/entries/{operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Entry Test */
+        get: operations["read_entry_test_api_v1_model_test_entries__operation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/model-test/entries/{operation_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Entry Test */
+        post: operations["cancel_entry_test_api_v1_model_test_entries__operation_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/model-test/{operation_id}": {
         parameters: {
             query?: never;
@@ -344,6 +395,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/provider-catalog/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Catalog */
+        post: operations["cancel_catalog_api_v1_settings_provider_catalog_cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/provider-catalog/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh Catalog */
+        post: operations["refresh_catalog_api_v1_settings_provider_catalog_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/provider-catalog/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Catalog */
+        post: operations["search_catalog_api_v1_settings_provider_catalog_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/provider/operations/{operation_id}": {
         parameters: {
             query?: never;
@@ -481,6 +583,18 @@ export interface components {
             /** Tenant */
             tenant: string;
         };
+        /** CancelCatalog */
+        CancelCatalog: {
+            /**
+             * Action
+             * @constant
+             */
+            action: "cancel";
+            catalog_command_id: components["schemas"]["Identity"];
+            command_id: components["schemas"]["Identity"];
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+        };
         /** CancelTestRequest */
         CancelTestRequest: {
             command_id: components["schemas"]["Identity"];
@@ -599,6 +713,18 @@ export interface components {
             static_evaluation_ref: components["schemas"]["CatalogPin"];
             technical_review_ref: components["schemas"]["CatalogPin"];
         };
+        /** CatalogModel */
+        CatalogModel: {
+            /** Max Output Tokens */
+            max_output_tokens?: number | null;
+            /** Model */
+            model: string;
+            /** Name */
+            name?: string | null;
+            reason?: components["schemas"]["CatalogReason"] | null;
+            /** Supports Max Tokens */
+            supports_max_tokens?: boolean | null;
+        };
         /** CatalogPage */
         CatalogPage: {
             /** Has More */
@@ -621,6 +747,37 @@ export interface components {
             kind: "source-draft" | "candidate-snapshot" | "technical-review" | "evaluation-receipt" | "operator-confirmation" | "catalog-publication" | "evaluation-input" | "contract-case-input" | "contract-case-records" | "contract-input-context" | "evaluation-admission" | "qualified-release" | "release-qualification" | "package" | "profile" | "technique" | "procedure" | "schema" | "method" | "prompt" | "template" | "overlay" | "asset";
             /** Revision */
             revision: number;
+        };
+        /** @enum {string} */
+        CatalogReason: "SCHEMA_UNSUPPORTED" | "CONTINUATION_UNSUPPORTED" | "TOTAL_MISMATCH" | "CATALOG_LIMIT" | "METADATA_UNAVAILABLE" | "CANCELLED_OR_STOPPED" | "OWNER_LOST" | "CONNECTION_STALE" | "ROW_UNSUPPORTED";
+        /** CatalogView */
+        CatalogView: {
+            catalog_command_id: components["schemas"]["Identity"] | null;
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            /** Entries */
+            entries: components["schemas"]["CatalogModel"][];
+            /** Next Offset */
+            next_offset?: number | null;
+            /** Offset */
+            offset: number;
+            provider: components["schemas"]["Provider"];
+            /** Query */
+            query: string;
+            reason?: components["schemas"]["CatalogReason"] | null;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "NOT_REQUESTED" | "PENDING" | "READY" | "PARTIAL" | "FAILED" | "STALE";
+            /** Total */
+            total: number;
         };
         /** ConnectionView */
         ConnectionView: {
@@ -846,6 +1003,103 @@ export interface components {
              * @constant
              */
             schema_version: 1;
+        };
+        /** EntryTestRequest */
+        EntryTestRequest: {
+            catalog_command_id: components["schemas"]["Identity"];
+            /**
+             * Consent
+             * @constant
+             */
+            consent: true;
+            entry_id: components["schemas"]["Identity"];
+            expected_connection_revision: components["schemas"]["PositiveRevision"];
+            expected_entry_revision: components["schemas"]["PositiveRevision"];
+            operation_id: components["schemas"]["Identity"];
+        };
+        /** EntryTestView */
+        EntryTestView: {
+            /**
+             * Calls Limit
+             * @default 1
+             * @constant
+             */
+            calls_limit: 1;
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            /** Cost Observed */
+            cost_observed?: string | null;
+            /** Current */
+            current: boolean;
+            entry_id: components["schemas"]["Identity"];
+            entry_revision: components["schemas"]["PositiveRevision"];
+            /** Finish Reason */
+            finish_reason?: string | null;
+            /** Input Tokens */
+            input_tokens?: number | null;
+            metadata_command_id?: components["schemas"]["Identity"] | null;
+            /**
+             * Metadata State
+             * @default NOT_REQUESTED
+             * @enum {string}
+             */
+            metadata_state: "NOT_REQUESTED" | "PENDING" | "READY" | "FAILED";
+            /** Observed Model */
+            observed_model?: string | null;
+            operation_id?: components["schemas"]["Identity"] | null;
+            /**
+             * Output State
+             * @default ABSENT
+             * @enum {string}
+             */
+            output_state: "COMPLETE" | "TRUNCATED" | "ABSENT";
+            /** Output Tokens */
+            output_tokens?: number | null;
+            /** Provider Status */
+            provider_status?: string | null;
+            /** Reason */
+            reason?: string | null;
+            /** Reasoning Tokens */
+            reasoning_tokens?: number | null;
+            /** Requested Model */
+            requested_model?: string | null;
+            /** Requested Output Tokens */
+            requested_output_tokens?: number | null;
+            requested_provider?: components["schemas"]["Provider"] | null;
+            /** Response Text */
+            response_text?: string | null;
+            result_state?: components["schemas"]["ResultState"] | null;
+            /**
+             * Schema Version
+             * @default 2
+             * @constant
+             */
+            schema_version: 2;
+            selection_revision?: components["schemas"]["PositiveRevision"] | null;
+            state?: components["schemas"]["State"] | null;
+            state_revision?: components["schemas"]["PositiveRevision"] | null;
+            /**
+             * System Message
+             * @default Respond only with OMNIS_MODEL_TEST_OK. Use no tools.
+             */
+            system_message: string;
+            /**
+             * Usage State
+             * @default UNKNOWN
+             * @enum {string}
+             */
+            usage_state: "KNOWN" | "PARTIAL" | "UNKNOWN";
+            /**
+             * User Message
+             * @default This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.
+             */
+            user_message: string;
+            /**
+             * Wall Seconds
+             * @default 300
+             * @constant
+             */
+            wall_seconds: 300;
         };
         /**
          * ErrorCode
@@ -1239,6 +1493,17 @@ export interface components {
          * @enum {string}
          */
         ReadinessReason: "DATABASE_UNAVAILABLE" | "SCHEMA_INCOMPATIBLE";
+        /** RefreshCatalog */
+        RefreshCatalog: {
+            /**
+             * Action
+             * @constant
+             */
+            action: "refresh";
+            command_id: components["schemas"]["Identity"];
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+        };
         /** RefreshRequest */
         RefreshRequest: {
             command_id: components["schemas"]["Identity"];
@@ -1351,6 +1616,27 @@ export interface components {
             path_prefix: string;
             /** Port */
             port: number;
+        };
+        /** SearchCatalog */
+        SearchCatalog: {
+            /**
+             * Action
+             * @constant
+             */
+            action: "search";
+            catalog_command_id?: components["schemas"]["Identity"] | null;
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            /**
+             * Offset
+             * @default 0
+             */
+            offset: number;
+            /**
+             * Query
+             * @default
+             */
+            query: string;
         };
         /** SelectionView */
         SelectionView: {
@@ -2566,6 +2852,285 @@ export interface operations {
             };
         };
     };
+    start_entry_test_api_v1_model_test_entries_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_entry_test_api_v1_model_test_entries__operation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_entry_test_api_v1_model_test_entries__operation_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryTestView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     read_operation_api_v1_model_test__operation_id__get: {
         parameters: {
             query?: never;
@@ -3368,6 +3933,285 @@ export interface operations {
             };
             /** @description Content Too Large */
             413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_catalog_api_v1_settings_provider_catalog_cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelCatalog"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    refresh_catalog_api_v1_settings_provider_catalog_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshCatalog"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    search_catalog_api_v1_settings_provider_catalog_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchCatalog"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogView"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -150,6 +150,8 @@ async def view(
 
 async def handle(owner: "NativeTaskOwner", command: ModelTestControl) -> dict[str, object]:
     command = ModelTestControl.model_validate(command.model_dump(mode="python"))
+    if command.op != "model_test":
+        raise CatalogError("TASK_UNAVAILABLE")
     status = await owner.service.owned_status(owner.owner, owner.epoch)
     identity = str(status.instance_id)
     if command.action == "provision":

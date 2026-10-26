@@ -17,6 +17,9 @@ from omnis.modules.runs.model_test_contract import (
     Capabilities,
     Caps,
     Dispatch,
+    EntryCapabilities,
+    EntrySnapshot,
+    EntryTestView,
     ModelTestView,
     Operation,
     Outcome,
@@ -25,6 +28,7 @@ from omnis.modules.runs.model_test_contract import (
     Snapshot,
 )
 from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import SelectionView
 from omnis.modules.settings.provider_key_service import ConnectionRevision, ProviderSettingsOwner
 from omnis.supervisor.model_relay import RelayFailure
@@ -90,11 +94,7 @@ class ApiKeyModelTest:
                 op = await store.operation(db, self.instance, identity)
                 assert op is not None
                 dispatch = await store.dispatch(db, self.instance, identity)
-                snapshot = Snapshot.model_validate(
-                    await store.resolve(
-                        db, self.instance, op.config_snapshot_ref, "model-selection-snapshot-v2"
-                    )
-                )
+                snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
                 self.sender.transport.backend.relay.scopes.add(
                     Scope(
                         self.instance,
@@ -159,7 +159,7 @@ class ApiKeyModelTest:
         return {str(k): v for k, v in payload.items()} if isinstance(payload, dict) else None
 
     async def view(
-        self, identity: str | None = None, command_id: str | None = None
+        self, identity: str | None = None, command_id: str | None = None, *, entry: bool = False
     ) -> dict[str, object]:
         async with self.service.engine.connect() as db:
             selection = await self.settings.selection(db)
@@ -185,27 +185,24 @@ class ApiKeyModelTest:
                     metadata["metadata_state"] = "NOT_REQUESTED"
             if command_id is not None:
                 return ModelTestView.model_validate(metadata).model_dump(mode="json")
-            op = await store.operation(db, self.instance, identity)
+            op = await store.operation(db, self.instance, identity, legacy_latest=identity is None)
             if identity is not None and op is None:
                 raise store.ModelConflict("NOT_FOUND")
             if op is None:
                 return ModelTestView.model_validate(metadata).model_dump(mode="json")
-            snapshot = Snapshot.model_validate_json(
-                json.dumps(
-                    await store.resolve(
-                        db, self.instance, op.config_snapshot_ref, "model-selection-snapshot-v2"
-                    )
-                )
-            )
+            snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
+            if isinstance(snapshot, EntrySnapshot) != entry:
+                raise store.ModelConflict("NOT_FOUND")
             fields: dict[str, object] = {
                 **metadata,
+                "reason": None if isinstance(snapshot, EntrySnapshot) else metadata.get("reason"),
                 "operation_id": op.operation_id,
                 "state": op.state,
                 "state_revision": op.state_revision,
                 "finish_reason": op.finish_reason,
                 "requested_provider": snapshot.connection.provider,
-                "requested_model": snapshot.selection.default.model,
-                "requested_output_tokens": snapshot.selection.default.output_tokens,
+                "requested_model": snapshot.choice.model,
+                "requested_output_tokens": snapshot.choice.output_tokens,
             }
             if op.outcome_ref is not None:
                 outcome = Outcome.model_validate_json(
@@ -236,11 +233,78 @@ class ApiKeyModelTest:
                             db, self.instance, outcome.output_ref, "model-output-v2"
                         )
                     )["text"]
+            if isinstance(snapshot, EntrySnapshot):
+                from omnis.modules.settings.provider_model_test import current
+
+                fields.update(
+                    entry_id=snapshot.entry.entry_id,
+                    entry_revision=snapshot.entry.revision,
+                    connection_id=snapshot.connection.connection_id,
+                    connection_revision=snapshot.connection.revision,
+                    current=await current(self.settings, db, snapshot),
+                )
+                fields.update(
+                    selection_revision=None,
+                    metadata_state="NOT_REQUESTED",
+                    metadata_command_id=None,
+                )
+                return EntryTestView.model_validate(fields).model_dump(mode="json")
             return ModelTestView.model_validate(fields).model_dump(mode="json")
+
+    async def catalog_handle(self, command: CatalogControl) -> dict[str, object]:
+        from omnis.modules.settings.provider_catalog_runtime import handle
+
+        return await handle(self, command)
+
+    async def require_idle(self, db: AsyncConnection) -> None:
+        if (
+            self.tasks
+            or (
+                await db.execute(
+                    text(
+                        "SELECT 1 FROM system_operation WHERE instance_id=:instance AND state <> 'FINISHED'"
+                    ),
+                    {"instance": self.instance},
+                )
+            ).first()
+            is not None
+        ):
+            raise store.ModelConflict("OPERATION_ACTIVE")
+
+    async def legacy_snapshot(
+        self, db: AsyncConnection, selection: SelectionView, connection: ConnectionRevision
+    ) -> Snapshot:
+        metadata = await self.latest(db, "metadata-request")
+        result = (
+            await self.latest(db, "metadata-result", str(metadata["command_id"]))
+            if metadata
+            else None
+        )
+        if result is None or result["state"] != "READY":
+            raise store.ModelConflict("CAPABILITIES_REQUIRED")
+        cap_ref = Ref.model_validate(result["capabilities_ref"])
+        cap = Capabilities.model_validate_json(
+            json.dumps(await store.resolve(db, self.instance, cap_ref, "model-capabilities-v2"))
+        )
+        if (
+            cap.selection_revision != selection.revision
+            or cap.choice != selection.default
+            or cap.connection != connection
+            or selection.default.output_tokens > cap.max_output_tokens
+        ):
+            raise store.ModelConflict("CAPABILITIES_REQUIRED")
+        return Snapshot(
+            selection=selection,
+            connection=connection,
+            capabilities_ref=cap_ref,
+            endpoint=ENDPOINTS[connection.provider],
+        )
 
     async def handle(self, command: ModelTestControl) -> dict[str, object]:
         if command.action == "read":
-            return await self.view(command.operation_id, command.command_id)
+            return await self.view(
+                command.operation_id, command.command_id, entry=command.op == "entry_model_test"
+            )
         if command.action == "provision":
             raise store.ModelConflict("ROOT_CONTEXT_UNAVAILABLE")
         identity = command.operation_id if command.action == "start" else command.command_id
@@ -250,7 +314,11 @@ class ApiKeyModelTest:
             async with self.service.engine.connect() as db:
                 repeated, previous = await store.replay(db, self.instance, identity, request_digest)
             if repeated:
-                return await self.view(previous, identity if command.action == "refresh" else None)
+                return await self.view(
+                    previous,
+                    identity if command.action == "refresh" else None,
+                    entry=command.op == "entry_model_test",
+                )
             if self.closing or self.settlement_failed:
                 raise store.ModelConflict("CONTROL_UNAVAILABLE")
             status = await self.service.owned_status(self.settings.owner, self.settings.epoch)
@@ -260,6 +328,9 @@ class ApiKeyModelTest:
                 if command.action == "cancel":
                     op = await store.operation(db, self.instance, command.operation_id)
                     if op is None:
+                        raise store.ModelConflict("NOT_FOUND")
+                    snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
+                    if isinstance(snapshot, EntrySnapshot) != (command.op == "entry_model_test"):
                         raise store.ModelConflict("NOT_FOUND")
                     if op.state_revision != command.expected_state_revision:
                         raise store.ModelConflict("REVISION_CONFLICT")
@@ -277,28 +348,24 @@ class ApiKeyModelTest:
                         db, self.instance, identity, request_digest, "cancel", op.operation_id
                     )
                 else:
-                    if (
-                        self.tasks
-                        or (
-                            await db.execute(
-                                text(
-                                    "SELECT 1 FROM system_operation WHERE instance_id=:instance "
-                                    "AND state <> 'FINISHED'"
-                                ),
-                                {"instance": self.instance},
-                            )
-                        ).first()
-                        is not None
-                    ):
-                        raise store.ModelConflict("OPERATION_ACTIVE")
-                    selection = await self.settings.selection(db)
-                    if (
-                        selection is None
-                        or selection.revision != command.expected_selection_revision
-                    ):
-                        raise store.ModelConflict("REVISION_CONFLICT")
-                    connection = await self.settings.require_selection(db, selection.default)
+                    await self.require_idle(db)
+                    selected_snapshot: EntrySnapshot | None = None
+                    selection: SelectionView | None = None
+                    if command.op == "entry_model_test":
+                        from omnis.modules.settings.provider_model_test import prepare
+
+                        selected_snapshot = await prepare(self, db, command)
+                        connection = selected_snapshot.connection
+                    else:
+                        selection = await self.settings.selection(db)
+                        if (
+                            selection is None
+                            or selection.revision != command.expected_selection_revision
+                        ):
+                            raise store.ModelConflict("REVISION_CONFLICT")
+                        connection = await self.settings.require_selection(db, selection.default)
                     if command.action == "refresh":
+                        assert selection is not None
                         await store.put(
                             db,
                             self.instance,
@@ -316,44 +383,22 @@ class ApiKeyModelTest:
                             db, self.instance, identity, request_digest, "refresh", None
                         )
                     else:
-                        metadata = await self.latest(db, "metadata-request")
-                        result = (
-                            await self.latest(db, "metadata-result", str(metadata["command_id"]))
-                            if metadata
-                            else None
-                        )
-                        if result is None or result["state"] != "READY":
-                            raise store.ModelConflict("CAPABILITIES_REQUIRED")
-                        cap_ref = Ref.model_validate(result["capabilities_ref"])
-                        cap = Capabilities.model_validate_json(
-                            json.dumps(
-                                await store.resolve(
-                                    db, self.instance, cap_ref, "model-capabilities-v2"
-                                )
-                            )
-                        )
-                        if (
-                            cap.selection_revision != selection.revision
-                            or cap.choice != selection.default
-                            or cap.connection != connection
-                            or selection.default.output_tokens > cap.max_output_tokens
-                        ):
-                            raise store.ModelConflict("CAPABILITIES_REQUIRED")
-                        snapshot = Snapshot(
-                            selection=selection,
-                            connection=connection,
-                            capabilities_ref=cap_ref,
-                            endpoint=ENDPOINTS[connection.provider],
-                        )
+                        if selected_snapshot is not None:
+                            snapshot = selected_snapshot
+                        else:
+                            assert selection is not None
+                            snapshot = await self.legacy_snapshot(db, selection, connection)
                         config = await store.put(
                             db,
                             self.instance,
-                            "model-selection-snapshot-v2",
+                            "model-entry-snapshot-v1"
+                            if isinstance(snapshot, EntrySnapshot)
+                            else "model-selection-snapshot-v2",
                             snapshot.model_dump(mode="json"),
                         )
                         projection = Projection(
-                            model=selection.default.model,
-                            output_tokens=selection.default.output_tokens,
+                            model=snapshot.choice.model,
+                            output_tokens=snapshot.choice.output_tokens,
                         )
                         input_ref = await store.put(
                             db, self.instance, "model-input-v2", projection.model_dump(mode="json")
@@ -447,6 +492,7 @@ class ApiKeyModelTest:
         return await self.view(
             command.operation_id,
             command.command_id if command.action == "refresh" else None,
+            entry=command.op == "entry_model_test",
         )
 
     @asynccontextmanager
@@ -477,8 +523,8 @@ class ApiKeyModelTest:
         self,
         command: str,
         connection: ConnectionRevision,
-        selection: SelectionView,
         generation: int,
+        request_kind: str = "metadata-request",
     ) -> AsyncIterator[Authority]:
         async with self.settings.lock:
             async with self.service.admission(
@@ -486,14 +532,23 @@ class ApiKeyModelTest:
             ) as db:
                 if self.closing:
                     raise SendDenied("OWNER_CLOSED")
-                if await self.settings.require_selection(db, selection.default) != connection:
+                if (
+                    await self.settings.require_connection(
+                        db, connection.connection_id, connection.revision
+                    )
+                    != connection
+                ):
                     raise SendDenied("CONNECTION_REVOKED")
-                request = await self.latest(db, "metadata-request", command)
+                request = await self.latest(db, request_kind, command)
                 if (
                     request is None
                     or request["owner_epoch"] != self.settings.epoch
                     or request["generation"] != generation
                     or request["execution_owner_id"] != str(self.settings.owner)
+                    or (
+                        request_kind == "catalog-request"
+                        and request.get("connection") != connection.model_dump(mode="json")
+                    )
                 ):
                     raise SendDenied("METADATA_AUTHORITY_DENIED")
                 deadline = str(request["deadline"])
@@ -533,7 +588,7 @@ class ApiKeyModelTest:
                 raw = await self.sender.metadata(
                     ENDPOINTS[connection.provider],
                     secret,
-                    lambda: self.metadata_guard(command, connection, selection, generation),
+                    lambda: self.metadata_guard(command, connection, generation),
                 )
                 if not isinstance(raw, dict) or not isinstance(raw.get("data"), list):
                     raise SendDenied("METADATA_UNSUPPORTED")
@@ -642,19 +697,9 @@ class ApiKeyModelTest:
                     or dispatch.deadline != op.deadline
                 ):
                     raise SendDenied("DISPATCH_DENIED")
-                snapshot = Snapshot.model_validate_json(
-                    json.dumps(
-                        await store.resolve(
-                            db, self.instance, op.config_snapshot_ref, "model-selection-snapshot-v2"
-                        )
-                    )
-                )
-                capabilities = Capabilities.model_validate_json(
-                    json.dumps(
-                        await store.resolve(
-                            db, self.instance, snapshot.capabilities_ref, "model-capabilities-v2"
-                        )
-                    )
+                snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
+                capabilities = await store.capabilities(
+                    db, self.instance, snapshot.capabilities_ref
                 )
                 projection = Projection.model_validate(
                     await store.resolve(
@@ -676,16 +721,30 @@ class ApiKeyModelTest:
                     or dispatch.technical_caps.output_tokens != projection.output_tokens
                     or dispatch.projection_digest != op.input_projection_ref.digest
                     or snapshot.endpoint != ENDPOINTS[snapshot.connection.provider]
-                    or capabilities.choice != snapshot.selection.default
+                    or capabilities.choice != snapshot.choice
                     or capabilities.connection != snapshot.connection
                     or projection.output_tokens > capabilities.max_output_tokens
+                    or projection.model != snapshot.choice.model
+                    or projection.output_tokens != snapshot.choice.output_tokens
+                    or isinstance(snapshot, EntrySnapshot)
+                    != isinstance(capabilities, EntryCapabilities)
+                    or (
+                        isinstance(snapshot, EntrySnapshot)
+                        and isinstance(capabilities, EntryCapabilities)
+                        and snapshot.entry != capabilities.entry
+                    )
                 ):
                     raise SendDenied("PERMIT_OR_CONFIG_DENIED")
                 if (
-                    await self.settings.require_selection(db, snapshot.selection.default)
+                    await self.settings.require_selection(db, snapshot.choice)
                     != snapshot.connection
                 ):
                     raise SendDenied("CONNECTION_REVOKED")
+                if isinstance(snapshot, EntrySnapshot):
+                    from omnis.modules.settings.provider_model_test import current
+
+                    if not await current(self.settings, db, snapshot):
+                        raise SendDenied("ENTRY_STALE")
                 await asyncio.to_thread(
                     self.settings.vault.get, snapshot.connection.credential(self.instance)
                 )
@@ -717,16 +776,7 @@ class ApiKeyModelTest:
                     op = await store.operation(db, self.instance, identity)
                     assert op is not None
                     dispatch = await store.dispatch(db, self.instance, identity)
-                    snapshot = Snapshot.model_validate_json(
-                        json.dumps(
-                            await store.resolve(
-                                db,
-                                self.instance,
-                                op.config_snapshot_ref,
-                                "model-selection-snapshot-v2",
-                            )
-                        )
-                    )
+                    snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
                     projection = Projection.model_validate(
                         await store.resolve(
                             db, self.instance, op.input_projection_ref, "model-input-v2"

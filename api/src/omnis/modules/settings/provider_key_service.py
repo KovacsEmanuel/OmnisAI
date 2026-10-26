@@ -196,12 +196,13 @@ class ProviderSettingsOwner:
     async def require_selection(
         self, db: AsyncConnection, choice: ModelSelection
     ) -> ConnectionRevision:
+        return await self.require_connection(db, choice.connection_id, choice.connection_revision)
+
+    async def require_connection(
+        self, db: AsyncConnection, identity: str, revision: int
+    ) -> ConnectionRevision:
         for row in await self.connections(db):
-            if (
-                row.connection_id == choice.connection_id
-                and row.revision == choice.connection_revision
-                and row.enabled
-            ):
+            if row.connection_id == identity and row.revision == revision and row.enabled:
                 return row
         raise SettingsConflict("CONNECTION_UNAVAILABLE")
 

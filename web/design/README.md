@@ -19,6 +19,10 @@ choice, exact behavior, required persistent registry/catalog/test changes and si
 This is now more than UI-only. Autopair remains a separate security decision; role execution
 is T2, live router/mix evidence is P4b, neither is claimed from the preview.
 
+**[Implementation and premium-finish handoff](settings-delivery-prompt.md)** is prepared,
+not launched: Prompt A covers the selected Settings outcome and visual craft; Prompt B is
+a separate read-only autopair security decision. Neither runs in the preparation session.
+
 The older [A/B/C comparison](settings-options.html) is historical. Its Romanian copy,
 recommendation of A and narrower UI-only scope were superseded by the selected C design.
 Original analysis/review/evidence remain recoverable in commit `e6aa237`.

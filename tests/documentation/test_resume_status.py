@@ -18,7 +18,7 @@ def active_resume(readme, status, old_prompt):
     assert readme.count("**CURRENT —") == 1
     current = readme.split("**CURRENT —", 1)[1].split("\n\n", 1)[0]
     assert "T0 documentar CLOSED_SCOPED" in current
-    assert "T1 ÎN LUCRU, activat explicit" in current
+    assert "T1 CLOSED_SCOPED" in current
     assert "Fără T2 sau etape ulterioare automate" in current
     assert "nu relua Codex/openfix/P2" in current
     assert "unicul CURRENT din README" in status
@@ -41,7 +41,7 @@ class ResumeStatusTests(unittest.TestCase):
             "documents/verification/p2-next-session-implementation.md")]
         active_resume(*sources)
         for index, old, new in (
-            (0, "T1 ÎN LUCRU, activat explicit", "T1 acceptat din documente"),
+            (0, "T1 CLOSED_SCOPED", "T1 acceptat din documente"),
             (0, "Fără T2 sau etape ulterioare automate", "Lansează T2 automat"),
             (0, "nu relua Codex/openfix/P2", "reia openfix"),
             (2, "ISTORIC / NEEXECUTABIL", "ACTIV"),

@@ -1,0 +1,399 @@
+{
+  "PG": "NOT_RUN: only collection and no-effect toolchain/image preflight; real consumer waits for parent reviews",
+  "base": "ed9091caeff29572d9f42861ae548a6094f732d6",
+  "bounds_bytes": {
+    "admitted_synthetic_reply": 65094,
+    "body": 41001,
+    "command": 41036,
+    "full_registry_reply": 12096,
+    "full_request_frame": 41141,
+    "new_full_frame_reply_limit": 65536,
+    "overlimit_reply_replaced_with": 104,
+    "real_legacy_model_test_reply": 9021,
+    "real_native_stub_reply": 8282,
+    "registry_view": 11800
+  },
+  "checks": [
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_vault.py api/tests/test_model_test_v2_contract.py api/tests/test_mission_revision_schema.py api/tests/test_stop_schema.py -k 'not save_rotate_revoke and not damaged_vault and not cancelled_save and not schema_refuses_conditional' -q -s --tb=short",
+      "exit": 0,
+      "log": "source-freeze.log",
+      "log_sha256": "9abc635bfd0d7e1a3f76037c3628446f977325ed5f8cbe7966c96d7e81198308",
+      "result": "122 passed, 22 deselected"
+    },
+    {
+      "command": "make lint-api typecheck-api",
+      "exit": 0,
+      "log": "api-quality-freeze.log",
+      "log_sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111",
+      "result": "Ruff/lint/format and strict mypy api/src api/tests"
+    },
+    {
+      "command": "make test-cli",
+      "exit": 0,
+      "log": "cli-source-isolated.log",
+      "log_sha256": "6c5f32997b0e9eb7477c453fb2107d1f05bb1d1f6556b1efe7f21aee1d7235fd",
+      "result": "383 tests OK, private XDG_CONFIG_HOME from manifest target"
+    },
+    {
+      "command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-fix cli/src cli/tests ops/build_control_bundle.py && api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check cli/src cli/tests ops/build_control_bundle.py && git diff --check",
+      "exit": 0,
+      "result": "All checks passed; 84 files already formatted; diff clean"
+    },
+    {
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental cli/src",
+      "exit": 0,
+      "log": "cli-mypy.log",
+      "log_sha256": "843649a0230c7553c8b57e66c604afb1635f102a7f73c9dd914713d9f01fff0f",
+      "result": "27 source files, no issues"
+    },
+    {
+      "command": "env -u PYTHONPATH MYPYPATH=cli/src api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental ops/build_control_bundle.py",
+      "exit": 0,
+      "log": "bundle-mypy.log",
+      "log_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "result": "1 source file, no issues"
+    },
+    {
+      "command": "make test-contracts lint-web",
+      "exit": 0,
+      "log": "web-quality-freeze.log",
+      "log_sha256": "7b819cf28a00f0cdfd19e26e10ca23d0d99726a40a777b4e6a423f058a588dcf",
+      "result": "OpenAPI/type generation drift, 6 tooling tests, tsc --noEmit, lint"
+    },
+    {
+      "command": "npm --prefix web test -- --no-file-parallelism",
+      "exit": 0,
+      "log": "web-unit-serial.log",
+      "log_sha256": "93006da2f6db6443654ece1666ef90eb2cb9267aa0cadf423237912ae6665b46",
+      "result": "170 tests, 17 files passed; unchanged timeout/assertions, serial scheduling only"
+    },
+    {
+      "command": "UV_OFFLINE=1 make check-api-wheel UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "exit": 0,
+      "log": "api-wheel.log",
+      "log_sha256": "a17d1db4f22926dc8296e19e4d6bce9a77c0f7e95ebcd009606a47f0b99d0c5c",
+      "result": "Real API wheel builds/imports factory, no DB/provider"
+    },
+    {
+      "command": "AST required-set from cli/src/omnis_cli/release.py -> actual built wheel ZIP members -> exact source bytes comparison",
+      "exit": 0,
+      "log": "api-wheel-closure.json",
+      "log_sha256": "72af114a3252287ddc7cfd7279ef85b7ef8f7c76c1ea516019e4210da3e5713c",
+      "result": "14 required members match current source"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_key_api.py api/tests/test_provider_vault.py api/tests/test_cold_restore_pg.py --collect-only -q",
+      "exit": 0,
+      "log": "pg-collect-final.log",
+      "log_sha256": "005e3fe5035a3cbb74a16e6ba85f06a22f45e72f8ac9ab57fa59f0fd3d05c511",
+      "result": "52 tests collected; zero PG execution"
+    },
+    {
+      "command": "runpy.run_path('ops/run_test_db_gate.py')['_preflight_gate']('/home/kali/.local/share/omnis-toolchains/uv-0.12.19','test-provider-settings-pg'); existing _docker_endpoint + pinned docker image inspect; scratch uid/access and compose readability",
+      "exit": 0,
+      "log": "pg-no-effect-preflight.log",
+      "log_sha256": "83f433469e79e48fc90e45d9fa70dee701cb1aef5a6760a1395d3897b8279a55",
+      "result": "Pinned toolchain and PG18.6 image present; no fixture provisioned"
+    }
+  ],
+  "commit_created": false,
+  "deferred": "Guided UI/catalog/selected-entry test are later increments; SaveSelection registry-membership activation deferred until real guided caller. Final Prompt A guard remains required; old assignments/readers unchanged.",
+  "environment": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/settings-registry-dev",
+    "UV": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  },
+  "file_count": 43,
+  "files": {
+    "api/src/omnis/api.py": {
+      "bytes": 7691,
+      "git_blob": "0f172a91d8eed7fb775d298babe1518f683cbcee",
+      "sha256": "1cb00c71da4e4e9f1114f43214a948bd49275b02602c3b302216ebe2483f6327"
+    },
+    "api/src/omnis/core/db.py": {
+      "bytes": 6713,
+      "git_blob": "959142d789b2ca03041e49c12187fc138c89de97",
+      "sha256": "749b8d2ba9b0c4d8b68aa679977c140d8010de33cdf798331422f7ad63386897"
+    },
+    "api/src/omnis/core/errors.py": {
+      "bytes": 4979,
+      "git_blob": "a5077cfee8f9884b247a87b818ac604478ac0728",
+      "sha256": "a37bcaabcc5ee246dbd6ce8ad3cb3e84dd5c502a39df9466db282a1b300c5127"
+    },
+    "api/src/omnis/core/provider_schema.py": {
+      "bytes": 10505,
+      "git_blob": "4d9d060dbeacee2f9a3675848d8fc1c88b85bf1d",
+      "sha256": "29dc97d1d0892493cc8e9e4b29cbe5a326508fd838a450da707377d336f8e855"
+    },
+    "api/src/omnis/migrations/versions/0016_provider_models.py": {
+      "bytes": 5839,
+      "git_blob": "f2015c219c8dc06558502389cff2c5bcdf7d9501",
+      "sha256": "26bca82039eb0e90086b463d12a44ec7912dc0e0eb0093e47061c22f8598b6d0"
+    },
+    "api/src/omnis/modules/instance/schemas.py": {
+      "bytes": 10694,
+      "git_blob": "01c11c42950ea9d9e6b1349e025c9f93393887ea",
+      "sha256": "8da58adb242667b4683da6d1bfa77851ce41763fd0db9fe0e0e3a1b8187877cc"
+    },
+    "api/src/omnis/modules/settings/provider_key_routes.py": {
+      "bytes": 5968,
+      "git_blob": "bf27b56642e9733e7d591647be2d51cf6302963b",
+      "sha256": "49e9deb98af7ecaeec3ae3eb02e6ad677e056cede598725e9bf6fda022abddb3"
+    },
+    "api/src/omnis/modules/settings/provider_key_service.py": {
+      "bytes": 14857,
+      "git_blob": "20982e87f331b8a76f5bcc91a3881ba0428aacc6",
+      "sha256": "d3b18e5d74a20b8bd2a170179ce8cf0a746ec4137591377ac91ea27f0970d1d3"
+    },
+    "api/src/omnis/modules/settings/provider_model_models.py": {
+      "bytes": 4092,
+      "git_blob": "f12dfa1c5c1dc0409056f16b59882a9a3159d563",
+      "sha256": "b5a4b184f140f0fdb166d243b0ac5fc51aef94f0be5b55e75c6a1cefa2d1c89b"
+    },
+    "api/src/omnis/modules/settings/provider_model_routes.py": {
+      "bytes": 3612,
+      "git_blob": "10ebaf60e17eab880ac87a8a12a10f7ac05d0fa1",
+      "sha256": "10c592539808f0abade53a5a9261c16c1f5a51b233365c098362bb11a1d7e5ed"
+    },
+    "api/src/omnis/modules/settings/provider_model_service.py": {
+      "bytes": 8791,
+      "git_blob": "68152e7dce779bab9817ce358d0cc4b2de9ab0e0",
+      "sha256": "8b9c8871a79d893f24e1b7defa37e4ae80f5c75e83b42408d1625a5270940a53"
+    },
+    "api/src/omnis/security/host_origin.py": {
+      "bytes": 10459,
+      "git_blob": "5a492779b59e4462ba9a1228b9e9ad17c4870b5b",
+      "sha256": "09e89bd6d399efce8080b5c1b3bc95ee8642d8f417a272905491c69cc7a5110e"
+    },
+    "api/src/omnis/supervisor/__main__.py": {
+      "bytes": 15158,
+      "git_blob": "dbe0cc89ecd5c96103c83245f1fbe351f6137f5b",
+      "sha256": "20cbc31cbf6bfea189bc19a498063d9a488d97c4b6bf223c900b24ca2f1de118"
+    },
+    "api/src/omnis/transport/local_control.py": {
+      "bytes": 16336,
+      "git_blob": "2bb424dff16c4eb143f2d719e4920382e516a4dd",
+      "sha256": "840b26c7a6cf0a744a26d4b373c8e939cf9da3c4da8aa07dafcd80c55aa9da67"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22502,
+      "git_blob": "fc19f451af81eeddae4560dd6cd5450e480fe8f7",
+      "sha256": "6830bd34ba65201be5ff178be95446ef6687857aeedb3bc753f70c861f4152c7"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4144,
+      "git_blob": "bf7e220e9d3d52189c683c38243f7a67b364788d",
+      "sha256": "070dacef78252cc46303930ac2974db3eeba43eef130e005bf4b53758eac5b93"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2502,
+      "git_blob": "d3cff258b10555d60203b7a4f03cf89b6a1489d3",
+      "sha256": "8b58403a250d83b51640e086c22151ae9137b97fc71ed1b2e8679f4203af1a91"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 20224,
+      "git_blob": "7e78eeef48e432bb23c80851d8d47be7aba87be3",
+      "sha256": "159e85c9b2ae1dbc3bb889c49a9ed3d8a6331df81792537728a78c70e48306e8"
+    },
+    "api/tests/test_model_test_v2.py": {
+      "bytes": 56526,
+      "git_blob": "481a0da2432f86559a7b6e21b091a9e457399384",
+      "sha256": "23d30b8237690bfc4952e79e1bec4d4656a86eaf8f1d25684b103f838aeb10d4"
+    },
+    "api/tests/test_model_test_v2_migration.py": {
+      "bytes": 2895,
+      "git_blob": "9ffa77b49c82c43b3e619ad8499ed4c415084129",
+      "sha256": "fac8158af395455fb7a19bdf2a68da34e888408dea81e84159333b2e24640f08"
+    },
+    "api/tests/test_provider_key_api.py": {
+      "bytes": 26816,
+      "git_blob": "70eef9c812be05a298ca7411fb5cfb532b42a6b5",
+      "sha256": "8180069397b956fb9f5fc1dbc1049009a0b249bca6fef4fcafa0d4cb140987e6"
+    },
+    "api/tests/test_provider_key_settings.py": {
+      "bytes": 38011,
+      "git_blob": "2ea1d61341d382c337983773a1f148d568cc7aa3",
+      "sha256": "6d746b053b05dca325203eab6336a9d3b3cefcd9f8795c6560a734b717c81c96"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2716,
+      "git_blob": "1ab02b61726fa1da8ff3d0b1e6444be5b8cb74b9",
+      "sha256": "5fee532a7b833df15c9dad05086ca40dfa456e586504231633aa2a52a8cf5a07"
+    },
+    "cli/src/omnis_cli/backup.py": {
+      "bytes": 23173,
+      "git_blob": "fe878f84aeda259aa81b8872bcb0b6916b4eccab",
+      "sha256": "084227cb4a3e201da8f2c9611db34e66cb9606eff40625eb16a1acf22bc298bd"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3696,
+      "git_blob": "2cbb60b4d044347daf62e26699d89ae90e3da789",
+      "sha256": "26cf1554c5c198c85be2bb9da13cfbf4df38c59cee9d3dd1fc7204d9933c8e34"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 13746,
+      "git_blob": "b6adbca2db72bce9382e5c8fbd039581e7d104f9",
+      "sha256": "2bcbb155aa17891dca6f934fb9aeddf2f57df8a327e37602d193a9180c5249ec"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 67770,
+      "git_blob": "2d7acfbab1835d8aec23d380e4b55abad1079223",
+      "sha256": "f4209a2df03c7b9eb0c01f0fd60e50b5b415e9cbbe0622d6469938001a3480c8"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 21002,
+      "git_blob": "98016143c49c4b384164e08419f8866a4efcba6f",
+      "sha256": "6695c45dc15246d73fce56a61e8364c0ce94b5b6436ae148bc0a752738980092"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 18318,
+      "git_blob": "f7c2728cacb162ccfb60fe30f34041327d2c84d7",
+      "sha256": "fca4c3ff1debbfd59c82d768bbef1d564bf3bb021f134456fdcfd875a0e9aefa"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12211,
+      "git_blob": "1671beaee1d0bafcf8e96cfedffd0c38a9f8f185",
+      "sha256": "a4f18f359454045bd47b62e1e24589dc41425f43bde7043efda3776bf3414b1d"
+    },
+    "cli/tests/test_provider_settings_profile.py": {
+      "bytes": 14805,
+      "git_blob": "1d76028189404960b5459720d094cf0141c3ab73",
+      "sha256": "96cfd5bfee17cde81d548694aa461e7d0c9e3783e2ec2c27e9934900650288f7"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4198,
+      "git_blob": "48f72bf12f0e09144a28385e40e3d580f55eb225",
+      "sha256": "5839f11ae32263387176c4cb2b2f463abde00ecefe3834c40a17771b826c0fc5"
+    },
+    "cli/tests/test_recover.py": {
+      "bytes": 34247,
+      "git_blob": "f65386905fbfa49b4ddb53493d14e3459a3ebcad",
+      "sha256": "aa102f95fbdee41a0af9ea15a75a0f88ad6df902ae8e35a35d7ca739259cd4de"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 7407,
+      "git_blob": "be7d8c842322826d8f68d4b53de1e6d14b130515",
+      "sha256": "53d7db9b557a0c95d47ac4de3777e57de87be40814258ff71dac49ee86e646ef"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17993,
+      "git_blob": "c20ed6d2db8ca9c5edff8bdb796a051b74d57818",
+      "sha256": "898b5bdc57a1d1fb27dd6dfac0f53fb085233f4bd1af66a0362eab082c973ee1"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58488,
+      "git_blob": "2d5eed98f7e89c8be86ea5cbd4a5b1f9d2877ab3",
+      "sha256": "06322b3bf782122b347449e8cf4e218c657a3d0a294ad67eca1e83376b95f398"
+    },
+    "contracts/omnis.openapi.json": {
+      "bytes": 148419,
+      "git_blob": "25527851521dca4bb9c89628d69c30522e5b86ab",
+      "sha256": "c4cf44a6d73d27c0e2afa23bfa0bbb8acd3e7927227ff3442247a90c51c19d0c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 9249,
+      "git_blob": "4f5d4391caf2191f97a01c197db1f395bbb399d7",
+      "sha256": "aaf4c256b2c0ff49440eaf42b237086900f4580111157102555d5bfe7ec3fa58"
+    },
+    "web/src/shared/api/client.ts": {
+      "bytes": 13186,
+      "git_blob": "61b65be0aed258f866f4de74fef0f6da34482cff",
+      "sha256": "7432cd58fec166786417271cd42688e01536a49fe9180a7d95033a9f60619bf5"
+    },
+    "web/src/shared/api/errors.ts": {
+      "bytes": 5950,
+      "git_blob": "99071fd86b2aecab8c989b4eb38252eabc3587f4",
+      "sha256": "5bf510cf09f2ccf756ca941de7e2ef687edf718fe2816a4870b2c90dd733ae78"
+    },
+    "web/src/shared/api/generated.ts": {
+      "bytes": 122126,
+      "git_blob": "37c6d83a697ea51302b54b2c04136f6f92593050",
+      "sha256": "c2dc247ddcc419202af116bb6325c78488ebd3461ab27158032b3d97c81f8194"
+    },
+    "web/src/shared/api/providerModels.test.ts": {
+      "bytes": 4046,
+      "git_blob": "859c96330fb4ba2c0ef257da4ac8c43307465147",
+      "sha256": "1b319987e7ebca0e09495b63a3b7400af22f7b160b56ba5b9ed5dc2d8b180a39"
+    },
+    "web/src/shared/api/providerModels.ts": {
+      "bytes": 3089,
+      "git_blob": "c7bc60ce34bc23ac7897cc84320e86102258fb59",
+      "sha256": "932fff3befd3fb8628aee2b634a10ceadcc797f1b138b7bc2ed1dc90af3ea08b"
+    }
+  },
+  "first_consumer": "existing test-provider-settings-pg -> test_provider_key_api.py: paired PUT/receipt/paged64/CAS/revoke/fresh app/fresh owner same PG plus empty/0015 upgrade/backfill/data unchanged/constraint and readiness denial",
+  "harness_only_cycles": 0,
+  "not_run": [
+    "PostgreSQL migrations/consumer QA",
+    "provider/target IO",
+    "installed operator changes",
+    "canonical make check",
+    "UI/browser/catalog QA",
+    "Prompt B/auth"
+  ],
+  "patch": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-registry-dev/source-candidate.patch",
+    "sha256": "f16bbe49570f12838eb986e98f2ff65657fc09c5503fbf519b80dea97a76b1a5"
+  },
+  "preserved_failed_attempts": [
+    {
+      "exit": 1,
+      "log": "red-reply.log",
+      "reason": "RED: old model/native replies were clamped; 2 failed/2 passed"
+    },
+    {
+      "exit": 1,
+      "log": "red-typed-green-reply.log",
+      "reason": "RED: registry authority lacked typed identity/revision; 1 failed/4 passed"
+    },
+    {
+      "exit": 1,
+      "log": "red-cli-schema.log",
+      "reason": "RED: actual head0016 vs CLI head0015"
+    },
+    {
+      "exit": 1,
+      "log": "red-web.log",
+      "reason": "RED: new decoder module/client absent"
+    },
+    {
+      "exit": 1,
+      "log": "red-contract-drift.log",
+      "reason": "RED: new OpenAPI contract not generated"
+    },
+    {
+      "exit": 1,
+      "log": "red-page-completeness.log",
+      "reason": "RED: first registry page could silently lose continuation"
+    },
+    {
+      "exit": 1,
+      "log": "red-web-unbound-page.log",
+      "reason": "RED: manual decoder accepted a cursor without expected registry revision"
+    },
+    {
+      "exit": 1,
+      "log": "cli-source.log",
+      "reason": "Noncanonical direct unittest invocation omitted target private XDG config; 72 failures/7 errors; make test-cli then 383 PASS. No config content printed, no operator state changed."
+    },
+    {
+      "exit": 1,
+      "log": "source-unit-final.log",
+      "reason": "Source -k accidentally selected 2 PG fixtures; both denied before DB access due missing OMNIS_TEST_DATABASE_URL. Corrected source selection passed; PG NOT_RUN."
+    },
+    {
+      "exit": 2,
+      "log": "web-final.log",
+      "reason": "Default parallel web run: 3 existing UI first-read findBy timeouts/167 PASS during concurrent quality work. Serial 170 PASS on same product bytes; original failure retained, cause not conclusively proven."
+    },
+    {
+      "exit": 1,
+      "log": "migration-offline.log",
+      "reason": "Existing migrations env refuses offline SQL. No migration or DB effect; policy not changed."
+    }
+  ],
+  "product_complete": false,
+  "protected": "Protected untracked paths excluded before any hash/content read; canon/README/status untouched.",
+  "state": "SOURCE_CANDIDATE_FROZEN_AWAITING_PARENT_COMPLEMENTARY_REVIEW"
+}

@@ -1,0 +1,333 @@
+{
+  "actual_prior_pg_failure": {
+    "already_passed": "63/64-model PUT, receipt/replay, CAS/conflict/revoke/paging/Stop controls and both migration cases",
+    "exit": 2,
+    "log": "/home/kali/.hermes/cache/scratch/sc2/db-d0f983ca80c54ef1/gate.log",
+    "not_run_in_that_failure": "Fresh owner/epoch and durable registry/receipt/selection readbacks after old line376",
+    "primary": "test_provider_key_api.py:376 release -> LEASE_LOST after expanded journey; original finally:395 release failed again and prevented engine.dispose:396, then per-test DROP timed out",
+    "result": "52 passed, 1 failed, 1 error in 42.99s; family drained (parent observation)"
+  },
+  "all_three_prior_sql_fix_files_unchanged": true,
+  "artifacts": {
+    "api-quality.log": {
+      "bytes": 5,
+      "sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111"
+    },
+    "check_cleanup.py": {
+      "bytes": 4371,
+      "sha256": "cefcab3f4bf33184238cbfab635badd76cb7cf2522d6c0c5c4792498af27c5a4"
+    },
+    "cleanup-green.log": {
+      "bytes": 112,
+      "sha256": "562ee740760c258d2b44c0ac4041707a8f4def1c2855f32a97e87b99f200ad01"
+    },
+    "cleanup-heartbeat-green.log": {
+      "bytes": 219,
+      "sha256": "e2c5d9fb7cac50112c3e445a6b542e18fa42349e44010f2bb065027b07572a6d"
+    },
+    "cleanup-red.log": {
+      "bytes": 1120,
+      "sha256": "ef9a0299974b3c3f8eaa59e09882a4518e0562dfea5a4828b57be17cf0505e5c"
+    },
+    "pg-collect.log": {
+      "bytes": 5789,
+      "sha256": "767c60451bf5cf632859789b61fdff6cc0577ea67f29b279f255e2ac4a8a93af"
+    },
+    "test-only.patch": {
+      "bytes": 5484,
+      "sha256": "6e9f2e0bc41d978f6493ee28b295ab9f6bc44d891e0de617a9786dc3ca00c3e7"
+    },
+    "test_provider_key_api.before.py": {
+      "bytes": 26816,
+      "sha256": "8180069397b956fb9f5fc1dbc1049009a0b249bca6fef4fcafa0d4cb140987e6"
+    }
+  },
+  "base": "ed9091caeff29572d9f42861ae548a6094f732d6",
+  "checks": [
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/hbfix make lint-api typecheck-api API_CHECK_PATHS=api/tests/test_provider_key_api.py",
+      "exit": 0,
+      "log": "api-quality.log",
+      "result": "Pinned Ruff check/format and mypy strict for affected file; no suppressions or configuration change"
+    },
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/hbfix api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_key_api.py api/tests/test_provider_vault.py api/tests/test_cold_restore_pg.py --collect-only -q",
+      "exit": 0,
+      "log": "pg-collect.log",
+      "result": "53 same node IDs; collection only; no fixture provision"
+    },
+    {
+      "after_exit": 0,
+      "after_log": "cleanup-heartbeat-green.log",
+      "before_exit": 1,
+      "before_log": "cleanup-red.log",
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/hbfix api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/hbfix/check_cleanup.py",
+      "result": "Inert exact-source-block self-check: baseline disposal skipped after release failure; GREEN 7 cleanup cases, primary assertion/cancellation preserved, unowned disposal; timed renewal/two settled owner scopes/positive counts/observed heartbeat failure. Uses synthetic service doubles, not PG authority proof."
+    },
+    {
+      "command": "AST comparison, 43-file hash comparison, exact 53-node collection comparison, git apply --check --reverse test-only.patch, git diff --check, git diff --cached --quiet",
+      "exit": 0,
+      "result": "All original assertions and migration test unchanged; only owned file changed; exact candidate/patch bound; index empty"
+    }
+  ],
+  "collection": {
+    "count": 53,
+    "same_exact_node_ids_as_prior": true
+  },
+  "commit_created": false,
+  "delta_count": 1,
+  "delta_from_prior_freeze": {
+    "api/tests/test_provider_key_api.py": {
+      "after": {
+        "bytes": 28077,
+        "git_blob": "9260f7f98045f5e1a5c85901dca08c78874a92f5",
+        "sha256": "115cb08f485019ce6e5db4bf2c63fd439367aaebc62e9c5f4b233b9a774c1ed7"
+      },
+      "before": {
+        "bytes": 26816,
+        "git_blob": "70eef9c812be05a298ca7411fb5cfb532b42a6b5",
+        "sha256": "8180069397b956fb9f5fc1dbc1049009a0b249bca6fef4fcafa0d4cb140987e6"
+      }
+    }
+  },
+  "file_count": 43,
+  "files": {
+    "api/src/omnis/api.py": {
+      "bytes": 7691,
+      "git_blob": "0f172a91d8eed7fb775d298babe1518f683cbcee",
+      "sha256": "1cb00c71da4e4e9f1114f43214a948bd49275b02602c3b302216ebe2483f6327"
+    },
+    "api/src/omnis/core/db.py": {
+      "bytes": 6713,
+      "git_blob": "959142d789b2ca03041e49c12187fc138c89de97",
+      "sha256": "749b8d2ba9b0c4d8b68aa679977c140d8010de33cdf798331422f7ad63386897"
+    },
+    "api/src/omnis/core/errors.py": {
+      "bytes": 4979,
+      "git_blob": "a5077cfee8f9884b247a87b818ac604478ac0728",
+      "sha256": "a37bcaabcc5ee246dbd6ce8ad3cb3e84dd5c502a39df9466db282a1b300c5127"
+    },
+    "api/src/omnis/core/provider_schema.py": {
+      "bytes": 10511,
+      "git_blob": "66ad084c1fdead60b480aa80f91de35f3122aba1",
+      "sha256": "56f980b9a76b491ed233cf17ad35f0feeda80a10b9ed6184688f1dfc0d1c1751"
+    },
+    "api/src/omnis/migrations/versions/0016_provider_models.py": {
+      "bytes": 5845,
+      "git_blob": "e6dcc49614868c8bf5a606be485de20bcc961a98",
+      "sha256": "f1abe1bb40ce92727b53b4f75995e8a418fead9fa7017f563bb576d05a1e4c7e"
+    },
+    "api/src/omnis/modules/instance/schemas.py": {
+      "bytes": 10694,
+      "git_blob": "01c11c42950ea9d9e6b1349e025c9f93393887ea",
+      "sha256": "8da58adb242667b4683da6d1bfa77851ce41763fd0db9fe0e0e3a1b8187877cc"
+    },
+    "api/src/omnis/modules/settings/provider_key_routes.py": {
+      "bytes": 5968,
+      "git_blob": "bf27b56642e9733e7d591647be2d51cf6302963b",
+      "sha256": "49e9deb98af7ecaeec3ae3eb02e6ad677e056cede598725e9bf6fda022abddb3"
+    },
+    "api/src/omnis/modules/settings/provider_key_service.py": {
+      "bytes": 14857,
+      "git_blob": "20982e87f331b8a76f5bcc91a3881ba0428aacc6",
+      "sha256": "d3b18e5d74a20b8bd2a170179ce8cf0a746ec4137591377ac91ea27f0970d1d3"
+    },
+    "api/src/omnis/modules/settings/provider_model_models.py": {
+      "bytes": 4092,
+      "git_blob": "f12dfa1c5c1dc0409056f16b59882a9a3159d563",
+      "sha256": "b5a4b184f140f0fdb166d243b0ac5fc51aef94f0be5b55e75c6a1cefa2d1c89b"
+    },
+    "api/src/omnis/modules/settings/provider_model_routes.py": {
+      "bytes": 3612,
+      "git_blob": "10ebaf60e17eab880ac87a8a12a10f7ac05d0fa1",
+      "sha256": "10c592539808f0abade53a5a9261c16c1f5a51b233365c098362bb11a1d7e5ed"
+    },
+    "api/src/omnis/modules/settings/provider_model_service.py": {
+      "bytes": 8791,
+      "git_blob": "68152e7dce779bab9817ce358d0cc4b2de9ab0e0",
+      "sha256": "8b9c8871a79d893f24e1b7defa37e4ae80f5c75e83b42408d1625a5270940a53"
+    },
+    "api/src/omnis/security/host_origin.py": {
+      "bytes": 10459,
+      "git_blob": "5a492779b59e4462ba9a1228b9e9ad17c4870b5b",
+      "sha256": "09e89bd6d399efce8080b5c1b3bc95ee8642d8f417a272905491c69cc7a5110e"
+    },
+    "api/src/omnis/supervisor/__main__.py": {
+      "bytes": 15158,
+      "git_blob": "dbe0cc89ecd5c96103c83245f1fbe351f6137f5b",
+      "sha256": "20cbc31cbf6bfea189bc19a498063d9a488d97c4b6bf223c900b24ca2f1de118"
+    },
+    "api/src/omnis/transport/local_control.py": {
+      "bytes": 16336,
+      "git_blob": "2bb424dff16c4eb143f2d719e4920382e516a4dd",
+      "sha256": "840b26c7a6cf0a744a26d4b373c8e939cf9da3c4da8aa07dafcd80c55aa9da67"
+    },
+    "api/tests/fixtures/b06a_durable/releases.py": {
+      "bytes": 22502,
+      "git_blob": "fc19f451af81eeddae4560dd6cd5450e480fe8f7",
+      "sha256": "6830bd34ba65201be5ff178be95446ef6687857aeedb3bc753f70c861f4152c7"
+    },
+    "api/tests/test_cli_status.py": {
+      "bytes": 4144,
+      "git_blob": "bf7e220e9d3d52189c683c38243f7a67b364788d",
+      "sha256": "070dacef78252cc46303930ac2974db3eeba43eef130e005bf4b53758eac5b93"
+    },
+    "api/tests/test_contract_method_migration.py": {
+      "bytes": 2502,
+      "git_blob": "d3cff258b10555d60203b7a4f03cf89b6a1489d3",
+      "sha256": "8b58403a250d83b51640e086c22151ae9137b97fc71ed1b2e8679f4203af1a91"
+    },
+    "api/tests/test_mission_revision_schema.py": {
+      "bytes": 20224,
+      "git_blob": "7e78eeef48e432bb23c80851d8d47be7aba87be3",
+      "sha256": "159e85c9b2ae1dbc3bb889c49a9ed3d8a6331df81792537728a78c70e48306e8"
+    },
+    "api/tests/test_model_test_v2.py": {
+      "bytes": 56526,
+      "git_blob": "481a0da2432f86559a7b6e21b091a9e457399384",
+      "sha256": "23d30b8237690bfc4952e79e1bec4d4656a86eaf8f1d25684b103f838aeb10d4"
+    },
+    "api/tests/test_model_test_v2_migration.py": {
+      "bytes": 2895,
+      "git_blob": "9ffa77b49c82c43b3e619ad8499ed4c415084129",
+      "sha256": "fac8158af395455fb7a19bdf2a68da34e888408dea81e84159333b2e24640f08"
+    },
+    "api/tests/test_provider_key_api.py": {
+      "bytes": 28077,
+      "git_blob": "9260f7f98045f5e1a5c85901dca08c78874a92f5",
+      "sha256": "115cb08f485019ce6e5db4bf2c63fd439367aaebc62e9c5f4b233b9a774c1ed7"
+    },
+    "api/tests/test_provider_key_settings.py": {
+      "bytes": 40264,
+      "git_blob": "e647124add90b3549dbe9647e0d92f5fd295b34a",
+      "sha256": "6fd2a07838abf109c3d1f8d6bce84797d5ff89313b90da05a093025344de58ff"
+    },
+    "api/tests/test_stop_schema.py": {
+      "bytes": 2716,
+      "git_blob": "1ab02b61726fa1da8ff3d0b1e6444be5b8cb74b9",
+      "sha256": "5fee532a7b833df15c9dad05086ca40dfa456e586504231633aa2a52a8cf5a07"
+    },
+    "cli/src/omnis_cli/backup.py": {
+      "bytes": 23173,
+      "git_blob": "fe878f84aeda259aa81b8872bcb0b6916b4eccab",
+      "sha256": "084227cb4a3e201da8f2c9611db34e66cb9606eff40625eb16a1acf22bc298bd"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "bytes": 3696,
+      "git_blob": "2cbb60b4d044347daf62e26699d89ae90e3da789",
+      "sha256": "26cf1554c5c198c85be2bb9da13cfbf4df38c59cee9d3dd1fc7204d9933c8e34"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "bytes": 13746,
+      "git_blob": "b6adbca2db72bce9382e5c8fbd039581e7d104f9",
+      "sha256": "2bcbb155aa17891dca6f934fb9aeddf2f57df8a327e37602d193a9180c5249ec"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "bytes": 67770,
+      "git_blob": "2d7acfbab1835d8aec23d380e4b55abad1079223",
+      "sha256": "f4209a2df03c7b9eb0c01f0fd60e50b5b415e9cbbe0622d6469938001a3480c8"
+    },
+    "cli/tests/stop_owner_fixture.py": {
+      "bytes": 21002,
+      "git_blob": "98016143c49c4b384164e08419f8866a4efcba6f",
+      "sha256": "6695c45dc15246d73fce56a61e8364c0ce94b5b6436ae148bc0a752738980092"
+    },
+    "cli/tests/test_install.py": {
+      "bytes": 18318,
+      "git_blob": "f7c2728cacb162ccfb60fe30f34041327d2c84d7",
+      "sha256": "fca4c3ff1debbfd59c82d768bbef1d564bf3bb021f134456fdcfd875a0e9aefa"
+    },
+    "cli/tests/test_installed_pointer_schema.py": {
+      "bytes": 12211,
+      "git_blob": "1671beaee1d0bafcf8e96cfedffd0c38a9f8f185",
+      "sha256": "a4f18f359454045bd47b62e1e24589dc41425f43bde7043efda3776bf3414b1d"
+    },
+    "cli/tests/test_provider_settings_profile.py": {
+      "bytes": 14805,
+      "git_blob": "1d76028189404960b5459720d094cf0141c3ab73",
+      "sha256": "96cfd5bfee17cde81d548694aa461e7d0c9e3783e2ec2c27e9934900650288f7"
+    },
+    "cli/tests/test_ready_journal.py": {
+      "bytes": 4198,
+      "git_blob": "48f72bf12f0e09144a28385e40e3d580f55eb225",
+      "sha256": "5839f11ae32263387176c4cb2b2f463abde00ecefe3834c40a17771b826c0fc5"
+    },
+    "cli/tests/test_recover.py": {
+      "bytes": 34247,
+      "git_blob": "f65386905fbfa49b4ddb53493d14e3459a3ebcad",
+      "sha256": "aa102f95fbdee41a0af9ea15a75a0f88ad6df902ae8e35a35d7ca739259cd4de"
+    },
+    "cli/tests/test_schema_compatibility.py": {
+      "bytes": 7407,
+      "git_blob": "be7d8c842322826d8f68d4b53de1e6d14b130515",
+      "sha256": "53d7db9b557a0c95d47ac4de3777e57de87be40814258ff71dac49ee86e646ef"
+    },
+    "cli/tests/test_status.py": {
+      "bytes": 17993,
+      "git_blob": "c20ed6d2db8ca9c5edff8bdb796a051b74d57818",
+      "sha256": "898b5bdc57a1d1fb27dd6dfac0f53fb085233f4bd1af66a0362eab082c973ee1"
+    },
+    "cli/tests/test_stop.py": {
+      "bytes": 58488,
+      "git_blob": "2d5eed98f7e89c8be86ea5cbd4a5b1f9d2877ab3",
+      "sha256": "06322b3bf782122b347449e8cf4e218c657a3d0a294ad67eca1e83376b95f398"
+    },
+    "contracts/omnis.openapi.json": {
+      "bytes": 148419,
+      "git_blob": "25527851521dca4bb9c89628d69c30522e5b86ab",
+      "sha256": "c4cf44a6d73d27c0e2afa23bfa0bbb8acd3e7927227ff3442247a90c51c19d0c"
+    },
+    "ops/build_control_bundle.py": {
+      "bytes": 9249,
+      "git_blob": "4f5d4391caf2191f97a01c197db1f395bbb399d7",
+      "sha256": "aaf4c256b2c0ff49440eaf42b237086900f4580111157102555d5bfe7ec3fa58"
+    },
+    "web/src/shared/api/client.ts": {
+      "bytes": 13186,
+      "git_blob": "61b65be0aed258f866f4de74fef0f6da34482cff",
+      "sha256": "7432cd58fec166786417271cd42688e01536a49fe9180a7d95033a9f60619bf5"
+    },
+    "web/src/shared/api/errors.ts": {
+      "bytes": 5950,
+      "git_blob": "99071fd86b2aecab8c989b4eb38252eabc3587f4",
+      "sha256": "5bf510cf09f2ccf756ca941de7e2ef687edf718fe2816a4870b2c90dd733ae78"
+    },
+    "web/src/shared/api/generated.ts": {
+      "bytes": 122126,
+      "git_blob": "37c6d83a697ea51302b54b2c04136f6f92593050",
+      "sha256": "c2dc247ddcc419202af116bb6325c78488ebd3461ab27158032b3d97c81f8194"
+    },
+    "web/src/shared/api/providerModels.test.ts": {
+      "bytes": 4046,
+      "git_blob": "859c96330fb4ba2c0ef257da4ac8c43307465147",
+      "sha256": "1b319987e7ebca0e09495b63a3b7400af22f7b160b56ba5b9ed5dc2d8b180a39"
+    },
+    "web/src/shared/api/providerModels.ts": {
+      "bytes": 3089,
+      "git_blob": "c7bc60ce34bc23ac7897cc84320e86102258fb59",
+      "sha256": "932fff3befd3fb8628aee2b634a10ceadcc797f1b138b7bc2ed1dc90af3ea08b"
+    }
+  },
+  "forbidden_scope_not_entered": [
+    "provider/target/global/installed/push",
+    "private password/control capability/fixture manifest",
+    "protected tempkey.txt/Omnis_Notite_Originale.html",
+    "model/catalog/UI implementation",
+    "PromptB/auth"
+  ],
+  "harness_only_cycles_since_latest_product_progress": 1,
+  "heartbeat_positive_assertions_added": 2,
+  "integration": "CANDIDATE_SOURCE_ONLY; parent owns review, fresh PG and integration",
+  "migration_test_ast_unchanged": true,
+  "next_decision": "Focused independent review of this one-file lifecycle delta, then parent runs the same 53-case target on a NEW fixture. No third harness repair if the second fails.",
+  "original_assertions_preserved": 66,
+  "post_edit_pg": "NOT_RUN; no effect QA before focused review",
+  "prior_freeze": "/home/kali/.hermes/cache/scratch/srfix/source-candidate-freeze.json",
+  "prior_freeze_sha256": "537b949b6851d698691a7ebb045dee99017552c76e992f42632061a6e15cf0c2",
+  "scope": "One existing test file only; faithful InstanceService.heartbeat at existing 1s supervisor cadence. TaskGroup settlement before old-owner release and fresh-owner same-PG readbacks; positive heartbeat counts per owner; unconditional nested-finally engine disposal and primary assertion/cancellation preserved with chained cleanup failures. No product/lease/deadline/auth/Stop/body/query changes.",
+  "unchanged_consumers_not_rerun": [
+    "CLI",
+    "web"
+  ],
+  "unchanged_file_count": 42
+}

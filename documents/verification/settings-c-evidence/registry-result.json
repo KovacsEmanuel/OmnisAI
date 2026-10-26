@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "scope": "Settings C first increment: configured-model registry via paired API/private UDS/existing Settings owner/PostgreSQL; not complete Prompt A",
+  "product_commit": "a3e04a7",
+  "tested_freeze_sha256": "4cbef237ca8c91a67a028c05a994fd417dfd57d248becf3bd053d013d033fdd2",
+  "implementation": "IMPLEMENTED_REGISTRY_SCOPED",
+  "evidence": "PASS_LOCAL_RECORDED_API_PRIVATE_PG_SCOPED",
+  "review": "APPROVED_SCOPED_COMPOSED",
+  "reviews": [
+    {"report": "registry-review1.md", "scope": "initial43 files; requirement/persistence/backfill/readback", "verdict": "APPROVED_SOURCE_SCOPED"},
+    {"report": "registry-review2.md", "scope": "same initial43 files; security/authority/transport/failure", "verdict": "APPROVED_SOURCE_SCOPED"},
+    {"report": "registry-regex-review1.md", "scope": "three changed files; SQL CHECK/readiness/domain", "verdict": "APPROVED_SOURCE_SCOPED"},
+    {"report": "registry-regex-review2.md", "scope": "same three-file delta; trust-boundary domain preservation", "verdict": "APPROVED_SOURCE_SCOPED"},
+    {"report": "registry-fixture-review.md", "scope": "one changed test file; real heartbeat and unconditional disposal; product unchanged", "verdict": "APPROVED_SCOPED"}
+  ],
+  "qa": {
+    "process_session": "proc_154efcac2735",
+    "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/sc3 PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-provider-settings-pg --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 360",
+    "outer_exit": 0,
+    "gate_exit": 0,
+    "family_drained": true,
+    "passed": 53,
+    "seconds": 42.46,
+    "consumer": "Existing test_provider_key_api.py paired ASGI -> real private LocalControl socket -> existing owner/admission -> actual PostgreSQL18.6 UDS/no-network",
+    "observed": ["Save63 then64 instance-wide entries; identical model IDs on different connections distinguishable", "Exact receipt/replay; changed payload/stale/duplicate/foreign/revoked/entry65/oversize denials", "Revision-bound16-entry traversal and competingCAS; no partial denial writes across six-table census", "Assignments and per-role output caps unchanged", "Fresh ASGI app and fresh owner/epoch/vault/listener read same registry/receipt/selection", "Post-Stop receive-only readback; new writes refused", "Empty and seeded0015->0016 migration/backfill, historical bytes preserved, physical constraints/readiness and cold restore"],
+    "fixture_root": "/home/kali/.hermes/cache/scratch/sc3/db-113b264455954b16",
+    "project": "omnis-p01-fa2683f44ff445de8a61c3dbba5e2c28",
+    "container_id": "48933da53c2f42e704d27701bb3ecd2dd5d965d62da24e2a7cb2d65097692ee4",
+    "postgres_version": "18.6",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "system_id": "7701099049934864414",
+    "cleanup_parent_readback": {"exact_container_absent": true, "project_networks_absent": true, "socket_absent": true, "pgdata_retained": true, "all43_source_hashes_unchanged_after_qa": true}
+  },
+  "retained_failures": [
+    {"fixture": "sc1/db-f248b553911b4d43", "process": "proc_76d67cbbf180", "exit": 2, "passed": 50, "failed": 2, "seconds": 35.91, "disposition": "Shared invalid PostgreSQL ARE regex bound256; SQLSTATE2201B. Not a timeout. Fixed in current0016 CHECK/readiness with SOURCE RED->GREEN. Original FAIL remains."},
+    {"fixture": "srfix/db-dc91ca6095654991", "exit": 2, "passed": 50, "failed": 2, "seconds": 35.20, "disposition": "One admitted diagnostic attempt reproduced both2201B failures. API firstINSERT failed in0.158107s. Temporary test instrumentation removed byte-exact."},
+    {"fixture": "sc2/db-d0f983ca80c54ef1", "process": "proc_0f9fa07dd16c", "exit": 2, "passed": 52, "failed": 1, "errors": 1, "seconds": 42.99, "disposition": "Product SQL/capacity/migration progressed; expanded fixture lacked real supervisor heartbeat and finally release blocked disposal. One test-only repair preserves66 old assertions plus2 positive heartbeat controls. Full fresh53 PASS is separate, not retroactive green."},
+    {"scope": "default-parallel web SOURCE run", "failed_timeouts": 3, "disposition": "Retained in initial source freeze. Unmodified assertions/timeouts passed170 tests with --no-file-parallelism; canonical default scheduling remains unverified at this increment."}
+  ],
+  "harness_only_repair_cycles_since_product_progress": 1,
+  "harness_disposition": "Resolved by reviewed one-file heartbeat/disposal repair and fresh53 PASS; counter/history retained, not reset by naming or session.",
+  "limits": ["Registry API/private-PG proof, not built/installed browser or physical supervisor-process restart proof", "Full encoded request41001body/41036command/41141frame and12096reply are SOURCE fixtures; native PG boundary256 is not claimed exhaustive", "Catalog/search, selected-entry test, guided English C UI and final assignment membership guard remain to implement", "Canonical integration gate, browser/visual/accessibility and provider-live remain NOT_RUN", "No Prompt B/auth-policy change, T2/P4b closure, operator instance/PGDATA, real credentials, provider/target/spending/global change or push"],
+  "rollback": "Source revert is separate from additive/forward-only DB migration; restoring a real database requires reviewed backup/restoration. Test PGDATA is retained; operator data was never adopted."
+}

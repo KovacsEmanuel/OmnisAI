@@ -83,6 +83,55 @@ cap is reached. Never claim “all models” from the first upstream page. Cache
 are tied to connection/credential revisions; a key rotation invalidates their current eligibility.
 These caps are proposals for implementation preflight, not newly enacted runtime contracts.
 
+### Prompt A activated — admitted implementation contract
+
+The operator explicitly activated Prompt A from `settings-delivery-prompt.md` on base
+`cd99dfbe34a3ad690273c493177beee491da1fb6`; Prompt B/authentication remain excluded.
+Architecture §5.3 and plan §8 now enact the bounded Settings C extension without reopening
+historical T1 acceptance or launching T2/P4b. The proposals above are retained as design
+provenance; the canonical admitted contract is authoritative.
+
+Existing producer/consumer: ProviderSettings → client/decoder → paired provider routes →
+LocalControl → ProviderSettingsOwner → PostgreSQL. Extend this owner with a separately
+bounded `provider_models` command, additive/CAS save and durable exact-command receipt;
+64 entries per instance, unique connection+exact ID, stable entry ID/revision and no secret
+copy. Keep assignments in existing SaveSelection; preserve explicit overrides/output caps.
+Backfill current default/overrides idempotently; historical revisions and stale refs remain.
+Registry/catalog pages contain at most16 entries and are revision/context bound. Metadata
+name≤128 code points, exact model ID≤256 printable ASCII, reason codes allowlisted≤64ASCII.
+
+No-effect preflight: pinned Python3.13.15/Node24.21.0/npm11.19.0/uv0.12.19 and private test
+PG18.6 image are available; existing PG runner targets/pytest collection were inspected.
+Independent SOURCE calculations and parent execution of the full64-entry request agree:
+body41001/command41036/frame41141 bytes including envelope/newline, versus old maximum
+selection frame2882≤4096. Fixtures use64 distinct256-character IDs composed entirely of
+JSON-escaped printable characters, full UUIDs and19-digit revisions. Proposed16-entry
+registry reply13052/catalog reply34654 and selected-entry test reply54092bytes fit65536;
+these reply figures are independent SOURCE preflight, not actual new DTO/runtime PASS.
+The developer must bind maximum fixtures to the final DTOs/real serializers and repeat
+affected size checks if their shape changes. HTTP exception is only the new registry PUT;
+other old3600/4096 limits remain, even with a larger physical socket buffer.
+
+Public official docs retrieved during admission, without provider endpoint calls:
+[OpenRouter OpenAPI](https://openrouter.ai/docs/api/api-reference/models/list-all-models-and-their-properties.md)
+defines offset/limit (maximum1000), response data/links/total_count; completion requires
+validated traversal and count agreement. [OrcaRouter model reference](https://docs.orcarouter.ai/api-reference/models/list-available-models.md)
+defines an OpenAI-style object/list/data response with optional max_completion_tokens,
+context_length and modality metadata, no documented pagination parameters. Do not assume
+OpenRouter capability/pagination fields for OrcaRouter or invent missing caps. Unknown
+continuation/schema remains partial/unavailable; authenticated rejection never falls back
+to anonymous. Documented schema fixtures are synthetic, not captured provider responses.
+Live compatibility remains NOT_RUN pending explicit provider/model/data/call permission.
+
+Delivery ownership: parent owns canonical admission/integration; one assigned developer
+owns product/tests/fixes; two complementary frozen-snapshot reviews precede real-consumer
+QA. First acceptance row is registry save→exact receipt→paged GET/restart/migration on
+newly owned isolated PG; negative stale CAS/duplicate/entry65/oversize/revoked connection
+uses the same channel. Harness-only cycles0 at admission. Continue through catalog,
+exact-entry test and English C UI rather than declaring isolated helpers complete.
+Rollback is granular Git revert for source; fixture DB/vault data remain preserved,
+and no operator instance/PGDATA is adopted. No provider traffic, spending, push or auth edits.
+
 ### Official documentation checked, no API calls made
 
 - [OpenRouter model listing](https://openrouter.ai/docs/api/api-reference/models/list-all-models-and-their-properties)

@@ -1,0 +1,7 @@
+{
+  "assertion": null,
+  "pending_cli": false,
+  "reason": null,
+  "stage_commands": 3,
+  "type": "FileNotFoundError"
+}

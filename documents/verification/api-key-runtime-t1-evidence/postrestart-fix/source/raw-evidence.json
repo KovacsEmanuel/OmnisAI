@@ -1,0 +1,17 @@
+{
+  "reason": "Original diff context and pytest diagnostics contain trailing spaces. Retain exact bytes privately rather than trim historical evidence or weaken git diff --check. Git includes these locators/hashes; all originals also belong to preservation-manifest.json.",
+  "files": {
+    "candidate.patch": {
+      "durable_path": "/home/kali/.local/share/omnis-t1-artifacts/postrestart-a5b8939/evidence/source/candidate.patch",
+      "sha256": "829026023583004ea28889cff4fe5b976b7d2ebb51ad0ed31a651597db6a9f74",
+      "bytes": 11491
+    },
+    "red.log": {
+      "durable_path": "/home/kali/.local/share/omnis-t1-artifacts/postrestart-a5b8939/evidence/source/red.log",
+      "sha256": "ed5897ac8aafeb159eba839ace4bf89afd82c77a8f9cd9f9f7c64c8abe18735c",
+      "bytes": 4419
+    }
+  },
+  "product_changes": false,
+  "raw_bytes_modified": false
+}

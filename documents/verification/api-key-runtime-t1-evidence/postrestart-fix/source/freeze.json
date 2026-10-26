@@ -1,0 +1,22 @@
+{
+  "base": "083e6f6407ecf0adf0de6545b013851dac5098dc",
+  "branch": "impl/t1-postrestart-admission-20261026",
+  "files": {
+    "api/src/omnis/supervisor/__main__.py": {
+      "blob": "44dc21f65947b40dad28a2cf5eb5cacfa27510c3",
+      "sha256": "1c821dd0d0a99496e6d4245fe9b82939495d48c850165413bc0d87baf82da82a"
+    },
+    "api/tests/test_runtime_supervisor.py": {
+      "blob": "aba6ab88e87f4b0973ee18fce2ee7f1535c25648",
+      "sha256": "c1b04fcad06357cebaaf61e6a23a22b728f4af0579c7066b1920038b8f4d93e5"
+    }
+  },
+  "diff": {
+    "path": "/home/kali/.hermes/cache/scratch/t1-pr-ct0vinu2/evidence/candidate.patch",
+    "sha256": "829026023583004ea28889cff4fe5b976b7d2ebb51ad0ed31a651597db6a9f74"
+  },
+  "input_count": 303,
+  "post_execution_drift": [],
+  "commit_created": false,
+  "status": "FROZEN_SOURCE_CANDIDATE_NOT_ACCEPTED"
+}

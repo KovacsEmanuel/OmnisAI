@@ -1,0 +1,18 @@
+{
+  "scope": "T1_POST_RESTART_FIX_DURABLE_DELIVERY",
+  "authorized_by": "operator explicit confirmation",
+  "approval": "Aprob: după gates, oprește normal 8773 și instalează separat versiunea reparată pe același port; păstrează integral datele vechi. Reintroduc cheia în noua UI.",
+  "preconditions": ["final minimal fix independently reviewed under both complementary charters", "required affected installed verification and integration gates passed", "exact final bundle/source identity bound before deployment"],
+  "current_root": "/home/kali/.local/share/omnis-t1-recovery-d340a58",
+  "current_instance_id": "62b43306-2bca-4e2f-a56e-3b4df790c6cb",
+  "current_bundle_sha256": "d340a58a8e9912304613086f644b4f9c5f32aac50e4bd3ce8aa3b7c9d9bae177",
+  "current_last_observed": "READY3/epoch2, zero active operations, preserved configuration and history; new ModelTest admission blocked",
+  "allowed_delivery": "normal Stop of this exact current instance, preserve all data/configuration/results, one separate durable normal repaired installation on port8773 after port preflight",
+  "new_root": "not yet allocated; bind to reviewed final artifact",
+  "browser": "local Chrome with a separate dedicated profile for the new instance",
+  "credentials": "operator-only write-only UI entry; no copying, revealing, rotation or automatic rebind",
+  "provider_io_newly_authorized": false,
+  "previous_live_budget": {"metadata_refresh_claimed": 1, "test_starts_claimed": 4, "test_starts_max": 5, "sigkill_claimed": 0, "revoke_claimed": 0},
+  "constraints": ["no hotpatch or overwrite of the immutable release", "no generic upgrader", "no adoption or migration of old data", "no other instances, T2, global changes or push", "deployment does not reset or renew the provider/fault grant"],
+  "state": "CONDITIONAL_AUTHORIZATION_UNCONSUMED"
+}

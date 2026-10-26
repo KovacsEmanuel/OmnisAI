@@ -1,0 +1,12 @@
+{
+  "tested_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+  "daemon_matches": true,
+  "container_id": "4a5f565afddabefc729de7e56ee73003ee855c2cee53cd9e34d10e3911c4405a",
+  "container_absent": true,
+  "project": "omnis-p01-ce5843d44d134cacb05fa07860e09122",
+  "project_networks_absent": true,
+  "socket_absent": true,
+  "data_retained": "/home/kali/.hermes/cache/scratch/c11-7tb5smbx/t/db-65abcbcaff1b4600/data",
+  "owner_pid_absent": true,
+  "read_only": true
+}

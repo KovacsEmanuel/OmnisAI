@@ -1,0 +1,37 @@
+[][
+  {
+    "cell": null,
+    "code": "unformatted",
+    "end_location": {
+      "column": 26,
+      "row": 226
+    },
+    "filename": "/home/kali/.hermes/cache/scratch/t1-pr-ct0vinu2/src/api/src/omnis/supervisor/__main__.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "task_owner is None and model_owner is None) or (\n                            await service.owned_status(owner, epoch)\n                        ).generation != startup_generation",
+          "end_location": {
+            "column": 26,
+            "row": 226
+          },
+          "location": {
+            "column": 29,
+            "row": 222
+          }
+        }
+      ],
+      "message": null
+    },
+    "location": {
+      "column": 29,
+      "row": 222
+    },
+    "message": "File would be reformatted",
+    "name": "unformatted",
+    "noqa_row": null,
+    "severity": "error",
+    "url": null
+  }
+]make: *** [Makefile:204: lint-api] Error 1

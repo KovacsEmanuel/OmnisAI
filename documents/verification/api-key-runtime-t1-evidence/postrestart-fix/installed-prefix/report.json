@@ -1,0 +1,368 @@
+{
+  "cleanup": {
+    "bundle_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+    "daemon": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "data_system_id": "7700880445257678891",
+    "exact_cids_absent": {
+      "008c5dd4cf62846e245fa0c740a3f3b724dc79f6f2fa9f09969e6b6d2b2fad6d": true,
+      "04c5e7fe78100e5abfb27d62577ce7bf9a9a56beb3bd761dd1fdfcbd87e88d31": true,
+      "33ed8934feb47ac8a48806a106d23b0cbfcf142b474694085ebdc8375f420221": true,
+      "46f82c3661881e879d55ac17a007e65aa0da9174e15d14aa6f69c7a2aa81fdcb": true,
+      "573d8209950946aed33e7d8ea20729aa2f62c83dab73ddc1e4728a9c41e85595": true,
+      "fa283afa5d8c0f6cd722552b2a0b0342e514dabe3c73538605b4680ab45d3515": true
+    },
+    "exact_networks_absent": {
+      "1dea7aaddd2ac0cf3d708b1e1d4be809577fc681a68ad0ed776a622c0bb4edb0": true,
+      "a05f726cd7f17c53426ae1cf0e846b60cfe306c1a92919924dafa2fdd1e4b2e7": true
+    },
+    "exit": 0,
+    "forwarder_pids_absent": {
+      "2928288": true,
+      "2949549": true
+    },
+    "image_retained": "sha256:0daabbeb8a18e433418418d86c417620eefa8f09c37fd3cf344c261dfe4113ee",
+    "instance_id": "fd5453f6-f980-4d2b-ae34-5ae221835f3b",
+    "pgdata_directory_present": true,
+    "pgdata_identity": [
+      2049,
+      10390704
+    ],
+    "repair_script_unchanged": true,
+    "sockets_absent": {
+      "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/r/omnis/control.cap": true,
+      "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/r/omnis/control.sock": true,
+      "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/s/omnis/http/api.sock": true,
+      "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/s/omnis/vault/model-egress.sock": true
+    },
+    "state": "STOPPED",
+    "supervisor_pids_absent": {
+      "2928342": true,
+      "2949604": true
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "install",
+        "--bundle",
+        "/home/kali/.hermes/cache/scratch/t1-pr-ct0vinu2/artifacts/bundle"
+      ],
+      "exit": 0,
+      "label": "install",
+      "pid": 2925312,
+      "timeout_seconds": 50
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "install-image"
+      ],
+      "exit": 0,
+      "label": "install-image",
+      "pid": 2925313,
+      "timeout_seconds": 380
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "initial-start",
+      "pid": 2926053,
+      "timeout_seconds": 330
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "initial-status",
+      "pid": 2940779,
+      "timeout_seconds": 50
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "stop",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "initial-stop",
+      "pid": 2941952,
+      "timeout_seconds": 230
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "initial-stop-status",
+      "pid": 2945364,
+      "timeout_seconds": 50
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "start",
+        "--no-open",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "post-restart-start",
+      "pid": 2947024,
+      "timeout_seconds": 330
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "post-restart-status",
+      "pid": 2952995,
+      "timeout_seconds": 50
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "stop",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "post-restart-stop",
+      "pid": 2954211,
+      "timeout_seconds": 230
+    },
+    {
+      "argv": [
+        "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_/v/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0,
+      "label": "post-restart-stop-status",
+      "pid": 2957642,
+      "timeout_seconds": 50
+    }
+  ],
+  "exit": 0,
+  "failures": [
+    {
+      "assertion": null,
+      "disposition": "HARNESS_ONLY: host resolve of container executable; original callback retained, not repeated",
+      "pending_cli": false,
+      "reason": null,
+      "stage_commands": 3,
+      "type": "FileNotFoundError"
+    }
+  ],
+  "fixture": "/home/kali/.hermes/cache/scratch/ip8-gxpeuz9_",
+  "harness_repairs": 1,
+  "image": {
+    "docker_host": "unix:///run/docker.sock",
+    "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "format": 3,
+    "image_id": "sha256:0daabbeb8a18e433418418d86c417620eefa8f09c37fd3cf344c261dfe4113ee",
+    "manifest_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+    "profile": "t1-provider-settings",
+    "project": "omnis-local-46647e1d898d4d6e8f586d377f6c84d4",
+    "release": "0.1.0",
+    "tag": "omnis-control-46647e1d898d4d6e8f586d377f6c84d4:0.1.0"
+  },
+  "journeys": [
+    {
+      "cli_status": {
+        "admission_open": true,
+        "api_ready": true,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "control_ready": true,
+        "dashboard_ready": true,
+        "generation": 1,
+        "instance_id": "fd5453f6-f980-4d2b-ae34-5ae221835f3b",
+        "origin": "http://127.0.0.1:42997",
+        "reason": null,
+        "release": "0.1.0",
+        "schema": "0015_model_test_v2",
+        "state": "READY",
+        "supervisor_epoch": 1
+      },
+      "connections": [],
+      "db_identity": {
+        "admission_open": true,
+        "epoch": 1,
+        "generation": 1,
+        "instance_id": "fd5453f6-f980-4d2b-ae34-5ae221835f3b",
+        "lease_live": true,
+        "owner": "5dad6044-fd10-4fcf-9b87-366d470feecd",
+        "schema": "0015_model_test_v2",
+        "system_id": "7700880445257678891"
+      },
+      "first_model_test": {
+        "error": "REVISION_CONFLICT",
+        "http_status": 409,
+        "operation_id": "c9c6066f-e3e2-472d-bcc3-8df0c4d56a12",
+        "pair_state_before": {
+          "challenge_count": 1,
+          "pending": false,
+          "sessions": 0
+        },
+        "response": {
+          "error": {
+            "code": "REVISION_CONFLICT",
+            "correlation_id": "180bb5fa-052d-411b-9218-d77bb13c45d1",
+            "field_errors": []
+          }
+        }
+      },
+      "installed_fix": {
+        "path": "/usr/local/lib/python3.13/site-packages/omnis/supervisor/__main__.py",
+        "sha256": "1c821dd0d0a99496e6d4245fe9b82939495d48c850165413bc0d87baf82da82a"
+      },
+      "label": "initial",
+      "metadata_state": "NOT_REQUESTED",
+      "selection": null,
+      "supervisor_process": {
+        "argv": [
+          "python",
+          "-I",
+          "-m",
+          "omnis.supervisor"
+        ],
+        "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+        "executable_in_container": "/usr/local/bin/python3.13",
+        "pid": 2928342,
+        "start_ticks": "43934809"
+      },
+      "vault_status": "UNCONFIGURED",
+      "zero_counters": {
+        "model_command_v2": 0,
+        "model_dispatch_event_v2": 0,
+        "model_dispatch_v2": 0,
+        "model_record_v2": 0,
+        "provider_connection_revision": 0,
+        "provider_selection_revision": 0,
+        "provider_settings_command": 0,
+        "system_operation": 0
+      }
+    },
+    {
+      "cli_status": {
+        "admission_open": true,
+        "api_ready": true,
+        "assessment_ready": false,
+        "browser_opened": false,
+        "control_ready": true,
+        "dashboard_ready": true,
+        "generation": 3,
+        "instance_id": "fd5453f6-f980-4d2b-ae34-5ae221835f3b",
+        "origin": "http://127.0.0.1:42997",
+        "reason": null,
+        "release": "0.1.0",
+        "schema": "0015_model_test_v2",
+        "state": "READY",
+        "supervisor_epoch": 2
+      },
+      "connections": [],
+      "db_identity": {
+        "admission_open": true,
+        "epoch": 2,
+        "generation": 3,
+        "instance_id": "fd5453f6-f980-4d2b-ae34-5ae221835f3b",
+        "lease_live": true,
+        "owner": "2fdc38ad-5bc7-46ce-815c-5c31a8e961c9",
+        "schema": "0015_model_test_v2",
+        "system_id": "7700880445257678891"
+      },
+      "first_model_test": {
+        "error": "REVISION_CONFLICT",
+        "http_status": 409,
+        "operation_id": "ba9a76a1-f21a-4e48-bde1-59657a37fa3e",
+        "pair_state_before": {
+          "challenge_count": 1,
+          "pending": false,
+          "sessions": 2
+        },
+        "response": {
+          "error": {
+            "code": "REVISION_CONFLICT",
+            "correlation_id": "2664e63b-4409-4040-9b11-42e8f568c9a9",
+            "field_errors": []
+          }
+        }
+      },
+      "installed_fix": {
+        "path": "/usr/local/lib/python3.13/site-packages/omnis/supervisor/__main__.py",
+        "sha256": "1c821dd0d0a99496e6d4245fe9b82939495d48c850165413bc0d87baf82da82a"
+      },
+      "label": "post-restart",
+      "metadata_state": "NOT_REQUESTED",
+      "selection": null,
+      "supervisor_process": {
+        "argv": [
+          "python",
+          "-I",
+          "-m",
+          "omnis.supervisor"
+        ],
+        "boot_id": "d8788a98-5b56-4287-950f-ab5a31a50d0e",
+        "executable_in_container": "/usr/local/bin/python3.13",
+        "pid": 2949604,
+        "start_ticks": "43960952"
+      },
+      "vault_status": "UNCONFIGURED",
+      "zero_counters": {
+        "model_command_v2": 0,
+        "model_dispatch_event_v2": 0,
+        "model_dispatch_v2": 0,
+        "model_record_v2": 0,
+        "provider_connection_revision": 0,
+        "provider_selection_revision": 0,
+        "provider_settings_command": 0,
+        "system_operation": 0
+      }
+    }
+  ],
+  "limits": [
+    "No provider success/dispatch/completed model",
+    "No physical pre-OPEN timing injection; existing SOURCE timing evidence remains separate",
+    "No operator install/data/key accessed",
+    "No UI or accessibility claim; Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO",
+    "No canonical/source rerun; parent adjudicates; T1 not closed"
+  ],
+  "port": 42997,
+  "port_preflights": [
+    {
+      "first_refusal": null,
+      "label": "before-initial",
+      "result": "AVAILABLE_NO_REUSE",
+      "wait_seconds": 6.618897896260023e-05
+    },
+    {
+      "first_refusal": {
+        "elapsed": 7.732602534815669e-05,
+        "reason": "PORT_CONFLICT"
+      },
+      "label": "before-post-restart",
+      "result": "AVAILABLE_NO_REUSE",
+      "wait_seconds": 54.032472420018166
+    }
+  ],
+  "product_edited": false,
+  "provider_io": {
+    "basis": "both real selection-missing refusals precede provider binding; all producer tables zero; internal-only normal topology",
+    "count": 0,
+    "universal_syscall_observation": false
+  },
+  "t1_closed": false,
+  "verdict": "PASS_SCOPED"
+}

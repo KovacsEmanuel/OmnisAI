@@ -1,0 +1,17 @@
+{
+  "error": "REVISION_CONFLICT",
+  "http_status": 409,
+  "operation_id": "ba9a76a1-f21a-4e48-bde1-59657a37fa3e",
+  "pair_state_before": {
+    "challenge_count": 1,
+    "pending": false,
+    "sessions": 2
+  },
+  "response": {
+    "error": {
+      "code": "REVISION_CONFLICT",
+      "correlation_id": "2664e63b-4409-4040-9b11-42e8f568c9a9",
+      "field_errors": []
+    }
+  }
+}

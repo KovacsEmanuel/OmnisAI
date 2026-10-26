@@ -1,0 +1,71 @@
+{
+  "scope": "POSTRESTART_FIX_CANONICAL11_PASS_LOCAL_RECORDED_NOT_T1_ACCEPTANCE",
+  "reviewed_head": "8c527a0694465f8470b91ad7f014764e29385f64",
+  "tested_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+  "identical_tree": "51c60712fb3aa08eac694af17403398d2888e744",
+  "canonical": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "outer": {
+    "exit": 0,
+    "tested_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+    "input_count": 1953,
+    "input_drift": []
+  },
+  "summary_lines": [
+    "Ran 87 tests in 1.678s",
+    "Ran 56 tests in 9.073s",
+    "3130 passed, 65 skipped, 7 deselected in 3504.37s (0:58:24)",
+    "23 passed in 79.50s (0:01:19)",
+    "Tests  151 passed (151)",
+    "found 0 vulnerabilities",
+    "10 passed in 130.95s (0:02:10)",
+    "Ran 383 tests in 97.264s",
+    "Ran 383 tests in 95.273s",
+    "1 passed in 3.41s",
+    "Ran 73 tests in 19.058s"
+  ],
+  "argv": [
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/api/.venv/bin/python",
+    "-I",
+    "-B",
+    "/home/kali/.hermes/cache/scratch/ot1-final-l9s2t70o/integration-src/ops/run_test_db_gate.py",
+    "--check",
+    "--target",
+    "check-components",
+    "--uv",
+    "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "--timeout-seconds",
+    "7200"
+  ],
+  "durable_root": "/home/kali/.local/share/omnis-t1-artifacts/postrestart-a5b8939",
+  "input_manifest_sha256": "84573eba7d1660476a16532c111b9672c51adcb9302fa8b2369f69ae70fd084e",
+  "gate_log_sha256": "ba921676d76513ded88d726e9ae7093e5e0c5d221f972b5e8123dbab2cd7ba67",
+  "preservation_manifest_sha256": "8f792e1f28bd860df04f3c6d319681253b5752e26b92dbdd4dce7bc2571d33e8",
+  "bundle_sha256": "a5b89393716f31868e97d7f5201249ab1de76f6395300cecc5d657890e34dba4",
+  "payload_count": 10,
+  "api_modules_byte_exact": 113,
+  "parent_cleanup_readback": {
+    "tested_head": "5d5bbfb35b3833ef6d8be0f2e2651cf235a515a2",
+    "daemon_matches": true,
+    "container_id": "4a5f565afddabefc729de7e56ee73003ee855c2cee53cd9e34d10e3911c4405a",
+    "container_absent": true,
+    "project": "omnis-p01-ce5843d44d134cacb05fa07860e09122",
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "data_retained": "/home/kali/.hermes/cache/scratch/c11-7tb5smbx/t/db-65abcbcaff1b4600/data",
+    "owner_pid_absent": true,
+    "read_only": true
+  },
+  "no_new_source_or_canonical_gate": true,
+  "rollout_performed": false,
+  "provider_io_during_preparation": false,
+  "limits": [
+    "installed QA is admission-prefix only, not provider success",
+    "current preparation stops before rollout/Pair/key/live effects",
+    "previous live claims and UNKNOWN preserved; no budget renewal",
+    "no off-device backup, operator-data copy or Docker image export"
+  ]
+}

@@ -279,7 +279,10 @@ export function Wizard({ id }: { id?: string }) {
           </>}
         </div>}
         {phase === 'stale' && <button type="button" onClick={() => { void reconcile(); }}>Retry exact GET readback</button>}
-        {phase === 'uncertain' && <p>Check the engagement list and reconcile before submitting again. No automatic retry.</p>}
+        {phase === 'uncertain' && <>
+          <p>Check the engagement list and reconcile before submitting again. No automatic retry.</p>
+          {id && <button type="button" onClick={() => { void reconcile(); }}>Compare server revision</button>}
+        </>}
         <div className={styles.actions}>
           <button type="button" disabled={lock || step === 0} onClick={() => setStep(current => current - 1)}>Back</button>
           <button type="button" disabled={lock || phase !== 'idle' || !dirty} onClick={() => { void save(); }}>Save draft</button>

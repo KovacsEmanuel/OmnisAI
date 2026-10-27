@@ -216,7 +216,8 @@ export function Wizard({ id }: { id?: string }) {
         {legacyActivated && saved && !isFullDraft(saved.payload) && <p>Declarative defaults: zero budgets, empty context/rules/matrix and NONE data policy. Your original legacy revision is unchanged until Save creates a new CAS revision.</p>}
         <output aria-live="polite">{phase === 'checking' ? 'Checking saved revision…' : lock ? 'Saving…' : phase === 'conflict' ? 'Conflict · local edits preserved' :
           phase === 'stale' ? 'Unconfirmed readback' : phase === 'uncertain' ? 'Save outcome uncertain' :
-          dirty ? 'Unsaved changes' : `Saved · revision ${saved?.revision}`}</output>
+          query.isError ? 'Unconfirmed readback' : dirty ? 'Unsaved changes' : `Saved · revision ${saved?.revision}`}</output>
+        {query.isError && <p role="alert">{query.error instanceof ApiError ? query.error.message : 'Draft unavailable.'}</p>}
         {notice && <p role={errors.length ? undefined : 'alert'}>{notice}</p>}
         {errors.length > 0 && <div ref={summaryRef} role="alert" className={styles.summary} tabIndex={-1}>
           <h3>Check these fields</h3><ul>{errors.map((error, index) => <li key={`${error.field}-${index}`}>

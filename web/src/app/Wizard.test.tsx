@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Link } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { csrf, engagementId, payload, revision } from '../../tests/draft-fixtures';
+import { errorCopy } from '../shared/api/errors';
 import { App } from './App';
 
 it('points a negative request ceiling at that field before checking the reserve relation', async () => {
@@ -500,6 +501,65 @@ it('adopts a newer server revision on explicit Refresh when the Setup form is cl
   await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh engagement' }));
   await waitFor(() => expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue('Remote revision 2'));
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
+});
+
+it.each([
+  ['CONTROL_UNAVAILABLE', false], ['CONTROL_UNAVAILABLE', true],
+  ['INVALID_RESPONSE', false], ['INVALID_RESPONSE', true],
+] as const)('exposes a hydrated editor refresh failure despite a successful projection GET (%s, dirty=%s)', async (fault, dirty) => {
+  let refreshing = false;
+  let failEditor = true;
+  let refreshReads = 0;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (path === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (path === `/api/v1/engagements/${engagementId}` && !init?.method) {
+      if (refreshing) {
+        refreshReads++;
+        if (failEditor && refreshReads > 1) return fault === 'INVALID_RESPONSE' ? new Response('{}') :
+          new Response(JSON.stringify({ error: { code: fault, correlation_id: engagementId } }), { status: 503 });
+      }
+      return new Response(JSON.stringify(revision));
+    }
+    throw new Error('Unexpected synthetic request');
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  await screen.findByText('Saved · revision 1');
+  const name = screen.getByLabelText('Engagement name');
+  const localName = dirty ? 'Preserve this unsaved local edit' : payload.name;
+  if (dirty) fireEvent.change(name, { target: { value: localName } });
+  const projectionUpdatedAt = client.getQueryState(['private', 'engagement', engagementId])?.dataUpdatedAt;
+  refreshing = true;
+  await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+  await waitFor(() => expect(client.getQueryState(['private', 'draft', engagementId])?.status).toBe('error'));
+  await waitFor(() => expect(client.getQueryState(['private', 'engagement', engagementId])?.fetchStatus).toBe('idle'));
+  expect(client.getQueryState(['private', 'engagement', engagementId])).toMatchObject({ status: 'success', error: null });
+  expect(client.getQueryState(['private', 'engagement', engagementId])?.dataUpdatedAt).toBeGreaterThan(projectionUpdatedAt!);
+  expect(client.getQueryData(['private', 'engagement', engagementId])).toMatchObject({ id: revision.id,
+    revision: 1, digest: revision.digest, payload: { name: payload.name } });
+  expect(client.getQueryState(['private', 'draft', engagementId])?.error).toMatchObject({ code: fault });
+  expect(client.getQueryData(['private', 'draft', engagementId])).toEqual(revision);
+  expect(refreshReads).toBe(2);
+  expect(name).toHaveValue(localName);
+  expect(screen.getByRole('complementary', { name: 'Draft summary' })).toHaveTextContent(`Revision 1 · ${revision.digest}`);
+  expect.soft(screen.queryByRole('alert')).toHaveTextContent(errorCopy[fault]);
+  expect.soft(screen.queryByText('Unconfirmed readback')).toBeVisible();
+  expect.soft(screen.queryByText('Saved · revision 1')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Retry exact GET readback' })).not.toBeInTheDocument();
+  expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT' || init?.method === 'POST')).toHaveLength(0);
+  failEditor = false;
+  refreshReads = 0;
+  await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+  await waitFor(() => expect(client.getQueryState(['private', 'draft', engagementId])?.status).toBe('success'));
+  expect(name).toHaveValue(localName);
+  expect(screen.getByText(dirty ? 'Unsaved changes' : 'Saved · revision 1')).toBeVisible();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByText('Unconfirmed readback')).not.toBeInTheDocument();
+  expect(refreshReads).toBe(2);
+  expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT' || init?.method === 'POST')).toHaveLength(0);
 });
 
 it('keeps dirty edits and exposes a newer server revision on Refresh without an automatic PUT', async () => {

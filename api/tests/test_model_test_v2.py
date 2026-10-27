@@ -391,7 +391,22 @@ async def test_api_pg_sdk_protocol_and_replay(
     handed: list[int] = []
     upstream_sockets: list[network_socket.socket] = []
 
-    def controlled_dns(host: str, port: int, **kwargs: object) -> list[tuple[object, ...]]:
+    def controlled_dns(
+        host: str, port: int, family: int = 0, type: int = 0, proto: int = 0, flags: int = 0
+    ) -> list[tuple[object, ...]]:
+        assert family in (0, network_socket.AF_INET) and type in (0, network_socket.SOCK_STREAM)
+        assert proto in (0, network_socket.IPPROTO_TCP) and flags == 0
+        if scenario == "settings_ui" and host == "127.0.0.1":
+            assert 0 < port <= 65535
+            return [
+                (
+                    network_socket.AF_INET,
+                    network_socket.SOCK_STREAM,
+                    network_socket.IPPROTO_TCP,
+                    "",
+                    (host, port),
+                )
+            ]
         assert host == "openrouter.ai" and port == 443
         if physical_phase == "dns":
             physical_entered.set()

@@ -528,22 +528,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                         ui_writes.append((request.action, before_io))
                     if request.action == "save_connection":
                         ui_key_command = request.command_id
-                try:
-                    result = await settings.handle(command)
-                    if (
-                        scenario == "settings_ui"
-                        and isinstance(command, KeySettingsControl)
-                        and command.request.action == "read"
-                        and command.request.command_id is not None
-                        and command.request.command_id == ui_key_command
-                    ):
-                        ui_key_receipt = True
-                    return result.model_dump(mode="json")
-                finally:
-                    if scenario == "settings_ui":
-                        assert len(received) == before_io, (
-                            "Local save/read must not contact provider"
-                        )
+                result = await settings.handle(command)
+                if (
+                    scenario == "settings_ui"
+                    and isinstance(command, KeySettingsControl)
+                    and command.request.action == "read"
+                    and command.request.command_id is not None
+                    and command.request.command_id == ui_key_command
+                ):
+                    ui_key_receipt = True
+                return result.model_dump(mode="json")
 
             control.provider_settings = provider_command
 

@@ -182,6 +182,9 @@ Apply the concrete delivery preflights learned here before another expensive gat
 - Check matchers against the installed Playwright API, not jest-dom memory. For native
   selects verify the actual role/name and selected option. Check socket fixture signatures
   against their real stdlib callers, including loopback readiness, before provisioning PG.
+- Derive exact DB totals from every real writer sharing that table: catalog Refresh/Cancel
+  and entry Start/Cancel share `model_command_v2`. Validate the existing browser executable
+  after environment overrides; a relocated cache lookup is not permission to install it.
 - Map remaining visible actions to actual evidence: SOURCE/component, real API, or real
   browser/API/PG. In particular, do not infer Replace/Disable/Reconnect, chip removal,
   manual fallback, active-test Cancel or UNKNOWN readback from one successful happy path.

@@ -124,62 +124,6 @@ def private_stop_fixture() -> Iterator[
 
 
 class StopTest(unittest.TestCase):
-    def test_upgrade_while_runtime_waits_for_lock_refuses_stale_start_and_stop(self):
-        start = importlib.import_module("omnis_cli.start")
-        stop = importlib.import_module("omnis_cli.stop")
-        from omnis_cli.lifecycle import lifecycle_lock
-
-        for module in (start, stop):
-            with (
-                self.subTest(consumer=module.__name__),
-                private_stop_fixture() as (base, root, _, control, record, runtime),
-            ):
-                write_record(root / "startup.json", record)
-                pointer = base / "d/omnis/installed.json"
-                write_record(pointer, {"format": 1, "release": "0.1.0"})
-                before = (root / "startup.json").read_bytes()
-
-                @contextlib.contextmanager
-                def changed(path, deadline, pointer=pointer):
-                    with lifecycle_lock(path, deadline) as fd:
-                        if path == pointer.parent:
-                            write_record(
-                                pointer,
-                                {
-                                    "format": 2,
-                                    "release": "0.1.0",
-                                    "digest": "a" * 64,
-                                    "transition": str(uuid4()),
-                                },
-                                replace=True,
-                            )
-                        yield fd
-
-                with (
-                    patch.dict(
-                        os.environ,
-                        {
-                            "XDG_STATE_HOME": str(base / "s"),
-                            "XDG_DATA_HOME": str(base / "d"),
-                            "XDG_RUNTIME_DIR": "",
-                        },
-                    ),
-                    patch.object(module, "ControlRuntime", return_value=runtime),
-                    patch.object(module, "lifecycle_lock", side_effect=changed),
-                    patch.object(
-                        module,
-                        "readback_stopped",
-                        side_effect=AssertionError("stale runtime crossed lock"),
-                        create=True,
-                    ),
-                ):
-                    with self.assertRaisesRegex(StartError, "LIFECYCLE_CHANGED"):
-                        if module is start:
-                            start.start_instance()
-                        else:
-                            stop.stop_instance()
-                self.assertEqual((root / "startup.json").read_bytes(), before)
-
     def test_unhashable_journal_phase_refuses_all_installed_entrypoints(self) -> None:
         """Malformed JSON types must not escape as tracebacks or contact Docker/control."""
         start_module = importlib.import_module("omnis_cli.start")

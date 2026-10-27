@@ -29,17 +29,6 @@ def main(argv: list[str] | None = None) -> int:
     install_parser.add_argument(
         "--bundle", type=Path, required=True, help="Absolute bundle directory"
     )
-    install_parser.add_argument(
-        "--manual-upgrade",
-        action="store_true",
-        help="Explicit stopped same-schema UI replacement or rollback",
-    )
-    install_parser.add_argument(
-        "--expected-digest", help="CAS: exact currently installed manifest SHA256"
-    )
-    install_parser.add_argument(
-        "--backup", type=Path, help="Validated cold backup of this STOPPED instance"
-    )
     start_parser = commands.add_parser(
         "start", help="Start and verify the installed inert control plane"
     )
@@ -149,16 +138,7 @@ def main(argv: list[str] | None = None) -> int:
         data_home = os.environ.get("XDG_DATA_HOME")
         root = Path(data_home) if data_home else Path.home() / ".local/share"
         try:
-            if args.manual_upgrade:
-                from .upgrade import manual_upgrade
-
-                if args.expected_digest is None or args.backup is None:
-                    raise ReleaseError("Upgrade requires expected digest and backup")
-                manual_upgrade(args.bundle, root, state_dir(), args.expected_digest, args.backup)
-            else:
-                if args.expected_digest is not None or args.backup is not None:
-                    raise ReleaseError("Explicit manual upgrade required")
-                install_release(args.bundle, root)
+            install_release(args.bundle, root)
         except ReleaseError:
             print(
                 "RELEASE_INSTALL_REFUSED: verificați bundleul și directorul XDG privat.",
@@ -166,9 +146,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
         print(
-            "Binding UI actualizat; datele rămân STOPPED. Porniți explicit: omnis start --no-open."
-            if args.manual_upgrade
-            else "Release Omnis 0.1.0 instalat; pregătiți explicit imaginea, apoi omnis start --no-open."
+            "Release Omnis 0.1.0 instalat; pregătiți explicit imaginea, apoi omnis start --no-open."
         )
         return 0
     if args.command == "install-image":

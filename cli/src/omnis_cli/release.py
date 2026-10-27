@@ -11,7 +11,6 @@ import shutil
 import stat
 import tempfile
 from pathlib import Path
-from uuid import UUID
 from zipfile import BadZipFile, ZipFile
 
 from .instance import private_dir, unique_pairs
@@ -277,69 +276,24 @@ def _installed_pointer(path: Path) -> bool:
     value: object = json.loads(_bytes(path, limit=1024), object_pairs_hook=unique_pairs)
     if (
         not isinstance(value, dict)
-        or type(value.get("format")) is not int
-        or value["format"] not in (1, 2)
-        or set(value)
-        != (
-            {"format", "release"}
-            if value["format"] == 1
-            else {"format", "release", "digest", "transition"}
-        )
+        or set(value) != {"format", "release"}
+        or type(value["format"]) is not int
+        or value["format"] != 1
         or value["release"] != _RELEASE
     ):
         raise ReleaseError("Another release is installed")
-    if value["format"] == 2 and (
-        not isinstance(value["digest"], str)
-        or not _DIGEST.fullmatch(value["digest"])
-        or not isinstance(value["transition"], str)
-        or str(UUID(value["transition"])) != value["transition"]
-    ):
-        raise ReleaseError("Invalid transition pointer")
     return True
 
 
-def binding_paths(root: Path, digest: str | None = None) -> tuple[Path, Path]:
-    """Resolve sealed bundles/receipts without moving the legacy version directory."""
-    if digest is None:
-        if not _installed_pointer(root / "installed.json"):
-            raise FileNotFoundError()
-        pointer = json.loads(_bytes(root / "installed.json", limit=1024))
-        digest = pointer.get("digest")
-    if digest is not None and (not isinstance(digest, str) or not _DIGEST.fullmatch(digest)):
-        raise ReleaseError("Invalid release digest")
-    legacy = root / "releases" / _RELEASE
-    candidate = root / "releases" / digest if digest is not None else legacy
-    if digest is not None and not os.path.lexists(candidate):
-        candidate = legacy
-    manifest, _ = _manifest(candidate)
-    if digest is not None and hashlib.sha256(manifest).hexdigest() != digest:
-        raise ReleaseError("Release binding mismatch")
-    images = root if candidate == legacy else root / "images" / str(digest)
-    private_dir(images)
-    return candidate, images
-
-
-def _install_locked(
-    root: Path, manifest: bytes, payloads: dict[str, bytes], *, digest: str | None = None
-) -> Path:
+def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> Path:
     try:
         releases = root / "releases"
         releases.mkdir(mode=0o700, exist_ok=True)
         private_dir(releases)
         _sync_dir(root)
+        destination = releases / _RELEASE
         pointer = root / "installed.json"
         present = _installed_pointer(pointer)
-        destination = (
-            releases / digest
-            if digest is not None
-            else binding_paths(root)[0]
-            if present
-            else releases / _RELEASE
-        )
-        if digest is not None and (
-            not _DIGEST.fullmatch(digest) or hashlib.sha256(manifest).hexdigest() != digest
-        ):
-            raise ReleaseError("Release digest mismatch")
         if destination.exists() or destination.is_symlink():
             existing, existing_files = _manifest(destination)
             if existing != manifest or existing_files != payloads:
@@ -364,8 +318,6 @@ def _install_locked(
                     shutil.rmtree(stage)
         _sync_tree(destination)
         _sync_dir(releases)
-        if digest is not None:
-            return destination
         if not present:
             fd, name = tempfile.mkstemp(prefix=".installed-", dir=root)
             try:

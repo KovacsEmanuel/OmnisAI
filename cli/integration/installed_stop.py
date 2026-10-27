@@ -1,6 +1,5 @@
 """SL04 installed stop/start proof on a fresh, owned P0 fixture only."""
 
-import hashlib
 import json
 import os
 import socket
@@ -9,9 +8,8 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from uuid import uuid4
 
-from installed_pair_open import http_request, run_browser, tty_pair
+from installed_pair_open import run_browser, tty_pair
 from installed_start import (
     assert_resources_absent,
     resource_snapshot,
@@ -46,14 +44,8 @@ def _lock_effect_snapshot(runtime, root, control, port, record):
     }
 
 
-def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bundle=None):
+def run_installed_stop(data, receipt, cli, *, settings_browser=None):
     """Opt-in finite Settings visits share this fixture and its normal Stop owner."""
-    if upgrade_bundle is not None:
-        from omnis_cli.release import _manifest
-        from omnis_cli.upgrade import compatible
-
-        compatible(_manifest(data / "omnis/releases/0.1.0"), _manifest(upgrade_bundle))
-        assert receipt.get("profile") == "t1-provider-settings"
     if settings_browser is not None:
         assert set(settings_browser) == {"node", "cache", "playwright"}
         assert all(
@@ -103,12 +95,10 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
     )
 
     def require_observer_settled():
-        if (settings_browser is not None or upgrade_bundle is not None) and (
-            runtime.uncertain or not runtime.family_drained
-        ):
+        if settings_browser is not None and (runtime.uncertain or not runtime.family_drained):
             raise RuntimeError("Installed observer family unsettled")
 
-    def command(*args, expected=0, timeout=330, as_json=True):
+    def command(*args, expected=0, timeout=330):
         nonlocal driver_pending
         require_observer_settled()
         prior_pending = driver_pending
@@ -135,7 +125,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
         driver_pending = prior_pending
         assert result.returncode == expected, f"Installed {args[0]} exit {result.returncode}"
         assert "Traceback" not in result.stderr
-        return json.loads(result.stdout) if as_json else result.stdout
+        return json.loads(result.stdout)
 
     def settings_visit(mode):
         nonlocal driver_pending, provider_identity
@@ -180,44 +170,6 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
             browser=settings_browser,
             on_joined=joined,
         )
-
-    def wait_listener_release():
-        # SO_REUSEADDR=False may retain the old port in TIME_WAIT; do not adopt it.
-        until = time.monotonic() + 70
-        while True:
-            with socket.socket() as candidate:
-                try:
-                    candidate.bind(("127.0.0.1", port))
-                    return
-                except OSError:
-                    if time.monotonic() >= until:
-                        raise AssertionError("Owned listener did not release its port") from None
-            time.sleep(0.2)
-
-    def upgrade_state():
-        runtime.deadline = time.monotonic() + 30
-        db = record["containers"]["db"]
-        tables = runtime.psql(
-            db,
-            "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND (left(tablename,9) = 'provider_' OR left(tablename,6) = 'model_' OR left(tablename,16) = 'system_operation') ORDER BY tablename",
-        ).splitlines()
-        assert "provider_connection_revision" in tables and "system_operation" in tables
-        history = {
-            table: runtime.psql(
-                db,
-                f"""SELECT coalesce(json_agg(row ORDER BY row::text), '[]'::json) FROM (SELECT row_to_json(t) AS row FROM "{table}" t) s""",
-            )
-            for table in tables
-        }
-        require_observer_settled()
-        return {
-            "history": history,
-            "pgdata": record["pgdata_identity"],
-            "files": {
-                name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-                for name in ("db-password", "vault/vault.json", "vault-key/master.key")
-            },
-        }
 
     try:
         started = command("start", "--no-open", "--json")
@@ -282,102 +234,6 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
         )
 
         settings_visit("settings-save")
-        preserved = None
-        if upgrade_bundle is not None:
-            code = tty_pair(cli, cwd, env)
-            status, headers, payload = http_request(
-                port,
-                "/api/pairing",
-                method="POST",
-                body={"code": code},
-                headers={"Origin": started["origin"]},
-            )
-            assert status == 200
-            headers = {
-                "Origin": started["origin"],
-                "Cookie": headers["set-cookie"].split(";", 1)[0],
-                "X-CSRF-Token": json.loads(payload)["csrf_token"],
-            }
-            connection = str(uuid4())
-            for revision in (0, 1):
-                status, _, _ = http_request(
-                    port,
-                    "/api/v1/settings/providers",
-                    method="PUT",
-                    headers=headers,
-                    body={
-                        "action": "save_connection",
-                        "command_id": str(uuid4()),
-                        "connection_id": connection,
-                        "expected_revision": revision,
-                        "provider": "openrouter",
-                        "secret": "synthetic-upgrade-offline-key",
-                    },
-                )
-                assert status == 200
-            status, _, _ = http_request(
-                port,
-                "/api/v1/settings/models",
-                method="PUT",
-                headers=headers,
-                body={
-                    "action": "save_models",
-                    "command_id": str(uuid4()),
-                    "expected_registry_revision": 0,
-                    "connection_id": connection,
-                    "connection_revision": 2,
-                    "models": [
-                        {
-                            "entry_id": str(uuid4()),
-                            "expected_revision": 0,
-                            "model": "synthetic/offline",
-                            "output_tokens": 128,
-                        }
-                    ],
-                },
-            )
-            assert status == 200
-            selection = {
-                "connection_id": connection,
-                "connection_revision": 2,
-                "model": "synthetic/offline",
-                "output_tokens": 128,
-            }
-            status, _, _ = http_request(
-                port,
-                "/api/v1/settings/providers",
-                method="PUT",
-                headers=headers,
-                body={
-                    "action": "save_selection",
-                    "command_id": str(uuid4()),
-                    "expected_revision": 0,
-                    "default": selection,
-                    "brain": selection,
-                    "investigator": None,
-                    "validator": selection,
-                },
-            )
-            assert status == 200
-            preserved = upgrade_state()
-            old_release = runtime.release
-            old_digest = runtime.digest
-            assert (
-                command(
-                    "install",
-                    "--bundle",
-                    str(upgrade_bundle),
-                    "--manual-upgrade",
-                    "--expected-digest",
-                    old_digest,
-                    "--backup",
-                    str(state / "missing-snapshot"),
-                    expected=2,
-                    as_json=False,
-                )
-                == ""
-            )
-            assert upgrade_state() == preserved
         require_observer_settled()
         driver_pending = True
         save_probe(
@@ -466,26 +322,17 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
         status = command("status", "--json", timeout=50)
         assert status["state"] == "STOPPED" and status["dashboard_ready"] is False
 
-        if upgrade_bundle is not None:
-            command("backup", "--output", str(state / "before-upgrade"), as_json=False)
-            command(
-                "install",
-                "--bundle",
-                str(upgrade_bundle),
-                "--manual-upgrade",
-                "--expected-digest",
-                old_digest,
-                "--backup",
-                str(state / "before-upgrade"),
-                as_json=False,
-            )
-            runtime = ControlRuntime(data, time.monotonic() + 30)
-            assert runtime.digest != old_digest
-            assert (root / "startup.json").read_bytes() == first_receipt
-            assert command("status", "--json")["state"] == "STOPPED"
-            assert command("stop", "--json")["state"] == "STOPPED"
-
-        wait_listener_release()
+        # SO_REUSEADDR=False may retain the old port in TIME_WAIT; do not adopt it.
+        until = time.monotonic() + 70
+        while True:
+            with socket.socket() as candidate:
+                try:
+                    candidate.bind(("127.0.0.1", port))
+                    break
+                except OSError:
+                    if time.monotonic() >= until:
+                        raise AssertionError("Owned listener did not release its port") from None
+            time.sleep(0.2)
         restarted = command("start", "--no-open", "--json")
         assert restarted["state"] == "READY" and restarted["generation"] > initial["generation"]
         assert restarted["origin"] == started["origin"]
@@ -498,50 +345,12 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
         require_observer_settled()
         assert command("status", "--json", timeout=50)["state"] == "READY"
         settings_visit("settings-readback")
-        if upgrade_bundle is not None:
-            assert upgrade_state() == preserved
-            assert (
-                runtime.files["web/index.html"] == (upgrade_bundle / "web/index.html").read_bytes()
-            )
-            assert (root / "instance.json").read_bytes() == before_instance
-            assert config.read_bytes() == original_config
         assert command("stop", "--json")["state"] == "STOPPED"
         record = json.loads((root / "startup.json").read_text())
         runtime.deadline = time.monotonic() + 30
         assert_resources_absent(runtime, root, control, record)
         require_observer_settled()
         assert (root / "postgres").is_dir()
-        if upgrade_bundle is not None:
-            # Ordinary new-image Stop/Start, then rollback with a fresh Stop grant.
-            for rolling_back in (False, True):
-                if rolling_back:
-                    command("backup", "--output", str(state / "before-rollback"), as_json=False)
-                    command(
-                        "install",
-                        "--bundle",
-                        str(old_release),
-                        "--manual-upgrade",
-                        "--expected-digest",
-                        runtime.digest,
-                        "--backup",
-                        str(state / "before-rollback"),
-                        as_json=False,
-                    )
-                    runtime = ControlRuntime(data, time.monotonic() + 30)
-                    assert runtime.digest == old_digest
-                wait_listener_release()
-                restarted = command("start", "--no-open", "--json")
-                assert restarted["instance_id"] == started["instance_id"]
-                record = json.loads((root / "startup.json").read_bytes())
-                runtime.attempt = record["attempt"]
-                runtime.deadline = time.monotonic() + 30
-                assert upgrade_state() == preserved
-                assert command("stop", "--json")["state"] == "STOPPED"
-                record = json.loads((root / "startup.json").read_bytes())
-                runtime.deadline = time.monotonic() + 30
-                assert_resources_absent(runtime, root, control, record)
-            assert (root / "instance.json").read_bytes() == before_instance
-            assert config.read_bytes() == original_config
         proof = cleanup = True
     finally:
         # An ordinary RED refusal with unchanged READY authority remains a
@@ -575,7 +384,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, upgrade_bun
                             assert (root / "startup.json").read_bytes() == before_journal
                             assert resource_snapshot(runtime, root, control, port) == before
                             require_observer_settled()
-                        if settings_browser is not None or upgrade_bundle is not None:
+                        if settings_browser is not None:
                             # Reuse product cgroup/Engine owner, not the legacy observer teardown.
                             assert command("stop", "--json")["state"] == "STOPPED"
                             record = json.loads((root / "startup.json").read_text())

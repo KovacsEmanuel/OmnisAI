@@ -181,7 +181,7 @@ try {
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
   } else if (scenario === 'settings-models') {
-    catalogEvidence = await runSettingsModels({ page, check, paired, output, origin, screenshot });
+    catalogEvidence = await runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (scenario === 'flow') {
     const foreignHost = await context.request.get(`${origin}/health/live`, { headers: { Host: 'attacker.invalid', 'X-Forwarded-Host': new URL(origin).host } });
     assert.equal(foreignHost.status(), 400);

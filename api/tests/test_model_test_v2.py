@@ -29,6 +29,7 @@ from omnis.core.db import database_engine
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs import model_test_operation
 from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
 from omnis.modules.settings.provider_model_models import ModelRegistryControl
@@ -140,21 +141,22 @@ async def test_api_pg_sdk_protocol_and_replay(
         if scenario == "secret_cross"
         else "synthetic-not-provider-key"
     )
-    await settings.handle(
-        KeySettingsControl.model_validate(
-            {
-                "op": "provider_settings",
-                "request": {
-                    "action": "save_connection",
-                    "command_id": str(uuid4()),
-                    "connection_id": connection_id,
-                    "expected_revision": 0,
-                    "provider": "openrouter",
-                    "secret": secret,
-                },
-            }
+    if scenario != "settings_ui":
+        await settings.handle(
+            KeySettingsControl.model_validate(
+                {
+                    "op": "provider_settings",
+                    "request": {
+                        "action": "save_connection",
+                        "command_id": str(uuid4()),
+                        "connection_id": connection_id,
+                        "expected_revision": 0,
+                        "provider": "openrouter",
+                        "secret": secret,
+                    },
+                }
+            )
         )
-    )
     if scenario not in {"entry_catalog", "settings_ui"}:
         await settings.handle(
             ModelRegistryControl.model_validate(
@@ -203,6 +205,11 @@ async def test_api_pg_sdk_protocol_and_replay(
     socket = ipc_directory / "p"
     assert len(bytes(socket)) <= 107
     received: list[tuple[str, bytes]] = []
+    ui_writes: list[tuple[str, int]] = []
+    ui_refreshes: list[int] = []
+    ui_starts: list[int] = []
+    ui_key_command: str | None = None
+    ui_key_receipt = False
     tasks: set[asyncio.Task[None]] = set()
     metadata_outage = scenario in {"metadata_refused", "metadata_eof"}
     catalog_mode = "complete"
@@ -226,6 +233,10 @@ async def test_api_pg_sdk_protocol_and_replay(
                 except asyncio.IncompleteReadError:
                     return
                 received.append((first, body))
+                if scenario == "settings_ui" and (
+                    b"Authorization: Bearer " + secret.encode() + b"\r\n" not in headers
+                ):
+                    raise AssertionError("Owned peer authentication mismatch")
                 if scenario == "entry_catalog" and catalog_mode == "wait":
                     catalog_entered.set()
                     await catalog_release.wait()
@@ -488,6 +499,8 @@ async def test_api_pg_sdk_protocol_and_replay(
 
             async def model_command(command: ModelTestControl) -> dict[str, object]:
                 commands.append(command)
+                if scenario == "settings_ui" and command.action == "start":
+                    ui_starts.append(len(received))
                 try:
                     return await owner.handle(command)
                 except ValidationError as error:
@@ -495,12 +508,42 @@ async def test_api_pg_sdk_protocol_and_replay(
                     raise
 
             control.model_test = model_command
-            control.provider_catalog = owner.catalog_handle
+
+            async def catalog_command(command: CatalogControl) -> dict[str, object]:
+                if scenario == "settings_ui" and command.request.action == "refresh":
+                    assert ui_key_receipt, "Explicit catalog must follow exact local key receipt"
+                    ui_refreshes.append(len(received))
+                return await owner.catalog_handle(command)
+
+            control.provider_catalog = catalog_command
 
             async def provider_command(
                 command: KeySettingsControl | ModelRegistryControl,
             ) -> dict[str, object]:
-                return (await settings.handle(command)).model_dump(mode="json")
+                nonlocal ui_key_command, ui_key_receipt
+                before_io = len(received)
+                if scenario == "settings_ui":
+                    request = command.request
+                    if request.action != "read":
+                        ui_writes.append((request.action, before_io))
+                    if request.action == "save_connection":
+                        ui_key_command = request.command_id
+                try:
+                    result = await settings.handle(command)
+                    if (
+                        scenario == "settings_ui"
+                        and isinstance(command, KeySettingsControl)
+                        and command.request.action == "read"
+                        and command.request.command_id is not None
+                        and command.request.command_id == ui_key_command
+                    ):
+                        ui_key_receipt = True
+                    return result.model_dump(mode="json")
+                finally:
+                    if scenario == "settings_ui":
+                        assert len(received) == before_io, (
+                            "Local save/read must not contact provider"
+                        )
 
             control.provider_settings = provider_command
 
@@ -510,8 +553,25 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert not received, "Boot must not contact a provider"
                 async with asyncio.timeout(300):
                     await settings_models_browser(migrated_database_url, control_dir, tmp_path)
-                assert len(received) == 3
-                assert sum(first.startswith("POST ") for first, _ in received) == 1
+                assert [first for first, _ in received] == [
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                    "POST /api/v1/chat/completions HTTP/1.1",
+                ]
+                assert ui_refreshes == [0, 2, 5]
+                assert ui_starts == [4, 5]
+                assert ui_writes == [
+                    ("save_connection", 0),
+                    ("save_models", 2),
+                    ("save_selection", 2),
+                    ("save_selection", 2),
+                    ("save_selection", 2),
+                    ("save_models", 4),
+                    ("save_selection", 5),
+                    ("revoke_connection", 5),
+                ]
                 async with engine.connect() as db:
                     assert (
                         await db.execute(text("SELECT count(*) FROM provider_model_entry"))
@@ -524,7 +584,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     selected = await settings.selection(db)
                     assert selected is not None and selected.brain is not None
                     assert (
-                        selected.default.model == "fixture/00"
+                        selected.revision == 3
+                        and selected.default.output_tokens == 64
+                        and selected.default.model == "fixture/00"
                         and selected.brain.model == "fixture/01"
                         and selected.brain.output_tokens == 37
                     )

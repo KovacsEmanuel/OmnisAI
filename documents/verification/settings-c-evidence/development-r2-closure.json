@@ -1,0 +1,106 @@
+{
+  "reviewer": "R2 independent complementary read-only; focused re-review",
+  "verdict": "APPROVED_SOURCE_COMPOSE_SCOPED",
+  "composed_verdict": "APPROVED_SOURCE_SCOPED pentru scope-ul R2 original, compus din observațiile neschimbate ale r2-original.json și închiderea focalizată a ambelor defecte Compose pe 6aa4d5e. Nu extinde scope-ul și nu constituie acceptare runtime/setup.",
+  "snapshot": {
+    "head": "6aa4d5e2160314943b817e3e06c9731d54bce085",
+    "fix_base": "5a6b30190332653ee81ae81217bebf3ed687696f",
+    "freeze_path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-fix-freeze.json",
+    "freeze_sha256": "e079cb4f839630dc0adb707b707dc786cd3d70d419ca789f61f2bb66f25311b4",
+    "diff_sha256": "cd5e6625e6d896f6a657630eddc91d91f101f914c9378b7da0e078ae8a609dbb",
+    "changed_files": [
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "sha256": "c23a4c54d12e89705ff2fae3a37388d0fdfeb7e26ea7ca5dc12fa52d5caa6e5b",
+        "git_blob": "c744719721d73c61a30f28071c1fab6e7ca69aaf"
+      },
+      {
+        "path": "cli/tests/test_development.py",
+        "sha256": "404fceb54058a3194daa9c4920e784a8686fa6507c4b12e6f2caf1920491be1c",
+        "git_blob": "82d53a59e0d168a9f42b4254ea8eb10477df4bb3"
+      }
+    ],
+    "verification": "Manifest/diff SHA verificate; diff-ul comis byte-exact; ambele fișiere SHA/size/blob/HEAD verificate; cele15 fișiere originale neschimbate verificate SHA/size/blob, fără reaudit comportamental. HEAD și bytes finale stabile, index gol, tracked clean; cele două untracked protejate preexistente neatinse."
+  },
+  "original_report": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/r2-original.json",
+  "scope": "Numai cauzele și siguranța normalizării comparatorului Compose; start.py:392-416, test_development.py:61-258 și callerii producer/inspect afectați. Fără editări de produs.",
+  "dispositions": [
+    {
+      "id": "R2-DEV-01",
+      "parent_alias": "P-DEV-01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_COMPOSE_SCOPED",
+      "code": "cli/src/omnis_cli/start.py:392-416; cli/src/omnis_cli/development.py:50-65",
+      "cause": "Forma input cu create_host_path=false era comparată literal cu rendererul Compose care omite acest câmp false.",
+      "resolution": "Producerul păstrează false explicit. Expected numai pentru development omite false; actual șterge exclusiv valoarea booleană exactă False și numai la poziția unui expected mount development cu bind. Equality completă păstrează cardinalitatea, ordinea și toate celelalte chei/valori.",
+      "evidence": "Reproducerul original, cu așteptări de closure actualizate numai în memorie, acceptă acum REAL_COMPOSE și INSERT_FALSE_ONLY. Testul independent pe outputul complet Compose acceptă toate cele trei binduri development și trece refuzurile stricte.",
+      "negative_controls": "true, 0, 0.0, null, string false, list; unknown bind/mount keys inclusiv cu false; RW/read_only integer; source/target/propagation drift; mount suplimentar/lipsă -> COMPOSE_SERVICE_BINDING_INVALID."
+    },
+    {
+      "id": "R2-DEV-02",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_COMPOSE_SCOPED",
+      "code": "cli/src/omnis_cli/start.py:395-396; cli/src/omnis_cli/start_runtime.py:495-521,590-593",
+      "cause": "Outputul Compose config reține $$ pentru căile literale escape-uite, în timp ce comparatorul aștepta forma literală cu $.",
+      "resolution": "Doar expected source din comparatorul config dublează $. Escapingul producerului, selectorul/receiptul și expected OCI inspect rămân neschimbate/literale. Nu se aplică unescape ori expansiune de mediu pe inputul neîncrezut.",
+      "evidence": "Reproducerul original pentru /checkout/${HOME}/\"quoted\" este acceptat prin REAL_COMPOSE; revenirea sintetică la forma neescape-uită este refuzată code2. Testele pe $, ${HOME}, multiple dollars, quotes și backslashes trec. Attest real cu inspect sintetic acceptă identitatea literală și refuză identitatea renderer-escaped/foreign.",
+      "negative_controls": "Sursă străină, neescape-uită, expandată din mediu, quotes/backslashes eliminate ori dolar suplimentar -> COMPOSE_SERVICE_BINDING_INVALID; OCI sintetic escaped/foreign -> CONTAINER_IDENTITY_MISMATCH."
+    }
+  ],
+  "new_findings": [],
+  "normalization_safety": "JSON este local în validate_config și nu este retransmis ca input efectual. Ștergerea exact-False nu acoperă falsey aliases și nu suprimă unknown keys. zip(strict=False) nu relaxează lungimea: comparația finală integrală a listelor refuză extra/missing/reordered mounts. Expected bind există în acest validator numai pe mounturile development. Nicio schimbare de autoritate receipt/OCI sau izolare release.",
+  "evidence": {
+    "independent_current_tests": {
+      "tests": 3,
+      "seconds": 0.463,
+      "result": "PASS",
+      "boundary": "2 teste cu Compose real fără daemon + 1 test attest cu inspect sintetic; include subteste negative"
+    },
+    "runs": [
+      {
+        "label": "focused_current_tests",
+        "command": "TMPDIR=/home/kali/.hermes/cache/scratch XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/omnis-p04-empty-config cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -k DevelopmentComposeTest -v",
+        "output": "test_inspect_requires_literal_not_renderer_escaped_sources (test_development.DevelopmentComposeTest.test_inspect_requires_literal_not_renderer_escaped_sources) ... ok\ntest_real_compose_omits_false_without_relaxing_mounts (test_development.DevelopmentComposeTest.test_real_compose_omits_false_without_relaxing_mounts) ... ok\ntest_real_compose_preserves_escaped_literal_sources (test_development.DevelopmentComposeTest.test_real_compose_preserves_escaped_literal_sources) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.463s\n\nOK",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "original_reproducer_current_expectations",
+        "command": "TMPDIR=/home/kali/.hermes/cache/scratch XDG_CONFIG_HOME=/home/kali/.hermes/cache/scratch/omnis-p04-empty-config cli/.venv/bin/python -I -B -c 'import json,pathlib\np=pathlib.Path(\"/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/r2-original.json\")\ns=json.loads(p.read_text())[\"evidence\"][\"reproducer_python\"]\nchanges=[(\"assert not probe('\"'\"'REAL_COMPOSE'\"'\"')\", \"assert probe('\"'\"'REAL_COMPOSE'\"'\"')\"), (\"assert ok==('\"'\"'$'\"'\"' not in workspace)\", \"assert ok\"), (\"if not ok:\", \"if '\"'\"'$'\"'\"' in workspace:\"), (\"assert probe('\"'\"'SYNTHETIC_ORIGINAL_PATH'\"'\"')\", \"assert not probe('\"'\"'SYNTHETIC_ORIGINAL_PATH'\"'\"')\"), (\"print('\"'\"'product_effect_calls'\"'\"',r.run.call_count)\", \"assert r.run.call_count == 0; print('\"'\"'product_effect_calls'\"'\"',r.run.call_count)\")]\nfor old,new in changes:\n assert s.count(old)==1,old\n s=s.replace(old,new)\nexec(compile(s,\"<original-R2-closure-expectations>\",\"exec\"))\n'",
+        "expectations": "REAL_COMPOSE and INSERT_FALSE_ONLY accepted for both paths; de-escaped dollar source denied; original source untouched",
+        "output": "Docker Compose version 2.32.4-3\nworkspace /checkout/plain expected {\"type\": \"bind\", \"source\": \"/checkout/plain/api/src/omnis\", \"target\": \"/usr/local/lib/python3.13/site-packages/omnis\", \"read_only\": true, \"bind\": {\"create_host_path\": false, \"propagation\": \"rprivate\"}} rendered {\"type\": \"bind\", \"source\": \"/checkout/plain/api/src/omnis\", \"target\": \"/usr/local/lib/python3.13/site-packages/omnis\", \"read_only\": true, \"bind\": {\"propagation\": \"rprivate\"}}\nREAL_COMPOSE ACCEPTED\nINSERT_FALSE_ONLY ACCEPTED\nproduct_effect_calls 0\nworkspace /checkout/${HOME}/\"quoted\" expected {\"type\": \"bind\", \"source\": \"/checkout/${HOME}/\\\"quoted\\\"/api/src/omnis\", \"target\": \"/usr/local/lib/python3.13/site-packages/omnis\", \"read_only\": true, \"bind\": {\"create_host_path\": false, \"propagation\": \"rprivate\"}} rendered {\"type\": \"bind\", \"source\": \"/checkout/$${HOME}/\\\"quoted\\\"/api/src/omnis\", \"target\": \"/usr/local/lib/python3.13/site-packages/omnis\", \"read_only\": true, \"bind\": {\"propagation\": \"rprivate\"}}\nREAL_COMPOSE ACCEPTED\nINSERT_FALSE_ONLY ACCEPTED\nSYNTHETIC_ORIGINAL_PATH COMPOSE_SERVICE_BINDING_INVALID 2\nproduct_effect_calls 0",
+        "exit_code": 0,
+        "error": null
+      },
+      {
+        "label": "final_snapshot_identity",
+        "command": "python -B -c 'import hashlib,json,pathlib,subprocess\nroot=pathlib.Path(\"/home/kali/OmnisAI\"); scratch=pathlib.Path(\"/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a\")\nf=json.loads((scratch/\"compose-fix-freeze.json\").read_text()); orig=json.loads((scratch/\"freeze.json\").read_text())\nunchanged=set(f[\"unchanged_original_files\"]); rows=[]\nfor item in orig[\"files\"]:\n if item[\"path\"] not in unchanged: continue\n p=item[\"path\"]; b=(root/p).read_bytes(); blob=subprocess.check_output([\"git\",\"hash-object\",p],cwd=root,text=True).strip()\n assert hashlib.sha256(b).hexdigest()==item[\"sha256\"] and len(b)==item[\"bytes\"] and blob==item[\"git_blob\"]\n rows.append(p)\nassert set(rows)==unchanged and len(rows)==15\nprint(\"UNCHANGED_ORIGINAL_VERIFIED\",len(rows)); print(\"AFFECTED_AUTHOR_TOTAL\",sum(x.get(\"tests\",0) for x in f[\"checks\"]))\nfor p in f[\"files\"]:\n assert hashlib.sha256((root/p[\"path\"]).read_bytes()).hexdigest()==p[\"sha256\"]\nprint(\"HEAD\",subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],cwd=root,text=True).strip()); print(subprocess.check_output([\"git\",\"status\",\"--short\",\"--branch\"],cwd=root,text=True)); print(\"INDEX\",subprocess.check_output([\"git\",\"diff\",\"--cached\",\"--stat\"],cwd=root,text=True)); print(\"TRACKED_DIFF\",subprocess.check_output([\"git\",\"diff\",\"--stat\"],cwd=root,text=True))\n'",
+        "output": "UNCHANGED_ORIGINAL_VERIFIED 15\nAFFECTED_AUTHOR_TOTAL 52\nHEAD 6aa4d5e2160314943b817e3e06c9731d54bce085\n## checkpoint/p2-batch2-pause-20261015...origin/checkpoint/p2-batch2-pause-20261015 [ahead 36]\n?? documents/Omnis_Notite_Originale.html\n?? tempkey.txt\n\nINDEX \nTRACKED_DIFF",
+        "exit_code": 0,
+        "error": null
+      }
+    ],
+    "historical_red_green_readback": "Citite compose-red-01.log (1 eroare originală), compose-red-02.log (3 subcazuri dollar după primul fix) și compose-green-02.log (2 PASS). Toate hashurile logurilor din freeze confirmate. Istoricul RED nu este șters/reinterpretat.",
+    "reused_author_evidence": "52 affected PASS și Ruff/mypy exit0 sunt dovezi ale autorului pe bytes înghețați; nu le prezint drept execuții independente R2. Nu am rerulat suitele neafectate.",
+    "compose_version": "Docker Compose version 2.32.4-3",
+    "no_effect_boundary": "Compose config/version numai, endpoint unix:///nonexistent.sock, HOME=/nonexistent, env sintetic. Original reproducer: runtime.run call_count=0 pentru ambele căi; testele complete redirecționează runtime.run exclusiv la Compose config, effect=False. Fără daemon/resurse OCI. Cleanup TemporaryDirectory/doCleanups încheiat fără erori."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/r2-compose-closure.json"
+  ],
+  "files_modified": [],
+  "issues_encountered": [],
+  "limits": [
+    "Nu am citit operatorul, backupuri/chei/private credentials, tempkey.txt sau documents/Omnis_Notite_Originale.html; nu am instalat, pornit servicii/DB/browser ori efecte provider/țintă.",
+    "Nicio editare source/test/docs/index, commit/push sau skill nou. Doar raportul de closure la calea admisă; fixture-uri scratch temporare curățate de testele existente.",
+    "Nu am reauditat cele15 fișiere originale neschimbate și nu extind observațiile R2 originale dincolo de scope-ul lor.",
+    "Actual OCI mounts/imports, PostgreSQL lifecycle și browser/tranziția operatorului rămân QA separată după reviewurile obligatorii; NOT_RUN aici, nu prerequisite circular pentru aprobarea SOURCE.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Canonical full gate și statusurile globale moștenite neschimbate; fără runtime/setup PASS."
+  ],
+  "handoff": {
+    "code": "IMPLEMENTED: cele două corecții pe 6aa4d5e",
+    "proof": "PASS_SOURCE_COMPOSE_SCOPED; OCI/PG/browser NOT_RUN aici",
+    "review": "APPROVED_SOURCE_SCOPED compus pentru scope-ul R2 original",
+    "next": "Părintele adjudecă acest closure și reviewul complementar; apoi QA reală bounded deja admisă. Niciun blocker R2 Compose rămas."
+  }
+}

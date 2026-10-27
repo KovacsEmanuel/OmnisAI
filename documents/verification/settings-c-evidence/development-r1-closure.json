@@ -1,0 +1,72 @@
+{
+  "reviewer": "R1 independent, focused read-only re-review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "scope": "Corecția Compose din 6aa4d5e și compunerea ei cu reviewul R1 inițial de cerințe/ordine/persistență. Nu acceptare runtime, distribuție instalată sau rollout.",
+  "snapshot": {
+    "base": "5a6b30190332653ee81ae81217bebf3ed687696f",
+    "head": "6aa4d5e2160314943b817e3e06c9731d54bce085",
+    "freeze": "compose-fix-freeze.json",
+    "freeze_sha256": "e079cb4f839630dc0adb707b707dc786cd3d70d419ca789f61f2bb66f25311b4",
+    "diff": "compose-fix.diff",
+    "diff_sha256": "cd5e6625e6d896f6a657630eddc91d91f101f914c9378b7da0e078ae8a609dbb",
+    "changed_files": [
+      {
+        "path": "cli/src/omnis_cli/start.py",
+        "sha256": "c23a4c54d12e89705ff2fae3a37388d0fdfeb7e26ea7ca5dc12fa52d5caa6e5b",
+        "git_blob": "c744719721d73c61a30f28071c1fab6e7ca69aaf"
+      },
+      {
+        "path": "cli/tests/test_development.py",
+        "sha256": "404fceb54058a3194daa9c4920e784a8686fa6507c4b12e6f2caf1920491be1c",
+        "git_blob": "82d53a59e0d168a9f42b4254ea8eb10477df4bb3"
+      }
+    ],
+    "identity_verification": "Independent: SHA256, dimensiuni și Git blobs conforme pentru cele două fișiere; difful Git base→HEAD este byte-exact compose-fix.diff. Celelalte 15 fișiere sunt identice SHA256 cu r1-original.json. Setul compus este exact 17 fișiere. Testele originale sunt byte-exact neschimbate după eliminarea clasei DevelopmentComposeTest adăugate. Tracked checkout curat; numai cele două untracked protejate preexistente."
+  },
+  "findings": [],
+  "finding_dispositions": [
+    {
+      "id": "P-DEV-01",
+      "alias": "R2-DEV-01",
+      "original_severity": "HIGH",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": "cli/src/omnis_cli/start.py:392-416; development.py:50-65 neschimbat",
+      "reason": "Expected mounts folosește forma randată bind={propagation:rprivate}; producerul păstrează explicit create_host_path=false. Comparatorul elimină numai valoarea booleană exact False, numai în pozițiile development care au bind în expected. Nu elimină true, 0, 0.0, null, string, list sau chei necunoscute. Egalitatea integrală ulterioară păstrează count/order/source/target/RO/propagation și restul serviciului; zip fără strict nu admite mounts lipsă/suplimentare datorită egalității finale. Schimbarea afectează numai JSON-ul local parsată, nu receiptul sau producerul.",
+      "evidence": "compose-red-01.log: reproducere reală full validate_config, COMPOSE_SERVICE_BINDING_INVALID, 1 ERROR. compose-green-02.log: ambele teste real Compose PASS; compose-final-test_development.log: 15 PASS inclusiv controalele negative pe toate cele trei mounts. Logurile și bytes curenți verificate față de freeze."
+    },
+    {
+      "id": "R2-DEV-02",
+      "original_severity": "MEDIUM",
+      "disposition": "CLOSED_SOURCE_SCOPED",
+      "code": "cli/src/omnis_cli/start.py:395-396; start_runtime.py:495-522,551-592 neschimbat",
+      "reason": "Expected source dublează $ numai la frontiera config randat. Escapingul producerului, selectorul/receiptul literal și identitatea literală la OCI inspect rămân neschimbate. Nu se acceptă alternativ sursa interpolată/literală atunci când rendererul cere $$ și nu se slăbește comparația path-ului.",
+      "evidence": "compose-red-02.log izolează defectul după remedierea false/absent: trei selecții cu $ eșuează. GREEN real acoperă $, ${HOME}, quotes, backslashes și multipli dolari; mutațiile sursei sunt respinse. Testul inspect suplimentar acceptă numai sursa literală și refuză forma renderer-escaped/foreign, pe inspect sintetic, nu container real."
+    }
+  ],
+  "composed_requirement_review": {
+    "inherited_report": "r1-original.json",
+    "disposition": "Păstrez aprobarea scoped a cerințelor neschimbate: setup unic opt-in, receipt autoritar, ordine/persistență/reconciliere și rollback, UI mutable/Stop/recovery, closure SOURCE și consumer installed finit. Corecția nu schimbă aceste call paths, schema, grants, limite, release/image ori date. În rândul consumerului installed se închide numai blockerul concret Compose P-DEV-01; aserțiunile runtime rămân neprobate.",
+    "evidence_reuse": "396 SOURCE originale și delta 22 comunicate rămân la scope-ul lor istoric; nu sunt rerulate sau prezentate ca probe ale noii corecții. Reviewul compus nu redeschide sursele neschimbate și nu aprobă cerințe neexaminate anterior.",
+    "withdrawn_upgrade": "R2-UPGRADE-01/02 rămân istorice/retrase odată cu mecanismul eliminat; nu sunt reparate ori aprobate prin acest raport."
+  },
+  "verification": {
+    "own_execution": "Verificări read-only în terminal, exit0: HEAD/status; SHA256 freeze/diff/fișiere/loguri; git hash-object; git diff --no-ext-diff --binary 5a6b30190332653ee81ae81217bebf3ed687696f HEAD -- cli/src/omnis_cli/start.py cli/tests/test_development.py comparat byte-exact; 15 hashes originale; verificare conservare text teste originale. Nicio suită sau fixture nouă executată de R1.",
+    "reviewed_test_boundary": "Clasa nouă apelează ControlRuntime.compose real cu ops/compose.control.yaml și overlay real, substituind numai adaptorul runtime.run pentru docker --host unix:///nonexistent.sock compose ... config --format json. HOME=/nonexistent și mediu sintetic explicit. Pozitivul nu substituie validatorul sau outputul randat; negativele mută copii ale outputului real prin validatorul integral. Fără daemon.",
+    "author_evidence_read": "11 loguri cu size/SHA conforme freeze; RED-urile și logurile finale citite. 52 teste afectate PASS: development15/config5/start_attestation7/provider_settings_profile25, exit0 conform manifestului. Ruff check+format exit0; mypy exit0/fără diagnostice. Cele 25 includ teste test_install sintetice importate, nu instalare reală.",
+    "real_compose_command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -k real_compose -v",
+    "author_real_compose_result": "2 PASS, 0.435s, exit0; log citit și hash verificat",
+    "parent_real_compose_result": "2 PASS, 0.452s, exit0 pe bytes finali, comunicat în mandat; nu revendicat ca execuție proprie R1"
+  },
+  "remaining": [
+    "Reviewul complementar R2 și adjudecarea/integritatea distribuției aparțin părintelui.",
+    "QA reală separată după focused approvals: import OCI și mounts/UID reale, READY DEVELOPMENT pe aceeași instanță, două rebuilduri UI fără schimbarea CID/date/imagine, restart Python, persistență/readback, Stop și rollback, denials și scope UI conform contractului. Lipsa acestei QA nu este blocker circular pentru aprobarea SOURCE.",
+    "Candidatul comis nu este acceptare de setup. CURRENT și harta rămân în lucru; reconcilierea documentară aparține părintelui.",
+    "Canonical TIMEOUT/BLOCKED_BUDGET/NOT_CLOSED și default check-web FAIL/UNKNOWN rămân neschimbate."
+  ],
+  "limits": [
+    "Fără acces operator, chei private/credentiale/backups, tempkey.txt sau documents/Omnis_Notite_Originale.html; fără Docker daemon, instalare, DB, browser, provider/model/target, T2 ori rollout.",
+    "Nu am repetat auditul original, suitele neschimbate sau probele Compose deja executate pe aceiași bytes; am verificat sursa, identitatea și dovezile păstrate.",
+    "Singura scriere explicită R1: acest raport scratch. Fără editări produs/teste/skills, index, commit sau push.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

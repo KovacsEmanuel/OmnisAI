@@ -1,0 +1,97 @@
+{
+  "reviewer": "R1 independent, read-only",
+  "verdict": "CHANGES_REQUESTED",
+  "scope": "Cerințe, ordine, persistență, tranziții RELEASE/DEVELOPMENT, rollback și preflight SOURCE al consumerului installed existent. Nu acceptare runtime sau rollout.",
+  "snapshot": {
+    "original_base": "eb27b2a7d82e7536d2fc82f463eea3fd40323882",
+    "current_candidate_commit": "5a6b30190332653ee81ae81217bebf3ed687696f",
+    "current_commit_status": "Integrare de bookkeeping comunicată de părinte; HEAD citit independent, toate cele 17 fișiere rămân byte-exact față de freeze.",
+    "freeze_sha256": "f6feb42e93e46b3dcbcf48f32a43685727279bce407fcf60e704ccc4d9ecb6f2",
+    "candidate_diff_sha256": "6cc34fe9622685e819093a66fec140e09c09546d1008532317681f32f125f6b3",
+    "file_count": 17,
+    "reviewed_sha256": {
+      "cli/README.md": "5f02e592fdbf829133763b9a69da5a7c590f431f7e9c9019052f8bda7f75ab4e",
+      "cli/integration/installed_stop.py": "17954b4856509b53f3588878d31147692ffcf392cac753bb42b9e5bdfad31d38",
+      "cli/integration/test_release.py": "2873f6471a90a2214018f85ee97fba3b1bcd716983f0710af69d21cb92e45dbe",
+      "cli/src/omnis_cli/config.py": "a217221ac19e428d3ea61241b232aea7574e757e0ef1e15720156b79ce2a9bcc",
+      "cli/src/omnis_cli/development.py": "8e147adc4507f0cc15e138cfd86abf2119c6d961f7ba9db2ef64118d1181deae",
+      "cli/src/omnis_cli/health.py": "8afea9006bf2e5d345d96019a9ebca8114896a4320f2d913a4089444ebf7e578",
+      "cli/src/omnis_cli/recover.py": "6fbfd9599c7b10be925db09e03578c440900c2e3f9443247634e0b2de45d538f",
+      "cli/src/omnis_cli/start.py": "56572b3ca343345b5c0c172acdf000d8e4203d071c9d6f5551128e8ffe3278cb",
+      "cli/src/omnis_cli/start_runtime.py": "0598176ef3ae8b6a3e98fd103352e31cbf612d18b8056096e3ecc4e52dc596f4",
+      "cli/src/omnis_cli/status.py": "4127aa4e44bd3afd4c13440a62adb89481c2b3b38169f50525e391a06ffdb13f",
+      "cli/src/omnis_cli/stop.py": "561c330cd89f5ad0467ffd2598dbe597a34abec6a8916e187db85abd8d3f9434",
+      "cli/src/omnis_cli/stop_owner.py": "be1b48fb61f204472a50b6aa7b562b6f7cb9bcd5c8e7837449c5c4809e297113",
+      "cli/tests/test_config.py": "f4b2f7c3558e015127bcc6eac4ad87d82acd4a4c9741b8611274ea9f62f42752",
+      "cli/tests/test_development.py": "57f91b2599dcba4efdde2e27d1d6e643f7fa169025c21a8dba0c4ac20b987d8f",
+      "cli/tests/test_recover.py": "77cd12b2362175ec0250ee0f3618cbf0e2269f0d7bffc735099e89751c1e7625",
+      "cli/tests/test_restart_wiring.py": "8a74d0cea607aa1b8a8f9708d50b1ac25dd7c805a40cf3d4187234f8c8af602f",
+      "web/README.md": "40a5e92e277b1dc5930ef3eb91bc44f24ed2253468a3118b86f463060c8e9a21"
+    }
+  },
+  "findings": [
+    {
+      "id": "P-DEV-01",
+      "severity": "HIGH",
+      "file_line": "cli/src/omnis_cli/start.py:392-404; cli/src/omnis_cli/development.py:60",
+      "reproducer": "Părintele a reprodus înainte de provisioning, cu Compose config real și întregul validate_config: COMPOSE_SERVICE_BINDING_INVALID. Producerul transmite bind.create_host_path=false, dar rendererul Compose omite cheia false și păstrează propagation=rprivate; celelalte câmpuri/ordinea coincid. R1 a confirmat separat în memorie că lista mounts cu această formă randată nu este egală cu lista așteptată la start.py:399. Nu am invocat daemonul sau provisioningul. În Start nou, validatorul este apelat după prepare_restart și publicarea startup.json; excepția intră în ramura UNCERTAIN/RESTART_RECONCILIATION_REQUIRED, nu într-un rollback normal fără modificări.",
+      "violated_criterion": "Architecture §5.5 și maintenance.development_setup: tranziția reală pe același setup trebuie să poată ajunge READY DEVELOPMENT; prerequisite closure trebuie verificată pe consumerul Compose real înaintea efectelor. Testul SOURCE actual furnizează direct shape-ul producerului și nu acoperă normalizarea rendererului.",
+      "minimal_remedy": "Păstrați explicit create_host_path=false în producer. Ajustați strict validatorul formei randate pentru echivalența dintre cheia absentă și false numai aici, fără a accepta true sau chei necunoscute. Adăugați regresia pe forma randată reală și controale negative true/unknown; rerulați Compose config + validate_config fără provisioning, apoi focused re-review. Nu este necesară schimbarea limitelor, mounturilor ori a release validators.",
+      "provenance": "Reproducere reală no-effect raportată de părinte în timpul reviewului; verificare R1 suplimentară SOURCE în memorie, exit0. Același snapshot frozen."
+    }
+  ],
+  "requirements_review": [
+    {
+      "criterion": "Un singur setup opt-in; selector bounded separat de release, fără mecanism concurent.",
+      "code": "config.py; development.py:15-65; start.py:1137-1233,1286-1319",
+      "assessment": "512 caractere ASCII imprimabile, format5 opțional; Start nou numai după STOPPED verificat; reuse cu selector diferit refuzat. Release/image/instance nu sunt rescrise. Mounturile sunt numai pachetul omnis în API/supervisor și web/dist în API."
+    },
+    {
+      "criterion": "Receiptul real rămâne autoritar în lifecycle, indiferent de selectorul ulterior.",
+      "code": "start.py:_pgdata_receipt/_ready_record/_bound_instance; verified.py; status.py; stop.py; stop_owner.py:_load_runtime/_View/_static; recover.py:_inventory",
+      "assessment": "Validatorii de fază și callerii READY/FORWARDING/STOPPING/STOPPED păstrează câmpul opțional; pairing/open folosesc verify_running. Ownerul detached primește selectorul receiptului. Nu am identificat un caller activ care să reconstruiască mounturile din selectorul curent de config."
+    },
+    {
+      "criterion": "Ordine și persistență la restart/rollback; grants și istoric neschimbate.",
+      "code": "start.py:1195-1203,1308-1346,1545-1623; restart.py:43-114,117-267; backup.py:222-286,343-358,570-584",
+      "assessment": "Vechea încercare este atestată înainte de selectarea celei noi. STOPPED/completion sunt păstrate byte-exact; reconcilierea DB precede supervisor/OPEN. Jobul reconcile rămâne pe codul instalat, fără mount development. Pierderea rezultatului păstrează intent/DB și nu permite replay automat. Cold backup/restore reutilizează validatorii comuni; restore nu activează implicit development. Rollbackul normal este Stop, eliminarea selectorului, Start pe aceeași instanță/date."
+    },
+    {
+      "criterion": "Build UI mutable verificat pe bytes curenți; invaliditatea nu blochează retragerea.",
+      "code": "development.py:web_files; health.py:106-168; api/src/omnis/core/web_assets.py; stop.py:237-269,710-726; recover.py:173-189",
+      "assessment": "Health reîncarcă manifestul bounded și compară bytes serviți, apoi verifică din nou snapshotul. API-ul existent citește bytes curenți. Stop development nu cere sănătatea UI. Recover acceptă ruta atestată health cu 200/503 fără egalitate artificială între două stări mutable. Release păstrează verificarea strictă existentă."
+    },
+    {
+      "criterion": "Consumer installed finit și prerequisite SOURCE/path closure înaintea efectelor.",
+      "code": "installed_stop.py:50-80,208-278,430-580,588-659; test_release.py:1099-1252; web/index.html; web/vite.config.ts; web/package.json; web/scripts/build-manifest.mjs; ops/build_control_bundle.py; ops/Dockerfile.control",
+      "assessment": "Closure-ul SOURCE/copiere este coerent, dar preflight-ul Compose real este BLOCKED de P-DEV-01, reprodus de părinte. Nu se admite provisioning pe acest snapshot. Pe checkoutul exact, validate_new a trecut; traversarea read-only a importurilor relative pornind de la /src/main.tsx a identificat 45 fișiere, zero lipsuri și zero dependențe relative în afara web/src. Copia prevăzută include sursele, package.json, vite.config.ts și build-manifest, cu node_modules explicit legat; envDir/publicDir sunt false. Helperul execută Vite+manifest, nu pretinde că rulează întregul npm build/typecheck. Scenariul urmărește două rebuilduri fără schimbare CID, import Python/restart, sentinel/identități, denials/session și rollback. Cleanup-ul refuză să declare succes pe observer nesettled. Aceste aserțiuni nu au fost probate runtime."
+    }
+  ],
+  "withdrawn_upgrade": {
+    "check": "git diff cbe5fc8^ 3645dfb -- <cele 17 căi modificate de cbe5fc8>",
+    "result": "Diff gol: revertul restaurează exact starea anterioară în toate căile upgradeului. Scanarea cli/src/omnis_cli nu găsește referințe upgrade/upgrade_release/upgrade_ui/transition_release; upgrade.py nu mai este tracked.",
+    "disposition": "R2-UPGRADE01 și R2-UPGRADE02 rămân istorice/retrase, nu remediate. Nu solicit repararea codului eliminat."
+  },
+  "independent_checks": [
+    "sha256sum freeze.json și candidate.diff: identice valorilor mandatate, exit0.",
+    "Python read-only: bytes/SHA256/git hash-object pentru 17/17 fișiere identice freeze; reverificare SHA după integrarea 5a6b301: identice, exit0.",
+    "git diff 7795b66 HEAD -- web/src api/src/omnis ops/Dockerfile.control cli/src/omnis_cli/release.py cli/src/omnis_cli/compose.py: gol, exit0.",
+    "cli/.venv/bin/python -I -B, import explicit cli/src, development.validate_new('/home/kali/OmnisAI'): PASS, exit0; fără provisioning.",
+    "Traversare read-only a closure-ului importurilor relative Vite: 45 fișiere, missing=[], outside_src=[], exit0. Nu este build sau probă de browser."
+  ],
+  "evidence_reuse": "Au fost citite testele afectate și freeze-ul cu rezultatele autorului; părintele a comunicat și 22 development/recovery PASS pe bytes integrați. Nu revendic aceste rulări ca execuții proprii și nu le transfer peste P-DEV-01. După primirea reproducerii părintelui am executat numai verificarea suplimentară SOURCE în memorie a formei mounturilor; nu am repetat suitele și nu am schimbat produsul.",
+  "qa_remaining": [
+    "BLOCKER: P-DEV-01 trebuie remediat de developer, cu regresie și focused re-review, apoi Compose config + validate_config real fără provisioning. Absența QA runtime nu este blocker circular; respingerea actuală este defectul concret al consumerului Compose.",
+    "Înaintea efectelor: părintele leagă CLI-QA instalat de acești bytes, verifică efectiv Node/uv/Playwright/cache și imaginile cerute, fixează deadline-ul exterior și ownerul/cleanupul. Căile exemplu <cli-QA>/<cache-Chromium> nu sunt inputuri reale validate aici.",
+    "QA autorizată trebuie să confirme importul OCI la /usr/local/lib/python3.13/site-packages/omnis, mounturile reale/UID și tranzițiile reale ale aceleiași instanțe. Dockerfile-ul și attestorii oferă coerență SOURCE, nu dovada instalată.",
+    "Desktop/mobile/focus și aspectul Settings se verifică separat sau se reutilizează numai la scope-ul neschimbat; proba session nu certifică aceste criterii."
+  ],
+  "limits": [
+    "OCI/PostgreSQL/browser/WHEEL/build efectiv: NOT_RUN. Lipsa lor este criteriu deschis pentru etapa QA, nu motiv circular de respingere SOURCE.",
+    "Operatorul STOPPED5, configurația/cheile/private files, tempkey.txt și documents/Omnis_Notite_Originale.html nu au fost accesate. Niciun serviciu/provider/model/target pornit.",
+    "Concordanța celor 122 surse API cu wheelul instalat 7673066 este evidență comunicată de părinte; nu am deschis instalația operatorului pentru o verificare redundantă.",
+    "Review complementar R1, nu audit exhaustiv concurență/auth și nu acceptare globală. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "Canonical TIMEOUT/BLOCKED_BUDGET/NOT_CLOSED și default check-web FAIL/UNKNOWN nu sunt modificate sau promovate.",
+    "Singura scriere proprie: acest raport. Fără modificări de produs/teste, Git index, commit sau skill."
+  ]
+}

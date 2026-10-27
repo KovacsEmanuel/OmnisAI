@@ -1,0 +1,227 @@
+{
+  "base": "5a6b30190332653ee81ae81217bebf3ed687696f",
+  "files": [
+    {
+      "path": "cli/src/omnis_cli/start.py",
+      "bytes": 70049,
+      "sha256": "c23a4c54d12e89705ff2fae3a37388d0fdfeb7e26ea7ca5dc12fa52d5caa6e5b",
+      "git_blob": "c744719721d73c61a30f28071c1fab6e7ca69aaf",
+      "base_sha256": "56572b3ca343345b5c0c172acdf000d8e4203d071c9d6f5551128e8ffe3278cb",
+      "base_git_blob": "434d9391ad3238e182db9e16eb84f06d81960d94"
+    },
+    {
+      "path": "cli/tests/test_development.py",
+      "bytes": 35327,
+      "sha256": "404fceb54058a3194daa9c4920e784a8686fa6507c4b12e6f2caf1920491be1c",
+      "git_blob": "82d53a59e0d168a9f42b4254ea8eb10477df4bb3",
+      "base_sha256": "57f91b2599dcba4efdde2e27d1d6e643f7fa169025c21a8dba0c4ac20b987d8f",
+      "base_git_blob": "ccc379f418e15b53a91fdd381e6a3154d65c06fb"
+    }
+  ],
+  "file_count": 2,
+  "unchanged_original_files": [
+    "cli/README.md",
+    "cli/integration/installed_stop.py",
+    "cli/integration/test_release.py",
+    "cli/src/omnis_cli/config.py",
+    "cli/src/omnis_cli/development.py",
+    "cli/src/omnis_cli/health.py",
+    "cli/src/omnis_cli/recover.py",
+    "cli/src/omnis_cli/start_runtime.py",
+    "cli/src/omnis_cli/status.py",
+    "cli/src/omnis_cli/stop.py",
+    "cli/src/omnis_cli/stop_owner.py",
+    "cli/tests/test_config.py",
+    "cli/tests/test_recover.py",
+    "cli/tests/test_restart_wiring.py",
+    "web/README.md"
+  ],
+  "diff_sha256": "cd5e6625e6d896f6a657630eddc91d91f101f914c9378b7da0e078ae8a609dbb",
+  "diff_bytes": 11100,
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-mypy.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-ruff-check.log",
+      "bytes": 18,
+      "sha256": "f0d0b1081d9d3ebb26c4c93543053ecdc0a58998f22c071dc4ddb26021b57645"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-ruff-format.log",
+      "bytes": 25,
+      "sha256": "df0dab081f358dabd0446ad4183d17b2c301fc6a8f70ac29f83cbe310ff854bf"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_config.log",
+      "bytes": 823,
+      "sha256": "bbadb5b062bb06326b9308b616c4c1ff9d74337aa43b3f7739ab13a7d1445dd5"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_development.log",
+      "bytes": 3116,
+      "sha256": "fd54357a07aeaf67e067958332cbd466c470e1d3164c8361df85a3321ebe8328"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_provider_settings_profile.log",
+      "bytes": 4155,
+      "sha256": "1cf9d3208b79a6936415262499cad95ae76ccb99fcf9428adb77e3834948d06d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_start_attestation.log",
+      "bytes": 1316,
+      "sha256": "7e681ae54f42c09ae6aa587e41144dc54e554b44a898f378a930beb7856d979f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-green-01.log",
+      "bytes": 254,
+      "sha256": "6b080bf334dc142b12d88320cb37b01c09c11ee4eb4a9cf8775bcd6ebd3fd0b0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-green-02.log",
+      "bytes": 408,
+      "sha256": "d5b7f096143e954906b5fba35ab134048a00df11e3b8350efbf99715dec68c21"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-red-01.log",
+      "bytes": 1038,
+      "sha256": "6e23a1c2fc6fb1ad8ed6909c942207f8dec1e2bbbff74798e16b639a09b14270"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-red-02.log",
+      "bytes": 3259,
+      "sha256": "f413638f40aabc11b19866b97d85060c1416c62b8f372fe15974bbdeb7abeb9c"
+    }
+  ],
+  "index": "untouched/empty",
+  "status": "## checkpoint/p2-batch2-pause-20261015...origin/checkpoint/p2-batch2-pause-20261015 [ahead 35]\n M cli/src/omnis_cli/start.py\n M cli/tests/test_development.py\n?? documents/Omnis_Notite_Originale.html\n?? tempkey.txt\n",
+  "scope": "SOURCE_COMPOSE_BOUNDARY_FIX_CANDIDATE_NOT_COMMITTED_NOT_ROLLED_OUT",
+  "findings": [
+    "P-DEV-01/R2-DEV-01",
+    "R2-DEV-02"
+  ],
+  "diff_path": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-fix.diff",
+  "checks": [
+    {
+      "label": "test_development",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -v",
+      "exit_code": 0,
+      "wall_seconds": 5.692,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_development.log",
+      "tests": 15,
+      "test_seconds": 3.824
+    },
+    {
+      "label": "test_config",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_config.py -v",
+      "exit_code": 0,
+      "wall_seconds": 5.699,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_config.log",
+      "tests": 5,
+      "test_seconds": 0.06
+    },
+    {
+      "label": "test_start_attestation",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_start_attestation.py -v",
+      "exit_code": 0,
+      "wall_seconds": 5.706,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_start_attestation.log",
+      "tests": 7,
+      "test_seconds": 0.046
+    },
+    {
+      "label": "test_provider_settings_profile",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_provider_settings_profile.py -v",
+      "exit_code": 0,
+      "wall_seconds": 5.712,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-test_provider_settings_profile.log",
+      "tests": 25,
+      "test_seconds": 0.467
+    },
+    {
+      "label": "ruff-check",
+      "command": "api/.venv/bin/python -I -m ruff check --config api/pyproject.toml --no-cache --no-fix cli/src/omnis_cli/start.py cli/tests/test_development.py",
+      "exit_code": 0,
+      "wall_seconds": 2.394,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-ruff-check.log"
+    },
+    {
+      "label": "ruff-format",
+      "command": "api/.venv/bin/python -I -m ruff format --config api/pyproject.toml --check --no-cache cli/src/omnis_cli/start.py cli/tests/test_development.py",
+      "exit_code": 0,
+      "wall_seconds": 2.392,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-ruff-format.log"
+    },
+    {
+      "label": "mypy",
+      "command": "env -u PYTHONPATH -u MYPYPATH api/.venv/bin/python -I -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir \"$TMPDIR/compose-fix-mypy\" --output=json cli/src/omnis_cli/start.py",
+      "exit_code": 0,
+      "wall_seconds": 2.39,
+      "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-final-mypy.log"
+    }
+  ],
+  "tests_total": 52,
+  "original_development_tests": "byte-exact unchanged; producer, renderer-input, inspector/drift and complete-envelope regressions PASS",
+  "review": "PENDING_FOCUSED_COMPLEMENTARY_REVIEW; parent owns adjudication/integration/QA",
+  "red_green": [
+    {
+      "finding": "P-DEV-01/R2-DEV-01",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -k real_compose_omits_false -v",
+      "red": {
+        "exit_code": 1,
+        "tests": 1,
+        "seconds": 0.087,
+        "reason": "COMPOSE_SERVICE_BINDING_INVALID on actual full Compose output at unchanged base",
+        "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-red-01.log"
+      },
+      "green": {
+        "exit_code": 0,
+        "tests": 1,
+        "seconds": 0.119,
+        "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-green-01.log"
+      }
+    },
+    {
+      "finding": "R2-DEV-02",
+      "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -k real_compose_preserves -v",
+      "red": {
+        "exit_code": 1,
+        "tests": 1,
+        "subtest_errors": 3,
+        "seconds": 0.309,
+        "reason": "After false/absence fix alone, actual rendered dollar-containing sources still raise COMPOSE_SERVICE_BINDING_INVALID; quote/backslash-only control passes",
+        "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-red-02.log"
+      },
+      "green": {
+        "command": "XDG_CONFIG_HOME=\"$TMPDIR/omnis-p04-empty-config\" cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -k real_compose -v",
+        "exit_code": 0,
+        "tests": 2,
+        "seconds": 0.435,
+        "log": "/home/kali/.hermes/cache/scratch/development-candidate-eb27b2a/compose-green-02.log"
+      }
+    }
+  ],
+  "real_renderer": {
+    "version": "Docker Compose version 2.32.4-3",
+    "endpoint": "unix:///nonexistent.sock",
+    "HOME": "/nonexistent",
+    "environment": "Only synthetic start.environment values plus PATH=/usr/bin:/bin and HOME=/nonexistent; endpoint explicit CLI --host",
+    "boundary": "Unchanged ops/compose.control.yaml copied to disposable release/ops/compose.yaml + actual ControlRuntime.compose/provider_settings_overlay/JSON dollar escaping -> actual docker compose config --format json -> original full start.validate_config expected closure. Only runtime.run process adapter replaced; no pre-rendered positive config mock or validator patch.",
+    "positives": "plain, $, ${HOME}, quotes, backslashes, multiple dollars; all three development mounts",
+    "negatives": "Mutations of actual rendered config tested through full validator: explicit true; false aliases 0/0.0/null/string/list; unknown bind and mount keys; RW and read_only integer alias; source/target/propagation drift; extra/missing mount; literal/unescaped, env-expanded, stripped quotes/backslashes and foreign sources.",
+    "inspect": "Real ControlRuntime.attest with synthetic inspect channel accepts literal special-character path and denies renderer-escaped/foreign paths; no actual OCI container.",
+    "producer": "Explicit create_host_path=false and dollar escaping unchanged. development.py/start_runtime.py untouched.",
+    "resource_cleanup": "Disposable fixture roots owned by unittest TemporaryDirectory cleanup; no daemon/resource provisioning."
+  },
+  "limits": [
+    "No Docker build/create/start, DB, browser, model/provider/target effects or operator rollout; operator STOPPED5 untouched.",
+    "No operator/private backup/key/credential/protected-file reads. Pre-existing untracked tempkey.txt and documents/Omnis_Notite_Originale.html untouched.",
+    "No installs, dependency/pin changes, worktrees, index writes, commits or push. Existing toolchains only: Python3.13.15, Ruff0.16.9, mypy2.3.1.",
+    "Canonical full gate NOT_RUN; inherited TIMEOUT/BLOCKED_BUDGET/NOT_CLOSED and default check-web FAIL/UNKNOWN unchanged.",
+    "Source tests include imported test_install synthetic scratch fixtures; no actual package installation or distribution/wheel QA.",
+    "Actual OCI mount/import, PostgreSQL lifecycle and browser/operator transition remain parent-owned separate QA after focused reviews.",
+    "No harness-only cycle reset: these are the two reproduced product boundary fixes; earlier corrected missing-fake-vault preflight remains historical."
+  ]
+}

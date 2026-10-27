@@ -1,0 +1,234 @@
+{
+  "base": "eb27b2a7d82e7536d2fc82f463eea3fd40323882",
+  "files": [
+    {
+      "path": "cli/README.md",
+      "new": false,
+      "bytes": 25209,
+      "sha256": "5f02e592fdbf829133763b9a69da5a7c590f431f7e9c9019052f8bda7f75ab4e",
+      "git_blob": "49190c507d0e96cf91950d52c4be8a31e5d7e587"
+    },
+    {
+      "path": "cli/integration/installed_stop.py",
+      "new": false,
+      "bytes": 33120,
+      "sha256": "17954b4856509b53f3588878d31147692ffcf392cac753bb42b9e5bdfad31d38",
+      "git_blob": "299ce13fad7249869a847cf3ecb084a016ea165e"
+    },
+    {
+      "path": "cli/integration/test_release.py",
+      "new": false,
+      "bytes": 61546,
+      "sha256": "2873f6471a90a2214018f85ee97fba3b1bcd716983f0710af69d21cb92e45dbe",
+      "git_blob": "4a1546fe3fd6fc2a6b1a95411e8eca8026d0b890"
+    },
+    {
+      "path": "cli/src/omnis_cli/config.py",
+      "new": false,
+      "bytes": 3773,
+      "sha256": "a217221ac19e428d3ea61241b232aea7574e757e0ef1e15720156b79ce2a9bcc",
+      "git_blob": "d60a1bcd7d6327dbe6b560d0d00f55f637f729f3"
+    },
+    {
+      "path": "cli/src/omnis_cli/development.py",
+      "new": true,
+      "bytes": 5750,
+      "sha256": "8e147adc4507f0cc15e138cfd86abf2119c6d961f7ba9db2ef64118d1181deae",
+      "git_blob": "b7e898c6d2fd68f6e733cee97cd6f53a1bf7c203"
+    },
+    {
+      "path": "cli/src/omnis_cli/health.py",
+      "new": false,
+      "bytes": 6047,
+      "sha256": "8afea9006bf2e5d345d96019a9ebca8114896a4320f2d913a4089444ebf7e578",
+      "git_blob": "395ce3185ef7562b795a7e1b56faa1fbafa4b0f9"
+    },
+    {
+      "path": "cli/src/omnis_cli/recover.py",
+      "new": false,
+      "bytes": 11559,
+      "sha256": "6fbfd9599c7b10be925db09e03578c440900c2e3f9443247634e0b2de45d538f",
+      "git_blob": "e36b3cb5913f8f4b874b17572e421b61d2f094d8"
+    },
+    {
+      "path": "cli/src/omnis_cli/start.py",
+      "new": false,
+      "bytes": 69295,
+      "sha256": "56572b3ca343345b5c0c172acdf000d8e4203d071c9d6f5551128e8ffe3278cb",
+      "git_blob": "434d9391ad3238e182db9e16eb84f06d81960d94"
+    },
+    {
+      "path": "cli/src/omnis_cli/start_runtime.py",
+      "new": false,
+      "bytes": 36772,
+      "sha256": "0598176ef3ae8b6a3e98fd103352e31cbf612d18b8056096e3ecc4e52dc596f4",
+      "git_blob": "ad98b00638619ef6df5b2dbc4c5c72161e3b833a"
+    },
+    {
+      "path": "cli/src/omnis_cli/status.py",
+      "new": false,
+      "bytes": 9579,
+      "sha256": "4127aa4e44bd3afd4c13440a62adb89481c2b3b38169f50525e391a06ffdb13f",
+      "git_blob": "05d305a19b5320c83e93a4c70edd5f776249c9be"
+    },
+    {
+      "path": "cli/src/omnis_cli/stop.py",
+      "new": false,
+      "bytes": 37752,
+      "sha256": "561c330cd89f5ad0467ffd2598dbe597a34abec6a8916e187db85abd8d3f9434",
+      "git_blob": "5c0a6abe00b9e692d6a056221bafb5d36d3be1d2"
+    },
+    {
+      "path": "cli/src/omnis_cli/stop_owner.py",
+      "new": false,
+      "bytes": 40002,
+      "sha256": "be1b48fb61f204472a50b6aa7b562b6f7cb9bcd5c8e7837449c5c4809e297113",
+      "git_blob": "d52f7ab5f61ab099ad13ed04e71a1b335c3b07ff"
+    },
+    {
+      "path": "cli/tests/test_config.py",
+      "new": false,
+      "bytes": 7413,
+      "sha256": "f4b2f7c3558e015127bcc6eac4ad87d82acd4a4c9741b8611274ea9f62f42752",
+      "git_blob": "6d8e002178bb209f22d69108fc64bc21decc9523"
+    },
+    {
+      "path": "cli/tests/test_development.py",
+      "new": true,
+      "bytes": 26499,
+      "sha256": "57f91b2599dcba4efdde2e27d1d6e643f7fa169025c21a8dba0c4ac20b987d8f",
+      "git_blob": "ccc379f418e15b53a91fdd381e6a3154d65c06fb"
+    },
+    {
+      "path": "cli/tests/test_recover.py",
+      "new": false,
+      "bytes": 34530,
+      "sha256": "77cd12b2362175ec0250ee0f3618cbf0e2269f0d7bffc735099e89751c1e7625",
+      "git_blob": "4523d0f32fd77c2f4965338b897c2b8590d81dba"
+    },
+    {
+      "path": "cli/tests/test_restart_wiring.py",
+      "new": false,
+      "bytes": 24242,
+      "sha256": "8a74d0cea607aa1b8a8f9708d50b1ac25dd7c805a40cf3d4187234f8c8af602f",
+      "git_blob": "4b0f8ba2efc64c35ed83b16a6a11c16adc18f389"
+    },
+    {
+      "path": "web/README.md",
+      "new": false,
+      "bytes": 9281,
+      "sha256": "40a5e92e277b1dc5930ef3eb91bc44f24ed2253468a3118b86f463060c8e9a21",
+      "git_blob": "2cfb5540a0cb98e21292dd50c691112a01da8753"
+    }
+  ],
+  "file_count": 17,
+  "diff_sha256": "6cc34fe9622685e819093a66fec140e09c09546d1008532317681f32f125f6b3",
+  "diff_bytes": 92953,
+  "compile": {
+    "python_files": 15,
+    "result": "PASS; compile() in memory; no pycache"
+  },
+  "index": "untouched/empty",
+  "scope": "SOURCE_CANDIDATE_NOT_COMMITTED_NOT_ROLLED_OUT",
+  "checks": {
+    "full_source": {
+      "command": "XDG_CONFIG_HOME=$TMPDIR/omnis-p04-empty-config cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -v",
+      "exit": 0,
+      "tests": 396,
+      "seconds": 114.383,
+      "log": "/home/kali/.hermes/cache/terminal-output/out-1793134638-10564-e650.log",
+      "scope": "Before final recover.py one-line content-independence fix and its new test; unaffected coverage reused."
+    },
+    "final_delta": [
+      {
+        "pattern": "test_development.py",
+        "tests": 12,
+        "seconds": 5.007,
+        "exit": 0
+      },
+      {
+        "pattern": "test_recover.py",
+        "tests": 10,
+        "seconds": 11.402,
+        "exit": 0
+      }
+    ],
+    "source_integration_doubles": [
+      {
+        "pattern": "test_release.py -k development_probe",
+        "tests": 1,
+        "exit": 0
+      },
+      {
+        "pattern": "test_installed_stop_lock_oracle.py",
+        "tests": 2,
+        "exit": 0
+      },
+      {
+        "pattern": "test_installed_settings.py",
+        "tests": 12,
+        "exit": 0
+      }
+    ],
+    "ruff": "cli/src cli/tests cli/integration check+format exit0;100 formatted files",
+    "mypy": "strict cli/src --no-incremental --output=json exit0",
+    "docs": "python -B scripts/render_docs.py --check exit0; python -B -m unittest discover -s tests/documentation -v 87PASS/2.521s/exit0",
+    "diff_check": 0,
+    "real_consumer": "NOT_RUN; requires complementary reviews and separate QA authorization",
+    "wheel": "NOT_RUN; no installs performed"
+  },
+  "red": [
+    {
+      "command": "unittest discover -s cli/tests -p test_config.py -v",
+      "exit": 1,
+      "cause": "CONFIG_INVALID for explicitly selected workspace"
+    },
+    {
+      "command": "unittest discover -s cli/tests -p test_development.py -v",
+      "exit": 1,
+      "cause": "format5 optional-field receipts rejected in every phase; recovery refused; selector drift unhandled"
+    },
+    {
+      "command": "unittest discover -s cli/tests -p test_restart_wiring.py -k development -v",
+      "exit": 1,
+      "cause": "both same-data mode transitions missing"
+    },
+    {
+      "command": "unittest discover -s cli/integration -p test_release.py -k development_probe -v",
+      "exit": 1,
+      "cause": "installed consumer lacked optional development parameter"
+    },
+    {
+      "command": "unittest discover -s cli/tests -p test_development.py -k compose -v",
+      "exit": 1,
+      "cause": "literal dollar interpolation not escaped"
+    },
+    {
+      "command": "unittest discover -s cli/tests -p test_development.py -k recovery_route -v",
+      "exit": 1,
+      "cause": "SERVED_ASSET_MISMATCH when mutable readiness changed during recovery"
+    }
+  ],
+  "envelope_bytes": {
+    "full_config": 1153,
+    "full_compose_overlay": 3992,
+    "completion": 3830,
+    "control": 2518,
+    "grant": 2385,
+    "handoff": 5873,
+    "inventory": 2015,
+    "reconciliation": 2597,
+    "restart": 2942,
+    "startup": 3316
+  },
+  "bounds_scope": "Real SOURCE Stop owner _entry/completion on isolated synthetic Engine, 512 ASCII worst JSON escaping, max generation/epoch; subsequent complete serializer fixture padded to uint64 inode/ticks and int32 PID. No increased limits; not OCI proof.",
+  "limits": [
+    "No operator root accessed or changed",
+    "No real Docker/service/PG/browser/provider/target effects",
+    "No Git index/commit/push",
+    "No protected files read or modified",
+    "No new profile/launcher/framework/dependencies",
+    "Canonical TIMEOUT/BLOCKED_BUDGET and default web FAIL/UNKNOWN unchanged",
+    "Installed browser session covers reload/session; independent desktop/mobile/focus still required or exact unchanged evidence reuse"
+  ]
+}

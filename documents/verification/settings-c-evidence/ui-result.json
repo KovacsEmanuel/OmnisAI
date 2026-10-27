@@ -7,7 +7,56 @@
   "acceptance": "FUNCTIONAL_SCOPED_PASS_CANONICAL_BLOCKED_BUDGET_NOT_CLOSED",
   "supplemental_controls": "controls-result.json",
   "component_completion": "components-result.json",
-  "stop_boundary": "User-requested STOP after this implementation/functional QA. No successor or third whole-API run automatically; aggregate canonical timeout is preserved, not waived.",
+  "stop_boundary": "The original STOP remains historical. A new explicit mandate admits finishing the existing installation/global launcher and independent Settings C polish, not Prompt B/T2, provider replay, automatic upgrade or another full suite for documentation. Aggregate canonical timeout remains, not waived.",
+  "installed_delivery": {
+    "source_head": "7673066a0497c1432f8a6fdb519a106eb481e3cd",
+    "status": "PASS_LOCAL_RECORDED_INSTALLED_SCOPED",
+    "root": "/home/kali/.local/share/omnis-settings-c-9e51d10",
+    "origin": "http://127.0.0.1:8780",
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+    "release_manifest_sha256": "99409cd18adfd4545bbdb03f9edfc6bcc7cca95973f2e13342d2bd54062ef133",
+    "image_id": "sha256:321b7052a5af0f9dc340d3c89a3667833b054dedf38b8e58dfbf7a54af33d30b",
+    "schema": "0016_provider_models",
+    "current_readback": "Qualified launcher status --json exit0; READY, API/control/dashboard/admission true, assessment false, generation3/epoch2. No restart or browser navigation in this reconciliation.",
+    "artifact_identity": "Normal installed release10 payloads and manifest match artifacts/bundle-r1fix. Historical evidence/bundle-readback.json describes rejected4bbb774 candidate955b..., not installed9940...; retained unchanged.",
+    "existing_private_evidence": "<root>/evidence/{stop-state.json,web-actions.jsonl,browser-summary.json,normal-stop.json,normal-restart.json,status-after-restart.json,restart-baseline.json,operator-existing-test-result.json,bundle-inputs-r1fix.json}. Read existing results, no test replay; no secrets/browser state/PGDATA exported.",
+    "verified_behavior": "Normal install/image/start; actual installed local controls and navigation, uncertain draft PUT -> explicit keep/discard GET recovery without implicit write, logout/pairing and normal Stop->Start. Retained draft446aa637-e6b1-407a-9933-17957a96370a remains revision3/digestf7dc7cd14407b7cb1305a69a2dd29c092ac20959787c6b88e12a87427054db58. This is the new instance's draft, not recovery of the old instance.",
+    "operator_model_test": "Operator independently configured Settings and started one existing entry test; original read-only HTTP200 records FINISHED/COMPLETED and known usage. No agent repeat, key copying, selection change or new spending in this continuation. This exact observation is not both-router/live breadth certification.",
+    "wizard_review": {
+      "commits": ["78decf37c3b879593173f6451894e3be5e0ba012", "4bbb774a791230c851597f876edff88abb1dd1d9", "7673066a0497c1432f8a6fdb519a106eb481e3cd"],
+      "originals": ["installed-wizard-r1-original.md", "installed-wizard-r2-original.md"],
+      "focused_closure": ["installed-wizard-r1-closure.md", "installed-wizard-r2-delta.md"],
+      "disposition": "Original R1-F01 stale query error and R1-F02 same-revision copy reproduced, minimally fixed by7673066, both CLOSED_SOURCE_SCOPED; complementary R2 approved current delta. Parent accepts this scoped composition with actual installed keep/discard and restart evidence; no blanket gate closure.",
+      "source_evidence": "Existing npm --prefix web test -- src/app/ReceiptRecovery.test.tsx src/app/Wizard.test.tsx RED6FAIL27PASS -> GREEN33PASS exit0; parent33PASS. Existing VITEST_MAX_WORKERS=2 make check-web205web+6tooling/contracts/types/lint/build/audit exit0, without changed tests/deadlines. Not rerun for reconciliation.",
+      "preserved_failures": "Default make check-web exit2/4FAIL199PASS remains causeUNKNOWN; bounded-worker pass does not replace it. R1 closure report retains accidental shell command-substitution test attempts and timeout124; those are not authorized acceptance evidence. Original canonical TIMEOUT and other failures remain below."
+    },
+    "global_launcher": {
+      "path": "/home/kali/.local/bin/omnis",
+      "source": "/home/kali/.local/share/omnis-settings-c-9e51d10/omnis",
+      "backup": "/home/kali/.local/bin/omnis.before-settings-c-7673066",
+      "before_sha256": "baa079ce4f31cfdf9c05a3038d9fa0c62a56d398af7b444c94681f2d891a0065",
+      "after_sha256": "462e59768d918e62648ca21f3b0eeb069c5914abf8a4d45a328c34c0f431db77",
+      "result": "Existing launcher copied atomically with0700; backup and new hash verified. Qualified/global status --json both exit0, exact identical READY instance/origin/generation3/epoch2; no restart or new launcher mechanism.",
+      "rollback": "Verify backup hash and absence of /home/kali/.local/bin/omnis.next-settings-c-7673066; cp -p -- /home/kali/.local/bin/omnis.before-settings-c-7673066 /home/kali/.local/bin/omnis.next-settings-c-7673066 && mv -T -- /home/kali/.local/bin/omnis.next-settings-c-7673066 /home/kali/.local/bin/omnis ; verify restored hash/status. Restores P1/r1 selection only, not data or service state.",
+      "private_record": "<root>/evidence/launcher-change.json; before/after/inverse recorded before external change"
+    },
+    "old_cleanup": {
+      "status": "BLOCKED_ADMIN_BACKUP_RESTORE",
+      "root": "/home/kali/.local/share/omnis-t1-fixed-a5b8939",
+      "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
+      "project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
+      "containers": {"api": "9dbc2761e90962594388a0b2860e145d171fe350a2cec5ea09f6413fd18c6495", "database": "e95a4576c17768dad76af9c078dbd57cb4b32c7fb49776f8124429c464ddac4e", "supervisor": "e1e6f5e8fa740e138c708780b71c49fc358971235ac5d6d42dabf826f29be4ea"},
+      "readback": "API/DB running, supervisor exited3; old root dependencies identified separately. PGDATA s/omnis/postgres/18/docker UID999/GID0 mode0700 inaccessible to operator, sudo -n true exit1/password required. No raw live archive, privileged helper/chown bypass or cleanup. Shared Python/PostgreSQL image must remain.",
+      "retained": "All old data, crypto keys, vault ciphertext, recovery receipts, release and resources preserved. Consistent backup plus isolated restore, with required crypto material separately preserved, precede any retirement.",
+      "reclaimed_bytes": 0
+    },
+    "polish_rollout": {
+      "status": "BLOCKED_NO_SUPPORTED_IN_PLACE_UPGRADE",
+      "reason": "cli/src/omnis_cli/release.py refuses different immutable0.1.0 bytes; backup.py restore requires the same release digest/schema; Dockerfile.control embeds web assets. Build/restart is not an upgrade path. No updater, new empty profile, immutable overwrite or operator restart admitted as a workaround.",
+      "independent_work": "User-authorized presentation-only refinement is IN_PROGRESS through the existing Settings components and isolated tests, not installed acceptance. A separate rollout decision is required after scoped review/QA."
+    }
+  },
   "product_head": "6dbaec54812c94b5d906d849145f9c42977788c5",
   "ui4_tested_head": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
   "final_source_freeze": {
@@ -316,8 +365,8 @@
   },
   "limits": [
     "Provider schemas/TLS are synthetic; OpenRouter/OrcaRouter live compatibility/cost/access not tested in Prompt A, Orca undocumented max_tokens support remains unknown.",
-    "No operator installed instance/PGDATA read/adoption/upgrade or persistent deployment; fixture API-process restart is not installed runtime restart.",
-    "No Prompt B/autopair/auth-policy/CLI feature/global configuration/push/target or paid provider effects.",
+    "Original UI4 scope had no operator deployment: its fixture API-process restart is not installed restart. Later installed_delivery above supplies separate normal installation/restart proof, never old-instance recovery or polish upgrade.",
+    "No Prompt B/autopair/auth-policy/CLI feature/push/target effects. Later explicit mandate permits only the recorded global launcher redirection; the operator's own model test is a separate observed result, not an agent replay.",
     "No T2 role execution, mixed-role run or P4b closure; saved assignments pin only future consumers.",
     "SOURCE long64/contrast/focus controls and real32-entry UI4 are distinct evidence scopes; not screen-reader/all-browser/WCAG certification or universal absence of defects.",
     "UI1/2/3 and canonical1 FAILs, review originals and harness-only dispositions retained across sessions. Scope was narrowed to demonstrated DNS/library/locator/copy mechanisms; no new framework/owner/verifier or timeout widening."

@@ -75,6 +75,47 @@ class InstallTest(unittest.TestCase):
     def write_manifest(self):
         (self.bundle / "release.json").write_text(json.dumps(self.manifest, sort_keys=True))
 
+    def provider_bundle(self):
+        """Checksum-bound SOURCE wheel closure, never an installable API fixture."""
+        import io
+        from zipfile import ZipFile
+
+        content = io.BytesIO()
+        with ZipFile(content, "w") as wheel:
+            for name in (
+                "settings/provider_key_models",
+                "settings/provider_key_routes",
+                "settings/provider_key_service",
+                "settings/provider_vault",
+                "settings/provider_model_models",
+                "settings/provider_model_routes",
+                "settings/provider_model_service",
+                "runs/model_test_runtime",
+                "runs/model_test_contract",
+                "runs/model_test_store",
+            ):
+                wheel.writestr("omnis/modules/" + name + ".py", "# SOURCE\n")
+            for name in ("0014_provider_settings", "0015_model_test_v2", "0016_provider_models"):
+                wheel.writestr("omnis/migrations/versions/" + name + ".py", "# SOURCE\n")
+            wheel.writestr("omnis/supervisor/model_sender.py", "# SOURCE\n")
+            wheel.writestr(
+                "omnis_api-0.1.0.dist-info/METADATA",
+                "".join(
+                    "Requires-Dist: " + dep + "\n"
+                    for dep in (
+                        "cryptography==50.0.1",
+                        "openai==2.24.0",
+                        "httpx==0.28.1",
+                        "httpcore==1.0.9",
+                    )
+                ),
+            )
+        name = "api/omnis_api-0.1.0-py3-none-any.whl"
+        (self.bundle / name).write_bytes(content.getvalue())
+        self.manifest["files"][name] = hashlib.sha256(content.getvalue()).hexdigest()
+        self.manifest.update(format=3, profile="t1-provider-settings")
+        self.write_manifest()
+
     def native_bundle(self):
         """Small SOURCE producer-schema fixture, not real native provenance."""
         requirements = (
@@ -405,3 +446,388 @@ class InstallTest(unittest.TestCase):
             with self.assertRaises(ReleaseError):
                 install_release(self.bundle, self.data_home)
         self.assertFalse((self.data_home / "omnis/installed.json").exists())
+
+
+class ManualUpgradeTest(unittest.TestCase):
+    def test_manual_upgrade_preserves_old_binding_and_stopped_history(self):
+        self.journey()
+
+    def test_upgrade_denies_ready_uncertain_wrong_digest_backup_and_incompatible_api(self):
+        for fault in (
+            "ready",
+            "uncertain",
+            "digest",
+            "backup",
+            "api",
+            "changing-api",
+            "consumed",
+            "lock",
+        ):
+            with self.subTest(fault=fault):
+                self.journey(fault=fault)
+
+    def test_manual_rollback_before_start_preserves_unconsumed_stop(self):
+        self.journey(cancel=True)
+
+    def test_interrupted_transition_retries_only_exact_unstarted_binding(self):
+        self.journey(interrupt=True)
+
+    def test_rollback_after_restart_requires_new_completed_stop(self):
+        self.journey(reverse=True)
+
+    def journey(self, fault=None, *, cancel=False, interrupt=False, reverse=False):
+        import contextlib
+        import io
+        from dataclasses import replace
+
+        from omnis_cli import backup, compose, release
+        from omnis_cli.main import main
+        from test_cold_backup import ColdBackupTest
+
+        fixture = InstallTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.provider_bundle()
+        with ColdBackupTest().source() as (base, root, record, runtime):
+            data = base / "d"
+            old_release = install_release(fixture.bundle, data)
+            old_digest = hashlib.sha256((old_release / "release.json").read_bytes()).hexdigest()
+            # Update only the explicitly synthetic source before generating its proof.
+            from omnis_cli.lifecycle import write_record
+            from omnis_cli.stop_receipt import receipt_path
+            from stopped_fixture import completed_fixture
+
+            record["release_digest"] = runtime.digest = old_digest
+            runtime.files = fixture.payloads
+            runtime.receipt = compose.ImageReceipt(
+                record["project"],
+                "omnis-control-" + "a" * 32 + ":0.1.0",
+                record["image_id"],
+                old_digest,
+                runtime.host,
+                record["docker_id"],
+                "t1-provider-settings",
+            )
+            write_record(root / "startup.json", record, replace=True)
+            receipt_path(root, record).unlink()
+            (root / f"stop-forwarder-{record['attempt']}-drained.json").unlink()
+            compose._put_record(data / "omnis/image.json", runtime.receipt, complete=True)
+            with completed_fixture(root, root / "runtime-ipc", record, runtime):
+                with (
+                    patch.object(backup, "archive", side_effect=ColdBackupTest().archive),
+                    patch.object(backup, "cold_identity", return_value=record["system_id"]),
+                ):
+                    backup.backup(runtime, root, base / "snapshot")
+                before = {
+                    p: (p.stat().st_ino, p.read_bytes())
+                    for p in (
+                        root / "startup.json",
+                        receipt_path(root, record),
+                        root / "instance.json",
+                        root / "db-password",
+                        root / "vault/vault.json",
+                        root / "vault-key/master.key",
+                        old_release / "release.json",
+                        data / "omnis/image.json",
+                    )
+                }
+                (fixture.bundle / "web/index.html").write_bytes(b"new reviewed UI")
+                fixture.manifest["files"]["web/index.html"] = hashlib.sha256(
+                    b"new reviewed UI"
+                ).hexdigest()
+                fixture.write_manifest()
+                new_digest = hashlib.sha256(
+                    (fixture.bundle / "release.json").read_bytes()
+                ).hexdigest()
+                new_receipt = replace(
+                    runtime.receipt,
+                    manifest_sha256=new_digest,
+                    image_id="sha256:" + "1" * 64,
+                    tag="omnis-control-" + "a" * 32 + ":" + new_digest,
+                )
+
+                def build(image_root, bundle, manifest_sha, **kwargs):
+                    self.assertEqual(manifest_sha, new_digest)
+                    self.assertEqual(kwargs["project"], record["project"])
+                    if not (image_root / "image.json").exists():
+                        compose._put_record(image_root / "image.json", new_receipt, complete=True)
+                    return new_receipt
+
+                expected_digest = old_digest
+                if fault == "ready":
+                    record["phase"] = "READY"
+                    write_record(root / "startup.json", record, replace=True)
+                elif fault == "uncertain":
+                    runtime.uncertain = True
+                elif fault == "digest":
+                    expected_digest = "0" * 64
+                elif fault == "backup":
+                    (base / "snapshot/postgres.tar").write_bytes(b"wrong backup")
+                elif fault in {"api", "changing-api"}:
+                    name = "api/requirements.txt"
+                    (fixture.bundle / name).write_bytes(b"changed dependency")
+                    fixture.manifest["files"][name] = hashlib.sha256(
+                        b"changed dependency"
+                    ).hexdigest()
+                    fixture.write_manifest()
+                elif fault == "consumed":
+                    write_record(
+                        root / f"restart-{record['stop_command']}.json", {"state": "ACKED"}
+                    )
+                pointer_before = (data / "omnis/installed.json").read_bytes()
+
+                def sealed(path):
+                    result = release._manifest(path)
+                    if fault == "changing-api" and path == fixture.bundle:
+                        body = fixture.payloads["api/requirements.txt"]
+                        (fixture.bundle / "api/requirements.txt").write_bytes(body)
+                        fixture.manifest["files"]["api/requirements.txt"] = hashlib.sha256(
+                            body
+                        ).hexdigest()
+                        fixture.write_manifest()
+                    return result
+
+                def publish(path, value, **kwargs):
+                    if interrupt and path == data / "omnis/installed.json":
+                        raise OSError("synthetic pre-pointer interruption")
+                    write_record(path, value, **kwargs)
+
+                import fcntl
+
+                lock_fd = os.open(data / "omnis/install.lock", os.O_RDWR)
+                self.addCleanup(os.close, lock_fd)
+                if fault == "lock":
+                    fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                with (
+                    patch("omnis_cli.upgrade.ControlRuntime", return_value=runtime),
+                    patch.object(compose, "_install_locked", side_effect=build) as built,
+                    patch("omnis_cli.upgrade.write_record", side_effect=publish),
+                    patch("omnis_cli.upgrade._manifest", side_effect=sealed),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    try:
+                        code = main(
+                            [
+                                "install",
+                                "--bundle",
+                                str(fixture.bundle),
+                                "--manual-upgrade",
+                                "--expected-digest",
+                                expected_digest,
+                                "--backup",
+                                str(base / "snapshot"),
+                            ]
+                        )
+                    except SystemExit as exc:
+                        self.fail(f"Manual install consumer missing: exit {exc.code}")
+                if fault:
+                    self.assertEqual(code, 2)
+                    built.assert_not_called()
+                    self.assertEqual((data / "omnis/installed.json").read_bytes(), pointer_before)
+                    self.assertFalse((data / "omnis/releases" / new_digest).exists())
+                    return
+                if interrupt:
+                    self.assertEqual(code, 2)
+                    self.assertEqual((data / "omnis/installed.json").read_bytes(), pointer_before)
+                    with (
+                        patch("omnis_cli.upgrade.ControlRuntime", return_value=runtime),
+                        patch.object(compose, "_install_locked", side_effect=build),
+                    ):
+                        code = main(
+                            [
+                                "install",
+                                "--bundle",
+                                str(fixture.bundle),
+                                "--manual-upgrade",
+                                "--expected-digest",
+                                old_digest,
+                                "--backup",
+                                str(base / "snapshot"),
+                            ]
+                        )
+                self.assertEqual(code, 0)
+                pointer = json.loads((data / "omnis/installed.json").read_bytes())
+                self.assertEqual(pointer["digest"], new_digest)
+                self.assertEqual(
+                    (data / "omnis/releases" / new_digest / "web/index.html").read_bytes(),
+                    b"new reviewed UI",
+                )
+                self.assertTrue((root / f"upgrade-{record['stop_command']}.json").exists())
+                for path, expected in before.items():
+                    self.assertEqual((path.stat().st_ino, path.read_bytes()), expected)
+                import subprocess
+                import time
+                from copy import copy
+                from uuid import uuid4
+
+                from omnis_cli.restart import prepare_restart
+                from omnis_cli.start_runtime import POSTGRES, ControlRuntime
+                from omnis_cli.stop import readback_stopped
+
+                image = {
+                    "Id": new_receipt.image_id,
+                    "Architecture": "amd64",
+                    "Os": "linux",
+                    "Config": {
+                        "User": "65532:65532",
+                        "Cmd": ["python", "-I", "-m", "omnis.serve"],
+                        "Labels": {
+                            "org.omnis.project": new_receipt.project,
+                            "org.omnis.bundle_sha256": new_digest,
+                            "org.omnis.profile": "t1-provider-settings",
+                        },
+                    },
+                }
+                pg_image = {
+                    "Id": runtime.pg_image,
+                    "Architecture": "amd64",
+                    "Os": "linux",
+                    "RepoDigests": [POSTGRES.replace(":18.6-bookworm", "")],
+                }
+                with (
+                    patch(
+                        "omnis_cli.start_runtime._checked_socket",
+                        return_value=new_receipt.docker_host,
+                    ),
+                    patch.object(ControlRuntime, "check_daemon"),
+                    patch.object(
+                        ControlRuntime,
+                        "inspect",
+                        side_effect=lambda kind, ident: pg_image if ident == POSTGRES else image,
+                    ),
+                    patch.object(
+                        ControlRuntime,
+                        "run",
+                        return_value=subprocess.CompletedProcess([], 0, "2.32.4"),
+                    ) as commands,
+                ):
+                    loaded = ControlRuntime(data, time.monotonic() + 5)
+                    self.assertEqual((loaded.digest, loaded.receipt), (new_digest, new_receipt))
+                    self.assertEqual(loaded.files["web/index.html"], b"new reviewed UI")
+                    self.assertFalse(
+                        any(call.kwargs.get("effect") for call in commands.call_args_list)
+                    )
+                active = copy(runtime)
+                active.digest = new_digest
+                active.receipt = new_receipt
+                active.release = data / "omnis/releases" / new_digest
+                with (
+                    patch("omnis_cli.upgrade.ControlRuntime", return_value=runtime),
+                    patch.object(backup, "archive", side_effect=ColdBackupTest().archive),
+                    patch.object(backup, "cold_identity", return_value=record["system_id"]),
+                ):
+                    readback_stopped(active, root, root / "runtime-ipc", record)
+                    from omnis_cli.lifecycle import StartError
+
+                    for field, invalid in (("uncertain", True), ("family_drained", False)):
+                        original = getattr(active, field)
+                        setattr(active, field, invalid)
+                        with self.assertRaises(StartError):
+                            readback_stopped(active, root, root / "runtime-ipc", record)
+                        setattr(active, field, original)
+                    backup.backup(active, root, base / "pending-snapshot")
+                    backup.snapshot_metadata(runtime, base / "pending-snapshot", full=True)
+                if cancel:
+                    with patch(
+                        "omnis_cli.upgrade.ControlRuntime",
+                        side_effect=lambda *args, **kw: (
+                            runtime if kw.get("release_digest") else active
+                        ),
+                    ):
+                        self.assertEqual(
+                            main(
+                                [
+                                    "install",
+                                    "--bundle",
+                                    str(old_release),
+                                    "--manual-upgrade",
+                                    "--expected-digest",
+                                    new_digest,
+                                    "--backup",
+                                    str(base / "snapshot"),
+                                ]
+                            ),
+                            0,
+                        )
+                    self.assertEqual(
+                        json.loads((data / "omnis/installed.json").read_bytes())["digest"],
+                        old_digest,
+                    )
+                    active = runtime
+                with patch("omnis_cli.upgrade.ControlRuntime", return_value=runtime):
+                    prepared = prepare_restart(
+                        active, root, root / "runtime-ipc", record, str(uuid4())
+                    )
+                self.assertEqual(prepared["restore_id"], None)
+                self.assertEqual(prepared["request"]["grant"]["inventory"]["release"], old_digest)
+                if reverse:
+                    with patch(
+                        "omnis_cli.upgrade.ControlRuntime",
+                        side_effect=lambda *args, **kw: (
+                            runtime if kw.get("release_digest") else active
+                        ),
+                    ):
+                        self.assertEqual(
+                            main(
+                                [
+                                    "install",
+                                    "--bundle",
+                                    str(old_release),
+                                    "--manual-upgrade",
+                                    "--expected-digest",
+                                    new_digest,
+                                    "--backup",
+                                    str(base / "snapshot"),
+                                ]
+                            ),
+                            2,
+                        )
+                    # Synthetic fresh Stop after the new-image Start; real journey is opt-in integration.
+                    fresh = {
+                        **record,
+                        "release_digest": new_digest,
+                        "image_id": new_receipt.image_id,
+                        "attempt": str(uuid4()),
+                        "stop_command": str(uuid4()),
+                        "finalize_command": str(uuid4()),
+                        "generation": 3,
+                        "stop_expected": 3,
+                        "stop_generation": 4,
+                        "finalized_generation": 4,
+                        "supervisor_epoch": 2,
+                    }
+                    write_record(root / "startup.json", fresh, replace=True)
+                    with completed_fixture(root, root / "runtime-ipc", fresh, active):
+                        with (
+                            patch.object(backup, "archive", side_effect=ColdBackupTest().archive),
+                            patch.object(backup, "cold_identity", return_value=fresh["system_id"]),
+                        ):
+                            backup.backup(active, root, base / "new-snapshot")
+                        with (
+                            patch("omnis_cli.upgrade.ControlRuntime", return_value=active),
+                            patch.object(
+                                compose, "_install_locked", return_value=runtime.receipt
+                            ) as image,
+                        ):
+                            self.assertEqual(
+                                main(
+                                    [
+                                        "install",
+                                        "--bundle",
+                                        str(old_release),
+                                        "--manual-upgrade",
+                                        "--expected-digest",
+                                        new_digest,
+                                        "--backup",
+                                        str(base / "new-snapshot"),
+                                    ]
+                                ),
+                                0,
+                            )
+                        self.assertEqual(image.call_args.args[1], old_release)
+                        self.assertEqual(
+                            json.loads((data / "omnis/installed.json").read_bytes())["digest"],
+                            old_digest,
+                        )
+                        with patch("omnis_cli.upgrade.ControlRuntime", return_value=active):
+                            readback_stopped(runtime, root, root / "runtime-ipc", fresh)

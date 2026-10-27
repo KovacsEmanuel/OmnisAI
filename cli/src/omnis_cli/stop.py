@@ -193,6 +193,7 @@ def readback_stopped(
 ) -> None:
     """Offline receipt is usable only while its exact owned resources stay absent."""
     from .stop_owner import verify_stop_completion
+    from .upgrade import stopped_runtime
 
     if os.path.lexists(root / "unreconciled.json"):
         raise StartError("RECOVERY_REQUIRED", 4)
@@ -200,6 +201,7 @@ def readback_stopped(
     _check_pgdata(root, record)
     if record["phase"] != "STOPPED" or record["stop_generation"] is None:
         raise StartError("RECOVERY_REQUIRED", 4)
+    runtime = stopped_runtime(runtime, root, record)
     _bound_instance(runtime, root, control, record)
     try:
         verify_stop_completion(runtime, root, control, record)
@@ -638,10 +640,12 @@ def stop_instance(
         _check_pgdata(root, preflight)
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
+    pointer = data_home / "omnis/installed.json"
+    initial_binding = private_file(pointer, limit=1024) if os.path.lexists(pointer) else None
     runtime = ControlRuntime(data_home, time.monotonic() + shutdown_seconds)
     control = control_dir(root)
     private_dir(root)
-    if preflight is not None:
+    if preflight is not None and preflight.get("phase") != "STOPPED":
         _bound_instance(runtime, root, control, preflight)
     deadline = runtime.deadline
     with ExitStack() as held:
@@ -670,13 +674,17 @@ def stop_instance(
             finally:
                 signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
         state_guard = state_guard_slot[0]
+        current_binding = private_file(pointer, limit=1024) if os.path.lexists(pointer) else None
+        if current_binding != initial_binding:
+            raise StartError("LIFECYCLE_CHANGED", 4)
         path = root / "startup.json"
         record = read_record(path)
         _preflight_record(record)
         refuse_interrupted_recovery(root, record)
         config.check_port(record.get("port"))
         _check_pgdata(root, record)
-        _bound_instance(runtime, root, control, record)
+        if record.get("phase") != "STOPPED":
+            _bound_instance(runtime, root, control, record)
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         if recover:

@@ -71,6 +71,66 @@ Din orice director, cu roots XDG explicite dacă nu doriți defaults:
 
 `install` copiază idempotent releaseul; `install-image` construiește explicit imaginea și păstrează receiptul. Numai buildul explicit poate descărca dependențele cu hashes. **Start/status nu fac pull, build, instalare sau upgrade.** Releaseul este input local trusted al operatorului: checksumurile verifică consistența, nu o semnătură independentă. [Istoric bundle](../documents/verification/p04-bundle-install.md), [artefact imagine](../documents/verification/p04-image-artifact.md), [receipt imagine](../documents/verification/p04-image-install.md).
 
+## Upgrade UI manual în aceeași instalație — candidat, QA instalată obligatorie
+
+Numai `t1-provider-settings`, manifest format 3, release `0.1.0`, schema
+`0016_provider_models`. Bundleul nou păstrează **byte-exact** wheelul API,
+requirements, Dockerfile și Compose; pot diferi numai webul și wheelul CLI
+reviewuit. Producerul existent primește explicit `--profile t1-provider-settings`.
+Checksumurile nu substituie reviewul sursei sau proveniența operatorului.
+
+Folosiți CLI-ul nou reviewuit din venv separat și aceleași roots XDG/config/port;
+închideți invocările vechi înaintea operației. Nu modificați launcherul, releaseul
+vechi sau receipturile manual. CLI-ul vechi nu este reader pentru pointerul nou.
+După Stop autentic și backup consistent/restaurare probate:
+
+```sh
+omnis stop --json
+omnis backup --output <abs-backup-nou>
+# Cheia master rămâne separată; backupul CLI nu o exportă.
+omnis install --bundle <abs-bundle-nou> --manual-upgrade \
+  --expected-digest <sha256-manifest-curent> --backup <abs-backup-nou>
+omnis status --json                  # STOPPED, nu READY
+omnis start --no-open --json          # reconciliere Stop normală, fără --restore/migrare
+```
+
+Digestul este SHA256 al `release.json`, nu al wheelului. `--backup` cere codec-ul
+cold existent (manifest/startup/completion/postgres.tar/db-password/vault.json),
+exact pentru Stop-ul curent; un dump logic singur nu este acest codec.
+Installerul ține `install.lock`, apoi lifecycle data→state; verifică STOPPED,
+CAS/digestul, backupul și compatibilitatea înainte de build. Imaginile noi au tag
+cu digest complet și același proiect. Bundleurile noi sunt în `releases/<digest>`,
+receipturile în `images/<digest>`, iar `releases/0.1.0` și `image.json` rămân intacte.
+Un marker finit leagă Stop-ul original de noul binding; pointerul privat este
+publicat atomic numai după image readback. Start păstrează istoricul și consumă
+același grant autentic prin reconcilierea normală existentă înaintea serviciilor.
+Nu pornește test model, nu selectează/rotește/revocă chei și nu schimbă default/roluri.
+
+**Rollback explicit:** aceeași comandă `install --manual-upgrade` cu bundleul
+vechi, digestul *curent* și backupul Stop-ului curent. Înainte de primul Start,
+revine numai bindingul, cu grantul încă neconsumat. După Start, cere Stop nou
+verificat și backup nou; nu reutilizează grantul consumat și nu restaurează DB.
+O întrerupere înaintea pointerului păstrează bindingul vechi; reluarea este admisă
+numai pentru aceleași inputs cu image receipt complet. Build incert ori Start
+întrerupt rămân recovery-required; nu ștergeți intents pentru retry. Nu există
+auto-updater, migrare, autostart, garbage collector ori downgrade de schemă.
+
+Proba instalată este extensia ownerului existent, **NOT_RUN până după reviewuri**:
+
+```sh
+OMNIS_MANUAL_UPGRADE_PROBE=1 \
+OMNIS_UPGRADE_OLD_BUNDLE=<abs-bundle-vechi-reviewuit> \
+OMNIS_UPGRADE_NEW_BUNDLE=<abs-bundle-nou-reviewuit> \
+OMNIS_CLI_BIN=<venv-cli-reviewuit>/bin/omnis \
+cli/.venv/bin/python -I -m unittest discover -s cli/integration \
+  -p test_release.py -k test_manual_ui_upgrade -v
+```
+
+Folosește roots/PG noi, chei sintetice salvate local prin API (fără provider IO),
+revizii/default/roluri și census al istoricului; verifică upgrade→Start→Stop/Start
+→Stop→rollback→Start→Stop, assets și aceleași identități/date. Păstrează artefactele,
+imaginile și backupurile fixture-ului pentru readback; nu adoptă instalația operatorului.
+
 ## Profilul de artefacte Settings offline — verificat scoped
 
 `build_control_bundle.py --runtime-metadata <prepared-root>` sigilează cele patru

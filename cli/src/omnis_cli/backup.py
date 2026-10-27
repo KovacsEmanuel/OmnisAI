@@ -220,6 +220,9 @@ def validate_tar(path: Path, deadline: float) -> None:
 
 
 def backup(runtime: ControlRuntime, root: Path, output: Path) -> None:
+    from .upgrade import stopped_runtime
+
+    runtime = stopped_runtime(runtime, root, read_record(root / "startup.json"))
     private_dir(output.parent)
     if not output.is_absolute() or output.resolve() != output or os.path.lexists(output):
         raise StartError("COLD_DESTINATION_EXISTS", 4)

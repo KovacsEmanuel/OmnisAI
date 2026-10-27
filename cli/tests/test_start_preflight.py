@@ -113,6 +113,12 @@ class RuntimePreflightTest(unittest.TestCase):
                     )
                     scope.enter_context(
                         patch(
+                            "omnis_cli.start_runtime.binding_paths",
+                            return_value=(data / "omnis/releases/0.1.0", data / "omnis"),
+                        )
+                    )
+                    scope.enter_context(
+                        patch(
                             "omnis_cli.start_runtime._record",
                             return_value=None if fault == "receipt" else receipt,
                         )

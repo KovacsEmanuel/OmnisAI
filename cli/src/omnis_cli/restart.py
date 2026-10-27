@@ -43,7 +43,7 @@ def _persist(path: Path, intent: dict[str, object], *, replace: bool = False) ->
 def prepare_restart(
     runtime: ControlRuntime, root: Path, control: Path, stopped: dict[str, object], attempt: str
 ) -> dict[str, object]:
-    from .stop_owner import verify_stop_completion
+    from .stop import readback_stopped
 
     command = uuid(stopped.get("stop_command"))
     uuid(attempt)
@@ -52,7 +52,7 @@ def prepare_restart(
         raise StartError("RESTART_RECONCILIATION_REQUIRED", 4)
     raw = _bytes(root / "startup.json")
     completion = _bytes(receipt_path(root, stopped))
-    verify_stop_completion(runtime, root, control, stopped)
+    readback_stopped(runtime, root, control, stopped)
     if (
         encoded(json.loads(raw, object_pairs_hook=unique_pairs)) != encoded(stopped)
         or stopped.get("phase") != "STOPPED"

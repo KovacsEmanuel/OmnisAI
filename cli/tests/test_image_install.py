@@ -14,6 +14,54 @@ from omnis_cli.compose import ImageInstallError, install_control_image
 
 
 class ImageInstallTest(unittest.TestCase):
+    def test_explicit_upgrade_image_keeps_project_with_distinct_digest_tag(self):
+        import omnis_cli.compose as compose
+        from omnis_cli.release import install_release
+        from test_install import InstallTest
+
+        fixture = InstallTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.provider_bundle()
+        bundle = install_release(fixture.bundle, fixture.data_home)
+        digest = hashlib.sha256((bundle / "release.json").read_bytes()).hexdigest()
+        images = fixture.root / "new-image"
+        images.mkdir(mode=0o700)
+        project = "omnis-local-" + "a" * 32
+        tag = "omnis-control-" + "a" * 32 + ":" + digest
+        built = {}
+
+        def build(*args, **kwargs):
+            self.assertEqual(args[0], "build")
+            self.assertEqual(args[args.index("-t") + 1], tag)
+            self.assertIn("org.omnis.project=" + project, args)
+            self.assertIn("org.omnis.bundle_sha256=" + digest, args)
+            built[tag] = "sha256:" + "e" * 64
+            return subprocess.CompletedProcess(args, 0)
+
+        with (
+            patch.object(compose, "_preflight", return_value="unix:///run/docker.sock"),
+            patch.object(compose, "_docker_id", return_value="synthetic-daemon"),
+            patch.object(compose, "_base_image"),
+            patch.object(
+                compose, "_validate_image", side_effect=lambda tag, *a, **kw: built.get(tag)
+            ),
+            patch.object(compose, "_run", side_effect=build) as command,
+        ):
+            receipt = compose._install_locked(
+                images, bundle, digest, profile="t1-provider-settings", project=project
+            )
+            self.assertEqual(
+                compose._install_locked(
+                    images, bundle, digest, profile="t1-provider-settings", project=project
+                ),
+                receipt,
+            )
+        command.assert_called_once()
+        self.assertEqual((receipt.project, receipt.tag), (project, tag))
+        self.assertEqual(compose._record(images / "image.json", digest, complete=True), receipt)
+        self.assertFalse((fixture.data_home / "omnis/image.json").exists())
+
     def receipt(self, image_id: str = "sha256:" + "b" * 64):
         import omnis_cli.compose as compose
 

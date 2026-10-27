@@ -30,7 +30,7 @@ from .lifecycle import (
     read_record,
     socket_identity,
 )
-from .release import _installed_pointer, _manifest
+from .release import _installed_pointer, _manifest, binding_paths
 from .start import _bound_instance, _check_pgdata, check_runtime_ipc, native_fields, service_roles
 from .start_runtime import (
     POSTGRES,
@@ -115,11 +115,11 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
     private_dir(data_home / "omnis")
     if not _installed_pointer(data_home / "omnis/installed.json"):
         raise StartError("STOP_RELEASE_INVALID", 4)
-    runtime.release = data_home / "omnis/releases/0.1.0"
+    runtime.release, image_root = binding_paths(data_home / "omnis")
     manifest, runtime.files = _manifest(runtime.release)
     runtime.model_test = "model-test/profile.yaml" in runtime.files
     runtime.digest = hashlib.sha256(manifest).hexdigest()
-    receipt = _record(data_home / "omnis/image.json", runtime.digest, complete=True)
+    receipt = _record(image_root / "image.json", runtime.digest, complete=True)
     if receipt is None:
         raise StartError("STOP_RELEASE_INVALID", 4)
     runtime.receipt, runtime.host = receipt, receipt.docker_host

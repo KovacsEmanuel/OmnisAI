@@ -13,7 +13,13 @@ from pathlib import Path
 from uuid import uuid4
 
 from .instance import private_dir, private_file, unique_pairs
-from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, publish_directory
+from .release import (
+    PROVIDER_SETTINGS_PROFILE,
+    _installed_pointer,
+    _manifest,
+    binding_paths,
+    publish_directory,
+)
 
 _BASE = "python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a"
 _DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -173,7 +179,13 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         or raw["release"] != "0.1.0"
         or not isinstance(project, str)
         or not _PROJECT.fullmatch(project)
-        or tag != f"omnis-control-{project.removeprefix('omnis-local-')}:0.1.0"
+        or (
+            tag != f"omnis-control-{project.removeprefix('omnis-local-')}:0.1.0"
+            and not (
+                provider_settings
+                and tag == f"omnis-control-{project.removeprefix('omnis-local-')}:{digest}"
+            )
+        )
         or not isinstance(digest, str)
         or not re.fullmatch(r"[0-9a-f]{64}", digest)
         or not isinstance(image_id, str)
@@ -349,7 +361,7 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
         private_dir(root)
         if not _installed_pointer(root / "installed.json"):
             raise ImageInstallError("Install the release bundle first")
-        bundle = root / "releases/0.1.0"
+        bundle, image_root = binding_paths(root)
         manifest, payloads = _manifest(bundle)
         native = json.loads(manifest).get("profile") in {"p4a-settings-offline", "p4a-codex-auth"}
         if native != (runtime_context is not None):
@@ -370,8 +382,10 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
             ):
                 raise ImageInstallError("Unsafe install lock")
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if binding_paths(root) != (bundle, image_root):
+                raise ImageInstallError("Installed binding changed")
             return _install_locked(
-                root,
+                image_root,
                 bundle,
                 manifest_sha,
                 runtime_context=runtime_context,
@@ -392,6 +406,7 @@ def _install_locked(
     runtime_context: Path | None = None,
     payloads: dict[str, bytes] | None = None,
     profile: str | None = None,
+    project: str | None = None,
 ) -> ImageReceipt:
     host = _preflight(bundle)
     docker_id = _docker_id(bundle, host)
@@ -436,10 +451,11 @@ def _install_locked(
         # An absent tag does not prove a timed-out daemon build will not publish it later.
         raise ImageInstallError("Interrupted image install requires manual recovery")
     _base_image(bundle, host)
-    project = f"omnis-local-{uuid4().hex}"
+    suffix = manifest_sha if project is not None else "0.1.0"
+    project = project if project is not None else f"omnis-local-{uuid4().hex}"
     intent = ImageReceipt(
         project,
-        f"omnis-control-{project.removeprefix('omnis-local-')}:0.1.0",
+        f"omnis-control-{project.removeprefix('omnis-local-')}:{suffix}",
         "",
         manifest_sha,
         host,

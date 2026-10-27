@@ -26,7 +26,7 @@ from pathlib import Path
 from .compose import ImageReceipt, _checked_socket, _one_image, _record
 from .instance import private_dir, private_file
 from .lifecycle import StartError, mapping, read_record, remaining
-from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest
+from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, binding_paths
 
 POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
@@ -185,7 +185,9 @@ def _network_identity(
 
 
 class ControlRuntime:
-    def __init__(self, data_home: Path, deadline: float) -> None:
+    def __init__(
+        self, data_home: Path, deadline: float, *, release_digest: str | None = None
+    ) -> None:
         self.deadline = deadline
         self.uncertain = False
         self.family_drained = True
@@ -195,12 +197,13 @@ class ControlRuntime:
             private_dir(data_home / "omnis")
             if not _installed_pointer(data_home / "omnis/installed.json"):
                 raise FileNotFoundError()
+            self.release, image_root = binding_paths(data_home / "omnis", release_digest)
             manifest, self.files = _manifest(self.release)
         except FileNotFoundError:
             raise StartError("RELEASE_REQUIRED") from None
         self.digest = hashlib.sha256(manifest).hexdigest()
         self.model_test = "model-test/profile.yaml" in self.files
-        receipt = _record(data_home / "omnis/image.json", self.digest, complete=True)
+        receipt = _record(image_root / "image.json", self.digest, complete=True)
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
         self.receipt: ImageReceipt = receipt

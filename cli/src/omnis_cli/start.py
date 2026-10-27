@@ -1138,7 +1138,9 @@ def start_instance(
     deadline = time.monotonic() + startup_seconds
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
+    pointer = data_home / "omnis/installed.json"
     try:
+        initial_binding = private_file(pointer, limit=1024) if os.path.lexists(pointer) else None
         runtime = ControlRuntime(data_home, deadline)
     except StartError:
         raise
@@ -1164,6 +1166,9 @@ def start_instance(
         locks.enter_context(lifecycle_lock(data_root, deadline))
         ensure_private(root)
         locks.enter_context(lifecycle_lock(root, deadline))
+        current_binding = private_file(pointer, limit=1024) if os.path.lexists(pointer) else None
+        if current_binding != initial_binding:
+            raise StartError("LIFECYCLE_CHANGED", 4)
         journal = root / "startup.json"
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)

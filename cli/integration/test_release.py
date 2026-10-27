@@ -85,14 +85,18 @@ class ReleaseBundleTest(unittest.TestCase):
             self.assertFalse(late.exists(), "Owned child must not publish after timeout")
 
     @contextmanager
-    def bundle_scratch(self):
+    def bundle_scratch(self, *, retain=False):
         scratch = Path(tempfile.mkdtemp(prefix="omnis-bundle-", dir=os.environ["TMPDIR"]))
-        keep = False
+        keep = retain
         try:
             yield scratch
         except BaseException:
             root = scratch / "data/omnis"
-            keep = (root / "image-installing.json").exists() or (root / "image.json").exists()
+            keep = (
+                retain
+                or (root / "image-installing.json").exists()
+                or (root / "image.json").exists()
+            )
             if keep:
                 print(f"IMAGE_RECOVERY_INTENT retained at {scratch}", file=sys.stderr)
             raise
@@ -1071,6 +1075,36 @@ class ReleaseBundleTest(unittest.TestCase):
                 problems.append("owned image cleanup uncertain")
             if problems:
                 raise AssertionError("Probe cleanup incomplete: " + ", ".join(problems))
+
+    @unittest.skipUnless(
+        os.environ.get("OMNIS_MANUAL_UPGRADE_PROBE") == "1",
+        "Explicit reviewed upgrade fixture required",
+    )
+    def test_manual_ui_upgrade_keeps_instance_data_and_supports_rollback(self):
+        from installed_stop import run_installed_stop
+        from omnis_cli.release import _manifest
+        from omnis_cli.upgrade import compatible
+
+        old = Path(os.environ["OMNIS_UPGRADE_OLD_BUNDLE"])
+        new = Path(os.environ["OMNIS_UPGRADE_NEW_BUNDLE"])
+        compatible(_manifest(old), _manifest(new))
+        self.assertNotEqual(_manifest(old)[0], _manifest(new)[0])
+        cli = os.environ["OMNIS_CLI_BIN"]
+        with self.bundle_scratch(retain=True) as scratch:
+            data = scratch / "data"
+            env = {
+                "PATH": os.environ.get("PATH", ""),
+                "HOME": str(scratch),
+                "XDG_DATA_HOME": str(data),
+                "XDG_STATE_HOME": str(scratch / "absent"),
+                "XDG_CONFIG_HOME": str(scratch / "config"),
+            }
+            for args in (("install", "--bundle", str(old)), ("install-image",)):
+                result = self.run_cli_scope([cli, *args], cwd=scratch, env=env, timeout=420)
+                self.assertEqual(result.returncode, 0)
+            receipt = json.loads((data / "omnis/image.json").read_bytes())
+            # Preserve both sealed distributions/images and the owned cold fixture for readback.
+            run_installed_stop(data, receipt, cli, upgrade_bundle=new)
 
     def test_real_api_web_and_cli_bundle_is_checkout_independent(self):
         uv = os.environ["OMNIS_UV"]

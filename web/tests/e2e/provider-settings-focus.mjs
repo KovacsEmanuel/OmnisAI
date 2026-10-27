@@ -118,6 +118,11 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             await page.getByRole('button', { name: 'Add New/Model', exact: true }).click();
             await page.getByRole('button', { name: 'Continue', exact: true }).click();
             await check(page.getByRole('button', { name: 'Save models', exact: true })).toBeVisible();
+            const modelToTest = page.getByRole('region', { name: 'Add models wizard' }).getByRole('combobox', { name: 'Model to test', exact: true });
+            await check(modelToTest).toHaveCount(1);
+            await modelToTest.selectOption('New/Model');
+            await check(modelToTest).toHaveValue('New/Model');
+            assert.equal(writes.length, 1);
             await capture('settings-review');
             await page.getByRole('button', { name: 'Save models', exact: true }).click();
             await check(page.getByText('Models saved. Assignments stay unchanged.', { exact: true })).toBeVisible();

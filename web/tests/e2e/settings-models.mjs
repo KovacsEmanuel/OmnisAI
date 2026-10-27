@@ -192,7 +192,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   await wizard.getByText('Output controls', { exact: true }).click();
   await wizard.getByLabel('fixture/02 output tokens', { exact: true }).fill('64');
-  await wizard.getByLabel('Model to test', { exact: true }).selectOption('fixture/02');
+  await wizard.getByRole('combobox', { name: 'Model to test', exact: true }).selectOption('fixture/02');
   await check(wizard).toContainText('Existing Default and explicit role overrides stay unchanged.');
   await capture('review-many', wizard.getByRole('button', { name: 'Save models', exact: true }));
   assert.deepEqual((await readSettings()).selection, preserved);

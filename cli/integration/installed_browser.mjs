@@ -192,6 +192,8 @@ async function main() {
     await expect(page.getByLabel('Pairing code')).toBeVisible();
     await page.getByLabel('Pairing code').fill(code);
     await page.getByRole('button', { name: 'Pair browser' }).click();
+    await expect(page.getByLabel('Pairing code')).toHaveCount(0);
+    await page.goto(`${origin}/settings/runtime`);
     await page.getByText('Instance diagnostics', { exact: true }).click();
     await expect(page.getByText(instance, { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();

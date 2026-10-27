@@ -1,6 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { assertProvider, assertDenial, assertJourney } from './installed_browser.mjs';
+
+test('source caller waits for pairing then opens Runtime before diagnostics', async () => {
+  const source = await readFile(new URL('./installed_browser.mjs', import.meta.url), 'utf8');
+  const steps = source.split('\n').map(line => line.trim());
+  const paired = steps.indexOf("await page.getByRole('button', { name: 'Pair browser' }).click();");
+  assert.notEqual(paired, -1);
+  assert.deepEqual(steps.slice(paired + 1, paired + 4), [
+    "await expect(page.getByLabel('Pairing code')).toHaveCount(0);",
+    'await page.goto(`${origin}/settings/runtime`);',
+    "await page.getByText('Instance diagnostics', { exact: true }).click();",
+  ]);
+});
 
 const selection = { provider: 'openai-codex', model: 'gpt-6.1-sol', effort: 'xhigh' };
 test('auth journey has one Connect and same-operation Cancel', () => {

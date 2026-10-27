@@ -1,12 +1,21 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { configured, connection, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 
 beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
-function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
+function mount(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) { return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
+function rotatedSession() {
+  const delegate = globalThis.fetch;
+  let rotated = false;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session' && rotated) return Response.json({ authenticated: true, csrf_token: 'b'.repeat(64) });
+    return delegate(input, init);
+  }));
+  return () => { rotated = true; };
+}
 async function open() { await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); }
 async function next() { const button = screen.getByRole('button', { name: 'Continue' }); await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true')); fireEvent.click(button); }
 const refuse = (code = 'REVISION_CONFLICT') => Response.json({ error: { code, correlation_id: entryId } }, { status: 409 });
@@ -48,6 +57,40 @@ it('CAS rejection is a hard stale barrier until explicit authoritative reload', 
 });
 it('unmount wipes a detached secret without a save', async () => {
   const { state } = settingsBackend(empty, []); const mounted = mount(); await open(); const input = screen.getByLabelText('API key'); fireEvent.change(input, { target: { value: 'synthetic-unsent' } }); mounted.unmount(); expect(input).toHaveValue(''); expect(state.writes).toHaveLength(0);
+});
+it('authenticated grant rotation wipes the old detached key and unmounts settings while binding is pending', async () => {
+  const { state } = settingsBackend(empty, []); const rotate = rotatedSession();
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }); mount(client); await open();
+  const input = screen.getByLabelText('API key'); fireEvent.change(input, { target: { value: 'synthetic-unsent' } });
+  const digest = crypto.subtle.digest.bind(crypto.subtle);
+  let release: () => void = () => {}; const paused = new Promise<void>(resolve => { release = resolve; });
+  vi.spyOn(crypto.subtle, 'digest').mockImplementationOnce(async (...args) => { await paused; return digest(...args); });
+  try {
+    rotate(); await act(async () => { await client.invalidateQueries({ queryKey: ['session'] }); });
+    expect(client.getQueryData(['session'])).toMatchObject({ csrf_token: 'b'.repeat(64) });
+    await waitFor(() => expect(input).toHaveValue(''));
+    expect(input).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add models' })).not.toBeInTheDocument();
+  } finally { release(); }
+  await open(); expect(screen.getByLabelText('API key')).toHaveValue(''); expect(state.writes).toHaveLength(0);
+  const keys = JSON.stringify(client.getQueryCache().getAll().map(query => query.queryKey));
+  expect(keys.includes('a'.repeat(64)) || keys.includes('b'.repeat(64))).toBe(false);
+});
+it('authenticated grant rotation never adopts the previous grants UNKNOWN pending command', async () => {
+  const { state, hook } = settingsBackend(empty, []);
+  hook.intercept = (path, _body, method) => { if (path.endsWith('/providers') && method === 'PUT') throw new TypeError('SOURCE lost reply'); return undefined; };
+  const rotate = rotatedSession(); const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }); mount(client); await open();
+  fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-key' } }); await next();
+  await screen.findByText(/Outcome unknown/); fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await act(async () => { await client.invalidateQueries({ queryKey: ['session'] }); });
+  expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
+  rotate(); await act(async () => { await client.invalidateQueries({ queryKey: ['session'] }); });
+  expect(client.getQueryData(['session'])).toMatchObject({ csrf_token: 'b'.repeat(64) });
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Recover exact receipt' })).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  expect(screen.queryByText(/Outcome unknown/)).not.toBeInTheDocument(); expect(state.writes).toHaveLength(1);
+  expect(state.reads.some(path => path.includes('/commands/'))).toBe(false);
 });
 it('locked and disabled states never claim an absent key is usable, and local Disable remains available', async () => {
   const { state } = settingsBackend({ ...configured, vault_status: 'LOCKED', connections: [{ ...connection, credential_present: false }] }); mount();

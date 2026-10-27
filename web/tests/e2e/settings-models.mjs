@@ -55,7 +55,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   }
   async function loadedMany() {
     await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(32);
-    await check(page.getByLabel('Brain', { exact: true })).toHaveDisplayValue(/fixture\/01/);
+    await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/01 · OpenRouter(?: · Unavailable — details needed or connection stale)?$/);
     await assignments.getByText('Output controls', { exact: true }).click();
     await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
     const current = await readSettings();
@@ -211,7 +211,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await page.reload();
   await check(test).toContainText(operation);
   await check(test).toContainText('COMPLETED');
-  await check(page.getByLabel('Brain', { exact: true })).toHaveDisplayValue(/fixture\/00/);
+  await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/00 · OpenRouter$/);
   const brain = page.getByLabel('Brain', { exact: true });
   const second = await brain.locator('option').evaluateAll(options => options.find(item => item.textContent.startsWith('fixture/01 ·'))?.value);
   assert.ok(second);

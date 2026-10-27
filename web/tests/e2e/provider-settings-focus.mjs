@@ -101,6 +101,7 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
           }
           if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, 'SOURCE-settings-64-320-loaded.png') });
         } else {
+          await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^Exact\/Current · OpenRouter$/);
           const save = page.getByRole('button', { name: 'Save assignments', exact: true }), elsewhere = page.getByRole('link', { name: 'Models', exact: true });
           await page.getByLabel('Default model', { exact: true }).selectOption(other); await save.focus(); await page.keyboard.press('Enter');
           await check.poll(() => writes.length).toBe(1); await paint(page); await check(save).toBeFocused(); await check(save).toHaveAttribute('aria-disabled', 'true'); assert.equal(await save.evaluate(button => button.disabled), false, 'Transient busy must not natively disable the focused button');

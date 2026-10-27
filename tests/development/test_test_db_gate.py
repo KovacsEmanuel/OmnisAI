@@ -388,7 +388,11 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
             }
             for target, flag in (
                 (target, flag)
-                for target in ("test-model-test-v2-pg", "test-contract-method-pg")
+                for target in (
+                    "test-model-test-v2-pg",
+                    "test-settings-models-ui-pg",
+                    "test-contract-method-pg",
+                )
                 for flag in ("-n", "-t", "-q", "-i")
             ):
                 with self.subTest(target=target, flag=flag):

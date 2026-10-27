@@ -11,6 +11,7 @@ from contextlib import ExitStack
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from . import development
 from .control import ControlUnavailable, request
 from .instance import control_dir, load_instance, private_dir, private_file, state_dir
 from .lifecycle import (
@@ -135,7 +136,8 @@ def _stopping_record(record: dict[str, object]) -> None:
     completed = record.get("teardown_completed")
     finalized = record.get("finalized_generation")
     if (
-        set(record) != STOP_FIELDS | native_fields(record) | vault_fields(record)
+        set(record)
+        != STOP_FIELDS | native_fields(record) | vault_fields(record) | development.fields(record)
         or type(record.get("phase")) is not str
         or record["phase"] not in {"STOPPING", "STOPPED"}
         or record.get("stop_generation") is not None
@@ -235,7 +237,10 @@ def readback_stopped(
 def _running_for_stop(
     runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
 ) -> dict[str, object]:
-    _stopping_record(record)
+    if record.get("phase") == "READY":
+        _ready_record(record)
+    else:
+        _stopping_record(record)
     _check_pgdata(root, record)
     instance = _bound_instance(runtime, root, control, record)
     port = _integer(record, "port")
@@ -277,7 +282,12 @@ def _emergency_inventory(
         command = record.get("open_command")
         if (
             set(record)
-            != (READY_FIELDS | native_fields(record) | vault_fields(record))
+            != (
+                READY_FIELDS
+                | native_fields(record)
+                | vault_fields(record)
+                | development.fields(record)
+            )
             - {"generation", "supervisor_epoch"}
             or type(record.get("format")) is not int
             or record["format"] not in (2, 3, 4, 5)
@@ -699,8 +709,11 @@ def stop_instance(
         else:
             if record.get("phase") == "READY":
                 try:
-                    verify_running(runtime, root, control, record, _integer(record, "port"))
-                    current = request(control, {"op": "status"}, deadline=deadline)
+                    if development.selection(record) is not None:
+                        current = _running_for_stop(runtime, root, control, record)
+                    else:
+                        verify_running(runtime, root, control, record, _integer(record, "port"))
+                        current = request(control, {"op": "status"}, deadline=deadline)
                 except (OSError, ValueError, ControlUnavailable, subprocess.SubprocessError):
                     _emergency_stop(runtime, root, control, record)
                     raise StartError("RECOVERY_REQUIRED", 4) from None
@@ -840,6 +853,7 @@ def stop_instance(
         instance = load_instance(root)
         return {
             "state": "STOPPED",
+            "mode": development.mode(record),
             "instance_id": instance.instance_id,
             "origin": instance.origin,
             "generation": record["stop_generation"],
@@ -873,7 +887,9 @@ def stop(*, as_json: bool, shutdown_timeout: int | None = None, recover: bool = 
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:
-        print(f"Omnis: {result['state']} ({result.get('reason') or 'stopped'})")
+        print(
+            f"Omnis: {result['state']} {result.get('mode', '')} ({result.get('reason') or 'stopped'})"
+        )
         if code:
             print("Verificați starea privată; fără retry distructiv.", file=sys.stderr)
     return code

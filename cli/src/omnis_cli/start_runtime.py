@@ -23,6 +23,7 @@ import subprocess
 import time
 from pathlib import Path
 
+from . import development
 from .compose import ImageReceipt, _checked_socket, _one_image, _record
 from .instance import private_dir, private_file
 from .lifecycle import StartError, mapping, read_record, remaining
@@ -103,10 +104,18 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
                     "OMNIS_MODEL_EGRESS_DIR": "/vault",
                 },
                 "volumes": [
-                    {"type": "bind", "source": str(root / name), "target": "/" + name}
-                    for name in ("vault", "vault-key")
+                    *(
+                        {"type": "bind", "source": str(root / name), "target": "/" + name}
+                        for name in ("vault", "vault-key")
+                    ),
+                    *development.mounts(runtime.development_workspace, "supervisor"),
                 ],
-            }
+            },
+            **(
+                {"api": {"volumes": development.mounts(runtime.development_workspace, "api")}}
+                if runtime.development_workspace is not None
+                else {}
+            ),
         }
     }
 
@@ -185,6 +194,8 @@ def _network_identity(
 
 
 class ControlRuntime:
+    development_workspace: str | None = None
+
     def __init__(self, data_home: Path, deadline: float) -> None:
         self.deadline = deadline
         self.uncertain = False
@@ -506,7 +517,8 @@ class ControlRuntime:
             env=env,
             cap=45,
             effect=effect,
-            stdin=json.dumps(overlay).encode() if overlay is not None else None,
+            # Overlay paths are literal, not Compose environment expressions.
+            stdin=json.dumps(overlay).replace("$", "$$").encode() if overlay is not None else None,
         )
 
     def network(self, allowed: set[str]) -> str | None:
@@ -575,6 +587,10 @@ class ControlRuntime:
                 expected.add(("bind", str(root / "native-ipc"), "/state/tmp", True))
         elif role not in {"migrate", "reconcile"}:
             raise StartError("CONTAINER_ROLE_INVALID", 3)
+        expected.update(
+            ("bind", mount["source"], mount["target"], False)
+            for mount in development.mounts(self.development_workspace, role)
+        )
         expected_command = {
             "runtime": list(RUNTIME_COMMAND),
             "db": ["postgres"],

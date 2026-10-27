@@ -19,6 +19,7 @@ from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
 
+from . import development
 from .config import _integer as config_integer
 from .config import load_config
 from .control import ControlUnavailable, request
@@ -388,6 +389,9 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                         "target": "/catalog",
                     }
                 )
+        expected_mounts.extend(
+            development.mounts(getattr(runtime, "development_workspace", None), role)
+        )
         mounts = service.get("volumes")
         if (
             not isinstance(mounts, list)
@@ -488,6 +492,7 @@ def wait_dashboard(
                 forwarded=False,
                 api_pid=api_pid,
                 allow_closed=allow_closed,
+                development_workspace=getattr(runtime, "development_workspace", None),
             )
         except (OSError, ValueError, ControlUnavailable, http.client.HTTPException):
             delay = end - time.monotonic()
@@ -874,7 +879,8 @@ def _pgdata_receipt(record: dict[str, object]) -> list[int]:
         or phase not in fields
         or set(record)
         not in tuple(
-            value | native_fields(record) | vault_fields(record) for value in fields[phase]
+            value | native_fields(record) | vault_fields(record) | development.fields(record)
+            for value in fields[phase]
         )
         or type(record.get("format")) is not int
         or record["format"] not in (2, 3, 4, 5)
@@ -955,7 +961,8 @@ def _check_pgdata(root: Path, record: dict[str, object]) -> None:
 
 def _ready_record(record: dict[str, object]) -> None:
     if (
-        set(record) != READY_FIELDS | native_fields(record) | vault_fields(record)
+        set(record)
+        != READY_FIELDS | native_fields(record) | vault_fields(record) | development.fields(record)
         or record.get("phase") != "READY"
         or type(record.get("format")) is not int
         or record["format"] not in (2, 3, 4, 5)
@@ -1005,6 +1012,7 @@ def _bound_instance(
         or instance.origin != f"http://127.0.0.1:{record['port']}"
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.development_workspace = development.selection(record)
     return instance
 
 
@@ -1063,6 +1071,7 @@ def verify_running(
         runtime.deadline,
         forwarded=True,
         api_pid=api_process(runtime, ids["api"], root, control, port),
+        development_workspace=runtime.development_workspace,
     )
     route_owned()
     if (
@@ -1071,14 +1080,15 @@ def verify_running(
         or current.get("supervisor_epoch") != record.get("supervisor_epoch")
     ):
         raise StartError("ADMISSION_CLOSED_OR_CHANGED", 4)
-    return projection(instance, current, reused=True)
+    return projection(instance, current, reused=True, mode=development.mode(record))
 
 
 def projection(
-    instance: Instance, current: dict[str, object], *, reused: bool
+    instance: Instance, current: dict[str, object], *, reused: bool, mode: str = "RELEASE"
 ) -> dict[str, object]:
     return {
         "state": "READY",
+        "mode": mode,
         "instance_id": instance.instance_id,
         "release": instance.release,
         "schema": instance.schema,
@@ -1131,6 +1141,10 @@ def start_instance(
         config.check_port(initial_record.get("port"), port)
         _check_pgdata(root, initial_record)  # No lock file or adoption for a legacy receipt.
         initial_phase = initial_record.get("phase")
+        if initial_phase != "STOPPED" and config.development_workspace != development.selection(
+            initial_record
+        ):
+            raise StartError("CONFIG_MODE_CONFLICT", 2)
     if initial_phase is None and os.path.lexists(root / "restore.json"):
         initial_restore = read_record(root / "restore.json")
     if initial_phase == "STOPPING":
@@ -1184,6 +1198,8 @@ def start_instance(
                 readback_stopped(runtime, root, control, record)
                 restarting = record
             else:
+                if config.development_workspace != development.selection(record):
+                    raise StartError("CONFIG_MODE_CONFLICT", 2)
                 return verify_running(runtime, root, control, record, selected)
         if not os.path.lexists(journal) and os.path.lexists(root / "restore.json"):
             if initial_restore is None or read_record(root / "restore.json") != initial_restore:
@@ -1207,6 +1223,14 @@ def start_instance(
             )
         else:
             selected = _integer(restarting, "port")
+        if config.development_workspace is not None:
+            if (
+                restarting is None
+                or restored
+                or getattr(runtime, "provider_settings", False) is not True
+            ):
+                raise StartError("DEVELOPMENT_REQUIRES_STOPPED_RELEASE", 2)
+            development.validate_new(config.development_workspace)
         preflight_port(selected)
         if (
             runtime.ids()
@@ -1262,6 +1286,8 @@ def start_instance(
                 vault_identity=private_identity(root / "vault"),
                 vault_key_identity=private_identity(root / "vault-key"),
             )
+            if config.development_workspace is not None:
+                record["development_workspace"] = config.development_workspace
         if runtime.native is True:
             if restarting is None:
                 ensure_private(root / "provider")
@@ -1290,6 +1316,7 @@ def start_instance(
                 )
             except (OSError, ValueError, KeyboardInterrupt):
                 raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
+        runtime.development_workspace = config.development_workspace
         runtime.attempt = str(record["attempt"])
         owner = ForwarderOwnership()
         try:
@@ -1513,6 +1540,7 @@ def start_instance(
                 forwarded=True,
                 api_pid=api_pid,
                 allow_closed=restarting is not None,
+                development_workspace=runtime.development_workspace,
             )
             # Only this verified new instance may open; never reopen an existing closed barrier.
             remaining(deadline)
@@ -1687,7 +1715,7 @@ def start(
         print(json.dumps(result, sort_keys=True))
     else:
         print(
-            f"Omnis: {result['state']} ({result.get('reason') or 'dashboard ready; no assessment'})"
+            f"Omnis: {result['state']} {result.get('mode', '')} ({result.get('reason') or 'dashboard ready; no assessment'})"
         )
         if result.get("origin"):
             print(f"{result['origin']}/")

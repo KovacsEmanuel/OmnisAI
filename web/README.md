@@ -28,6 +28,17 @@ make check-web                # cele de mai sus + audit npm
 
 ## Buildul final este servit de API, nu de Vite
 
+Pentru **instalația existentă în DEVELOPMENT opt-in**, folosiți
+[selectorul și lifecycle-ul CLI](../cli/README.md#development-opt-in-în-aceeași-instalație--candidat-nu-rollout):
+`npm --prefix web run build` → refresh la originul deja înregistrat. Vite produce
+`web/dist/omnis-web.json`; numai `web/dist` este montat read-only în API. Nu porniți
+serverul Vite/HMR, nu schimbați originul și nu reconstruiți imaginea/DB pentru UI.
+Buildul invalid/rebuilding poate face dashboardul temporar indisponibil; Status
+verifică bytes curenți, iar Stop rămâne independent de sănătatea asseturilor.
+Python cere Stop→editare→Start, nu refresh. Absența selectorului păstrează validarea
+strictă a releaseului instalat, fără fallback la checkout. Aceasta este instrucțiune
+de folosire a candidatului, nu dovadă de rollout ori QA.
+
 După migrarea explicită și pornirea supervisorului conform [api/README.md](../api/README.md), API-ul primește căi absolute. `OMNIS_CONTROL_DIR` este același director privat verificat al supervisorului; `OMNIS_DATABASE_URL` este deja furnizat prin environment, nu în argv, URL sau fișierele web.
 
 ```sh

@@ -8,6 +8,7 @@ import sys
 import time
 from pathlib import Path
 
+from . import development
 from .backup import admit_restore
 from .config import load_config
 from .control import ControlUnavailable, request
@@ -216,11 +217,13 @@ def status(*, as_json: bool) -> int:
             for key in ("generation", "supervisor_epoch", "admission_open", "shutdown_finalized"):
                 result.pop(key, None)
             exit_code = exc.code if isinstance(exc, StartError) else 3
+    if record is not None and preflight_error is None:
+        result["mode"] = development.mode(record)
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:
         print(
-            f"Omnis: {result['state']} (dashboard_ready={str(result['dashboard_ready']).lower()}, {result.get('reason') or 'verified'})"
+            f"Omnis: {result['state']} {result.get('mode', '')} (dashboard_ready={str(result['dashboard_ready']).lower()}, {result.get('reason') or 'verified'})"
         )
         if result.get("origin"):
             print(f"Origin configurat: {result['origin']}")

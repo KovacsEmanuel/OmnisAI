@@ -2,6 +2,7 @@
 
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -9,7 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from installed_pair_open import run_browser, tty_pair
+from installed_pair_open import http_request, run_browser, tty_pair
 from installed_start import (
     assert_resources_absent,
     resource_snapshot,
@@ -17,6 +18,8 @@ from installed_start import (
     teardown,
 )
 from omnis_cli.control import request
+from omnis_cli.development import selection, validate_new
+from omnis_cli.health import http_probe
 from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
 
@@ -44,8 +47,37 @@ def _lock_effect_snapshot(runtime, root, control, port, record):
     }
 
 
-def run_installed_stop(data, receipt, cli, *, settings_browser=None):
+def development_preflight(options):
+    """No daemon/config effects; fail before creating the existing disposable fixture."""
+    if not isinstance(options, dict) or set(options) != {"workspace", "node", "browser"}:
+        raise ValueError("DEVELOPMENT_PROBE_INPUTS")
+    browser = options["browser"]
+    if not isinstance(browser, dict) or set(browser) != {"node", "cache", "playwright"}:
+        raise ValueError("DEVELOPMENT_PROBE_INPUTS")
+    for value in (options["workspace"], options["node"], *browser.values()):
+        if not isinstance(value, str) or not Path(value).is_absolute() or not Path(value).exists():
+            raise ValueError("DEVELOPMENT_PROBE_INPUTS")
+    source = Path(options["workspace"])
+    if source.resolve() != source or browser["node"] != options["node"]:
+        raise ValueError("DEVELOPMENT_PROBE_INPUTS")
+    for name in (
+        "web/node_modules/vite/bin/vite.js",
+        "web/index.html",
+        "web/vite.config.ts",
+        "web/scripts/build-manifest.mjs",
+        "api/src/omnis/__init__.py",
+    ):
+        if not (source / name).is_file():
+            raise ValueError("DEVELOPMENT_PROBE_INPUTS")
+    validate_new(str(source))
+
+
+def run_installed_stop(data, receipt, cli, *, settings_browser=None, development=None):
     """Opt-in finite Settings visits share this fixture and its normal Stop owner."""
+    if development is not None:
+        development_preflight(development)
+        if settings_browser is not None or receipt.get("profile") != "t1-provider-settings":
+            raise ValueError("DEVELOPMENT_PROBE_PROFILE")
     if settings_browser is not None:
         assert set(settings_browser) == {"node", "cache", "playwright"}
         assert all(
@@ -95,7 +127,9 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
     )
 
     def require_observer_settled():
-        if settings_browser is not None and (runtime.uncertain or not runtime.family_drained):
+        if (settings_browser is not None or development is not None) and (
+            runtime.uncertain or not runtime.family_drained
+        ):
             raise RuntimeError("Installed observer family unsettled")
 
     def command(*args, expected=0, timeout=330):
@@ -170,6 +204,77 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
             browser=settings_browser,
             on_joined=joined,
         )
+
+    workspace = state / "development"
+    package = workspace / "api/src/omnis/__init__.py"
+    original_package = ""
+
+    def build_development(marker):
+        nonlocal driver_pending
+        assert development is not None
+        source = Path(development["workspace"])
+        index = (source / "web/index.html").read_text()
+        assert "</head>" in index
+        (workspace / "web/index.html").write_text(
+            index.replace(
+                "</head>", f'<meta name="omnis-development-probe" content="{marker}"></head>'
+            )
+        )
+        build_env = {
+            "PATH": str(Path(development["node"]).parent) + ":/usr/bin:/bin",
+            "HOME": str(state),
+            "TMPDIR": str(state),
+            "NODE_ENV": "production",
+        }
+        for script, args in (
+            (source / "web/node_modules/vite/bin/vite.js", ["build"]),
+            (workspace / "web/scripts/build-manifest.mjs", []),
+        ):
+            driver_pending = True
+            result = subprocess.run(
+                [development["node"], str(script), *args],
+                cwd=workspace / "web",
+                env=build_env,
+                capture_output=True,
+                timeout=90,
+            )
+            if result.returncode not in {0, 1}:
+                raise RuntimeError("Development build observer unsettled")
+            driver_pending = False
+            assert result.returncode == 0, "Isolated Vite build failed"
+        validate_new(str(workspace))
+
+    def wait_port():
+        until = time.monotonic() + 70
+        while True:
+            with socket.socket() as candidate:
+                try:
+                    candidate.bind(("127.0.0.1", port))
+                    return
+                except OSError:
+                    if time.monotonic() >= until:
+                        raise AssertionError("Owned listener did not release its port") from None
+            time.sleep(0.2)
+
+    def source_proof(marker):
+        runtime.deadline = time.monotonic() + 30
+        for role in ("api", "supervisor"):
+            cid = record["containers"][role]
+            runtime.attest(cid, role, root, control, port)
+            assert f"OMNIS_DEV_SOURCE_{marker}" in runtime.run("logs", cid).stdout
+            result = runtime.run(
+                "exec",
+                cid,
+                "python",
+                "-I",
+                "-c",
+                "import omnis; print(omnis.__file__); print(omnis.__omnis_development_probe__)",
+            ).stdout
+            assert result.splitlines()[-2:] == [
+                "/usr/local/lib/python3.13/site-packages/omnis/__init__.py",
+                marker,
+            ]
+        require_observer_settled()
 
     try:
         started = command("start", "--no-open", "--json")
@@ -322,17 +427,31 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         status = command("status", "--json", timeout=50)
         assert status["state"] == "STOPPED" and status["dashboard_ready"] is False
 
-        # SO_REUSEADDR=False may retain the old port in TIME_WAIT; do not adopt it.
-        until = time.monotonic() + 70
-        while True:
-            with socket.socket() as candidate:
-                try:
-                    candidate.bind(("127.0.0.1", port))
-                    break
-                except OSError:
-                    if time.monotonic() >= until:
-                        raise AssertionError("Owned listener did not release its port") from None
-            time.sleep(0.2)
+        if development is not None:
+            source = Path(development["workspace"])
+            shutil.copytree(
+                source / "api/src/omnis",
+                workspace / "api/src/omnis",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
+            shutil.copytree(source / "web/src", workspace / "web/src")
+            (workspace / "web/scripts").mkdir()
+            for name in ("package.json", "vite.config.ts", "scripts/build-manifest.mjs"):
+                shutil.copyfile(source / "web" / name, workspace / "web" / name)
+            (workspace / "web/node_modules").symlink_to(
+                source / "web/node_modules", target_is_directory=True
+            )
+            original_package = package.read_text()
+            package.write_text(
+                original_package
+                + "\n__omnis_development_probe__ = 'one'\nprint('OMNIS_DEV_SOURCE_one', flush=True)\n"
+            )
+            build_development("initial")
+            config.write_text(
+                f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n"
+            )
+        # SO_REUSEADDR=False may retain TIME_WAIT; never adopt a foreign listener.
+        wait_port()
         restarted = command("start", "--no-open", "--json")
         assert restarted["state"] == "READY" and restarted["generation"] > initial["generation"]
         assert restarted["origin"] == started["origin"]
@@ -342,9 +461,123 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
         runtime.attempt = record["attempt"]
         runtime.deadline = time.monotonic() + 30
         assert runtime.psql(record["containers"]["db"], "SELECT value FROM sl04_sentinel") == "7"
+        runtime.development_workspace = selection(record)
         require_observer_settled()
         assert command("status", "--json", timeout=50)["state"] == "READY"
         settings_visit("settings-readback")
+        if development is not None:
+            assert restarted["mode"] == "DEVELOPMENT"
+            assert (root / "instance.json").read_bytes() == before_instance
+            identity_keys = (
+                "release_digest",
+                "image_id",
+                "system_id",
+                "pgdata_identity",
+                "vault_identity",
+                "vault_key_identity",
+            )
+            old = json.loads(first_receipt)
+            assert all(record[key] == old[key] for key in identity_keys)
+            cids = dict(record["containers"])
+            source_proof("one")
+            for marker in ("one", "two"):
+                build_development(marker)
+                assert f'content="{marker}"'.encode() in http_probe(port, "/", time.monotonic() + 5)
+                assert command("status", "--json")["mode"] == "DEVELOPMENT"
+                assert json.loads((root / "startup.json").read_text())["containers"] == cids
+            for path, headers, expected in (
+                ("/", {"Host": "attacker.invalid"}, 400),
+                ("/api/session", {"Origin": "http://attacker.invalid"}, 403),
+                ("/api/session", {}, 401),
+                ("/assets/not-listed.js", {}, 404),
+                ("/api/logout", {}, 403),
+            ):
+                assert (
+                    http_request(
+                        port,
+                        path,
+                        method="POST" if path == "/api/logout" else "GET",
+                        headers=headers,
+                    )[0]
+                    == expected
+                )
+            driver_pending = True
+            code = tty_pair(cli, cwd, env)
+            status_code, headers, paired = http_request(
+                port,
+                "/api/pairing",
+                method="POST",
+                body={"code": code},
+                headers={"Origin": started["origin"]},
+            )
+            assert status_code == 200
+            cookie = headers["set-cookie"].split(";", 1)[0]
+            headers = {"Origin": started["origin"], "Cookie": cookie}
+            assert http_request(port, "/api/logout", method="POST", headers=headers)[0] == 403
+            assert (
+                http_request(
+                    port,
+                    "/api/logout",
+                    method="POST",
+                    headers={**headers, "X-CSRF-Token": json.loads(paired)["csrf_token"]},
+                )[0]
+                == 204
+            )
+            code = tty_pair(cli, cwd, env)
+
+            def joined():
+                nonlocal driver_pending
+                driver_pending = False
+
+            run_browser(
+                code,
+                cwd,
+                env,
+                started["origin"],
+                started["instance_id"],
+                browser=development["browser"],
+                on_joined=joined,
+            )
+            # Syntax-valid mode drift cannot block withdrawal; mutable bytes may be invalid.
+            config.write_text(f"port = {port}\n")
+            assert (
+                command("start", "--no-open", "--json", expected=2)["reason"]
+                == "CONFIG_MODE_CONFLICT"
+            )
+            (workspace / "web/dist/omnis-web.json").write_text("rebuilding")
+            assert command("status", "--json", expected=3)["dashboard_ready"] is False
+            assert command("stop", "--json")["mode"] == "DEVELOPMENT"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.deadline = time.monotonic() + 30
+            assert_resources_absent(runtime, root, control, record)
+            package.write_text(
+                original_package
+                + "\n__omnis_development_probe__ = 'two'\nprint('OMNIS_DEV_SOURCE_two', flush=True)\n"
+            )
+            build_development("two")
+            config.write_text(
+                f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n"
+            )
+            wait_port()
+            assert command("start", "--no-open", "--json")["mode"] == "DEVELOPMENT"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.attempt = record["attempt"]
+            source_proof("two")
+            assert record["containers"] != cids
+            assert command("stop", "--json")["state"] == "STOPPED"
+            config.write_text(f"port = {port}\n")
+            wait_port()
+            assert command("start", "--no-open", "--json")["mode"] == "RELEASE"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.attempt = record["attempt"]
+            runtime.development_workspace = None
+            runtime.deadline = time.monotonic() + 30
+            assert (
+                runtime.psql(record["containers"]["db"], "SELECT value FROM sl04_sentinel") == "7"
+            )
+            assert all(record[key] == old[key] for key in identity_keys)
+            assert http_probe(port, "/", runtime.deadline) == runtime.files["web/index.html"]
+            assert command("status", "--json")["mode"] == "RELEASE"
         assert command("stop", "--json")["state"] == "STOPPED"
         record = json.loads((root / "startup.json").read_text())
         runtime.deadline = time.monotonic() + 30
@@ -364,11 +597,15 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                 not cleanup
                 and not driver_pending
                 and not lock_probe_pending
-                and (settings_browser is None or (not runtime.uncertain and runtime.family_drained))
+                and (
+                    (settings_browser is None and development is None)
+                    or (not runtime.uncertain and runtime.family_drained)
+                )
                 and os.path.lexists(root / "startup.json")
             ):
                 record = json.loads((root / "startup.json").read_text())
                 runtime.attempt = record["attempt"]
+                runtime.development_workspace = selection(record)
                 runtime.deadline = time.monotonic() + 110
                 if record["phase"] == "STOPPED":
                     assert_resources_absent(runtime, root, control, record)
@@ -384,7 +621,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                             assert (root / "startup.json").read_bytes() == before_journal
                             assert resource_snapshot(runtime, root, control, port) == before
                             require_observer_settled()
-                        if settings_browser is not None:
+                        if settings_browser is not None or development is not None:
                             # Reuse product cgroup/Engine owner, not the legacy observer teardown.
                             assert command("stop", "--json")["state"] == "STOPPED"
                             record = json.loads((root / "startup.json").read_text())
@@ -405,10 +642,12 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
                     and not driver_pending
                     and not lock_probe_pending
                     and (
-                        settings_browser is None
+                        (settings_browser is None and development is None)
                         or (not runtime.uncertain and runtime.family_drained)
                     )
                 )
+                if cleanup and development is not None and workspace.exists():
+                    shutil.rmtree(workspace)  # Only the retired fixture's synthetic source/build.
                 save_probe(
                     state,
                     data,
@@ -424,7 +663,7 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None):
 
     if proof and cleanup:
         print(
-            f"INSTALLED_STOP_VERIFIED project={receipt['project']} restart=explicit data=retained",
+            f"INSTALLED_STOP_VERIFIED project={receipt['project']} restart=explicit data=retained development={development is not None}",
             flush=True,
         )
 

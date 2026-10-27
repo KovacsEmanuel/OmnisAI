@@ -20,6 +20,7 @@ import time
 from pathlib import Path
 from typing import cast
 
+from . import development
 from .compose import _record
 from .instance import private_dir, private_file, unique_pairs
 from .lifecycle import (
@@ -62,6 +63,7 @@ class _View(ControlRuntime):
         self.host, self.pg_image = runtime.host, runtime.pg_image
         self.attempt = runtime.attempt
         self.model_test = runtime.model_test
+        self.development_workspace = getattr(runtime, "development_workspace", None)
         self.uncertain, self.family_drained = False, True
 
     def run(
@@ -124,6 +126,7 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
         raise StartError("STOP_RELEASE_INVALID", 4)
     runtime.receipt, runtime.host = receipt, receipt.docker_host
     runtime.attempt = str(record["attempt"])
+    runtime.development_workspace = development.selection(record)
     runtime.deadline, runtime.uncertain, runtime.family_drained = deadline, False, True
     engine = StopEngine(runtime.host, receipt.docker_id, deadline)
     engine.check_daemon()

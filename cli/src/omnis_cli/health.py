@@ -15,6 +15,7 @@ from collections.abc import Buffer
 from pathlib import Path
 
 from .control import request
+from .development import web_files
 from .instance import unique_pairs
 from .lifecycle import StartError, remaining, socket_identity
 
@@ -47,6 +48,7 @@ def http_probe(
     directory: Path | None = None,
     api_pid: int | None = None,
     limit: int = 2 * 1024 * 1024,
+    statuses: tuple[int, ...] = (200,),
 ) -> bytes:
     if (
         type(port) is not int
@@ -92,7 +94,7 @@ def http_probe(
         )
         with http.client.HTTPResponse(connection) as response:
             response.begin()
-            if response.status != 200:
+            if response.status not in statuses:
                 raise StartError("HTTP_NOT_READY", 3)
             body = response.read(limit + 1)
         if len(body) > limit:
@@ -112,7 +114,10 @@ def dashboard(
     forwarded: bool,
     api_pid: int,
     allow_closed: bool = False,
+    development_workspace: str | None = None,
 ) -> dict[str, object]:
+    if development_workspace is not None:
+        files = web_files(development_workspace)
     current = request(control, {"op": "status"}, deadline=deadline)
     if (
         current["instance_id"] != identity
@@ -159,4 +164,6 @@ def dashboard(
     after = request(control, {"op": "status"}, deadline=deadline)
     if after != current:
         raise StartError("CONTROL_CHANGED_DURING_HEALTH", 3)
+    if development_workspace is not None and web_files(development_workspace) != files:
+        raise StartError("SERVED_ASSET_MISMATCH", 3)
     return current

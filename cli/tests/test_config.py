@@ -67,6 +67,33 @@ class ConfigTest(unittest.TestCase):
         with self.assertRaises(StartError):
             load_config()
 
+    def test_development_selector_is_bounded_lexical_not_a_content_read(self):
+        from omnis_cli.config import load_config
+        from omnis_cli.lifecycle import StartError
+
+        self.assertIsNone(getattr(load_config(), "development_workspace", None))
+        # Missing workspace remains syntax-valid so config drift cannot block Stop.
+        for path in (str(self.root / 'absent "checkout"'), "/" + '"' * 255 + "/" + "\\" * 255):
+            self.write_config("development_workspace = " + json.dumps(path))
+            self.assertEqual(getattr(load_config(), "development_workspace", None), path)
+        for value in (
+            "relative",
+            "/a/../b",
+            "/a/./b",
+            "/a//b",
+            "/a/",
+            "/",
+            "/é",
+            "/a\n",
+            "/" + "a" * 512,
+            True,
+            [],
+        ):
+            self.write_config("development_workspace = " + json.dumps(value))
+            with self.subTest(value=value), self.assertRaises(StartError) as raised:
+                load_config()
+            self.assertEqual(raised.exception.reason, "CONFIG_INVALID")
+
     def test_exact_integer_schema_with_defaults_and_bounded_overrides(self):
         from omnis_cli.config import load_config
         from omnis_cli.lifecycle import StartError

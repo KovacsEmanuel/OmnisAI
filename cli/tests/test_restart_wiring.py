@@ -22,6 +22,11 @@ stop = importlib.import_module("omnis_cli.stop")
 
 
 class RestartWiringTest(unittest.TestCase):
+    def test_development_switches_only_new_attempt_after_stopped_in_both_directions(self):
+        for direction in ("to-development", "to-release"):
+            with self.subTest(direction=direction):
+                self.restart(provider_settings=True, development_direction=direction)
+
     def test_db_only_then_correlated_reconciliation_ack_then_supervisor(self):
         self.restart()
 
@@ -68,7 +73,9 @@ class RestartWiringTest(unittest.TestCase):
     def test_restart_forwarder_failure_reaps_held_child_without_database_teardown(self):
         self.restart("forwarder-fault")
 
-    def restart(self, fault=None, *, provider_settings=False, restored=False):
+    def restart(
+        self, fault=None, *, provider_settings=False, restored=False, development_direction=None
+    ):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             retained = {}
             if provider_settings:
@@ -88,6 +95,21 @@ class RestartWiringTest(unittest.TestCase):
                     path.write_bytes(b"SOURCE retained synthetic bytes")
                     path.chmod(0o600)
                     retained[path] = (path.stat().st_ino, path.read_bytes())
+            if development_direction is not None:
+                from test_development import build_fixture
+
+                workspace = base / "checkout"
+                build_fixture(workspace)
+                if development_direction == "to-release":
+                    old["development_workspace"] = str(workspace)
+                config = base / "config/omnis/config.toml"
+                config.parent.mkdir(parents=True, mode=0o700)
+                config.write_text(
+                    "development_workspace = " + json.dumps(str(workspace))
+                    if development_direction == "to-development"
+                    else ""
+                )
+                config.chmod(0o600)
             # Owner proof is synthetic; DB/OCI/HTTP/forwarder seams are enumerated below.
             # Real owner/client/forwarder and death probes run separately.
             journal = root / "startup.json"
@@ -151,6 +173,12 @@ class RestartWiringTest(unittest.TestCase):
             copy_path = root / f"stopped-{old['stop_command']}.json"
 
             def compose(_env, *args, **kwargs):
+                if development_direction is not None:
+                    selected = str(workspace) if development_direction == "to-development" else None
+                    self.assertEqual(read_record(journal).get("development_workspace"), selected)
+                    self.assertEqual(runtime.development_workspace, selected)
+                    self.assertEqual(read_record(journal)["image_id"], old["image_id"])
+                    self.assertEqual(read_record(journal)["release_digest"], old["release_digest"])
                 self.assertTrue(kwargs["effect"])
                 if args[-1] == "db":
                     events.append("create-db")
@@ -193,6 +221,7 @@ class RestartWiringTest(unittest.TestCase):
                     )
                     self.assertIn("--interactive", args)
                     self.assertNotIn("--tty", args)
+                    self.assertNotIn("--mount", args)
                     self.assertEqual(
                         [args[i + 1] for i, a in enumerate(args) if a == "--attach"],
                         ["stdin", "stdout", "stderr"],

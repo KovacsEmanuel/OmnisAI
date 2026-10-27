@@ -170,19 +170,20 @@ def _inventory(
         capability = private_file(control / "control.cap", limit=64)
         if len(capability) != 64 or any(char not in "0123456789abcdef" for char in capability):
             raise StartError("RECOVERY_METADATA_INVALID", 4)
-    expected = runtime.files["web/index.html"]
+    development = runtime.development_workspace is not None
+    expected = None if development else runtime.files["web/index.html"]
     for directory in (root / "http", None):
-        if (
-            http_probe(
-                port,
-                "/",
-                runtime.deadline,
-                directory=directory,
-                api_pid=api_process(runtime, ids["api"], root, control, port),
-                limit=len(expected),
-            )
-            != expected
-        ):
+        body = http_probe(
+            port,
+            "/health/ready" if development else "/",
+            runtime.deadline,
+            directory=directory,
+            api_pid=api_process(runtime, ids["api"], root, control, port),
+            limit=4096 if development else len(runtime.files["web/index.html"]),
+            **({"statuses": (200, 503)} if development else {}),
+        )
+        # Route ownership is independent of mutable build readiness during recovery.
+        if expected is not None and body != expected:
             raise StartError("SERVED_ASSET_MISMATCH", 4)
     if runtime.uncertain or not runtime.family_drained:
         raise StartError("RECOVERY_UNCERTAIN", 4)

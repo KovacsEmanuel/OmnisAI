@@ -6,10 +6,17 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
+from .development import workspace
 from .instance import load_instance, private_dir, private_file
 from .lifecycle import StartError
 
-_KEYS = {"port", "startup_timeout_seconds", "shutdown_timeout_seconds", "cleanup_timeout_seconds"}
+_KEYS = {
+    "port",
+    "startup_timeout_seconds",
+    "shutdown_timeout_seconds",
+    "cleanup_timeout_seconds",
+    "development_workspace",
+}
 
 
 @dataclass(frozen=True)
@@ -19,6 +26,7 @@ class Config:
     startup_timeout_seconds: int = 180
     shutdown_timeout_seconds: int = 180
     cleanup_timeout_seconds: int = 100
+    development_workspace: str | None = None
 
     def check_port(self, actual: object, explicit: int | None = None) -> None:
         if explicit is not None:
@@ -83,6 +91,9 @@ def load_config() -> Config:
             startup_timeout_seconds=_integer(raw.get("startup_timeout_seconds", 180), 30, 300),
             shutdown_timeout_seconds=_integer(raw.get("shutdown_timeout_seconds", 180), 15, 180),
             cleanup_timeout_seconds=_integer(raw.get("cleanup_timeout_seconds", 100), 30, 180),
+            development_workspace=workspace(raw["development_workspace"])
+            if "development_workspace" in raw
+            else None,
         )
     except (OSError, ValueError, RecursionError):
         raise StartError("CONFIG_INVALID", 2) from None

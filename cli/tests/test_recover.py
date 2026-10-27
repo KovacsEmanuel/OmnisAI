@@ -167,7 +167,7 @@ class RecoveryFixture(Fixture):
             )
         if "SELECT generation::text" in query:
             record = self.journal()
-            return f"3|f|{record['stop_command']}|3|1|2"
+            return f"{record['stop_generation']}|f|{record['stop_command']}|{record['stop_generation']}|1|{record['supervisor_epoch']}"
         raise AssertionError(query)
 
     def control_request(self, directory, command, **kwargs):
@@ -175,12 +175,15 @@ class RecoveryFixture(Fixture):
         op = command["op"]
         self.ops.append(op)
         if op == "shutdown":
-            assert command["expected_generation"] == 2
+            assert command["expected_generation"] == self.current["generation"]
             self.current.update(
-                generation=3, shutdown_command_id=command["command_id"], quiesced_generation=3
+                generation=command["expected_generation"] + 1,
+                admission_open=False,
+                shutdown_command_id=command["command_id"],
+                quiesced_generation=command["expected_generation"] + 1,
             )
         elif op == "finalize":
-            assert command["expected_generation"] == 3
+            assert command["expected_generation"] == self.current["generation"]
             self.current["shutdown_finalized"] = True
         elif op == "arm_stop":
             return {k: v for k, v in command.items() if k != "op"} | dict(
@@ -192,7 +195,7 @@ class RecoveryFixture(Fixture):
 
 
 class RecoverTests(unittest.TestCase):
-    def invoke(self, fixture):
+    def invoke(self, fixture, command="recover"):
         import importlib
         import subprocess
 
@@ -221,7 +224,7 @@ class RecoverTests(unittest.TestCase):
         ):
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
-                code = main(["recover", "--json"])
+                code = main([command, "--json"])
         return code, json.loads(output.getvalue())
 
     def test_busy_control_ipc_refuses_before_intent(self):

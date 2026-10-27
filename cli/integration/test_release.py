@@ -571,6 +571,12 @@ class ReleaseBundleTest(unittest.TestCase):
             self.assertEqual(image["Config"]["User"], "65532:65532")
             self.assertEqual(image["Config"]["Cmd"], ["python", "-I", "-m", "omnis.serve"])
             self.probe_installed_image(state, scratch)
+            if getattr(self, "development_options", None) is not None:
+                from installed_stop import run_installed_stop
+
+                runtime_pending = True
+                run_installed_stop(data, state, cli, development=self.development_options)
+                runtime_pending = False
             if os.environ.get("OMNIS_INSTALLED_CONTROL_PROBE") == "1":
                 from control_topology import run_probe
 
@@ -1072,7 +1078,60 @@ class ReleaseBundleTest(unittest.TestCase):
             if problems:
                 raise AssertionError("Probe cleanup incomplete: " + ", ".join(problems))
 
+    def test_development_probe_rejects_missing_inputs_before_state_or_runtime(self):
+        import installed_stop
+
+        with (
+            patch.object(installed_stop.tempfile, "mkdtemp") as create,
+            patch.object(installed_stop, "ControlRuntime") as runtime,
+        ):
+            for options in (
+                {},
+                {"workspace": "relative"},
+                {"workspace": "/absent", "node": "/absent", "browser": {}},
+            ):
+                with self.subTest(options=options), self.assertRaises(ValueError):
+                    installed_stop.run_installed_stop(
+                        Path("/absent"), {}, "/absent", development=options
+                    )
+            create.assert_not_called()
+            runtime.assert_not_called()
+
     def test_real_api_web_and_cli_bundle_is_checkout_independent(self):
+        self.development_options = None
+        if os.environ.get("OMNIS_INSTALLED_DEVELOPMENT_PROBE") == "1":
+            from installed_stop import development_preflight
+
+            self.assertEqual(os.environ.get("OMNIS_INSTALL_IMAGE_PROBE"), "1")
+            self.assertFalse(
+                any(
+                    os.environ.get(name) == "1"
+                    for name in (
+                        "OMNIS_INSTALLED_STOP_PROBE",
+                        "OMNIS_INSTALLED_START_PROBE",
+                        "OMNIS_INSTALLED_PAIR_OPEN_PROBE",
+                        "OMNIS_INSTALLED_CONTROL_PROBE",
+                        "OMNIS_IMAGE_PROBE",
+                    )
+                )
+            )
+            node = os.environ["OMNIS_DEVELOPMENT_NODE"]
+            self.development_options = dict(
+                workspace=str(ROOT),
+                node=node,
+                browser=dict(
+                    node=node,
+                    cache=os.environ["PLAYWRIGHT_BROWSERS_PATH"],
+                    playwright=str(ROOT / "web/node_modules/@playwright/test/index.mjs"),
+                ),
+            )
+            development_preflight(self.development_options)
+            self.assertEqual(
+                subprocess.run(
+                    [node, "--version"], capture_output=True, text=True, timeout=5, check=True
+                ).stdout.strip(),
+                "v24.21.0",
+            )
         uv = os.environ["OMNIS_UV"]
         cli = os.environ["OMNIS_CLI_BIN"]
         self.assertTrue((ROOT / "web/dist/omnis-web.json").is_file(), "Build web first")
@@ -1155,6 +1214,11 @@ class ReleaseBundleTest(unittest.TestCase):
                     str(ROOT / "web/dist"),
                     "--output",
                     str(bundle),
+                    *(
+                        ["--profile", "t1-provider-settings"]
+                        if self.development_options is not None
+                        else []
+                    ),
                 ]
             )
             manifest = json.loads((bundle / "release.json").read_text())
@@ -1183,6 +1247,9 @@ class ReleaseBundleTest(unittest.TestCase):
                 (ROOT / "web/dist/index.html").read_bytes(),
             )
             self.assert_compose_config(installed_root, scratch)
+            if self.development_options is not None:
+                self.assert_image_install(cli, env, data, scratch)
+                return
             compose_source = (installed_root / "ops/compose.yaml").read_text()
             api_security = (
                 "    read_only: true\n    cap_drop: [ALL]\n"

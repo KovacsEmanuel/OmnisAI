@@ -2,6 +2,76 @@
 
 `omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) are adjudecarea `P0_LOCAL_USABLE=PASS_LOCAL_RECORDED` pentru un singur operator pe această VM, nu certificarea universală a crashurilor. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) păstrează probele la reviziile lor. CI remote și peerul extern rămân pentru distribuire/portare, nu condiții ale utilizării locale.
 
+## DEVELOPMENT opt-in în aceeași instalație — candidat, nu rollout
+
+Pentru profilul `t1-provider-settings`, după backup/restaurare probate și **Stop
+verificat**, configurația existentă poate selecta explicit checkoutul trusted:
+
+```toml
+development_workspace = "/cale/absoluta/canonica/OmnisAI"
+```
+
+Cheia este opțională: absentă = `RELEASE`; prezentă = `DEVELOPMENT`, nu certificare
+imuabilă. Maximum **512 bytes ASCII imprimabili**, fără `..`, aliasuri, trailing
+slash ori symlinkuri. Configul rămâne maximum4096 bytes/0600. La Start se verifică
+ownerul/căile, pachetul bounded4096 intrări și manifestul web (32KiB,128 fișiere,
+2MiB/fișier,8MiB cumulat). Nu puneți fișiere private în cele două directoare montate.
+
+- UI: din checkout, `npm --prefix web run build`, apoi refresh la **același origin**.
+  Numai `web/dist` este montat read-only la `/opt/omnis/web`, numai în API. Un build
+  incomplet/corupt dă indisponibilitate temporară, nu fallback sau READY fals.
+- Python: **`omnis stop --json` → editare → `omnis start --no-open --json`**.
+  Numai `api/src/omnis` se montează read-only peste
+  `/usr/local/lib/python3.13/site-packages/omnis` în API și supervisor; `python -I`
+  rămâne. Fără autoreload; editarea sursei backend cât rulează este nesuportată.
+- Nu se montează home/checkoutul complet, `.hermes`, dependențe sau chei în API.
+  DB, vault/master, control, UID/GID, caps, rețea, Host/Origin/sesiune/CSRF și Stop
+  rămân neschimbate. Joburile de reconciliere/migrare folosesc codul instalat.
+- Selectorul este legat de noul receipt format5, **numai după STOPPED**. Reuse cu
+  selector diferit refuză `CONFIG_MODE_CONFLICT`, fără al doilea proces. Status,
+  Pair/Open, Stop și recover folosesc modul încercării, nu configul schimbat ulterior.
+  Schimbarea sintactic validă a selectorului, sursa lipsă ori buildul invalid nu
+  blochează retragerea resurselor atestate. Configul malformat rămâne refuzat.
+- Rollback: Stop autentic, eliminați cheia din config, Start explicit. Același
+  UUID/origin/PGDATA/date/chei și digest/imagine păstrate; fără restore DB sau
+  rescriere de granturi. Dependențele/schema/baza cer release separat, nu acest mount.
+
+CLI-ul extins se livrează explicit în launcherul/venv-ul existent după review și
+QA; nu modifică releaseul păstrat. SOURCE nu certifică importul OCI sau tranziția
+operatorului. Nu rulați proba următoare pe datele/configul operatorului.
+
+### QA installed finită, numai după reviewurile complementare
+
+Consumerul existent `test_release` are opt-in `OMNIS_INSTALLED_DEVELOPMENT_PROBE=1`.
+Necesită CLI candidat deja instalat într-un venv QA izolat, toolchainurile fixate,
+`web/dist` construit, cache Chromium/Playwright fixat și imaginile de bază deja
+pregătite. Folosește release/proiect/state fresh proprii, nu adoptă instalări.
+
+```sh
+# Preflight SOURCE fără Docker/build/instalare:
+cli/.venv/bin/python -I -B -m unittest discover -s cli/tests -p test_development.py -v
+cli/.venv/bin/python -I -B -m unittest discover -s cli/integration -p test_release.py -k development_probe -v
+# Numai QA autorizată: <cli-QA> și <cache-Chromium> sunt căi absolute pregătite.
+PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin \
+OMNIS_UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 \
+OMNIS_CLI_BIN=<cli-QA>/bin/omnis \
+OMNIS_DEVELOPMENT_NODE=/home/kali/.local/share/omnis-toolchains/bin/node \
+PLAYWRIGHT_BROWSERS_PATH=<cache-Chromium> \
+OMNIS_INSTALL_IMAGE_PROBE=1 OMNIS_INSTALLED_DEVELOPMENT_PROBE=1 \
+cli/.venv/bin/python -I -B -m unittest discover -s cli/integration -p test_release.py \
+  -k test_real_api_web_and_cli_bundle_is_checkout_independent -v
+```
+
+Celelalte opt-in-uri `OMNIS_*PROBE` trebuie absente. Părintele fixează deadline-ul
+exterior și ownerul QA înaintea efectelor. Scenariul verifică RELEASE→DEVELOPMENT,
+două builduri Vite succesive în copie sintetică, bytes/health, importurile și
+restartul Python, sentinel DB/identități, denials Host/Origin/session/CSRF/assets,
+browserul session existent și rollback DEVELOPMENT→RELEASE→Stop/readback.
+Copiile de source/build se șterg numai după cleanup verificat; PGDATA/receipturile
+se păstrează. La incertitudine nu se pretinde cleanup. Desktop/mobile/focus și
+acceptarea vizuală Settings se verifică separat/reutilizează scoped, nu sunt
+certificate de scenariul browser session. Fără provider/target traffic sau T2.
+
 ## Recuperare explicită T1 — candidat, fără autoresume
 
 `omnis recover [--json]` recuperează **numai** profilul normal `t1-provider-settings`
@@ -126,7 +196,7 @@ cleanup_timeout_seconds = 100
 | `shutdown_timeout_seconds` | 15–180 | 180 | `stop --shutdown-timeout` |
 | `cleanup_timeout_seconds` | 30–180 | 100 | `start --cleanup-timeout` |
 
-Numai integer exact: bool/float/string, interval invalid, table/cheie necunoscută,
+Pentru cele patru chei numerice, numai integer exact: bool/float/string, interval invalid, table/cheie necunoscută,
 cheie secretă, TOML malformat ori fișier prea mare sunt refuzate sanitizat cu
 `CONFIG_INVALID`/exit 2 înainte de lock, Docker, UDS ori browser, inclusiv în
 `status`, `pair`, `open` și comanda implicită. Nu puneți credentiale în acest fișier.

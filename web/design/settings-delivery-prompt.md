@@ -175,6 +175,19 @@ and existing commands/targets, not remembered flags or a new harness. Missing pr
 are BLOCKED/NOT_RUN, not fabricated output or a weakened gate. Respect the existing two-cycle
 harness-only limit; reuse unchanged scoped evidence.
 
+Apply the concrete delivery preflights learned here before another expensive gate:
+- After changing application copy, trace the exact old labels/defaults through every real
+  browser caller, including B04 before/after restart. Run the affected existing journey first;
+  do not discover a stale UI selector after the full API suite. Preserve user-authored text.
+- Check matchers against the installed Playwright API, not jest-dom memory. For native
+  selects verify the actual role/name and selected option. Check socket fixture signatures
+  against their real stdlib callers, including loopback readiness, before provisioning PG.
+- Map remaining visible actions to actual evidence: SOURCE/component, real API, or real
+  browser/API/PG. In particular, do not infer Replace/Disable/Reconnect, chip removal,
+  manual fallback, active-test Cancel or UNKNOWN readback from one successful happy path.
+  Reuse covered actions; exercise only genuine live gaps through existing consumers, with
+  the same security assertions and finite budgets. A delayed completion is not a new run.
+
 After required reviews, QA the actual built/installed affected artifact on an admitted owned
 isolated API/PostgreSQL fixture, not `settings-final.html` as a production substitute:
 - First setup, saved-key multi-add/search/dedup, single/multiple/default/override persistence,

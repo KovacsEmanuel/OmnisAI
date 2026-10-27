@@ -13,7 +13,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   if (stage === 'after') {
     const previous = JSON.parse(await readFile(recordPath, 'utf8'));
     await page.goto(`${origin}/engagements/${previous.id}/setup`);
-    await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(previous.objective);
+    await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(previous.objective);
     await check(page.getByText(`Saved · revision ${previous.revision}`)).toBeVisible();
     const restored = await page.evaluate(async id => (await fetch(`/api/v1/engagements/${id}`)).json(), previous.id);
     assert.equal(restored.engagement_id, previous.id);
@@ -21,7 +21,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     assert.equal(restored.digest, previous.digest);
     assert.equal(restored.payload.objective_text, previous.objective);
     await page.reload();
-    await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(previous.objective);
+    await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(previous.objective);
     await page.getByRole('button', { name: '2. Application context' }).click();
     await check(page.getByLabel('Principal 1')).toHaveValue('Visitor');
     await page.getByRole('button', { name: '4. Rules & budgets' }).click();
@@ -62,7 +62,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByLabel('Valid until (UTC)').fill('2030-12-31T00:00:00Z');
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await check(page.getByLabel('Scope access')).toHaveValue('BLOCKED');
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Mobile create overflow ${width}`);
@@ -86,7 +86,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByRole('button', { name: 'Next' }).click();
   await check(page.getByRole('heading', { name: 'Application context' })).toBeVisible();
   await page.getByRole('button', { name: 'Back' }).click();
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid:');
   const [invalid] = await Promise.all([
     page.waitForResponse(response => response.request().method() === 'PUT' &&
@@ -98,13 +98,13 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByRole('button', { name: 'scope.0.origin: Invalid value.' }).click();
   await check(page.getByLabel('Scope origin')).toBeFocused();
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
-  await page.getByLabel('Test focalizat').check();
+  await page.getByLabel('Focused test').check();
   // A persisted General objective has no provenance flag in B02; switching modes must not delete saved text by literal equality.
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Evaluează suprafața Web/API autorizată în limitele profilului selectat.');
-  await page.getByLabel('Obiectiv / instrucțiuni pentru Brain').fill('   ');
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');
+  await page.getByLabel('Objective / Brain instructions').fill('   ');
   await page.getByRole('button', { name: 'Save draft' }).click();
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveAttribute('aria-invalid', 'true');
-  await page.getByLabel('Obiectiv / instrucțiuni pentru Brain').fill(objective);
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveAttribute('aria-invalid', 'true');
+  await page.getByLabel('Objective / Brain instructions').fill(objective);
   await check(page.getByText(/code points/).first()).toContainText('8192');
   await page.getByRole('button', { name: '2. Application context' }).click();
   await page.getByLabel('Seed URLs (one per line)').fill('https://synthetic.invalid/api');
@@ -123,7 +123,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByRole('button', { name: 'Save draft' }).click();
   await check(page.getByText('Saved · revision 2')).toBeVisible();
   await page.reload();
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective);
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(objective);
   await page.getByRole('button', { name: '2. Application context' }).click();
   await check(page.getByLabel('Principal 1')).toHaveValue('Visitor');
   await page.getByRole('button', { name: '4. Rules & budgets' }).click();
@@ -131,12 +131,12 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   const second = await context.newPage();
   try {
     await second.goto(`${origin}/engagements/${id}/setup`);
-    await check(second.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective);
+    await check(second.getByLabel('Objective / Brain instructions')).toHaveValue(objective);
     await page.getByRole('button', { name: '1. Target & permission' }).click();
-    await page.getByLabel('Obiectiv / instrucțiuni pentru Brain').fill(objective + '\nFirst editor');
+    await page.getByLabel('Objective / Brain instructions').fill(objective + '\nFirst editor');
     await page.getByRole('button', { name: 'Save draft' }).click();
     await check(page.getByText('Saved · revision 3')).toBeVisible();
-    await second.getByLabel('Obiectiv / instrucțiuni pentru Brain').fill(objective + '\nSecond editor');
+    await second.getByLabel('Objective / Brain instructions').fill(objective + '\nSecond editor');
     const [conflict] = await Promise.all([
       second.waitForResponse(response => response.request().method() === 'PUT' &&
         response.url() === `${origin}/api/v1/engagements/${id}`),
@@ -144,10 +144,10 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     ]);
     assert.equal(conflict.status(), 409, 'Stale second tab must receive real CAS conflict');
     await check(second.getByText('Conflict · local edits preserved')).toBeVisible();
-    await check(second.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective + '\nSecond editor');
+    await check(second.getByLabel('Objective / Brain instructions')).toHaveValue(objective + '\nSecond editor');
     await second.getByRole('button', { name: 'Compare server revision' }).click();
     await check(second.getByText(/Server revision 3/)).toBeVisible();
-    await check(second.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective + '\nSecond editor');
+    await check(second.getByLabel('Objective / Brain instructions')).toHaveValue(objective + '\nSecond editor');
     await check(second.getByRole('button', { name: 'Save draft' })).toBeDisabled();
     await secretChecks(second);
   } finally { await second.close(); }
@@ -183,7 +183,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await check(page.getByLabel('Pairing code')).toBeVisible();
   await paired();
   await page.goto(`${origin}/engagements/${id}/setup`);
-  await check(page.getByLabel('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(objective + '\nFirst editor');
+  await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(objective + '\nFirst editor');
   await writeFile(recordPath, JSON.stringify({ id, objective: objective + '\nFirst editor', revision: final.revision, digest: final.digest }));
   await secretChecks();
   console.log('B04_G01_BEFORE_PASS create/edit/GET/reload, real CAS 409, denials, expiry and re-pair');

@@ -42,12 +42,12 @@
       "private_record": "<root>/evidence/launcher-change.json; before/after/inverse recorded before external change"
     },
     "old_cleanup": {
-      "status": "BLOCKED_ADMIN_BACKUP_RESTORE",
+      "status": "RETIRED_SERVICES_STOPPED_VERIFIED_DATA_RETAINED",
       "root": "/home/kali/.local/share/omnis-t1-fixed-a5b8939",
       "instance_id": "e10da359-a48f-40f3-ad2f-7641a3f6bb83",
       "project": "omnis-local-a602f00b5b5541dda5ee21792d934189",
       "containers": {"api": "9dbc2761e90962594388a0b2860e145d171fe350a2cec5ea09f6413fd18c6495", "database": "e95a4576c17768dad76af9c078dbd57cb4b32c7fb49776f8124429c464ddac4e", "supervisor": "e1e6f5e8fa740e138c708780b71c49fc358971235ac5d6d42dabf826f29be4ea"},
-      "readback": "API/DB running, supervisor exited3; old root dependencies identified separately. PGDATA s/omnis/postgres/18/docker UID999/GID0 mode0700 inaccessible to operator, sudo -n true exit1/password required. No raw live archive, privileged helper/chown bypass or cleanup. Shared Python/PostgreSQL image must remain.",
+      "readback": "Historical preflight: API/DB running, supervisor exited3; raw PGDATA UID999/mode0700 and sudo -n denied. Resolved without filesystem bypass by native logical PostgreSQL backup and actual isolated restore; then existing old recover/status confirmed STOPPED10 and exact3CIDs/projectnetwork absent. Data/keys/release and shared Python/PostgreSQL image remain. See maintenance for original errors and limits.",
       "retained": "All old data, crypto keys, vault ciphertext, recovery receipts, release and resources preserved. Consistent backup plus isolated restore, with required crypto material separately preserved, precede any retirement.",
       "reclaimed_bytes": 0
     },
@@ -56,6 +56,24 @@
       "reason": "cli/src/omnis_cli/release.py refuses different immutable0.1.0 bytes; backup.py restore requires the same release digest/schema; Dockerfile.control embeds web assets. Build/restart is not an upgrade path. No updater, new empty profile, immutable overwrite or operator restart admitted as a workaround.",
       "independent_work": "Presentation-only refinement7795b66 is ACCEPTED_SCOPED after complementary review and real isolated browser/API/PG QA; see polish. It is not installed acceptance; separate rollout decision required."
     }
+  },
+  "maintenance": {
+    "mandate": "User explicitly requested fixing and completing actual operator delivery after the source-only result; manual compatible upgrade admitted, no automatic updater/PromptB/T2/provider replay.",
+    "current_installation": "Latest qualified status is STOPPED generation5, same d694129b-a3e5-446d-9e5b-fe9bc19abed8/origin8780/schema0016. Previously READY snapshot is historical, not current service availability. Existing recover --json exited0, independent status0. No Start yet.",
+    "failure_observed": "New supervisor exited3, OOMKilled false; retained original SUPERVISOR_FAILURE phase=READINESS error=VALUE_ERROR. API/database remained running and current health API_READY true; exact historical readiness subtype/cause not retained. Supported operational recovery, not a claimed timeout/root-cause code fix.",
+    "backup": "/home/kali/.local/share/omnis-backups/maintenance-056cffd-s6navmih: native PG18.6 custom dumps for current and old instances, opaque vault state and separate master-key archives0600. Existing DB UID999/native interface, no raw PGDATA permission bypass, extra capability or ownership change.",
+    "restore": "Both custom dumps restored by native PG18.6 into fresh standard private compose.test fixture: exact schemas0016/0015 and instance IDs,34/30tables;7opaque files each restored byte-exact. No application/provider started. Exact fixture34ebd4ecb80de64114cb3f3e94971ced57f7a3383fb1f1e5b70b5194a4368bcf/projectomnis-p01-96eb6de27e0e4ccbbb101df944f95058 removed, socket absent, PG18data retained.",
+    "retained_attempts": "First vault collection refused live model-egress.sock; successful dump/key archive were retained, finite durable-member list corrected without redumping current data. Restore wrapper exited2 because cleanup_owned True(success) was mislabeled uncertainty; original owner printed complete absence/uncertainFalse. Source return and separate read-only exact resource check corrected only metadata, no rerun.",
+    "old_retirement": "After backup/restoration proof, exact old CLI with its original HOME/XDG roots: recover --json exit0, independent status0 STOPPED generation10 on e10da359-a48f-40f3-ad2f-7641a3f6bb83/origin8773/schema0015. All3old CIDs and exact projectnetwork independently absent. Original PGDATA/vault/master key/release/recovery retained; original container logs preserved privately.",
+    "space": "No data, release or image deletion. Before old-container metadata summed68logical SizeRw bytes, not allocated disk blocks; no reclaimed-space total is inferred.",
+    "cold_prerequisite": "Native-host adapter for the existing cold backup/restore codec prepared under the private backup root, not a new product backup format. Operator agreed to local administrator authentication; effectful execution awaits independent recipe review. No password in chat, privileged Docker helper or source ownership changes.",
+    "manual_upgrade": "Design decision: same profile/schema, original API/dependencies/Compose/Dockerfile bytes; only accepted web and reviewed CLI delta. Real producer build_control_bundle format3/profile t1-provider-settings; existing manifest32KiB/128files/2MiBper/8MiBtotal limits. Genuine STOPPED + verified backup, immutable old/new releases/images, locked/revalidated explicit transition and normal reconciliation without --restore; tested rollback required. Sole developer WIP; no operator rollout before complementary review and isolated installed proof.",
+    "private_records": [
+      "/home/kali/.local/share/omnis-settings-c-9e51d10/evidence/current-recovery-plan.json",
+      "/home/kali/.local/share/omnis-t1-fixed-a5b8939/evidence/maintenance-retirement-plan.json",
+      "/home/kali/.local/share/omnis-backups/maintenance-056cffd-s6navmih/backup-record.json",
+      "/home/kali/.local/share/omnis-backups/maintenance-056cffd-s6navmih/restore-result.json"
+    ]
   },
   "polish": {
     "product_head": "7795b66f1dd62f93043d430543d2450d6899b871",

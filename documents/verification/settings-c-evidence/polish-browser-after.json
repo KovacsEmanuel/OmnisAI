@@ -1,0 +1,18 @@
+{
+  "scenario": "settings-models",
+  "passed": true,
+  "browser": "153.0.8010.12",
+  "catalog": {
+    "entries": 32,
+    "apiRestartReadback": true,
+    "exactTestOperation": "a0f05d4d-33c9-4b4f-b84b-90ebfcbad30c",
+    "historyReadback": true,
+    "disabled": true,
+    "selectionRevision": 3
+  },
+  "requestCount": 27,
+  "externalRequests": 0,
+  "pageErrors": 0,
+  "secretChecks": true,
+  "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only"
+}

@@ -132,7 +132,7 @@ exact-entry test and English C UI rather than declaring isolated helpers complet
 Rollback is granular Git revert for source; fixture DB/vault data remain preserved,
 and no operator instance/PGDATA is adopted. No provider traffic, spending, push or auth edits.
 
-**Execution outcome — functional scoped PASS; whole canonical BLOCKED_BUDGET, NOT_CLOSED.**
+**Original execution outcome — functional scoped PASS; whole canonical BLOCKED_BUDGET, NOT_CLOSED.**
 Registry `a3e04a7` and catalog/exact-entry test `6d9c0c5` retain their
 [53PASS](../../documents/verification/settings-c-evidence/registry-result.json) and
 [72PASS](../../documents/verification/settings-c-evidence/catalog-result.json) API/private-PG evidence.
@@ -171,7 +171,29 @@ source34/build4 identity confirmed. This is composed scoped evidence, not a sing
 whole-gate acceptance stays BLOCKED_BUDGET/NOT_CLOSED. Stop at the user's session/context boundary;
 no third full run or successor automatically. No timeout widening, installed operator upgrade,
 external provider traffic/spending, Prompt B/auth policy or T2/P4b closure.
-Orca's undocumented parameter support remains unknown. N01LOWcopy/spacing are still nonblocking.
+Orca's undocumented parameter support remains unknown. N01LOWcopy/spacing were nonblocking at that snapshot.
+
+### Subsequent installed delivery and selected-direction polish
+
+The [same evidence register](../../documents/verification/settings-c-evidence/ui-result.json)
+now records the separate normal installation of `7673066` at `http://127.0.0.1:8780`,
+`/home/kali/.local/share/omnis-settings-c-9e51d10`, and the reversible global `omnis` launcher
+redirection. Existing installed Wizard keep/discard and Stop→Start preserve the draft;
+the operator's own model test was read as COMPLETED, never replayed for this continuation.
+
+Presentation-only `7795b66` is accepted scoped in the checkout after complementary source
+reviews and one real isolated browser/API/PostgreSQL journey. It makes Reload secondary,
+shortens repeated copy, moves normal assignment identities and operation UUIDs into closed
+details, and names the exact provider/model before consent. Active/unconfirmed Cancel,
+receive-only recovery, cost and stale/unavailable states remain visible. Assignments/defaults,
+API, schema, authentication and dispatch are unchanged. Desktop/mobile captures and keyboard
+disclosure checks retain C; this is not a new aesthetic approval.
+
+**The polished UI is not installed at8780.** Rollout is BLOCKED: the current release is immutable
+and no in-place upgrade is supported; restore requires the same release digest. No overwrite,
+new empty profile or updater is implied. Old-instance retirement remains blocked by consistent
+backup/restoration and administrator access; no space reclaimed. Canonical TIMEOUT and default
+check-web FAIL/causeUNKNOWN remain distinct from the scoped passes. No Prompt B/T2 or new provider call.
 
 ### Official documentation checked, no API calls made
 

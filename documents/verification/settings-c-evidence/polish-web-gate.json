@@ -1,0 +1,18 @@
+{
+  "command": [
+    "make",
+    "check-web"
+  ],
+  "environment": {
+    "HOME": "/home/kali",
+    "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/settings-polish-web-gate-qe48lufl",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "VITEST_MAX_WORKERS": "2"
+  },
+  "exit": 0,
+  "seconds": 82.0237608190073,
+  "head": "7795b66f1dd62f93043d430543d2450d6899b871",
+  "log": "/home/kali/.hermes/cache/scratch/settings-polish-web-gate-qe48lufl/check-web.log",
+  "limit": "bounded workers; historical default FAIL/causeUNKNOWN retained; not whole canonical"
+}

@@ -54,8 +54,95 @@
     "polish_rollout": {
       "status": "BLOCKED_NO_SUPPORTED_IN_PLACE_UPGRADE",
       "reason": "cli/src/omnis_cli/release.py refuses different immutable0.1.0 bytes; backup.py restore requires the same release digest/schema; Dockerfile.control embeds web assets. Build/restart is not an upgrade path. No updater, new empty profile, immutable overwrite or operator restart admitted as a workaround.",
-      "independent_work": "User-authorized presentation-only refinement is IN_PROGRESS through the existing Settings components and isolated tests, not installed acceptance. A separate rollout decision is required after scoped review/QA."
+      "independent_work": "Presentation-only refinement7795b66 is ACCEPTED_SCOPED after complementary review and real isolated browser/API/PG QA; see polish. It is not installed acceptance; separate rollout decision required."
     }
+  },
+  "polish": {
+    "product_head": "7795b66f1dd62f93043d430543d2450d6899b871",
+    "implementation": "IMPLEMENTED",
+    "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
+    "review": "APPROVED_SOURCE_SCOPED_COMPLEMENTARY",
+    "parent_acceptance": "ACCEPTED_PRESENTATION_SCOPED_NOT_OPERATOR_ROLLOUT_NOT_CANONICAL_CLOSED",
+    "source_freeze": "polish-source-freeze.json",
+    "source_binding": "Original freeze HEAD/status labels are precommit; exact8source blobs/diff and4build assets match committed7795b66. Parent verified again after QA; Python guards unchanged.",
+    "changes": "Quiet Reload beside primary Add models; shorter Connection/Review/assignments copy; nonredundant normal selector labels with full identities in closed output details; unavailable refs visible; exact provider/model before consent; operation UUID secondary; active/unconfirmed Cancel and no-resend readback remain, inactive completion controls no longer permanent.",
+    "requirements": "Preserved saved models at entry, Connection->Models->Review, separate assignments/default/explicit overrides/output caps, saved!=tested, cost/consent, errors/partial/stale/UNKNOWN, destructive confirmation and global Stop. No API/auth/schema/dispatch/dependencies or operator config change.",
+    "reviews": [
+      "polish-r1-7795b66.md",
+      "polish-r2-7795b66.md"
+    ],
+    "source_checks": {
+      "author": "RED consent/operation/assignment/hierarchy ->84affected PASS/6files; lint/build0 and existing built-browser SOURCE5PASS. Original a11y role warning corrected with native fieldset, not ignore.",
+      "parent_web_gate": "polish-web-gate.json: VITEST_MAX_WORKERS=2 make check-web exit0,212web/20files plus tooling/contracts/design/lint/types/build/audit. No modified selection/deadlines, not default-parallelism or whole canonical PASS."
+    },
+    "qa": {
+      "report": "polish-qa-7795b66.md",
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/spq-rNtk86 PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-models-ui-pg --timeout-seconds 600 --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "attempts": 1,
+      "exit": 0,
+      "family_drained": true,
+      "result": "1PASS97.52s; two E2E PASS before/after API restart. Exact one syntheticTLS fixture/02 inference/one SENT;32saved, realCAS409, default/override/caps64/37 unchanged until explicit assignment, disable/stale409/no resend and exact13table census after restart. No external provider.",
+      "gate_receipt": "polish-ui-gate-receipt.json",
+      "browser_after": "polish-browser-after.json",
+      "browser_log": "polish-browser.log.gz",
+      "browser_log_encoding": "gzip; decompresses byte-exact to the original log, including trailing blank lines",
+      "producer_limit": "browser-result.json is overwritten by after-stage; after counts27requests/0external/0pageErrors/secretChecks true are not the total of both stages. Before is validated by driver and original PASS, not reconstructed.",
+      "cleanup": "Parent read exact CID9c676b331663705934199c829e3387a4ed406d474fb4ac74fd34d2d9a7e64327 absent; projectomnis-p01-cb3dc481cd2c4dd8b382aefd7bbe104f containers/network absent, socket absent, db-080d1bbc20794374/data/18/docker/PG_VERSION18 retained. No additional/global cleanup or operator resources touched."
+    },
+    "visual": {
+      "reference": "web/design/settings-final.html at original directionC, actual desktop/mobile rendered; historical before ui-screenshots/ui4 reused.",
+      "new_captures": 45,
+      "inspected_by_qa": 16,
+      "archived_representatives": 10,
+      "original_inventory_sha256": "f625eb27c0f45565cb9bfd4e305cb46eb566a1758d88d617f88ddc3cf60f2eae",
+      "archived": [
+        {
+          "file": "ui-screenshots/polish/settings-models-direct-test-consent-details-expanded-1440x1000.png",
+          "sha256": "f2a52806839c937de8bb86f9719f6b007dbfb7671ca236c5375c5cbd1b527441"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-direct-test-consent-details-expanded-390x1000.png",
+          "sha256": "8961cbc06833fc3e86a81c2da1db4d10c3829831a44a8fa7938072c22f8f3884"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-review-many-1440x1000.png",
+          "sha256": "1405766c5047cd524c3e680b82715c704e424de3d09c786a09738d58b24611d5"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-review-many-390x1000.png",
+          "sha256": "d69d159b1843df6a8d4b36ea2a84d5c1edcadd5044d7fcdce3a558d11b3fe3f8"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-saved-many-assignments-1440x1000.png",
+          "sha256": "2bb2f5dff41588f666e6745d45203def46e5d052513a6b6e5dad0c27a356972f"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-saved-many-assignments-390x1000.png",
+          "sha256": "3f582c1b29d769533379be04c75f93c9a22da2a7e8d6a5f59c3b3b2f159562ba"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-saved-many-assignments-details-expanded-1440x1000.png",
+          "sha256": "1a18691a47c92534bb66758ca736a539011395432a32b3bfd5380baee4d0dffc"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-saved-many-assignments-details-expanded-390x1000.png",
+          "sha256": "042d2bc95c856a854247d02bf8cf52783978fe7ca45fd7e387c4cd0db1c0f1eb"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-test-completed-details-expanded-1440x1000.png",
+          "sha256": "7ff37bf7881a1bc8c53b05d1d4853d640649b6f3fdb9ba29280c9d4a03124da9"
+        },
+        {
+          "file": "ui-screenshots/polish/settings-models-test-completed-details-expanded-390x1000.png",
+          "sha256": "2fecc9641518bc591e208c8c8a5379e31cd6e22a47e4045e7ca237d161d41deb"
+        }
+      ],
+      "scope": "Loaded saved/models/wizard, consent and collapsed/expanded details at1440/1280/390/320, native Enter/focus2px, reduced motion/CSS200%; parent additionally inspected actual final desktop saved and mobile completed-details. Reference retained; no new operator aesthetic approval.",
+      "limits": "FullPage32model list is long; skiplink capture artifacts also existed before and are not a proven live occlusion without viewport pair. Native unavailable select clipping is compensated by visible exact unavailable identity. Not screen-reader/all-browser certification."
+    },
+    "canonical_preflight": "BLOCKED_BUDGET/NOT_RUN for new whole gate: existing observed sequential component durations3665.551s exceed unchanged3600s before other quality/build/release. No blind full rerun for documentation or notifications; historicalTIMEOUT/default check-webFAIL/causeUNKNOWN retained.",
+    "rollout": "BLOCKED_NO_SUPPORTED_IN_PLACE_UPGRADE; operator installation stays7673066 at8780, no immutable overwrite/new profile/updater. Separate operator decision required.",
+    "rollback": "Revert7795b66 source+tests together; presentation-only, no schema/data effects. Global launcher rollback remains separate as recorded in installed_delivery."
   },
   "product_head": "6dbaec54812c94b5d906d849145f9c42977788c5",
   "ui4_tested_head": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
@@ -346,7 +433,8 @@
     },
     {
       "id": "VISUAL_MINOR",
-      "scope": "Reload-to-panel spacing; no changed visual direction or blocker. Native select text clipping is compensated by readable exact consent ID/provider context."
+      "scope": "Historical Reload-to-panel spacing; no changed visual direction or blocker. Native select text clipping is compensated by readable exact consent ID/provider context.",
+      "disposition": "Reload hierarchy/spacing corrected by polish7795b66 and scoped real browser QA. Normal full assignment identities remain in closed output details; unavailable refs and exact test consent remain visible. Not new aesthetic approval. N01 denial copy remains separately nonblocking."
     }
   ],
   "canonical": {

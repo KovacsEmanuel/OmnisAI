@@ -1,0 +1,105 @@
+{
+  "base": "7673066a0497c1432f8a6fdb519a106eb481e3cd",
+  "head": "0b882cbd7d90d247f130718ac877168267788963",
+  "owned_base_unchanged": true,
+  "files": {
+    "web/src/features/engagement/SettingsModelsPage.tsx": {
+      "sha256": "3510117b7b164b16749540d9ab622c11a9f16ec149a9d1cc294a7c2934f6fb09",
+      "git_blob": "e4e4336280ecf58ba998ffc2dc4481a2bdd1350e"
+    },
+    "web/src/features/engagement/SettingsModelWizard.tsx": {
+      "sha256": "4c7695e43aad7d2e30bc98e4e768a43b459f574757413e97b0f899298c1b6762",
+      "git_blob": "e74e348dfad63a84d156654365a46ef9e5815d99"
+    },
+    "web/src/features/engagement/SettingsAssignments.tsx": {
+      "sha256": "c018f4e7c4fd32c9739b417a4a83c8d1c66418d57c534a57c3008613b47693ec",
+      "git_blob": "073f600cf44a374cbffb6708d9c20ccd09feec9b"
+    },
+    "web/src/features/engagement/SettingsModels.module.css": {
+      "sha256": "27bec36f49cef197555c2d9247a29e08259d476c3c9517ec1658df61a692215b",
+      "git_blob": "c86c3ee79c2470ac89d21461e60eb1da1a71b1a6"
+    },
+    "web/src/app/SettingsModels.test.tsx": {
+      "sha256": "119b73f86dcdd3cbd9f4d10169a40ba2b6ff12f96ed62140bea005595a93421f",
+      "git_blob": "971addf4e1713d15bcab5fb198945fb24b712fa7"
+    },
+    "web/src/app/SettingsWizard.test.tsx": {
+      "sha256": "ae8d5ae7b8d1761b508960b86b9a207cca78763bb947370974ede2582ae6af6e",
+      "git_blob": "128768a2f7bbb2948a58d9074ac0177233ddb709"
+    },
+    "web/src/app/ProviderKeySettings.test.tsx": {
+      "sha256": "1739b39a246b26d42b2a2f74581f66273a958d59bfec06567c972694a05044e1",
+      "git_blob": "17ffd3753964bf0407bd6ad49786006f5171cb40"
+    },
+    "web/tests/e2e/settings-models.mjs": {
+      "sha256": "6781a8564ec04fc2ae330db2644ab9084edd7efb2c944bcd0a4df1dc2083b073",
+      "git_blob": "e25a1cdc904dc7095d86b818f5bdd0923bc05650"
+    }
+  },
+  "diff_sha256": "8adc2be2ab2a3de357c23618e3ea4d46e03e69ae152fe254265fd339bd452957",
+  "build_manifest_sha256": "fd18f2f2376cef459ae006ff293fb2d9d083d1525621b95a089e3ea05197c13d",
+  "build_files": {
+    "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+    "assets/index-BIBav1lU.js": "a3ec32edc60b1a9ee7e090b69d8d5132a5faf4028e394b0aa21b260a8af5e2b3",
+    "assets/index-DMuBtHHf.css": "e41f7b8d07f6876116e1820510cd37bb53a89054485d0f8b06ea8471c94c8feb",
+    "index.html": "2b5c1bc854123c8478b54134029af9900c09654b808012c150ae000c21d55caa"
+  },
+  "status": {
+    "implementation": "FROZEN_CANDIDATE_NOT_COMMITTED",
+    "proof": "PASS_SOURCE_SCOPED",
+    "review": "NOT_REVIEWED",
+    "real_pg_qa": "NOT_RUN",
+    "rollout": "BLOCKED_NO_SUPPORTED_IN_PLACE_UPGRADE"
+  },
+  "checks": [
+    {
+      "command": "npm --prefix web test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx src/app/ProviderSettings.test.tsx src/app/CatalogSettings.test.tsx src/app/ModelTest.test.tsx",
+      "exit": 0,
+      "result": "84 passed / 6 files",
+      "log": "/home/kali/.hermes/cache/scratch/settings-polish-freeze-tests-esyjcp.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-polish-freeze-lint-lOdGOk.log"
+    },
+    {
+      "command": "npm --prefix web run build",
+      "exit": 0,
+      "result": "contracts/design/tsc/build; four manifest assets verified",
+      "log": "/home/kali/.hermes/cache/scratch/settings-polish-freeze-build-42q7Gk.log"
+    },
+    {
+      "command": "OMNIS_E2E_OUTPUT=<artifacts> node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "result": "5 passed (parent plus 4 scenarios), SOURCE built App/synthetic HTTP only",
+      "artifacts": "/home/kali/.hermes/cache/scratch/settings-polish-source-final-o72Mvf"
+    },
+    {
+      "command": "node --check web/tests/e2e/settings-models.mjs",
+      "exit": 0,
+      "limit": "syntax only; PG driver execution remains after independent review"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "red_logs": [
+    "/home/kali/.hermes/cache/scratch/settings-polish-consent-red-wwF2k0.log",
+    "/home/kali/.hermes/cache/scratch/settings-polish-operation-red-vpmeJG.log",
+    "/home/kali/.hermes/cache/scratch/settings-polish-assignment-red-Icquam.log",
+    "/home/kali/.hermes/cache/scratch/settings-polish-hierarchy-red-0KoCp6.log"
+  ],
+  "retained_failure": {
+    "log": "/home/kali/.hermes/cache/scratch/settings-polish-lint-qkHgxd.log",
+    "cause": "jsx-a11y prefer-tag-over-role; fixed with native named fieldset, no ignore"
+  },
+  "limits": [
+    "No API/auth/dispatch/handlers changed except shorter success strings.",
+    "PG/restart/census and new E2E disclosure capture branch not executed in this author phase.",
+    "No installed runtime, personal services, credentials, provider traffic or deployment touched.",
+    "No full check-web or canonical run; historical default check-web failures are not explained or cleared.",
+    "No source commits/index/docs/skills writes; protected untracked files never read or touched."
+  ]
+}

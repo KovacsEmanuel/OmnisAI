@@ -1,8 +1,8 @@
-# CLI P0.4 — control plane inert utilizabil local pe VM
+# CLI Omnis — operare locală și lucru din surse
 
 `omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) are adjudecarea `P0_LOCAL_USABLE=PASS_LOCAL_RECORDED` pentru un singur operator pe această VM, nu certificarea universală a crashurilor. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) păstrează probele la reviziile lor. CI remote și peerul extern rămân pentru distribuire/portare, nu condiții ale utilizării locale.
 
-## DEVELOPMENT opt-in în aceeași instalație — candidat, nu rollout
+## DEVELOPMENT opt-in în aceeași instalație — verificat local scoped
 
 Pentru profilul `t1-provider-settings`, după backup/restaurare probate și **Stop
 verificat**, configurația existentă poate selecta explicit checkoutul trusted:
@@ -37,8 +37,38 @@ ownerul/căile, pachetul bounded4096 intrări și manifestul web (32KiB,128 fiș
   rescriere de granturi. Dependențele/schema/baza cer release separat, nu acest mount.
 
 CLI-ul extins se livrează explicit în launcherul/venv-ul existent după review și
-QA; nu modifică releaseul păstrat. SOURCE nu certifică importul OCI sau tranziția
-operatorului. Nu rulați proba următoare pe datele/configul operatorului.
+QA; nu modifică releaseul păstrat. Produsul `6aa4d5e` are reviewuri complementare,
+wheel400PASS și QA OCI/PG/browser cu restart Python, două builduri UI și rollback.
+Prima QA a eșuat în callerul browser; corecția `10d2de6` și PASS-ul ulterior sunt
+distincte în [registru](../documents/verification/settings-c-evidence/ui-result.json).
+Nu rulați proba izolată următoare pe datele/configul operatorului.
+
+### Instalația operatorului pe această VM
+
+Un singur root activ: `/home/kali/.local/share/omnis-settings-c-9e51d10`, origin
+`http://127.0.0.1:8780`, UUID `d694129b-a3e5-446d-9e5b-fe9bc19abed8`.
+`omnis` global și `<root>/omnis` operează aceeași instalație. Ultimul readback
+înregistrat este READY/DEVELOPMENT8; verificați starea curentă, nu deduceți autostart:
+
+```sh
+omnis status --json
+omnis start --no-open --json   # explicit, sau reuse dacă este deja READY
+omnis stop --json
+# UI, din /home/kali/OmnisAI; nu install și nu build de imagine:
+PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH npm --prefix web run build
+# Apoi refresh în browser. Python: Stop -> editare -> Start.
+```
+
+Configul privat este `<root>/c/omnis/config.toml`, cu
+`development_workspace = "/home/kali/OmnisAI"`. Pentru rollback: Stop verificat,
+eliminați **numai această cheie**, apoi Start; CLI-ul capabil rămâne instalat.
+Releaseul/imaginea7673066, datele și cheile sunt păstrate. Nu restaurați backupul
+launcherului P1/r1. Nu modificați Python în timp ce rulează; schimbările de
+dependențe/schemă/protocol cer o tranziție explicită, nu un nou profil gol.
+Browserul existent nu este închis/navigat de comenzi. Un browser nou cere
+`omnis pair` în terminal local; codul se introduce direct în UI, niciodată în URL/chat.
+Modul development nu este un release imuabil certificat; canonicalul integral
+TIMEOUT/BLOCKED_BUDGET și T2 NOT_RUN rămân separate.
 
 ### QA installed finită, numai după reviewurile complementare
 

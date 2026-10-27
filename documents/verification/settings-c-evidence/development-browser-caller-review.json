@@ -1,0 +1,65 @@
+{
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "reviewer": "review independent focalizat, read-only în repository",
+  "base": "4895bd74c42092cfdd0c2a8bacac2a9432cbce84",
+  "head": "10d2de6ecba30945a2fa9a0794ba552383db4ab0",
+  "scope": "Numai corecția de două linii a callerului installed browser și regresia structurală adiacentă; primul ciclu harness-only. Fără reaprobare a produsului sau QA live.",
+  "freeze_sha256": "f9742a77dee22225915164e6fd46d7fea5371d7227709f6c824625dfbd008e92",
+  "diff_sha256": "87250460c8723c831173aca0acc3db470c4bb0a7f21ca8997707adade68512b9",
+  "diff_command": "git diff --full-index 4895bd7..10d2de6",
+  "files": {
+    "cli/integration/installed_browser.mjs": "9a102581529fb382c9de0c46cf8b45134980506f64c612965a5fe9a150af2530",
+    "cli/integration/test_installed_browser.mjs": "ba4c173dfd0e1c2444620dc27586f320f2743464b1d7f56803c2bc7fce668c32"
+  },
+  "findings": [],
+  "checks": [
+    {
+      "criterion": "Ordine și suprafață corectă",
+      "result": "PASS_SOURCE",
+      "evidence": "installed_browser.mjs:194-199 așteaptă dispariția formularului după Pair browser, apoi deschide Settings Runtime înaintea diagnosticului. App.tsx:36-43 rutează Home autentificat la Dashboard; Settings.tsx:12 include Bootstrap compact pentru runtime. Bootstrap.tsx:64-71,85-98 oferă sesiunea/logout și diagnosticul. useBrowserSession.ts:68-85 publică sesiunea după pair și readback validat. Același pattern există în web/tests/e2e/run.mjs:103-110."
+    },
+    {
+      "criterion": "Same-origin, fără modificări auth/secrete ori aserțiuni slăbite",
+      "result": "PASS_SOURCE",
+      "evidence": "Destinația folosește origin existent, validat strict http://127.0.0.1:port la :167; filtrul off-origin :183-187 rămâne. Calea constantă nu conține cod, token sau parametri. Comparația byte-exact confirmă toate bytes anterioare păstrate, în aceeași ordine, cu numai cele două linii inserate. Identitatea, Start disabled, cookie HttpOnly/SameSite Strict, session API, reload, logout/401, private URL, no-external/pageerrors și denials rămân intacte. Nicio schimbare de produs CLI/API/UI față de 6aa4d5e; restul diferențelor sunt documente/evidence."
+    },
+    {
+      "criterion": "Caller comun și moduri existente",
+      "result": "PASS_SOURCE",
+      "evidence": "Corecția este înaintea ramurii mode !== session; acoperă session, settings-save, settings-readback, settings-auth și settings-auth-readback fără schimbarea operațiilor lor. installed_pair_open.py:191-254 păstrează stdin privat, timeouturile și receipturile. installed_stop.py:532 folosește session implicit; :195 transmite modul Settings prin același caller. Pe Settings, navigarea suplimentară reîncarcă aceeași suprafață după pairing, fără repetarea pairingului sau schimbarea selecției."
+    },
+    {
+      "criterion": "Regresie proporțională",
+      "result": "PASS_SOURCE",
+      "evidence": "test_installed_browser.mjs:6-16 verifică existența clickului și ordinea imediată wait → Runtime → diagnostics. Cele patru teste existente rămân nemodificate. Este un control structural explicit, nu o probă de DOM sau runtime instalat."
+    }
+  ],
+  "verification": [
+    {
+      "command": "/home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node --test cli/integration/test_installed_browser.mjs",
+      "exit_code": 0,
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "boundary": "Rulat independent; numai Node/source, fără browser."
+    },
+    {
+      "command": "git diff --check 4895bd7..10d2de6",
+      "exit_code": 0
+    },
+    {
+      "command": "python -B -c <verificare directă SHA256/blob/diff și eliminarea exactă a celor două linii inserate>",
+      "exit_code": 0,
+      "result": "Manifestul și diff-ul frozen coincid; ambele SHA256/blob coincid cu HEAD; toate bytes originale ale callerului sunt păstrate. Index și checkout tracked curate la final."
+    }
+  ],
+  "verification_notes": "Două încercări auxiliare ale reviewerului au fost corectate: quoting Python invalid, apoi comparație cu git diff fără --full-index. Formatul frozen este --full-index și coincide byte-exact; acestea nu sunt defecte ale candidatului. Nu s-au executat teste live în aceste încercări.",
+  "limits": [
+    "QA instalată/browser, DB, OCI, operator, credentiale/chei, fișiere protejate și full suite: NOT_RUN/NOT_READ în acest review.",
+    "FAIL-ul QA anterior rămâne în istoric; faza internă UNKNOWN. Defectul de rutare demonstrat în sursă nu este declarat cauza exclusivă a acelui FAIL.",
+    "Reviewurile complementare existente rămân la scope-ul produsului neschimbat. Acest verdict nu închide QA sau gate-ul global.",
+    "Reticle NOT_APPLICABLE pentru reviewul source-only; Chisel BLOCKED_NO_GO.",
+    "Nicio editare în repository, staging, commit sau efect de produs. Fișierele untracked preexistente au rămas neatinse."
+  ],
+  "next": "Părintele poate adjudeca aprobarea delta și continua separat QA reală bounded pe bytes verificați, cu limitele și cleanupul existente."
+}

@@ -1,8 +1,8 @@
-# Web P0.3 — bootstrap local, nu P1
+# Web Omnis — build local, Settings C și API real
 
-React/TypeScript/Vite consumă API-ul real pentru pairing, sesiune, logout și statusul instanței. Nu importă modelul/scripturile prototipului, nu creează engagementuri și nu pornește assessmenturi. Funcțiile viitoare sunt `UNAVAILABLE`/`NOT_RUN`, cu motiv. [SL02 `omnis start --no-open`](../cli/README.md) servește acest build din releaseul instalat; pairingul TTY și browser/open sunt SL03. Nu există endpoint public de emitere a codurilor.
+React/TypeScript/Vite consumă API-ul real pentru pairing/sesiune, drafturi de engagement și Settings C: modele salvate, catalog explicit și testul modelului ales, cu cost/consimțământ. Nu importă modelul/scripturile prototipului și nu pornește un assessment; T2 rămâne NOT_RUN. Pe setupul development existent, [comenzile `omnis`](../cli/README.md) servesc buildul local allowlisted la același origin8780, fără rebuild de imagine sau alt profil. Releaseul imuabil rămâne distinct; nu există endpoint public de emitere a codurilor.
 
-**HF01–HF10 în specificație, nu în acest bootstrap:** selectorul general/focused, obiectivul Brain, Skills/Jev/Runtime și findingurile se livrează în felii P1+ din plan. Nu activăm butoane false sau date DEMO pentru amendamentul documentar. Fixture-ul DB este acum integrat/atestat pe UDS/no-network; E2E/backend au trecut în gate-ul local de pe `bd06bcd`, conform [registrului final DB](../documents/verification/p04-test-db-integration.md). Probele P0.3 de mai jos rămân istorice; CI remote și G00 nu sunt închise.
+**Limite și proveniență:** [CURRENT și registrul Settings C](../documents/verification/settings-c-evidence/ui-result.json) sunt autoritatea stării curente. Dovezile P0.3/`bd06bcd` de mai jos sunt istorice, nu limita funcțională actuală sau acceptarea noului setup. Skills/Jev/execuția assessmentului și gates ulterioare rămân conform planului; nu activăm butoane false sau date DEMO. CI remote și canonicalul integral nou nu sunt certificate de proba development.
 
 ## Mediu și comenzi reproductibile
 
@@ -63,7 +63,7 @@ Așteptarea asseturilor are deadline de 1 secundă, separat de probele DB/contro
 - Un singur writer de autentificare serializează pairing/logout, suspendă pollingul lor concurent și fence-uiește toate continuările cu o generație locală. Expiry anulează citirile vechi; un răspuns întârziat nu poate rescrie un logout confirmat.
 - Codurile/CSRF/sesiunea nu intră în URL, loguri, localStorage, sessionStorage, IndexedDB sau CacheStorage. Query păstrează server state numai în memorie; nu există persister, service worker ori devtools în build.
 - Loading, eroare, expiry, răspuns invalid și status stale sunt explicite. Proiecția veche, dacă este păstrată la eroare/pauză sau după 15 secunde fără confirmare, este etichetată stale; sesiunea este unverified după 30 secunde. Prima cerere eșuată nu inventează un răspuns istoric. Query folosește explicit `networkMode: always`: Internet offline nu înseamnă localhost indisponibil și nu trebuie să suspende verificările. Datele de test sunt în `tests/`, nu în entrypoint.
-- Pollingul statusului este o citire locală, nu SSE. Nu există provideri/OAuth, apeluri LLM sau trafic target.
+- Pollingul statusului este o citire locală, nu SSE și nu apel provider. Catalogul/testul Settings cer acțiune explicită și consimțământ; boot/reload nu retrimit testul. Fără OAuth în noul produs sau trafic target din acest flux.
 
 ## E2E cu backend real
 

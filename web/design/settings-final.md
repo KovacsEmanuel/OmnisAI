@@ -189,11 +189,14 @@ receive-only recovery, cost and stale/unavailable states remain visible. Assignm
 API, schema, authentication and dispatch are unchanged. Desktop/mobile captures and keyboard
 disclosure checks retain C; this is not a new aesthetic approval.
 
-**The polished UI is not installed at8780.** Rollout is BLOCKED: the current release is immutable
-and no in-place upgrade is supported; restore requires the same release digest. No overwrite,
-new empty profile or updater is implied. Old-instance retirement remains blocked by consistent
-backup/restoration and administrator access; no space reclaimed. Canonical TIMEOUT and default
-check-web FAIL/causeUNKNOWN remain distinct from the scoped passes. No Prompt B/T2 or new provider call.
+**The polished UI is delivered at8780 through the explicitly selected development setup.**
+CLI6aa4d5e serves the exact accepted local build with narrow read-only mounts; the original
+immutable release/image, instance, DB, keys and history remain. Real isolated lifecycle/rollback
+and operator Stop→Start/two visible UI updates passed; no new profile or updater. Original
+desktop/mobile/focus evidence is reused unchanged; fresh authenticated operator captures are
+NOT_RUN without pairing. Selective cleanup removed24worktrees and dispensable QA artifacts,
+not historical unique/uncertain data; root-owned QA data still needs local admin cleanup.
+Canonical TIMEOUT/default check-web FAIL/causeUNKNOWN remain. No Prompt B/T2 or new provider call.
 
 ### Official documentation checked, no API calls made
 

@@ -13,7 +13,7 @@ import { Field, errorText, fieldId, focusField } from './WizardFields';
 import { ApplicationStep, RulesStep, ReviewStep } from './WizardSections';
 import styles from './Wizard.module.css';
 
-const DEFAULT_OBJECTIVE = 'Evaluează suprafața Web/API autorizată în limitele profilului selectat.';
+const DEFAULT_OBJECTIVE = 'Assess the authorized Web/API surface within the selected profile.';
 const steps = ['Target & permission', 'Application context', 'Identities', 'Rules & budgets', 'Review & preflight'];
 const empty = (): Draft => ({
   name: '', authorization: { owner: '', statement: '', valid_from: '', valid_until: '' },
@@ -234,13 +234,13 @@ export function Wizard({ id }: { id?: string }) {
               <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FULL_ASSESSMENT'} onChange={() => {
                 if (!form.objective_text) setDefaultUntouched(true);
                 change({ ...form, assessment_mode: 'FULL_ASSESSMENT', objective_text: form.objective_text || DEFAULT_OBJECTIVE });
-              }} />Evaluare generală</label>
+              }} />Full assessment</label>
               <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FOCUSED_TEST'} onChange={() => {
                 change({ ...form, assessment_mode: 'FOCUSED_TEST', objective_text: defaultUntouched ? '' : form.objective_text });
                 setDefaultUntouched(false);
-              }} />Test focalizat</label>
+              }} />Focused test</label>
             </fieldset>
-            <Field path="objective_text" label="Obiectiv / instrucțiuni pentru Brain" hint="1–8192 code points; at most 32768 UTF-8 bytes. Do not enter credentials." errors={errors}>{props => <textarea {...props} rows={6} value={form.objective_text} onChange={event => change({ ...form, objective_text: event.target.value }, 'objective_text')} />}</Field>
+            <Field path="objective_text" label="Objective / Brain instructions" hint="1–8192 code points; at most 32768 UTF-8 bytes. Do not enter credentials." errors={errors}>{props => <textarea {...props} rows={6} value={form.objective_text} onChange={event => change({ ...form, objective_text: event.target.value }, 'objective_text')} />}</Field>
             <p>{Array.from(form.objective_text).length} / 8192 code points · {new TextEncoder().encode(form.objective_text).length} / 32768 UTF-8 bytes</p>
             <h3>Objective constraints</h3>
             {form.objective_constraints.map((item, index) => <div key={item.id} className={styles.entry}>
@@ -288,7 +288,7 @@ export function Wizard({ id }: { id?: string }) {
       </div>
       <aside className={styles.aside} aria-label="Draft summary"><h2>Draft status</h2>
         <p>{saved ? `Revision ${saved.revision} · ${saved.digest}` : 'Not yet saved'}</p>
-        <p>{form.assessment_mode === 'FULL_ASSESSMENT' ? 'Evaluare generală' : 'Test focalizat'}</p>
+        <p>{form.assessment_mode === 'FULL_ASSESSMENT' ? 'Full assessment' : 'Focused test'}</p>
         <p>CATALOG_UNAVAILABLE / NOT_SELECTED</p>
         <button type="button" disabled aria-describedby="wizard-start-reason">Start assessment</button>
         <p id="wizard-start-reason">No published workflow profile is selected. Assessment execution is unavailable.</p>

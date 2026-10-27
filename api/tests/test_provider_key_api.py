@@ -141,9 +141,10 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     "investigator": None,
                     "validator": None,
                 }
-                # Old free-text callers remain valid until the guided assignments caller exists.
+                # Guided assignments must register the exact model before selection.
                 assigned = await http.put(path, json=assignments, headers=headers)
-                assert assigned.status_code == 200
+                assert assigned.status_code == 409
+                assert assigned.json()["error"]["code"] == "MODEL_NOT_REGISTERED"
                 model_rows = [
                     {
                         "entry_id": str(uuid4()),
@@ -177,6 +178,24 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     selected["brain"]["output_tokens"] == 32
                     and selected["default"]["output_tokens"] == 64
                 )
+                for invalid_choice, reason in (
+                    ({**choice, "model": "not/registered"}, "MODEL_NOT_REGISTERED"),
+                    ({**choice, "model": "Fixture/0"}, "MODEL_NOT_REGISTERED"),
+                    ({**choice, "connection_id": str(uuid4())}, "CONNECTION_UNAVAILABLE"),
+                    ({**choice, "connection_revision": 2}, "CONNECTION_UNAVAILABLE"),
+                ):
+                    refused = await http.put(
+                        path,
+                        json={
+                            **assignments,
+                            "command_id": str(uuid4()),
+                            "expected_revision": 1,
+                            "default": invalid_choice,
+                        },
+                        headers=headers,
+                    )
+                    assert refused.status_code == 409 and refused.json()["error"]["code"] == reason
+                    assert (await http.get(path)).json()["selection"] == selected
                 async with engine.connect() as db:
                     before = [
                         (await db.execute(text(f"SELECT count(*) FROM {table}"))).scalar_one()

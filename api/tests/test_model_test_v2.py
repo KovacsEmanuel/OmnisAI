@@ -78,6 +78,13 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
     [
         "complete",
         "entry_catalog",
+        pytest.param(
+            "settings_ui",
+            marks=pytest.mark.skipif(
+                os.environ.get("OMNIS_SETTINGS_MODELS_UI") != "1",
+                reason="Explicit built Settings browser fixture only",
+            ),
+        ),
         "unknown_usage",
         "negative_usage",
         "unsafe_usage",
@@ -148,7 +155,29 @@ async def test_api_pg_sdk_protocol_and_replay(
             }
         )
     )
-    if scenario != "entry_catalog":
+    if scenario not in {"entry_catalog", "settings_ui"}:
+        await settings.handle(
+            ModelRegistryControl.model_validate(
+                {
+                    "op": "provider_models",
+                    "request": {
+                        "action": "save_models",
+                        "command_id": str(uuid4()),
+                        "expected_registry_revision": 0,
+                        "connection_id": connection_id,
+                        "connection_revision": 1,
+                        "models": [
+                            {
+                                "entry_id": str(uuid4()),
+                                "expected_revision": 0,
+                                "model": "fixture/model",
+                                "output_tokens": 128,
+                            }
+                        ],
+                    },
+                }
+            )
+        )
         await settings.handle(
             KeySettingsControl.model_validate(
                 {
@@ -202,7 +231,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await catalog_release.wait()
                 if metadata_outage:
                     return  # Real TLS peer EOF before any response bytes.
-                if scenario == "entry_catalog" and first.startswith("GET /api/v1/models?"):
+                if scenario in {"entry_catalog", "settings_ui"} and first.startswith(
+                    "GET /api/v1/models?"
+                ):
                     offset = 0 if "offset=0&" in first else 16
                     assert first == f"GET /api/v1/models?offset={offset}&limit=1000 HTTP/1.1"
                     rows = (
@@ -235,6 +266,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "links": {"next": next_url},
                         "total_count": 17,
                     }
+                    if scenario == "settings_ui":
+                        payload["data"] = [
+                            {
+                                "id": f"fixture/{i:02}",
+                                "name": f"Synthetic model {i}",
+                                "supported_parameters": ["max_tokens"],
+                                "top_provider": {"max_completion_tokens": 128},
+                            }
+                            for i in range(offset, offset + 16)
+                        ]
+                        payload["total_count"] = 32
                     if catalog_mode == "unknown":
                         payload.pop("total_count")
                         payload["links"] = {"next": None}
@@ -253,7 +295,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                     data = json.loads(body)
                     assert (
                         data["model"]
-                        == ("fixture/selected" if scenario == "entry_catalog" else "fixture/model")
+                        == (
+                            "fixture/selected"
+                            if scenario == "entry_catalog"
+                            else "fixture/02"
+                            if scenario == "settings_ui"
+                            else "fixture/model"
+                        )
                         and data["max_tokens"] == 64
                     )
                     assert data["provider"] == {
@@ -425,7 +473,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     heartbeat_stop = asyncio.Event()
 
     async def renew(owner_id: UUID, owner_epoch: int) -> None:
-        if scenario != "entry_catalog":
+        if scenario not in {"entry_catalog", "settings_ui"}:
             return
         while not heartbeat_stop.is_set():
             await service.heartbeat(owner_id, owner_epoch)
@@ -455,6 +503,33 @@ async def test_api_pg_sdk_protocol_and_replay(
                 return (await settings.handle(command)).model_dump(mode="json")
 
             control.provider_settings = provider_command
+
+            if scenario == "settings_ui":
+                from test_web_e2e import settings_models_browser
+
+                assert not received, "Boot must not contact a provider"
+                async with asyncio.timeout(300):
+                    await settings_models_browser(migrated_database_url, control_dir, tmp_path)
+                assert len(received) == 3
+                assert sum(first.startswith("POST ") for first, _ in received) == 1
+                async with engine.connect() as db:
+                    assert (
+                        await db.execute(text("SELECT count(*) FROM provider_model_entry"))
+                    ).scalar_one() == 32
+                    assert (
+                        await db.execute(
+                            text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'")
+                        )
+                    ).scalar_one() == 1
+                    selected = await settings.selection(db)
+                    assert selected is not None and selected.brain is not None
+                    assert (
+                        selected.default.model == "fixture/00"
+                        and selected.brain.model == "fixture/01"
+                        and selected.brain.output_tokens == 37
+                    )
+                    assert not (await settings.connections(db))[0].enabled
+                return
 
             async def stop_control() -> None:
                 reader, writer = await asyncio.open_unix_connection(control_dir / "control.sock")
@@ -629,6 +704,28 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert partial_read.json()["entries"][0]["max_output_tokens"] == 128
                         assert len(received) == before_traffic + 1
                     catalog_mode = "complete"
+                    await settings.handle(
+                        ModelRegistryControl.model_validate(
+                            {
+                                "op": "provider_models",
+                                "request": {
+                                    "action": "save_models",
+                                    "command_id": str(uuid4()),
+                                    "expected_registry_revision": 1,
+                                    "connection_id": connection_id,
+                                    "connection_revision": 1,
+                                    "models": [
+                                        {
+                                            "entry_id": str(uuid4()),
+                                            "expected_revision": 0,
+                                            "model": "fixture/model",
+                                            "output_tokens": 128,
+                                        }
+                                    ],
+                                },
+                            }
+                        )
+                    )
                     default = {
                         "connection_id": connection_id,
                         "connection_revision": 1,

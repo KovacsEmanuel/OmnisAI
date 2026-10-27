@@ -11,7 +11,7 @@ function remembered(key = storage) {
   try { const id = sessionStorage.getItem(key); return isUuid(id) ? id : null; }
   catch { return null; }
 }
-export function ModelTest() {
+export function ModelTest({ receiveOnly = false }: { receiveOnly?: boolean }) {
   const { session, transition, readPrivate } = useSession();
   const client = useQueryClient();
   const [operation, setOperation] = useState(remembered);
@@ -41,14 +41,14 @@ export function ModelTest() {
   const working = sending || query.isFetching;
   const canStart = !hardDisabled && !working && !active && observed?.metadata_state === 'READY' && !!observed.selection_revision && consent;
   const gateHint = hardDisabled || active || sending ? null
-    : !observed?.selection_revision ? 'Testul nu poate fi trimis: selecția implicită nu este salvată. Configurează și salvează selecția implicită în Settings → Providers (Save model selection), apoi apasă „Refresh model metadata”.'
-    : observed.metadata_state === 'PENDING' ? 'Metadatele modelului se încarcă. Așteaptă starea READY înainte de a trimite testul; nu repeta Refresh.'
-    : observed.metadata_state !== 'READY' ? 'Testul nu poate fi trimis: metadatele modelului nu sunt READY. Apasă „Refresh model metadata” și așteaptă starea READY înainte de a trimite testul.'
+    : !observed?.selection_revision ? 'Test unavailable: no saved Default. Save assignments in Settings → Models, then explicitly refresh model metadata.'
+    : observed.metadata_state === 'PENDING' ? 'Model metadata is loading. Wait for READY before sending a test; do not repeat Refresh.'
+    : observed.metadata_state !== 'READY' ? 'Test unavailable: model metadata is not READY. Select “Refresh model metadata” explicitly and wait for READY.'
     : null;
   async function mutate(action: 'start' | 'refresh' | 'cancel') {
     if (busy.current || !session.data || !authReady || !observed || working) return;
-    if (action === 'start' && !canStart) return;
-    if (action === 'refresh' && (active || !observed.selection_revision || uncertain)) return;
+    if (action === 'start' && (!canStart || receiveOnly)) return;
+    if (action === 'refresh' && (receiveOnly || active || !observed.selection_revision || uncertain)) return;
     if (action === 'cancel' && (!active || !observed.operation_id || !observed.state_revision)) return;
     busy.current = true; setSending(true); setNotice('');
     let identity = operation;
@@ -104,23 +104,23 @@ export function ModelTest() {
   }
   return <section className={styles.panel} aria-label="Test model"><div className={styles.core}>
     <h2>Test model</h2>
-    <p>Mesaj sintetic fix · 1 apel / 300s · fără tools sau trafic către țintă.</p>
+    <p>Fixed synthetic input · 1 call / 300s · no tools or target traffic.</p>
     <p>System: <span className={styles.objective}>{observed?.system_message ?? 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.'}</span></p>
     <p>User: <span className={styles.objective}>{observed?.user_message ?? 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.'}</span></p>
     <p>Metadata: {observed?.metadata_state ?? 'UNKNOWN'} · Saved selection revision: {observed?.selection_revision ?? 'UNKNOWN'}</p>
-    <p>Cerut: {observed?.requested_provider ?? 'saved default'} / {observed?.requested_model ?? 'saved default'} / output cap {observed?.requested_output_tokens ?? 'saved default'}</p>
+    <p>Requested: {observed?.requested_provider ?? 'saved default'} / {observed?.requested_model ?? 'saved default'} / output cap {observed?.requested_output_tokens ?? 'saved default'}</p>
     <p>Operation: {observed?.operation_id ?? operation ?? 'none'} · {observed?.state ?? 'not started'}</p>
-    <output aria-live="polite">{sending ? 'În curs…' : notice || (query.isError ? 'UNKNOWN — read the same operation; no resend.' : `${observed?.result_state ?? 'NOT_VERIFIED'} ${observed?.reason ?? ''}`)}</output>
-    <label><input type="checkbox" checked={consent} disabled={hardDisabled || active} aria-disabled={working} onChange={event => { if (!working) setConsent(event.target.checked); }} /> I approve this fixed synthetic input and one finite call using the saved default.</label>
+    <output aria-live="polite">{sending ? 'Operation pending…' : notice || (query.isError ? 'UNKNOWN — read the same operation; no resend.' : `${observed?.result_state ?? 'NOT_VERIFIED'} ${observed?.reason ?? ''}`)}</output>
+    {!receiveOnly && <label><input type="checkbox" checked={consent} disabled={hardDisabled || active} aria-disabled={working} onChange={event => { if (!working) setConsent(event.target.checked); }} /> I approve this fixed synthetic input and one finite call using the saved default.</label>}
     {gateHint && <p id={gateHintId} className={styles.providerHint}>{gateHint}</p>}
     <div className={styles.providerActions}>
-      <button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !observed?.selection_revision} aria-disabled={working || observed?.metadata_state === 'PENDING'} onClick={() => { void mutate('refresh'); }}>Refresh model metadata</button>
-      <button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !consent || observed?.metadata_state !== 'READY'} aria-disabled={working} onClick={() => { void mutate('start'); }}>Trimite testul modelului</button>
+      {!receiveOnly && <><button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !observed?.selection_revision} aria-disabled={working || observed?.metadata_state === 'PENDING'} onClick={() => { void mutate('refresh'); }}>Refresh model metadata</button>
+      <button aria-describedby={gateHint ? gateHintId : undefined} disabled={hardDisabled || active || !consent || observed?.metadata_state !== 'READY'} aria-disabled={working} onClick={() => { void mutate('start'); }}>Send model test</button></>}
       <button disabled={!authReady || !active} aria-disabled={working} onClick={() => { void mutate('cancel'); }}>Cancel test</button>
-      <button disabled={!authReady} aria-disabled={working} onClick={() => { if (!working) void read(); }}>Citește starea testului</button>
+      <button disabled={!authReady} aria-disabled={working} onClick={() => { if (!working) void read(); }}>Read test status</button>
     </div>
-    {observed?.response_text !== null && observed?.response_text !== undefined && <p className={styles.objective} aria-label="Răspuns model">{observed.response_text}</p>}
-    <p>Observat: {observed?.observed_model ?? 'UNKNOWN'} · Provider: {observed?.provider_status ?? 'UNKNOWN'} · Output: {observed?.output_state ?? 'ABSENT'}</p>
+    {observed?.response_text !== null && observed?.response_text !== undefined && <p className={styles.objective} aria-label="Model response">{observed.response_text}</p>}
+    <p>Observed: {observed?.observed_model ?? 'UNKNOWN'} · Provider: {observed?.provider_status ?? 'UNKNOWN'} · Output: {observed?.output_state ?? 'ABSENT'}</p>
     <p>Usage {observed?.usage_state ?? 'UNKNOWN'} input/output/reasoning: {observed?.input_tokens ?? 'UNKNOWN'} / {observed?.output_tokens ?? 'UNKNOWN'} / {observed?.reasoning_tokens ?? 'UNKNOWN'} · Cost: {observed?.cost_observed ?? 'UNKNOWN'}</p>
     <p className={styles.providerHint}>Stop drains local operations. Cancel is not a remote cancellation or a refund. Reload only reads; a new test always requires another explicit consent and action.</p>
   </div></section>;

@@ -21,13 +21,13 @@ const available = {
 };
 function mount(settings = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider>{settings && <ProviderSettings />}<ModelTest /></BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
+  return render(<QueryClientProvider client={client}><MemoryRouter><BrowserSessionProvider>{settings ? <ProviderSettings /> : <ModelTest />}</BrowserSessionProvider></MemoryRouter></QueryClientProvider>);
 }
 it.each([
-  [null, 'NOT_REQUESTED', /selecția implicită nu este salvată.*Save model selection.*Refresh model metadata/],
-  [1, 'NOT_REQUESTED', /metadatele modelului nu sunt READY.*Refresh model metadata/],
-  [1, 'FAILED', /metadatele modelului nu sunt READY.*Refresh model metadata/],
-  [1, 'PENDING', /Metadatele modelului se încarcă.*Așteaptă.*READY/],
+  [null, 'NOT_REQUESTED', /no saved Default.*Save assignments.*refresh model metadata/],
+  [1, 'NOT_REQUESTED', /model metadata is not READY.*Refresh model metadata/],
+  [1, 'FAILED', /model metadata is not READY.*Refresh model metadata/],
+  [1, 'PENDING', /Model metadata is loading.*Wait for READY/],
   [1, 'READY', null],
 ] as const)('explains the model gate for selection %s and metadata %s without automatic mutations', async (revision, metadata, hint) => {
   sessionStorage.clear();
@@ -40,7 +40,7 @@ it.each([
       : path === '/api/session' ? session : health);
   }));
   mount();
-  const send = await screen.findByRole('button', { name: 'Trimite testul modelului' });
+  const send = await screen.findByRole('button', { name: 'Send model test' });
   const refresh = screen.getByRole('button', { name: 'Refresh model metadata' });
   await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
   expect(send).toBeDisabled();
@@ -56,12 +56,12 @@ it.each([
   } else {
     expect(send).toBeEnabled();
     expect(send).not.toHaveAttribute('aria-describedby');
-    expect(screen.queryByText(/selecția implicită nu este salvată|metadatele modelului nu sunt READY|Metadatele modelului se încarcă/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/no saved Default|model metadata is not READY|Model metadata is loading/)).not.toBeInTheDocument();
   }
   if (revision === null) expect(refresh).toBeDisabled();
   else expect(refresh).toBeEnabled();
   expect(refresh).toHaveAttribute('aria-disabled', String(metadata === 'PENDING'));
-  expect(screen.getByText(/Observat:/)).toHaveTextContent('UNKNOWN');
+  expect(screen.getByText(/Observed:/)).toHaveTextContent('UNKNOWN');
   expect(screen.getByText(/Usage UNKNOWN/)).toBeVisible();
   expect(screen.getByRole('status')).toHaveTextContent('NOT_VERIFIED');
   if (metadata === 'FAILED') expect(screen.getByRole('status')).toHaveTextContent('METADATA_UNAVAILABLE');
@@ -93,6 +93,12 @@ it('Settings save refreshes current selection without rewriting the active reque
       return Response.json(settings());
     }
     if (path === '/api/v1/model-test/capabilities/' + command) return Response.json({ ...available, metadata_command_id: command });
+    if (path.startsWith('/api/v1/settings/providers/commands/')) return Response.json({ ...settings(), command_id: path.split('/').at(-1) });
+    if (path === '/api/v1/settings/models') return Response.json({ schema_version: 1, command_id: null, registry_revision: 1, after: null, next_after: null, total: 1, entries: [{ entry_id: id, revision: 1, ...selected }] });
+    if (path.endsWith('/provider-catalog/search')) {
+      const body = JSON.parse(String(init?.body));
+      return Response.json({ schema_version: 1, connection_id: id, connection_revision: 1, provider: 'openrouter', catalog_command_id: command, state: 'READY', reason: null, query: body.query, offset: 0, next_offset: null, total: 1, entries: [{ model: selected.model, name: null, max_output_tokens: 128, supports_max_tokens: true, reason: null }] });
+    }
     if (path === '/api/v1/model-test/' + id) return Response.json({ ...available, selection_revision: revision,
       metadata_state: revision === 1 ? 'READY' : 'NOT_REQUESTED', operation_id: id, state: 'RUNNING', state_revision: 2,
       requested_provider: 'openrouter', requested_model: 'fixture/original', requested_output_tokens: 64 });
@@ -100,13 +106,13 @@ it('Settings save refreshes current selection without rewriting the active reque
   }));
   mount(true);
   await screen.findByText(/Saved selection revision: 1/);
-  const save = await screen.findByRole('button', { name: 'Save model selection' });
+  const save = await screen.findByRole('button', { name: 'Save assignments' });
   await waitFor(() => { expect(save).toBeEnabled(); expect(save).not.toHaveAttribute('aria-disabled', 'true'); });
   fireEvent.click(save);
   await waitFor(() => expect(writes).toBe(1));
   await waitFor(() => expect(invalidation).toHaveBeenCalledWith({ queryKey: ['private', 'model-test'] }));
   await screen.findByText(/Saved selection revision: 2/);
-  expect(screen.getByText(/Cerut:/)).toHaveTextContent('fixture/original');
+  expect(screen.getByText(/Requested:/)).toHaveTextContent('fixture/original');
   expect(screen.getByText(/Operation:/)).toHaveTextContent(id);
   expect(sessionStorage.getItem('omnis-model-test-operation')).toBe(id);
 });
@@ -137,19 +143,19 @@ it.each(['REVISION_CONFLICT', 'API_UNAVAILABLE'])('reconciles only definitive no
   const page = mount(); const user = userEvent.setup();
   await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
   await user.click(screen.getByRole('checkbox'));
-  await user.click(screen.getByRole('button', { name: 'Trimite testul modelului' }));
+  await user.click(screen.getByRole('button', { name: 'Send model test' }));
   await waitFor(() => expect(writes).toBe(1));
   const identity = sessionStorage.getItem('omnis-model-test-operation');
   expect(identity).not.toBeNull();
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Citește starea testului' })).toHaveAttribute('aria-disabled', 'false'));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Read test status' })).toHaveAttribute('aria-disabled', 'false'));
   page.unmount(); mount();
   await waitFor(() => expect(calls).toContain('/api/v1/model-test/' + identity));
-  await user.click(screen.getByRole('button', { name: 'Citește starea testului' }));
+  await user.click(screen.getByRole('button', { name: 'Read test status' }));
   if (code === 'REVISION_CONFLICT') {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh model metadata' })).toBeEnabled());
     expect(sessionStorage.getItem('omnis-model-test-operation')).toBeNull();
     expect(screen.getByRole('checkbox')).not.toBeChecked();
-    expect(screen.getByRole('button', { name: 'Trimite testul modelului' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Send model test' })).toBeDisabled();
   } else {
     expect(sessionStorage.getItem('omnis-model-test-operation')).toBe(identity);
     expect(screen.getByRole('button', { name: 'Refresh model metadata' })).toBeDisabled();
@@ -215,15 +221,15 @@ it('requires explicit consent, sends the finite intent once, and reload reads by
     return new Response(JSON.stringify(path === '/api/session' ? session : health));
   }));
   const page = mount(); const user = userEvent.setup();
-  const button = await screen.findByRole('button', { name: 'Trimite testul modelului' });
+  const button = await screen.findByRole('button', { name: 'Send model test' });
   await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
   expect(button).toBeDisabled(); expect(writes).toBe(0);
   await user.click(screen.getByRole('checkbox'));
   await user.dblClick(button);
-  expect(await screen.findByLabelText('Răspuns model')).toHaveTextContent('<img src=x onerror=alert(1)>');
+  expect(await screen.findByLabelText('Model response')).toHaveTextContent('<img src=x onerror=alert(1)>');
   expect(screen.queryByRole('img')).not.toBeInTheDocument(); expect(writes).toBe(1);
   page.unmount(); mount();
-  await screen.findByLabelText('Răspuns model');
+  await screen.findByLabelText('Model response');
   expect(calls.some(path => path === '/api/v1/model-test/' + sessionStorage.getItem('omnis-model-test-operation'))).toBe(true);
   expect(writes).toBe(1);
   current = available;

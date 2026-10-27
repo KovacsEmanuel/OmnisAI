@@ -85,6 +85,7 @@ async def settings_exchange(
                     "CONNECTION_UNAVAILABLE",
                     "NOT_FOUND",
                     "REGISTRY_FULL",
+                    "MODEL_NOT_REGISTERED",
                 }:
                     raise SettingsConflict(str(reason))
                 raise ValueError("Control unavailable")

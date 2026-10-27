@@ -39,6 +39,7 @@ class SettingsConflict(ValueError):
             "CONNECTION_UNAVAILABLE",
             "NOT_FOUND",
             "REGISTRY_FULL",
+            "MODEL_NOT_REGISTERED",
         }:
             raise ValueError("Invalid Settings reason")
         self.code = code
@@ -206,6 +207,28 @@ class ProviderSettingsOwner:
                 return row
         raise SettingsConflict("CONNECTION_UNAVAILABLE")
 
+    async def require_registered(self, db: AsyncConnection, choice: ModelSelection) -> None:
+        registered = (
+            await db.execute(
+                text(
+                    "SELECT 1 FROM public.provider_model_entry e "
+                    "JOIN public.provider_model_entry_revision r USING(instance_id,entry_id,connection_id) "
+                    "WHERE e.instance_id=:instance AND e.connection_id=:connection AND e.model=:model "
+                    "AND r.connection_revision=:connection_revision "
+                    "AND r.revision=(SELECT max(h.revision) FROM public.provider_model_entry_revision h "
+                    "WHERE h.instance_id=e.instance_id AND h.entry_id=e.entry_id) LIMIT 1"
+                ),
+                {
+                    "instance": self.vault.instance_id,
+                    "connection": choice.connection_id,
+                    "connection_revision": choice.connection_revision,
+                    "model": choice.model,
+                },
+            )
+        ).scalar_one_or_none()
+        if registered is None:
+            raise SettingsConflict("MODEL_NOT_REGISTERED")
+
     @overload
     async def handle(self, command: KeySettingsControl) -> KeySettingsView: ...
 
@@ -318,6 +341,7 @@ class ProviderSettingsOwner:
                     ):
                         if choice is not None:
                             await self.require_selection(db, choice)
+                            await self.require_registered(db, choice)
                     await db.execute(
                         text(
                             "INSERT INTO public.provider_selection_revision (instance_id,selection_id,revision,payload) "

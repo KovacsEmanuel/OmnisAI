@@ -275,6 +275,114 @@ def wait_api(api: subprocess.Popen[str], origin: str) -> None:
     pytest.fail("Built dashboard/control failed real readiness")
 
 
+async def settings_models_browser(database_url: URL, control_dir: Path, output: Path) -> None:
+    """Reuse the existing API/JS/family with the model test's real owner and TLS peer."""
+    assert (ROOT / "web/dist/omnis-web.json").is_file(), "Build current web assets first"
+    tables = (
+        "provider_connection_revision",
+        "provider_settings_command",
+        "provider_selection_revision",
+        "provider_model_entry",
+        "provider_model_entry_revision",
+        "provider_model_registry_revision",
+        "provider_model_command",
+        "model_record_v2",
+        "model_command_v2",
+        "system_operation",
+        "system_operation_event",
+        "model_dispatch_v2",
+        "model_dispatch_event_v2",
+    )
+    engine = database_engine(database_url.render_as_string(hide_password=False))
+
+    async def census() -> dict[str, list[str]]:
+        async with engine.connect() as db:
+            from sqlalchemy import text
+
+            return {
+                table: list(
+                    (
+                        await db.execute(
+                            text(
+                                f"SELECT row_to_json(t)::text FROM public.{table} t ORDER BY row_to_json(t)::text"
+                            )
+                        )
+                    ).scalars()
+                )
+                for table in tables
+            }
+
+    with owned_children() as family, socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(16)
+        origin = f"http://127.0.0.1:{listener.getsockname()[1]}"
+        resources: list[tuple[subprocess.Popen[str], bool]] = []
+        observations: list[str] = []
+        try:
+            before: dict[str, list[str]] | None = None
+            for stage in ("before", "after"):
+                api = launch_api(listener, database_url, control_dir)
+                resources.append((api, False))
+                await asyncio.to_thread(wait_api, api, origin)
+                marker_read, marker_write = os.pipe()
+                os.set_blocking(marker_read, False)
+                os.set_blocking(marker_write, False)
+                try:
+                    driver = subprocess.Popen(
+                        ["node", str(ROOT / "web/tests/e2e/run.mjs"), "settings-models"],
+                        cwd=ROOT / "web",
+                        env={
+                            **os.environ,
+                            "OMNIS_E2E_ORIGIN": origin,
+                            "OMNIS_E2E_CONTROL": str(control_dir),
+                            "OMNIS_E2E_DATABASE_URL": database_url.render_as_string(
+                                hide_password=False
+                            ),
+                            "OMNIS_E2E_PYTHON": sys.executable,
+                            "OMNIS_E2E_OUTPUT": str(output),
+                            "OMNIS_E2E_STAGE": stage,
+                            "OMNIS_E2E_MARKER_FD": str(marker_write),
+                        },
+                        pass_fds=(marker_write,),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        start_new_session=True,
+                    )
+                    resources.append((driver, True))
+                    stdout, stderr = await asyncio.to_thread(driver.communicate, timeout=120)
+                    os.close(marker_write)
+                    marker_write = -1
+                    markers = decode_markers(os.read(marker_read, 16385))
+                    assert_secret_free(markers + ["synthetic-not-provider-key"], [stdout, stderr])
+                    observations.extend((stdout, stderr))
+                    assert driver.returncode == 0 and "E2E PASS settings-models" in stdout, (
+                        "Settings browser journey failed; inspect owned sanitized output"
+                    )
+                finally:
+                    if marker_write >= 0:
+                        os.close(marker_write)
+                    os.close(marker_read)
+                snapshot = await census()
+                if before is None:
+                    before = snapshot
+                else:
+                    assert snapshot == before, (
+                        "API restart/readback changed Settings or model history"
+                    )
+                api.terminate()
+                api_stdout, api_stderr = await asyncio.to_thread(api.communicate, timeout=5)
+                assert api.returncode == -signal.SIGTERM
+                observations.extend((api_stdout, api_stderr))
+            print("SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS", flush=True)
+        finally:
+            try:
+                cleanup_all(resources, ownership=family)
+            finally:
+                await engine.dispose()
+                (output / "settings-browser.log").write_text("\n".join(observations))
+
+
 @pytest.fixture
 def e2e_family(migrated_database_url: URL) -> Iterator[OwnedChildren]:
     # Depend on the DB fixture so adoption cleanup precedes disposable DB deletion.

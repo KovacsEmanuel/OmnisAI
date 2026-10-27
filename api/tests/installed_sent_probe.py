@@ -172,6 +172,13 @@ async def main():
                     "brain": None, "investigator": None, "validator": None,
                 },
             ):
+                if request["action"] == "save_selection":
+                    from omnis.modules.settings.provider_model_models import ModelRegistryControl
+                    await settings.handle(ModelRegistryControl.model_validate({"op": "provider_models", "request": {
+                        "action": "save_models", "command_id": str(uuid4()), "expected_registry_revision": 0,
+                        "connection_id": connection, "connection_revision": 1,
+                        "models": [{"entry_id": str(uuid4()), "expected_revision": 0, "model": "fixture/model", "output_tokens": 128}],
+                    }}))
                 await settings.handle(KeySettingsControl.model_validate({"op": "provider_settings", "request": request}))
             try:
                 await runtime.handle(start)

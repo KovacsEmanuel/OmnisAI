@@ -33,6 +33,11 @@ test-instance-drain-pg:
 
 .PHONY: test-dashboard
 .PHONY: test-model-test-v2-pg
+.PHONY: test-settings-models-ui-pg
+test-settings-models-ui-pg: build-web
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_SETTINGS_MODELS_UI=1 $(API_PY) -I -B -m pytest -c api/pyproject.toml 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_ui]' -q -s --tb=short
+
 test-model-test-v2-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py -q --tb=short
@@ -258,7 +263,7 @@ test-b04-e2e: build-web
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s -k b04
 
 .PHONY: test-e2e
-test-e2e: build-web
+test-e2e: build-web test-settings-models-ui-pg
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s
 
 # The existing PG/browser family owns this one authentic records-v3 journey.

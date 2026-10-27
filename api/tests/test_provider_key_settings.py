@@ -6,11 +6,13 @@ import asyncio
 import json
 import multiprocessing
 import threading
+from collections.abc import AsyncIterator
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from hashlib import sha256
 from multiprocessing.connection import Connection
 from pathlib import Path
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
@@ -21,8 +23,9 @@ from omnis.core.db import database_engine
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.settings import provider_vault
-from omnis.modules.settings.provider_key_models import KeySettingsControl
+from omnis.modules.settings.provider_key_models import KeySettingsControl, KeySettingsView
 from omnis.modules.settings.provider_key_service import ProviderSettingsOwner, SettingsConflict
+from omnis.modules.settings.provider_model_models import ModelRegistryControl
 from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault, VaultLocked
 
 
@@ -320,6 +323,28 @@ async def test_save_rotate_revoke_replay_selection_and_no_secret_in_db(
                 },
             }
         )
+        await owner.handle(
+            ModelRegistryControl.model_validate(
+                {
+                    "op": "provider_models",
+                    "request": {
+                        "action": "save_models",
+                        "command_id": str(uuid4()),
+                        "expected_registry_revision": 0,
+                        "connection_id": connection,
+                        "connection_revision": 1,
+                        "models": [
+                            {
+                                "entry_id": str(uuid4()),
+                                "expected_revision": 0,
+                                "model": "synthetic/model",
+                                "output_tokens": 128,
+                            }
+                        ],
+                    },
+                }
+            )
+        )
         configured = await owner.handle(selection)
         assert configured.selection is not None
         assert configured.selection.revision == 1
@@ -328,6 +353,21 @@ async def test_save_rotate_revoke_replay_selection_and_no_secret_in_db(
             KeySettingsControl.model_validate(save(connection, 1, "rotated-key"))
         )
         assert rotated.connections[0].revision == 2
+        with pytest.raises(SettingsConflict, match="MODEL_NOT_REGISTERED"):
+            await owner.handle(
+                KeySettingsControl.model_validate(
+                    {
+                        "op": "provider_settings",
+                        "request": {
+                            **selection.request.model_dump(mode="json"),
+                            "command_id": str(uuid4()),
+                            "expected_revision": 1,
+                            "default": {**selected, "connection_revision": 2},
+                            "investigator": None,
+                        },
+                    }
+                )
+            )
         # Replay uses original receipt, not the edited head or stale selected revision.
         assert await owner.handle(selection) == configured
         with pytest.raises(SettingsConflict, match="CONNECTION_UNAVAILABLE"):
@@ -362,6 +402,19 @@ async def test_save_rotate_revoke_replay_selection_and_no_secret_in_db(
         assert revoked.vault_status == "LOCKED"
         assert not revoked.connections[0].credential_present
         async with engine.connect() as db:
+            with pytest.raises(SettingsConflict, match="CONNECTION_UNAVAILABLE"):
+                await owner.handle(
+                    KeySettingsControl.model_validate(
+                        {
+                            "op": "provider_settings",
+                            "request": {
+                                **selection.request.model_dump(mode="json"),
+                                "command_id": str(uuid4()),
+                                "expected_revision": 1,
+                            },
+                        }
+                    )
+                )
             for table in (
                 "provider_connection_revision",
                 "provider_selection_revision",
@@ -1032,3 +1085,70 @@ def test_registry_frame_exception_never_relaxes_legacy_limits() -> None:
     ):
         with pytest.raises(ValueError):
             decode_control_frame(invalid)
+
+
+@pytest.mark.asyncio
+async def test_assignment_membership_denied_before_selection_or_receipt_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """SOURCE transaction seam; real PostgreSQL controls remain in the PG consumer."""
+    engine = database_engine("postgresql+psycopg://unused")
+    service = InstanceService(engine)
+    data, keys = tmp_path / "v", tmp_path / "k"
+    data.mkdir(mode=0o700)
+    keys.mkdir(mode=0o700)
+    owner = ProviderSettingsOwner(service, uuid4(), 1, ProviderVault(data, keys, str(uuid4())))
+    connection = str(uuid4())
+    result = Mock()
+    result.scalar_one_or_none.return_value = None
+    db = Mock()
+    db.execute = AsyncMock(return_value=result)
+
+    @asynccontextmanager
+    async def admitted(*args: object) -> AsyncIterator[Mock]:
+        yield db
+
+    monkeypatch.setattr(type(service.engine), "connect", admitted)
+    monkeypatch.setattr(service, "admission", admitted)
+    monkeypatch.setattr(
+        service,
+        "owned_status",
+        AsyncMock(return_value=Mock(instance_id=owner.vault.instance_id, generation=1)),
+    )
+    monkeypatch.setattr(owner, "receipt", AsyncMock(return_value=None))
+    monkeypatch.setattr(owner, "selection", AsyncMock(return_value=None))
+    monkeypatch.setattr(owner, "require_selection", AsyncMock())
+    monkeypatch.setattr(
+        owner,
+        "view",
+        AsyncMock(
+            return_value=KeySettingsView(
+                command_id=None, connections=[], selection=None, vault_status="UNCONFIGURED"
+            )
+        ),
+    )
+    command = KeySettingsControl.model_validate(
+        {
+            "op": "provider_settings",
+            "request": {
+                "action": "save_selection",
+                "command_id": str(uuid4()),
+                "expected_revision": 0,
+                "default": {
+                    "connection_id": connection,
+                    "connection_revision": 1,
+                    "model": "Not/Registered",
+                    "output_tokens": 512,
+                },
+                "brain": None,
+                "investigator": None,
+                "validator": None,
+            },
+        }
+    )
+    try:
+        with pytest.raises(SettingsConflict, match="MODEL_NOT_REGISTERED"):
+            await owner.handle(command)
+        assert all("INSERT" not in str(call.args[0]) for call in db.execute.call_args_list)
+    finally:
+        await engine.dispose()

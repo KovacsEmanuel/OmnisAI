@@ -104,8 +104,8 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   await user.type(screen.getByLabelText('Authorization statement'), payload.authorization.statement);
   await user.type(screen.getByLabelText('Valid from (UTC)'), payload.authorization.valid_from);
   await user.type(screen.getByLabelText('Valid until (UTC)'), payload.authorization.valid_until);
-  await user.click(screen.getByLabelText('Test focalizat'));
-  await user.type(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain'), payload.objective_text);
+  await user.click(screen.getByLabelText('Focused test'));
+  await user.type(screen.getByLabelText('Objective / Brain instructions'), payload.objective_text);
   await user.type(screen.getByLabelText('Scope origin'), payload.scope[0]!.origin);
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   await waitFor(() => expect(requests).toContain(`GET /api/v1/engagements/${engagementId}`));
@@ -203,31 +203,31 @@ it('keeps the general default separate from a focused objective and edits typed 
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
   await user.click(await screen.findByRole('button', { name: '1. Target & permission' }));
-  expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
+  expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue(payload.objective_text);
   await user.click(screen.getByRole('button', { name: 'Add objective constraint' }));
   await user.type(screen.getByLabelText('Constraint text 2'), 'No account changes');
   expect(screen.getByText(/operation catalog unavailable/i)).toBeVisible();
-  await user.click(screen.getByLabelText('Evaluare generală'));
-  expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
-  await user.click(screen.getByLabelText('Test focalizat'));
-  expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
+  await user.click(screen.getByLabelText('Full assessment'));
+  expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue(payload.objective_text);
+  await user.click(screen.getByLabelText('Focused test'));
+  expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue(payload.objective_text);
 });
 
 it('does not erase authored focused text that happens to equal the General default', async () => {
-  const defaultText = 'Evaluează suprafața Web/API autorizată în limitele profilului selectat.';
+  const defaultText = 'Assess the authorized Web/API surface within the selected profile.';
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async input => new Response(JSON.stringify(
     String(input) === '/api/session' ? { authenticated: true, csrf_token: csrf } : {},
   ))));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/engagements/new']}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   expect(objective).toHaveValue(defaultText);
-  await user.click(screen.getByLabelText('Test focalizat'));
+  await user.click(screen.getByLabelText('Focused test'));
   expect(objective).toHaveValue('');
   await user.type(objective, defaultText);
-  await user.click(screen.getByLabelText('Evaluare generală'));
-  await user.click(screen.getByLabelText('Test focalizat'));
+  await user.click(screen.getByLabelText('Full assessment'));
+  await user.click(screen.getByLabelText('Focused test'));
   expect(objective).toHaveValue(defaultText);
 });
 
@@ -327,7 +327,7 @@ it('refuses focused whitespace before PUT, then preserves exact Unicode edits on
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
   await user.clear(objective);
   await user.type(objective, '   ');
@@ -363,7 +363,7 @@ it('requires an exact GET after a write receipt and retries only the readback', 
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
   await user.clear(objective);
   await user.type(objective, '  🧪 Δ  ');
@@ -398,7 +398,7 @@ it('blocks edits while an explicit GET reconciliation is pending and never repla
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
   await user.clear(objective);
   await user.type(objective, 'Readback must keep this exact edit');
@@ -474,7 +474,7 @@ it('rehydrates the confirmed revision after leaving Setup and returning in the s
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
   await user.clear(objective);
   await user.type(objective, 'Edited on this tab');
@@ -482,7 +482,7 @@ it('rehydrates the confirmed revision after leaving Setup and returning in the s
   await waitFor(() => expect(screen.getByText('Saved · revision 2')).toBeVisible());
   await user.click(screen.getByRole('link', { name: 'Overview' }));
   await user.click(screen.getByRole('link', { name: 'Setup' }));
-  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Edited on this tab'));
+  await waitFor(() => expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue('Edited on this tab'));
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
 });
 
@@ -494,11 +494,11 @@ it('adopts a newer server revision on explicit Refresh when the Setup form is cl
   }));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
-  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text));
+  await waitFor(() => expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue(payload.objective_text));
   remote = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64),
     payload: { ...payload, objective_text: 'Remote revision 2' } };
   await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh engagement' }));
-  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Remote revision 2'));
+  await waitFor(() => expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue('Remote revision 2'));
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
 });
 
@@ -512,7 +512,7 @@ it('keeps dirty edits and exposes a newer server revision on Refresh without an 
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
-  const objective = await screen.findByLabelText('Obiectiv / instrucțiuni pentru Brain');
+  const objective = await screen.findByLabelText('Objective / Brain instructions');
   await waitFor(() => expect(objective).toHaveValue(payload.objective_text));
   await user.clear(objective);
   await user.type(objective, 'My unsaved text');
@@ -539,7 +539,7 @@ it('revalidates the complete clean draft when polling observes a newer selected 
   remote = { ...revision, id: '00000000-0000-4000-8000-000000000022', revision: 2, digest: 'c'.repeat(64),
     payload: { ...payload, objective_text: 'Polled revision 2' } };
   client.setQueryData(['private', 'engagement', engagementId], remote);
-  await waitFor(() => expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue('Polled revision 2'));
+  await waitFor(() => expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue('Polled revision 2'));
   expect(screen.getByText('Saved · revision 2')).toBeVisible();
   expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'PUT')).toHaveLength(0);
 });
@@ -571,7 +571,7 @@ it('converts a legacy draft only after an explicit operator choice and a new CAS
   expect(await screen.findByText(/Legacy draft is read-only/)).toBeVisible();
   expect(writes).toBe(0);
   await user.click(screen.getByRole('button', { name: 'Convert legacy draft to editable revision' }));
-  expect(screen.getByLabelText('Obiectiv / instrucțiuni pentru Brain')).toHaveValue(payload.objective_text);
+  expect(screen.getByLabelText('Objective / Brain instructions')).toHaveValue(payload.objective_text);
   expect(screen.getByText(/Declarative defaults: zero budgets/)).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   await waitFor(() => expect(screen.getByText('Saved · revision 2')).toBeVisible());

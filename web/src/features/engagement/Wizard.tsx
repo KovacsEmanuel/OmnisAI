@@ -188,7 +188,7 @@ export function Wizard({ id }: { id?: string }) {
       if (pending.current && latest.id === pending.current.id && latest.digest === pending.current.digest && equal(latest.payload, form)) {
         await confirm(pending.current, form, controller.signal);
         if (!id) navigate(`/engagements/${target}/setup`, { state: { step } });
-      } else { setServer(latest); setPhase('conflict'); setNotice('Server revision differs. Choose explicitly whether to discard or keep your local edits.'); }
+      } else { setServer(latest); setPhase('conflict'); setNotice('Server revision loaded. Choose explicitly whether to discard or keep your local edits.'); }
     } catch (error) {
       if (!controller.signal.aborted) {
         setPhase(priorPhase);
@@ -275,8 +275,14 @@ export function Wizard({ id }: { id?: string }) {
         {phase === 'conflict' && <div className={styles.warning}>
           <button type="button" onClick={() => { void reconcile(); }}>Compare server revision</button>
           {server && <><p>Server revision {server.revision} · digest {server.digest}. Local edits remain unsaved.</p>
-            <button type="button" onClick={() => { if (isFullDraft(server.payload)) { setForm(server.payload); setSaved(server); setServer(null); setPhase('idle'); setErrors([]); } }}>Discard local edits and load server revision</button>
-            <button type="button" onClick={() => { setSaved(server); setServer(null); setPhase('idle'); }}>Use server revision as base, keep local edits (Save separately)</button>
+            <button type="button" onClick={() => { if (isFullDraft(server.payload)) {
+              setForm(server.payload); setSaved(server); setServer(null); setPhase('idle'); setErrors([]); setNotice(null);
+              client.setQueryData(['private', 'draft', server.engagement_id], server);
+            } }}>Discard local edits and load server revision</button>
+            <button type="button" onClick={() => {
+              setSaved(server); setServer(null); setPhase('idle'); setNotice(null);
+              client.setQueryData(['private', 'draft', server.engagement_id], server);
+            }}>Use server revision as base, keep local edits (Save separately)</button>
           </>}
         </div>}
         {phase === 'stale' && <button type="button" onClick={() => { void reconcile(); }}>Retry exact GET readback</button>}

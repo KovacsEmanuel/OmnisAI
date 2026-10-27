@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { csrf, engagementId, payload, revision } from '../../tests/draft-fixtures';
+import { errorCopy } from '../shared/api/errors';
 import { App } from './App';
 
 it.each([
@@ -53,6 +54,9 @@ it.each([
   expect(writes).toBe(1);
   await user.click(screen.getByRole('button', { name: 'Use server revision as base, keep local edits (Save separately)' }));
   expect(writes).toBe(1);
+  expect.soft(client.getQueryData(['private', 'draft', stored.engagement_id])).toEqual(stored);
+  expect(client.getQueryData(['private', 'draft', undefined])).toBeUndefined();
+  expect.soft(screen.queryAllByRole('alert')).toHaveLength(0);
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   await screen.findByText(`Saved · revision ${method === 'POST' ? 2 : 3}`);
   expect(writes).toBe(2);
@@ -115,6 +119,77 @@ it.each(['keep', 'discard'] as const)('reconciles a lost PUT without a receipt a
     expect(stored.payload.name).toBe('Local edit after lost PUT');
     expect(writes).toBe(2);
   }
+});
+
+it.each(['keep', 'discard'] as const)('retires a hydrated-query error only after successful comparison and explicit %s acceptance', async choice => {
+  let writes = 0;
+  let refreshFault = false;
+  let refreshReads = 0;
+  let comparisonReads = 0;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (path === '/api/session') return new Response(JSON.stringify({ authenticated: true, csrf_token: csrf }));
+    if (path === `/api/v1/engagements/${engagementId}`) {
+      if (init?.method === 'PUT') {
+        writes++;
+        throw new TypeError('Synthetic lost PUT before storage');
+      }
+      if (refreshFault) {
+        refreshReads++;
+        if (refreshReads > 1) return new Response(JSON.stringify({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: engagementId } }), { status: 503 });
+      } else if (writes) comparisonReads++;
+      return new Response(JSON.stringify(revision));
+    }
+    throw new Error('Unexpected synthetic request');
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  await screen.findByText('Saved · revision 1');
+  const name = screen.getByLabelText('Engagement name');
+  fireEvent.change(name, { target: { value: 'Preserved local edit' } });
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await screen.findByText('Save outcome uncertain');
+  refreshFault = true;
+  await user.click(screen.getByRole('button', { name: 'Refresh engagement' }));
+  await waitFor(() => expect(client.getQueryState(['private', 'draft', engagementId])?.status).toBe('error'));
+  expect(client.getQueryState(['private', 'engagement', engagementId])).toMatchObject({ status: 'success', error: null });
+  expect(refreshReads).toBe(2);
+  await user.click(screen.getByRole('button', { name: 'Compare server revision' }));
+  await screen.findByText('Save outcome uncertain');
+  expect(refreshReads).toBe(3);
+  expect(client.getQueryState(['private', 'draft', engagementId])?.error).toMatchObject({ code: 'CONTROL_UNAVAILABLE' });
+  expect(screen.getAllByText(errorCopy.CONTROL_UNAVAILABLE).length).toBeGreaterThan(0);
+  expect(screen.queryByRole('button', { name: 'Discard local edits and load server revision' })).not.toBeInTheDocument();
+  expect(name).toHaveValue('Preserved local edit');
+  expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(writes).toBe(1);
+  refreshFault = false;
+  await user.click(screen.getByRole('button', { name: 'Compare server revision' }));
+  await screen.findByText('Conflict · local edits preserved');
+  expect(comparisonReads).toBe(1);
+  expect(name).toHaveValue('Preserved local edit');
+  expect(screen.getByText(`Server revision 1 · digest ${revision.digest}. Local edits remain unsaved.`)).toBeVisible();
+  expect.soft(screen.queryByText('Server revision loaded. Choose explicitly whether to discard or keep your local edits.')).toBeVisible();
+  expect(client.getQueryState(['private', 'draft', engagementId])?.status).toBe('error');
+  expect(client.getQueryData(['private', 'draft', engagementId])).toEqual(revision);
+  expect(screen.getByText(errorCopy.CONTROL_UNAVAILABLE)).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(writes).toBe(1);
+  await user.click(screen.getByRole('button', { name: choice === 'discard' ? 'Discard local edits and load server revision' :
+    'Use server revision as base, keep local edits (Save separately)' }));
+  expect(name).toHaveValue(choice === 'discard' ? payload.name : 'Preserved local edit');
+  expect.soft(screen.queryByText(choice === 'discard' ? 'Saved · revision 1' : 'Unsaved changes')).toBeVisible();
+  expect.soft(screen.queryByText('Unconfirmed readback')).not.toBeInTheDocument();
+  expect.soft(screen.queryAllByRole('alert')).toHaveLength(0);
+  expect.soft(client.getQueryState(['private', 'draft', engagementId])).toMatchObject({ status: 'success', error: null, data: revision });
+  expect(screen.queryByRole('button', { name: 'Compare server revision' })).not.toBeInTheDocument();
+  if (choice === 'discard') expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+  else expect(screen.getByRole('button', { name: 'Save draft' })).toBeEnabled();
+  expect(writes).toBe(1);
 });
 
 it('does not infer an identity or offer GET reconciliation after a first POST loses its receipt', async () => {

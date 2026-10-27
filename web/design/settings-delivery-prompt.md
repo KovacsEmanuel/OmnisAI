@@ -185,6 +185,13 @@ Apply the concrete delivery preflights learned here before another expensive gat
 - Derive exact DB totals from every real writer sharing that table: catalog Refresh/Cancel
   and entry Start/Cancel share `model_command_v2`. Validate the existing browser executable
   after environment overrides; a relocated cache lookup is not permission to install it.
+- A private copy of Node dependencies must preserve relative `.bin` symlinks. Run the actual
+  build prerequisite in that private environment before provisioning PG; matching copied
+  `dist` hashes does not qualify the copied dependency executables.
+- Compare observed sequential component durations, including CLI source/wheel and release,
+  against the aggregate gate budget before starting it. Preserve aggregate TIMEOUT as such;
+  separate component passes are not a successful single `make check`. Do not hide it by
+  widening product deadlines or restarting the full API suite for metadata-only changes.
 - Map remaining visible actions to actual evidence: SOURCE/component, real API, or real
   browser/API/PG. In particular, do not infer Replace/Disable/Reconnect, chip removal,
   manual fallback, active-test Cancel or UNKNOWN readback from one successful happy path.

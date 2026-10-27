@@ -78,9 +78,13 @@ it('Cancel wipes an unsent secret even from a detached node', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(input).toHaveValue(''); expect(writes).toHaveLength(0);
 });
-it('keeps independent persisted per-role caps when changing Default', async () => {
+it('keeps single-model output controls secondary before assignment confirmation', async () => {
   backend();
   mount();
-  await waitFor(() => expect(screen.getByLabelText('Default model')).toBeEnabled());
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save assignments' })).toHaveAttribute('aria-disabled', 'false'));
+  expect(screen.queryByLabelText('Default model')).not.toBeInTheDocument();
+  const controls = screen.getByText('Output controls', { exact: true });
+  expect(controls.closest('details')).not.toHaveAttribute('open');
+  fireEvent.click(controls);
   expect(screen.getByLabelText('Default output tokens')).toHaveValue(512);
 });

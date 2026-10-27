@@ -27,10 +27,10 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
     return !!choice && !!entry && usable(entry, settings, evidence) && supports(evidence[entry.entry_id]?.model, choice.output_tokens);
   };
   const valid = available(draft.default) && roles.slice(1).every(role => draft[role] === null || available(draft[role]));
-  const simple = eligible.length === 1 && !!settings.selection && available(settings.selection.default) && matches(eligible[0]!, settings.selection.default) && roles.slice(1).every(role => {
+  const simple = eligible.length === 1 && (!settings.selection || (available(settings.selection.default) && matches(eligible[0]!, settings.selection.default) && roles.slice(1).every(role => {
     const choice = settings.selection?.[role];
     return choice === null || (!!choice && available(choice) && matches(eligible[0]!, choice));
-  });
+  })));
   function label(entry: ModelEntry) {
     const provider = settings.connections.find(item => item.connection_id === entry.connection_id)?.provider;
     return `${entry.model} · ${provider ? providerName(provider) : 'Unavailable connection'}${usable(entry, settings, evidence) ? '' : ' · Unavailable — details needed or connection stale'}`;
@@ -49,8 +49,8 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
   return <section className={styles.panel} aria-labelledby="assignments-heading"><div className={styles.core}>
     <h2 id="assignments-heading">Model assignments</h2><p className={styles.hint}>Uses configured models. Changes apply to future runs; existing runs keep their pinned settings.</p>
     {!library.entries.length ? <p>Add a model first.</p> : <>
-      {!settings.selection && <p>Save assignments separately to choose a default. Registering models does not assign roles.</p>}
-      {simple && <p>All roles use {eligible[0]!.model} · {providerName(settings.connections.find(item => item.connection_id === eligible[0]!.connection_id)!.provider)}.</p>}
+      {!settings.selection && <p>Save assignments separately to confirm a default. Registering models does not assign roles.</p>}
+      {simple && <p>{settings.selection ? 'All roles use' : 'All roles will use'} {eligible[0]!.model} · {providerName(settings.connections.find(item => item.connection_id === eligible[0]!.connection_id)!.provider)}{settings.selection ? '.' : ' after saving assignments.'}</p>}
       {!valid && <p className={styles.hint}>Choose available saved entries for the affected roles. Unverified, disabled or stale choices are not replaced automatically.</p>}
       <form onSubmit={event => { void submit(event); }}>
         {!simple && <><div className={styles.defaultField}>{picker('default')}</div><div className={styles.assignmentGrid}>{roles.slice(1).map(picker)}</div></>}

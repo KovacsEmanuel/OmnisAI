@@ -128,6 +128,42 @@ it('keeps full provider-qualified assignment identities readable outside native 
   mount(); await screen.findByLabelText('Default model');
   expect(screen.getByText(`${model} · OpenRouter`, { selector: 'small' })).toBeVisible();
 });
+it('first single-model assignment needs one explicit save and authoritative readback before claiming all roles use it', async () => {
+  const { state, hook } = settingsBackend();
+  let releaseReceipt: () => void = () => {}, releaseReadback: () => void = () => {};
+  const receipt = new Promise<void>(resolve => { releaseReceipt = resolve; });
+  const readback = new Promise<void>(resolve => { releaseReadback = resolve; });
+  hook.intercept = async (path, _body, method) => {
+    if (path.includes('/providers/commands/')) await receipt;
+    if (path.endsWith('/providers') && method === 'GET' && state.writes.length) await readback;
+    return undefined;
+  };
+  mount(); const panel = await screen.findByRole('region', { name: 'Model assignments' });
+  const save = within(panel).getByRole('button', { name: 'Save assignments' });
+  await waitFor(() => expect(save).toHaveAttribute('aria-disabled', 'false'));
+  expect(within(panel).queryAllByRole('combobox')).toHaveLength(0);
+  expect(within(panel).getByText('All roles will use Exact/Model · OpenRouter after saving assignments.')).toBeVisible();
+  expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+  expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByLabelText('Default output tokens')).toHaveValue(512);
+  expect(state.keys.selection).toBeNull(); expect(state.writes).toHaveLength(0);
+  const readsBefore = state.reads.filter(path => path.endsWith('/providers')).length;
+  try {
+    save.focus(); fireEvent.click(save);
+    await waitFor(() => expect(state.writes).toHaveLength(1));
+    expect(state.writes[0]).toEqual({ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 0, default: selected, brain: null, investigator: null, validator: null } });
+    await waitFor(() => expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id)));
+    expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+    releaseReceipt();
+    await waitFor(() => expect(state.reads.filter(path => path.endsWith('/providers')).length).toBeGreaterThan(readsBefore));
+    expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+  } finally { releaseReceipt(); releaseReadback(); }
+  await within(panel).findByText('All roles use Exact/Model · OpenRouter.');
+  expect(within(panel).queryByText(/All roles will use/)).not.toBeInTheDocument();
+  expect(within(panel).queryAllByRole('combobox')).toHaveLength(0);
+  expect(state.keys.selection).toMatchObject({ revision: 1, default: selected, brain: null, investigator: null, validator: null });
+  expect(state.writes).toHaveLength(1); expect(save).toHaveFocus();
+});
 it('one usable model collapses valid same-entry overrides without erasing independent caps', async () => {
   const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: { ...selected, output_tokens: 89 } } };
   const { state } = settingsBackend(keys); mount();

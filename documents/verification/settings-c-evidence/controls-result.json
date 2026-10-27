@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "status": "PASS_LOCAL_RECORDED_REMAINING_CONTROLS_SCOPED",
+  "scope": "Supplemental actual Chromium/built App -> paired owned loopback API -> existing owner/control/PG18.6 -> owned synthetic TLS. No product code changes or external provider.",
+  "main_product_commit": "6dbaec54812c94b5d906d849145f9c42977788c5",
+  "main_metadata_base": "37baf0c421b3d10f6e47adc2d0df7fb75c8ea172",
+  "qa_overlay_commit": "fdfc79ac54d22ded656aaa801ba44f8d73f67815",
+  "qa_branch": "qa/settings-controls-d37b4a54",
+  "qa_worktree": "/home/kali/.hermes/cache/scratch/settings-controls-d37b4a54",
+  "qa_files": {
+    "api/tests/test_model_test_v2.py": "db913fbb80423526fde3a91c0f8c585fb0c4077515912c54c7516ddd221da86f",
+    "web/tests/e2e/settings-models.mjs": "5b2ea2bd93ecafacf270259cf4cef9466e71a98c36e462f4e9cfc0566297ffd6"
+  },
+  "binding": "Only two test files differ on isolated QA branch; main original UI4/complete34 and product source remain unchanged. Built manifest and4assets match the product UI4 artifact. This overlay is not merged as product implementation or a rerun/replacement of original UI4.",
+  "review": {
+    "status": "APPROVED_SOURCE_SCOPED_COMPOSED",
+    "original": "controls-review-original.md",
+    "original_status": "CHANGES_REQUESTED",
+    "focused": "controls-review-focused.md",
+    "closed_findings": [
+      "Provider implicit-select exact label:4role/name locator corrections abf4121",
+      "Shared model_command_v2 exact total includes catalog and entry mutations:2->8 fdfc79a"
+    ],
+    "other_scope": "Original SOURCE review of remaining causal boundaries inherited, not recursively re-audited. Parent pinned Node24/native Chromium reproduced label0/role1; actual catalog store.command producer/arithmetic8 confirmed."
+  },
+  "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/scr-IJ7G9K PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-models-ui-pg --timeout-seconds 600 --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "result": {
+    "process": "proc_4a6e2fd32300",
+    "outer_exit": 0,
+    "gate_exit": 0,
+    "family_drained": true,
+    "passed": 1,
+    "seconds": 38.05,
+    "marker": "SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/scr-IJ7G9K/db-eb58bcd82afc424c",
+    "project": "omnis-p01-4645cf0c1c4d44e0ae6e8d2297be998a",
+    "container_id": "8c7946cc827c2a93a02517880a481549a93f89faaa583b852ea8cbe8bcdd7b8e",
+    "parent_exact_cid_network_socket_absent": true,
+    "pg18data_retained": true,
+    "reviewed_qa_hashes_unchanged_after": true
+  },
+  "real_actions_passed": [
+    "Next/Previous catalog page, chip Add/Remove and empty-selection Continue disabled",
+    "Provider-change confirmation dismissed then accepted; retained/discarded choices as intended, no Orca mutation/traffic",
+    "Pending actual catalog: Read status, Cancel, then explicit Refresh to READY",
+    "Manual exact ID saved UNVERIFIED and excluded from model testing",
+    "Actual Save models HTTP response lost after route.fetch confirmed real200/command; Recover exact receipt with same command ID, no repeated save",
+    "Default00/cap64 and explicit Brain01/cap37 saved; subsequent key mutations never silently rewrite assignments or fallback",
+    "Direct saved-entry Test: consent Cancel sends nothing; reopen resets consent; Send causes exactly one synthetic inference",
+    "Actual Cancel test only after committed SENT1 and system RUNNING; durable FINISHED/CANCELLED/rev4, UNKNOWN/CANCELLED_OR_STOPPED/ABSENT and RESERVED,SENT,SETTLED",
+    "Read test status: only real GET reply lost, UI UNKNOWN, successful same-operation readback without another Start",
+    "Replace key Cancel wipes input/no save; confirmed Replace connection revision1->2 and models visibly stale",
+    "+ Add model uses saved key; explicit Update preserves stable entries/caps; no Default rewrite",
+    "Disable native confirmation dismissed with no mutation, then accepted revision2->3, saved models/history preserved",
+    "Explicit Reconnect with write-only synthetic key revision3->4; stale entries/assignments stay unavailable until explicitly updated, no silent fallback",
+    "Actual API-process restart and fresh browser same DB: full13-table row census equal, exact cancelled operation/history retained, no writes/resend"
+  ],
+  "fixed_oracles": {
+    "catalog_refreshes": 5,
+    "catalog_cancel": 1,
+    "metadata_gets": 9,
+    "inference_posts": 1,
+    "sent": 1,
+    "settings_model_writes": 7,
+    "entry_start": 1,
+    "entry_cancel": 1,
+    "shared_model_command_rows": 8,
+    "provider_settings_command_rows": 5,
+    "registry_command_rows": 2,
+    "registry_entries": 3,
+    "entry_revisions": 5,
+    "registry_revision": 2,
+    "connection_revision": 4,
+    "selection_revision": 1,
+    "restart_census_tables": 13
+  },
+  "public_browser_result": {
+    "scenario": "settings-models",
+    "passed": true,
+    "browser": "153.0.8010.12",
+    "catalog": {
+      "supplementalControls": true,
+      "apiRestartReadback": true,
+      "exactTestOperation": "4267a963-a0bd-4cc9-a9ed-554511a7eb24",
+      "entries": 3
+    },
+    "requestCount": 27,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "secretChecks": true,
+    "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only"
+  },
+  "artifacts": [
+    {
+      "source": "/home/kali/.hermes/cache/scratch/settings-controls-a369430-focused-review.md",
+      "sha256": "5db497a63efe1327169a7f3d5d1de5ebef9f17e7bc05c286e279ea22a946f1d6",
+      "bytes": 8513,
+      "file": "controls-review-original.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/settings-controls-fdfc79a-focused-review.md",
+      "sha256": "ee7d7fa1e4b5d34ddfd05b87a248f5050bb4454c03ab65b56d58af21797e1e41",
+      "bytes": 5125,
+      "file": "controls-review-focused.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/sct-faJW04/db-3d0bcf75fdee497a/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "file": "controls-build-env-fail-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/scr-IJ7G9K/db-eb58bcd82afc424c/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "bytes": 56,
+      "file": "controls-live-pass-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/scn2-YFyD1x/db-51da997a58364421/gate.log.result.json",
+      "sha256": "f19fd9bbf896d0e3b3363d16d05e5995474a1186211a60590c874eab207cc9f3",
+      "bytes": 58,
+      "file": "canonical2-timeout-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/scr-IJ7G9K/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/browser-result.json",
+      "sha256": "ff7f52197f5748d0c0c6758230c28465717525c39fd299e1ec47d0c548f0b66a",
+      "bytes": 427,
+      "file": "controls-live-browser-result.json"
+    }
+  ],
+  "overlay_patch": {
+    "file": "controls-qa-overlay.patch.gz",
+    "encoding": "gzip",
+    "sha256": "a27d0443557626555c70c7b05871ef2f0397bf5fd75d7e1eceb3681752373003",
+    "source_sha256": "09ffd3a6030de2dcab52f8cc522f40286bf3d4661cf4874cfdb8a5917843553e",
+    "bytes": 9112,
+    "source_bytes": 45881,
+    "reapply_check_exit": 0
+  },
+  "retained_attempt": {
+    "process": "proc_85fa205e8de0",
+    "root": "/home/kali/.hermes/cache/scratch/sct-faJW04",
+    "outer_exit": 2,
+    "gate_exit": 2,
+    "family_drained": true,
+    "boundary": "Build prerequisite failed before pytest/browser; private node_modules copy dereferenced .bin shims, tsc could not find ../lib/tsc.js. Not a product/UI failure or live button coverage.",
+    "repair": "Restore only14 owned copied executable shims as original relative links; no installs/shared cache or source edits. Actual npm build preflight then passed with identical4assets before new fixture.",
+    "parent_cleanup": "Exact CID f613680cb47018d4adaa0e1dbe80713b60e6407d10d73aafb108a301c6cd2647/network/socket absent, PG18data retained."
+  },
+  "canonical_boundary": {
+    "status": "TIMEOUT_NOT_PASS",
+    "run": "scn2-YFyD1x",
+    "outer_exit": 2,
+    "gate_exit": 124,
+    "family_drained": true,
+    "reason": "Existing3600s aggregate expired during CLI source unittest, after API3168PASS66SKIP7deselected3213.52s, migrations23PASS67.68s, Settings1PASS47.81s, E2E10PASS117.90s and preceding docs/development/quality/web stages. No functional failing test reported before timeout.",
+    "receipt": "canonical2-timeout-receipt.json",
+    "parent_cleanup": "Exact CID7515bd89a5ec39ab10fb07e0104a80e9156c87d1b4c7903fff1228dc7205dd4d/project-network/socket absent, PG18data retained.",
+    "remaining": "CLI/release components are executed separately on unchanged product; do not call their composed evidence a successful single make check."
+  },
+  "limits": [
+    "Synthetic TLS model/metadata peer, not provider-live compatibility, access/billing or a paid call.",
+    "Headless Chromium UI controls and actual API/PG restart; no operator install/PGDATA adoption, runtime installed restart or screen-reader/all-browser certification.",
+    "Original UI4 owns4viewports/29screenshots and source long64/contrast evidence; this focused controls journey does not repeat or replace those captures.",
+    "No new product/CLI feature/auth policy/Prompt B, T2 role execution or P4b acceptance; no global install/config/provider/target/spending/push.",
+    "Functional scoped PASS is not universal absence of defects or a false canonical0. N01LOWdenialcopy/spacing remain nonblocking; final whole-gate timeout stays explicit."
+  ]
+}

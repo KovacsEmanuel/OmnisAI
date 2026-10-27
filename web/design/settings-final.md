@@ -132,7 +132,7 @@ exact-entry test and English C UI rather than declaring isolated helpers complet
 Rollback is granular Git revert for source; fixture DB/vault data remain preserved,
 and no operator instance/PGDATA is adopted. No provider traffic, spending, push or auth edits.
 
-**Execution checkpoint — implemented and verified scoped; final canonical pending.**
+**Execution outcome — functional scoped PASS; whole canonical BLOCKED_BUDGET, NOT_CLOSED.**
 Registry `a3e04a7` and catalog/exact-entry test `6d9c0c5` retain their
 [53PASS](../../documents/verification/settings-c-evidence/registry-result.json) and
 [72PASS](../../documents/verification/settings-c-evidence/catalog-result.json) API/private-PG evidence.
@@ -155,9 +155,23 @@ Canonical1 remains **FAIL2/drained** at the obsolete Romanian B04 caller after31
 web196 and another Settings UI pass; its later CLI/release stages did not run. Caller-only
 `6dbaec5` preserves the custom Unicode/whitespace objective and all assertions; focused R1
 and real B04 **1PASS18.88s** confirm create/edit/CAS/refusals/reload/actual API restart.
-The unchanged final `make check` remains required. Exact owned cleanup/data retention are
-recorded; no installed operator upgrade, external provider traffic/spending, Prompt B/auth
-policy or T2/P4b closure. Orca's undocumented parameter support remains unknown.
+The [supplemental actual controls journey](../../documents/verification/settings-c-evidence/controls-result.json)
+passed **1PASS38.05s** on the unchanged built product: Replace/Disable confirmation/Reconnect,
+catalog read/Cancel/Refresh, paging/chip removal/manual UNVERIFIED, committed-save receipt
+recovery without resend, direct consent/Send and Cancel after SENT, UNKNOWN same-ID readback,
+then API restart/census13 equality. Its two-file reviewed QA overlay is retained separately;
+it does not overwrite the original UI4 source/evidence or introduce another product owner.
+The first private-dependency build failure is retained, with its `.bin` link prerequisite repair.
+
+The unchanged final `make check` **actually ran and timed out at3600s** in CLI source unittest,
+outer2/gate124/drained, after3168API/23migration/196web/Settings1/E2E10 PASS. The remaining
+[normal CLI/release components](../../documents/verification/settings-c-evidence/components-result.json)
+passed separately:383source+383wheel+1status and73release/install tests, exact cleanup/data retained,
+source34/build4 identity confirmed. This is composed scoped evidence, not a single canonical exit0;
+whole-gate acceptance stays BLOCKED_BUDGET/NOT_CLOSED. Stop at the user's session/context boundary;
+no third full run or successor automatically. No timeout widening, installed operator upgrade,
+external provider traffic/spending, Prompt B/auth policy or T2/P4b closure.
+Orca's undocumented parameter support remains unknown. N01LOWcopy/spacing are still nonblocking.
 
 ### Official documentation checked, no API calls made
 

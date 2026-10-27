@@ -4,7 +4,10 @@
   "implementation": "IMPLEMENTED",
   "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
   "review": "APPROVED_SOURCE_SCOPED_COMPOSED",
-  "acceptance": "CANONICAL_FINAL_PENDING_NOT_CLOSED",
+  "acceptance": "FUNCTIONAL_SCOPED_PASS_CANONICAL_BLOCKED_BUDGET_NOT_CLOSED",
+  "supplemental_controls": "controls-result.json",
+  "component_completion": "components-result.json",
+  "stop_boundary": "User-requested STOP after this implementation/functional QA. No successor or third whole-API run automatically; aggregate canonical timeout is preserved, not waived.",
   "product_head": "6dbaec54812c94b5d906d849145f9c42977788c5",
   "ui4_tested_head": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
   "final_source_freeze": {
@@ -195,7 +198,7 @@
     },
     {
       "requirement": "Disable invalidates open wizard; no silent reactivation/resend; persistence/restart",
-      "evidence": "UI4 real stale wizard receives409 CONNECTION_UNAVAILABLE after Disable, no new provider effect; local Save and operation results survive API-process restart/DB readback. Existing finite-test72 covers failure/UNKNOWN/no-resend/Cancel/revoke/Stop; do not infer every visual Cancel/UNKNOWN variant was exercised by UI4."
+      "evidence": "UI4 real stale wizard receives409 CONNECTION_UNAVAILABLE after Disable, no new provider effect; local Save and operation results survive API-process restart/DB readback. Existing finite-test72 covers failure/UNKNOWN/no-resend/Cancel/revoke/Stop. Supplemental controls-result.json independently records actual Replace/Disable-confirm/Reconnect, catalog Cancel/read/refresh, manual ID, chip removal, committed-save receipt recovery, direct consent/Send, active Cancel after SENT and UNKNOWN same-operation readback, then restart/census13:1PASS38.05s. This is not inferred from UI4."
     },
     {
       "requirement": "Existing B04 inert draft journey survives all-English app copy",
@@ -298,11 +301,18 @@
     }
   ],
   "canonical": {
-    "status": "FINAL_NOT_RUN_AFTER_B04_FIX",
+    "status": "TIMEOUT_NOT_PASS_BLOCKED_AGGREGATE_BUDGET",
+    "final_run": "scn2-YFyD1x",
+    "final_outer_exit": 2,
+    "final_gate_exit": 124,
+    "final_family_drained": true,
+    "final_receipt": "canonical2-timeout-receipt.json",
+    "completed_components": "3168API/66SKIP7deselected,23migrations,196web,Settings1 and E2E10 PASS plus prior docs/development/quality/API-wheel; aggregate3600s cut during CLI source unittest. No functional failed-test report before cut.",
+    "separate_completion": "components-result.json: check-cli383source+383wheel+1status and check-release-install383wheel+73release tests, all0/drained/ownedcleanup on unchangedproduct34/build4. Scoped component PASS, not single make check0.",
     "previous_run": "scn1-6pbg90",
     "previous_outer_exit": 2,
     "previous_gate_receipt": "ui-canonical1-gate-receipt.json",
-    "scope": "Mandatory unchanged make check remains required on final integrated bytes. Targeted/scoped passes are not renamed canonical green. Default aggregate3600s and product/driver deadlines are unchanged."
+    "scope": "Mandatory unchanged make check was actually run on final integrated product bytes and timed out at3600s. Final whole-gate acceptance stays BLOCKED_BUDGET_NOT_CLOSED; all actual component evidence is recorded separately, not renamed canonical green. Product/driver/aggregate deadlines remain unchanged. STOP at the user's context/budget boundary; no automatic third full run or T2."
   },
   "limits": [
     "Provider schemas/TLS are synthetic; OpenRouter/OrcaRouter live compatibility/cost/access not tested in Prompt A, Orca undocumented max_tokens support remains unknown.",

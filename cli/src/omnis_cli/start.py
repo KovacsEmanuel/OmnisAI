@@ -389,10 +389,22 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                         "target": "/catalog",
                     }
                 )
-        expected_mounts.extend(
-            development.mounts(getattr(runtime, "development_workspace", None), role)
-        )
+        for mount in development.mounts(getattr(runtime, "development_workspace", None), role):
+            # Compose config omits false; the producer must still prohibit host-path creation.
+            mount["bind"] = {"propagation": "rprivate"}
+            # Only rendered config retains $$; receipts and OCI inspect use the literal path.
+            mount["source"] = str(mount["source"]).replace("$", "$$")
+            expected_mounts.append(mount)
         mounts = service.get("volumes")
+        if isinstance(mounts, list):
+            for actual_mount, expected_mount in zip(mounts, expected_mounts, strict=False):
+                bind = mapping(actual_mount).get("bind")
+                if (
+                    "bind" in expected_mount
+                    and isinstance(bind, dict)
+                    and bind.get("create_host_path") is False
+                ):
+                    del bind["create_host_path"]
         if (
             not isinstance(mounts, list)
             or any(type(mapping(mount).get("read_only", False)) is not bool for mount in mounts)

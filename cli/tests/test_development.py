@@ -58,6 +58,206 @@ def develop(fixture, selected):
     write_record(fixture.root / "startup.json", fixture.record, replace=True)
 
 
+class DevelopmentComposeTest(unittest.TestCase):
+    def setUp(self):
+        import subprocess
+        from unittest.mock import Mock
+
+        import test_provider_settings_profile
+
+        fixture = test_provider_settings_profile.ProviderSettingsProfileTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        self.runtime = fixture.runtime
+        self.runtime.development_workspace = "/checkout/plain"
+        self.runtime.release = fixture.root / "release"
+        ops = self.runtime.release / "ops"
+        ops.mkdir(parents=True)
+        (ops / "compose.yaml").write_bytes(
+            (Path(__file__).resolve().parents[2] / "ops/compose.control.yaml").read_bytes()
+        )
+        self.env = start.environment(self.runtime, fixture.root, fixture.root / "control", 48765)
+        self.rendered = {}
+
+        def render(*args, env, cap, effect, stdin):
+            self.assertFalse(effect)
+            self.assertEqual(args[0], "compose")
+            self.assertEqual(args[-3:], ("config", "--format", "json"))
+            result = subprocess.run(
+                ["docker", "--host", "unix:///nonexistent.sock", *args],
+                input=stdin.decode(),
+                env={**env, "PATH": "/usr/bin:/bin", "HOME": "/nonexistent"},
+                cwd=fixture.root,
+                text=True,
+                capture_output=True,
+                check=True,
+                timeout=10,
+            )
+            self.rendered = json.loads(result.stdout)
+            return result
+
+        self.runtime.run = Mock(side_effect=render)
+
+    def test_real_compose_omits_false_without_relaxing_mounts(self):
+        import subprocess
+        from copy import deepcopy
+
+        start.validate_config(self.runtime, self.env)
+        self.runtime.run.assert_called_once()
+        valid = self.rendered
+        for role, index in (("api", -2), ("api", -1), ("supervisor", -1)):
+            volume = valid["services"][role]["volumes"][index]
+            self.assertEqual(volume["bind"], {"propagation": "rprivate"})
+            explicit = deepcopy(valid)
+            explicit["services"][role]["volumes"][index]["bind"]["create_host_path"] = False
+            with patch.object(
+                self.runtime,
+                "compose",
+                return_value=subprocess.CompletedProcess([], 0, json.dumps(explicit)),
+            ):
+                start.validate_config(self.runtime, self.env)
+            changes = [
+                {"read_only": False},
+                {"read_only": 1},
+                {"source": "/foreign"},
+                {"target": "/foreign"},
+                {"unknown": False},
+                {"bind": {"propagation": "rshared"}},
+                {"bind": {"propagation": "rprivate", "unknown": False}},
+                {"bind": {"propagation": "rprivate", "create_host_path": False, "unknown": False}},
+                *(
+                    {"bind": {"propagation": "rprivate", "create_host_path": value}}
+                    for value in (True, 0, 0.0, None, "false", [])
+                ),
+            ]
+            for change in changes:
+                with self.subTest(role=role, index=index, change=change):
+                    candidate = deepcopy(valid)
+                    candidate["services"][role]["volumes"][index].update(change)
+                    with patch.object(
+                        self.runtime,
+                        "compose",
+                        return_value=subprocess.CompletedProcess([], 0, json.dumps(candidate)),
+                    ):
+                        with self.assertRaisesRegex(StartError, "COMPOSE_SERVICE_BINDING_INVALID"):
+                            start.validate_config(self.runtime, self.env)
+            for extra in (False, True):
+                candidate = deepcopy(valid)
+                volumes = candidate["services"][role]["volumes"]
+                if extra:
+                    volumes.append(deepcopy(volume))
+                else:
+                    volumes.pop(index)
+                with (
+                    self.subTest(role=role, index=index, extra=extra),
+                    patch.object(
+                        self.runtime,
+                        "compose",
+                        return_value=subprocess.CompletedProcess([], 0, json.dumps(candidate)),
+                    ),
+                ):
+                    with self.assertRaisesRegex(StartError, "COMPOSE_SERVICE_BINDING_INVALID"):
+                        start.validate_config(self.runtime, self.env)
+
+    def test_real_compose_preserves_escaped_literal_sources(self):
+        import subprocess
+        from copy import deepcopy
+
+        for selected in (
+            "/checkout/$",
+            '/checkout/${HOME}/"quoted"',
+            r'/checkout/"quoted"\path',
+            r'/checkout/$$HOME/${HOME}/"quoted"\path',
+        ):
+            with self.subTest(workspace=selected):
+                self.runtime.development_workspace = selected
+                start.validate_config(self.runtime, self.env)
+                valid = self.rendered
+                for role, index, suffix in (
+                    ("api", -2, "api/src/omnis"),
+                    ("api", -1, "web/dist"),
+                    ("supervisor", -1, "api/src/omnis"),
+                ):
+                    literal = selected + "/" + suffix
+                    source = valid["services"][role]["volumes"][index]["source"]
+                    self.assertEqual(source, literal.replace("$", "$$"))
+                    for changed in sorted(
+                        {
+                            "/checkout/foreign/" + suffix,
+                            literal,
+                            source.replace("$${HOME}", "/nonexistent"),
+                            source.replace('"', ""),
+                            source.replace("\\", ""),
+                            source + "$",
+                        }
+                        - {source}
+                    ):
+                        with self.subTest(role=role, index=index, source=changed):
+                            candidate = deepcopy(valid)
+                            candidate["services"][role]["volumes"][index]["source"] = changed
+                            with patch.object(
+                                self.runtime,
+                                "compose",
+                                return_value=subprocess.CompletedProcess(
+                                    [], 0, json.dumps(candidate)
+                                ),
+                            ):
+                                with self.assertRaisesRegex(
+                                    StartError, "COMPOSE_SERVICE_BINDING_INVALID"
+                                ):
+                                    start.validate_config(self.runtime, self.env)
+
+    def test_inspect_requires_literal_not_renderer_escaped_sources(self):
+        from copy import deepcopy
+        from unittest.mock import Mock
+
+        import test_start_attestation
+        from runtime_inspect_fixture import image_item
+
+        fixture = test_start_attestation.ProductAttestationTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        runtime = fixture.runtime
+        selected = r'/checkout/$/${HOME}/"quoted"\path'
+        runtime.development_workspace = selected
+        valid = fixture.item("api")
+        for suffix, target in (
+            ("api/src/omnis", "/usr/local/lib/python3.13/site-packages/omnis"),
+            ("web/dist", "/opt/omnis/web"),
+        ):
+            valid["Mounts"].append(
+                dict(
+                    Type="bind",
+                    Source=selected + "/" + suffix,
+                    Destination=target,
+                    RW=False,
+                    Propagation="rprivate",
+                )
+            )
+        candidate = deepcopy(valid)
+        runtime.inspect = Mock(
+            side_effect=lambda kind, _ident: (
+                image_item(runtime, "api")
+                if kind == "image"
+                else fixture.network
+                if kind == "network"
+                else candidate
+            )
+        )
+        runtime.attest(fixture.cid, "api", fixture.root, fixture.control, fixture.port)
+        for index in (-2, -1):
+            for source in (valid["Mounts"][index]["Source"].replace("$", "$$"), "/foreign"):
+                candidate = deepcopy(valid)
+                candidate["Mounts"][index]["Source"] = source
+                with self.subTest(index=index, source=source):
+                    with self.assertRaisesRegex(StartError, "CONTAINER_IDENTITY_MISMATCH"):
+                        runtime.attest(
+                            fixture.cid, "api", fixture.root, fixture.control, fixture.port
+                        )
+        runtime.run.assert_not_called()
+        self.runtime.run.assert_not_called()
+
+
 class DevelopmentLifecycleTest(unittest.TestCase):
     def test_dashboard_reads_current_manifest_not_immutable_files_and_denies_drift(self):
         import omnis_cli.health as health

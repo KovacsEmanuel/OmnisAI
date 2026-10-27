@@ -53,7 +53,7 @@ it('CAS rejection is a hard stale barrier until explicit authoritative reload', 
   const { state, hook } = settingsBackend(empty, []); hook.intercept = (path, _body, method) => path.endsWith('/providers') && method === 'PUT' ? refuse() : undefined;
   mount(); await open(); const input = screen.getByLabelText('API key'); fireEvent.change(input, { target: { value: 'synthetic-key' } }); await next();
   await screen.findByText(/Settings changed/); expect(input).toHaveValue(''); expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await screen.findByText('Current settings loaded.'); expect(state.writes).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await screen.findByText('Settings reloaded.'); expect(state.writes).toHaveLength(1);
 });
 it('unmount wipes a detached secret without a save', async () => {
   const { state } = settingsBackend(empty, []); const mounted = mount(); await open(); const input = screen.getByLabelText('API key'); fireEvent.change(input, { target: { value: 'synthetic-unsent' } }); mounted.unmount(); expect(input).toHaveValue(''); expect(state.writes).toHaveLength(0);
@@ -122,10 +122,12 @@ it('loads every one of 64 saved entries across four revision-bound pages and ded
   const { state } = settingsBackend(configured, entries, []); mount(); const list = await screen.findByRole('region', { name: 'Configured models' });
   expect(within(list).getAllByRole('button', { name: /^Test / })).toHaveLength(64); expect(state.reads.filter(path => path.includes('/models/pages/'))).toHaveLength(3); expect(state.writes).toHaveLength(0);
 });
-it('keeps full provider-qualified assignment identities readable outside native select clipping', async () => {
+it('keeps full assignment identities in closed output details, not repeated below selectors', async () => {
   const model = 'Exact/' + 'Long-ID-'.repeat(20);
   settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, default: { ...selected, model }, brain: null, investigator: null, validator: null } }, [entry, { ...entry, entry_id: '44444444-4444-4444-8444-444444444444', model }], [{ model, max_output_tokens: 4096, supports_max_tokens: true }, { model: entry.model, max_output_tokens: 4096, supports_max_tokens: true }]);
   mount(); await screen.findByLabelText('Default model');
+  expect(screen.getByText(`${model} · OpenRouter`, { selector: 'small' })).not.toBeVisible();
+  fireEvent.click(screen.getByText('Output controls'));
   expect(screen.getByText(`${model} · OpenRouter`, { selector: 'small' })).toBeVisible();
 });
 it('first single-model assignment needs one explicit save and authoritative readback before claiming all roles use it', async () => {
@@ -143,6 +145,7 @@ it('first single-model assignment needs one explicit save and authoritative read
   await waitFor(() => expect(save).toHaveAttribute('aria-disabled', 'false'));
   expect(within(panel).queryAllByRole('combobox')).toHaveLength(0);
   expect(within(panel).getByText('All roles will use Exact/Model · OpenRouter after saving assignments.')).toBeVisible();
+  expect(within(panel).queryByText(/Save assignments separately/)).not.toBeInTheDocument();
   expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
   expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
   expect(screen.getByLabelText('Default output tokens')).toHaveValue(512);
@@ -184,6 +187,7 @@ it('one usable entry cannot hide an explicit same-entry cap that exceeds capabil
 it('a stale historical explicit choice remains visible and cannot collapse into All roles use', async () => {
   const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, connection_revision: 77, output_tokens: 31 }, investigator: null, validator: null } });
   mount(); const brain = await screen.findByLabelText('Brain'); expect(brain).toHaveDisplayValue(/revision 77.*Unavailable/); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument(); expect(screen.getByRole('button', { name: 'Save assignments' })).toBeDisabled(); expect(state.writes).toHaveLength(0);
+  expect(within(brain.parentElement!).getByText(`Exact/Model · ${connection.connection_id} revision 77 · Unavailable`, { selector: 'small' })).toBeVisible();
 });
 it('a pending key save keeps native Continue focus and does not steal an operator move on completion', async () => {
   const { state, hook } = settingsBackend(empty, []);

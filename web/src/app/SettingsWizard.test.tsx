@@ -41,11 +41,24 @@ it('searches cached pages only, preserves chips across Back and saves several ex
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next results' })); await screen.findByRole('button', { name: 'Add Catalog/16' }); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/16' }));
   fireEvent.change(screen.getByLabelText('Search models'), { target: { value: 'Catalog/31' } }); await screen.findByRole('button', { name: 'Add Catalog/31' });
-  expect(state.writes).toHaveLength(1); await review(); expect(screen.getByText('Existing Default and explicit role overrides stay unchanged.')).toBeVisible();
+  expect(state.writes).toHaveLength(1); await review(); expect(screen.getByText('Default and role overrides stay unchanged.')).toBeVisible();
   fireEvent.click(within(panel).getByRole('button', { name: 'Back' })); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0'); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 16');
   await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
   expect(state.entries.map(item => item.model)).toEqual(expect.arrayContaining(['Exact/Model', 'Catalog/00', 'Catalog/16'])); expect(state.keys.selection).toEqual(keys.selection);
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
+});
+it('review keeps short not-tested status, exact consent and closed output controls', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
+  expect(within(panel).getByText('Not tested', { exact: true })).toBeVisible();
+  expect(within(panel).getByText('Catalog/00', { selector: 'small', exact: true })).toBeVisible();
+  expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
+  expect(within(panel).getByLabelText('Catalog/00 output tokens')).not.toBeVisible();
+  expect(within(panel).getByRole('checkbox', { name: /one call for Catalog\/00 via OpenRouter/ })).not.toBeChecked();
+  expect(panel).toHaveTextContent('Provider charges may apply.');
+  expect(panel).toHaveTextContent('One call / 300 seconds, no tools or target traffic. Cancel is not a refund.');
+  expect(within(panel).getByRole('button', { name: 'Save & test' })).toBeDisabled();
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
 it('manual 256-character exact ID saves UNVERIFIED and cannot acquire test consent', async () => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard(); const id = 'M'.repeat(256);
@@ -94,6 +107,36 @@ it('UNKNOWN entry admission keeps the same operation and cannot start a fresh te
   mount(); const button = await screen.findByRole('button', { name: 'Test Exact/Model via OpenRouter' }); await waitFor(() => expect(button).toBeEnabled()); fireEvent.click(button); fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
   await screen.findByText(/Test outcome unconfirmed/); fireEvent.click(screen.getByRole('button', { name: 'Read test status' })); await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + id));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1); expect(screen.getByRole('button', { name: 'Cancel test' })).toBeEnabled();
+});
+it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test identity and recovery visible with diagnostics collapsed', async status => {
+  const { state, hook } = settingsBackend(); let view: EntryTestView | undefined;
+  hook.intercept = (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      view = { ...operation(String(body.operation_id), entry), state: status, result_state: status === 'FINISHED' ? 'COMPLETED' : 'UNKNOWN', response_text: status === 'FINISHED' ? 'OMNIS_MODEL_TEST_OK' : null };
+      return Response.json(view);
+    }
+    if (path.startsWith('/api/v1/model-test/entries/')) return Response.json(view);
+  };
+  mount(); fireEvent.click(await screen.findByRole('button', { name: 'Test Exact/Model via OpenRouter' }));
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
+  const panel = await screen.findByRole('region', { name: 'Model test operation' });
+  await waitFor(() => expect(panel).toHaveTextContent(`OpenRouter · Exact/Model · ${status}`));
+  const id = within(panel).getByText(`Operation ${view!.operation_id}`);
+  const details = within(panel).getByText('Operation details').closest('details');
+  expect(details).not.toHaveAttribute('open'); expect(id).not.toBeVisible();
+  if (status === 'FINISHED') {
+    expect(within(panel).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+    expect(within(panel).queryByText(/Cancel does not guarantee/)).not.toBeInTheDocument();
+  } else {
+    expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
+    expect(within(panel).getByText('Cancel does not guarantee remote cancellation or a refund.')).toBeVisible();
+  }
+  fireEvent.click(within(panel).getByText('Operation details')); expect(id).toBeVisible();
+  if (status === 'FINISHED') expect(within(panel).getByLabelText('Model response')).toHaveTextContent('OMNIS_MODEL_TEST_OK');
+  fireEvent.click(within(panel).getByText('Operation details')); expect(id).not.toBeVisible();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + view!.operation_id));
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
 });
 it('catalog lost reply has receive-only recovery after closing its wizard', async () => {
   const { state, hook } = settingsBackend(configured, [], models);

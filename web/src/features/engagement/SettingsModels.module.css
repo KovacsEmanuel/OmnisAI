@@ -4,6 +4,7 @@
 .tabs a { display: inline-flex; align-items: center; min-height: 46px; padding: 10px 18px; border-radius: var(--radius-pill); color: var(--color-secondary); text-decoration: none; }
 .tabs a[aria-current=page] { background: var(--color-selected); color: var(--color-text); }
 .heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-bottom: 16px; }
+.workspace .headingActions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-left: auto; }
 .workspace h2 { margin: 0; font-size: 21px; font-weight: 500; letter-spacing: -.02em; }
 .workspace h3 { margin: 0; font-size: 15px; font-weight: 600; }
 .panel { min-width: 0; border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); padding: 4px; background: var(--surface-shell); margin-bottom: 20px; }
@@ -20,6 +21,7 @@
 .connectionHeading details[open] { flex-basis: 100%; }
 .list, .chips, .steps { list-style: none; padding: 0; margin: 0; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border-top: 1px solid var(--color-divider); padding: 16px 0; }
+.review .row { padding-block: 12px; }
 .identity { min-width: 0; flex: 1 1 240px; overflow-wrap: anywhere; }
 .identity strong { font-weight: 500; }
 .identity small { display: block; color: var(--color-secondary); margin-top: 2px; }
@@ -27,6 +29,7 @@
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
 .forward { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
 .secondary { background: transparent; border-color: var(--color-border); }
+.quiet { background: transparent; border-color: transparent; box-shadow: none; color: var(--color-secondary); font-weight: 400; }
 .workspace button { max-width: 100%; min-height: 46px; overflow-wrap: anywhere; }
 .workspace button[aria-disabled=true] { cursor: not-allowed; color: var(--color-secondary); }
 .forward button { min-width: 140px; }
@@ -49,7 +52,7 @@
 .chips button { padding: 8px 12px; background: transparent; box-shadow: none; flex-shrink: 0; }
 .assignmentGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
 .defaultField { max-width: 440px; }
-.check { display: flex; align-items: center; gap: 12px; min-height: 46px; margin-top: 16px; }
+.check { display: flex; align-items: center; gap: 12px; min-height: 46px; margin-top: 16px; overflow-wrap: anywhere; }
 .check input { width: 22px; height: 22px; flex-shrink: 0; }
 .workspace fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 @media (max-width: 760px) { .workspace h1 { font-size: 30px; } .core { padding: 20px; } .fields, .assignmentGrid { grid-template-columns: minmax(0, 1fr); } .workspace input:not([type=checkbox]), .workspace select { font-size: 16px; } .identity { flex-basis: 100%; } .actions { align-items: stretch; } .forward { flex: 1 1 100%; justify-content: flex-end; } .forward button { flex: 1 1 auto; } .connectionHeading small { flex: 1 1 140px; } }

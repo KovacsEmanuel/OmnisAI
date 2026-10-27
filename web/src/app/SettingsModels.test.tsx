@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { health, session } from '../../tests/fixtures';
+import { configured, connection as savedConnection, settingsBackend } from '../../tests/settings-fixtures';
 
 const connectionId = '11111111-1111-4111-8111-111111111111';
 const entryId = '22222222-2222-4222-8222-222222222222';
@@ -43,7 +44,15 @@ it('opens on persisted models, not a wizard, and does not invent a persisted def
   expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Models' })).toHaveAttribute('aria-current', 'page');
   expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
-  expect(screen.getByText(/Save assignments separately/)).toBeVisible();
+  expect(screen.getByText('All roles will use Exact/Model · OpenRouter after saving assignments.')).toBeVisible();
+  expect(writes).toEqual([]);
+});
+it('groups quiet reload with Add models and confirms a read without writes', async () => {
+  backend(); mount();
+  const actions = await screen.findByRole('group', { name: 'Model library actions' });
+  expect(within(actions).getAllByRole('button').map(button => button.textContent)).toEqual(['Reload', 'Add models']);
+  fireEvent.click(within(actions).getByRole('button', { name: 'Reload current settings' }));
+  await screen.findByText('Settings reloaded.');
   expect(writes).toEqual([]);
 });
 it('uses the saved key without a password field or key resubmission; Back preserves selection', async () => {
@@ -77,6 +86,30 @@ it('Cancel wipes an unsent secret even from a detached node', async () => {
   const input = screen.getByLabelText('API key'); fireEvent.change(input, { target: { value: 'synthetic-only' } });
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(input).toHaveValue(''); expect(writes).toHaveLength(0);
+});
+it.each(['openrouter', 'orcarouter'] as const)('direct test consent names the exact model and %s before Send', async provider => {
+  const providerLabel = provider === 'openrouter' ? 'OpenRouter' : 'OrcaRouter';
+  const model = 'Exact/' + 'x'.repeat(250), otherConnection = '44444444-4444-4444-8444-444444444444';
+  const { state } = settingsBackend({ ...configured, connections: [savedConnection, { ...savedConnection, connection_id: otherConnection, provider: 'orcarouter' }] },
+    [{ ...entry, model }, { ...entry, model, entry_id: otherConnection, connection_id: otherConnection }], [{ ...metadata, model }]);
+  mount();
+  const test = await screen.findByRole('button', { name: `Test ${model} via ${providerLabel}` });
+  await waitFor(() => expect(test).toBeEnabled()); fireEvent.click(test);
+  const consent = screen.getByRole('region', { name: 'Test consent' });
+  expect(model).toHaveLength(256);
+  expect(consent).toHaveTextContent(`${providerLabel} · ${model}`);
+  expect(within(consent).getByText(model, { exact: true })).toBeVisible();
+  expect(consent).toHaveTextContent('Provider charges may apply.');
+  expect(within(consent).getByRole('checkbox')).not.toBeChecked();
+  expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeDisabled();
+  expect(screen.getByText('Test details').closest('details')).not.toHaveAttribute('open');
+  fireEvent.click(screen.getByText('Test details'));
+  expect(screen.getByText('Respond only with OMNIS_MODEL_TEST_OK. Use no tools.')).toBeVisible();
+  expect(screen.getByText('This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.')).toBeVisible();
+  fireEvent.click(within(consent).getByRole('checkbox'));
+  expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeEnabled();
+  fireEvent.click(within(consent).getByRole('button', { name: 'Cancel' }));
+  expect(state.writes).toHaveLength(0);
 });
 it('keeps single-model output controls secondary before assignment confirmation', async () => {
   backend();

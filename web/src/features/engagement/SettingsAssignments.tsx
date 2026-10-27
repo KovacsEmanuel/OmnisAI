@@ -47,16 +47,16 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
     if (await save({ action: 'save_selection', command_id: crypto.randomUUID(), expected_revision: settings.selection?.revision ?? 0, default: draft.default, brain: draft.brain, investigator: draft.investigator, validator: draft.validator })) setNotice('Assignments saved. Applies to future runs only.');
   }
   return <section className={styles.panel} aria-labelledby="assignments-heading"><div className={styles.core}>
-    <h2 id="assignments-heading">Model assignments</h2><p className={styles.hint}>Uses configured models. Changes apply to future runs; existing runs keep their pinned settings.</p>
+    <h2 id="assignments-heading">Model assignments</h2><p className={styles.hint}>For future runs. Existing runs keep their pinned settings.</p>
     {!library.entries.length ? <p>Add a model first.</p> : <>
-      {!settings.selection && <p>Save assignments separately to confirm a default. Registering models does not assign roles.</p>}
+      {!settings.selection && !simple && <p>Save assignments to confirm a default. Adding models does not assign roles.</p>}
       {simple && <p>{settings.selection ? 'All roles use' : 'All roles will use'} {eligible[0]!.model} · {providerName(settings.connections.find(item => item.connection_id === eligible[0]!.connection_id)!.provider)}{settings.selection ? '.' : ' after saving assignments.'}</p>}
       {!valid && <p className={styles.hint}>Choose available saved entries for the affected roles. Unverified, disabled or stale choices are not replaced automatically.</p>}
       <form onSubmit={event => { void submit(event); }}>
         {!simple && <><div className={styles.defaultField}>{picker('default')}</div><div className={styles.assignmentGrid}>{roles.slice(1).map(picker)}</div></>}
         <details><summary>Output controls</summary><p className={styles.hint}>Per-role output caps are preserved independently. These are not a total run budget.</p><div className={styles.fields}>{roles.map(role => {
-          const choice = draft[role];
-          return choice && <label className={styles.field} key={role}>{title(role)} output tokens<input type="number" min={1} max={65536} step={1} value={choice.output_tokens} disabled={blocked} aria-disabled={working} onChange={event => { if (!working) { setDraft({ ...draft, [role]: { ...choice, output_tokens: Number(event.target.value) } }); setNotice('Unsaved assignments.'); } }} /></label>;
+          const choice = draft[role], entry = selectedEntry(choice);
+          return choice && <div className={styles.field} key={role}><label htmlFor={`settings-output-${role}`}>{title(role)} output tokens</label><input id={`settings-output-${role}`} type="number" min={1} max={65536} step={1} value={choice.output_tokens} disabled={blocked} aria-disabled={working} onChange={event => { if (!working) { setDraft({ ...draft, [role]: { ...choice, output_tokens: Number(event.target.value) } }); setNotice('Unsaved assignments.'); } }} /><small className={styles.mono}>{entry ? label(entry) : `${choice.model} · ${choice.connection_id} revision ${choice.connection_revision} · Unavailable`}</small></div>;
         })}</div></details>
         <div className={styles.actions}><button type="submit" disabled={blocked || !valid} aria-disabled={working} aria-busy={working}>Save assignments</button></div>
       </form><output aria-live="polite">{notice}</output>
@@ -69,7 +69,7 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
       <option value="" disabled={role === 'default'}>{role === 'default' ? 'Choose a saved model' : 'Use default'}</option>
       {stale && <option value="stale" disabled>{choice.model} · {choice.connection_id} revision {choice.connection_revision} · Unavailable</option>}
       {library.entries.map(item => <option key={item.entry_id} value={item.entry_id} disabled={!usable(item, settings, evidence)}>{label(item)}</option>)}
-    </select>{choice && <small className={styles.mono}>{entry ? label(entry) : `${choice.model} · ${choice.connection_id} revision ${choice.connection_revision} · Unavailable`}</small>}</div>;
+    </select>{choice && !available(choice) && <small className={styles.mono}>{choice.model} · {choice.connection_id} revision {choice.connection_revision} · Unavailable</small>}</div>;
   }
 }
 function title(value: string) { return value[0]!.toUpperCase() + value.slice(1); }

@@ -40,7 +40,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
       return { status: response.status, body: await response.json() };
     }, { path, command });
   }
-  async function capture(state, ready) {
+  async function capture(state, ready, disclosure) {
     for (const width of [1440, 1280, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       await check(ready).toBeVisible();
@@ -49,7 +49,20 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state}: overflow at ${width}px`);
       await secretChecks();
+      if (disclosure) assert.equal(await disclosure.evaluate(summary => summary.parentElement.open), false, `${state}: details start closed`);
       await screenshot(`settings-models-${state}-${width}x1000`);
+      if (disclosure && [1440, 390].includes(width)) {
+        await disclosure.focus(); await page.keyboard.press('Enter');
+        await check(disclosure).toBeFocused();
+        assert.equal(await disclosure.evaluate(summary => summary.parentElement.open), true);
+        const focus = await disclosure.evaluate(summary => { const style = getComputedStyle(summary); return { outline: style.outlineStyle, width: style.outlineWidth }; });
+        assert.notEqual(focus.outline, 'none'); assert.equal(focus.width, '2px');
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state}: expanded overflow at ${width}px`);
+        await secretChecks();
+        await screenshot(`settings-models-${state}-details-expanded-${width}x1000`);
+        await page.keyboard.press('Enter'); await check(disclosure).toBeFocused();
+        assert.equal(await disclosure.evaluate(summary => summary.parentElement.open), false);
+      }
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
@@ -58,6 +71,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/01 · OpenRouter(?: · Unavailable — details needed or connection stale)?$/);
     await assignments.getByText('Output controls', { exact: true }).click();
     await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
+    await assignments.getByText('Output controls', { exact: true }).click();
     const current = await readSettings();
     assert.equal(current.selection.revision, 3);
     assert.equal(current.selection.default.model, 'fixture/00');
@@ -126,11 +140,22 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(wizard.getByRole('button', { name: 'Save & test', exact: true })).toBeDisabled();
   await wizard.getByRole('button', { name: 'Save models', exact: true }).click();
   await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(1);
-  await check(assignments).toContainText('Save assignments separately to confirm a default.');
+  await check(assignments.getByText(/Save assignments to confirm a default/)).toHaveCount(0);
   await check(assignments).toContainText('All roles will use fixture/00 · OpenRouter after saving assignments.');
   await check(assignments.getByRole('combobox')).toHaveCount(0);
   assert.equal((await readSettings()).selection, null, 'Registering one model is not a persisted Default');
   await capture('one-model-unassigned', assignments.getByRole('button', { name: 'Save assignments', exact: true }));
+  await configured.getByRole('button', { name: 'Test fixture/00 via OpenRouter', exact: true }).click();
+  const consent = page.getByRole('region', { name: 'Test consent' });
+  await check(consent).toContainText('OpenRouter · fixture/00');
+  await check(consent).toContainText('Provider charges may apply.');
+  await check(consent.getByRole('checkbox')).not.toBeChecked();
+  await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeDisabled();
+  await capture('direct-test-consent', consent, configured.getByText('Test details', { exact: true }));
+  await consent.getByRole('checkbox').check();
+  await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeEnabled();
+  await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
+  assert.equal(writes.filter(item => item.path === '/api/v1/model-test/entries').length, 0);
   await assignments.getByRole('button', { name: 'Save assignments', exact: true }).click();
   await check(assignments).toContainText('All roles use fixture/00 · OpenRouter.');
   const firstSelection = (await readSettings()).selection;
@@ -154,7 +179,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(page.getByText('Settings changed. Reload the current revision before saving.', { exact: true })).toBeVisible();
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
-  await check(page.getByText('Current settings loaded.', { exact: true })).toBeVisible();
+  await check(page.getByText('Settings reloaded.', { exact: true })).toBeVisible();
   await check(assignments.getByRole('combobox')).toHaveCount(0);
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
@@ -193,11 +218,12 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await wizard.getByText('Output controls', { exact: true }).click();
   await wizard.getByLabel('fixture/02 output tokens', { exact: true }).fill('64');
   await wizard.getByRole('combobox', { name: 'Model to test', exact: true }).selectOption('fixture/02');
-  await check(wizard).toContainText('Existing Default and explicit role overrides stay unchanged.');
-  await capture('review-many', wizard.getByRole('button', { name: 'Save models', exact: true }));
+  await check(wizard).toContainText('Default and role overrides stay unchanged.');
+  await wizard.getByText('Output controls', { exact: true }).click();
+  await capture('review-many', wizard.getByRole('button', { name: 'Save models', exact: true }), wizard.getByText('Output controls', { exact: true }));
   assert.deepEqual((await readSettings()).selection, preserved);
   assert.equal(writes.filter(item => item.path === '/api/v1/model-test/entries').length, 0);
-  await wizard.getByRole('checkbox', { name: /I approve the fixed synthetic input and one call for fixture\/02/ }).check();
+  await wizard.getByRole('checkbox', { name: /I approve the fixed synthetic input and one call for fixture\/02 via OpenRouter/ }).check();
   const submitted = page.waitForRequest(request => request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`);
   await wizard.getByRole('button', { name: 'Save & test', exact: true }).click();
   const testIntent = (await submitted).postDataJSON();
@@ -206,10 +232,18 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(32);
   assert.deepEqual((await configured.getByRole('button', { name: /^Test fixture\// }).evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')))).sort(), Array.from({ length: 32 }, (_, index) => `Test fixture/${String(index).padStart(2, '0')} via OpenRouter`));
   assert.deepEqual((await readSettings()).selection, preserved, 'Save & test must preserve Default, explicit override, caps and revision');
+  const operationDetails = test.getByText('Operation details', { exact: true });
+  await operationDetails.click();
   const operation = (await test.innerText()).match(/Operation ([0-9a-f-]{36})/)?.[1]; assert.ok(operation);
+  await check(test.getByLabel('Model response', { exact: true })).toHaveText('OMNIS_MODEL_TEST_OK');
+  await operationDetails.click();
+  await check(test.getByRole('button', { name: 'Cancel test', exact: true })).toHaveCount(0);
+  await capture('test-completed', test, operationDetails);
   assert.equal(testIntent.operation_id, operation);
   await page.reload();
-  await check(test).toContainText(operation);
+  await operationDetails.click();
+  await check(test.getByText(`Operation ${operation}`, { exact: true })).toBeVisible();
+  await operationDetails.click();
   await check(test).toContainText('COMPLETED');
   await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/00 · OpenRouter$/);
   const brain = page.getByLabel('Brain', { exact: true });
@@ -222,7 +256,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(assignments).toContainText('Assignments saved. Applies to future runs only.');
   await page.reload();
   const savedSelection = (await loadedMany()).selection;
-  await capture('saved-many-assignments', brain);
+  await capture('saved-many-assignments', brain, assignments.getByText('Output controls', { exact: true }));
   await brain.focus(); await page.keyboard.press('Tab');
   assert.ok(await page.evaluate(() => document.activeElement?.matches('select,input,button,a')));
   assert.equal(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches), true);

@@ -60,6 +60,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const current = useQuery({ queryKey, queryFn: ({ signal }) => readPrivate(() => load(signal), signal), retry: false, gcTime: 0,
     enabled: authReady && !sending && !pending && !stale, refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: 'always' });
   const data = current.data;
+  const testConnection = data?.settings.connections.find(item => item.connection_id === testChoice?.connection_id);
   const test = useQuery({ queryKey: ['private', 'settings-entry-test', scope, operation],
     queryFn: ({ signal }) => readPrivate(() => api.entryModelTest(operation!, signal), signal), enabled: authReady && !!operation,
     retry: false, gcTime: 0, refetchOnWindowFocus: false,
@@ -85,7 +86,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       const value = await readPrivate(() => load(abort.signal), abort.signal);
       if (abort.signal.aborted || lifetime.current.signal.aborted) return;
       remember(pendingStorage, scope, null); setPending(null); setStale(false); client.setQueryData(queryKey, value);
-      setNotice(recover ? 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.' : 'Current settings loaded.');
+      setNotice(recover ? 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.' : 'Settings reloaded.');
     } catch (error) { if (!abort.signal.aborted && !lifetime.current.signal.aborted) setNotice(recover ? 'Receipt not confirmed. Do not repeat this command.' : message(error)); }
     finally { if (!lifetime.current.signal.aborted) setReading(false); }
   }
@@ -103,7 +104,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       const value = await readPrivate(() => load(lifetime.current.signal), lifetime.current.signal);
       remember(pendingStorage, scope, null); setPending(null); client.setQueryData(queryKey, value);
       await client.invalidateQueries({ queryKey: ['private', 'model-test'] });
-      setNotice('Saved locally; current settings loaded.');
+      setNotice('Saved locally.');
       return receipt;
     } catch (error) {
       if (lifetime.current.signal.aborted) return;
@@ -124,7 +125,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       remember(catalogStorage, scope, operation); setCatalogOperation(operation);
       const value = await readPrivate(() => api.refreshProviderCatalog({ action: 'refresh', command_id: operation.id, connection_id: operation.connection, connection_revision: operation.revision }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); }
-      setCatalogNotice(`Catalog ${value.state}. Reading its status never starts another refresh.`); return value;
+      setCatalogNotice(`Catalog ${value.state}.`); return value;
     } catch (error) { if (!lifetime.current.signal.aborted) { if (definitive(error)) { remember(catalogStorage, scope, null); setCatalogOperation(null); setStale(true); } setCatalogNotice(`Catalog outcome unknown. ${message(error)} Recover by reading the same catalog operation.`); } }
     finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
   }
@@ -176,10 +177,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     return entries;
   }
   return <>
-    <div className={styles.heading}><h2>Models</h2><button ref={addButton} type="button" disabled={blocked} aria-disabled={busy} onClick={() => { if (!busy) open(); }}>Add models</button></div>
+    <div className={styles.heading}><h2>Models</h2><fieldset className={styles.headingActions} aria-label="Model library actions">
+      <button type="button" className={pending || stale || current.isError ? undefined : styles.quiet} aria-label={pending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
+      <button ref={addButton} type="button" disabled={blocked} aria-disabled={busy} onClick={() => { if (!busy) open(); }}>Add models</button>
+    </fieldset></div>
     <output aria-live="polite" className={notice || pending || current.isError ? styles.notice : styles.hint}>{pending ? sending ? `Saving locally. Command ${pending.id}. No success confirmed.` : `Outcome unknown. Command ${pending.id}. Recover its exact receipt before another mutation.` : notice || (current.isError ? 'Read failed. Current settings are not confirmed.' : current.isFetching ? 'Loading current settings…' : '')}</output>
     {pending && notice && <p className={styles.notice}>{notice}</p>}
-    <div className={styles.actions}><button type="button" className={styles.secondary} disabled={!authReady} aria-disabled={reading} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending ? 'Recover exact receipt' : 'Reload current settings'}</button></div>
     {catalogOperation && <section className={styles.notice} aria-label="Catalog recovery"><p>Catalog operation {catalogOperation.id}. Pending or UNKNOWN; no automatic refresh.</p><button type="button" onClick={() => { void readCatalog(); }}>Read catalog status</button><button type="button" className={styles.secondary} onClick={() => { void readCatalog(true); }}>Cancel catalog</button></section>}
     {catalogNotice && <output className={styles.hint}>{catalogNotice}</output>}
     {data && <><section className={styles.panel} aria-label="Configured models"><div className={styles.core}>
@@ -206,10 +209,16 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         if (saved && latest && saved.connection_id === latest.connection_id && saved.revision === latest.revision && latest.enabled && latest.credential_present) return latest;
         if (result) { setStale(true); setNotice('The connection changed after its receipt. Reload; no catalog refresh was sent.'); }
       }} saveModels={(payload, test) => saveModels(payload, test, wizard.id)} />}
-      {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test {testChoice.model}</h2><p>One fixed synthetic call / 300 seconds for this exact entry and connection revision. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest} onChange={event => setConsent(event.target.checked)} />I approve the fixed input shown in Test details and one call for {testChoice.model}.</label><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof) void startTest(testChoice, proof.catalog); }}>Send model test</button></div></div></section>}
+      {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test model</h2><p>{testConnection ? providerName(testConnection.provider) : 'Unavailable connection'} · <span className={styles.mono}>{testChoice.model}</span></p><p>One fixed synthetic call / 300 seconds for this exact entry and connection revision. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest} onChange={event => setConsent(event.target.checked)} />I approve the fixed input shown in Test details and one call for {testChoice.model}.</label><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof) void startTest(testChoice, proof.catalog); }}>Send model test</button></div></div></section>}
       <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} blocked={blocked} working={busy} save={async command => !!await saveKeys(command)} />
     </>}
-    {operation && <section className={styles.panel} aria-label="Model test operation"><div className={styles.core}><h2>Model test</h2><p className={styles.mono}>Operation {operation}</p><p>{observed?.requested_provider ? providerName(observed.requested_provider) : 'Requested entry'} · {observed?.requested_model ?? 'Unconfirmed snapshot'} · {observed?.state ?? 'UNKNOWN'} · {observed?.result_state ?? 'NOT_VERIFIED'}{observed && !observed.current ? ' · Stale connection or entry revision' : ''}</p><p>{testUnknown || test.isError ? 'UNKNOWN — read the same operation. No automatic resend.' : observed?.reason}</p><div className={styles.actions}><button type="button" disabled={!observed?.state_revision || observed.state === 'FINISHED'} onClick={() => { void readTest(true); }}>Cancel test</button><button type="button" className={styles.secondary} onClick={() => { void readTest(); }}>Read test status</button></div><p className={styles.hint}>Cancel does not guarantee remote cancellation or a refund.</p><details><summary>Operation details</summary><p>Requested output cap: {observed?.requested_output_tokens ?? 'UNKNOWN'}. Observed model: {observed?.observed_model ?? 'UNKNOWN'}.</p><p aria-label="Model response" className={styles.mono}>{observed?.response_text ?? 'No output confirmed.'}</p><p>Usage {observed?.usage_state ?? 'UNKNOWN'} · input/output/reasoning {observed?.input_tokens ?? 'UNKNOWN'} / {observed?.output_tokens ?? 'UNKNOWN'} / {observed?.reasoning_tokens ?? 'UNKNOWN'} · Cost {observed?.cost_observed ?? 'UNKNOWN'}</p></details></div></section>}
+    {operation && <section className={styles.panel} aria-label="Model test operation"><div className={styles.core}>
+      <h2>Model test</h2><p>{observed?.requested_provider ? providerName(observed.requested_provider) : 'Requested entry'} · {observed?.requested_model ?? 'Unconfirmed snapshot'} · {observed?.state ?? 'UNKNOWN'} · {observed?.result_state ?? 'NOT_VERIFIED'}{observed && !observed.current ? ' · Stale connection or entry revision' : ''}</p>
+      {(testUnknown || test.isError || observed?.reason) && <p>{testUnknown || test.isError ? 'UNKNOWN — read the same operation. No automatic resend.' : observed?.reason}</p>}
+      <div className={styles.actions}>{activeTest && <button type="button" disabled={!observed?.state_revision || observed.state === 'FINISHED'} onClick={() => { void readTest(true); }}>Cancel test</button>}<button type="button" className={styles.secondary} onClick={() => { void readTest(); }}>Read test status</button></div>
+      {activeTest && <p className={styles.hint}>Cancel does not guarantee remote cancellation or a refund.</p>}
+      <details><summary>Operation details</summary><p className={styles.mono}>Operation {operation}</p><p>Requested output cap: {observed?.requested_output_tokens ?? 'UNKNOWN'}. Observed model: {observed?.observed_model ?? 'UNKNOWN'}.</p><p aria-label="Model response" className={styles.mono}>{observed?.response_text ?? 'No output confirmed.'}</p><p>Usage {observed?.usage_state ?? 'UNKNOWN'} · input/output/reasoning {observed?.input_tokens ?? 'UNKNOWN'} / {observed?.output_tokens ?? 'UNKNOWN'} / {observed?.reasoning_tokens ?? 'UNKNOWN'} · Cost {observed?.cost_observed ?? 'UNKNOWN'}</p></details>
+    </div></section>}
     {legacy && <ModelTest receiveOnly />}
   </>;
 }

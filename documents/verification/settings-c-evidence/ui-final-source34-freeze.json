@@ -1,0 +1,404 @@
+{
+  "base": "94f48fd7e7f0a418a876c6db69ad48b62971a2bd",
+  "build_manifest": {
+    "files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-B8rfyFoa.css": "d1841f37ca17f15b55d4ab876944307b783ff1f410dd45772ccaacc159116db5",
+      "assets/index-BqkuURxh.js": "7010225bcdd5847db3b0bf54704c826d9b69c000dd8bbf0bbef461055a65bca1",
+      "index.html": "d343936c728e07f16d8795b807f984dd18d19b125e373e8d7463fe799c83b9fc"
+    },
+    "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+    "sha256": "e2d646e4bcd898ff8bb9621c23e3ce055bd83b8f7a4e507e4935d19c45641fe1"
+  },
+  "build_status": "REUSED_BYTE_IDENTICAL_MANIFEST_AND_4_FILES_NO_REBUILD",
+  "candidate_id": "9f4fccff3f59ec5b41f43d938d3b710fbe26c57387f2689d9c3a84f26e84595f",
+  "candidate_id_algorithm": "sha256 canonical JSON {base,files:[{path,sha256}]} sorted path/keys compact separators",
+  "correction_base": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
+  "delta": [
+    {
+      "after": {
+        "bytes": 13376,
+        "git_blob": "85deb0ca57574ae9516f0da7fc40747ccac7e742",
+        "sha256": "36ee916a94915caa71c4464818f69b17c4fcf9f4b9b2c88ed92f702fc3d8daa8"
+      },
+      "before": {
+        "bytes": 13510,
+        "git_blob": "149d50b181365c82153bab27de521cc6592d007a",
+        "sha256": "cc0b0133a5de2ff37f20b672eb0dd13bf460b0cdac10d6c29a7a32685ab281a9"
+      },
+      "path": "web/tests/e2e/b04.mjs"
+    }
+  ],
+  "delta_file_count": 1,
+  "integration_head": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
+  "integrity_proofs": {
+    "all_previous_33_hashes_identical": true,
+    "call_counts": {
+      "assert_calls": {
+        "after": 22,
+        "before": 22
+      },
+      "check_calls": {
+        "after": 40,
+        "before": 40
+      },
+      "first_editor_suffix": {
+        "after": 4,
+        "before": 4
+      },
+      "second_editor_suffix": {
+        "after": 3,
+        "before": 3
+      },
+      "secret_checks": {
+        "after": 3,
+        "before": 3
+      }
+    },
+    "caller_search": {
+      "old_literal_remaining_counts": {
+        "Evaluare generală": 0,
+        "Evaluează suprafața Web/API autorizată în limitele profilului selectat.": 0,
+        "Obiectiv / instrucțiuni pentru Brain": 0,
+        "Test focalizat": 0
+      },
+      "searched_files": 7
+    },
+    "custom_unicode_whitespace_objective_byte_identical": true,
+    "inverse_three_literal_replacements_recreate_HEAD_and_original_base_b04_exactly": true,
+    "line_count": 190,
+    "only_tracked_worktree_delta_is_b04": true
+  },
+  "original_source_base": "94f48fd7e7f0a418a876c6db69ad48b62971a2bd",
+  "owned_file_count": 34,
+  "owned_files": [
+    {
+      "bytes": 29028,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "875b3ea7fc354a812e291a3297efbf274d3e3e23",
+      "path": "Makefile",
+      "sha256": "338edaa8a68726c81a678c5b9c9577b9eceef9c303c152025e30ee72c19e4b38"
+    },
+    {
+      "bytes": 5029,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "620c5697d2d5d154c50e78058bc71dd169c2f737",
+      "path": "api/src/omnis/core/errors.py",
+      "sha256": "6116f08e33a9fb384ec40911340502ecae6290e44705b23c1369c824a5f447bb"
+    },
+    {
+      "bytes": 6012,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "746f0e3a8ccea817f9cfb86e31b7fbdf8206b477",
+      "path": "api/src/omnis/modules/settings/provider_key_routes.py",
+      "sha256": "a6d7629bbdaa0c5dd1668d1cf7273ea62b968d060b0cdb3552fe45a23112b482"
+    },
+    {
+      "bytes": 16229,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "4ea67948f6089dc370dce9e610cb43369e04ea5e",
+      "path": "api/src/omnis/modules/settings/provider_key_service.py",
+      "sha256": "e3488b36d3c984ae181d52f04bd2734f71e73a54750a30f4947ede80a8d5e589"
+    },
+    {
+      "bytes": 10801,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "12e72ceba6d785987382d7d050d69eafb34e97ed",
+      "path": "api/tests/installed_sent_probe.py",
+      "sha256": "17bea1bba9b75c7a1afad98617ff4c6840c2be59bae3d3343387671dfc82149b"
+    },
+    {
+      "bytes": 88259,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "d9d65e726316a9407d850e6db58a05cec64388cd",
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "41d21df9a86edc64447ed824f9670ba05dbf98754e012d947d02d0d130247487"
+    },
+    {
+      "bytes": 29141,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "6d4015b6c690eaf86379473bb9db0a34cb6c986e",
+      "path": "api/tests/test_provider_key_api.py",
+      "sha256": "c5149de3559230a2f92c5e4048981d4d831ebd08d2609fc3281e8b1467f37460"
+    },
+    {
+      "bytes": 44978,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "7e49a9a95cf5e2d651f25040f9aa7be49e5d1cc3",
+      "path": "api/tests/test_provider_key_settings.py",
+      "sha256": "daad32f39a33cdc762c369cf12145e8248a67d02ae5e04c4c5841377b5dbb273"
+    },
+    {
+      "bytes": 26567,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "43bb47e04cad715e1a0f2f472c9af50577a54f37",
+      "path": "api/tests/test_web_e2e.py",
+      "sha256": "ab36bbddbfec3645bdc9cfab6025241ae4fd8f3c1e5a22061861294ba0594075"
+    },
+    {
+      "bytes": 182012,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "0a20e54bba06f6d77b59fc58fde03e0b0e6c32b8",
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "79a3611c7a61ae220addd1c1b90b23885b27eb823f6970969aff987a04c3c0a6"
+    },
+    {
+      "bytes": 42359,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "cc5b3ecd2d68718888b24aabba673cf6422547d8",
+      "path": "ops/run_test_db_gate.py",
+      "sha256": "e5279ca0d9079b98f2ee8436eb1fd2e45634e0c66319be4b8194b35d61c782c2"
+    },
+    {
+      "bytes": 41622,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "94e91bb38ba56d495ee66e189bc3cf9f9a7ddf3f",
+      "path": "tests/development/test_test_db_gate.py",
+      "sha256": "c07fd54aff6c737efe746f51cfaecee749c72d11ed13dec09a2fd521e6200cf5"
+    },
+    {
+      "bytes": 15376,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "17cf91cbe0a5f5eddeff8f9f34c9f6f4eb5a51fd",
+      "path": "web/src/app/ModelTest.test.tsx",
+      "sha256": "19721478bd61a2eb4741a1fc2574b1e27cfdd7258294fb8e3485f118905a7f11"
+    },
+    {
+      "bytes": 20413,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "2834dfd92bb11bfe181c8f37779120aa0e2156e2",
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "sha256": "6d18ed0acf37e00fdb052e77fb1848623fe9c4c5a1400c9a4e6278047b99e6ec"
+    },
+    {
+      "bytes": 7009,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "df105f339a04ebf8a828b6c4bcb0459c81acc05c",
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "sha256": "801549a68420961d253dd240d2e39dd77a946a8e9f734e373c89d93169dad694"
+    },
+    {
+      "bytes": 13307,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "bf37a7ad34d0b085435f4299fac956ce72e83bf4",
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "sha256": "f743d0b1a1bbae34ad59f5a67f38bb4b098dc0fe5f3abfb039507ff5263a8e50"
+    },
+    {
+      "bytes": 37470,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "2d37dde491222fbdd6162fae835e6d8ccd5b6db6",
+      "path": "web/src/app/Wizard.test.tsx",
+      "sha256": "52895aeee837842a6837a7170690c8fb9371e2365220489c2b077cd9016511ae"
+    },
+    {
+      "bytes": 10104,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "36f989f7205d301cf20c0ff757a33540ddca7f57",
+      "path": "web/src/features/engagement/ModelTest.tsx",
+      "sha256": "f41efe804c7bc8820633c944ec40fc2e8ff9ea59eea16e4136f20ffcc5039f97"
+    },
+    {
+      "bytes": 1182,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "257f8c4b80260d88b77319b0842aadf8e9c07939",
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "sha256": "a0d42ab55e92ea1994634f4443fa376c84d1d7dd6cd33f659e245182d2fba288"
+    },
+    {
+      "bytes": 884,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "1f98669e4fe71d376ea00cce9262d3a08b6ca3b8",
+      "path": "web/src/features/engagement/Settings.tsx",
+      "sha256": "b797e14bc314f5f02582e10fcb0d6b060e367aa0a6a39c4c73a44e11002a988d"
+    },
+    {
+      "bytes": 7110,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "06b120606bbf5ca0655d5f84e0f8b7083be96c2a",
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "sha256": "ccb28a3516a08e45e2b2b5c0a2ccfd5c5913cd5498e375d19033701e160e5175"
+    },
+    {
+      "bytes": 17258,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "eead0609442c199a68509e4dcbeadd9122b2bb20",
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "sha256": "ea6a45b7f8c567557a9e4249aa25e03190e31a1bd8f3399fe39687d01149ba3d"
+    },
+    {
+      "bytes": 5556,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "a44818de8104c6e2d83963f62c3599ba8017dc09",
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "sha256": "1f4b63536da6b43066ad542d700d0975990ed3c9abf7b3393e0c3d698676bd00"
+    },
+    {
+      "bytes": 5181,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "c88efbf3c4b5c114097e9e7667745ed3bf7e9950",
+      "path": "web/src/features/engagement/SettingsModels.ts",
+      "sha256": "9ca6a13ac9f3eaea4e566f8a55316ce74e00cf38e2f60ee4efed3d9a8bc43327"
+    },
+    {
+      "bytes": 24933,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "8aed2949d82227a94be9cb1ef2c4cb959024ee31",
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "sha256": "4b9717332ec068d5bab259303ecbd8feea4730dc5cc847e13407c24861cd8907"
+    },
+    {
+      "bytes": 24002,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "906aa6d4ed581b7a8ec93cee28f5137e6b5e72ac",
+      "path": "web/src/features/engagement/Wizard.tsx",
+      "sha256": "34ac69635c4873115ec4d0f4587ab2577f49e1b42a6776c8fe4ac6d10a2c04e6"
+    },
+    {
+      "bytes": 1272,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "3a7d217721f602c457db241461200aabe5bc6377",
+      "path": "web/src/features/engagement/copy.ts",
+      "sha256": "2cbd23184845aad8f884399430c45f5d78a11f1050be99accd7c17676bf98ef5"
+    },
+    {
+      "bytes": 6078,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "d1468e59fca11ab82ed78348a52077aa2515a004",
+      "path": "web/src/shared/api/errors.ts",
+      "sha256": "21a74107165ff379646b676cdff33c2c2b13b28ddd02c46f837b533d0eb98b8f"
+    },
+    {
+      "bytes": 149651,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "86c093981cf53a6193c0c5ef2877b5f595ff9af2",
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "7e991a4f94a954fa60d970794d8720e22d969d8b5d665e6e166e28a001b3a0a1"
+    },
+    {
+      "bytes": 13376,
+      "changed_in_b04_caller_fix": true,
+      "git_blob": "85deb0ca57574ae9516f0da7fc40747ccac7e742",
+      "path": "web/tests/e2e/b04.mjs",
+      "sha256": "36ee916a94915caa71c4464818f69b17c4fcf9f4b9b2c88ed92f702fc3d8daa8"
+    },
+    {
+      "bytes": 16028,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "aef9901dc379618477c63064b2a8289e3ffc1617",
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "sha256": "229714907e342b65f0fa71f2079330e65f1aceefc70ca48122a9673e6f9250c4"
+    },
+    {
+      "bytes": 19562,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "b845cacc1e2b58504a2c0bca05425d7beb1120b7",
+      "path": "web/tests/e2e/run.mjs",
+      "sha256": "0f2285cdcff1c12fe9574fdc829cef3f683dbbf3fa7c2f95d91fc7ca14157ed5"
+    },
+    {
+      "bytes": 19338,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "782218ff391a9397313cc79dc2c69676c4dbe41f",
+      "path": "web/tests/e2e/settings-models.mjs",
+      "sha256": "1f8e3cadfd40823042dc0f5a583ae4540f6ecc4af889aed7a282b9440d630452"
+    },
+    {
+      "bytes": 7006,
+      "changed_in_b04_caller_fix": false,
+      "git_blob": "75eac32a6f93230ae2603171b90fdbe17dbc57c0",
+      "path": "web/tests/settings-fixtures.ts",
+      "sha256": "f9926304d8cc5e140f683cc716918fcfdd90319f6c66292071e9cbd708f5a9c2"
+    }
+  ],
+  "previous_candidate_id": "ba4dc22d005e7aed5ba1f00939d103a3d92d8f75ff659d5050c4424ee51216fd",
+  "previous_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/uif9/final33-freeze.json",
+    "sha256": "3d5f4af077f5f698b3f26c3b18bb323fda41cd041ccd05cc89a0a024cfdca79e"
+  },
+  "unchanged_from_previous_count": 33,
+  "status": "FROZEN_ONE_FILE_B04_ENGLISH_UI_CALLER_CORRECTION_NOT_COMMITTED_NOT_REVIEWED_NO_EFFECTFUL_QA",
+  "repository": "/home/kali/OmnisAI",
+  "delta_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/uif10-fJpmj2/b04-english-ui.patch",
+    "sha256": "807adc51cecec4c77a220b1d851f06288e77069c05835eb4db322df2ace78de3"
+  },
+  "literal_replacements": [
+    {
+      "old": "Obiectiv / instrucțiuni pentru Brain",
+      "new": "Objective / Brain instructions",
+      "occurrences": 15
+    },
+    {
+      "old": "Evaluează suprafața Web/API autorizată în limitele profilului selectat.",
+      "new": "Assess the authorized Web/API surface within the selected profile.",
+      "occurrences": 3
+    },
+    {
+      "old": "Test focalizat",
+      "new": "Focused test",
+      "occurrences": 1
+    }
+  ],
+  "caller_search_before": {
+    "files_searched": 7,
+    "matches": {
+      "Evaluare generală": {},
+      "Evaluează suprafața Web/API autorizată în limitele profilului selectat.": {
+        "web/tests/e2e/b04.mjs": 3
+      },
+      "Obiectiv / instrucțiuni pentru Brain": {
+        "web/tests/e2e/b04.mjs": 15
+      },
+      "Test focalizat": {
+        "web/tests/e2e/b04.mjs": 1
+      }
+    }
+  },
+  "checks": [
+    {
+      "stage": "SOURCE_RED",
+      "command": "export PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uif10-fJpmj2; python -B -c 'from pathlib import Path\nimport re,json\nw=Path('\"'\"'web/src/features/engagement/Wizard.tsx'\"'\"').read_text()\nc=Path('\"'\"'web/src/features/engagement/copy.ts'\"'\"').read_text()\nb=Path('\"'\"'web/tests/e2e/b04.mjs'\"'\"').read_text()\nlabel=re.search(r'\"'\"'<Field path=\"objective_text\" label=\"([^\"]+)\"'\"'\"',w).group(1)\ndefault=re.search(r\"const DEFAULT_OBJECTIVE = '\"'\"'([^'\"'\"']+)'\"'\"';\",w).group(1)\nfocused=re.search(r\"assessment_mode: '\"'\"'FOCUSED_TEST'\"'\"'.*?}} />([^<]+)</label>\",w,re.S).group(1)\ncopy_label=re.search(r\"objective: '\"'\"'([^'\"'\"']+)'\"'\"'\",c).group(1)\nlabels=[x for x in re.findall(r\"getByLabel\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\",b) if '\"'\"'Brain'\"'\"' in x]\ndefaults=[x for x in re.findall(r\"toHaveValue\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\",b) if '\"'\"'Web/API'\"'\"' in x]\nradios=re.findall(r\"getByLabel\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\\.check\\(\\)\",b)\nchecks={'\"'\"'objective_selectors'\"'\"':len(labels)==15 and all(x==label for x in labels),'\"'\"'default_expectations'\"'\"':len(defaults)==3 and all(x==default for x in defaults),'\"'\"'focused_radio'\"'\"':radios==[focused],'\"'\"'copy_matches_wizard'\"'\"':copy_label==label}\nprint(json.dumps({'\"'\"'checks'\"'\"':checks,'\"'\"'counts'\"'\"':{'\"'\"'objective_selectors'\"'\"':len(labels),'\"'\"'default_expectations'\"'\"':len(defaults),'\"'\"'focused_radio'\"'\"':len(radios)},'\"'\"'scope'\"'\"':'\"'\"'SOURCE_ONLY_NOT_BROWSER_API_OR_PG'\"'\"'},sort_keys=True),flush=True)\nassert all(checks.values()), '\"'\"'B04 UI literals disagree with actual English Wizard/copy.ts'\"'\"'\n'",
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/uif10-fJpmj2/source-red.log",
+      "scope": "SOURCE_ONLY_NOT_BROWSER_API_PG"
+    },
+    {
+      "stage": "SOURCE_GREEN",
+      "command": "export PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uif10-fJpmj2; python -B -c 'from pathlib import Path\nimport re,json\nw=Path('\"'\"'web/src/features/engagement/Wizard.tsx'\"'\"').read_text()\nc=Path('\"'\"'web/src/features/engagement/copy.ts'\"'\"').read_text()\nb=Path('\"'\"'web/tests/e2e/b04.mjs'\"'\"').read_text()\nlabel=re.search(r'\"'\"'<Field path=\"objective_text\" label=\"([^\"]+)\"'\"'\"',w).group(1)\ndefault=re.search(r\"const DEFAULT_OBJECTIVE = '\"'\"'([^'\"'\"']+)'\"'\"';\",w).group(1)\nfocused=re.search(r\"assessment_mode: '\"'\"'FOCUSED_TEST'\"'\"'.*?}} />([^<]+)</label>\",w,re.S).group(1)\ncopy_label=re.search(r\"objective: '\"'\"'([^'\"'\"']+)'\"'\"'\",c).group(1)\nlabels=[x for x in re.findall(r\"getByLabel\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\",b) if '\"'\"'Brain'\"'\"' in x]\ndefaults=[x for x in re.findall(r\"toHaveValue\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\",b) if '\"'\"'Web/API'\"'\"' in x]\nradios=re.findall(r\"getByLabel\\('\"'\"'([^'\"'\"']+)'\"'\"'\\)\\.check\\(\\)\",b)\nchecks={'\"'\"'objective_selectors'\"'\"':len(labels)==15 and all(x==label for x in labels),'\"'\"'default_expectations'\"'\"':len(defaults)==3 and all(x==default for x in defaults),'\"'\"'focused_radio'\"'\"':radios==[focused],'\"'\"'copy_matches_wizard'\"'\"':copy_label==label}\nprint(json.dumps({'\"'\"'checks'\"'\"':checks,'\"'\"'counts'\"'\"':{'\"'\"'objective_selectors'\"'\"':len(labels),'\"'\"'default_expectations'\"'\"':len(defaults),'\"'\"'focused_radio'\"'\"':len(radios)},'\"'\"'scope'\"'\"':'\"'\"'SOURCE_ONLY_NOT_BROWSER_API_OR_PG'\"'\"'},sort_keys=True),flush=True)\nassert all(checks.values()), '\"'\"'B04 UI literals disagree with actual English Wizard/copy.ts'\"'\"'\n'",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/uif10-fJpmj2/source-green.log",
+      "scope": "SOURCE_ONLY_NOT_BROWSER_API_PG"
+    },
+    {
+      "stage": "SYNTAX",
+      "command": "export PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uif10-fJpmj2; node --check web/tests/e2e/b04.mjs",
+      "exit": 0
+    },
+    {
+      "stage": "IDENTITY",
+      "command": "export PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uif10-fJpmj2; python -B -c 'from pathlib import Path\nimport subprocess,json,hashlib,re\nroot=Path('\"'\"'/home/kali/OmnisAI'\"'\"')\nprevious_path=Path('\"'\"'/home/kali/.hermes/cache/scratch/uif9/final33-freeze.json'\"'\"')\np=json.loads(previous_path.read_text())\nsha=lambda b:hashlib.sha256(b).hexdigest()\nbpath='\"'\"'web/tests/e2e/b04.mjs'\"'\"'\nbefore=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"','\"'\"'HEAD:'\"'\"'+bpath]); after=(root/bpath).read_bytes()\nreplacements=[('\"'\"'Obiectiv / instrucțiuni pentru Brain'\"'\"','\"'\"'Objective / Brain instructions'\"'\"',15),('\"'\"'Evaluează suprafața Web/API autorizată în limitele profilului selectat.'\"'\"','\"'\"'Assess the authorized Web/API surface within the selected profile.'\"'\"',3),('\"'\"'Test focalizat'\"'\"','\"'\"'Focused test'\"'\"',1)]\nreconstructed=after\nfor old,new,count in replacements:\n old,new=old.encode(),new.encode()\n assert before.count(old)==after.count(new)==count and before.count(new)==after.count(old)==0\n reconstructed=reconstructed.replace(new,old)\nassert reconstructed==before,'\"'\"'changes beyond three literal replacements'\"'\"'\nassert before==subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'show'\"'\"',p['\"'\"'original_source_base'\"'\"']+'\"'\"':'\"'\"'+bpath])\nassert re.search(rb'\"'\"'^const objective = .+;$'\"'\"',before,re.M).group()==re.search(rb'\"'\"'^const objective = .+;$'\"'\"',after,re.M).group()\nassert len(before.splitlines())==len(after.splitlines())\ncall_counts={}\nfor key,pattern in {'\"'\"'check_calls'\"'\"':rb'\"'\"'\\bcheck\\('\"'\"', '\"'\"'assert_calls'\"'\"':rb'\"'\"'\\bassert\\.\\w+\\('\"'\"', '\"'\"'secret_checks'\"'\"':rb'\"'\"'\\bsecretChecks\\('\"'\"', '\"'\"'first_editor_suffix'\"'\"':rb\"\\\\nFirst editor\", '\"'\"'second_editor_suffix'\"'\"':rb\"\\\\nSecond editor\"}.items():\n counts=[len(re.findall(pattern,x)) for x in (before,after)]\n assert counts[0]==counts[1],key\n call_counts[key]={'\"'\"'before'\"'\"':counts[0],'\"'\"'after'\"'\"':counts[1]}\nentries=[]\nfor old in p['\"'\"'owned_files'\"'\"']:\n path=old['\"'\"'path'\"'\"']; data=(root/path).read_bytes()\n assert sha(data)==old['\"'\"'sha256'\"'\"'] and len(data)==old['\"'\"'bytes'\"'\"'],path\n git_blob=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'hash-object'\"'\"','\"'\"'--'\"'\"',path],text=True).strip()\n assert git_blob==old['\"'\"'git_blob'\"'\"'],path\n entries.append({'\"'\"'path'\"'\"':path,'\"'\"'sha256'\"'\"':sha(data),'\"'\"'git_blob'\"'\"':git_blob,'\"'\"'bytes'\"'\"':len(data),'\"'\"'changed_in_b04_caller_fix'\"'\"':False})\nassert len(entries)==33 and bpath not in {f['\"'\"'path'\"'\"'] for f in entries}\nentries.append({'\"'\"'path'\"'\"':bpath,'\"'\"'sha256'\"'\"':sha(after),'\"'\"'git_blob'\"'\"':subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'hash-object'\"'\"','\"'\"'--'\"'\"',bpath],text=True).strip(),'\"'\"'bytes'\"'\"':len(after),'\"'\"'changed_in_b04_caller_fix'\"'\"':True})\nentries.sort(key=lambda f:f['\"'\"'path'\"'\"'])\nassert len(entries)==len({f['\"'\"'path'\"'\"'] for f in entries})==34\nbuild=p['\"'\"'build_manifest'\"'\"']; assert sha(Path(build['\"'\"'path'\"'\"']).read_bytes())==build['\"'\"'sha256'\"'\"']\nassert len(build['\"'\"'files'\"'\"'])==4\nfor path,digest in build['\"'\"'files'\"'\"'].items(): assert sha((root/'\"'\"'web/dist'\"'\"'/path).read_bytes())==digest,path\npaths=sorted((root/'\"'\"'web/tests'\"'\"').rglob('\"'\"'*.mjs'\"'\"'))\nremaining={needle:sum(path.read_text().count(needle) for path in paths) for needle in [x[0] for x in replacements]+['\"'\"'Evaluare generală'\"'\"']}\nassert all(v==0 for v in remaining.values())\nassert subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--name-only'\"'\"'],text=True).splitlines()==[bpath]\nassert not subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'diff'\"'\"','\"'\"'--cached'\"'\"','\"'\"'--name-only'\"'\"']).strip()\nhead=subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD'\"'\"'],text=True).strip()\nassert head=='\"'\"'b116c1082f263eaad509207fa32bb1a6e72d40cb'\"'\"'\nid_payload={'\"'\"'base'\"'\"':p['\"'\"'original_source_base'\"'\"'],'\"'\"'files'\"'\"':[{'\"'\"'path'\"'\"':f['\"'\"'path'\"'\"'],'\"'\"'sha256'\"'\"':f['\"'\"'sha256'\"'\"']} for f in entries]}\ncandidate_id=sha(json.dumps(id_payload,sort_keys=True,separators=('\"'\"','\"'\"','\"'\"':'\"'\"')).encode())\nprint(json.dumps({'\"'\"'base'\"'\"':p['\"'\"'original_source_base'\"'\"'],'\"'\"'correction_base'\"'\"':head,'\"'\"'integration_head'\"'\"':head,'\"'\"'original_source_base'\"'\"':p['\"'\"'original_source_base'\"'\"'],'\"'\"'previous_manifest'\"'\"':{'\"'\"'path'\"'\"':str(previous_path),'\"'\"'sha256'\"'\"':sha(previous_path.read_bytes())},'\"'\"'previous_candidate_id'\"'\"':p['\"'\"'candidate_id'\"'\"'],'\"'\"'candidate_id'\"'\"':candidate_id,'\"'\"'candidate_id_algorithm'\"'\"':'\"'\"'sha256 canonical JSON {base,files:[{path,sha256}]} sorted path/keys compact separators'\"'\"','\"'\"'owned_file_count'\"'\"':len(entries),'\"'\"'owned_files'\"'\"':entries,'\"'\"'delta_file_count'\"'\"':1,'\"'\"'unchanged_from_previous_count'\"'\"':33,'\"'\"'delta'\"'\"':[{'\"'\"'path'\"'\"':bpath,'\"'\"'before'\"'\"':{'\"'\"'sha256'\"'\"':sha(before),'\"'\"'git_blob'\"'\"':subprocess.check_output(['\"'\"'git'\"'\"','\"'\"'rev-parse'\"'\"','\"'\"'HEAD:'\"'\"'+bpath],text=True).strip(),'\"'\"'bytes'\"'\"':len(before)},'\"'\"'after'\"'\"':{k:v for k,v in entries[[f['\"'\"'path'\"'\"'] for f in entries].index(bpath)].items() if k in ['\"'\"'sha256'\"'\"','\"'\"'git_blob'\"'\"','\"'\"'bytes'\"'\"']}}],'\"'\"'build_manifest'\"'\"':build,'\"'\"'build_status'\"'\"':'\"'\"'REUSED_BYTE_IDENTICAL_MANIFEST_AND_4_FILES_NO_REBUILD'\"'\"','\"'\"'integrity_proofs'\"'\"':{'\"'\"'inverse_three_literal_replacements_recreate_HEAD_and_original_base_b04_exactly'\"'\"':True,'\"'\"'custom_unicode_whitespace_objective_byte_identical'\"'\"':True,'\"'\"'line_count'\"'\"':len(after.splitlines()),'\"'\"'call_counts'\"'\"':call_counts,'\"'\"'only_tracked_worktree_delta_is_b04'\"'\"':True,'\"'\"'all_previous_33_hashes_identical'\"'\"':True,'\"'\"'caller_search'\"'\"':{'\"'\"'searched_files'\"'\"':len(paths),'\"'\"'old_literal_remaining_counts'\"'\"':remaining}}},ensure_ascii=False,sort_keys=True))\n'",
+      "exit": 0
+    },
+    {
+      "stage": "DIFF",
+      "command": "git diff --check; git diff --numstat -- web/tests/e2e/b04.mjs; git diff --binary -- web/tests/e2e/b04.mjs",
+      "exit": 0
+    }
+  ],
+  "historical_red": {
+    "provenance": "parent-provided_safe_summary_not_raw_log_read",
+    "command": "make check",
+    "exit": 2,
+    "b04_failure": "b04.mjs:65 getByLabel(Obiectiv / instrucțiuni pentru Brain) element not found",
+    "canonical_status": "FAIL_PRESERVED_NOT_GREEN"
+  },
+  "not_run": [
+    "effectful_B04_browser_API_private_PG",
+    "new_full_canonical_make_check",
+    "CLI_release_final_targets",
+    "unit_196_rerun",
+    "build_rerun"
+  ],
+  "handoff": "writer stopped; parent commit then independent focused R1 then actual existing B04-only consumer then unchanged mandatory canonical with default 3600; no gate/deadline/assertion weakening"
+}

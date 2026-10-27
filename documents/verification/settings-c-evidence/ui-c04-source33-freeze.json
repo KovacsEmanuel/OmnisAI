@@ -1,0 +1,518 @@
+{
+  "status": "FROZEN_R2_C04_ONE_FILE_SOURCE_CANDIDATE_NOT_INTEGRATED_NOT_APPROVED_NOT_RUNTIME_PASS",
+  "repository": "/home/kali/OmnisAI",
+  "base": "94f48fd7e7f0a418a876c6db69ad48b62971a2bd",
+  "integration_head": "a2eb7f50440dade4c66e13acd4c59a4d39862a77",
+  "candidate_id": "5be7937f09a005dce390bc4b37802ac1b23bfd3b8bff8f3a01048893e8dc5ffe",
+  "candidate_id_algorithm": "sha256 canonical JSON {base,files:[{path,sha256}]} sorted path/keys compact separators",
+  "previous_manifest": {
+    "path": "/home/kali/.hermes/cache/scratch/uif5/final33-freeze.json",
+    "sha256": "1a6b4251233a351bfb54333e6983f83a79eb0d8d9c5a1b890516b35155555d81"
+  },
+  "previous_candidate_id": "ae722e7508ee8b348c93bdeea3cbcef33279acad0224fe7de710ab84b7e18319",
+  "owned_file_count": 33,
+  "owned_files": [
+    {
+      "path": "Makefile",
+      "sha256": "338edaa8a68726c81a678c5b9c9577b9eceef9c303c152025e30ee72c19e4b38",
+      "git_blob": "875b3ea7fc354a812e291a3297efbf274d3e3e23",
+      "bytes": 29028,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/src/omnis/core/errors.py",
+      "sha256": "6116f08e33a9fb384ec40911340502ecae6290e44705b23c1369c824a5f447bb",
+      "git_blob": "620c5697d2d5d154c50e78058bc71dd169c2f737",
+      "bytes": 5029,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_key_routes.py",
+      "sha256": "a6d7629bbdaa0c5dd1668d1cf7273ea62b968d060b0cdb3552fe45a23112b482",
+      "git_blob": "746f0e3a8ccea817f9cfb86e31b7fbdf8206b477",
+      "bytes": 6012,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_key_service.py",
+      "sha256": "e3488b36d3c984ae181d52f04bd2734f71e73a54750a30f4947ede80a8d5e589",
+      "git_blob": "4ea67948f6089dc370dce9e610cb43369e04ea5e",
+      "bytes": 16229,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/tests/installed_sent_probe.py",
+      "sha256": "17bea1bba9b75c7a1afad98617ff4c6840c2be59bae3d3343387671dfc82149b",
+      "git_blob": "12e72ceba6d785987382d7d050d69eafb34e97ed",
+      "bytes": 10801,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "af92fd696ab6a0cd35d58bce039f4bf7fac3072a58b10cbe38e6defff0e4148b",
+      "git_blob": "506eae650a9ae1e529dd4c1759ce22c998274224",
+      "bytes": 87663,
+      "changed_in_R2_C04": true
+    },
+    {
+      "path": "api/tests/test_provider_key_api.py",
+      "sha256": "c5149de3559230a2f92c5e4048981d4d831ebd08d2609fc3281e8b1467f37460",
+      "git_blob": "6d4015b6c690eaf86379473bb9db0a34cb6c986e",
+      "bytes": 29141,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/tests/test_provider_key_settings.py",
+      "sha256": "daad32f39a33cdc762c369cf12145e8248a67d02ae5e04c4c5841377b5dbb273",
+      "git_blob": "7e49a9a95cf5e2d651f25040f9aa7be49e5d1cc3",
+      "bytes": 44978,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "api/tests/test_web_e2e.py",
+      "sha256": "ab36bbddbfec3645bdc9cfab6025241ae4fd8f3c1e5a22061861294ba0594075",
+      "git_blob": "43bb47e04cad715e1a0f2f472c9af50577a54f37",
+      "bytes": 26567,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "79a3611c7a61ae220addd1c1b90b23885b27eb823f6970969aff987a04c3c0a6",
+      "git_blob": "0a20e54bba06f6d77b59fc58fde03e0b0e6c32b8",
+      "bytes": 182012,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "ops/run_test_db_gate.py",
+      "sha256": "e5279ca0d9079b98f2ee8436eb1fd2e45634e0c66319be4b8194b35d61c782c2",
+      "git_blob": "cc5b3ecd2d68718888b24aabba673cf6422547d8",
+      "bytes": 42359,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "tests/development/test_test_db_gate.py",
+      "sha256": "c07fd54aff6c737efe746f51cfaecee749c72d11ed13dec09a2fd521e6200cf5",
+      "git_blob": "94e91bb38ba56d495ee66e189bc3cf9f9a7ddf3f",
+      "bytes": 41622,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/app/ModelTest.test.tsx",
+      "sha256": "19721478bd61a2eb4741a1fc2574b1e27cfdd7258294fb8e3485f118905a7f11",
+      "git_blob": "17cf91cbe0a5f5eddeff8f9f34c9f6f4eb5a51fd",
+      "bytes": 15376,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "sha256": "6d18ed0acf37e00fdb052e77fb1848623fe9c4c5a1400c9a4e6278047b99e6ec",
+      "git_blob": "2834dfd92bb11bfe181c8f37779120aa0e2156e2",
+      "bytes": 20413,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "sha256": "801549a68420961d253dd240d2e39dd77a946a8e9f734e373c89d93169dad694",
+      "git_blob": "df105f339a04ebf8a828b6c4bcb0459c81acc05c",
+      "bytes": 7009,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "sha256": "f743d0b1a1bbae34ad59f5a67f38bb4b098dc0fe5f3abfb039507ff5263a8e50",
+      "git_blob": "bf37a7ad34d0b085435f4299fac956ce72e83bf4",
+      "bytes": 13307,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/app/Wizard.test.tsx",
+      "sha256": "52895aeee837842a6837a7170690c8fb9371e2365220489c2b077cd9016511ae",
+      "git_blob": "2d37dde491222fbdd6162fae835e6d8ccd5b6db6",
+      "bytes": 37470,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/ModelTest.tsx",
+      "sha256": "f41efe804c7bc8820633c944ec40fc2e8ff9ea59eea16e4136f20ffcc5039f97",
+      "git_blob": "36f989f7205d301cf20c0ff757a33540ddca7f57",
+      "bytes": 10104,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "sha256": "a0d42ab55e92ea1994634f4443fa376c84d1d7dd6cd33f659e245182d2fba288",
+      "git_blob": "257f8c4b80260d88b77319b0842aadf8e9c07939",
+      "bytes": 1182,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/Settings.tsx",
+      "sha256": "b797e14bc314f5f02582e10fcb0d6b060e367aa0a6a39c4c73a44e11002a988d",
+      "git_blob": "1f98669e4fe71d376ea00cce9262d3a08b6ca3b8",
+      "bytes": 884,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "sha256": "ccb28a3516a08e45e2b2b5c0a2ccfd5c5913cd5498e375d19033701e160e5175",
+      "git_blob": "06b120606bbf5ca0655d5f84e0f8b7083be96c2a",
+      "bytes": 7110,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "sha256": "ea6a45b7f8c567557a9e4249aa25e03190e31a1bd8f3399fe39687d01149ba3d",
+      "git_blob": "eead0609442c199a68509e4dcbeadd9122b2bb20",
+      "bytes": 17258,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "sha256": "1f4b63536da6b43066ad542d700d0975990ed3c9abf7b3393e0c3d698676bd00",
+      "git_blob": "a44818de8104c6e2d83963f62c3599ba8017dc09",
+      "bytes": 5556,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.ts",
+      "sha256": "9ca6a13ac9f3eaea4e566f8a55316ce74e00cf38e2f60ee4efed3d9a8bc43327",
+      "git_blob": "c88efbf3c4b5c114097e9e7667745ed3bf7e9950",
+      "bytes": 5181,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "sha256": "4b9717332ec068d5bab259303ecbd8feea4730dc5cc847e13407c24861cd8907",
+      "git_blob": "8aed2949d82227a94be9cb1ef2c4cb959024ee31",
+      "bytes": 24933,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/Wizard.tsx",
+      "sha256": "34ac69635c4873115ec4d0f4587ab2577f49e1b42a6776c8fe4ac6d10a2c04e6",
+      "git_blob": "906aa6d4ed581b7a8ec93cee28f5137e6b5e72ac",
+      "bytes": 24002,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/features/engagement/copy.ts",
+      "sha256": "2cbd23184845aad8f884399430c45f5d78a11f1050be99accd7c17676bf98ef5",
+      "git_blob": "3a7d217721f602c457db241461200aabe5bc6377",
+      "bytes": 1272,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/shared/api/errors.ts",
+      "sha256": "21a74107165ff379646b676cdff33c2c2b13b28ddd02c46f837b533d0eb98b8f",
+      "git_blob": "d1468e59fca11ab82ed78348a52077aa2515a004",
+      "bytes": 6078,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "7e991a4f94a954fa60d970794d8720e22d969d8b5d665e6e166e28a001b3a0a1",
+      "git_blob": "86c093981cf53a6193c0c5ef2877b5f595ff9af2",
+      "bytes": 149651,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "sha256": "773333886a6a87c9ff1839d78f8d334ba1cd50b25348b60c03ac402f22d10594",
+      "git_blob": "e77cc1003a675201222c30b05f5c2766542f65ca",
+      "bytes": 15523,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "sha256": "0f2285cdcff1c12fe9574fdc829cef3f683dbbf3fa7c2f95d91fc7ca14157ed5",
+      "git_blob": "b845cacc1e2b58504a2c0bca05425d7beb1120b7",
+      "bytes": 19562,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "sha256": "25910e0fd64b68d116e23523d848c93b2f4ff710783cab21e93f455ebff7363a",
+      "git_blob": "df43c75628416262a6f7d3cefdd569f23c03b87d",
+      "bytes": 19194,
+      "changed_in_R2_C04": false
+    },
+    {
+      "path": "web/tests/settings-fixtures.ts",
+      "sha256": "f9926304d8cc5e140f683cc716918fcfdd90319f6c66292071e9cbd708f5a9c2",
+      "git_blob": "75eac32a6f93230ae2603171b90fdbe17dbc57c0",
+      "bytes": 7006,
+      "changed_in_R2_C04": false
+    }
+  ],
+  "delta_file_count": 1,
+  "unchanged_from_previous_count": 32,
+  "delta": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "before": {
+        "sha256": "e46ff54a2e2aa4da6bc0196e08b6664922738c54624dcb3afb37681cacf26d67",
+        "git_blob": "8a3d857f1cbd71c92ccf997dab0744664126ce07",
+        "bytes": 87958
+      },
+      "after": {
+        "sha256": "af92fd696ab6a0cd35d58bce039f4bf7fac3072a58b10cbe38e6defff0e4148b",
+        "git_blob": "506eae650a9ae1e529dd4c1759ce22c998274224",
+        "bytes": 87663
+      }
+    }
+  ],
+  "delta_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/uif6/R2-C04.patch",
+    "sha256": "ff07299566465edc2b314ffa5ab74bca00a6a62cc7f845341ae9bcc743db5bf3"
+  },
+  "full33_patch": {
+    "path": "/home/kali/.hermes/cache/scratch/uif6/full-33-source.patch",
+    "sha256": "84ab01a736e6b7cb3bfbc9a2e0e0b75fc873380e1b33e1a871fb719689db46b0"
+  },
+  "build_manifest": {
+    "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+    "sha256": "e2d646e4bcd898ff8bb9621c23e3ce055bd83b8f7a4e507e4935d19c45641fe1",
+    "files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-B8rfyFoa.css": "d1841f37ca17f15b55d4ab876944307b783ff1f410dd45772ccaacc159116db5",
+      "assets/index-BqkuURxh.js": "7010225bcdd5847db3b0bf54704c826d9b69c000dd8bbf0bbef461055a65bca1",
+      "index.html": "d343936c728e07f16d8795b807f984dd18d19b125e373e8d7463fe799c83b9fc"
+    }
+  },
+  "build_status": "REUSED_BYTE_IDENTICAL_MANIFEST_AND_4_FILES_NO_REBUILD",
+  "checks": [
+    {
+      "label": "red-original",
+      "argv": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/r2-ae722-focused-qyn4o7wt/counter-source-repro.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/uif6/red-original.log",
+      "log_sha256": "6b54bcac7e9ff3b31c4c97fb42361f5b277a15341b0921f746c102a588e59936"
+    },
+    {
+      "label": "red-success-expectation",
+      "argv": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/uif6/counter-source-green.py"
+      ],
+      "exit": 1,
+      "log": "/home/kali/.hermes/cache/scratch/uif6/red-success-expectation.log",
+      "log_sha256": "d2b0e8dacca3a2cec86b6f1150e0bc66820a27ec859b79fbf8f927552db2920b"
+    },
+    {
+      "label": "green-legal-overlap",
+      "argv": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "/home/kali/.hermes/cache/scratch/uif6/counter-source-green.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/uif6/green.log",
+      "log_sha256": "71a4459e68c8eefb9ea073f6591881612cdd81e55e23a2248392336c914a5e93"
+    },
+    {
+      "label": "actual-manifest-quality-changed-file",
+      "argv": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "90s",
+        "make",
+        "--no-print-directory",
+        "lint-api",
+        "typecheck-api",
+        "API_CHECK_PATHS=api/tests/test_model_test_v2.py"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/uif6/quality.log",
+      "log_sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111"
+    },
+    {
+      "label": "exact-two-nodes-collect-only-no-fixtures",
+      "argv": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "60s",
+        "api/.venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "api/pyproject.toml",
+        "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_ui]",
+        "api/tests/test_model_test_v2.py::test_installed_sent_crash_reconciles_without_resend",
+        "--collect-only",
+        "-q",
+        "-o",
+        "cache_dir=/home/kali/.hermes/cache/scratch/uif6/pytest-cache"
+      ],
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/uif6/collect.log",
+      "log_sha256": "caae87f2e6ba8b14f479c9ed58cd4e15f30cff9eabef9fe77d7c85d72cbb70e4"
+    },
+    {
+      "label": "compile-changed-file",
+      "command": "api/.venv/bin/python -I -B -c \"from pathlib import Path; p=Path('api/tests/test_model_test_v2.py'); compile(p.read_bytes(),str(p),'exec')\"",
+      "exit": 0,
+      "boundary": "same compile executed after GREEN; no module execution"
+    },
+    {
+      "label": "AST-byte-and-negative-oracles",
+      "exact_command_file": "/home/kali/.hermes/cache/scratch/uif6/source-integrity-command.txt",
+      "exact_command_sha256": "8e7aaaca4035b0dbf4837b0cf82099017c111bc558dd666e46f5ff86f3f02f11",
+      "exit": 0,
+      "result": "/home/kali/.hermes/cache/scratch/uif6/source-integrity.json",
+      "result_sha256": "fc2fe0708029f75ff987f5f7405db91b3c221fb3ecac703ff9094b70d366391e"
+    },
+    {
+      "label": "git-diff-check",
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "pins": {
+    "python": "3.13.15",
+    "python_executable": "/home/kali/OmnisAI/api/.venv/bin/python",
+    "python_resolved": "/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin/python3.13",
+    "packages": {
+      "ruff": "0.16.9",
+      "mypy": "2.3.1",
+      "pytest": "9.1.1",
+      "pytest-asyncio": "1.4.0"
+    },
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/uif6"
+  },
+  "source_proof": {
+    "boundary": "SOURCE-only pure AST/assert execution; no test fixtures or I/O",
+    "source_sha256": "af92fd696ab6a0cd35d58bce039f4bf7fac3072a58b10cbe38e6defff0e4148b",
+    "module_AST_equal_after_only_unwrap_final_try": true,
+    "all_bytes_outside_callback_identical": true,
+    "owner_call_receipt_tracking_return_AST_identical": true,
+    "no_exception_handler_added": true,
+    "entire_settings_ui_settled_branch_byte_identical": true,
+    "counter_copy_callback_extraction_unchanged": true,
+    "exact_final_traffic": {
+      "GET": 4,
+      "POST": 1,
+      "SENT": 1
+    },
+    "ui_refreshes": [
+      0,
+      2,
+      5
+    ],
+    "ui_starts": [
+      4,
+      5
+    ],
+    "local_write_attempts": 8,
+    "controls": [
+      {
+        "oracle": "received",
+        "positive": "PASS",
+        "extra_item": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "ui_refreshes",
+        "positive": "PASS",
+        "extra_item": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "ui_starts",
+        "positive": "PASS",
+        "extra_item": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "ui_writes",
+        "positive": "PASS",
+        "extra_item": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "received",
+        "source": "before",
+        "extra_traffic": "GET",
+        "result": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "received",
+        "source": "after",
+        "extra_traffic": "GET",
+        "result": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "received",
+        "source": "before",
+        "extra_traffic": "POST",
+        "result": "REFUSED_SAME_ASSERT"
+      },
+      {
+        "oracle": "received",
+        "source": "after",
+        "extra_traffic": "POST",
+        "result": "REFUSED_SAME_ASSERT"
+      }
+    ]
+  },
+  "originals_preserved": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/r2-ae722-focused-qyn4o7wt/R2-focused-review.md",
+      "sha256": "c13849b01fc7c3498f87407ed79de6d958b3fa6ad6a7da31ab83fd9e4325778d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/r2-ae722-focused-qyn4o7wt/counter-source-repro.py",
+      "sha256": "1b0feb31258099aa290e709c92d6971c4496d4a70aa9f53c8df7c99eb4e28135"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/r2-settings-57ae-4p36wfno/R2-original-review.md",
+      "sha256": "ebc66d7b0311c86ef25f145ef73b0aa4ab6972b941a55f343a6a840bd1ce16ac"
+    }
+  ],
+  "harness_only_repair_cycle": 1,
+  "real_settings_consumer_attempts": 0,
+  "not_run": [
+    "PG",
+    "installed SENT runtime",
+    "API/browser consumer",
+    "provider/network/spend",
+    "full196",
+    "frontend build",
+    "contracts",
+    "synthetic browser",
+    "canonical"
+  ],
+  "ownership": {
+    "repo_changes": [
+      "api/tests/test_model_test_v2.py"
+    ],
+    "index_empty": true,
+    "protected_untracked_names_only_never_opened": [
+      "documents/Omnis_Notite_Originale.html",
+      "tempkey.txt"
+    ],
+    "remaining_owned_processes": [],
+    "git_commit_stage_docs_review_and_effectful_QA": "parent only"
+  },
+  "next": "Parent commit -> focused independent R2 delta review -> first admitted real Settings PG UI QA; this SOURCE correction is not runtime PASS"
+}

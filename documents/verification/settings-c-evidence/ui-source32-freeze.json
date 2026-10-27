@@ -1,0 +1,626 @@
+{
+  "state": "FROZEN_SOURCE_CANDIDATE_NOT_REVIEWED_NOT_ACCEPTED",
+  "base": "94f48fd7e7f0a418a876c6db69ad48b62971a2bd",
+  "candidate_id": "57ae496709f00413e31fd8741fd0d41f6c6b6733bb04be0b6ddfe97d36a15f39",
+  "candidate_id_algorithm": "sha256(canonical JSON {base,files:[{path,sha256}]} sorted path/keys, compact separators)",
+  "owned_file_count": 32,
+  "owned_files": [
+    {
+      "path": "Makefile",
+      "sha256": "9f22cf37c4c2c5b046580bcb536acfff1ab3e447f74e6576c32c79bf3a278838",
+      "git_blob": "6f6582afba21d7bf064ee366ea1cb883f84d0dcd",
+      "bytes": 29001,
+      "recovery_sha256": "9f22cf37c4c2c5b046580bcb536acfff1ab3e447f74e6576c32c79bf3a278838",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/src/omnis/core/errors.py",
+      "sha256": "6116f08e33a9fb384ec40911340502ecae6290e44705b23c1369c824a5f447bb",
+      "git_blob": "620c5697d2d5d154c50e78058bc71dd169c2f737",
+      "bytes": 5029,
+      "recovery_sha256": "6116f08e33a9fb384ec40911340502ecae6290e44705b23c1369c824a5f447bb",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_key_routes.py",
+      "sha256": "a6d7629bbdaa0c5dd1668d1cf7273ea62b968d060b0cdb3552fe45a23112b482",
+      "git_blob": "746f0e3a8ccea817f9cfb86e31b7fbdf8206b477",
+      "bytes": 6012,
+      "recovery_sha256": "a6d7629bbdaa0c5dd1668d1cf7273ea62b968d060b0cdb3552fe45a23112b482",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/src/omnis/modules/settings/provider_key_service.py",
+      "sha256": "e3488b36d3c984ae181d52f04bd2734f71e73a54750a30f4947ede80a8d5e589",
+      "git_blob": "4ea67948f6089dc370dce9e610cb43369e04ea5e",
+      "bytes": 16229,
+      "recovery_sha256": "e3488b36d3c984ae181d52f04bd2734f71e73a54750a30f4947ede80a8d5e589",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/tests/installed_sent_probe.py",
+      "sha256": "17bea1bba9b75c7a1afad98617ff4c6840c2be59bae3d3343387671dfc82149b",
+      "git_blob": "12e72ceba6d785987382d7d050d69eafb34e97ed",
+      "bytes": 10801,
+      "recovery_sha256": "17bea1bba9b75c7a1afad98617ff4c6840c2be59bae3d3343387671dfc82149b",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "cc162eb385361a418484f617d1f4f5d341016c6ae9c9291f2cd571d97b78c0ce",
+      "git_blob": "2813c602326dca3487a7bac6f171022db0db920d",
+      "bytes": 84665,
+      "recovery_sha256": "426fd196a7b78580d89a5bb7d0398b79cf66ea587de930c2f0d46ff829bab44c",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "api/tests/test_provider_key_api.py",
+      "sha256": "c5149de3559230a2f92c5e4048981d4d831ebd08d2609fc3281e8b1467f37460",
+      "git_blob": "6d4015b6c690eaf86379473bb9db0a34cb6c986e",
+      "bytes": 29141,
+      "recovery_sha256": "c5149de3559230a2f92c5e4048981d4d831ebd08d2609fc3281e8b1467f37460",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/tests/test_provider_key_settings.py",
+      "sha256": "daad32f39a33cdc762c369cf12145e8248a67d02ae5e04c4c5841377b5dbb273",
+      "git_blob": "7e49a9a95cf5e2d651f25040f9aa7be49e5d1cc3",
+      "bytes": 44978,
+      "recovery_sha256": "daad32f39a33cdc762c369cf12145e8248a67d02ae5e04c4c5841377b5dbb273",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "api/tests/test_web_e2e.py",
+      "sha256": "ab36bbddbfec3645bdc9cfab6025241ae4fd8f3c1e5a22061861294ba0594075",
+      "git_blob": "43bb47e04cad715e1a0f2f472c9af50577a54f37",
+      "bytes": 26567,
+      "recovery_sha256": "ab36bbddbfec3645bdc9cfab6025241ae4fd8f3c1e5a22061861294ba0594075",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "contracts/omnis.openapi.json",
+      "sha256": "79a3611c7a61ae220addd1c1b90b23885b27eb823f6970969aff987a04c3c0a6",
+      "git_blob": "0a20e54bba06f6d77b59fc58fde03e0b0e6c32b8",
+      "bytes": 182012,
+      "recovery_sha256": "79a3611c7a61ae220addd1c1b90b23885b27eb823f6970969aff987a04c3c0a6",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "ops/run_test_db_gate.py",
+      "sha256": "e5279ca0d9079b98f2ee8436eb1fd2e45634e0c66319be4b8194b35d61c782c2",
+      "git_blob": "cc5b3ecd2d68718888b24aabba673cf6422547d8",
+      "bytes": 42359,
+      "recovery_sha256": "e5279ca0d9079b98f2ee8436eb1fd2e45634e0c66319be4b8194b35d61c782c2",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/app/ModelTest.test.tsx",
+      "sha256": "19721478bd61a2eb4741a1fc2574b1e27cfdd7258294fb8e3485f118905a7f11",
+      "git_blob": "17cf91cbe0a5f5eddeff8f9f34c9f6f4eb5a51fd",
+      "bytes": 15376,
+      "recovery_sha256": "19721478bd61a2eb4741a1fc2574b1e27cfdd7258294fb8e3485f118905a7f11",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "sha256": "bed5f942b05dbc9339701a87e52fc6cf12f4c2a5612eec0c89be35051bdbcabd",
+      "git_blob": "688caa77302d9fc8703c05e09f963461891366a2",
+      "bytes": 14208,
+      "recovery_sha256": "b6b957df091a7ff7bc3c4d09e826ebdceaac74e4e31952e332650131f8cd1b72",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "sha256": "bbcbbf0d10d4efd814296d84c795efac5407b57277d04ff58ca72b55e2a8135e",
+      "git_blob": "a1b18971180c5bd6bb08fbe1b582d8ca64b7134c",
+      "bytes": 6706,
+      "recovery_sha256": "bbcbbf0d10d4efd814296d84c795efac5407b57277d04ff58ca72b55e2a8135e",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "sha256": "f743d0b1a1bbae34ad59f5a67f38bb4b098dc0fe5f3abfb039507ff5263a8e50",
+      "git_blob": "bf37a7ad34d0b085435f4299fac956ce72e83bf4",
+      "bytes": 13307,
+      "recovery_sha256": "740dcc4382bfb43ef4beeebc2b9f5a60372fa5304dee4beb9a41514adf2bcdb8",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/app/Wizard.test.tsx",
+      "sha256": "52895aeee837842a6837a7170690c8fb9371e2365220489c2b077cd9016511ae",
+      "git_blob": "2d37dde491222fbdd6162fae835e6d8ccd5b6db6",
+      "bytes": 37470,
+      "recovery_sha256": "52895aeee837842a6837a7170690c8fb9371e2365220489c2b077cd9016511ae",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/features/engagement/ModelTest.tsx",
+      "sha256": "f41efe804c7bc8820633c944ec40fc2e8ff9ea59eea16e4136f20ffcc5039f97",
+      "git_blob": "36f989f7205d301cf20c0ff757a33540ddca7f57",
+      "bytes": 10104,
+      "recovery_sha256": "f41efe804c7bc8820633c944ec40fc2e8ff9ea59eea16e4136f20ffcc5039f97",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/features/engagement/ProviderSettings.tsx",
+      "sha256": "8a9e2b826820635db7f8b437fd17ac68a58f4c01e4c43fbe4da430827c6d1b8c",
+      "git_blob": "b4aa53e4d7b87846109d229508ba021e1e5c31f9",
+      "bytes": 871,
+      "recovery_sha256": "8a9e2b826820635db7f8b437fd17ac68a58f4c01e4c43fbe4da430827c6d1b8c",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/features/engagement/Settings.tsx",
+      "sha256": "b797e14bc314f5f02582e10fcb0d6b060e367aa0a6a39c4c73a44e11002a988d",
+      "git_blob": "1f98669e4fe71d376ea00cce9262d3a08b6ca3b8",
+      "bytes": 884,
+      "recovery_sha256": "b797e14bc314f5f02582e10fcb0d6b060e367aa0a6a39c4c73a44e11002a988d",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "sha256": "2bb4aa3b0c892d5eccd4ed6883bf27db7564d0ee9b55acdd1d46cc27cba006db",
+      "git_blob": "875f45d399362079c041572ca176fabbb7e712fd",
+      "bytes": 7002,
+      "recovery_sha256": "6a2fad08319b74173befd2678dec05098b384fa3e5402a249a7c3a4b072f6220",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "sha256": "ea6a45b7f8c567557a9e4249aa25e03190e31a1bd8f3399fe39687d01149ba3d",
+      "git_blob": "eead0609442c199a68509e4dcbeadd9122b2bb20",
+      "bytes": 17258,
+      "recovery_sha256": "0079ad8eee60f672ede295b977b95551d2268b6d34d5fb3608cecf4bb69248b8",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "sha256": "1f4b63536da6b43066ad542d700d0975990ed3c9abf7b3393e0c3d698676bd00",
+      "git_blob": "a44818de8104c6e2d83963f62c3599ba8017dc09",
+      "bytes": 5556,
+      "recovery_sha256": "62de441bd82551267f81009cae8a5547538ac1f26c3111552a910e1b569d8cd8",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.ts",
+      "sha256": "9ca6a13ac9f3eaea4e566f8a55316ce74e00cf38e2f60ee4efed3d9a8bc43327",
+      "git_blob": "c88efbf3c4b5c114097e9e7667745ed3bf7e9950",
+      "bytes": 5181,
+      "recovery_sha256": "a7094ac298141e71e74cd93f978f64bbb48df28b4fe0415d56e5ebd91bc09aad",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "sha256": "4b9717332ec068d5bab259303ecbd8feea4730dc5cc847e13407c24861cd8907",
+      "git_blob": "8aed2949d82227a94be9cb1ef2c4cb959024ee31",
+      "bytes": 24933,
+      "recovery_sha256": "2c57a140a04b0fee991b9ae7ea0912995b0b76c17da14e17b71f507af00be253",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/src/features/engagement/Wizard.tsx",
+      "sha256": "34ac69635c4873115ec4d0f4587ab2577f49e1b42a6776c8fe4ac6d10a2c04e6",
+      "git_blob": "906aa6d4ed581b7a8ec93cee28f5137e6b5e72ac",
+      "bytes": 24002,
+      "recovery_sha256": "34ac69635c4873115ec4d0f4587ab2577f49e1b42a6776c8fe4ac6d10a2c04e6",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/features/engagement/copy.ts",
+      "sha256": "2cbd23184845aad8f884399430c45f5d78a11f1050be99accd7c17676bf98ef5",
+      "git_blob": "3a7d217721f602c457db241461200aabe5bc6377",
+      "bytes": 1272,
+      "recovery_sha256": "2cbd23184845aad8f884399430c45f5d78a11f1050be99accd7c17676bf98ef5",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/shared/api/errors.ts",
+      "sha256": "21a74107165ff379646b676cdff33c2c2b13b28ddd02c46f837b533d0eb98b8f",
+      "git_blob": "d1468e59fca11ab82ed78348a52077aa2515a004",
+      "bytes": 6078,
+      "recovery_sha256": "21a74107165ff379646b676cdff33c2c2b13b28ddd02c46f837b533d0eb98b8f",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/src/shared/api/generated.ts",
+      "sha256": "7e991a4f94a954fa60d970794d8720e22d969d8b5d665e6e166e28a001b3a0a1",
+      "git_blob": "86c093981cf53a6193c0c5ef2877b5f595ff9af2",
+      "bytes": 149651,
+      "recovery_sha256": "7e991a4f94a954fa60d970794d8720e22d969d8b5d665e6e166e28a001b3a0a1",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "sha256": "773333886a6a87c9ff1839d78f8d334ba1cd50b25348b60c03ac402f22d10594",
+      "git_blob": "e77cc1003a675201222c30b05f5c2766542f65ca",
+      "bytes": 15523,
+      "recovery_sha256": "807ce532a953fe033eee455b019d3779a16b69a7501a0465a915f85ecc352a86",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "sha256": "faa3c4c2ec2b76091b4fcf6110a82c89cd1afdcbc8d1a35cb9808360fb9d8379",
+      "git_blob": "f1ba7f83981583b8c94968f50ef5c0c3ee3db4cb",
+      "bytes": 19538,
+      "recovery_sha256": "faa3c4c2ec2b76091b4fcf6110a82c89cd1afdcbc8d1a35cb9808360fb9d8379",
+      "changed_during_recovery": false
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "sha256": "9ae37ea58a555682c0c921f027c13b66dc3fb2a7b1cc228717c262de303beed5",
+      "git_blob": "24d02d99a68f99d0b20d0d80d263bf66df3cb19a",
+      "bytes": 7138,
+      "recovery_sha256": "5b6b6f3e027565c3557348d5f2ade8f50321724ff3d2cfae7661044d08086189",
+      "changed_during_recovery": true
+    },
+    {
+      "path": "web/tests/settings-fixtures.ts",
+      "sha256": "f9926304d8cc5e140f683cc716918fcfdd90319f6c66292071e9cbd708f5a9c2",
+      "git_blob": "75eac32a6f93230ae2603171b90fdbe17dbc57c0",
+      "bytes": 7006,
+      "recovery_sha256": "f9926304d8cc5e140f683cc716918fcfdd90319f6c66292071e9cbd708f5a9c2",
+      "changed_during_recovery": false
+    }
+  ],
+  "excluded_protected_paths_metadata_only": [
+    "documents/Omnis_Notite_Originale.html",
+    "tempkey.txt"
+  ],
+  "index_changed": false,
+  "commit_created": false,
+  "tracked_diff_sha256": "6d1d516258195fe15513311685eacdf84bb5f73ef5767455d26dfc3d4224e3c0",
+  "checks": [
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --signal=TERM --kill-after=5s 80s npm --prefix web test -- src/app/Shell.test.tsx src/app/SettingsWizard.test.tsx --reporter=verbose",
+      "exit": 0,
+      "result": "10 passed / 2 files",
+      "log": "isolate.log",
+      "limit": "Does not establish historical Shell timeout cause."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 110s make test-web lint-web typecheck-web build-web",
+      "exit": 0,
+      "result": "193 passed / 20 files; lint/typecheck/current production build PASS",
+      "log": "web-final-verified.log"
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 90s env OMNIS_E2E_OUTPUT=/home/kali/.hermes/cache/scratch/uic/images-final node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "result": "5 passed, 0 failed; 27 loaded captures; painted native/ARIA focus, moved-focus preservation, native hard stale barrier, 64-entry/four-page read, 900px axis, 1440/1280/390/320 no overflow, CSS200%, reduced motion, forced colors",
+      "log": "source-final-verified.log",
+      "limit": "SOURCE built App with synthetic HTTP only; not real API/PG/provider QA."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 100s make test-contracts build-web UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "exit": 0,
+      "result": "OpenAPI/generation drift, 6 tooling tests, typecheck PASS; final build subsequently replaced and reverified by final web command",
+      "log": "contracts-build.log"
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 110s make lint-api typecheck-api UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+      "exit": 0,
+      "result": "strict Ruff check/format + mypy PASS; API source unchanged since this check",
+      "log": "api-quality.log"
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py -q -k 'final_wire_size or invalid_secrets or registry_authority or registry_model_sql or registry_has_separate or registry_merge or registry_maximum or registry_capacity or registry_frame or assignment_membership'",
+      "exit": 0,
+      "result": "15 passed / 19 deselected; SOURCE only",
+      "log": "api-source.log"
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_SETTINGS_MODELS_UI=1 api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_ui]' --collect-only -q",
+      "exit": 0,
+      "result": "exactly 1 test collected, no fixtures launched",
+      "log": "e2e-collection-frozen.log"
+    },
+    {
+      "command": "make -n test-settings-models-ui-pg; node --check web/tests/e2e/{provider-settings-focus,settings-models,run}.mjs; import test_web_e2e.settings_models_browser; compile(installed_sent_probe.PROBE); run_test_db_gate._preflight_gate(absolute_uv,target); Ruff check/format ops/run_test_db_gate.py; git diff --check",
+      "exit": 0,
+      "result": "argv/runner choice/import/payload compile/toolchain/format/source readiness PASS without DB or browser-consumer effects"
+    }
+  ],
+  "red_green": [
+    {
+      "defect": "sole usable entry with explicit same-entry role overrides should collapse selectors without erasing caps",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 45s npm --prefix web test -- src/app/ProviderKeySettings.test.tsx -t 'one usable'",
+      "red_exit": 1,
+      "red_log": "assignments-red.log",
+      "green_command": "npm --prefix web test -- src/app/ProviderKeySettings.test.tsx",
+      "green_exit": 0,
+      "green_log": "assignments-green.log"
+    },
+    {
+      "defect": "StrictMode setup-cleanup-setup left lifetime aborted and wizard alive=false",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 40s npm --prefix web test -- src/app/SettingsWizard.test.tsx -t StrictMode",
+      "red_exit": 1,
+      "red_log": "strict-red.log",
+      "green_command": "npm --prefix web test -- src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx",
+      "green_exit": 0,
+      "green_log": "strict-assignments-green.log"
+    },
+    {
+      "defect": "0/fractional output cap could acquire test consent",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 40s npm --prefix web test -- src/app/SettingsWizard.test.tsx -t 'invalid output cap'",
+      "red_exit": 1,
+      "red_log": "cap-red.log",
+      "green_command": "make test-web (final full suite)",
+      "green_exit": 0,
+      "green_log": "web-final-verified.log"
+    },
+    {
+      "defect": "secret wiping disabled Continue natively while key save was only transiently pending",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 30s npm --prefix web test -- src/app/ProviderKeySettings.test.tsx -t 'pending key save'",
+      "red_exit": 1,
+      "red_log": "key-focus-red.log",
+      "green_command": "npm --prefix web test -- src/app/ProviderKeySettings.test.tsx -t 'pending key save'",
+      "green_exit": 0,
+      "green_log": "key-focus-green.log"
+    },
+    {
+      "defect": "full selected provider/model identity was only inside native select, clipped at320px",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 30s npm --prefix web test -- src/app/ProviderKeySettings.test.tsx -t 'outside native select clipping'",
+      "red_exit": 1,
+      "red_log": "identity-red.log",
+      "green_command": "npm --prefix web test -- src/app/ProviderKeySettings.test.tsx -t 'outside native select clipping'",
+      "green_exit": 0,
+      "green_log": "identity-green.log"
+    },
+    {
+      "defect": "320px catalog Added buttons shrank and wrapped labels",
+      "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=/home/kali/.hermes/cache/scratch/uic; timeout --kill-after=5s 35s node --test web/tests/e2e/provider-settings-focus.mjs",
+      "red_exit": 1,
+      "red_log": "catalog-button-red.log",
+      "green_command": "final SOURCE browser command above",
+      "green_exit": 0,
+      "green_log": "source-final-verified.log"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/isolate.log",
+      "sha256": "dd0a2bef849be8841706492095e49e849e7dd12960c4372a7f8470e1e5158d05"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/assignments-red.log",
+      "sha256": "6b307c26c2250e1ea3cbb8401b7dece0488f3f3ec275ff619de86f35cc1a53ce"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/assignments-green.log",
+      "sha256": "bdb93fed6dc8afbaaa0e45665783230d5909a32328b15410d26d510ec73c86dd"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/strict-red.log",
+      "sha256": "1d6236d7b0fc1c90dee51b6d7f49bb7863812ba7a3d7b7779d3163686cf7da74"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/strict-assignments-green.log",
+      "sha256": "f404c847beb735f4bb918a4121749d0ec682fd621f0c9cc665a6687d2b1b89d2"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/cap-red.log",
+      "sha256": "da2fee809474509a4c1157b32bf7392363de1602c4b4cf62687a1fbdac38b94c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/key-focus-red.log",
+      "sha256": "8db735a96b2608ee86f67651ffe4026609999c526e8dd1b274ed0055abb855f8"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/key-focus-green.log",
+      "sha256": "32a4869202a41b2a22f33d118304ee9c69975a902f67515383d9fcfa3e5e17c7"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/identity-red.log",
+      "sha256": "cc0dac37999167acd54b539e6ad61ca1d2783a8f547ae1f9b469cdba4e58fc27"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/identity-green.log",
+      "sha256": "dfee87642cd9bfe7bee2e539efe4d53c323a7e691a0494b119bebd21c80c7c2e"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/catalog-button-red.log",
+      "sha256": "85718fe17844922fccf1bf62bd221072ecdfe579ac18ad9ff50c09fe7ca0415f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/web-final-verified.log",
+      "sha256": "662b3c458730d19435a5c0306daddb6d8cd3ec54894ab3c264cdc4b0fdb88161"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/source-final-verified.log",
+      "sha256": "8e414381c7401fa9beee83f2999b8efde5705c9394256d720dc218f9a15103ca"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/contracts-build.log",
+      "sha256": "611f875a45a7c2eb8facdd19de9883b0108691b08ca300699b75cbbe7bdaf76b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/api-quality.log",
+      "sha256": "acefddc619ff137b2060778489399c55b2ef2e76a8aced04f7b5c1fcdd2b9111"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/api-source.log",
+      "sha256": "27eebd52e4153b93c434bea8ffe56b94061aa8872b4705e8c356dea16a0e6f48"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/e2e-collection-frozen.log",
+      "sha256": "90af5a73f30bfbe3ad99764bf683c45f0306b35bea24b51577b79b086759422f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/e2e-argv.log",
+      "sha256": "5c13aa226e1ce5003390d3d352ef323fd37be539189d61da57169ad9cda55f11"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/runner-help.log",
+      "sha256": "efd3e6f38c16d6af379fe65080f462f222fe0943cdf295cac94453c5c28f4be8"
+    }
+  ],
+  "build_manifest": {
+    "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+    "sha256": "7e1552a6073bd9c4edce9567ab95424ee13fd3bc5d35c0f282e939399dc82a9d",
+    "content": {
+      "version": 1,
+      "files": {
+        "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+        "assets/index-B8rfyFoa.css": "d1841f37ca17f15b55d4ab876944307b783ff1f410dd45772ccaacc159116db5",
+        "assets/index-CI7seDRa.js": "1e6801288070cdbc17839418f69d76761d6611e9841f70f2bb7403448273eda0",
+        "index.html": "7cc386707fd79fde1e3d4380f7d84ad005bcd8cdc4d5fc7680fa93e878ddb5cf"
+      }
+    }
+  },
+  "source_screenshots": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-64-320-loaded.png",
+      "sha256": "5120e1113a057ec361fd00733f72d794da3843d7819544db9896d7b4559a32ac"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-connection-1280-loaded.png",
+      "sha256": "3dedfbc43d63b5704a467769015afd173e4700b08d2bbdc15276f2af58fce1cb"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-connection-1440-loaded.png",
+      "sha256": "28c49812194c745b98785815c10e08ef05390ede3191952baceefc9a6342603f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-connection-320-loaded.png",
+      "sha256": "2cb3a790c72d1c9ab56320724cf92b5c7a11fd1e25c1e2d66b16bd91a5978a7b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-connection-390-loaded.png",
+      "sha256": "7d6c029a9152864a39443097c294a70516e26f22dd8ec84982f92121092b173d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-failure-1280-loaded.png",
+      "sha256": "80a1c390b9f5fadcdee4c597b1e256caab5fe07d49d506deb34922bcd2f084ec"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-failure-1440-loaded.png",
+      "sha256": "c5a2953d4071a46f437d2ad55768f77ac218c2574af4bbc414351467e1615f93"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-failure-320-loaded.png",
+      "sha256": "fcbcc724478a78c4cd922d40e5cb16c7834f025019a8bc84e2331b1867f09842"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-failure-390-loaded.png",
+      "sha256": "56675243487fde7b77f36a61b7f1b01c00f2f213ed297331fc7a4ff4e9cd0981"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-forced-colors-focus.png",
+      "sha256": "20e0c9b70d2abfdfeef8f9a00d5ba33964976328d17f8e975fcc1f653239e237"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-model-results-1280-loaded.png",
+      "sha256": "149aebc6d0d179979827229ba2bd82017fa1c0dbdd0824a53ec591ec3fa76861"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-model-results-1440-loaded.png",
+      "sha256": "6b16e58542598394e454a517ee2b4819f872a90f3b7f83e16760898aa239ac6f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-model-results-320-loaded.png",
+      "sha256": "eb7cb0d185eef74bc53b2c2cc90a727fc5ecbb202fda05ea9306c1d2213888c5"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-model-results-390-loaded.png",
+      "sha256": "86435658e18ad699bff1ef305b1fbc53c840cad11f42c30048e4077446f19509"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-models-assignments-1280-loaded.png",
+      "sha256": "c43528160b4553284c46202a7b656a0c9f94b36de633caa7c1ecaf8ff37bc851"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-models-assignments-1440-loaded.png",
+      "sha256": "bf4e50f4b047d0491b009d0e16342c647db698430b39114626657c6354ce5878"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-models-assignments-320-loaded.png",
+      "sha256": "66983d373de999dff3a772912a5d4906671e5f59415e14a82a6c1720affd895c"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-models-assignments-390-loaded.png",
+      "sha256": "2d753adca4976a77976a240117f86a165b8107ccb2f1ce223b15c05416b56b60"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-review-1280-loaded.png",
+      "sha256": "36361cb078fa3f0ccd749dc5a9c747b0324fe2a130fd06628920de904644dfbb"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-review-1440-loaded.png",
+      "sha256": "8a4fbc4d6850a0198da3f4b2ffad31ab3a90729eb9457da577b74f9d64029d2f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-review-320-loaded.png",
+      "sha256": "e1e9639e552033933433ddd9028fb0fcd362faf30331382c2a22d70178f5521b"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-review-390-loaded.png",
+      "sha256": "c181f14c32ca5fcf2acc4abc0bfb09014dd065744c85e7b3d16bedabc8a4d77d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-saved-1280-loaded.png",
+      "sha256": "762081b4bf38e0445d02c1f42098aa93f40c3158467715254816113394c1f6ea"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-saved-1440-loaded.png",
+      "sha256": "bd4dc5212f9e5d15a3205117cb8bf2a040dd827a50b2ce1ac38a7906385de4b1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-saved-320-loaded.png",
+      "sha256": "a23f8a4a90a5857f2f06c50307af6b44c6630586f447792adecb1c23f7586fe5"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-saved-390-loaded.png",
+      "sha256": "5f235b6e8d4c9aaded53ecbac0887dc90310af13bd706a6b3acaecf7ca90d104"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/uic/images-final/SOURCE-settings-zoom-200.png",
+      "sha256": "1517a2e35a8e513894de95cd26bf8bc8f8e4bb20b6192b21b09a44081c516b0e"
+    }
+  ],
+  "source_visual_inspection": "All six loaded states inspected at1440/1280/390/320; CSS200%/forced colors inspected; final320px catalog-button delta inspected after last CSS edit. This is not aesthetic approval or real PG QA. Prior full-page fixed skip-link screenshot artifact diagnosed by actual offscreen DOM bounds; capture scroll normalized, Shell unchanged.",
+  "contrast": {
+    "primary_text": 11.67878797547034,
+    "secondary_button_text": 15.291203179502807,
+    "input_border": 3.8081601340452664,
+    "focus": 11.341417938049007
+  },
+  "preflight": {
+    "admitted_target": "test-settings-models-ui-pg",
+    "node": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_ui]",
+    "command_after_two_reviews": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH TMPDIR=<new-owned-short-scratch> api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-models-ui-pg --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19 --timeout-seconds 600",
+    "producer_consumer": "built main/App -> paired HTTP API -> existing LocalControl -> ProviderSettingsOwner/ApiKeyModelTest -> private PG -> owned synthetic UDS/TLS peer, no external provider",
+    "positive": "saved-key32-entry registry, non-default fixture/02 one-call success with exact requested/observed identity, Default fixture/00 + Brain fixture/01 cap37 unchanged; reload and API process restart readback",
+    "negative": "same otherwise-valid test intent after Disable, new operation ID -> exact409 CONNECTION_UNAVAILABLE before new dispatch; UI test/assignment native hard barriers; one SENT total",
+    "persistence_census_tables": 13,
+    "cleanup": "existing owned_children/cleanup_all, driver timeout120s per stage, parent case asyncio timeout300s, heartbeat preserved, owner/sender/relay/tasks/engine settled by existing finally paths",
+    "real_pg_or_browser_consumer_attempts_this_recovery": 0,
+    "remaining_parent_checks": [
+      "two complementary exact-manifest SOURCE reviews",
+      "newly-owned real Settings UI API/PG/TLS QA",
+      "affected test-provider-settings-pg and test-model-test-v2-pg callers/membership controls",
+      "parent final canonical gate"
+    ],
+    "not_run": [
+      "real PG",
+      "real built-app/API/PG browser-consumer QA",
+      "installed UI/restart of entire supervisor",
+      "external provider compatibility/live traffic",
+      "canonical final"
+    ]
+  },
+  "historical_failures_preserved": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-web-final.log",
+      "fact": "previous foreground full web attempt interrupted after420s; Shell worker termination timeout/EPIPE; historical cause UNKNOWN, not attributed to StrictMode."
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-source-browser.log",
+      "fact": "previousSOURCE 1PASS/4FAIL at isDisabled observer; corrected observer now reads DOM HTMLButtonElement.disabled, retains ARIA/focus/duplicate-submit/native hard-stale assertions; no product ARIA removal."
+    }
+  ],
+  "issues": [
+    "PIL unavailable in API venv during optional image-dimension read; available system interpreter used for collages, no dependency installed.",
+    "No current SOURCE test/build blocker; acceptance still requires independent reviews and real QA."
+  ],
+  "no_live_jobs": true
+}

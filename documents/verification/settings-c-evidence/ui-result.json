@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "scope": "Prompt A Settings C: guided English-only configured-model UI and assignment membership guard, through existing API/control/owners/PostgreSQL. Prompt B excluded.",
+  "implementation": "IMPLEMENTED",
+  "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
+  "review": "APPROVED_SOURCE_SCOPED_COMPOSED",
+  "acceptance": "CANONICAL_FINAL_PENDING_NOT_CLOSED",
+  "product_head": "6dbaec54812c94b5d906d849145f9c42977788c5",
+  "ui4_tested_head": "b116c1082f263eaad509207fa32bb1a6e72d40cb",
+  "final_source_freeze": {
+    "file": "ui-final-source34-freeze.json",
+    "sha256": "d70dc32374718a770c794758e3be36faf488d5fefb50b095b570641c053e9f7f",
+    "candidate_id": "9f4fccff3f59ec5b41f43d938d3b710fbe26c57387f2689d9c3a84f26e84595f",
+    "base": "94f48fd7e7f0a418a876c6db69ad48b62971a2bd",
+    "owned_paths": 34,
+    "binding": "Freeze label is historically pre-commit; R1 ui-b04-r1.md binds identical bytes to committed6dbaec5. Its33 prior files and build4 are unchanged from UI4."
+  },
+  "backend_prerequisites": [
+    "registry-result.json",
+    "catalog-result.json"
+  ],
+  "artifacts": "ui-artifacts.json",
+  "runtime_boundary": "Real built Chromium App -> paired owned loopback API -> existing local control/Settings and ModelTest owners -> PostgreSQL18.6; metadata/inference peer is owned synthetic TLS, not external provider.",
+  "commands": {
+    "ui4": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/su4-4pF4U7 PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-models-ui-pg --timeout-seconds 600 --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "guard": "make --no-print-directory test-provider-settings-pg UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "modeltest": "make --no-print-directory test-model-test-v2-pg UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "b04": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/sb04-FG6u44 PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-b04-e2e --timeout-seconds 600 --uv /home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "canonical1": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch/scn1-6pbg90 PYTHONDONTWRITEBYTECODE=1 make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  },
+  "runtime_records": [
+    {
+      "run": "su1-w15zS7",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/su1-w15zS7/db-938fd456c7e945fc",
+      "project": "omnis-p01-be54e1f6e92e403a868277802679690f",
+      "container_id": "9df38353d3ac90df4da60e5f1b517be40c74496e3b63b7e8f03a2cc03a7f2e7a",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701160210672328734",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "1 failed in 3.78s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "su2-sRa82u",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/su2-sRa82u/db-052fc97e641741a4",
+      "project": "omnis-p01-5c3ac6c7b93d4a2fac521b9886ab0aa0",
+      "container_id": "8675728d887f0ffaf33145eda98052d525a7bf321a44ed75888a6e37405744fb",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701167866016800798",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "1 failed in 50.33s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "su3-rYXHNO",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/su3-rYXHNO/db-ef2e92ae003548fa",
+      "project": "omnis-p01-267e19909d1948298e0a5f0759834941",
+      "container_id": "bc84d8de9aacfaf42402b520cd39f32a39d4f7f0bcdd14f9da6ef549cee17c48",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701172321444335646",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "1 failed in 27.18s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "su4-4pF4U7",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/db-edc3bb1027b84252",
+      "project": "omnis-p01-5f25e736c75f4c079a5d2a1851f83a7a",
+      "container_id": "e93824afc61182992d57330478b71a875531f7bdd28ed9c85b3c94b9f3de944e",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701176499640950815",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "1 passed in 47.64s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "sg1-XzjC5T",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/sg1-XzjC5T/db-d79b8f29a446498f",
+      "project": "omnis-p01-73c53f038de549c2885510401c3a33c3",
+      "container_id": "db0b69fef5f48eda8853eac45ee52f2045c211d235ee6005e8d19d692d3f738b",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701161743485141022",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "54 passed in 40.03s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "sm1-5NuyTl",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/sm1-5NuyTl/db-ac31d692ab974209",
+      "project": "omnis-p01-a5d9ec4afe21420787b6fa8ef58a49b2",
+      "container_id": "a2b7ce8d730c931fa156e6ca3f1253fcda70afe6d9533dba57b5b52f152adffb",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701166959777812510",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "72 passed, 1 skipped in 116.78s (0:01:56)"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "scn1-6pbg90",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/scn1-6pbg90/db-c30d88930e004742",
+      "project": "omnis-p01-c7dcb0d266854adfbe65a318afb947e8",
+      "container_id": "caf68a30ff2dde22b2f5877def0c21af832e4d11a7da21207155d503c712341d",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701177427341586462",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "3168 passed, 66 skipped, 7 deselected in 3186.42s (0:53:06)",
+        "23 passed in 67.32s (0:01:07)",
+        "1 passed in 47.49s",
+        "1 failed, 9 passed in 123.40s (0:02:03)"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    },
+    {
+      "run": "sb04-FG6u44",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/db-bac3bd74892e4d59",
+      "project": "omnis-p01-ee94cd4270ce4c4988ce10d5b57bcaa2",
+      "container_id": "4b91a06ef8b551bfd661e174dbad0a9f76948fb8333140e410f86af309ea95ca",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "system_id": "7701199258498973726",
+      "postgres_version": "18.6",
+      "gate_receipt": {
+        "schema_version": 1,
+        "code": 0,
+        "family_drained": true
+      },
+      "safe_summaries": [
+        "B04_G01_BEFORE_PASS create/edit/GET/reload, real CAS 409, denials, expiry and re-pair",
+        "B04_G01_RESTART_PASS same DB, new backend PID, fresh browser, exact revision/digest/objective",
+        "1 passed, 9 deselected in 18.88s"
+      ],
+      "owner_resource_readback": "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False"
+    }
+  ],
+  "parent_cleanup": "Exact owned CID/project-network/socket absence and PG18 cluster data retention were read back at each original completed run; no foreign/operator instance or blanket cleanup. Public owner receipts are archived. Historical checks were not rerun merely to write this record.",
+  "requirements": [
+    {
+      "requirement": "New key -> confirmed local receipt -> explicit catalog; saved key -> multi-add/search/chips/Back/dedup",
+      "evidence": "UI4 first setup and32-entry catalog, one new model then31 with saved key; inherited catalog72 and source tests cover paging/caps/partial/error/manual-ID distinctions."
+    },
+    {
+      "requirement": "Saved configured registry independent of role assignments; one/many/default/override and stale CAS",
+      "evidence": "UI4 first single model has no redundant selectors; explicit Save assignments rev0/readback. Real second writer causes409; reload then explicit Brain fixture/01 cap37, with Default fixture/00 retained. Adding models does not change previous assignments."
+    },
+    {
+      "requirement": "Test only exact selected entry, no temporary Default or batch spend",
+      "evidence": "UI4 Review explicitly selects fixture/02; one synthetic inference/oneSENT and unchanged assignment snapshot, completion/readback/reload. Settled oracle retains4metadataGET+1POST/1SENT, refresh[0,2,5], start[4,5],8write attempts including staleCAS, receipt barrier and census13."
+    },
+    {
+      "requirement": "Disable invalidates open wizard; no silent reactivation/resend; persistence/restart",
+      "evidence": "UI4 real stale wizard receives409 CONNECTION_UNAVAILABLE after Disable, no new provider effect; local Save and operation results survive API-process restart/DB readback. Existing finite-test72 covers failure/UNKNOWN/no-resend/Cancel/revoke/Stop; do not infer every visual Cancel/UNKNOWN variant was exercised by UI4."
+    },
+    {
+      "requirement": "Existing B04 inert draft journey survives all-English app copy",
+      "evidence": "6dbaec5 caller-only correction, R1 SOURCE approved, real B04 before/after1PASS18.88s: custom Unicode/whitespace objective, exact revision/digest, CAS409,422/Host/Origin/CSRF/ref denials, expiry/re-pair, reload and actual backend restart unchanged."
+    },
+    {
+      "requirement": "Centered accepted C, accessible controls and loaded-state imagery",
+      "evidence": "Real UI4 screenshots29 at320/390/1280/1440 includingCSS200%; SOURCE built-browser5PASS covers long64/max-length IDs, focus/re-entry, target geometry, reduced motion and computed text/control/focus contrast thresholds. Actual representative UI4 pixels compared against accepted C reference; no new aesthetic approval."
+    }
+  ],
+  "source_evidence": {
+    "web_unit": "196PASS on unchanged product bytes; full canonical1 check-web reached succeeding build/UI/E2E phases",
+    "built_browser": "5PASS/0FAIL4656.801519ms after native selected-option correction, synthetic HTTP built-App scope, not API/PG",
+    "b04": "SOURCE alignment RED1->GREEN0; exact three-literal transform old->new,15/3/1 occurrences;40check/22assert/3secretChecks and custom objective preserved; node--check/diff-check0",
+    "quality": "Unchanged product lint/types/contracts/build passed before canonical1 E2E failure. Six preexisting B023 in development test_test_db_gate.py were separately observed and not reclassified as Ruff PASS; development56 tests passed."
+  },
+  "reviews": [
+    {
+      "file": "ui-original-r1.md",
+      "original_verdict": "CHANGES_REQUESTED_SOURCE",
+      "disposition": "R1-F01 first-single UI corrected08a76de; F02 installed-SENT census correctedb8e93e0; F03 real consumer coverage correcteda2eb7f5; closed SOURCE by ui-r1-followup.md, then real UI4/guard/modeltest evidence."
+    },
+    {
+      "file": "ui-original-r2.md",
+      "original_verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+      "disposition": "C01 current-grant lifetime/secret isolation correctede8d86f8, no auth-policy change; C02 unsafe Make flags9b6a55b; C03 censusb8e93e0. Closed SOURCE by ui-r2-followup.md; that followup newly identified C04."
+    },
+    {
+      "file": "ui-r1-followup.md",
+      "verdict": "R1-F01/F02/F03_CLOSED_SOURCE_SCOPED",
+      "open_nonblocking": "N01 LOW definitive-denial copy"
+    },
+    {
+      "file": "ui-r2-followup.md",
+      "verdict": "C01/C02/C03_CLOSED_SOURCE_SCOPED_C04_CHANGES_REQUESTED",
+      "disposition": "Parent reproduced uncorrelated global I/O counter false attribution during legal concurrent catalog. Fixed only callback finally732ec15; later focused review closes it."
+    },
+    {
+      "file": "ui-c04-r2.md",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "scope": "Only C04 fix; owner/errors/receipts and settled exact I/O guards retained."
+    },
+    {
+      "file": "ui-dns-r2.md",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "scope": "Only controlled_dns fixture arity/strict IPv4/TCP/numeric-loopback settings_ui exception, ceddf1b;22negative/zero socket controls, then model72/UI2."
+    },
+    {
+      "file": "ui-review-locator-r1.md",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "scope": "Only native Review exact role/name locator, ee7605a; exact fixture/02 and all remaining oracles unchanged."
+    },
+    {
+      "file": "ui-selected-option-r1.md",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "scope": "Only two supported native option:checked+toHaveText assertions and SOURCE self-check, b116c10. Optional exact Unavailable suffix only loadedMany;17positive/negative regex controls."
+    },
+    {
+      "file": "ui-b04-r1.md",
+      "verdict": "APPROVED_SOURCE_SCOPED",
+      "scope": "Only committed B04 English-copy delta6dbaec5; complete34 and preserved data/assertions, real B04 admission."
+    }
+  ],
+  "retained_failures": [
+    {
+      "run": "su1-w15zS7",
+      "status": "FAIL",
+      "cause": "controlled_dns fixture accepted2args, stdlib API readiness called4; failure before browser. Fixedceddf1b, strict source controls and focused review before fresh run."
+    },
+    {
+      "run": "su2-sRa82u",
+      "status": "FAIL",
+      "cause": "Native Review getByLabel exact selector failed after first setup/CAS;12of29 screenshots. Fixedee7605a with semantic exact combobox role/name, no product change."
+    },
+    {
+      "run": "su3-rYXHNO",
+      "status": "FAIL",
+      "cause": "Playwright1.63.0 has no toHaveDisplayValue; exact fixture/02 already COMPLETED/reloaded,16of29 screenshots. Fixedb116c10 with supported exact selected-option assertion; no new matcher/dependency or wider deadline."
+    },
+    {
+      "run": "scn1-6pbg90",
+      "status": "FAIL",
+      "cause": "B04 old Romanian UI label/default/radio after intended English product translation;9other E2E and preceding API/migration/web/Settings stages passed. Later CLI/release NOT_RUN. Fixed6dbaec5 and focused R1/realB04 pass; canonical1 remains FAIL."
+    },
+    {
+      "scope": "Administrative evidence readback",
+      "status": "RETAINED",
+      "cause": "Earlier post-QA shell checks assumed wrong PG_VERSION location/uniqueness. Correct cluster data path is data/18/docker/PG_VERSION; per-database copies also exist. Corrected actual resource readback, not product defect or reason to rerun the successful consumer."
+    }
+  ],
+  "remaining_nonblocking": [
+    {
+      "id": "N01",
+      "severity": "LOW",
+      "scope": "Definitive CONNECTION_UNAVAILABLE409 clears catalog pointer but generic UI copy says outcome unknown/read same operation. Reload/Cancel/explicit Reconnect remain; real denial/no-reactivation passed. Deferred copy correction, not a false claim of unknown effect."
+    },
+    {
+      "id": "VISUAL_MINOR",
+      "scope": "Reload-to-panel spacing; no changed visual direction or blocker. Native select text clipping is compensated by readable exact consent ID/provider context."
+    }
+  ],
+  "canonical": {
+    "status": "FINAL_NOT_RUN_AFTER_B04_FIX",
+    "previous_run": "scn1-6pbg90",
+    "previous_outer_exit": 2,
+    "previous_gate_receipt": "ui-canonical1-gate-receipt.json",
+    "scope": "Mandatory unchanged make check remains required on final integrated bytes. Targeted/scoped passes are not renamed canonical green. Default aggregate3600s and product/driver deadlines are unchanged."
+  },
+  "limits": [
+    "Provider schemas/TLS are synthetic; OpenRouter/OrcaRouter live compatibility/cost/access not tested in Prompt A, Orca undocumented max_tokens support remains unknown.",
+    "No operator installed instance/PGDATA read/adoption/upgrade or persistent deployment; fixture API-process restart is not installed runtime restart.",
+    "No Prompt B/autopair/auth-policy/CLI feature/global configuration/push/target or paid provider effects.",
+    "No T2 role execution, mixed-role run or P4b closure; saved assignments pin only future consumers.",
+    "SOURCE long64/contrast/focus controls and real32-entry UI4 are distinct evidence scopes; not screen-reader/all-browser/WCAG certification or universal absence of defects.",
+    "UI1/2/3 and canonical1 FAILs, review originals and harness-only dispositions retained across sessions. Scope was narrowed to demonstrated DNS/library/locator/copy mechanisms; no new framework/owner/verifier or timeout widening."
+  ],
+  "rollback": "Inspect dependent commits and revert coherent source changes in order; Git does not undo retained schema0016/data/vault effects. No operator data was adopted. Reverting B04 caller alone is data-inert but knowingly reintroduces its old-label failure unless the English UI contract is also reverted; it is not a green standalone rollback."
+}

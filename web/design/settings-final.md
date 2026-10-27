@@ -132,17 +132,32 @@ exact-entry test and English C UI rather than declaring isolated helpers complet
 Rollback is granular Git revert for source; fixture DB/vault data remain preserved,
 and no operator instance/PGDATA is adopted. No provider traffic, spending, push or auth edits.
 
-**Execution checkpoint, not complete Settings:** registry `a3e04a7` and catalog/exact-entry
-test `6d9c0c5` are integrated with complementary/focused SOURCE reviews and parent-owned
-real API/private-PG QA: [registry53PASS42.46s](../../documents/verification/settings-c-evidence/registry-result.json)
-and [catalog/test72PASS119.11s](../../documents/verification/settings-c-evidence/catalog-result.json),
-both exit0/drained on unchanged reviewed bytes, with exact resource cleanup/data retained.
-Original reviews/freezes and earlier failures remain. The SQL bound and test heartbeat
-issues, reversed paging-query order and mixed-case gzip cap bypass have minimal reviewed
-repairs. Catalog/test use an owned synthetic TLS peer, not an external provider. Orca's
-undocumented parameter support remains unknown. Guided UI, final assignment-membership
-guard, browser/visual/installed flow and canonical/provider-live remain NOT_RUN. This is
-continuation within Prompt A, not a handoff or T2/P4b closure.
+**Execution checkpoint — implemented and verified scoped; final canonical pending.**
+Registry `a3e04a7` and catalog/exact-entry test `6d9c0c5` retain their
+[53PASS](../../documents/verification/settings-c-evidence/registry-result.json) and
+[72PASS](../../documents/verification/settings-c-evidence/catalog-result.json) API/private-PG evidence.
+The [UI/guard record](../../documents/verification/settings-c-evidence/ui-result.json) composes
+the original complementary reviews and focused fixes through `6dbaec5`: guided English C,
+first-model explicit assignment confirmation (no automatic Default mutation), multiple saved
+models per key, local search/chips/Back, separate role/output settings and exact-entry testing.
+Real guard54PASS40.03s, ModelTest72PASS116.78s and UI4 **1PASS47.64s** exercise the existing
+owners and PostgreSQL; UI4 includes first setup, saved-key31-add, real stale-CAS409,
+exact `fixture/02` test without assignment changes, Disable/stale-wizard409 and API-process restart.
+The [artifact index](../../documents/verification/settings-c-evidence/ui-artifacts.json) preserves
+original reports/freezes/receipts byte-exact and29 real UI4 screenshots across320/390/1280/1440
+including CSS200%, plus4 B04 regression captures. SOURCE built-browser checks cover long64,
+focus/re-entry, target geometry, reduced motion and computed contrast; they are not PG/live proof.
+Actual pixels preserve the selected centered900px composition and house controls, not a new
+aesthetic approval. N01 LOW denial/recovery copy and minor Reload spacing remain nonblocking.
+
+UI1/2/3 FAILs are retained with their narrowed DNS/locator/unsupported-matcher fixes and reviews.
+Canonical1 remains **FAIL2/drained** at the obsolete Romanian B04 caller after3168API/23migration,
+web196 and another Settings UI pass; its later CLI/release stages did not run. Caller-only
+`6dbaec5` preserves the custom Unicode/whitespace objective and all assertions; focused R1
+and real B04 **1PASS18.88s** confirm create/edit/CAS/refusals/reload/actual API restart.
+The unchanged final `make check` remains required. Exact owned cleanup/data retention are
+recorded; no installed operator upgrade, external provider traffic/spending, Prompt B/auth
+policy or T2/P4b closure. Orca's undocumented parameter support remains unknown.
 
 ### Official documentation checked, no API calls made
 

@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "scope": "Immutable original review/freeze/receipt transfers and real built-browser PNGs. No raw logs, cookies, browser state, capabilities, credential files or PGDATA. Original bytes checked exactly; one lossless gzip stores an original freeze with trailing whitespace without normalizing it or weakening strict diff checks. Stored and decoded hashes are explicit.",
+  "text_archives": [
+    {
+      "source": "/home/kali/.hermes/cache/scratch/settings-r1-57ae4967-lsn50i8c/R1-original.md",
+      "sha256": "fcb4cee7f7ffb71c3a25cf23f29e210c7e854f984f258be93faea7bea9f3bfb9",
+      "bytes": 13235,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-original-r1.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r2-settings-57ae-4p36wfno/R2-original-review.md",
+      "sha256": "ebc66d7b0311c86ef25f145ef73b0aa4ab6972b941a55f343a6a840bd1ce16ac",
+      "bytes": 13616,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-original-r2.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r1-ae722-focused-5juh6ndb/R1-focused-review.md",
+      "sha256": "ca0992d1d89617f57a1a645aa4422b47035dd10f08dc56e69b02c2c041374e0f",
+      "bytes": 8172,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-r1-followup.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r2-ae722-focused-qyn4o7wt/R2-focused-review.md",
+      "sha256": "c13849b01fc7c3498f87407ed79de6d958b3fa6ad6a7da31ab83fd9e4325778d",
+      "bytes": 11618,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-r2-followup.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r2-c04-focused-o_wx7dut/R2-C04-focused-review.md",
+      "sha256": "309d06daebf4c10a6c9b52b296c1688bb2e9ee738783cd4822b839dbe04f660c",
+      "bytes": 6792,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-c04-r2.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r2-dns-focused-0d_6exlu/R2-DNS-focused-review.md",
+      "sha256": "97a27cf00c95ef3101d35475003c10de66f0923e869f78a2e83880eb6cafe6f4",
+      "bytes": 5358,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-dns-r2.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r1-native-review-ee7605a-tvzq74iv/R1-native-Review-focused.md",
+      "sha256": "d62f2c6bc952776575d692055773d59bb1e24e7b111b5f4944dcb31261eb7cb1",
+      "bytes": 6162,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-review-locator-r1.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/r1-selected-option-b116c10-tlotmax9/R1-selected-option-focused.md",
+      "sha256": "6f5f220e621f1bb5f38761c7071e0f6de41df5aabced9dbe950582c340921896",
+      "bytes": 6904,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-selected-option-r1.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/b04-r1-lacysjqj/report.md",
+      "sha256": "75d71506295acb7f62b99fc8b3928ebabb95a7880db5cdccadaae932ccafe52c",
+      "bytes": 7292,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-b04-r1.md"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uic/frozen-candidate.json",
+      "sha256": "e48cee247a16a8197bef3c44d885ac78dd7954494c24302890499cb8d59afc27",
+      "bytes": 32436,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-source32-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif5/final33-freeze.json",
+      "sha256": "4e9cad30d15149ddb652ef7877570e22f12969c39ee64b1dc1321d2644a37a2f",
+      "bytes": 9243,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-ae722-source33-freeze.json.gz",
+      "encoding": "gzip",
+      "source_sha256": "1a6b4251233a351bfb54333e6983f83a79eb0d8d9c5a1b890516b35155555d81",
+      "source_bytes": 27683
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif6/final33-freeze.json",
+      "sha256": "622024a5cb0c7d3054513409550eea9b402f513e01f324c2a3c47ed1d1d9da2d",
+      "bytes": 18484,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-c04-source33-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif7/final33-freeze.json",
+      "sha256": "95e7a1566b3ca75c0c446f31f507f334793219aeab1b9084c39c429febacf70d",
+      "bytes": 26090,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-dns-source33-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif8/final33-freeze.json",
+      "sha256": "89e53c3208d663381ff127a0f6386f2251bf1f4043e6cfbb7e3d4eae8f551ae3",
+      "bytes": 14601,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-review-locator-source33-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif9/final33-freeze.json",
+      "sha256": "3d5f4af077f5f698b3f26c3b18bb323fda41cd041ccd05cc89a0a024cfdca79e",
+      "bytes": 16154,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-selected-option-source33-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/uif10-fJpmj2/final34-freeze.json",
+      "sha256": "d70dc32374718a770c794758e3be36faf488d5fefb50b095b570641c053e9f7f",
+      "bytes": 25068,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-final-source34-freeze.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/su1-w15zS7/db-938fd456c7e945fc/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui1-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/su2-sRa82u/db-052fc97e641741a4/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui2-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/su3-rYXHNO/db-ef2e92ae003548fa/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui3-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/db-edc3bb1027b84252/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui4-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/scn1-6pbg90/db-c30d88930e004742/gate.log.result.json",
+      "sha256": "66bccb56ff722ee5ffc76511083f2f0ab05c5a70f8842e4c867771ef0c5814ab",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-canonical1-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/db-bac3bd74892e4d59/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-b04-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/sg1-XzjC5T/db-d79b8f29a446498f/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-guard-pg-gate-receipt.json"
+    },
+    {
+      "source": "/home/kali/.hermes/cache/scratch/sm1-5NuyTl/db-ac31d692ab974209/gate.log.result.json",
+      "sha256": "dba7684cc05e7e66698376a87dabb6f8fac91e71f52684f54bb97887558487d6",
+      "bytes": 56,
+      "path": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-modeltest-pg-gate-receipt.json"
+    }
+  ],
+  "screenshots": [
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-api-restart-disabled-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-api-restart-disabled-1280x1000.png",
+      "sha256": "738087b387f748f91f49aec7b8ef1ed8afe4f10b6d94d9d8a4e71689dbb3bab7",
+      "bytes": 353304,
+      "width": 1280,
+      "height": 3925
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-api-restart-disabled-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-api-restart-disabled-1440x1000.png",
+      "sha256": "079d0696a4a19a6e0a741b6c757807c36320a75333554ab2b72da577db52cf30",
+      "bytes": 359586,
+      "width": 1440,
+      "height": 3925
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-api-restart-disabled-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-api-restart-disabled-320x1000.png",
+      "sha256": "9f9afd97a3169f951ce3a916094135fb4bd4c9e89e13ce311c960ad116d7e26b",
+      "bytes": 349764,
+      "width": 320,
+      "height": 7939
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-api-restart-disabled-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-api-restart-disabled-390x1000.png",
+      "sha256": "f97efd294ab5a2ba097793b4a4c49f06f05e0106fd31de709bdad54874764543",
+      "bytes": 345353,
+      "width": 390,
+      "height": 7085
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-first-setup-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-first-setup-1280x1000.png",
+      "sha256": "b33aac08ce3acf57b21fab080d3f26550f7bbcde65dde98a098d5b0c65b50dc6",
+      "bytes": 130652,
+      "width": 1280,
+      "height": 1219
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-first-setup-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-first-setup-1440x1000.png",
+      "sha256": "cc86b5003889a11806efc1604cc2ec3fcf244afd69396753f28e48202593e8a5",
+      "bytes": 133357,
+      "width": 1440,
+      "height": 1219
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-first-setup-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-first-setup-320x1000.png",
+      "sha256": "6b493f182f627610313455e0514dbd8d8ece524debbdd26fc0f3efd6eeb2012c",
+      "bytes": 80953,
+      "width": 320,
+      "height": 1452
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-first-setup-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-first-setup-390x1000.png",
+      "sha256": "95f245a1a5fde3720f74dff2e1fcc6929f113e28cef450f26f686ac1855177e4",
+      "bytes": 83023,
+      "width": 390,
+      "height": 1339
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-loaded-results-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-loaded-results-1280x1000.png",
+      "sha256": "d544e17cd4f99722c9a3757788e6952dbda0babc251bf4f29218bd4fe538de3e",
+      "bytes": 182450,
+      "width": 1280,
+      "height": 1853
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-loaded-results-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-loaded-results-1440x1000.png",
+      "sha256": "56cb8975c0c5176c2cb5517f2066635c1cfae115274112486b710882780f6ba1",
+      "bytes": 186111,
+      "width": 1440,
+      "height": 1853
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-loaded-results-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-loaded-results-320x1000.png",
+      "sha256": "f6a9540b8fcad2870f9321b692ac651fa36221abb782fcc92aa98337d594104b",
+      "bytes": 130404,
+      "width": 320,
+      "height": 2261
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-loaded-results-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-loaded-results-390x1000.png",
+      "sha256": "a4be14160b2411f336741cd63dba8c19efe4b277df34d3047fcf565be9946c41",
+      "bytes": 132050,
+      "width": 390,
+      "height": 1987
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-one-model-unassigned-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-one-model-unassigned-1280x1000.png",
+      "sha256": "5750b3411de7db80c58bffa817bfca2b9d6c95f2c4289cc687a9874c9f2becda",
+      "bytes": 141256,
+      "width": 1280,
+      "height": 1223
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-one-model-unassigned-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-one-model-unassigned-1440x1000.png",
+      "sha256": "ff7a42fe49a63d57b662b74d024e76c44e7ed5b72d8e0e49daeac10057ef8e61",
+      "bytes": 144157,
+      "width": 1440,
+      "height": 1223
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-one-model-unassigned-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-one-model-unassigned-320x1000.png",
+      "sha256": "7c55f9ddcaa787a605e0e3a06b341694c6f9208014e8ffab16f679ccb88aeb58",
+      "bytes": 93075,
+      "width": 320,
+      "height": 1582
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-one-model-unassigned-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-one-model-unassigned-390x1000.png",
+      "sha256": "d339ba293e44e0a25d1a60c68794ed5fb5f2a330790d01a0f1dcf03cd1264aac",
+      "bytes": 94521,
+      "width": 390,
+      "height": 1379
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-review-many-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-review-many-1280x1000.png",
+      "sha256": "9a95b78cc338b84820feb9c8e85d9143ebc2b4db1cfa61dcbd91c969b4eb9005",
+      "bytes": 415339,
+      "width": 1280,
+      "height": 6320
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-review-many-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-review-many-1440x1000.png",
+      "sha256": "2213699ece0e5c4f7a14890f302e8334e1a137b1098bae270a920997573e3778",
+      "bytes": 423614,
+      "width": 1440,
+      "height": 6320
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-review-many-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-review-many-320x1000.png",
+      "sha256": "2fba622c124126702ff961bff5e8a47372e9d576a44e4239abf1345cf7b77e0d",
+      "bytes": 431112,
+      "width": 320,
+      "height": 8572
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-review-many-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-review-many-390x1000.png",
+      "sha256": "b173fe867cc4e18bf43fb2afbaa6187016105b5d930eeb1b15bc503447049f3b",
+      "bytes": 435596,
+      "width": 390,
+      "height": 8273
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-saved-many-200pct-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-saved-many-200pct-1440x1000.png",
+      "sha256": "430f03ac6453f69aeb77a0d51e3c18cbc755345bb223686e3d116dac693f0ef3",
+      "bytes": 798547,
+      "width": 1440,
+      "height": 8394
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-saved-many-assignments-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-saved-many-assignments-1280x1000.png",
+      "sha256": "4cb96a6bc7bdf5f9bd8eca7027138f4669211c64cc13e4e0fa5115c6f21ccaeb",
+      "bytes": 363573,
+      "width": 1280,
+      "height": 4197
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-saved-many-assignments-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-saved-many-assignments-1440x1000.png",
+      "sha256": "9fc56884e2784e993e27bd58d0a89acbdffb7f1caefae80d29baa5650b5b9df9",
+      "bytes": 370666,
+      "width": 1440,
+      "height": 4197
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-saved-many-assignments-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-saved-many-assignments-320x1000.png",
+      "sha256": "aeaa7ac3fe3f194ef192276789199122bd191101a6197570e58defb53d331631",
+      "bytes": 340889,
+      "width": 320,
+      "height": 6597
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-saved-many-assignments-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-saved-many-assignments-390x1000.png",
+      "sha256": "fe5af25d819ac9344a5da0fce86e0e735f077d767645f5b823b1a587f58dd3bb",
+      "bytes": 344385,
+      "width": 390,
+      "height": 6366
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-stale-wizard-denied-1280x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-stale-wizard-denied-1280x1000.png",
+      "sha256": "28ca27462cb6e3c67c6daeaea60e29065bc125d1a60ff6284055ae747af3f442",
+      "bytes": 402623,
+      "width": 1280,
+      "height": 4859
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-stale-wizard-denied-1440x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-stale-wizard-denied-1440x1000.png",
+      "sha256": "320a1ff68a0757d783f2873cb18e7cd182f6c28d4c00eed076db9384858ed913",
+      "bytes": 410054,
+      "width": 1440,
+      "height": 4859
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-stale-wizard-denied-320x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-stale-wizard-denied-320x1000.png",
+      "sha256": "dc15d98dba405dccfd7abb848d70ad944f3b53960aed5deda9d6b8d6fe15146e",
+      "bytes": 386704,
+      "width": 320,
+      "height": 7551
+    },
+    {
+      "group": "ui4",
+      "path": "ui-screenshots/ui4/settings-models-stale-wizard-denied-390x1000.png",
+      "source": "/home/kali/.hermes/cache/scratch/su4-4pF4U7/pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/settings-models-stale-wizard-denied-390x1000.png",
+      "sha256": "b59273fbbfa1552cbf199fc777fbbcf81b412dc608de198ea0ebddcf5f2dedd8",
+      "bytes": 390557,
+      "width": 390,
+      "height": 7201
+    },
+    {
+      "group": "b04",
+      "path": "ui-screenshots/b04/b04-create-390.png",
+      "source": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/omnis-p03-e2e/b04/b04-create-390.png",
+      "sha256": "44547fea8f779405bed13fcdcd9cc39ba8414c55b85d9ab45647e11c4a81d4c5",
+      "bytes": 239007,
+      "width": 390,
+      "height": 4093
+    },
+    {
+      "group": "b04",
+      "path": "ui-screenshots/b04/b04-create-viewport-390.png",
+      "source": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/omnis-p03-e2e/b04/b04-create-viewport-390.png",
+      "sha256": "fd3244049a984f11ad33b5fbed25d9ba03948cc17a8bca3abe307c8342d052c4",
+      "bytes": 74908,
+      "width": 390,
+      "height": 900
+    },
+    {
+      "group": "b04",
+      "path": "ui-screenshots/b04/b04-review-1440.png",
+      "source": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/omnis-p03-e2e/b04/b04-review-1440.png",
+      "sha256": "d917ba95dfe8c7c11b7492db1927607ea71fae99dfbb30bdbb79ae1d40b875ee",
+      "bytes": 239237,
+      "width": 1440,
+      "height": 1702
+    },
+    {
+      "group": "b04",
+      "path": "ui-screenshots/b04/b04-review-390.png",
+      "source": "/home/kali/.hermes/cache/scratch/sb04-FG6u44/omnis-p03-e2e/b04/b04-review-390.png",
+      "sha256": "bcf7558892b093ca01c2c52ea8cec130a3a8a60db29bd7d31316f31940cd2e1b",
+      "bytes": 193273,
+      "width": 390,
+      "height": 2825
+    }
+  ],
+  "screenshot_counts": {
+    "ui4": 29,
+    "b04": 4
+  },
+  "limits": [
+    "UI4 is owned synthetic-TLS/API/PostgreSQL, not provider-live; B04 is inert draft persistence with no target execution.",
+    "Screenshots/automated browser checks are not fresh aesthetic approval or screen-reader/all-browser certification.",
+    "Full-page skip-link capture alone does not establish live occlusion; unpaired capture remains inconclusive."
+  ]
+}

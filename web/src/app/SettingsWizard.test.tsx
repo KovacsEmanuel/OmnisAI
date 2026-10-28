@@ -1,19 +1,20 @@
 import { StrictMode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { catalogId, configured, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 import type { ModelEntry } from '../features/engagement/SettingsModels';
 import type { EntryTestView } from '../shared/api/modelTest';
-import { remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
+import { catalogStorage, pendingStorage, remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
 beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
 function mount(strict = false) {
-  const app = <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, networkMode: 'always' } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>;
-  return render(strict ? <StrictMode>{app}</StrictMode> : app);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, networkMode: 'always' } } });
+  const app = <QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>;
+  return { ...render(strict ? <StrictMode>{app}</StrictMode> : app), client };
 }
 async function wizard() { await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await screen.findByLabelText('Search models'); await screen.findByRole('button', { name: 'Add Catalog/00' }); return screen.getByRole('region', { name: 'Add models wizard' }); }
 async function review() { const button = screen.getByRole('button', { name: 'Continue' }); await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true')); fireEvent.click(button); return screen.findByRole('button', { name: 'Save models' }); }
@@ -471,7 +472,50 @@ it('catalog lost reply has receive-only recovery after closing its wizard', asyn
   hook.intercept = (path, _body, method) => { if (path.endsWith('/refresh') && method === 'POST') throw new TypeError('SOURCE lost catalog response'); return undefined; };
   mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
   await screen.findByRole('button', { name: 'Read catalog status' }); fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); fireEvent.click(screen.getByRole('button', { name: 'Read catalog status' }));
-  await screen.findByText('Catalog READY. No new refresh sent.'); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('refresh'); expect(catalogId).not.toBe('');
+  await screen.findByText('Catalog READY.'); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('refresh'); expect(catalogId).not.toBe('');
+});
+it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('catalog readback %s expires only success at five seconds without clearing safety state or resending', async status => {
+  const { state, hook } = settingsBackend();
+  const scope = await sessionScope(session.csrf_token);
+  remember(catalogStorage, scope, { id: catalogId, connection: entry.connection_id, revision: entry.connection_revision });
+  remember(pendingStorage, scope, { kind: 'models', id: entryId });
+  const pending = sessionStorage.getItem(pendingStorage);
+  const reason = status === 'PARTIAL' ? 'CATALOG_LIMIT' : status === 'FAILED' ? 'METADATA_UNAVAILABLE' : null;
+  hook.intercept = (path, body) => {
+    if (!path.endsWith('/search') || body.catalog_command_id !== catalogId) return;
+    if (status === 'UNKNOWN') throw new TypeError('SOURCE lost catalog readback');
+    return Response.json({ schema_version: 1, connection_id: entry.connection_id, connection_revision: entry.connection_revision, provider: 'openrouter', catalog_command_id: catalogId, state: status, reason, query: '', offset: 0, next_offset: null, total: 0, entries: [] });
+  };
+  const mounted = mount();
+  try {
+    const list = await screen.findByRole('region', { name: 'Configured models' });
+    expect(within(list).getByText('Not tested')).toBeVisible();
+    vi.useFakeTimers();
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Read catalog status' })); });
+    const notice = screen.getByText(/^Catalog (READY|PARTIAL|FAILED|PENDING|status unconfirmed)/);
+    const text = notice.textContent;
+    expect(notice).toBeVisible();
+    if (reason) expect(notice).toHaveTextContent(reason);
+    await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
+    expect(notice).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+    if (status === 'READY') expect(notice).not.toBeInTheDocument();
+    else { expect(notice).toBeVisible(); expect(notice.textContent).toBe(text); }
+    const notification = screen.getByRole('complementary', { name: 'Settings notification' });
+    expect(notification).toHaveTextContent(`Outcome unknown. Command ${entryId}. Recover its exact receipt before another mutation.`);
+    expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
+    expect(within(notification).getByRole('button', { name: 'Read current state' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Add models' })).toBeDisabled();
+    if (status === 'PENDING' || status === 'UNKNOWN') {
+      expect(screen.getByRole('region', { name: 'Catalog recovery' })).toHaveTextContent(catalogId);
+      expect(screen.getByRole('button', { name: 'Read catalog status' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Cancel catalog' })).toBeEnabled();
+    }
+    expect(within(list).getByText('Not tested')).toBeVisible();
+    expect(sessionStorage.getItem(pendingStorage)).toBe(pending);
+    expect(state.entries).toEqual([entry]); expect(state.keys).toEqual(configured);
+    expect(state.writes).toHaveLength(0);
+  } finally { mounted.unmount(); mounted.client.clear(); vi.useRealTimers(); }
 });
 it('explicitly updates a stale saved identity after key rotation instead of duplicating it', async () => {
   const { state } = settingsBackend({ ...configured, connections: configured.connections.map(item => ({ ...item, revision: 2 })) }, [entry]);

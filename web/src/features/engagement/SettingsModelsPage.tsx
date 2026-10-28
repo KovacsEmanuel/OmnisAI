@@ -167,7 +167,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const snapshot = catalogOperation, signal = lifetime.current.signal;
     try {
       const value = await readPrivate(() => cancel ? api.cancelProviderCatalog({ action: 'cancel', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, command_id: crypto.randomUUID() }, session.data!.csrf_token, signal) : api.providerCatalog({ action: 'search', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, query: '', offset: 0 }, session.data!.csrf_token, signal), signal);
-      setCatalogNotice(`Catalog ${value.state}${value.reason ? ' · ' + value.reason : ''}. No new refresh sent.`);
+      setCatalogNotice(value.state === 'READY' && value.reason === null ? 'Catalog READY.' : `Catalog ${value.state}${value.reason ? ' · ' + value.reason : ''}. No new refresh sent.`);
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); }
       await client.invalidateQueries({ queryKey: ['private', 'settings-catalog'] });
     } catch (error) { if (!signal.aborted) setCatalogNotice(`Catalog status unconfirmed. Keep operation ${snapshot.id}. ${message(error)}`); }

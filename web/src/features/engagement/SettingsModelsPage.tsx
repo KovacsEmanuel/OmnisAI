@@ -73,7 +73,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     retry: false, gcTime: 0, refetchOnWindowFocus: false,
     refetchInterval: state => state.state.data?.state && !['FINISHED', 'NEEDS_RECONCILIATION'].includes(state.state.data.state) ? 750 : false });
   const observed = test.data;
-  const activeTest = connecting || (!!operation && (!observed || observed.state !== 'FINISHED' || testUnknown || test.isError)) || Object.values(data?.checks ?? {}).some(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
+  const operationPending = !!operation && (!observed || observed.state !== 'FINISHED' || testUnknown || test.isError);
+  const activeTest = connecting || operationPending || Object.values(data?.checks ?? {}).some(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
   const blocked = !authReady || stale || (!!pending && !sending) || current.isError || !data;
   const busy = sending || reading || current.isFetching;
   useEffect(() => {
@@ -196,10 +197,19 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       if (!signal.aborted) updateCheck(value.entry_id, latest);
     } catch (error) {
       if (signal.aborted) return;
+      continuation.current?.abort();
       if (!cancel && error instanceof ApiError && error.code === 'NOT_FOUND' && refusedTest === id) {
         remember(testStorage, scope, null); remember(testStorage + '-refused', scope, null); setOperation(null); setRefusedTest(null); setTestUnknown(false); setNotice('Test was not admitted. A new test requires new consent.');
       } else { setTestUnknown(true); setNotice('UNKNOWN — keep the same operation ID. No test was resent.'); }
     }
+  }
+  function checkSelectionBlocked(check: EntryCheck | undefined) {
+    return (sending || connecting || operationPending) && !(check && check !== 'UNKNOWN' && check.operation_id === operation);
+  }
+  function readCheck(check: EntryCheck | undefined) {
+    if (check && check !== 'UNKNOWN' && check.operation_id === operation) { void readTest(); return; }
+    if (mutationBusy.current || continuation.current || checkSelectionBlocked(check)) return;
+    if (check && check !== 'UNKNOWN') { setOperation(check.operation_id ?? null); setTestUnknown(false); } else void readCurrent();
   }
   async function connectEntries(entries: ModelEntry[], catalog: string, provider: Connection['provider']) {
     const controller = new AbortController(); continuation.current = controller; setConnecting(true);
@@ -282,7 +292,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       {data.settings.connections.map(connection => <section className={styles.connection} key={connection.connection_id} aria-label={providerName(connection.provider)}>
         <div className={styles.connectionHeading}><h3>{providerName(connection.provider)}</h3><small>{!connection.enabled ? 'Connection disabled' : connection.credential_present ? 'Key saved' : 'Key unavailable — vault locked'}</small>
         </div>
-        <ul className={styles.list}>{data.library.entries.filter(entry => entry.connection_id === connection.connection_id).map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id])}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} onClick={() => { const check = data.checks[entry.entry_id]; if (check && check !== 'UNKNOWN') { setOperation(check.operation_id ?? null); setTestUnknown(false); } else void readCurrent(); }}>Read check</button>}</li>)}</ul>
+        <ul className={styles.list}>{data.library.entries.filter(entry => entry.connection_id === connection.connection_id).map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id])}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} disabled={checkSelectionBlocked(data.checks[entry.entry_id])} onClick={() => readCheck(data.checks[entry.entry_id])}>Read check</button>}</li>)}</ul>
           <details><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} onClick={() => { if (window.confirm(`${connection.enabled ? 'Replace the key for' : 'Reconnect'} ${providerName(connection.provider)}? Saved checks and assignments keep their original revision.`)) open(connection.provider, true); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={sending} onClick={() => {
             if (sending || !window.confirm(`Disable ${providerName(connection.provider)}? Saved models and history remain. This does not revoke the upstream key.`)) return;
             if (wizard?.provider === connection.provider) closeWizard(false);

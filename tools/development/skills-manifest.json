@@ -2,7 +2,7 @@
   "count": 13,
   "scope": "Current project-local DEVELOPMENT skill inventory; not a product runtime catalog",
   "base_commit": "837970d8e29811eb0f9ef4612aab9b90ea3c4b8e",
-  "qualification": "PASS_SCOPED: fresh installed native discovery/read/scanner on exact SKILL and support bytes; caution retained/adjudicated; not product runtime or future model compliance",
+  "qualification": "PARTIAL_CURRENT: unchanged entries retain exact-snapshot native qualification; modified omnis-api-data is NOT_RUN for fresh native/scanner qualification. Prior tested hash/evidence retained, not transferred to changed bytes; not product runtime or future model compliance",
   "skills": [
     {
       "name": "omnis-accessibility",
@@ -30,9 +30,9 @@
       "name": "omnis-api-data",
       "version": "0.1.29",
       "path": ".hermes/skills/omnis-api-data/SKILL.md",
-      "sha256": "2531deb4f23868526304ca8b2c93e1691ba35c9961cd08150005c455436724d9",
-      "native_read": "PASS",
-      "scanner_verdict": "safe",
+      "sha256": "9e0cdf29cebf05db99fac516ecfcd5dbab0801b59d68b9c9b3daed2b3bdeeb7f",
+      "native_read": "NOT_RUN",
+      "scanner_verdict": "NOT_RUN",
       "tested_sha256": "2531deb4f23868526304ca8b2c93e1691ba35c9961cd08150005c455436724d9",
       "checked_at_utc": "2026-10-21T21:25:40.707726+00:00",
       "evidence": "documents/verification/api-key-migration-evidence/governance-native-load.json"

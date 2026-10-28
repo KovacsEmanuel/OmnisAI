@@ -97,8 +97,13 @@ def open_verified(*, expected: dict[str, object] | None = None, as_json: bool = 
                     sort_keys=True,
                 )
             )
-        else:
+        elif outcome == "BROWSER_NOT_INVOKED":
             print(f"{reason}: fără deschidere de browser.", file=sys.stderr)
+        else:
+            print(
+                f"{reason}: {outcome}; fereastra/sesiunea și starea instanței nu sunt verificate.",
+                file=sys.stderr,
+            )
         return code
     if as_json:
         print(json.dumps({**(expected or ready), "browser_outcome": outcome}, sort_keys=True))

@@ -498,6 +498,58 @@ class BrowserTest(unittest.TestCase):
             opener.assert_called_once_with(ready["origin"])
             issuer.assert_not_called()
 
+    def test_human_readback_error_preserves_whether_opener_returned(self):
+        from omnis_cli import browser
+        from omnis_cli.lifecycle import StartError
+
+        ready = {"state": "READY", "origin": "http://127.0.0.1:8989", "reused": True}
+        for args in ([], ["start"], ["open"]):
+            for failure, code, reason in (
+                (OSError("secret-canary"), 3, "READINESS_UNAVAILABLE"),
+                (ValueError("secret-canary"), 3, "READINESS_UNAVAILABLE"),
+                (StartError("INSTANCE_CHANGED", 4), 4, "INSTANCE_CHANGED"),
+            ):
+                for outcome in (
+                    "BROWSER_NOT_INVOKED",
+                    "BROWSER_LAUNCH_ACCEPTED",
+                    "BROWSER_LAUNCH_UNCONFIRMED",
+                    "BROWSER_LAUNCH_FAILED",
+                    "BROWSER_UNAVAILABLE",
+                ):
+
+                    @contextlib.contextmanager
+                    def verified(outcome=outcome, failure=failure):
+                        if outcome == "BROWSER_NOT_INVOKED":
+                            raise failure
+                        yield ready, Path("/private")
+                        raise failure
+
+                    with (
+                        self.subTest(args=args, failure=type(failure).__name__, outcome=outcome),
+                        patch("omnis_cli.main.start_result", return_value=(0, ready)),
+                        patch("omnis_cli.main.pair") as issuer,
+                        patch.object(browser, "verified_instance", side_effect=verified),
+                        patch.object(browser, "launch", return_value=outcome) as opener,
+                        contextlib.redirect_stdout(io.StringIO()) as output,
+                        contextlib.redirect_stderr(io.StringIO()) as error,
+                    ):
+                        self.assertEqual(main(args), code)
+                        self.assertEqual(output.getvalue(), "")
+                        self.assertNotIn("secret-canary", error.getvalue())
+                        issuer.assert_not_called()
+                        if outcome == "BROWSER_NOT_INVOKED":
+                            opener.assert_not_called()
+                            self.assertEqual(
+                                error.getvalue(), f"{reason}: fără deschidere de browser.\n"
+                            )
+                        else:
+                            opener.assert_called_once_with(ready["origin"])
+                            self.assertEqual(
+                                error.getvalue(),
+                                f"{reason}: {outcome}; fereastra/sesiunea și starea instanței "
+                                "nu sunt verificate.\n",
+                            )
+
     def test_implicit_fresh_tty_issues_code_before_open(self):
         class Tty(io.StringIO):
             def isatty(self):

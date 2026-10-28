@@ -102,7 +102,16 @@
       "limits": "Working development setup verified scoped, not closure of all requested cleanup or new authenticated operator imagery. Canonical TIMEOUT/BLOCKED_BUDGET and default check-web FAIL/causeUNKNOWN unchanged. One harness-only repair retained, then real consumer PASS; no framework or budget widening. New dependencies/schema/Stop protocol require explicit compatible transition. T2 not started/closed; separate mandate/gates remain."
     },
     "paused_followup": {
-      "status": "CLI639530e_ACCEPTED_LOCAL_SCOPED; SETTINGS_SLICE_ADMITTED; OPERATOR_STOPPED15",
+      "status": "SETTINGS40b7037_CANDIDATE_NOT_ACCEPTED_IN_REVIEW; CLI639530e_ACCEPTED_LOCAL_SCOPED; OPERATOR_STOPPED15",
+      "settings_candidate": {
+        "commit": "40b7037",
+        "files": 22,
+        "freeze_sha256": "0b07c9ca4cb66eb9c2f22f3320df5ec00faa7ba42b667a3c1d1246672a187163",
+        "source": "API24PASS; web133affected/10filesPASS; lint/type/contracts/tooling6/build0. Entrylatestread/finitesequence/compactUI implementedthroughexistingowners; no migration/newdependency. Parentverified22hashes andexplicitobsoleteassertionRED; preserved20productbytes through2testfixturefixes.",
+        "default_gate": "FAIL:238PASS2FAIL ProviderKeySettings/Wizardinitialloading, then239PASS1FAIL Engagementinitialloading. Unchangedworkers/timeouts/selection; targeted2PASS notgate. CauseUNKNOWN; no thirdfullretry. Baseline212PASS beforechanges remains historical.",
+        "review_qa": "Two independentcomplementary frozenreviews active, plusboundedread-onlydefaultgate diagnosis. ActualPG/browsercasewritten/collected only. Pins/browserexecutable/sharedlibraries/PGimage no-effectpreflightPASS; no fixture provisioned. Nativeoperatorrollout/newUIvisuals/twoapprovedpaidcalls NOT_RUN.",
+        "limits": "Candidatecommit isnotacceptance. ParentraisedpossibleglobalStop/restart continuation-authoritygap forR2adjudication, notyetconfirmedfinding; no proposedbypass orqueue. Originalfailures remain. OperatorSTOPPED15 preventsservingunfinishedAPI."
+      },
       "cli_delivery": {
         "commits": ["bc5ae4e9bef5f5e78fd87e6e2bea995bbb5a90b2", "639530eeca849392633e824470b7711a086158f8"],
         "review": "Two complementary originalreviews, thenfocusedindependentclosure ofnon-authority humantextdelta; R1-CLI-01/R2-F01 CLOSED_SOURCE_SCOPED. Originalchangesrequested/reproducers preserved; JSONstaleprojection parentalfinding alsofixed/tested beforeinitialreview.",

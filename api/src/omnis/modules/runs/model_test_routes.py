@@ -86,8 +86,10 @@ async def control_exchange(command: ModelTestControl | CatalogControl) -> dict[s
                 return {"status": "PREPARED_RESTART_REQUIRED"}
             if command.op == "entry_model_test":
                 exact = EntryTestView.model_validate(response.get("entry_model_test"))
-                if exact.operation_id != command.operation_id:
-                    raise ValueError("Operation mismatch")
+                if (
+                    command.operation_id is not None and exact.operation_id != command.operation_id
+                ) or (command.entry_id is not None and exact.entry_id != command.entry_id):
+                    raise ValueError("Entry or operation mismatch")
                 return exact.model_dump(mode="json")
             result = ModelTestView.model_validate(response.get("model_test"))
             if (
@@ -119,12 +121,16 @@ async def result(command: ModelTestControl, request: Request) -> ModelTestView |
         raw = await control_exchange(command)
         if command.op == "entry_model_test":
             exact = EntryTestView.model_validate(raw)
-            if exact.operation_id != command.operation_id or (
-                command.action == "start"
-                and (
-                    exact.entry_id != command.entry_id
-                    or exact.entry_revision != command.expected_entry_revision
-                    or exact.connection_revision != command.expected_connection_revision
+            if (
+                (command.operation_id is not None and exact.operation_id != command.operation_id)
+                or (command.entry_id is not None and exact.entry_id != command.entry_id)
+                or (
+                    command.action == "start"
+                    and (
+                        exact.entry_id != command.entry_id
+                        or exact.entry_revision != command.expected_entry_revision
+                        or exact.connection_revision != command.expected_connection_revision
+                    )
                 )
             ):
                 raise ValueError("Exact test context mismatch")
@@ -177,6 +183,19 @@ async def start_entry_test(
             {"op": "entry_model_test", "action": "start", **body.model_dump()}
         ),
         request,
+    )
+
+
+@router.get(
+    "/entries/latest/{entry_id}",
+    response_model=EntryTestView,
+    responses=error_responses(401, 404, 422, 503),
+)
+async def read_latest_entry_test(
+    entry_id: Identity, request: Request
+) -> ModelTestView | JSONResponse:
+    return await result(
+        ModelTestControl(op="entry_model_test", action="read", entry_id=entry_id), request
     )
 
 

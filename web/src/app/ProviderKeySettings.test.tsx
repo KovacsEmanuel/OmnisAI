@@ -115,7 +115,15 @@ it.each([false, true])('assignment save preserves focused action or moved focus=
 it('disabling an open connection invalidates its wizard and keeps saved identities/history', async () => {
   const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
   await screen.findByText('Connection disabled'); expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(screen.getByRole('region', { name: 'Configured models' })).toHaveTextContent(entry.model); expect(state.entries).toHaveLength(1);
-  const mounted = screen.getByRole('region', { name: 'Configured models' }); expect(within(mounted).getByRole('button', { name: '+ Add model' })).toBeDisabled(); expect(state.writes).toHaveLength(1);
+  const mounted = screen.getByRole('region', { name: 'Configured models' }); expect(within(mounted).queryByRole('button', { name: '+ Add model' })).not.toBeInTheDocument(); expect(within(mounted).getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
+  expect(state.entries).toEqual([entry]); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('revoke_connection');
+});
+it('initial latest-entry absence is Not tested rather than an error and sends no writes', async () => {
+  const { state } = settingsBackend(); mount();
+  const list = await screen.findByRole('region', { name: 'Configured models' });
+  expect(within(list).getByText('Not tested')).toBeVisible(); expect(within(list).queryByText('Unconfirmed')).not.toBeInTheDocument();
+  expect(within(list).queryByRole('button', { name: 'Read check for Exact/Model' })).not.toBeInTheDocument();
+  expect(state.reads).toContain('/api/v1/model-test/entries/latest/' + entryId); expect(state.writes).toHaveLength(0);
 });
 it('loads every one of 64 saved entries across four revision-bound pages and dedupes per connection', async () => {
   const entries = Array.from({ length: 64 }, (_, i) => ({ ...entry, entry_id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`, model: `Exact/${String(i).padStart(3, '0')}` }));

@@ -11,23 +11,23 @@ import type { Connection, Library, ModelEntry } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 export type ModelDraft = { entry_id: string; expected_revision: number; model: string; name: string; output_tokens: number; known: boolean };
-export function SettingsModelWizard({ settings, library, provider: initialProvider, replace = false, skipConnection = false, blocked, working, canTest, close, saveKey, refresh, saveModels }: {
-  settings: KeySettings; library: Library; provider: Connection['provider']; replace?: boolean | undefined; skipConnection?: boolean | undefined;
+export function SettingsModelWizard({ settings, library, provider: initialProvider, replace = false, blocked, working, canTest, close, saveKey, refresh, saveModels }: {
+  settings: KeySettings; library: Library; provider: Connection['provider']; replace?: boolean | undefined;
   blocked: boolean; working: boolean; canTest: boolean; close: () => void;
   saveKey: (provider: Connection['provider'], connection: Connection | undefined, secret: string) => Promise<Connection | undefined>;
   refresh: (connection: Connection) => Promise<CatalogView | undefined>;
-  saveModels: (payload: SaveModels, test: { model: string; catalog: string } | null) => Promise<ModelEntry[] | undefined>;
+  saveModels: (payload: SaveModels, test: { catalog: string } | null) => Promise<ModelEntry[] | undefined>;
 }) {
   const { session, readPrivate } = useSession();
   const [provider, setProvider] = useState(initialProvider);
-  const [step, setStep] = useState(skipConnection ? 1 : 0);
+  const [step, setStep] = useState(0);
   const [replacing, setReplacing] = useState(replace);
   const [chosen, setChosen] = useState<ModelDraft[]>([]);
   const [query, setQuery] = useState('');
   const [offset, setOffset] = useState(0);
   const [catalogId, setCatalogId] = useState<string | null>(null);
   const [manual, setManual] = useState('');
-  const [testChoice, setTestChoice] = useState('');
+
   const [consent, setConsent] = useState(false);
   const [validKey, setValidKey] = useState(false);
   const [notice, setNotice] = useState('');
@@ -49,7 +49,7 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
     enabled: step > 0 && savedKey && !stale && !blocked && !!session.data, retry: false, gcTime: 0,
     refetchOnWindowFocus: false, refetchOnReconnect: false,
     refetchInterval: state => state.state.data?.state === 'PENDING' ? 750 : false });
-  useEffect(() => { alive.current = true; heading.current?.focus(); return () => { alive.current = false; if (keyNode.current) keyNode.current.value = ''; }; }, []);
+  useEffect(() => { alive.current = true; heading.current?.focus({ preventScroll: true }); return () => { alive.current = false; if (keyNode.current) keyNode.current.value = ''; }; }, []);
   useEffect(() => { if (locked && keyInput.current) { keyInput.current.value = ''; setValidKey(false); } }, [locked]);
   const view = catalog.data;
 
@@ -72,7 +72,8 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
   }
   async function next() {
     if (locked || transient || busy.current) return;
-    if (step === 1) { if (chosen.length) { setStep(2); setConsent(false); } return; }
+    if (step === 1) { if (chosen.length) { setStep(2); setConsent(false); heading.current?.focus({ preventScroll: true }); } return; }
+    const focused = document.activeElement;
     busy.current = true; setLoading(true); setNotice('');
     let secret = keyInput.current?.value ?? ''; wipe();
     try {
@@ -83,6 +84,7 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
         secret = '';
       }
       if (!alive.current || !nextConnection) return;
+      if (document.activeElement === focused) heading.current?.focus({ preventScroll: true });
       setPinned(nextConnection); setReplacing(false); setStep(1);
       await load(nextConnection);
     } finally { secret = ''; busy.current = false; if (alive.current) setLoading(false); }
@@ -93,14 +95,14 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
     if (!previous && library.entries.length + chosen.filter(item => item.expected_revision === 0).length >= 64) { setNotice('The instance is limited to 64 configured models.'); return; }
     const detail = verified ? view?.entries.find(item => item.model === model) : undefined;
     if (detail && view?.catalog_command_id) selectedMetadata.current.set(model, { max_output_tokens: detail.max_output_tokens ?? null, supports_max_tokens: detail.supports_max_tokens ?? null, catalog: view.catalog_command_id });
-    setChosen([...chosen, { entry_id: previous?.entry_id ?? crypto.randomUUID(), expected_revision: previous?.revision ?? 0, model, name, output_tokens: previous?.output_tokens ?? Math.min(detail?.max_output_tokens ?? 128, 128), known: verified }]); setTestChoice(previous => previous || model); setConsent(false);
+    setChosen([...chosen, { entry_id: previous?.entry_id ?? crypto.randomUUID(), expected_revision: previous?.revision ?? 0, model, name, output_tokens: previous?.output_tokens ?? Math.min(detail?.max_output_tokens ?? 128, 128), known: verified }]); setConsent(false);
   }
   async function save(test: boolean) {
-    if (locked || transient || busy.current || !connection || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536) || (test && (!canTest || !consent || !testable.some(item => item.model === testChoice) || !view?.catalog_command_id))) return;
+    if (locked || transient || busy.current || !connection || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536) || (test && (!canTest || !consent || testable.length !== chosen.length || !view?.catalog_command_id))) return;
     busy.current = true; setLoading(true);
     try {
       const result = await saveModels({ action: 'save_models', command_id: crypto.randomUUID(), expected_registry_revision: library.revision, connection_id: connection.connection_id, connection_revision: connection.revision,
-        models: chosen.map(item => ({ entry_id: item.entry_id, expected_revision: item.expected_revision, model: item.model, output_tokens: item.output_tokens })) }, test ? { model: testChoice, catalog: view!.catalog_command_id! } : null);
+        models: chosen.map(item => ({ entry_id: item.entry_id, expected_revision: item.expected_revision, model: item.model, output_tokens: item.output_tokens })) }, test ? { catalog: view!.catalog_command_id! } : null);
       if (alive.current && result) close();
     } finally { busy.current = false; if (alive.current) setLoading(false); }
   }
@@ -128,15 +130,15 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
     </>}
     {step === 2 && <><p>{providerName(provider)} · Saved key</p><ul className={`${styles.list} ${styles.review}`}>{chosen.map(item => <li key={item.model} className={styles.row}><div className={styles.identity}><strong>{item.name}</strong><small className={styles.mono}>{item.model}</small><small>{item.known ? 'Not tested' : 'UNVERIFIED — manual model ID'}</small></div></li>)}</ul>
       <p className={styles.hint}>{settings.selection ? 'Default and role overrides stay unchanged.' : 'No Default assigned. Save assignments after adding models.'}</p>
-      <label className={styles.field}>Model to test<select value={testChoice} onChange={event => { setTestChoice(event.target.value); setConsent(false); }}><option value="">Choose one model</option>{testable.map(item => <option key={item.model} value={item.model}>{item.name} · {item.model}</option>)}</select></label>
-      {!testable.length && <p className={styles.hint}>Model details unavailable. Save now; refresh the catalog before testing.</p>}
-      <label className={styles.check}><input type="checkbox" checked={consent} disabled={locked || !canTest || !testable.some(item => item.model === testChoice)} onChange={event => setConsent(event.target.checked)} />I approve the fixed synthetic input and one call for {testChoice || 'one selected model'} via {providerName(provider)}. Provider charges may apply.</label>
+      {testable.length !== chosen.length && <p className={styles.hint}>Some model details are unavailable. Save models now; connect after refreshing their details.</p>}
+      <label className={styles.check}><input type="checkbox" checked={consent} disabled={locked || !canTest || testable.length !== chosen.length} onChange={event => setConsent(event.target.checked)} />I approve the fixed synthetic input and up to {chosen.length} {chosen.length === 1 ? 'call' : 'calls'}, one per listed model via {providerName(provider)}. Provider charges may apply.</label>
       {!canTest && <p className={styles.hint}>A test is active or unconfirmed. Cancel and readback remain available outside this wizard.</p>}
       <p className={styles.hint}>One call / 300 seconds, no tools or target traffic. Cancel is not a refund.</p>
+      <details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details>
       <details><summary>Output controls</summary><p className={styles.hint}>Output caps are not a total run budget.</p><div className={styles.fields}>{chosen.map(item => <label className={styles.field} key={item.model}>{item.model} output tokens<input type="number" min={1} max={65536} step={1} value={item.output_tokens} onChange={event => { setChosen(chosen.map(value => value.model === item.model ? { ...value, output_tokens: Number(event.target.value) } : value)); setConsent(false); }} /></label>)}</div></details>
     </>}
     <div className={styles.actions}>{step > 0 && <button type="button" className={styles.secondary} aria-disabled={transient} onClick={() => { if (!transient) setStep(step - 1); }}>Back</button>}<div className={styles.forward}>
-      {step < 2 ? <button type="button" disabled={locked || (step === 0 && !savedKey && !validKey && !transient) || (step === 1 && !chosen.length)} aria-disabled={transient} aria-busy={transient} onClick={() => { void next(); }}>Continue</button> : <><button type="button" className={styles.secondary} disabled={locked || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536)} aria-disabled={transient} onClick={() => { void save(false); }}>Save models</button><button type="button" disabled={locked || !canTest || !consent || !testable.some(item => item.model === testChoice)} aria-disabled={transient} onClick={() => { void save(true); }}>Save &amp; test</button></>}
+      {step < 2 ? <button type="button" disabled={locked || (step === 0 && !savedKey && !validKey && !transient) || (step === 1 && !chosen.length)} aria-disabled={transient} aria-busy={transient} onClick={() => { void next(); }}>Continue</button> : <><button type="button" className={styles.secondary} disabled={locked || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536)} aria-disabled={transient} onClick={() => { void save(false); }}>Save models</button><button type="button" disabled={locked || !canTest || !consent || testable.length !== chosen.length} aria-disabled={transient} onClick={() => { void save(true); }}>Save &amp; connect</button></>}
     </div></div>
   </div></section>;
 }

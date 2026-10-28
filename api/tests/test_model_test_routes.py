@@ -15,6 +15,68 @@ from omnis.security.sessions import SessionStore
 
 
 @pytest.mark.asyncio
+async def test_latest_entry_read_security_context_and_absence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from omnis.modules.runs import model_test_routes as routes
+    from omnis.modules.runs.model_test_contract import EntryTestView
+    from omnis.modules.runs.model_test_store import ModelConflict
+    from omnis.security import host_origin
+
+    readiness = AsyncMock(return_value=None)
+    monkeypatch.setattr(host_origin, "readiness_reason", readiness)
+    monkeypatch.setattr(
+        SessionStore, "authenticate", AsyncMock(return_value=SimpleNamespace(csrf="a" * 64))
+    )
+    entry, operation = str(uuid4()), str(uuid4())
+    view = EntryTestView(
+        operation_id=operation,
+        entry_id=entry,
+        entry_revision=1,
+        connection_id=str(uuid4()),
+        connection_revision=1,
+        current=True,
+        state="FINISHED",
+        state_revision=3,
+        result_state="COMPLETED",
+        requested_provider="openrouter",
+        requested_model="Exact/model",
+        requested_output_tokens=128,
+    )
+    exchange = AsyncMock(return_value=view.model_dump(mode="json"))
+    monkeypatch.setattr(routes, "control_exchange", exchange)
+    path = f"/api/v1/model-test/entries/latest/{entry}"
+    headers = {"Cookie": "omnis_session=synthetic", "Origin": "http://127.0.0.1:8765"}
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app()), base_url="http://127.0.0.1:8765"
+    ) as client:
+        for altered, status in (
+            ({"Host": "foreign.invalid"}, 400),
+            ({"Origin": "https://foreign.invalid"}, 403),
+            ({"Cookie": ""}, 401),
+        ):
+            assert (await client.get(path, headers={**headers, **altered})).status_code == status
+        assert (await client.get(path + "?entry_id=other", headers=headers)).status_code == 400
+        readiness.return_value = "unavailable"
+        assert (await client.get(path, headers=headers)).status_code == 503
+        readiness.return_value = None
+        exchange.assert_not_awaited()
+        response = await client.get(path, headers=headers)
+        assert response.status_code == 200
+        assert response.json() == view.model_dump(mode="json")
+        assert response.headers["cache-control"] == "no-store"
+        assert exchange.await_args is not None
+        command = exchange.await_args.args[0]
+        assert command.op == "entry_model_test" and command.action == "read"
+        assert command.entry_id == entry and command.operation_id is None
+        exchange.return_value = {**view.model_dump(mode="json"), "entry_id": str(uuid4())}
+        assert (await client.get(path, headers=headers)).status_code == 503
+        exchange.side_effect = ModelConflict("NOT_FOUND")
+        missing = await client.get(path, headers=headers)
+        assert missing.status_code == 404 and missing.json()["error"]["code"] == "NOT_FOUND"
+
+
+@pytest.mark.asyncio
 async def test_instance_test_requires_no_saved_engagement(monkeypatch: pytest.MonkeyPatch) -> None:
     from omnis.modules.runs import model_test_routes as routes
     from omnis.security import host_origin

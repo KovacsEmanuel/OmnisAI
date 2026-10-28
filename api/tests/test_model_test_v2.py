@@ -208,6 +208,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     ui_writes: list[tuple[str, int]] = []
     ui_refreshes: list[int] = []
     ui_starts: list[int] = []
+    ui_admitted: list[str] = []
     ui_key_command: str | None = None
     ui_key_receipt = False
     tasks: set[asyncio.Task[None]] = set()
@@ -304,17 +305,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                 else:
                     assert first == "POST /api/v1/chat/completions HTTP/1.1"
                     data = json.loads(body)
-                    assert (
-                        data["model"]
-                        == (
-                            "fixture/selected"
-                            if scenario == "entry_catalog"
-                            else "fixture/02"
-                            if scenario == "settings_ui"
-                            else "fixture/model"
+                    if scenario == "settings_ui":
+                        assert data["model"] in {"fixture/02", "fixture/03"}
+                    else:
+                        assert data["model"] == (
+                            "fixture/selected" if scenario == "entry_catalog" else "fixture/model"
                         )
-                        and data["max_tokens"] == 64
-                    )
+                    assert data["max_tokens"] == 64
                     assert data["provider"] == {
                         "allow_fallbacks": False,
                         "require_parameters": True,
@@ -323,7 +320,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "id": "synthetic-protocol-not-provider-live",
                         "object": "chat.completion",
                         "created": 0,
-                        "model": "fixture/observed",
+                        "model": data["model"] if scenario == "settings_ui" else "fixture/observed",
                         "choices": [
                             {
                                 "index": 0,
@@ -516,8 +513,18 @@ async def test_api_pg_sdk_protocol_and_replay(
                 commands.append(command)
                 if scenario == "settings_ui" and command.action == "start":
                     ui_starts.append(len(received))
+                    if ui_admitted:
+                        previous = await owner.view(ui_admitted[-1], entry=True)
+                        assert (
+                            previous["state"] == "FINISHED"
+                            and previous["result_state"] == "COMPLETED"
+                        )
                 try:
-                    return await owner.handle(command)
+                    value = await owner.handle(command)
+                    if scenario == "settings_ui" and command.action == "start":
+                        assert command.operation_id is not None
+                        ui_admitted.append(command.operation_id)
+                    return value
                 except ValidationError as error:
                     print(error.errors(include_input=False, include_url=False))
                     raise
@@ -567,10 +574,19 @@ async def test_api_pg_sdk_protocol_and_replay(
                     "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
                     "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
                     "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                    "POST /api/v1/chat/completions HTTP/1.1",
                     "POST /api/v1/chat/completions HTTP/1.1",
                 ]
-                assert ui_refreshes == [0, 2, 5]
-                assert ui_starts == [4, 5]
+                assert ui_refreshes == [0, 2, 4, 8]
+                assert ui_starts == [6, 7, 8]
+                assert len(set(ui_admitted)) == 2
+                assert [
+                    json.loads(body)["model"]
+                    for first, body in received
+                    if first.startswith("POST")
+                ] == ["fixture/02", "fixture/03"]
                 assert ui_writes == [
                     ("save_connection", 0),
                     ("save_models", 2),
@@ -578,8 +594,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     ("save_selection", 2),
                     ("save_selection", 2),
                     ("save_models", 4),
-                    ("save_selection", 5),
-                    ("revoke_connection", 5),
+                    ("save_models", 6),
+                    ("save_selection", 8),
+                    ("revoke_connection", 8),
                 ]
                 async with engine.connect() as db:
                     assert (
@@ -589,7 +606,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                         await db.execute(
                             text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'")
                         )
-                    ).scalar_one() == 1
+                    ).scalar_one() == 2
+                    rows = (
+                        await db.execute(
+                            text(
+                                "SELECT operation_id::text,outcome_ref FROM system_operation ORDER BY deadline"
+                            )
+                        )
+                    ).all()
+                    assert [row[0] for row in rows] == ui_admitted
+                    assert len({row[1]["id"] for row in rows}) == 2
                     selected = await settings.selection(db)
                     assert selected is not None and selected.brain is not None
                     assert (
@@ -600,6 +626,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                         and selected.brain.output_tokens == 37
                     )
                     assert not (await settings.connections(db))[0].enabled
+                for identity in ui_admitted:
+                    historical = await owner.view(identity, entry=True)
+                    latest = await owner.handle(
+                        ModelTestControl(
+                            op="entry_model_test",
+                            action="read",
+                            entry_id=str(historical["entry_id"]),
+                        )
+                    )
+                    assert latest == historical and latest["current"] is False
+                    assert latest["state"] == "FINISHED" and latest["result_state"] == "COMPLETED"
                 return
 
             async def stop_control() -> None:
@@ -888,6 +925,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "selection"
                     ] == old_selection
                     assert (await http.get("/api/v1/model-test")).json()["operation_id"] is None
+                    latest_path = f"/api/v1/model-test/entries/latest/{entry_intent['entry_id']}"
+                    assert (await http.get(latest_path)).json() == exact
+                    absent = await http.get(f"/api/v1/model-test/entries/latest/{uuid4()}")
+                    assert (
+                        absent.status_code == 404 and absent.json()["error"]["code"] == "NOT_FOUND"
+                    )
                     async with engine.connect() as db:
                         operation_row = (
                             await db.execute(
@@ -966,6 +1009,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         and stale.json()["entries"] == []
                     )
                     historical = (await http.get(read_path)).json()
+                    assert (await http.get(latest_path)).json() == historical
                     assert (
                         historical["result_state"] == "COMPLETED" and historical["current"] is False
                     )

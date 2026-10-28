@@ -3,6 +3,7 @@ import { ApiError, isRecord, isUuid } from '../../shared/api/errors';
 import type { components } from '../../shared/api/generated';
 import type { CatalogView } from '../../shared/api/providerCatalog';
 import type { KeySettings, KeySelection } from '../../shared/api/providerKeys';
+import type { EntryTestView } from '../../shared/api/modelTest';
 
 export type ModelEntry = components['schemas']['ModelEntry'];
 export type Connection = components['schemas']['ConnectionView'];
@@ -11,6 +12,10 @@ export type Library = { revision: number; entries: ModelEntry[] };
 export type Evidence = { catalog: string; connectionRevision: number; model: CatalogModel };
 export type Pending = { id: string; kind: 'keys' | 'models' };
 export type CatalogOperation = { id: string; connection: string; revision: number };
+export type EntryCheck = EntryTestView | null | 'UNKNOWN';
+export function exactCheck(entry: ModelEntry, provider: Connection['provider'], check: EntryTestView) {
+  return check.current && check.entry_id === entry.entry_id && check.entry_revision === entry.revision && check.connection_id === entry.connection_id && check.connection_revision === entry.connection_revision && check.requested_provider === provider && check.requested_model === entry.model && check.requested_output_tokens === entry.output_tokens;
+}
 export const providerName = (provider: string) => provider === 'openrouter' ? 'OpenRouter' : 'OrcaRouter';
 export const message = (error: unknown) => error instanceof ApiError ? error.message : 'Current state is not confirmed. Read back before another action.';
 export const matches = (entry: ModelEntry, choice: KeySelection | null | undefined) => !!choice && entry.connection_id === choice.connection_id && entry.connection_revision === choice.connection_revision && entry.model === choice.model;

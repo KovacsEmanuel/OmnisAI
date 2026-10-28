@@ -83,13 +83,30 @@ async def capabilities(
 
 
 async def operation(
-    db: AsyncConnection, instance: str, identity: str | None, *, legacy_latest: bool = False
+    db: AsyncConnection,
+    instance: str,
+    identity: str | None,
+    *,
+    legacy_latest: bool = False,
+    entry_id: str | None = None,
 ) -> Operation | None:
+    # Admission fixes a 300s deadline; epochs order restarts before that same-owner clock.
+    entry_query = (
+        "SELECT o.* FROM system_operation o JOIN model_record_v2 r "
+        "ON r.instance_id=o.instance_id AND r.id::text=o.config_snapshot_ref->>'id' "
+        "AND r.kind='model-entry-snapshot-v1' "
+        "WHERE o.instance_id=:instance "
+        "AND o.config_snapshot_ref->>'kind'='model-entry-snapshot-v1' "
+        "AND r.payload->'entry'->>'entry_id'=:entry "
+        "ORDER BY o.generation DESC,o.owner_epoch DESC,o.deadline DESC,o.operation_id DESC LIMIT 1"
+    )
     row = (
         (
             await db.execute(
                 text(
-                    "SELECT * FROM system_operation WHERE instance_id=:instance "
+                    entry_query
+                    if entry_id is not None
+                    else "SELECT * FROM system_operation WHERE instance_id=:instance "
                     + (
                         "AND operation_id=:id"
                         if identity
@@ -101,7 +118,9 @@ async def operation(
                         + "ORDER BY deadline DESC LIMIT 1"
                     )
                 ),
-                {"instance": instance, "id": identity},
+                {"instance": instance, "entry": entry_id}
+                if entry_id is not None
+                else {"instance": instance, "id": identity},
             )
         )
         .mappings()

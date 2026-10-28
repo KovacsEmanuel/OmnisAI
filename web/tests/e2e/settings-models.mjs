@@ -88,16 +88,22 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     const previous = JSON.parse(await readFile(join(output, 'browser-result.json'), 'utf8'));
     assert.equal(previous.passed, true);
     assert.equal(previous.scenario, 'settings-models');
-    const operation = previous.catalog.exactTestOperation;
-    assert.match(operation, /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/);
-    const history = await page.evaluate(async id => {
-      const response = await fetch(`/api/v1/model-test/entries/${id}`);
-      if (!response.ok) throw new Error('Exact test history readback refused');
-      return response.json();
-    }, operation);
-    assert.equal(history.operation_id, operation);
-    assert.equal(history.result_state, 'COMPLETED');
-    assert.equal(history.requested_model, 'fixture/02');
+    const operations = previous.catalog.exactTestOperations;
+    assert.equal(operations.length, 2);
+    for (const saved of operations) {
+      assert.match(saved.operation_id, /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/);
+      const { history, latest } = await page.evaluate(async saved => {
+        const history = await fetch(`/api/v1/model-test/entries/${saved.operation_id}`);
+        const latest = await fetch(`/api/v1/model-test/entries/latest/${saved.entry_id}`);
+        if (!history.ok || !latest.ok) throw new Error('Exact test history readback refused');
+        return { history: await history.json(), latest: await latest.json() };
+      }, saved);
+      assert.equal(history.operation_id, saved.operation_id);
+      assert.equal(history.result_state, 'COMPLETED');
+      assert.equal(history.requested_model, saved.model);
+      assert.deepEqual(latest, history);
+      assert.equal(latest.current, false);
+    }
     const current = await loadedMany();
     assert.equal(current.connections.length, 1);
     assert.equal(current.connections[0].enabled, false);
@@ -106,7 +112,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     await check(page.getByRole('button', { name: 'Save assignments', exact: true })).toBeDisabled();
     assert.deepEqual(writes, [], 'API restart/readback must not write or resend');
     await capture('api-restart-disabled', configured.getByText('Connection disabled', { exact: true }));
-    return { entries: 32, apiRestartReadback: true, exactTestOperation: operation, historyReadback: true, disabled: true, selectionRevision: 3 };
+    return { entries: 32, apiRestartReadback: true, exactTestOperations: operations, historyReadback: true, disabled: true, selectionRevision: 3 };
   }
   await check(configured).toContainText('No models configured.');
   assert.deepEqual((await readSettings()).connections, []);
@@ -121,6 +127,8 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   // No capture or DOM dump until Continue has wiped the write-only field.
   const saved = page.waitForResponse(response => response.url() === `${origin}${providers}` && response.request().method() === 'PUT');
   const refresh = page.waitForRequest(request => request.url() === `${origin}${catalog}/refresh`);
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).focus();
+  const continueScroll = await page.evaluate(() => scrollY);
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   const receipt = await (await saved).json();
   const requested = (await refresh).postDataJSON();
@@ -130,6 +138,9 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal(connection.credential_present, true);
   assert.equal(requested.connection_id, connection.connection_id);
   assert.equal(requested.connection_revision, connection.revision);
+  await check(wizard.getByLabel('Search models', { exact: true })).toBeVisible();
+  await check(wizard.getByRole('heading', { name: 'Add models', exact: true })).toBeFocused();
+  assert.equal(await page.evaluate(() => scrollY), continueScroll, 'Continue must not force a scroll jump');
   await catalogReady();
   await check(wizard.getByLabel('API key', { exact: true })).toHaveCount(0);
   await capture('loaded-results', wizard.getByRole('button', { name: 'Add fixture/00', exact: true }));
@@ -137,7 +148,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   await wizard.getByText('Output controls', { exact: true }).click();
   await wizard.getByLabel('fixture/00 output tokens', { exact: true }).fill('64');
-  await check(wizard.getByRole('button', { name: 'Save & test', exact: true })).toBeDisabled();
+  await check(wizard.getByRole('button', { name: 'Save & connect', exact: true })).toBeDisabled();
   await wizard.getByRole('button', { name: 'Save models', exact: true }).click();
   await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(1);
   await check(assignments.getByText(/Save assignments to confirm a default/)).toHaveCount(0);
@@ -151,7 +162,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(consent).toContainText('Provider charges may apply.');
   await check(consent.getByRole('checkbox')).not.toBeChecked();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeDisabled();
-  await capture('direct-test-consent', consent, configured.getByText('Test details', { exact: true }));
+  await capture('direct-test-consent', consent, consent.getByText('Fixed input', { exact: true }));
   await consent.getByRole('checkbox').check();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeEnabled();
   await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -193,45 +204,64 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await catalogReady();
   await check(wizard.getByRole('button', { name: 'Added fixture/00', exact: true })).toBeDisabled();
   const search = wizard.getByLabel('Search models', { exact: true });
-  await search.fill('fixture/02');
+  await search.focus();
+  const searchScroll = await page.evaluate(() => scrollY);
+  await search.fill('fixture/01');
   await check(wizard).toContainText('READY · 1 matching cached models');
-  await wizard.getByRole('button', { name: 'Add fixture/02', exact: true }).click();
+  await check(search).toBeFocused();
+  assert.equal(await page.evaluate(() => scrollY), searchScroll, 'Cached search must preserve viewport and focus');
+  await wizard.getByRole('button', { name: 'Add fixture/01', exact: true }).click();
   await search.fill('');
   await check(wizard).toContainText('READY · 32 matching cached models');
-  await check(wizard.getByRole('button', { name: 'Selected fixture/02', exact: true })).toBeDisabled();
+  await check(wizard.getByRole('button', { name: 'Selected fixture/01', exact: true })).toBeDisabled();
   for (let pageNumber = 0; pageNumber < 2; pageNumber++) {
     for (let index = pageNumber * 16; index < (pageNumber + 1) * 16; index++) {
-      if (index === 0 || index === 2) continue;
+      if ([0, 1, 2, 3].includes(index)) continue;
       await wizard.getByRole('button', { name: `Add fixture/${String(index).padStart(2, '0')}`, exact: true }).click();
     }
     if (!pageNumber) await wizard.getByRole('button', { name: 'Next results', exact: true }).click();
   }
   const chips = wizard.getByRole('list', { name: 'Selected models' }).locator('button');
-  await check(chips).toHaveCount(31);
+  await check(chips).toHaveCount(29);
   const selectedIds = await chips.evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')).sort());
-  assert.deepEqual(selectedIds, Array.from({ length: 31 }, (_, index) => `Remove selected fixture/${String(index + 1).padStart(2, '0')}`));
+  assert.deepEqual(selectedIds, Array.from({ length: 31 }, (_, index) => index + 1).filter(index => ![2, 3].includes(index)).map(index => `Remove selected fixture/${String(index).padStart(2, '0')}`));
   await check(wizard.getByRole('button', { name: 'Next results', exact: true })).toBeDisabled();
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   await wizard.getByRole('button', { name: 'Back', exact: true }).click();
   assert.deepEqual(await chips.evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')).sort()), selectedIds);
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
-  await wizard.getByText('Output controls', { exact: true }).click();
-  await wizard.getByLabel('fixture/02 output tokens', { exact: true }).fill('64');
-  await wizard.getByRole('combobox', { name: 'Model to test', exact: true }).selectOption('fixture/02');
   await check(wizard).toContainText('Default and role overrides stay unchanged.');
-  await wizard.getByText('Output controls', { exact: true }).click();
   await capture('review-many', wizard.getByRole('button', { name: 'Save models', exact: true }), wizard.getByText('Output controls', { exact: true }));
   assert.deepEqual((await readSettings()).selection, preserved);
   assert.equal(writes.filter(item => item.path === '/api/v1/model-test/entries').length, 0);
-  await wizard.getByRole('checkbox', { name: /I approve the fixed synthetic input and one call for fixture\/02 via OpenRouter/ }).check();
-  const submitted = page.waitForRequest(request => request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`);
-  await wizard.getByRole('button', { name: 'Save & test', exact: true }).click();
-  const testIntent = (await submitted).postDataJSON();
-  await check(test).toContainText('COMPLETED');
-  await check(test).toContainText('fixture/02');
+  await wizard.getByRole('button', { name: 'Save models', exact: true }).click();
+  await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(30);
+  await page.getByRole('button', { name: 'Add models', exact: true }).click();
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await catalogReady();
+  for (const model of ['fixture/02', 'fixture/03']) await wizard.getByRole('button', { name: `Add ${model}`, exact: true }).click();
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await check(wizard.getByRole('combobox')).toHaveCount(0);
+  await wizard.getByText('Output controls', { exact: true }).click();
+  for (const model of ['fixture/02', 'fixture/03']) await wizard.getByLabel(`${model} output tokens`, { exact: true }).fill('64');
+  await wizard.getByText('Output controls', { exact: true }).click();
+  await capture('review-two', wizard.getByRole('button', { name: 'Save & connect', exact: true }));
+  await wizard.getByRole('checkbox', { name: /up to 2 calls, one per listed model via OpenRouter/ }).check();
+  const testIntents = [];
+  const collectTest = request => { if (request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`) testIntents.push(request.postDataJSON()); };
+  page.on('request', collectTest);
+  await wizard.getByRole('button', { name: 'Save & connect', exact: true }).click();
+  await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
+  page.off('request', collectTest);
+  assert.equal(testIntents.length, 2);
+  assert.notEqual(testIntents[0].operation_id, testIntents[1].operation_id);
+  assert.notEqual(testIntents[0].entry_id, testIntents[1].entry_id);
+  const testIntent = testIntents[0];
+  const operations = testIntents.map((intent, index) => ({ operation_id: intent.operation_id, entry_id: intent.entry_id, model: ['fixture/02', 'fixture/03'][index] }));
+  await check(test).toContainText('COMPLETED'); await check(test).toContainText('fixture/03');
   await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(32);
   assert.deepEqual((await configured.getByRole('button', { name: /^Test fixture\// }).evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')))).sort(), Array.from({ length: 32 }, (_, index) => `Test fixture/${String(index).padStart(2, '0')} via OpenRouter`));
-  assert.deepEqual((await readSettings()).selection, preserved, 'Save & test must preserve Default, explicit override, caps and revision');
+  assert.deepEqual((await readSettings()).selection, preserved, 'Save & connect must preserve Default, explicit override, caps and revision');
   const operationDetails = test.getByText('Operation details', { exact: true });
   await operationDetails.click();
   const operation = (await test.innerText()).match(/Operation ([0-9a-f-]{36})/)?.[1]; assert.ok(operation);
@@ -239,12 +269,20 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await operationDetails.click();
   await check(test.getByRole('button', { name: 'Cancel test', exact: true })).toHaveCount(0);
   await capture('test-completed', test, operationDetails);
-  assert.equal(testIntent.operation_id, operation);
+  assert.equal(testIntents[1].operation_id, operation);
   await page.reload();
   await operationDetails.click();
   await check(test.getByText(`Operation ${operation}`, { exact: true })).toBeVisible();
   await operationDetails.click();
   await check(test).toContainText('COMPLETED');
+  await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
+  const fresh = await page.context().newPage();
+  try {
+    await fresh.goto(`${origin}/settings/providers`);
+    await check(fresh.getByRole('region', { name: 'Configured models' }).getByText('Connected', { exact: true })).toHaveCount(2);
+    assert.equal(await fresh.evaluate(() => sessionStorage.getItem('omnis-entry-test-v1')), null);
+    await check(fresh.getByRole('button', { name: 'Add models', exact: true })).toHaveCount(1);
+  } finally { await fresh.close(); }
   await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/00 · OpenRouter$/);
   const brain = page.getByLabel('Brain', { exact: true });
   const second = await brain.locator('option').evaluateAll(options => options.find(item => item.textContent.startsWith('fixture/01 ·'))?.value);
@@ -296,7 +334,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(configured.getByRole('button', { name: 'Test fixture/00 via OpenRouter', exact: true })).toBeDisabled();
   await check(assignments.getByRole('button', { name: 'Save assignments', exact: true })).toBeDisabled();
   assert.equal(writes.filter(item => item.action === 'save_connection').length, 1);
-  assert.equal(writes.filter(item => item.path === '/api/v1/settings/models').length, 2);
-  assert.equal(writes.filter(item => item.path === '/api/v1/model-test/entries').length, 2);
-  return { entries: 32, firstSetup: true, oneModelConfirmation: true, realCas: 'REVISION_CONFLICT', savedKeyMultiAdd: true, reviewBackRetained: 31, saveAndTest: true, exactTestOperation: operation, testedModel: 'fixture/02', savedDefault: 'fixture/00', defaultUnchanged: true, refusal: { status: refusal.status, code: refusal.body.error.code }, staleWizard: { status: staleDenied.status(), code: 'CONNECTION_UNAVAILABLE' }, explicitBrain: 'fixture/01', brainOutputTokens: 37, selectionRevision: 3, disabled: true };
+  assert.equal(writes.filter(item => item.path === '/api/v1/settings/models').length, 3);
+  assert.equal(writes.filter(item => item.path === '/api/v1/model-test/entries').length, 3);
+  return { entries: 32, firstSetup: true, oneModelConfirmation: true, realCas: 'REVISION_CONFLICT', savedKeyMultiAdd: true, reviewBackRetained: 29, saveAndConnect: true, exactTestOperations: operations, testedModels: ['fixture/02', 'fixture/03'], freshPageConnected: true, savedDefault: 'fixture/00', defaultUnchanged: true, refusal: { status: refusal.status, code: refusal.body.error.code }, staleWizard: { status: staleDenied.status(), code: 'CONNECTION_UNAVAILABLE' }, explicitBrain: 'fixture/01', brainOutputTokens: 37, selectionRevision: 3, disabled: true };
 }

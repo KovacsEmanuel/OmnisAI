@@ -367,6 +367,30 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         + b"\n"
     )
     assert len(entry_frame) <= 4096 and decode_control_frame(entry_frame).command == entry_control
+    latest_control = ModelTestControl(op="entry_model_test", action="read", entry_id=identity)
+    latest_frame = (
+        ControlRequest(version=1, capability="a" * 64, command=latest_control)
+        .model_dump_json()
+        .encode()
+        + b"\n"
+    )
+    assert len(latest_control.model_dump_json().encode()) == 324 and len(latest_frame) == 429
+    assert decode_control_frame(latest_frame).command == latest_control
+    for field, value in (
+        ("operation_id", identity),
+        ("command_id", identity),
+        ("consent", True),
+        ("expected_entry_revision", maximum),
+        ("catalog_command_id", identity),
+    ):
+        invalid = {"op": "entry_model_test", "action": "read", "entry_id": identity, field: value}
+        with pytest.raises(ValueError):
+            decode_control_frame(
+                json.dumps({"version": 1, "capability": "a" * 64, "command": invalid}).encode()
+                + b"\n"
+            )
+    with pytest.raises(ValueError):
+        decode_control_frame(latest_frame[:-1] + b" " * 4096 + b"\n")
     tested = EntryTestView(
         operation_id=identity,
         state="NEEDS_RECONCILIATION",
@@ -384,7 +408,7 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         input_tokens=9007199254740991,
         output_tokens=9007199254740991,
         reasoning_tokens=9007199254740991,
-        cost_observed="9" * 128,
+        cost_observed="\U0010ffff" * 128,
         entry_id=identity,
         entry_revision=maximum,
         connection_id=identity,
@@ -399,6 +423,23 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         and json.loads(reply)["entry_model_test"]["response_text"] == "\0" * 8192
     )
     assert len(catalog_reply) <= 65536
+    from starlette.responses import JSONResponse
+
+    http_view = EntryTestView.model_validate(
+        {**tested.model_dump(), "observed_model": "\0" * 256, "cost_observed": "\0" * 128}
+    )
+    http_body = JSONResponse(http_view.model_dump(mode="json")).body
+    print(f"ENTRY_MAXIMUM_BYTES=http:{len(http_body)},reply:{len(reply)}")
+    assert len(http_body) == 53101 and len(reply) == 55559
+    for field, value in (
+        ("response_text", "\0" * 8193),
+        ("cost_observed", "\0" * 129),
+        ("observed_model", "\U0010ffff" * 257),
+        ("requested_model", "x" * 257),
+        ("entry_revision", maximum + 1),
+    ):
+        with pytest.raises(ValueError):
+            EntryTestView.model_validate({**tested.model_dump(), field: value})
     for key in ("provider_catalog", "entry_model_test", "provider_models"):
         refused = encode_control_reply({"ok": True, key: "x" * 65536, "correlation_id": identity})
         assert json.loads(refused)["error"] == "CONTROL_UNAVAILABLE"
@@ -432,6 +473,9 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
                 "entry_body": len(entry.model_dump_json().encode()),
                 "entry_frame": len(entry_frame),
                 "entry_reply": len(reply),
+                "entry_http": len(http_body),
+                "latest_entry_command": len(latest_control.model_dump_json().encode()),
+                "latest_entry_frame": len(latest_frame),
             }
         )
     )

@@ -159,7 +159,12 @@ class ApiKeyModelTest:
         return {str(k): v for k, v in payload.items()} if isinstance(payload, dict) else None
 
     async def view(
-        self, identity: str | None = None, command_id: str | None = None, *, entry: bool = False
+        self,
+        identity: str | None = None,
+        command_id: str | None = None,
+        *,
+        entry: bool = False,
+        entry_id: str | None = None,
     ) -> dict[str, object]:
         async with self.service.engine.connect() as db:
             selection = await self.settings.selection(db)
@@ -185,14 +190,20 @@ class ApiKeyModelTest:
                     metadata["metadata_state"] = "NOT_REQUESTED"
             if command_id is not None:
                 return ModelTestView.model_validate(metadata).model_dump(mode="json")
-            op = await store.operation(db, self.instance, identity, legacy_latest=identity is None)
-            if identity is not None and op is None:
+            op = await store.operation(
+                db, self.instance, identity, legacy_latest=identity is None, entry_id=entry_id
+            )
+            if (identity is not None or entry_id is not None) and op is None:
                 raise store.ModelConflict("NOT_FOUND")
             if op is None:
                 return ModelTestView.model_validate(metadata).model_dump(mode="json")
             snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
             if isinstance(snapshot, EntrySnapshot) != entry:
                 raise store.ModelConflict("NOT_FOUND")
+            if entry_id is not None and (
+                not isinstance(snapshot, EntrySnapshot) or snapshot.entry.entry_id != entry_id
+            ):
+                raise store.ModelConflict("REF_UNAVAILABLE")
             fields: dict[str, object] = {
                 **metadata,
                 "reason": None if isinstance(snapshot, EntrySnapshot) else metadata.get("reason"),
@@ -303,7 +314,10 @@ class ApiKeyModelTest:
     async def handle(self, command: ModelTestControl) -> dict[str, object]:
         if command.action == "read":
             return await self.view(
-                command.operation_id, command.command_id, entry=command.op == "entry_model_test"
+                command.operation_id,
+                command.command_id,
+                entry=command.op == "entry_model_test",
+                entry_id=command.entry_id,
             )
         if command.action == "provision":
             raise store.ModelConflict("ROOT_CONTEXT_UNAVAILABLE")

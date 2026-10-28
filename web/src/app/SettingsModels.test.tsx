@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
@@ -22,6 +22,7 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
     const path = String(input);
     if (path === '/api/session') return Response.json(session);
     if (path === '/health/ready') return Response.json(health);
+    if (path.includes('/entries/latest/')) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
     const body: Record<string, unknown> = init?.body ? JSON.parse(String(init.body)) : {};
     if (init?.method === 'PUT' || path.endsWith('/refresh')) {
       writes.push({ path, body });
@@ -46,6 +47,8 @@ it('opens on persisted models, not a wizard, and does not invent a persisted def
   expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
   expect(screen.getByText('All roles will use Exact/Model · OpenRouter after saving assignments.')).toBeVisible();
   expect(writes).toEqual([]);
+  expect(screen.queryByRole('button', { name: '+ Add model' })).not.toBeInTheDocument();
+  expect(screen.queryByText('Test details')).not.toBeInTheDocument();
 });
 it('groups quiet reload with Add models and confirms a read without writes', async () => {
   backend(); mount();
@@ -54,6 +57,26 @@ it('groups quiet reload with Add models and confirms a read without writes', asy
   fireEvent.click(within(actions).getByRole('button', { name: 'Reload current settings' }));
   await screen.findByText('Settings reloaded.');
   expect(writes).toEqual([]);
+});
+it('expires confirmations but retains actionable uncertainty and its inline state', async () => {
+  backend(); const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' });
+  vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Settings reloaded.');
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); mounted.unmount(); }
+  backend({ empty: true, lost: true }); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-not-a-secret' } });
+  vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await vi.advanceTimersByTimeAsync(50); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+    expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Outcome unknown');
+    expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
+    expect(screen.getByText('Save unconfirmed. Recover the exact receipt before another mutation.')).toBeVisible();
+  } finally { vi.useRealTimers(); }
 });
 it('uses the saved key without a password field or key resubmission; Back preserves selection', async () => {
   backend(); mount();
@@ -73,7 +96,7 @@ it('lost connection save wipes the DOM secret and recovery never starts a fresh 
   const key = screen.getByLabelText('API key');
   fireEvent.change(key, { target: { value: 'synthetic-only-secret' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  await screen.findByText(/Outcome unknown/); expect(key).toHaveValue('');
+  await within(screen.getByRole('complementary', { name: 'Settings notification' })).findByText(/Outcome unknown/); expect(key).toHaveValue('');
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   mounted.unmount(); mount();
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
@@ -102,8 +125,8 @@ it.each(['openrouter', 'orcarouter'] as const)('direct test consent names the ex
   expect(consent).toHaveTextContent('Provider charges may apply.');
   expect(within(consent).getByRole('checkbox')).not.toBeChecked();
   expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeDisabled();
-  expect(screen.getByText('Test details').closest('details')).not.toHaveAttribute('open');
-  fireEvent.click(screen.getByText('Test details'));
+  expect(screen.getByText('Fixed input').closest('details')).not.toHaveAttribute('open');
+  fireEvent.click(screen.getByText('Fixed input'));
   expect(screen.getByText('Respond only with OMNIS_MODEL_TEST_OK. Use no tools.')).toBeVisible();
   expect(screen.getByText('This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.')).toBeVisible();
   fireEvent.click(within(consent).getByRole('checkbox'));

@@ -32,6 +32,7 @@ export function settingsBackend(initial: KeySettings = configured, entries: Mode
     const write = method === 'PUT' || /\/(refresh|cancel)$/.test(path);
     if (write) state.writes.push({ path, body }); else state.reads.push(path);
     const intercepted = await hook.intercept?.(path, body, method); if (intercepted) return intercepted;
+    if (method === 'GET' && state.entries.some(item => path === '/api/v1/model-test/entries/latest/' + item.entry_id)) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
     if (path.includes('/commands/')) return Response.json(state.receipts.get(path.split('/').at(-1)!) ?? { error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: state.receipts.has(path.split('/').at(-1)!) ? 200 : 404 });
     if (path === '/api/v1/settings/providers') {
       if (method === 'PUT') {

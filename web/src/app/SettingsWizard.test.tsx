@@ -7,6 +7,8 @@ import { App } from './App';
 import { catalogId, configured, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 import type { ModelEntry } from '../features/engagement/SettingsModels';
 import type { EntryTestView } from '../shared/api/modelTest';
+import { remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
+import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
 beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
 function mount(strict = false) {
@@ -22,6 +24,48 @@ function operation(id: string, target: ModelEntry): EntryTestView { return {
   system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
   entry_id: target.entry_id, entry_revision: target.revision, connection_id: target.connection_id, connection_revision: target.connection_revision, current: true,
 }; }
+it.each(['FAILED', 'UNKNOWN', 'RUNNING', 'stale', 'missing', 'unavailable'] as const)('never resurrects an older stored green result when latest is %s', async status => {
+  const { hook, state } = settingsBackend();
+  const oldId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', newId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const old: EntryTestView = { ...operation(oldId, entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' };
+  const latest: EntryTestView = { ...old, operation_id: newId, state: status === 'RUNNING' ? 'RUNNING' : 'FINISHED', current: status !== 'stale', result_state: status === 'FAILED' ? 'FAILED' : status === 'UNKNOWN' ? 'UNKNOWN' : status === 'RUNNING' ? null : 'COMPLETED' };
+  hook.intercept = path => {
+    if (path.includes('/entries/latest/')) return status === 'unavailable' || status === 'missing' ? Response.json({ error: { code: status === 'missing' ? 'NOT_FOUND' : 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: status === 'missing' ? 404 : 503 }) : Response.json(latest);
+    if (path.endsWith(oldId)) return Response.json(old);
+  };
+  remember(testStorage, await sessionScope(session.csrf_token), oldId);
+  mount(); const list = await screen.findByRole('region', { name: 'Configured models' });
+  expect(within(list).queryByText('Connected')).not.toBeInTheDocument();
+  expect(within(list).getByText(status === 'FAILED' ? 'Failed' : status === 'RUNNING' ? 'Connecting' : status === 'stale' ? 'Unavailable — stale check' : status === 'missing' ? 'Not tested' : 'Unconfirmed')).toBeVisible();
+  expect(state.writes).toHaveLength(0);
+});
+it('marks prior Connected state unconfirmed after a settings read fails, including after notice dismissal', async () => {
+  const { hook } = settingsBackend(); let failed = false;
+  hook.intercept = path => {
+    if (path === '/api/v1/settings/providers' && failed) return Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 });
+    if (path.includes('/entries/latest/')) return Response.json({ ...operation(crypto.randomUUID(), entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
+  };
+  mount(); await screen.findByText('Connected'); failed = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+  await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
+  expect(screen.getByText('Unconfirmed — reload settings')).toBeVisible(); expect(screen.queryByText('Connected')).not.toBeInTheDocument();
+});
+it('hydrates at most 64 separate latest reads with concurrency four and stops on unmount', async () => {
+  const entries = Array.from({ length: 64 }, (_, i) => ({ ...entry, entry_id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`, model: `Model/${i}` }));
+  const { state, hook } = settingsBackend(configured, entries, []);
+  let inFlight = 0, maximum = 0;
+  hook.intercept = async path => {
+    if (!path.includes('/entries/latest/')) return;
+    inFlight++; maximum = Math.max(maximum, inFlight); await new Promise(resolve => setTimeout(resolve, 1)); inFlight--;
+    return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+  };
+  const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' });
+  expect(state.reads.filter(path => path.includes('/entries/latest/'))).toHaveLength(64); expect(maximum).toBe(4); expect(state.writes).toHaveLength(0);
+  mounted.unmount(); state.reads.length = 0;
+  let release: (() => void) | undefined; const blocked = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async path => { if (path.includes('/entries/latest/')) { await blocked; return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 }); } };
+  const second = mount(); await waitFor(() => expect(state.reads.filter(path => path.includes('/entries/latest/'))).toHaveLength(4)); second.unmount(); release!();
+  await new Promise(resolve => setTimeout(resolve, 50)); expect(state.reads.filter(path => path.includes('/entries/latest/'))).toHaveLength(4);
+});
 it('StrictMode effect replay retains a live mutation lifetime and wizard through key receipt, catalog and model save', async () => {
   const { state } = settingsBackend(empty, [], models); mount(true);
   await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
@@ -47,6 +91,14 @@ it('searches cached pages only, preserves chips across Back and saves several ex
   expect(state.entries.map(item => item.model)).toEqual(expect.arrayContaining(['Exact/Model', 'Catalog/00', 'Catalog/16'])); expect(state.keys.selection).toEqual(keys.selection);
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
 });
+it('keeps focus on the wizard after Continue and on search across query refreshes', async () => {
+  settingsBackend(configured, [], models); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  const next = screen.getByRole('button', { name: 'Continue' }); next.focus(); fireEvent.click(next);
+  const search = await screen.findByLabelText('Search models');
+  await waitFor(() => expect(within(screen.getByRole('region', { name: 'Add models wizard' })).getByRole('heading', { name: 'Add models' })).toHaveFocus());
+  search.focus(); fireEvent.change(search, { target: { value: 'Catalog/01' } }); await screen.findByRole('button', { name: 'Add Catalog/01' }); expect(search).toHaveFocus();
+});
 it('review keeps short not-tested status, exact consent and closed output controls', async () => {
   const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
   fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
@@ -54,25 +106,25 @@ it('review keeps short not-tested status, exact consent and closed output contro
   expect(within(panel).getByText('Catalog/00', { selector: 'small', exact: true })).toBeVisible();
   expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
   expect(within(panel).getByLabelText('Catalog/00 output tokens')).not.toBeVisible();
-  expect(within(panel).getByRole('checkbox', { name: /one call for Catalog\/00 via OpenRouter/ })).not.toBeChecked();
+  expect(within(panel).getByRole('checkbox', { name: /up to 1 call, one per listed model via OpenRouter/ })).not.toBeChecked();
   expect(panel).toHaveTextContent('Provider charges may apply.');
   expect(panel).toHaveTextContent('One call / 300 seconds, no tools or target traffic. Cancel is not a refund.');
-  expect(within(panel).getByRole('button', { name: 'Save & test' })).toBeDisabled();
+  expect(within(panel).getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
 it('manual 256-character exact ID saves UNVERIFIED and cannot acquire test consent', async () => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard(); const id = 'M'.repeat(256);
   fireEvent.click(screen.getByText('Enter a model ID')); fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: id } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
-  expect(screen.getByRole('button', { name: 'Save & test' })).toBeDisabled(); expect(screen.getByText('UNVERIFIED — manual model ID')).toBeVisible(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
+  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); expect(screen.getByText('UNVERIFIED — manual model ID')).toBeVisible(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
   await screen.findByText('Models saved. Assignments stay unchanged.'); expect(state.entries[0]!.model).toBe(id); expect(state.keys.selection).toBeNull(); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
 });
-it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & test or send a registry write', async tokens => {
+it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & connect or send a registry write', async tokens => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   fireEvent.click(screen.getByText('Output controls', { exact: true }));
   fireEvent.change(screen.getByLabelText('Catalog/00 output tokens'), { target: { value: tokens } });
   expect(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Save & test' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Save models' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
@@ -81,7 +133,104 @@ it('provider switch confirmation retains pending choices when refused', async ()
   vi.stubGlobal('confirm', vi.fn(() => false)); fireEvent.change(screen.getByLabelText('Provider'), { target: { value: 'orcarouter' } }); expect(screen.getByLabelText('Provider')).toHaveValue('openrouter');
   fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await screen.findByLabelText('Search models'); expect(screen.getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
 });
-it('Save & test targets one persisted entry, keeps Cancel/readback outside wizard, and reload never resends', async () => {
+it('Save & connect waits for exact terminal readback before each next model and hydrates both without browser storage', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const views = new Map<string, EntryTestView>(); let complete = false;
+  hook.intercept = (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      expect(state.reads.some(read => read.includes('/models/commands/'))).toBe(true);
+      const target = state.entries.find(item => item.entry_id === body.entry_id)!;
+      if (views.size) expect([...views.values()][0]?.state).toBe('FINISHED');
+      const view = operation(String(body.operation_id), target); views.set(target.entry_id, view); return Response.json(view);
+    }
+    if (path.includes('/entries/latest/')) return views.has(path.split('/').at(-1)!) ? Response.json(views.get(path.split('/').at(-1)!)) : Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+    if (path.startsWith('/api/v1/model-test/entries/')) {
+      const view = [...views.values()].find(item => item.operation_id === path.split('/').at(-1))!;
+      const next: EntryTestView = complete ? { ...view, state: 'FINISHED', state_revision: 3, finish_reason: 'COMPLETED', result_state: 'COMPLETED' } : view;
+      views.set(next.entry_id, next); return Response.json(next);
+    }
+  };
+  const mounted = mount(); const panel = await wizard();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  expect(within(panel).queryByRole('combobox')).not.toBeInTheDocument();
+  expect(within(panel).getByRole('checkbox')).toHaveAccessibleName(/2 calls/);
+  fireEvent.click(within(panel).getByRole('checkbox')); const connect = screen.getByRole('button', { name: 'Save & connect' }); fireEvent.click(connect); fireEvent.click(connect);
+  await waitFor(() => expect(views.size).toBe(1));
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  const currentReads = state.reads.filter(path => path === '/api/v1/settings/providers').length;
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+  expect(state.reads.filter(path => path === '/api/v1/settings/providers')).toHaveLength(currentReads);
+  complete = true;
+  await waitFor(() => expect(views.size).toBe(2), { timeout: 3000 });
+  await waitFor(() => expect(within(screen.getByRole('region', { name: 'Configured models' })).getAllByText('Connected')).toHaveLength(2), { timeout: 3000 });
+  mounted.unmount(); sessionStorage.clear(); mount();
+  await waitFor(() => expect(within(screen.getByRole('region', { name: 'Configured models' })).getAllByText('Connected')).toHaveLength(2));
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(2);
+  expect(state.keys.selection).toBeNull();
+});
+it.each(['FAILED', 'INCOMPLETE', 'UNKNOWN', 'stale', 'refused', 'lost', 'read-lost', 'cancel', 'stop', 'unmount'] as const)('ends the unsent sequence on %s and never resumes it on reload', async failure => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let view: EntryTestView | undefined, finish = false;
+  hook.intercept = (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      if (failure === 'refused') return Response.json({ error: { code: 'REVISION_CONFLICT', correlation_id: entryId } }, { status: 409 });
+      const target = state.entries.find(item => item.entry_id === body.entry_id)!; view = operation(String(body.operation_id), target);
+      if (failure === 'lost') throw new TypeError('Lost admission');
+      return Response.json(view);
+    }
+    if (path.includes('/entries/latest/')) return view?.entry_id === path.split('/').at(-1) ? Response.json(view) : Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+    if (path.startsWith('/api/v1/model-test/entries/')) {
+      if (!view) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+      if (failure === 'read-lost') throw new TypeError('Lost read');
+      if (['FAILED', 'INCOMPLETE', 'UNKNOWN'].includes(failure)) view = { ...view, state: 'FINISHED', result_state: failure === 'FAILED' ? 'FAILED' : failure === 'INCOMPLETE' ? 'INCOMPLETE' : 'UNKNOWN', finish_reason: 'FAILED' };
+      if (failure === 'stale') view = { ...view, state: 'FINISHED', result_state: 'COMPLETED', finish_reason: 'COMPLETED', current: false };
+      if (method === 'POST') view = { ...view, state: 'FINISHED', result_state: 'NOT_SENT', finish_reason: 'CANCELLED' };
+      if (finish) view = { ...view, state: 'FINISHED', result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+      return Response.json(view);
+    }
+  };
+  const mounted = mount(); await wizard();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  await waitFor(() => expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1));
+  if (failure === 'cancel') { const cancel = await screen.findByRole('button', { name: 'Cancel test' }); await waitFor(() => expect(cancel).toBeEnabled()); fireEvent.click(cancel); }
+  else if (failure === 'stop') fireEvent.click(await screen.findByRole('button', { name: 'Stop remaining checks' }));
+  else if (failure !== 'unmount') await screen.findByText(/Connection checks stopped|Test outcome unconfirmed/);
+  if (failure === 'read-lost') expect(within(screen.getByRole('region', { name: 'Configured models' })).getByText('Unconfirmed')).toBeVisible();
+  mounted.unmount(); finish = true; mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  await new Promise(resolve => setTimeout(resolve, 800));
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+});
+it.each(['cancel', 'unmount', 'wrong-receipt', 'changed-revision'] as const)('does not dispatch after %s during Save receipt readback', async control => {
+  const { hook, state } = settingsBackend(configured, [], models);
+  let release: (() => void) | undefined, entered = false; const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async path => {
+    if (path.includes('/models/commands/')) {
+      entered = true; await gate;
+      const receipt = state.receipts.get(path.split('/').at(-1)!)!;
+      if (control === 'changed-revision') state.revision++;
+      return Response.json(control === 'wrong-receipt' ? { ...receipt, registry_revision: 2 } : receipt);
+    }
+    if (path.includes('/entries/latest/')) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+  };
+  const mounted = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  await waitFor(() => expect(entered).toBe(true));
+  if (control === 'cancel') fireEvent.click(within(screen.getByRole('region', { name: 'Add models wizard' })).getByRole('button', { name: 'Cancel' }));
+  if (control === 'unmount') mounted.unmount();
+  release!(); await new Promise(resolve => setTimeout(resolve, 100));
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
+});
+it('missing capabilities on any selected model allow local Save but never a silent test subset', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); await wizard();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByText('Enter a model ID'));
+  fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: 'Manual/unknown' } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
+  expect(screen.getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  expect(state.entries).toHaveLength(2); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
+});
+it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons remaining work', async () => {
   const { state, hook } = settingsBackend(configured, [], models); let view: EntryTestView | undefined;
   hook.intercept = (path, body, method) => {
     if (path === '/api/v1/model-test/entries' && method === 'PUT') {
@@ -90,7 +239,7 @@ it('Save & test targets one persisted entry, keeps Cancel/readback outside wizar
     if (path.startsWith('/api/v1/model-test/entries/')) return Response.json(view);
   };
   const mounted = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
-  expect(screen.getByRole('button', { name: 'Save & test' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })); fireEvent.click(screen.getByRole('button', { name: 'Save & test' }));
+  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   const panel = await screen.findByRole('region', { name: 'Model test operation' }); await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
   expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
   expect(view?.requested_model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull(); expect(view?.entry_id).toBe(state.entries[0]!.entry_id);

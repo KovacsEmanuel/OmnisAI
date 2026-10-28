@@ -46,12 +46,12 @@ export function decodeModelTest(value: unknown): ModelTestView {
 
 export type EntryTestView = components['schemas']['EntryTestView'];
 export type EntryTestRequest = components['schemas']['EntryTestRequest'];
-export function decodeEntryTest(value: unknown, operationId: string): EntryTestView {
+export function decodeEntryTest(value: unknown, operationId: string | null): EntryTestView {
   if (!isRecord(value)) throw new ApiError('INVALID_RESPONSE');
   const { entry_id, entry_revision, connection_id, connection_revision, current, ...legacy } = value;
   const decoded = decodeModelTest(legacy);
   const entryRevision = integer(entry_revision, 1), connectionRevision = integer(connection_revision, 1);
-  if (decoded.operation_id !== operationId || !isUuid(decoded.operation_id) || !isUuid(entry_id) || !isUuid(connection_id) ||
+  if ((operationId !== null && decoded.operation_id !== operationId) || !isUuid(decoded.operation_id) || !isUuid(entry_id) || !isUuid(connection_id) ||
       entryRevision === null || connectionRevision === null || typeof current !== 'boolean' ||
       decoded.requested_provider == null || decoded.requested_output_tokens == null || decoded.state_revision == null ||
       decoded.selection_revision !== null || decoded.metadata_command_id !== null || decoded.metadata_state !== 'NOT_REQUESTED' ||

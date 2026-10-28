@@ -20,6 +20,18 @@ const exact = {
 };
 afterEach(() => vi.unstubAllGlobals());
 
+it('reads latest by exact entry without a browser pointer and rejects mismatched identity', async () => {
+  const fetcher = vi.fn().mockResolvedValue(Response.json(exact)); vi.stubGlobal('fetch', fetcher);
+  expect(await api.latestEntryModelTest(other)).toEqual(exact);
+  expect(fetcher.mock.calls[0]?.[0]).toBe(`/api/v1/model-test/entries/latest/${other}`);
+  fetcher.mockResolvedValueOnce(Response.json({ ...exact, entry_id: id }));
+  await expect(api.latestEntryModelTest(other)).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  fetcher.mockResolvedValueOnce(Response.json({ error: { code: 'NOT_FOUND', correlation_id: id } }, { status: 404 }));
+  await expect(api.latestEntryModelTest(other)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  await expect(api.latestEntryModelTest('not-a-uuid')).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+  expect(fetcher).toHaveBeenCalledTimes(3);
+});
+
 it('binds local pages to exact connection/revision, catalog command, query and offset', () => {
   expect(decodeProviderCatalog(view, search)).toEqual(view);
   for (const bad of [{ ...view, connection_id: other }, { ...view, connection_revision: 2 }, { ...view, catalog_command_id: id }, { ...view, query: 'different' }, { ...view, offset: 16 }, { ...view, total: 17 }, { ...view, secret: 'forbidden' }, { ...view, entries: [{ ...row, model: 'trailing\n' }] }, { ...view, entries: [{ ...row, supports_max_tokens: 'true' }] }, { ...view, state: 'STALE' }, { ...view, reason: 'raw provider error' }, { ...view, entries: [{ ...row, name: '😀'.repeat(129) }] }]) {

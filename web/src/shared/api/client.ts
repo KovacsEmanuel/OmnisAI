@@ -80,6 +80,14 @@ export const api = {
     if (result.entry_id !== payload.entry_id || result.entry_revision !== payload.expected_entry_revision || result.connection_revision !== payload.expected_connection_revision) throw new ApiError('INVALID_RESPONSE');
     return result;
   },
+  async latestEntryModelTest(entryId: string, signal?: AbortSignal) {
+    if (!isUuid(entryId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/model-test/entries/latest/${entryId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeEntryTest(value, null);
+    if (result.entry_id !== entryId) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
   async entryModelTest(operationId: string, signal?: AbortSignal) {
     if (!isUuid(operationId)) throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/model-test/entries/${operationId}`, {}, signal);

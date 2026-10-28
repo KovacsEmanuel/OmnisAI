@@ -75,12 +75,14 @@ class ModelTestControl(BaseModel):
         if self.op == "entry_model_test":
             if (
                 self.action not in {"start", "read", "cancel"}
-                or self.operation_id is None
+                or (self.action != "read" and self.operation_id is None)
                 or self.expected_selection_revision is not None
             ):
                 raise ValueError("Exact operation only")
             if self.action == "start" and any(x is None for x in entry_fields):
                 raise ValueError("Exact entry and metadata context required")
+            if self.action == "read" and (self.operation_id is None) == (self.entry_id is None):
+                raise ValueError("Read exactly one entry or operation")
         elif any(x is not None for x in entry_fields):
             raise ValueError("Legacy selection only")
         if self.action == "start" and (
@@ -110,6 +112,7 @@ class ModelTestControl(BaseModel):
             "refresh": {"command_id", "expected_selection_revision"},
         }
         if self.op == "entry_model_test":
+            allowed["read"] = {"operation_id", "entry_id"}
             allowed["start"] = {
                 "operation_id",
                 "entry_id",

@@ -1,6 +1,6 @@
 # Web Omnis — build local, Settings C și API real
 
-React/TypeScript/Vite consumă API-ul real pentru pairing/sesiune, drafturi de engagement și Settings C: modele salvate, catalog explicit și testul modelului ales, cu cost/consimțământ. Nu importă modelul/scripturile prototipului și nu pornește un assessment; T2 rămâne NOT_RUN. Pe setupul development existent, [comenzile `omnis`](../cli/README.md) servesc buildul local allowlisted la același origin8780, fără rebuild de imagine sau alt profil. Releaseul imuabil rămâne distinct; nu există endpoint public de emitere a codurilor.
+React/TypeScript/Vite consumă API-ul real pentru pairing/sesiune, drafturi de engagement și Settings C: modele salvate, catalog explicit, Connected derivat din ultimul test exact și Save & connect finit/secvențial, cu acord pentru fiecare model selectat și cost posibil. Save models este local; Stop sau UNKNOWN oprește continuarea, iar acordul vechi nu trece într-o generație nouă a instanței. Nu importă modelul/scripturile prototipului și nu pornește un assessment; T2 rămâne NOT_RUN. Pe setupul development existent, [comenzile `omnis`](../cli/README.md) servesc buildul local allowlisted la același origin8780, fără rebuild de imagine sau alt profil. Releaseul imuabil rămâne distinct; nu există endpoint public de emitere a codurilor.
 
 **Limite și proveniență:** [CURRENT și registrul Settings C](../documents/verification/settings-c-evidence/ui-result.json) sunt autoritatea stării curente. Dovezile P0.3/`bd06bcd` de mai jos sunt istorice, nu limita funcțională actuală sau acceptarea noului setup. Skills/Jev/execuția assessmentului și gates ulterioare rămân conform planului; nu activăm butoane false sau date DEMO. CI remote și canonicalul integral nou nu sunt certificate de proba development.
 
@@ -29,7 +29,7 @@ make check-web                # cele de mai sus + audit npm
 ## Buildul final este servit de API, nu de Vite
 
 Pentru **instalația existentă în DEVELOPMENT opt-in**, folosiți
-[selectorul și lifecycle-ul CLI](../cli/README.md#development-opt-in-în-aceeași-instalație--candidat-nu-rollout):
+[selectorul și lifecycle-ul CLI](../cli/README.md):
 `npm --prefix web run build` → refresh la originul deja înregistrat. Vite produce
 `web/dist/omnis-web.json`; numai `web/dist` este montat read-only în API. Nu porniți
 serverul Vite/HMR, nu schimbați originul și nu reconstruiți imaginea/DB pentru UI.
@@ -37,7 +37,8 @@ Buildul invalid/rebuilding poate face dashboardul temporar indisponibil; Status
 verifică bytes curenți, iar Stop rămâne independent de sănătatea asseturilor.
 Python cere Stop→editare→Start, nu refresh. Absența selectorului păstrează validarea
 strictă a releaseului instalat, fără fallback la checkout. Aceasta este instrucțiune
-de folosire a candidatului, nu dovadă de rollout ori QA.
+de folosire a setupului local verificat scoped; starea rolloutului și limitele QA
+sunt în CURRENT/registrul existent, nu deduse din această instrucțiune.
 
 După migrarea explicită și pornirea supervisorului conform [api/README.md](../api/README.md), API-ul primește căi absolute. `OMNIS_CONTROL_DIR` este același director privat verificat al supervisorului; `OMNIS_DATABASE_URL` este deja furnizat prin environment, nu în argv, URL sau fișierele web.
 

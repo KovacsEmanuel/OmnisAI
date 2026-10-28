@@ -2,8 +2,9 @@
 
 **Design decision, not a product implementation or a new roadmap.** The operator selected C
 and explicitly added a persistent configured-model list, provider catalog search, multiple
-models per saved key, and a separate assignments section. `settings-final.html` is the current
-interactive reference. `settings-options.html` is the previous comparison, not another direction.
+models per saved key, and a separate assignments section. `settings-final.html` remains the
+visual baseline; the revised flow below supersedes its older single-test controls. No new mockup
+or competing direction is needed. `settings-options.html` is the previous comparison.
 Keep the accepted Omnis palette, local Geist, capsule navigation and double-bezel panels.
 All visible application copy, labels, messages and accessibility names are English.
 
@@ -20,17 +21,30 @@ All visible application copy, labels, messages and accessibility names are Engli
    Back preserves selection; changing provider requires confirmation before discarding it.
    Catalog error/partial/stale is explicit, never an empty-success list. `Enter a model ID`
    is a compact fallback; an unverified entry can be saved, not claimed usable or tested.
-3. **Review:** provider, selected models, unchanged assignments/default information.
-   `Save models` is local only. `Save & test` names **one selected model** and approves one
-   fixed synthetic call, not a paid test for every selected model. A successful test marks
-   only that exact model/connection revision. `Models saved` is not `Model connected`.
+3. **Review:** provider and all selected exact models; no single-model test picker.
+   `Save models` is local only. `Save & connect` requires short explicit consent to at most
+   one real fixed-input verification per selected model, with possible provider charges.
+   Save receipt and paged revision readback precede the first call; each next call waits for
+   successful terminal readback of the previous one. Missing capabilities permit Save models,
+   not silently testing a subset. Failure/stale/UNKNOWN/Cancel/Stop halts unsent work. Reload,
+   navigation or tab close abandons remaining continuation, not the already-admitted operation;
+   returning reads persisted results and never resumes paid calls automatically.
 
-At normal re-entry the user sees the saved model list, not the wizard. `Add models` opens
-Connection; `+ Add model` under an existing provider can go directly to Models using its
-saved key. No automatic provider traffic or test at boot/reload. A compact connection menu
-preserves Replace key/Disable/Reconnect; active-test Cancel and UNKNOWN readback remain
-reachable independently of the wizard. No run is active in this scene; the real global
-Stop and run identity must remain in the product shell.
+At normal re-entry the user sees saved models. Keep one global `Add models`; remove its
+per-provider duplicate. Put compact Connection options at the bottom of each provider card,
+preserving Replace key/Disable/Reconnect and their confirmations. Show each model's persisted
+latest-check state: `Connected` only for exact current revisions and FINISHED/COMPLETED;
+Not tested/Connecting/Failed/Unconfirmed/Unavailable remain distinct. Read the existing owner
+by entry ID, not only the browser's last operation ID; no separate status table or migration
+is intended. No automatic provider traffic at boot/reload or from typing/search.
+
+Use the existing centered/aligned composition with quieter spacing, controls, scrollbar and
+chips. A smaller X glyph must retain its usable hit area. Remove repeated instructional copy,
+normal Test details and the large duplicate test panel; keep short cost/consent and actionable
+safety states. Bottom-right notifications carry confirmations and error/recovery actions;
+critical/uncertain errors do not auto-dismiss or vanish from the model state. No forced scroll
+on Continue or query refresh. Active Cancel and same-operation readback remain reachable.
+Global Stop/run identity and Default/override/output controls remain; no new visual direction.
 
 ## Model assignments — separate from registration
 
@@ -51,10 +65,12 @@ Output/capability controls and test input/usage/operation IDs remain secondary d
 extra onboarding steps. Existing per-role/output settings must survive migration unchanged;
 the small 128-token demo test cap must not become an artificial total harness budget.
 
-## What needs real implementation
+## Original Settings C implementation contract — historical
 
-This request is now **more than a UI-only change**. Before product edits, align the affected
-canonical plan/UI/architecture paragraphs in place; do not launch T2 or duplicate P4b.
+The original registry/catalog/exact-entry implementation below is already delivered scoped;
+do not rebuild it for the follow-up. The current delta is the latest-entry read projection,
+finite frontend sequencing and UI simplification above. Canonical plan/UI/architecture are
+amended in place; no T2, second provider client, persistent batch queue or duplicate P4b.
 
 | Consumer | Reuse | Necessary delta / acceptance |
 |---|---|---|

@@ -10,6 +10,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   const wizard = page.getByRole('region', { name: 'Add models wizard' });
   const assignments = page.getByRole('region', { name: 'Model assignments' });
   const test = page.getByRole('region', { name: 'Model test operation' });
+  const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true }).getByRole('status');
   const writes = [];
   page.on('request', request => {
     const path = new URL(request.url()).pathname;
@@ -187,10 +188,12 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal(denied.request().postDataJSON().expected_revision, 1);
   assert.equal(denied.status(), 409);
   assert.equal((await denied.json()).error.code, 'REVISION_CONFLICT');
-  await check(page.getByText('Settings changed. Reload the current revision before saving.', { exact: true })).toBeVisible();
+  await check(notification).toContainText('Settings changed. Reload the current revision before saving.');
+  await check(notification).toBeVisible();
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
-  await check(page.getByText('Settings reloaded.', { exact: true })).toBeVisible();
+  await check(notification).toContainText('Settings reloaded.');
+  await check(notification).toBeVisible();
   await check(assignments.getByRole('combobox')).toHaveCount(0);
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');

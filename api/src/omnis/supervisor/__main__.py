@@ -13,7 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from omnis.core.db import database_engine, readiness_reason
 from omnis.modules.engagements.service import EngagementNotFound, EngagementService
 from omnis.modules.instance.domain import ControlConflict
-from omnis.modules.instance.service import InstanceService
+from omnis.modules.instance.service import InstanceService, LeaseTrace
 from omnis.supervisor.case_slot import CaseSlot
 from omnis.supervisor.runtime_client import RuntimeClient, RuntimeUnavailable
 from omnis.transport.local_control import LocalControl
@@ -211,61 +211,71 @@ async def run() -> None:
 
                 control.settings = settings_command
             print("SUPERVISOR_READY", flush=True)
+            diagnostic = LeaseTrace()
             while not stop.is_set():
                 try:
                     await asyncio.wait_for(stop.wait(), timeout=1)
                 except TimeoutError:
-                    phase = "READINESS"
-                    try:
-                        if await readiness_reason(engine) is not None:
-                            raise ValueError("Control schema unavailable") from None
-                        phase = "HEARTBEAT"
-                        await service.heartbeat(owner, epoch)
-                        phase = "QUIESCE"
-                        # The startup generation was already drained without closing this owner.
-                        if (task_owner is None and model_owner is None) or (
-                            await service.owned_status(owner, epoch)
-                        ).generation != startup_generation:
-                            await service.quiesce(owner, epoch)
-                        if runtime is not None:
-                            phase = "RUNTIME_STATUS"
-                            runtime_state = (await runtime.status())["state"]
-                            if runtime_state == "READY":
-                                phase = "RENEW"
-                                await runtime.renew(service, owner)
-                            elif runtime_state == "MANAGEMENT":
-                                phase = "RENEW"
-                                await runtime.renew(service, owner, management=True)
-                            elif probe == "1":
-                                observed = await service.owned_status(owner, epoch)
-                                if (
-                                    runtime_state != "STOPPED"
-                                    or observed.shutdown_command_id is None
-                                    or observed.quiesced_generation != observed.generation
-                                ):
-                                    raise ValueError("Runtime unavailable") from None
-                    except BaseException as error:
-                        # Observe before LocalControl exit or drain can mask the first failure.
-                        with suppress(BaseException):
-                            kind = next(
-                                (
-                                    label
-                                    for cls, label in (
-                                        (asyncio.CancelledError, "CANCELLED"),
-                                        (TimeoutError, "TIMEOUT"),
-                                        (RuntimeUnavailable, "RUNTIME_UNAVAILABLE"),
-                                        (ControlConflict, "CONTROL_CONFLICT"),
-                                        (SQLAlchemyError, "DB_ERROR"),
-                                        (OSError, "OS_ERROR"),
-                                        (ValueError, "VALUE_ERROR"),
-                                    )
-                                    if isinstance(error, cls)
-                                ),
-                                "OTHER",
-                            )
-                            sys.stderr.write(f"SUPERVISOR_FAILURE phase={phase} error={kind}\n")
-                            sys.stderr.flush()
-                        raise
+                    with diagnostic.cycle():
+                        phase = "READINESS"
+                        try:
+                            if await readiness_reason(engine) is not None:
+                                raise ValueError("Control schema unavailable") from None
+                            phase = diagnostic.phase = "HEARTBEAT"
+                            await service.heartbeat(owner, epoch)
+                            phase = "QUIESCE"
+                            diagnostic.phase = "OWNED_STATUS"
+                            # The startup generation was already drained without closing this owner.
+                            if (task_owner is None and model_owner is None) or (
+                                await service.owned_status(owner, epoch)
+                            ).generation != startup_generation:
+                                diagnostic.phase = "QUIESCE"
+                                await service.quiesce(owner, epoch)
+                            if runtime is not None:
+                                phase = diagnostic.phase = "RUNTIME_STATUS"
+                                runtime_state = (await runtime.status())["state"]
+                                if runtime_state == "READY":
+                                    phase = diagnostic.phase = "RENEW"
+                                    await runtime.renew(service, owner)
+                                elif runtime_state == "MANAGEMENT":
+                                    phase = diagnostic.phase = "RENEW"
+                                    await runtime.renew(service, owner, management=True)
+                                elif probe == "1":
+                                    diagnostic.phase = "OWNED_STATUS"
+                                    observed = await service.owned_status(owner, epoch)
+                                    diagnostic.phase = phase
+                                    if (
+                                        runtime_state != "STOPPED"
+                                        or observed.shutdown_command_id is None
+                                        or observed.quiesced_generation != observed.generation
+                                    ):
+                                        raise ValueError("Runtime unavailable") from None
+                        except BaseException as error:
+                            # Observe before LocalControl exit or drain can mask the first failure.
+                            with suppress(BaseException):
+                                kind = next(
+                                    (
+                                        label
+                                        for cls, label in (
+                                            (asyncio.CancelledError, "CANCELLED"),
+                                            (TimeoutError, "TIMEOUT"),
+                                            (RuntimeUnavailable, "RUNTIME_UNAVAILABLE"),
+                                            (ControlConflict, "CONTROL_CONFLICT"),
+                                            (SQLAlchemyError, "DB_ERROR"),
+                                            (OSError, "OS_ERROR"),
+                                            (ValueError, "VALUE_ERROR"),
+                                        )
+                                        if isinstance(error, cls)
+                                    ),
+                                    "OTHER",
+                                )
+                                sys.stderr.write(f"SUPERVISOR_FAILURE phase={phase} error={kind}\n")
+                                sys.stderr.flush()
+                            with suppress(BaseException):
+                                if diagnostic.events or diagnostic.heartbeat:
+                                    sys.stderr.write(diagnostic.line(error))
+                                    sys.stderr.flush()
+                            raise
             nominal_close = True
     finally:
         try:

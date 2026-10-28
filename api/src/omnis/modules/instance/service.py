@@ -6,10 +6,12 @@ same admission transaction AND provide real adapters before extending quiescence
 
 import asyncio
 import time
-from collections.abc import AsyncIterator, Awaitable, Callable
-from contextlib import asynccontextmanager
+from collections import deque
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from contextlib import asynccontextmanager, contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from json import dumps
 from uuid import UUID, uuid4
 
@@ -60,6 +62,141 @@ class RuntimeAuthority:
 class CaseTransitionGuard:
     deadline_ns: int
     verify: Callable[[], Awaitable[None]]
+
+
+class LeaseTrace:
+    """Failure-only supervisor observation; no authority, I/O or additional DB reads.
+
+    Rows: caller, boundary, monotonic/wall elapsed ms, DB now/expiry Unix ms,
+    owner/epoch match. COMMIT→TX_DONE brackets the existing engine.begin exit
+    (including connection return), not a separate server-side commit timestamp.
+    """
+
+    PHASES = ("READINESS", "HEARTBEAT", "OWNED_STATUS", "QUIESCE", "RUNTIME_STATUS", "RENEW")
+    STEPS = (
+        "CONNECT",
+        "CONNECTED",
+        "INSTANCE_LOCKED",
+        "LEASE_LOCKED",
+        "OWNER",
+        "LIVE",
+        "LIVE_RESULT",
+        "OWNER_OK",
+        "OWNER_REFUSED",
+        "UPDATE",
+        "UPDATED",
+        "STATUS",
+        "STATUS_DONE",
+        "COMMIT",
+        "ROLLBACK",
+        "TX_DONE",
+        "TX_ERROR",
+    )
+    HEARTBEAT_STEPS = ("UPDATE", "UPDATED", "LIVE_RESULT", "COMMIT", "TX_DONE")
+    MAX_EVENTS = 28  # Includes the entire idle owned_status→quiesce interval after heartbeat.
+    MAX_ELAPSED_MS = 999_999_999
+    MAX_DB_MS = 999_999_999_999_999
+
+    def __init__(self) -> None:
+        self.task = asyncio.current_task()
+        self.phase = "READINESS"
+        self.events: deque[list[object]] = deque(maxlen=self.MAX_EVENTS)
+        self.heartbeat: list[list[object]] = []
+        self._pending: list[list[object]] = []
+        self._origin: tuple[int, int] | None = None
+        self.clipped = False
+        self.incomplete = False
+
+    @contextmanager
+    def cycle(self) -> Iterator[None]:
+        self.events.clear()
+        self._pending.clear()
+        self.phase = "READINESS"
+        self.clipped = False
+        token = _lease_trace.set(self)
+        try:
+            yield
+        finally:
+            _lease_trace.reset(token)
+
+    def mark(
+        self,
+        step: str,
+        now: datetime | None,
+        expires: datetime | None,
+        owner_match: bool | None,
+        epoch_match: bool | None,
+    ) -> None:
+        if self.phase not in self.PHASES or step not in self.STEPS:
+            self.incomplete = True
+            return
+        clocks = (time.monotonic_ns(), time.time_ns())
+        if self._origin is None:
+            self._origin = clocks
+        elapsed = [
+            (clock - origin) // 1_000_000
+            for clock, origin in zip(clocks, self._origin, strict=True)
+        ]
+        bounded = [max(-self.MAX_ELAPSED_MS, min(self.MAX_ELAPSED_MS, value)) for value in elapsed]
+        self.clipped |= bounded != elapsed or len(self.events) == self.MAX_EVENTS
+        db = [
+            max(-self.MAX_DB_MS, min(self.MAX_DB_MS, int(value.timestamp() * 1000)))
+            if value is not None
+            else None
+            for value in (now, expires)
+        ]
+        row: list[object] = [self.phase, step, *bounded, *db, owner_match, epoch_match]
+        self.events.append(row)
+        if self.phase == "HEARTBEAT":
+            if step == "UPDATE":
+                self._pending = [row]
+            elif self._pending and step == self.HEARTBEAT_STEPS[len(self._pending)]:
+                self._pending.append(row)
+                if step == "TX_DONE":
+                    self.heartbeat = self._pending
+                    self._pending = []
+            elif step == "TX_ERROR":
+                self._pending = []
+
+    def line(self, error: BaseException) -> str:
+        code = error.code if isinstance(error, ControlConflict) else None
+        return (
+            "SUPERVISOR_LEASE_TRACE "
+            + dumps(
+                {
+                    "v": 1,
+                    "phase": self.phase if self.phase in self.PHASES else "UNKNOWN",
+                    "code": code.value if type(code) is ControlCode else None,
+                    "clipped": self.clipped,
+                    "incomplete": self.incomplete,
+                    "heartbeat": self.heartbeat,
+                    "events": list(self.events),
+                },
+                separators=(",", ":"),
+            )
+            + "\n"
+        )
+
+
+_lease_trace: ContextVar[LeaseTrace | None] = ContextVar("supervisor_lease_trace", default=None)
+
+
+def _lease_mark(
+    step: str,
+    *,
+    now: datetime | None = None,
+    expires: datetime | None = None,
+    owner_match: bool | None = None,
+    epoch_match: bool | None = None,
+) -> None:
+    trace = _lease_trace.get()
+    # ContextVars propagate to children; those tasks must never enter this cycle's trace.
+    if trace is None or trace.task is not asyncio.current_task():
+        return
+    try:
+        trace.mark(step, now, expires, owner_match, epoch_match)
+    except BaseException:
+        trace.incomplete = True  # Diagnostics must not change transaction/exception behavior.
 
 
 class InstanceService:
@@ -271,42 +408,68 @@ class InstanceService:
 
     @asynccontextmanager
     async def _locked(self) -> AsyncIterator[tuple[AsyncConnection, InstanceRecord, LeaseRecord]]:
-        async with self.engine.begin() as connection:
-            instance_data = (
-                (
-                    await connection.execute(
-                        text("SELECT * FROM instance_control WHERE id = 1 FOR UPDATE")
+        _lease_mark("CONNECT")
+        try:
+            async with self.engine.begin() as connection:
+                _lease_mark("CONNECTED")
+                try:
+                    instance_data = (
+                        (
+                            await connection.execute(
+                                text("SELECT * FROM instance_control WHERE id = 1 FOR UPDATE")
+                            )
+                        )
+                        .mappings()
+                        .one()
                     )
-                )
-                .mappings()
-                .one()
-            )
-            lease_data = (
-                (
-                    await connection.execute(
-                        text("SELECT * FROM supervisor_lease WHERE id = 1 FOR UPDATE")
+                    _lease_mark("INSTANCE_LOCKED")
+                    lease_data = (
+                        (
+                            await connection.execute(
+                                text("SELECT * FROM supervisor_lease WHERE id = 1 FOR UPDATE")
+                            )
+                        )
+                        .mappings()
+                        .one()
                     )
-                )
-                .mappings()
-                .one()
-            )
-            yield (
-                connection,
-                read_record(InstanceRecord, instance_data),
-                read_record(LeaseRecord, lease_data),
-            )
+                    _lease_mark("LEASE_LOCKED")
+                    yield (
+                        connection,
+                        read_record(InstanceRecord, instance_data),
+                        read_record(LeaseRecord, lease_data),
+                    )
+                except BaseException:
+                    _lease_mark("ROLLBACK")
+                    raise
+                else:
+                    _lease_mark("COMMIT")
+        except BaseException:
+            _lease_mark("TX_ERROR")
+            raise
+        else:
+            _lease_mark("TX_DONE")
 
     async def _live(self, connection: AsyncConnection, lease: LeaseRecord) -> bool:
+        _lease_mark("LIVE")
         now = read_datetime(
             (await connection.execute(text("SELECT clock_timestamp()"))).scalar_one()
         )
+        _lease_mark("LIVE_RESULT", now=now, expires=lease.expires_at)
         return lease.owner is not None and lease.expires_at is not None and lease.expires_at > now
 
     async def _require_owner(
         self, connection: AsyncConnection, lease: LeaseRecord, owner: UUID, epoch: int
     ) -> None:
+        _lease_mark(
+            "OWNER",
+            expires=lease.expires_at,
+            owner_match=lease.owner == owner,
+            epoch_match=lease.epoch == epoch,
+        )
         if lease.owner != owner or lease.epoch != epoch or not await self._live(connection, lease):
+            _lease_mark("OWNER_REFUSED")
             raise ControlConflict(ControlCode.LEASE_LOST)
+        _lease_mark("OWNER_OK")
 
     async def _close_after_owner_loss(
         self, connection: AsyncConnection, instance: InstanceRecord
@@ -358,12 +521,14 @@ class InstanceService:
     async def heartbeat(self, owner: UUID, epoch: int) -> None:
         async with self._locked() as (connection, _, lease):
             await self._require_owner(connection, lease, owner, epoch)
+            _lease_mark("UPDATE")
             await connection.execute(
                 text(
                     "UPDATE supervisor_lease SET expires_at = GREATEST(expires_at, "
                     "clock_timestamp() + interval '5 seconds') WHERE id = 1"
                 )
             )
+            _lease_mark("UPDATED")
             await self._require_owner(connection, lease, owner, epoch)
 
     async def release(self, owner: UUID, epoch: int) -> None:
@@ -1026,7 +1191,8 @@ class InstanceService:
     async def _status(
         self, connection: AsyncConnection, instance: InstanceRecord, lease: LeaseRecord
     ) -> InstanceStatus:
-        return InstanceStatus(
+        _lease_mark("STATUS")
+        status = InstanceStatus(
             instance_id=instance.instance_id,
             generation=instance.generation,
             admission_open=instance.admission_open,
@@ -1037,3 +1203,5 @@ class InstanceService:
             shutdown_finalized=await self._finalized_epoch(connection, instance.generation)
             is not None,
         )
+        _lease_mark("STATUS_DONE")
+        return status

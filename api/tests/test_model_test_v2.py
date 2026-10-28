@@ -79,6 +79,9 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
     [
         "complete",
         "entry_catalog",
+        "entry_generation_before_first",
+        "entry_generation_between",
+        "entry_generation_unchanged",
         pytest.param(
             "settings_ui",
             marks=pytest.mark.skipif(
@@ -114,6 +117,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     monkeypatch: pytest.MonkeyPatch,
     scenario: str,
 ) -> None:
+    entry_scenario = scenario.startswith("entry_")
     # RED is the absent production consumer, not a fabricated repository response.
     assert hasattr(model_test_operation, "ApiKeyModelTest"), "T1 production consumer missing"
     from omnis.modules.runs.model_test_operation import ApiKeyModelTest
@@ -157,7 +161,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 }
             )
         )
-    if scenario not in {"entry_catalog", "settings_ui"}:
+    if not entry_scenario and scenario != "settings_ui":
         await settings.handle(
             ModelRegistryControl.model_validate(
                 {
@@ -243,7 +247,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await catalog_release.wait()
                 if metadata_outage:
                     return  # Real TLS peer EOF before any response bytes.
-                if scenario in {"entry_catalog", "settings_ui"} and first.startswith(
+                if (entry_scenario or scenario == "settings_ui") and first.startswith(
                     "GET /api/v1/models?"
                 ):
                     offset = 0 if "offset=0&" in first else 16
@@ -307,6 +311,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                     data = json.loads(body)
                     if scenario == "settings_ui":
                         assert data["model"] in {"fixture/02", "fixture/03"}
+                    elif scenario.startswith("entry_generation_"):
+                        assert data["model"] in {"fixture/selected", "fixture/00"}
                     else:
                         assert data["model"] == (
                             "fixture/selected" if scenario == "entry_catalog" else "fixture/model"
@@ -496,7 +502,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     heartbeat_stop = asyncio.Event()
 
     async def renew(owner_id: UUID, owner_epoch: int) -> None:
-        if scenario not in {"entry_catalog", "settings_ui"}:
+        if not entry_scenario and scenario != "settings_ui":
             return
         while not heartbeat_stop.is_set():
             await service.heartbeat(owner_id, owner_epoch)
@@ -686,7 +692,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await http.put("/api/v1/model-test", json=intent, headers=headers)
                 ).status_code == 403
                 headers["X-CSRF-Token"] = grant.csrf
-                if scenario == "entry_catalog":
+                if entry_scenario:
                     catalog_path = "/api/v1/settings/provider-catalog"
                     context = {"connection_id": connection_id, "connection_revision": 1}
                     search = {"action": "search", **context}
@@ -716,7 +722,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     "entry_id": ids[1],
                                     "expected_revision": 0,
                                     "model": "fixture/00",
-                                    "output_tokens": 129,
+                                    "output_tokens": 129 if scenario == "entry_catalog" else 64,
                                 },
                                 {
                                     "entry_id": ids[2],
@@ -754,6 +760,214 @@ async def test_api_pg_sdk_protocol_and_replay(
                         x["model"] for x in second.json()["entries"]
                     ] == ["fixture/selected"]
                     assert second.json()["next_offset"] is None
+                    if scenario.startswith("entry_generation_"):
+                        path = "/api/v1/model-test/entries"
+                        intents = [
+                            {
+                                "operation_id": str(uuid4()),
+                                "entry_id": entry_id,
+                                "expected_entry_revision": 1,
+                                "expected_connection_revision": 1,
+                                "catalog_command_id": catalog_id,
+                                "expected_generation": generation,
+                                "consent": True,
+                            }
+                            for entry_id in ids[:2]
+                        ]
+
+                        async def census() -> dict[str, list[str]]:
+                            async with engine.connect() as db:
+                                return {
+                                    table: list(
+                                        (
+                                            await db.execute(
+                                                text(
+                                                    f"SELECT row_to_json(t)::text FROM {table} t ORDER BY row_to_json(t)::text"
+                                                )
+                                            )
+                                        ).scalars()
+                                    )
+                                    for table in (
+                                        "model_record_v2",
+                                        "model_command_v2",
+                                        "system_operation",
+                                        "system_operation_event",
+                                        "model_dispatch_v2",
+                                        "model_dispatch_event_v2",
+                                    )
+                                }
+
+                        async def complete_entry(
+                            client: httpx.AsyncClient,
+                            executor: ApiKeyModelTest,
+                            intent: dict[str, object],
+                        ) -> None:
+                            response = await client.put(path, json=intent, headers=headers)
+                            assert response.status_code == 202, response.text
+                            async with asyncio.timeout(5):
+                                while executor.tasks:
+                                    await asyncio.sleep(0.02)
+                            read = await client.get(path + "/" + str(intent["operation_id"]))
+                            assert (
+                                read.status_code == 200
+                                and read.json()["result_state"] == "COMPLETED"
+                            )
+                            assert (
+                                read.json()["state"] == "FINISHED"
+                                and read.json()["current"] is True
+                            )
+
+                        if scenario != "entry_generation_before_first":
+                            await complete_entry(http, owner, intents[0])
+                        if scenario == "entry_generation_unchanged":
+                            await complete_entry(http, owner, intents[1])
+                            async with engine.connect() as db:
+                                assert (
+                                    await db.execute(text("SELECT count(*) FROM system_operation"))
+                                ).scalar_one() == 2
+                                assert (
+                                    await db.execute(
+                                        text(
+                                            "SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'"
+                                        )
+                                    )
+                                ).scalar_one() == 2
+                            assert [
+                                json.loads(body)["model"]
+                                for first, body in received
+                                if first.startswith("POST")
+                            ] == ["fixture/selected", "fixture/00"]
+                            return
+
+                        # Real lifecycle methods and physical sender drain; not a manual generation UPDATE.
+                        await stop_control()
+                        stopped = await service.owned_status(process, epoch)
+                        await service.finalize(uuid4(), stopped.generation, process, epoch)
+                        heartbeat_stop.set()
+                        await heartbeat
+                        await service.release(process, epoch)
+                        released = True
+                        fresh_process = uuid4()
+                        fresh_epoch = await service.acquire(fresh_process)
+                        fresh_sender = ModelSender(socket, client_context)
+                        fresh_settings = ProviderSettingsOwner(
+                            service,
+                            fresh_process,
+                            fresh_epoch,
+                            ProviderVault(vault_dir, keys, str(initial.instance_id)),
+                        )
+                        fresh_owner = ApiKeyModelTest(fresh_settings, fresh_sender)
+                        service.runtime_drain = fresh_owner.drain
+                        heartbeat_stop.clear()
+                        fresh_heartbeat = asyncio.create_task(renew(fresh_process, fresh_epoch))
+                        fresh_directory = ipc_directory / "g"
+                        fresh_directory.mkdir(mode=0o700)
+                        try:
+                            await fresh_owner.reconcile()
+                            fresh_generation = await service.open(
+                                uuid4(), stopped.generation, fresh_process, fresh_epoch
+                            )
+                            assert fresh_generation != generation
+                            monkeypatch.setenv("OMNIS_CONTROL_DIR", str(fresh_directory))
+                            async with LocalControl(
+                                fresh_directory, service, fresh_process, fresh_epoch
+                            ) as fresh_control:
+                                fresh_control.model_test = fresh_owner.handle
+                                fresh_control.provider_catalog = fresh_owner.catalog_handle
+                                # Same authenticated HTTP session/CSRF, retained catalog, new owning epoch.
+                                retained_catalog = await http.post(
+                                    catalog_path + "/search",
+                                    json={**search, "catalog_command_id": catalog_id},
+                                    headers=headers,
+                                )
+                                assert (
+                                    retained_catalog.status_code == 200
+                                    and retained_catalog.json() == first.json()
+                                )
+                                before = await census()
+                                generation_traffic = (len(received), len(connected), len(handed))
+                                for intent in (
+                                    intents
+                                    if scenario == "entry_generation_before_first"
+                                    else intents[1:]
+                                ):
+                                    denied = await http.put(path, json=intent, headers=headers)
+                                    assert (
+                                        denied.status_code == 409
+                                        and denied.json()["error"]["code"] == "REVISION_CONFLICT"
+                                    )
+                                    assert (
+                                        await http.get(path + "/" + str(intent["operation_id"]))
+                                    ).status_code == 404
+                                assert not fresh_owner.tasks
+                                assert await census() == before
+                                assert (
+                                    len(received),
+                                    len(connected),
+                                    len(handed),
+                                ) == generation_traffic
+                                if scenario == "entry_generation_between":
+                                    generation_replay = await http.put(
+                                        path, json=intents[0], headers=headers
+                                    )
+                                    assert (
+                                        generation_replay.status_code == 202
+                                        and generation_replay.json()["result_state"] == "COMPLETED"
+                                    )
+                                    rebound = await http.put(
+                                        path,
+                                        json={
+                                            **intents[0],
+                                            "expected_generation": fresh_generation,
+                                        },
+                                        headers=headers,
+                                    )
+                                    assert (
+                                        rebound.status_code == 409
+                                        and rebound.json()["error"]["code"] == "COMMAND_CONFLICT"
+                                    )
+                                    assert (
+                                        await census() == before
+                                        and (len(received), len(connected), len(handed))
+                                        == generation_traffic
+                                    )
+                                await complete_entry(
+                                    http,
+                                    fresh_owner,
+                                    {
+                                        **intents[1],
+                                        "operation_id": str(uuid4()),
+                                        "expected_generation": fresh_generation,
+                                    },
+                                )
+                                expected = 1 if scenario == "entry_generation_before_first" else 2
+                                async with engine.connect() as db:
+                                    assert (
+                                        await db.execute(
+                                            text("SELECT count(*) FROM system_operation")
+                                        )
+                                    ).scalar_one() == expected
+                                    assert (
+                                        await db.execute(
+                                            text(
+                                                "SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'"
+                                            )
+                                        )
+                                    ).scalar_one() == expected
+                                assert len(received) == generation_traffic[0] + 1
+                        finally:
+                            heartbeat_stop.set()
+                            try:
+                                await fresh_heartbeat
+                            finally:
+                                try:
+                                    assert await fresh_owner.drain()
+                                finally:
+                                    try:
+                                        await fresh_sender.close()
+                                    finally:
+                                        await service.release(fresh_process, fresh_epoch)
+                        return
                     found = await http.post(
                         catalog_path + "/search",
                         json={
@@ -857,6 +1071,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     old_selection = selection.json()["selection"]
                     operation_id = str(uuid4())
                     entry_intent = {
+                        "expected_generation": generation,
                         "operation_id": operation_id,
                         "entry_id": ids[0],
                         "expected_entry_revision": 1,

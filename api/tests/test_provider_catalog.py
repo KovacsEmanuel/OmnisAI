@@ -23,6 +23,7 @@ def test_exact_entry_admission_has_no_selection_authority() -> None:
     intent = dict(
         op="entry_model_test",
         action="start",
+        expected_generation=1,
         operation_id=str(uuid4()),
         entry_id=str(uuid4()),
         expected_entry_revision=1,
@@ -350,6 +351,7 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         == catalog.model_dump(mode="json")["entries"]
     )
     entry = EntryTestRequest(
+        expected_generation=9223372036854775806,
         operation_id=identity,
         entry_id=identity,
         expected_entry_revision=maximum,
@@ -366,7 +368,52 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         .encode()
         + b"\n"
     )
-    assert len(entry_frame) <= 4096 and decode_control_frame(entry_frame).command == entry_control
+    from starlette.responses import JSONResponse
+
+    sizes = {
+        "http": len(JSONResponse(entry.model_dump(mode="json")).body),
+        "command": len(entry_control.model_dump_json().encode()),
+        "frame": len(entry_frame),
+    }
+    assert sizes == {"http": 319, "command": 465, "frame": 570}
+    print(f"ENTRY_START_MAXIMUM_BYTES={sizes}")
+    assert decode_control_frame(entry_frame).command == entry_control
+    assert (
+        decode_control_frame(entry_frame[:-1] + b" " * (4096 - len(entry_frame)) + b"\n").command
+        == entry_control
+    )
+    with pytest.raises(ValueError):
+        decode_control_frame(entry_frame[:-1] + b" " * (4097 - len(entry_frame)) + b"\n")
+    for command, expected_size in (
+        (
+            ModelTestControl(
+                op="entry_model_test",
+                action="cancel",
+                operation_id=identity,
+                command_id=identity,
+                expected_state_revision=maximum,
+            ),
+            507,
+        ),
+        (
+            ModelTestControl(
+                op="model_test",
+                action="start",
+                operation_id=identity,
+                expected_selection_revision=maximum,
+                consent=True,
+            ),
+            466,
+        ),
+    ):
+        encoded = (
+            ControlRequest(version=1, capability="a" * 64, command=command)
+            .model_dump_json()
+            .encode()
+            + b"\n"
+        )
+        assert len(encoded) == expected_size and decode_control_frame(encoded).command == command
+        print(f"ENTRY_OTHER_FRAME_BYTES={command.op}/{command.action}:{len(encoded)}")
     latest_control = ModelTestControl(op="entry_model_test", action="read", entry_id=identity)
     latest_frame = (
         ControlRequest(version=1, capability="a" * 64, command=latest_control)
@@ -374,7 +421,7 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         .encode()
         + b"\n"
     )
-    assert len(latest_control.model_dump_json().encode()) == 324 and len(latest_frame) == 429
+    assert len(latest_control.model_dump_json().encode()) == 351 and len(latest_frame) == 456
     assert decode_control_frame(latest_frame).command == latest_control
     for field, value in (
         ("operation_id", identity),
@@ -423,7 +470,6 @@ def test_final_dto_full_writer_budgets_and_legacy_limits() -> None:
         and json.loads(reply)["entry_model_test"]["response_text"] == "\0" * 8192
     )
     assert len(catalog_reply) <= 65536
-    from starlette.responses import JSONResponse
 
     http_view = EntryTestView.model_validate(
         {**tested.model_dump(), "observed_model": "\0" * 256, "cost_observed": "\0" * 128}

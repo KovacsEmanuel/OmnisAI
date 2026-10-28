@@ -64,6 +64,13 @@ async def control_exchange(command: ModelTestControl | CatalogControl) -> dict[s
                 raise ValueError("Control unavailable")
             if response.get("ok") is not True:
                 code = response.get("error")
+                if (
+                    code == "GENERATION_CONFLICT"
+                    and isinstance(command, ModelTestControl)
+                    and command.op == "entry_model_test"
+                    and command.action == "start"
+                ):
+                    raise ModelConflict("REVISION_CONFLICT")
                 allowed = {
                     "COMMAND_CONFLICT",
                     "REVISION_CONFLICT",

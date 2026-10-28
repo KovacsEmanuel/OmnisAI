@@ -11,7 +11,7 @@ import { SettingsAssignments } from './SettingsAssignments';
 import { SettingsModelWizard } from './SettingsModelWizard';
 import { ModelTest } from './ModelTest';
 import { catalogEvidence, catalogStorage, currentConnection, exactCheck, message, pendingStorage, providerName, readCatalogOperation, readLibrary, readPending, remember, remembered, testStorage, usable } from './SettingsModels';
-import type { CatalogOperation, Connection, EntryCheck, Evidence, Library, ModelEntry, Pending } from './SettingsModels';
+import type { CatalogOperation, Connection, EntryCheck, Evidence, ModelEntry, Pending } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 const definitive = (error: unknown) => error instanceof ApiError && ['REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
@@ -28,6 +28,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [wizard, setWizard] = useState<{ id: number; provider: Connection['provider']; replace?: boolean } | null>(null);
   const [testChoice, setTestChoice] = useState<ModelEntry | null>(null);
   const [consent, setConsent] = useState(false);
+  const [testGeneration, setTestGeneration] = useState<number | null>(null);
   const [testUnknown, setTestUnknown] = useState(false);
   const [catalogNotice, setCatalogNotice] = useState('');
   const [refusedTest, setRefusedTest] = useState<string | null>(() => { const value = remembered(testStorage + '-refused', scope); return isUuid(value) ? value : null; });
@@ -43,6 +44,9 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const queryKey = ['private', 'settings-model-library', scope];
   const authReady = !!session.data;
   async function load(signal: AbortSignal) {
+    let instance: Awaited<ReturnType<typeof api.instance>> | null = null;
+    try { instance = await api.instance(signal); }
+    catch (error) { if (signal.aborted || !(error instanceof ApiError) || error.code === 'UNAUTHENTICATED') throw error; }
     const settings = await api.providerKeys(null, signal);
     const library = await readLibrary(signal);
     const evidence: Record<string, Evidence> = {};
@@ -62,11 +66,13 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         } catch (error) { if (error instanceof ApiError && error.code === 'UNAUTHENTICATED') throw error; missingDetails = true; }
       }));
     }
-    return { settings, library, evidence, checks, missingDetails };
+    const generation = instance?.admission_open && instance.supervisor_ready && !instance.shutdown_finalized && instance.shutdown_command_id === null ? instance.generation : null;
+    return { generation, settings, library, evidence, checks, missingDetails };
   }
   const current = useQuery({ queryKey, queryFn: ({ signal }) => readPrivate(() => load(signal), signal), retry: false, gcTime: 0,
     enabled: authReady, refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: 'always' });
   const data = current.data;
+  const generation = data?.generation ?? null;
   const testConnection = data?.settings.connections.find(item => item.connection_id === testChoice?.connection_id);
   const test = useQuery({ queryKey: ['private', 'settings-entry-test', scope, operation],
     queryFn: ({ signal }) => readPrivate(() => api.entryModelTest(operation!, signal), signal), enabled: authReady && !!operation && !sending && !connecting,
@@ -166,7 +172,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       await client.invalidateQueries({ queryKey: ['private', 'settings-catalog'] });
     } catch (error) { if (!signal.aborted) setCatalogNotice(`Catalog status unconfirmed. Keep operation ${snapshot.id}. ${message(error)}`); }
   }
-  async function startTest(entry: ModelEntry, catalog: string, sequence?: AbortSignal) {
+  async function startTest(entry: ModelEntry, catalog: string, expectedGeneration: number, sequence?: AbortSignal) {
     if (!session.data || (!sequence && activeTest) || mutationBusy.current || lifetime.current.signal.aborted || sequence?.aborted) return;
     mutationBusy.current = true; setSending(true); setConsent(false); setNotice('');
     const id = crypto.randomUUID(); let submitted = false;
@@ -177,12 +183,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       remember(testStorage, scope, id); remember(testStorage + '-refused', scope, null); setRefusedTest(null); setOperation(id); setTestUnknown(false);
       updateCheck(entry.entry_id, 'UNKNOWN');
       submitted = true;
-      const value = await readPrivate(() => api.startEntryModelTest({ operation_id: id, entry_id: entry.entry_id, expected_entry_revision: entry.revision, expected_connection_revision: entry.connection_revision, catalog_command_id: catalog, consent: true }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
+      const value = await readPrivate(() => api.startEntryModelTest({ operation_id: id, expected_generation: expectedGeneration, entry_id: entry.entry_id, expected_entry_revision: entry.revision, expected_connection_revision: entry.connection_revision, catalog_command_id: catalog, consent: true }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
       if (lifetime.current.signal.aborted) return;
       client.setQueryData(['private', 'settings-entry-test', scope, id], value); updateCheck(entry.entry_id, value);
       setTestChoice(null);
       return value;
-    } catch (error) { if (!lifetime.current.signal.aborted) { setTestUnknown(submitted); if (definitive(error)) { remember(testStorage + '-refused', scope, id); setRefusedTest(id); } setNotice(submitted ? `Test outcome unconfirmed. Read the same operation. ${message(error)}` : 'Test identity could not be retained. No test submitted.'); } }
+    } catch (error) { if (!lifetime.current.signal.aborted) { setTestUnknown(submitted); if (definitive(error)) { remember(testStorage + '-refused', scope, id); setRefusedTest(id); setStale(true); setTestChoice(null); } setNotice(submitted ? `Test outcome unconfirmed. Read the same operation. ${message(error)}` : 'Test identity could not be retained. No test submitted.'); } }
     finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
   }
   async function readTest(cancel = false) {
@@ -211,7 +217,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     if (mutationBusy.current || continuation.current || checkSelectionBlocked(check)) return;
     if (check && check !== 'UNKNOWN') { setOperation(check.operation_id ?? null); setTestUnknown(false); } else void readCurrent();
   }
-  async function connectEntries(entries: ModelEntry[], catalog: string, provider: Connection['provider']) {
+  async function connectEntries(entries: ModelEntry[], catalog: string, provider: Connection['provider'], expectedGeneration: number) {
     const controller = new AbortController(); continuation.current = controller; setConnecting(true);
     const signal = AbortSignal.any([controller.signal, lifetime.current.signal]);
     let checking: ModelEntry | undefined;
@@ -219,7 +225,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       for (const entry of entries) {
         if (signal.aborted) return;
         checking = entry;
-        const started = await startTest(entry, catalog, signal);
+        const started = await startTest(entry, catalog, expectedGeneration, signal);
         if (!started || signal.aborted) return;
         const deadline = performance.now() + started.wall_seconds * 1000;
         let checked: EntryTestView;
@@ -250,15 +256,16 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       if (!lifetime.current.signal.aborted) setConnecting(false);
     }
   }
-  async function saveModels(payload: SaveModels, testIntent: { catalog: string } | null, generation: number) {
+  async function saveModels(payload: SaveModels, testIntent: { catalog: string; generation: number } | null, generation: number) {
     const receipt = await mutate('models', payload.command_id, () => api.saveProviderModels(payload, session.data!.csrf_token, lifetime.current.signal));
     if (!receipt) return;
-    const latest = client.getQueryData<{ library: Library }>(queryKey);
+    const latest = client.getQueryData<Awaited<ReturnType<typeof load>>>(queryKey);
     const entries = latest?.library.entries.filter(item => payload.models.some(request => request.entry_id === item.entry_id && request.model === item.model && item.revision === request.expected_revision + 1 && item.output_tokens === request.output_tokens) && item.connection_id === payload.connection_id && item.connection_revision === payload.connection_revision) ?? [];
     if (latest?.library.revision !== receipt.registry_revision || receipt.registry_revision !== payload.expected_registry_revision + 1 || entries.length !== payload.models.length) { setStale(true); setNotice('Saved entries do not match the requested revisions. Read current settings; no test was sent.'); return; }
+    if (testIntent && latest?.generation == null) { setNotice('Models saved. Instance admission is unavailable; no test was sent. Reload settings and give new consent.'); return entries; }
     setNotice('Models saved. Assignments stay unchanged.');
     const connection = data?.settings.connections.find(item => item.connection_id === payload.connection_id);
-    if (testIntent && connection && generation === wizardGeneration.current && !lifetime.current.signal.aborted) void connectEntries(payload.models.map(request => entries.find(item => item.entry_id === request.entry_id)!), testIntent.catalog, connection.provider);
+    if (testIntent && connection && generation === wizardGeneration.current && !lifetime.current.signal.aborted) void connectEntries(payload.models.map(request => entries.find(item => item.entry_id === request.entry_id)!), testIntent.catalog, connection.provider, testIntent.generation);
     return entries;
   }
   return <>
@@ -279,7 +286,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       <details><summary>Operation details</summary><p className={styles.mono}>Operation {operation}</p><p>Requested output cap: {observed?.requested_output_tokens ?? 'UNKNOWN'}. Observed model: {observed?.observed_model ?? 'UNKNOWN'}.</p><p aria-label="Model response" className={styles.mono}>{observed?.response_text ?? 'No output confirmed.'}</p><p>Usage {observed?.usage_state ?? 'UNKNOWN'} · input/output/reasoning {observed?.input_tokens ?? 'UNKNOWN'} / {observed?.output_tokens ?? 'UNKNOWN'} / {observed?.reasoning_tokens ?? 'UNKNOWN'} · Cost {observed?.cost_observed ?? 'UNKNOWN'}</p></details>
     </div></section>}
     {data && <>
-      {wizard && <SettingsModelWizard key={wizard.id} settings={data.settings} library={data.library} provider={wizard.provider} replace={wizard.replace} blocked={blocked} working={sending} canTest={!activeTest} close={() => closeWizard()} refresh={refresh} saveKey={async (provider, connection, secret) => {
+      {generation === null && <p className={styles.hint}>Instance admission is unavailable. Reload current settings before opening new test consent.</p>}
+      {wizard && <SettingsModelWizard key={wizard.id} settings={data.settings} library={data.library} provider={wizard.provider} replace={wizard.replace} blocked={blocked} working={sending} canTest={!activeTest} generation={generation} close={() => closeWizard()} refresh={refresh} saveKey={async (provider, connection, secret) => {
         const result = await saveKeys({ action: 'save_connection', command_id: crypto.randomUUID(), connection_id: connection?.connection_id ?? crypto.randomUUID(), expected_revision: connection?.revision ?? 0, provider, secret });
         const saved = result?.connections.find(item => item.provider === provider);
         const latest = client.getQueryData<{ settings: KeySettings }>(queryKey)?.settings.connections.find(item => item.provider === provider);
@@ -292,7 +300,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       {data.settings.connections.map(connection => <section className={styles.connection} key={connection.connection_id} aria-label={providerName(connection.provider)}>
         <div className={styles.connectionHeading}><h3>{providerName(connection.provider)}</h3><small>{!connection.enabled ? 'Connection disabled' : connection.credential_present ? 'Key saved' : 'Key unavailable — vault locked'}</small>
         </div>
-        <ul className={styles.list}>{data.library.entries.filter(entry => entry.connection_id === connection.connection_id).map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id])}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} disabled={checkSelectionBlocked(data.checks[entry.entry_id])} onClick={() => readCheck(data.checks[entry.entry_id])}>Read check</button>}</li>)}</ul>
+        <ul className={styles.list}>{data.library.entries.filter(entry => entry.connection_id === connection.connection_id).map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id])}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} disabled={checkSelectionBlocked(data.checks[entry.entry_id])} onClick={() => readCheck(data.checks[entry.entry_id])}>Read check</button>}</li>)}</ul>
           <details><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} onClick={() => { if (window.confirm(`${connection.enabled ? 'Replace the key for' : 'Reconnect'} ${providerName(connection.provider)}? Saved checks and assignments keep their original revision.`)) open(connection.provider, true); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={sending} onClick={() => {
             if (sending || !window.confirm(`Disable ${providerName(connection.provider)}? Saved models and history remain. This does not revoke the upstream key.`)) return;
             if (wizard?.provider === connection.provider) closeWizard(false);
@@ -303,7 +311,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       {data.missingDetails && <p className={styles.hint}>Some cached details could not be read. Those models are unavailable for assignments or testing; no fallback was selected.</p>}
 
     </div></section>
-      {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test model</h2><p>{testConnection ? providerName(testConnection.provider) : 'Unavailable connection'} · <span className={styles.mono}>{testChoice.model}</span></p><p>One fixed synthetic call / 300 seconds. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest} onChange={event => setConsent(event.target.checked)} />I approve one synthetic acknowledgement call for {testChoice.model}. No tools or target data.</label><details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof) void startTest(testChoice, proof.catalog); }}>Send model test</button></div></div></section>}
+      {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test model</h2><p>{testConnection ? providerName(testConnection.provider) : 'Unavailable connection'} · <span className={styles.mono}>{testChoice.model}</span></p><p>One fixed synthetic call / 300 seconds. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest || generation === null || testGeneration === null} onChange={event => setConsent(event.target.checked)} />I approve one synthetic acknowledgement call for {testChoice.model}. No tools or target data.</label><details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || generation === null || testGeneration === null || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof && testGeneration !== null) void startTest(testChoice, proof.catalog, testGeneration); }}>Send model test</button></div></div></section>}
       <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} blocked={blocked} working={busy} save={async command => !!await saveKeys(command)} />
     </>}
     {legacy && <ModelTest receiveOnly />}

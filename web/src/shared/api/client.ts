@@ -72,7 +72,7 @@ export const api = {
     return decodeProviderCatalog(value, payload);
   },
   async startEntryModelTest(payload: EntryTestRequest, csrf: string, signal?: AbortSignal) {
-    if (!isUuid(payload.operation_id) || !isUuid(payload.entry_id) || !isUuid(payload.catalog_command_id) || payload.consent !== true) throw new ApiError('INVALID_INPUT');
+    if (!isUuid(payload.operation_id) || !isUuid(payload.entry_id) || !isUuid(payload.catalog_command_id) || !Number.isSafeInteger(payload.expected_generation) || payload.expected_generation < 0 || payload.consent !== true) throw new ApiError('INVALID_INPUT');
     const response = await request('/api/v1/model-test/entries', { method: 'PUT', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
     const value = await body(response); if (!response.ok) throw decodeError(value);

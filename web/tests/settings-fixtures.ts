@@ -1,6 +1,6 @@
 // SOURCE UI fixture only: synthetic HTTP is not API/PostgreSQL/provider QA.
 import { vi } from 'vitest';
-import { health, session } from './fixtures';
+import { health, instance, session } from './fixtures';
 import type { KeySettings } from '../src/shared/api/providerKeys';
 import { decodeKeySettings } from '../src/shared/api/providerKeys';
 import { isRecord } from '../src/shared/api/errors';
@@ -16,7 +16,7 @@ export const configured: KeySettings = { ...empty, vault_status: 'UNLOCKED', con
 export const selected = { connection_id: connectionId, connection_revision: 1, model: entry.model, output_tokens: 512 };
 export function settingsBackend(initial: KeySettings = configured, entries: ModelEntry[] = [entry], models: CatalogModel[] = [{ model: entry.model, name: 'Exact model', max_output_tokens: 4096, supports_max_tokens: true, reason: null }]) {
   const writes: { path: string; body: Record<string, unknown> }[] = [], reads: string[] = [];
-  const state = { keys: initial, entries, revision: entries.length ? 1 : 0, catalog: models, catalogState: 'READY', writes, reads, receipts: new Map<string, object>() };
+  const state = { instance: { ...instance, generation: 1, admission_open: true }, keys: initial, entries, revision: entries.length ? 1 : 0, catalog: models, catalogState: 'READY', writes, reads, receipts: new Map<string, object>() };
   const hook: { intercept?: (path: string, body: Record<string, unknown>, method: string) => Response | undefined | Promise<Response | undefined> } = {};
   function registry(command_id: string | null = null, after: string | null = null) {
     const sorted = [...state.entries].sort((a, b) => a.entry_id.localeCompare(b.entry_id));
@@ -31,6 +31,9 @@ export function settingsBackend(initial: KeySettings = configured, entries: Mode
     if (path === '/health/ready') return Response.json(health);
     const write = method === 'PUT' || /\/(refresh|cancel)$/.test(path);
     if (write) state.writes.push({ path, body }); else state.reads.push(path);
+    if (path === '/api/instance') { const intercepted = await hook.intercept?.(path, body, method); return intercepted ?? Response.json(state.instance); }
+    // SOURCE admission double: a refused HTTP attempt never creates a fixture operation.
+    if (path === '/api/v1/model-test/entries' && method === 'PUT' && body.expected_generation !== state.instance.generation) return Response.json({ error: { code: 'REVISION_CONFLICT', correlation_id: entryId } }, { status: 409 });
     const intercepted = await hook.intercept?.(path, body, method); if (intercepted) return intercepted;
     if (method === 'GET' && state.entries.some(item => path === '/api/v1/model-test/entries/latest/' + item.entry_id)) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
     if (path.includes('/commands/')) return Response.json(state.receipts.get(path.split('/').at(-1)!) ?? { error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: state.receipts.has(path.split('/').at(-1)!) ? 200 : 404 });

@@ -336,8 +336,12 @@ class ApiKeyModelTest:
             if self.closing or self.settlement_failed:
                 raise store.ModelConflict("CONTROL_UNAVAILABLE")
             status = await self.service.owned_status(self.settings.owner, self.settings.epoch)
+            generation = status.generation
+            if command.op == "entry_model_test" and command.action == "start":
+                assert command.expected_generation is not None
+                generation = command.expected_generation
             async with self.service.admission(
-                status.generation, self.settings.owner, self.settings.epoch
+                generation, self.settings.owner, self.settings.epoch
             ) as db:
                 if command.action == "cancel":
                     op = await store.operation(db, self.instance, command.operation_id)
@@ -425,7 +429,7 @@ class ApiKeyModelTest:
                             config_snapshot_ref=config,
                             input_projection_ref=input_ref,
                             execution_owner_id=str(self.settings.owner),
-                            generation=status.generation,
+                            generation=generation,
                             owner_epoch=self.settings.epoch,
                             cancel_epoch=1,
                             deadline=datetime.now(UTC) + timedelta(seconds=300),

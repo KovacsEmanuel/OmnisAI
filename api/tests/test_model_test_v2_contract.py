@@ -115,6 +115,143 @@ async def test_latest_entry_uses_retained_snapshot_and_existing_projection(
         await runtime.handle(ModelTestControl(op="entry_model_test", action="read", entry_id=entry))
 
 
+@pytest.mark.asyncio
+async def test_entry_consent_generation_reaches_admission_not_fresh_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from uuid import UUID
+
+    from omnis.modules.runs import model_test_store as store
+    from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+
+    @asynccontextmanager
+    async def connect() -> AsyncIterator[None]:
+        yield None
+
+    @asynccontextmanager
+    async def admission(generation: int, owner: UUID, epoch: int) -> AsyncIterator[None]:
+        assert generation == 1, "Consent must not adopt fresh owner generation 3"
+        assert (owner, epoch) == (owner_id, 2)
+        if generation >= 0:
+            raise ValueError("admission-denied-before-writes")
+        yield None
+
+    owner_id = uuid4()
+    runtime = object.__new__(ApiKeyModelTest)
+    runtime.instance = str(uuid4())
+    runtime.closing = runtime.settlement_failed = False
+    monkeypatch.setattr(
+        runtime,
+        "settings",
+        SimpleNamespace(lock=asyncio.Lock(), owner=owner_id, epoch=2),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        runtime,
+        "service",
+        SimpleNamespace(
+            engine=SimpleNamespace(connect=connect),
+            owned_status=AsyncMock(return_value=SimpleNamespace(generation=3)),
+            admission=admission,
+        ),
+        raising=False,
+    )
+    monkeypatch.setattr(store, "replay", AsyncMock(return_value=(False, None)))
+    command = ModelTestControl.model_validate(
+        {
+            "op": "entry_model_test",
+            "action": "start",
+            "operation_id": str(uuid4()),
+            "entry_id": str(uuid4()),
+            "expected_entry_revision": 1,
+            "expected_connection_revision": 1,
+            "catalog_command_id": str(uuid4()),
+            "consent": True,
+            "expected_generation": 1,
+        }
+    )
+    with pytest.raises(ValueError, match="admission-denied-before-writes"):
+        await runtime.handle(command)
+
+
+def test_entry_generation_is_required_strict_and_start_only() -> None:
+    from omnis.modules.runs.model_test_models import EntryTestRequest
+    from omnis.transport.local_control import decode_control_frame
+
+    body = {
+        "operation_id": str(uuid4()),
+        "entry_id": str(uuid4()),
+        "expected_entry_revision": 1,
+        "expected_connection_revision": 1,
+        "catalog_command_id": str(uuid4()),
+        "consent": True,
+    }
+    for generation in (0, 9223372036854775806):
+        request = EntryTestRequest.model_validate({**body, "expected_generation": generation})
+        command = ModelTestControl.model_validate(
+            {"op": "entry_model_test", "action": "start", **request.model_dump()}
+        )
+        frame = (
+            ControlRequest(version=1, capability="a" * 64, command=command)
+            .model_dump_json()
+            .encode()
+            + b"\n"
+        )
+        assert decode_control_frame(frame).command == command
+    for invalid in (
+        {},
+        *(
+            {"expected_generation": value}
+            for value in (None, True, "1", -1, 1.5, 9223372036854775807)
+        ),
+    ):
+        with pytest.raises(ValueError):
+            EntryTestRequest.model_validate({**body, **invalid})
+        with pytest.raises(ValueError):
+            decode_control_frame(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "capability": "a" * 64,
+                        "command": {"op": "entry_model_test", "action": "start", **body, **invalid},
+                    }
+                ).encode()
+                + b"\n"
+            )
+    for payload in (
+        {"op": "entry_model_test", "action": "read", "entry_id": body["entry_id"]},
+        {
+            "op": "entry_model_test",
+            "action": "cancel",
+            "operation_id": body["operation_id"],
+            "command_id": str(uuid4()),
+            "expected_state_revision": 1,
+        },
+        {
+            "op": "model_test",
+            "action": "start",
+            "operation_id": body["operation_id"],
+            "expected_selection_revision": 1,
+            "consent": True,
+        },
+        {"op": "model_test", "action": "read"},
+        {
+            "op": "model_test",
+            "action": "refresh",
+            "command_id": str(uuid4()),
+            "expected_selection_revision": 1,
+        },
+    ):
+        assert ModelTestControl.model_validate({**payload, "expected_generation": None})
+        with pytest.raises(ValueError):
+            ModelTestControl.model_validate({**payload, "expected_generation": 0})
+
+
 def test_entry_read_has_exactly_one_target_and_keeps_wire_limits() -> None:
     identity = str(uuid4())
     for target in ("entry_id", "operation_id"):

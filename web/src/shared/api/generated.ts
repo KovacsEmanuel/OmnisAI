@@ -1032,6 +1032,8 @@ export interface components {
             entry_id: components["schemas"]["Identity"];
             expected_connection_revision: components["schemas"]["PositiveRevision"];
             expected_entry_revision: components["schemas"]["PositiveRevision"];
+            /** Expected Generation */
+            expected_generation: number;
             operation_id: components["schemas"]["Identity"];
         };
         /** EntryTestView */

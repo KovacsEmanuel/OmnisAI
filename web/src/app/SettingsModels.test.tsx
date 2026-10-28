@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { health, session } from '../../tests/fixtures';
+import { health, instance, session } from '../../tests/fixtures';
 import { configured, connection as savedConnection, settingsBackend } from '../../tests/settings-fixtures';
 
 const connectionId = '11111111-1111-4111-8111-111111111111';
@@ -22,6 +22,7 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
     const path = String(input);
     if (path === '/api/session') return Response.json(session);
     if (path === '/health/ready') return Response.json(health);
+    if (path === '/api/instance') return Response.json({ ...instance, generation: 1, admission_open: true });
     if (path.includes('/entries/latest/')) return Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
     const body: Record<string, unknown> = init?.body ? JSON.parse(String(init.body)) : {};
     if (init?.method === 'PUT' || path.endsWith('/refresh')) {

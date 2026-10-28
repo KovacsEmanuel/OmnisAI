@@ -34,6 +34,7 @@ class ModelTestControl(BaseModel):
     action: Literal["start", "read", "provision", "cancel", "refresh"]
     command_id: Identity | None = None
     expected_selection_revision: PositiveRevision | None = None
+    expected_generation: int | None = Field(default=None, ge=0, le=9223372036854775806, strict=True)
     entry_id: Identity | None = None
     expected_entry_revision: PositiveRevision | None = None
     expected_connection_revision: PositiveRevision | None = None
@@ -79,7 +80,9 @@ class ModelTestControl(BaseModel):
                 or self.expected_selection_revision is not None
             ):
                 raise ValueError("Exact operation only")
-            if self.action == "start" and any(x is None for x in entry_fields):
+            if self.action == "start" and (
+                self.expected_generation is None or any(x is None for x in entry_fields)
+            ):
                 raise ValueError("Exact entry and metadata context required")
             if self.action == "read" and (self.operation_id is None) == (self.entry_id is None):
                 raise ValueError("Read exactly one entry or operation")
@@ -116,6 +119,7 @@ class ModelTestControl(BaseModel):
             allowed["start"] = {
                 "operation_id",
                 "entry_id",
+                "expected_generation",
                 "expected_entry_revision",
                 "expected_connection_revision",
                 "catalog_command_id",
@@ -129,6 +133,7 @@ class ModelTestControl(BaseModel):
 
 
 class EntryTestRequest(KeyDTO):
+    expected_generation: int = Field(ge=0, le=9223372036854775806, strict=True)
     operation_id: Identity
     entry_id: Identity
     expected_entry_revision: PositiveRevision

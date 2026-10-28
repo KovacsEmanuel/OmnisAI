@@ -15,6 +15,95 @@ from omnis.security.sessions import SessionStore
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "case", ["entry-start", "entry-max", "entry-read", "entry-cancel", "legacy", "uncertain"]
+)
+async def test_generation_denial_is_definitive_only_for_entry_start(
+    monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    import asyncio
+    import os
+    import struct
+    from unittest.mock import Mock
+
+    from omnis.modules.runs import model_test_routes as routes
+    from omnis.security import host_origin
+    from omnis.transport.local_control import decode_control_frame
+
+    identity = str(uuid4())
+    body = {
+        "operation_id": identity,
+        "entry_id": identity,
+        "expected_entry_revision": 1,
+        "expected_connection_revision": 1,
+        "catalog_command_id": identity,
+        "expected_generation": 1,
+        "consent": True,
+    }
+    path, method = "/api/v1/model-test/entries", "PUT"
+    if case == "entry-max":
+        body.update(
+            expected_generation=9223372036854775806,
+            expected_entry_revision=9223372036854775807,
+            expected_connection_revision=9223372036854775807,
+        )
+    if case == "legacy":
+        path = "/api/v1/model-test"
+        body = {"operation_id": identity, "expected_selection_revision": 1, "consent": True}
+    elif case == "entry-read":
+        path, method = path + "/" + identity, "GET"
+    elif case == "entry-cancel":
+        path, method = path + "/" + identity + "/cancel", "POST"
+        body = {"command_id": identity, "expected_state_revision": 1}
+    reader, writer = Mock(), Mock()
+    reader.readuntil = AsyncMock(
+        return_value=json.dumps(
+            {
+                "ok": False,
+                "error": "CONTROL_UNAVAILABLE" if case == "uncertain" else "GENERATION_CONFLICT",
+            }
+        ).encode()
+        + b"\n"
+    )
+    writer.drain, writer.wait_closed = AsyncMock(), AsyncMock()
+    writer.get_extra_info.return_value.getsockopt.return_value = struct.pack(
+        "3i", 123, os.getuid(), os.getgid()
+    )
+    monkeypatch.setenv("OMNIS_CONTROL_DIR", "/unused-source-control")
+    monkeypatch.setattr(routes, "_read_capability", lambda directory: "a" * 64)
+    monkeypatch.setattr(asyncio, "open_unix_connection", AsyncMock(return_value=(reader, writer)))
+    monkeypatch.setattr(host_origin, "readiness_reason", AsyncMock(return_value=None))
+    monkeypatch.setattr(
+        SessionStore, "authenticate", AsyncMock(return_value=SimpleNamespace(csrf="a" * 64))
+    )
+    headers = {
+        "Origin": "http://127.0.0.1:8765",
+        "Cookie": "omnis_session=synthetic",
+        "X-CSRF-Token": "a" * 64,
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app()), base_url="http://127.0.0.1:8765"
+    ) as client:
+        response = await client.request(
+            method, path, headers=headers, json=None if method == "GET" else body
+        )
+    assert response.status_code == (409 if case in {"entry-start", "entry-max"} else 503)
+    assert response.json()["error"]["code"] == (
+        "REVISION_CONFLICT" if case in {"entry-start", "entry-max"} else "CONTROL_UNAVAILABLE"
+    )
+    frame = writer.write.call_args.args[0]
+    command = decode_control_frame(frame).command
+    if case in {"entry-start", "entry-max", "uncertain"}:
+        assert command.model_dump()["expected_generation"] == body["expected_generation"]
+    if case == "entry-max":
+        assert len(frame) == 570
+        print(f"ENTRY_ACTUAL_WRITER_MAX_BYTES={len(frame)}")
+    assert len(frame) <= 4096
+    writer.close.assert_called_once()
+    writer.wait_closed.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_latest_entry_read_security_context_and_absence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -223,6 +312,7 @@ async def test_new_catalog_entry_same_security_boundary_and_context(
         else {
             "operation_id": identity,
             "entry_id": identity,
+            "expected_generation": 1,
             "expected_entry_revision": 1,
             "expected_connection_revision": 1,
             "catalog_command_id": identity,
@@ -291,9 +381,35 @@ async def test_new_catalog_entry_same_security_boundary_and_context(
                 method, path, content=json.dumps(body) + " " * 4096, headers=headers
             )
         ).status_code == 413
+        if kind == "entry":
+            for invalid in (
+                {k: v for k, v in body.items() if k != "expected_generation"},
+                *(
+                    {**body, "expected_generation": value}
+                    for value in (None, True, "1", -1, 1.5, 9223372036854775807)
+                ),
+            ):
+                assert (
+                    await client.request(method, path, json=invalid, headers=headers)
+                ).status_code == 422
         exchange.assert_not_awaited()
         response = await client.request(method, path, json=body, headers=headers)
         assert response.status_code == (200 if kind == "catalog" else 202), response.text
         assert response.json() == view and response.headers["cache-control"] == "no-store"
+        if kind == "entry":
+            assert (
+                exchange.await_args is not None
+                and exchange.await_args.args[0].expected_generation == 1
+            )
+            for generation in (0, 9223372036854775806):
+                assert (
+                    await client.request(
+                        method,
+                        path,
+                        json={**body, "expected_generation": generation},
+                        headers=headers,
+                    )
+                ).status_code == 202
+                assert exchange.await_args.args[0].expected_generation == generation
         exchange.return_value = {**view, "connection_revision": 2}
         assert (await client.request(method, path, json=body, headers=headers)).status_code == 503

@@ -1316,11 +1316,18 @@
           "expected_entry_revision": {
             "$ref": "#/components/schemas/PositiveRevision"
           },
+          "expected_generation": {
+            "maximum": 9.223372036854776e+18,
+            "minimum": 0.0,
+            "title": "Expected Generation",
+            "type": "integer"
+          },
           "operation_id": {
             "$ref": "#/components/schemas/Identity"
           }
         },
         "required": [
+          "expected_generation",
           "operation_id",
           "entry_id",
           "expected_entry_revision",

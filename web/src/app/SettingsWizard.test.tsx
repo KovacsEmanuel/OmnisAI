@@ -168,6 +168,87 @@ it('Save & connect waits for exact terminal readback before each next model and 
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(2);
   expect(state.keys.selection).toBeNull();
 });
+it.each(['before-first', 'between-models', 'unchanged'] as const)('pins consent across the %s generation window (SOURCE admission double)', async window => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const views = new Map<string, EntryTestView>();
+  let held = false, release: () => void = () => {}; const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path.includes('/models/commands/') && window !== 'between-models') { held = true; await gate; }
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      const target = state.entries.find(item => item.entry_id === body.entry_id)!;
+      const view: EntryTestView = { ...operation(String(body.operation_id), target), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' };
+      views.set(view.operation_id!, view); return Response.json(view);
+    }
+    if (path.includes('/entries/latest/')) {
+      const view = [...views.values()].find(item => item.entry_id === path.split('/').at(-1));
+      if (view) return Response.json(view);
+    } else if (path.startsWith('/api/v1/model-test/entries/')) {
+      const view = views.get(path.split('/').at(-1)!);
+      if (view && window === 'between-models' && views.size === 1) { held = true; await gate; }
+      return view ? Response.json(view) : Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
+    }
+  };
+  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  await waitFor(() => expect(held).toBe(true));
+  // Synthetic generation change only; real Stop/open and ledger counts belong to the PG scenario.
+  if (window !== 'unchanged') state.instance = { ...state.instance, generation: 3 };
+  release();
+  if (window === 'unchanged') await screen.findByText('Models connected.');
+  else await screen.findByText(/Test outcome unconfirmed/);
+  const attempts = state.writes.filter(item => item.path === '/api/v1/model-test/entries');
+  expect(attempts.map(item => item.body.expected_generation)).toEqual(window === 'before-first' ? [1] : [1, 1]);
+  expect(views.size).toBe(window === 'before-first' ? 0 : window === 'between-models' ? 1 : 2);
+  if (window !== 'unchanged') {
+    fireEvent.click(screen.getByRole('button', { name: 'Read test status' }));
+    await screen.findByText('Test was not admitted. A new test requires new consent.');
+    fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await screen.findByText('Settings reloaded.');
+    const test = screen.getByRole('button', { name: 'Test Catalog/01 via OpenRouter' });
+    await waitFor(() => expect(test).toBeEnabled()); fireEvent.click(test);
+    expect(screen.getByRole('checkbox')).not.toBeChecked(); expect(screen.getByRole('button', { name: 'Send model test' })).toBeDisabled();
+    expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(attempts.length);
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
+    await waitFor(() => expect(views.size).toBe(window === 'before-first' ? 1 : 2));
+    expect(state.writes.at(-1)?.body.expected_generation).toBe(3);
+  }
+});
+it.each(['single', 'review'] as const)('a delayed settings read cannot rebase open %s consent', async mode => {
+  const { state, hook } = settingsBackend(configured, mode === 'single' ? [entry] : [], mode === 'single' ? undefined : models);
+  let held = false, release: () => void = () => {}; const gate = new Promise<void>(resolve => { release = resolve; });
+  mount();
+  if (mode === 'single') {
+    const test = await screen.findByRole('button', { name: `Test ${entry.model} via OpenRouter` }); await waitFor(() => expect(test).toBeEnabled()); fireEvent.click(test);
+  } else { await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review(); }
+  hook.intercept = async path => { if (path === '/api/instance') { held = true; await gate; } return undefined; };
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await waitFor(() => expect(held).toBe(true));
+  state.instance = { ...state.instance, generation: 3 }; release(); await screen.findByText('Settings reloaded.');
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: mode === 'single' ? 'Send model test' : 'Save & connect' }));
+  await screen.findByText(/Test outcome unconfirmed/);
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries').map(item => item.body.expected_generation)).toEqual([1]);
+  expect(state.reads.filter(path => path === '/api/instance').length).toBeGreaterThanOrEqual(2);
+});
+it.each(['unavailable', 'missing', 'closed', 'owner-unavailable'] as const)('cannot enable paid consent with %s instance status but allows local Save', async status => {
+  const { state, hook } = settingsBackend(configured, [entry], [...models, { model: entry.model, name: 'Exact model', max_output_tokens: 4096, supports_max_tokens: true, reason: null }]);
+  if (status === 'unavailable') hook.intercept = path => path === '/api/instance' ? Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 }) : undefined;
+  if (status === 'missing') hook.intercept = path => path === '/api/instance' ? Response.json({}) : undefined;
+  if (status === 'closed') state.instance.admission_open = false;
+  if (status === 'owner-unavailable') state.instance.supervisor_ready = false;
+  mount(); const panel = await wizard();
+  expect(screen.getByRole('button', { name: `Test ${entry.model} via OpenRouter` })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  expect(within(panel).getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
+});
+it('an unavailable instance read after Save cannot launch the first paid check', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  hook.intercept = path => path === '/api/instance' ? Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 }) : undefined;
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  await waitFor(() => expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument());
+  expect(state.entries).toHaveLength(1);
+  expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
+});
 it.each([false, true])('manual read uncertainty=%s stops only unsent checks until fresh consent', async uncertain => {
   const { state, hook } = settingsBackend(configured, [], models);
   const views = new Map<string, EntryTestView>(); let failNextRead = false, finish = false, reads = 0;

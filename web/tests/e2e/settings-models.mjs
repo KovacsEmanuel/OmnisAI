@@ -246,6 +246,8 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   for (const model of ['fixture/02', 'fixture/03']) await wizard.getByLabel(`${model} output tokens`, { exact: true }).fill('64');
   await wizard.getByText('Output controls', { exact: true }).click();
   await capture('review-two', wizard.getByRole('button', { name: 'Save & connect', exact: true }));
+  const consentGeneration = await page.evaluate(async () => { const response = await fetch('/api/instance'); if (!response.ok) throw new Error('Instance status unavailable'); const status = await response.json(); if (!status.admission_open || !status.supervisor_ready) throw new Error('Instance admission closed'); return status.generation; });
+  assert.ok(Number.isSafeInteger(consentGeneration));
   await wizard.getByRole('checkbox', { name: /up to 2 calls, one per listed model via OpenRouter/ }).check();
   const testIntents = [];
   const collectTest = request => { if (request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`) testIntents.push(request.postDataJSON()); };
@@ -254,6 +256,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
   page.off('request', collectTest);
   assert.equal(testIntents.length, 2);
+  assert.deepEqual(testIntents.map(intent => intent.expected_generation), [consentGeneration, consentGeneration]);
   assert.notEqual(testIntents[0].operation_id, testIntents[1].operation_id);
   assert.notEqual(testIntents[0].entry_id, testIntents[1].entry_id);
   const testIntent = testIntents[0];

@@ -133,6 +133,8 @@ class ConfigConsumersTest(unittest.TestCase):
             ):
                 for command in (
                     [],
+                    ["start"],
+                    ["start", "--json"],
                     ["start", "--no-open", "--json"],
                     ["status", "--json"],
                     ["pair"],

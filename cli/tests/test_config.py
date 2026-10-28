@@ -151,6 +151,8 @@ class ConfigTest(unittest.TestCase):
         self.write_config('token = "synthetic-private-marker"\n')
         for args in (
             [],
+            ["start"],
+            ["start", "--json"],
             ["start", "--no-open", "--json"],
             ["status", "--json"],
             ["pair"],
@@ -179,3 +181,7 @@ class ConfigTest(unittest.TestCase):
                 self.assertFalse((self.root / "state").exists())
                 if "--json" in args:
                     self.assertFalse(json.loads(out.getvalue())["dashboard_ready"])
+                if args == ["start", "--json"]:
+                    self.assertEqual(
+                        json.loads(out.getvalue()).get("browser_outcome"), "BROWSER_NOT_INVOKED"
+                    )

@@ -1,6 +1,6 @@
 # CLI Omnis — operare locală și lucru din surse
 
-`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis start --no-open [--json]` pornește și verifică P0-control din afara checkoutului.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) are adjudecarea `P0_LOCAL_USABLE=PASS_LOCAL_RECORDED` pentru un singur operator pe această VM, nu certificarea universală a crashurilor. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) păstrează probele la reviziile lor. CI remote și peerul extern rămân pentru distribuire/portare, nu condiții ale utilizării locale.
+`omnis-cli==0.1.0` este un wheel separat, fără dependențe API/Hermes. **`omnis` și `omnis start` pornesc/reutilizează instanța și încearcă deschiderea originului verificat. `omnis start --no-open [--json]` rămâne varianta explicită fără browser.** `omnis status [--json]` verifică read-only aceeași instanță și ruta HTTP/assets. `omnis pair` emite codul numai în TTY, `omnis open` deschide numai originul verificat, iar `omnis` implicit pornește/reutilizează și încearcă deschiderea; la prima pornire în TTY emite și codul inițial, fără a-l reemite la reuse. `omnis stop [--json]` există pe wheel: persistă bariera înainte de quiescență/finalizare și oprește numai resursele P0 atestate; la indisponibilitate păstrează un marker nereconciliat și exit 4. [SL04](../documents/verification/p04-stop-recovery.md) are adjudecarea `P0_LOCAL_USABLE=PASS_LOCAL_RECORDED` pentru un singur operator pe această VM, nu certificarea universală a crashurilor. [SL02](../documents/verification/p04-installed-start.md) și [SL03](../documents/verification/p04-pair-open.md) păstrează probele la reviziile lor. CI remote și peerul extern rămân pentru distribuire/portare, nu condiții ale utilizării locale.
 
 ## DEVELOPMENT opt-in în aceeași instalație — verificat local scoped
 
@@ -47,11 +47,13 @@ Nu rulați proba izolată următoare pe datele/configul operatorului.
 
 Un singur root activ: `/home/kali/.local/share/omnis-settings-c-9e51d10`, origin
 `http://127.0.0.1:8780`, UUID `d694129b-a3e5-446d-9e5b-fe9bc19abed8`.
-`omnis` global și `<root>/omnis` operează aceeași instalație. Ultimul readback
-înregistrat este READY/DEVELOPMENT8; verificați starea curentă, nu deduceți autostart:
+`omnis` global și `<root>/omnis` operează aceeași instalație. Starea operatorului
+este consemnată în [registru](../documents/verification/settings-c-evidence/ui-result.json);
+verificați starea curentă, nu deduceți autostart:
 
 ```sh
 omnis status --json
+omnis start                  # explicit, start/reuse și browser verificat
 omnis start --no-open --json   # explicit, sau reuse dacă este deja READY
 omnis stop --json
 # UI, din /home/kali/OmnisAI; nu install și nu build de imagine:
@@ -65,10 +67,25 @@ eliminați **numai această cheie**, apoi Start; CLI-ul capabil rămâne instala
 Releaseul/imaginea7673066, datele și cheile sunt păstrate. Nu restaurați backupul
 launcherului P1/r1. Nu modificați Python în timp ce rulează; schimbările de
 dependențe/schemă/protocol cer o tranziție explicită, nu un nou profil gol.
-Browserul existent nu este închis/navigat de comenzi. Un browser nou cere
-`omnis pair` în terminal local; codul se introduce direct în UI, niciodată în URL/chat.
+Start/Open cer deschiderea în profilul desktop curent. Cu sesiune validă, browserul
+ajunge în Dashboard; prima asociere sau sesiunea expirată cer pairing manual ales
+explicit. `omnis pair` se execută în terminal local; codul se introduce direct în
+UI, niciodată în URL/chat. Nu se automatizează autentificarea.
 Modul development nu este un release imuabil certificat; canonicalul integral
 TIMEOUT/BLOCKED_BUDGET și T2 NOT_RUN rămân separate.
+
+[`operator-launcher.sh`](operator-launcher.sh) este artefactul sursă pentru aceleași
+două fișiere `<root>/omnis` și `/home/kali/.local/bin/omnis`, numai pe această VM;
+nu este installer, generator sau al treilea launcher activ. Se aplică explicit
+după review și QA. Păstrează `env -i`, HOME/XDG private și PATH fix pentru aplicație.
+Capturează `HOME` și cele patru valori XDG din mediul invocării sub numele
+`OMNIS_DESKTOP_HOME` și `OMNIS_DESKTOP_XDG_{CONFIG_HOME,DATA_HOME,STATE_HOME,RUNTIME_DIR}`;
+păstrează numai allowlistul grafic
+`DISPLAY`, `WAYLAND_DISPLAY`, `XDG_CURRENT_DESKTOP`, `DBUS_SESSION_BUS_ADDRESS`,
+`XAUTHORITY`, `LANG`. Numai `browser.launch` restaurează HOME/XDG desktop pentru
+openerul fix `xdg-open`; XDG absent/gol înseamnă default desktop, nu root privat.
+CLI fără wrapper folosește contextul desktop obișnuit. Nu se propagă `BROWSER`,
+credentiale, SSH, `PYTHONPATH` sau variabile arbitrare; nu se montează home-ul.
 
 ### QA installed finită, numai după reviewurile complementare
 
@@ -202,6 +219,23 @@ instanța QA este oprită. Nu este rollout peste r1/P0, upgrade, OAuth, catalog 
 inferență sau trafic de țintă; canonicalul final și restul P4a/P2-live rămân separate.
 
 ## Contractul startului
+
+`--no-open` este opțional. `start --port`, `--startup-timeout` și
+`--cleanup-timeout` se aplică și traseului cu browser, cu aceleași limite.
+`start --json` produce un singur obiect JSON sanitizat, fără text uman sau cod de
+pairing, inclusiv în TTY: `reused=false/true` distinge pornirea nouă de reuse când
+startupul reușește, iar `browser_outcome` distinge `BROWSER_NOT_INVOKED`,
+`BROWSER_UNAVAILABLE`, `BROWSER_LAUNCH_FAILED`, `BROWSER_LAUNCH_UNCONFIRMED` și
+`BROWSER_LAUNCH_ACCEPTED`. `browser_opened=false` nu certifică absența ferestrei:
+openerul nu poate confirma fereastra/sesiunea. Deadline-ul openerului rămâne 8s;
+timeoutul este incert, nu eșec definitiv. Openerul absent/eșuat/expirat întoarce
+exit 2/3/3, fără să oprească serviciile READY. Refuzul verificării instanței
+împiedică openerul. `start --no-open --json` păstrează exact formatul/exitul anterior,
+fără noul câmp `browser_outcome`, fără browser sau issuer.
+
+`omnis` și `omnis start` fără JSON păstrează emiterea inițială numai la startup nou
+în TTY; reuse/non-TTY nu emit cod. Disclosure incertă împiedică openerul.
+Acest cod nu autentifică browserul: pairingul se completează manual în UI.
 
 ### Configurație non-secretă M22
 

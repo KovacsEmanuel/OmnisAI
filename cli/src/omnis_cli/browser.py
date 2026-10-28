@@ -1,5 +1,6 @@
 """Open only the exact origin of an attested, ready installed instance."""
 
+import json
 import os
 import re
 import shutil
@@ -19,18 +20,27 @@ def launch(origin: str) -> str:
     if opener is None:
         return "BROWSER_UNAVAILABLE"
     env = {"PATH": "/usr/bin:/bin"}
+    desktop = "OMNIS_DESKTOP_" if "OMNIS_DESKTOP_HOME" in os.environ else ""
     for key in (
         "HOME",
+        "XDG_CONFIG_HOME",
+        "XDG_DATA_HOME",
+        "XDG_STATE_HOME",
+        "XDG_RUNTIME_DIR",
+    ):
+        # An empty captured XDG value means desktop defaults, never the private app root.
+        if value := os.environ.get(desktop + key):
+            env[key] = value
+    for key in (
         "DISPLAY",
         "WAYLAND_DISPLAY",
-        "XDG_RUNTIME_DIR",
         "XDG_CURRENT_DESKTOP",
         "DBUS_SESSION_BUS_ADDRESS",
         "XAUTHORITY",
         "LANG",
     ):
-        if key in os.environ:
-            env[key] = os.environ[key]
+        if value := os.environ.get(key):
+            env[key] = value
     try:
         result = subprocess.run(
             [opener, origin + "/"],
@@ -51,7 +61,8 @@ def launch(origin: str) -> str:
     return "BROWSER_LAUNCH_ACCEPTED" if result.returncode == 0 else "BROWSER_LAUNCH_FAILED"
 
 
-def open_verified(*, expected: dict[str, object] | None = None) -> int:
+def open_verified(*, expected: dict[str, object] | None = None, as_json: bool = False) -> int:
+    outcome = "BROWSER_NOT_INVOKED"
     try:
         with verified_instance() as (ready, _):
             if expected is not None and any(
@@ -63,12 +74,35 @@ def open_verified(*, expected: dict[str, object] | None = None) -> int:
             if not isinstance(origin, str):
                 raise StartError("ORIGIN_INVALID")
             outcome = launch(origin)
-    except StartError as exc:
-        print(f"{exc.reason}: fără deschidere de browser.", file=sys.stderr)
-        return exc.code
-    except (OSError, ValueError):
-        print("READINESS_UNAVAILABLE: fără deschidere de browser.", file=sys.stderr)
-        return 3
+    except (StartError, OSError, ValueError) as exc:
+        code = exc.code if isinstance(exc, StartError) else 3
+        reason = exc.reason if isinstance(exc, StartError) else "READINESS_UNAVAILABLE"
+        if as_json:
+            result = dict(expected or {})
+            for key in ("generation", "supervisor_epoch", "admission_open", "shutdown_finalized"):
+                result.pop(key, None)
+            print(
+                json.dumps(
+                    {
+                        **result,
+                        "state": "REFUSED" if code == 2 else "UNCERTAIN" if code == 4 else "FAILED",
+                        "reason": reason,
+                        "api_ready": False,
+                        "control_ready": False,
+                        "dashboard_ready": False,
+                        "assessment_ready": False,
+                        "browser_opened": False,
+                        "browser_outcome": outcome,
+                    },
+                    sort_keys=True,
+                )
+            )
+        else:
+            print(f"{reason}: fără deschidere de browser.", file=sys.stderr)
+        return code
+    if as_json:
+        print(json.dumps({**(expected or ready), "browser_outcome": outcome}, sort_keys=True))
+        return {"BROWSER_LAUNCH_ACCEPTED": 0, "BROWSER_UNAVAILABLE": 2}.get(outcome, 3)
     print(f"Omnis READY: {origin}/ — {outcome}; fereastra/sesiunea nu sunt verificate.")
     if outcome == "BROWSER_UNAVAILABLE":
         print("Deschideți manual originul afișat; serviciile rămân pornite.", file=sys.stderr)

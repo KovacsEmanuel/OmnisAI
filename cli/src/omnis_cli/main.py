@@ -35,7 +35,6 @@ def main(argv: list[str] | None = None) -> int:
     start_parser.add_argument(
         "--no-open",
         action="store_true",
-        required=True,
         help="Headless startup; use omnis pair/open separately",
     )
     start_parser.add_argument(
@@ -84,30 +83,44 @@ def main(argv: list[str] | None = None) -> int:
             config.check_instance(state_dir(), getattr(args, "port", None))
     except StartError as exc:
         if getattr(args, "json", False):
-            print(
-                json.dumps(
-                    {
-                        "state": "REFUSED",
-                        "reason": exc.reason,
-                        "dashboard_ready": False,
-                        "assessment_ready": False,
-                        "browser_opened": False,
-                    },
-                    sort_keys=True,
-                )
-            )
+            result: dict[str, object] = {
+                "state": "REFUSED",
+                "reason": exc.reason,
+                "dashboard_ready": False,
+                "assessment_ready": False,
+                "browser_opened": False,
+            }
+            if args.command == "start" and not args.no_open:
+                result["browser_outcome"] = "BROWSER_NOT_INVOKED"
+            print(json.dumps(result, sort_keys=True))
         else:
             print(f"{exc.reason}: verificați configurația non-secretă privată.", file=sys.stderr)
         return exc.code
-    if args.command is None:
-        code, result = start_result(None)
+    if args.command is None or (args.command == "start" and not args.no_open):
+        as_json = getattr(args, "json", False)
+        code, result = (
+            start_result(None)
+            if args.command is None
+            else start_result(
+                args.port,
+                startup_timeout=args.startup_timeout,
+                cleanup_timeout=args.cleanup_timeout,
+            )
+        )
         if code:
-            print(f"{result['reason']}: browserul nu a fost invocat.", file=sys.stderr)
+            if as_json:
+                print(
+                    json.dumps({**result, "browser_outcome": "BROWSER_NOT_INVOKED"}, sort_keys=True)
+                )
+            else:
+                print(f"{result['reason']}: browserul nu a fost invocat.", file=sys.stderr)
             return code
-        if result.get("reused") is False and interactive_tty():
+        if not as_json and result.get("reused") is False and interactive_tty():
             issuance = pair()
             if issuance:
                 return issuance  # Services remain READY; never open after uncertain disclosure.
+        if as_json:
+            return open_verified(expected=result, as_json=True)
         return open_verified(expected=result)
     if args.command == "start":
         return start(

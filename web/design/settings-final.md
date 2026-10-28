@@ -46,6 +46,28 @@ critical/uncertain errors do not auto-dismiss or vanish from the model state. No
 on Continue or query refresh. Active Cancel and same-operation readback remain reachable.
 Global Stop/run identity and Default/override/output controls remain; no new visual direction.
 
+### Lifecycle-bound consent — minimal safety correction
+
+Before enabling consent for an exact-entry test or Save & connect, capture the generation
+from the existing local `GET /api/instance` status. Keep that pin through Save/readback and
+every call, including the first; never refresh it automatically after Stop → Start. Require
+strict `expected_generation` (0..9223372036854775806) on EntryTestRequest and entry Start,
+and pass it into existing InstanceService admission under its lock. Retained sessions/catalogs
+do not authorize an old continuation in a new generation. Refusal halts the series and requires
+fresh readback/consent; no new owner, migration, queue or session-reset mechanism.
+
+Manual UNKNOWN aborts the existing continuation, not the already-admitted call. Keep active
+Cancel/readback bound to that operation rather than a selected historical check; fresh-page
+hydration must still let the operator select the active operation. Prove both generation
+windows (after Save/before first call, and between A/B), unchanged-generation success and no
+new operation/SENT/provider effect after refusal. A denied HTTP attempt is not a paid call.
+
+Prospective size preflight used the existing Pydantic envelope with a declared analysis-only
+generation field: HTTP319, command465, full Start frame570 bytes; read456/cancel507/legacy466
+when the new nullable field is serialized. Old decoder refuses the proposed field as expected;
+this is not runtime implementation proof. Re-run actual final DTO/writer/max-plus-one tests.
+Existing4096 request and65536 reply limits remain; EntryTestView/reply and registry unchanged.
+
 ## Model assignments — separate from registration
 
 - Zero configured models: `Add a model first.`
